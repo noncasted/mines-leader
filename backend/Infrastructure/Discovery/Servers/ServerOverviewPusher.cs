@@ -39,7 +39,6 @@ public class ServerOverviewPusher : BackgroundService
             {
                 Name = _environment.ServiceName,
                 Url = _environment.ServiceUrl,
-                Load = 0,
                 UpdateTime = DateTime.UtcNow,
                 ClientId = _environment.ServiceId
             };

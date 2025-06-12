@@ -4,12 +4,8 @@
     {
         public LifetimedValue(T value)
         {
-            Set(value);
-        }
-
-        public LifetimedValue()
-        {
-            Set(default);
+            _lifetime = new Lifetime();
+            _value = value;
         }
 
         private readonly EventSource<IReadOnlyLifetime, T> _eventSource = new();
@@ -27,7 +23,7 @@
 
         public void Set(T value)
         {
-            _lifetime?.Terminate();
+            _lifetime.Terminate();
 
             _lifetime = new Lifetime();
             _value = value;
@@ -42,7 +38,7 @@
 
         public void Dispose()
         {
-            _lifetime?.Terminate();
+            _lifetime.Terminate();
             _eventSource.Dispose();
         }
     }

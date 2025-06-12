@@ -24,8 +24,11 @@ public class MessagingClient : BackgroundService, IMessagingClient
     private readonly IClusterClient _orleans;
     private readonly ILogger<MessagingClient> _logger;
     private readonly IServiceEnvironment _environment;
-    private MessagingObserver _observer;
-    private IMessagingObserver _observerReference;
+    
+    private MessagingObserver? _observer;
+    private IMessagingObserver? _observerReference;
+    private IReadOnlyLifetime? _lifetime;
+    private IMessagingHub? _hub;
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -92,23 +95,30 @@ public class MessagingClient : BackgroundService, IMessagingClient
 
         async Task<IClusterMessage> Listener(IClusterMessage payload)
         {
-            var result = await listener.Invoke((TRequest)payload);
-            return result;
+            try
+            {
+                var result = await listener.Invoke((TRequest)payload);
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 
     private async Task Loop(CancellationToken cancellation)
     {
-        var lifetime = cancellation.ToLifetime();
-        var hub = _orleans.GetMessagingHub();
+        _lifetime = cancellation.ToLifetime();
+        _hub = _orleans.GetMessagingHub();
         _observer = new MessagingObserver();
         _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer)!;
 
         GC.KeepAlive(_observer);
         GC.KeepAlive(_observerReference);
 
-        _observer.MessageReceived.Advise(lifetime, OnReceived);
-        _observer.ResponseMessageReceived.Advise(lifetime, OnReceivedWithResponse);
+        _observer.MessageReceived.Advise(_lifetime, OnReceived);
+        _observer.ResponseMessageReceived.Advise(_lifetime, OnReceivedWithResponse);
 
         while (cancellation.IsCancellationRequested == false)
         {
@@ -121,7 +131,7 @@ public class MessagingClient : BackgroundService, IMessagingClient
                     Tag = _environment.Tag
                 };
 
-                await hub.BindClient(overview, _observerReference);
+                await _hub.BindClient(overview, _observerReference);
             }
             catch (Exception e)
             {

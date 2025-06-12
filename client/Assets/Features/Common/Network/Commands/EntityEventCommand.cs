@@ -1,22 +1,23 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network.Common;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityEventCommand : NetworkCommand<EntityContexts.Event>
+    public class EntityEventCommand : NetworkCommand<ObjectContexts.Event>
     {
-        private readonly INetworkEntitiesCollection _networkEntities;
-
-        public EntityEventCommand(INetworkEntitiesCollection networkEntities)
+        public EntityEventCommand(INetworkObjectsCollection objects)
         {
-            _networkEntities = networkEntities;
+            _objects = objects;
         }
 
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.Event context)
+        private readonly INetworkObjectsCollection _objects;
+
+        protected override UniTask Execute(IReadOnlyLifetime lifetime, ObjectContexts.Event context)
         {
-            var entity = _networkEntities.Entries[context.EntityId];
-            entity.Events.Invoke(context.Value);
+            var networkObject = _objects.Entries[context.ObjectId];
+            networkObject.Events.Invoke(context.Value);
             return UniTask.CompletedTask;
         }
     }

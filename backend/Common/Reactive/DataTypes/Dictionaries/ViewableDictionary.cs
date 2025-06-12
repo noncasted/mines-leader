@@ -1,11 +1,13 @@
 ﻿namespace Common
 {
     public class ViewableDictionary<TKey, TSource> : ViewableDictionary<TKey, TSource, TSource>
+        where TKey : notnull
     {
     }
 
     public class ViewableDictionary<TKey, TSource, TView> :
         Dictionary<TKey, TSource>, IViewableDictionary<TKey, TView>
+        where TKey : notnull
         where TSource : TView
     {
         private readonly EventSource<IReadOnlyLifetime, TKey, TView> _eventSource = new();
@@ -70,7 +72,7 @@
         }
 
 
-        public new IEnumerable<KeyValuePair<TKey, TSource>> GetEnumerable()
+        public IEnumerable<KeyValuePair<TKey, TSource>> GetEnumerable()
         {
             IEnumerable<KeyValuePair<TKey, TSource>> enumerable = this;
 
@@ -81,11 +83,18 @@
         public bool TryGetValue(TKey key, out TView value)
         {
             var result = base.TryGetValue(key, out var source);
-            value = source;
+            
+            if (result == false)
+            {
+                value = default!;
+                return false;
+            }
+            
+            value = source!;
             return result;
         }
 
-        public bool TryGetSourceValue(TKey key, out TSource value)
+        public bool TryGetSourceValue(TKey key, out TSource? value)
         {
             return base.TryGetValue(key, out value);
         }

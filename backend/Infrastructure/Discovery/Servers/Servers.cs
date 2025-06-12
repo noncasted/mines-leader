@@ -1,7 +1,6 @@
 ﻿using Common;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Discovery;
@@ -13,18 +12,13 @@ public interface IServers
 
 public class Servers : BackgroundService, IServers
 {
-    public Servers(
-        IMessagingClient messaging,
-        ILogger<Servers> logger,
-        IOptions<ServersOptions> options)
+    public Servers(IMessagingClient messaging, IOptions<ServersOptions> options)
     {
         _messaging = messaging;
-        _logger = logger;
         _options = options;
     }
 
     private readonly IMessagingClient _messaging;
-    private readonly ILogger<Servers> _logger;
     private readonly IOptions<ServersOptions> _options;
 
     private readonly Dictionary<string, ServerOverview> _entries = new();

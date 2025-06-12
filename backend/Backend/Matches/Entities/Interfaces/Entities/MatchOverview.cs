@@ -1,5 +1,7 @@
 ﻿using Shared;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Backend.Matches;
 
 [GenerateSerializer]

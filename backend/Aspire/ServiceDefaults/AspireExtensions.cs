@@ -72,7 +72,7 @@ public static class AspireExtensions
                     )
                     .AddHttpClientInstrumentation();
             })
-            .WithLogging(logs => { });
+            .WithLogging();
 
         builder.AddOpenTelemetryExporters();
     }

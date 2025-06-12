@@ -17,14 +17,14 @@ namespace GamePlay.Loop
                 .AddBoardServices()
                 .AddCardServices()
                 .AddSessionServices();
-            
+
             builder.Register<GameContext>()
                 .As<IGameContext>();
 
-            builder.Register<GameRound>()
-                .As<IGameRound>()
-                .AsSessionCallback<GameRound, INetworkSessionSetupCompleted>();
-            
+            builder.AddNetworkService<GameRound>("game-round")
+                .WithProperty<GameTurnsState>()
+                .Registration.As<IGameRound>();
+
             return builder;
         }
     }

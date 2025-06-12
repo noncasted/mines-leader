@@ -6,19 +6,18 @@
         <Nullable>enable</Nullable>
         <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
 
-        <AssemblyName>Backend.Matches.Grains</AssemblyName>
+        <AssemblyName>Backend.Matches.Entities.Grains</AssemblyName>
         <RootNamespace>Backend.Matches</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
       <ProjectReference Include="..\..\..\..\Common\Extensions\Extensions.csproj" />
-      <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\..\Users\Matches\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
     </ItemGroup>

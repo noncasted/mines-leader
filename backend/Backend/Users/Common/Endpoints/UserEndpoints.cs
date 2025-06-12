@@ -1,5 +1,4 @@
 ﻿using Common;
-using Infrastructure.Orleans;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;

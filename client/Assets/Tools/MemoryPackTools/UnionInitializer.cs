@@ -1,4 +1,5 @@
 ﻿using Common.Network;
+using Common.Network.Common;
 using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
@@ -18,7 +19,6 @@ namespace Tools.MemoryPackTools
                 (1, typeof(BoardCreatePayload)),
                 (2, typeof(CardCreatePayload)),
                 (3, typeof(GamePlayerCreatePayload)),
-                (4, typeof(NetworkServiceEntityPayload)),
                 
                 // (3, typeof(GamePlayerCreatePayload)),
                 (10000, typeof(MenuPlayerPayload)));

@@ -29,14 +29,19 @@ namespace Global.Backend
                 .As<IBackendProjectionHub>();
 
             builder.Register<BackendUser>()
-                .AsBackendProjection<BackendUserContexts.ProfileProjection>()
+                .As<IScopeSetup>()
                 .As<IBackendUser>();
 
             builder.Register<BackendMatchmaking>()
-                .AsBackendProjection<MatchmakingContexts.GameResult>()
-                .AsBackendProjection<MatchmakingContexts.LobbyResult>()
                 .WithAsset<BackendOptions>()
+                .As<IScopeSetup>()
                 .As<IBackendMatchmaking>();
+
+            builder
+                .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
+                .RegisterBackendProjection<BackendUserContexts.DeckProjection>()
+                .RegisterBackendProjection<MatchmakingContexts.GameResult>()
+                .RegisterBackendProjection<MatchmakingContexts.LobbyResult>();
 
             return builder;
         }

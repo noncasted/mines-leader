@@ -1,5 +1,4 @@
 ﻿using Common;
-using Infrastructure.Orleans;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
 using Orleans.Transactions.Abstractions;

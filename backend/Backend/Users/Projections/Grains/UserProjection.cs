@@ -1,6 +1,5 @@
 ﻿using Common;
 using Infrastructure.Messaging;
-using Infrastructure.Orleans;
 using Microsoft.Extensions.Logging;
 using Orleans.Transactions.Abstractions;
 

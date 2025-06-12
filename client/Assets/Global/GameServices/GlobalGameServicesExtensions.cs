@@ -1,6 +1,4 @@
-﻿using Global.Backend;
-using Internal;
-using Shared;
+﻿using Internal;
 
 namespace Global.GameServices
 {
@@ -24,9 +22,9 @@ namespace Global.GameServices
             builder.RegisterAsset<CharacterAvatars>();
 
             builder.Register<DeckService>()
-                .As<IDeckService>()
                 .WithScopeLifetime()
-                .AsBackendProjection<BackendUserContexts.DeckProjection>();
+                .As<IDeckService>()
+                .As<IScopeSetup>();
 
             builder.RegisterScriptableRegistry<CardsRegistry, CardDefinition>()
                 .As<ICardsRegistry>();

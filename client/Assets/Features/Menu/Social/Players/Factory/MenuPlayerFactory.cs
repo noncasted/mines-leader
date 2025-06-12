@@ -1,4 +1,5 @@
 ﻿using Common.Network;
+using Common.Network.Common;
 using Cysharp.Threading.Tasks;
 using Global.GameServices;
 using Global.Systems;
@@ -54,8 +55,8 @@ namespace Menu
         public async UniTask Create(IReadOnlyLifetime lifetime)
         {
             await UniTask.Yield();
-            
-            var properties = new NetworkEntityProperties();
+
+            var properties = new NetworkObjectProperties();
 
             var entity = new NetworkEntity(
                 _sender,
@@ -70,27 +71,27 @@ namespace Menu
             var input = new MenuPlayerInput();
             input.Setup(entity.Lifetime);
 
-            var transformState = new NetworkProperty<MenuPlayerTransformState>();
+            var transformState = new NetworkProperty<MenuPlayerTransformState>(0);
             properties.Add(transformState);
-            
-            player.Movement.Construct(_updater, input, transformState);
+
+            player.Movement.Construct(_updater, input, entity, transformState);
             player.Movement.Setup(entity.Lifetime);
 
             player.Construct(_userContext.Id, entity.Lifetime);
             _playersCollection.Add(player);
-            
+
             var payload = new MenuPlayerPayload()
             {
                 PlayerId = _userContext.Id
             };
-            
+
             await _entityFactory.Send(lifetime, entity, payload);
         }
 
         private async UniTask<INetworkEntity> OnRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
             var payload = data.ReadPayload<MenuPlayerPayload>();
-            var properties = new NetworkEntityProperties();
+            var properties = new NetworkObjectProperties();
 
             var entity = new NetworkEntity(
                 _sender,
@@ -105,15 +106,15 @@ namespace Menu
             var input = new MenuPlayerInput();
             input.Setup(entity.Lifetime);
 
-            var transformState = new NetworkProperty<MenuPlayerTransformState>();
+            var transformState = new NetworkProperty<MenuPlayerTransformState>(0);
             properties.Add(transformState);
-            
-            player.Movement.Construct(_updater, input, transformState);
+
+            player.Movement.Construct(_updater, input, entity, transformState);
             player.Movement.Setup(entity.Lifetime);
 
             player.Construct(payload.PlayerId, entity.Lifetime);
             _playersCollection.Add(player);
-            
+
             entity.Lifetime.Listen(() => Destroy(player.gameObject));
 
             return entity;

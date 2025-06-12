@@ -20,7 +20,7 @@ public static class OrleansExtensions
                 options.ConnectionString = postgresConnectionString;
             });
         });
-        
+
         return builder;
     }
 }

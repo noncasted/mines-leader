@@ -1,6 +1,6 @@
 ﻿using Orleans.Transactions.Abstractions;
 
-namespace Infrastructure.Orleans;
+namespace Common;
 
 public static class StateExtensions
 {

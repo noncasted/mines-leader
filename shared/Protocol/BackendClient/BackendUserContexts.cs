@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using MemoryPack;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Shared
 {
     public partial class BackendUserContexts

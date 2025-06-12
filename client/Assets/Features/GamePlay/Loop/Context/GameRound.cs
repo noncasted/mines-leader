@@ -1,6 +1,6 @@
 ﻿using System;
 using Common.Network;
-using Cysharp.Threading.Tasks;
+using Common.Network.Common;
 using GamePlay.Players;
 using Global.Systems;
 using Internal;
@@ -8,31 +8,27 @@ using MemoryPack;
 
 namespace GamePlay.Loop
 {
-    public class GameRound : IGameRound, INetworkSessionSetupCompleted, IUpdatable
+    public class GameRound : NetworkService, IGameRound, IUpdatable
     {
         public GameRound(
             IUpdater updater,
             IGameContext gameContext,
-            INetworkServiceEntityFactory entityFactory)
+            NetworkProperty<GameTurnsState> state)
         {
             _updater = updater;
             _gameContext = gameContext;
-            _entityFactory = entityFactory;
             _timer = gameContext.Options.RoundTime;
             _roundTime = new ViewableProperty<float>(_timer);
+            _state = state;
         }
 
         private readonly IUpdater _updater;
         private readonly IGameContext _gameContext;
-        private readonly INetworkServiceEntityFactory _entityFactory;
-        
-        private readonly NetworkProperty<GameTurnsState> _state = new();
+
+        private readonly NetworkProperty<GameTurnsState> _state;
 
         private readonly ViewableProperty<float> _roundTime;
         private readonly ViewableProperty<IGamePlayer> _player = new();
-
-        private INetworkEntity _entity;
-        private IReadOnlyLifetime _lifetime;
 
         private float _timer;
         private bool _isInitialized;
@@ -42,21 +38,18 @@ namespace GamePlay.Loop
         public IViewableProperty<IGamePlayer> Player => _player;
         public IViewableProperty<float> RoundTime => _roundTime;
 
-        public async UniTask OnSessionSetupCompleted(IReadOnlyLifetime lifetime)
+        public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _lifetime = lifetime;
-            _entity = await _entityFactory.Create(lifetime, "game-turns", _state);
-
             _state.Advise(lifetime, state =>
             {
                 if (_isInitialized == false)
                 {
                     _isInitialized = true;
-                    _updater.Add(_lifetime, this);
+                    _updater.Add(lifetime, this);
                 }
 
                 _timer = _gameContext.Options.RoundTime;
-                
+
                 var player = _gameContext.GetPlayer(state.ActivePlayerId);
                 _player.Set(player);
             });

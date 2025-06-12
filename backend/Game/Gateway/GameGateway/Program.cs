@@ -24,8 +24,7 @@ builder
 // Project services
 builder
     .AddGameMatchServices()
-    .AddGlobalSessions()
-    .AddSessionServices();
+    .AddGlobalSessions();
 
 builder.Services
     .AddOpenApi()

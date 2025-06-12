@@ -50,7 +50,9 @@
         public static void AddLifetimed<TKey, TSource, TView>(
             this ViewableDictionary<TKey, TSource, TView> dictionary,
             IReadOnlyLifetime lifetime,
-            TKey key, TSource value) where TSource : TView
+            TKey key, TSource value)
+            where TKey : notnull
+            where TSource : TView
         {
             dictionary.Add(key, value);
             lifetime.Listen(() => dictionary.Remove(key));

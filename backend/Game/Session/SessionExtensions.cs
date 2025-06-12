@@ -1,57 +1,42 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Game;
 
 public static class SessionExtensions
 {
-    public static IHostApplicationBuilder AddSessionServices(this IHostApplicationBuilder builder)
+    public static void AddSessionServices(this IServiceCollection services, SessionContainerData data)
     {
-        var services = builder.Services;
+        services.AddLogging();
+        services.AddSingleton<ISession, Session>();
 
+        services.AddSingleton(data);
+        services.AddSingleton<ISessionData>(sp =>
+        {
+            return new SessionData
+            {
+                ExpectedUsers = data.CreateOptions.ExpectedUsers,
+                Type = data.CreateOptions.Type,
+                Id = data.Id,
+                Lifetime = data.Lifetime
+            };
+        });
+        
         services.AddSingleton<ICommandsCollection, CommandsCollection>();
+        services.AddSingleton<IExecutionQueue, ExecutionQueue>();
 
-        services.AddScoped<ISessionUsers, SessionUsers>();
-        services.AddScoped<ISessionEntities, SessionEntities>();
-        services.AddScoped<IExecutionQueue, ExecutionQueue>();
+        services.AddSingleton<IUserFactory, UserFactory>();
+        services.AddSingleton<ISessionUsers, SessionUsers>();
+
+        services.AddSingleton<ISessionObjects, SessionObjects>();
+        services.AddSingleton<IEntityFactory, EntityFactory>();
+        services.AddSingleton<ISessionEntities, SessionEntities>();
+        services.AddSingleton<IServiceFactory, ServiceFactory>();
+        services.AddSingleton<ISessionServices, SessionServices>();
 
         services.AddSingleton<IResponseCommand, EntityCreateCommand>();
-        services.AddSingleton<ICommand, EntityPropertyUpdateCommand>();
+        services.AddSingleton<ICommand, SetPropertyCommand>();
         services.AddSingleton<ICommand, EntityDestroyCommand>();
         services.AddSingleton<ICommand, EntityEventCommand>();
-        services.AddSingleton<IResponseCommand, ServiceEntityCreateCommand>();
-
-        services.AddScoped<Func<SessionContainerData, ISession>>(provider => data =>
-        {
-            var commandsCollection = provider.GetRequiredService<ICommandsCollection>();
-            var users = provider.GetRequiredService<ISessionUsers>();
-            var entities = provider.GetRequiredService<ISessionEntities>();
-            var logger = provider.GetRequiredService<ILogger<Session>>();
-            var executionQueue = provider.GetRequiredService<IExecutionQueue>();
-
-            var createOptions = data.CreateOptions;
-            var metadata = new SessionMetadata(createOptions.ExpectedUsers, createOptions.Type);
-            var entityFactory = new EntityFactory(entities, data.Lifetime);
-
-            var userFactory = new UserFactory(users, logger, executionQueue);
-
-            var session = new Session(
-                metadata,
-                userFactory,
-                users,
-                commandsCollection,
-                entities,
-                entityFactory,
-                data.Lifetime,
-                executionQueue,
-                logger,
-                data.Id);
-
-            return session;
-        });
-
-
-        return builder;
+        services.AddSingleton<IResponseCommand, ServiceGetOrCreateCommand>();
     }
 }

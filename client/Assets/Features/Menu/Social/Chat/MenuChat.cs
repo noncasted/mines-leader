@@ -1,5 +1,6 @@
 ﻿using System;
 using Common.Network;
+using Common.Network.Common;
 using Cysharp.Threading.Tasks;
 using Global.GameServices;
 using Internal;
@@ -14,42 +15,34 @@ namespace Menu
         public Guid PlayerId { get; set; }
         public string Message { get; set; }
     }
-    
-    public class MenuChat : IMenuChat, INetworkSessionSetupCompleted
+
+    public class MenuChat : NetworkService, IMenuChat
     {
         public MenuChat(
             IUserContext userContext,
-            INetworkServiceEntityFactory entityFactory,
             IMenuPlayersCollection playersCollection,
             IMenuChatUI ui)
         {
             _userContext = userContext;
-            _entityFactory = entityFactory;
             _playersCollection = playersCollection;
             _ui = ui;
         }
 
         private readonly IUserContext _userContext;
-        private readonly INetworkServiceEntityFactory _entityFactory;
         private readonly IMenuPlayersCollection _playersCollection;
         private readonly IMenuChatUI _ui;
 
-        private INetworkEntity _entity;
-        
-        public async UniTask OnSessionSetupCompleted(IReadOnlyLifetime lifetime)
+        public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _entity = await _entityFactory.Create(lifetime, "chat");
-            
             _ui.MessageSend.Advise(lifetime, OnMessageSent);
-
-            _entity.Events.GetEvent<MenuChatMessagePayload>().Advise(lifetime, OnMessageReceived);
+            Events.GetEvent<MenuChatMessagePayload>().Advise(lifetime, OnMessageReceived);
         }
 
         private void OnMessageSent(string message)
         {
             _playersCollection.Entries[_userContext.Id].ChatView.ShowMessage(message);
-            
-            _entity.Events.Send(new MenuChatMessagePayload()
+
+            Events.Send(new MenuChatMessagePayload()
             {
                 PlayerId = _userContext.Id,
                 Message = message

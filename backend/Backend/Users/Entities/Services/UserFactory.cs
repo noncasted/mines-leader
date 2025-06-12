@@ -1,5 +1,4 @@
 ﻿using Common;
-using Infrastructure.Orleans;
 
 namespace Backend.Users;
 

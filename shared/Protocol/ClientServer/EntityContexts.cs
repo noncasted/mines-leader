@@ -9,7 +9,7 @@ namespace Shared
         public partial class CreateRequest : INetworkContext
         {
             public int Id { get; set; }
-            public IReadOnlyList<byte[]> Properties { get; set; }
+            public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
         }
 
@@ -20,11 +20,11 @@ namespace Shared
         }
     
         [MemoryPackable]
-        public partial class CreateUpdate : INetworkContext
+        public partial class CreatedOverview : INetworkContext
         {
             public int OwnerId { get; set; }
             public int EntityId { get; set; }
-            public IReadOnlyList<byte[]> Properties { get; set; }
+            public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
         }
     
@@ -38,44 +38,6 @@ namespace Shared
         public partial class DestroyUpdate : INetworkContext
         {
             public int EntityId { get; set; }
-        }
-        
-        [MemoryPackable]
-        public partial class UpdatePropertyRequest : INetworkContext
-        {
-            public int EntityId { get; set; }
-            public int PropertyId { get; set; }
-            public byte[] Value { get; set; }
-        }
-    
-        [MemoryPackable]
-        public partial class PropertyUpdate : INetworkContext
-        {
-            public int EntityId { get; set; }
-            public int PropertyId { get; set; }
-            public byte[] Value { get; set; }
-        }
-        
-        [MemoryPackable]
-        public partial class Event : INetworkContext
-        {
-            public int EntityId { get; set; }
-            public byte[] Value { get; set; }
-        }
-        
-        [MemoryPackable]
-        public partial class GetServiceRequest : INetworkContext
-        {
-            public string Key { get; set; }
-            public IReadOnlyList<byte[]> Properties { get; set; }
-            public byte[] Payload { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class GetServiceResponse : INetworkContext
-        {
-            public int EntityId { get; set; }
-            public IReadOnlyList<byte[]> Properties { get; set; }
         }
     }
 }
