@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Backend.Gateway.Identity</AssemblyName>
+        <RootNamespace>Backend.Gateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\..\Users\Entities\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Users\Entities\Services\Services.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Backend.Matches.Services</AssemblyName>
+        <RootNamespace>Backend.Matches</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
+      <ProjectReference Include="..\..\..\..\Common\Extensions\Extensions.csproj" />
+      <ProjectReference Include="..\..\..\..\Common\Reactive\Reactive.csproj" />
+      <ProjectReference Include="..\..\..\..\Game\Global\Global.csproj" />
+      <ProjectReference Include="..\..\..\..\Game\Session\Session.csproj" />
+      <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
+      <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Servers\Servers.csproj" />
+      <ProjectReference Include="..\..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
+      <ProjectReference Include="..\..\..\Users\Projections\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+    </ItemGroup>
+
+</Project>

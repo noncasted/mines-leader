@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+        
+        <AssemblyName>Infrastructure.Orleans.Silo</AssemblyName>
+        <RootNamespace>Infrastructure.Orleans</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Npgsql" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Server" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Services\Services.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Matches\Search\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Matches\Search\Services\Services.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Decks\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Decks\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Services\Services.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Matches\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Matches\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Progression\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Progression\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Projections\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Users\Projections\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
+        <ProjectReference Include="..\..\Discovery\Servers\Servers.csproj"/>
+        <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\Extensions\Extensions.csproj" />
+    </ItemGroup>
+
+</Project>

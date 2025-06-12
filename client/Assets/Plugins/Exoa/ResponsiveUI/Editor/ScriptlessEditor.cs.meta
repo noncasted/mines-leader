@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6ec7a29919500a945a43f1ecb25730e1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.8
+  assetPath: Assets/Exoa/ResponsiveUI/Editor/ScriptlessEditor.cs
+  uploadId: 635596

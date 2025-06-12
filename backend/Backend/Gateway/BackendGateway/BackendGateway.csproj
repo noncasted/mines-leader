@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Backend.Gateway.BackendGateway</AssemblyName>
+        <RootNamespace>Backend.Gateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Npgsql" Version="9.0.0"/>
+        <PackageReference Include="Npgsql" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\Matches\Entities\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Matches\Entities\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Matches\Entities\Services\Services.csproj" />
+        <ProjectReference Include="..\..\Matches\Search\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Matches\Search\Services\Services.csproj" />
+        <ProjectReference Include="..\..\Users\Common\Endpoints\Endpoints.csproj" />
+        <ProjectReference Include="..\..\Users\Decks\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Users\Decks\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Users\Entities\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Users\Entities\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Users\Entities\Services\Services.csproj" />
+        <ProjectReference Include="..\..\Users\Matches\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Users\Matches\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Users\Progression\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Users\Progression\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Users\Projections\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Users\Projections\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\Identity\Identity.csproj"/>
+        <ProjectReference Include="..\UserFlow\UserFlow.csproj"/>
+    </ItemGroup>
+
+</Project>

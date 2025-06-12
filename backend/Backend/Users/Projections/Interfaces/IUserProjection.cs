@@ -1,0 +1,24 @@
+﻿using Orleans.Concurrency;
+
+namespace Backend.Users.Projections;
+
+public interface IUserProjection : IGrainWithGuidKey
+{
+    Task OnConnected(Guid connectionServiceId);
+    Task OnDisconnected();
+
+    [AlwaysInterleave]
+    [Transaction(TransactionOption.Create)]
+    Task ForceNotify();
+
+    [AlwaysInterleave]
+    [Transaction(TransactionOption.Join)]
+    Task SendCached(IProjectionPayload payload);
+
+    [AlwaysInterleave]
+    [Transaction(TransactionOption.Join)]
+    Task Cache(IProjectionPayload payload);
+    
+    [AlwaysInterleave]
+    Task SendOneTime(IProjectionPayload payload);
+}

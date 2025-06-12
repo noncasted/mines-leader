@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84e7355b4c8f4a3280347cef73f38ac3, type: 3}
+  m_Name: CardDropOptions
+  m_EditorClassIdentifier: 
+  _assetId: 106
+  _moveDistance: 5
+  _time: 0.8
+  _moveCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 3.691053
+      outSlope: 3.691053
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.057241973
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0.20514105
+      outSlope: -0.20514105
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.12402433
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _xScaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.6022923
+      outSlope: -0.6022923
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.21238168
+    - serializedVersion: 3
+      time: 0.29402652
+      value: -1
+      inSlope: 0.03334426
+      outSlope: 0.03334426
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.440922
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5022469
+      value: 1
+      inSlope: -1.1665262
+      outSlope: -1.1665262
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.14097911
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1.1337255
+      outSlope: 1.1337255
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.094091654
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

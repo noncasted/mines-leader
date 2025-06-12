@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.1"/>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireHost>true</IsAspireHost>
+        <UserSecretsId>2acdf813-97a1-4c19-92fd-618b39668cb5</UserSecretsId>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Aspire.AppHost</AssemblyName>
+        <RootNamespace>Aspire</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.1" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Backend\Gateway\BackendGateway\BackendGateway.csproj" />
+      <ProjectReference Include="..\..\Game\Gateway\GameGateway\GameGateway.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\Orleans\Silo\Silo.csproj" />
+      <ProjectReference Include="..\Startup\Startup.csproj" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d796918d9b12b4140a1f188fd55b9887
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.8
+  assetPath: Assets/Exoa/ResponsiveUI/Editor/ScreenOrientationEditor.cs
+  uploadId: 635596

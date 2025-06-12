@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8acaa3e9748a49989b67d02f92eabf2b, type: 3}
+  m_Name: Card_TrebuchetAimer_Max
+  m_EditorClassIdentifier: 
+  _assetId: 112
+  _type: 310
+  _target: 2
+  _manaCost: 4
+  _name: Trebuchet aimer Max
+  _description: 'Gavno
+
+    Gavno
+
+    Gavno'
+  _image: {fileID: -6470460504253458178, guid: 09f28fe24b1daec459c8ca4c4a4467e1, type: 3}
