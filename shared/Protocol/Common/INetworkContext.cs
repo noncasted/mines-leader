@@ -10,23 +10,23 @@ namespace Shared
     [MemoryPackUnion(2000, typeof(MatchmakingContexts.GameResult))]
     [MemoryPackUnion(2001, typeof(MatchmakingContexts.LobbyResult))]
     
-    [MemoryPackUnion(3000, typeof(EntityContexts.CreateRequest))]
-    [MemoryPackUnion(3001, typeof(EntityContexts.CreateResponse))]
-    [MemoryPackUnion(3002, typeof(EntityContexts.CreateUpdate))]
-    [MemoryPackUnion(3003, typeof(EntityContexts.Destroy))]
-    [MemoryPackUnion(3004, typeof(EntityContexts.UpdatePropertyRequest))]
-    [MemoryPackUnion(3005, typeof(EntityContexts.PropertyUpdate))]
-    [MemoryPackUnion(3006, typeof(EntityContexts.DestroyUpdate))]
+    [MemoryPackUnion(3000, typeof(UserContexts.LocalUpdate))]
+    [MemoryPackUnion(3001, typeof(UserContexts.RemoteUpdate))]
+    [MemoryPackUnion(3002, typeof(UserContexts.RemoteDisconnect))]
     
-    [MemoryPackUnion(3007, typeof(EntityContexts.GetServiceRequest))]
-    [MemoryPackUnion(3008, typeof(EntityContexts.GetServiceResponse))]
+    [MemoryPackUnion(4000, typeof(ObjectContexts.SetProperty))]
+    [MemoryPackUnion(4001, typeof(ObjectContexts.PropertyUpdate))]
+    [MemoryPackUnion(4002, typeof(ObjectContexts.Event))]
     
-    [MemoryPackUnion(3009, typeof(EntityContexts.Event))]
+    [MemoryPackUnion(5000, typeof(EntityContexts.CreateRequest))]
+    [MemoryPackUnion(5001, typeof(EntityContexts.CreateResponse))]
+    [MemoryPackUnion(5002, typeof(EntityContexts.Overview))]
+    [MemoryPackUnion(5003, typeof(EntityContexts.Destroy))]
+    [MemoryPackUnion(5006, typeof(EntityContexts.DestroyUpdate))]
     
-    [MemoryPackUnion(4000, typeof(UserContexts.LocalUpdate))]
-    [MemoryPackUnion(4001, typeof(UserContexts.RemoteUpdate))]
-    [MemoryPackUnion(4002, typeof(UserContexts.RemoteDisconnect))]
-    
+    [MemoryPackUnion(6000, typeof(ServiceContexts.GetRequest))]
+    [MemoryPackUnion(6001, typeof(ServiceContexts.GetResponse))]
+    [MemoryPackUnion(6002, typeof(ServiceContexts.GetResponse))]
     public partial interface INetworkContext
     {
     }

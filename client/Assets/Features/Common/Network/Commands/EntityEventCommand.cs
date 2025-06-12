@@ -4,7 +4,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class EntityEventCommand : NetworkCommand<EntityContexts.Event>
+    public class EntityEventCommand : NetworkCommand<ObjectContexts.Event>
     {
         private readonly INetworkEntitiesCollection _networkEntities;
 
@@ -13,7 +13,7 @@ namespace Common.Network
             _networkEntities = networkEntities;
         }
 
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.Event context)
+        protected override UniTask Execute(IReadOnlyLifetime lifetime, ObjectContexts.Event context)
         {
             var entity = _networkEntities.Entries[context.EntityId];
             entity.Events.Invoke(context.Value);

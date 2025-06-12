@@ -28,20 +28,17 @@ public class SessionFactory : ISessionFactory
         var services = scope.ServiceProvider;
         var lifetime = new Lifetime();
 
-        var sessionFactory = services.GetRequiredService<Func<SessionContainerData, ISession>>();
-
-        var session = sessionFactory.Invoke(new SessionContainerData()
-        {
-            Id = Guid.NewGuid(),
-            Lifetime = lifetime,
-            CreateOptions = createOptions,
-            Scope = scope
-        });
+        var session = services.GetRequiredService<ISession>();
 
         _collection.Add(session);
         lifetime.Listen(scope.Dispose);
 
-        session.Run().NoAwait();
+        session.Run(new SessionContainerData()
+        {
+            Id = Guid.NewGuid(),
+            Lifetime = lifetime,
+            CreateOptions = createOptions,
+        }).NoAwait();
 
         _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created", session.Id, createOptions);
 
