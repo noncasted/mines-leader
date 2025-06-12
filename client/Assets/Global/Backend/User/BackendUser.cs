@@ -1,12 +1,17 @@
 ﻿using System;
-using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
 namespace Global.Backend
 {
-    public class BackendUser : IBackendUser, IBackendProjection<BackendUserContexts.ProfileProjection>
+    public class BackendUser : IBackendUser, IScopeSetup
     {
+        public BackendUser(IBackendProjection<BackendUserContexts.ProfileProjection> projection)
+        {
+            _projection = projection;
+        }
+
+        private readonly IBackendProjection<BackendUserContexts.ProfileProjection> _projection;
         private readonly ViewableProperty<string> _name = new();
 
         private Guid _id;
@@ -14,12 +19,13 @@ namespace Global.Backend
         public Guid Id => _id;
         public IViewableProperty<string> Name => _name;
 
-        public UniTask OnReceived(BackendUserContexts.ProfileProjection data)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _id = data.Id;
-            _name.Set(data.Name);
-            
-            return UniTask.CompletedTask;
+            _projection.Listen(lifetime, data =>
+            {
+                _id = data.Id;
+                _name.Set(data.Name);
+            });
         }
     }
 }
