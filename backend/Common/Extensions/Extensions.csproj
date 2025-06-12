@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Common.Extensions</AssemblyName>
+        <RootNamespace>Common</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+</Project>

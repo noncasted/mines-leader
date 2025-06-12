@@ -1,0 +1,17 @@
+﻿using Common;
+
+namespace Infrastructure.Messaging;
+
+public interface IMessagingClient
+{
+    Task Send(IMessageOptions options, IClusterMessage message);
+
+    Task<TResponse> Send<TResponse>(IMessageOptions options, IClusterMessage message)
+        where TResponse : IClusterMessage;
+
+    IViewableDelegate<T> GetEvent<T>() where T : IClusterMessage;
+
+    void ListenWithResponse<TRequest, TResponse>(IReadOnlyLifetime lifetime, Func<TRequest, Task<TResponse>> listener)
+        where TRequest : IClusterMessage
+        where TResponse : IClusterMessage;
+}

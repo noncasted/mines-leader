@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4950500684654618542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7f391c1802c43e2a798a3b147d453c9, type: 3}
+  m_Name: GlobalService_Yandex_adsDisableProduct_LanguageTextData_Description
+  m_EditorClassIdentifier: 
+  _assetId: 0
+  _eng: {fileID: -725174479533609138}
+  _ru: {fileID: -1929225969140693614}
+--- !u!114 &-1929225969140693614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dae25f9d6934f25ababdb11b5c848de, type: 3}
+  m_Name: GlobalService_Yandex_adsDisableProduct_LanguageTextData_Description_LanguageEntry_Ru
+  m_EditorClassIdentifier: 
+  _text: 
+--- !u!114 &-725174479533609138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dae25f9d6934f25ababdb11b5c848de, type: 3}
+  m_Name: GlobalService_Yandex_adsDisableProduct_LanguageTextData_Description_LanguageEntry_Eng
+  m_EditorClassIdentifier: 
+  _text: 
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5baca0fe62d6f23419662c04d12ed902, type: 3}
+  m_Name: GlobalService_Yandex_adsDisableProduct
+  m_EditorClassIdentifier: 
+  _assetId: 34
+  _paymentMethod: 0
+  _id: 
+  _shopIcon: {fileID: 0}
+  _price: 0

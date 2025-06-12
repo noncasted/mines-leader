@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Game.Gateway.Middleware</AssemblyName>
+        <RootNamespace>Game.Gateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
+        <ProjectReference Include="..\..\Global\Global.csproj"/>
+        <ProjectReference Include="..\..\Session\Session.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+
+</Project>

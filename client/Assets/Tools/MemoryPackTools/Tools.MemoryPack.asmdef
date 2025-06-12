@@ -1,0 +1,21 @@
+{
+    "name": "Tools.MemoryPack",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c30c8ace88fc4098aed179d4eacd73e4",
+        "GUID:0111c49bb9c84f9ca0b14bd86d9e0630",
+        "GUID:01f60cffe1f34ab2a431167c2fa3d728",
+        "GUID:25b7e03fa7ea4ed9a6217ec60de5aaa7",
+        "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
+        "GUID:441aa9a776cf4a1981dfdbf4fddca55c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

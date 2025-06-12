@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+
+        <AssemblyName>Backend.Gateway.UserFlow</AssemblyName>
+        <RootNamespace>Backend.Gateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\Users\Projections\Interfaces\Interfaces.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,51 @@
+using Aspire;
+using Backend.Gateway;
+using Backend.Matches;
+using Backend.Users;
+using Common;
+using Infrastructure.Discovery;
+using Infrastructure.Messaging;
+using Infrastructure.Orleans;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Basic services
+builder
+    .AddServiceDefaults()
+    .AddOrleansClient();
+
+// Cluster services
+builder
+    .AddEnvironment(ServiceTag.Backend)
+    .AddMessaging()
+    .AddOrleansUtils()
+    .AddStateAttributes()
+    .AddServersCollection();
+
+// Project services
+builder
+    .AddUserFlow()
+    .AddUserFactory()
+    .AddBackendMatchServices()
+    .AddMatchmakingServices();
+
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.MapUserHub()
+    .AddIdentityEndpoints()
+    .AddUserEndpoints()
+    .AddMatchmakingEndpoints();
+
+app.MapDefaultEndpoints();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "api"));
+}
+
+app.Run();

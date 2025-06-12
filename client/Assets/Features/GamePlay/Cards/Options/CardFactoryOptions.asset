@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d7f2e77bb134395a8a2741297cd6403, type: 3}
+  m_Name: CardFactoryOptions
+  m_EditorClassIdentifier: 
+  _assetId: 79
+  _localPrefab: {fileID: 8213865421090400928, guid: 8e6071653dccf9f43af284cd1265cfa8, type: 3}
+  _remotePrefab: {fileID: 4674878050593560059, guid: 5bcf5abf7c2e156489267c79f1035fbf, type: 3}

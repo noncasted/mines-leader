@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <BaseIntermediateOutputPath>..\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+        <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+        <OutputPath>..\bin\$(Configuration)\</OutputPath>
+    </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AssemblyName>Shared.Protocol</AssemblyName>
+        <RootNamespace>Shared</RootNamespace>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Remove="*.meta" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MemoryPack" Version="1.21.3" />
+      <PackageReference Include="MemoryPack.UnityShims" Version="1.21.3" />
+    </ItemGroup>
+
+</Project>
