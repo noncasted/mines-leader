@@ -17,15 +17,17 @@ namespace Global.GameServices
         void SetIndex(int selectedIndex);
     }
 
-    public class DeckService : IDeckService, IBackendProjection<BackendUserContexts.DeckProjection>
+    public class DeckService : IDeckService, IScopeSetup
     {
         public DeckService(
             ICardsRegistry cardsRegistry,
+            IBackendProjection<BackendUserContexts.DeckProjection> projection,
             IBackendUser user,
             IBackendClient client,
             IReadOnlyLifetime lifetime)
         {
             _cardsRegistry = cardsRegistry;
+            _projection = projection;
             _user = user;
             _client = client;
             _lifetime = lifetime;
@@ -34,6 +36,7 @@ namespace Global.GameServices
         private readonly Dictionary<int, IDeckConfiguration> _configurations = new();
         private readonly ViewableProperty<int> _selectedIndex = new(0);
         private readonly ICardsRegistry _cardsRegistry;
+        private readonly IBackendProjection<BackendUserContexts.DeckProjection> _projection;
         private readonly IBackendUser _user;
         private readonly IBackendClient _client;
         private readonly IReadOnlyLifetime _lifetime;
@@ -44,26 +47,27 @@ namespace Global.GameServices
 
         public IViewableDelegate Updated => _updated;
 
-        public UniTask OnReceived(BackendUserContexts.DeckProjection data)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            foreach (var (index, entry) in data.Entries)
+            _projection.Listen(lifetime, data =>
             {
-                var configuration = GetOrCreateConfiguration(index);
-                var cards = new List<ICardDefinition>();
-
-                foreach (var cardType in entry.Cards)
+                foreach (var (index, entry) in data.Entries)
                 {
-                    var definition = _cardsRegistry.Cards[cardType];
-                    cards.Add(definition);
+                    var configuration = GetOrCreateConfiguration(index);
+                    var cards = new List<ICardDefinition>();
+
+                    foreach (var cardType in entry.Cards)
+                    {
+                        var definition = _cardsRegistry.Cards[cardType];
+                        cards.Add(definition);
+                    }
+
+                    configuration.Update(cards);
                 }
 
-                configuration.Update(cards);
-            }
-
-            _selectedIndex.Set(data.SelectedIndex);
-            _updated.Invoke();
-
-            return UniTask.CompletedTask;
+                _selectedIndex.Set(data.SelectedIndex);
+                _updated.Invoke();
+            });
         }
 
         public UniTask SendUpdate()

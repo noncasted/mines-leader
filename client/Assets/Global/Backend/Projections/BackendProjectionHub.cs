@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Internal;
 using MemoryPack;
@@ -9,15 +10,23 @@ using UnityEngine;
 
 namespace Global.Backend
 {
+    public interface IBackendProjectionHub
+    {
+        UniTask Start(IReadOnlyLifetime lifetime, Guid userId);
+    }
+
     public class BackendProjectionHub : IBackendProjectionHub
     {
-        public BackendProjectionHub(BackendOptions options)
+        public BackendProjectionHub(
+            IReadOnlyList<IBackendProjection> projections,
+            BackendOptions options)
         {
+            _projections = projections.ToDictionary(t => t.GetValueType());
             _options = options;
         }
 
         private readonly BackendOptions _options;
-        private readonly Dictionary<Type, Action<INetworkContext>> _listeners = new();
+        private readonly Dictionary<Type, IBackendProjection> _projections;
 
         public async UniTask Start(IReadOnlyLifetime lifetime, Guid userId)
         {
@@ -32,28 +41,18 @@ namespace Global.Backend
             lifetime.Listen(() => connection.DisposeAsync());
         }
 
-        public void AddListener<T>(IBackendProjection<T> projection) where T : INetworkContext
-        {
-            var type = typeof(T);
-            _listeners.Add(type, context => projection.OnReceived((T)context));
-        }
-
         private void OnUpdate(byte[] raw)
         {
             var context = MemoryPackSerializer.Deserialize<INetworkContext>(raw);
             var type = context.GetType();
 
-            if (_listeners.TryGetValue(type, out var listener) == false)
+            if (_projections.TryGetValue(type, out var projection) == false)
             {
-                Debug.Log($"[Projection] No projection listener for type: {type.FullName}");
+                Debug.Log($"[Projection] No projection for type: {type.FullName}");
                 return;
             }
 
-            UniTask.Create(async () =>
-            {
-                await UniTask.SwitchToMainThread();
-                listener(context);
-            });
+            projection.OnReceived(context);
         }
     }
 }
