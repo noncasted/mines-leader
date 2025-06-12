@@ -1,0 +1,248 @@
+{
+  "main": {
+    "id": "9c5f379ec90e0449",
+    "type": "split",
+    "children": [
+      {
+        "id": "13a045b91b832de4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3ca2474b8769629a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Storage/Игровое поле.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Игровое поле"
+            }
+          },
+          {
+            "id": "4244c7fcb65d2e87",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Storage/Игровое поле/Конец хода.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Конец хода"
+            }
+          },
+          {
+            "id": "b1b434ada5298045",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Storage/Игровое поле/Карта/1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "1"
+            }
+          },
+          {
+            "id": "b64589a9c5231c19",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Уровень дискуссии в восточной европе.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Уровень дискуссии в восточной европе"
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "75442b9c09c91694",
+    "type": "split",
+    "children": [
+      {
+        "id": "939ab035a9222452",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a54ab60f59a1992a",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "b35a906ccfbe1068",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "b279f7bb6620a0e1",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 395.5
+  },
+  "right": {
+    "id": "53372f9821c435a9",
+    "type": "split",
+    "children": [
+      {
+        "id": "5f40f7e3921d705c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e4cadb438903b5fa",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Welcome.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Welcome"
+            }
+          },
+          {
+            "id": "391df769535b50df",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Welcome.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Welcome"
+            }
+          },
+          {
+            "id": "361fa0992dd1cc33",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "37bb4fca4b9003ee",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Welcome.md"
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Welcome"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obsidian-excalidraw-plugin:New drawing": false
+    }
+  },
+  "active": "b64589a9c5231c19",
+  "lastOpenFiles": [
+    "Механики.md",
+    "Welcome.md",
+    "Pasted image 20250205190936.png",
+    "Storage/Pasted image 20250202005140.png",
+    "Pictures/Pasted image 20250103105014.png",
+    "drawings/network.md",
+    "Excalidraw/Drawing 2024-12-30 04.13.44.excalidraw.md",
+    "Storage/Игровое поле/Карта/1.md",
+    "drawings",
+    "Storage/Игровое поле/Карта/2.md",
+    "Storage/Игровое поле/Карта/3.md",
+    "Storage/Игровое поле/Карта.md",
+    "Storage/Игровое поле/Меню паузы.md",
+    "Storage/Игровое поле/Отбой.md",
+    "Storage/Игровое поле/Конец хода.md",
+    "Storage/Игровое поле/Колода.md",
+    "Storage/Игровое поле/Карта/6.md",
+    "Уровень дискуссии в восточной европе.md",
+    "Storage/Игровое поле/Количество действий.md",
+    "Storage/Игровое поле.md",
+    "Storage/Интерфейс.md",
+    "Storage/Игровое поле/Мана.md",
+    "Storage/Игровое поле/Карта",
+    "Storage/Игровое поле/Портреты игроков.md",
+    "Storage/Игровое поле/Рука врага.md",
+    "Storage/Игровое поле/Рука игрока.md",
+    "Storage/Игровое поле/Счётчик мин.md",
+    "Storage/Игровое поле/ХП.md",
+    "Storage/Игровое поле/Карта",
+    "Storage/Игровое поле",
+    "Storage",
+    "Pictures",
+    "Pictures/{9078437C-F585-485C-B037-03B1867F518D}.png",
+    "{9078437C-F585-485C-B037-03B1867F518D} 1.png",
+    "Excalidraw"
+  ]
+}
