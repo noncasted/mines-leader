@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using Internal;
+using Shared;
+
+namespace Assets.Meta
+{
+    public static class CardTypeExtensions
+    {
+        static CardTypeExtensions()
+        {
+            var values = Enum.GetValues(typeof(CardType));
+            var list = new List<CardType>();
+
+            foreach (var type in values)
+            {
+                list.Add((CardType)type);
+            }
+
+            All = list;
+        }
+
+        private static readonly IReadOnlyList<CardType> All;
+
+        public static CardType GetRandom()
+        {
+            return All.Random();
+        }
+    }
+}

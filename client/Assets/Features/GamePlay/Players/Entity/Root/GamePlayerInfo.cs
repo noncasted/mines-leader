@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Meta;
 using Global.GameServices;
 
 namespace GamePlay.Players

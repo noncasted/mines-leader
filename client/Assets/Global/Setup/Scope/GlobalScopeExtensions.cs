@@ -35,7 +35,6 @@ namespace Global.Setup
                     .AddCamera()
                     .AddInput()
                     .AddLoop()
-                    .AddGameServices()
                     .AddSystemUtils()
                     .AddBackend()
                     .AddNetwork();

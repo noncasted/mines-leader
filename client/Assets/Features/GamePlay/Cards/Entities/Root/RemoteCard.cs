@@ -1,4 +1,5 @@
-﻿using Common.Network;
+﻿using Assets.Meta;
+using Common.Network;
 using Global.GameServices;
 using Internal;
 using Shared;
