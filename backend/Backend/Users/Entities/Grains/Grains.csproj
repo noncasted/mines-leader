@@ -11,13 +11,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Common\Extensions\Extensions.csproj" />
-      <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\Common\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />

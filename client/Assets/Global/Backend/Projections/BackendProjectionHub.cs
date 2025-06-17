@@ -25,6 +25,7 @@ namespace Global.Backend
             _options = options;
         }
 
+
         private readonly BackendOptions _options;
         private readonly Dictionary<Type, IBackendProjection> _projections;
 
@@ -52,7 +53,13 @@ namespace Global.Backend
                 return;
             }
 
-            projection.OnReceived(context);
+            RunUpdate().Forget();
+
+            async UniTask RunUpdate()
+            {
+                await UniTask.SwitchToMainThread();
+                projection.OnReceived(context);
+            }
         }
     }
 }

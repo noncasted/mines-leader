@@ -15,7 +15,7 @@
         }
 
         public static void ViewNotNull<T>(
-            this ILifetimedValue<T> property,
+            this ILifetimedValue<T?> property,
             IReadOnlyLifetime lifetime,
             Action<T> listener) where T : class
         {
@@ -30,7 +30,7 @@
         }
 
         public static void ViewNotNull<T>(
-            this ILifetimedValue<T> property,
+            this ILifetimedValue<T?> property,
             IReadOnlyLifetime lifetime,
             Action<IReadOnlyLifetime, T> listener) where T : class
         {
@@ -66,7 +66,7 @@
                 if (value == false)
                     return;
 
-                listener?.Invoke();
+                listener.Invoke();
             }
         }
         

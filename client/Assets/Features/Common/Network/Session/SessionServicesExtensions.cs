@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using Common.Network.Common;
+using Internal;
 
 namespace Common.Network
 {
@@ -18,6 +19,9 @@ namespace Common.Network
 
             void AddEntityServices()
             {
+                builder.Register<NetworkObjectsCollection>()
+                    .As<INetworkObjectsCollection>();
+                
                 builder.Register<NetworkEntityCollection>()
                     .As<INetworkEntitiesCollection>();
 
@@ -27,9 +31,6 @@ namespace Common.Network
                 builder.Register<NetworkEntityFactory>()
                     .As<INetworkEntityFactory>();
 
-                builder.Register<NetworkServiceEntityFactory>()
-                    .As<INetworkServiceEntityFactory>();
-                
                 builder.Register<NetworkCommandsCollection>()
                     .AsSelfResolvable()
                     .As<INetworkCommandsCollection>();

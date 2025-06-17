@@ -88,9 +88,9 @@ public class ProjectStartup : BackgroundService
 
                 try
                 {
-                    var connection = new NpgsqlConnection(connectionString);
-                    await connection.OpenAsync(cancellation);
-                    return connection;
+                    var newConnection = new NpgsqlConnection(connectionString);
+                    await newConnection.OpenAsync(cancellation);
+                    return newConnection;
                 }
                 catch (Exception e)
                 {

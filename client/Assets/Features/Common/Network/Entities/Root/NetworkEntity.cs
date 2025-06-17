@@ -1,8 +1,17 @@
 ﻿using System.Collections.Generic;
+using Common.Network.Common;
 using Internal;
 
 namespace Common.Network
 {
+    public interface INetworkEntity : INetworkObject
+    {
+        INetworkUser Owner { get; }
+
+        void Destroy();
+        void DestroyRemote();
+    }
+
     public class NetworkEntity : INetworkEntity
     {
         public NetworkEntity(
@@ -10,7 +19,7 @@ namespace Common.Network
             INetworkEntityDestroyer destroyer,
             INetworkUser owner,
             int id,
-            INetworkEntityProperties properties)
+            INetworkObjectProperties properties)
         {
             _destroyer = destroyer;
             _properties = properties;
@@ -18,17 +27,15 @@ namespace Common.Network
             Owner = owner;
             _lifetime = owner.Lifetime.Child();
             Events = new NetworkEvents(sender, this);
-
-            properties.Construct(this);
         }
 
         private readonly INetworkEntityDestroyer _destroyer;
-        private readonly INetworkEntityProperties _properties;
+        private readonly INetworkObjectProperties _properties;
         private readonly ILifetime _lifetime;
 
         public int Id { get; }
         public INetworkUser Owner { get; }
-        public IReadOnlyList<INetworkProperty> Properties => _properties.Entries;
+        public IReadOnlyDictionary<int, INetworkProperty> Properties => _properties.Entries;
         public IReadOnlyLifetime Lifetime => _lifetime;
         public INetworkEvents Events { get; }
 

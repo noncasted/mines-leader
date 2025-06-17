@@ -1,5 +1,7 @@
 ﻿using Infrastructure.Discovery;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Infrastructure.Messaging;
 
 [GenerateSerializer]

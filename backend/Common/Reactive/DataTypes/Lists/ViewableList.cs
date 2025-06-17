@@ -1,10 +1,12 @@
 ﻿namespace Common
 {
-    public class ViewableList<TSource> : ViewableList<TSource, TSource>
+    public class ViewableList<TSource> : ViewableList<TSource, TSource> where TSource : notnull
     {
     }
 
-    public class ViewableList<TSource, TView> : List<TSource>, IViewableList<TView> where TSource : TView
+    public class ViewableList<TSource, TView> : List<TSource>, IViewableList<TView>
+        where TView : notnull
+        where TSource : TView
     {
         private readonly EventSource<IReadOnlyLifetime, TView> _eventSource = new();
         private readonly Dictionary<TView, ILifetime> _lifetimes = new();
@@ -56,7 +58,7 @@
                 Add(value);
         }
 
-        public new void RemoveRange(IEnumerable<TSource> collection)
+        public void RemoveRange(IEnumerable<TSource> collection)
         {
             foreach (var value in collection)
                 Remove(value);

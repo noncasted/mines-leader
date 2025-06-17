@@ -13,8 +13,5 @@ public class ServerOverview
     public required string Url { get; init; }
 
     [Id(3)]
-    public required double Load { get; init; }
-    
-    [Id(4)]
     public required DateTime UpdateTime { get; init; }
 }

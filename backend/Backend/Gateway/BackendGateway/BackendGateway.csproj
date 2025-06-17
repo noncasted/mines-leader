@@ -11,13 +11,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql" Version="9.0.0"/>
+        <PackageReference Include="Aspire.Npgsql" Version="9.3.1" />
         <PackageReference Include="Npgsql" Version="9.0.3"/>
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.1"/>
-        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.6" />
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,7 +27,7 @@
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
         <ProjectReference Include="..\..\Matches\Entities\Grains\Grains.csproj" />
         <ProjectReference Include="..\..\Matches\Entities\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Matches\Entities\Services\Services.csproj" />

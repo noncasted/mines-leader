@@ -1,6 +1,8 @@
 ﻿using System;
 using MemoryPack;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Shared
 {
     public static partial class MatchmakingContexts

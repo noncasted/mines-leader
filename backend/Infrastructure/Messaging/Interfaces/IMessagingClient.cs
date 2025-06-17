@@ -15,3 +15,22 @@ public interface IMessagingClient
         where TRequest : IClusterMessage
         where TResponse : IClusterMessage;
 }
+
+public static class MessagingClientExtensions
+{
+   public static void ListenWithResponse<TRequest, TResponse>(
+       this IMessagingClient client,
+       IReadOnlyLifetime lifetime,
+       Func<TRequest, TResponse> listener)
+        where TRequest : IClusterMessage
+        where TResponse : IClusterMessage
+    {
+        client.ListenWithResponse<TRequest, TResponse>(lifetime, Listener);
+
+        Task<TResponse> Listener(TRequest request)
+        {
+            return Task.FromResult(listener(request));
+        }
+    }
+
+}

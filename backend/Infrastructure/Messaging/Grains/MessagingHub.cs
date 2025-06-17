@@ -9,6 +9,8 @@ public class MessagingHub : Grain, IMessagingHub
 {
     private readonly MessagingObserversCollection _observersCollection;
     private readonly ILogger<MessagingHub> _logger;
+    
+    // ReSharper disable once NotAccessedField.Local
     private readonly GrainDeactivationLocker _deactivationLocker;
 
     public MessagingHub(
