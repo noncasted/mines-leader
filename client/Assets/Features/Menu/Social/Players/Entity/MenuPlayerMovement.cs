@@ -1,4 +1,5 @@
 ﻿using Common.Network;
+using Common.Network.Common;
 using Global.Systems;
 using Internal;
 using MemoryPack;
@@ -14,12 +15,15 @@ namespace Menu
         private NetworkProperty<MenuPlayerTransformState> _state;
         private IUpdater _updater;
         private IMenuPlayerInput _input;
+        private INetworkEntity _entity;
 
         public void Construct(
             IUpdater updater,
             IMenuPlayerInput input,
+            INetworkEntity entity,
             NetworkProperty<MenuPlayerTransformState> state)
         {
+            _entity = entity;
             _state = state;
             _updater = updater;
             _input = input;
@@ -32,7 +36,7 @@ namespace Menu
 
         public void OnFixedUpdate(float delta)
         {
-            if (_state.Entity.Owner.IsLocal == true)
+            if (_entity.Owner.IsLocal == true)
                 Local();
             else
                 Remote();

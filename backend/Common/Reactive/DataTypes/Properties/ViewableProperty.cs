@@ -5,9 +5,5 @@
         public ViewableProperty(T value) : base(value)
         {
         }
-
-        public ViewableProperty() : base()
-        {
-        }
     }
 }

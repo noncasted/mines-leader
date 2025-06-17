@@ -11,11 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Server" Version="9.2.0-preview1"/>
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview1"/>
+        <PackageReference Include="Aspire.Npgsql" Version="9.3.1" />
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Server" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
     </ItemGroup>
 
     <ItemGroup>

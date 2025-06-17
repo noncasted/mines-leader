@@ -1,5 +1,4 @@
-﻿using Common;
-using Shared;
+﻿using Shared;
 
 namespace Game;
 
@@ -10,29 +9,32 @@ public interface IServiceFactory
 
 public class ServiceFactory : IServiceFactory
 {
-    public ServiceFactory(ISessionServices collection, IReadOnlyLifetime sessionLifetime)
+    public ServiceFactory(ISessionServices collection, ISessionData data, ISessionObjects objects)
     {
         _collection = collection;
-        _sessionLifetime = sessionLifetime;
+        _data = data;
+        _objects = objects;
     }
 
     private readonly ISessionServices _collection;
-    private readonly IReadOnlyLifetime _sessionLifetime;
+    private readonly ISessionData _data;
+    private readonly ISessionObjects _objects;
 
     public IService GetOrCreate(ServiceContexts.GetRequest request)
     {
         if (_collection.Entries.TryGetValue(request.Key, out var existing))
             return existing;
 
-        var properties = new List<IObjectProperty>();
+        var properties = new Dictionary<int, IObjectProperty>();
 
         foreach (var propertyId in request.PropertiesIds)
-            properties.Add(new ObjectProperty(propertyId, []));
+            properties.Add(propertyId, new ObjectProperty(propertyId, []));
 
-        var service = new Service(request.Key, _sessionLifetime, properties);
+        var service = new Service(request.Key, _data.Lifetime, properties);
 
         _collection.Add(service);
-        
+        _objects.Add(service);
+
         return service;
     }
 }

@@ -21,8 +21,8 @@ namespace Global.Backend
 
         public async UniTask<Guid> Auth(IReadOnlyLifetime lifetime)
         {
-            if (PlayerPrefs.HasKey("userId") == true)
-                return Guid.Parse(PlayerPrefs.GetString("userId"));
+            // if (PlayerPrefs.HasKey("userId") == true)
+            //     return Guid.Parse(PlayerPrefs.GetString("userId"));
             
             var url = _options.Url + "/develop_signUp";
 

@@ -20,13 +20,13 @@ namespace Shared
     
     [MemoryPackUnion(5000, typeof(EntityContexts.CreateRequest))]
     [MemoryPackUnion(5001, typeof(EntityContexts.CreateResponse))]
-    [MemoryPackUnion(5002, typeof(EntityContexts.Overview))]
+    [MemoryPackUnion(5002, typeof(EntityContexts.CreatedOverview))]
     [MemoryPackUnion(5003, typeof(EntityContexts.Destroy))]
-    [MemoryPackUnion(5006, typeof(EntityContexts.DestroyUpdate))]
+    [MemoryPackUnion(5004, typeof(EntityContexts.DestroyUpdate))]
     
     [MemoryPackUnion(6000, typeof(ServiceContexts.GetRequest))]
     [MemoryPackUnion(6001, typeof(ServiceContexts.GetResponse))]
-    [MemoryPackUnion(6002, typeof(ServiceContexts.GetResponse))]
+    [MemoryPackUnion(6002, typeof(ServiceContexts.Overview))]
     public partial interface INetworkContext
     {
     }

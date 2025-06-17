@@ -1,22 +1,23 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network.Common;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityPropertyUpdateCommand : NetworkCommand<EntityContexts.PropertyUpdate>
+    public class EntityPropertyUpdateCommand : NetworkCommand<ObjectContexts.PropertyUpdate>
     {
-        private readonly INetworkEntitiesCollection _networkEntities;
-
-        public EntityPropertyUpdateCommand(INetworkEntitiesCollection networkEntities)
+        public EntityPropertyUpdateCommand(INetworkObjectsCollection objects)
         {
-            _networkEntities = networkEntities;
+            _objects = objects;
         }
+
+        private readonly INetworkObjectsCollection _objects;
         
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.PropertyUpdate context)
+        protected override UniTask Execute(IReadOnlyLifetime lifetime, ObjectContexts.PropertyUpdate context)
         {
-            var entity = _networkEntities.Entries[context.EntityId];
-            var property = entity.Properties[context.PropertyId];
+            var networkObject = _objects.Entries[context.ObjectId];
+            var property = networkObject.Properties[context.PropertyId];
             property.Update(context.Value);
             
             return UniTask.CompletedTask;    

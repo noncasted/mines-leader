@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Common.Network.Common;
 using Cysharp.Threading.Tasks;
 using Internal;
 using MemoryPack;
@@ -12,17 +13,20 @@ namespace Common.Network
         public NetworkEntityFactory(
             INetworkSender sender,
             INetworkEntitiesCollection entities,
+            INetworkObjectsCollection objects,
             INetworkUsersCollection users,
             INetworkEntityIds ids)
         {
             _sender = sender;
             _entities = entities;
+            _objects = objects;
             _users = users;
             Ids = ids;
         }
 
         private readonly INetworkSender _sender;
         private readonly INetworkEntitiesCollection _entities;
+        private readonly INetworkObjectsCollection _objects;
         private readonly INetworkUsersCollection _users;
 
         private readonly Dictionary<Type, Func<IReadOnlyLifetime, RemoteEntityData, UniTask<INetworkEntity>>>
@@ -42,12 +46,16 @@ namespace Common.Network
 
         public async UniTask Send(IReadOnlyLifetime lifetime, INetworkEntity entity, IEntityPayload payload)
         {
-            var properties = new List<byte[]>();
+            var properties = new List<ObjectContexts.PropertyUpdate>();
 
-            foreach (var property in entity.Properties)
+            foreach (var (id, property) in entity.Properties)
             {
-                property.Construct(entity);
-                properties.Add(property.Collect());
+                properties.Add(new ObjectContexts.PropertyUpdate()
+                {
+                    ObjectId = entity.Id,
+                    PropertyId = id,
+                    Value = property.Collect()
+                });
             }
 
             var request = new EntityContexts.CreateRequest()
@@ -57,7 +65,9 @@ namespace Common.Network
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            var response = await _sender.SendFull<EntityContexts.CreateResponse>(lifetime, request);
+            await _sender.SendFull<EntityContexts.CreateResponse>(lifetime, request);
+
+            _objects.Add(entity);
             _entities.Add(entity);
         }
 
@@ -68,6 +78,7 @@ namespace Common.Network
             var payload = MemoryPackSerializer.Deserialize<IEntityPayload>(data.Payload);
             var entity = await _listeners[payload.GetType()].Invoke(lifetime, data);
             _entities.Add(entity);
+            _objects.Add(entity);
         }
     }
 }

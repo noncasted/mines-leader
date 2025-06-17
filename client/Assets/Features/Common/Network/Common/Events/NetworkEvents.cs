@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using MemoryPack;
 using Shared;
 
-namespace Common.Network
+namespace Common.Network.Common
 {
     public class NetworkEvents : INetworkEvents
     {
-        public NetworkEvents(INetworkSender sender, INetworkEntity entity)
+        public NetworkEvents(INetworkSender sender, INetworkObject networkObject)
         {
             _sender = sender;
-            _entity = entity;
+            _object = networkObject;
         }
         private readonly INetworkSender _sender;
-        private readonly INetworkEntity _entity;
+        private readonly INetworkObject _object;
 
         private readonly Dictionary<Type, object> _entries = new();
         private readonly Dictionary<Type, Action<IEventPayload>> _actions = new();
@@ -41,7 +41,7 @@ namespace Common.Network
         {
             _sender.SendEmpty(new ObjectContexts.Event()
             {
-                EntityId = _entity.Id,
+                ObjectId = _object.Id,
                 Value = MemoryPackSerializer.Serialize(rawPayload)
             });
         }

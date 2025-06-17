@@ -3,12 +3,9 @@ using Shared;
 
 namespace Game;
 
-public interface IEntity
+public interface IEntity : IObject
 {
-    int Id { get; }
     IUser Owner { get; }
-    IReadOnlyList<IObjectProperty> Properties { get; }
-    IReadOnlyLifetime Lifetime { get; }
 
     void Destroy();
     INetworkContext CreateOverview();
@@ -18,7 +15,7 @@ public class Entity : IEntity
 {
     public Entity(
         IUser owner,
-        IReadOnlyList<IObjectProperty> properties,
+        IReadOnlyDictionary<int, IObjectProperty> properties,
         int id,
         byte[] payload)
     {
@@ -35,7 +32,7 @@ public class Entity : IEntity
 
     public int Id { get; }
     public IUser Owner { get; }
-    public IReadOnlyList<IObjectProperty> Properties { get; }
+    public IReadOnlyDictionary<int, IObjectProperty> Properties { get; }
     public IReadOnlyLifetime Lifetime => _lifetime;
 
     public void Destroy()
@@ -47,23 +44,23 @@ public class Entity : IEntity
     {
         var properties = new List<ObjectContexts.PropertyUpdate>();
 
-        foreach (var property in Properties)
+        foreach (var (_, property) in Properties)
         {
             properties.Add(new ObjectContexts.PropertyUpdate()
             {
-                Id   = property.Id,
+                PropertyId = property.Id,
                 Value = property.Value
             });
         }
-        
-        var updatedContext = new EntityContexts.Overview()
+
+        var updatedContext = new EntityContexts.CreatedOverview()
         {
             EntityId = Id,
             Properties = properties,
             OwnerId = Owner.Index,
             Payload = _payload
         };
-        
+
         return updatedContext;
     }
 }

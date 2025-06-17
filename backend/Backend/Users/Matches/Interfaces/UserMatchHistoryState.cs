@@ -1,5 +1,7 @@
 ﻿using Backend.Matches;
 
+// ReSharper disable CollectionNeverQueried.Global
+
 namespace Backend.Users;
 
 [GenerateSerializer]

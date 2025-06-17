@@ -53,8 +53,8 @@ public class GenericPersistentStateAttributeMapper<TAttribute> : IAttributeToFac
 
     private class PersistentStateConfiguration : IPersistentStateConfiguration
     {
-        public string StateName { get; set; }
+        public required string StateName { get; init; }
 
-        public string StorageName { get; set; }
+        public required string StorageName { get; init; }
     }
 }

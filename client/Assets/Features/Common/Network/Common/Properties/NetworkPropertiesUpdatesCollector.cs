@@ -3,23 +3,24 @@ using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
 using Shared;
+using UnityEngine;
 
-namespace Common.Network
+namespace Common.Network.Common
 {
     public class NetworkPropertiesUpdatesCollector : IUpdatable, IScopeSetup
     {
         public NetworkPropertiesUpdatesCollector(
             IUpdater updater,
-            INetworkEntitiesCollection entities,
+            INetworkObjectsCollection objects,
             INetworkSender sender)
         {
             _updater = updater;
-            _entities = entities;
+            _objects = objects;
             _sender = sender;
         }
 
         private readonly IUpdater _updater;
-        private readonly INetworkEntitiesCollection _entities;
+        private readonly INetworkObjectsCollection _objects;
         private readonly INetworkSender _sender;
 
         private float _updateInterval = 0.1f;
@@ -39,21 +40,19 @@ namespace Common.Network
             
             _timer = 0f;
 
-            var contexts = new List<EntityContexts.UpdatePropertyRequest>();
+            var contexts = new List<ObjectContexts.SetProperty>();
             
-            foreach (var (_, entity) in _entities.Entries)
+            foreach (var (_, networkObject) in _objects.Entries)
             {
-                for (var i = 0; i < entity.Properties.Count; i++)
+                foreach (var (id, property) in networkObject.Properties)
                 {
-                    var property = entity.Properties[i];
-                    
                     if (property.IsDirty == false)
                         continue;
 
-                    contexts.Add(new EntityContexts.UpdatePropertyRequest()
+                    contexts.Add(new ObjectContexts.SetProperty()
                     {
-                        EntityId = entity.Id,
-                        PropertyId = i,
+                        ObjectId = networkObject.Id,
+                        PropertyId = id,
                         Value = property.Collect()
                     });
                 }
@@ -62,12 +61,10 @@ namespace Common.Network
             Send(contexts).Forget();
         }
 
-        private async UniTask Send(IReadOnlyList<EntityContexts.UpdatePropertyRequest> requests)
+        private async UniTask Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
         {
             foreach (var request in requests)
-            {
                 await _sender.SendEmpty(request);
-            }
         }
     }
 }

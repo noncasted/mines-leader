@@ -1,5 +1,4 @@
 ﻿using Common;
-using Microsoft.Extensions.Logging;
 
 namespace Game;
 
@@ -11,13 +10,6 @@ public interface ISessionUsers : IViewableList<IUser>
 
 public class SessionUsers : ViewableList<IUser>, ISessionUsers
 {
-    public SessionUsers(ILogger<SessionUsers> logger)
-    {
-        _logger = logger;
-    }
-
-    private readonly ILogger<SessionUsers> _logger;
-
     private int _index;
 
     public int GetNextIndex()

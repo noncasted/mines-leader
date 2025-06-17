@@ -1,5 +1,15 @@
 ﻿namespace Game;
 
+public interface ISessionSearch
+{
+    Guid GetOrCreate(SessionSearchParameters parameters);
+}
+
+public class SessionSearchParameters
+{
+    public required string Type { get; init; }
+}
+
 public class SessionSearch : ISessionSearch
 {
     public SessionSearch(ISessionFactory factory, ISessionsCollection collection)
@@ -11,17 +21,17 @@ public class SessionSearch : ISessionSearch
     private readonly ISessionFactory _factory;
     private readonly ISessionsCollection _collection;
 
-    public async Task<Guid> GetOrCreate(SessionSearchParameters parameters)
+    public Guid GetOrCreate(SessionSearchParameters parameters)
     {
         foreach (var (id, session) in _collection.Entries)
         {
-            if (session.Metadata.Type != parameters.Type)
+            if (session.CreateOptions.Type != parameters.Type || session.Lifetime.IsTerminated == true)
                 continue;
 
             return id;
         }
 
-        return await _factory.Create(new SessionCreateOptions()
+        return _factory.Create(new SessionCreateOptions()
         {
             ExpectedUsers = 0,
             Type = parameters.Type

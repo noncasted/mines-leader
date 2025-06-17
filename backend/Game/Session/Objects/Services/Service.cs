@@ -3,47 +3,50 @@ using Shared;
 
 namespace Game;
 
-public interface IService
+public interface IService : IObject
 {
     string Key { get; }
-    IReadOnlyList<IObjectProperty> Properties { get; }
-    IReadOnlyLifetime Lifetime { get; }
 
     ServiceContexts.Overview CreateOverview();
 }
 
 public class Service : IService
 {
-    public Service(string key, IReadOnlyLifetime lifetime, IReadOnlyList<IObjectProperty> properties)
+    public Service(
+        string key,
+        IReadOnlyLifetime lifetime,
+        IReadOnlyDictionary<int, IObjectProperty> properties)
     {
         Key = key;
+        Id = key.GetHashCode();
         Lifetime = lifetime;
         Properties = properties;
     }
 
     public string Key { get; }
-    public IReadOnlyList<IObjectProperty> Properties { get; }
+    public IReadOnlyDictionary<int, IObjectProperty> Properties { get; }
+    public int Id { get; }
     public IReadOnlyLifetime Lifetime { get; }
 
     public ServiceContexts.Overview CreateOverview()
     {
         var properties = new List<ObjectContexts.PropertyUpdate>();
 
-        foreach (var property in Properties)
+        foreach (var (_, property) in Properties)
         {
             properties.Add(new ObjectContexts.PropertyUpdate()
             {
-                Id   = property.Id,
+                PropertyId = property.Id,
                 Value = property.Value
             });
         }
-        
+
         var updatedContext = new ServiceContexts.Overview()
         {
             Key = Key,
             Properties = properties
         };
-        
+
         return updatedContext;
     }
 }

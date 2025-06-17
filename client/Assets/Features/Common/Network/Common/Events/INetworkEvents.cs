@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Internal;
 
-namespace Common.Network
+namespace Common.Network.Common
 {
     public interface INetworkEvents
     {

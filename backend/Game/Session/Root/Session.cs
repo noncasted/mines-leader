@@ -7,11 +7,11 @@ public interface ISession
 {
     Guid Id { get; }
     IReadOnlyLifetime Lifetime { get; }
-    ISessionMetadata Metadata { get; }
     IUserFactory UserFactory { get; }
     IExecutionQueue ExecutionQueue { get; }
+    SessionCreateOptions CreateOptions { get; }
 
-    Task Run(SessionContainerData data);
+    Task Run();
 }
 
 public class SessionCreateOptions
@@ -25,55 +25,64 @@ public class SessionContainerData
     public required SessionCreateOptions CreateOptions { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
+    
+    public static SessionContainerData Default => new SessionContainerData
+    {
+        CreateOptions = new SessionCreateOptions
+        {
+            ExpectedUsers = 0,
+            Type = "null"
+        },
+        Id = default,
+        Lifetime = new TerminatedLifetime()
+    };
 }
 
 public class Session : ISession
 {
     public Session(
-        ISessionMetadata metadata,
+        SessionContainerData data,
         IUserFactory userFactory,
         ISessionUsers users,
         ISessionEntities entities,
         IExecutionQueue executionQueue)
     {
+        _data = data;
         _users = users;
         _entities = entities;
         ExecutionQueue = executionQueue;
-        Metadata = metadata;
         UserFactory = userFactory;
     }
 
     private readonly ISessionUsers _users;
     private readonly ISessionEntities _entities;
-    
-    private SessionContainerData _data;
+    private readonly SessionContainerData _data;
 
     public Guid Id => _data.Id;
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
 
-    public ISessionMetadata Metadata { get; }
     public IUserFactory UserFactory { get; }
     public IExecutionQueue ExecutionQueue { get; }
-
-    public async Task Run(SessionContainerData data)
+    public SessionCreateOptions CreateOptions => _data.CreateOptions;
+    
+    public async Task Run()
     {
-        _data = data;
         await AwaitUsersJoin();
 
         _users.View(Lifetime, HandleUserJoin);
 
-        await Task.Delay(TimeSpan.FromMinutes(3));
+        await Task.Delay(TimeSpan.FromSeconds(30));
 
         await AwaitUsersLeave();
 
-        data.Lifetime.Terminate();
+        _data.Lifetime.Terminate();
 
         async Task AwaitUsersJoin()
         {
-            if (Metadata.ExpectedUsers == 0)
+            if (_data.CreateOptions.ExpectedUsers == 0)
                 return;
 
-            while (_users.Count < Metadata.ExpectedUsers)
+            while (_users.Count < _data.CreateOptions.ExpectedUsers)
                 await Task.Delay(TimeSpan.FromSeconds(1));
         }
 

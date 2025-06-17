@@ -35,9 +35,9 @@ public class ServerSessions : BackgroundService
 
         return Task.CompletedTask;
 
-        async Task<MatchPayloads.Create.Response> CreateSession(MatchPayloads.Create.Request request)
+        MatchPayloads.Create.Response CreateSession(MatchPayloads.Create.Request request)
         {
-            var id = await _sessionFactory.Create(new SessionCreateOptions
+            var id = _sessionFactory.Create(new SessionCreateOptions
             {
                 ExpectedUsers = request.ExpectedUsers,
                 Type = request.Type
@@ -49,9 +49,9 @@ public class ServerSessions : BackgroundService
             };
         }
 
-        async Task<MatchPayloads.GetOrCreate.Response> GetOrCreateSession(MatchPayloads.GetOrCreate.Request request)
+        MatchPayloads.GetOrCreate.Response GetOrCreateSession(MatchPayloads.GetOrCreate.Request request)
         {
-            var id = await _sessionSearch.GetOrCreate(new SessionSearchParameters
+            var id = _sessionSearch.GetOrCreate(new SessionSearchParameters
             {
                 Type = request.Type
             });

@@ -4,21 +4,23 @@ namespace Game;
 
 public class SetPropertyCommand : Command<ObjectContexts.SetProperty>
 {
-    public SetPropertyCommand(ISessionProperties properties)
+    public SetPropertyCommand(ISessionObjects objects)
     {
-        _properties = properties;
+        _objects = objects;
     }
     
-    private readonly ISessionProperties _properties;
+    private readonly ISessionObjects _objects;
 
     protected override void Execute(CommandScope scope, ObjectContexts.SetProperty context)
     {
-        var property = _properties.Entries[context.PropertyId];
+        var networkObject = _objects.Entries[context.ObjectId];
+        var property = networkObject.Properties[context.PropertyId];
         property.Update(context.Value);
 
         var updatedContext = new ObjectContexts.PropertyUpdate()
         {
-            Id = context.PropertyId,
+            ObjectId = context.ObjectId,
+            PropertyId = context.PropertyId,
             Value = context.Value
         };
 

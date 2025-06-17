@@ -9,14 +9,8 @@ namespace Shared
         public partial class CreateRequest : INetworkContext
         {
             public int Id { get; set; }
-            public IReadOnlyList<Property> Properties { get; set; }
+            public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
-
-            public class Property
-            {
-                public int Id { get; set; }
-                public IReadOnlyList<byte> Value { get; set; }
-            }
         }
 
         [MemoryPackable]
@@ -26,7 +20,7 @@ namespace Shared
         }
     
         [MemoryPackable]
-        public partial class Overview : INetworkContext
+        public partial class CreatedOverview : INetworkContext
         {
             public int OwnerId { get; set; }
             public int EntityId { get; set; }

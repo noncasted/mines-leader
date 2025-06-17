@@ -4,7 +4,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class EntityCreatedCommand : NetworkCommand<EntityContexts.CreateUpdate>
+    public class EntityCreatedCommand : NetworkCommand<EntityContexts.CreatedOverview>
     {
         private readonly INetworkEntityFactory _factory;
         private readonly INetworkUsersCollection _users;
@@ -15,11 +15,8 @@ namespace Common.Network
             _users = users;
         }
         
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.CreateUpdate context)
+        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.CreatedOverview context)
         {
-            if (context.OwnerId == 0)
-                return UniTask.CompletedTask;
-            
             var owner = _users.Entries[context.OwnerId];
 
             var payload = new RemoteEntityData(owner, context.EntityId, context.Properties, context.Payload);

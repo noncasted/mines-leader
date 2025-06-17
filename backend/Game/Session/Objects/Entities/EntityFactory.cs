@@ -9,25 +9,26 @@ public interface IEntityFactory
 
 public class EntityFactory : IEntityFactory
 {
-    public EntityFactory(ISessionEntities collection, ISessionProperties properties)
+    public EntityFactory(ISessionEntities collection, ISessionObjects objects)
     {
         _collection = collection;
-        _properties = properties;
+        _objects = objects;
     }
 
     private readonly ISessionEntities _collection;
-    private readonly ISessionProperties _properties;
+    private readonly ISessionObjects _objects;
 
     public IEntity Create(EntityContexts.CreateRequest request, IUser user)
     {
-        var properties = new List<IObjectProperty>();
+        var properties = new Dictionary<int, IObjectProperty>();
 
         foreach (var property in request.Properties)
-            properties.Add(new ObjectProperty(property.Id, property.Value));
-        
+            properties.Add(property.PropertyId, new ObjectProperty(property.PropertyId, property.Value));
+
         var entity = new Entity(user, properties, request.Id, request.Payload);
 
         _collection.Add(entity);
+        _objects.Add(entity);
 
         return entity;
     }

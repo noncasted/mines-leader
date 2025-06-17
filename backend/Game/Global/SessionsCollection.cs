@@ -1,5 +1,13 @@
 ﻿namespace Game;
 
+public interface ISessionsCollection
+{
+    IReadOnlyDictionary<Guid, ISession> Entries { get; }
+    
+    void Add(ISession session);
+    ISession Get(Guid id);
+}
+
 public class SessionsCollection : ISessionsCollection
 {
     private readonly Dictionary<Guid, ISession> _entries = new();
