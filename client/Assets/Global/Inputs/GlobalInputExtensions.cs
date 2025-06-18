@@ -9,28 +9,12 @@ namespace Global.Inputs
             builder.Register<InputConstraintsStorage>()
                 .As<IInputConstraintsStorage>();
 
-            builder.Register<InputConversion>()
-                .As<IInputConversion>();
-
-            builder.Register<InputProjection>()
-                .As<IInputProjection>();
-
             var eventSystemPrefab = builder.GetAsset<GlobalInputOptions>().EventSystemPrefab;
             builder.Instantiate(eventSystemPrefab);
-            
-            var controls = new Controls();
 
-            builder.RegisterInstance(controls);
-            builder.RegisterInstance(controls.GamePlay);
-
-            builder.Register<InputView>()
-                .WithParameter(controls)
-                .As<IInputView>()
-                .As<IScopeSetupCompletion>();
-
-            builder.Register<VirtualCursor>()
-                .As<IScopeSetup>()
-                .As<ICursor>();
+            builder.Register<GlobalControls>()
+                .As<IGlobalControls>()
+                .As<IScopeSetup>();
 
             return builder;
         }

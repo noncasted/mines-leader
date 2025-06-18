@@ -1,21 +1,19 @@
 ﻿using Common.Network;
-using Common.Network.Common;
 using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
-using Global.Network.Initialization;
+using Internal;
 using MemoryPack;
 using MemoryPack.Formatters;
-using Menu;
+using Menu.Social;
 
 namespace Tools.MemoryPackTools
 {
-    public class UnionInitializer : UnionInitializerBase
+    public class UnionInitializer : EnvPreprocessor
     {
-        public override void Init()
+        public override void Execute()
         {
             var payloads = new DynamicUnionFormatter<IEntityPayload>(
-                (0, typeof(TestEntityPayload)),
                 (1, typeof(BoardCreatePayload)),
                 (2, typeof(CardCreatePayload)),
                 (3, typeof(GamePlayerCreatePayload)),

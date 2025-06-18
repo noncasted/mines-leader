@@ -48,17 +48,15 @@ public static class StateAttributesExtensions
         void AddTransactionalAttribute<TAttribute>()
             where TAttribute : TransactionalStateAttribute, new()
         {
-            builder.Services
-                .AddSingleton<IAttributeToFactoryMapper<TAttribute>,
+            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
                     GenericTransactionalStateAttributeMapper<TAttribute>>();
         }
 
         void AddPersistentAttribute<TAttribute>()
             where TAttribute : PersistentStateAttribute, new()
         {
-            builder.Services
-                .AddSingleton<IAttributeToFactoryMapper<TAttribute>,
-                    GenericPersistentStateAttributeMapper<TAttribute>>();
+            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
+                GenericPersistentStateAttributeMapper<TAttribute>>();
         }
     }
 }

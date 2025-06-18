@@ -20,7 +20,6 @@ namespace Global.UI
         }
 
         private readonly IInputConstraintsStorage _constraintsStorage;
-
         private readonly Dictionary<IUIState, IInternalUIStateHandle> _handles;
 
         public IUIState Base { get; }

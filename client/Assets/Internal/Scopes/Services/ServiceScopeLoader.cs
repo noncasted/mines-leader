@@ -22,8 +22,6 @@ namespace Internal
 
         public async UniTask<ILoadedScope> Load(ScopeLoadOptions options)
         {
-            var profiler = new ProfilingScope("ServiceScopeLoader");
-
             var sceneLoader = new ServiceScopeSceneLoader(_sceneLoader);
             var servicesScene = await sceneLoader.Load(options.ServiceScene);
 
@@ -40,14 +38,11 @@ namespace Internal
             var eventLoop = container.Container.Resolve<IEventLoop>();
             await eventLoop.RunConstruct(builder.ScopeLifetime);
 
-
             var loadResult = new ScopeLoadResult(
                 container,
                 builder.ScopeLifetime,
                 eventLoop,
                 sceneLoader.Results);
-
-            profiler.Dispose();
 
             return loadResult;
 

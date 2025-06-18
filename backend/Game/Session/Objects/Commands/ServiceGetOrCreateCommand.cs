@@ -22,6 +22,7 @@ public class ServiceGetOrCreateCommand : ResponseCommand<ServiceContexts.GetRequ
         return new ServiceContexts.GetResponse()
         {
             Key = service.Key,
+            Id = service.Id,
             Properties = overview.Properties
         };
     }

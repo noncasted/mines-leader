@@ -11,6 +11,18 @@ namespace Internal
             lifetime.Listen(() => source.RemoveListener(listener));
         }
 
+        public static void Listen<T>(this UnityEvent<T> source, IReadOnlyLifetime lifetime, UnityAction listener)
+        {
+            source.AddListener(Listener);
+
+            lifetime.Listen(() => source.RemoveListener(Listener));
+            
+            void Listener(T value)
+            {
+                listener.Invoke();
+            }
+        }
+
         public static ILifetime Child(this IReadOnlyLifetime lifetime)
         {
             var child = new Lifetime(lifetime);

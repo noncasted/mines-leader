@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 17380c24072c0954898ab03528ac9077
+timeCreated: 1474763489
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Demos/Assets/Skybox.mat
+  uploadId: 756521

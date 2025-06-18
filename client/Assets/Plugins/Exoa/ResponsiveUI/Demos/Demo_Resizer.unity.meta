@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 9f5da5a183bf48b40a4f3f4e8d5515ac
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Demos/Demo_Resizer.unity
+  uploadId: 756521

@@ -1,0 +1,21 @@
+{
+    "name": "Startup",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
+        "GUID:01f60cffe1f34ab2a431167c2fa3d728",
+        "GUID:9f28f05e990a4fb0b37d9b564dd0a6cf",
+        "GUID:aa76e50385904580a751ab40cc7ad4e0",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

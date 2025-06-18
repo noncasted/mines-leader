@@ -105,5 +105,14 @@ namespace Internal
 
             return (sourceAngle + delta).ToAngle().ToVector2();
         }
+        
+        public static Vector2 Random(float minDistance, float maxDistance)
+        {
+            var distance = UnityEngine.Random.Range(minDistance, maxDistance);
+            var randomX = UnityEngine.Random.Range(-1f, 1f);
+            var randomY = UnityEngine.Random.Range(-1f, 1f);
+            var direction = new Vector2(randomX, randomY).normalized;
+            return direction * distance;
+        }
     }
 }

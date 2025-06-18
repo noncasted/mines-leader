@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
@@ -53,6 +54,23 @@ namespace Global.Backend
 
             if (projection.Value != null)
                 listener.Invoke(projection.Value);
+        }
+
+        public static UniTask<T> WaitOnce<T>(
+            this IBackendProjection<T> projection,
+            IReadOnlyLifetime lifetime) where T : class, INetworkContext
+        {
+            var listenLifetime = lifetime.Child();
+            var completion = new UniTaskCompletionSource<T>();
+            listenLifetime.Listen(() => completion.TrySetCanceled());
+            projection.Advise(listenLifetime, Listener);
+            return completion.Task;
+
+            void Listener(T update)
+            {
+                completion.TrySetResult(update);
+                listenLifetime.Terminate();
+            }
         }
 
         public static IScopeBuilder RegisterBackendProjection<T>(this IScopeBuilder builder)

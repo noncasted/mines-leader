@@ -2,6 +2,12 @@
 
 namespace Internal
 {
+    public enum Direction2
+    {
+        Forward,
+        Backward,
+    }
+    
     public enum Direction4
     {
         Up,

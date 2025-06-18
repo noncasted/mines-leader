@@ -34,7 +34,7 @@ namespace Exoa.Responsive
             else if (useImageTextureSize && rimg != null)
             {
                 ratio = (float)rimg.texture.width / (float)rimg.texture.height;
-                print(" rimg.texture.width:" + rimg.texture.width + "  rimg.texture.height:" + rimg.texture.height + " ratio:" + ratio);
+                //print(" rimg.texture.width:" + rimg.texture.width + "  rimg.texture.height:" + rimg.texture.height + " ratio:" + ratio);
             }
         }
 

@@ -62,9 +62,21 @@
               "icon": "lucide-file",
               "title": "Уровень дискуссии в восточной европе"
             }
+          },
+          {
+            "id": "bebcb4005250abb3",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/Drawing 2025-06-17 18.33.47.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2025-06-17 18.33.47.excalidraw"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -207,11 +219,14 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "b64589a9c5231c19",
+  "active": "a54ab60f59a1992a",
   "lastOpenFiles": [
+    "Уровень дискуссии в восточной европе.md",
+    "Excalidraw/Drawing 2025-06-17 18.33.47.excalidraw.md",
+    "Excalidraw",
     "Механики.md",
     "Welcome.md",
-    "Pasted image 20250205190936.png",
+    "Excalidraw/project structure.png",
     "Storage/Pasted image 20250202005140.png",
     "Pictures/Pasted image 20250103105014.png",
     "drawings/network.md",
@@ -226,7 +241,6 @@
     "Storage/Игровое поле/Конец хода.md",
     "Storage/Игровое поле/Колода.md",
     "Storage/Игровое поле/Карта/6.md",
-    "Уровень дискуссии в восточной европе.md",
     "Storage/Игровое поле/Количество действий.md",
     "Storage/Игровое поле.md",
     "Storage/Интерфейс.md",
@@ -242,7 +256,6 @@
     "Storage",
     "Pictures",
     "Pictures/{9078437C-F585-485C-B037-03B1867F518D}.png",
-    "{9078437C-F585-485C-B037-03B1867F518D} 1.png",
-    "Excalidraw"
+    "{9078437C-F585-485C-B037-03B1867F518D} 1.png"
   ]
 }

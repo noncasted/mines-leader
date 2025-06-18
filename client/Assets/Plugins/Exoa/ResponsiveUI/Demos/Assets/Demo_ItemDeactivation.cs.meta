@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4be30e3906fd2f44e96e955325e170b8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Demos/Assets/Demo_ItemDeactivation.cs
+  uploadId: 756521

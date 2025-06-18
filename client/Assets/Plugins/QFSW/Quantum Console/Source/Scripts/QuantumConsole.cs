@@ -97,7 +97,7 @@ namespace QFSW.QC
         [SerializeField] private TextMeshProUGUI _consoleSuggestionText;
         [SerializeField] private TextMeshProUGUI _suggestionPopupText;
         [SerializeField] private TextMeshProUGUI _jobCounterText;
-        
+
         /// <summary>
         /// The maximum number of logs that may be stored in the log storage before old logs are removed.
         /// </summary>
@@ -140,7 +140,7 @@ namespace QFSW.QC
 
         private bool IsBlockedByAsync => (_blockOnAsync
                                          && _currentTasks.Count > 0
-                                         || _currentActions.Count > 0) 
+                                         || _currentActions.Count > 0)
                                          && !_isHandlingUserResponse;
 
         private readonly QuantumSerializer _serializer = new QuantumSerializer();
@@ -262,8 +262,15 @@ namespace QFSW.QC
                     }
                 }
 
+
                 _previousInput = _currentInput;
                 _currentInput = _consoleInput.text;
+
+                if (_consoleInput.isFocused && _keyConfig.DeleteWordBeforeCursorKey.IsPressed())
+                {
+                    DeleteWordBeforeCursor();
+                }
+
                 if (_currentInput != _previousInput)
                 {
                     OnInputChange();
@@ -286,7 +293,7 @@ namespace QFSW.QC
                 FlushToConsoleText();
             }
         }
-        
+
         private string GetTableGenerationText()
         {
             string text = string.Format(_localization.InitializationProgress, QuantumConsoleProcessor.LoadedCommandCount);
@@ -474,8 +481,8 @@ namespace QFSW.QC
 
         private void UpdateSuggestionText()
         {
-            Color suggestionColor = _theme 
-                ? _theme.SuggestionColor 
+            Color suggestionColor = _theme
+                ? _theme.SuggestionColor
                 : Color.gray;
 
             StringBuilder buffer = _stringBuilderPool.GetStringBuilder();
@@ -502,6 +509,24 @@ namespace QFSW.QC
             }
 
             OnInputChange();
+        }
+
+        private void DeleteWordBeforeCursor()
+        {
+            // This function may be called as a response to a key binding that contains `Backspace`
+            // If `Backspace` is pressed, the character to the left of the caret will be deleted
+            // This is undesirable, as we instead want to update the console input using this function's logic.
+            // We work with `_previousInput`, as this will be the input before any `Backspace` key is pressed.
+            // We work with the caret's position moved to the right by the amount of characters that have been deleted.
+
+            int caretPosition = _consoleInput.caretPosition + (_previousInput.Length - _currentInput.Length);
+            int caretDistanceFromEnd = _previousInput.Length - caretPosition;
+
+            string newInput = _previousInput.WithoutWord(caretPosition);
+            OverrideConsoleInput(newInput, false);
+
+            int newCaretPosition = newInput.Length - caretDistanceFromEnd;
+            _consoleInput.stringPosition = newCaretPosition;
         }
 
         /// <summary>
@@ -558,7 +583,7 @@ namespace QFSW.QC
             if (!string.IsNullOrWhiteSpace(userInput))
             {
                 string command = userInput.Trim();
-                
+
                 if (_isHandlingUserResponse)
                 {
                     HandleUserResponse(command);
@@ -947,7 +972,7 @@ namespace QFSW.QC
             _logStorage.AddLog(TruncateLog(log));
             RequireFlush();
         }
-        
+
         protected void RequireFlush()
         {
             _consoleRequiresFlush = true;
@@ -1111,7 +1136,7 @@ namespace QFSW.QC
         protected virtual ILogStorage CreateLogStorage() => new LogStorage(_maxStoredLogs);
         protected virtual ILogQueue CreateLogQueue() => new LogQueue(_maxStoredLogs);
         protected virtual SuggestionStack CreateSuggestionStack() => new SuggestionStack();
-        
+
         /// <summary>
         /// Toggles the Quantum Console.
         /// </summary>
@@ -1185,7 +1210,7 @@ namespace QFSW.QC
             {
                 condition += $"\n{stackTrace}";
             }
-           
+
             if (_theme)
             {
                 switch (type)
@@ -1195,7 +1220,7 @@ namespace QFSW.QC
                         condition = ColorExtensions.ColorText(condition, _theme.WarningColor);
                         break;
                     }
-                    case LogType.Error: 
+                    case LogType.Error:
                     case LogType.Assert:
                     case LogType.Exception:
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 using UnityEngine;
 
@@ -35,7 +36,7 @@ namespace QFSW.QC
                                                         .ToArray();
 #else
                 _injectableTypes = AppDomain.CurrentDomain.GetAssemblies()
-                                                          .SelectMany(assembly => assembly.GetTypes())
+                                                          .SelectMany(assembly => GetTypesSafe(assembly))
                                                           .Where(type => typeof(T).IsAssignableFrom(type))
                                                           .Where(type => !type.IsAbstract)
                                                           .Where(type => !type.IsDefined(typeof(NoInjectAttribute), false))
@@ -87,6 +88,21 @@ namespace QFSW.QC
                 {
                     yield return instance;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Corrupted reflection data (usually caused by obfuscators) can cause GetTypes to throw an exception
+        /// </summary>
+        private Type[] GetTypesSafe(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException)
+            {
+                return Array.Empty<Type>();
             }
         }
     }

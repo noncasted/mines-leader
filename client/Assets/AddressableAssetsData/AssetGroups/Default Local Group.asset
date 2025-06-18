@@ -25,13 +25,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76a5a435461b3bc44991fe8c8cde3571
+    m_Address: Assets/Loop/Setup/GameLoop_Services.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 92101a9411609634391317ab2ff7fd37
     m_Address: Assets/Features/GamePlay/UI/Options/GamePlay_UI.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 974b052432fbdba498b4e519fbee2214
+    m_Address: Assets/Settings/ScopeData/Global_Services.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b072020bf5a8f9c44a8f48ef9ae3fe23
     m_Address: Assets/Features/Menu/Options/Menu_UI.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b70b56507d8b176409f686c0c5e39968
+    m_Address: Assets/Meta/Setup/Meta_Services.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

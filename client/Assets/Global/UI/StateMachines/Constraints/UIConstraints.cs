@@ -3,6 +3,11 @@ using Global.Inputs;
 
 namespace Global.UI
 {
+    public interface IUIConstraints
+    {
+        IReadOnlyDictionary<InputConstraints, bool> Input { get; }
+    }
+    
     public class UIConstraints : IUIConstraints
     {
         public UIConstraints()

@@ -7,8 +7,8 @@ namespace Global.Cameras
     {
         public static IScopeBuilder AddCamera(this IScopeBuilder builder)
         {
-            builder.Register<CurrentCameraProvider>()
-                .As<ICurrentCameraProvider>();
+            builder.Register<CurrentCamera>()
+                .As<ICurrentCamera>();
 
             var prefab = builder.GetAsset<GlobalCameraOptions>().Prefab;
             var camera = builder.Instantiate(prefab, new Vector3(0f, 0f, -10f));

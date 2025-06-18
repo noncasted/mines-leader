@@ -98,7 +98,15 @@ namespace QFSW.QC
                 for (int i = 0; i < commandParams.Length; i++)
                 {
                     ParameterInfo currentParam = commandParams[i];
-                    manual += $"\n   - {currentParam.Name}: {currentParam.ParameterType.GetDisplayName()}";
+                    string typeName = currentParam.ParameterType.GetDisplayName();
+
+                    // Add keywords
+                    if (currentParam.HasAttribute<ParamArrayAttribute>())
+                    {
+                        typeName = $"params {typeName}";
+                    }
+
+                    manual += $"\n   - {currentParam.Name}: {typeName}";
                 }
             }
 

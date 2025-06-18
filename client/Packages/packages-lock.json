@@ -7,7 +7,7 @@
       "dependencies": {},
       "hash": "ca28202a65b22b6fd3ea66b4c75eab252255a097"
     },
-    "com.mines-ultra.shared": {
+    "com.shared.protocol": {
       "version": "file:P:/noncasted/mines-leader/shared/Protocol",
       "depth": 0,
       "source": "local",

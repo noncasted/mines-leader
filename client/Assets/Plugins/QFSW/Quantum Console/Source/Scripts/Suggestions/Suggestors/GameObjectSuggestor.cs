@@ -18,7 +18,11 @@ namespace QFSW.QC.Suggestors
 
         protected override IEnumerable<string> GetItems(SuggestionContext context, SuggestorOptions options)
         {
+#if UNITY_6000_0_OR_NEWER
+            return Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None)
+#else
             return Object.FindObjectsOfType<GameObject>()
+#endif
                 .Select(obj => obj.name);
         }
     }

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fc4d84a29bb848b45b4c0c9b55f4b0e2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Demos/Assets/ContainerResizeAnim3.controller
+  uploadId: 756521

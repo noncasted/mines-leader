@@ -24,5 +24,7 @@ namespace QFSW.QC
         public KeyCode PreviousCommandKey = KeyCode.DownArrow;
 
         public ModifierKeyCombo CancelActionsKey = new ModifierKeyCombo { Key = KeyCode.C, Ctrl = true };
+
+        public ModifierKeyCombo DeleteWordBeforeCursorKey = new ModifierKeyCombo { Key = KeyCode.Backspace, Ctrl = true };
     }
 }

@@ -25,6 +25,8 @@ namespace QFSW.QC.Editor
 
         private SerializedProperty _cancelActionsKeyProperty;
 
+        private SerializedProperty _deleteWordBeforeCursorKeyProperty;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -47,6 +49,8 @@ namespace QFSW.QC.Editor
             _previousCommandKeyProperty = serializedObject.FindProperty("PreviousCommandKey");
 
             _cancelActionsKeyProperty = serializedObject.FindProperty("CancelActionsKey");
+
+            _deleteWordBeforeCursorKeyProperty = serializedObject.FindProperty("DeleteWordBeforeCursorKey");
         }
 
         public override void OnInspectorGUI()
@@ -79,6 +83,10 @@ namespace QFSW.QC.Editor
 
             EditorGUILayout.LabelField(new GUIContent("Actions"), EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_cancelActionsKeyProperty, new GUIContent("Cancel Actions", "Cancels any actions currently executing."));
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField(new GUIContent("Input Field"), EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_deleteWordBeforeCursorKeyProperty, new GUIContent("Delete Word Before Cursor", "Deletes the word to the left of the cursor"));
 
             serializedObject.ApplyModifiedProperties();
         }

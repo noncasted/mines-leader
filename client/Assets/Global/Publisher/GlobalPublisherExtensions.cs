@@ -1,20 +1,14 @@
 ﻿using System;
-using Cysharp.Threading.Tasks;
 using Global.Publisher.Itch;
-using Global.Saves;
 using Internal;
 
 namespace Global.Publisher
 {
     public static class GlobalPublisherExtensions
     {
-        public static async UniTask AddPublisher(this IScopeBuilder builder)
+        public static IScopeBuilder AddPublisher(this IScopeBuilder builder)
         {
             var platformOptions = builder.GetOptions<PlatformOptions>();
-
-            builder.Register<DataStorageEventLoop>()
-                .AsSelf()
-                .AsSelfResolvable();
 
             switch (platformOptions.PlatformType)
             {
@@ -32,6 +26,8 @@ namespace Global.Publisher
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return builder;
         }
 
         private static void AddItchIO(IScopeBuilder builder)
@@ -41,15 +37,11 @@ namespace Global.Publisher
 
             var callbacks = builder.Instantiate(options.ItchCallbacksPrefab);
 
-            builder.Register<ItchAds>()
-                .As<IAds>();
-
             builder.RegisterInstance(callbacks)
                 .As<IJsErrorCallback>();
 
-            builder.Register<ItchDataStorage>()
-                .WithParameter(SavesExtensions.GetSerializers())
-                .As<IDataStorage>()
+            builder.Register<ItchSaves>()
+                .As<ISaves>()
                 .AsEventListener<IScopeBaseSetup>();
 
             builder.Register<ItchLanguageProvider>()

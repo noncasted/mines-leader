@@ -14,6 +14,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 205189
   packageName: Responsive UI Pro
-  packageVersion: 1.0.8
-  assetPath: Assets/Exoa/ResponsiveUI/Scripts/Extensions/RectTransformExtensions.cs
-  uploadId: 635596
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Scripts/Extensions/RectTransformExtensions.cs
+  uploadId: 756521
