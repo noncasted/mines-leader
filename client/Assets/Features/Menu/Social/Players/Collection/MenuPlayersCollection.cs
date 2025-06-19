@@ -11,8 +11,8 @@ namespace Menu
 
         public void Add(IMenuPlayer player)
         {
-            _entries.Add(player.PlayerId, player);
-            player.Lifetime.Listen(() => _entries.Remove(player.PlayerId));
+            _entries.Add(player.Id, player);
+            player.Lifetime.Listen(() => _entries.Remove(player.Id));
         }
     }
 }

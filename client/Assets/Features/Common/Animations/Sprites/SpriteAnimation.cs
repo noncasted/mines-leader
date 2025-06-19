@@ -71,6 +71,12 @@ namespace Common.Animations
             _loop.Start(time);
             _current = _loop;
         }
+        
+        public void ManualStop()
+        {
+            _current?.Dispose();
+            _current = null;
+        }
 
         public void OnUpdate(float delta)
         {

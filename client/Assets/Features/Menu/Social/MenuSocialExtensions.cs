@@ -13,8 +13,11 @@ namespace Menu
             builder.Register<MenuSocialLoop>()
                 .As<IMenuSocialLoop>();
 
-            builder.AddNetworkService<MenuChat>("menu-chat")
-                .Registration.As<IMenuChat>();
+            builder.AddNetworkService<MenuChat>("menu-chat");
+
+            builder.Register<MenuPlayerFactory>()
+                .As<IMenuPlayerFactory>()
+                .As<IScopeSetup>();
 
             return builder;
         }
