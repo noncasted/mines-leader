@@ -21,14 +21,14 @@ namespace Meta
     {
         public DeckService(
             ICardsRegistry cardsRegistry,
+            IUser user,
             IBackendProjection<BackendUserContexts.DeckProjection> projection,
-            IBackendUser user,
             IBackendClient client,
             IReadOnlyLifetime lifetime)
         {
             _cardsRegistry = cardsRegistry;
-            _projection = projection;
             _user = user;
+            _projection = projection;
             _client = client;
             _lifetime = lifetime;
         }
@@ -36,8 +36,8 @@ namespace Meta
         private readonly Dictionary<int, IDeckConfiguration> _configurations = new();
         private readonly ViewableProperty<int> _selectedIndex = new(0);
         private readonly ICardsRegistry _cardsRegistry;
+        private readonly IUser _user;
         private readonly IBackendProjection<BackendUserContexts.DeckProjection> _projection;
-        private readonly IBackendUser _user;
         private readonly IBackendClient _client;
         private readonly IReadOnlyLifetime _lifetime;
         private readonly ViewableDelegate _updated = new();

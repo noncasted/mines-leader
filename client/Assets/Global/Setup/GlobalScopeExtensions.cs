@@ -34,11 +34,11 @@ namespace Global.Setup
                     .AddInput()
                     .AddSystemUtils()
                     .AddBackend()
-                    .AddNetwork();
+                    .AddNetwork()
+                    .AddPublisher()
+                    .AddUI();
 
-                return UniTask.WhenAll(
-                    builder.AddPublisher(),
-                    builder.AddUI());
+                return UniTask.CompletedTask;
             }
         }
     }

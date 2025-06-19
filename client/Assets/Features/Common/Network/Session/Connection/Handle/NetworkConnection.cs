@@ -2,7 +2,6 @@
 using System.Net.WebSockets;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
 using Newtonsoft.Json;
 using Shared;
@@ -10,10 +9,14 @@ using UnityEngine;
 
 namespace Common.Network
 {
+    public interface INetworkConnection
+    {
+        UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
+    }
+    
     public class NetworkConnection : INetworkConnection
     {
         public NetworkConnection(
-            IBackendUser user,
             INetworkReceiver receiver,
             INetworkSender sender,
             INetworkCommandsDispatcher commandsDispatcher,
@@ -23,16 +26,14 @@ namespace Common.Network
             _sender = sender;
             _commandsDispatcher = commandsDispatcher;
             _responsesDispatcher = responsesDispatcher;
-            _user = user;
         }
 
         private readonly INetworkReceiver _receiver;
         private readonly INetworkSender _sender;
         private readonly INetworkCommandsDispatcher _commandsDispatcher;
         private readonly INetworkResponsesDispatcher _responsesDispatcher;
-        private readonly IBackendUser _user;
 
-        public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId)
+        public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
         {
             var webSocket = new ClientWebSocket();
             webSocket.Options.KeepAliveInterval = TimeSpan.FromMinutes(10);
@@ -40,10 +41,10 @@ namespace Common.Network
             var auth = new ServerUserAuth
             {
                 SessionId = sessionId,
-                UserId = _user.Id
+                UserId = userId
             };
             
-            Debug.Log($"User {_user.Id} connecting to session {sessionId} at {serverUrl}");
+            Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
 
             var authJson = JsonConvert.SerializeObject(auth);
 

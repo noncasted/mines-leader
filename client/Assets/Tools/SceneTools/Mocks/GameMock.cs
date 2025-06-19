@@ -1,7 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using Global.GameServices;
 using Internal;
 using Meta;
 using UnityEngine;
@@ -25,10 +24,6 @@ namespace Tools
                 GameMode.PvP => await matchmaking.SearchGame(scope.Lifetime),
                 _ => throw new ArgumentOutOfRangeException()
             };
-
-            var localUserList = scope.Get<ILocalUserList>();
-
-            await UniTask.WaitUntil(() => localUserList.Count != 0);
 
             switch (_mode)
             {

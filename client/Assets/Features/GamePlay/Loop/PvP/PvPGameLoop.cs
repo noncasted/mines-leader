@@ -14,9 +14,10 @@ namespace GamePlay.Loop
     public class PvPGameLoop : IPvPGameLoop
     {
         public PvPGameLoop(
+            IUser user,
             INetworkSession session,
             IGameCamera gameCamera,
-            ICurrentCameraProvider cameraProvider,
+            ICurrentCamera camera,
             IGamePlayerFactory playerFactory,
             IGameContext gameContext,
             ICellsSelection cellsSelection,
@@ -25,9 +26,10 @@ namespace GamePlay.Loop
             IBoardMines boardMines,
             IGameFlow gameFlow)
         {
+            _user = user;
             _session = session;
             _gameCamera = gameCamera;
-            _cameraProvider = cameraProvider;
+            _camera = camera;
             _playerFactory = playerFactory;
             _gameContext = gameContext;
             _cellsSelection = cellsSelection;
@@ -37,9 +39,10 @@ namespace GamePlay.Loop
             _gameFlow = gameFlow;
         }
 
+        private readonly IUser _user;
         private readonly INetworkSession _session;
         private readonly IGameCamera _gameCamera;
-        private readonly ICurrentCameraProvider _cameraProvider;
+        private readonly ICurrentCamera _camera;
         private readonly IGamePlayerFactory _playerFactory;
         private readonly IGameContext _gameContext;
         private readonly ICellsSelection _cellsSelection;
@@ -50,8 +53,8 @@ namespace GamePlay.Loop
 
         public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
-            _cameraProvider.SetCamera(_gameCamera.Camera);
-            await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId);
+            _camera.SetCamera(_gameCamera.Camera);
+            await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
 
             var localPlayerTask = _playerFactory.CreateLocal(lifetime);
             var remotePlayerTask = _playerFactory.WaitRemote(lifetime, 1);

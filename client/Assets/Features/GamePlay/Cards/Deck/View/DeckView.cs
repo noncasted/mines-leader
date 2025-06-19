@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Global.GameServices;
+using Global.Constants;
 using UnityEngine;
 
 namespace GamePlay.Cards

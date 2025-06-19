@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Global.Cameras;
-using Global.GameServices;
+﻿using Global.Cameras;
 using Global.Inputs;
 using Global.Systems;
 using Internal;
@@ -13,12 +11,10 @@ namespace GamePlay.Services
     {
         public GameInput(
             IUpdater updater,
-            ICameraUtils cameraUtils,
-            ILocalUserList users)
+            ICameraUtils cameraUtils)
         {
             _updater = updater;
             _cameraUtils = cameraUtils;
-            _localUser = users.First().Input;
         }
 
         private readonly ViewableProperty<bool> _flag = new();

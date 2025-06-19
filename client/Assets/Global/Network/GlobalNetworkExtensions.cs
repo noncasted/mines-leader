@@ -1,5 +1,4 @@
-﻿using Global.Network.Initialization;
-using Internal;
+﻿using Internal;
 
 namespace Global.Network
 {
