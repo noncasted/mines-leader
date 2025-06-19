@@ -4,6 +4,12 @@ using UnityEngine;
 
 namespace Menu
 {
+    public interface IMenuChatUI
+    {
+        bool IsSelected { get; }
+        IViewableDelegate<string> MessageSend { get; }
+    }
+    
     [DisallowMultipleComponent]
     public class MenuChatUI : MonoBehaviour, IMenuChatUI, ISceneService
     {
@@ -11,6 +17,9 @@ namespace Menu
         
         private readonly ViewableDelegate<string> _messageSend = new();
 
+        private bool _isSelected;
+
+        public bool IsSelected => _isSelected;
         public IViewableDelegate<string> MessageSend => _messageSend;
 
         public void Create(IScopeBuilder builder)
@@ -22,7 +31,9 @@ namespace Menu
         private void OnEnable()
         {
             var lifetime = this.GetObjectLifetime();
-            _input.onSubmit.ToViewableDelegate(lifetime).Advise(lifetime, OnSubmit);
+            _input.onSubmit.Listen(lifetime, OnSubmit);
+            _input.onSelect.Listen(lifetime, aa => _isSelected = true);
+            _input.onDeselect.Listen(lifetime, aa => _isSelected = false);
         }
 
         private void OnSubmit(string message)
@@ -31,6 +42,7 @@ namespace Menu
                 return;
 
             _input.text = string.Empty;
+            _isSelected = false;
             
             _messageSend.Invoke(message);
         }

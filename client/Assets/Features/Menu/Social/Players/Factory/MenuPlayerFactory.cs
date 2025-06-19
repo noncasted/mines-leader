@@ -1,51 +1,40 @@
 ﻿using Common.Network;
-using Common.Network.Common;
 using Cysharp.Threading.Tasks;
-using Global.Systems;
 using Internal;
 using Meta;
-using UnityEngine;
-using VContainer;
+using VContainer.Unity;
 
 namespace Menu
 {
-    [DisallowMultipleComponent]
-    public class MenuPlayerFactory : MonoBehaviour, IMenuPlayerFactory, ISceneService, IScopeSetup
+    public interface IMenuPlayerFactory
     {
-        [SerializeField] private MenuPlayerOptions _options;
-        [SerializeField] private Transform _spawnPoint;
-        [SerializeField] private float _spawnRadius = 1f;
+        UniTask Create(IReadOnlyLifetime lifetime);
+    }
 
-        private INetworkEntityFactory _entityFactory;
-        private INetworkEntityDestroyer _destroyer;
-        private IUser _user;
-        private IUpdater _updater;
-        private IMenuPlayersCollection _playersCollection;
-        private INetworkSender _sender;
-
-        [Inject]
-        private void Construct(
-            INetworkSender sender,
+    public class MenuPlayerFactory : IMenuPlayerFactory, IScopeSetup
+    {
+        public MenuPlayerFactory(
             INetworkEntityFactory entityFactory,
-            INetworkEntityDestroyer destroyer,
             IUser user,
-            IUpdater updater,
-            IMenuPlayersCollection playersCollection)
+            IMenuPlayersCollection playersCollection,
+            IEntityScopeLoader entityScopeLoader,
+            IMenuPlayerObjectFactory objectFactory,
+            LifetimeScope parentScope)
         {
-            _sender = sender;
-            _playersCollection = playersCollection;
-            _updater = updater;
-            _user = user;
-            _destroyer = destroyer;
             _entityFactory = entityFactory;
+            _user = user;
+            _playersCollection = playersCollection;
+            _entityScopeLoader = entityScopeLoader;
+            _objectFactory = objectFactory;
+            _parentScope = parentScope;
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                .As<IMenuPlayerFactory>()
-                .As<IScopeSetup>();
-        }
+        private readonly INetworkEntityFactory _entityFactory;
+        private readonly IUser _user;
+        private readonly IMenuPlayersCollection _playersCollection;
+        private readonly IEntityScopeLoader _entityScopeLoader;
+        private readonly IMenuPlayerObjectFactory _objectFactory;
+        private readonly LifetimeScope _parentScope;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -54,70 +43,62 @@ namespace Menu
 
         public async UniTask Create(IReadOnlyLifetime lifetime)
         {
-            await UniTask.Yield();
-
-            var properties = new NetworkObjectProperties();
-
-            var entity = new NetworkEntity(
-                _sender,
-                _destroyer,
-                _entityFactory.LocalUser,
-                _entityFactory.Ids.GetEntityId(),
-                properties);
-
-            var spawnPosition = (Vector2)_spawnPoint.position + RandomExtensions.RandomDirection() * _spawnRadius;
-            var player = Instantiate(_options.Prefab, spawnPosition, Quaternion.identity, transform);
-
-            var input = new MenuPlayerInput();
-            input.Setup(entity.Lifetime);
-
-            var transformState = new NetworkProperty<MenuPlayerTransformState>(0);
-            properties.Add(transformState);
-
-            player.Movement.Construct(_updater, input, entity, transformState);
-            player.Movement.Setup(entity.Lifetime);
-
-            player.Construct(_user.Id, entity.Lifetime);
-            _playersCollection.Add(player);
-
             var payload = new MenuPlayerPayload()
             {
                 PlayerId = _user.Id
             };
 
+            var view = _objectFactory.Create();
+            var scope = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            var entity = scope.Get<INetworkEntity>();
+
             await _entityFactory.Send(lifetime, entity, payload);
+
+            var player = scope.Get<IMenuPlayer>();
+            _playersCollection.Add(player);
+            void Build(IEntityBuilder builder)
+            {
+                builder.Register<MenuPlayer>()
+                    .WithParameter(payload.PlayerId)
+                    .WithScopeLifetime()
+                    .As<IMenuPlayer>();
+
+                builder.Register<MenuPlayerInput>()
+                    .As<IMenuPlayerInput>()
+                    .As<IScopeSetup>();
+
+                builder.AddLocalEntity(_entityFactory);
+                builder.RegisterProperty<MenuPlayerTransformState>();
+            }
         }
 
         private async UniTask<INetworkEntity> OnRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
             var payload = data.ReadPayload<MenuPlayerPayload>();
-            var properties = new NetworkObjectProperties();
 
-            var entity = new NetworkEntity(
-                _sender,
-                _destroyer,
-                data.Owner,
-                data.Id,
-                properties);
+            var view = _objectFactory.Create();
+            var scope = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            var entity = scope.Get<INetworkEntity>();
 
-            var spawnPosition = (Vector2)_spawnPoint.position + RandomExtensions.RandomDirection() * _spawnRadius;
-            var player = Instantiate(_options.Prefab, spawnPosition, Quaternion.identity, transform);
-
-            var input = new MenuPlayerInput();
-            input.Setup(entity.Lifetime);
-
-            var transformState = new NetworkProperty<MenuPlayerTransformState>(0);
-            properties.Add(transformState);
-
-            player.Movement.Construct(_updater, input, entity, transformState);
-            player.Movement.Setup(entity.Lifetime);
-
-            player.Construct(payload.PlayerId, entity.Lifetime);
+            var player = scope.Get<IMenuPlayer>();
             _playersCollection.Add(player);
 
-            entity.Lifetime.Listen(() => Destroy(player.gameObject));
-
             return entity;
+
+            void Build(IEntityBuilder builder)
+            {
+                builder.Register<MenuPlayer>()
+                    .WithParameter(payload.PlayerId)
+                    .WithScopeLifetime()
+                    .As<IMenuPlayer>();
+
+                builder.Register<MenuPlayerInput>()
+                    .As<IMenuPlayerInput>()
+                    .As<IScopeSetup>();
+
+                builder.AddRemoteEntity(data);
+                builder.RegisterProperty<MenuPlayerTransformState>();
+            }
         }
     }
 }

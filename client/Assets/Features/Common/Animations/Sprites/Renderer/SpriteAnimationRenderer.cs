@@ -12,11 +12,17 @@ namespace Common.Animations
         {
             builder.RegisterComponent(this)
                 .As<ISpriteAnimationRenderer>();
+
+            OnRegister(builder);
         }
 
         public void SetSprite(Sprite sprite)
         {
             _renderer.sprite = sprite;
+        }
+
+        protected virtual void OnRegister(IEntityBuilder builder)
+        {
         }
     }
 }

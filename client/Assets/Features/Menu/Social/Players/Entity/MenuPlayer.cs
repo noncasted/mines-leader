@@ -1,27 +1,26 @@
 ﻿using System;
 using Internal;
-using UnityEngine;
 
 namespace Menu
 {
-    [DisallowMultipleComponent]
-    public class MenuPlayer : MonoBehaviour, IMenuPlayer
+    public interface IMenuPlayer
     {
-        [SerializeField] private MenuPlayerMovement _movement;
-        [SerializeField] private MenuPlayerChatView _chatView;
+        Guid Id { get; }
+        IReadOnlyLifetime Lifetime { get; }
+        IMenuPlayerChatView ChatView { get; }
+    }
 
-        private Guid _playerId;
-        private IReadOnlyLifetime _lifetime;
-
-        public Guid PlayerId => _playerId;
-        public IReadOnlyLifetime Lifetime => _lifetime;
-        public IMenuPlayerChatView ChatView => _chatView;
-        public MenuPlayerMovement Movement => _movement;
-
-        public void Construct(Guid playerId, IReadOnlyLifetime lifetime)
+    public class MenuPlayer : IMenuPlayer
+    {
+        public MenuPlayer(Guid id, IReadOnlyLifetime lifetime, IMenuPlayerChatView chatView)
         {
-            _lifetime = lifetime;
-            _playerId = playerId;
+            Id = id;
+            Lifetime = lifetime;
+            ChatView = chatView;
         }
+
+        public Guid Id { get; }
+        public IReadOnlyLifetime Lifetime { get; }
+        public IMenuPlayerChatView ChatView { get; }
     }
 }

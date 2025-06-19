@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Internal;
 using TMPro;
 using UnityEngine;
 
@@ -11,12 +12,18 @@ namespace Menu
     }
     
     [DisallowMultipleComponent]
-    public class MenuPlayerChatView : MonoBehaviour, IMenuPlayerChatView
+    public class MenuPlayerChatView : MonoBehaviour, IEntityComponent, IMenuPlayerChatView
     {
         [SerializeField] private TMP_Text _text;
         [SerializeField] private float _time;
 
         private int _index;
+        
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                .As<IMenuPlayerChatView>();
+        }
         
         public void ShowMessage(string message)
         {

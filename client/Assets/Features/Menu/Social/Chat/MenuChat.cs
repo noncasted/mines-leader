@@ -15,7 +15,7 @@ namespace Menu
         public string Message { get; set; }
     }
 
-    public class MenuChat : NetworkService, IMenuChat
+    public class MenuChat : NetworkService
     {
         public MenuChat(
             IUser user,

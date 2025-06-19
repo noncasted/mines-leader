@@ -1,4 +1,4 @@
-﻿using GamePlay.Services;
+﻿using Common.Objects;
 using UnityEngine;
 
 namespace GamePlay.Players

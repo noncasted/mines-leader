@@ -37,6 +37,16 @@ namespace Common.Animations
                 .WithParameter<ISpriteAnimationData>(data);
         }
 
+        public static void RegisterSpriteForwardAnimation<T>(this IEntityBuilder builder, ForwardAnimationData data)
+            where T : ForwardSpriteAnimation
+        {
+            var animationData = new SpriteAnimationData(data.Sprites, data.Time);
+
+            builder.Register<T>()
+                .As<IScopeSetup>()
+                .WithParameter<ISpriteAnimationData>(animationData);
+        }
+
         public static ISpriteAnimationData CreateSpriteAnimationData(this AnimationClip animation)
         {
             var time = animation.length;
