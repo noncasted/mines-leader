@@ -3,7 +3,7 @@ using Common.Network.Common;
 using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
-using Global.Network.Initialization;
+using Global.Network;
 using MemoryPack;
 using MemoryPack.Formatters;
 using Menu;

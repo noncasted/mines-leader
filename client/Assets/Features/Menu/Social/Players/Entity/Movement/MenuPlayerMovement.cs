@@ -24,7 +24,6 @@ namespace Menu
         private MenuPlayerRun _run;
         private IReadOnlyLifetime _lifetime;
         private ForwardSpriteAnimation _currentAnimation;
-        private Vector2 _previousPosition;
 
         [Inject]
         public void Construct(
@@ -71,8 +70,6 @@ namespace Menu
                 _currentAnimation = selectedAnimation;
             }
             
-            _previousPosition = _rb.position;
-
             void Local()
             {
                 _rb.MovePosition(_rb.position + _input.MovementDirection * (_moveSpeed * delta));
@@ -102,7 +99,7 @@ namespace Menu
 
             ForwardSpriteAnimation SelectAnimation()
             {
-                if (_input.MovementDirection != Vector2.zero)
+                if (_input.MovementDirection == Vector2.zero)
                     return _idle;
 
                 return _run;

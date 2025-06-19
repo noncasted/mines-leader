@@ -17,19 +17,19 @@ namespace Loop
             IReadOnlyLifetime lifetime,
             IServiceScopeLoader scopeLoaderFactory,
             IGlobalCamera globalCamera,
-            ICurrentCameraProvider currentCameraProvider,
+            ICurrentCamera currentCamera,
             IBackendProjectionHub backendProjectionHub)
         {
             _lifetime = lifetime;
             _scopeLoaderFactory = scopeLoaderFactory;
             _globalCamera = globalCamera;
-            _currentCameraProvider = currentCameraProvider;
+            _currentCamera = currentCamera;
             _backendProjectionHub = backendProjectionHub;
         }
 
         private readonly IServiceScopeLoader _scopeLoaderFactory;
         private readonly IGlobalCamera _globalCamera;
-        private readonly ICurrentCameraProvider _currentCameraProvider;
+        private readonly ICurrentCamera _currentCamera;
         private readonly IBackendProjectionHub _backendProjectionHub;
         private readonly IReadOnlyLifetime _lifetime;
 
@@ -65,7 +65,7 @@ namespace Loop
         private async UniTask<MenuResult> LoadMain()
         {
             _globalCamera.Enable();
-            _currentCameraProvider.SetCamera(_globalCamera.Camera);
+            _currentCamera.SetCamera(_globalCamera.Camera);
 
             var unloadTask = UniTask.CompletedTask;
 
@@ -84,7 +84,7 @@ namespace Loop
         private async UniTask LoadPvP(IReadOnlyLifetime lifetime, SessionData data)
         {
             _globalCamera.Enable();
-            _currentCameraProvider.SetCamera(_globalCamera.Camera);
+            _currentCamera.SetCamera(_globalCamera.Camera);
 
             var unloadTask = UniTask.CompletedTask;
 

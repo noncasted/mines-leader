@@ -1,11 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-using Internal;
+﻿using Internal;
 
 namespace Global.UI
 {
     public static class GlobalUIExtensions
     {
-        public static async UniTask AddUI(this IScopeBuilder builder)
+        public static void AddUI(this IScopeBuilder builder)
         {
             builder.Register<UIStateMachine>()
                 .WithScopeLifetime()
