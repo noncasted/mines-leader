@@ -1,9 +1,8 @@
-﻿using Assets.Meta;
-using Common.Network;
+﻿using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using Global.GameServices;
 using Internal;
+using Meta;
 using Shared;
 using UnityEngine;
 using VContainer.Unity;

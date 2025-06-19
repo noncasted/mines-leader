@@ -1,6 +1,4 @@
-﻿using Assets.Meta;
-using Global.Backend;
-using Global.GameServices;
+﻿using Meta;
 
 namespace Menu.Loop
 {

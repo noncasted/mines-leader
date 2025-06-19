@@ -5,7 +5,7 @@ using Global.Backend;
 using Internal;
 using Shared;
 
-namespace Assets.Meta
+namespace Meta
 {
     public interface IDeckService
     {

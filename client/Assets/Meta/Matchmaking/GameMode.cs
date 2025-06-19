@@ -1,4 +1,4 @@
-﻿namespace Assets.Meta
+﻿namespace Meta
 {
     public enum GameMode
     {

@@ -4,7 +4,7 @@ using Internal;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Assets.Meta
+namespace Meta
 {
     [InlineEditor]
     public class CharacterAvatars : EnvAsset

@@ -1,8 +1,7 @@
 ﻿using System;
-using Assets.Meta;
 using Common.Network;
-using Global.GameServices;
 using MemoryPack;
+using Meta;
 
 namespace GamePlay.Players
 {

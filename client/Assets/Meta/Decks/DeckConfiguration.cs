@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Assets.Meta
+namespace Meta
 {
     public interface IDeckConfiguration
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Internal;
 using Shared;
 
-namespace Assets.Meta
+namespace Meta
 {
     public static class CardTypeExtensions
     {

@@ -1,8 +1,6 @@
 ﻿using System;
-using Common.Network;
 using GamePlay.Boards;
 using GamePlay.Cards;
-using Global.GameServices;
 using VContainer.Unity;
 
 namespace GamePlay.Players

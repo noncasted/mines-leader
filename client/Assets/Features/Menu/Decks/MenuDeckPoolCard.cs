@@ -1,5 +1,4 @@
-﻿using Assets.Meta;
-using Global.GameServices;
+﻿using Meta;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;

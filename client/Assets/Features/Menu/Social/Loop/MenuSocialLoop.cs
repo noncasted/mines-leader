@@ -1,19 +1,19 @@
 ﻿using Common.Network;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
+using Meta;
 
 namespace Menu
 {
     public class MenuSocialLoop : IMenuSocialLoop
     {
         private readonly INetworkSession _session;
-        private readonly IBackendMatchmaking _matchmaking;
+        private readonly Matchmaking _matchmaking;
         private readonly IMenuPlayerFactory _playerFactory;
 
         public MenuSocialLoop(
             INetworkSession session,
-            IBackendMatchmaking matchmaking,
+            Matchmaking matchmaking,
             IMenuPlayerFactory playerFactory)
         {
             _session = session;

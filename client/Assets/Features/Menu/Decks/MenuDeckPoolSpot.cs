@@ -1,8 +1,5 @@
-﻿using Assets.Meta;
-using Global.GameServices;
-using TMPro;
+﻿using Meta;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Menu
 {

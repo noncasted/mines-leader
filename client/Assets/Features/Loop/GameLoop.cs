@@ -1,14 +1,13 @@
 ﻿using System;
-using Assets.Meta;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Global.Backend;
 using Global.Cameras;
 using Global.GameLoops;
-using Global.GameServices;
 using Internal;
 using Menu.Loop;
 using Menu.Setup;
+using Meta;
 
 namespace Loop
 {
@@ -19,25 +18,19 @@ namespace Loop
             IServiceScopeLoader scopeLoaderFactory,
             IGlobalCamera globalCamera,
             ICurrentCameraProvider currentCameraProvider,
-            IBackendProjectionHub backendProjectionHub,
-            IUserContext userContext,
-            IBackendUser backendUser)
+            IBackendProjectionHub backendProjectionHub)
         {
             _lifetime = lifetime;
             _scopeLoaderFactory = scopeLoaderFactory;
             _globalCamera = globalCamera;
             _currentCameraProvider = currentCameraProvider;
             _backendProjectionHub = backendProjectionHub;
-            _userContext = userContext;
-            _backendUser = backendUser;
         }
 
         private readonly IServiceScopeLoader _scopeLoaderFactory;
         private readonly IGlobalCamera _globalCamera;
         private readonly ICurrentCameraProvider _currentCameraProvider;
         private readonly IBackendProjectionHub _backendProjectionHub;
-        private readonly IUserContext _userContext;
-        private readonly IBackendUser _backendUser;
         private readonly IReadOnlyLifetime _lifetime;
 
         private ILoadedScope _currentScope;
@@ -46,12 +39,12 @@ namespace Loop
         public async UniTask Initialize(ILoadedScope parent)
         {
             _parent = parent;
-            
-            await _userContext.Init(_lifetime);
-            await _backendProjectionHub.Start(_lifetime, _userContext.Id);
-            
-            await UniTask.WaitUntil(() => _backendUser.Id != Guid.Empty);
-            
+
+            Loop().Forget();
+        }
+
+        private async UniTask Loop()
+        {
             while (_lifetime.IsTerminated == false)
             {
                 var menuResult = await LoadMain();

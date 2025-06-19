@@ -1,10 +1,9 @@
-﻿using Assets.Meta;
-using Common.Network;
+﻿using Common.Network;
 using Common.Network.Common;
 using Cysharp.Threading.Tasks;
-using Global.GameServices;
 using Global.Systems;
 using Internal;
+using Meta;
 using UnityEngine;
 using VContainer;
 
@@ -19,7 +18,7 @@ namespace Menu
 
         private INetworkEntityFactory _entityFactory;
         private INetworkEntityDestroyer _destroyer;
-        private IUserContext _userContext;
+        private IUser _user;
         private IUpdater _updater;
         private IMenuPlayersCollection _playersCollection;
         private INetworkSender _sender;
@@ -29,14 +28,14 @@ namespace Menu
             INetworkSender sender,
             INetworkEntityFactory entityFactory,
             INetworkEntityDestroyer destroyer,
-            IUserContext userContext,
+            IUser user,
             IUpdater updater,
             IMenuPlayersCollection playersCollection)
         {
             _sender = sender;
             _playersCollection = playersCollection;
             _updater = updater;
-            _userContext = userContext;
+            _user = user;
             _destroyer = destroyer;
             _entityFactory = entityFactory;
         }
@@ -78,12 +77,12 @@ namespace Menu
             player.Movement.Construct(_updater, input, entity, transformState);
             player.Movement.Setup(entity.Lifetime);
 
-            player.Construct(_userContext.Id, entity.Lifetime);
+            player.Construct(_user.Id, entity.Lifetime);
             _playersCollection.Add(player);
 
             var payload = new MenuPlayerPayload()
             {
-                PlayerId = _userContext.Id
+                PlayerId = _user.Id
             };
 
             await _entityFactory.Send(lifetime, entity, payload);

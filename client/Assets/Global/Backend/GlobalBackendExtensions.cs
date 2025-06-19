@@ -32,11 +32,6 @@ namespace Global.Backend
                 .As<IScopeSetup>()
                 .As<IBackendUser>();
 
-            builder.Register<BackendMatchmaking>()
-                .WithAsset<BackendOptions>()
-                .As<IScopeSetup>()
-                .As<IBackendMatchmaking>();
-
             builder
                 .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
                 .RegisterBackendProjection<BackendUserContexts.DeckProjection>()

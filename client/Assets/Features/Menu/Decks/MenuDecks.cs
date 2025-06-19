@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Assets.Meta;
 using Cysharp.Threading.Tasks;
-using Global.GameServices;
 using Global.UI;
 using Internal;
+using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;

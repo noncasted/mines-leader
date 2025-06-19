@@ -1,8 +1,7 @@
-﻿using Assets.Meta;
-using Common.Network;
+﻿using Common.Network;
 using Cysharp.Threading.Tasks;
-using Global.GameServices;
 using Internal;
+using Meta;
 using Shared;
 
 namespace GamePlay.Cards

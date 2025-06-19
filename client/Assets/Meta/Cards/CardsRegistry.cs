@@ -2,7 +2,7 @@
 using Internal;
 using Shared;
 
-namespace Assets.Meta
+namespace Meta
 {
     public interface ICardsRegistry : IScriptableRegistry<CardDefinition>
     {

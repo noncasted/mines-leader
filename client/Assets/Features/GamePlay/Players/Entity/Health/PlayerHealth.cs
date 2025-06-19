@@ -1,5 +1,4 @@
-﻿using Common.Network;
-using Common.Network.Common;
+﻿using Common.Network.Common;
 using Internal;
 
 namespace GamePlay.Players

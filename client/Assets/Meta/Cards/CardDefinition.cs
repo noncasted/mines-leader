@@ -3,8 +3,18 @@ using Shared;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Assets.Meta
+namespace Meta
 {
+    public interface ICardDefinition
+    {
+        CardType Type { get; }
+        CardTarget Target { get; }
+        int ManaCost { get; }
+        string Name { get; }
+        string Description { get; }
+        Sprite Image { get; }
+    }
+    
     [InlineEditor]
     public class CardDefinition : EnvAsset, IEnvDictionaryKeyProvider<CardType>, ICardDefinition
     {

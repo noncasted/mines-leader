@@ -1,6 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
+using Meta;
 
 namespace GamePlay.Loop
 {
