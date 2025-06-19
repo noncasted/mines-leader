@@ -1,6 +1,6 @@
 ﻿using Common.Network;
-using Global.GameServices;
 using Internal;
+using Meta;
 using Shared;
 
 namespace GamePlay.Cards

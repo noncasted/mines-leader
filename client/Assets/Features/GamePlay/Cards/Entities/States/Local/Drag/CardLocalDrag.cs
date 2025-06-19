@@ -1,8 +1,8 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
-using Global.GameServices;
 using Global.Systems;
 using Internal;
+using Meta;
 using UnityEngine;
 
 namespace GamePlay.Cards

@@ -1,7 +1,7 @@
 ﻿using System;
 using Common.Network;
-using Global.GameServices;
 using MemoryPack;
+using Meta;
 
 namespace GamePlay.Players
 {

@@ -1,5 +1,4 @@
-﻿using Global.Backend;
-using Global.GameServices;
+﻿using Meta;
 
 namespace Menu.Loop
 {

@@ -1,10 +1,9 @@
 ﻿using System;
 using Common.Network;
 using Common.Network.Common;
-using Cysharp.Threading.Tasks;
-using Global.GameServices;
 using Internal;
 using MemoryPack;
+using Meta;
 using UnityEngine;
 
 namespace Menu
@@ -19,16 +18,16 @@ namespace Menu
     public class MenuChat : NetworkService, IMenuChat
     {
         public MenuChat(
-            IUserContext userContext,
+            IUser user,
             IMenuPlayersCollection playersCollection,
             IMenuChatUI ui)
         {
-            _userContext = userContext;
+            _user = user;
             _playersCollection = playersCollection;
             _ui = ui;
         }
 
-        private readonly IUserContext _userContext;
+        private readonly IUser _user;
         private readonly IMenuPlayersCollection _playersCollection;
         private readonly IMenuChatUI _ui;
 
@@ -40,11 +39,11 @@ namespace Menu
 
         private void OnMessageSent(string message)
         {
-            _playersCollection.Entries[_userContext.Id].ChatView.ShowMessage(message);
+            _playersCollection.Entries[_user.Id].ChatView.ShowMessage(message);
 
             Events.Send(new MenuChatMessagePayload()
             {
-                PlayerId = _userContext.Id,
+                PlayerId = _user.Id,
                 Message = message
             });
         }

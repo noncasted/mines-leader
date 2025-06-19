@@ -1,9 +1,9 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using Global.Backend;
 using Global.GameServices;
 using Internal;
+using Meta;
 using UnityEngine;
 
 namespace Tools
@@ -14,37 +14,29 @@ namespace Tools
 
         public override async UniTaskVoid Process()
         {
-            var globalScope = await BootstrapGlobal();
+            var scope = await Bootstrap();
 
-            var scopeLoaderFactory = globalScope.Get<IServiceScopeLoader>();
-            var matchmaking = globalScope.Get<IBackendMatchmaking>();
-            var userContext = globalScope.Get<IUserContext>();
-            var backendHub = globalScope.Get<IBackendProjectionHub>();
-            var backendUser = globalScope.Get<IBackendUser>();
-            
-            await userContext.Init(globalScope.Lifetime);
-            await backendHub.Start(globalScope.Lifetime, userContext.Id);
+            var scopeLoaderFactory = scope.Get<IServiceScopeLoader>();
+            var matchmaking = scope.Get<Matchmaking>();
 
-            await UniTask.WaitUntil(() => backendUser.Id != Guid.Empty);
-            
             var sessionData = _mode switch
             {
-                GameMode.Single => await matchmaking.CreateGame(globalScope.Lifetime),
-                GameMode.PvP => await matchmaking.SearchGame(globalScope.Lifetime),
+                GameMode.Single => await matchmaking.CreateGame(scope.Lifetime),
+                GameMode.PvP => await matchmaking.SearchGame(scope.Lifetime),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            var localUserList = globalScope.Get<ILocalUserList>();
+            var localUserList = scope.Get<ILocalUserList>();
 
             await UniTask.WaitUntil(() => localUserList.Count != 0);
 
             switch (_mode)
             {
                 case GameMode.Single:
-                    await scopeLoaderFactory.ProcessSingleMock(globalScope, sessionData);
+                    await scopeLoaderFactory.ProcessSingleMock(scope, sessionData);
                     break;
                 case GameMode.PvP:
-                    await scopeLoaderFactory.ProcessPvPMock(globalScope, sessionData);
+                    await scopeLoaderFactory.ProcessPvPMock(scope, sessionData);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

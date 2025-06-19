@@ -1,9 +1,9 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Global.Systems;
 using Global.UI;
 using Internal;
+using Meta;
 using TMPro;
 using UnityEngine;
 using VContainer;
@@ -17,7 +17,7 @@ namespace Menu
         [SerializeField] private TMP_Text _buttonText;
         [SerializeField] private DesignButton _button;
 
-        private IBackendMatchmaking _matchmaking;
+        private Matchmaking _matchmaking;
         private bool _isInSearch;
         private IUpdater _updater;
         private ILifetime _searchLifetime;
@@ -29,7 +29,7 @@ namespace Menu
 
         [Inject]
         private void Construct(
-            IBackendMatchmaking matchmaking,
+            Matchmaking matchmaking,
             IUpdater updater)
         {
             _updater = updater;
@@ -79,7 +79,7 @@ namespace Menu
                 _time += delta;
                 var timeSpan = TimeSpan.FromSeconds(_time);
                 _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
-            });
+            }).Forget();
 
             var sessionData = await _matchmaking.SearchGame(lifetime);
             _gameFound.Invoke(sessionData);

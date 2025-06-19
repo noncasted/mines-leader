@@ -1,5 +1,5 @@
 ﻿using System;
-using Global.GameServices;
+using Meta;
 
 namespace GamePlay.Players
 {

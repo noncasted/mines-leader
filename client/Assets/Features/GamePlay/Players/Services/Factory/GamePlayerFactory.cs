@@ -4,8 +4,8 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Services;
-using Global.GameServices;
 using Internal;
+using Meta;
 using VContainer.Unity;
 
 namespace GamePlay.Players
@@ -15,16 +15,16 @@ namespace GamePlay.Players
         public GamePlayerFactory(
             INetworkEntityFactory entityFactory,
             IEntityScopeLoader entityScopeLoader,
-            IGlobalContext globalContext,
             IGameContext gameContext,
+            IUser user,
             IObjectFactory<GamePlayerEntityView> objectFactory,
             LifetimeScope parentScope,
             GamePlayerFactoryOptions options)
         {
             _entityFactory = entityFactory;
             _entityScopeLoader = entityScopeLoader;
-            _globalContext = globalContext;
             _gameContext = gameContext;
+            _user = user;
             _objectFactory = objectFactory;
             _parentScope = parentScope;
             _options = options;
@@ -32,8 +32,8 @@ namespace GamePlay.Players
 
         private readonly INetworkEntityFactory _entityFactory;
         private readonly IEntityScopeLoader _entityScopeLoader;
-        private readonly IGlobalContext _globalContext;
         private readonly IGameContext _gameContext;
+        private readonly IUser _user;
         private readonly IObjectFactory<GamePlayerEntityView> _objectFactory;
         private readonly LifetimeScope _parentScope;
         private readonly GamePlayerFactoryOptions _options;
@@ -51,7 +51,7 @@ namespace GamePlay.Players
             {
                 Id = _entityFactory.LocalUser.BackendId,
                 Name = "Player_Local",
-                SelectedCharacter = _globalContext.SelectedCharacter
+                SelectedCharacter = _user.Character
             };
 
             var view = _objectFactory.Create(_options.LocalPrefab);
@@ -95,7 +95,7 @@ namespace GamePlay.Players
 
                 builder
                     .AddPlayerComponents()
-                    .AddPlayerRoot(_entityFactory.LocalUser, _globalContext.SelectedCharacter);
+                    .AddPlayerRoot(_entityFactory.LocalUser, _user.Character);
             }
         }
 

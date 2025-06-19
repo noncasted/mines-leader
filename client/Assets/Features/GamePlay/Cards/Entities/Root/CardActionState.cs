@@ -1,7 +1,7 @@
 ﻿using GamePlay.Loop;
 using GamePlay.Players;
-using Global.GameServices;
 using Internal;
+using Meta;
 
 namespace GamePlay.Cards
 {
