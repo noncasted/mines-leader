@@ -11,6 +11,11 @@ using Meta;
 
 namespace GamePlay.Loop
 {
+    public interface IPvPGameLoop
+    {
+        UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
+    }
+    
     public class PvPGameLoop : IPvPGameLoop
     {
         public PvPGameLoop(

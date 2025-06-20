@@ -3,6 +3,13 @@ using System.Collections.Generic;
 
 namespace Menu.Social
 {
+    public interface IMenuPlayersCollection
+    {
+        IReadOnlyDictionary<Guid, IMenuPlayer> Entries { get; }
+
+        void Add(IMenuPlayer player);
+    }
+    
     public class MenuPlayersCollection : IMenuPlayersCollection
     {
         private readonly Dictionary<Guid, IMenuPlayer> _entries = new();

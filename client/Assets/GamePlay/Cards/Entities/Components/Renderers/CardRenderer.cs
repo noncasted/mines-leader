@@ -4,6 +4,12 @@ using UnityEngine.Rendering;
 
 namespace GamePlay.Cards
 {
+    public interface ICardRenderer
+    {
+        void SetSortingOrder(int order);
+        void SetAllColor(Color color);
+    }
+    
     [DisallowMultipleComponent]
     public class CardRenderer : MonoBehaviour, IEntityComponent, ICardRenderer
     {

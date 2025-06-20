@@ -1,7 +1,7 @@
 ﻿using System;
 using Global.Publisher;
 
-namespace Global.Saves
+namespace Global.UI
 {
     [Serializable]
     public class LanguageSave

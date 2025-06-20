@@ -4,6 +4,11 @@ using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
+    public interface ICardView
+    {
+        void Destroy();
+    }
+    
     [DisallowMultipleComponent]
     public class CardView : MonoBehaviour, ICardView, IEntityComponent
     {

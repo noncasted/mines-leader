@@ -6,6 +6,12 @@ using UnityEngine;
 
 namespace GamePlay.Boards
 {
+    public interface IBoardFactory
+    {
+        UniTask CreateLocal(PlayerBuildContext context);
+        UniTask CreateRemote(PlayerBuildContext context);
+    }
+    
     [DisallowMultipleComponent]
     public class BoardFactory : MonoBehaviour, IBoardFactory
     {

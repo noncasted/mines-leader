@@ -10,6 +10,11 @@ using VContainer;
 
 namespace Menu.Main
 {
+    public interface IMenuPlay
+    {
+        IViewableDelegate<SessionData> GameFound { get; }
+    }
+    
     [DisallowMultipleComponent]
     public class MenuPlay : MonoBehaviour, ISceneService, IMenuPlay
     {
@@ -17,7 +22,7 @@ namespace Menu.Main
         [SerializeField] private TMP_Text _buttonText;
         [SerializeField] private DesignButton _button;
 
-        private Matchmaking _matchmaking;
+        private IMatchmaking _matchmaking;
         private bool _isInSearch;
         private IUpdater _updater;
         private ILifetime _searchLifetime;
@@ -29,7 +34,7 @@ namespace Menu.Main
 
         [Inject]
         private void Construct(
-            Matchmaking matchmaking,
+            IMatchmaking matchmaking,
             IUpdater updater)
         {
             _updater = updater;

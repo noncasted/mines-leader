@@ -2,6 +2,14 @@
 
 namespace GamePlay.Cards
 {
+    public interface IHand
+    {
+        IHandPositions Positions { get; }
+        IViewableList<ICard> Entries { get; }
+        
+        void Add(ICard card);
+    }
+    
     public class Hand : IHand
     {
         public Hand(IHandView view)

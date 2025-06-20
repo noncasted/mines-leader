@@ -8,6 +8,14 @@ using Internal;
 
 namespace GamePlay.Cards
 {
+    public interface ICardDropArea
+    {
+        UniTask<CardDropData> Show(
+            IReadOnlyLifetime stateLifetime,
+            IReadOnlyLifetime selectionLifetime,
+            ICardDropPattern pattern);
+    }
+    
     public class CardDropArea : ICardDropArea
     {
         public CardDropArea(IUpdater updater, IGameInput input, IGameContext context)

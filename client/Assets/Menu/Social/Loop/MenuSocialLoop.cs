@@ -5,6 +5,11 @@ using Meta;
 
 namespace Menu.Social
 {
+    public interface IMenuSocialLoop
+    {
+        UniTask Start(IReadOnlyLifetime lifetime);
+    }
+    
     public class MenuSocialLoop : IMenuSocialLoop
     {
         private readonly IUser _user;

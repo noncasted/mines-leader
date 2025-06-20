@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public interface ICardRemoteSpawn
+    {
+        UniTask Execute();
+    }
+    
     public class CardRemoteSpawn : ICardRemoteSpawn
     {
         public CardRemoteSpawn(

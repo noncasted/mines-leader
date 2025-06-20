@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public interface ICardLocalDrop
+    {
+        UniTask Enter();
+    }
+    
     public class CardLocalDrop : ICardLocalDrop
     {
         public CardLocalDrop(
