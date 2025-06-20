@@ -10,6 +10,14 @@ using Channel = System.Threading.Channels.Channel;
 
 namespace Common.Network
 {
+    public interface INetworkReceiver
+    {
+        System.Threading.Channels.Channel<ServerEmptyResponse> Empty { get; }
+        System.Threading.Channels.Channel<ServerFullResponse> Full { get; }
+
+        UniTask Run(IReadOnlyLifetime lifetime, ClientWebSocket webSocket);
+    }
+    
     public class NetworkReceiver : INetworkReceiver
     {
         private readonly System.Threading.Channels.Channel<ServerEmptyResponse> _empty

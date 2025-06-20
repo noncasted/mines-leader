@@ -34,7 +34,7 @@ namespace Common.Network
                     .AsSelfResolvable()
                     .As<INetworkCommandsCollection>();
 
-                builder.Register<NetworkPropertiesUpdatesCollector>()
+                builder.Register<NetworkPropertiesCollector>()
                     .As<IScopeSetup>();
 
                 builder.Register<NetworkEntityDestroyer>()

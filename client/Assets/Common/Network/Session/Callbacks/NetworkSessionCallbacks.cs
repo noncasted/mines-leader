@@ -18,7 +18,6 @@ namespace Common.Network
                     break;
                 }
             }
-            
         }
 
         public async UniTask InvokeSessionSetupCompleted(IReadOnlyLifetime lifetime)

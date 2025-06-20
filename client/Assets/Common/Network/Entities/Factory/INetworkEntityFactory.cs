@@ -39,9 +39,6 @@ namespace Common.Network
                 .WithParameter(factory.Ids.GetEntityId())
                 .As<INetworkEntity>();
 
-            builder.Register<NetworkObjectProperties>()
-                .As<INetworkObjectProperties>();
-
             return builder;
         }
 
@@ -52,15 +49,12 @@ namespace Common.Network
                 .WithParameter(data.Id)
                 .As<INetworkEntity>();
 
-            builder.Register<NetworkObjectProperties>()
-                .As<INetworkObjectProperties>();
-
             return builder;
         }
 
         public static IEntityScopeResult FillProperties(this IEntityScopeResult result, RemoteEntityData data)
         {
-            var properties = result.Get<INetworkObjectProperties>().Entries;
+            var properties = result.Get<INetworkEntity>().Properties;
 
             if (properties.Count != data.RawProperties.Count)
                 throw new InvalidOperationException(

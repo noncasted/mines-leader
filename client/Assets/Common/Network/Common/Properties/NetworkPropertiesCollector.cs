@@ -6,9 +6,9 @@ using Shared;
 
 namespace Common.Network
 {
-    public class NetworkPropertiesUpdatesCollector : IUpdatable, IScopeSetup
+    public class NetworkPropertiesCollector : IUpdatable, IScopeSetup
     {
-        public NetworkPropertiesUpdatesCollector(
+        public NetworkPropertiesCollector(
             IUpdater updater,
             INetworkObjectsCollection objects,
             INetworkSender sender)
