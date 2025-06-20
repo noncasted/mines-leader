@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76a5a435461b3bc44991fe8c8cde3571
+    m_Address: Assets/Loop/Setup/GameLoop_Services.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 92101a9411609634391317ab2ff7fd37
     m_Address: Assets/Features/GamePlay/UI/Options/GamePlay_UI.unity
     m_ReadOnly: 0

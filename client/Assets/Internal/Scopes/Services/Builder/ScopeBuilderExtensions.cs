@@ -33,17 +33,6 @@ namespace Internal
             return registration;
         }
 
-        public static IScopeBuilder AddFromFactory<T>(this IScopeBuilder builder) where T : ServiceFactoryBase
-        {
-            return builder.GetAsset<T>().Process(builder);
-        }
-
-        public static UniTask<IScopeBuilder> AddFromAsyncFactory<T>(this IScopeBuilder builder)
-            where T : ServiceFactoryBaseAsync
-        {
-            return builder.GetAsset<T>().Process(builder);
-        }
-
         public static T Instantiate<T>(this IScopeBuilder builder, T prefab) where T : MonoBehaviour
         {
             var instance = Object.Instantiate(prefab);
