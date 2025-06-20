@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.GameLoops;
 using Global.Setup;
 using Internal;
+using Loop;
 using Meta;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,9 +30,8 @@ namespace Startup
             var globalScope = await scopeLoader.LoadGlobal(internalScope);
             var metaScope = await scopeLoader.LoadMeta(globalScope);
 
-            var gamePlayLoader = metaScope.Get<IGamePlayLoader>();
-            await gamePlayLoader.Initialize(metaScope);
-            
+            await scopeLoader.LoadGameLoop(metaScope);
+
             await SceneManager.UnloadSceneAsync(startScene);
         }
     }

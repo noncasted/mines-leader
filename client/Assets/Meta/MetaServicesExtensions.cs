@@ -1,5 +1,4 @@
-﻿using Global.GameLoops;
-using Internal;
+﻿using Internal;
 
 namespace Meta
 {
@@ -32,7 +31,6 @@ namespace Meta
                 .As<IUser>();
 
             builder.RegisterAsset<CharacterAvatars>();
-            builder.AddFromFactory<BaseGameLoopFactory>();
             
             return builder;
         }

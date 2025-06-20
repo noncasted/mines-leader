@@ -1,5 +1,6 @@
 ﻿using Internal;
 using UnityEngine;
+using VContainer;
 
 namespace Global.Cameras
 {
@@ -13,7 +14,15 @@ namespace Global.Cameras
     [DisallowMultipleComponent]
     public class GlobalCamera : MonoBehaviour, IGlobalCamera, IScopeBaseSetup
     {
+        private ICurrentCamera _currentCamera;
+        
         public Camera Camera { get; private set; }
+        
+        [Inject] 
+        private void Construct(ICurrentCamera currentCamera)
+        {
+            _currentCamera = currentCamera;
+        }
 
         public void OnBaseSetup(IReadOnlyLifetime lifetime)
         {
@@ -23,6 +32,7 @@ namespace Global.Cameras
         public void Enable()
         {
             gameObject.SetActive(true);
+            _currentCamera.SetCamera(Camera);
         }
 
         public void Disable()
