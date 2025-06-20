@@ -1,34 +1,31 @@
-﻿using Common.Network;
-using Cysharp.Threading.Tasks;
-using GamePlay.Players;
+﻿using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 
-namespace GamePlay.Cards
+namespace GamePlay.Players
 {
-    public interface IDeckFactory
+    public interface IAvatarFactory
     {
         UniTask CreateLocal(PlayerBuildContext context);
         UniTask CreateRemote(PlayerBuildContext context);
     }
     
     [DisallowMultipleComponent]
-    public class DeckFactory : MonoBehaviour, IDeckFactory
+    public class AvatarFactory : MonoBehaviour, IAvatarFactory
     {
-        [SerializeField] private DeckView _view;
+        [SerializeField] private AvatarView _view;
 
         public UniTask CreateLocal(PlayerBuildContext context)
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<DeckState>();
-            
             builder.RegisterComponent(_view)
-                .As<IDeckView>();
+                .As<IScopeSetup>()
+                .AsSelfResolvable();
 
-            builder.Register<LocalDeck>()
-                .As<IDeck>()
-                .As<IScopeSetup>();
+            builder.RegisterComponent(_view.TurnsView)
+                .As<IScopeLoaded>()
+                .AsSelfResolvable();
             
             return UniTask.CompletedTask;
         }
@@ -37,14 +34,13 @@ namespace GamePlay.Cards
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<DeckState>();
-            
             builder.RegisterComponent(_view)
-                .As<IDeckView>();
+                .As<IScopeSetup>()
+                .AsSelfResolvable();
 
-            builder.Register<RemoteDeck>()
-                .As<IDeck>()
-                .As<IScopeLoaded>();
+            builder.RegisterComponent(_view.TurnsView)
+                .As<IScopeLoaded>()
+                .AsSelfResolvable();
             
             return UniTask.CompletedTask;
         }

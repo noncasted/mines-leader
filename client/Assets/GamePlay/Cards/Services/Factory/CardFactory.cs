@@ -9,6 +9,11 @@ using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
+    public interface ICardFactory
+    {
+        UniTask Create(IReadOnlyLifetime lifetime, CardType type, Vector2 position);
+    }
+    
     public class CardFactory : ICardFactory, IScopeSetup
     {
         public CardFactory(

@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public interface ICardLocalIdle
+    {
+        void Enter();
+    }
+    
     public class CardLocalIdle : ICardLocalIdle
     {
         public CardLocalIdle(

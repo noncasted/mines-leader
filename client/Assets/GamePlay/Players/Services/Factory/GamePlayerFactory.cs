@@ -10,6 +10,12 @@ using VContainer.Unity;
 
 namespace GamePlay.Players
 {
+    public interface IGamePlayerFactory
+    {
+        UniTask<IGamePlayer> CreateLocal(IReadOnlyLifetime lifetime);
+        UniTask<IReadOnlyList<IGamePlayer>> WaitRemote(IReadOnlyLifetime lifetime, int remoteAmount);
+    }
+    
     public class GamePlayerFactory : IGamePlayerFactory, IScopeSetup
     {
         public GamePlayerFactory(

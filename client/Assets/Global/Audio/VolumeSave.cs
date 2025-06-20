@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Global.Audio;
 
-namespace Global.Saves
+namespace Global.Audio
 {
     
     [Serializable]

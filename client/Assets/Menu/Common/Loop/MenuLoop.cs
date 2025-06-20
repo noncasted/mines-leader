@@ -6,6 +6,11 @@ using Meta;
 
 namespace Menu.Common
 {
+    public interface IMenuLoop
+    {
+        UniTask<MenuResult> Process(IReadOnlyLifetime lifetime);
+    }
+    
     public class MenuLoop : IMenuLoop
     {
         public MenuLoop(

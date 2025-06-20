@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public interface ICardLocalDrag
+    {
+        UniTask Enter(ICardLocalIdle idle);
+    }
+    
     public class CardLocalDrag : ICardLocalDrag
     {
         public CardLocalDrag(

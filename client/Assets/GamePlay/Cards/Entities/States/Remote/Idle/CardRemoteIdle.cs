@@ -3,6 +3,11 @@ using Internal;
 
 namespace GamePlay.Cards
 {
+    public interface ICardRemoteIdle
+    {
+        void Enter();
+    }
+    
     public class CardRemoteIdle : ICardRemoteIdle
     {
         public CardRemoteIdle(

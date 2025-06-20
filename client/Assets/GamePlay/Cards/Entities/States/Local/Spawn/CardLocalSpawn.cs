@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public interface ICardLocalSpawn
+    {
+        UniTask Execute();
+    }
+    
     public class CardLocalSpawn : ICardLocalSpawn
     {
         public CardLocalSpawn(

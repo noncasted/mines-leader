@@ -7,6 +7,12 @@ using VContainer;
 
 namespace GamePlay.Cards
 {
+    public interface IHandPositions
+    {
+        void AddCard(IReadOnlyLifetime lifetime, ICard card);
+        ICardPositionHandle GetPositionHandle(ICard card);
+    }
+    
     [DisallowMultipleComponent]
     public class HandPositions : MonoBehaviour, IHandPositions, IUpdatable, IScopeSetup
     {
