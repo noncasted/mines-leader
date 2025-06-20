@@ -24,6 +24,5 @@ namespace Common.Network
             
             return UniTask.CompletedTask;
         }
-
     }
 }

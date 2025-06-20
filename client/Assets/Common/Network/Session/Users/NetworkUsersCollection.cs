@@ -2,6 +2,14 @@
 
 namespace Common.Network
 {
+    public interface INetworkUsersCollection
+    {
+        IReadOnlyDictionary<int, INetworkUser> Entries { get; }        
+        INetworkUser Local { get; }
+        
+        void Add(INetworkUser user);
+    }
+    
     public class NetworkUsersCollection : INetworkUsersCollection
     {
         private readonly Dictionary<int, INetworkUser> _entries = new();

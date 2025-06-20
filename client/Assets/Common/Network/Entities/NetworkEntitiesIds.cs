@@ -1,5 +1,10 @@
 ﻿namespace Common.Network
 {
+    public interface INetworkEntityIds
+    {
+        int GetEntityId();
+    }
+    
     public class NetworkEntitiesIds : INetworkEntityIds
     {
         public NetworkEntitiesIds(INetworkSession session)

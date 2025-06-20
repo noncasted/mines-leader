@@ -3,6 +3,11 @@ using Shared;
 
 namespace Common.Network
 {
+    public interface INetworkEntityDestroyer
+    {
+        UniTask Destroy(INetworkEntity entity);
+    }
+
     public class NetworkEntityDestroyer : INetworkEntityDestroyer
     {
         public NetworkEntityDestroyer(INetworkSender sender)

@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Common.Network
 {
+    public interface INetworkCommandsDispatcher
+    {
+        UniTask Run(IReadOnlyLifetime lifetime);
+    }
+    
     public class NetworkCommandsDispatcher : INetworkCommandsDispatcher
     {
         public NetworkCommandsDispatcher(
