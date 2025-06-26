@@ -13,6 +13,8 @@ namespace Global.UI
             var loadingScreenOptions = builder.GetAsset<LoadingScreenOptions>();
             var loadingScreen = builder.Instantiate(loadingScreenOptions.Prefab);
 
+            builder.Inject(loadingScreen);
+            
             builder.RegisterInstance(loadingScreen)
                 .As<ILoadingScreen>()
                 .As<IScopeSetup>();

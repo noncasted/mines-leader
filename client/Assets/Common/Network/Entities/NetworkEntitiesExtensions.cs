@@ -4,15 +4,9 @@ namespace Common.Network
 {
     public static class NetworkEntitiesExtensions
     {
-        private static int _incrementalId = 0;
-        
-        public static IEntityBuilder RegisterProperty<T>(this IEntityBuilder builder, int id = -1) where T : new()
+        public static IEntityBuilder RegisterProperty<T>(this IEntityBuilder builder) where T : new()
         {
-            if (id == -1)
-            {
-                _incrementalId++;
-                id = _incrementalId;
-            }
+            var id = typeof(T).FullName!.GetHashCode();
             
             builder.Register<NetworkProperty<T>>()
                 .WithParameter(id)

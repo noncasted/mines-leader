@@ -6,6 +6,7 @@ using GamePlay.Boards;
 using GamePlay.Players;
 using GamePlay.Services;
 using Global.Cameras;
+using Global.UI;
 using Internal;
 using Meta;
 
@@ -19,6 +20,8 @@ namespace GamePlay.Loop
     public class PvPGameLoop : IPvPGameLoop
     {
         public PvPGameLoop(
+            IGlobalCamera globalCamera,
+            ILoadingScreen loadingScreen,
             IUser user,
             INetworkSession session,
             IGameCamera gameCamera,
@@ -31,6 +34,8 @@ namespace GamePlay.Loop
             IBoardMines boardMines,
             IGameFlow gameFlow)
         {
+            _globalCamera = globalCamera;
+            _loadingScreen = loadingScreen;
             _user = user;
             _session = session;
             _gameCamera = gameCamera;
@@ -44,6 +49,8 @@ namespace GamePlay.Loop
             _gameFlow = gameFlow;
         }
 
+        private readonly IGlobalCamera _globalCamera;
+        private readonly ILoadingScreen _loadingScreen;
         private readonly IUser _user;
         private readonly INetworkSession _session;
         private readonly IGameCamera _gameCamera;
@@ -75,6 +82,9 @@ namespace GamePlay.Loop
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
             _boardMines.Start(lifetime);
+            
+            _loadingScreen.Hide();
+            _globalCamera.Disable();
 
             await _gameFlow.Execute(lifetime);
             
