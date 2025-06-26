@@ -57,8 +57,8 @@ namespace Exoa.Responsive
 
             ratio = rt.GetWidth() / rt.GetHeight();
             if (useFixedRatio) ratio = fixedRatio;
-            else if (useTextureRatio && img != null && img.sprite != null) ratio = img.sprite.bounds.size.x / img.sprite.bounds.size.y;
-            else if (useTextureRatio && rimg != null && rimg.texture != null) ratio = rimg.texture.width / rimg.texture.height;
+            else if (useTextureRatio && img != null && img.sprite != null) ratio = (float)img.sprite.bounds.size.x / (float)img.sprite.bounds.size.y;
+            else if (useTextureRatio && rimg != null && rimg.texture != null) ratio = (float)rimg.texture.width / (float)rimg.texture.height;
         }
 
         public void Update()

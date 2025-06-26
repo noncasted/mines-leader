@@ -3,7 +3,6 @@ using Global.Audio;
 using Global.Backend;
 using Global.Cameras;
 using Global.Inputs;
-using Global.Network;
 using Global.Publisher;
 using Global.Systems;
 using Global.UI;
@@ -34,7 +33,6 @@ namespace Global.Setup
                     .AddInput()
                     .AddSystemUtils()
                     .AddBackend()
-                    .AddNetwork()
                     .AddPublisher()
                     .AddUI();
 

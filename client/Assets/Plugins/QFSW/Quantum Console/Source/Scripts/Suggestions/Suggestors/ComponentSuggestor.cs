@@ -1,4 +1,4 @@
-﻿using QFSW.QC.Utilities;
+using QFSW.QC.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,11 @@ namespace QFSW.QC.Suggestors
 
         protected override IEnumerable<string> GetItems(SuggestionContext context, SuggestorOptions options)
         {
+#if UNITY_6000_0_OR_NEWER
+            return Object.FindObjectsByType(context.TargetType, FindObjectsSortMode.None)
+#else
             return Object.FindObjectsOfType(context.TargetType)
+#endif
                 .Select(cmp => (Component) cmp)
                 .Select(cmp => cmp.gameObject.name);
         }

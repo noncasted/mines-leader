@@ -1,5 +1,13 @@
+V2.6.7
+Addition 0151: Added support for commands using the 'params' keyword
+Addition 0152: Added word deletion hotkey - credit to Nikolai Merritt (nikolaimerritt)
+Addition 0153: Added preprocessors QC_HIDE_BUILTIN_ALL and QC_HIDE_BUILTIN_EXTRA
+Change 0075: Disk size reductions for all included textures
+Bug Fix 0086: Fixed deprecated API usage on Unity 6.1
+Bug Fix 0087: Improved resilience against DLLs with corrupt reflection data
+
 V2.6.6
-Addition 0148: Added an option to configure if the console should auto focus when activated
+Addition 0150: Added an option to configure if the console should auto focus when activated
 Bug Fix 0084: Fixed the WaitWhile and WaitUntil actions being inverted
 Bug Fix 0085: [ScaneName] now correctly suggests unloaded scenes outside of the editor
 

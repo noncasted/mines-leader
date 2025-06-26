@@ -23,6 +23,7 @@ namespace QFSW.QC
         public readonly Type[] GenericParamTypes;
         public readonly MethodInfo MethodData;
         public readonly MonoTargetType MonoTarget;
+        public readonly bool HasParamsArgument;
 
         private readonly object[] _defaultParameters;
 
@@ -216,10 +217,18 @@ namespace QFSW.QC
             string signature = string.Empty;
             for (int i = 0; i < methodParams.Length - defaultParameterCount; i++)
             {
-                signature += $"{(i == 0 ? string.Empty : " ")}{methodParams[i].Name}";
+                string paramName = FormatParameterName(methodParams[i]);
+                signature += $"{(i == 0 ? string.Empty : " ")}{paramName}";
             }
 
             return signature;
+        }
+
+        private string FormatParameterName(ParameterInfo param)
+        {
+            return param.HasAttribute<ParamArrayAttribute>()
+                ? $"{param.Name}..."
+                : param.Name;
         }
 
         private Type[] BuildGenericParamTypes(MethodInfo method, Type declaringType)
@@ -270,6 +279,13 @@ namespace QFSW.QC
             ParamTypes = MethodParamData
                 .Select(x => x.ParameterType)
                 .ToArray();
+
+            // Check for the presence of the 'params' keyword
+            if (MethodParamData.Length > 0)
+            {
+                ParameterInfo lastParameter = MethodParamData.Last();
+                HasParamsArgument = lastParameter.HasAttribute<ParamArrayAttribute>();
+            }
 
             _defaultParameters = new object[defaultParameterCount];
             for (int i = 0; i < defaultParameterCount; i++)
