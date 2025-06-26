@@ -117,7 +117,6 @@ namespace GamePlay.Cards
                     .AddCardRemoteRoot()
                     .AddCardRemoteStates();
 
-
                 builder.RegisterInstance(definition.Type);
                 builder.RegisterInstance(definition.Target);
                 builder.RegisterInstance(gamePlayer);
