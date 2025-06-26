@@ -1,5 +1,6 @@
 ﻿using QFSW.QC.Containers;
 using QFSW.QC.Pooling;
+using QFSW.QC.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -509,6 +510,58 @@ namespace QFSW.QC
             }
 
             return _stringBuilderPool.ReleaseAndToString(buffer);
+        }
+
+        private enum CharType
+        {
+            Whitespace,
+            Identifier,
+            Symbol,
+        }
+
+        private static CharType GetCharType(this char character)
+        {
+            if (char.IsWhiteSpace(character))
+            {
+                return CharType.Whitespace;
+            }
+            if (char.IsLetterOrDigit(character) || character == '-')
+            {
+                return CharType.Identifier;
+            }
+            return CharType.Symbol;
+        }
+
+        /// <summary>
+        /// Removes the word from <c>text</c> that ends at <c>wordEnd</c>. 
+        /// If <c>wordEnd</c> is within a word, the sub-word to the left of <c>wordEnd</c> is removed.
+        /// A word is:
+        /// <list type="bullet">
+        ///     <item>A string of whitespace characters</item>
+        ///     <item>A string of identifier (alphanumeric or hyphen (<c>-</c>)) characters</item>
+        ///     <item>A single character that is neither whitespace nor an identifier</item>
+        /// </list>
+        /// </summary>
+
+        public static string WithoutWord(this string text, int wordEnd)
+        {
+            if (wordEnd <= 0 || wordEnd > text.Length) { return text; }
+
+            int wordStart = 0;
+            if (text[wordEnd - 1].GetCharType() == CharType.Symbol) { wordStart = wordEnd - 1; }
+            else
+            {
+                for (int i = wordEnd - 1; i > 0; i--)
+                {
+                    if (text[i].GetCharType() != text[i - 1].GetCharType())
+                    {
+                        wordStart = i;
+                        break;
+                    }
+                }
+            }
+            
+            return text.Substring(0, wordStart) + text.Substring(Math.Min(wordEnd, text.Length));
         }
     }
 }

@@ -29,7 +29,6 @@ namespace Startup
 
             var globalScope = await scopeLoader.LoadGlobal(internalScope);
             var metaScope = await scopeLoader.LoadMeta(globalScope);
-
             await scopeLoader.LoadGameLoop(metaScope);
 
             await SceneManager.UnloadSceneAsync(startScene);

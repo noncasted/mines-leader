@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
-using UnityEngine;
 
 namespace Loop
 {
@@ -8,7 +7,6 @@ namespace Loop
     {
         public static async UniTask<ILoadedScope> LoadGameLoop(this IServiceScopeLoader loader, ILoadedScope parent)
         {
-            Debug.Log("add game loop");
             var options = new ScopeLoadOptions(
                 parent,
                 loader.Assets.GetAsset<GameLoopServicesScene>(),

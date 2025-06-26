@@ -9,6 +9,13 @@ namespace Global.UI
             builder.Register<UIStateMachine>()
                 .WithScopeLifetime()
                 .As<IUIStateMachine>();
+            
+            var loadingScreenOptions = builder.GetAsset<LoadingScreenOptions>();
+            var loadingScreen = builder.Instantiate(loadingScreenOptions.Prefab);
+
+            builder.RegisterInstance(loadingScreen)
+                .As<ILoadingScreen>()
+                .As<IScopeSetup>();
         }
     }
 }

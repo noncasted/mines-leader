@@ -2,7 +2,6 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
-using UnityEngine;
 
 namespace Loop
 {
@@ -19,7 +18,6 @@ namespace Loop
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            Debug.Log("On loaded");
             Loop(lifetime).Forget();
         }
 
@@ -27,7 +25,6 @@ namespace Loop
         {
             while (lifetime.IsTerminated == false)
             {
-                Debug.Log("Load menu");
                 var menuResult = await _menuLoader.Load();
 
                 switch (menuResult.GameMode)

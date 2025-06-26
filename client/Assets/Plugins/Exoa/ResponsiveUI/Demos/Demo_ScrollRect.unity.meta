@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4f50bfb6707d7f04282692fa0ea19ea5
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205189
+  packageName: Responsive UI Pro
+  packageVersion: 1.0.9
+  assetPath: Assets/Plugins/Exoa/ResponsiveUI/Demos/Demo_ScrollRect.unity
+  uploadId: 756521
