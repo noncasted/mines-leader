@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace Global.UI
 {
     public interface ILoadingScreen
     {
-        void Show();
+        UniTask Show();
         void Hide();
     }
 
@@ -17,7 +18,8 @@ namespace Global.UI
     {
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Curve _curve;
-
+        [SerializeField] private LoadingScreenAnimation _animation;
+        
         private IUpdater _updater;
         private CurveInstance _curveInstance;
         private Direction2 _direction;
@@ -34,18 +36,21 @@ namespace Global.UI
             _updater.Add(lifetime, this);
         }
 
-        public void Show()
+        public async UniTask Show()
         {
-            _direction = Direction2.Backward;
+            _direction = Direction2.Forward;
+            await UniTask.WaitUntil(() => _curveInstance.IsFinished == true);
         }
 
         public void Hide()
         {
-            _direction = Direction2.Forward;
+            _direction = Direction2.Backward;
         }
 
         public void OnUpdate(float delta)
         {
+            _animation.UpdateAnimation(delta);
+            
             var alpha = _direction switch
             {
                 Direction2.Forward => _curveInstance.StepForward(delta),
