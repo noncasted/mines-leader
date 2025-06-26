@@ -20,6 +20,8 @@ namespace Global.Inputs
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
+            _controls.Enable();
+            
             lifetime.Listen(() =>
             {
                 _controls.Disable();
