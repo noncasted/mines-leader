@@ -17,6 +17,15 @@ namespace Meta
                 list.Add((CardType)type);
             }
 
+            list = new List<CardType>()
+            {
+                CardType.Trebuchet,
+                CardType.Bloodhound,
+                CardType.TrebuchetAimer,
+                CardType.ErosionDozer,
+                CardType.Gravedigger,
+            };
+
             All = list;
         }
 

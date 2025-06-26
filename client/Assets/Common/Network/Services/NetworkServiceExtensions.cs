@@ -111,10 +111,8 @@ namespace Common.Network
 
                 var events = new NetworkEvents(_sender, _service);
 
-                var id = _key.GetHashCode();
-
                 var data = new NetworkServiceData(
-                    id,
+                    response.Id,
                     _key,
                     _properties,
                     events,

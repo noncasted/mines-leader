@@ -16,6 +16,7 @@ namespace Shared
         public partial class GetResponse : INetworkContext
         {
             public string Key { get; set; }
+            public int Id { get; set; }
             public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
         }
 
