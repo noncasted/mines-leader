@@ -1,12 +1,12 @@
 ﻿using Common.Network;
-using Common.Network.Common;
 using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
-using Global.Network.Initialization;
+using Global.Network;
 using MemoryPack;
 using MemoryPack.Formatters;
 using Menu;
+using Menu.Social;
 
 namespace Tools.MemoryPackTools
 {
@@ -15,7 +15,6 @@ namespace Tools.MemoryPackTools
         public override void Init()
         {
             var payloads = new DynamicUnionFormatter<IEntityPayload>(
-                (0, typeof(TestEntityPayload)),
                 (1, typeof(BoardCreatePayload)),
                 (2, typeof(CardCreatePayload)),
                 (3, typeof(GamePlayerCreatePayload)),
