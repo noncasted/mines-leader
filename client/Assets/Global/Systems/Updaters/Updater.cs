@@ -34,12 +34,6 @@ namespace Global.Systems
                 if (updatable.Lifetime.IsTerminated == false)
                     updatable.Target.OnUpdate(delta);
             }
-
-            foreach (var updatable in _gizmos)
-            {
-                if (updatable.Lifetime.IsTerminated == false)
-                    updatable.Target.OnGizmosUpdate();
-            }
         }
 
         private void FixedUpdate()
@@ -62,6 +56,15 @@ namespace Global.Systems
             {
                 if (updatable.Lifetime.IsTerminated == false)
                     updatable.Target.OnPostFixedUpdate(delta);
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            foreach (var updatable in _gizmos)
+            {
+                if (updatable.Lifetime.IsTerminated == false)
+                    updatable.Target.OnGizmosUpdate();
             }
         }
 

@@ -32,6 +32,9 @@ namespace QFSW.QC
         private static readonly QuantumParser _parser = new QuantumParser();
         private static readonly QuantumPreprocessor _preprocessor = new QuantumPreprocessor();
         private static readonly QuantumScanRuleset _scanRuleset = new QuantumScanRuleset();
+
+        // Mapping of all command keys cmdName(argCount) to the CommandData objects
+        // If the command has a dynamic number of parameters, such as by using the params keyword, then the key will be cmdName(#)
         private static readonly ConcurrentDictionary<string, CommandData> _commandTable = new ConcurrentDictionary<string, CommandData>();
         private static readonly List<CommandData> _commandCache = new List<CommandData>();
 
@@ -313,7 +316,10 @@ namespace QFSW.QC
 
         private static string GenerateCommandKey(CommandData command)
         {
-            return $"{command.CommandName}({command.ParamCount})";
+            string cmdName = command.CommandName;
+            return command.HasParamsArgument
+                ? $"{cmdName}(#)"
+                : $"{cmdName}({command.ParamCount})";
         }
 
         /// <summary>
@@ -395,36 +401,22 @@ namespace QFSW.QC
             string genericSignature = commandNameParts.Length > 1 ? $"<{commandNameParts[1]}" : "";
             commandName = commandNameParts[0];
 
-            string keyName = $"{commandName}({paramCount})";
-            if (!_commandTable.ContainsKey(keyName))
-            {
-                bool overloadExists = _commandTable.Keys.Any(key => key.Contains($"{commandName}(") && _commandTable[key].CommandName == commandName);
-                if (overloadExists) { throw new ArgumentException($"No overload of '{commandName}' with {paramCount} parameters could be found."); }
-                else { throw new ArgumentException($"Command '{commandName}' could not be found."); }
-            }
-            CommandData command = _commandTable[keyName];
+            CommandData command = FindCompatibleCommand(commandName, paramCount);
+            Type[] genericTypes = ParseGenericTypes(command, genericSignature);
 
-            Type[] genericTypes = Array.Empty<Type>();
-            if (command.IsGeneric)
+            // If we using a command with a dynamic parameter count, then reconstitute all the extra params
+            // back into one parameter for the parser
+            if (command.HasParamsArgument)
             {
-                int expectedArgCount = command.GenericParamTypes.Length;
-                string[] genericArgNames = genericSignature.ReduceScope('<', '>').SplitScoped(',');
-                if (genericArgNames.Length == expectedArgCount)
-                {
-                    genericTypes = new Type[genericArgNames.Length];
-                    for (int i = 0; i < genericTypes.Length; i++)
-                    {
-                        genericTypes[i] = QuantumParser.ParseType(genericArgNames[i]);
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException($"Generic command '{commandName}' requires {expectedArgCount} generic parameter{(expectedArgCount == 1 ? "" : "s")} but was supplied with {genericArgNames.Length}.");
-                }
-            }
-            else if (genericSignature != string.Empty)
-            {
-                throw new ArgumentException($"Command '{commandName}' is not a generic command and cannot be invoked as such.");
+                int paramsIndex = command.ParamCount - 1;
+                IEnumerable<string> paramsParts = commandParams.Skip(paramsIndex);
+                string paramsMerged = string.Join(",", paramsParts);
+
+                string[] mergedCommandParams = new string[command.ParamCount];
+                Array.Copy(commandParams, mergedCommandParams, command.ParamCount - 1);
+                mergedCommandParams[paramsIndex] = paramsMerged;
+
+                commandParams = mergedCommandParams;
             }
 
 #if !UNITY_EDITOR && ENABLE_IL2CPP && !UNITY_2022_2_OR_NEWER
@@ -436,6 +428,67 @@ namespace QFSW.QC
 
             object[] parsedCommandParams = ParseParamData(command.MakeGenericArguments(genericTypes), commandParams);
             return command.Invoke(parsedCommandParams, genericTypes);
+        }
+
+        private static CommandData FindCompatibleCommand(string commandName, int paramCount)
+        {
+            CommandData commandCandidate;
+
+            // First try finding an exact match
+            string exactKey = $"{commandName}({paramCount})";
+            if (_commandTable.TryGetValue(exactKey, out commandCandidate))
+            {
+                return commandCandidate;
+            }
+
+            // If that fails, try checking commands with dynamic parameter counts
+            string dynamicKey = $"{commandName}(#)";
+            if (_commandTable.TryGetValue(dynamicKey, out commandCandidate))
+            {
+                // Verify they have compatible parameter counts
+                int commandRequiredParams = commandCandidate.ParamCount - 1;
+                if (paramCount >= commandRequiredParams)
+                {
+                    return commandCandidate;
+                }
+            }
+
+            // All failed, throw error
+            bool overloadExists = _commandCache.Any(command => command.CommandName == commandName);
+            throw overloadExists
+                ? new ArgumentException($"No overload of '{commandName}' with {paramCount} parameters could be found.")
+                : new ArgumentException($"Command '{commandName}' could not be found.");
+        }
+
+        private static Type[] ParseGenericTypes(CommandData command, string genericSignature)
+        {
+            // Handle non generic commands first
+            if (!command.IsGeneric)
+            {
+                if (genericSignature != string.Empty)
+                {
+                    throw new ArgumentException($"Command '{command.CommandName}' is not a generic command and cannot be invoked as such.");
+                }
+
+                return Array.Empty<Type>();
+            }
+
+            // Validate the correct number of generics
+            int expectedArgCount = command.GenericParamTypes.Length;
+            string[] genericArgNames = genericSignature.ReduceScope('<', '>').SplitScoped(',');
+            if (genericArgNames.Length != expectedArgCount)
+            {
+                throw new ArgumentException($"Generic command '{command.CommandName}' requires {expectedArgCount} generic parameter{(expectedArgCount == 1 ? "" : "s")} but was supplied with {genericArgNames.Length}.");
+            }
+
+            // Parse the actual types
+            Type[] genericTypes = new Type[genericArgNames.Length];
+            for (int i = 0; i < genericTypes.Length; i++)
+            {
+                genericTypes[i] = QuantumParser.ParseType(genericArgNames[i]);
+            }
+
+            return genericTypes;
         }
 
         private static object[] ParseParamData(Type[] paramTypes, string[] paramData)

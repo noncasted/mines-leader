@@ -5,6 +5,12 @@ using Global.UI;
 
 namespace Global.Inputs
 {
+    public interface IInputConstraintsStorage
+    {
+        void Add(IUIConstraints uiConstraints);
+        void Remove(IUIConstraints uiConstraints);
+    }
+    
     public class InputConstraintsStorage : IInputConstraintsStorage
     {
         public InputConstraintsStorage()
@@ -19,9 +25,9 @@ namespace Global.Inputs
 
         public bool this[InputConstraints key] => _constraints[key] <= 0;
 
-        public void Add(IReadOnlyDictionary<InputConstraints, bool> constraints)
+        public void Add(IUIConstraints uiConstraints)
         {
-            foreach (var (key, value) in constraints)
+            foreach (var (key, value) in uiConstraints.Input)
             {
                 if (value == false)
                     continue;
@@ -30,14 +36,9 @@ namespace Global.Inputs
             }
         }
 
-        public void Add(IUIConstraints uiConstraints)
+        public void Remove(IUIConstraints uiConstraints)
         {
-            Add(uiConstraints.Input);
-        }
-
-        public void Remove(IReadOnlyDictionary<InputConstraints, bool> constraints)
-        {
-            foreach (var (key, value) in constraints)
+            foreach (var (key, value) in uiConstraints.Input)
             {
                 if (value == false)
                     continue;
@@ -49,11 +50,6 @@ namespace Global.Inputs
                 if (count < 0)
                     _constraints[key] = 0;
             }
-        }
-
-        public void Remove(IUIConstraints uiConstraints)
-        {
-            Remove(uiConstraints.Input);
         }
     }
 }

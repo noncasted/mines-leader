@@ -20,10 +20,12 @@ namespace GamePlay.Services
     {
         public GameInput(
             IUpdater updater,
-            ICameraUtils cameraUtils)
+            ICameraUtils cameraUtils, 
+            IGlobalControls localUser)
         {
             _updater = updater;
             _cameraUtils = cameraUtils;
+            _localUser = localUser;
         }
 
         private readonly ViewableProperty<bool> _flag = new();
@@ -31,7 +33,7 @@ namespace GamePlay.Services
         
         private readonly IUpdater _updater;
         private readonly ICameraUtils _cameraUtils;
-        private readonly IUserInput _localUser;
+        private readonly IGlobalControls _localUser;
         
         private Vector2 _world;
         private Vector2 _screen;
