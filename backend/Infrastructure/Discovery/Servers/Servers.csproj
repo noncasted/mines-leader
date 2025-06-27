@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Infrastructure.Discovery.Servers</AssemblyName>
         <RootNamespace>Infrastructure.Discovery</RootNamespace>
     </PropertyGroup>
@@ -16,8 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
+        <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj" />
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\Environment\Environment.csproj"/>
     </ItemGroup>

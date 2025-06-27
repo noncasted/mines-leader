@@ -1,19 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Backend.Gateway.UserFlow</AssemblyName>
         <RootNamespace>Backend.Gateway</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
-        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Users\Projections\Interfaces\Interfaces.csproj"/>

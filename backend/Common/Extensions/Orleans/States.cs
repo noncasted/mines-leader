@@ -14,6 +14,8 @@ public static class States
     private const string User_Deck = "User_Deck";
 
     private const string Match_Entity = "Match_Entity";
+    
+    private const string Config = "Config";
 
     public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity);
 
@@ -27,7 +29,9 @@ public static class States
 
     public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck);
 
-    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity);
+    public class MatchAttribute() : TransactionalStateAttribute(Config);
+
+    public class ConfigStorageAttribute() : PersistentStateAttribute("Config");
 }
 
 public static class StateAttributesExtensions
@@ -42,6 +46,8 @@ public static class StateAttributesExtensions
         AddPersistentAttribute<States.UserProjectionConnectionAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
+        
+        AddPersistentAttribute<States.ConfigStorageAttribute>();
 
         return builder;
 
@@ -53,7 +59,7 @@ public static class StateAttributesExtensions
         }
 
         void AddPersistentAttribute<TAttribute>()
-            where TAttribute : PersistentStateAttribute, new()
+            where TAttribute : PersistentStateAttribute
         {
             builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
                 GenericPersistentStateAttributeMapper<TAttribute>>();

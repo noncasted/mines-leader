@@ -18,10 +18,10 @@ public interface IMessagingClient
 
 public static class MessagingClientExtensions
 {
-   public static void ListenWithResponse<TRequest, TResponse>(
-       this IMessagingClient client,
-       IReadOnlyLifetime lifetime,
-       Func<TRequest, TResponse> listener)
+    public static void ListenWithResponse<TRequest, TResponse>(
+        this IMessagingClient client,
+        IReadOnlyLifetime lifetime,
+        Func<TRequest, TResponse> listener)
         where TRequest : IClusterMessage
         where TResponse : IClusterMessage
     {
@@ -33,4 +33,8 @@ public static class MessagingClientExtensions
         }
     }
 
+    public static Task SendAll<T>(this IMessagingClient client, T message) where T : IClusterMessage
+    {
+        return client.Send(new AllMessageOptions(), message);
+    }
 }

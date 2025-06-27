@@ -1,6 +1,6 @@
 ﻿namespace Backend.Users;
 
-public interface IUserProgression : IGrainWithGuidKey
+public interface IUserProgression : IUserGrain
 {
     [Transaction(TransactionOption.Join)]
     Task AddRecord(IUserProgressionRecord record);

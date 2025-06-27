@@ -19,11 +19,8 @@ namespace Meta
 
             list = new List<CardType>()
             {
-                CardType.Trebuchet,
-                CardType.Bloodhound,
-                CardType.TrebuchetAimer,
-                CardType.ErosionDozer,
-                CardType.Gravedigger,
+                CardType.ZipZap,
+                CardType.ZipZap_Max
             };
 
             All = list;

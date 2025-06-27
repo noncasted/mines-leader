@@ -1,19 +1,25 @@
-﻿using GamePlay.Loop;
+﻿using System;
+using GamePlay.Boards;
+using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
 using Meta;
+using Shared;
 
 namespace GamePlay.Cards
 {
-    public interface ICardActionState
+    public interface ICardContext
     {
+        IBoard TargetBoard { get; }
         IViewableProperty<bool> IsAvailable { get; }
+        CardType Type { get; }
     }
-    
-    public class CardActionState : ICardActionState, IScopeSetup
+
+    public class CardContext : ICardContext, IScopeSetup
     {
-        public CardActionState(
-            IPlayerMana mana, 
+        public CardContext(
+            IGameContext gameContext,
+            IPlayerMana mana,
             IGameRound gameRound,
             IPlayerTurns turns,
             ICardDefinition definition)
@@ -22,16 +28,19 @@ namespace GamePlay.Cards
             _gameRound = gameRound;
             _turns = turns;
             _definition = definition;
+            TargetBoard = SelectTargetBoard(definition.Type, gameContext);
         }
 
         private readonly IPlayerMana _mana;
         private readonly IGameRound _gameRound;
         private readonly IPlayerTurns _turns;
         private readonly ICardDefinition _definition;
-        
+
         private readonly ViewableProperty<bool> _isAvailable = new();
 
+        public IBoard TargetBoard { get; }
         public IViewableProperty<bool> IsAvailable => _isAvailable;
+        public CardType Type => _definition.Type;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -46,13 +55,13 @@ namespace GamePlay.Cards
                 _isAvailable.Set(false);
                 return;
             }
-            
+
             if (_definition.ManaCost > _mana.Current.Value)
             {
                 _isAvailable.Set(false);
                 return;
             }
-            
+
             if (_turns.IsAvailable() == false)
             {
                 _isAvailable.Set(false);
@@ -60,6 +69,25 @@ namespace GamePlay.Cards
             }
 
             _isAvailable.Set(true);
+        }
+
+        private IBoard SelectTargetBoard(CardType type, IGameContext gameContext)
+        {
+            return type switch
+            {
+                CardType.Trebuchet => gameContext.Other.Board,
+                CardType.Trebuchet_Max => gameContext.Other.Board,
+                CardType.Bloodhound => gameContext.Self.Board,
+                CardType.Bloodhound_Max => gameContext.Self.Board,
+                CardType.ErosionDozer => gameContext.Self.Board,
+                CardType.ErosionDozer_Max => gameContext.Self.Board,
+                CardType.ZipZap => gameContext.Self.Board,
+                CardType.ZipZap_Max => gameContext.Self.Board,
+                CardType.TrebuchetAimer => null,
+                CardType.TrebuchetAimer_Max => null,
+                CardType.Gravedigger => null,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
         }
     }
 }

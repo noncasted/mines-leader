@@ -19,7 +19,7 @@ namespace GamePlay.Cards
             IPlayerMana mana,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             ICardAction action,
             ICardLocalDrop drop,
             IPlayerTurns turns,
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
             _mana = mana;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
             _action = action;
             _drop = drop;
             _turns = turns;
@@ -42,7 +42,7 @@ namespace GamePlay.Cards
         private readonly IPlayerMana _mana;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
         private readonly ICardLocalDrop _drop;
         private readonly IPlayerTurns _turns;
@@ -52,7 +52,7 @@ namespace GamePlay.Cards
         public async UniTask Enter(ICardLocalIdle idle)
         {
             var startPosition = _transform.Position;
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
             var startForce = _transform.HandForce;
             var positionHandle = _handEntryHandle.PositionHandle;
             var selectionLifetime = lifetime.Child();

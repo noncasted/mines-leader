@@ -16,37 +16,37 @@ namespace GamePlay.Cards
             IUpdater updater,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             ICardPointerHandler pointerHandler,
             ICardLocalDrag drag,
             ICardRenderer renderer,
-            ICardActionState actionState,
+            ICardContext context,
             CardIdleOptions options)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
             _pointerHandler = pointerHandler;
             _drag = drag;
             _renderer = renderer;
-            _actionState = actionState;
+            _context = context;
             _options = options;
         }
 
         private readonly IUpdater _updater;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly ICardLocalDrag _drag;
         private readonly ICardRenderer _renderer;
-        private readonly ICardActionState _actionState;
+        private readonly ICardContext _context;
         private readonly CardIdleOptions _options;
 
         public void Enter()
         {
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
             var selectionCurve = _options.SelectionCurve.CreateInstance();
             var positionHandle = _handEntryHandle.PositionHandle;
 
@@ -83,7 +83,7 @@ namespace GamePlay.Cards
 
             _pointerHandler.IsPressed.AdviseTrue(lifetime, () =>
             {
-                if (_actionState.IsAvailable.Value == false)
+                if (_context.IsAvailable.Value == false)
                     return;
 
                 _drag.Enter(this).Forget();

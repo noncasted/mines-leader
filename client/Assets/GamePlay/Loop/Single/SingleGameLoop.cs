@@ -5,6 +5,7 @@ using GamePlay.Boards;
 using GamePlay.Players;
 using GamePlay.Services;
 using Global.Cameras;
+using Global.UI;
 using Internal;
 using Meta;
 
@@ -14,7 +15,7 @@ namespace GamePlay.Loop
     {
         UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
     }
-    
+
     public class SingleGameLoop : ISingleGameLoop
     {
         public SingleGameLoop(
@@ -26,9 +27,9 @@ namespace GamePlay.Loop
             IGameContext gameContext,
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
-            ICellOpenAction cellOpenAction, 
+            ICellOpenAction cellOpenAction,
             IBoardMines boardMines,
-            IGameFlow gameFlow)
+            IGameFlow gameFlow, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
         {
             _user = user;
             _session = session;
@@ -41,6 +42,8 @@ namespace GamePlay.Loop
             _cellOpenAction = cellOpenAction;
             _boardMines = boardMines;
             _gameFlow = gameFlow;
+            _globalCamera = globalCamera;
+            _loadingScreen = loadingScreen;
         }
 
         private readonly IUser _user;
@@ -55,12 +58,15 @@ namespace GamePlay.Loop
         private readonly IBoardMines _boardMines;
         private readonly IGameFlow _gameFlow;
 
+        private readonly IGlobalCamera _globalCamera;
+        private readonly ILoadingScreen _loadingScreen;
+
         public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
             _camera.SetCamera(_gameCamera.Camera);
 
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
-            
+
             var localPlayer = await _playerFactory.CreateLocal(lifetime);
             _gameContext.CompleteSetup(new[] { localPlayer });
 
@@ -69,7 +75,10 @@ namespace GamePlay.Loop
             _cellOpenAction.Start(lifetime);
             _boardMines.Start(lifetime);
 
-            _gameFlow.Execute(lifetime);
+            _loadingScreen.Hide();
+            _globalCamera.Disable();
+
+            await _gameFlow.Execute(lifetime);
 
             await UniTask.Delay(TimeSpan.FromDays(12), cancellationToken: lifetime.Token);
         }

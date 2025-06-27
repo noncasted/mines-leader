@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
@@ -10,7 +11,7 @@ namespace GamePlay.Cards
 {
     public interface ICardDropArea
     {
-        UniTask<CardDropData> Show(
+        UniTask<IReadOnlyList<IBoardCell>> Show(
             IReadOnlyLifetime stateLifetime,
             IReadOnlyLifetime selectionLifetime,
             ICardDropPattern pattern);
@@ -18,23 +19,29 @@ namespace GamePlay.Cards
     
     public class CardDropArea : ICardDropArea
     {
-        public CardDropArea(IUpdater updater, IGameInput input, IGameContext context)
+        public CardDropArea(
+            IUpdater updater,
+            IGameInput input,
+            IGameContext gameContext,
+            ICardContext context)
         {
             _updater = updater;
             _input = input;
+            _gameContext = gameContext;
             _context = context;
         }
 
         private readonly IUpdater _updater;
         private readonly IGameInput _input;
-        private readonly IGameContext _context;
+        private readonly IGameContext _gameContext;
+        private readonly ICardContext _context;
 
-        public async UniTask<CardDropData> Show(
+        public async UniTask<IReadOnlyList<IBoardCell>> Show(
             IReadOnlyLifetime stateLifetime,
             IReadOnlyLifetime selectionLifetime,
             ICardDropPattern pattern)
         {
-            CardDropData previousData = null;
+            IReadOnlyList<IBoardCell> previousData = null;
 
             await _updater.RunUpdateAction(
                 stateLifetime,
@@ -43,7 +50,7 @@ namespace GamePlay.Cards
                 {
                     var board = GetSelectedBoard();
 
-                    if (board == null)
+                    if (board == null || _context.TargetBoard != board)
                     {
                         DeselectAll();
                         previousData = null;
@@ -51,20 +58,20 @@ namespace GamePlay.Cards
                     }
 
                     var boardPosition = board.WorldToBoardPosition(_input.World);
-                    var dropData = pattern.GetDropData(board, boardPosition);
+                    var dropData = pattern.GetDropData(boardPosition);
 
                     if (previousData != null)
                     {
-                        foreach (var cell in previousData.Cells)
+                        foreach (var cell in previousData)
                         {
-                            if (dropData.Cells.Contains(cell) == false)
+                            if (dropData.Contains(cell) == false)
                                 cell.Selection.Deselect();
                         }
                     }
 
-                    foreach (var cell in dropData.Cells)
+                    foreach (var cell in dropData)
                     {
-                        if (previousData == null || previousData.Cells.Contains(cell) == false)
+                        if (previousData == null || previousData.Contains(cell) == false)
                             cell.Selection.Select();
                     }
 
@@ -79,7 +86,7 @@ namespace GamePlay.Cards
             {
                 var input = _input.World;
 
-                foreach (var player in _context.All)
+                foreach (var player in _gameContext.All)
                 {
                     if (player.Board.IsInside(input) == false)
                         continue;
@@ -95,7 +102,7 @@ namespace GamePlay.Cards
                 if (previousData == null)
                     return;
 
-                foreach (var cell in previousData.Cells)
+                foreach (var cell in previousData)
                     cell.Selection.Deselect();
             }
         }

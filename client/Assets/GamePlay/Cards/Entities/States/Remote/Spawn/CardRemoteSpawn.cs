@@ -15,14 +15,14 @@ namespace GamePlay.Cards
             IUpdater updater,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             ICardRemoteIdle idle,
             CardRemoteSpawnOptions options)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
             _idle = idle;
             _options = options;
         }
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
         private readonly IUpdater _updater;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardRemoteIdle _idle;
         private readonly CardRemoteSpawnOptions _options;
 
@@ -46,7 +46,7 @@ namespace GamePlay.Cards
             var startRotation = _transform.Rotation;
             var startPosition = _transform.Position;
 
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
 
             await _updater.RunUpdateAction(lifetime, _options.Time, delta =>
             {

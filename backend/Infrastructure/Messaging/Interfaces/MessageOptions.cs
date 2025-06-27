@@ -28,3 +28,12 @@ public class TagMessageOptions : IMessageOptions
         return overview.Tag == Tag;
     }
 }
+
+[GenerateSerializer]
+public class AllMessageOptions : IMessageOptions
+{
+    public bool IsTarget(MessagingObserverOverview overview)
+    {
+        return true;
+    }
+}

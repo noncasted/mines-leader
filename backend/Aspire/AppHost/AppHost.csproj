@@ -4,12 +4,8 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <IsAspireHost>true</IsAspireHost>
         <UserSecretsId>2acdf813-97a1-4c19-92fd-618b39668cb5</UserSecretsId>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
 
         <AssemblyName>Aspire.AppHost</AssemblyName>
         <RootNamespace>Aspire</RootNamespace>
@@ -24,6 +20,7 @@
       <ProjectReference Include="..\..\Backend\Gateway\BackendGateway\BackendGateway.csproj" />
       <ProjectReference Include="..\..\Game\Gateway\GameGateway\GameGateway.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Orleans\Silo\Silo.csproj" />
+      <ProjectReference Include="..\..\Management\Web\Console\Console.csproj" />
       <ProjectReference Include="..\Startup\Startup.csproj" />
     </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ServiceLoop;
 
 namespace Infrastructure.Discovery;
 
@@ -32,7 +33,9 @@ public static class ServersExtensions
 
     public static IHostApplicationBuilder AddServerOverviewPusher(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<ServerOverviewPusher>();
+        builder.AddSingleton<ServerOverviewPusher>()
+            .AsMessagingLoopStage();
+        
         builder.AddEnvironmentOptions<ServersOptions>("appsettings.servers");
 
         return builder;

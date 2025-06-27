@@ -14,7 +14,7 @@ namespace GamePlay.Cards
     {
         public CardLocalDrop(
             IUpdater updater,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             IStash stash,
             ILocalCard card,
             ICardTransform transform,
@@ -25,11 +25,11 @@ namespace GamePlay.Cards
             _card = card;
             _transform = transform;
             _options = options;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
         }
 
         private readonly IUpdater _updater;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly IStash _stash;
         private readonly ILocalCard _card;
         private readonly ICardTransform _transform;
@@ -37,7 +37,7 @@ namespace GamePlay.Cards
 
         public async UniTask Enter()
         {
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
             var startPosition = _transform.Position;
             var direction = (_transform.Rotation + 90f).ToAngle().ToVector2();
             var targetPosition = startPosition + direction * _options.MoveDistance;

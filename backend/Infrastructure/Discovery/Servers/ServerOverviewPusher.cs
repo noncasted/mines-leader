@@ -1,12 +1,12 @@
 ﻿using Common;
 using Infrastructure.Messaging;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ServiceLoop;
 
 namespace Infrastructure.Discovery;
 
-public class ServerOverviewPusher : BackgroundService
+public class ServerOverviewPusher : IMessagingLoopStage
 {
     public ServerOverviewPusher(
         IServiceEnvironment environment,
@@ -25,12 +25,12 @@ public class ServerOverviewPusher : BackgroundService
     private readonly ILogger<ServerOverviewPusher> _logger;
     private readonly IOptions<ServersOptions> _options;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public Task OnMessagingStage(IReadOnlyLifetime lifetime)
     {
-        Loop(stoppingToken.ToLifetime()).NoAwait();
+        Loop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
-
+    
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
         while (lifetime.IsTerminated == false)
