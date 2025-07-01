@@ -1,4 +1,5 @@
-﻿using Global.UI;
+﻿using Global.Settings;
+using Global.UI;
 using Internal;
 using Menu.Decks;
 using UnityEngine;
@@ -20,10 +21,12 @@ namespace Menu.Main
 
         private IMenuDecks _decks;
         private IUIStateMachine _stateMachine;
+        private ISettings _settingsService;
 
         [Inject]
-        private void Construct(IMenuDecks decks, IUIStateMachine stateMachine)
+        private void Construct(IMenuDecks decks, IUIStateMachine stateMachine, ISettings settings)
         {
+            _settingsService = settings;
             _stateMachine = stateMachine;
             _decks = decks;
         }
@@ -38,6 +41,7 @@ namespace Menu.Main
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _cards.Clicked.Advise(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _decks));
+            _settings.Clicked.Advise(lifetime, () => _settingsService.Open());
         }
     }
 }

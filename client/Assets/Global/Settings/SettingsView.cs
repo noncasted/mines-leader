@@ -31,6 +31,11 @@ namespace Global.Settings
 
         [SerializeField] private DesignGroupSelection _vsyncSelection;
 
+        private void Awake()
+        {
+            gameObject.SetActive(false);
+        }
+
         public async UniTask<SettingsViewResult> Show(SettingsSave data, Action pushCallback)
         {
             gameObject.SetActive(true);

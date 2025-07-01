@@ -4,6 +4,7 @@ using Global.Backend;
 using Global.Cameras;
 using Global.Inputs;
 using Global.Publisher;
+using Global.Settings;
 using Global.Systems;
 using Global.UI;
 using Internal;
@@ -33,6 +34,7 @@ namespace Global.Setup
                     .AddInput()
                     .AddSystemUtils()
                     .AddBackend()
+                    .AddSettings()
                     .AddPublisher()
                     .AddUI();
 

@@ -63,7 +63,7 @@ namespace Menu.Main
                 _searchLifetime?.Terminate();
                 _timer.gameObject.SetActive(false);
                 _matchmaking.CancelSearch(lifetime);
-                _buttonText.text = "PLAY";
+                _buttonText.text = "play";
             }
             else
             {
@@ -76,7 +76,7 @@ namespace Menu.Main
             _isInSearch = true;
             _searchLifetime = lifetime.Child();
             _timer.gameObject.SetActive(true);
-            _buttonText.text = "CANCEL";
+            _buttonText.text = "cancel";
             _time = 0;
 
             _updater.RunUpdateAction(_searchLifetime, delta =>
