@@ -12,12 +12,12 @@ namespace GamePlay.Cards
         [SerializeField] private Color _available;
         [SerializeField] private Color _locked;
         
-        private ICardActionState _actionState;
+        private ICardContext _context;
 
         [Inject]
-        private void Construct(ICardActionState actionState)
+        private void Construct(ICardContext context)
         {
-            _actionState = actionState;
+            _context = context;
         }
         
         public void Register(IEntityBuilder builder)
@@ -28,7 +28,7 @@ namespace GamePlay.Cards
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _actionState.IsAvailable.View(lifetime, isAvailable =>
+            _context.IsAvailable.View(lifetime, isAvailable =>
             {
                 if (isAvailable)
                     _renderer.SetAllColor(_available);

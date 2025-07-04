@@ -9,15 +9,15 @@ namespace GamePlay.Cards
             builder.Register<CardDropDetector>()
                 .As<ICardDropDetector>();
             
-            builder.Register<CardStateContext>()
+            builder.Register<CardStateLifetime>()
                 .WithParameter(builder.Lifetime)
-                .As<ICardStateContext>();
+                .As<ICardStateLifetime>();
 
             builder.Register<CardDropArea>()
                 .As<ICardDropArea>();
 
-            builder.Register<CardActionState>()
-                .As<ICardActionState>()
+            builder.Register<CardContext>()
+                .As<ICardContext>()
                 .As<IScopeSetup>();
 
             return builder;
@@ -28,9 +28,9 @@ namespace GamePlay.Cards
             builder.Register<CardDropArea>()
                 .As<ICardDropArea>();
 
-            builder.Register<CardStateContext>()
+            builder.Register<CardStateLifetime>()
                 .WithParameter(builder.Lifetime)
-                .As<ICardStateContext>();
+                .As<ICardStateLifetime>();
 
             return builder;
         }

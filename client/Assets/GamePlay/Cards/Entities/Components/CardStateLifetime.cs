@@ -2,14 +2,14 @@
 
 namespace GamePlay.Cards
 {
-    public interface ICardStateContext
+    public interface ICardStateLifetime
     {
         ILifetime OccupyLifetime();
     }
     
-    public class CardStateContext : ICardStateContext
+    public class CardStateLifetime : ICardStateLifetime
     {
-        public CardStateContext(ICard card)
+        public CardStateLifetime(ICard card)
         {
             _card = card;
         }

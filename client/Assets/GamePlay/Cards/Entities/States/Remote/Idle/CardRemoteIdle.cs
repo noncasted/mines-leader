@@ -14,14 +14,14 @@ namespace GamePlay.Cards
             IUpdater updater,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             ICardRenderer renderer,
             CardRemoteIdleOptions options)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
             _renderer = renderer;
             _options = options;
         }
@@ -29,13 +29,13 @@ namespace GamePlay.Cards
         private readonly IUpdater _updater;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardRenderer _renderer;
         private readonly CardRemoteIdleOptions _options;
 
         public void Enter()
         {
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
             var selectionCurve = _options.SelectionCurve.CreateInstance();
             var positionHandle = _handEntryHandle.PositionHandle;
 

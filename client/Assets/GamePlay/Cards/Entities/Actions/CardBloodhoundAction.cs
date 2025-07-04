@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -9,34 +10,34 @@ namespace GamePlay.Cards
     public class CardBloodhoundAction : ICardAction
     {
         public CardBloodhoundAction(
+            ICardContext context,
             ICardDropArea dropArea,
-            ICardPointerHandler pointerHandler)
+            ICardPointerHandler pointerHandler, 
+            CardType cardType)
         {
+            _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
+            _cardType = cardType;
         }
 
+        private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
+        private readonly CardType _cardType;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
-            var selectionLifetime = lifetime.Child();
+            var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            _pointerHandler.IsPressed.Advise(selectionLifetime, value =>
-            {
-                if (value == true)
-                    return;
+            var size = _cardType.GetSize();
+            var pattern = new Pattern(_context.TargetBoard, size);
+            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-                selectionLifetime.Terminate();
-            });
-
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, new Pattern());
-
-            if (selected == null || selected.Cells.Count == 0 || lifetime.IsTerminated == true)
+            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
                 return false;
 
-            foreach (var cell in selected.Cells)
+            foreach (var cell in selected)
             {
                 if (cell.HasMine() == true)
                     cell.EnsureTaken().Flag();
@@ -44,68 +45,27 @@ namespace GamePlay.Cards
                     cell.EnsureFree();
             }
 
-            selected.Cells.CleanupAround();
-            selected.Board.InvokeUpdated();
+            selected.CleanupAround();
+            _context.TargetBoard.InvokeUpdated();
 
             return true;
         }
 
         public class Pattern : ICardDropPattern
         {
-            private readonly int[][] _targets =
+            public Pattern(IBoard board, int size)
             {
-                new[] { 0, 0, 1, 0, 0 },
-                new[] { 0, 1, 1, 1, 0 },
-                new[] { 1, 1, 1, 1, 1 },
-                new[] { 0, 1, 1, 1, 0 },
-                new[] { 0, 0, 1, 0, 0 },
-            };
+                _board = board;
+                _shape = PatternShapes.Rhombus(size);
+            }
 
-            public CardDropData GetDropData(IBoard board, Vector2Int pointer)
+            private readonly IBoard _board;
+            private readonly IPattenShape _shape;
+            
+            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
             {
-                var cells = board.Cells;
-
-                if (ValidateStart() == false)
-                    return CardDropData.Empty(board);
-
-                var selected = new List<IBoardCell>();
-                var size = new Vector2Int(_targets.Length, _targets[0].Length);
-                var offset = new Vector2Int(-Mathf.FloorToInt(size.x / 2f), -Mathf.FloorToInt(size.y / 2f));
-
-                for (var x = 0; x < size.x; x++)
-                {
-                    for (var y = 0; y < size.y; y++)
-                    {
-                        if (_targets[x][y] == 0)
-                            continue;
-                        
-                        var position = pointer + offset + new Vector2Int(x, y);
-
-                        if (board.Cells.TryGetValue(position, out var cell) == false)
-                            continue;
-
-                        if (cell.IsTaken() == false)
-                            continue;
-
-                        selected.Add(cell);
-                    }
-                }
-
-                return new CardDropData(selected, board);
-
-                bool ValidateStart()
-                {
-                    if (board.IsMine == false)
-                        return false;
-
-                    if (cells.TryGetValue(pointer, out var startCheck) == false)
-                        return false;
-
-                    if (startCheck.State.Value.Status == CellStatus.Free)
-                        return false;
-
-                    return true;
-                }
+                var selected = _shape.SelectTaken(_board, pointer);
+                return selected;
             }
         }
     }

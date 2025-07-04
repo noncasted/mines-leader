@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Players;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -12,39 +14,42 @@ namespace GamePlay.Cards
         public CardTrebuchetAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            IPlayerModifiers modifiers)
+            IPlayerModifiers modifiers,
+            CardType type,
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
+            _type = type;
+            _context = context;
         }
 
-        private const int _minesAmount = 5;
-        private const int _size = 5;
+        private int _minesAmount => _type switch
+        {
+            CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
+            CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
+        private readonly CardType _type;
+        private readonly ICardContext _context;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
-            var selectionLifetime = lifetime.Child();
+            var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            _pointerHandler.IsPressed.Advise(selectionLifetime, value =>
-            {
-                if (value == true)
-                    return;
+            var size = _type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+            var pattern = new Pattern(_context.TargetBoard, size);
+            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-                selectionLifetime.Terminate();
-            });
-
-            var size = _size + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, new Pattern(size));
-
-            if (selected == null || selected.Cells.Count == 0 || lifetime.IsTerminated == true)
+            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
                 return false;
 
-            var shuffled = new List<IBoardCell>(selected.Cells);
+            var shuffled = new List<IBoardCell>(selected);
             shuffled.Shuffle();
 
             for (var index = 0; index < shuffled.Count; index++)
@@ -56,7 +61,7 @@ namespace GamePlay.Cards
                     taken.SetMine();
             }
 
-            selected.Board.InvokeUpdated();
+            _context.TargetBoard.InvokeUpdated();
 
             _modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
@@ -65,82 +70,19 @@ namespace GamePlay.Cards
 
         public class Pattern : ICardDropPattern
         {
-            public Pattern(int size)
+            public Pattern(IBoard board, int size)
             {
-                var positions = new bool[size][];
-                var offsets = new int[size];
-                var startOffset = size / 2;
-                var currentOffset = startOffset;
-                var middlePoint = Mathf.FloorToInt((size - 1) / 2f);
-
-                for (var i = 0; i < size; i++)
-                {
-                    offsets[i] = currentOffset;
-
-                    if (i < middlePoint)
-                    {
-                        currentOffset--;
-                    }
-                    else if (i >= middlePoint)
-                    {
-                        currentOffset++;
-                    }
-                }
-
-                for (var i = 0; i < size; i++)
-                {
-                    positions[i] = new bool[size];
-                    var offset = offsets[i];
-
-                    for (var j = 0; j < size; j++)
-                    {
-                        if (j < offset || j >= size - offset)
-                        {
-                            positions[i][j] = false;
-                        }
-                        else
-                        {
-                            positions[i][j] = true;
-                        }
-                    }
-                }
-
-                _positions = positions;
+                _board = board;
+                _shape = PatternShapes.Rhombus(size);
             }
 
-            private readonly bool[][] _positions;
+            private readonly IBoard _board;
+            private readonly IPattenShape _shape;
 
-            public CardDropData GetDropData(IBoard board, Vector2Int pointer)
+            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
             {
-                if (board.IsMine == true)
-                    return new CardDropData(new List<IBoardCell>(), board);
-
-                var size = _positions.Length;
-                var halfSize = size / 2;
-                var start = pointer - new Vector2Int(halfSize, halfSize);
-
-                var selected = new List<IBoardCell>();
-
-                for (var y = 0; y < size; y++)
-                {
-                    for (var x = 0; x < size; x++)
-                    {
-                        if (_positions[y][x] == false)
-                            continue;
-
-                        var position = start + new Vector2Int(x, y);
-
-                        if (board.Cells.TryGetValue(position, out var cell) == false)
-                            continue;
-
-                        if (cell.State.Value.Status != CellStatus.Free)
-                            continue;
-
-                        selected.Add(board.Cells[position]);
-                    }
-                }
-
-                return new CardDropData(selected, board);
+                var selected = _shape.SelectTaken(_board, pointer);
+                return selected;
             }
         }
     }

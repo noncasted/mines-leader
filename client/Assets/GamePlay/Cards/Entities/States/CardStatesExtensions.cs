@@ -23,7 +23,7 @@ namespace GamePlay.Cards
 
             builder.Register<CardLocalSpawn>()
                 .WithAsset<CardLocalSpawnOptions>()
-                .WithParameter<IReadOnlyLifetime>(builder.Lifetime)
+                .WithParameter(builder.Lifetime)
                 .As<ICardLocalSpawn>();
 
             return builder;
@@ -52,10 +52,16 @@ namespace GamePlay.Cards
             var registration = type switch
             {
                 CardType.Trebuchet => builder.Register<CardTrebuchetAction>(),
+                CardType.Trebuchet_Max => builder.Register<CardTrebuchetAction>(),
                 CardType.Bloodhound => builder.Register<CardBloodhoundAction>(),
+                CardType.Bloodhound_Max => builder.Register<CardBloodhoundAction>(),
                 CardType.TrebuchetAimer => builder.Register<CardTrebuchetAimerAction>(),
+                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerAction>(),
                 CardType.ErosionDozer => builder.Register<CardErosionDozerAction>(),
+                CardType.ErosionDozer_Max => builder.Register<CardErosionDozerAction>(),
                 CardType.Gravedigger => builder.Register<CardGravediggerAction>(),
+                CardType.ZipZap => builder.Register<CardZipZapAction>(),
+                CardType.ZipZap_Max => builder.Register<CardZipZapAction>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 

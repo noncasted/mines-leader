@@ -16,14 +16,14 @@ namespace GamePlay.Cards
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardLocalIdle idle,
-            ICardStateContext stateContext,
+            ICardStateLifetime stateLifetime,
             CardLocalSpawnOptions options)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _idle = idle;
-            _stateContext = stateContext;
+            _stateLifetime = stateLifetime;
             _options = options;
         }
 
@@ -31,7 +31,7 @@ namespace GamePlay.Cards
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
         private readonly ICardLocalIdle _idle;
-        private readonly ICardStateContext _stateContext;
+        private readonly ICardStateLifetime _stateLifetime;
         private readonly CardLocalSpawnOptions _options;
 
         public async UniTask Execute()
@@ -46,7 +46,7 @@ namespace GamePlay.Cards
             var startRotation = _transform.Rotation;
             var startPosition = _transform.Position;
 
-            var lifetime = _stateContext.OccupyLifetime();
+            var lifetime = _stateLifetime.OccupyLifetime();
 
             await _updater.RunUpdateAction(lifetime, _options.Time, delta =>
             {
