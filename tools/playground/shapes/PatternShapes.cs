@@ -1,51 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using GamePlay.Boards;
-using UnityEngine;
+﻿namespace shapes;
 
-namespace GamePlay.Cards
+public interface IPattenShape
 {
-    public interface IPattenShape
-    {
-        IReadOnlyList<IReadOnlyList<bool>> Positions { get; }
-    }
+    IReadOnlyList<IReadOnlyList<bool>> Positions { get; }
+}
 
-    public static class PatternShapes
-    {
-        public static RhombusShape Rhombus(int size) => new(size);
+public static class PatternShapes
+{
+    public static RhombusShape Rhombus(int size) => new(size);
 
-        public static IReadOnlyList<IBoardCell> SelectTaken(this IPattenShape shape, IBoard board, Vector2Int center)
+    public static void Print(this IPattenShape shape)
+    {
+        Console.WriteLine($"Rhombus Size: {shape.Positions.Count}");
+        
+        foreach (var row in shape.Positions)
         {
-            if (center == new Vector2Int(-1, -1))
-                return Array.Empty<IBoardCell>();
-            
-            var size = shape.Positions.Count;
-            var halfSize = size / 2;
-            var start = center - new Vector2Int(halfSize, halfSize);
+            foreach (var cell in row)
+                Console.Write(cell ? "X" : " ");
 
-            var selected = new List<IBoardCell>();
-
-            for (var y = 0; y < size; y++)
-            {
-                for (var x = 0; x < size; x++)
-                {
-                    if (shape.Positions[y][x] == false)
-                        continue;
-
-                    var position = start + new Vector2Int(x, y);
-
-                    if (board.Cells.TryGetValue(position, out var cell) == false)
-                        continue;
-
-                    if (cell.State.Value.Status == CellStatus.Free)
-                        continue;
-
-                    selected.Add(board.Cells[position]);
-                }
-            }
-            
-            return selected;
+            Console.WriteLine();
         }
+
+        Console.WriteLine();
     }
 
     public class RhombusShape : IPattenShape

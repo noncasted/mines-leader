@@ -13,15 +13,15 @@ namespace GamePlay.Loop
 
         GameOptions Options { get; }
         bool IsFirstOpened { get; }
-        
+
         void CompleteSetup(IReadOnlyList<IGamePlayer> players);
         void OnFirstOpen();
     }
-    
+
     public class GameContext : IGameContext
     {
         private readonly GameOptions _options = new GameOptions();
-        
+
         private IGamePlayer _self;
         private IGamePlayer _other;
         private IReadOnlyList<IGamePlayer> _all;
@@ -37,7 +37,10 @@ namespace GamePlay.Loop
         public void CompleteSetup(IReadOnlyList<IGamePlayer> players)
         {
             _self = players.First(t => t.Info.IsLocal == true);
-            _other = players.First(t => t.Info.IsLocal == false);
+
+            if (players.Count > 1)
+                _other = players.First(t => t.Info.IsLocal == false);
+
             _all = players;
         }
 
@@ -46,7 +49,7 @@ namespace GamePlay.Loop
             _isFirstOpened = true;
         }
     }
-    
+
     public static class GameContextExtensions
     {
         public static IGamePlayer GetPlayer(this IGameContext context, Guid id)

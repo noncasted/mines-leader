@@ -12,6 +12,7 @@ namespace GamePlay.Cards
     {
         IBoard TargetBoard { get; }
         IViewableProperty<bool> IsAvailable { get; }
+        CardType Type { get; }
     }
 
     public class CardContext : ICardContext, IScopeSetup
@@ -39,6 +40,7 @@ namespace GamePlay.Cards
 
         public IBoard TargetBoard { get; }
         public IViewableProperty<bool> IsAvailable => _isAvailable;
+        public CardType Type => _definition.Type;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -81,6 +83,9 @@ namespace GamePlay.Cards
                 CardType.ErosionDozer_Max => gameContext.Self.Board,
                 CardType.ZipZap => gameContext.Self.Board,
                 CardType.ZipZap_Max => gameContext.Self.Board,
+                CardType.TrebuchetAimer => null,
+                CardType.TrebuchetAimer_Max => null,
+                CardType.Gravedigger => null,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

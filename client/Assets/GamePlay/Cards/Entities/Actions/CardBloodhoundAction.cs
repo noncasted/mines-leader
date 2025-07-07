@@ -12,25 +12,22 @@ namespace GamePlay.Cards
         public CardBloodhoundAction(
             ICardContext context,
             ICardDropArea dropArea,
-            ICardPointerHandler pointerHandler, 
-            CardType cardType)
+            ICardPointerHandler pointerHandler)
         {
             _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
-            _cardType = cardType;
         }
 
         private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardType _cardType;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _cardType.GetSize();
+            var size = _context.Type.GetSize();
             var pattern = new Pattern(_context.TargetBoard, size);
             var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

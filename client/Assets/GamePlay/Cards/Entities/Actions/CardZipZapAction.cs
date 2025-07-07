@@ -4,7 +4,6 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Players;
 using Internal;
-using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -14,19 +13,18 @@ namespace GamePlay.Cards
         public CardZipZapAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            IPlayerModifiers modifiers,
-            CardType type)
+            IPlayerModifiers modifiers, 
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
-            _type = type;
+            _context = context;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
-        private readonly CardType _type;
         private readonly ICardContext _context;
 
         private const int _searchRadius = 3;
@@ -41,12 +39,12 @@ namespace GamePlay.Cards
             if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
                 return false;
 
-            var size = _type.GetSize();
+            var size = _context.Type.GetSize();
 
             var searchShape = PatternShapes.Rhombus(_searchRadius);
 
-            var current = SelectTarget(pattern.LastPointer);
             var targets = new List<IBoardCell>();
+            var current = SelectTarget(pattern.LastPointer);
 
             for (var i = 0; i < size; i++)
             {
@@ -77,6 +75,7 @@ namespace GamePlay.Cards
 
                 var ordered = searchPositions
                     .Where(x => x.HasMine() == true)
+                    .Where(x => targets.Contains(x) == false)
                     .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
                     .ToList();
 
@@ -95,7 +94,7 @@ namespace GamePlay.Cards
             }
 
             private readonly IBoard _board;
-            private readonly int _startArea = 2;
+            private readonly int _startArea = 1;
 
             public Vector2Int LastPointer { get; set; }
 

@@ -15,17 +15,15 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
-            CardType type,
             ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
-            _type = type;
             _context = context;
         }
 
-        private int _minesAmount => _type switch
+        private int _minesAmount => _context.Type switch
         {
             CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
             CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
@@ -35,14 +33,13 @@ namespace GamePlay.Cards
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
-        private readonly CardType _type;
         private readonly ICardContext _context;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+            var size = _context.Type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
             var pattern = new Pattern(_context.TargetBoard, size);
             var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

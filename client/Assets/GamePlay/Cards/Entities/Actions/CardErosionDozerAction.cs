@@ -13,11 +13,13 @@ namespace GamePlay.Cards
         public CardErosionDozerAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardType cardType)
+            CardType cardType,
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _cardType = cardType;
+            _context = context;
         }
 
         private readonly ICardDropArea _dropArea;

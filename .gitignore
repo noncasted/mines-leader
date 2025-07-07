@@ -18,6 +18,16 @@
 /server/**/[Ll]og/
 /server/**/[Oo]bj/
 
+/tools/**/x64/
+/tools/**/x86/
+/tools/**/[Ww][Ii][Nn]32/
+/tools/**/[Aa][Rr][Mm]/
+/tools/**/[Aa][Rr][Mm]64/
+/tools/**/bld/
+/tools/**/[Bb]in/
+/tools/**/[Ll]og/
+/tools/**/[Oo]bj/
+
 /deploy/**/x64/
 /deploy/**/x86/
 /deploy/**/[Ww][Ii][Nn]32/
