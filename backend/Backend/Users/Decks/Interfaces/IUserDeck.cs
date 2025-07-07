@@ -2,7 +2,7 @@
 
 namespace Backend.Users;
 
-public interface IUserDeck : IGrainWithGuidKey
+public interface IUserDeck : IUserGrain
 {
     [Transaction(TransactionOption.Join)]
     Task Initialize();

@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Backend.Users.Entities.Grains</AssemblyName>
         <RootNamespace>Backend.Users</RootNamespace>
     </PropertyGroup>
@@ -16,7 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\Common\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\Common\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />

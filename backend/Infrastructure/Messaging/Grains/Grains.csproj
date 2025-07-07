@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Infrastructure.Messaging.Grains</AssemblyName>
         <RootNamespace>Infrastructure.Messaging</RootNamespace>
     </PropertyGroup>
@@ -17,8 +12,6 @@
 
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
         <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
         <ProjectReference Include="..\..\Orleans\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>

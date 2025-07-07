@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <AssemblyName>Management.Web.Console</AssemblyName>
+        <RootNamespace>Management.Web</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MudBlazor" Version="8.*"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Common.csproj" />
+      <ProjectReference Include="..\Main\Main.csproj" />
+    </ItemGroup>
+</Project>

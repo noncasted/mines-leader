@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Game.Gateway.GameGateway</AssemblyName>
         <RootNamespace>Game.Gateway</RootNamespace>
     </PropertyGroup>
@@ -24,8 +19,6 @@
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj"/>
         <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj"/>
         <ProjectReference Include="..\..\..\Backend\Matches\Entities\Services\Services.csproj" />
-        <ProjectReference Include="..\..\..\Common\Extensions\Extensions.csproj"/>
-        <ProjectReference Include="..\..\..\Common\Reactive\Reactive.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj"/>

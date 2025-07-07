@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <AssemblyName>Management.Web.Common</AssemblyName>
+        <RootNamespace>Management.Web</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MudBlazor" Version="8.*"/>
+    </ItemGroup>
+
+</Project>

@@ -1,18 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-
         <AssemblyName>Game.Global</AssemblyName>
         <RootNamespace>Game</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Common\Extensions\Extensions.csproj"/>
-        <ProjectReference Include="..\..\Common\Reactive\Reactive.csproj"/>
         <ProjectReference Include="..\Session\Session.csproj"/>
     </ItemGroup>
 

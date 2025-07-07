@@ -1,4 +1,5 @@
 using Projects;
+using Console = Projects.Console;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -20,6 +21,11 @@ builder.AddProject<BackendGateway>("backend")
     .WithExternalHttpEndpoints();
 
 builder.AddProject<GameGateway>("game")
+    .WaitFor(silo)
+    .WithReference(postgres)
+    .WithExternalHttpEndpoints();
+
+builder.AddProject<Console>("console")
     .WaitFor(silo)
     .WithReference(postgres)
     .WithExternalHttpEndpoints();

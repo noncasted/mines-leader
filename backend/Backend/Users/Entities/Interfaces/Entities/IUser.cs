@@ -1,6 +1,6 @@
 ﻿namespace Backend.Users;
 
-public interface IUser : IGrainWithGuidKey
+public interface IUser : IUserGrain
 {
     [Transaction(TransactionOption.Join)]
     Task Initialize(UserCreateOptions options);
