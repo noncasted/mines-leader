@@ -17,12 +17,10 @@ namespace Common.Network
         private readonly INetworkUsersCollection _users;
         private readonly INetworkSession _session;
 
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, UserContexts.LocalUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, UserContexts.LocalUpdate context)
         {
             var user = new NetworkUser(context.Index, true, _session.Lifetime.Child(), _session.LocalUserId);
             _users.Add(user);
-            
-            return UniTask.CompletedTask;
         }
     }
 }

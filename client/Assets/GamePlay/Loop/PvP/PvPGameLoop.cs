@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Players;
 using GamePlay.Services;
+using Global.Backend;
 using Global.Cameras;
 using Global.UI;
 using Internal;
@@ -32,7 +32,8 @@ namespace GamePlay.Loop
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
             IBoardMines boardMines,
-            IGameFlow gameFlow)
+            IGameFlow gameFlow,
+            INetworkSocket socket)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -47,6 +48,7 @@ namespace GamePlay.Loop
             _cellOpenAction = cellOpenAction;
             _boardMines = boardMines;
             _gameFlow = gameFlow;
+            _socket = socket;
         }
 
         private readonly IGlobalCamera _globalCamera;
@@ -62,6 +64,7 @@ namespace GamePlay.Loop
         private readonly ICellOpenAction _cellOpenAction;
         private readonly IBoardMines _boardMines;
         private readonly IGameFlow _gameFlow;
+        private readonly INetworkSocket _socket;
 
         public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
@@ -87,8 +90,7 @@ namespace GamePlay.Loop
             _globalCamera.Disable();
 
             await _gameFlow.Execute(lifetime);
-            
-            await UniTask.Delay(TimeSpan.FromDays(12), cancellationToken: lifetime.Token);
+            await _socket.ForceSendAll();
         }
     }
 }

@@ -46,6 +46,8 @@ public class MessagingObserversCollection
             return;
         }
 
+        var failed = new List<Guid>();
+
         foreach (var target in targets)
         {
             var timeDifference = DateTime.UtcNow - target.LastTimeSeen;
@@ -62,11 +64,20 @@ public class MessagingObserversCollection
                 {
                     _logger.LogWarning(ex, "[Messaging] Notify failed: Entry is outdated and ping failed: {entryID}",
                         targets);
-            
-                    return;
+
+                    failed.Add(target.Overview.ServiceId);
                 }
             }
         }
+        
+        await _lock.WaitAsync();
+
+        foreach (var failedID in failed)
+            _entries.Remove(failedID);
+        
+        targets.RemoveAll(x => failed.Contains(x.Overview.ServiceId));
+
+        _lock.Release();
 
         foreach (var target in targets)
         {

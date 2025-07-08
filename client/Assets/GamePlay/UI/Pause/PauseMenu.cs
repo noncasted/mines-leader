@@ -29,8 +29,11 @@ namespace GamePlay.UI
         {
             _gameFlow = gameFlow;
             _settings = settings;
-        }
 
+            _object.SetActive(false);
+            _pauseLeaveMenu.gameObject.SetActive(false);
+        }
+        
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)

@@ -1,9 +1,31 @@
-﻿using UnityEngine.Events;
+﻿using System;
+using Cysharp.Threading.Tasks;
+using UnityEngine.Events;
 
 namespace Internal
 {
     public static class LifetimeExtensions
     {
+        public static async UniTask WaitInvoke(
+            this IReadOnlyLifetime lifetime,
+            Action<Action> subscribe,
+            Action<Action> unsubscribe)
+        {
+            var completion =  new UniTaskCompletionSource();
+
+            subscribe(Listener);
+            lifetime.Listen(() => completion.TrySetCanceled());
+            
+            await completion.Task;
+
+            unsubscribe(Listener);
+            
+            void Listener()
+            {
+                completion.TrySetResult();
+            }
+        }
+        
         public static void Listen<T>(this UnityEvent<T> source, IReadOnlyLifetime lifetime, UnityAction<T> listener)
         {
             source.AddListener(listener);

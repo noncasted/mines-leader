@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Shared;
 
 namespace Common.Network
@@ -10,12 +11,12 @@ namespace Common.Network
 
     public class NetworkEntityDestroyer : INetworkEntityDestroyer
     {
-        public NetworkEntityDestroyer(INetworkSender sender)
+        public NetworkEntityDestroyer(INetworkSocket socket)
         {
-            _sender = sender;
+            _socket = socket;
         }
 
-        private readonly INetworkSender _sender;
+        private readonly INetworkSocket _socket;
         
         public async UniTask Destroy(INetworkEntity entity)
         {
@@ -24,7 +25,7 @@ namespace Common.Network
                 EntityId = entity.Id
             };
             
-            await _sender.SendEmpty(context);
+            await _socket.Send(context);
         }
     }
 }

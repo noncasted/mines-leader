@@ -23,9 +23,9 @@ namespace Shared
             public int Experience { get; set; }
         }
 
-        public class UpdateDeckRequest
+        [MemoryPackable]
+        public partial class UpdateDeckRequest : INetworkContext
         {
-            public Guid UserId { get; set; }
             public DeckProjection Projection { get; set; }
         }
 

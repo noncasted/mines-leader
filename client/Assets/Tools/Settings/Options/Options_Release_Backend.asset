@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _assetId: 85
   _environment: 0
-  _productionApiUrl: https://minesleader.xyz
+  _productionApiUrl: https://api.minesleader.xyz
   _localApiUrl: http://localhost:5003

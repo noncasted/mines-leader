@@ -42,7 +42,7 @@ public class MatchFactory : IMatchFactory
 
         var request = new MatchPayloads.Create.Request
         {
-            Type = MatchmakingConstants.LobbyType,
+            Type = MatchmakingConstants.GameType,
             ExpectedUsers = participants.Count,
         };
 

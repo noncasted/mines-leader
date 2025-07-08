@@ -13,7 +13,7 @@ public static class MiddlewareExtensions
             .AllowCredentials()); 
         
         app.UseWebSockets();
-        app.UseMiddleware<ConnectionMiddleware>();
+        app.UseMiddleware<SessionConnectionMiddleware>();
         app.UseRouting();
 
         return app;

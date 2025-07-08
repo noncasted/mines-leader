@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Common.Connections</AssemblyName>
+        <RootNamespace>Common</RootNamespace>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\shared\Protocol\Protocol.csproj" />
+    </ItemGroup>
+
+</Project>

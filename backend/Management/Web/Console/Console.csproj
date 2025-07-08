@@ -10,6 +10,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
+        <PackageReference Include="Aspire.Npgsql" Version="9.3.1" />
+        <PackageReference Include="Npgsql" Version="9.0.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj" />

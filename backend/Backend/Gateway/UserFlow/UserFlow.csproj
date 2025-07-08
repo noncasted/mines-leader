@@ -7,13 +7,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\..\..\Common\Connections\Connections.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Users\Projections\Interfaces\Interfaces.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>

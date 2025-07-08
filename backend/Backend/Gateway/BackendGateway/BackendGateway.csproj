@@ -28,7 +28,7 @@
         <ProjectReference Include="..\..\Matches\Entities\Services\Services.csproj" />
         <ProjectReference Include="..\..\Matches\Search\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Matches\Search\Services\Services.csproj" />
-        <ProjectReference Include="..\..\Users\Common\Endpoints\Endpoints.csproj" />
+        <ProjectReference Include="..\..\Users\Common\Commands\Commands.csproj" />
         <ProjectReference Include="..\..\Users\Decks\Grains\Grains.csproj" />
         <ProjectReference Include="..\..\Users\Decks\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Users\Entities\Grains\Grains.csproj" />

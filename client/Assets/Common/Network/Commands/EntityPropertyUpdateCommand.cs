@@ -13,13 +13,11 @@ namespace Common.Network
 
         private readonly INetworkObjectsCollection _objects;
         
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, ObjectContexts.PropertyUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, ObjectContexts.PropertyUpdate context)
         {
             var networkObject = _objects.Entries[context.ObjectId];
             var property = networkObject.Properties[context.PropertyId];
             property.Update(context.Value);
-            
-            return UniTask.CompletedTask;    
         }
     }
 }

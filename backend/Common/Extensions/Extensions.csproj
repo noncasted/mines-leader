@@ -6,11 +6,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="MemoryPack.Core" Version="1.21.4" />
         <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
         <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
     </ItemGroup>
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\shared\Protocol\Protocol.csproj" />
     </ItemGroup>
 </Project>

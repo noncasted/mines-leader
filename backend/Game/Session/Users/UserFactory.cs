@@ -34,8 +34,8 @@ public class UserFactory : IUserFactory
         var lifetime = parentLifetime.Child();
 
         var writer = new ConnectionWriter(webSocket, _logger);
-        var reader = new ConnectionReader(webSocket, _executionQueue);
-        var dispatcher = new CommandDispatcher(_commandsCollection, _users, _executionQueue);
+        var reader = new ConnectionReader(webSocket);
+        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
 
         var user = new User
         {

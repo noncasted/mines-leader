@@ -11,14 +11,24 @@
             "id": "3ca2474b8769629a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "excalidraw",
               "state": {
-                "file": "Storage/Игровое поле.md",
-                "mode": "source",
-                "source": false
+                "file": "drawings/network.md"
               },
-              "icon": "lucide-file",
-              "title": "Игровое поле"
+              "icon": "excalidraw-icon",
+              "title": "network"
+            }
+          },
+          {
+            "id": "6c9aaf7070f6c4ec",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "drawings/projections.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "projections"
             }
           },
           {
@@ -76,7 +86,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -219,9 +229,16 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "a079ede6371c7538",
+  "active": "a54ab60f59a1992a",
   "lastOpenFiles": [
     "Excalidraw/Drawing 2025-06-17 18.33.47.excalidraw.md",
+    "drawings/projections.md",
+    "drawings/network.md",
+    "drawings/Untitled.md",
+    "Pasted Image 20250710123220_937.png",
+    "Pasted Image 20250710123258_140.png",
+    "Pasted Image 20250710123241_271.png",
+    "Storage/Игровое поле.md",
     "Уровень дискуссии в восточной европе.md",
     "Excalidraw",
     "Механики.md",
@@ -229,7 +246,6 @@
     "Excalidraw/project structure.png",
     "Storage/Pasted image 20250202005140.png",
     "Pictures/Pasted image 20250103105014.png",
-    "drawings/network.md",
     "Excalidraw/Drawing 2024-12-30 04.13.44.excalidraw.md",
     "Storage/Игровое поле/Карта/1.md",
     "drawings",
@@ -242,7 +258,6 @@
     "Storage/Игровое поле/Колода.md",
     "Storage/Игровое поле/Карта/6.md",
     "Storage/Игровое поле/Количество действий.md",
-    "Storage/Игровое поле.md",
     "Storage/Интерфейс.md",
     "Storage/Игровое поле/Мана.md",
     "Storage/Игровое поле/Карта",

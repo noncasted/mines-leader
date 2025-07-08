@@ -14,4 +14,12 @@ public static class ServicesExtensions
 
         return services;
     }
+    
+    public static IServiceCollection AddHostedSingleton<TImplementation>(this IServiceCollection services)
+        where TImplementation : class, IHostedService {
+        services.AddSingleton<TImplementation>();
+        services.AddHostedService<TImplementation>(sp => sp.GetRequiredService<TImplementation>());
+
+        return services;
+    }
 }

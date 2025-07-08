@@ -3,12 +3,18 @@
 namespace Shared
 {
     [MemoryPackable]
+    [MemoryPackUnion(10, typeof(EmptyResponse))]
+    
     [MemoryPackUnion(1000, typeof(BackendUserContexts.ProfileProjection))]
     [MemoryPackUnion(1001, typeof(BackendUserContexts.ProgressionProjection))]
     [MemoryPackUnion(1002, typeof(BackendUserContexts.DeckProjection))]
+    [MemoryPackUnion(1003, typeof(BackendUserContexts.UpdateDeckRequest))]
 
-    [MemoryPackUnion(2000, typeof(MatchmakingContexts.GameResult))]
-    [MemoryPackUnion(2001, typeof(MatchmakingContexts.LobbyResult))]
+    [MemoryPackUnion(2000, typeof(MatchmakingContexts.Search))]
+    [MemoryPackUnion(2001, typeof(MatchmakingContexts.CancelSearch))]
+    [MemoryPackUnion(2002, typeof(MatchmakingContexts.Create))]
+    [MemoryPackUnion(2003, typeof(MatchmakingContexts.GameResult))]
+    [MemoryPackUnion(2004, typeof(MatchmakingContexts.LobbyResult))]
     
     [MemoryPackUnion(3000, typeof(UserContexts.LocalUpdate))]
     [MemoryPackUnion(3001, typeof(UserContexts.RemoteUpdate))]
@@ -27,6 +33,11 @@ namespace Shared
     [MemoryPackUnion(6000, typeof(ServiceContexts.GetRequest))]
     [MemoryPackUnion(6001, typeof(ServiceContexts.GetResponse))]
     [MemoryPackUnion(6002, typeof(ServiceContexts.Overview))]
+
+    [MemoryPackUnion(7000, typeof(GameConnectionAuth.Request))]
+    [MemoryPackUnion(7001, typeof(GameConnectionAuth.Response))]
+    [MemoryPackUnion(7002, typeof(BackendConnectionAuth.Request))]
+    [MemoryPackUnion(7003, typeof(BackendConnectionAuth.Response))]
     public partial interface INetworkContext
     {
     }

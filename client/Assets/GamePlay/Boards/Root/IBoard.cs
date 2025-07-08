@@ -18,6 +18,7 @@ namespace GamePlay.Boards
         IViewableDelegate Updated { get; }
 
         void Setup(INetworkEntity entity);
+        void InvokeExplosion(IBoardCell cell);
         void InvokeUpdated();
     }
 

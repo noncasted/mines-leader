@@ -1,4 +1,6 @@
-﻿using Internal;
+﻿using Global.Backend;
+using Internal;
+using Shared;
 
 namespace Meta
 {
@@ -21,6 +23,7 @@ namespace Meta
                 .As<IScopeSetup>();
 
             builder.Register<MetaBackend>()
+                .WithAsset<BackendOptions>()
                 .WithScopeLifetime()
                 .As<IMetaBackend>();
             
@@ -31,6 +34,18 @@ namespace Meta
                 .As<IUser>();
 
             builder.RegisterAsset<CharacterAvatars>();
+
+            builder.AddNetworkSocket();
+            
+            builder.Register<BackendProjectionHub>()
+                .WithAsset<BackendOptions>()
+                .As<IBackendProjectionHub>();
+
+            builder
+                .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
+                .RegisterBackendProjection<BackendUserContexts.DeckProjection>()
+                .RegisterBackendProjection<MatchmakingContexts.GameResult>()
+                .RegisterBackendProjection<MatchmakingContexts.LobbyResult>();
             
             return builder;
         }

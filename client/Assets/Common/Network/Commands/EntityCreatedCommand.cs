@@ -14,14 +14,14 @@ namespace Common.Network
             _factory = factory;
             _users = users;
         }
-        
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.CreatedOverview context)
+
+        protected override void Execute(IReadOnlyLifetime lifetime, EntityContexts.CreatedOverview context)
         {
             var owner = _users.Entries[context.OwnerId];
 
             var payload = new RemoteEntityData(owner, context.EntityId, context.Properties, context.Payload);
-            
-            return _factory.CreateRemote(lifetime, payload);
+
+            _factory.CreateRemote(lifetime, payload).Forget();
         }
     }
 }

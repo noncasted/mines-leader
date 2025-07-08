@@ -21,7 +21,8 @@ builder
     .AddServiceLoop()
     .AddMessaging()
     .AddOrleansUtils()
-    .AddServerOverviewPusher();
+    .AddServerOverviewPusher()
+    .ConfigureCors();
 
 // Project services
 builder
@@ -37,6 +38,8 @@ var app = builder.Build();
 app.AddMiddleware();
 app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
+
+app.UseCors("cors");
 
 if (app.Environment.IsDevelopment())
 {

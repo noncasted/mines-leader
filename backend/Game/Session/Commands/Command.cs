@@ -2,15 +2,21 @@
 
 namespace Game;
 
-public abstract class Command<TContext> : ICommand
-    where TContext : INetworkContext
+public interface ICommand
+{
+    Type RequestType { get; }
+
+    void Execute(IUser user, INetworkContext context);
+}
+
+public abstract class Command<TContext> : ICommand where TContext : INetworkContext
 {
     public Type RequestType { get; } = typeof(TContext);
 
-    public void Execute(CommandScope scope, INetworkContext context)
+    public void Execute(IUser user, INetworkContext context)
     {
-        Execute(scope, (TContext)context);
+        Execute(user, (TContext)context);
     }
 
-    protected abstract void Execute(CommandScope scope, TContext context);
+    protected abstract void Execute(IUser user, TContext context);
 }

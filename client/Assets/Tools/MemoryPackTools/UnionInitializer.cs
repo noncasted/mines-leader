@@ -1,6 +1,7 @@
 ﻿using Common.Network;
 using GamePlay.Boards;
 using GamePlay.Cards;
+using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
 using MemoryPack;
@@ -17,13 +18,15 @@ namespace Tools.MemoryPackTools
                 (1, typeof(BoardCreatePayload)),
                 (2, typeof(CardCreatePayload)),
                 (3, typeof(GamePlayerCreatePayload)),
-                
+
                 // (3, typeof(GamePlayerCreatePayload)),
                 (10000, typeof(MenuPlayerPayload)));
-            
-            var events = new DynamicUnionFormatter<IEventPayload>(
-                (0, typeof(MenuChatMessagePayload)));
 
+            var events = new DynamicUnionFormatter<IEventPayload>(
+                (0, typeof(MenuChatMessagePayload)),
+                (1, typeof(GameFlowEvents.Lose)),
+                (2, typeof(CardUseSyncPayload)),
+                (3, typeof(BoardCellExplosionEvent)));
 
             MemoryPackFormatterProvider.Register(payloads);
             MemoryPackFormatterProvider.Register(events);

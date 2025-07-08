@@ -11,9 +11,7 @@ public class ServiceGetOrCreateCommand : ResponseCommand<ServiceContexts.GetRequ
 
     private readonly IServiceFactory _serviceFactory;
     
-    protected override ServiceContexts.GetResponse Execute(
-        CommandScope scope,
-        ServiceContexts.GetRequest context)
+    protected override ServiceContexts.GetResponse Execute( IUser user, ServiceContexts.GetRequest context)
     {
         var service = _serviceFactory.GetOrCreate(context);
 

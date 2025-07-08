@@ -22,14 +22,16 @@ builder
     .AddMessaging()
     .AddOrleansUtils()
     .AddStateAttributes()
-    .AddServersCollection();
+    .AddServersCollection()
+    .ConfigureCors();
 
 // Project services
 builder
     .AddUserFlow()
     .AddUserFactory()
     .AddBackendMatchServices()
-    .AddMatchmakingServices();
+    .AddMatchmakingServices()
+    .AddUserCommands();
 
 builder.Services.AddOpenApi();
 
@@ -37,12 +39,13 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.MapUserHub()
-    .AddIdentityEndpoints()
-    .AddUserEndpoints()
-    .AddMatchmakingEndpoints();
+app
+    .AddIdentityEndpoints();
+
+app.AddBackendMiddleware();
 
 app.MapDefaultEndpoints();
+app.UseCors("cors");
 
 if (app.Environment.IsDevelopment())
 {
