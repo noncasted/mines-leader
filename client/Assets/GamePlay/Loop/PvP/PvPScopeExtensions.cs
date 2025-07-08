@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
 using VContainer;
@@ -49,8 +50,8 @@ namespace GamePlay.Loop
             builder.Register<PvPGameLoop>()
                 .As<IPvPGameLoop>();
 
-            builder.Register<PvPGameFlow>()
-                .As<IGameFlow>();
+            builder.AddNetworkService<PvPGameFlow>("game-flow")
+                .Registration.As<IGameFlow>();
             
             return UniTask.WhenAll(builder.AddScene());
         }
@@ -58,7 +59,6 @@ namespace GamePlay.Loop
         private static async UniTask AddScene(this IScopeBuilder builder)
         {
             await builder.FindOrLoadSceneWithServices<GamePlayScene>();
-       //     await builder.FindOrLoadSceneWithServices<GamePlayUIScene>();
         }
     }
 }

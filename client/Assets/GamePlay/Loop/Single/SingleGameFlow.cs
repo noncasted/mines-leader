@@ -16,11 +16,11 @@ namespace GamePlay.Loop
 
         private readonly IGameContext _context;
         private readonly IGameRound _gameRound;
+        private readonly UniTaskCompletionSource<GameResult> _completion = new();
 
         private ILifetime _flowLifetime;
-        private bool _isFailed;
 
-        public async UniTask Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<GameResult> Execute(IReadOnlyLifetime lifetime)
         {
             _flowLifetime = lifetime.Child();
 
@@ -40,7 +40,7 @@ namespace GamePlay.Loop
             await UniTask.WhenAll(setupTasks);
 
             _gameRound.Start();
-            
+
             while (_flowLifetime.IsTerminated == false)
             {
                 while (hand.Entries.Count < gameOptions.RequiredCardsInHand)
@@ -50,17 +50,22 @@ namespace GamePlay.Loop
                     () => hand.Entries.Count < gameOptions.RequiredCardsInHand,
                     cancellationToken: _flowLifetime.Token);
             }
+
+            return await _completion.Task;
         }
 
         public void OnLose(IGamePlayer player)
         {
-            _isFailed = true;
             _flowLifetime.Terminate();
         }
 
         public void OnWin(IGamePlayer player)
         {
             _flowLifetime.Terminate();
+        }
+
+        public void OnLeave()
+        {
         }
     }
 }
