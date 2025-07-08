@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj" />
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\Environment\Environment.csproj"/>
     </ItemGroup>

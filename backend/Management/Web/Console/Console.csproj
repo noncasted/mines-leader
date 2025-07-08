@@ -10,6 +10,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
+      <ProjectReference Include="..\..\Configs\Provider\Provider.csproj" />
       <ProjectReference Include="..\Common\Common.csproj" />
       <ProjectReference Include="..\Main\Main.csproj" />
     </ItemGroup>

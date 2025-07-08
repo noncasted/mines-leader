@@ -37,4 +37,19 @@ public static class OrleansUtilsExtensions
         
         return builder;
     }
+
+    public static T GetGrain<T>(this IOrleans orleans, string key) where T : IGrainWithStringKey
+    {
+        return orleans.Grains.GetGrain<T>(key);
+    }
+    
+    public static T GetGrain<T>(this IOrleans orleans, Guid key) where T : IGrainWithGuidKey
+    {
+        return orleans.Grains.GetGrain<T>(key);
+    }
+    
+    public static T GetGrain<T>(this IOrleans orleans) where T : IGrainWithGuidKey
+    {
+        return orleans.Grains.GetGrain<T>(Guid.Empty);
+    }
 }

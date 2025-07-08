@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
+        <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj" />
         <ProjectReference Include="..\..\Orleans\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>
     </ItemGroup>

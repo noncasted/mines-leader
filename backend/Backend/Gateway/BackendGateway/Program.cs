@@ -6,6 +6,7 @@ using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Infrastructure.Orleans;
+using ServiceLoop;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder
 // Cluster services
 builder
     .AddEnvironment(ServiceTag.Backend)
+    .AddServiceLoop()
     .AddMessaging()
     .AddOrleansUtils()
     .AddStateAttributes()

@@ -4,5 +4,6 @@ public enum ServiceTag
 {
     Server, 
     Backend,
-    Silo
+    Silo,
+    Console
 }

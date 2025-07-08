@@ -1,11 +1,11 @@
 ﻿using Common;
 using Infrastructure.Discovery;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ServiceLoop;
 
 namespace Infrastructure.Messaging;
 
-public class MessagingClient : BackgroundService, IMessagingClient
+public class MessagingClient : IOrleansLoopStage, IMessagingClient
 {
     public MessagingClient(
         IServiceEnvironment environment,
@@ -24,16 +24,47 @@ public class MessagingClient : BackgroundService, IMessagingClient
     private readonly IClusterClient _orleans;
     private readonly ILogger<MessagingClient> _logger;
     private readonly IServiceEnvironment _environment;
-    
+
     private MessagingObserver? _observer;
     private IMessagingObserver? _observerReference;
-    private IReadOnlyLifetime? _lifetime;
     private IMessagingHub? _hub;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task OnOrleansStage(IReadOnlyLifetime lifetime)
     {
-        Task.Run(() => Loop(stoppingToken), stoppingToken);
-        return Task.CompletedTask;
+        _hub = _orleans.GetMessagingHub();
+        _observer = new MessagingObserver();
+        _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer)!;
+
+        GC.KeepAlive(_observer);
+        GC.KeepAlive(_observerReference);
+
+        _observer.MessageReceived.Advise(lifetime, OnReceived);
+        _observer.ResponseMessageReceived.Advise(lifetime, OnReceivedWithResponse);
+
+        var isSuccess = false;
+
+        while (isSuccess == false && lifetime.IsTerminated == false)
+        {
+            try
+            {
+                var overview = new MessagingObserverOverview
+                {
+                    ServiceId = _environment.ServiceId,
+                    Name = _environment.ServiceName,
+                    Tag = _environment.Tag
+                };
+
+                await _hub.BindClient(overview, _observerReference);
+                isSuccess = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[Messaging] Failed to bind client");
+                await Task.Delay(MessagingOptions.ResubscriptionTime, lifetime.Token);
+            }
+        }
+
+        BindLoop(lifetime).NoAwait();
     }
 
     public Task Send(IMessageOptions options, IClusterMessage message)
@@ -89,38 +120,20 @@ public class MessagingClient : BackgroundService, IMessagingClient
         {
             if (_asyncActions[type] != callback)
                 return;
-            
+
             _asyncActions.Remove(type);
         });
 
         async Task<IClusterMessage> Listener(IClusterMessage payload)
         {
-            try
-            {
-                var result = await listener.Invoke((TRequest)payload);
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
+            var result = await listener.Invoke((TRequest)payload);
+            return result;
         }
     }
 
-    private async Task Loop(CancellationToken cancellation)
+    private async Task BindLoop(IReadOnlyLifetime lifetime)
     {
-        _lifetime = cancellation.ToLifetime();
-        _hub = _orleans.GetMessagingHub();
-        _observer = new MessagingObserver();
-        _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer)!;
-
-        GC.KeepAlive(_observer);
-        GC.KeepAlive(_observerReference);
-
-        _observer.MessageReceived.Advise(_lifetime, OnReceived);
-        _observer.ResponseMessageReceived.Advise(_lifetime, OnReceivedWithResponse);
-
-        while (cancellation.IsCancellationRequested == false)
+        while (lifetime.IsTerminated == false)
         {
             try
             {
@@ -138,7 +151,7 @@ public class MessagingClient : BackgroundService, IMessagingClient
                 _logger.LogError(e, "[Messaging] Failed to bind client");
             }
 
-            await Task.Delay(MessagingOptions.ResubscriptionTime, cancellation);
+            await Task.Delay(MessagingOptions.ResubscriptionTime, lifetime.Token);
         }
     }
 

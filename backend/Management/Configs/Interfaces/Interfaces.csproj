@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Management.Configs.Interfaces</AssemblyName>
+        <RootNamespace>Management.Configs</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
+    </ItemGroup>
+
+</Project>
