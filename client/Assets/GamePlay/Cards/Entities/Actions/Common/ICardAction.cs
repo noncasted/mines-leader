@@ -7,4 +7,9 @@ namespace GamePlay.Cards
     {
         UniTask<bool> Execute(IReadOnlyLifetime lifetime);
     }
+    
+    public interface ICardActionSync
+    {
+        UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload);
+    }
 }

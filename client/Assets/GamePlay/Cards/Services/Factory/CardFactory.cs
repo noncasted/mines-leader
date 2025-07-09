@@ -130,7 +130,7 @@ namespace GamePlay.Cards
                     .WithParameter(gamePlayer.Hand)
                     .As<IHandEntryHandle>();
 
-                builder.AddCardAction(definition);
+                builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition);
             }

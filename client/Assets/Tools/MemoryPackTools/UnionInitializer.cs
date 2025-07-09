@@ -24,7 +24,8 @@ namespace Tools.MemoryPackTools
 
             var events = new DynamicUnionFormatter<IEventPayload>(
                 (0, typeof(MenuChatMessagePayload)),
-                (1, typeof(GameFlowEvents.Lose)));
+                (1, typeof(GameFlowEvents.Lose)),
+                (2, typeof(CardUseSyncPayload)));
 
 
             MemoryPackFormatterProvider.Register(payloads);

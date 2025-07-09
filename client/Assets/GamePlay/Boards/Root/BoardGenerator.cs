@@ -37,6 +37,8 @@ namespace GamePlay.Boards
                 cells[random].EnsureTaken().SetMine();
                 minesSpawned++;
             }
+            
+            _gameContext.Self.Board.InvokeUpdated();
         }
     }
 }

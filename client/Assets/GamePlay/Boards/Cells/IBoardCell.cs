@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using Cysharp.Threading.Tasks;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -15,6 +16,7 @@ namespace GamePlay.Boards
         
         ICellTakenState EnsureTaken();
         ICellFreeState EnsureFree();
+        UniTask Explode();
     }
 
     public static class BoardCellExtensions

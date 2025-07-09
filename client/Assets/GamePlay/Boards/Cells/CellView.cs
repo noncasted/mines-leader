@@ -1,4 +1,7 @@
-﻿using Internal;
+﻿using System;
+using Cysharp.Threading.Tasks;
+using Global.Systems;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -14,6 +17,8 @@ namespace GamePlay.Boards
 
         [SerializeField] private Board _board;
         [SerializeField] private CellSelectionView _selection;
+
+        [SerializeField] private CellAnimator _animator;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
 
@@ -31,8 +36,9 @@ namespace GamePlay.Boards
             _board = board;
         }
 
-        public void Setup()
+        public void Setup(IUpdater updater)
         {
+            _animator.Construct(updater);
             var taken = new CellTakenState(this, _takenView);
             _state.Set(taken);
             taken.Construct(_state.ValueLifetime);
@@ -60,6 +66,19 @@ namespace GamePlay.Boards
             }
 
             return (CellFreeState)_state.Value;
+        }
+
+        public UniTask Explode()
+        {
+            if (_state.Value is not CellTakenState state)
+                throw new Exception("Cell is not taken, cannot explode.");
+
+            if (state.HasMine.Value == false)
+                throw new Exception("Cell does not have a mine to explode.");
+
+            EnsureFree();
+
+            return _animator.PlayExplosion(this.GetObjectLifetime());
         }
 
         public void UpdateState(INetworkCellState networkState)

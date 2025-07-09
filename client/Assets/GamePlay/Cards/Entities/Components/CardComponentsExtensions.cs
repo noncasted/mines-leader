@@ -8,7 +8,7 @@ namespace GamePlay.Cards
         {
             builder.Register<CardDropDetector>()
                 .As<ICardDropDetector>();
-            
+
             builder.Register<CardStateLifetime>()
                 .WithParameter(builder.Lifetime)
                 .As<ICardStateLifetime>();
@@ -20,9 +20,12 @@ namespace GamePlay.Cards
                 .As<ICardContext>()
                 .As<IScopeSetup>();
 
+            builder.Register<CardUseSyncSender>()
+                .As<ICardUseSync>();
+
             return builder;
         }
-        
+
         public static IEntityBuilder AddCardRemoteComponents(this IEntityBuilder builder)
         {
             builder.Register<CardDropArea>()
@@ -31,6 +34,9 @@ namespace GamePlay.Cards
             builder.Register<CardStateLifetime>()
                 .WithParameter(builder.Lifetime)
                 .As<ICardStateLifetime>();
+
+            builder.Register<CardUseSyncReceiver>()
+                .As<IScopeSetup>();
 
             return builder;
         }

@@ -39,9 +39,6 @@ namespace GamePlay.Cards
                 .WithAsset<CardRemoteSpawnOptions>()
                 .As<ICardRemoteSpawn>();
 
-            builder.Register<CardRemoteUse>()
-                .As<ICardRemoteUse>();
-
             return builder;
         }
         
@@ -60,12 +57,37 @@ namespace GamePlay.Cards
                 CardType.ErosionDozer => builder.Register<CardErosionDozerAction>(),
                 CardType.ErosionDozer_Max => builder.Register<CardErosionDozerAction>(),
                 CardType.Gravedigger => builder.Register<CardGravediggerAction>(),
-                CardType.ZipZap => builder.Register<CardZipZapAction>(),
-                CardType.ZipZap_Max => builder.Register<CardZipZapAction>(),
+                CardType.ZipZap => builder.Register<CardZipZapAction>().WithAsset<ZipZapOptions>(),
+                CardType.ZipZap_Max => builder.Register<CardZipZapAction>().WithAsset<ZipZapOptions>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
             registration.As<ICardAction>();
+
+            return registration;
+        }
+        
+        public static IRegistration AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)
+        {
+            var type = definition.Type;
+
+            var registration = type switch
+            {
+                CardType.Trebuchet => builder.Register<CardTrebuchetActionSync>(),
+                CardType.Trebuchet_Max => builder.Register<CardTrebuchetActionSync>(),
+                CardType.Bloodhound => builder.Register<CardBloodhoundActionSync>(),
+                CardType.Bloodhound_Max => builder.Register<CardBloodhoundActionSync>(),
+                CardType.TrebuchetAimer => builder.Register<CardTrebuchetAimerActionSync>(),
+                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerAction>(),
+                CardType.ErosionDozer => builder.Register<CardErosionDozerActionSync>(),
+                CardType.ErosionDozer_Max => builder.Register<CardErosionDozerActionSync>(),
+                CardType.Gravedigger => builder.Register<CardGravediggerActionSync>(),
+                CardType.ZipZap => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
+                CardType.ZipZap_Max => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
+            registration.As<ICardActionSync>();
 
             return registration;
         }
