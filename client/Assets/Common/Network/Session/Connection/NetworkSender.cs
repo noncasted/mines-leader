@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -16,8 +17,9 @@ namespace Common.Network
         UniTask Run(IReadOnlyLifetime lifetime, ClientWebSocket webSocket);
         ValueTask SendEmpty(INetworkContext commandContext);
         UniTask<T> SendFull<T>(IReadOnlyLifetime lifetime, INetworkContext commandContext);
+        UniTask ForceSendAll();
     }
-    
+
     public class NetworkSender : INetworkSender
     {
         public NetworkSender(INetworkResponsesDispatcher responsesDispatcher)
@@ -38,8 +40,11 @@ namespace Common.Network
                 AllowSynchronousContinuations = false
             });
 
+        private ClientWebSocket _webSocket;
+
         public async UniTask Run(IReadOnlyLifetime lifetime, ClientWebSocket webSocket)
         {
+            _webSocket = webSocket;
             var reader = _pending.Reader;
             var buffer = new MemoryStream();
             var cancellation = lifetime.Token;
@@ -56,6 +61,20 @@ namespace Common.Network
             }
         }
 
+        public async UniTask ForceSendAll()
+        {
+            var reader = _pending.Reader;
+            var buffer = new MemoryStream();
+
+            while (reader.TryRead(out var message))
+            {
+                await MemoryPackSerializer.SerializeAsync(buffer, message);
+                var sendBuffer = new ReadOnlyMemory<byte>(buffer.GetBuffer(), 0, (int)buffer.Length);
+                await _webSocket.SendAsync(sendBuffer, WebSocketMessageType.Binary, true, CancellationToken.None);
+                buffer.Position = 0;
+            }
+        }
+
         public ValueTask SendEmpty(INetworkContext commandContext)
         {
             var request = new ServerEmptyRequest()
@@ -69,7 +88,7 @@ namespace Common.Network
         public async UniTask<T> SendFull<T>(IReadOnlyLifetime lifetime, INetworkContext commandContext)
         {
             _requestCounter++;
-            
+
             var request = new ServerFullRequest()
             {
                 Context = commandContext,

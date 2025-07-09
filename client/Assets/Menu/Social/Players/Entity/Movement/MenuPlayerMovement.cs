@@ -81,7 +81,8 @@ namespace Menu.Social
                 _state.Set(new MenuPlayerTransformState()
                 {
                     Position = _rb.position,
-                    FlipX = _renderer.flipX
+                    FlipX = _renderer.flipX,
+                    IsRunning = _input.MovementDirection != Vector2.zero
                 });
             }
 
@@ -98,7 +99,7 @@ namespace Menu.Social
 
             ForwardSpriteAnimation SelectAnimation()
             {
-                if (_input.MovementDirection == Vector2.zero)
+                if (_state.Value.IsRunning == false)
                     return _idle;
 
                 return _run;
@@ -111,5 +112,6 @@ namespace Menu.Social
     {
         public Vector2 Position { get; set; }
         public bool FlipX { get; set; }
+        public bool IsRunning { get; set; }
     }
 }

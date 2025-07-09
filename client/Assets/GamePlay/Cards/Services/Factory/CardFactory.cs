@@ -1,4 +1,5 @@
 ﻿using Common.Network;
+using Common.Objects;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
@@ -21,12 +22,14 @@ namespace GamePlay.Cards
             INetworkEntityFactory entityFactory,
             IGameContext gameContext,
             IEnvDictionary<CardType, ICardDefinition> definitionsCollection,
+            IObjectFactory<CardScopeEntity> objectFactory,
             LifetimeScope parentScope,
             CardFactoryOptions options)
         {
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
             _definitionsCollection = definitionsCollection;
+            _objectFactory = objectFactory;
             _entityFactory = entityFactory;
             _parentScope = parentScope;
             _options = options;
@@ -35,6 +38,7 @@ namespace GamePlay.Cards
         private readonly IEntityScopeLoader _entityScopeLoader;
         private readonly IGameContext _gameContext;
         private readonly IEnvDictionary<CardType, ICardDefinition> _definitionsCollection;
+        private readonly IObjectFactory<CardScopeEntity> _objectFactory;
         private readonly INetworkEntityFactory _entityFactory;
         private readonly LifetimeScope _parentScope;
         private readonly CardFactoryOptions _options;
@@ -55,7 +59,7 @@ namespace GamePlay.Cards
                 SpawnPoint = position
             };
 
-            var view = Object.Instantiate(_options.LocalPrefab, position, Quaternion.identity);
+            var view = _objectFactory.Create(_options.LocalPrefab, position);
 
             var parentScope = _gameContext.Self.Scope;
             var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
@@ -98,7 +102,7 @@ namespace GamePlay.Cards
             var gamePlayer = _gameContext.GetPlayer(payload.OwnerId);
             var definition = _definitionsCollection[payload.Type];
 
-            var view = Object.Instantiate(_options.RemotePrefab, payload.SpawnPoint, Quaternion.identity);
+            var view = _objectFactory.Create(_options.RemotePrefab, payload.SpawnPoint);
             var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
 
             loadResult.FillProperties(data);
