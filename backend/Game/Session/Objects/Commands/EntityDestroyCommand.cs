@@ -4,14 +4,16 @@ namespace Game;
 
 public class EntityDestroyCommand : Command<EntityContexts.Destroy>
 {
-    public EntityDestroyCommand(ISessionEntities entities)
+    public EntityDestroyCommand(ISessionEntities entities, ISessionUsers users)
     {
         _entities = entities;
+        _users = users;
     }
     
     private readonly ISessionEntities _entities;
+    private readonly ISessionUsers _users;
 
-    protected override void Execute(CommandScope scope, EntityContexts.Destroy context)
+    protected override void Execute(IUser user, EntityContexts.Destroy context)
     {
         var entity = _entities.Entries[context.EntityId];
         entity.Destroy();
@@ -21,6 +23,6 @@ public class EntityDestroyCommand : Command<EntityContexts.Destroy>
             EntityId = context.EntityId
         };
 
-        scope.SendAllExceptSelf(update);
+        _users.SendAllExceptSelf(user, update);
     }
 }

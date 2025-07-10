@@ -25,7 +25,7 @@ public class SessionContainerData
     public required SessionCreateOptions CreateOptions { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
-    
+
     public static SessionContainerData Default => new SessionContainerData
     {
         CreateOptions = new SessionCreateOptions
@@ -64,7 +64,7 @@ public class Session : ISession
     public IUserFactory UserFactory { get; }
     public IExecutionQueue ExecutionQueue { get; }
     public SessionCreateOptions CreateOptions => _data.CreateOptions;
-    
+
     public async Task Run()
     {
         await AwaitUsersJoin();
@@ -120,23 +120,29 @@ public class Session : ISession
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
 
-        user.Dispatcher.Run(user.Lifetime, user).NoAwait();
-        user.Reader.Run(user.Lifetime).NoAwait();
+        user.Dispatcher.Run(user.Lifetime, user);
 
-        user.Lifetime.Listen(() => HandleDisconnect(user));
-    }
+        HandleLifecycle().NoAwait();
 
-    private void HandleDisconnect(IUser sourceUser)
-    {
-        foreach (var user in _users)
+        async Task HandleLifecycle()
         {
-            if (user == sourceUser)
-                continue;
-
-            user.Send(new UserContexts.RemoteDisconnect()
+            await user.Reader.Run(user.Lifetime);
+            ExecutionQueue.Enqueue(user.Lifetime.Terminate);
+            HandleDisconnect(user);
+        }
+        
+        void HandleDisconnect(IUser sourceUser)
+        {
+            foreach (var targetUser in _users)
             {
-                Index = sourceUser.Index
-            });
+                if (targetUser == sourceUser)
+                    continue;
+
+                targetUser.Send(new UserContexts.RemoteDisconnect()
+                {
+                    Index = sourceUser.Index
+                });
+            }
         }
     }
 }

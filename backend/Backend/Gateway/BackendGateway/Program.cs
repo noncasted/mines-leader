@@ -38,10 +38,12 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.MapUserHub()
+app
     .AddIdentityEndpoints()
     .AddUserEndpoints()
     .AddMatchmakingEndpoints();
+
+app.AddBackendMiddleware();
 
 app.MapDefaultEndpoints();
 app.UseCors("cors");

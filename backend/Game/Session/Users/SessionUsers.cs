@@ -1,4 +1,5 @@
 ﻿using Common;
+using Shared;
 
 namespace Game;
 
@@ -46,6 +47,17 @@ public static class SessionUsersExtensions
                 continue;
 
             await action(user);
+        }
+    }
+
+    public static void SendAllExceptSelf(this ISessionUsers users, IUser self, INetworkContext context)
+    {
+        foreach (var user in users)
+        {
+            if (user == self)
+                continue;
+
+            user.Send(context);
         }
     }
 }

@@ -4,54 +4,31 @@ namespace Backend.Gateway;
 
 public interface IConnectedUsers
 {
-    IViewableDelegate<IUserConnection> Connected { get; }
-    IReadOnlyDictionary<Guid, IUserConnection> Entries { get; }
+    IViewableDelegate<IUserSession> Connected { get; }
+    IReadOnlyDictionary<Guid, IUserSession> Entries { get; }
 
-    void OnConnected(UserConnection connection);
-    void OnDisconnected(Guid userId);
+    void Add(IUserSession session);
     bool IsConnected(Guid userId);
 }
 
 public class ConnectedUsers : IConnectedUsers
 {
-    private readonly ViewableDelegate<IUserConnection> _connected = new();
-    private readonly Dictionary<Guid, UserConnection> _entriesInternal = new();
-    private readonly Dictionary<Guid, IUserConnection> _entries = new();
+    private readonly ViewableDelegate<IUserSession> _connected = new();
+    private readonly Dictionary<Guid, IUserSession> _entries = new();
 
-    public IViewableDelegate<IUserConnection> Connected => _connected;
-    public IReadOnlyDictionary<Guid, IUserConnection> Entries => _entries;
+    public IViewableDelegate<IUserSession> Connected => _connected;
+    public IReadOnlyDictionary<Guid, IUserSession> Entries => _entries;
 
-    public void OnConnected(UserConnection connection)
+    public void Add(IUserSession session)
     {
-        if (_entriesInternal.TryGetValue(userId, out var existing))
-            existing.InternalLifetime.Terminate();
+        _entries.Add(session.UserId, session);
+        session.Lifetime.Listen(() => _entries.Remove(session.UserId));
 
-        var lifetime = new Lifetime();
-        var connection = new UserConnection
-        {
-            UserId = userId,
-            ConnectionId = connectionId,
-            InternalLifetime = lifetime
-        };
-
-        _entriesInternal[userId] = connection;
-        _entries[userId] = connection;
-
-        _connected.Invoke(connection);
-    }
-
-    public void OnDisconnected(Guid userId)
-    {
-        if (_entriesInternal.TryGetValue(userId, out var existing) == false)
-            return;
-
-        existing.InternalLifetime.Terminate();
-        _entriesInternal.Remove(userId);
-        _entries.Remove(userId);
+        _connected.Invoke(session);
     }
 
     public bool IsConnected(Guid userId)
     {
-        return _entriesInternal.ContainsKey(userId);
+        return _entries.ContainsKey(userId);
     }
 }

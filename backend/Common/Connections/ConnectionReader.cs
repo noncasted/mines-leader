@@ -1,41 +1,29 @@
 ﻿using System.Net.WebSockets;
-using System.Threading.Channels;
-using Common;
 using MemoryPack;
 using Shared;
 
-namespace Game;
+namespace Common;
 
 public interface IConnectionReader
 {
-    Channel<IServerRequest> Queue { get; }
-
-    Task Run(ILifetime lifetime);
+    IViewableDelegate<IServerRequest> Received { get; }
+    
+    Task Run(IReadOnlyLifetime lifetime);
 }
 
 public class ConnectionReader : IConnectionReader
 {
-    public ConnectionReader(WebSocket webSocket, IExecutionQueue executionQueue)
+    public ConnectionReader(WebSocket webSocket)
     {
         _webSocket = webSocket;
-        _executionQueue = executionQueue;
     }
 
     private readonly WebSocket _webSocket;
-    private readonly IExecutionQueue _executionQueue;
+    private readonly ViewableDelegate<IServerRequest> _received = new();
 
-    private readonly Channel<IServerRequest> _queue = Channel.CreateBounded<IServerRequest>(
-        new BoundedChannelOptions(7)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.Wait,
-            AllowSynchronousContinuations = false
-        });
+    public IViewableDelegate<IServerRequest> Received => _received;
 
-    public Channel<IServerRequest> Queue => _queue;
-
-    public async Task Run(ILifetime lifetime)
+    public async Task Run(IReadOnlyLifetime lifetime)
     {
         var buffer = new byte[1024 * 1024 * 4].AsMemory();
 
@@ -61,9 +49,7 @@ public class ConnectionReader : IConnectionReader
             var payload = buffer[..receiveResult.Count];
             var context = MemoryPackSerializer.Deserialize<IServerRequest>(payload.Span)!;
 
-            await _queue.Writer.WriteAsync(context);
+            _received.Invoke(context);
         }
-
-        _executionQueue.Enqueue(lifetime.Terminate);
     }
 }

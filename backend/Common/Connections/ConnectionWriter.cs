@@ -1,11 +1,10 @@
 ﻿using System.Net.WebSockets;
 using System.Threading.Channels;
-using Common;
 using MemoryPack;
 using Microsoft.Extensions.Logging;
 using Shared;
 
-namespace Game;
+namespace Common;
 
 public interface IConnectionWriter
 {
@@ -26,7 +25,7 @@ public class ConnectionWriter : IConnectionWriter
     private readonly ILogger _logger;
 
     private readonly Channel<IServerResponse> _queue = Channel.CreateBounded<IServerResponse>(
-        new BoundedChannelOptions(7)
+        new BoundedChannelOptions(10)
         {
             SingleReader = true,
             SingleWriter = false,
@@ -40,10 +39,18 @@ public class ConnectionWriter : IConnectionWriter
         var buffer = new MemoryStream();
         var cancellation = lifetime.Token;
 
-        while (await reader.WaitToReadAsync(cancellation) && IsAlive() == true)
+        while (IsAlive() == true)
         {
-            while (reader.TryRead(out var message) == true && IsAlive() == true)
+            var readResult = await reader.WaitToReadAsync(cancellation);
+
+            if (readResult == false)
+                break;
+
+            while (reader.TryRead(out var message) == true)
             {
+                if (IsAlive() == false)
+                    break;
+
                 try
                 {
                     await MemoryPackSerializer.SerializeAsync(buffer, message, cancellationToken: cancellation);
@@ -60,6 +67,7 @@ public class ConnectionWriter : IConnectionWriter
         }
 
         _queue.Writer.Complete();
+        await buffer.DisposeAsync();
 
         bool IsAlive()
         {

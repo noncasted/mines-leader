@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Backend.Gateway;
@@ -14,13 +12,8 @@ public static class UserFlowExtensions
         services.AddSignalR();
         services.AddSingleton<IConnectedUsers, ConnectedUsers>();
         services.AddHostedService<UserProjectionEntryPoint>();
-        
-        return builder;
-    }
-    
-    public static IEndpointRouteBuilder MapUserHub(this IEndpointRouteBuilder builder)
-    {
-        builder.MapHub<UserHub>("/observer");
+        services.AddSingleton<IUserCommandsCollection, UserCommandsCollection>();
+        services.AddSingleton<IUserCommandsDispatcher, UserCommandsDispatcher>();
         
         return builder;
     }

@@ -2,6 +2,12 @@
 
 namespace Game;
 
+public interface ICommandsCollection
+{
+    IReadOnlyDictionary<Type, ICommand> EmptyCommands { get; }
+    IReadOnlyDictionary<Type, IResponseCommand> FullCommands { get; }
+}
+
 public class CommandsCollection : ICommandsCollection
 {
     public CommandsCollection(IEnumerable<ICommand> commands, IEnumerable<IResponseCommand> responseCommands)

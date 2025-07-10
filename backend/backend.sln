@@ -138,6 +138,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loop", "Loop", "{F736176C-3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLoop", "Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj", "{3BD317B7-829C-49A2-A52D-80395D85EA1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connections", "Common\Connections\Connections.csproj", "{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +208,7 @@ Global
 		{FB3505EC-7D32-4D7A-B1A6-6F446649F94B} = {6E677269-C603-4C69-8117-5FE4C20E08A3}
 		{F736176C-33FA-46EA-81C4-B6EA23DCF45F} = {C9B5586B-606D-4204-BF7E-42E7FAE6BCA7}
 		{3BD317B7-829C-49A2-A52D-80395D85EA1B} = {F736176C-33FA-46EA-81C4-B6EA23DCF45F}
+		{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100} = {E3D54F66-7409-442F-BB2B-6249F87CC502}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B9FA98D2-007B-4F88-A231-72AF33C52FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -384,5 +387,9 @@ Global
 		{3BD317B7-829C-49A2-A52D-80395D85EA1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BD317B7-829C-49A2-A52D-80395D85EA1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BD317B7-829C-49A2-A52D-80395D85EA1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D30EBF1-ACC0-433A-B2F3-E80E00FC2100}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
