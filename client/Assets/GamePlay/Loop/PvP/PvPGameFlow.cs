@@ -45,6 +45,14 @@ namespace GamePlay.Loop
             var gameOptions = _context.Options;
 
             var setupTasks = new List<UniTask>();
+            
+            _context.Self.Health.Current.Advise(lifetime, value =>
+            {
+                if (value > 0)
+                    return;
+                
+                OnLose(_context.Self);
+            });
 
             for (var i = 0; i < gameOptions.RequiredCardsInHand; i++)
             {

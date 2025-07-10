@@ -7,34 +7,46 @@ using VContainer.Internal;
 
 namespace GamePlay.Boards
 {
-    public class CellExplosion : ForwardSpriteAnimation
-    {
-        public CellExplosion(Utils utils, ISpriteAnimationData data) : base(utils, data)
-        {
-        }
-    }
-
     [DisallowMultipleComponent]
     public class CellAnimator : SpriteAnimationRenderer
     {
-        [SerializeField] private ForwardAnimationData _explosionData;
+        [SerializeField] private ForwardAnimationData _mineExplosionData;
+        [SerializeField] private ForwardAnimationData _zipZapExplosionData;
 
-        private CellExplosion _explosion;
+        private ForwardSpriteAnimation _mineExplosion;
+        private ForwardSpriteAnimation _zipZapExplosion;
 
         public void Construct(IUpdater updater)
         {
-            _explosion = new CellExplosion(
-                new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
-                new SpriteAnimationData(_explosionData.Sprites, _explosionData.Time));
+            _mineExplosion = Create(_mineExplosionData);
+            _zipZapExplosion = Create(_zipZapExplosionData);
+
+            return;
+
+            ForwardSpriteAnimation Create(ForwardAnimationData data)
+            {
+                return new ForwardSpriteAnimation(
+                    new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
+                    new SpriteAnimationData(data.Sprites, data.Time));
+            }
         }
 
-        public async UniTask PlayExplosion(IReadOnlyLifetime lifetime)
+        public async UniTask PlayExplosion(IReadOnlyLifetime lifetime, CellExplosionType type)
         {
+            ForwardSpriteAnimation anim = type switch
+            {
+                CellExplosionType.ZipZap => _zipZapExplosion,
+                CellExplosionType.Mine => _mineExplosion,
+                _ => throw new System.ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
             gameObject.SetActive(true);
+
             var animationLifetime = lifetime.Child();
-            _explosion.OnSetup(animationLifetime);
-            await _explosion.PlayAsync(lifetime);
+            anim.OnSetup(animationLifetime);
+            await anim.PlayAsync(lifetime);
             animationLifetime.Terminate();
+
             gameObject.SetActive(false);
         }
     }

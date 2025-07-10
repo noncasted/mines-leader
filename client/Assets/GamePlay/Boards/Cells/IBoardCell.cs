@@ -16,7 +16,13 @@ namespace GamePlay.Boards
         
         ICellTakenState EnsureTaken();
         ICellFreeState EnsureFree();
-        UniTask Explode();
+        UniTask Explode(CellExplosionType type);
+    }
+    
+    public enum CellExplosionType
+    {
+        Mine,
+        ZipZap
     }
 
     public static class BoardCellExtensions

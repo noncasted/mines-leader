@@ -72,7 +72,7 @@ namespace GamePlay.Cards
 
             _useSync.Send(new CardUseEvents.ZipZap(targets.Select(t => t.BoardPosition).ToList()));
 
-            targets.First().Explode().Forget();
+            targets.First().Explode(CellExplosionType.ZipZap).Forget();
             var lines = new List<ZipZapLine>();
 
             for (var index = 1; index < targets.Count; index++)
@@ -82,7 +82,7 @@ namespace GamePlay.Cards
 
                 var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
                 await line.Show(lifetime, start, target);
-                target.Explode().Forget();
+                target.Explode(CellExplosionType.ZipZap).Forget();
                 lines.Add(line);
             }
 
@@ -163,7 +163,7 @@ namespace GamePlay.Cards
                 .Select(position => _gameContext.Other.Board.Cells[position])
                 .ToList();
 
-            targets.First().Explode().Forget();
+            targets.First().Explode(CellExplosionType.ZipZap).Forget();
             var lines = new List<ZipZapLine>();
 
             for (var index = 1; index < targets.Count; index++)
@@ -173,7 +173,7 @@ namespace GamePlay.Cards
 
                 var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
                 await line.Show(lifetime, start, target);
-                target.Explode().Forget();
+                target.Explode(CellExplosionType.ZipZap).Forget();
                 lines.Add(line);
             }
 

@@ -11,6 +11,7 @@ namespace GamePlay.Players
         IGamePlayerInfo Info { get; }
         LifetimeScope Scope { get; }
         IPlayerMana Mana { get; }
+        IPlayerHealth Health { get; }
         IPlayerTurns Turns { get; }
         IHand Hand { get; } 
         IDeck Deck { get; }
@@ -27,6 +28,7 @@ namespace GamePlay.Players
             IBoard board,
             IStash stash,
             IPlayerMana mana,
+            IPlayerHealth health,
             IPlayerTurns turns,
             IGamePlayerInfo info)
         {
@@ -39,11 +41,13 @@ namespace GamePlay.Players
             Stash = stash;
             Turns = turns;
             Info = info;
+            Health = health;
         }
 
         public Guid Id => Info.Id;
         public LifetimeScope Scope { get; }
         public IPlayerMana Mana { get; }
+        public IPlayerHealth Health { get; }
         public IPlayerTurns Turns { get; }
         public IGamePlayerInfo Info { get; }
         public IHand Hand { get; }

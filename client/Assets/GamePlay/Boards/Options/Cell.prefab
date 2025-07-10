@@ -281,13 +281,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _renderer: {fileID: 939605456478165645}
-  _explosionData:
+  _mineExplosionData:
+    _sprites:
+    - {fileID: 2868038767744125577, guid: 93d0d174e89bca04288601997521723e, type: 3}
+    - {fileID: 2508385201252778181, guid: 93d0d174e89bca04288601997521723e, type: 3}
+    - {fileID: -3008130386253670233, guid: 93d0d174e89bca04288601997521723e, type: 3}
+    _time: 0.2
+  _zipZapExplosionData:
     _sprites:
     - {fileID: -7749058232769550310, guid: a9eb901a617e3f9429e23a7837098557, type: 3}
     - {fileID: 4730917968789034934, guid: a9eb901a617e3f9429e23a7837098557, type: 3}
     - {fileID: -5540524097025784615, guid: a9eb901a617e3f9429e23a7837098557, type: 3}
     - {fileID: -4847450414512954960, guid: a9eb901a617e3f9429e23a7837098557, type: 3}
-    _time: 0.25
+    _time: 0.8
 --- !u!1 &2716731623055234556
 GameObject:
   m_ObjectHideFlags: 0
@@ -823,7 +829,7 @@ SpriteRenderer:
   m_SortingLayerID: 198678841
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: c85127f11fa9e434e9425bd431be44cc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c022310e68de104ba85a7c7d4e9b6d8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

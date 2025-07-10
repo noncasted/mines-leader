@@ -22,6 +22,7 @@ namespace GamePlay.Boards
 
         public IViewableProperty<bool> IsFlagged => _isFlagged;
         public IViewableProperty<bool> HasMine => _hasMine;
+        public CellTakenView View => _view;
 
         public void Construct(IReadOnlyLifetime lifetime)
         {
@@ -50,11 +51,10 @@ namespace GamePlay.Boards
                 _cell.EnsureFree();
                 return false;
             }
-            else
-            {
-                _view.RevealMine();
-                return true;
-            }
+
+            _cell.Explode(CellExplosionType.Mine);
+            _view.OnExplosion();
+            return true;
         }
 
         public void OnUpdate(NetworkCellTakenState payload)
@@ -62,7 +62,7 @@ namespace GamePlay.Boards
             _isFlagged.Set(payload.IsFlagged);
             _hasMine.Set(payload.HasMine);
         }
-        
+
         public INetworkCellState ToNetwork()
         {
             return new NetworkCellTakenState()

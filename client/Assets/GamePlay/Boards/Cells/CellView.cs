@@ -68,7 +68,7 @@ namespace GamePlay.Boards
             return (CellFreeState)_state.Value;
         }
 
-        public UniTask Explode()
+        public UniTask Explode(CellExplosionType type)
         {
             if (_state.Value is not CellTakenState state)
                 throw new Exception("Cell is not taken, cannot explode.");
@@ -76,9 +76,11 @@ namespace GamePlay.Boards
             if (state.HasMine.Value == false)
                 throw new Exception("Cell does not have a mine to explode.");
 
+            state.View.OnExplosion();
+            
             EnsureFree();
 
-            return _animator.PlayExplosion(this.GetObjectLifetime());
+            return _animator.PlayExplosion(this.GetObjectLifetime(), type);
         }
 
         public void UpdateState(INetworkCellState networkState)

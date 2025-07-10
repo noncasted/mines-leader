@@ -54,6 +54,12 @@ namespace GamePlay.Boards
                 
                 _updated.Invoke();
             });
+            
+            _entity.Events.GetEvent<BoardCellExplosionEvent>().Advise(lifetime, payload =>
+            {
+                if (rawCells.TryGetValue(payload.Position, out var cell))
+                    cell.Explode(CellExplosionType.Mine);
+            });
         }
 
         public void Setup(INetworkEntity entity)
@@ -73,6 +79,11 @@ namespace GamePlay.Boards
 
                 _cellsState.Set(state);
             }
+        }
+
+        public void InvokeExplosion(IBoardCell cell)
+        {
+            _entity.Events.Send(new BoardCellExplosionEvent(cell.BoardPosition));
         }
 
         public void InvokeUpdated()
