@@ -21,8 +21,7 @@ public static class CorsExtensions
                     //     return uri.Host == "localhost" || uri.Host == "127.0.0.1";
                     // })
                     .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
+                    .AllowAnyHeader();
             });
         });
 
