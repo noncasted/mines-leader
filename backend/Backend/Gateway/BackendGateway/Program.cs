@@ -22,7 +22,8 @@ builder
     .AddMessaging()
     .AddOrleansUtils()
     .AddStateAttributes()
-    .AddServersCollection();
+    .AddServersCollection()
+    .ConfigureCors();
 
 // Project services
 builder
@@ -43,6 +44,7 @@ app.MapUserHub()
     .AddMatchmakingEndpoints();
 
 app.MapDefaultEndpoints();
+app.UseCors("cors");
 
 if (app.Environment.IsDevelopment())
 {

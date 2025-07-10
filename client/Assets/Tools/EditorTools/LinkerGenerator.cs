@@ -12,7 +12,7 @@ namespace Tools
 {
     public class LinkerGenerator : IPreprocessBuildWithReport
     {
-        private const string _sourcesFolder = "/Features/";
+        private const string _sourcesFolder = "/";
 
         public int callbackOrder { get; }
 
