@@ -14,7 +14,6 @@ public static class CorsExtensions
                 var url = GetUrl();
 
                 policy
-                    .AllowAnyOrigin()
                     .SetIsOriginAllowed(origin =>
                     {
                         var uri = new Uri(origin);
