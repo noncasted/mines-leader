@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Internal;
 using MemoryPack;
 using Shared;
@@ -10,20 +11,20 @@ namespace Common.Network
     public class NetworkEntityFactory : INetworkEntityFactory
     {
         public NetworkEntityFactory(
-            INetworkSender sender,
+            INetworkSocket socket,
             INetworkEntitiesCollection entities,
             INetworkObjectsCollection objects,
             INetworkUsersCollection users,
             INetworkEntityIds ids)
         {
-            _sender = sender;
+            _socket = socket;
             _entities = entities;
             _objects = objects;
             _users = users;
             Ids = ids;
         }
 
-        private readonly INetworkSender _sender;
+        private readonly INetworkSocket _socket;
         private readonly INetworkEntitiesCollection _entities;
         private readonly INetworkObjectsCollection _objects;
         private readonly INetworkUsersCollection _users;
@@ -64,7 +65,7 @@ namespace Common.Network
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            await _sender.SendFull<EntityContexts.CreateResponse>(lifetime, request);
+            await _socket.SendFull<EntityContexts.CreateResponse>(request);
 
             _objects.Add(entity);
             _entities.Add(entity);

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Internal;
-using MemoryPack;
-using Microsoft.AspNetCore.SignalR.Client;
 using Shared;
 using UnityEngine;
 
@@ -31,21 +29,23 @@ namespace Global.Backend
 
         public async UniTask Start(IReadOnlyLifetime lifetime, Guid userId)
         {
-            var connection = new HubConnectionBuilder()
-                .WithUrl($"{_options.Url}/observer?UserId={userId}")
-                .WithAutomaticReconnect()
-                .Build();
+            var socket = new NetworkSocket(_options.Url);
+            await socket.Run(lifetime);
 
-            connection.On<byte[]>("Update", OnUpdate);
-            await connection.StartAsync();
-
-            lifetime.Listen(() => connection.DisposeAsync());
+            var authResponse = await socket.SendFull<BackendConnectionAuth.Response>(new BackendConnectionAuth.Request()
+            {
+                UserId = userId
+            });
+            
+            if (authResponse.IsSuccess == false)
+                Debug.LogError($"[Projection] Failed to authenticate");
+            
+            socket.Receiver.Empty.Advise(lifetime, OnUpdate);
         }
 
-        private void OnUpdate(byte[] raw)
+        private void OnUpdate(ServerEmptyResponse response)
         {
-            var context = MemoryPackSerializer.Deserialize<INetworkContext>(raw);
-            var type = context.GetType();
+            var type = response.Context.GetType();
 
             if (_projections.TryGetValue(type, out var projection) == false)
             {
@@ -53,13 +53,7 @@ namespace Global.Backend
                 return;
             }
 
-            RunUpdate().Forget();
-
-            async UniTask RunUpdate()
-            {
-                await UniTask.SwitchToMainThread();
-                projection.OnReceived(context);
-            }
+            projection.OnReceived(response.Context);
         }
     }
 }

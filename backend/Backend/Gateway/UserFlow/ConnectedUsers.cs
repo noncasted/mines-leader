@@ -2,6 +2,16 @@
 
 namespace Backend.Gateway;
 
+public interface IConnectedUsers
+{
+    IViewableDelegate<IUserConnection> Connected { get; }
+    IReadOnlyDictionary<Guid, IUserConnection> Entries { get; }
+
+    void OnConnected(UserConnection connection);
+    void OnDisconnected(Guid userId);
+    bool IsConnected(Guid userId);
+}
+
 public class ConnectedUsers : IConnectedUsers
 {
     private readonly ViewableDelegate<IUserConnection> _connected = new();
@@ -11,7 +21,7 @@ public class ConnectedUsers : IConnectedUsers
     public IViewableDelegate<IUserConnection> Connected => _connected;
     public IReadOnlyDictionary<Guid, IUserConnection> Entries => _entries;
 
-    public void OnConnected(Guid userId, string connectionId)
+    public void OnConnected(UserConnection connection)
     {
         if (_entriesInternal.TryGetValue(userId, out var existing))
             existing.InternalLifetime.Terminate();

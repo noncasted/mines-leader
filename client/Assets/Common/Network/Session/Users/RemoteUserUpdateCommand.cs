@@ -17,14 +17,13 @@ namespace Common.Network
         private readonly INetworkUsersCollection _users;
         private readonly INetworkSession _session;
 
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, UserContexts.RemoteUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, UserContexts.RemoteUpdate context)
         {
             if (_users.Entries.ContainsKey(context.Index) == true)
-                return UniTask.CompletedTask;
-            
+                return;
+
             var user = new NetworkUser(context.Index, false, _session.Lifetime.Child(), context.BackendId);
             _users.Add(user);
-            return UniTask.CompletedTask;
         }
     }
 }

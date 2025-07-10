@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Global.Backend;
 using Internal;
 using VContainer.Internal;
 
@@ -16,7 +17,7 @@ namespace Common.Network
     public class NetworkEntity : INetworkEntity
     {
         public NetworkEntity(
-            INetworkSender sender,
+            INetworkSocket socket,
             INetworkEntityDestroyer destroyer,
             INetworkUser owner,
             int id,
@@ -26,7 +27,7 @@ namespace Common.Network
             Id = id;
             Owner = owner;
             _lifetime = owner.Lifetime.Child();
-            Events = new NetworkEvents(sender, this);
+            Events = new NetworkEvents(socket, this);
 
             Properties = properties.Value.ToDictionary(t => t.Id);
         }

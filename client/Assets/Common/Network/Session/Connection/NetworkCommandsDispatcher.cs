@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Internal;
 using UnityEngine;
 
@@ -9,42 +10,36 @@ namespace Common.Network
     {
         UniTask Run(IReadOnlyLifetime lifetime);
     }
-    
+
     public class NetworkCommandsDispatcher : INetworkCommandsDispatcher
     {
         public NetworkCommandsDispatcher(
             INetworkCommandsCollection commands,
-            INetworkReceiver receiver)
+            ISocketReceiver receiver)
         {
             _commands = commands;
             _receiver = receiver;
         }
 
         private readonly INetworkCommandsCollection _commands;
-        private readonly INetworkReceiver _receiver;
+        private readonly ISocketReceiver _receiver;
 
         public async UniTask Run(IReadOnlyLifetime lifetime)
         {
-            var reader = _receiver.Empty.Reader;
-            var cancellation = lifetime.Token;
-
-            while (await reader.WaitToReadAsync(cancellation) && lifetime.IsTerminated == false)
+            _receiver.Empty.Advise(lifetime, response =>
             {
-                while (reader.TryRead(out var response))
-                {
-                    var context = response.Context;
-                    var commands = _commands.Get(context);
+                var context = response.Context;
+                var commands = _commands.Get(context);
 
-                    try
-                    {
-                        await commands.Execute(lifetime, context);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogException(e);
-                    }
+                try
+                {
+                    commands.Execute(lifetime, context);
                 }
-            }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            });
         }
     }
 }

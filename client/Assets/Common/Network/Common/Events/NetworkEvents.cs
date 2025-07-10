@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Global.Backend;
 using Internal;
 using MemoryPack;
 using Shared;
@@ -23,12 +24,12 @@ namespace Common.Network
     
     public class NetworkEvents : INetworkEvents
     {
-        public NetworkEvents(INetworkSender sender, INetworkObject networkObject)
+        public NetworkEvents(INetworkSocket socket, INetworkObject networkObject)
         {
-            _sender = sender;
+            _socket = socket;
             _object = networkObject;
         }
-        private readonly INetworkSender _sender;
+        private readonly INetworkSocket _socket;
         private readonly INetworkObject _object;
 
         private readonly Dictionary<Type, object> _entries = new();
@@ -55,7 +56,7 @@ namespace Common.Network
 
         public void Send(IEventPayload rawPayload)
         {
-            _sender.SendEmpty(new ObjectContexts.Event()
+            _socket.Send(new ObjectContexts.Event()
             {
                 ObjectId = _object.Id,
                 Value = MemoryPackSerializer.Serialize(rawPayload)

@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
         <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
     </ItemGroup>

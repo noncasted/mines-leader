@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Net.WebSockets;
-using System.Threading;
 using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Internal;
-using Newtonsoft.Json;
 using Shared;
 using UnityEngine;
 
@@ -13,60 +11,48 @@ namespace Common.Network
     {
         UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
     }
-    
+
     public class NetworkConnection : INetworkConnection
     {
         public NetworkConnection(
-            INetworkReceiver receiver,
-            INetworkSender sender,
-            INetworkCommandsDispatcher commandsDispatcher,
-            INetworkResponsesDispatcher responsesDispatcher)
+            ISocketReceiver receiver,
+            ISocketSender sender,
+            INetworkCommandsDispatcher commandsDispatcher)
         {
             _receiver = receiver;
             _sender = sender;
             _commandsDispatcher = commandsDispatcher;
-            _responsesDispatcher = responsesDispatcher;
         }
 
-        private readonly INetworkReceiver _receiver;
-        private readonly INetworkSender _sender;
+        private readonly ISocketReceiver _receiver;
+        private readonly ISocketSender _sender;
         private readonly INetworkCommandsDispatcher _commandsDispatcher;
-        private readonly INetworkResponsesDispatcher _responsesDispatcher;
 
         public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
         {
-            var webSocket = new ClientWebSocket();
-            webSocket.Options.KeepAliveInterval = TimeSpan.FromMinutes(10);
+            var webSocket = new NetworkSocket(serverUrl);
 
-            var auth = new ServerUserAuth
+            var auth = new GameConnectionAuth.Request
             {
                 SessionId = sessionId,
                 UserId = userId
             };
-            
+
             Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
 
-            var authJson = JsonConvert.SerializeObject(auth);
+            await webSocket.Run(lifetime);
 
-            webSocket.Options.SetRequestHeader("Authorization", authJson);
+            var response = await webSocket.SendFull<GameConnectionAuth.Response>(auth);
 
-            var uri = new Uri(serverUrl);
-
-            await webSocket.ConnectAsync(uri, CancellationToken.None);
-
-            _receiver.Run(lifetime, webSocket).Forget();
-            _sender.Run(lifetime, webSocket).Forget();
-            _commandsDispatcher.Run(lifetime).Forget();
-            _responsesDispatcher.Run(lifetime).Forget();
-
-            lifetime.Listen(() =>
+            if (response.IsSuccess == false)
             {
-                Debug.Log("Close session connection");
-                webSocket.CloseOutputAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "closing websocket",
-                    CancellationToken.None);
-            });
+                Debug.LogError($"Failed to authenticate user {userId} for session {sessionId}");
+                throw new Exception("Authentication failed");
+            }
+
+            // _receiver.Run(lifetime, webSocket).Forget();
+            // _sender.Run(lifetime, webSocket).Forget();
+            _commandsDispatcher.Run(lifetime).Forget();
         }
     }
 }

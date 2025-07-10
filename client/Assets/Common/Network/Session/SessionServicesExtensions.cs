@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using Global.Backend;
+using Internal;
 
 namespace Common.Network
 {
@@ -55,12 +56,6 @@ namespace Common.Network
                 builder.Register<NetworkConnection>()
                     .As<INetworkConnection>();
 
-                builder.Register<NetworkReceiver>()
-                    .As<INetworkReceiver>();
-
-                builder.Register<NetworkSender>()
-                    .As<INetworkSender>();
-
                 builder.Register<NetworkSession>()
                     .As<INetworkSession>();
                 
@@ -69,9 +64,6 @@ namespace Common.Network
 
                 builder.Register<NetworkCommandsDispatcher>()
                     .As<INetworkCommandsDispatcher>();
-
-                builder.Register<NetworkResponsesDispatcher>()
-                    .As<INetworkResponsesDispatcher>();
             }
 
             void AddUserServices()

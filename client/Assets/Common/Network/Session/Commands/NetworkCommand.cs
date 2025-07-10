@@ -9,19 +9,19 @@ namespace Common.Network
     {
         Type ContextType { get; }
         
-        UniTask Execute(IReadOnlyLifetime lifetime, INetworkContext context);
+        void Execute(IReadOnlyLifetime lifetime, INetworkContext context);
     }
     
     public abstract class NetworkCommand<TContext> : INetworkCommand where TContext : INetworkContext
     {
         public Type ContextType { get; } = typeof(TContext);
 
-        public UniTask Execute(IReadOnlyLifetime lifetime, INetworkContext context)
+        public void Execute(IReadOnlyLifetime lifetime, INetworkContext context)
         {
-            return Execute(lifetime, (TContext)context);
+             Execute(lifetime, (TContext)context);
         }
 
-        protected abstract UniTask Execute(IReadOnlyLifetime lifetime, TContext context);
+        protected abstract void Execute(IReadOnlyLifetime lifetime, TContext context);
     }
     
     public static class NetworkCommandExtensions

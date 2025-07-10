@@ -27,6 +27,11 @@ namespace Shared
     [MemoryPackUnion(6000, typeof(ServiceContexts.GetRequest))]
     [MemoryPackUnion(6001, typeof(ServiceContexts.GetResponse))]
     [MemoryPackUnion(6002, typeof(ServiceContexts.Overview))]
+
+    [MemoryPackUnion(7000, typeof(GameConnectionAuth.Request))]
+    [MemoryPackUnion(7001, typeof(GameConnectionAuth.Response))]
+    [MemoryPackUnion(7002, typeof(BackendConnectionAuth.Request))]
+    [MemoryPackUnion(7003, typeof(BackendConnectionAuth.Response))]
     public partial interface INetworkContext
     {
     }

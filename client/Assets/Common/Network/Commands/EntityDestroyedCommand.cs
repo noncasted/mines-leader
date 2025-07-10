@@ -13,12 +13,10 @@ namespace Common.Network
             _entities = entities;
         }
 
-        protected override UniTask Execute(IReadOnlyLifetime lifetime, EntityContexts.DestroyUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, EntityContexts.DestroyUpdate context)
         {
             var entity = _entities.Entries[context.EntityId];
             entity.DestroyRemote();
-            
-            return UniTask.CompletedTask;
         }
     }
 }

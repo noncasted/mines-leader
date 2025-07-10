@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Global.Systems;
 using Internal;
 using Shared;
@@ -9,18 +10,18 @@ namespace Common.Network
     public class NetworkPropertiesCollector : IUpdatable, IScopeSetup
     {
         public NetworkPropertiesCollector(
+            INetworkSocket socket,
             IUpdater updater,
-            INetworkObjectsCollection objects,
-            INetworkSender sender)
+            INetworkObjectsCollection objects)
         {
+            _socket = socket;
             _updater = updater;
             _objects = objects;
-            _sender = sender;
         }
 
+        private readonly INetworkSocket _socket;
         private readonly IUpdater _updater;
         private readonly INetworkObjectsCollection _objects;
-        private readonly INetworkSender _sender;
 
         private float _updateInterval = 0.1f;
         private float _timer = 0f;
@@ -63,7 +64,7 @@ namespace Common.Network
         private async UniTask Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
         {
             foreach (var request in requests)
-                await _sender.SendEmpty(request);
+                await _socket.Send(request);
         }
     }
 }
