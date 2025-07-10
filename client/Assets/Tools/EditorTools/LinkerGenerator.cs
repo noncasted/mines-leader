@@ -26,7 +26,7 @@ namespace Tools
         {
             var assetsDir = Application.dataPath;
 
-            var linkXmlFilePath = Path.Combine(assetsDir, Application.dataPath + "/Settings/", "link.xml");
+            var linkXmlFilePath = Path.Combine(assetsDir, Application.dataPath + "/Tools/Settings/", "link.xml");
 
             Directory.CreateDirectory(Path.GetDirectoryName(linkXmlFilePath) ??
                                       throw new InvalidOperationException(
@@ -35,7 +35,10 @@ namespace Tools
             var assembliesToPreserve = Enumerable.Empty<string>()
                 .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
                 .Distinct()
-                .OrderBy(s => s);
+                .OrderBy(s => s)
+                .ToList();
+
+            assembliesToPreserve.Add("Shared");
 
             var content = Enumerable.Empty<string>()
                 .Concat("<linker>")
@@ -54,9 +57,24 @@ namespace Tools
 
         private static IEnumerable<string> GetDllAssemblyNames(string assetsDir)
         {
-            return Directory.EnumerateFiles(assetsDir, "*.asmdef", SearchOption.AllDirectories)
+            var asmdefs = Directory.EnumerateFiles(assetsDir, "*.asmdef", SearchOption.AllDirectories)
                 .Distinct()
                 .Select(Path.GetFileNameWithoutExtension);
+
+            var dlss = Directory.EnumerateFiles(assetsDir, "*.dll", SearchOption.AllDirectories)
+                .Distinct()
+                .Select(Path.GetFileNameWithoutExtension);
+
+            var all = new List<string>();
+
+            all.AddRange(asmdefs);
+            all.AddRange(dlss);
+
+            return all.Where(t =>
+                t.Contains("Editor") == false &&
+                t.Contains("Test") == false &&
+                t.Contains("Tests") == false &&
+                t.Contains("Demo") == false);
         }
     }
 
