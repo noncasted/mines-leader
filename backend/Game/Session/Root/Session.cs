@@ -127,10 +127,10 @@ public class Session : ISession
         async Task HandleLifecycle()
         {
             await user.Reader.Run(user.Lifetime);
-            ExecutionQueue.Enqueue(user.Lifetime.Terminate);
             HandleDisconnect(user);
+            ExecutionQueue.Enqueue(user.Lifetime.Terminate);
         }
-        
+
         void HandleDisconnect(IUser sourceUser)
         {
             foreach (var targetUser in _users)

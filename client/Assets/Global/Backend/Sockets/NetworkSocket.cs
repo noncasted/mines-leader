@@ -12,20 +12,18 @@ namespace Global.Backend
         ISocketReceiver Receiver { get; }
         ISocketSender Sender { get; }
 
-        UniTask Run(IReadOnlyLifetime lifetime);
+        UniTask Run(IReadOnlyLifetime lifetime, string url);
     }
 
     public class NetworkSocket : INetworkSocket
     {
-        public NetworkSocket(string url)
+        public NetworkSocket()
         {
-            _webSocket = new WebSocket(url);
-
-            _receiver = new SocketReceiver(_webSocket);
-            _sender = new SocketSender(_webSocket, Receiver);
+            _receiver = new SocketReceiver();
+            _sender = new SocketSender(Receiver);
         }
 
-        private readonly WebSocket _webSocket;
+        private WebSocket _webSocket;
 
         private readonly SocketReceiver _receiver;
         private readonly SocketSender _sender;
@@ -36,21 +34,31 @@ namespace Global.Backend
         public ISocketReceiver Receiver => _receiver;
         public ISocketSender Sender => _sender;
 
-        public async UniTask Run(IReadOnlyLifetime lifetime)
+        public async UniTask Run(IReadOnlyLifetime lifetime, string url)
         {
+            _webSocket = new WebSocket(url);
             await _webSocket.Connect(lifetime);
 
             lifetime.Listen(() => _webSocket.Close());
             _lifetime = _webSocket.AttachLifetime(lifetime);
-            
-            _receiver.Run(lifetime).Forget();
-            _sender.Run(lifetime).Forget();
+
+            _receiver.Run(lifetime, _webSocket).Forget();
+            _sender.Run(lifetime, _webSocket).Forget();
         }
     }
 
     public static class NetworkSocketExtensions
     {
-        public static UniTask Send<T>(this INetworkSocket socket, T value)
+        public static IScopeBuilder AddNetworkSocket(this IScopeBuilder builder)
+        {
+            builder.Register<NetworkSocket>()
+                .As<INetworkSocket>()
+                .AsSelf();
+            
+            return builder;
+        }
+
+        public static UniTask Send(this INetworkSocket socket, INetworkContext value)
         {
             return socket.Sender.Send(value);
         }

@@ -690,6 +690,8 @@ namespace NativeWebSocket
                             break;
                         }
                     }
+
+                    DispatchMessageQueue();
                 }
             }
             catch (Exception)

@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
-namespace Global.Backend
+namespace Meta
 {
     public interface IBackendProjection
     {

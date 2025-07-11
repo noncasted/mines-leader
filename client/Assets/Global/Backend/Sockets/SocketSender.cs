@@ -9,52 +9,56 @@ namespace Global.Backend
 {
     public interface ISocketSender
     {
-        UniTask Run(IReadOnlyLifetime lifetime);
-        UniTask Send<T>(T value);
+        UniTask Send(INetworkContext value);
         UniTask<T> SendFull<T>(INetworkContext commandContext);
         UniTask ForceSendAll();
     }
 
     public class SocketSender : ISocketSender
     {
-        public SocketSender(WebSocket webSocket, ISocketReceiver receiver)
+        public SocketSender(ISocketReceiver receiver)
         {
-            _webSocket = webSocket;
             _receiver = receiver;
         }
 
-        private readonly WebSocket _webSocket;
+        private WebSocket _webSocket;
         private readonly ISocketReceiver _receiver;
         private readonly Dictionary<int, UniTaskCompletionSource<INetworkContext>> _pending = new();
 
         private int _requestCounter;
         private IReadOnlyLifetime _lifetime;
 
-        public UniTask Run(IReadOnlyLifetime lifetime)
+        public UniTask Run(IReadOnlyLifetime lifetime, WebSocket webSocket)
         {
+            _webSocket = webSocket;
             _lifetime = lifetime;
             _receiver.Full.Advise(lifetime, OnFullReceived);
 
             return UniTask.CompletedTask;
         }
 
-        public UniTask Send<T>(T value)
+        public UniTask Send(INetworkContext value)
         {
-            var payload = MemoryPackSerializer.Serialize(value);
+            var request = new ServerEmptyRequest()
+            {
+                Context = value,
+            };
+            
+            var payload = MemoryPackSerializer.Serialize<IServerRequest>(request);
             _webSocket.Send(payload);
             return UniTask.CompletedTask;
         }
 
         public async UniTask<T> SendFull<T>(INetworkContext commandContext)
         {
-            var payload = MemoryPackSerializer.Serialize(commandContext);
-            _requestCounter++;
-
             var request = new ServerFullRequest()
             {
                 Context = commandContext,
                 RequestId = _requestCounter
             };
+
+            var payload = MemoryPackSerializer.Serialize<IServerRequest>(request);
+            _requestCounter++;
 
             var completion = new UniTaskCompletionSource<INetworkContext>();
             _pending.Add(request.RequestId, completion);

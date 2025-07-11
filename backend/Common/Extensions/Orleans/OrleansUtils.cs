@@ -52,4 +52,9 @@ public static class OrleansUtilsExtensions
     {
         return orleans.Grains.GetGrain<T>(Guid.Empty);
     }
+
+    public static Task InTransaction(this IOrleans orleans, Func<Task> action)
+    {
+        return orleans.Transactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
+    }
 }

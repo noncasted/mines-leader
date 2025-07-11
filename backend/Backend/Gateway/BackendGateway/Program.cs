@@ -30,7 +30,8 @@ builder
     .AddUserFlow()
     .AddUserFactory()
     .AddBackendMatchServices()
-    .AddMatchmakingServices();
+    .AddMatchmakingServices()
+    .AddUserCommands();
 
 builder.Services.AddOpenApi();
 
@@ -39,9 +40,7 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app
-    .AddIdentityEndpoints()
-    .AddUserEndpoints()
-    .AddMatchmakingEndpoints();
+    .AddIdentityEndpoints();
 
 app.AddBackendMiddleware();
 

@@ -1,5 +1,6 @@
 ﻿using System.Net.WebSockets;
 using MemoryPack;
+using Shared;
 
 namespace Common;
 
@@ -21,8 +22,7 @@ public static class SocketExtension
         
         await MemoryPackSerializer.SerializeAsync(buffer, context);
         var sendBuffer = new ReadOnlyMemory<byte>(buffer.GetBuffer(), 0, (int)buffer.Length);
-
+        
         await webSocket.SendAsync(sendBuffer, WebSocketMessageType.Binary, true, CancellationToken.None);
-        await buffer.DisposeAsync();
     } 
 }

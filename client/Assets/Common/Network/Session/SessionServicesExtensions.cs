@@ -53,6 +53,8 @@ namespace Common.Network
 
             void AddConnectionServices()
             {
+                builder.AddNetworkSocket();
+                
                 builder.Register<NetworkConnection>()
                     .As<INetworkConnection>();
 

@@ -5,12 +5,12 @@ using Shared;
 
 namespace Game.Gateway;
 
-public class ConnectionMiddleware
+public class SessionConnectionMiddleware
 {
-    public ConnectionMiddleware(
+    public SessionConnectionMiddleware(
         ISessionsCollection sessionsCollection,
         RequestDelegate next,
-        ILogger<ConnectionMiddleware> logger)
+        ILogger<SessionConnectionMiddleware> logger)
     {
         _sessionsCollection = sessionsCollection;
         _next = next;
@@ -19,7 +19,7 @@ public class ConnectionMiddleware
 
     private readonly ISessionsCollection _sessionsCollection;
     private readonly RequestDelegate _next;
-    private readonly ILogger<ConnectionMiddleware> _logger;
+    private readonly ILogger<SessionConnectionMiddleware> _logger;
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -30,8 +30,9 @@ public class ConnectionMiddleware
         }
 
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        
-        var auth = await webSocket.ReadOnce<GameConnectionAuth.Request>();
+        var handle = new ConnectionOneTimeHandle(webSocket);
+
+        var auth = await handle.ReadRequest<GameConnectionAuth.Request>();
 
         var session = _sessionsCollection.Get(auth.SessionId);
 
@@ -47,10 +48,13 @@ public class ConnectionMiddleware
             user.Lifetime.Listen(() => completion.TrySetResult());
         });
 
-        await webSocket.SendOnce(new GameConnectionAuth.Response()
+
+        var response = new GameConnectionAuth.Response()
         {
             IsSuccess = true
-        });
+        };
+
+        await handle.SendResponse(response);
         
         await completion.Task;
 

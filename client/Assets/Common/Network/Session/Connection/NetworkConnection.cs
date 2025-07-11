@@ -15,23 +15,18 @@ namespace Common.Network
     public class NetworkConnection : INetworkConnection
     {
         public NetworkConnection(
-            ISocketReceiver receiver,
-            ISocketSender sender,
+            INetworkSocket socket,
             INetworkCommandsDispatcher commandsDispatcher)
         {
-            _receiver = receiver;
-            _sender = sender;
+            _socket = socket;
             _commandsDispatcher = commandsDispatcher;
         }
 
-        private readonly ISocketReceiver _receiver;
-        private readonly ISocketSender _sender;
+        private readonly INetworkSocket _socket;
         private readonly INetworkCommandsDispatcher _commandsDispatcher;
 
         public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
         {
-            var webSocket = new NetworkSocket(serverUrl);
-
             var auth = new GameConnectionAuth.Request
             {
                 SessionId = sessionId,
@@ -40,9 +35,9 @@ namespace Common.Network
 
             Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
 
-            await webSocket.Run(lifetime);
+            await _socket.Run(lifetime, serverUrl);
 
-            var response = await webSocket.SendFull<GameConnectionAuth.Response>(auth);
+            var response = await _socket.SendFull<GameConnectionAuth.Response>(auth);
 
             if (response.IsSuccess == false)
             {
@@ -50,8 +45,6 @@ namespace Common.Network
                 throw new Exception("Authentication failed");
             }
 
-            // _receiver.Run(lifetime, webSocket).Forget();
-            // _sender.Run(lifetime, webSocket).Forget();
             _commandsDispatcher.Run(lifetime).Forget();
         }
     }

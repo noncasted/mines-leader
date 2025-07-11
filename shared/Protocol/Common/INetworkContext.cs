@@ -3,12 +3,18 @@
 namespace Shared
 {
     [MemoryPackable]
+    [MemoryPackUnion(10, typeof(EmptyResponse))]
+    
     [MemoryPackUnion(1000, typeof(BackendUserContexts.ProfileProjection))]
     [MemoryPackUnion(1001, typeof(BackendUserContexts.ProgressionProjection))]
     [MemoryPackUnion(1002, typeof(BackendUserContexts.DeckProjection))]
+    [MemoryPackUnion(1003, typeof(BackendUserContexts.UpdateDeckRequest))]
 
-    [MemoryPackUnion(2000, typeof(MatchmakingContexts.GameResult))]
-    [MemoryPackUnion(2001, typeof(MatchmakingContexts.LobbyResult))]
+    [MemoryPackUnion(2000, typeof(MatchmakingContexts.Search))]
+    [MemoryPackUnion(2001, typeof(MatchmakingContexts.CancelSearch))]
+    [MemoryPackUnion(2002, typeof(MatchmakingContexts.Create))]
+    [MemoryPackUnion(2003, typeof(MatchmakingContexts.GameResult))]
+    [MemoryPackUnion(2004, typeof(MatchmakingContexts.LobbyResult))]
     
     [MemoryPackUnion(3000, typeof(UserContexts.LocalUpdate))]
     [MemoryPackUnion(3001, typeof(UserContexts.RemoteUpdate))]

@@ -10,18 +10,11 @@ namespace Global.Backend
     {
         IViewableDelegate<ServerEmptyResponse> Empty { get; }
         IViewableDelegate<ServerFullResponse> Full { get; }
-
-        UniTask Run(IReadOnlyLifetime lifetime);
     }
 
     public class SocketReceiver : ISocketReceiver
     {
-        public SocketReceiver(WebSocket webSocket)
-        {
-            _webSocket = webSocket;
-        }
-
-        private readonly WebSocket _webSocket;
+        private WebSocket _webSocket;
 
         private readonly ViewableDelegate<ServerEmptyResponse> _empty = new();
         private readonly ViewableDelegate<ServerFullResponse> _full = new();
@@ -29,21 +22,29 @@ namespace Global.Backend
         public IViewableDelegate<ServerEmptyResponse> Empty => _empty;
         public IViewableDelegate<ServerFullResponse> Full => _full;
 
-        public UniTask Run(IReadOnlyLifetime lifetime)
+        public UniTask Run(IReadOnlyLifetime lifetime, WebSocket webSocket)
         {
+            _webSocket = webSocket;
             _webSocket.OnMessage += OnMessage;
             lifetime.Listen(() => _webSocket.OnMessage -= OnMessage);
-            
+
             return UniTask.CompletedTask;
 
             void OnMessage(byte[] bytes)
             {
-                var context = MemoryPackSerializer.Deserialize<IServerResponse>(bytes)!;
+                Handle(bytes).Forget();
+                
+                async UniTask Handle(byte[] raw)
+                {
+                    await UniTask.SwitchToMainThread();
+                    
+                    var context = MemoryPackSerializer.Deserialize<IServerResponse>(raw)!;
 
-                if (context is ServerFullResponse full)
-                     _full.Invoke(full);
-                else if (context is ServerEmptyResponse empty)
-                    _empty.Invoke(empty);
+                    if (context is ServerFullResponse full)
+                        _full.Invoke(full);
+                    else if (context is ServerEmptyResponse empty)
+                        _empty.Invoke(empty);
+                }
             }
         }
     }

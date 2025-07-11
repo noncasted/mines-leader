@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
 using Shared;
 
@@ -21,25 +20,19 @@ namespace Meta
     {
         public DeckService(
             ICardsRegistry cardsRegistry,
-            IUser user,
             IBackendProjection<BackendUserContexts.DeckProjection> projection,
-            IBackendClient client,
-            IReadOnlyLifetime lifetime)
+            IMetaBackend backend)
         {
             _cardsRegistry = cardsRegistry;
-            _user = user;
             _projection = projection;
-            _client = client;
-            _lifetime = lifetime;
+            _backend = backend;
         }
 
         private readonly Dictionary<int, IDeckConfiguration> _configurations = new();
         private readonly ViewableProperty<int> _selectedIndex = new(0);
         private readonly ICardsRegistry _cardsRegistry;
-        private readonly IUser _user;
         private readonly IBackendProjection<BackendUserContexts.DeckProjection> _projection;
-        private readonly IBackendClient _client;
-        private readonly IReadOnlyLifetime _lifetime;
+        private readonly IMetaBackend _backend;
         private readonly ViewableDelegate _updated = new();
 
         public IReadOnlyDictionary<int, IDeckConfiguration> Configurations => _configurations;
@@ -74,7 +67,6 @@ namespace Meta
         {
             var request = new BackendUserContexts.UpdateDeckRequest()
             {
-                UserId = _user.Id,
                 Projection = new BackendUserContexts.DeckProjection()
                 {
                     SelectedIndex = _selectedIndex.Value,
@@ -88,8 +80,7 @@ namespace Meta
                 }
             };
 
-            var endpoint = _client.Options.Url + BackendUserContexts.UpdateDeckEndpoint;
-            return _client.PostJson(_lifetime, endpoint, request);
+            return _backend.ExecuteCommand(request);
         }
 
         public void SetIndex(int selectedIndex)

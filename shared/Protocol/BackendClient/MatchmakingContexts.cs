@@ -7,24 +7,20 @@ namespace Shared
 {
     public static partial class MatchmakingContexts
     {
-        public const string SearchEndpoint = "/matchmaking/search";
-        public const string CancelEndpoint = "/matchmaking/cancel";
-        public const string CreateEndpoint = "/matchmaking/create";
-
-        public class Search
+        [MemoryPackable]
+        public partial class Search : INetworkContext
         {
             public string Type { get; set; }
-            public Guid UserId { get; set; }
         }
 
-        public class Create
+        [MemoryPackable]
+        public partial class Create : INetworkContext
         {
-            public Guid UserId { get; set; }
         }
 
-        public class CancelSearch
+        [MemoryPackable]
+        public partial class CancelSearch : INetworkContext
         {
-            public Guid UserId { get; set; }
         }
 
         [MemoryPackable]

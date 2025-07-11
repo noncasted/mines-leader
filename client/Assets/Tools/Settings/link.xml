@@ -2,6 +2,7 @@
 
     <assembly fullname="ADF-RBG.Mulligan" preserve="all" />
     <assembly fullname="Common" preserve="all" />
+    <assembly fullname="endel.nativewebsocket" preserve="all" />
     <assembly fullname="ForceFour" preserve="all" />
     <assembly fullname="GamePlay" preserve="all" />
     <assembly fullname="Global" preserve="all" />
@@ -12,26 +13,6 @@
     <assembly fullname="MemoryPack.Generator" preserve="all" />
     <assembly fullname="Menu" preserve="all" />
     <assembly fullname="Meta" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.Connections.Abstractions" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.Http.Connections.Client" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.Http.Connections.Common" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.SignalR.Client" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.SignalR.Client.Core" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.SignalR.Common" preserve="all" />
-    <assembly fullname="Microsoft.AspNetCore.SignalR.Protocols.Json" preserve="all" />
-    <assembly fullname="Microsoft.Bcl.AsyncInterfaces" preserve="all" />
-    <assembly fullname="Microsoft.Bcl.TimeProvider" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.DependencyInjection" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.DependencyInjection.Abstractions" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Features" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Logging" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Logging.Abstractions" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Logging.Generators" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Logging.Generators.resources" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Options" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Options.SourceGeneration" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Options.SourceGeneration.resources" preserve="all" />
-    <assembly fullname="Microsoft.Extensions.Primitives" preserve="all" />
     <assembly fullname="MPUIKit" preserve="all" />
     <assembly fullname="NaughtyAttributes.Core" preserve="all" />
     <assembly fullname="projectCloner" preserve="all" />
@@ -52,16 +33,7 @@
     <assembly fullname="Sirenix.Utilities" preserve="all" />
     <assembly fullname="Startup" preserve="all" />
     <assembly fullname="System.Collections.Immutable" preserve="all" />
-    <assembly fullname="System.ComponentModel.Annotations" preserve="all" />
-    <assembly fullname="System.Diagnostics.DiagnosticSource" preserve="all" />
-    <assembly fullname="System.IO.Pipelines" preserve="all" />
-    <assembly fullname="System.Net.ServerSentEvents" preserve="all" />
     <assembly fullname="System.Runtime.CompilerServices.Unsafe" preserve="all" />
-    <assembly fullname="System.Text.Encodings.Web" preserve="all" />
-    <assembly fullname="System.Text.Json" preserve="all" />
-    <assembly fullname="System.Text.Json.SourceGeneration" preserve="all" />
-    <assembly fullname="System.Text.Json.SourceGeneration.resources" preserve="all" />
-    <assembly fullname="System.Threading.Channels" preserve="all" />
     <assembly fullname="Tools.MemoryPack" preserve="all" />
     <assembly fullname="Tools.Scene" preserve="all" />
     <assembly fullname="UniClipboard" preserve="all" />

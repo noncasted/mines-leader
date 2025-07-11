@@ -19,16 +19,7 @@ namespace Global.Backend
             builder.Register<BackendClient>()
                 .WithAsset<BackendOptions>()
                 .As<IBackendClient>();
-
-            builder.Register<BackendProjectionHub>()
-                .WithAsset<BackendOptions>()
-                .As<IBackendProjectionHub>();
-
-            builder
-                .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
-                .RegisterBackendProjection<BackendUserContexts.DeckProjection>()
-                .RegisterBackendProjection<MatchmakingContexts.GameResult>()
-                .RegisterBackendProjection<MatchmakingContexts.LobbyResult>();
+            
 
             return builder;
         }

@@ -6,41 +6,31 @@ using Internal;
 using Shared;
 using UnityEngine;
 
-namespace Global.Backend
+namespace Meta
 {
     public interface IBackendProjectionHub
     {
-        UniTask Start(IReadOnlyLifetime lifetime, Guid userId);
+        UniTask Start(IReadOnlyLifetime lifetime);
     }
 
     public class BackendProjectionHub : IBackendProjectionHub
     {
         public BackendProjectionHub(
-            IReadOnlyList<IBackendProjection> projections,
-            BackendOptions options)
+            IMetaBackend backend,
+            IReadOnlyList<IBackendProjection> projections)
         {
             _projections = projections.ToDictionary(t => t.GetValueType());
-            _options = options;
+            _backend = backend;
         }
 
 
-        private readonly BackendOptions _options;
+        private readonly IMetaBackend _backend;
         private readonly Dictionary<Type, IBackendProjection> _projections;
 
-        public async UniTask Start(IReadOnlyLifetime lifetime, Guid userId)
+        public UniTask Start(IReadOnlyLifetime lifetime)
         {
-            var socket = new NetworkSocket(_options.Url);
-            await socket.Run(lifetime);
-
-            var authResponse = await socket.SendFull<BackendConnectionAuth.Response>(new BackendConnectionAuth.Request()
-            {
-                UserId = userId
-            });
-            
-            if (authResponse.IsSuccess == false)
-                Debug.LogError($"[Projection] Failed to authenticate");
-            
-            socket.Receiver.Empty.Advise(lifetime, OnUpdate);
+            _backend.Socket.Receiver.Empty.Advise(lifetime, OnUpdate);
+            return UniTask.CompletedTask;
         }
 
         private void OnUpdate(ServerEmptyResponse response)

@@ -12,6 +12,7 @@ namespace Global.Backend
             var listenLifetime = lifetime.Child();
 
             webSocket.OnOpen += OnOpen;
+            webSocket.Connect();
 
             listenLifetime.Listen(() =>
             {
