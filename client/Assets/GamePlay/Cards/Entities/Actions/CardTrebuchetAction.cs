@@ -82,8 +82,7 @@ namespace GamePlay.Cards
 
             public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
             {
-                var selected = _shape.SelectTaken(_board, pointer);
-                return selected;
+                return _shape.SelectFree(_board, pointer);
             }
         }
     }
