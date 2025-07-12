@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common.Network;
 using Cysharp.Threading.Tasks;
 using Internal;
@@ -27,6 +28,11 @@ namespace GamePlay.Cards
         }
 
         public void AddCard(CardType type)
+        {
+            throw new Exception();
+        }
+
+        public IReadOnlyList<CardType> Reset()
         {
             throw new Exception();
         }

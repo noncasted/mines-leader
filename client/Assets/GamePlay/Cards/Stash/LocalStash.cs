@@ -37,6 +37,16 @@ namespace GamePlay.Cards
             _view.UpdateAmount(_state.Value.Stack.Count);
         }
 
+        public IReadOnlyList<CardType> Reset()
+        {
+            var stack  = _state.Value.Stack;
+            _state.Value.Stack = new List<CardType>();
+            _state.MarkDirty();
+            _view.UpdateAmount(0);  
+            
+            return stack;
+        }
+
         public UniTask DrawCard(IReadOnlyLifetime lifetime)
         {
             if (_state.Value.Stack.Count == 0)
