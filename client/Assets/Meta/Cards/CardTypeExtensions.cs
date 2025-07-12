@@ -17,11 +17,11 @@ namespace Meta
                 list.Add((CardType)type);
             }
 
-            list = new List<CardType>()
-            {
-                CardType.ZipZap,
-                CardType.ZipZap_Max
-            };
+            // list = new List<CardType>()
+            // {
+            //     CardType.ZipZap,
+            //     CardType.ZipZap_Max
+            // };
 
             All = list;
         }
