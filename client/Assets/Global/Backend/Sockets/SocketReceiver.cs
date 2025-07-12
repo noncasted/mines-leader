@@ -8,19 +8,19 @@ namespace Global.Backend
 {
     public interface ISocketReceiver
     {
-        IViewableDelegate<ServerEmptyResponse> Empty { get; }
-        IViewableDelegate<ServerFullResponse> Full { get; }
+        IViewableDelegate<OneWayMessageFromServer> Empty { get; }
+        IViewableDelegate<ResponseMessageFromServer> Full { get; }
     }
 
     public class SocketReceiver : ISocketReceiver
     {
         private WebSocket _webSocket;
 
-        private readonly ViewableDelegate<ServerEmptyResponse> _empty = new();
-        private readonly ViewableDelegate<ServerFullResponse> _full = new();
+        private readonly ViewableDelegate<OneWayMessageFromServer> _empty = new();
+        private readonly ViewableDelegate<ResponseMessageFromServer> _full = new();
 
-        public IViewableDelegate<ServerEmptyResponse> Empty => _empty;
-        public IViewableDelegate<ServerFullResponse> Full => _full;
+        public IViewableDelegate<OneWayMessageFromServer> Empty => _empty;
+        public IViewableDelegate<ResponseMessageFromServer> Full => _full;
 
         public UniTask Run(IReadOnlyLifetime lifetime, WebSocket webSocket)
         {
@@ -38,11 +38,11 @@ namespace Global.Backend
                 {
                     await UniTask.SwitchToMainThread();
                     
-                    var context = MemoryPackSerializer.Deserialize<IServerResponse>(raw)!;
+                    var context = MemoryPackSerializer.Deserialize<IMessageFromServer>(raw)!;
 
-                    if (context is ServerFullResponse full)
+                    if (context is ResponseMessageFromServer full)
                         _full.Invoke(full);
-                    else if (context is ServerEmptyResponse empty)
+                    else if (context is OneWayMessageFromServer empty)
                         _empty.Invoke(empty);
                 }
             }

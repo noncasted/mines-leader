@@ -3,7 +3,7 @@ using Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 using Orleans.Transactions.Abstractions;
 
-namespace Backend.Users.Projections;
+namespace Backend.Users;
 
 public class UserProjection : Grain, IUserProjection
 {

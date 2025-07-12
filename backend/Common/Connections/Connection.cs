@@ -34,10 +34,12 @@ public class Connection : IConnection
     public async Task Run()
     {
         _writer.Run(_lifetime).NoAwait();
-        
         await _reader.Run(_lifetime);
-        _lifetime.Terminate();
         
+        if (_lifetime.IsTerminated == true)
+            return;
+        
+        _lifetime.Terminate();
         OnDisconnected();
     }
     

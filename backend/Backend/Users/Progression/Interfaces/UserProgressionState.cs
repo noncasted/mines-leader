@@ -1,5 +1,4 @@
-﻿using Backend.Users.Projections;
-using Shared;
+﻿using Shared;
 
 namespace Backend.Users;
 

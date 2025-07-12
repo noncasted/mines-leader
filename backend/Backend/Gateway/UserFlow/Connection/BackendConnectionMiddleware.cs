@@ -51,7 +51,8 @@ public class BackendConnectionMiddleware
         };
 
         await handle.SendResponse(response);
-
+        handle.Dispose();
+        
         var connection = new Connection(webSocket, _lifetime, _logger);
 
         var userSession = new UserSession

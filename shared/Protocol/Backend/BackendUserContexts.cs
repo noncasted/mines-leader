@@ -8,7 +8,6 @@ namespace Shared
 {
     public partial class BackendUserContexts
     {
-        public const string UpdateDeckEndpoint = "/user/updateDeck";
 
         [MemoryPackable]
         public partial class ProfileProjection : INetworkContext

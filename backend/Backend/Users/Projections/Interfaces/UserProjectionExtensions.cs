@@ -1,4 +1,4 @@
-﻿namespace Backend.Users.Projections;
+﻿namespace Backend.Users;
 
 public static class UserProjectionExtensions
 {

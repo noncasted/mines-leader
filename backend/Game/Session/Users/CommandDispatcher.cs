@@ -25,7 +25,7 @@ public class CommandDispatcher : ICommandDispatcher
         {
             switch (request)
             {
-                case ServerEmptyRequest empty:
+                case OneWayMessageFromClient empty:
                 {
                     _executionQueue.Enqueue(() =>
                     {
@@ -35,7 +35,7 @@ public class CommandDispatcher : ICommandDispatcher
 
                     break;
                 }
-                case ServerFullRequest full:
+                case ResponsibleMessageFromClient full:
                 {
                     _executionQueue.Enqueue(() =>
                     {

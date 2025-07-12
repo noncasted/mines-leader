@@ -1,4 +1,4 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;

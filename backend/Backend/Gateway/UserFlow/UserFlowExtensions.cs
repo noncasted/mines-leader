@@ -10,7 +10,6 @@ public static class UserFlowExtensions
     {
         var services = builder.Services;
 
-        services.AddSignalR();
         services.AddSingleton<IConnectedUsers, ConnectedUsers>();
         services.AddHostedService<UserProjectionEntryPoint>();
         services.AddSingleton<IUserCommandsCollection, UserCommandsCollection>();

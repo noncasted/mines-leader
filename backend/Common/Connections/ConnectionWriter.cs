@@ -24,7 +24,7 @@ public class ConnectionWriter : IConnectionWriter
     private readonly WebSocket _webSocket;
     private readonly ILogger _logger;
 
-    private readonly Channel<IServerResponse> _queue = Channel.CreateBounded<IServerResponse>(
+    private readonly Channel<IMessageFromServer> _queue = Channel.CreateBounded<IMessageFromServer>(
         new BoundedChannelOptions(10)
         {
             SingleReader = true,
@@ -77,7 +77,7 @@ public class ConnectionWriter : IConnectionWriter
 
     public ValueTask WriteEmpty(INetworkContext context)
     {
-        var response = new ServerEmptyResponse()
+        var response = new OneWayMessageFromServer()
         {
             Context = context
         };
@@ -87,7 +87,7 @@ public class ConnectionWriter : IConnectionWriter
 
     public ValueTask WriteFull(INetworkContext context, int requestId)
     {
-        var response = new ServerFullResponse()
+        var response = new ResponseMessageFromServer()
         {
             Context = context,
             RequestId = requestId

@@ -6,7 +6,7 @@ namespace Common;
 
 public interface IConnectionReader
 {
-    IViewableDelegate<IServerRequest> Received { get; }
+    IViewableDelegate<IMessageFromClient> Received { get; }
     
     Task Run(IReadOnlyLifetime lifetime);
 }
@@ -19,9 +19,9 @@ public class ConnectionReader : IConnectionReader
     }
 
     private readonly WebSocket _webSocket;
-    private readonly ViewableDelegate<IServerRequest> _received = new();
+    private readonly ViewableDelegate<IMessageFromClient> _received = new();
 
-    public IViewableDelegate<IServerRequest> Received => _received;
+    public IViewableDelegate<IMessageFromClient> Received => _received;
 
     public async Task Run(IReadOnlyLifetime lifetime)
     {
@@ -47,7 +47,7 @@ public class ConnectionReader : IConnectionReader
                 break;
 
             var payload = buffer[..receiveResult.Count];
-            var context = MemoryPackSerializer.Deserialize<IServerRequest>(payload.Span)!;
+            var context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
 
             _received.Invoke(context);
         }

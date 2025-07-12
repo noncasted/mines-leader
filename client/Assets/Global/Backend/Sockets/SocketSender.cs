@@ -39,25 +39,25 @@ namespace Global.Backend
 
         public UniTask Send(INetworkContext value)
         {
-            var request = new ServerEmptyRequest()
+            var request = new OneWayMessageFromClient()
             {
                 Context = value,
             };
             
-            var payload = MemoryPackSerializer.Serialize<IServerRequest>(request);
+            var payload = MemoryPackSerializer.Serialize<IMessageFromClient>(request);
             _webSocket.Send(payload);
             return UniTask.CompletedTask;
         }
 
         public async UniTask<T> SendFull<T>(INetworkContext commandContext)
         {
-            var request = new ServerFullRequest()
+            var request = new ResponsibleMessageFromClient()
             {
                 Context = commandContext,
                 RequestId = _requestCounter
             };
 
-            var payload = MemoryPackSerializer.Serialize<IServerRequest>(request);
+            var payload = MemoryPackSerializer.Serialize<IMessageFromClient>(request);
             _requestCounter++;
 
             var completion = new UniTaskCompletionSource<INetworkContext>();
@@ -78,7 +78,7 @@ namespace Global.Backend
             return UniTask.CompletedTask;
         }
 
-        private void OnFullReceived(ServerFullResponse response)
+        private void OnFullReceived(ResponseMessageFromServer response)
         {
             var context = response.Context;
             var pending = _pending[response.RequestId];

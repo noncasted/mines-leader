@@ -23,7 +23,6 @@ namespace Meta
             _backend = backend;
         }
 
-
         private readonly IMetaBackend _backend;
         private readonly Dictionary<Type, IBackendProjection> _projections;
 
@@ -33,7 +32,7 @@ namespace Meta
             return UniTask.CompletedTask;
         }
 
-        private void OnUpdate(ServerEmptyResponse response)
+        private void OnUpdate(OneWayMessageFromServer response)
         {
             var type = response.Context.GetType();
 

@@ -1,4 +1,4 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Shared;
 
 namespace Backend.Matches;

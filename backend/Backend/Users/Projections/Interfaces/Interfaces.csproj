@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <AssemblyName>Backend.Users.Projections.Interfaces</AssemblyName>
-        <RootNamespace>Backend.Users.Projections</RootNamespace>
+        <RootNamespace>Backend.Users</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

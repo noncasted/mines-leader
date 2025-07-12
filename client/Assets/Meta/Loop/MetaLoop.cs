@@ -27,8 +27,8 @@ namespace Meta
             var userId = await _authentication.Execute();
             _user.Init(userId);
 
-            await _backend.Connect(lifetime);
             await _projectionHub.Start(lifetime);
+            await _backend.Connect(lifetime);
         }
     }
 }

@@ -17,17 +17,16 @@ public class ConnectionOneTimeHandle : IDisposable
     private Memory<byte> _readBuffer = new byte[1024 * 1024 * 4].AsMemory();
     private int _requestId;
 
-
     public async Task<T> ReadRequest<T>() where T : INetworkContext
     {
         var rawAuth = await _socket.ReceiveAsync(_readBuffer, CancellationToken.None);
         var payload = _readBuffer[..rawAuth.Count];
-        var request = MemoryPackSerializer.Deserialize<IServerRequest>(payload.Span)!;
+        var request = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
 
-        if (request is not ServerFullRequest full)
+        if (request is not ResponsibleMessageFromClient full)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {request.GetType().Name}, expected: {nameof(ServerFullRequest)}");
+                $"Invalid request type: {request.GetType().Name}, expected: {nameof(ResponsibleMessageFromClient)}");
         }
 
         if (full.Context is not T typedContext)
@@ -41,13 +40,13 @@ public class ConnectionOneTimeHandle : IDisposable
 
     public async Task SendResponse<T>(T context) where T : INetworkContext
     {
-        var response = new ServerFullResponse()
+        var response = new ResponseMessageFromServer()
         {
             Context = context,
             RequestId = _requestId++
         };
          
-        await MemoryPackSerializer.SerializeAsync<IServerResponse>(_writeBuffer, response);
+        await MemoryPackSerializer.SerializeAsync<IMessageFromServer>(_writeBuffer, response);
         var sendBuffer = new ReadOnlyMemory<byte>(_writeBuffer.GetBuffer(), 0, (int)_writeBuffer.Length);
 
         await _socket.SendAsync(sendBuffer, WebSocketMessageType.Binary, true, CancellationToken.None);

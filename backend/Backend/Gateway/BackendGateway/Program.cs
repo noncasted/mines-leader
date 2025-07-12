@@ -39,9 +39,7 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app
-    .AddIdentityEndpoints();
-
+app.AddIdentityEndpoints();
 app.AddBackendMiddleware();
 
 app.MapDefaultEndpoints();

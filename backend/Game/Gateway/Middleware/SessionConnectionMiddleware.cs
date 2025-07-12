@@ -48,13 +48,13 @@ public class SessionConnectionMiddleware
             user.Lifetime.Listen(() => completion.TrySetResult());
         });
 
-
         var response = new GameConnectionAuth.Response()
         {
             IsSuccess = true
         };
 
         await handle.SendResponse(response);
+        handle.Dispose();
         
         await completion.Task;
 

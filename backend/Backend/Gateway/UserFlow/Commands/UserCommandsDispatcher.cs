@@ -21,13 +21,13 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
     {
         session.Connection.Reader.Received.Advise(session.Lifetime, request =>
         {
-            if (request is not ServerFullRequest full)
+            if (request is not ResponsibleMessageFromClient full)
                 throw new ArgumentException("Expected ServerFullRequest", nameof(request));
 
             HandleCommand(full).NoAwait();
         });
 
-        async Task HandleCommand(ServerFullRequest request)
+        async Task HandleCommand(ResponsibleMessageFromClient request)
         {
             var type = request.Context.GetType();
             var result = await _commands.Entries[type].Execute(session, request.Context);
