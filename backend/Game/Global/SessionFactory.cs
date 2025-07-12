@@ -1,6 +1,8 @@
 ﻿using Common;
+using Game.GamePlay;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Game;
 
@@ -35,9 +37,24 @@ public class SessionFactory : ISessionFactory
             CreateOptions = createOptions,
         };
 
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSessionServices(data);
-        var provider = serviceCollection.BuildServiceProvider();
+        var services = new ServiceCollection();
+        services.AddSessionServices(data);
+
+        switch (createOptions.Type)
+        {
+            case SessionType.Lobby:
+                break;
+            case SessionType.Game:
+                services.AddCardServices();
+                services.AddGameCommands();
+                services.AddGameContext();
+                services.AddPlayerServices();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+        var provider = services.BuildServiceProvider();
 
         var session = provider.GetRequiredService<ISession>();
         

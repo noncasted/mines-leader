@@ -1302,11 +1302,11 @@ PrefabInstance:
     - target: {fileID: 596189614323517760, guid: f5eeedd2329cee0408ac8d107c188c62, type: 3}
       propertyPath: m_Resource
       value: 
-      objectReference: {fileID: 8300000, guid: 26bda497e940c084fa3aa6832890e771, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 596189614323517760, guid: f5eeedd2329cee0408ac8d107c188c62, type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: 26bda497e940c084fa3aa6832890e771, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 596189614323517760, guid: f5eeedd2329cee0408ac8d107c188c62, type: 3}
       propertyPath: m_PlayOnAwake
       value: 1

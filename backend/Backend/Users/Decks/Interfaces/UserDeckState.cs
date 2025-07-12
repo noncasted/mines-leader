@@ -1,8 +1,9 @@
-﻿using Backend.Users.Projections;
+﻿using Common;
 using Shared;
 
 namespace Backend.Users;
 
+[Alias(States.User_Deck)]
 [GenerateSerializer]
 public class UserDeckState : IProjectionPayload
 {
@@ -11,12 +12,12 @@ public class UserDeckState : IProjectionPayload
 
     public INetworkContext ToContext()
     {
-        return new BackendUserContexts.DeckProjection()
+        return new SharedBackendUser.DeckProjection()
         {
             SelectedIndex = SelectedIndex,
             Entries = Entries.ToDictionary(
                 entry => entry.Key,
-                entry => new BackendUserContexts.DeckProjection.Entry
+                entry => new SharedBackendUser.DeckProjection.Entry
                 {
                     DeckIndex = entry.Value.Index,
                     Cards = entry.Value.Cards

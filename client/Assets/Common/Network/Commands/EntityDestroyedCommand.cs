@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityDestroyedCommand : NetworkCommand<EntityContexts.DestroyUpdate>
+    public class EntityDestroyedCommand : OneWayCommand<SharedSessionEntity.DestroyUpdate>
     {
         private readonly INetworkEntitiesCollection _entities;
 
@@ -13,7 +13,7 @@ namespace Common.Network
             _entities = entities;
         }
 
-        protected override void Execute(IReadOnlyLifetime lifetime, EntityContexts.DestroyUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionEntity.DestroyUpdate context)
         {
             var entity = _entities.Entries[context.EntityId];
             entity.DestroyRemote();

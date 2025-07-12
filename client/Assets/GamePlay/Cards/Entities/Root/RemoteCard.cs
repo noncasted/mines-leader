@@ -1,4 +1,5 @@
 ﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
 using Shared;
@@ -13,6 +14,7 @@ namespace GamePlay.Cards
             ILifetime containerLifetime,
             CardType type,
             CardTarget target,
+            ICardActionSync actionSync,
             IHand hand,
             ICardTransform transform, 
             ICardDefinition definition)
@@ -20,6 +22,7 @@ namespace GamePlay.Cards
             _entity = entity;
             _view = view;
             _containerLifetime = containerLifetime;
+            _actionSync = actionSync;
             Type = type;
             Target = target;
             Hand = hand;
@@ -31,14 +34,16 @@ namespace GamePlay.Cards
         private readonly INetworkEntity _entity;
         private readonly ICardView _view;
         private readonly ILifetime _containerLifetime;
+        private readonly ICardActionSync _actionSync;
 
+        public int EntityId => _entity.Id;
         public CardType Type { get; }
         public CardTarget Target { get; }
         public ICardDefinition Definition { get; }
         public IHand Hand { get; }
         public ICardTransform Transform { get; }
         public IReadOnlyLifetime Lifetime { get; }
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _entity.Lifetime.Listen(() =>
@@ -46,6 +51,11 @@ namespace GamePlay.Cards
                 _containerLifetime.Terminate();
                 _view.Destroy();
             });    
+        }
+        
+        public UniTask Use(IReadOnlyLifetime lifetime, ICardActionData data)
+        {
+            return _actionSync.Sync(lifetime, data);
         }
     }
 }

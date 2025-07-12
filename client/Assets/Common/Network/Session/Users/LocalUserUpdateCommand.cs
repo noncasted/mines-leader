@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class LocalUserUpdateCommand : NetworkCommand<UserContexts.LocalUpdate>
+    public class LocalUserUpdateCommand : OneWayCommand<SharedSessionPlayer.LocalUpdate>
     {
         public LocalUserUpdateCommand(
             INetworkUsersCollection users,
@@ -17,7 +17,7 @@ namespace Common.Network
         private readonly INetworkUsersCollection _users;
         private readonly INetworkSession _session;
 
-        protected override void Execute(IReadOnlyLifetime lifetime, UserContexts.LocalUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionPlayer.LocalUpdate context)
         {
             var user = new NetworkUser(context.Index, true, _session.Lifetime.Child(), _session.LocalUserId);
             _users.Add(user);

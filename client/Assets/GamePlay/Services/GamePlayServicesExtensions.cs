@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using Global.Backend;
+using Internal;
 
 namespace GamePlay.Services
 {
@@ -8,6 +9,10 @@ namespace GamePlay.Services
         {
             builder.Register<GameInput>()
                 .As<IGameInput>()
+                .As<IScopeSetup>();
+
+            builder.RegisterCommand<SnapshotReceiver>()
+                .As<ISnapshotReceiver>()
                 .As<IScopeSetup>();
 
             return builder;

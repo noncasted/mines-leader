@@ -11,20 +11,20 @@ namespace Common.Network
     public class NetworkEntityFactory : INetworkEntityFactory
     {
         public NetworkEntityFactory(
-            INetworkSocket socket,
+            INetworkConnection connection,
             INetworkEntitiesCollection entities,
             INetworkObjectsCollection objects,
             INetworkUsersCollection users,
             INetworkEntityIds ids)
         {
-            _socket = socket;
+            _connection = connection;
             _entities = entities;
             _objects = objects;
             _users = users;
             Ids = ids;
         }
 
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         private readonly INetworkEntitiesCollection _entities;
         private readonly INetworkObjectsCollection _objects;
         private readonly INetworkUsersCollection _users;
@@ -46,11 +46,11 @@ namespace Common.Network
 
         public async UniTask Send(IReadOnlyLifetime lifetime, INetworkEntity entity, IEntityPayload payload)
         {
-            var properties = new List<ObjectContexts.PropertyUpdate>();
+            var properties = new List<SharedSessionObject.PropertyUpdate>();
 
             foreach (var (id, property) in entity.Properties)
             {
-                properties.Add(new ObjectContexts.PropertyUpdate()
+                properties.Add(new SharedSessionObject.PropertyUpdate()
                 {
                     ObjectId = entity.Id,
                     PropertyId = id,
@@ -58,14 +58,14 @@ namespace Common.Network
                 });
             }
 
-            var request = new EntityContexts.CreateRequest()
+            var request = new SharedSessionEntity.CreateRequest()
             {
                 Id = entity.Id,
                 Properties = properties,
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            await _socket.SendFull<EntityContexts.CreateResponse>(request);
+            await _connection.Request<SharedSessionEntity.CreateResponse>(request);
 
             _objects.Add(entity);
             _entities.Add(entity);

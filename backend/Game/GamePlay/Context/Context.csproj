@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <AssemblyName>Game.GamePlay.Context</AssemblyName>
+        <RootNamespace>Game.GamePlay</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Domain\Domain.csproj" />
+        <ProjectReference Include="..\..\..\..\shared\Game\Game.csproj" />
+        <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\..\Session\Session.csproj" />
+        <ProjectReference Include="..\Board\Board.csproj" />
+        <ProjectReference Include="..\Players\Players.csproj" />
+    </ItemGroup>
+
+
+</Project>

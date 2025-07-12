@@ -1,8 +1,9 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Hosting;
+using Shared;
 
 namespace Backend.Gateway;
 
@@ -36,8 +37,8 @@ public class UserProjectionEntryPoint : BackgroundService
     private async Task OnConnected(IUserSession user)
     {
         var projection = _orleans.GetGrain<IUserProjection>(user.UserId);
-        await projection.OnConnected(_environment.ServiceId);
 
+        await projection.OnConnected(_environment.ServiceId);
         await projection.ForceNotify();
 
         user.Lifetime.Listen(() => projection.OnDisconnected().NoAwait());
@@ -49,6 +50,10 @@ public class UserProjectionEntryPoint : BackgroundService
             return;
         
         var context = payload.Value.ToContext();
-        user.Connection.Writer.WriteEmpty(context);
+
+        user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
+        {
+            Context = context
+        });
     }
 }

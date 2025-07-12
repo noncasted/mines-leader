@@ -26,20 +26,9 @@ namespace GamePlay.Boards
             _view.Enable(lifetime, this);
         }
 
-        public void SetMinesAround(int minesAround)
+        public void OnMinesUpdated(int minesAround)
         {
             _minesAround.Set(minesAround);
-        }
-
-        public void OnUpdate(NetworkCellFreeState payload)
-        {
-        }
-        
-        public INetworkCellState ToNetwork()
-        {
-            return new NetworkCellFreeState()
-            {
-            };
         }
     }
 }

@@ -21,5 +21,5 @@ public abstract class ResponseCommand<TContext, TResult> : IResponseCommand
         return result;
     }
 
-    protected abstract TResult Execute(IUser user, TContext context);
+    protected abstract TResult Execute(IUser user, TContext request);
 }

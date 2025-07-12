@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common.Network;
 using Internal;
+using Shared;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -11,6 +11,7 @@ namespace GamePlay.Boards
     public interface IBoard
     {
         IBoardConstructionData ConstructionDataData { get; }
+        IViewableProperty<BoardState> State { get; }
 
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }
@@ -18,8 +19,6 @@ namespace GamePlay.Boards
         IViewableDelegate Updated { get; }
 
         void Setup(INetworkEntity entity);
-        void InvokeExplosion(IBoardCell cell);
-        void InvokeUpdated();
     }
 
     public static class BoardExtensions
@@ -123,27 +122,7 @@ namespace GamePlay.Boards
             var bounds = board.GetBoardBounds();
             return new Vector2Int(Random.Range(0, bounds.x), Random.Range(0, bounds.y));
         }
-
-        public static bool HasMinesAround(this IBoard board, Vector2Int position)
-        {
-            var neighbours = board.NeighbourPositions(position);
-
-            foreach (var neighbour in neighbours)
-            {
-                var cell = board.Cells[neighbour];
-
-                if (cell.State.Value.Status != CellStatus.Taken)
-                    continue;
-
-                var taken = cell.EnsureTaken();
-
-                if (taken.HasMine.Value == true)
-                    return true;
-            }
-
-            return false;
-        }
-
+        
         public static bool IsInside(this IBoard board, Vector2 position)
         {
             var bounds = board.GetBoardWorldBounds();
@@ -169,52 +148,7 @@ namespace GamePlay.Boards
 
             return new Vector2Int(x, y);
         }
-
-        public static void CleanupAround(this IReadOnlyList<IBoardCell> cells)
-        {
-            var board = cells.First().Source;
-
-            var passed = new HashSet<Vector2Int>();
-
-            foreach (var cell in cells)
-                passed.Add(cell.BoardPosition);
-
-            foreach (var cell in cells)
-                Check(cell.BoardPosition);
-
-            foreach (var target in passed)
-            {
-                var cell = board.Cells[target];
-                cell.EnsureFree();
-            }
-
-            void Check(Vector2Int target)
-            {
-                var neighbours = board.NeighbourPositions(target);
-                neighbours.RemoveWhere(t => passed.Contains(t));
-                neighbours.RemoveWhere(t => board.Cells[t].State.Value.Status == CellStatus.Free);
-
-                foreach (var neighbour in neighbours)
-                {
-                    var cell = board.Cells[neighbour];
-
-                    if (cell.State.Value.Status != CellStatus.Taken)
-                        continue;
-
-                    var taken = cell.EnsureTaken();
-
-                    if (taken.HasMine.Value == true)
-                        return;
-                }
-
-                foreach (var neighbour in neighbours)
-                {
-                    passed.Add(neighbour);
-                    Check(neighbour);
-                }
-            }
-        }
-
+        
         public static IReadOnlyList<IBoardCell> GetClosedShape(this IBoard board, Vector2Int start)
         {
             if (start == new Vector2Int(-1, -1))

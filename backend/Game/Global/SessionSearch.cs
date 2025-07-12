@@ -1,4 +1,6 @@
-﻿namespace Game;
+﻿using Shared;
+
+namespace Game;
 
 public interface ISessionSearch
 {
@@ -7,7 +9,7 @@ public interface ISessionSearch
 
 public class SessionSearchParameters
 {
-    public required string Type { get; init; }
+    public required SessionType Type { get; init; }
 }
 
 public class SessionSearch : ISessionSearch

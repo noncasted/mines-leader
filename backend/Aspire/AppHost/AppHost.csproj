@@ -12,15 +12,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
-        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.1" />
+        <PackageReference Include="Aspire.Hosting.AppHost"/>
+        <PackageReference Include="Aspire.Hosting.PostgreSQL"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Backend\Gateway\BackendGateway\BackendGateway.csproj" />
-      <ProjectReference Include="..\..\Game\Gateway\GameGateway\GameGateway.csproj" />
-      <ProjectReference Include="..\..\Infrastructure\Orleans\Silo\Silo.csproj" />
-      <ProjectReference Include="..\..\Management\Web\Console\Console.csproj" />
-      <ProjectReference Include="..\Startup\Startup.csproj" />
+        <ProjectReference Include="..\..\Backend\Gateway\BackendGateway\BackendGateway.csproj"/>
+        <ProjectReference Include="..\..\Game\Gateway\GameGateway\GameGateway.csproj"/>
+        <ProjectReference Include="..\..\Infrastructure\Orleans\Silo\Silo.csproj"/>
+        <ProjectReference Include="..\..\Management\Web\Console\Console.csproj"/>
+        <ProjectReference Include="..\Startup\Startup.csproj"/>
     </ItemGroup>
 </Project>

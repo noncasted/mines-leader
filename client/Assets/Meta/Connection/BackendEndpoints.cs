@@ -7,11 +7,11 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
-        public static UniTask<BackendAuthContexts.Response> Auth(this IMetaBackend backend, string name)
+        public static UniTask<SharedBackendUserAuth.Response> Auth(this IMetaBackend backend, string name)
         {
-            return backend.Post<BackendAuthContexts.Response, BackendAuthContexts.Request>(
-                BackendAuthContexts.Endpoint,
-                new BackendAuthContexts.Request()
+            return backend.Post<SharedBackendUserAuth.Response, SharedBackendUserAuth.Request>(
+                SharedBackendUserAuth.Endpoint,
+                new SharedBackendUserAuth.Request()
                 {
                     Name = name
                 });
@@ -19,35 +19,35 @@ namespace Meta
 
         public static UniTask SearchGame(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new MatchmakingContexts.Search()
+            return backend.ExecuteCommand(new SharedMatchmaking.Search()
             {
-                Type = MatchmakingConstants.GameType
+                Type = SessionType.Game
             });
         }
 
         public static UniTask CancelSearch(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new MatchmakingContexts.CancelSearch());
+            return backend.ExecuteCommand(new SharedMatchmaking.CancelSearch());
         }
 
         public static UniTask CreateGame(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new MatchmakingContexts.Create());
+            return backend.ExecuteCommand(new SharedMatchmaking.Create());
         }
 
         public static UniTask SearchLobby(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new MatchmakingContexts.Search()
+            return backend.ExecuteCommand(new SharedMatchmaking.Search()
             {
-                Type = MatchmakingConstants.LobbyType
+                Type = SessionType.Lobby
             });
         }
 
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)
             where TRequest : INetworkContext
         {
-            var response = await backend.Socket.Sender.SendFull<EmptyResponse>(request);
-            
+            var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(request);
+
             if (response.HasError == true)
                 Debug.LogError($"Request {typeof(TRequest).Name} executed with error");
         }

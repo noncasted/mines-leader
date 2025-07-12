@@ -52,5 +52,10 @@ namespace Internal
             EditorUtility.SetDirty(this);
 #endif
         }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
+        }
     }
 }

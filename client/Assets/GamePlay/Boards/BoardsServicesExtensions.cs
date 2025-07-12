@@ -12,18 +12,9 @@ namespace GamePlay.Boards
             builder.Register<CellOpenAction>()
                 .As<ICellOpenAction>();
 
-            builder.Register<BoardGenerator>()
-                .As<IBoardGenerator>();
-            
-            builder.Register<BoardRevealer>()
-                .As<IBoardRevealer>();
-
-            builder.Register<BoardMines>()
-                .As<IBoardMines>();
-
             builder.Register<CellsSelection>()
                 .As<ICellsSelection>();
-            
+
             return builder;
         }
     }

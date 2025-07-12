@@ -1,4 +1,4 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
@@ -42,7 +42,7 @@ public class MatchFactory : IMatchFactory
 
         var request = new MatchPayloads.Create.Request
         {
-            Type = MatchmakingConstants.GameType,
+            Type = SessionType.Game,
             ExpectedUsers = participants.Count,
         };
 

@@ -1,4 +1,4 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Shared;
 
 namespace Backend.Matches;
@@ -12,7 +12,7 @@ public class LobbySearchResultUpdate : IProjectionPayload
 
     public INetworkContext ToContext()
     {
-        return new MatchmakingContexts.LobbyResult()
+        return new SharedMatchmaking.LobbyResult()
         {
             SessionId = SessionId,
             ServerUrl = ServerUrl

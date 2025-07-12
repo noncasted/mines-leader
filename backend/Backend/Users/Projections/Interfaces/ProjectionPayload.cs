@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Messaging;
 
-namespace Backend.Users.Projections;
+namespace Backend.Users;
 
 [GenerateSerializer]
 public class ProjectionPayloadValue : IClusterMessage

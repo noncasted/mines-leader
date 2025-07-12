@@ -261,6 +261,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 12336629}
+  _shakeInterval: 0.05
 --- !u!1 &64700776
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,13 +11,13 @@ public static class IdentityEndpoints
 {
     public static IEndpointRouteBuilder AddIdentityEndpoints(this IEndpointRouteBuilder builder)
     {
-        builder.MapPost(BackendAuthContexts.Endpoint, DevelopSignUp);
+        builder.MapPost(SharedBackendUserAuth.Endpoint, DevelopSignUp);
 
         return builder;
     }
 
-    private static async Task<BackendAuthContexts.Response> DevelopSignUp(
-        [FromBody] BackendAuthContexts.Request request,
+    private static async Task<SharedBackendUserAuth.Response> DevelopSignUp(
+        [FromBody] SharedBackendUserAuth.Request request,
         [FromServices] IUserFactory factory,
         [FromServices] ILogger<IUserFactory> logger)
     {
@@ -32,7 +32,7 @@ public static class IdentityEndpoints
  
         logger.LogInformation("[User] Develop sign up is completed with id {Id}", id);
         
-        return new BackendAuthContexts.Response
+        return new SharedBackendUserAuth.Response
         {
             Id = id
         };

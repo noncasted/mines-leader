@@ -1,4 +1,4 @@
-﻿using Backend.Users.Projections;
+﻿using Backend.Users;
 using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
@@ -35,7 +35,7 @@ public class LobbyFactory : ILobbyFactory
 
         var request = new MatchPayloads.GetOrCreate.Request()
         {
-            Type = MatchmakingConstants.LobbyType,
+            Type = SessionType.Lobby,
         };
 
         var response = await _messaging.Send<MatchPayloads.GetOrCreate.Response>(targetServer.ClientId, request);

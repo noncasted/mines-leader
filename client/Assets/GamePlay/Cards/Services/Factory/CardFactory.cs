@@ -85,11 +85,11 @@ namespace GamePlay.Cards
 
                 builder.RegisterInstance(_gameContext.Self);
                 builder.RegisterInstance(_gameContext.Self.Hand);
-                builder.RegisterInstance(_gameContext.Self.Stash);
 
                 builder.Register<HandEntryHandle>()
                     .As<IHandEntryHandle>();
 
+                builder.AddCardActionSync(definition);
                 builder.AddCardAction(definition);
 
                 builder.RegisterInstance(definition);
@@ -121,6 +121,8 @@ namespace GamePlay.Cards
                     .AddCardRemoteRoot()
                     .AddCardRemoteStates();
 
+                builder.AddCardActionSync(definition);
+
                 builder.RegisterInstance(definition.Type);
                 builder.RegisterInstance(definition.Target);
                 builder.RegisterInstance(gamePlayer);
@@ -129,8 +131,6 @@ namespace GamePlay.Cards
                 builder.Register<HandEntryHandle>()
                     .WithParameter(gamePlayer.Hand)
                     .As<IHandEntryHandle>();
-
-                builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition);
             }

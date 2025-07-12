@@ -6,17 +6,24 @@ using GamePlay.Loop;
 using GamePlay.Services;
 using Global.Systems;
 using Internal;
+using UnityEngine;
 
 namespace GamePlay.Cards
 {
+    public class CardDropResult
+    {
+        public bool IsSuccess { get; set; }
+        public Vector2Int Position { get; set; }
+    }
+
     public interface ICardDropArea
     {
-        UniTask<IReadOnlyList<IBoardCell>> Show(
+        UniTask<CardDropResult> Show(
             IReadOnlyLifetime stateLifetime,
             IReadOnlyLifetime selectionLifetime,
             ICardDropPattern pattern);
     }
-    
+
     public class CardDropArea : ICardDropArea
     {
         public CardDropArea(
@@ -36,12 +43,13 @@ namespace GamePlay.Cards
         private readonly IGameContext _gameContext;
         private readonly ICardContext _context;
 
-        public async UniTask<IReadOnlyList<IBoardCell>> Show(
+        public async UniTask<CardDropResult> Show(
             IReadOnlyLifetime stateLifetime,
             IReadOnlyLifetime selectionLifetime,
             ICardDropPattern pattern)
         {
-            IReadOnlyList<IBoardCell> previousData = null;
+            IReadOnlyList<IBoardCell> selected = null;
+            var position = Vector2Int.zero;
 
             await _updater.RunUpdateAction(
                 stateLifetime,
@@ -53,16 +61,16 @@ namespace GamePlay.Cards
                     if (board == null || _context.TargetBoard != board)
                     {
                         DeselectAll();
-                        previousData = null;
+                        selected = null;
                         return;
                     }
 
-                    var boardPosition = board.WorldToBoardPosition(_input.World);
-                    var dropData = pattern.GetDropData(boardPosition);
+                    position = board.WorldToBoardPosition(_input.World);
+                    var dropData = pattern.GetDropData(position);
 
-                    if (previousData != null)
+                    if (selected != null)
                     {
-                        foreach (var cell in previousData)
+                        foreach (var cell in selected)
                         {
                             if (dropData.Contains(cell) == false)
                                 cell.Selection.Deselect();
@@ -71,16 +79,24 @@ namespace GamePlay.Cards
 
                     foreach (var cell in dropData)
                     {
-                        if (previousData == null || previousData.Contains(cell) == false)
+                        if (selected == null || selected.Contains(cell) == false)
                             cell.Selection.Select();
                     }
 
-                    previousData = dropData;
-                });
+                    selected = dropData;
+                }
+            );
 
             DeselectAll();
 
-            return previousData;
+            if (selected == null || selected.Count == 0)
+                return new CardDropResult() { IsSuccess = false };
+
+            return new CardDropResult()
+            {
+                IsSuccess = true,
+                Position = position
+            };
 
             IBoard GetSelectedBoard()
             {
@@ -99,10 +115,10 @@ namespace GamePlay.Cards
 
             void DeselectAll()
             {
-                if (previousData == null)
+                if (selected == null)
                     return;
 
-                foreach (var cell in previousData)
+                foreach (var cell in selected)
                     cell.Selection.Deselect();
             }
         }

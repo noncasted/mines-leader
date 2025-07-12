@@ -4,10 +4,11 @@ namespace Common.Network
 {
     public static class NetworkEntitiesExtensions
     {
-        public static IEntityBuilder RegisterProperty<T>(this IEntityBuilder builder) where T : new()
+        public static IEntityBuilder RegisterProperty<T>(this IEntityBuilder builder, int id = 0) where T : new()
         {
-            var id = typeof(T).FullName!.GetHashCode();
-            
+            if (id == 0)
+                id = typeof(T).FullName!.GetHashCode();
+
             builder.Register<NetworkProperty<T>>()
                 .WithParameter(id)
                 .As<INetworkProperty<T>>()

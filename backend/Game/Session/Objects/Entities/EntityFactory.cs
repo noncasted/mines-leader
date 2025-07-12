@@ -4,30 +4,48 @@ namespace Game;
 
 public interface IEntityFactory
 {
-    IEntity Create(EntityContexts.CreateRequest request, IUser user);
+    EntityBuilder Create(IUser owner);
+    IEntity Create(SharedSessionEntity.CreateRequest request, IUser owner);
 }
 
 public class EntityFactory : IEntityFactory
 {
-    public EntityFactory(ISessionEntities collection, ISessionObjects objects)
+    public EntityFactory(
+        ISessionUsers users,
+        ISessionEntities entities,
+        ISessionObjects objects,
+        IPropertyUpdateSender propertyUpdateSender)
     {
-        _collection = collection;
+        _users = users;
+        _entities = entities;
         _objects = objects;
+        _propertyUpdateSender = propertyUpdateSender;
     }
 
-    private readonly ISessionEntities _collection;
+    private readonly ISessionUsers _users;
+    private readonly ISessionEntities _entities;
     private readonly ISessionObjects _objects;
+    private readonly IPropertyUpdateSender _propertyUpdateSender;
 
-    public IEntity Create(EntityContexts.CreateRequest request, IUser user)
+    public EntityBuilder Create(IUser owner)
+    {
+        return new EntityBuilder(_users, _entities, _objects, _propertyUpdateSender, owner);
+    }
+
+    public IEntity Create(SharedSessionEntity.CreateRequest request, IUser owner)
     {
         var properties = new Dictionary<int, IObjectProperty>();
 
-        foreach (var property in request.Properties)
-            properties.Add(property.PropertyId, new ObjectProperty(property.PropertyId, property.Value));
+        foreach (var propertyRequest in request.Properties)
+        {
+            var property = new ObjectProperty(propertyRequest.PropertyId, propertyRequest.Value);
+            property.Construct(_propertyUpdateSender, request.Id);
+            properties.Add(propertyRequest.PropertyId, property);
+        }
 
-        var entity = new Entity(user, properties, request.Id, request.Payload);
+        var entity = new Entity(owner, properties, request.Id, request.Payload);
 
-        _collection.Add(entity);
+        _entities.Add(entity);
         _objects.Add(entity);
 
         return entity;

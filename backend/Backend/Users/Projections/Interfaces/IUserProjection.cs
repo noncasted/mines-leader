@@ -1,6 +1,6 @@
 ﻿using Orleans.Concurrency;
 
-namespace Backend.Users.Projections;
+namespace Backend.Users;
 
 public interface IUserProjection : IGrainWithGuidKey
 {

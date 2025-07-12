@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
 using Shared;
 
@@ -17,8 +16,8 @@ namespace Meta
     {
         public Matchmaking(
             IMetaBackend backend,
-            IBackendProjection<MatchmakingContexts.GameResult> gameResultProjection,
-            IBackendProjection<MatchmakingContexts.LobbyResult> lobbyResultProjection)
+            IBackendProjection<SharedMatchmaking.GameResult> gameResultProjection,
+            IBackendProjection<SharedMatchmaking.LobbyResult> lobbyResultProjection)
         {
             _backend = backend;
             _gameResultProjection = gameResultProjection;
@@ -26,8 +25,8 @@ namespace Meta
         }
 
         private readonly IMetaBackend _backend;
-        private readonly IBackendProjection<MatchmakingContexts.GameResult> _gameResultProjection;
-        private readonly IBackendProjection<MatchmakingContexts.LobbyResult> _lobbyResultProjection;
+        private readonly IBackendProjection<SharedMatchmaking .GameResult> _gameResultProjection;
+        private readonly IBackendProjection<SharedMatchmaking .LobbyResult> _lobbyResultProjection;
 
         public async UniTask<SessionData> SearchGame(IReadOnlyLifetime lifetime)
         {

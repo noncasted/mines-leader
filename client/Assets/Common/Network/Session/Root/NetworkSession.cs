@@ -18,7 +18,7 @@ namespace Common.Network
         public NetworkSession(
             INetworkSessionCallbacks callbacks,
             INetworkUsersCollection users,
-            INetworkConnection connection)
+            ISessionConnection connection)
         {
             _callbacks = callbacks;
             _connection = connection;
@@ -26,7 +26,7 @@ namespace Common.Network
         }
 
         private readonly INetworkSessionCallbacks _callbacks;
-        private readonly INetworkConnection _connection;
+        private readonly ISessionConnection _connection;
 
         private ILifetime _lifetime;
         private Guid _userId;

@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace GamePlay.Boards
         [SerializeField] private CellAnimator _animator;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
+        private INetworkConnection _connection;
 
         public Vector2Int BoardPosition => _boardPosition;
         public Vector2 WorldPosition => transform.position;
@@ -36,10 +38,11 @@ namespace GamePlay.Boards
             _board = board;
         }
 
-        public void Setup(IUpdater updater)
+        public void Setup(IUpdater updater, INetworkConnection connection)
         {
+            _connection = connection;
             _animator.Construct(updater);
-            var taken = new CellTakenState(this, _takenView);
+            var taken = new CellTakenState(this, _takenView, _connection);
             _state.Set(taken);
             taken.Construct(_state.ValueLifetime);
         }
@@ -48,7 +51,7 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellTakenState)
             {
-                var taken = new CellTakenState(this, _takenView);
+                var taken = new CellTakenState(this, _takenView, _connection);
                 _state.Set(taken);
                 taken.Construct(_state.ValueLifetime);
             }
@@ -73,28 +76,11 @@ namespace GamePlay.Boards
             if (_state.Value is not CellTakenState state)
                 throw new Exception("Cell is not taken, cannot explode.");
 
-            if (state.HasMine.Value == false)
-                throw new Exception("Cell does not have a mine to explode.");
-
             state.View.OnExplosion();
             
             EnsureFree();
 
             return _animator.PlayExplosion(this.GetObjectLifetime(), type);
-        }
-
-        public void UpdateState(INetworkCellState networkState)
-        {
-            switch (networkState)
-            {
-                case NetworkCellFreeState free:
-                    ((CellFreeState)EnsureFree()).OnUpdate(free);
-                    break;
-
-                case NetworkCellTakenState taken:
-                    ((CellTakenState)EnsureTaken()).OnUpdate(taken);
-                    break;
-            }
         }
 
         public override string ToString()

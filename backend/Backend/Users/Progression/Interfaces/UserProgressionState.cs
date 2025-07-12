@@ -1,8 +1,9 @@
-﻿using Backend.Users.Projections;
+﻿using Common;
 using Shared;
 
 namespace Backend.Users;
 
+[Alias(States.User_Progression)]
 [GenerateSerializer]
 public class UserProgressionState : IProjectionPayload
 {
@@ -23,7 +24,7 @@ public class UserProgressionState : IProjectionPayload
         return total;
     }
 
-    public INetworkContext ToContext() => new BackendUserContexts.ProgressionProjection()
+    public INetworkContext ToContext() => new SharedBackendUser.ProgressionProjection()
     {
         Experience = CalculateTotal()
     };

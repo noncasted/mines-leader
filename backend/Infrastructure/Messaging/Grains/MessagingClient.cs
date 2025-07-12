@@ -117,17 +117,26 @@ public class MessagingClient : IOrleansLoopStage, IMessagingClient
         _asyncActions[type] = callback;
 
         lifetime.Listen(() =>
-        {
-            if (_asyncActions[type] != callback)
-                return;
+            {
+                if (_asyncActions[type] != callback)
+                    return;
 
-            _asyncActions.Remove(type);
-        });
+                _asyncActions.Remove(type);
+            }
+        );
 
         async Task<IClusterMessage> Listener(IClusterMessage payload)
         {
-            var result = await listener.Invoke((TRequest)payload);
-            return result;
+            try
+            {
+                var result = await listener.Invoke((TRequest)payload);
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[Messaging] Error in listener for {MessageType}", type.Name);
+                throw;
+            }
         }
     }
 

@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <AssemblyName>Backend.Users.Projections.Grains</AssemblyName>
-        <RootNamespace>Backend.Users.Projections</RootNamespace>
+        <RootNamespace>Backend.Users</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.0-preview3" />
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.0-preview3" />
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
     </ItemGroup>
 
     <ItemGroup>

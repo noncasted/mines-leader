@@ -4,8 +4,8 @@ namespace Game;
 
 public interface ICommandsCollection
 {
-    IReadOnlyDictionary<Type, ICommand> EmptyCommands { get; }
-    IReadOnlyDictionary<Type, IResponseCommand> FullCommands { get; }
+    IReadOnlyDictionary<Type, ICommand> OneWay { get; }
+    IReadOnlyDictionary<Type, IResponseCommand> Responsible { get; }
 }
 
 public class CommandsCollection : ICommandsCollection
@@ -19,6 +19,6 @@ public class CommandsCollection : ICommandsCollection
     private readonly FrozenDictionary<Type, ICommand> _commands;
     private readonly FrozenDictionary<Type, IResponseCommand> _responseCommands;
 
-    public IReadOnlyDictionary<Type, ICommand> EmptyCommands => _commands;
-    public IReadOnlyDictionary<Type, IResponseCommand> FullCommands => _responseCommands;
+    public IReadOnlyDictionary<Type, ICommand> OneWay => _commands;
+    public IReadOnlyDictionary<Type, IResponseCommand> Responsible => _responseCommands;
 }

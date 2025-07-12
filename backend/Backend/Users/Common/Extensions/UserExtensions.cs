@@ -1,6 +1,4 @@
-﻿using Backend.Users.Projections;
-
-namespace Backend.Users;
+﻿namespace Backend.Users;
 
 public static class UserExtensions
 {

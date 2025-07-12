@@ -72,7 +72,7 @@ namespace Common.Network
         public RemoteEntityData(
             INetworkUser owner,
             int id,
-            IReadOnlyList<ObjectContexts.PropertyUpdate> rawProperties,
+            IReadOnlyList<SharedSessionObject.PropertyUpdate> rawProperties,
             byte[] payload)
         {
             Owner = owner;
@@ -83,7 +83,7 @@ namespace Common.Network
 
         public INetworkUser Owner { get; }
         public int Id { get; }
-        public IReadOnlyList<ObjectContexts.PropertyUpdate> RawProperties { get; }
+        public IReadOnlyList<SharedSessionObject.PropertyUpdate> RawProperties { get; }
         public byte[] Payload { get; }
 
         public T ReadPayload<T>() where T : IEntityPayload, new()

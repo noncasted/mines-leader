@@ -1,4 +1,5 @@
-﻿using Common.Animations;
+﻿using System;
+using Common.Animations;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
@@ -37,7 +38,7 @@ namespace GamePlay.Boards
             {
                 CellExplosionType.ZipZap => _zipZapExplosion,
                 CellExplosionType.Mine => _mineExplosion,
-                _ => throw new System.ArgumentOutOfRangeException(nameof(type), type, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
             gameObject.SetActive(true);

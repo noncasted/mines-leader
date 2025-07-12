@@ -5,7 +5,7 @@ namespace Backend.Matches;
 
 public class MatchmakingCommands
 {
-    public class Search : UserCommand<MatchmakingContexts.Search>
+    public class Search : UserCommand<SharedMatchmaking.Search>
     {
         public Search(IMatchmaking matchmaking)
         {
@@ -14,13 +14,13 @@ public class MatchmakingCommands
 
         private readonly IMatchmaking _matchmaking;
 
-        protected override Task<INetworkContext> Execute(IUserSession session, MatchmakingContexts.Search request)
+        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.Search request)
         {
             return _matchmaking.Search(session.UserId, request.Type).FromResult();
         }
     }
 
-    public class CancelSearch : UserCommand<MatchmakingContexts.CancelSearch>
+    public class CancelSearch : UserCommand<SharedMatchmaking.CancelSearch>
     {
         public CancelSearch(IMatchmaking matchmaking)
         {
@@ -31,13 +31,13 @@ public class MatchmakingCommands
 
         protected override Task<INetworkContext> Execute(
             IUserSession session,
-            MatchmakingContexts.CancelSearch request)
+            SharedMatchmaking.CancelSearch request)
         {
             return _matchmaking.CancelSearch(session.UserId).FromResult();
         }
     }
 
-    public class Create : UserCommand<MatchmakingContexts.Create>
+    public class Create : UserCommand<SharedMatchmaking.Create>
     {
         public Create(IMatchmaking matchmaking)
         {
@@ -46,7 +46,7 @@ public class MatchmakingCommands
 
         private readonly IMatchmaking _matchmaking;
 
-        protected override Task<INetworkContext> Execute(IUserSession session, MatchmakingContexts.Create request)
+        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.Create request)
         {
             return _matchmaking.Create(session.UserId).FromResult();
         }

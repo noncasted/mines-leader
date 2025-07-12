@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityEventCommand : NetworkCommand<ObjectContexts.Event>
+    public class EntityEventCommand : OneWayCommand<SharedSessionObject.Event>
     {
         public EntityEventCommand(INetworkObjectsCollection objects)
         {
@@ -13,7 +13,7 @@ namespace Common.Network
 
         private readonly INetworkObjectsCollection _objects;
 
-        protected override void Execute(IReadOnlyLifetime lifetime, ObjectContexts.Event context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionObject.Event context)
         {
             var networkObject = _objects.Entries[context.ObjectId];
             networkObject.Events.Invoke(context.Value);

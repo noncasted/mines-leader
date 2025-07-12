@@ -37,17 +37,13 @@ namespace GamePlay.Boards
             return cell.State.Value.Status == CellStatus.Free;
         }
         
-        public static bool HasMine(this IBoardCell cell)
+        public static bool HasFlag(this IBoardCell cell)
         {
             if (cell.State.Value.Status == CellStatus.Free)
                 return false;
             
             var state = cell.EnsureTaken();
-            
-            if (state.HasMine.Value == true)
-                return true;
-            
-            return false;
+            return state.IsFlagged.Value;
         }
     }
 }

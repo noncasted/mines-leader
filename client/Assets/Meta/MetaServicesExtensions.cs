@@ -35,17 +35,17 @@ namespace Meta
 
             builder.RegisterAsset<CharacterAvatars>();
 
-            builder.AddNetworkSocket();
-            
-            builder.Register<BackendProjectionHub>()
-                .WithAsset<BackendOptions>()
-                .As<IBackendProjectionHub>();
+            builder.AddNetworkConnection();
+
+            builder.RegisterCommand<BackendProjectionHub>();
 
             builder
-                .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
-                .RegisterBackendProjection<BackendUserContexts.DeckProjection>()
-                .RegisterBackendProjection<MatchmakingContexts.GameResult>()
-                .RegisterBackendProjection<MatchmakingContexts.LobbyResult>();
+                .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
+                .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
+                .RegisterBackendProjection<SharedMatchmaking
+.GameResult>()
+                .RegisterBackendProjection<SharedMatchmaking
+.LobbyResult>();
             
             return builder;
         }

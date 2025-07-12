@@ -20,6 +20,7 @@ namespace Meta
 
         public async UniTask<Guid> Execute()
         {
+            Debug.Log("[Meta] Authenticating user...");
             var response = await _backend.Auth("HUESOS");
             PlayerPrefs.SetString("userId", response.Id.ToString());
             return response.Id;

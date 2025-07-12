@@ -1,0 +1,18 @@
+{
+    "name": "Shared.Session",
+    "rootNamespace": "Shared",
+    "references": [
+        "GUID:756335c0388f7114790e504ed368ae1d",
+        "GUID:c2edb18ec908981489f9d149a4d5e757",
+        "GUID:9205a3a455c63fd42ac574445565d3fa"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

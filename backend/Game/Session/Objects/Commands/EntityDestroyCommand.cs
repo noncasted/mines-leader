@@ -2,7 +2,7 @@
 
 namespace Game;
 
-public class EntityDestroyCommand : Command<EntityContexts.Destroy>
+public class EntityDestroyCommand : Command<SharedSessionEntity.Destroy>
 {
     public EntityDestroyCommand(ISessionEntities entities, ISessionUsers users)
     {
@@ -13,12 +13,12 @@ public class EntityDestroyCommand : Command<EntityContexts.Destroy>
     private readonly ISessionEntities _entities;
     private readonly ISessionUsers _users;
 
-    protected override void Execute(IUser user, EntityContexts.Destroy context)
+    protected override void Execute(IUser user, SharedSessionEntity.Destroy context)
     {
         var entity = _entities.Entries[context.EntityId];
         entity.Destroy();
 
-        var update = new EntityContexts.DestroyUpdate()
+        var update = new SharedSessionEntity.DestroyUpdate()
         {
             EntityId = context.EntityId
         };

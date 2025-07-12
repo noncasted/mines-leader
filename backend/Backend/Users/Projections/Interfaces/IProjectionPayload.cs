@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Backend.Users.Projections;
+namespace Backend.Users;
 
 public interface IProjectionPayload 
 {

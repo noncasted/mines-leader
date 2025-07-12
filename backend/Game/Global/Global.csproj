@@ -6,6 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\Domain\Domain.csproj" />
+        <ProjectReference Include="..\GamePlay\Board\Board.csproj" />
+        <ProjectReference Include="..\GamePlay\Cards\Cards.csproj" />
+        <ProjectReference Include="..\GamePlay\Commands\Commands.csproj" />
+        <ProjectReference Include="..\GamePlay\Context\Context.csproj" />
+        <ProjectReference Include="..\GamePlay\Players\Players.csproj" />
         <ProjectReference Include="..\Session\Session.csproj"/>
     </ItemGroup>
 

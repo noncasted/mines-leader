@@ -2,14 +2,14 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Boards
 {
     public interface IBoardFactory
     {
-        UniTask CreateLocal(PlayerBuildContext context);
-        UniTask CreateRemote(PlayerBuildContext context);
+        UniTask Create(PlayerBuildContext context);
     }
     
     [DisallowMultipleComponent]
@@ -18,26 +18,12 @@ namespace GamePlay.Boards
         [SerializeField] private Board _prefab;
         [SerializeField] private Transform _parent;
         
-        public UniTask CreateLocal(PlayerBuildContext context)
+        public UniTask Create(PlayerBuildContext context)
         {
             var board = Instantiate(_prefab, _parent);
             board.transform.localPosition = Vector3.zero;
 
-            context.Builder.RegisterProperty<NetworkBoardCellsState>();
-            
-            context.Builder.RegisterComponent(board)
-                .As<IBoard>()
-                .As<IScopeSetup>();
-
-            return UniTask.CompletedTask;
-        }
-        
-        public UniTask CreateRemote(PlayerBuildContext context)
-        {
-            var board = Instantiate(_prefab, _parent);
-            board.transform.localPosition = Vector3.zero;
-            
-            context.Builder.RegisterProperty<NetworkBoardCellsState>();
+            context.Builder.RegisterProperty<BoardState>(PlayerStateIds.Board);
 
             context.Builder.RegisterComponent(board)
                 .As<IBoard>()

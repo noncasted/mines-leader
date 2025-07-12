@@ -1,6 +1,7 @@
 <linker>
 
     <assembly fullname="ADF-RBG.Mulligan" preserve="all" />
+    <assembly fullname="BuildReportTool" preserve="all" />
     <assembly fullname="Common" preserve="all" />
     <assembly fullname="endel.nativewebsocket" preserve="all" />
     <assembly fullname="ForceFour" preserve="all" />
@@ -8,7 +9,6 @@
     <assembly fullname="Global" preserve="all" />
     <assembly fullname="Internal" preserve="all" />
     <assembly fullname="Loop" preserve="all" />
-    <assembly fullname="mcs" preserve="all" />
     <assembly fullname="MemoryPack.Core" preserve="all" />
     <assembly fullname="MemoryPack.Generator" preserve="all" />
     <assembly fullname="Menu" preserve="all" />
@@ -16,15 +16,6 @@
     <assembly fullname="MPUIKit" preserve="all" />
     <assembly fullname="NaughtyAttributes.Core" preserve="all" />
     <assembly fullname="projectCloner" preserve="all" />
-    <assembly fullname="QFSW.QC" preserve="all" />
-    <assembly fullname="QFSW.QC.Extras" preserve="all" />
-    <assembly fullname="QFSW.QC.Grammar" preserve="all" />
-    <assembly fullname="QFSW.QC.Parsers" preserve="all" />
-    <assembly fullname="QFSW.QC.QGUI" preserve="all" />
-    <assembly fullname="QFSW.QC.ScanRules" preserve="all" />
-    <assembly fullname="QFSW.QC.Serializers" preserve="all" />
-    <assembly fullname="QFSW.QC.Suggestors" preserve="all" />
-    <assembly fullname="QFSW.QC.UI" preserve="all" />
     <assembly fullname="Sirenix.OdinInspector.Attributes" preserve="all" />
     <assembly fullname="Sirenix.OdinInspector.Modules.Unity.Addressables" preserve="all" />
     <assembly fullname="Sirenix.OdinInspector.Modules.UnityMathematics" preserve="all" />

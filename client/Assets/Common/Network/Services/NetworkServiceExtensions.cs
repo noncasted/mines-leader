@@ -59,7 +59,7 @@ namespace Common.Network
                     propertyId = _propertiesIndex;
                 }
 
-                var property = new NetworkProperty<T>(_id);
+                var property = new NetworkProperty<T>(propertyId);
                 Registration.WithParameter(property);
                 _properties.Add(propertyId, property);
 
@@ -71,20 +71,20 @@ namespace Common.Network
         {
             public NetworkServiceResolver(
                 INetworkObjectsCollection objectsCollection,
-                INetworkSocket socket,
+                INetworkConnection connection,
                 IReadOnlyDictionary<int, INetworkProperty> properties,
                 T service,
                 string key)
             {
                 _objectsCollection = objectsCollection;
-                _socket = socket;
+                _connection = connection;
                 _properties = properties;
                 _service = service;
                 _key = key;
             }
 
             private readonly INetworkObjectsCollection _objectsCollection;
-            private readonly INetworkSocket _socket;
+            private readonly INetworkConnection _connection;
             private readonly IReadOnlyDictionary<int, INetworkProperty> _properties;
             private readonly T _service;
             private readonly string _key;
@@ -93,13 +93,13 @@ namespace Common.Network
             {
                 var propertiesIds = _properties.Select(x => x.Key).ToList();
 
-                var request = new ServiceContexts.GetRequest()
+                var request = new SharedSessionService.GetRequest()
                 {
                     Key = _key,
                     PropertiesIds = propertiesIds
                 };
 
-                var response = await _socket.SendFull<ServiceContexts.GetResponse>(request);
+                var response = await _connection.Request<SharedSessionService.GetResponse>(request);
 
                 for (var index = 0; index < response.Properties.Count; index++)
                 {
@@ -110,7 +110,7 @@ namespace Common.Network
                         targetProperty.Update(receivedProperty.Value);
                 }
 
-                var events = new NetworkEvents(_socket, _service);
+                var events = new NetworkEvents(_connection, _service);
 
                 var data = new NetworkServiceData(
                     response.Id,
