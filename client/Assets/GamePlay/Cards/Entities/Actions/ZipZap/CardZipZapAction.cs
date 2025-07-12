@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Players;
+using GamePlay.Services;
 using Internal;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace GamePlay.Cards
     public class CardZipZapAction : ICardAction
     {
         public CardZipZapAction(
+            IGameCamera camera,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
@@ -20,6 +22,7 @@ namespace GamePlay.Cards
             ICardUseSync useSync,
             ZipZapOptions options)
         {
+            _camera = camera;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
@@ -29,6 +32,7 @@ namespace GamePlay.Cards
             _useSync = useSync;
         }
 
+        private readonly IGameCamera _camera;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
@@ -73,6 +77,7 @@ namespace GamePlay.Cards
             _useSync.Send(new CardUseEvents.ZipZap(targets.Select(t => t.BoardPosition).ToList()));
 
             targets.First().Explode(CellExplosionType.ZipZap).Forget();
+            _camera.BaseShake();
             var lines = new List<ZipZapLine>();
 
             for (var index = 1; index < targets.Count; index++)
@@ -83,6 +88,7 @@ namespace GamePlay.Cards
                 var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
                 await line.Show(lifetime, start, target);
                 target.Explode(CellExplosionType.ZipZap).Forget();
+                _camera.BaseShake();
                 lines.Add(line);
             }
 
@@ -140,15 +146,18 @@ namespace GamePlay.Cards
     public class CardZipZapActionSync : ICardActionSync
     {
         public CardZipZapActionSync(
+            IGameCamera camera,
             IGameContext gameContext,
             ICardVfxFactory vfxFactory,
             ZipZapOptions options)
         {
+            _camera = camera;
             _gameContext = gameContext;
             _vfxFactory = vfxFactory;
             _options = options;
         }
 
+        private readonly IGameCamera _camera;
         private readonly IGameContext _gameContext;
         private readonly ICardVfxFactory _vfxFactory;
         private readonly ZipZapOptions _options;
@@ -164,6 +173,8 @@ namespace GamePlay.Cards
                 .ToList();
 
             targets.First().Explode(CellExplosionType.ZipZap).Forget();
+            _camera.BaseShake();
+
             var lines = new List<ZipZapLine>();
 
             for (var index = 1; index < targets.Count; index++)
@@ -174,6 +185,7 @@ namespace GamePlay.Cards
                 var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
                 await line.Show(lifetime, start, target);
                 target.Explode(CellExplosionType.ZipZap).Forget();
+                _camera.BaseShake();
                 lines.Add(line);
             }
 
