@@ -10,7 +10,7 @@ namespace Meta
     {
         IUser User { get; }
         IBackendClient Client { get; }
-        INetworkSocket Socket { get; }
+        INetworkConnection Connection { get; }
         IReadOnlyLifetime Lifetime { get; }
 
         UniTask Connect(IReadOnlyLifetime lifetime);
@@ -20,37 +20,37 @@ namespace Meta
     {
         public MetaBackend(
             IUser user,
-            NetworkSocket socket,
+            NetworkConnection connection,
             IBackendClient client,
             IReadOnlyLifetime lifetime,
             BackendOptions options)
         {
             
             _options = options;
-            _socket = socket;
+            _connection = connection;
             User = user;
             Client = client;
             Lifetime = lifetime;
         }
 
         private readonly BackendOptions _options;
-        private readonly NetworkSocket _socket;
+        private readonly NetworkConnection _connection;
 
         public IUser User { get; }
         public IBackendClient Client { get; }
-        public INetworkSocket Socket => _socket;
+        public INetworkConnection Connection => _connection;
         public IReadOnlyLifetime Lifetime { get; }
 
         public async UniTask Connect(IReadOnlyLifetime lifetime)
         {
-            await _socket.Run(lifetime, _options.SocketUrl);
+            await _connection.Run(lifetime, _options.SocketUrl);
 
             var authRequest = new BackendConnectionAuth.Request()
             {
                 UserId = User.Id
             };
             
-            var authResponse = await _socket.SendFull<BackendConnectionAuth.Response>(authRequest);
+            var authResponse = await _connection.SendFull<BackendConnectionAuth.Response>(authRequest);
 
             if (authResponse.IsSuccess == false)
                 Debug.LogError($"[Projection] Failed to authenticate");

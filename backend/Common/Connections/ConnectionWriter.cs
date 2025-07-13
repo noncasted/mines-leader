@@ -9,8 +9,10 @@ namespace Common;
 public interface IConnectionWriter
 {
     Task Run(IReadOnlyLifetime lifetime);
-    ValueTask WriteEmpty(INetworkContext context);
-    ValueTask WriteFull(INetworkContext context, int requestId);
+    ValueTask WriteOneWay(INetworkContext context);
+    Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext;
+    ValueTask WriteResponse(INetworkContext context, int requestId);
+    void OnRequestHandled(INetworkContext context, int requestId);
 }
 
 public class ConnectionWriter : IConnectionWriter
@@ -24,6 +26,8 @@ public class ConnectionWriter : IConnectionWriter
     private readonly WebSocket _webSocket;
     private readonly ILogger _logger;
 
+    private readonly Dictionary<int, TaskCompletionSource<INetworkContext?>> _pendingRequests = new();
+
     private readonly Channel<IMessageFromServer> _queue = Channel.CreateBounded<IMessageFromServer>(
         new BoundedChannelOptions(10)
         {
@@ -32,6 +36,8 @@ public class ConnectionWriter : IConnectionWriter
             FullMode = BoundedChannelFullMode.Wait,
             AllowSynchronousContinuations = false
         });
+
+    private int _requestId = 1_000_000;
 
     public async Task Run(IReadOnlyLifetime lifetime)
     {
@@ -49,7 +55,10 @@ public class ConnectionWriter : IConnectionWriter
             while (reader.TryRead(out var message) == true)
             {
                 if (IsAlive() == false)
+                {
+                    TryHandleRequestFail();
                     break;
+                }
 
                 try
                 {
@@ -61,7 +70,22 @@ public class ConnectionWriter : IConnectionWriter
                 }
                 catch (Exception e)
                 {
+                    TryHandleRequestFail();
                     _logger.LogError(e, "Error while sending message: {Message}", message.GetType().FullName);
+                }
+
+                void TryHandleRequestFail()
+                {
+                    if (message is not RequestMessageFromServer requestMessage)
+                        return;
+
+                    var requestId = requestMessage.RequestId;
+
+                    if (_pendingRequests.TryGetValue(requestId, out var completion))
+                    {
+                        completion.SetResult(null);
+                        _pendingRequests.Remove(requestId);
+                    }
                 }
             }
         }
@@ -75,7 +99,7 @@ public class ConnectionWriter : IConnectionWriter
         }
     }
 
-    public ValueTask WriteEmpty(INetworkContext context)
+    public ValueTask WriteOneWay(INetworkContext context)
     {
         var response = new OneWayMessageFromServer()
         {
@@ -85,7 +109,26 @@ public class ConnectionWriter : IConnectionWriter
         return _queue.Writer.WriteAsync(response);
     }
 
-    public ValueTask WriteFull(INetworkContext context, int requestId)
+    public async Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext
+    {
+        var response = new RequestMessageFromServer()
+        {
+            Context = context,
+            RequestId = _requestId
+        };
+
+        _requestId++;
+
+        var completion = new TaskCompletionSource<INetworkContext?>();
+        _pendingRequests[response.RequestId] = completion;
+
+        await _queue.Writer.WriteAsync(response);
+
+        var result = await completion.Task;
+        return result;
+    }
+
+    public ValueTask WriteResponse(INetworkContext context, int requestId)
     {
         var response = new ResponseMessageFromServer()
         {
@@ -94,5 +137,18 @@ public class ConnectionWriter : IConnectionWriter
         };
 
         return _queue.Writer.WriteAsync(response);
+    }
+
+    public void OnRequestHandled(INetworkContext context, int requestId)
+    {
+        if (_pendingRequests.TryGetValue(requestId, out var completion))
+        {
+            completion.SetResult(context);
+            _pendingRequests.Remove(requestId);
+        }
+        else
+        {
+            _logger.LogWarning("Response created for unknown request ID: {RequestId}", requestId);
+        }
     }
 }

@@ -11,20 +11,20 @@ namespace Common.Network
     public class NetworkEntityFactory : INetworkEntityFactory
     {
         public NetworkEntityFactory(
-            INetworkSocket socket,
+            INetworkConnection connection,
             INetworkEntitiesCollection entities,
             INetworkObjectsCollection objects,
             INetworkUsersCollection users,
             INetworkEntityIds ids)
         {
-            _socket = socket;
+            _connection = connection;
             _entities = entities;
             _objects = objects;
             _users = users;
             Ids = ids;
         }
 
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         private readonly INetworkEntitiesCollection _entities;
         private readonly INetworkObjectsCollection _objects;
         private readonly INetworkUsersCollection _users;
@@ -65,7 +65,7 @@ namespace Common.Network
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            await _socket.SendFull<EntityContexts.CreateResponse>(request);
+            await _connection.SendFull<EntityContexts.CreateResponse>(request);
 
             _objects.Add(entity);
             _entities.Add(entity);

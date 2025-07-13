@@ -1,21 +1,28 @@
-﻿namespace Common;
+﻿using Shared;
+
+namespace Common;
 
 public interface IConnectionPing
 {
-    Task<bool> Execute(IReadOnlyLifetime lifetime);
+    Task<bool> Execute();
 }
 
 public class ConnectionPing : IConnectionPing
 {
-    public ConnectionPing(IConnection connection)
+    public ConnectionPing(IConnectionWriter writer)
     {
-        _connection = connection;
+        _writer = writer;
     }
     
-    private readonly IConnection _connection;
+    private readonly IConnectionWriter _writer;
 
-    public Task<bool> Execute(IReadOnlyLifetime lifetime)
+    public async Task<bool> Execute()
     {
-           
+        var result = await _writer.WriteRequest<PingContext.Response>(PingContext.DefaultRequest);
+
+        if (result == null)
+            return false;
+
+        return true;
     }
 }

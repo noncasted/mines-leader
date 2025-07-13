@@ -55,8 +55,8 @@ namespace Common.Network
             {
                 builder.AddNetworkSocket();
                 
-                builder.Register<NetworkConnection>()
-                    .As<INetworkConnection>();
+                builder.Register<SessionConnection>()
+                    .As<ISessionConnection>();
 
                 builder.Register<NetworkSession>()
                     .As<INetworkSession>();

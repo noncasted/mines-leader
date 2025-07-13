@@ -5,34 +5,34 @@ using Shared;
 
 namespace Global.Backend
 {
-    public interface INetworkSocket
+    public interface INetworkConnection
     {
         IReadOnlyLifetime Lifetime { get; }
 
-        ISocketReceiver Receiver { get; }
-        ISocketSender Sender { get; }
+        INetworkReader Receiver { get; }
+        INetworkWriter Sender { get; }
 
         UniTask Run(IReadOnlyLifetime lifetime, string url);
     }
 
-    public class NetworkSocket : INetworkSocket
+    public class NetworkConnection : INetworkConnection
     {
-        public NetworkSocket()
+        public NetworkConnection()
         {
-            _receiver = new SocketReceiver();
-            _sender = new SocketSender(Receiver);
+            _receiver = new NetworkReader();
+            _sender = new NetworkWriter(Receiver);
         }
 
         private WebSocket _webSocket;
 
-        private readonly SocketReceiver _receiver;
-        private readonly SocketSender _sender;
+        private readonly NetworkReader _receiver;
+        private readonly NetworkWriter _sender;
 
         private IReadOnlyLifetime _lifetime;
 
         public IReadOnlyLifetime Lifetime => _lifetime;
-        public ISocketReceiver Receiver => _receiver;
-        public ISocketSender Sender => _sender;
+        public INetworkReader Receiver => _receiver;
+        public INetworkWriter Sender => _sender;
 
         public async UniTask Run(IReadOnlyLifetime lifetime, string url)
         {
@@ -51,26 +51,26 @@ namespace Global.Backend
     {
         public static IScopeBuilder AddNetworkSocket(this IScopeBuilder builder)
         {
-            builder.Register<NetworkSocket>()
-                .As<INetworkSocket>()
+            builder.Register<NetworkConnection>()
+                .As<INetworkConnection>()
                 .AsSelf();
             
             return builder;
         }
 
-        public static UniTask Send(this INetworkSocket socket, INetworkContext value)
+        public static UniTask Send(this INetworkConnection connection, INetworkContext value)
         {
-            return socket.Sender.Send(value);
+            return connection.Sender.Send(value);
         }
 
-        public static UniTask<T> SendFull<T>(this INetworkSocket socket, INetworkContext commandContext)
+        public static UniTask<T> SendFull<T>(this INetworkConnection connection, INetworkContext commandContext)
         {
-            return socket.Sender.SendFull<T>(commandContext);
+            return connection.Sender.SendFull<T>(commandContext);
         }
 
-        public static UniTask ForceSendAll(this INetworkSocket socket)
+        public static UniTask ForceSendAll(this INetworkConnection connection)
         {
-            return socket.Sender.ForceSendAll();
+            return connection.Sender.ForceSendAll();
         }
     }
 }

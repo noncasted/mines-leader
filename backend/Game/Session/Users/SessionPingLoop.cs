@@ -1,18 +1,22 @@
 ﻿using Common;
-using ServiceLoop;
 
-namespace Backend.Gateway;
+namespace Game;
 
-public class UserConnectionPingLoop : ISetupLoopStage
+public interface ISessionPingLoop
 {
-    public UserConnectionPingLoop(IConnectedUsers users)
+    Task Run(IReadOnlyLifetime lifetime);
+}
+
+public class SessionPingLoop : ISessionPingLoop
+{
+    public SessionPingLoop(ISessionUsers users)
     {
         _users = users;
     }
 
-    private readonly IConnectedUsers _users;
+    private readonly ISessionUsers _users;
 
-    public Task OnSetupStage(IReadOnlyLifetime lifetime)
+    public Task Run(IReadOnlyLifetime lifetime)
     {
         Loop(lifetime).NoAwait();
         return Task.CompletedTask;
@@ -22,14 +26,14 @@ public class UserConnectionPingLoop : ISetupLoopStage
     {
         while (lifetime.IsTerminated == false)
         {
-            foreach (var (_, session) in _users.Entries)
+            foreach (var user in _users)
             {
-                var isAlive = await session.Connection.Ping.Execute();
+                var isAlive = await user.Connection.Ping.Execute();
                 
                 if (isAlive == true)
                     continue;
                 
-                session.Connection.OnPingFailed();
+                user.Connection.OnPingFailed();
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);

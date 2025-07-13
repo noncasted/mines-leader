@@ -7,22 +7,22 @@ using Shared;
 
 namespace Global.Backend
 {
-    public interface ISocketSender
+    public interface INetworkWriter
     {
         UniTask Send(INetworkContext value);
         UniTask<T> SendFull<T>(INetworkContext commandContext);
         UniTask ForceSendAll();
     }
 
-    public class SocketSender : ISocketSender
+    public class NetworkWriter : INetworkWriter
     {
-        public SocketSender(ISocketReceiver receiver)
+        public NetworkWriter(INetworkReader receiver)
         {
             _receiver = receiver;
         }
 
         private WebSocket _webSocket;
-        private readonly ISocketReceiver _receiver;
+        private readonly INetworkReader _receiver;
         private readonly Dictionary<int, UniTaskCompletionSource<INetworkContext>> _pending = new();
 
         private int _requestCounter;

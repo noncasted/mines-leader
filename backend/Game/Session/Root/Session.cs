@@ -71,6 +71,9 @@ public class Session : ISession
 
         _users.View(Lifetime, HandleUserJoin);
 
+        var pingLoop = new SessionPingLoop(_users);
+        pingLoop.Run(Lifetime).NoAwait();
+        
         await Task.Delay(TimeSpan.FromSeconds(30));
 
         await AwaitUsersLeave();
@@ -95,7 +98,7 @@ public class Session : ISession
 
     private void HandleUserJoin(IUser user)
     {
-        user.Writer.Run(user.Lifetime).NoAwait();
+        user.Connection.Writer.Run(user.Lifetime).NoAwait();
 
         user.Send(new UserContexts.LocalUpdate()
         {
@@ -126,7 +129,7 @@ public class Session : ISession
 
         async Task HandleLifecycle()
         {
-            await user.Reader.Run(user.Lifetime);
+            await user.Connection.Reader.Run(user.Lifetime);
             HandleDisconnect(user);
             ExecutionQueue.Enqueue(user.Lifetime.Terminate);
         }

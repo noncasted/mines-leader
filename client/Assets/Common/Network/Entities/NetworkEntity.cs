@@ -17,7 +17,7 @@ namespace Common.Network
     public class NetworkEntity : INetworkEntity
     {
         public NetworkEntity(
-            INetworkSocket socket,
+            INetworkConnection connection,
             INetworkEntityDestroyer destroyer,
             INetworkUser owner,
             int id,
@@ -27,7 +27,7 @@ namespace Common.Network
             Id = id;
             Owner = owner;
             _lifetime = owner.Lifetime.Child();
-            Events = new NetworkEvents(socket, this);
+            Events = new NetworkEvents(connection, this);
 
             Properties = properties.Value.ToDictionary(t => t.Id);
         }

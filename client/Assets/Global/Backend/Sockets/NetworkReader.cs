@@ -6,13 +6,13 @@ using Shared;
 
 namespace Global.Backend
 {
-    public interface ISocketReceiver
+    public interface INetworkReader
     {
         IViewableDelegate<OneWayMessageFromServer> Empty { get; }
         IViewableDelegate<ResponseMessageFromServer> Full { get; }
     }
 
-    public class SocketReceiver : ISocketReceiver
+    public class NetworkReader : INetworkReader
     {
         private WebSocket _webSocket;
 

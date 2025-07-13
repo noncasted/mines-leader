@@ -6,8 +6,10 @@ namespace Common;
 
 public interface IConnectionReader
 {
-    IViewableDelegate<IMessageFromClient> Received { get; }
-    
+    IViewableDelegate<OneWayMessageFromClient> OneWay { get; }
+    IViewableDelegate<RequestMessageFromClient> Requests { get; }
+    IViewableDelegate<ResponseMessageFromClient> Responses { get; }
+
     Task Run(IReadOnlyLifetime lifetime);
 }
 
@@ -19,9 +21,14 @@ public class ConnectionReader : IConnectionReader
     }
 
     private readonly WebSocket _webSocket;
-    private readonly ViewableDelegate<IMessageFromClient> _received = new();
 
-    public IViewableDelegate<IMessageFromClient> Received => _received;
+    private readonly ViewableDelegate<OneWayMessageFromClient> _oneWay = new();
+    private readonly ViewableDelegate<RequestMessageFromClient> _requests = new();
+    private readonly ViewableDelegate<ResponseMessageFromClient> _responses = new();
+
+    public IViewableDelegate<OneWayMessageFromClient> OneWay => _oneWay;
+    public IViewableDelegate<RequestMessageFromClient> Requests => _requests;
+    public IViewableDelegate<ResponseMessageFromClient> Responses => _responses;
 
     public async Task Run(IReadOnlyLifetime lifetime)
     {
@@ -49,7 +56,20 @@ public class ConnectionReader : IConnectionReader
             var payload = buffer[..receiveResult.Count];
             var context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
 
-            _received.Invoke(context);
+            switch (context)
+            {
+                case OneWayMessageFromClient oneWay:
+                    _oneWay.Invoke(oneWay);
+                    break;
+                case RequestMessageFromClient request:
+                    _requests.Invoke(request);
+                    break;
+                case ResponseMessageFromClient response:
+                    _responses.Invoke(response);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

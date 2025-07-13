@@ -33,18 +33,16 @@ public class UserFactory : IUserFactory
         var index = _users.GetNextIndex();
         var lifetime = parentLifetime.Child();
 
-        var writer = new ConnectionWriter(webSocket, _logger);
-        var reader = new ConnectionReader(webSocket);
         var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
+        var connection = new Connection(webSocket, parentLifetime, _logger);
 
         var user = new User
         {
             Id = userId,
             Index = index,
             Lifetime = lifetime,
-            Reader = reader,
-            Writer = writer,
-            Dispatcher = dispatcher
+            Dispatcher = dispatcher,
+            Connection = connection
         };
 
         _users.AddUser(user);

@@ -21,32 +21,35 @@ public class CommandDispatcher : ICommandDispatcher
 
     public void Run(IReadOnlyLifetime lifetime, IUser user)
     {
-        user.Reader.Received.Advise(lifetime, request =>
+        var reader = user.Connection.Reader;
+        var writer = user.Connection.Writer;
+
+        reader.OneWay.Advise(lifetime, HandleOneWay);
+        reader.Requests.Advise(lifetime, request => HandleRequest(request));
+        reader.Responses.Advise(lifetime, HandleResponse);
+
+        void HandleOneWay(OneWayMessageFromClient oneWay)
         {
-            switch (request)
+            _executionQueue.Enqueue(() =>
             {
-                case OneWayMessageFromClient empty:
-                {
-                    _executionQueue.Enqueue(() =>
-                    {
-                        var type = empty.Context.GetType();
-                        _commands.EmptyCommands[type].Execute(user, empty.Context);
-                    });
+                var type = oneWay.Context.GetType();
+                _commands.OneWay[type].Execute(user, oneWay.Context);
+            });
+        }
 
-                    break;
-                }
-                case ResponsibleMessageFromClient full:
-                {
-                    _executionQueue.Enqueue(() =>
-                    {
-                        var type = full.Context.GetType();
-                        var result = _commands.FullCommands[type].Execute(user, full.Context);
-                        user.Send(result, full.RequestId);
-                    });
+        void HandleRequest(RequestMessageFromClient request)
+        {
+            _executionQueue.Enqueue(() =>
+            {
+                var type = request.Context.GetType();
+                var result = _commands.Responsible[type].Execute(user, request.Context);
+                writer.WriteResponse(result, request.RequestId);
+            });
+        }
 
-                    break;
-                }
-            }
-        });
+        void HandleResponse(ResponseMessageFromClient response)
+        {
+            writer.OnRequestHandled(response.Context, response.RequestId);
+        }
     }
 }

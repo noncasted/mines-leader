@@ -11,12 +11,12 @@ namespace Common.Network
 
     public class NetworkEntityDestroyer : INetworkEntityDestroyer
     {
-        public NetworkEntityDestroyer(INetworkSocket socket)
+        public NetworkEntityDestroyer(INetworkConnection connection)
         {
-            _socket = socket;
+            _connection = connection;
         }
 
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         
         public async UniTask Destroy(INetworkEntity entity)
         {
@@ -25,7 +25,7 @@ namespace Common.Network
                 EntityId = entity.Id
             };
             
-            await _socket.Send(context);
+            await _connection.Send(context);
         }
     }
 }

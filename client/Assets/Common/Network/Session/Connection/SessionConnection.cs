@@ -7,22 +7,22 @@ using UnityEngine;
 
 namespace Common.Network
 {
-    public interface INetworkConnection
+    public interface ISessionConnection
     {
         UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
     }
 
-    public class NetworkConnection : INetworkConnection
+    public class SessionConnection : ISessionConnection
     {
-        public NetworkConnection(
-            INetworkSocket socket,
+        public SessionConnection(
+            INetworkConnection connection,
             INetworkCommandsDispatcher commandsDispatcher)
         {
-            _socket = socket;
+            _connection = connection;
             _commandsDispatcher = commandsDispatcher;
         }
 
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         private readonly INetworkCommandsDispatcher _commandsDispatcher;
 
         public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
@@ -35,9 +35,9 @@ namespace Common.Network
 
             Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
 
-            await _socket.Run(lifetime, serverUrl);
+            await _connection.Run(lifetime, serverUrl);
 
-            var response = await _socket.SendFull<GameConnectionAuth.Response>(auth);
+            var response = await _connection.SendFull<GameConnectionAuth.Response>(auth);
 
             if (response.IsSuccess == false)
             {

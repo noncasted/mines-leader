@@ -23,10 +23,10 @@ public class ConnectionOneTimeHandle : IDisposable
         var payload = _readBuffer[..rawAuth.Count];
         var request = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
 
-        if (request is not ResponsibleMessageFromClient full)
+        if (request is not RequestMessageFromClient full)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {request.GetType().Name}, expected: {nameof(ResponsibleMessageFromClient)}");
+                $"Invalid request type: {request.GetType().Name}, expected: {nameof(RequestMessageFromClient)}");
         }
 
         if (full.Context is not T typedContext)

@@ -49,6 +49,6 @@ public class UserProjectionEntryPoint : BackgroundService
             return;
         
         var context = payload.Value.ToContext();
-        user.Connection.Writer.WriteEmpty(context);
+        user.Connection.Writer.WriteOneWay(context);
     }
 }

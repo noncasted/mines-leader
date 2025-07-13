@@ -28,7 +28,7 @@ namespace Meta
 
         public UniTask Start(IReadOnlyLifetime lifetime)
         {
-            _backend.Socket.Receiver.Empty.Advise(lifetime, OnUpdate);
+            _backend.Connection.Receiver.Empty.Advise(lifetime, OnUpdate);
             return UniTask.CompletedTask;
         }
 

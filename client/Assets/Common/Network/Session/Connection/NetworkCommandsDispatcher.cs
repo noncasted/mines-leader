@@ -15,18 +15,18 @@ namespace Common.Network
     {
         public NetworkCommandsDispatcher(
             INetworkCommandsCollection commands,
-            INetworkSocket socket)
+            INetworkConnection connection)
         {
             _commands = commands;
-            _socket = socket;
+            _connection = connection;
         }
 
         private readonly INetworkCommandsCollection _commands;
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
 
         public async UniTask Run(IReadOnlyLifetime lifetime)
         {
-            _socket.Receiver.Empty.Advise(lifetime, response =>
+            _connection.Receiver.Empty.Advise(lifetime, response =>
             {
                 var context = response.Context;
                 var commands = _commands.Get(context);

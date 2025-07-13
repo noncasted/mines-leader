@@ -10,16 +10,16 @@ namespace Common.Network
     public class NetworkPropertiesCollector : IUpdatable, IScopeSetup
     {
         public NetworkPropertiesCollector(
-            INetworkSocket socket,
+            INetworkConnection connection,
             IUpdater updater,
             INetworkObjectsCollection objects)
         {
-            _socket = socket;
+            _connection = connection;
             _updater = updater;
             _objects = objects;
         }
 
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         private readonly IUpdater _updater;
         private readonly INetworkObjectsCollection _objects;
 
@@ -64,7 +64,7 @@ namespace Common.Network
         private async UniTask Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
         {
             foreach (var request in requests)
-                await _socket.Send(request);
+                await _connection.Send(request);
         }
     }
 }
