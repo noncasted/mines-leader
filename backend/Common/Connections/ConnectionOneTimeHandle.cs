@@ -21,21 +21,23 @@ public class ConnectionOneTimeHandle : IDisposable
     {
         var rawAuth = await _socket.ReceiveAsync(_readBuffer, CancellationToken.None);
         var payload = _readBuffer[..rawAuth.Count];
-        var request = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
+        var message = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
 
-        if (request is not ResponsibleMessageFromClient full)
+        if (message is not RequestMessageFromClient request)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {request.GetType().Name}, expected: {nameof(ResponsibleMessageFromClient)}");
+                $"Invalid request type: {message.GetType().Name}, expected: {nameof(RequestMessageFromClient)}");
         }
 
-        if (full.Context is not T typedContext)
+        if (request.Context is not T context)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {full.Context.GetType().Name}, expected: {typeof(T).Name}");
+                $"Invalid request type: {request.Context.GetType().Name}, expected: {typeof(T).Name}");
         }
 
-        return typedContext;
+        _requestId = request.RequestId;
+
+        return context;
     }
 
     public async Task SendResponse<T>(T context) where T : INetworkContext
@@ -43,7 +45,7 @@ public class ConnectionOneTimeHandle : IDisposable
         var response = new ResponseMessageFromServer()
         {
             Context = context,
-            RequestId = _requestId++
+            RequestId = _requestId
         };
          
         await MemoryPackSerializer.SerializeAsync<IMessageFromServer>(_writeBuffer, response);

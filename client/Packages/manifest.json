@@ -2,8 +2,8 @@
   "dependencies": {
     "com.cysharp.memorypack": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/MemoryPack.Unity",
     "com.shared.protocol": "file:P:/noncasted/mines-leader/shared/Protocol",
-    "com.unity.addressables": "2.4.6",
-    "com.unity.burst": "1.8.21",
+    "com.unity.addressables": "2.6.0",
+    "com.unity.burst": "1.8.23",
     "com.unity.collections": "2.5.7",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.36",

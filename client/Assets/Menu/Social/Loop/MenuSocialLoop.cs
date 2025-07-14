@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
+using UnityEngine;
 
 namespace Menu.Social
 {
@@ -31,7 +32,10 @@ namespace Menu.Social
 
         public async UniTask Start(IReadOnlyLifetime lifetime)
         {
+            Debug.Log("[Menu] [Social] Searching for lobby...");
             var lobby = await _matchmaking.SearchLobby(lifetime);
+
+            Debug.Log("[Menu] [Social] Lobby found");
             await _session.Start(lifetime, lobby.ServerUrl, lobby.SessionId, _user.Id);
 
             await _playerFactory.Create(lifetime);

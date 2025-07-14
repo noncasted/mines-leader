@@ -9,6 +9,7 @@ public interface IConnection
     IConnectionReader Reader { get; }
     IConnectionWriter Writer { get; }
 
+    Task Run();
     void OnPingFailed();
 }
 

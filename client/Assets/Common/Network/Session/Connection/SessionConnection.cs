@@ -7,23 +7,19 @@ using UnityEngine;
 
 namespace Common.Network
 {
-    public interface INetworkConnection
+    public interface ISessionConnection
     {
         UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
     }
 
-    public class NetworkConnection : INetworkConnection
+    public class SessionConnection : ISessionConnection
     {
-        public NetworkConnection(
-            INetworkSocket socket,
-            INetworkCommandsDispatcher commandsDispatcher)
+        public SessionConnection(INetworkConnection connection)
         {
-            _socket = socket;
-            _commandsDispatcher = commandsDispatcher;
+            _connection = connection;
         }
 
-        private readonly INetworkSocket _socket;
-        private readonly INetworkCommandsDispatcher _commandsDispatcher;
+        private readonly INetworkConnection _connection;
 
         public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
         {
@@ -35,17 +31,15 @@ namespace Common.Network
 
             Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
 
-            await _socket.Run(lifetime, serverUrl);
+            await _connection.Run(lifetime, serverUrl);
 
-            var response = await _socket.SendFull<GameConnectionAuth.Response>(auth);
+            var response = await _connection.Request<GameConnectionAuth.Response>(auth);
 
             if (response.IsSuccess == false)
             {
                 Debug.LogError($"Failed to authenticate user {userId} for session {sessionId}");
                 throw new Exception("Authentication failed");
             }
-
-            _commandsDispatcher.Run(lifetime).Forget();
         }
     }
 }

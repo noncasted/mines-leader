@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityCreatedCommand : NetworkCommand<EntityContexts.CreatedOverview>
+    public class EntityCreatedCommand : OneWayCommand<EntityContexts.CreatedOverview>
     {
         private readonly INetworkEntityFactory _factory;
         private readonly INetworkUsersCollection _users;

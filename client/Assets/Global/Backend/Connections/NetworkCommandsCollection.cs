@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Shared;
 
-namespace Common.Network
+namespace Global.Backend
 {
     public interface INetworkCommandsCollection
     {

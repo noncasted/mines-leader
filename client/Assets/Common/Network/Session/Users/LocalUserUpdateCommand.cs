@@ -1,9 +1,10 @@
-﻿using Internal;
+﻿using Global.Backend;
+using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class LocalUserUpdateCommand : NetworkCommand<UserContexts.LocalUpdate>
+    public class LocalUserUpdateCommand : OneWayCommand<UserContexts.LocalUpdate>
     {
         public LocalUserUpdateCommand(
             INetworkUsersCollection users,

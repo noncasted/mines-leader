@@ -24,12 +24,12 @@ namespace Common.Network
     
     public class NetworkEvents : INetworkEvents
     {
-        public NetworkEvents(INetworkSocket socket, INetworkObject networkObject)
+        public NetworkEvents(INetworkConnection connection, INetworkObject networkObject)
         {
-            _socket = socket;
+            _connection = connection;
             _object = networkObject;
         }
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
         private readonly INetworkObject _object;
 
         private readonly Dictionary<Type, object> _entries = new();
@@ -56,7 +56,7 @@ namespace Common.Network
 
         public void Send(IEventPayload rawPayload)
         {
-            _socket.Send(new ObjectContexts.Event()
+            _connection.OneWay(new ObjectContexts.Event()
             {
                 ObjectId = _object.Id,
                 Value = MemoryPackSerializer.Serialize(rawPayload)

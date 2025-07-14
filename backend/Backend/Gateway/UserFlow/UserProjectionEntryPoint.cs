@@ -3,6 +3,7 @@ using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Hosting;
+using Shared;
 
 namespace Backend.Gateway;
 
@@ -49,6 +50,10 @@ public class UserProjectionEntryPoint : BackgroundService
             return;
         
         var context = payload.Value.ToContext();
-        user.Connection.Writer.WriteEmpty(context);
+
+        user.Connection.Writer.WriteOneWay(new BackendProjectionContext()
+        {
+            Context = context
+        });
     }
 }

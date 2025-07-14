@@ -78,7 +78,7 @@ namespace GamePlay.Cards
                 CardType.Bloodhound => builder.Register<CardBloodhoundActionSync>(),
                 CardType.Bloodhound_Max => builder.Register<CardBloodhoundActionSync>(),
                 CardType.TrebuchetAimer => builder.Register<CardTrebuchetAimerActionSync>(),
-                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerAction>(),
+                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerActionSync>(),
                 CardType.ErosionDozer => builder.Register<CardErosionDozerActionSync>(),
                 CardType.ErosionDozer_Max => builder.Register<CardErosionDozerActionSync>(),
                 CardType.Gravedigger => builder.Register<CardGravediggerActionSync>(),

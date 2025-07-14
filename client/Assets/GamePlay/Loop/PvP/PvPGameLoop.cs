@@ -33,7 +33,7 @@ namespace GamePlay.Loop
             ICellOpenAction cellOpenAction,
             IBoardMines boardMines,
             IGameFlow gameFlow,
-            INetworkSocket socket)
+            INetworkConnection connection)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -48,7 +48,7 @@ namespace GamePlay.Loop
             _cellOpenAction = cellOpenAction;
             _boardMines = boardMines;
             _gameFlow = gameFlow;
-            _socket = socket;
+            _connection = connection;
         }
 
         private readonly IGlobalCamera _globalCamera;
@@ -64,7 +64,7 @@ namespace GamePlay.Loop
         private readonly ICellOpenAction _cellOpenAction;
         private readonly IBoardMines _boardMines;
         private readonly IGameFlow _gameFlow;
-        private readonly INetworkSocket _socket;
+        private readonly INetworkConnection _connection;
 
         public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
@@ -90,7 +90,7 @@ namespace GamePlay.Loop
             _globalCamera.Disable();
 
             await _gameFlow.Execute(lifetime);
-            await _socket.ForceSendAll();
+            await _connection.ForceSendAll();
         }
     }
 }

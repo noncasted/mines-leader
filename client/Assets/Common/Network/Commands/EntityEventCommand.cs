@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityEventCommand : NetworkCommand<ObjectContexts.Event>
+    public class EntityEventCommand : OneWayCommand<ObjectContexts.Event>
     {
         public EntityEventCommand(INetworkObjectsCollection objects)
         {

@@ -15,5 +15,15 @@ namespace GamePlay.Cards
             Queue.RemoveAt(0);
             return card;
         }
+
+        public void Add(CardType type)
+        {
+            Queue.Add(type);
+        }
+        
+        public void Add(IReadOnlyList<CardType> types)
+        {
+            Queue.AddRange(types);
+        }
     }
 }

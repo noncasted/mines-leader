@@ -30,11 +30,7 @@ namespace Common.Network
 
                 builder.Register<NetworkEntityFactory>()
                     .As<INetworkEntityFactory>();
-
-                builder.Register<NetworkCommandsCollection>()
-                    .AsSelfResolvable()
-                    .As<INetworkCommandsCollection>();
-
+                
                 builder.Register<NetworkPropertiesCollector>()
                     .As<IScopeSetup>();
 
@@ -53,19 +49,16 @@ namespace Common.Network
 
             void AddConnectionServices()
             {
-                builder.AddNetworkSocket();
+                builder.AddNetworkConnection();
                 
-                builder.Register<NetworkConnection>()
-                    .As<INetworkConnection>();
+                builder.Register<SessionConnection>()
+                    .As<ISessionConnection>();
 
                 builder.Register<NetworkSession>()
                     .As<INetworkSession>();
                 
                 builder.Register<NetworkSessionCallbacks>()
                     .As<INetworkSessionCallbacks>();
-
-                builder.Register<NetworkCommandsDispatcher>()
-                    .As<INetworkCommandsDispatcher>();
             }
 
             void AddUserServices()

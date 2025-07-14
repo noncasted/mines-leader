@@ -1,31 +1,30 @@
-﻿using Cysharp.Threading.Tasks;
-using Global.Backend;
+﻿using Global.Backend;
 using Shared;
 
 namespace Common.Network
 {
     public interface INetworkEntityDestroyer
     {
-        UniTask Destroy(INetworkEntity entity);
+        void Destroy(INetworkEntity entity);
     }
 
     public class NetworkEntityDestroyer : INetworkEntityDestroyer
     {
-        public NetworkEntityDestroyer(INetworkSocket socket)
+        public NetworkEntityDestroyer(INetworkConnection connection)
         {
-            _socket = socket;
+            _connection = connection;
         }
 
-        private readonly INetworkSocket _socket;
-        
-        public async UniTask Destroy(INetworkEntity entity)
+        private readonly INetworkConnection _connection;
+
+        public void Destroy(INetworkEntity entity)
         {
             var context = new EntityContexts.Destroy()
             {
                 EntityId = entity.Id
             };
-            
-            await _socket.Send(context);
+
+            _connection.OneWay(context);
         }
     }
 }

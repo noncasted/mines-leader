@@ -35,11 +35,9 @@ namespace Meta
 
             builder.RegisterAsset<CharacterAvatars>();
 
-            builder.AddNetworkSocket();
-            
-            builder.Register<BackendProjectionHub>()
-                .WithAsset<BackendOptions>()
-                .As<IBackendProjectionHub>();
+            builder.AddNetworkConnection();
+
+            builder.RegisterCommand<BackendProjectionHub>();
 
             builder
                 .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()

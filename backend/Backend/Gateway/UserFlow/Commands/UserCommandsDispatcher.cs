@@ -19,19 +19,29 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
 
     public void Run(IUserSession session)
     {
-        session.Connection.Reader.Received.Advise(session.Lifetime, request =>
+        var reader = session.Connection.Reader;
+        var writer = session.Connection.Writer;
+
+        reader.OneWay.Advise(session.Lifetime, oneWay => HandleOneWay(oneWay).NoAwait());
+        reader.Requests.Advise(session.Lifetime, request => HandleRequest(request).NoAwait());
+        reader.Responses.Advise(session.Lifetime, HandleResponse);
+
+        Task HandleOneWay(OneWayMessageFromClient oneWay)
         {
-            if (request is not ResponsibleMessageFromClient full)
-                throw new ArgumentException("Expected ServerFullRequest", nameof(request));
+            var type = oneWay.Context.GetType();
+            return _commands.Entries[type].Execute(session, oneWay.Context);
+        }
 
-            HandleCommand(full).NoAwait();
-        });
-
-        async Task HandleCommand(ResponsibleMessageFromClient request)
+        async Task HandleRequest(RequestMessageFromClient request)
         {
             var type = request.Context.GetType();
             var result = await _commands.Entries[type].Execute(session, request.Context);
-            await session.Connection.Writer.WriteFull(result, request.RequestId);
+            await writer.WriteResponse(result, request.RequestId);
+        }
+
+        void HandleResponse(ResponseMessageFromClient response)
+        {
+            writer.OnRequestHandled(response.Context, response.RequestId);
         }
     }
 }

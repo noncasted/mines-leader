@@ -69,7 +69,7 @@ public class Session : ISession
     {
         await AwaitUsersJoin();
 
-        _users.View(Lifetime, HandleUserJoin);
+        _users.View(Lifetime, user => HandleUserJoin(user).NoAwait());
 
         await Task.Delay(TimeSpan.FromSeconds(30));
 
@@ -93,9 +93,11 @@ public class Session : ISession
         }
     }
 
-    private void HandleUserJoin(IUser user)
+    private async Task HandleUserJoin(IUser user)
     {
-        user.Writer.Run(user.Lifetime).NoAwait();
+        user.Dispatcher.Run(user.Lifetime, user);
+
+        var connectionTask = user.Connection.Run();
 
         user.Send(new UserContexts.LocalUpdate()
         {
@@ -120,29 +122,19 @@ public class Session : ISession
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
 
-        user.Dispatcher.Run(user.Lifetime, user);
+        await connectionTask;
 
-        HandleLifecycle().NoAwait();
-
-        async Task HandleLifecycle()
+        foreach (var targetUser in _users)
         {
-            await user.Reader.Run(user.Lifetime);
-            HandleDisconnect(user);
-            ExecutionQueue.Enqueue(user.Lifetime.Terminate);
-        }
+            if (targetUser == user)
+                continue;
 
-        void HandleDisconnect(IUser sourceUser)
-        {
-            foreach (var targetUser in _users)
+            targetUser.Send(new UserContexts.RemoteDisconnect()
             {
-                if (targetUser == sourceUser)
-                    continue;
-
-                targetUser.Send(new UserContexts.RemoteDisconnect()
-                {
-                    Index = sourceUser.Index
-                });
-            }
+                Index = user.Index
+            });
         }
+        
+        user.Lifetime.Terminate();
     }
 }
