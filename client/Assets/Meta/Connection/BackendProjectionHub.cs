@@ -1,40 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
+using Global.Backend;
 using Internal;
 using Shared;
 using UnityEngine;
 
 namespace Meta
 {
-    public interface IBackendProjectionHub
+    public class BackendProjectionHub : OneWayCommand<BackendProjectionContext>
     {
-        UniTask Start(IReadOnlyLifetime lifetime);
-    }
-
-    public class BackendProjectionHub : IBackendProjectionHub
-    {
-        public BackendProjectionHub(
-            IMetaBackend backend,
-            IReadOnlyList<IBackendProjection> projections)
+        public BackendProjectionHub(IReadOnlyList<IBackendProjection> projections)
         {
             _projections = projections.ToDictionary(t => t.GetValueType());
-            _backend = backend;
         }
 
-        private readonly IMetaBackend _backend;
         private readonly Dictionary<Type, IBackendProjection> _projections;
 
-        public UniTask Start(IReadOnlyLifetime lifetime)
+        protected override void Execute(IReadOnlyLifetime lifetime, BackendProjectionContext context)
         {
-            _backend.Connection.Receiver.Empty.Advise(lifetime, OnUpdate);
-            return UniTask.CompletedTask;
-        }
-
-        private void OnUpdate(OneWayMessageFromServer response)
-        {
-            var type = response.Context.GetType();
+            var projectionContext = context.Context;
+            var type = projectionContext.GetType();
 
             if (_projections.TryGetValue(type, out var projection) == false)
             {
@@ -42,7 +28,7 @@ namespace Meta
                 return;
             }
 
-            projection.OnReceived(response.Context);
+            projection.OnReceived(projectionContext);
         }
     }
 }

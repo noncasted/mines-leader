@@ -9,8 +9,6 @@ public interface IConnectionReader
     IViewableDelegate<OneWayMessageFromClient> OneWay { get; }
     IViewableDelegate<RequestMessageFromClient> Requests { get; }
     IViewableDelegate<ResponseMessageFromClient> Responses { get; }
-
-    Task Run(IReadOnlyLifetime lifetime);
 }
 
 public class ConnectionReader : IConnectionReader

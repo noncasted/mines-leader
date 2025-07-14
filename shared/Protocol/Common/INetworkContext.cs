@@ -11,7 +11,8 @@ namespace Shared
     [MemoryPackUnion(1001, typeof(BackendUserContexts.ProgressionProjection))]
     [MemoryPackUnion(1002, typeof(BackendUserContexts.DeckProjection))]
     [MemoryPackUnion(1003, typeof(BackendUserContexts.UpdateDeckRequest))]
-
+    [MemoryPackUnion(1004, typeof(BackendProjectionContext))]
+    
     [MemoryPackUnion(2000, typeof(MatchmakingContexts.Search))]
     [MemoryPackUnion(2001, typeof(MatchmakingContexts.CancelSearch))]
     [MemoryPackUnion(2002, typeof(MatchmakingContexts.Create))]

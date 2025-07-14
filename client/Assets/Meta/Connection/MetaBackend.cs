@@ -50,7 +50,7 @@ namespace Meta
                 UserId = User.Id
             };
             
-            var authResponse = await _connection.SendFull<BackendConnectionAuth.Response>(authRequest);
+            var authResponse = await _connection.Request<BackendConnectionAuth.Response>(authRequest);
 
             if (authResponse.IsSuccess == false)
                 Debug.LogError($"[Projection] Failed to authenticate");

@@ -28,12 +28,18 @@ public class SessionPingLoop : ISessionPingLoop
         {
             foreach (var user in _users)
             {
-                var isAlive = await user.Connection.Ping.Execute();
+                try
+                {
+                    var isAlive = await user.Connection.Ping.Execute();
                 
-                if (isAlive == true)
-                    continue;
+                    if (isAlive == true)
+                        continue;
                 
-                user.Connection.OnPingFailed();
+                    user.Connection.OnPingFailed();
+                }
+                catch (Exception e)
+                {
+                }
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);

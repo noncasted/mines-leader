@@ -10,6 +10,7 @@ public interface IConnection
     IConnectionWriter Writer { get; }
     IConnectionPing Ping { get; }
 
+    Task Run();
     void OnPingFailed();
 }
 

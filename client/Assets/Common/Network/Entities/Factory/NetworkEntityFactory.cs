@@ -65,7 +65,7 @@ namespace Common.Network
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            await _connection.SendFull<EntityContexts.CreateResponse>(request);
+            await _connection.Request<EntityContexts.CreateResponse>(request);
 
             _objects.Add(entity);
             _entities.Add(entity);

@@ -6,9 +6,13 @@ using Shared;
 
 namespace Common;
 
+/// <summary>
+/// Backend: WriteOneWay -> Client
+/// Backend: WriteRequest -> Client: WriteResponse -> Backend: OnRequestHandled
+/// Client: WriteRequest -> Backend: WriteResponse -> Client: OnRequestHandled
+/// </summary>
 public interface IConnectionWriter
 {
-    Task Run(IReadOnlyLifetime lifetime);
     ValueTask WriteOneWay(INetworkContext context);
     Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext;
     ValueTask WriteResponse(INetworkContext context, int requestId);

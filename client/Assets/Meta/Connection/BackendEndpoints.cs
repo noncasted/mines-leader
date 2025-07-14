@@ -46,7 +46,7 @@ namespace Meta
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)
             where TRequest : INetworkContext
         {
-            var response = await backend.Connection.Sender.SendFull<EmptyResponse>(request);
+            var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(request);
             
             if (response.HasError == true)
                 Debug.LogError($"Request {typeof(TRequest).Name} executed with error");

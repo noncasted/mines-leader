@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityPropertyUpdateCommand : NetworkCommand<ObjectContexts.PropertyUpdate>
+    public class EntityPropertyUpdateCommand : OneWayCommand<ObjectContexts.PropertyUpdate>
     {
         public EntityPropertyUpdateCommand(INetworkObjectsCollection objects)
         {

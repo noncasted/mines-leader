@@ -1,6 +1,7 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ServiceLoop;
 
 namespace Backend.Gateway;
 
@@ -14,6 +15,9 @@ public static class UserFlowExtensions
         services.AddHostedService<UserProjectionEntryPoint>();
         services.AddSingleton<IUserCommandsCollection, UserCommandsCollection>();
         services.AddSingleton<IUserCommandsDispatcher, UserCommandsDispatcher>();
+
+        builder.AddSingleton<UserConnectionPingLoop>()
+            .AsSetupLoopStage();
 
         return builder;
     }

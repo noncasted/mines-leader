@@ -99,7 +99,7 @@ namespace Common.Network
                     PropertiesIds = propertiesIds
                 };
 
-                var response = await _connection.SendFull<ServiceContexts.GetResponse>(request);
+                var response = await _connection.Request<ServiceContexts.GetResponse>(request);
 
                 for (var index = 0; index < response.Properties.Count; index++)
                 {

@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class EntityDestroyedCommand : NetworkCommand<EntityContexts.DestroyUpdate>
+    public class EntityDestroyedCommand : OneWayCommand<EntityContexts.DestroyUpdate>
     {
         private readonly INetworkEntitiesCollection _entities;
 

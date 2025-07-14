@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class RemoteUserUpdateCommand : NetworkCommand<UserContexts.RemoteUpdate>
+    public class RemoteUserUpdateCommand : OneWayCommand<UserContexts.RemoteUpdate>
     {
         public RemoteUserUpdateCommand(
             INetworkUsersCollection users,

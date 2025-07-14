@@ -1,10 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Global.Backend;
 using Internal;
 using Shared;
 
 namespace Common.Network
 {
-    public class PlayerDisconnectedCommand : NetworkCommand<UserContexts.RemoteDisconnect>
+    public class PlayerDisconnectedCommand : OneWayCommand<UserContexts.RemoteDisconnect>
     {
         private readonly INetworkUsersCollection _users;
 

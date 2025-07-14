@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Global.Backend;
 using Global.Systems;
 using Internal;
@@ -25,7 +24,7 @@ namespace Common.Network
 
         private float _updateInterval = 0.1f;
         private float _timer = 0f;
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _updater.Add(lifetime, this);
@@ -34,14 +33,14 @@ namespace Common.Network
         public void OnUpdate(float delta)
         {
             _timer += delta;
-            
+
             if (_timer < _updateInterval)
                 return;
-            
+
             _timer = 0f;
 
             var contexts = new List<ObjectContexts.SetProperty>();
-            
+
             foreach (var (_, networkObject) in _objects.Entries)
             {
                 foreach (var (id, property) in networkObject.Properties)
@@ -57,14 +56,14 @@ namespace Common.Network
                     });
                 }
             }
-            
-            Send(contexts).Forget();
+
+            Send(contexts);
         }
 
-        private async UniTask Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
+        private void Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
         {
             foreach (var request in requests)
-                await _connection.Send(request);
+                _connection.OneWay(request);
         }
     }
 }
