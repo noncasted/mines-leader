@@ -39,6 +39,7 @@ namespace Global.Backend
         public async UniTask Run(IReadOnlyLifetime lifetime, string url)
         {
             _webSocket = new WebSocket(url);
+            
             await _webSocket.Connect(lifetime);
 
             lifetime.Listen(() => _webSocket.Close());

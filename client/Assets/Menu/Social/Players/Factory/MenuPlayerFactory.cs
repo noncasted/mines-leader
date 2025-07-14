@@ -60,7 +60,7 @@ namespace Menu.Social
             {
                 builder.Register<MenuPlayer>()
                     .WithParameter(payload.PlayerId)
-                    .WithScopeLifetime()
+                    .As<IScopeSetup>()
                     .As<IMenuPlayer>();
 
                 builder.Register<MenuPlayerInput>()
@@ -69,6 +69,7 @@ namespace Menu.Social
 
                 builder.AddLocalEntity(_entityFactory);
                 builder.RegisterProperty<MenuPlayerTransformState>();
+                builder.RegisterInstance(view);
             }
         }
 
@@ -77,7 +78,7 @@ namespace Menu.Social
             var payload = data.ReadPayload<MenuPlayerPayload>();
 
             var view = _objectFactory.Create();
-            var scope = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            var scope = await _entityScopeLoader.Load(data.Owner.Lifetime, _parentScope, view, Build);
             var entity = scope.Get<INetworkEntity>();
 
             var player = scope.Get<IMenuPlayer>();
@@ -89,7 +90,7 @@ namespace Menu.Social
             {
                 builder.Register<MenuPlayer>()
                     .WithParameter(payload.PlayerId)
-                    .WithScopeLifetime()
+                    .As<IScopeSetup>()
                     .As<IMenuPlayer>();
 
                 builder.Register<MenuPlayerInput>()
@@ -98,6 +99,7 @@ namespace Menu.Social
 
                 builder.AddRemoteEntity(data);
                 builder.RegisterProperty<MenuPlayerTransformState>();
+                builder.RegisterInstance(view);
             }
         }
     }

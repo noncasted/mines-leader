@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using UnityEngine;
 
 namespace Meta
 {
@@ -23,7 +24,7 @@ namespace Meta
         {
             var userId = await _authentication.Execute();
             _user.Init(userId);
-
+            Debug.Log("[Meta] User authenticated: " + userId);
             await _backend.Connect(lifetime);
         }
     }

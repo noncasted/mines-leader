@@ -25,7 +25,6 @@ namespace Meta
             IReadOnlyLifetime lifetime,
             BackendOptions options)
         {
-            
             _options = options;
             _connection = connection;
             User = user;
@@ -43,17 +42,25 @@ namespace Meta
 
         public async UniTask Connect(IReadOnlyLifetime lifetime)
         {
+            Debug.Log("[Meta] Connecting to backend...");
             await _connection.Run(lifetime, _options.SocketUrl);
 
             var authRequest = new BackendConnectionAuth.Request()
             {
                 UserId = User.Id
             };
-            
+
+            Debug.Log("[Meta] Authenticating with backend...");
             var authResponse = await _connection.Request<BackendConnectionAuth.Response>(authRequest);
 
             if (authResponse.IsSuccess == false)
+            {
                 Debug.LogError($"[Projection] Failed to authenticate");
+            }
+            else
+            {
+                Debug.Log("[Meta] Successfully authenticated with backend");
+            }
         }
     }
 }

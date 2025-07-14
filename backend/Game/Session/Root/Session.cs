@@ -122,10 +122,7 @@ public class Session : ISession
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
 
-
         await connectionTask;
-
-        ExecutionQueue.Enqueue(user.Lifetime.Terminate);
 
         foreach (var targetUser in _users)
         {
@@ -137,5 +134,7 @@ public class Session : ISession
                 Index = user.Index
             });
         }
+        
+        user.Lifetime.Terminate();
     }
 }
