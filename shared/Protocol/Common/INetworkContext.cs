@@ -4,8 +4,6 @@ namespace Shared
 {
     [MemoryPackable]
     [MemoryPackUnion(10, typeof(EmptyResponse))]
-    [MemoryPackUnion(21, typeof(PingContext.Request))]
-    [MemoryPackUnion(22, typeof(PingContext.Response))]
     
     [MemoryPackUnion(1000, typeof(BackendUserContexts.ProfileProjection))]
     [MemoryPackUnion(1001, typeof(BackendUserContexts.ProgressionProjection))]

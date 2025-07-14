@@ -16,9 +16,6 @@ public static class UserFlowExtensions
         services.AddSingleton<IUserCommandsCollection, UserCommandsCollection>();
         services.AddSingleton<IUserCommandsDispatcher, UserCommandsDispatcher>();
 
-        builder.AddSingleton<UserConnectionPingLoop>()
-            .AsSetupLoopStage();
-
         return builder;
     }
 

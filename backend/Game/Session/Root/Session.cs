@@ -71,9 +71,6 @@ public class Session : ISession
 
         _users.View(Lifetime, user => HandleUserJoin(user).NoAwait());
 
-        var pingLoop = new SessionPingLoop(_users);
-        pingLoop.Run(Lifetime).NoAwait();
-
         await Task.Delay(TimeSpan.FromSeconds(30));
 
         await AwaitUsersLeave();

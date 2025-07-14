@@ -61,8 +61,6 @@ namespace Global.Backend
             builder.Register<NetworkCommandsCollection>()
                 .AsSelfResolvable()
                 .As<INetworkCommandsCollection>();
-
-            builder.AddPingCommand();
             
             builder.Register<NetworkCommandsDispatcher>()
                 .As<INetworkCommandsDispatcher>();

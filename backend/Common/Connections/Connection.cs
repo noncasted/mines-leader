@@ -8,7 +8,6 @@ public interface IConnection
     IReadOnlyLifetime Lifetime { get; }
     IConnectionReader Reader { get; }
     IConnectionWriter Writer { get; }
-    IConnectionPing Ping { get; }
 
     Task Run();
     void OnPingFailed();
@@ -22,19 +21,16 @@ public class Connection : IConnection
         _lifetime = parentLifetime.Child();
         _reader = new ConnectionReader(webSocket);
         _writer = new ConnectionWriter(webSocket, logger);
-        _ping = new ConnectionPing(_writer);
     }
 
     private readonly WebSocket _webSocket;
     private readonly ILifetime _lifetime;
     private readonly ConnectionReader _reader;
     private readonly ConnectionWriter _writer;
-    private readonly ConnectionPing _ping;
 
     public IReadOnlyLifetime Lifetime => _lifetime;
     public IConnectionReader Reader => _reader;
     public IConnectionWriter Writer => _writer;
-    public IConnectionPing Ping => _ping;
 
     public async Task Run()
     {
