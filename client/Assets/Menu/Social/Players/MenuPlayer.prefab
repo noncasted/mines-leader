@@ -440,7 +440,6 @@ MonoBehaviour:
   - {fileID: 8268619029264702202}
   - {fileID: 5815983350094774620}
   - {fileID: 1351714413874222428}
-  _scope: {fileID: 2849772689874847490}
 --- !u!114 &2849772689874847490
 MonoBehaviour:
   m_ObjectHideFlags: 0
