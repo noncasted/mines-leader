@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using GamePlay.Loop;
 using GamePlay.Players;
 using Global.Systems;
 using Internal;
@@ -15,6 +16,7 @@ namespace GamePlay.Cards
     public class CardLocalDrag : ICardLocalDrag
     {
         public CardLocalDrag(
+            IGameContext gameContext,
             IUpdater updater,
             IPlayerMana mana,
             IHandEntryHandle handEntryHandle,
@@ -26,6 +28,7 @@ namespace GamePlay.Cards
             ICardDefinition definition,
             CardDragOptions options)
         {
+            _gameContext = gameContext;
             _updater = updater;
             _mana = mana;
             _handEntryHandle = handEntryHandle;
@@ -38,6 +41,7 @@ namespace GamePlay.Cards
             _options = options;
         }
 
+        private readonly IGameContext _gameContext;
         private readonly IUpdater _updater;
         private readonly IPlayerMana _mana;
         private readonly IHandEntryHandle _handEntryHandle;
@@ -81,6 +85,7 @@ namespace GamePlay.Cards
                 return;
             }
 
+            _gameContext.Self.Board.InvokeUpdated();
             _mana.RemoveCurrent(_definition.ManaCost);
             _turns.OnUsed();
             _drop.Enter().Forget();

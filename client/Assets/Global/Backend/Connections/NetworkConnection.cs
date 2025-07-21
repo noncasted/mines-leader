@@ -2,6 +2,7 @@
 using Internal;
 using NativeWebSocket;
 using Shared;
+using UnityEngine;
 
 namespace Global.Backend
 {
@@ -42,7 +43,12 @@ namespace Global.Backend
             
             await _webSocket.Connect(lifetime);
 
-            lifetime.Listen(() => _webSocket.Close());
+            lifetime.Listen(() =>
+            {
+                Debug.Log("Closing WebSocket connection");
+                _webSocket.Close();
+            });
+            
             _lifetime = _webSocket.AttachLifetime(lifetime);
 
             _dispatcher.Run(lifetime);

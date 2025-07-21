@@ -61,8 +61,6 @@ namespace GamePlay.Cards
                     taken.SetMine();
             }
 
-            _context.TargetBoard.InvokeUpdated();
-
             _modifiers.Reset(PlayerModifier.TrebuchetBoost);
             _useSync.Send(new CardUseEvents.Trebuchet());
 
