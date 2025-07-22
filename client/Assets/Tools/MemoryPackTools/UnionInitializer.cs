@@ -4,8 +4,6 @@ using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
-using MemoryPack;
-using MemoryPack.Formatters;
 using Menu.Social;
 using Shared;
 
@@ -15,31 +13,29 @@ namespace Tools.MemoryPackTools
     {
         public override void Execute()
         {
-            var payloads = new DynamicUnionFormatter<IEntityPayload>(
-                (1, typeof(BoardCreatePayload)),
-                (2, typeof(CardCreatePayload)),
-                (3, typeof(GamePlayerCreatePayload)),
+            var entityPayloads = new UnionBuilder<IEntityPayload>();
+            var eventPayloads = new UnionBuilder<IEventPayload>();
+            var contexts = new UnionBuilder<INetworkContext>();
 
-                // (3, typeof(GamePlayerCreatePayload)),
-                (10000, typeof(MenuPlayerPayload)));
+            entityPayloads
+                .Add<BoardCreatePayload>()
+                .Add<CardCreatePayload>()
+                .Add<GamePlayerCreatePayload>();
 
-            var events = new DynamicUnionFormatter<IEventPayload>(
-                (0, typeof(MenuChatMessagePayload)),
-                (1, typeof(GameFlowEvents.Lose)),
-                (2, typeof(CardUseSyncPayload)),
-                (3, typeof(BoardCellExplosionEvent)));
+            eventPayloads
+                .Add<MenuChatMessagePayload>()
+                .Add<GameFlowEvents.Lose>()
+                .Add<CardUseSyncPayload>()
+                .Add<BoardCellExplosionEvent>();
 
-            MemoryPackFormatterProvider.Register(payloads);
-            MemoryPackFormatterProvider.Register(events);
-            
-            var builder = new UnionBuilder<INetworkContext>();
-
-            builder
+            contexts
                 .AddSharedBackend()
                 .AddSharedGame()
                 .AddSharedSession();
-        
-            builder.Build();
+
+            contexts.Build();
+            eventPayloads.Build();
+            entityPayloads.Build();
         }
     }
 }
