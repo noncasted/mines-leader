@@ -4,7 +4,7 @@
 
 namespace Shared
 {
-    public class BackendAuthContexts
+    public class SharedBackendUserAuth
     {
         public const string Endpoint = "/develop_signup";
 

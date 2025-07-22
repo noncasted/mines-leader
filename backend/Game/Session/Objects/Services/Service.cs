@@ -7,7 +7,7 @@ public interface IService : IObject
 {
     string Key { get; }
 
-    ServiceContexts.Overview CreateOverview();
+    SharedSessionService.Overview CreateOverview();
 }
 
 public class Service : IService
@@ -28,20 +28,20 @@ public class Service : IService
     public int Id { get; }
     public IReadOnlyLifetime Lifetime { get; }
 
-    public ServiceContexts.Overview CreateOverview()
+    public SharedSessionService.Overview CreateOverview()
     {
-        var properties = new List<ObjectContexts.PropertyUpdate>();
+        var properties = new List<SharedSessionObject.PropertyUpdate>();
 
         foreach (var (_, property) in Properties)
         {
-            properties.Add(new ObjectContexts.PropertyUpdate()
+            properties.Add(new SharedSessionObject.PropertyUpdate()
             {
                 PropertyId = property.Id,
                 Value = property.Value
             });
         }
 
-        var updatedContext = new ServiceContexts.Overview()
+        var updatedContext = new SharedSessionService.Overview()
         {
             Key = Key,
             Properties = properties

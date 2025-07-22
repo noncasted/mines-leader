@@ -3,13 +3,13 @@ using MemoryPack;
 
 namespace Shared
 {
-    public static partial class EntityContexts
+    public static partial class SharedSessionEntity
     {
         [MemoryPackable]
         public partial class CreateRequest : INetworkContext
         {
             public int Id { get; set; }
-            public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
+            public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
         }
 
@@ -24,7 +24,7 @@ namespace Shared
         {
             public int OwnerId { get; set; }
             public int EntityId { get; set; }
-            public IReadOnlyList<ObjectContexts.PropertyUpdate> Properties { get; set; }
+            public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
         }
     

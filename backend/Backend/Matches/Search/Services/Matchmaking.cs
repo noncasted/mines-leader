@@ -37,7 +37,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
     {
         switch (type)
         {
-            case MatchmakingConstants.GameType:
+            case SharedMatchmaking.GameType:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a game", userId);
 
@@ -47,7 +47,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
 
                 break;
             }
-            case MatchmakingConstants.LobbyType:
+            case SharedMatchmaking.LobbyType:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a lobby", userId);
 

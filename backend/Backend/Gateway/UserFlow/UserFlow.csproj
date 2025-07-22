@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Backend\Backend.csproj" />
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
         <ProjectReference Include="..\..\..\Common\Connections\Connections.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />

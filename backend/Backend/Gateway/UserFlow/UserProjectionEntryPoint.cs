@@ -51,7 +51,7 @@ public class UserProjectionEntryPoint : BackgroundService
         
         var context = payload.Value.ToContext();
 
-        user.Connection.Writer.WriteOneWay(new BackendProjectionContext()
+        user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
         {
             Context = context
         });

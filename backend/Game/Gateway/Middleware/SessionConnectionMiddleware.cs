@@ -32,7 +32,7 @@ public class SessionConnectionMiddleware
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
         var handle = new ConnectionOneTimeHandle(webSocket);
 
-        var auth = await handle.ReadRequest<GameConnectionAuth.Request>();
+        var auth = await handle.ReadRequest<SharedSessionAuth.Request>();
 
         var session = _sessionsCollection.Get(auth.SessionId);
 
@@ -48,7 +48,7 @@ public class SessionConnectionMiddleware
             user.Lifetime.Listen(() => completion.TrySetResult());
         });
 
-        var response = new GameConnectionAuth.Response()
+        var response = new SharedSessionAuth.Response()
         {
             IsSuccess = true
         };

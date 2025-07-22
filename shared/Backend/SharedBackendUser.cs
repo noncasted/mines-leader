@@ -6,7 +6,7 @@ using MemoryPack;
 
 namespace Shared
 {
-    public partial class BackendUserContexts
+    public partial class SharedBackendUser
     {
         [MemoryPackable]
         public partial class ProfileProjection : INetworkContext

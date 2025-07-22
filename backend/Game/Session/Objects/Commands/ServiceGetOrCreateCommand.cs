@@ -2,7 +2,7 @@
 
 namespace Game;
 
-public class ServiceGetOrCreateCommand : ResponseCommand<ServiceContexts.GetRequest, ServiceContexts.GetResponse>
+public class ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.GetRequest, SharedSessionService.GetResponse>
 {
     public ServiceGetOrCreateCommand(IServiceFactory serviceFactory)
     {
@@ -11,13 +11,13 @@ public class ServiceGetOrCreateCommand : ResponseCommand<ServiceContexts.GetRequ
 
     private readonly IServiceFactory _serviceFactory;
     
-    protected override ServiceContexts.GetResponse Execute( IUser user, ServiceContexts.GetRequest context)
+    protected override SharedSessionService.GetResponse Execute( IUser user, SharedSessionService.GetRequest context)
     {
         var service = _serviceFactory.GetOrCreate(context);
 
         var overview = service.CreateOverview();
 
-        return new ServiceContexts.GetResponse()
+        return new SharedSessionService.GetResponse()
         {
             Key = service.Key,
             Id = service.Id,

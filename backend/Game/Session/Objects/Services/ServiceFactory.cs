@@ -4,7 +4,7 @@ namespace Game;
 
 public interface IServiceFactory
 {
-    IService GetOrCreate(ServiceContexts.GetRequest request);
+    IService GetOrCreate(SharedSessionService.GetRequest request);
 }
 
 public class ServiceFactory : IServiceFactory
@@ -20,7 +20,7 @@ public class ServiceFactory : IServiceFactory
     private readonly ISessionData _data;
     private readonly ISessionObjects _objects;
 
-    public IService GetOrCreate(ServiceContexts.GetRequest request)
+    public IService GetOrCreate(SharedSessionService.GetRequest request)
     {
         if (_collection.Entries.TryGetValue(request.Key, out var existing))
             return existing;

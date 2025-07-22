@@ -4,7 +4,7 @@ namespace Game;
 
 public interface IEntityFactory
 {
-    IEntity Create(EntityContexts.CreateRequest request, IUser user);
+    IEntity Create(SharedSessionEntity.CreateRequest request, IUser user);
 }
 
 public class EntityFactory : IEntityFactory
@@ -18,7 +18,7 @@ public class EntityFactory : IEntityFactory
     private readonly ISessionEntities _collection;
     private readonly ISessionObjects _objects;
 
-    public IEntity Create(EntityContexts.CreateRequest request, IUser user)
+    public IEntity Create(SharedSessionEntity.CreateRequest request, IUser user)
     {
         var properties = new Dictionary<int, IObjectProperty>();
 

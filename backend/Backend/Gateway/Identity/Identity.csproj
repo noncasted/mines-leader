@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\shared\Backend\Backend.csproj" />
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj"/>
         <ProjectReference Include="..\..\Users\Entities\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Users\Entities\Services\Services.csproj" />

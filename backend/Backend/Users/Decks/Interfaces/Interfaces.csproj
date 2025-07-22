@@ -11,6 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
+        <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj" />
         <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
         <ProjectReference Include="..\..\Common\Extensions\Extensions.csproj" />
         <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />

@@ -2,7 +2,7 @@
 
 namespace Game;
 
-public class EntityEventCommand : Command<ObjectContexts.Event>
+public class EntityEventCommand : Command<SharedSessionObject.Event>
 {
     public EntityEventCommand(ISessionUsers users)
     {
@@ -11,7 +11,7 @@ public class EntityEventCommand : Command<ObjectContexts.Event>
 
     private readonly ISessionUsers _users;
 
-    protected override void Execute(IUser user, ObjectContexts.Event context)
+    protected override void Execute(IUser user, SharedSessionObject.Event context)
     {
         _users.SendAllExceptSelf(user, context);
     }

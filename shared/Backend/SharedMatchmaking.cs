@@ -5,8 +5,11 @@ using MemoryPack;
 
 namespace Shared
 {
-    public static partial class MatchmakingContexts
+    public static partial class SharedMatchmaking
     {
+        public const string GameType = "Game";
+        public const string LobbyType = "Lobby";
+        
         [MemoryPackable]
         public partial class Search : INetworkContext
         {

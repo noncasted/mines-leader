@@ -5,7 +5,7 @@ using MemoryPack;
 
 namespace Shared
 {
-    public partial class GameConnectionAuth
+    public partial class SharedSessionAuth
     {
         [MemoryPackable]
         public partial class Request : INetworkContext

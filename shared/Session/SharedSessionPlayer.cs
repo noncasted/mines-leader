@@ -3,7 +3,7 @@ using MemoryPack;
 
 namespace Shared
 {
-    public static partial class UserContexts
+    public static partial class SharedSessionPlayer
     { 
         [MemoryPackable]
         public partial class LocalUpdate : INetworkContext

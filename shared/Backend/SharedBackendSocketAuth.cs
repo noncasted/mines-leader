@@ -3,7 +3,7 @@ using MemoryPack;
 
 namespace Shared
 {
-    public partial class BackendConnectionAuth
+    public partial class SharedBackendSocketAuth
     {
         [MemoryPackable]
         public partial class Request : INetworkContext

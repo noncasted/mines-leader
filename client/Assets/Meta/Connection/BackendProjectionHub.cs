@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Meta
 {
-    public class BackendProjectionHub : OneWayCommand<BackendProjectionContext>
+    public class BackendProjectionHub : OneWayCommand<SharedBackendProjection>
     {
         public BackendProjectionHub(IReadOnlyList<IBackendProjection> projections)
         {
@@ -17,7 +17,7 @@ namespace Meta
 
         private readonly Dictionary<Type, IBackendProjection> _projections;
 
-        protected override void Execute(IReadOnlyLifetime lifetime, BackendProjectionContext context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedBackendProjection context)
         {
             var projectionContext = context.Context;
             var type = projectionContext.GetType();

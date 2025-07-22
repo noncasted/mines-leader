@@ -3,7 +3,7 @@
 namespace Shared
 {
     [MemoryPackable]
-    public partial class BackendProjectionContext : INetworkContext
+    public partial class SharedBackendProjection : INetworkContext
     {
         public INetworkContext Context { get; set; }
     }

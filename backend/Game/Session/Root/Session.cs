@@ -99,20 +99,20 @@ public class Session : ISession
 
         var connectionTask = user.Connection.Run();
 
-        user.Send(new UserContexts.LocalUpdate()
+        user.Send(new SharedSessionPlayer.LocalUpdate()
         {
             Index = user.Index
         });
 
         _users.IterateOthers(user, other =>
         {
-            user.Send(new UserContexts.RemoteUpdate()
+            user.Send(new SharedSessionPlayer.RemoteUpdate()
             {
                 Index = other.Index,
                 BackendId = other.Id
             });
 
-            other.Send(new UserContexts.RemoteUpdate()
+            other.Send(new SharedSessionPlayer.RemoteUpdate()
             {
                 Index = user.Index,
                 BackendId = user.Id
@@ -129,7 +129,7 @@ public class Session : ISession
             if (targetUser == user)
                 continue;
 
-            targetUser.Send(new UserContexts.RemoteDisconnect()
+            targetUser.Send(new SharedSessionPlayer.RemoteDisconnect()
             {
                 Index = user.Index
             });

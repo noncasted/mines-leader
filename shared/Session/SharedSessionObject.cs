@@ -2,7 +2,7 @@
 
 namespace Shared
 {
-    public partial class ObjectContexts
+    public partial class SharedSessionObject
     {
         [MemoryPackable]
         public partial class SetProperty : INetworkContext

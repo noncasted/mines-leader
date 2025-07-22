@@ -35,7 +35,7 @@ public class LobbyFactory : ILobbyFactory
 
         var request = new MatchPayloads.GetOrCreate.Request()
         {
-            Type = MatchmakingConstants.LobbyType,
+            Type = SharedMatchmaking.LobbyType,
         };
 
         var response = await _messaging.Send<MatchPayloads.GetOrCreate.Response>(targetServer.ClientId, request);

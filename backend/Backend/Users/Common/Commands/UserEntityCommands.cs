@@ -14,7 +14,7 @@ public static class UserEntityCommands
         return builder;
     }
 
-    public class UpdateDeck : UserCommand<BackendUserContexts.UpdateDeckRequest>
+    public class UpdateDeck : UserCommand<SharedBackendUser.UpdateDeckRequest>
     {
         public UpdateDeck(IOrleans orleans)
         {
@@ -25,7 +25,7 @@ public static class UserEntityCommands
 
         protected override Task<INetworkContext> Execute(
             IUserSession session,
-            BackendUserContexts.UpdateDeckRequest request)
+            SharedBackendUser.UpdateDeckRequest request)
         {
             return _orleans.InTransaction(() =>
             {

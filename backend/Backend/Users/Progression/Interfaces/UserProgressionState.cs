@@ -22,7 +22,7 @@ public class UserProgressionState : IProjectionPayload
         return total;
     }
 
-    public INetworkContext ToContext() => new BackendUserContexts.ProgressionProjection()
+    public INetworkContext ToContext() => new SharedBackendUser.ProgressionProjection()
     {
         Experience = CalculateTotal()
     };

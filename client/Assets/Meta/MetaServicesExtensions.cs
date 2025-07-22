@@ -40,10 +40,12 @@ namespace Meta
             builder.RegisterCommand<BackendProjectionHub>();
 
             builder
-                .RegisterBackendProjection<BackendUserContexts.ProfileProjection>()
-                .RegisterBackendProjection<BackendUserContexts.DeckProjection>()
-                .RegisterBackendProjection<MatchmakingContexts.GameResult>()
-                .RegisterBackendProjection<MatchmakingContexts.LobbyResult>();
+                .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
+                .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
+                .RegisterBackendProjection<SharedMatchmaking
+.GameResult>()
+                .RegisterBackendProjection<SharedMatchmaking
+.LobbyResult>();
             
             return builder;
         }
