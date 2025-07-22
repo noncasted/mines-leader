@@ -25,7 +25,7 @@ namespace Shared
             {
                 await task;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return EmptyResponse.Failed;
             }

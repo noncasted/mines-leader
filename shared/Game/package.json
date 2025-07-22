@@ -1,6 +1,6 @@
 {
-  "name": "com.shared.gameplay",
-  "displayName": "Shared.GamePlay",
+  "name": "com.shared.game",
+  "displayName": "Shared.Game",
   "version": "2025.0.1",  
   "description": "",
   "dependencies": {  }

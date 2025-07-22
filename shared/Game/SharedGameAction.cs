@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    public class UserActionContexts
+    public class SharedGameAction
     {
         public class Open
         {

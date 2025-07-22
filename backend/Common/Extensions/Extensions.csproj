@@ -16,6 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\shared\Backend\Backend.csproj" />
+      <ProjectReference Include="..\..\..\shared\Domain\Domain.csproj" />
+      <ProjectReference Include="..\..\..\shared\Game\Game.csproj" />
       <ProjectReference Include="..\..\..\shared\Protocol\Protocol.csproj" />
+      <ProjectReference Include="..\..\..\shared\Session\Session.csproj" />
     </ItemGroup>
 </Project>

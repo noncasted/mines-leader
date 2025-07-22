@@ -21,6 +21,8 @@ public static class AspireExtensions
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        SharedExtensions.AddSharedContexts();
+        
         builder.ConfigureOpenTelemetry();
         builder.AddDefaultHealthChecks();
 

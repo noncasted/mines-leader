@@ -26,5 +26,13 @@ namespace Shared
             public string Key { get; set; }
             public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
         }
+        
+        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
+        {
+            return builder
+                .Add<GetRequest>()
+                .Add<GetResponse>()
+                .Add<Overview>();
+        }
     }
 }

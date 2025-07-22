@@ -26,5 +26,13 @@ namespace Shared
             public int ObjectId { get; set; }
             public byte[] Value { get; set; }
         }
+        
+        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
+        {
+            return builder
+                .Add<SetProperty>()
+                .Add<PropertyUpdate>()
+                .Add<Event>();
+        }
     }
 }

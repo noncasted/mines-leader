@@ -7,6 +7,7 @@ using Internal;
 using MemoryPack;
 using MemoryPack.Formatters;
 using Menu.Social;
+using Shared;
 
 namespace Tools.MemoryPackTools
 {
@@ -30,6 +31,15 @@ namespace Tools.MemoryPackTools
 
             MemoryPackFormatterProvider.Register(payloads);
             MemoryPackFormatterProvider.Register(events);
+            
+            var builder = new UnionBuilder<INetworkContext>();
+
+            builder
+                .AddSharedBackend()
+                .AddSharedGame()
+                .AddSharedSession();
+        
+            builder.Build();
         }
     }
 }

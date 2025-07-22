@@ -19,8 +19,8 @@
       "source": "local",
       "dependencies": {}
     },
-    "com.shared.gameplay": {
-      "version": "file:../../shared/GamePlay",
+    "com.shared.game": {
+      "version": "file:../../shared/Game",
       "depth": 0,
       "source": "local",
       "dependencies": {}

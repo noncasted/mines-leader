@@ -4,7 +4,7 @@ using MemoryPack;
 
 namespace Shared
 {
-    public partial class BoardContexts
+    public partial class SharedGameBoard
     {
         [MemoryPackable]
         public partial class Open

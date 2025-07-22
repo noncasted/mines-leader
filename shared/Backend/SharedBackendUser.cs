@@ -40,5 +40,14 @@ namespace Shared
                 public IReadOnlyList<CardType> Cards { get; set; }
             }
         }
+        
+        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
+        {
+            return builder
+                .Add<ProfileProjection>()
+                .Add<ProgressionProjection>()
+                .Add<UpdateDeckRequest>()
+                .Add<DeckProjection>();
+        }
     }
 }

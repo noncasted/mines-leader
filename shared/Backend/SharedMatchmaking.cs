@@ -39,5 +39,15 @@ namespace Shared
             public string ServerUrl { get; set; }
             public Guid SessionId { get; set; }
         }
+        
+        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
+        {
+            return builder
+                .Add<Search>()
+                .Add<Create>()
+                .Add<CancelSearch>()
+                .Add<GameResult>()
+                .Add<LobbyResult>();
+        }
     }
 }

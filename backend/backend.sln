@@ -152,7 +152,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Players", "Game\GamePlay\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Session", "..\shared\Session\Session.csproj", "{93316D6E-9217-423D-88B7-E2522E3FEC05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamePlay", "..\shared\GamePlay\GamePlay.csproj", "{E39FF24A-0D4F-4D78-B862-3043A16BD2BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "..\shared\Game\Game.csproj", "{E39FF24A-0D4F-4D78-B862-3043A16BD2BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend", "..\shared\Backend\Backend.csproj", "{5E4FE541-3BD5-472B-BF9A-222B88D0B277}"
 EndProject

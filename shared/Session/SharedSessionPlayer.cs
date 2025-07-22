@@ -23,5 +23,13 @@ namespace Shared
         {
             public int Index { get; set; }
         }
+        
+        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
+        {
+            return builder
+                .Add<LocalUpdate>()
+                .Add<RemoteUpdate>()
+                .Add<RemoteDisconnect>();
+        }
     }
 }
