@@ -7,8 +7,32 @@
       "dependencies": {},
       "hash": "ca28202a65b22b6fd3ea66b4c75eab252255a097"
     },
+    "com.shared.backend": {
+      "version": "file:../../shared/Backend",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.shared.domain": {
+      "version": "file:../../shared/Domain",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.shared.gameplay": {
+      "version": "file:../../shared/GamePlay",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.shared.protocol": {
-      "version": "file:P:/noncasted/mines-leader/shared/Protocol",
+      "version": "file:../../shared/Protocol",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.shared.session": {
+      "version": "file:../../shared/Session",
       "depth": 0,
       "source": "local",
       "dependencies": {}

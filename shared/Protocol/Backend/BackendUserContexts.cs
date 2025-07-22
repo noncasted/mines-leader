@@ -8,7 +8,6 @@ namespace Shared
 {
     public partial class BackendUserContexts
     {
-
         [MemoryPackable]
         public partial class ProfileProjection : INetworkContext
         {

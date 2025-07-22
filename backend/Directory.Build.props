@@ -6,6 +6,10 @@
         <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
     </PropertyGroup>
 
+    <ItemGroup>
+        <None Remove="**\*.csproj.DotSettings" />
+    </ItemGroup>
+
     <ItemGroup Condition="
     !('$(MSBuildProjectFullPath)' == '$(MSBuildThisFileDirectory)Common\Extensions\Extensions.csproj')
     and

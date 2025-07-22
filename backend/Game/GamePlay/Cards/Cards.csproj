@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Game.GamePlay.Cards</AssemblyName>
+        <RootNamespace>Game.GamePlay</RootNamespace>
+    </PropertyGroup>
+
+</Project>
