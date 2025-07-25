@@ -96,7 +96,6 @@ namespace GamePlay.Cards
                 Object.Destroy(line.gameObject);
 
             targets.CleanupAround();
-            _context.TargetBoard.InvokeUpdated();
 
             _modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
@@ -106,9 +105,10 @@ namespace GamePlay.Cards
             {
                 var searchPositions = searchShape.SelectTaken(_context.TargetBoard, center);
                 var hasMine = searchPositions.Where(x => x.HasMine() == true);
-                var hasMines = hasMine.Where(x => targets.Contains(x) == false);
+                var hasFlags = hasMine.Where(x => x.HasFlag() == false);
+                var unique = hasFlags.Where(x => targets.Contains(x) == false);
 
-                var ordered = hasMines
+                var ordered = unique
                     .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
                     .ToList();
 

@@ -49,5 +49,14 @@ namespace GamePlay.Boards
             
             return false;
         }
+        
+        public static bool HasFlag(this IBoardCell cell)
+        {
+            if (cell.State.Value.Status == CellStatus.Free)
+                return false;
+            
+            var state = cell.EnsureTaken();
+            return state.IsFlagged.Value;
+        }
     }
 }

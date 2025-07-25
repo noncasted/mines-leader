@@ -33,16 +33,15 @@ namespace GamePlay.Players
             _board.Updated.Advise(lifetime, () =>
             {
                 var mines = 0;
+                var flags = 0;
                 
                 foreach (var (_, cell) in _board.Cells)
                 {
-                    if (cell.State.Value.Status != CellStatus.Taken)
-                        continue;
-
-                    var state = cell.EnsureTaken();
-                    
-                    if (state.HasMine.Value == true)
+                    if (cell.HasMine() == true)
                         mines++;
+                    
+                    if (cell.HasFlag() == true)
+                        flags++;
                 }
                 
                 if (mines != 0)
@@ -51,7 +50,7 @@ namespace GamePlay.Players
                 if (_gameStarted == false)
                     return;
 
-                _text.text = mines.ToString();
+                _text.text = (mines - flags).ToString();
             });
         }
     }

@@ -45,7 +45,6 @@ namespace GamePlay.Cards
                 cell.EnsureFree();
 
             selected.CleanupAround();
-            _context.TargetBoard.InvokeUpdated();
             _useSync.Send(new CardUseEvents.ErosionDozer());
 
             return true;

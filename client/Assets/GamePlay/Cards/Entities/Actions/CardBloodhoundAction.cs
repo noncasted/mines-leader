@@ -45,7 +45,6 @@ namespace GamePlay.Cards
             }
 
             selected.CleanupAround();
-            _context.TargetBoard.InvokeUpdated();
             _useSync.Send(new CardUseEvents.Bloodhound());
             
             return true;
