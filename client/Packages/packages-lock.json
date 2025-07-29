@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "com.alexejhero.unitycsharp11": {
+      "version": "https://github.com/Alexejhero/Unity-CSharp11.git?path=Assets/UnityCSharp11",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.nuget.mono-cecil": "1.11.4"
+      },
+      "hash": "8d1bad21d9a66aacf3d8c4232f0dfad42fafb7af"
+    },
     "com.cysharp.memorypack": {
       "version": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/MemoryPack.Unity",
       "depth": 0,

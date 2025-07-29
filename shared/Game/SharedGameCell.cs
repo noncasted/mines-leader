@@ -1,20 +1,14 @@
 ﻿using MemoryPack;
+using UnityEngine;
 
 namespace Shared
 {
-    [MemoryPackable]
-    public partial class BoardPosition
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
-
     public partial class BoardCellContexts
     {
         [MemoryPackable]
         public partial class State
         {
-            public BoardPosition Position { get; set; }
+            public Vector2Int Position { get; set; }
         }
 
         [MemoryPackable]

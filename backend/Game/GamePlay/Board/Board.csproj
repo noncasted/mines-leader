@@ -5,4 +5,8 @@
         <RootNamespace>Game.GamePlay</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\Game\Game.csproj" />
+    </ItemGroup>
+
 </Project>

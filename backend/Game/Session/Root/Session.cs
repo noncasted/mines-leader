@@ -25,17 +25,6 @@ public class SessionContainerData
     public required SessionCreateOptions CreateOptions { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
-
-    public static SessionContainerData Default => new SessionContainerData
-    {
-        CreateOptions = new SessionCreateOptions
-        {
-            ExpectedUsers = 0,
-            Type = "null"
-        },
-        Id = default,
-        Lifetime = new TerminatedLifetime()
-    };
 }
 
 public class Session : ISession

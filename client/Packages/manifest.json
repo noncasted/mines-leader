@@ -1,11 +1,12 @@
 {
   "dependencies": {
+    "com.alexejhero.unitycsharp11": "https://github.com/Alexejhero/Unity-CSharp11.git?path=Assets/UnityCSharp11",
     "com.cysharp.memorypack": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/MemoryPack.Unity",
-    "com.shared.protocol": "file:../../shared/Protocol",
+    "com.shared.backend": "file:../../shared/Backend",
     "com.shared.domain": "file:../../shared/Domain",
-    "com.shared.session":  "file:../../shared/Session",
     "com.shared.game": "file:../../shared/Game",
-    "com.shared.backend":  "file:../../shared/Backend",
+    "com.shared.protocol": "file:../../shared/Protocol",
+    "com.shared.session": "file:../../shared/Session",
     "com.unity.addressables": "2.6.0",
     "com.unity.burst": "1.8.23",
     "com.unity.collections": "2.5.7",
