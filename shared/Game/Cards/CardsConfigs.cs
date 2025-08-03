@@ -1,7 +1,6 @@
 ﻿using System;
-using Shared;
 
-namespace GamePlay.Cards
+namespace Shared
 {
     public static class CardsConfigs
     {

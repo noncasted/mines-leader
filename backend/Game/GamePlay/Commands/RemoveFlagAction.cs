@@ -4,9 +4,9 @@ namespace Game.GamePlay;
 
 public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAction.RemoveFlag>(utils)
 {
-    protected override EmptyResponse Execute(IPlayer player, SharedGameAction.RemoveFlag request)
+    protected override EmptyResponse Execute(Context context, SharedGameAction.RemoveFlag request)
     {
-        var board = player.Board;
+        var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)

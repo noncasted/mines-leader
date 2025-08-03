@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GamePlay.Players
+namespace Shared
 {
     public enum PlayerModifier
     {

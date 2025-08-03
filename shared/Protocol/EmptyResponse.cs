@@ -8,6 +8,7 @@ namespace Shared
     public partial class EmptyResponse : INetworkContext
     {
         public bool HasError { get; set; }
+        public string Message { get; set; }
 
         [MemoryPackIgnore] public static readonly EmptyResponse Ok = new();
 
@@ -15,6 +16,11 @@ namespace Shared
         {
             HasError = true
         };
+
+        public static EmptyResponse Fail(string error)
+        {
+            return new EmptyResponse() { HasError = true, Message = error };
+        }
     }
 
     public static class EmptyResponseExtensions

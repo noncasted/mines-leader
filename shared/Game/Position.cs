@@ -45,5 +45,10 @@ namespace Shared
         {
             return new Position(left.x + right.x, left.y + right.y);
         }
+        
+        public static Position operator -(Position left, Position right)
+        {
+            return new Position(left.x - right.x, left.y - right.y);
+        }
     }
 }

@@ -11,9 +11,9 @@ public class ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.Ge
 
     private readonly IServiceFactory _serviceFactory;
     
-    protected override SharedSessionService.GetResponse Execute( IUser user, SharedSessionService.GetRequest context)
+    protected override SharedSessionService.GetResponse Execute( IUser user, SharedSessionService.GetRequest request)
     {
-        var service = _serviceFactory.GetOrCreate(context);
+        var service = _serviceFactory.GetOrCreate(request);
 
         var overview = service.CreateOverview();
 

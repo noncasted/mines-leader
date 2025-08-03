@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Shared
 {
@@ -12,54 +11,6 @@ namespace Shared
     public static class PatternShapes
     {
         public static RhombusShape Rhombus(int size) => new(size);
-
-        public static IReadOnlyList<IBoardCell> SelectTaken(this IPattenShape shape, IBoard board, Vector2Int center)
-        {
-            return shape.Select(board, center, cell => cell.IsTaken());
-        }
-
-        public static IReadOnlyList<IBoardCell> SelectFree(this IPattenShape shape, IBoard board, Vector2Int center)
-        {
-            return shape.Select(board, center, cell => cell.IsFree());
-        }
-
-        public static IReadOnlyList<IBoardCell> Select(
-            this IPattenShape shape,
-            IBoard board,
-            Vector2Int center,
-            Func<IBoardCell, bool> filter
-        )
-        {
-            if (center == new Vector2Int(-1, -1))
-                return Array.Empty<IBoardCell>();
-
-            var size = shape.Positions.Count;
-            var halfSize = size / 2;
-            var start = center - new Vector2Int(halfSize, halfSize);
-
-            var selected = new List<IBoardCell>();
-
-            for (var y = 0; y < size; y++)
-            {
-                for (var x = 0; x < size; x++)
-                {
-                    if (shape.Positions[y][x] == false)
-                        continue;
-
-                    var position = start + new Vector2Int(x, y);
-
-                    if (board.Cells.TryGetValue(position, out var cell) == false)
-                        continue;
-
-                    if (filter(cell) == false)
-                        continue;
-
-                    selected.Add(board.Cells[position]);
-                }
-            }
-
-            return selected;
-        }
     }
 
     public class RhombusShape : IPattenShape

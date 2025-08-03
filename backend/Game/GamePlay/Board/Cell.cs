@@ -49,12 +49,13 @@ public class FreeCell : IFreeCell
     public IBoard Source { get; }
     public CellStatus Status => CellStatus.Free;
     public Position Position { get; }
-    
+
     public int MinesAround { get; private set; }
 
     public void UpdateMinesAround(int minesCount)
     {
         MinesAround = minesCount;
+        Source.Events.SetMinesAround(this, minesCount);
     }
 
     public ITakenCell ToTaken()
@@ -63,7 +64,7 @@ public class FreeCell : IFreeCell
         Source.SetCell(taken);
         return taken;
     }
-    
+
     public IFreeCell ToFree()
     {
         return this;
@@ -89,16 +90,17 @@ public class TakenCell : ITakenCell
     public void SetFlag()
     {
         IsFlagged = true;
+        Source.Events.SetFlag(this, true);
     }
 
     public void RemoveFlag()
     {
         IsFlagged = false;
+        Source.Events.SetFlag(this, false);
     }
 
     public void Explode()
     {
-        
     }
 
     public void SetMine()
@@ -110,10 +112,10 @@ public class TakenCell : ITakenCell
     {
         return this;
     }
-    
+
     public IFreeCell ToFree()
     {
-        var free = new FreeCell(Position, Source); 
+        var free = new FreeCell(Position, Source);
         Source.SetCell(free);
         return free;
     }

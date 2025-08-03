@@ -4,9 +4,9 @@ namespace Game.GamePlay;
 
 public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAction.SetFlag>(utils)
 {
-    protected override EmptyResponse Execute(IPlayer player, SharedGameAction.SetFlag request)
+    protected override EmptyResponse Execute(Context context, SharedGameAction.SetFlag request)
     {
-        var board = player.Board;
+        var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)

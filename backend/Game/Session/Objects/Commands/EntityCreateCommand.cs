@@ -13,9 +13,9 @@ public class EntityCreateCommand : ResponseCommand<SharedSessionEntity.CreateReq
     private readonly IEntityFactory _entityFactory;
     private readonly ISessionUsers _users;
 
-    protected override SharedSessionEntity.CreateResponse Execute(IUser user, SharedSessionEntity.CreateRequest context)
+    protected override SharedSessionEntity.CreateResponse Execute(IUser user, SharedSessionEntity.CreateRequest request)
     {
-        var entity = _entityFactory.Create(context, user);
+        var entity = _entityFactory.Create(request, user);
 
         _users.SendAllExceptSelf(user, entity.CreateOverview());
 

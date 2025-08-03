@@ -4,9 +4,9 @@ namespace Game.GamePlay;
 
 public class OpenCellAction(GameCommandUtils utils) : GameCommand<SharedGameAction.Open>(utils)
 {
-    protected override EmptyResponse Execute(IPlayer player, SharedGameAction.Open request)
+    protected override EmptyResponse Execute(Context context, SharedGameAction.Open request)
     {
-        var board = player.Board;
+        var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)
@@ -14,7 +14,7 @@ public class OpenCellAction(GameCommandUtils utils) : GameCommand<SharedGameActi
 
         if (targetCell.Status == CellStatus.Taken)
         {
-            player.Health.TakeDamage(1);
+            context.Player.Health.TakeDamage(1);
             targetCell.ToTaken().Explode();
         }
 

@@ -29,6 +29,7 @@ public static class AspireExtensions
         var services = builder.Services;
 
         services.AddServiceDiscovery();
+        
         services.ConfigureHttpClientDefaults(http =>
         {
             http.AddStandardResilienceHandler();

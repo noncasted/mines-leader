@@ -4,5 +4,5 @@ namespace Game.GamePlay;
 
 public interface IBoardCard
 {
-    void Use(Position position);
+    EmptyResponse Use(Position position);
 }
