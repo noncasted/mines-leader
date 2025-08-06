@@ -11,6 +11,12 @@ public interface IModifiers
 
 public class Modifiers : IModifiers
 {
+    public Modifiers(ValueProperty<PlayerModifiersState> state)
+    {
+        _state = state;
+    }
+    
+    private readonly ValueProperty<PlayerModifiersState> _state;
     private readonly Dictionary<PlayerModifier, float> _values = new();
 
     public IReadOnlyDictionary<PlayerModifier, float> Values => _values;
@@ -18,6 +24,12 @@ public class Modifiers : IModifiers
     public void Set(PlayerModifier type, float value)
     {
         _values[type] = value;
+        SyncState();
+    }
+    
+    public void SyncState()
+    {
+        _state.Set(new PlayerModifiersState { Values = new Dictionary<PlayerModifier, float>(_values) });
     }
 }
 

@@ -3,11 +3,9 @@
 public interface IObjectProperty
 {
     int Id { get; }
-    bool IsDirty { get; }
     byte[] Value { get; }
 
     void Update(byte[] value);
-    void MarkClean();
 }
 
 public class ObjectProperty : IObjectProperty
@@ -19,20 +17,20 @@ public class ObjectProperty : IObjectProperty
     }
 
     private byte[] _value;
-    private bool _isDirty;
+    private int _objectId;
+    private IPropertyUpdateSender _updateSender;
 
     public int Id { get; }
-    public bool IsDirty => _isDirty;
     public byte[] Value => _value;
 
+    public void Construct(IPropertyUpdateSender updateSender, int objectId)
+    {
+        _objectId = objectId;
+        _updateSender = updateSender;
+    }
+    
     public void Update(byte[] value)
     {
-        _isDirty = true;
         _value = value;
-    }
-
-    public void MarkClean()
-    {
-        _isDirty = false;
     }
 }

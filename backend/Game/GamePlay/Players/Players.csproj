@@ -7,6 +7,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\shared\Game\Game.csproj" />
+      <ProjectReference Include="..\..\..\..\shared\Session\Session.csproj" />
+      <ProjectReference Include="..\..\Session\Session.csproj" />
       <ProjectReference Include="..\Board\Board.csproj" />
     </ItemGroup>
 

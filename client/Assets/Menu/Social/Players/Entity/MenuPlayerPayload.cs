@@ -1,6 +1,7 @@
 ﻿using System;
 using Common.Network;
 using MemoryPack;
+using Shared;
 
 namespace Menu.Social
 {

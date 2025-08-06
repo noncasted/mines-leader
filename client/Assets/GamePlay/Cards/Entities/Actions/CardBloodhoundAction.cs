@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards

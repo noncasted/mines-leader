@@ -32,5 +32,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
       <ProjectReference Include="..\Protocol\Protocol.csproj" />
+      <ProjectReference Include="..\Session\Session.csproj" />
     </ItemGroup>
 </Project>

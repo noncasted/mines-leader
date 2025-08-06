@@ -10,8 +10,21 @@ public interface IPlayer
 
 public class Player : IPlayer
 {
+    public Player(IEntity entity, Health health, Mana mana, Modifiers modifiers)
+    {
+        _entity = entity;
+        _health = health;
+        _mana = mana;
+        _modifiers = modifiers;
+    }
+
+    private readonly IEntity _entity;
+    private readonly Health _health;
+    private readonly Mana _mana;
+    private readonly Modifiers _modifiers;
+    
     public IBoard Board { get; }
-    public IHealth Health { get; }
-    public IMana Mana { get; }
-    public IModifiers Modifiers { get; }
+    public IHealth Health => _health;
+    public IMana Mana => _mana;
+    public IModifiers Modifiers => _modifiers;
 }

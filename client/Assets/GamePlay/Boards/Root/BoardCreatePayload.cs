@@ -1,5 +1,6 @@
 ﻿using Common.Network;
 using MemoryPack;
+using Shared;
 
 namespace GamePlay.Boards
 {

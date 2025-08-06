@@ -1,6 +1,6 @@
 ﻿using MemoryPack;
 
-namespace Common.Network
+namespace Shared
 {
     [MemoryPackable(GenerateType.NoGenerate)]
     public partial interface IEntityPayload

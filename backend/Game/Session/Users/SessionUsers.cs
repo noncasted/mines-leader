@@ -60,4 +60,10 @@ public static class SessionUsersExtensions
             user.Send(context);
         }
     }
+    
+    public static void SendAll(this ISessionUsers users, INetworkContext context)
+    {
+        foreach (var user in users)
+            user.Send(context);
+    }
 }

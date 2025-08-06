@@ -2,6 +2,7 @@
 using Common.Network;
 using MemoryPack;
 using Meta;
+using Shared;
 
 namespace GamePlay.Players
 {
