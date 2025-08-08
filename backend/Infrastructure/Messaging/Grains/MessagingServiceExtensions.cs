@@ -10,7 +10,7 @@ public static class MessagingServiceExtensions
 {
     public static IHostApplicationBuilder AddMessaging(this IHostApplicationBuilder builder)
     {
-        builder.AddSingleton<MessagingClient>()
+        builder.Services.Add<MessagingClient>()
             .As<IMessagingClient>()
             .AsOrleansLoopStage();
         

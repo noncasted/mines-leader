@@ -54,14 +54,14 @@ public static class StateAttributesExtensions
         void AddTransactionalAttribute<TAttribute>()
             where TAttribute : TransactionalStateAttribute, new()
         {
-            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
+            builder.Services.Add<IAttributeToFactoryMapper<TAttribute>,
                     GenericTransactionalStateAttributeMapper<TAttribute>>();
         }
 
         void AddPersistentAttribute<TAttribute>()
             where TAttribute : PersistentStateAttribute
         {
-            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
+            builder.Services.Add<IAttributeToFactoryMapper<TAttribute>,
                 GenericPersistentStateAttributeMapper<TAttribute>>();
         }
     }

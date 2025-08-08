@@ -32,8 +32,8 @@ public static class OrleansUtilsExtensions
 {
     public static IHostApplicationBuilder AddOrleansUtils(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<ITransactions, Transactions>();
-        builder.Services.AddSingleton<IOrleans, OrleansUtils>();
+        builder.Services.Add<ITransactions, Transactions>();
+        builder.Services.Add<IOrleans, OrleansUtils>();
         
         return builder;
     }

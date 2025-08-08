@@ -20,7 +20,7 @@ public class SnapshotSender : ISnapshotSender
     {
         var context = snapshot.Collect();
         
-        foreach (var (user, _) in _context.Players)
+        foreach (var (user, _) in _context.UserToPlayer)
             user.Send(context);
     }
 }

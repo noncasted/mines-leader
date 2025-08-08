@@ -49,7 +49,7 @@ public class Entity : IEntity
             properties.Add(new SharedSessionObject.PropertyUpdate()
             {
                 PropertyId = property.Id,
-                Value = property.Value
+                Value = property.RawValue
             });
         }
 

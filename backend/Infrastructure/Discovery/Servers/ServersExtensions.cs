@@ -33,7 +33,7 @@ public static class ServersExtensions
 
     public static IHostApplicationBuilder AddServerOverviewPusher(this IHostApplicationBuilder builder)
     {
-        builder.AddSingleton<ServerOverviewPusher>()
+        builder.Services.Add<ServerOverviewPusher>()
             .AsMessagingLoopStage();
         
         builder.AddEnvironmentOptions<ServersOptions>("appsettings.servers");

@@ -6,6 +6,8 @@
         {
             SharedMoveSnapshot.Register(builder);
             SharedGameAction.Register(builder);
+
+            builder.Add<PlayerReadyContext>();
             
             return builder;
         }

@@ -22,7 +22,7 @@ public class PropertyUpdateSender : IPropertyUpdateSender
         {
             ObjectId = objectId,
             PropertyId = property.Id,
-            Value = property.Value
+            Value = property.RawValue
         };
 
         _users.SendAll(context);

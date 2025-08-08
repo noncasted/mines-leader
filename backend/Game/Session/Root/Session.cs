@@ -31,12 +31,14 @@ public class Session : ISession
 {
     public Session(
         SessionContainerData data,
+        ISessionEvents events,
         IUserFactory userFactory,
         ISessionUsers users,
         ISessionEntities entities,
         IExecutionQueue executionQueue)
     {
         _data = data;
+        _events = events;
         _users = users;
         _entities = entities;
         ExecutionQueue = executionQueue;
@@ -46,6 +48,7 @@ public class Session : ISession
     private readonly ISessionUsers _users;
     private readonly ISessionEntities _entities;
     private readonly SessionContainerData _data;
+    private readonly ISessionEvents _events;
 
     public Guid Id => _data.Id;
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
@@ -56,7 +59,9 @@ public class Session : ISession
 
     public async Task Run()
     {
+        await _events.OnCreated(Lifetime);
         await AwaitUsersJoin();
+        await _events.OnAllConnected(Lifetime);
 
         _users.View(Lifetime, user => HandleUserJoin(user).NoAwait());
 

@@ -1,4 +1,8 @@
-﻿namespace Shared
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Shared
 {
     public enum CardType
     {
@@ -26,5 +30,15 @@
         OpponentBoard,
         Self,
         Opponent,
+    }
+    
+    public static class CardTypeExtensions
+    {
+        static CardTypeExtensions()
+        {
+            All = Enum.GetValues<CardType>().ToList();
+        }
+
+        public static readonly IReadOnlyList<CardType> All;
     }
 }

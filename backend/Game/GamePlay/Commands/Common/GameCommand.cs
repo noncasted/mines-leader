@@ -14,7 +14,7 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
 
     protected override EmptyResponse Execute(IUser user, TRequest request)
     {
-        var player = Utils.GameContext.Players[user];
+        var player = Utils.GameContext.UserToPlayer[user];
         var lifetime = new Lifetime();
 
         var commandContext = new Context

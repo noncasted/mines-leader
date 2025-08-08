@@ -19,6 +19,33 @@ public class MoveSnapshot
         HandleBoards(lifetime);
     }
 
+    public void RecordCard(Guid playerId, CardType card)
+    {
+        _records.Add(new PlayerSnapshotRecord.Card()
+        {
+            PlayerId = playerId,
+            Type = card
+        });
+    }
+    
+    public void RecordReshuffleFromStash(Guid playerId, int count)
+    {
+        _records.Add(new PlayerSnapshotRecord.ReshuffleFromStash()
+        {
+            PlayerId = playerId,
+            CardsCount = count
+        });
+    }
+    
+    public void RecordCardDraw(Guid playerId, CardType type)
+    {
+        _records.Add(new PlayerSnapshotRecord.CardDraw()
+        {
+            PlayerId = playerId,
+            Type = type
+        });
+    }
+
     private void HandleBoards(IReadOnlyLifetime lifetime)
     {
         foreach (var (_, board) in _gameContext.Boards)
@@ -86,7 +113,7 @@ public class MoveSnapshot
 
     private void ListenPlayers(IReadOnlyLifetime lifetime)
     {
-        foreach (var (_, player) in _gameContext.Players)
+        foreach (var (_, player) in _gameContext.UserToPlayer)
         {
             
         }    
