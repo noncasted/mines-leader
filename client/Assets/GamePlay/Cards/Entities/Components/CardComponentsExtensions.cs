@@ -20,9 +20,6 @@ namespace GamePlay.Cards
                 .As<ICardContext>()
                 .As<IScopeSetup>();
 
-            builder.Register<CardUseSyncSender>()
-                .As<ICardUseSync>();
-
             return builder;
         }
 
@@ -34,9 +31,6 @@ namespace GamePlay.Cards
             builder.Register<CardStateLifetime>()
                 .WithParameter(builder.Lifetime)
                 .As<ICardStateLifetime>();
-
-            builder.Register<CardUseSyncReceiver>()
-                .As<IScopeSetup>();
 
             return builder;
         }

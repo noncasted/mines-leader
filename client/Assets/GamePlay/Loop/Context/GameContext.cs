@@ -12,41 +12,31 @@ namespace GamePlay.Loop
         IReadOnlyList<IGamePlayer> All { get; }
 
         GameOptions Options { get; }
-        bool IsFirstOpened { get; }
 
-        void CompleteSetup(IReadOnlyList<IGamePlayer> players);
-        void OnFirstOpen();
+        void AddPlayer(IGamePlayer player);
     }
 
     public class GameContext : IGameContext
     {
-        private readonly GameOptions _options = new GameOptions();
+        private readonly GameOptions _options = new();
 
         private IGamePlayer _self;
         private IGamePlayer _other;
-        private IReadOnlyList<IGamePlayer> _all;
-
-        private bool _isFirstOpened;
+        private readonly List<IGamePlayer> _all = new();
 
         public IGamePlayer Self => _self;
         public IGamePlayer Other => _other;
         public IReadOnlyList<IGamePlayer> All => _all;
         public GameOptions Options => _options;
-        public bool IsFirstOpened => _isFirstOpened;
 
-        public void CompleteSetup(IReadOnlyList<IGamePlayer> players)
+        public void AddPlayer(IGamePlayer player)
         {
-            _self = players.First(t => t.Info.IsLocal == true);
+            if (player.Info.IsLocal == true)
+                _self = player;
+            else
+                _other = player;
 
-            if (players.Count > 1)
-                _other = players.First(t => t.Info.IsLocal == false);
-
-            _all = players;
-        }
-
-        public void OnFirstOpen()
-        {
-            _isFirstOpened = true;
+            _all.Add(player);
         }
     }
 

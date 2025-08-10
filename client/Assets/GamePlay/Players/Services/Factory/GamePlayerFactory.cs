@@ -10,13 +10,7 @@ using VContainer.Unity;
 
 namespace GamePlay.Players
 {
-    public interface IGamePlayerFactory
-    {
-        UniTask<IGamePlayer> CreateLocal(IReadOnlyLifetime lifetime);
-        UniTask<IReadOnlyList<IGamePlayer>> WaitRemote(IReadOnlyLifetime lifetime, int remoteAmount);
-    }
-    
-    public class GamePlayerFactory : IGamePlayerFactory, IScopeSetup
+    public class GamePlayerFactory : IScopeSetup
     {
         public GamePlayerFactory(
             INetworkEntityFactory entityFactory,
@@ -48,93 +42,87 @@ namespace GamePlay.Players
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _entityFactory.ListenRemote<GamePlayerCreatePayload>(lifetime, OnRemote);
+            _entityFactory.ListenRemote<GamePlayerCreatePayload>(lifetime, OnReceived);
         }
 
-        public async UniTask<IGamePlayer> CreateLocal(IReadOnlyLifetime lifetime)
+        private UniTask<INetworkEntity> OnReceived(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
-            var payload = new GamePlayerCreatePayload()
-            {
-                Id = _entityFactory.LocalUser.BackendId,
-                Name = "Player_Local",
-                SelectedCharacter = _user.Character
-            };
+            if (data.Owner.IsLocal == true)
+                return CreateLocal(lifetime, data);
 
-            var view = _objectFactory.Create(_options.LocalPrefab);
-            var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
-
-            var mana = loadResult.Get<IPlayerMana>();
-            var health = loadResult.Get<IPlayerHealth>();
-            var turns = loadResult.Get<IPlayerTurns>();
-
-            mana.SetMax(_gameContext.Options.MaxMana);
-            mana.SetCurrent(_gameContext.Options.StartMana);
-
-            health.SetMax(_gameContext.Options.Health);
-            health.SetCurrent(_gameContext.Options.Health);
-
-            turns.SetMax(_gameContext.Options.Turns);
-            turns.SetCurrent(_gameContext.Options.Turns);
-            
-            var entity = loadResult.Get<INetworkEntity>();
-            var board = loadResult.Get<IBoard>();
-            
-            board.Setup(entity);
-            
-            await _entityFactory.Send(lifetime, entity, payload);
-
-            await loadResult.Get<IEventLoop>().RunLoaded(loadResult.Lifetime);
-            
-            return loadResult.Get<IGamePlayer>();
-
-            async UniTask Build(IEntityBuilder builder)
-            {
-                builder.AddLocalEntity(_entityFactory);
-                
-                var buildContext = new PlayerBuildContext(_gameContext, builder);
-
-                await view.BoardFactory.CreateLocal(buildContext);
-                await view.DeckFactory.CreateLocal(buildContext);
-                await view.HandFactory.Create(buildContext);
-                await view.StashFactory.CreateLocal(buildContext);
-                await view.AvatarFactory.CreateLocal(buildContext);
-
-                builder
-                    .AddPlayerComponents()
-                    .AddPlayerRoot(_entityFactory.LocalUser, _user.Character);
-            }
+            return CreateRemote(lifetime, data);
         }
 
-        private async UniTask<INetworkEntity> OnRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
+        private async UniTask<INetworkEntity> CreateLocal(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
             var payload = data.ReadPayload<GamePlayerCreatePayload>();
 
             var view = _objectFactory.Create(_options.RemotePrefab);
             var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
             var player = loadResult.Get<IGamePlayer>();
-            
+
             var board = loadResult.Get<IBoard>();
             var entity = loadResult.Get<INetworkEntity>();
 
             board.Setup(entity);
-            
+
             loadResult.FillProperties(data);
             _remote.Add(player);
 
             await loadResult.Get<IEventLoop>().RunLoaded(loadResult.Lifetime);
+            _gameContext.AddPlayer(player);
 
             return loadResult.Get<INetworkEntity>();
 
             async UniTask Build(IEntityBuilder builder)
             {
                 builder.AddRemoteEntity(data);
-                
+
+                var buildContext = new PlayerBuildContext(_gameContext, builder);
+
+                await view.BoardFactory.CreateLocal(buildContext);
+                await view.DeckFactory.Create(buildContext);
+                await view.HandFactory.Create(buildContext);
+                await view.StashFactory.Create(buildContext);
+                await view.AvatarFactory.CreateLocal(buildContext);
+
+                builder
+                    .AddPlayerComponents()
+                    .AddPlayerRoot(data.Owner, payload.SelectedCharacter);
+            }
+        }
+
+        private async UniTask<INetworkEntity> CreateRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
+        {
+            var payload = data.ReadPayload<GamePlayerCreatePayload>();
+
+            var view = _objectFactory.Create(_options.RemotePrefab);
+            var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            var player = loadResult.Get<IGamePlayer>();
+
+            var board = loadResult.Get<IBoard>();
+            var entity = loadResult.Get<INetworkEntity>();
+
+            board.Setup(entity);
+
+            loadResult.FillProperties(data);
+            _remote.Add(player);
+
+            await loadResult.Get<IEventLoop>().RunLoaded(loadResult.Lifetime);
+            _gameContext.AddPlayer(player);
+            
+            return loadResult.Get<INetworkEntity>();
+
+            async UniTask Build(IEntityBuilder builder)
+            {
+                builder.AddRemoteEntity(data);
+
                 var buildContext = new PlayerBuildContext(_gameContext, builder);
 
                 await view.BoardFactory.CreateRemote(buildContext);
-                await view.DeckFactory.CreateRemote(buildContext);
+                await view.DeckFactory.Create(buildContext);
                 await view.HandFactory.Create(buildContext);
-                await view.StashFactory.CreateRemote(buildContext);
+                await view.StashFactory.Create(buildContext);
                 await view.AvatarFactory.CreateRemote(buildContext);
 
                 builder

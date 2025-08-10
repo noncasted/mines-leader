@@ -9,6 +9,7 @@ using Global.Cameras;
 using Global.UI;
 using Internal;
 using Meta;
+using Shared;
 
 namespace GamePlay.Loop
 {
@@ -16,7 +17,7 @@ namespace GamePlay.Loop
     {
         UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
     }
-    
+
     public class PvPGameLoop : IPvPGameLoop
     {
         public PvPGameLoop(
@@ -26,7 +27,6 @@ namespace GamePlay.Loop
             INetworkSession session,
             IGameCamera gameCamera,
             ICurrentCamera camera,
-            IGamePlayerFactory playerFactory,
             IGameContext gameContext,
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
@@ -41,7 +41,6 @@ namespace GamePlay.Loop
             _session = session;
             _gameCamera = gameCamera;
             _camera = camera;
-            _playerFactory = playerFactory;
             _gameContext = gameContext;
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
@@ -57,7 +56,6 @@ namespace GamePlay.Loop
         private readonly INetworkSession _session;
         private readonly IGameCamera _gameCamera;
         private readonly ICurrentCamera _camera;
-        private readonly IGamePlayerFactory _playerFactory;
         private readonly IGameContext _gameContext;
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
@@ -71,23 +69,17 @@ namespace GamePlay.Loop
             _camera.SetCamera(_gameCamera.Camera);
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
 
-            var localPlayerTask = _playerFactory.CreateLocal(lifetime);
-            var remotePlayerTask = _playerFactory.WaitRemote(lifetime, 1);
-
-            var (localPlayer, remotePlayers) = await UniTask.WhenAll(localPlayerTask, remotePlayerTask);
-
-            var players = new List<IGamePlayer>() { localPlayer };
-            players.AddRange(remotePlayers);
-            
-            _gameContext.CompleteSetup(players);
+            await UniTask.WaitUntil(() => _gameContext.All.Count == 2, cancellationToken: lifetime.Token);
 
             _cellsSelection.Start(lifetime);
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
             _boardMines.Start(lifetime);
-            
+
             _loadingScreen.Hide();
             _globalCamera.Disable();
+
+            _connection.OneWay(new PlayerReadyContext());
 
             await _gameFlow.Execute(lifetime);
             await _connection.ForceSendAll();

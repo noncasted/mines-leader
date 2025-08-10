@@ -17,6 +17,7 @@ public class Player : IPlayer
 {
     public Player(
         IEntity entity,
+        Board board,
         Health health,
         Mana mana, 
         Modifiers modifiers,
@@ -24,8 +25,8 @@ public class Player : IPlayer
         Moves moves,
         Hand hand, Stash stash)
     {
-        User = entity.Owner;
         _entity = entity;
+        _board = board;
         _health = health;
         _mana = mana;
         _modifiers = modifiers;
@@ -36,6 +37,7 @@ public class Player : IPlayer
     }
 
     private readonly IEntity _entity;
+    private readonly Board _board;
     private readonly Health _health;
     private readonly Mana _mana;
     private readonly Modifiers _modifiers;
@@ -44,8 +46,8 @@ public class Player : IPlayer
     private readonly Moves _moves;
     private readonly Hand _hand;
 
-    public IUser User { get; }
-    public IBoard Board { get; }
+    public IUser User => _entity.Owner;
+    public IBoard Board => _board;
     public IStash Stash => _stash;
     public IDeck Deck => _deck;
     public IHealth Health => _health;

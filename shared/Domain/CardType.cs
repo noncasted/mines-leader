@@ -36,7 +36,7 @@ namespace Shared
     {
         static CardTypeExtensions()
         {
-            All = Enum.GetValues<CardType>().ToList();
+            All = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
         }
 
         public static readonly IReadOnlyList<CardType> All;

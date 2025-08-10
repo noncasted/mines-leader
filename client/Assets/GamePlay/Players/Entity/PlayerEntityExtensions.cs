@@ -1,6 +1,7 @@
 ﻿using Common.Network;
 using Internal;
 using Meta;
+using Shared;
 
 namespace GamePlay.Players
 {
@@ -16,16 +17,17 @@ namespace GamePlay.Players
                 .As<IPlayerHealth>()
                 .As<IScopeLoaded>();
 
-            builder.Register<PlayerTurns>()
-                .As<IPlayerTurns>()
+            builder.Register<PlayerMoves>()
+                .As<IPlayerMoves>()
                 .As<IScopeLoaded>();
 
             builder.Register<PlayerModifiers>()
-                .As<IPlayerModifiers>();
+                .As<IPlayerModifiers>()
+                .As<IScopeLoaded>();
             
             builder.RegisterProperty<PlayerManaState>();
             builder.RegisterProperty<PlayerHealthState>();
-            builder.RegisterProperty<PlayerTurnsState>();
+            builder.RegisterProperty<PlayerMovesState>();
             
             return builder;
         }

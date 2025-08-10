@@ -24,7 +24,7 @@ namespace GamePlay.Cards
             ICardStateLifetime stateLifetime,
             ICardAction action,
             ICardLocalDrop drop,
-            IPlayerTurns turns,
+            IPlayerMoves moves,
             ICardDefinition definition,
             CardDragOptions options)
         {
@@ -36,7 +36,7 @@ namespace GamePlay.Cards
             _stateLifetime = stateLifetime;
             _action = action;
             _drop = drop;
-            _turns = turns;
+            _moves = moves;
             _definition = definition;
             _options = options;
         }
@@ -49,7 +49,7 @@ namespace GamePlay.Cards
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
         private readonly ICardLocalDrop _drop;
-        private readonly IPlayerTurns _turns;
+        private readonly IPlayerMoves _moves;
         private readonly ICardDefinition _definition;
         private readonly CardDragOptions _options;
 
@@ -61,7 +61,7 @@ namespace GamePlay.Cards
             var positionHandle = _handEntryHandle.PositionHandle;
             var selectionLifetime = lifetime.Child();
 
-            _turns.IsTurn.Advise(lifetime, isTurn =>
+            _moves.IsTurn.Advise(lifetime, isTurn =>
             {
                 if (isTurn == false)
                     selectionLifetime.Terminate();
@@ -69,7 +69,8 @@ namespace GamePlay.Cards
 
             _updater.RunUpdateAction(selectionLifetime, _ => MoveTowards(startPosition)).Forget();
 
-            var isUsed = await _action.Execute(selectionLifetime);
+            // TODO: replace with command
+            var isUsed = true;
             selectionLifetime.Terminate();
             
             if (isUsed == false)
@@ -86,8 +87,6 @@ namespace GamePlay.Cards
             }
 
             _gameContext.Self.Board.InvokeUpdated();
-            _mana.RemoveCurrent(_definition.ManaCost);
-            _turns.OnUsed();
             _drop.Enter().Forget();
 
             void MoveTowards(Vector2 target)

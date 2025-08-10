@@ -21,7 +21,7 @@ namespace Meta
         {
             return backend.ExecuteCommand(new SharedMatchmaking.Search()
             {
-                Type = SharedMatchmaking.GameType
+                Type = SessionType.Game
             });
         }
 
@@ -39,7 +39,7 @@ namespace Meta
         {
             return backend.ExecuteCommand(new SharedMatchmaking.Search()
             {
-                Type = SharedMatchmaking.LobbyType
+                Type = SessionType.Lobby
             });
         }
 

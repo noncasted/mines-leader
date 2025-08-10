@@ -24,33 +24,6 @@ namespace GamePlay.Loop
         {
             _flowLifetime = lifetime.Child();
 
-            var player = _context.Self;
-            var hand = player.Hand;
-            var deck = player.Deck;
-            var gameOptions = _context.Options;
-
-            var setupTasks = new List<UniTask>();
-
-            for (var i = 0; i < gameOptions.RequiredCardsInHand; i++)
-            {
-                setupTasks.Add(deck.DrawCard(_flowLifetime));
-                await UniTask.Delay(TimeSpan.FromSeconds(0.3f));
-            }
-
-            await UniTask.WhenAll(setupTasks);
-
-            _gameRound.Start();
-
-            while (_flowLifetime.IsTerminated == false)
-            {
-                while (hand.Entries.Count < gameOptions.RequiredCardsInHand)
-                    await deck.DrawCard(_flowLifetime);
-
-                await UniTask.WaitUntil(
-                    () => hand.Entries.Count < gameOptions.RequiredCardsInHand,
-                    cancellationToken: _flowLifetime.Token);
-            }
-
             return await _completion.Task;
         }
 

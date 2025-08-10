@@ -1,10 +1,9 @@
 ﻿using Common;
-using Context;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Game.GamePlay;
 
-public static class GameContextExtensions
+public static class GameContextServiceExtensions
 {
     public static IServiceCollection AddGameContext(this IServiceCollection services)
     {
@@ -12,6 +11,9 @@ public static class GameContextExtensions
 
         services.Add<GameRound>()
             .As<IService>();
+
+        services.AddSingleton<ISnapshotSender, SnapshotSender>();
+        services.AddSingleton<IGameReadyAwaiter, GameReadyAwaiter>();
 
         return services;
     }

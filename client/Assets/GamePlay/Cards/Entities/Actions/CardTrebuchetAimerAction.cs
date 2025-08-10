@@ -9,17 +9,14 @@ namespace GamePlay.Cards
     {
         public CardTrebuchetAimerAction(
             ICardDropDetector dropDetector,
-            IPlayerModifiers modifiers,
-            ICardUseSync useSync)
+            IPlayerModifiers modifiers)
         {
             _dropDetector = dropDetector;
             _modifiers = modifiers;
-            _useSync = useSync;
         }
 
         private readonly ICardDropDetector _dropDetector;
         private readonly IPlayerModifiers _modifiers;
-        private readonly ICardUseSync _useSync;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
@@ -28,18 +25,10 @@ namespace GamePlay.Cards
             if (isDropped == false || lifetime.IsTerminated == true)
                 return false;
 
-            _modifiers.Inc(PlayerModifier.TrebuchetBoost);
-            _useSync.Send(new CardUseEvents.TrebuchetAimer());
+            // _modifiers.Inc(PlayerModifier.TrebuchetBoost);
+            // _useSync.Send(new CardUseEvents.TrebuchetAimer());
 
             return true;
-        }
-    }
-    
-    public class CardTrebuchetAimerActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

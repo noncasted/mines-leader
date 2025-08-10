@@ -12,11 +12,9 @@ namespace GamePlay.Players
         LifetimeScope Scope { get; }
         IPlayerMana Mana { get; }
         IPlayerHealth Health { get; }
-        IPlayerTurns Turns { get; }
+        IPlayerMoves Moves { get; }
         IHand Hand { get; } 
-        IDeck Deck { get; }
         IBoard Board { get; }
-        IStash Stash { get; }
     }
     
     public class GamePlayer : IGamePlayer
@@ -24,22 +22,18 @@ namespace GamePlay.Players
         public GamePlayer(
             LifetimeScope scope,
             IHand hand,
-            IDeck deck,
             IBoard board,
-            IStash stash,
             IPlayerMana mana,
             IPlayerHealth health,
-            IPlayerTurns turns,
+            IPlayerMoves moves,
             IGamePlayerInfo info)
         {
             Mana = mana;
             
             Scope = scope;
             Hand = hand;
-            Deck = deck;
             Board = board;
-            Stash = stash;
-            Turns = turns;
+            Moves = moves;
             Info = info;
             Health = health;
         }
@@ -48,11 +42,9 @@ namespace GamePlay.Players
         public LifetimeScope Scope { get; }
         public IPlayerMana Mana { get; }
         public IPlayerHealth Health { get; }
-        public IPlayerTurns Turns { get; }
+        public IPlayerMoves Moves { get; }
         public IGamePlayerInfo Info { get; }
         public IHand Hand { get; }
-        public IDeck Deck { get; }
         public IBoard Board { get; }
-        public IStash Stash { get; }
     }
 }

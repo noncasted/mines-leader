@@ -15,14 +15,12 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
-            ICardContext context,
-            ICardUseSync useSync)
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
             _context = context;
-            _useSync = useSync;
         }
 
         private int _minesAmount => _context.Type switch
@@ -36,7 +34,6 @@ namespace GamePlay.Cards
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
-        private readonly ICardUseSync _useSync;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
@@ -61,8 +58,7 @@ namespace GamePlay.Cards
                     taken.SetMine();
             }
 
-            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
-            _useSync.Send(new CardUseEvents.Trebuchet());
+//            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
             return true;
         }
@@ -82,14 +78,6 @@ namespace GamePlay.Cards
             {
                 return _shape.SelectFree(_board, pointer);
             }
-        }
-    }
-    
-    public class CardTrebuchetActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

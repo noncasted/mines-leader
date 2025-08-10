@@ -1,7 +1,4 @@
-﻿using Game;
-using Game.GamePlay;
-
-namespace Context;
+﻿namespace Game.GamePlay;
 
 public interface IGameContext
 {
@@ -19,9 +16,7 @@ public class GameContext : IGameContext
     private readonly Dictionary<IUser, IPlayer>_userToPlayer = new();
 
     public IReadOnlyList<IPlayer> Players => _players;
-
     public IReadOnlyDictionary<IPlayer, IBoard> Boards => _boards;
-
     public IReadOnlyDictionary<IUser, IPlayer> UserToPlayer => _userToPlayer;
 
     public void AddPlayer(IPlayer player)

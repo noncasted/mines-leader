@@ -1,6 +1,4 @@
-﻿using Context;
-
-namespace Game.GamePlay;
+﻿namespace Game.GamePlay;
 
 public interface ISnapshotSender
 {

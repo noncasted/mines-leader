@@ -14,21 +14,18 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             CardType cardType,
-            ICardContext context,
-            ICardUseSync useSync)
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _cardType = cardType;
             _context = context;
-            _useSync = useSync;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly CardType _cardType;
         private readonly ICardContext _context;
-        private readonly ICardUseSync _useSync;
 
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
@@ -45,7 +42,6 @@ namespace GamePlay.Cards
                 cell.EnsureFree();
 
             selected.CleanupAround();
-            _useSync.Send(new CardUseEvents.ErosionDozer());
 
             return true;
         }
@@ -69,14 +65,6 @@ namespace GamePlay.Cards
                 var limited = ordered.Take(_size).ToList();
                 return limited;
             }
-        }
-    }
-    
-    public class CardErosionDozerActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

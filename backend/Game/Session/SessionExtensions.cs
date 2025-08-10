@@ -11,15 +11,12 @@ public static class SessionExtensions
         services.AddSingleton<ISession, Session>();
 
         services.AddSingleton(data);
-        services.AddSingleton<ISessionData>(sp =>
+        services.AddSingleton<ISessionData>(new SessionData
             {
-                return new SessionData
-                {
-                    ExpectedUsers = data.CreateOptions.ExpectedUsers,
-                    Type = data.CreateOptions.Type,
-                    Id = data.Id,
-                    Lifetime = data.Lifetime
-                };
+                ExpectedUsers = data.CreateOptions.ExpectedUsers,
+                Type = data.CreateOptions.Type,
+                Id = data.Id,
+                Lifetime = data.Lifetime
             }
         );
 
@@ -32,10 +29,10 @@ public static class SessionExtensions
         services.AddSingleton<ISessionObjects, SessionObjects>();
         services.AddSingleton<IEntityFactory, EntityFactory>();
         services.AddSingleton<ISessionEntities, SessionEntities>();
-        
+
         services.Add<IServiceFactory, ServiceFactory>()
             .As<ISessionCreated>();
-        
+
         services.AddSingleton<ISessionServices, SessionServices>();
 
         services.AddSingleton<IResponseCommand, EntityCreateCommand>();

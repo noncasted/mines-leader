@@ -1,30 +1,30 @@
 ﻿using Common.Network;
-using GamePlay.Loop;
 using Internal;
 using Shared;
-using GameOptions = GamePlay.Loop.GameOptions;
 
 namespace GamePlay.Players
 {
-    public interface IPlayerMana
+    public interface IPlayerMoves
     {
+        IViewableProperty<bool> IsTurn { get; }
         IViewableProperty<int> Current { get; }
         IViewableProperty<int> Max { get; }
     }
 
-    public class PlayerMana : IPlayerMana, IScopeLoaded
+    public class PlayerMoves : IPlayerMoves, IScopeLoaded
     {
-        public PlayerMana(NetworkProperty<PlayerManaState> state)
+        public PlayerMoves(NetworkProperty<PlayerMovesState> state)
         {
             _state = state;
         }
 
-        private readonly NetworkProperty<PlayerManaState> _state;
+        private readonly NetworkProperty<PlayerMovesState> _state;
 
+        private readonly ViewableProperty<bool> _isTurn = new(false);
         private readonly ViewableProperty<int> _current = new();
         private readonly ViewableProperty<int> _max = new();
 
-        private float _regenerationTimer;
+        public IViewableProperty<bool> IsTurn => _isTurn;
 
         public IViewableProperty<int> Current => _current;
         public IViewableProperty<int> Max => _max;
@@ -33,10 +33,18 @@ namespace GamePlay.Players
         {
             _state.View(lifetime, state =>
                 {
-                    _current.Set(state.Current);
+                    _current.Set(state.Left);
                     _max.Set(state.Max);
                 }
             );
+        }
+    }
+
+    public static class PlayerTurnsExtensions
+    {
+        public static bool IsAvailable(this IPlayerMoves moves)
+        {
+            return moves.IsTurn.Value == true && moves.Current.Value > 0;
         }
     }
 }

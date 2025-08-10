@@ -25,7 +25,6 @@ namespace Tools.MemoryPackTools
             eventPayloads
                 .Add<MenuChatMessagePayload>()
                 .Add<GameFlowEvents.Lose>()
-                .Add<CardUseSyncPayload>()
                 .Add<BoardCellExplosionEvent>();
 
             contexts

@@ -66,30 +66,5 @@ namespace GamePlay.Cards
 
             return registration;
         }
-        
-        public static IRegistration AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)
-        {
-            var type = definition.Type;
-
-            var registration = type switch
-            {
-                CardType.Trebuchet => builder.Register<CardTrebuchetActionSync>(),
-                CardType.Trebuchet_Max => builder.Register<CardTrebuchetActionSync>(),
-                CardType.Bloodhound => builder.Register<CardBloodhoundActionSync>(),
-                CardType.Bloodhound_Max => builder.Register<CardBloodhoundActionSync>(),
-                CardType.TrebuchetAimer => builder.Register<CardTrebuchetAimerActionSync>(),
-                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerActionSync>(),
-                CardType.ErosionDozer => builder.Register<CardErosionDozerActionSync>(),
-                CardType.ErosionDozer_Max => builder.Register<CardErosionDozerActionSync>(),
-                CardType.Gravedigger => builder.Register<CardGravediggerActionSync>(),
-                CardType.ZipZap => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
-                CardType.ZipZap_Max => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-
-            registration.As<ICardActionSync>();
-
-            return registration;
-        }
     }
 }

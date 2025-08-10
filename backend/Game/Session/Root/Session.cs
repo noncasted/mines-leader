@@ -17,7 +17,7 @@ public interface ISession
 public class SessionCreateOptions
 {
     public required int ExpectedUsers { get; init; }
-    public required string Type { get; init; }
+    public required SessionType Type { get; init; }
 }
 
 public class SessionContainerData

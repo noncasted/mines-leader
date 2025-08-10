@@ -85,7 +85,6 @@ namespace GamePlay.Cards
 
                 builder.RegisterInstance(_gameContext.Self);
                 builder.RegisterInstance(_gameContext.Self.Hand);
-                builder.RegisterInstance(_gameContext.Self.Stash);
 
                 builder.Register<HandEntryHandle>()
                     .As<IHandEntryHandle>();
@@ -129,8 +128,6 @@ namespace GamePlay.Cards
                 builder.Register<HandEntryHandle>()
                     .WithParameter(gamePlayer.Hand)
                     .As<IHandEntryHandle>();
-
-                builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition);
             }

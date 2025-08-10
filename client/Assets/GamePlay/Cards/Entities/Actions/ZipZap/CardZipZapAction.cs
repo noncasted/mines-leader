@@ -20,7 +20,6 @@ namespace GamePlay.Cards
             IPlayerModifiers modifiers,
             ICardContext context,
             ICardVfxFactory vfxFactory,
-            ICardUseSync useSync,
             ZipZapOptions options)
         {
             _camera = camera;
@@ -30,7 +29,6 @@ namespace GamePlay.Cards
             _context = context;
             _vfxFactory = vfxFactory;
             _options = options;
-            _useSync = useSync;
         }
 
         private readonly IGameCamera _camera;
@@ -39,7 +37,6 @@ namespace GamePlay.Cards
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
         private readonly ICardVfxFactory _vfxFactory;
-        private readonly ICardUseSync _useSync;
         private readonly ZipZapOptions _options;
 
         private const int _searchRadius = 6;
@@ -75,8 +72,6 @@ namespace GamePlay.Cards
             if (targets.Count == 0)
                 return false;
 
-            _useSync.Send(new CardUseEvents.ZipZap(targets.Select(t => t.BoardPosition).ToList()));
-
             targets.First().Explode(CellExplosionType.ZipZap).Forget();
             _camera.BaseShake();
             var lines = new List<ZipZapLine>();
@@ -98,7 +93,7 @@ namespace GamePlay.Cards
 
             targets.CleanupAround();
 
-            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
+//            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
             return true;
 
@@ -141,57 +136,6 @@ namespace GamePlay.Cards
 
                 return startPositions;
             }
-        }
-    }
-
-    public class CardZipZapActionSync : ICardActionSync
-    {
-        public CardZipZapActionSync(
-            IGameCamera camera,
-            IGameContext gameContext,
-            ICardVfxFactory vfxFactory,
-            ZipZapOptions options)
-        {
-            _camera = camera;
-            _gameContext = gameContext;
-            _vfxFactory = vfxFactory;
-            _options = options;
-        }
-
-        private readonly IGameCamera _camera;
-        private readonly IGameContext _gameContext;
-        private readonly ICardVfxFactory _vfxFactory;
-        private readonly ZipZapOptions _options;
-
-        public async UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            if (payload is not CardUseEvents.ZipZap data)
-                return;
-
-            var targetsPositions = data.Targets;
-            var targets = targetsPositions
-                .Select(position => _gameContext.Other.Board.Cells[position])
-                .ToList();
-
-            targets.First().Explode(CellExplosionType.ZipZap).Forget();
-            _camera.BaseShake();
-
-            var lines = new List<ZipZapLine>();
-
-            for (var index = 1; index < targets.Count; index++)
-            {
-                var start = targets[index - 1];
-                var target = targets[index];
-
-                var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
-                await line.Show(lifetime, start, target);
-                target.Explode(CellExplosionType.ZipZap).Forget();
-                _camera.BaseShake();
-                lines.Add(line);
-            }
-
-            foreach (var line in lines)
-                Object.Destroy(line.gameObject);
         }
     }
 }

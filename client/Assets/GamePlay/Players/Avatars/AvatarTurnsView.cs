@@ -14,14 +14,14 @@ namespace GamePlay.Players
 
         private readonly List<AvatarTurnPointView> _points = new();
 
-        private IPlayerTurns _turns;
+        private IPlayerMoves _moves;
         private INetworkEntity _playerEntity;
 
         [Inject]
-        private void Construct(IPlayerTurns turns, INetworkEntity playerEntity)
+        private void Construct(IPlayerMoves moves, INetworkEntity playerEntity)
         {
             _playerEntity = playerEntity;
-            _turns = turns;
+            _moves = moves;
         }
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
@@ -33,13 +33,13 @@ namespace GamePlay.Players
 
             transform.localPosition = viewPosition;
 
-            _turns.Current.View(lifetime, Recalculate);
-            _turns.Max.View(lifetime, Recalculate);
+            _moves.Current.View(lifetime, Recalculate);
+            _moves.Max.View(lifetime, Recalculate);
 
             void Recalculate()
             {
-                var max = _turns.Max.Value;
-                var current = _turns.Current.Value;
+                var max = _moves.Max.Value;
+                var current = _moves.Current.Value;
 
                 CheckObjects();
                 AdjustPosition();

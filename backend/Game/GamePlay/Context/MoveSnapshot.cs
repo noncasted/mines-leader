@@ -1,5 +1,4 @@
 ﻿using Common;
-using Context;
 using Shared;
 
 namespace Game.GamePlay;
@@ -43,6 +42,15 @@ public class MoveSnapshot
         {
             PlayerId = playerId,
             Type = type
+        });
+    }
+    
+    public void RecordDeckFill(Guid playerId, int count)
+    {
+        _records.Add(new PlayerSnapshotRecord.DeckFill()
+        {
+            PlayerId = playerId,
+            Count = count
         });
     }
 

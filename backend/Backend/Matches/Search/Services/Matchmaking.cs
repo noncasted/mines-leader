@@ -33,11 +33,11 @@ public class Matchmaking : BackgroundService, IMatchmaking
         return Task.CompletedTask;
     }
 
-    public async Task Search(Guid userId, string type)
+    public async Task Search(Guid userId, SessionType type)
     {
         switch (type)
         {
-            case SharedMatchmaking.GameType:
+            case SessionType.Game:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a game", userId);
 
@@ -47,7 +47,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
 
                 break;
             }
-            case SharedMatchmaking.LobbyType:
+            case SessionType.Lobby:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a lobby", userId);
 

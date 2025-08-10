@@ -16,6 +16,12 @@ public class Moves : IMoves
     {
         _state = state;
         _maxTurns = maxTurns;
+        
+        state.Set(new PlayerMovesState()
+        {
+            Left = maxTurns,
+            Max = maxTurns
+        });
     }
 
     private readonly ValueProperty<PlayerMovesState> _state;
@@ -27,7 +33,8 @@ public class Moves : IMoves
     {
         _state.Update(state =>
         {
-            state.Left = state.Left - 1;
+            state.Left -= 1;
+            state.Max = _maxTurns;
             
             if (state.Left < 0)
                 throw new InvalidOperationException("Turns cannot be less than zero.");
@@ -39,6 +46,7 @@ public class Moves : IMoves
         _state.Update(state =>
         {
             state.Left = _maxTurns;
+            state.Max = _maxTurns;
         });
     }
 }

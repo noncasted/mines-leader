@@ -7,27 +7,27 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public interface IStashFactory
+    public interface IDeckFactory
     {
         UniTask Create(PlayerBuildContext context);
     }
     
     [DisallowMultipleComponent]
-    public class StashFactory : MonoBehaviour, IStashFactory
+    public class DeckFactory : MonoBehaviour, IDeckFactory
     {
-        [SerializeField] private StashView _view;
+        [SerializeField] private DeckView _view;
 
         public UniTask Create(PlayerBuildContext context)
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<PlayerStashState>();
+            builder.RegisterProperty<PlayerDeckState>();
             
             builder.RegisterComponent(_view)
-                .As<IStashView>();
+                .As<IDeckView>();
 
-            builder.Register<Stash>()
-                .AsSelfResolvable();
+            builder.Register<Deck>()
+                .As<IScopeLoaded>();
             
             return UniTask.CompletedTask;
         }

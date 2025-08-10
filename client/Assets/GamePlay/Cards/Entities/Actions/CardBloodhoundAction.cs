@@ -11,18 +11,15 @@ namespace GamePlay.Cards
     {
         public CardBloodhoundAction(
             ICardContext context,
-            ICardUseSync useSync,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler)
         {
             _context = context;
-            _useSync = useSync;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
         }
 
         private readonly ICardContext _context;
-        private readonly ICardUseSync _useSync;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
 
@@ -46,16 +43,10 @@ namespace GamePlay.Cards
             }
 
             selected.CleanupAround();
-            _useSync.Send(new CardUseEvents.Bloodhound());
             
             return true;
         }
         
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
-        }
-
         public class Pattern : ICardDropPattern
         {
             public Pattern(IBoard board, int size)
@@ -72,14 +63,6 @@ namespace GamePlay.Cards
                 var selected = _shape.SelectTaken(_board, pointer);
                 return selected;
             }
-        }
-    }
-    
-    public class CardBloodhoundActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

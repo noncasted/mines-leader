@@ -1,5 +1,4 @@
 ﻿using Common;
-using Context;
 using Microsoft.Extensions.Options;
 using Shared;
 
@@ -17,12 +16,14 @@ public class GameRound : Service, IUsersConnected
         IPlayerFactory playerFactory,
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
+        ISnapshotSender snapshotSender,
         IOptions<GameOptions> options) : base("game-round")
     {
         _users = users;
         _playerFactory = playerFactory;
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
+        _snapshotSender = snapshotSender;
         _options = options;
 
         BindProperty(_state);
@@ -33,6 +34,7 @@ public class GameRound : Service, IUsersConnected
     private readonly IPlayerFactory _playerFactory;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
+    private readonly ISnapshotSender _snapshotSender;
     private readonly IOptions<GameOptions> _options;
 
     public Task OnUsersConnected(IReadOnlyLifetime lifetime)
@@ -49,11 +51,22 @@ public class GameRound : Service, IUsersConnected
 
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
+        var roundLifetime = lifetime.Child();
+        
         await _readyAwaiter.Await(lifetime);
+        
+        ManaLoop(roundLifetime).NoAwait();
 
+        var snapshot = new MoveSnapshot(_gameContext);
+        
         foreach (var player in _gameContext.Players)
+        {
             player.Deck.AddRandom(_options.Value.StartCards);
+            snapshot.RecordDeckFill(player.User.Id, player.Deck.Count);
+        }
 
+        _snapshotSender.Send(snapshot);
+        
         var currentPlayer = _gameContext.Players.First();
 
         while (IsGameOver() == false)
@@ -118,6 +131,17 @@ public class GameRound : Service, IUsersConnected
             
             while (player.Moves.Left > 0 && roundLifetime.IsTerminated == false)
                 await Task.Delay(timeSpan, roundLifetime.Token);
+        }
+    }
+
+    private async Task ManaLoop(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1), lifetime.Token);
+
+            foreach (var player in _gameContext.Players)
+                player.Mana.SetCurrent(player.Mana.Current + 1);
         }
     }
 }

@@ -23,7 +23,6 @@ namespace GamePlay.Loop
             INetworkSession session,
             IGameCamera gameCamera,
             ICurrentCamera camera,
-            IGamePlayerFactory playerFactory,
             IGameContext gameContext,
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
@@ -35,7 +34,6 @@ namespace GamePlay.Loop
             _session = session;
             _gameCamera = gameCamera;
             _camera = camera;
-            _playerFactory = playerFactory;
             _gameContext = gameContext;
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
@@ -50,7 +48,6 @@ namespace GamePlay.Loop
         private readonly INetworkSession _session;
         private readonly IGameCamera _gameCamera;
         private readonly ICurrentCamera _camera;
-        private readonly IGamePlayerFactory _playerFactory;
         private readonly IGameContext _gameContext;
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
@@ -66,9 +63,6 @@ namespace GamePlay.Loop
             _camera.SetCamera(_gameCamera.Camera);
 
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
-
-            var localPlayer = await _playerFactory.CreateLocal(lifetime);
-            _gameContext.CompleteSetup(new[] { localPlayer });
 
             _cellsSelection.Start(lifetime);
             _cellFlagAction.Start(lifetime);

@@ -21,19 +21,19 @@ namespace GamePlay.Cards
             IGameContext gameContext,
             IPlayerMana mana,
             IGameRound gameRound,
-            IPlayerTurns turns,
+            IPlayerMoves moves,
             ICardDefinition definition)
         {
             _mana = mana;
             _gameRound = gameRound;
-            _turns = turns;
+            _moves = moves;
             _definition = definition;
             TargetBoard = SelectTargetBoard(definition.Type, gameContext);
         }
 
         private readonly IPlayerMana _mana;
         private readonly IGameRound _gameRound;
-        private readonly IPlayerTurns _turns;
+        private readonly IPlayerMoves _moves;
         private readonly ICardDefinition _definition;
 
         private readonly ViewableProperty<bool> _isAvailable = new();
@@ -62,7 +62,7 @@ namespace GamePlay.Cards
                 return;
             }
 
-            if (_turns.IsAvailable() == false)
+            if (_moves.IsAvailable() == false)
             {
                 _isAvailable.Set(false);
                 return;
