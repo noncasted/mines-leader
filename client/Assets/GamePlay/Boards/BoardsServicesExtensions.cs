@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using GamePlay.Services;
+using Internal;
 
 namespace GamePlay.Boards
 {
@@ -12,12 +13,12 @@ namespace GamePlay.Boards
             builder.Register<CellOpenAction>()
                 .As<ICellOpenAction>();
 
-            builder.Register<BoardMines>()
-                .As<IBoardMines>();
-
             builder.Register<CellsSelection>()
                 .As<ICellsSelection>();
-            
+
+            builder.Register<BoardSnapshotHandler>()
+                .As<ISnapshotHandler>();
+
             return builder;
         }
     }

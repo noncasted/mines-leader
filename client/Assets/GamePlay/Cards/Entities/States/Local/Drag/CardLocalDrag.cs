@@ -86,7 +86,6 @@ namespace GamePlay.Cards
                 return;
             }
 
-            _gameContext.Self.Board.InvokeUpdated();
             _drop.Enter().Forget();
 
             void MoveTowards(Vector2 target)

@@ -12,14 +12,14 @@ namespace GamePlay.Players
         [SerializeField] private SpriteRenderer _avatarSprite;
         [SerializeField] private TMP_Text _healthText;
         [SerializeField] private TMP_Text _manaText;
-        [SerializeField] private AvatarTurnsView _turnsView;
+        [SerializeField] private AvatarMovesView _movesView;
 
         private IPlayerMana _mana;
         private IPlayerHealth _health;
         private CharacterAvatars _avatars;
         private IGamePlayerInfo _info;
 
-        public AvatarTurnsView TurnsView => _turnsView;
+        public AvatarMovesView MovesView => _movesView;
 
         [Inject]
         private void Construct(

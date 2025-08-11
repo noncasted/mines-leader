@@ -24,8 +24,6 @@ namespace Shared
 
     [MemoryPackable]
     [MemoryPackUnion(0, typeof(SharedBoardSnapshot))]
-    [MemoryPackUnion(1, typeof(PlayerSnapshotRecord.Health))]
-    [MemoryPackUnion(2, typeof(PlayerSnapshotRecord.Mana))]
     public partial interface IMoveSnapshotRecord
     {
     }

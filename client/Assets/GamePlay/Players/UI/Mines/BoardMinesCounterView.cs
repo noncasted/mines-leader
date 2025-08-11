@@ -37,8 +37,8 @@ namespace GamePlay.Players
                 
                 foreach (var (_, cell) in _board.Cells)
                 {
-                    if (cell.HasMine() == true)
-                        mines++;
+                    // if (cell.HasMine() == true)
+                    //     mines++;
                     
                     if (cell.HasFlag() == true)
                         flags++;

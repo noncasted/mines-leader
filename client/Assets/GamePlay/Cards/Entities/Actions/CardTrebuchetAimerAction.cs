@@ -18,6 +18,11 @@ namespace GamePlay.Cards
         private readonly ICardDropDetector _dropDetector;
         private readonly IPlayerModifiers _modifiers;
 
+        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
+            return UniTask.FromResult(new CardActionResult());
+        }
+        
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);

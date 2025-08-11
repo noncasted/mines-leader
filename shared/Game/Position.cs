@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Shared
 {
@@ -49,6 +50,11 @@ namespace Shared
         public static Position operator -(Position left, Position right)
         {
             return new Position(left.x - right.x, left.y - right.y);
+        }
+
+        public Vector2Int ToVector()
+        {
+            return new Vector2Int(x, y);
         }
     }
 }

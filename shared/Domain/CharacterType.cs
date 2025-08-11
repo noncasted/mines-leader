@@ -1,4 +1,4 @@
-﻿namespace Meta
+﻿namespace Shared
 {
     public enum CharacterType
     {

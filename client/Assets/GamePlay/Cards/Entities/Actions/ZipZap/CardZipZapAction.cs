@@ -41,6 +41,11 @@ namespace GamePlay.Cards
 
         private const int _searchRadius = 6;
 
+        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
+            return UniTask.FromResult(new CardActionResult());
+        }
+
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
@@ -91,27 +96,26 @@ namespace GamePlay.Cards
             foreach (var line in lines)
                 Object.Destroy(line.gameObject);
 
-            targets.CleanupAround();
-
 //            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
             return true;
 
             IBoardCell SelectTarget(Vector2Int center)
             {
-                var searchPositions = searchShape.SelectTaken(_context.TargetBoard, center);
-                var hasMine = searchPositions.Where(x => x.HasMine() == true);
-                var hasFlags = hasMine.Where(x => x.HasFlag() == false);
-                var unique = hasFlags.Where(x => targets.Contains(x) == false);
-
-                var ordered = unique
-                    .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
-                    .ToList();
-
-                if (ordered.Count == 0)
-                    return null;
-
-                return ordered.First();
+                return null;
+                // var searchPositions = searchShape.SelectTaken(_context.TargetBoard, center);
+                // var hasMine = searchPositions.Where(x => x.HasMine() == true);
+                // var hasFlags = hasMine.Where(x => x.HasFlag() == false);
+                // var unique = hasFlags.Where(x => targets.Contains(x) == false);
+                //
+                // var ordered = unique
+                //     .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
+                //     .ToList();
+                //
+                // if (ordered.Count == 0)
+                //     return null;
+                //
+                // return ordered.First();
             }
         }
 

@@ -31,7 +31,6 @@ namespace GamePlay.Loop
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
-            IBoardMines boardMines,
             IGameFlow gameFlow,
             INetworkConnection connection)
         {
@@ -45,7 +44,6 @@ namespace GamePlay.Loop
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
-            _boardMines = boardMines;
             _gameFlow = gameFlow;
             _connection = connection;
         }
@@ -60,7 +58,6 @@ namespace GamePlay.Loop
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
         private readonly ICellOpenAction _cellOpenAction;
-        private readonly IBoardMines _boardMines;
         private readonly IGameFlow _gameFlow;
         private readonly INetworkConnection _connection;
 
@@ -74,7 +71,6 @@ namespace GamePlay.Loop
             _cellsSelection.Start(lifetime);
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
-            _boardMines.Start(lifetime);
 
             _loadingScreen.Hide();
             _globalCamera.Disable();

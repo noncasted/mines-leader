@@ -55,9 +55,7 @@ namespace GamePlay.Boards
             if (state.IsFlagged.Value == true)
                 return;
 
-            var isExploded = state.Open();
-
-            _gameContext.Self.Board.InvokeUpdated();
+            state.Open();
         }
     }
 }

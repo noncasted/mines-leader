@@ -35,6 +35,11 @@ namespace GamePlay.Cards
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
 
+        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
+            return UniTask.FromResult(new CardActionResult());
+        }
+        
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
@@ -51,11 +56,11 @@ namespace GamePlay.Cards
 
             for (var index = 0; index < shuffled.Count; index++)
             {
-                var cell = shuffled[index];
-                var taken = cell.EnsureTaken();
-
-                if (index < _minesAmount)
-                    taken.SetMine();
+                // var cell = shuffled[index];
+                // var taken = cell.EnsureTaken();
+                //
+                // if (index < _minesAmount)
+                //     taken.SetMine();
             }
 
 //            _modifiers.Reset(PlayerModifier.TrebuchetBoost);

@@ -7,7 +7,7 @@ using VContainer;
 namespace GamePlay.Players
 {
     [DisallowMultipleComponent]
-    public class AvatarTurnsView : MonoBehaviour, IScopeLoaded
+    public class AvatarMovesView : MonoBehaviour, IScopeLoaded
     {
         [SerializeField] private float _spaceBetweenPoints = 0.1f;
         [SerializeField] private AvatarTurnPointView _pointPrefab;

@@ -20,7 +20,7 @@ namespace Tools.MemoryPackTools
             entityPayloads
                 .Add<BoardCreatePayload>()
                 .Add<CardCreatePayload>()
-                .Add<GamePlayerCreatePayload>();
+                .Add<PlayerCreatePayload>();
 
             eventPayloads
                 .Add<MenuChatMessagePayload>()

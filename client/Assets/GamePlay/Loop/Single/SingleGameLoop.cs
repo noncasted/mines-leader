@@ -27,7 +27,6 @@ namespace GamePlay.Loop
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
-            IBoardMines boardMines,
             IGameFlow gameFlow, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
         {
             _user = user;
@@ -38,7 +37,6 @@ namespace GamePlay.Loop
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
-            _boardMines = boardMines;
             _gameFlow = gameFlow;
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -52,7 +50,6 @@ namespace GamePlay.Loop
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
         private readonly ICellOpenAction _cellOpenAction;
-        private readonly IBoardMines _boardMines;
         private readonly IGameFlow _gameFlow;
 
         private readonly IGlobalCamera _globalCamera;
@@ -67,7 +64,6 @@ namespace GamePlay.Loop
             _cellsSelection.Start(lifetime);
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
-            _boardMines.Start(lifetime);
 
             _loadingScreen.Hide();
             _globalCamera.Disable();

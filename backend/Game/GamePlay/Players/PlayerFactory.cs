@@ -42,7 +42,12 @@ public class PlayerFactory : IPlayerFactory
         entityBuilder.WithProperty(modifiersProperty);
         entityBuilder.WithProperty(deckProperty);
 
-        entityBuilder.WithPayload(new PlayerCreatePayload());
+        entityBuilder.WithPayload(new PlayerCreatePayload()
+        {
+            Name = $"User_{user.Index}",
+            Id = user.Id,
+            SelectedCharacter = CharacterType.BIBA
+        });
 
         var entity = entityBuilder.Build();
 

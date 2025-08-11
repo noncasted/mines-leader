@@ -23,16 +23,10 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class UseBoardCard : INetworkContext
+        public partial class CardUse : INetworkContext
         {
-            public CardType Type { get; set; }
-            public Position Position { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class UsePlayerCard : INetworkContext
-        {
-            public CardType Type { get; set; }
+            public int Index { get; set; }
+            public ICardUsePayload Payload { get; set; }
         }
 
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
@@ -41,8 +35,7 @@ namespace Shared
                 .Add<Open>()
                 .Add<SetFlag>()
                 .Add<RemoveFlag>()
-                .Add<UseBoardCard>()
-                .Add<UsePlayerCard>();
+                .Add<CardUse>();
         }
     }
 }

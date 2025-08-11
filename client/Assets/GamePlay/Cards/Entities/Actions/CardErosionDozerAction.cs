@@ -27,6 +27,11 @@ namespace GamePlay.Cards
         private readonly CardType _cardType;
         private readonly ICardContext _context;
 
+        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
+            return UniTask.FromResult(new CardActionResult());
+        }
+        
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
@@ -40,8 +45,6 @@ namespace GamePlay.Cards
 
             foreach (var cell in selected)
                 cell.EnsureFree();
-
-            selected.CleanupAround();
 
             return true;
         }

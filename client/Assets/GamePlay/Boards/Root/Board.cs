@@ -17,7 +17,6 @@ namespace GamePlay.Boards
         private readonly Dictionary<Vector2Int, IBoardCell> _cellsDictionary = new();
 
         private INetworkEntity _entity;
-        private NetworkProperty<NetworkBoardCellsState> _cellsState;
         private IUpdater _updater;
 
         public IBoardConstructionData ConstructionDataData => _constructionData;
@@ -26,14 +25,10 @@ namespace GamePlay.Boards
         public IViewableDelegate Updated => _updated;
 
         [Inject]
-        private void Construct(
-            IUpdater updater,
-            INetworkEntity entity,
-            NetworkProperty<NetworkBoardCellsState> cellsState)
+        private void Construct(IUpdater updater, INetworkEntity entity)
         {
             _updater = updater;
             _entity = entity;
-            _cellsState = cellsState;
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
@@ -47,14 +42,6 @@ namespace GamePlay.Boards
                 rawCells.Add(cell.BoardPosition, cell);
             }
 
-            _cellsState.Advise(lifetime, value =>
-            {
-                foreach (var (position, cell) in value.Cells)
-                    rawCells[position].UpdateState(cell);
-                
-                _updated.Invoke();
-            });
-            
             _entity.Events.GetEvent<BoardCellExplosionEvent>().Advise(lifetime, payload =>
             {
                 if (rawCells.TryGetValue(payload.Position, out var cell))
@@ -66,33 +53,11 @@ namespace GamePlay.Boards
         {
             foreach (var cell in _cells)
                 cell.Setup(_updater);
-
-            if (IsMine == true)
-            {
-                var state = new NetworkBoardCellsState()
-                {
-                    Cells = new Dictionary<Vector2Int, INetworkCellState>()
-                };
-                
-                foreach (var cell in _cells)
-                    state.Cells.Add(cell.BoardPosition, cell.State.Value.ToNetwork());
-
-                _cellsState.Set(state);
-            }
         }
 
         public void InvokeExplosion(IBoardCell cell)
         {
             _entity.Events.Send(new BoardCellExplosionEvent(cell.BoardPosition));
-        }
-
-        public void InvokeUpdated()
-        {
-            foreach (var cell in _cells)
-                _cellsState.Value.Cells[cell.BoardPosition] = cell.State.Value.ToNetwork();
-            
-            _cellsState.MarkDirty();
-            _updated.Invoke();
         }
 
         public void Construct(CellView[] cells, BoardConstructionData constructionData)

@@ -23,6 +23,11 @@ namespace GamePlay.Cards
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
 
+        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
+            return UniTask.FromResult(new CardActionResult());
+        }
+        
         public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
@@ -36,14 +41,12 @@ namespace GamePlay.Cards
 
             foreach (var cell in selected)
             {
-                if (cell.HasMine() == true)
-                    cell.EnsureTaken().Flag();
-                else
-                    cell.EnsureFree();
+                // if (cell.HasMine() == true)
+                //     cell.EnsureTaken().Flag();
+                // else
+                //     cell.EnsureFree();
             }
 
-            selected.CleanupAround();
-            
             return true;
         }
         

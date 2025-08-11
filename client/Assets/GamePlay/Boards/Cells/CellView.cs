@@ -73,28 +73,11 @@ namespace GamePlay.Boards
             if (_state.Value is not CellTakenState state)
                 throw new Exception("Cell is not taken, cannot explode.");
 
-            if (state.HasMine.Value == false)
-                throw new Exception("Cell does not have a mine to explode.");
-
             state.View.OnExplosion();
             
             EnsureFree();
 
             return _animator.PlayExplosion(this.GetObjectLifetime(), type);
-        }
-
-        public void UpdateState(INetworkCellState networkState)
-        {
-            switch (networkState)
-            {
-                case NetworkCellFreeState free:
-                    ((CellFreeState)EnsureFree()).OnUpdate(free);
-                    break;
-
-                case NetworkCellTakenState taken:
-                    ((CellTakenState)EnsureTaken()).OnUpdate(taken);
-                    break;
-            }
         }
 
         public override string ToString()

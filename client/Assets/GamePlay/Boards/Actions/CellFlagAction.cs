@@ -46,8 +46,6 @@ namespace GamePlay.Boards
                 state.Flag();
             else
                 state.UnFlag();
-            
-            _gameContext.Self.Board.InvokeUpdated();
         }
     }
 }
