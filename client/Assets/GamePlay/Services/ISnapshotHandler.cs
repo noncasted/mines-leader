@@ -16,7 +16,8 @@ namespace GamePlay.Services
             where TRecord : IMoveSnapshotRecord
         {
             builder.Register<THandler>()
-                .As<ISnapshotHandler<TRecord>>();
+                .As<ISnapshotHandler<TRecord>>()
+                .WithParameter(builder.Lifetime);
             
             builder.Register<Resolver<TRecord>>()
                 .AsSelfResolvable();

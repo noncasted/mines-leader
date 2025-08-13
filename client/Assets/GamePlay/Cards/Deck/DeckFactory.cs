@@ -27,6 +27,7 @@ namespace GamePlay.Cards
                 .As<IDeckView>();
 
             builder.Register<Deck>()
+                .As<IDeck>()
                 .As<IScopeLoaded>();
             
             return UniTask.CompletedTask;

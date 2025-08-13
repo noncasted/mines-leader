@@ -32,13 +32,14 @@ namespace GamePlay.Cards
         private readonly ICardView _view;
         private readonly ILifetime _containerLifetime;
 
+        public int EntityId => _entity.Id;
         public CardType Type { get; }
         public CardTarget Target { get; }
         public ICardDefinition Definition { get; }
         public IHand Hand { get; }
         public ICardTransform Transform { get; }
         public IReadOnlyLifetime Lifetime { get; }
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _entity.Lifetime.Listen(() =>
@@ -46,6 +47,11 @@ namespace GamePlay.Cards
                 _containerLifetime.Terminate();
                 _view.Destroy();
             });    
+        }
+        
+        public void Use(IReadOnlyLifetime lifetime)
+        {
+            
         }
     }
 }

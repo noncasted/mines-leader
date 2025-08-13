@@ -12,6 +12,7 @@ namespace GamePlay.Players
         LifetimeScope Scope { get; }
         IPlayerMana Mana { get; }
         IPlayerHealth Health { get; }
+        IDeck Deck { get; }
         IPlayerMoves Moves { get; }
         IHand Hand { get; } 
         IBoard Board { get; }
@@ -26,7 +27,8 @@ namespace GamePlay.Players
             IPlayerMana mana,
             IPlayerHealth health,
             IPlayerMoves moves,
-            IGamePlayerInfo info)
+            IGamePlayerInfo info,
+            IDeck deck)
         {
             Mana = mana;
             
@@ -35,6 +37,7 @@ namespace GamePlay.Players
             Board = board;
             Moves = moves;
             Info = info;
+            Deck = deck;
             Health = health;
         }
 
@@ -42,6 +45,7 @@ namespace GamePlay.Players
         public LifetimeScope Scope { get; }
         public IPlayerMana Mana { get; }
         public IPlayerHealth Health { get; }
+        public IDeck Deck { get; }
         public IPlayerMoves Moves { get; }
         public IGamePlayerInfo Info { get; }
         public IHand Hand { get; }

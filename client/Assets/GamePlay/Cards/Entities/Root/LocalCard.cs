@@ -34,12 +34,14 @@ namespace GamePlay.Cards
         private readonly ICardView _view;
         private readonly ViewableDelegate _used = new();
 
+        public int EntityId => _entity.Id;
         public CardType Type { get; }
         public CardTarget Target { get; }
         public ICardDefinition Definition { get; }
         public IHand Hand { get; }
         public ICardTransform Transform { get; }
         public IReadOnlyLifetime Lifetime { get; }
+
         public IViewableDelegate Used => _used;
         
         public UniTask Destroy()
@@ -49,6 +51,11 @@ namespace GamePlay.Cards
             _view.Destroy();
 
             return UniTask.CompletedTask;
+        }
+        
+        public void Use(IReadOnlyLifetime lifetime)
+        {
+            
         }
     }
 }

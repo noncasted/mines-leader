@@ -11,8 +11,6 @@ namespace GamePlay
             builder.AddSnapshotHandler<BoardSnapshotHandler, SharedBoardSnapshot>();
             builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.Card>();
             builder.AddSnapshotHandler<CardDrawSnapshotHandler, PlayerSnapshotRecord.CardDraw>();
-            builder.AddSnapshotHandler<DeckFillSnapshotHandler, PlayerSnapshotRecord.DeckFill>();
-            builder.AddSnapshotHandler<ReshuffleFromStashSnapshotHandler, PlayerSnapshotRecord.ReshuffleFromStash>();
 
             return builder;
         }

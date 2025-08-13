@@ -11,7 +11,6 @@ namespace Shared
     [MemoryPackUnion(5, typeof(CardActionSnapshot.TrebuchetAimer))]
     public partial interface ICardActionData
     {
-        CardType Type { get; set; }
     }
 
     public partial class CardActionSnapshot
@@ -19,37 +18,31 @@ namespace Shared
         [MemoryPackable]
         public partial class ZipZap : ICardActionData
         {
-            public CardType Type { get; set; }
         }
         
         [MemoryPackable]
         public partial class Bloodhound : ICardActionData
         {
-            public CardType Type { get; set; }
         }
         
         [MemoryPackable]
         public partial class ErosionDozer : ICardActionData
         {
-            public CardType Type { get; set; }
         }
         
         [MemoryPackable]
         public partial class Gravedigger : ICardActionData
         {
-            public CardType Type { get; set; }
         }
         
         [MemoryPackable]
         public partial class Trebuchet : ICardActionData
         {
-            public CardType Type { get; set; }
         }
         
         [MemoryPackable]
         public partial class TrebuchetAimer : ICardActionData
         {
-            public CardType Type { get; set; }
         }
     }
 }
