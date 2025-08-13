@@ -61,9 +61,21 @@ public class Session : ISession
     {
         await _events.OnCreated(Lifetime);
         await AwaitUsersJoin();
-        await _events.OnAllConnected(Lifetime);
 
-        _users.View(Lifetime, user => HandleUserJoin(user).NoAwait());
+        if (_data.CreateOptions.ExpectedUsers == 0)
+        {
+            _users.View(Lifetime, user => HandleUserConnect(user).NoAwait());
+        }
+        else
+        {
+            foreach (var user in _users)
+            {
+                var connectionTask = await HandleUserConnect(user);
+                HandleUserDisconnect(user, connectionTask).NoAwait();
+            }
+        }
+
+        await _events.OnAllConnected(Lifetime);
 
         await Task.Delay(TimeSpan.FromSeconds(30));
 
@@ -87,35 +99,44 @@ public class Session : ISession
         }
     }
 
-    private async Task HandleUserJoin(IUser user)
+    private async Task<Task> HandleUserConnect(IUser user)
     {
         user.Dispatcher.Run(user.Lifetime, user);
 
         var connectionTask = user.Connection.Run();
 
         user.Send(new SharedSessionPlayer.LocalUpdate()
-        {
-            Index = user.Index
-        });
+            {
+                Index = user.Index
+            }
+        );
 
         _users.IterateOthers(user, other =>
-        {
-            user.Send(new SharedSessionPlayer.RemoteUpdate()
             {
-                Index = other.Index,
-                BackendId = other.Id
-            });
+                user.Send(new SharedSessionPlayer.RemoteUpdate()
+                    {
+                        Index = other.Index,
+                        BackendId = other.Id
+                    }
+                );
 
-            other.Send(new SharedSessionPlayer.RemoteUpdate()
-            {
-                Index = user.Index,
-                BackendId = user.Id
-            });
-        });
+                other.Send(new SharedSessionPlayer.RemoteUpdate()
+                    {
+                        Index = user.Index,
+                        BackendId = user.Id
+                    }
+                );
+            }
+        );
 
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
 
+        return connectionTask;
+    }
+
+    private async Task HandleUserDisconnect(IUser user, Task connectionTask)
+    {
         await connectionTask;
 
         foreach (var targetUser in _users)
@@ -124,11 +145,12 @@ public class Session : ISession
                 continue;
 
             targetUser.Send(new SharedSessionPlayer.RemoteDisconnect()
-            {
-                Index = user.Index
-            });
+                {
+                    Index = user.Index
+                }
+            );
         }
-        
-        user.Lifetime.Terminate();
+
+        ExecutionQueue.Enqueue(user.Lifetime.Terminate);
     }
 }

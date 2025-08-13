@@ -10,6 +10,9 @@ public static class SessionExtensions
         services.AddLogging();
         services.AddSingleton<ISession, Session>();
 
+        services.AddSingleton<ISessionEvents, SessionEvents>();
+        services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();
+
         services.AddSingleton(data);
         services.AddSingleton<ISessionData>(new SessionData
             {

@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Menu.Social;
+using Shared;
 
 namespace Common;
 
@@ -9,10 +10,19 @@ public static class SharedExtensions
         var builder = new UnionBuilder<INetworkContext>();
 
         builder
+            .Add<EmptyResponse>()
             .AddSharedBackend()
             .AddSharedGame()
             .AddSharedSession();
         
+        var entityPayloads = new UnionBuilder<IEntityPayload>();
+
+        entityPayloads
+            .Add<MenuPlayerPayload>()
+            .Add<CardCreatePayload>()
+            .Add<PlayerCreatePayload>();
+        
         builder.Build();
+        entityPayloads.Build();
     }
 }

@@ -15,7 +15,8 @@ public static class ContainerExtensions
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        builder.AddSingleton<TInterface, TImplementation>();
+        builder.AddSingleton<TImplementation>();
+        builder.AddSingleton<TInterface>(sp => sp.GetRequiredService<TImplementation>());
 
         return new Registration
         {

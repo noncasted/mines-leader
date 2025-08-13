@@ -3,7 +3,7 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class Trebuchet : IBoardCard
+public class Trebuchet : ICard
 {
     public Trebuchet(
         IPlayer owner,
@@ -26,13 +26,16 @@ public class Trebuchet : IBoardCard
         CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
         _ => throw new ArgumentOutOfRangeException()
     };
-
-    public EmptyResponse Use(Position position)
+    
+    public EmptyResponse Use(ICardUsePayload payload)
     {
+        if (payload is not CardUsePayload.Trebuchet trebuchetPayload)
+            return EmptyResponse.Fail("Invalid payload type for Trebuchet card");
+        
         var size = _cardType.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 
-        var selected = pattern.SelectFree(_target, position);
+        var selected = pattern.SelectFree(_target, trebuchetPayload.Position);
         
         if (selected.Count == 0)
             return EmptyResponse.Fail("No free cells in the pattern");

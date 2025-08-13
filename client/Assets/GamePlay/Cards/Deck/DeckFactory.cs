@@ -21,7 +21,7 @@ namespace GamePlay.Cards
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<PlayerDeckState>();
+            builder.RegisterProperty<PlayerDeckState>(PlayerStateIds.Deck);
             
             builder.RegisterComponent(_view)
                 .As<IDeckView>();

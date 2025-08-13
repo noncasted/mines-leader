@@ -29,7 +29,7 @@ public class GameRound : Service, IUsersConnected
         BindProperty(_state);
     }
 
-    private readonly ValueProperty<GameRoundState> _state = new(0);
+    private readonly ValueProperty<GameRoundState> _state = new(1);
     private readonly ISessionUsers _users;
     private readonly IPlayerFactory _playerFactory;
     private readonly IGameContext _gameContext;

@@ -1,5 +1,4 @@
-﻿using GamePlay.Services;
-using Internal;
+﻿using Internal;
 
 namespace GamePlay.Boards
 {
@@ -15,9 +14,6 @@ namespace GamePlay.Boards
 
             builder.Register<CellsSelection>()
                 .As<ICellsSelection>();
-
-            builder.Register<BoardSnapshotHandler>()
-                .As<ISnapshotHandler>();
 
             return builder;
         }

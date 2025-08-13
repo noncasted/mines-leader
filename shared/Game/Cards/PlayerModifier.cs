@@ -6,9 +6,9 @@ namespace Shared
 {
     public enum PlayerModifier
     {
-        TrebuchetBoost = 0, 
+        TrebuchetBoost = 0,
     }
-    
+
     public static class PlayerModifierExtensions
     {
         static PlayerModifierExtensions()

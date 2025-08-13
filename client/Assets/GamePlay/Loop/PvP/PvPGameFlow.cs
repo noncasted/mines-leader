@@ -39,6 +39,8 @@ namespace GamePlay.Loop
             var flowLifetime = lifetime.Child();
             flowLifetime.Terminate();
 
+            await _completion.Task;
+
             return new GameResult();
         }
 

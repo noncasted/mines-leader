@@ -18,12 +18,12 @@ public class MoveSnapshot
         HandleBoards(lifetime);
     }
 
-    public void RecordCard(Guid playerId, CardType card)
+    public void RecordCard(Guid playerId, ICardActionData data)
     {
         _records.Add(new PlayerSnapshotRecord.Card()
         {
             PlayerId = playerId,
-            Type = card
+            Data = data
         });
     }
     

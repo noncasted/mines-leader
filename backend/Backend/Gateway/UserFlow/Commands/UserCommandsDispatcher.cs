@@ -1,4 +1,5 @@
 ﻿using Common;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Backend.Gateway;
@@ -10,12 +11,14 @@ public interface IUserCommandsDispatcher
 
 public class UserCommandsDispatcher : IUserCommandsDispatcher
 {
-    public UserCommandsDispatcher(IUserCommandsCollection commands)
+    public UserCommandsDispatcher(IUserCommandsCollection commands, ILogger<UserCommandsDispatcher> logger)
     {
         _commands = commands;
+        _logger = logger;
     }
 
     private readonly IUserCommandsCollection _commands;
+    private readonly ILogger<UserCommandsDispatcher> _logger;
 
     public void Run(IUserSession session)
     {
@@ -29,14 +32,31 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
         Task HandleOneWay(OneWayMessageFromClient oneWay)
         {
             var type = oneWay.Context.GetType();
-            return _commands.Entries[type].Execute(session, oneWay.Context);
+
+            try
+            {
+                return _commands.Entries[type].Execute(session, oneWay.Context);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[User] [Command] Error handling one-way command: {CommandType}", type.Name);
+                return Task.CompletedTask;
+            }
         }
 
         async Task HandleRequest(RequestMessageFromClient request)
         {
             var type = request.Context.GetType();
-            var result = await _commands.Entries[type].Execute(session, request.Context);
-            await writer.WriteResponse(result, request.RequestId);
+
+            try
+            {
+                var result = await _commands.Entries[type].Execute(session, request.Context);
+                await writer.WriteResponse(result, request.RequestId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[User] [Command] Error handling request command: {CommandType}", type.Name);
+            }
         }
 
         void HandleResponse(ResponseMessageFromClient response)

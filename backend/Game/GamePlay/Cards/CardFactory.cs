@@ -4,7 +4,7 @@ namespace Game.GamePlay;
 
 public interface ICardFactory
 {
-    IBoardCard CreateBoard(IPlayer owner, CardType type);
+    ICard Create(IPlayer owner, CardType type);
 }
 
 public class CardFactory : ICardFactory
@@ -16,7 +16,7 @@ public class CardFactory : ICardFactory
 
     private readonly IGameContext _gameContext;
 
-    public IBoardCard CreateBoard(IPlayer owner, CardType type)
+    public ICard Create(IPlayer owner, CardType type)
     {
         var target = SelectBoard(owner, type);
         

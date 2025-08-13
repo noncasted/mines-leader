@@ -11,8 +11,8 @@ namespace GamePlay.Services
                 .As<IGameInput>()
                 .As<IScopeSetup>();
 
-            builder.Register<SnapshotReceiver>()
-                .As<INetworkCommand>();
+            builder.RegisterCommand<SnapshotReceiver>()
+                .As<ISnapshotReceiver>();
 
             return builder;
         }

@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Global.Backend;
 using Internal;
 using Shared;
 
 namespace GamePlay.Services
 {
-    public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>
+    public interface ISnapshotReceiver
     {
-        public SnapshotReceiver(IReadOnlyList<ISnapshotHandler> handlers)
+        void Add(Type type, Action<IMoveSnapshotRecord> handler);
+    }
+    
+    public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver
+    {
+        private readonly Dictionary<Type, Action<IMoveSnapshotRecord>> _handlers;
+
+        public void Add(Type type, Action<IMoveSnapshotRecord> handler)
         {
-            _handlers = handlers.ToDictionary(t => t.Target);
+            _handlers[type] = handler;
         }
-
-        private readonly IReadOnlyDictionary<Type, ISnapshotHandler> _handlers;
-
+        
         protected override void Execute(IReadOnlyLifetime lifetime, SharedMoveSnapshot context)
         {
             foreach (var record in context.Records)
@@ -25,7 +29,7 @@ namespace GamePlay.Services
                 if (_handlers.TryGetValue(type, out var handler) == false)
                     throw new ArgumentException($"No handler found for record type {type.Name}.", nameof(context));
 
-                handler.Handle(record);
+                handler.Invoke(record);
             }
         }
     }

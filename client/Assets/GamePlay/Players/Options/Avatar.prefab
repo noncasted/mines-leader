@@ -52,7 +52,7 @@ MonoBehaviour:
   _avatarSprite: {fileID: 162349579401400158}
   _healthText: {fileID: 5406942118063349187}
   _manaText: {fileID: 7281677428685754318}
-  _turnsView: {fileID: 4817495403729719946}
+  _movesView: {fileID: 4817495403729719946}
 --- !u!1 &1655198063246657377
 GameObject:
   m_ObjectHideFlags: 0

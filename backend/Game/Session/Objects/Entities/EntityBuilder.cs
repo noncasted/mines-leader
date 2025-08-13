@@ -38,6 +38,14 @@ public class EntityBuilder
         return this;
     }
 
+    public ValueProperty<T> AddProperty<T>(int id) where T : new()
+    {
+        var property = new ValueProperty<T>(id);
+        property.Construct(_propertyUpdateSender, _id);
+        _properties.Add(id, property);
+        return property;
+    }
+
     public EntityBuilder WithPayload(IEntityPayload payload)
     {
         _payload = payload;

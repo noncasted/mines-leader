@@ -29,25 +29,21 @@ public class PlayerFactory : IPlayerFactory
         var gameOptions = _gameOptions.Value;
         var entityBuilder = _entityFactory.Create(user);
 
-        var healthProperty = new ValueProperty<PlayerHealthState>(0);
-        var manaProperty = new ValueProperty<PlayerManaState>(1);
-        var modifiersProperty = new ValueProperty<PlayerModifiersState>(2);
-        var deckProperty = new ValueProperty<PlayerDeckState>(3);
-        var movesProperty = new ValueProperty<PlayerMovesState>(4);
-        var handProperty = new ValueProperty<PlayerHandState>(5);
-        var stashProperty = new ValueProperty<PlayerStashState>(6);
-
-        entityBuilder.WithProperty(healthProperty);
-        entityBuilder.WithProperty(manaProperty);
-        entityBuilder.WithProperty(modifiersProperty);
-        entityBuilder.WithProperty(deckProperty);
+        var healthProperty = entityBuilder.AddProperty<PlayerHealthState>(PlayerStateIds.Health);
+        var manaProperty = entityBuilder.AddProperty<PlayerManaState>(PlayerStateIds.Mana);
+        var modifiersProperty = entityBuilder.AddProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
+        var movesProperty = entityBuilder.AddProperty<PlayerMovesState>(PlayerStateIds.Moves);
+        var deckProperty = entityBuilder.AddProperty<PlayerDeckState>(PlayerStateIds.Deck);
+        var handProperty = entityBuilder.AddProperty<PlayerHandState>(PlayerStateIds.Hand);
+        var stashProperty = entityBuilder.AddProperty<PlayerStashState>(PlayerStateIds.Stash);
 
         entityBuilder.WithPayload(new PlayerCreatePayload()
-        {
-            Name = $"User_{user.Index}",
-            Id = user.Id,
-            SelectedCharacter = CharacterType.BIBA
-        });
+            {
+                Name = $"User_{user.Index}",
+                Id = user.Id,
+                SelectedCharacter = CharacterType.BIBA
+            }
+        );
 
         var entity = entityBuilder.Build();
 

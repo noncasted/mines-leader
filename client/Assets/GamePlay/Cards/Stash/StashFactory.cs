@@ -21,7 +21,7 @@ namespace GamePlay.Cards
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<PlayerStashState>();
+            builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);
             
             builder.RegisterComponent(_view)
                 .As<IStashView>();

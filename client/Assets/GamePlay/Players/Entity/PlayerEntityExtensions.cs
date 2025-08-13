@@ -24,11 +24,12 @@ namespace GamePlay.Players
             builder.Register<PlayerModifiers>()
                 .As<IPlayerModifiers>()
                 .As<IScopeLoaded>();
-            
-            builder.RegisterProperty<PlayerManaState>();
-            builder.RegisterProperty<PlayerHealthState>();
-            builder.RegisterProperty<PlayerMovesState>();
-            
+
+            builder.RegisterProperty<PlayerManaState>(PlayerStateIds.Mana);
+            builder.RegisterProperty<PlayerHealthState>(PlayerStateIds.Health);
+            builder.RegisterProperty<PlayerMovesState>(PlayerStateIds.Moves);
+            builder.RegisterProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
+
             return builder;
         }
 
@@ -39,7 +40,7 @@ namespace GamePlay.Players
         {
             builder.RegisterInstance(new GamePlayerInfo(owner.BackendId, owner.IsLocal, character))
                 .As<IGamePlayerInfo>();
-            
+
             builder.Register<GamePlayer>()
                 .WithParameter(builder.Scope)
                 .As<IGamePlayer>();

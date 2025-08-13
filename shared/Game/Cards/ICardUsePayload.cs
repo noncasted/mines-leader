@@ -11,7 +11,7 @@ namespace Shared
     [MemoryPackUnion(5, typeof(CardUsePayload.TrebuchetAimer))]
     public partial interface ICardUsePayload
     {
-        
+        CardType Type { get; set; }
     }
 
     public partial class CardUsePayload
@@ -19,31 +19,38 @@ namespace Shared
         [MemoryPackable]
         public partial class ZipZap : ICardUsePayload
         {
+            public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class Bloodhound : ICardUsePayload
         {
+            public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class ErosionDozer : ICardUsePayload
         {
+            public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class Gravedigger : ICardUsePayload
         {
+            public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class Trebuchet : ICardUsePayload
         {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class TrebuchetAimer : ICardUsePayload
         {
+            public CardType Type { get; set; }
         }
     }
 }

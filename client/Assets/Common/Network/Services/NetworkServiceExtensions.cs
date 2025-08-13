@@ -59,7 +59,7 @@ namespace Common.Network
                     propertyId = _propertiesIndex;
                 }
 
-                var property = new NetworkProperty<T>(_id);
+                var property = new NetworkProperty<T>(propertyId);
                 Registration.WithParameter(property);
                 _properties.Add(propertyId, property);
 

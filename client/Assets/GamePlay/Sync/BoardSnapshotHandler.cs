@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Services;
 using Shared;
 
-namespace GamePlay.Boards
+namespace GamePlay
 {
-    public class BoardSnapshotHandler : ISnapshotHandler
+    public class BoardSnapshotHandler : ISnapshotHandler<SharedBoardSnapshot>
     {
         public BoardSnapshotHandler(IGameContext gameContext)
         {
@@ -16,26 +17,16 @@ namespace GamePlay.Boards
         private readonly IGameContext _gameContext;
         private readonly Dictionary<Guid, PlayerRecordResolver> _resolvers = new();
 
-        public Type Target => typeof(SharedBoardSnapshot);
-
-        public void Handle(IMoveSnapshotRecord record)
+        public void Handle(SharedBoardSnapshot record)
         {
-            if (record is not SharedBoardSnapshot boardRecord)
+            if (_resolvers.TryGetValue(record.BoardOwnerId, out var resolver) == false)
             {
-                throw new ArgumentException(
-                    $"Expected record of type {nameof(IBoardSnapshotRecord)}, but got {record.GetType().Name}.",
-                    nameof(record)
-                );
-            }
-
-            if (_resolvers.TryGetValue(boardRecord.BoardOwnerId, out var resolver) == false)
-            {
-                var player = _gameContext.GetPlayer(boardRecord.BoardOwnerId);
+                var player = _gameContext.GetPlayer(record.BoardOwnerId);
                 resolver = new PlayerRecordResolver(player.Board);
-                _resolvers[boardRecord.BoardOwnerId] = resolver;
+                _resolvers[record.BoardOwnerId] = resolver;
             }
 
-            foreach (var snapshotRecord in boardRecord.Records)
+            foreach (var snapshotRecord in record.Records)
                 resolver.Resolve(snapshotRecord);
         }
 

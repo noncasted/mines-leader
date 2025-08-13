@@ -1,10 +1,8 @@
 ﻿using System;
-using Common.Network;
 using MemoryPack;
-using Shared;
 using UnityEngine;
 
-namespace GamePlay.Cards
+namespace Shared
 {
     [MemoryPackable]
     public partial class CardCreatePayload : IEntityPayload

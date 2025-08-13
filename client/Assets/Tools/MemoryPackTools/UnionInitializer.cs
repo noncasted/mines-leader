@@ -18,7 +18,7 @@ namespace Tools.MemoryPackTools
             var contexts = new UnionBuilder<INetworkContext>();
 
             entityPayloads
-                .Add<BoardCreatePayload>()
+                .Add<MenuPlayerPayload>()
                 .Add<CardCreatePayload>()
                 .Add<PlayerCreatePayload>();
 
@@ -28,6 +28,7 @@ namespace Tools.MemoryPackTools
                 .Add<BoardCellExplosionEvent>();
 
             contexts
+                .Add<EmptyResponse>()
                 .AddSharedBackend()
                 .AddSharedGame()
                 .AddSharedSession();

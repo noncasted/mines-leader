@@ -17,13 +17,14 @@ namespace GamePlay.Loop
                 .AddPlayerServices()
                 .AddBoardServices()
                 .AddCardServices()
-                .AddSessionServices();
+                .AddSessionServices()
+                .AddSnapshotSync();
 
             builder.Register<GameContext>()
                 .As<IGameContext>();
 
             builder.AddNetworkService<GameRound>("game-round")
-                .WithProperty<GameRoundState>()
+                .WithProperty<GameRoundState>(1)
                 .Registration.As<IGameRound>();
 
             return builder;
