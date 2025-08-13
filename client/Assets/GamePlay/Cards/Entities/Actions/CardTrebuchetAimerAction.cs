@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
-using Shared;
 
 namespace GamePlay.Cards
 {

@@ -1,8 +1,6 @@
 ﻿using Common.Network;
-using GamePlay.Loop;
 using Internal;
 using Shared;
-using GameOptions = GamePlay.Loop.GameOptions;
 
 namespace GamePlay.Players
 {

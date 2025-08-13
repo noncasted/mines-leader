@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using System;
+using Internal;
 
 namespace GamePlay.Boards
 {
@@ -41,7 +42,7 @@ namespace GamePlay.Boards
 
         public void OnFlagUpdated(bool isFlagged)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

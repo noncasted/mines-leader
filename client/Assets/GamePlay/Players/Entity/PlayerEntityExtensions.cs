@@ -1,6 +1,5 @@
 ﻿using Common.Network;
 using Internal;
-using Meta;
 using Shared;
 
 namespace GamePlay.Players
