@@ -26,7 +26,17 @@ public class BoardGenerator : IBoardGenerator
 
         var minesSpawned = 0;
         var requiredMines = _options.Value.Mines;
-
+        var size = _options.Value.Size;
+        
+        for (var x = 0; x < size; x++)
+        {
+            for (var y = 0; y < size; y++)
+            {
+                var position = new Position(x, y);
+                _board.SetCell(new TakenCell(position, _board));
+            }
+        }
+        
         while (minesSpawned < requiredMines)
         {
             var random = _board.RandomPosition();
@@ -34,9 +44,8 @@ public class BoardGenerator : IBoardGenerator
             if (ignored.Contains(random))
                 continue;
 
-            var taken = new TakenCell(random, _board);
-            taken.SetMine();
-            _board.SetCell(taken);
+            _board.Cells[random].ToTaken().SetMine();
+            ignored.Add(random);
 
             minesSpawned++;
         }

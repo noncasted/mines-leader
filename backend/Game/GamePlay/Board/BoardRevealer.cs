@@ -15,7 +15,7 @@ public class BoardRevealer : IBoardRevealer
     }
 
     private readonly IBoard _board;
-    
+
     public void Reveal(Position position)
     {
         var passed = new HashSet<Position> { position };
@@ -28,9 +28,12 @@ public class BoardRevealer : IBoardRevealer
             cell.ToFree();
         }
 
+        return;
+
         void Check(Position target)
         {
             var neighbours = _board.NeighbourPositions(target);
+
             neighbours.RemoveWhere(t => passed.Contains(t));
             neighbours.RemoveWhere(t => _board.Cells[t].Status == CellStatus.Free);
 
@@ -51,6 +54,44 @@ public class BoardRevealer : IBoardRevealer
             {
                 passed.Add(neighbour);
                 Check(neighbour);
+            }
+
+            var board = PrintBoard();
+            Console.WriteLine(board);
+            return;
+
+            string PrintBoard()
+            {
+                var result = string.Empty;
+
+                for (var x = 0; x < _board.Size.x; x++)
+                {
+                    for (var y = 0; y < _board.Size.y; y++)
+                    {
+                        var check = new Position(x, y);
+                        var cell = _board.Cells[check];
+
+                        if (check == position)
+                        {
+                            result += "S";
+                        }
+                        else
+                        {
+                            result += cell.Status switch
+                            {
+                                CellStatus.Free => "F",
+                                CellStatus.Taken => passed.Contains(check) == true ? "O" : cell.ToTaken().HasMine == true ? "M" : "T",
+                                _ => "X"
+                            };
+                        }
+                        
+                        result += " ";
+                    }
+
+                    result += "\n";
+                }
+
+                return result;
             }
         }
     }

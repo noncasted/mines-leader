@@ -1,4 +1,5 @@
 ﻿using Common;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.GamePlay;
@@ -17,20 +18,28 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
         var player = Utils.GameContext.UserToPlayer[user];
         var lifetime = new Lifetime();
 
+        var snapshot = new MoveSnapshot(Utils.GameContext, lifetime);
+        snapshot.Start();
+
         var commandContext = new Context
         {
             Player = player,
-            Lifetime = lifetime
+            Lifetime = lifetime,
+            Snapshot = snapshot
         };
 
-        var snapshot = new MoveSnapshot(Utils.GameContext, lifetime);
-        snapshot.Start();
-        
         try
         {
             var response = Execute(commandContext, request);
             Utils.SnapshotSender.Send(snapshot);
             return response;
+        }
+        catch (Exception e)
+        {
+            Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
+                request.GetType().Name, player.User.Id
+            );
+            throw;
         }
         finally
         {
@@ -44,5 +53,6 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
     {
         public required IPlayer Player { get; init; }
         public required IReadOnlyLifetime Lifetime { get; init; }
+        public required MoveSnapshot Snapshot { get; init; }
     }
 }

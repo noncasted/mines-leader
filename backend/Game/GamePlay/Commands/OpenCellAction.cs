@@ -20,6 +20,7 @@ public class OpenCellAction(GameCommandUtils utils) : GameCommand<SharedGameActi
         }
 
         targetCell.ToFree();
+        board.OnUpdated();
 
         return EmptyResponse.Ok;
     }

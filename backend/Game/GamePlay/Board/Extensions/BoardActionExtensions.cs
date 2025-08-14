@@ -11,5 +11,6 @@ public static class BoardActionExtensions
         
         board.Generator.Generate(position);
         board.Revealer.Reveal(position);
+        board.OnUpdated();
     }
 }

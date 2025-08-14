@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Services;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay
 {
@@ -25,7 +27,10 @@ namespace GamePlay
                 resolver = new PlayerRecordResolver(player.Board);
                 _resolvers[record.BoardOwnerId] = resolver;
             }
-
+            
+            Debug.Log($"[BoardSnapshot] Taken: {record.Records.Count(t => t is BoardSnapshotRecord.CellTaken)}");
+            Debug.Log($"[BoardSnapshot] Free: {record.Records.Count(t => t is BoardSnapshotRecord.CellFree)}");
+            
             foreach (var snapshotRecord in record.Records)
                 resolver.Resolve(snapshotRecord);
         }

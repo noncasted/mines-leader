@@ -19,7 +19,7 @@ public static class BoardPositionsExtensions
 
     public static HashSet<Position> NeighbourPositions(this IBoard board, Position position)
     {
-        var bounds = board.GetBoardBounds();
+        var bounds = board.Size;
 
         var neighbours = new HashSet<Position>
         {
@@ -34,7 +34,7 @@ public static class BoardPositionsExtensions
         };
 
         neighbours.RemoveWhere(neighbour =>
-            neighbour.x < 0 || neighbour.x > bounds.x || neighbour.y < 0 || neighbour.y > bounds.y);
+            neighbour.x < 0 || neighbour.x >= bounds.x || neighbour.y < 0 || neighbour.y >= bounds.y);
 
         return neighbours;
     }
@@ -52,26 +52,9 @@ public static class BoardPositionsExtensions
         }
     }
 
-    public static Position GetBoardBounds(this IBoard board)
-    {
-        var maxX = 0;
-        var maxY = 0;
-
-        foreach (var (position, _) in board.Cells)
-        {
-            if (position.x > maxX)
-                maxX = position.x;
-
-            if (position.y > maxY)
-                maxY = position.y;
-        }
-
-        return new Position(maxX, maxY);
-    }
-
     public static Position RandomPosition(this IBoard board)
     {
-        var bounds = board.GetBoardBounds();
+        var bounds = board.Size;
         return new Position(Random.Shared.Next(0, bounds.x), Random.Shared.Next(0, bounds.y));
     }
 

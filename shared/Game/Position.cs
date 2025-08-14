@@ -51,6 +51,11 @@ namespace Shared
         {
             return new Position(left.x - right.x, left.y - right.y);
         }
+
+        public override string ToString()
+        {
+            return $"({x}, {y})";
+        }
     }
     
     public static class PositionExtensions
