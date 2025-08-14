@@ -8,38 +8,34 @@ public class Trebuchet : ICard
     public Trebuchet(
         IPlayer owner,
         IBoard target,
-        CardType cardType
-    )
+        CardUsePayload.Trebuchet payload)
     {
         _owner = owner;
         _target = target;
-        _cardType = cardType;
+        _payload = payload;
     }
 
     private readonly IPlayer _owner;
     private readonly IBoard _target;
-    private readonly CardType _cardType;
-    
-    private int _minesAmount => _cardType switch
+    private readonly CardUsePayload.Trebuchet _payload;
+
+    private int _minesAmount => _payload.Type switch
     {
         CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
         CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
         _ => throw new ArgumentOutOfRangeException()
     };
-    
-    public EmptyResponse Use(ICardUsePayload payload)
+
+    public EmptyResponse Use()
     {
-        if (payload is not CardUsePayload.Trebuchet trebuchetPayload)
-            return EmptyResponse.Fail("Invalid payload type for Trebuchet card");
-        
-        var size = _cardType.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+        var size = _payload.Type.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 
-        var selected = pattern.SelectFree(_target, trebuchetPayload.Position);
-        
+        var selected = pattern.SelectFree(_target, _payload.Position);
+
         if (selected.Count == 0)
             return EmptyResponse.Fail("No free cells in the pattern");
-        
+
         var shuffled = new List<ICell>(selected);
         shuffled.Shuffle();
 
@@ -53,6 +49,7 @@ public class Trebuchet : ICard
         }
 
         _owner.Modifiers.Reset(PlayerModifier.TrebuchetBoost);
+        _target.Revealer.Reveal(_payload.Position);
 
         return EmptyResponse.Ok;
     }

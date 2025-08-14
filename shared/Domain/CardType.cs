@@ -40,5 +40,24 @@ namespace Shared
         }
 
         public static readonly IReadOnlyList<CardType> All;
+
+        public static bool RequiresBoard(this CardType type)
+        {
+            return type switch
+            {
+                CardType.Trebuchet => true,
+                CardType.Trebuchet_Max => true,
+                CardType.Bloodhound => true,
+                CardType.Bloodhound_Max => true,
+                CardType.TrebuchetAimer => false,
+                CardType.TrebuchetAimer_Max => false,
+                CardType.ErosionDozer => true,
+                CardType.ErosionDozer_Max => true,
+                CardType.Gravedigger => false,
+                CardType.ZipZap => true,
+                CardType.ZipZap_Max => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
     }
 }

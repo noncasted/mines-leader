@@ -43,7 +43,8 @@ namespace GamePlay.Players
         {
             var payload = data.ReadPayload<PlayerCreatePayload>();
 
-            var view = _objectFactory.Create(_options.RemotePrefab);
+            var prefab = data.Owner.IsLocal == true ? _options.LocalPrefab : _options.RemotePrefab;
+            var view = _objectFactory.Create(prefab);
             var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
             var player = loadResult.Get<IGamePlayer>();
 

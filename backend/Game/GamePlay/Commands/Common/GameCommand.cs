@@ -23,8 +23,8 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
             Lifetime = lifetime
         };
 
-        var snapshot = new MoveSnapshot(Utils.GameContext);
-        snapshot.Start(lifetime);
+        var snapshot = new MoveSnapshot(Utils.GameContext, lifetime);
+        snapshot.Start();
         
         try
         {

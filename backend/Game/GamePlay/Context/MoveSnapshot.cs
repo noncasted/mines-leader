@@ -5,17 +5,20 @@ namespace Game.GamePlay;
 
 public class MoveSnapshot
 {
-    public MoveSnapshot(IGameContext gameContext)
+    public MoveSnapshot(IGameContext gameContext, IReadOnlyLifetime lifetime)
     {
         _gameContext = gameContext;
+        _lifetime = lifetime.Child();
     }
 
     private readonly IGameContext _gameContext;
     private readonly List<IMoveSnapshotRecord> _records = new();
+    
+    private readonly ILifetime _lifetime;
 
-    public void Start(IReadOnlyLifetime lifetime)
+    public void Start()
     {
-        HandleBoards(lifetime);
+        HandleBoards(_lifetime);
     }
 
     public void RecordCard(Guid playerId, ICardActionData data)
@@ -24,15 +27,6 @@ public class MoveSnapshot
         {
             PlayerId = playerId,
             Data = data
-        });
-    }
-    
-    public void RecordReshuffleFromStash(Guid playerId, int count)
-    {
-        _records.Add(new PlayerSnapshotRecord.ReshuffleFromStash()
-        {
-            PlayerId = playerId,
-            CardsCount = count
         });
     }
     
@@ -45,15 +39,6 @@ public class MoveSnapshot
         });
     }
     
-    public void RecordDeckFill(Guid playerId, int count)
-    {
-        _records.Add(new PlayerSnapshotRecord.DeckFill()
-        {
-            PlayerId = playerId,
-            Count = count
-        });
-    }
-
     private void HandleBoards(IReadOnlyLifetime lifetime)
     {
         foreach (var (_, board) in _gameContext.Boards)
@@ -119,16 +104,10 @@ public class MoveSnapshot
         }
     }
 
-    private void ListenPlayers(IReadOnlyLifetime lifetime)
-    {
-        foreach (var (_, player) in _gameContext.UserToPlayer)
-        {
-            
-        }    
-    }
-    
     public SharedMoveSnapshot Collect()
     {
+        _lifetime.Terminate();
+
         return new SharedMoveSnapshot
         {
             Records = _records.AsReadOnly()

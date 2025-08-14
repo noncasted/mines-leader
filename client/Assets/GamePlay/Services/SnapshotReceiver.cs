@@ -13,7 +13,7 @@ namespace GamePlay.Services
     
     public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver
     {
-        private readonly Dictionary<Type, Action<IMoveSnapshotRecord>> _handlers;
+        private readonly Dictionary<Type, Action<IMoveSnapshotRecord>> _handlers = new();
 
         public void Add(Type type, Action<IMoveSnapshotRecord> handler)
         {

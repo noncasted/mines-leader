@@ -85,6 +85,11 @@ namespace Global.Backend
             return connection.Writer.WriteRequest<T>(commandContext);
         }
 
+        public static UniTask<EmptyResponse> Request(this INetworkConnection connection, INetworkContext commandContext)
+        {
+            return connection.Writer.WriteRequest<EmptyResponse>(commandContext);
+        }
+        
         public static UniTask ForceSendAll(this INetworkConnection connection)
         {
             return connection.Writer.ForceSendAll();

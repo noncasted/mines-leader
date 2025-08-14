@@ -5,6 +5,7 @@ public interface IObjectProperty
     int Id { get; }
     byte[] RawValue { get; }
 
+    void Construct(IPropertyUpdateSender updateSender, int objectId);
     void Update(byte[] value);
 }
 
@@ -28,7 +29,7 @@ public class ObjectProperty : IObjectProperty
         _objectId = objectId;
         _updateSender = updateSender;
     }
-    
+
     public void Update(byte[] value)
     {
         _rawValue = value;

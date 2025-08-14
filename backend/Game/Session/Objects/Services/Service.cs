@@ -7,7 +7,7 @@ public interface IService : IObject
 {
     string Key { get; }
 
-    void Setup(IReadOnlyLifetime lifetime);
+    void Setup(IReadOnlyLifetime lifetime, IPropertyUpdateSender propertyUpdateSender);
     SharedSessionService.Overview CreateOverview();
 }
 
@@ -28,9 +28,13 @@ public class Service : IService
     public int Id { get; }
     public IReadOnlyLifetime Lifetime => _lifetime;
 
-    public void Setup(IReadOnlyLifetime lifetime)
+    public void Setup(IReadOnlyLifetime lifetime, IPropertyUpdateSender propertyUpdateSender)
     {
         _lifetime = lifetime;
+
+        foreach (var (_, property) in _properties)
+            property.Construct(propertyUpdateSender, Id);
+        
         OnStarted(lifetime);
     }
     

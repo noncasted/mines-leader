@@ -51,10 +51,18 @@ namespace Shared
         {
             return new Position(left.x - right.x, left.y - right.y);
         }
-
-        public Vector2Int ToVector()
+    }
+    
+    public static class PositionExtensions
+    {
+        public static Position ToPosition(this Vector2Int vector)
         {
-            return new Vector2Int(x, y);
+            return new Position(vector.x, vector.y);
+        }
+
+        public static Vector2Int ToVector(this Position position)
+        {
+            return new Vector2Int(position.x, position.y);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Game.GamePlay;
 public interface IDeck
 {
     int Count { get; }
+
     void AddCard(CardType card);
     CardType DrawCard();
 }

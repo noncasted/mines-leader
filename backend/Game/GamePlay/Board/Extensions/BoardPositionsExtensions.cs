@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.GamePlay;
 
-public static class BoardExtensions
+public static class BoardPositionsExtensions
 {
     public static readonly IReadOnlyList<Position> Directions = new List<Position>()
     {

@@ -34,7 +34,7 @@ public class ServiceFactory : IServiceFactory, ISessionCreated
     {
         foreach (var service in _services)
         {
-            service.Setup(_data.Lifetime);
+            service.Setup(_data.Lifetime, _propertyUpdateSender);
             _collection.Add(service);
             _objects.Add(service);
         }
@@ -62,7 +62,7 @@ public class ServiceFactory : IServiceFactory, ISessionCreated
         foreach (var (_, property) in properties)
             service.BindProperty(property);
 
-        service.Setup(_data.Lifetime);
+        service.Setup(_data.Lifetime, _propertyUpdateSender);
 
         _collection.Add(service);
         _objects.Add(service);

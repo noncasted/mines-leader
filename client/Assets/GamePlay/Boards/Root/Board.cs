@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Common.Network;
+using Global.Backend;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace GamePlay.Boards
 
         private INetworkEntity _entity;
         private IUpdater _updater;
+        private INetworkConnection _connection;
 
         public IBoardConstructionData ConstructionDataData => _constructionData;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
@@ -25,8 +27,9 @@ namespace GamePlay.Boards
         public IViewableDelegate Updated => _updated;
 
         [Inject]
-        private void Construct(IUpdater updater, INetworkEntity entity)
+        private void Construct(IUpdater updater, INetworkEntity entity, INetworkConnection connection)
         {
+            _connection = connection;
             _updater = updater;
             _entity = entity;
         }
@@ -52,7 +55,7 @@ namespace GamePlay.Boards
         public void Setup(INetworkEntity entity)
         {
             foreach (var cell in _cells)
-                cell.Setup(_updater);
+                cell.Setup(_updater, _connection);
         }
 
         public void InvokeExplosion(IBoardCell cell)

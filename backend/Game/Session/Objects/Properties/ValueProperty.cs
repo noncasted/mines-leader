@@ -36,7 +36,8 @@ public static class ValuePropertyExtensions
 {
     public static void Update<T>(this ValueProperty<T> property, Action<T> action) where T : new()
     {
-        action(property.Value);
+        var value =  property.Value == null ? new T() : property.Value; 
+        action(value);
         property.OnUpdated();
     }
 }

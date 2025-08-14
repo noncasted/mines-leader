@@ -51,22 +51,34 @@ public class GameRound : Service, IUsersConnected
 
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
-        var roundLifetime = lifetime.Child();
-        
-        await _readyAwaiter.Await(lifetime);
-        
-        ManaLoop(roundLifetime).NoAwait();
+        var options = _options.Value;
 
-        var snapshot = new MoveSnapshot(_gameContext);
-        
         foreach (var player in _gameContext.Players)
         {
-            player.Deck.AddRandom(_options.Value.StartCards);
-            snapshot.RecordDeckFill(player.User.Id, player.Deck.Count);
+            player.Hand.SetSize(options.HandSize);
+            player.Health.SetMax(options.MaxHealth);
+            player.Health.SetCurrent(options.StartHealth);
+            player.Mana.SetMax(options.MaxMana);
+            player.Mana.SetCurrent(options.StartMana);
+            player.Moves.SetMax(options.MovesCount);
         }
 
-        _snapshotSender.Send(snapshot);
+        var roundLifetime = lifetime.Child();
+
+        await _readyAwaiter.Await(lifetime);
+
+        ManaLoop(roundLifetime).NoAwait();
         
+        var snapshot = new MoveSnapshot(_gameContext, lifetime);
+        snapshot.Start();
+
+        foreach (var player in _gameContext.Players)
+            player.Deck.AddRandom(options.DeckSize);
+
+        foreach (var player in _gameContext.Players)
+            RestoreCard(player, snapshot);
+
+        _snapshotSender.Send(snapshot);
         var currentPlayer = _gameContext.Players.First();
 
         while (IsGameOver() == false)
@@ -79,7 +91,13 @@ public class GameRound : Service, IUsersConnected
 
         bool IsGameOver()
         {
-            return _gameContext.Players.Any(p => p.Health.Current.Value == 0);
+            if (_gameContext.Players.Any(p => p.Health.Current.Value == 0))
+                return true;
+
+            if (_gameContext.UserToPlayer.Any(p => p.Key.Lifetime.IsTerminated == true))
+                return true;
+
+            return false;
         }
     }
 
@@ -87,40 +105,41 @@ public class GameRound : Service, IUsersConnected
     {
         var roundLifetime = lifetime.Child();
         var timer = _options.Value.RoundTime;
+
+        _state.Update(state =>
+            {
+                state.SecondsLeft = timer;
+                state.CurrentPlayer = player.User.Id;
+            }
+        );
         
         player.Moves.Restore();
 
+        var snapshot = new MoveSnapshot(_gameContext, lifetime);
+        snapshot.Start();
+
         await Task.WhenAny(TimerCountdown(), TurnsCountdown());
-        
+
         roundLifetime.Terminate();
-        
-        var cardsNeeded = _options.Value.HandSize - player.Hand.Entries.Count;
 
-        var snapshot = new MoveSnapshot(_gameContext);
+        RestoreCard(player, snapshot);
 
-        for (var i = 0; i < cardsNeeded; i++)
-        {
-            if (player.Deck.Count == 0)
-            {
-                var stashCards = player.Stash.Collect();
+        _snapshotSender.Send(snapshot);
 
-                foreach (var cardType in stashCards)
-                    player.Deck.AddCard(cardType);
-                
-                snapshot.RecordReshuffleFromStash(player.User.Id, stashCards.Count);
-            }
-            
-            var card = player.Deck.DrawCard();
-            player.Hand.Add(card);
-            snapshot.RecordCardDraw(player.User.Id, card);
-        }        
+        player.Moves.Lock();
+
+        return;
+
         async Task TimerCountdown()
         {
             var timeSpan = TimeSpan.FromSeconds(1);
-            
+
             while (timer > 0 && roundLifetime.IsTerminated == false)
             {
                 timer--;
+
+                _state.Update(state => state.SecondsLeft = timer);
+
                 await Task.Delay(timeSpan, roundLifetime.Token);
             }
         }
@@ -128,7 +147,7 @@ public class GameRound : Service, IUsersConnected
         async Task TurnsCountdown()
         {
             var timeSpan = TimeSpan.FromSeconds(0.2);
-            
+
             while (player.Moves.Left > 0 && roundLifetime.IsTerminated == false)
                 await Task.Delay(timeSpan, roundLifetime.Token);
         }
@@ -142,6 +161,26 @@ public class GameRound : Service, IUsersConnected
 
             foreach (var player in _gameContext.Players)
                 player.Mana.SetCurrent(player.Mana.Current + 1);
+        }
+    }
+
+    private void RestoreCard(IPlayer player, MoveSnapshot snapshot)
+    {
+        var cardsNeeded = _options.Value.HandSize - player.Hand.Entries.Count;
+
+        for (var i = 0; i < cardsNeeded; i++)
+        {
+            if (player.Deck.Count == 0)
+            {
+                var stashCards = player.Stash.Collect();
+
+                foreach (var cardType in stashCards)
+                    player.Deck.AddCard(cardType);
+            }
+
+            var card = player.Deck.DrawCard();
+            player.Hand.Add(card);
+            snapshot.RecordCardDraw(player.User.Id, card);
         }
     }
 }

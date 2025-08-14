@@ -6,28 +6,29 @@ public interface IMoves
 {
     int Left { get; }
 
+    void SetMax(int value);
     void OnUsed();
     void Restore();
+    void Lock();
 }
 
 public class Moves : IMoves
 {
-    public Moves(ValueProperty<PlayerMovesState> state, int maxTurns)
+    public Moves(ValueProperty<PlayerMovesState> state)
     {
         _state = state;
-        _maxTurns = maxTurns;
-        
-        state.Set(new PlayerMovesState()
-        {
-            Left = maxTurns,
-            Max = maxTurns
-        });
     }
 
     private readonly ValueProperty<PlayerMovesState> _state;
-    private readonly int _maxTurns;
+    
+    private int _maxTurns;
 
     public int Left => _state.Value.Left;
+
+    public void SetMax(int value)
+    {
+        _maxTurns = value;
+    }
 
     public void OnUsed()
     {
@@ -47,6 +48,16 @@ public class Moves : IMoves
         {
             state.Left = _maxTurns;
             state.Max = _maxTurns;
+            state.IsAvailable = true;
+        });
+    }
+
+    public void Lock()
+    {
+        _state.Update(state =>
+        {
+            state.Left = 0;
+            state.IsAvailable = false;
         });
     }
 }

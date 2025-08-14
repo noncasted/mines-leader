@@ -4,5 +4,5 @@ namespace Game.GamePlay;
 
 public interface ICard
 {
-    EmptyResponse Use(ICardUsePayload payload);
+    EmptyResponse Use();
 }

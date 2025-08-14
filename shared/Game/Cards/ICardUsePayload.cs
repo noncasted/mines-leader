@@ -13,44 +13,54 @@ namespace Shared
     {
         CardType Type { get; set; }
     }
+    
+    public interface IBoardCardUsePayload : ICardUsePayload
+    {
+        Position Position { get; set; }
+    }
 
     public partial class CardUsePayload
     {
         [MemoryPackable]
-        public partial class ZipZap : ICardUsePayload
-        {
-            public CardType Type { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class Bloodhound : ICardUsePayload
-        {
-            public CardType Type { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class ErosionDozer : ICardUsePayload
-        {
-            public CardType Type { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class Gravedigger : ICardUsePayload
-        {
-            public CardType Type { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class Trebuchet : ICardUsePayload
+        public partial class ZipZap : IBoardCardUsePayload
         {
             public CardType Type { get; set; }
             public Position Position { get; set; }
         }
 
         [MemoryPackable]
-        public partial class TrebuchetAimer : ICardUsePayload
+        public partial class Bloodhound : IBoardCardUsePayload
         {
             public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ErosionDozer : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Gravedigger : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Trebuchet : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class TrebuchetAimer : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
         }
     }
 }

@@ -64,15 +64,12 @@ public class Session : ISession
 
         if (_data.CreateOptions.ExpectedUsers == 0)
         {
-            _users.View(Lifetime, user => HandleUserConnect(user).NoAwait());
+            _users.View(Lifetime, HandleUser);
         }
         else
         {
             foreach (var user in _users)
-            {
-                var connectionTask = await HandleUserConnect(user);
-                HandleUserDisconnect(user, connectionTask).NoAwait();
-            }
+                HandleUser(user);
         }
 
         await _events.OnAllConnected(Lifetime);
@@ -99,7 +96,13 @@ public class Session : ISession
         }
     }
 
-    private async Task<Task> HandleUserConnect(IUser user)
+    private void HandleUser(IUser user)
+    {
+        var connectionTask = HandleUserConnect(user);
+        HandleUserDisconnect(user, connectionTask).NoAwait();
+    }
+
+    private Task HandleUserConnect(IUser user)
     {
         user.Dispatcher.Run(user.Lifetime, user);
 
