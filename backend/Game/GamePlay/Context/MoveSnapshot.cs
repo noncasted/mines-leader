@@ -54,8 +54,8 @@ public class MoveSnapshot
             {
                 IBoardSnapshotRecord record = cell.Status switch
                 {
-                    CellStatus.Free => new BoardSnapshotRecord.CellTaken() { Position = cell.Position },
-                    CellStatus.Taken => new BoardSnapshotRecord.CellFree() { Position = cell.Position },
+                    CellStatus.Free => new BoardSnapshotRecord.CellFree() { Position = cell.Position },
+                    CellStatus.Taken => new BoardSnapshotRecord.CellTaken() { Position = cell.Position },
                     _ => throw new ArgumentOutOfRangeException()
                 };
 

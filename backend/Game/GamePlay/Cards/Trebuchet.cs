@@ -1,5 +1,4 @@
-﻿using Common;
-using Shared;
+﻿using Shared;
 
 namespace Game.GamePlay;
 
@@ -19,13 +18,6 @@ public class Trebuchet : ICard
     private readonly IBoard _target;
     private readonly CardUsePayload.Trebuchet _payload;
 
-    private int _minesAmount => _payload.Type switch
-    {
-        CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
-        CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
     public EmptyResponse Use()
     {
         var size = _payload.Type.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
@@ -36,20 +28,30 @@ public class Trebuchet : ICard
         if (selected.Count == 0)
             return EmptyResponse.Fail("No free cells in the pattern");
 
-        var shuffled = new List<ICell>(selected);
-        shuffled.Shuffle();
+        var minesTargets = new List<ICell>();
+        var cellsByY = selected.GroupBy(cell => cell.Position.y)
+            .OrderByDescending(group => group.Key);
 
-        for (var index = 0; index < shuffled.Count; index++)
+        foreach (var group in cellsByY)
         {
-            var cell = shuffled[index];
-            var taken = cell.ToTaken();
-
-            if (index < _minesAmount)
-                taken.SetMine();
+            if (group.Count() == 1)
+            {
+                minesTargets.Add(group.First());
+            }
+            else
+            {
+                minesTargets.Add(group.First());
+                minesTargets.Add(group.Last());
+            }
         }
 
+        foreach (var cell in selected)
+            cell.ToTaken();
+        
+        foreach (var cell in minesTargets)
+            cell.ToTaken().SetMine();
+
         _owner.Modifiers.Reset(PlayerModifier.TrebuchetBoost);
-        _target.Revealer.Reveal(_payload.Position);
 
         return EmptyResponse.Ok;
     }

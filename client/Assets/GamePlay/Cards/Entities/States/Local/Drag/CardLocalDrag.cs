@@ -1,9 +1,12 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using GamePlay.Players;
+using Global.Backend;
 using Global.Systems;
 using Internal;
 using Meta;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -12,12 +15,14 @@ namespace GamePlay.Cards
     {
         UniTask Enter(ICardLocalIdle idle);
     }
-    
+
     public class CardLocalDrag : ICardLocalDrag
     {
         public CardLocalDrag(
+            INetworkConnection connection,
             IGameContext gameContext,
             IUpdater updater,
+            INetworkEntity entity,
             IPlayerMana mana,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
@@ -28,8 +33,10 @@ namespace GamePlay.Cards
             ICardDefinition definition,
             CardDragOptions options)
         {
+            _connection = connection;
             _gameContext = gameContext;
             _updater = updater;
+            _entity = entity;
             _mana = mana;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
@@ -41,8 +48,10 @@ namespace GamePlay.Cards
             _options = options;
         }
 
+        private readonly INetworkConnection _connection;
         private readonly IGameContext _gameContext;
         private readonly IUpdater _updater;
+        private readonly INetworkEntity _entity;
         private readonly IPlayerMana _mana;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
@@ -59,34 +68,44 @@ namespace GamePlay.Cards
             var lifetime = _stateLifetime.OccupyLifetime();
             var startForce = _transform.HandForce;
             var positionHandle = _handEntryHandle.PositionHandle;
-            var selectionLifetime = lifetime.Child();
+            var useLifetime = lifetime.Child();
 
             _moves.IsTurn.Advise(lifetime, isTurn =>
-            {
-                if (isTurn == false)
-                    selectionLifetime.Terminate();
-            });
+                {
+                    if (isTurn == false)
+                        useLifetime.Terminate();
+                }
+            );
 
-            _updater.RunUpdateAction(selectionLifetime, _ => MoveTowards(startPosition)).Forget();
+            _updater.RunUpdateAction(useLifetime, _ => MoveTowards(startPosition)).Forget();
 
-            // TODO: replace with command
-            var isUsed = true;
-            selectionLifetime.Terminate();
-            
-            if (isUsed == false)
+            var useResult = await _action.TryUse(useLifetime);
+
+            if (useResult.IsSuccess == true)
             {
-                await _updater.RunUpdateAction(lifetime, () =>
+                var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                     {
-                        var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
-                        return distance > 0.1f;
-                    },
-                    _ => MoveTowards(positionHandle.SupposedPosition));
-
-                idle.Enter();
-                return;
+                        Index = _entity.Id,
+                        Payload = useResult.Payload
+                    }
+                );
+                
+                if (requestResult.HasError == false)
+                    return;
             }
 
-            _drop.Enter().Forget();
+            useLifetime.Terminate();
+
+            await _updater.RunUpdateAction(lifetime, () =>
+                {
+                    var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
+                    return distance > 0.1f;
+                },
+                _ => MoveTowards(positionHandle.SupposedPosition)
+            );
+
+            idle.Enter();
+            return;
 
             void MoveTowards(Vector2 target)
             {

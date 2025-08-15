@@ -38,84 +38,21 @@ namespace GamePlay.Cards
         private readonly ICardVfxFactory _vfxFactory;
         private readonly ZipZapOptions _options;
 
-        private const int _searchRadius = 6;
-
-        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
-        {
-            return UniTask.FromResult(new CardActionResult());
-        }
-
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var pattern = new Pattern(_context.TargetBoard);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            var size = _context.Type.GetSize();
-
-            var searchShape = PatternShapes.Rhombus(_searchRadius);
-
-            var targets = new List<IBoardCell>();
-            var current = SelectTarget(pattern.LastPointer);
-            targets.Add(current);
-
-            for (var i = 1; i < size; i++)
+            return new CardActionResult()
             {
-                current = SelectTarget(current.BoardPosition);
-
-                if (current == null)
-                    break;
-
-                targets.Add(current);
-            }
-
-            if (targets.Count == 0)
-                return false;
-
-            targets.First().Explode(CellExplosionType.ZipZap).Forget();
-            _camera.BaseShake();
-            var lines = new List<ZipZapLine>();
-
-            for (var index = 1; index < targets.Count; index++)
-            {
-                var start = targets[index - 1];
-                var target = targets[index];
-
-                var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
-                await line.Show(lifetime, start, target);
-                target.Explode(CellExplosionType.ZipZap).Forget();
-                _camera.BaseShake();
-                lines.Add(line);
-            }
-
-            foreach (var line in lines)
-                Object.Destroy(line.gameObject);
-
-//            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
-
-            return true;
-
-            IBoardCell SelectTarget(Vector2Int center)
-            {
-                return null;
-                // var searchPositions = searchShape.SelectTaken(_context.TargetBoard, center);
-                // var hasMine = searchPositions.Where(x => x.HasMine() == true);
-                // var hasFlags = hasMine.Where(x => x.HasFlag() == false);
-                // var unique = hasFlags.Where(x => targets.Contains(x) == false);
-                //
-                // var ordered = unique
-                //     .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
-                //     .ToList();
-                //
-                // if (ordered.Count == 0)
-                //     return null;
-                //
-                // return ordered.First();
-            }
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.Trebuchet()
+                {
+                    Position = result.Position.ToPosition()
+                }
+            };
         }
 
         public class Pattern : ICardDropPattern

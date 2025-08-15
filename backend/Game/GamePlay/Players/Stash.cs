@@ -4,6 +4,9 @@ namespace Game.GamePlay;
 
 public interface IStash
 {
+    int Count { get; }
+
+    CardType Pick();
     void Add(CardType card);
     IReadOnlyList<CardType> Collect();
 }
@@ -17,6 +20,16 @@ public class Stash : IStash
     
     private readonly List<CardType> _cards = new();
     private readonly ValueProperty<PlayerStashState> _state;
+
+    public int Count => _cards.Count;
+
+    public CardType Pick()
+    {
+        var card = _cards.Last();
+        _cards.RemoveAt(_cards.Count - 1);
+        _state.Update(state => state.Count--);
+        return card;
+    }
 
     public void Add(CardType card)
     {

@@ -9,6 +9,7 @@ public interface IHand
 
     void SetSize(int value);
     void Add(CardType card);
+    void Remove(CardType card);
 }
 
 public class Hand : IHand
@@ -33,5 +34,10 @@ public class Hand : IHand
     public void Add(CardType card)
     {
         _state.Value.Entries.Add(card);
+    }
+
+    public void Remove(CardType card)
+    {
+        _state.Value.Entries.Remove(card);
     }
 }

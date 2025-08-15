@@ -55,44 +55,6 @@ public class BoardRevealer : IBoardRevealer
                 passed.Add(neighbour);
                 Check(neighbour);
             }
-
-            var board = PrintBoard();
-            Console.WriteLine(board);
-            return;
-
-            string PrintBoard()
-            {
-                var result = string.Empty;
-
-                for (var x = 0; x < _board.Size.x; x++)
-                {
-                    for (var y = 0; y < _board.Size.y; y++)
-                    {
-                        var check = new Position(x, y);
-                        var cell = _board.Cells[check];
-
-                        if (check == position)
-                        {
-                            result += "S";
-                        }
-                        else
-                        {
-                            result += cell.Status switch
-                            {
-                                CellStatus.Free => "F",
-                                CellStatus.Taken => passed.Contains(check) == true ? "O" : cell.ToTaken().HasMine == true ? "M" : "T",
-                                _ => "X"
-                            };
-                        }
-                        
-                        result += " ";
-                    }
-
-                    result += "\n";
-                }
-
-                return result;
-            }
         }
     }
 }

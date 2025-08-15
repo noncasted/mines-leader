@@ -43,10 +43,9 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Gravedigger : IBoardCardUsePayload
+        public partial class Gravedigger : ICardUsePayload
         {
             public CardType Type { get; set; }
-            public Position Position { get; set; }
         }
 
         [MemoryPackable]
@@ -57,10 +56,9 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class TrebuchetAimer : IBoardCardUsePayload
+        public partial class TrebuchetAimer : ICardUsePayload
         {
             public CardType Type { get; set; }
-            public Position Position { get; set; }
         }
     }
 }

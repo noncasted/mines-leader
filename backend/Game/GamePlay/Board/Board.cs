@@ -10,6 +10,7 @@ public interface IBoard
 
     IBoardGenerator Generator { get; }
     IBoardRevealer Revealer { get; }
+    IBoardMinesScanner MinesScanner { get; }
     IBoardEvents Events { get; }
     Position Size { get; }
 
@@ -29,6 +30,7 @@ public class Board : IBoard
         Generator = new BoardGenerator(this, options);
         Revealer = new BoardRevealer(this);
         Size = new Position(options.Value.Size, options.Value.Size);
+        MinesScanner = new BoardMinesScanner(this);
     }
 
     private readonly Dictionary<Position, ICell> _cells = new();
@@ -38,6 +40,7 @@ public class Board : IBoard
 
     public IBoardGenerator Generator { get; }
     public IBoardRevealer Revealer { get; }
+    public IBoardMinesScanner MinesScanner { get; }
     public IBoardEvents Events { get; }
     public Position Size { get; }
     public IReadOnlyDictionary<Position, ICell> Cells => _cells;

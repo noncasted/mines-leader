@@ -30,12 +30,46 @@ public class CardFactory : ICardFactory
                 GetPreparedTarget(owner, payload),
                 (CardUsePayload.Trebuchet)payload
             ),
-            // CardType.Bloodhound => new Bloodhound(owner, target),
-            // CardType.Bloodhound_Max => new Bloodhound(owner, target),
-            // CardType.ErosionDozer => new ErosionDozer(owner, target),
-            // CardType.ErosionDozer_Max => new ErosionDozer(owner, target),
-            // CardType.ZipZap => new ZipZap(owner, target),
-            // CardType.ZipZap_Max => new ZipZap(owner, target),
+            CardType.Bloodhound => new Bloodhound(
+                owner,
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.Bloodhound)payload
+            ),
+            CardType.Bloodhound_Max => new Bloodhound(
+                owner,
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.Bloodhound)payload
+            ),
+            CardType.ZipZap => new ZipZap(
+                owner,
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.ZipZap)payload
+            ),
+            CardType.ZipZap_Max => new ZipZap(
+                owner,
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.ZipZap)payload
+            ),
+            CardType.TrebuchetAimer => new TrebuchetAimer(
+                owner,
+                (CardUsePayload.TrebuchetAimer)payload
+            ),
+            CardType.TrebuchetAimer_Max => new TrebuchetAimer(
+                owner,
+                (CardUsePayload.TrebuchetAimer)payload
+            ),
+            CardType.ErosionDozer => new ErosionDozer(
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.ErosionDozer)payload
+            ),
+            CardType.ErosionDozer_Max => new ErosionDozer(
+                GetPreparedTarget(owner, payload),
+                (CardUsePayload.ErosionDozer)payload
+            ),
+            CardType.Gravedigger => new GraveDigger(
+                owner,
+                (CardUsePayload.Gravedigger)payload
+            ),
             _ => throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, null)
         };
     }

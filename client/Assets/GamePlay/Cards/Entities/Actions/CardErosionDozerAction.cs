@@ -27,26 +27,22 @@ namespace GamePlay.Cards
         private readonly CardType _cardType;
         private readonly ICardContext _context;
 
-        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
-        {
-            return UniTask.FromResult(new CardActionResult());
-        }
-        
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var size = _cardType.GetSize();
             var pattern = new Pattern(_context.TargetBoard, size);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            foreach (var cell in selected)
-                cell.EnsureFree();
-
-            return true;
+            return new CardActionResult()
+            {
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.Trebuchet()
+                {
+                    Position = result.Position.ToPosition()
+                }
+            };
         }
 
         public class Pattern : ICardDropPattern
@@ -64,7 +60,7 @@ namespace GamePlay.Cards
             {
                 var selected = _board.GetClosedShape(pointer);
                 var ordered = selected.OrderBy(t => Vector2Int.Distance(t.BoardPosition, pointer));
-                
+
                 var limited = ordered.Take(_size).ToList();
                 return limited;
             }

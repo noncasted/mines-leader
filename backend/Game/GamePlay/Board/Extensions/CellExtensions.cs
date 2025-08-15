@@ -30,9 +30,9 @@ public static class CellExtensions
         return free;
     }
     
-    public static IReadOnlyList<ICell> SelectTaken(this IPattenShape shape, IBoard board, Position center)
+    public static IReadOnlyList<ITakenCell> SelectTaken(this IPattenShape shape, IBoard board, Position center)
     {
-        return shape.Select(board, center, cell => cell.IsTaken());
+        return shape.Select(board, center, cell => cell.IsTaken()).Select(t => t.ToTaken()).ToList();
     }
 
     public static IReadOnlyList<ICell> SelectFree(this IPattenShape shape, IBoard board, Position center)

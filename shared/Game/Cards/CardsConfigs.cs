@@ -8,9 +8,6 @@ namespace Shared
         {
             public const int NormalSize = 4;
             public const int MaxSize = 6;
-
-            public const int NormalMines = 8;
-            public const int MaxMines = 12;
         }
 
         public class Bloodhound
@@ -29,6 +26,7 @@ namespace Shared
         {
             public const int NormalSize = 3;
             public const int MaxSize = 4;
+            public const int SearchRadius = 6;
         }
 
         public static int GetSize(this CardType type)

@@ -56,6 +56,11 @@ namespace Shared
         {
             return $"({x}, {y})";
         }
+        
+        public double DistanceTo(Position other)
+        {
+            return Math.Sqrt(Math.Pow(x - other.x, 2) + Math.Pow(y - other.y, 2));
+        }
     }
     
     public static class PositionExtensions

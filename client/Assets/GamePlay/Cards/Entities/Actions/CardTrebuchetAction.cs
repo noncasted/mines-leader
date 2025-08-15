@@ -23,49 +23,27 @@ namespace GamePlay.Cards
             _context = context;
         }
 
-        private int _minesAmount => _context.Type switch
-        {
-            CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
-            CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
 
-        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
-        {
-            return UniTask.FromResult(new CardActionResult());
-        }
-        
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var size = _context.Type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
             var pattern = new Pattern(_context.TargetBoard, size);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            var shuffled = new List<IBoardCell>(selected);
-            shuffled.Shuffle();
-
-            for (var index = 0; index < shuffled.Count; index++)
+            return new CardActionResult()
             {
-                // var cell = shuffled[index];
-                // var taken = cell.EnsureTaken();
-                //
-                // if (index < _minesAmount)
-                //     taken.SetMine();
-            }
-
-//            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
-
-            return true;
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.Trebuchet()
+                {
+                    Position = result.Position.ToPosition()
+                }
+            };
         }
 
         public class Pattern : ICardDropPattern

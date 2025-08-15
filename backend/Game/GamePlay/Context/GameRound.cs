@@ -78,6 +78,9 @@ public class GameRound : Service, IUsersConnected
         foreach (var player in _gameContext.Players)
             RestoreCard(player, snapshot);
 
+        foreach (var player in _gameContext.Players)
+            player.Board.MinesScanner.Start(lifetime);
+        
         _snapshotSender.Send(snapshot);
         var currentPlayer = _gameContext.Players.First();
 
