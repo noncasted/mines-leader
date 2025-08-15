@@ -1,6 +1,5 @@
 ﻿using Common.Network;
 using Cysharp.Threading.Tasks;
-using GamePlay.Loop;
 using GamePlay.Players;
 using Global.Backend;
 using Global.Systems;
@@ -20,10 +19,8 @@ namespace GamePlay.Cards
     {
         public CardLocalDrag(
             INetworkConnection connection,
-            IGameContext gameContext,
             IUpdater updater,
             INetworkEntity entity,
-            IPlayerMana mana,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
@@ -34,10 +31,8 @@ namespace GamePlay.Cards
             CardDragOptions options)
         {
             _connection = connection;
-            _gameContext = gameContext;
             _updater = updater;
             _entity = entity;
-            _mana = mana;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _stateLifetime = stateLifetime;
@@ -49,10 +44,8 @@ namespace GamePlay.Cards
         }
 
         private readonly INetworkConnection _connection;
-        private readonly IGameContext _gameContext;
         private readonly IUpdater _updater;
         private readonly INetworkEntity _entity;
-        private readonly IPlayerMana _mana;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
@@ -83,15 +76,19 @@ namespace GamePlay.Cards
 
             if (useResult.IsSuccess == true)
             {
+                useResult.Payload.Type = _definition.Type;
                 var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                     {
                         Index = _entity.Id,
                         Payload = useResult.Payload
                     }
                 );
-                
+
                 if (requestResult.HasError == false)
+                {
+                    _drop.Enter().Forget();
                     return;
+                }
             }
 
             useLifetime.Terminate();

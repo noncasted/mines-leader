@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Services;
@@ -17,7 +18,7 @@ namespace GamePlay
         private readonly IGameContext _gameContext;
         private readonly Dictionary<Guid, PlayerRecordResolver> _resolvers = new();
 
-        public void Handle(SharedBoardSnapshot record)
+        public UniTask Handle(SharedBoardSnapshot record)
         {
             if (_resolvers.TryGetValue(record.BoardOwnerId, out var resolver) == false)
             {
@@ -28,6 +29,8 @@ namespace GamePlay
             
             foreach (var snapshotRecord in record.Records)
                 resolver.Resolve(snapshotRecord);
+            
+            return UniTask.CompletedTask;
         }
 
         public class PlayerRecordResolver

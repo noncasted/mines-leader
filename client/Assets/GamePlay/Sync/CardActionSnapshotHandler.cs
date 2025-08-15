@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using Cysharp.Threading.Tasks;
+using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
@@ -19,7 +21,7 @@ namespace GamePlay
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
 
-        public void Handle(PlayerSnapshotRecord.Card record)
+        public async UniTask Handle(PlayerSnapshotRecord.Card record)
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
 
@@ -27,7 +29,10 @@ namespace GamePlay
                 return;
 
             var card = player.Hand.Entries.First(t => t.EntityId == record.EntityId)!;
-            card.Use(_lifetime);
+            await card.Use(_lifetime, record.Data);
+
+            if (card is ILocalCard local)
+                local.Destroy().Forget();
         }
     }
 }

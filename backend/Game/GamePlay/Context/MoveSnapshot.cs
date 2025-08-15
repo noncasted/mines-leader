@@ -16,9 +16,21 @@ public class MoveSnapshot
     
     private readonly ILifetime _lifetime;
 
+    private bool _isLocked = false;
+
     public void Start()
     {
         HandleBoards(_lifetime);
+    }
+
+    public void Lock()
+    {
+        _isLocked = true;
+    }
+
+    public void Unlock()
+    {
+        _isLocked = false;
     }
 
     public void RecordCard(Guid playerId, ICardActionData data)
@@ -87,6 +99,9 @@ public class MoveSnapshot
 
         void WriteBoardRecord(IBoard board, IBoardSnapshotRecord record)
         {
+            if (_isLocked == true)
+                return;
+            
             if (_records.Count == 0 ||
                 _records.Last() is not SharedBoardSnapshot boardRecord ||
                 boardRecord.BoardOwnerId != board.OwnerId)

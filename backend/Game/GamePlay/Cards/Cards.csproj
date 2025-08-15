@@ -9,6 +9,7 @@
       <ProjectReference Include="..\..\..\..\shared\Domain\Domain.csproj" />
       <ProjectReference Include="..\..\..\..\shared\Game\Game.csproj" />
       <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
+      <ProjectReference Include="..\..\Session\Session.csproj" />
       <ProjectReference Include="..\Board\Board.csproj" />
       <ProjectReference Include="..\Context\Context.csproj" />
       <ProjectReference Include="..\Players\Players.csproj" />

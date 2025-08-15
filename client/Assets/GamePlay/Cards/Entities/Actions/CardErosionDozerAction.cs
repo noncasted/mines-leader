@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardErosionDozerAction : ICardAction
+    public class CardErosionDozerAction : ICardAction, ICardActionSync<CardActionSnapshot.ErosionDozer>
     {
         public CardErosionDozerAction(
             ICardDropArea dropArea,
@@ -64,6 +64,11 @@ namespace GamePlay.Cards
                 var limited = ordered.Take(_size).ToList();
                 return limited;
             }
+        }
+
+        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ErosionDozer payload)
+        {
+            return UniTask.CompletedTask;
         }
     }
 }

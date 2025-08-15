@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
@@ -6,7 +7,7 @@ namespace GamePlay.Services
 {
     public interface ISnapshotHandler<T> where T : IMoveSnapshotRecord
     {
-        void Handle(T record);
+        UniTask Handle(T record);
     }
 
     public static class SnapshotHandlerExtensions
@@ -18,7 +19,7 @@ namespace GamePlay.Services
             builder.Register<THandler>()
                 .As<ISnapshotHandler<TRecord>>()
                 .WithParameter(builder.Lifetime);
-            
+
             builder.Register<Resolver<TRecord>>()
                 .AsSelfResolvable();
         }
@@ -34,7 +35,7 @@ namespace GamePlay.Services
             private readonly ISnapshotHandler<T> _handler;
             private readonly string _name;
 
-            private void Handle(IMoveSnapshotRecord moveRecord)
+            private UniTask Handle(IMoveSnapshotRecord moveRecord)
             {
                 if (moveRecord is not T record)
                 {
@@ -44,7 +45,7 @@ namespace GamePlay.Services
                     );
                 }
 
-                _handler.Handle(record);
+                return _handler.Handle(record);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System.Collections.Generic;
+using MemoryPack;
 
 namespace Shared
 {
@@ -18,6 +19,7 @@ namespace Shared
         [MemoryPackable]
         public partial class ZipZap : ICardActionData
         {
+            public IReadOnlyList<Position> Targets { get; set; }
         }
         
         [MemoryPackable]

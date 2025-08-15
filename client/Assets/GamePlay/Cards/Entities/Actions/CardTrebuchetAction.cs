@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardTrebuchetAction : ICardAction
+    public class CardTrebuchetAction : ICardAction, ICardActionSync<CardActionSnapshot.Trebuchet>
     {
         public CardTrebuchetAction(
             ICardDropArea dropArea,
@@ -61,6 +61,11 @@ namespace GamePlay.Cards
             {
                 return _shape.SelectFree(_board, pointer);
             }
+        }
+
+        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Trebuchet payload)
+        {
+            return UniTask.CompletedTask;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using GamePlay.Cards;
+﻿using Cysharp.Threading.Tasks;
+using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
@@ -22,14 +23,16 @@ namespace GamePlay
         private readonly IGameContext _gameContext;
         private readonly ICardFactory _cardFactory;
 
-        public void Handle(PlayerSnapshotRecord.CardDraw record)
+        public UniTask Handle(PlayerSnapshotRecord.CardDraw record)
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
             
             if (player.Info.IsLocal == false)
-                return;
+                return UniTask.CompletedTask;
 
             _cardFactory.Create(_lifetime, record.Type, player.Deck.View.PickPoint);
+            
+            return UniTask.CompletedTask;
         }
     }
 }

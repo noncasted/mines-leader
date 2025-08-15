@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using Cysharp.Threading.Tasks;
+using Internal;
 using Meta;
 using Shared;
 
@@ -14,6 +15,6 @@ namespace GamePlay.Cards
         ICardTransform Transform { get; }
         IReadOnlyLifetime Lifetime { get; }
 
-        void Use(IReadOnlyLifetime lifetime);
+        UniTask Use(IReadOnlyLifetime lifetime, ICardActionData payload);
     }
 }

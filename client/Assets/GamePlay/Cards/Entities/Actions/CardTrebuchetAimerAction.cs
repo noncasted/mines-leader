@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
+using Shared;
 
 namespace GamePlay.Cards
 {
-    public class CardTrebuchetAimerAction : ICardAction
+    public class CardTrebuchetAimerAction : ICardAction, ICardActionSync<CardActionSnapshot.TrebuchetAimer>
     {
         public CardTrebuchetAimerAction(
             ICardDropDetector dropDetector,
@@ -17,22 +18,20 @@ namespace GamePlay.Cards
         private readonly ICardDropDetector _dropDetector;
         private readonly IPlayerModifiers _modifiers;
 
-        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
-        {
-            return UniTask.FromResult(new CardActionResult());
-        }
-        
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            if (isDropped == false || lifetime.IsTerminated == true)
-                return false;
+            return new CardActionResult()
+            {
+                IsSuccess = isDropped,
+                Payload = new CardUsePayload.TrebuchetAimer()
+            };
+        }
 
-            // _modifiers.Inc(PlayerModifier.TrebuchetBoost);
-            // _useSync.Send(new CardUseEvents.TrebuchetAimer());
-
-            return true;
+        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.TrebuchetAimer payload)
+        {
+            return UniTask.CompletedTask;
         }
     }
 }

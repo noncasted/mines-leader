@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardBloodhoundAction : ICardAction
+    public class CardBloodhoundAction : ICardAction, ICardActionSync<CardActionSnapshot.Bloodhound>
     {
         public CardBloodhoundAction(
             ICardContext context,
@@ -41,7 +41,7 @@ namespace GamePlay.Cards
             };
         }
 
-        public class Pattern : ICardDropPattern
+        public class Pattern : ICardDropPattern 
         {
             public Pattern(IBoard board, int size)
             {
@@ -57,6 +57,11 @@ namespace GamePlay.Cards
                 var selected = _shape.SelectTaken(_board, pointer);
                 return selected;
             }
+        }
+
+        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
+        {
+            return UniTask.CompletedTask;
         }
     }
 }

@@ -10,13 +10,12 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardZipZapAction : ICardAction
+    public class CardZipZapAction : ICardAction, ICardActionSync<CardActionSnapshot.ZipZap>
     {
         public CardZipZapAction(
             IGameCamera camera,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            IPlayerModifiers modifiers,
             ICardContext context,
             ICardVfxFactory vfxFactory,
             ZipZapOptions options)
@@ -24,7 +23,6 @@ namespace GamePlay.Cards
             _camera = camera;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
-            _modifiers = modifiers;
             _context = context;
             _vfxFactory = vfxFactory;
             _options = options;
@@ -33,7 +31,6 @@ namespace GamePlay.Cards
         private readonly IGameCamera _camera;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
         private readonly ICardVfxFactory _vfxFactory;
         private readonly ZipZapOptions _options;
@@ -53,6 +50,37 @@ namespace GamePlay.Cards
                     Position = result.Position.ToPosition()
                 }
             };
+        }
+
+        public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ZipZap payload)
+        {
+            var targets = new List<IBoardCell>();
+
+            foreach (var position in payload.Targets)
+            {
+                var boardPosition = position.ToVector();
+                var cell = _context.TargetBoard.Cells[boardPosition];
+                targets.Add(cell);
+            }
+
+            targets.First().Explode(CellExplosionType.ZipZap).Forget();
+            _camera.BaseShake();
+            var lines = new List<ZipZapLine>();
+
+            for (var index = 1; index < targets.Count; index++)
+            {
+                var start = targets[index - 1];
+                var target = targets[index];
+
+                var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
+                await line.Show(lifetime, start, target);
+                target.Explode(CellExplosionType.ZipZap).Forget();
+                _camera.BaseShake();
+                lines.Add(line);
+            }
+
+            foreach (var line in lines)
+                Object.Destroy(line.gameObject);
         }
 
         public class Pattern : ICardDropPattern

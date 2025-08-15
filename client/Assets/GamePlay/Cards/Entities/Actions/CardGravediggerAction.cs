@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using Shared;
 
 namespace GamePlay.Cards
 {
-    public class CardGravediggerAction : ICardAction
+    public class CardGravediggerAction : ICardAction, ICardActionSync<CardActionSnapshot.Gravedigger>
     {
         public CardGravediggerAction(ICardDropDetector dropDetector)
         {
@@ -12,22 +13,20 @@ namespace GamePlay.Cards
 
         private readonly ICardDropDetector _dropDetector;
 
-        public UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
-        {
-            return UniTask.FromResult(new CardActionResult());
-        }
-        
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            // if (isDropped == false || _stash.IsEmpty == true || lifetime.IsTerminated == true)
-            //     return false;
-            //
-            // _stash.DrawCard(lifetime).Forget();
-            // _useSync.Send(new CardUseEvents.Gravedigger());
+            return new CardActionResult()
+            {
+                IsSuccess = isDropped,
+                Payload = new CardUsePayload.Gravedigger()
+            };
+        }
 
-            return true;
+        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Gravedigger payload)
+        {
+            return UniTask.CompletedTask;
         }
     }
 }
