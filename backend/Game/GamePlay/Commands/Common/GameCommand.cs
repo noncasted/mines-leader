@@ -39,7 +39,7 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
             Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
                 request.GetType().Name, player.User.Id
             );
-            throw;
+            return EmptyResponse.Fail("An error occurred while processing the command.");
         }
         finally
         {

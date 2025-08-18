@@ -60,11 +60,13 @@ public class ZipZap : ICard
 
         _snapshot.Unlock();
 
-        _snapshot.RecordCard(_owner.User.Id, new CardActionSnapshot.ZipZap()
-            {
-                Targets = targets.Select(t => t.Position).ToList()
-            }
-        );
+        var snapshot = new CardActionSnapshot.ZipZap()
+        {
+            TargetPlayer = _owner.User.Id,
+            Targets = targets.Select(t => t.Position).ToList()
+        };
+        
+        _snapshot.RecordCard(_owner.User.Id, _payload.EntityId, _payload.Type, snapshot);
 
         foreach (var target in targets)
             _target.Revealer.Reveal(target.Position);

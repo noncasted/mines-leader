@@ -14,6 +14,9 @@ public class Modifiers : IModifiers
     public Modifiers(ValueProperty<PlayerModifiersState> state)
     {
         _state = state;
+        
+        foreach (var type in PlayerModifierExtensions.All)
+            _values[type] = 0f;
     }
     
     private readonly ValueProperty<PlayerModifiersState> _state;

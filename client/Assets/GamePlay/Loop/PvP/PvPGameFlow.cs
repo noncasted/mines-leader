@@ -24,14 +24,6 @@ namespace GamePlay.Loop
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            Events.GetEvent<GameFlowEvents.Lose>().Advise(lifetime, context =>
-                {
-                    if (context.PlayerId == _context.Self.Id)
-                        return;
-
-                    OnWin(_context.Self);
-                }
-            );
         }
 
         public async UniTask<GameResult> Execute(IReadOnlyLifetime lifetime)
@@ -46,8 +38,6 @@ namespace GamePlay.Loop
 
         public void OnLose(IGamePlayer player)
         {
-            Events.Send(new GameFlowEvents.Lose(player.Id));
-
             _completion.TrySetResult(new GameResult()
                 {
                     Type = GameResultType.Lose
@@ -66,8 +56,6 @@ namespace GamePlay.Loop
 
         public void OnLeave()
         {
-            Events.Send(new GameFlowEvents.Lose(_context.Self.Id));
-
             _completion.TrySetResult(new GameResult()
                 {
                     Type = GameResultType.Leave

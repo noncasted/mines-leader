@@ -6,10 +6,12 @@ namespace Game.GamePlay;
 
 public interface IGameRound
 {
-    IPlayer CurrentMove { get; }
+    IPlayer CurrentPlayer { get; }
+
+    void SkipTurn();
 }
 
-public class GameRound : Service, IUsersConnected
+public class GameRound : Service, IUsersConnected, IGameRound
 {
     public GameRound(
         ISessionUsers users,
@@ -36,7 +38,12 @@ public class GameRound : Service, IUsersConnected
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IOptions<GameOptions> _options;
+    
+    private IPlayer _currentPlayer;
+    private ILifetime _roundLifetime;
 
+    public IPlayer CurrentPlayer => _currentPlayer;
+    
     public Task OnUsersConnected(IReadOnlyLifetime lifetime)
     {
         foreach (var user in _users)
@@ -47,6 +54,11 @@ public class GameRound : Service, IUsersConnected
 
         Loop(lifetime).NoAwait();
         return Task.CompletedTask;
+    }
+    
+    public void SkipTurn()
+    {
+        _roundLifetime.Terminate();
     }
 
     private async Task Loop(IReadOnlyLifetime lifetime)
@@ -82,12 +94,12 @@ public class GameRound : Service, IUsersConnected
             player.Board.MinesScanner.Start(lifetime);
         
         _snapshotSender.Send(snapshot);
-        var currentPlayer = _gameContext.Players.First();
+        _currentPlayer = _gameContext.Players.First();
 
         while (IsGameOver() == false)
         {
-            await ProcessRound(lifetime, currentPlayer);
-            currentPlayer = _gameContext.Players.First(t => t != currentPlayer);
+            await ProcessRound(lifetime, _currentPlayer);
+            _currentPlayer = _gameContext.Players.First(t => t != _currentPlayer);
         }
 
         return;
@@ -106,7 +118,7 @@ public class GameRound : Service, IUsersConnected
 
     private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player)
     {
-        var roundLifetime = lifetime.Child();
+        _roundLifetime = lifetime.Child();
         var timer = _options.Value.RoundTime;
 
         _state.Update(state =>
@@ -123,7 +135,7 @@ public class GameRound : Service, IUsersConnected
 
         await Task.WhenAny(TimerCountdown(), TurnsCountdown());
 
-        roundLifetime.Terminate();
+        _roundLifetime.Terminate();
 
         RestoreCard(player, snapshot);
 
@@ -137,13 +149,13 @@ public class GameRound : Service, IUsersConnected
         {
             var timeSpan = TimeSpan.FromSeconds(1);
 
-            while (timer > 0 && roundLifetime.IsTerminated == false)
+            while (timer > 0 && _roundLifetime.IsTerminated == false)
             {
                 timer--;
 
                 _state.Update(state => state.SecondsLeft = timer);
 
-                await Task.Delay(timeSpan, roundLifetime.Token);
+                await Task.Delay(timeSpan, _roundLifetime.Token);
             }
         }
 
@@ -151,8 +163,8 @@ public class GameRound : Service, IUsersConnected
         {
             var timeSpan = TimeSpan.FromSeconds(0.2);
 
-            while (player.Moves.Left > 0 && roundLifetime.IsTerminated == false)
-                await Task.Delay(timeSpan, roundLifetime.Token);
+            while (player.Moves.Left > 0 && _roundLifetime.IsTerminated == false)
+                await Task.Delay(timeSpan, _roundLifetime.Token);
         }
     }
 

@@ -21,6 +21,7 @@ namespace GamePlay.Boards
         void Flag();
         void UnFlag();
         void Open();
+        void Explode(CellExplosionType type);
 
         void OnFlagUpdated(bool isFlagged);
     }

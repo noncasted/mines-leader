@@ -101,6 +101,7 @@ public class TakenCell : ITakenCell
 
     public void Explode()
     {
+        Source.Events.SetExplosion(this);
     }
 
     public void SetMine()

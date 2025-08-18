@@ -41,12 +41,14 @@ namespace GamePlay
                 _cellFree = new CellFree(board);
                 _flag = new Flag(board);
                 _minesAround = new MinesAround(board);
+                _explosion = new Explosion(board);
             }
 
             private readonly CellTaken _cellTaken;
             private readonly CellFree _cellFree;
             private readonly Flag _flag;
             private readonly MinesAround _minesAround;
+            private readonly Explosion _explosion;
 
             public void Resolve(IBoardSnapshotRecord record)
             {
@@ -63,6 +65,9 @@ namespace GamePlay
                         break;
                     case BoardSnapshotRecord.MinesAround minesAround:
                         _minesAround.Execute(minesAround);
+                        break;
+                    case BoardSnapshotRecord.Explosion explosion:
+                        _explosion.Execute(explosion);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(record), record, null);
@@ -131,6 +136,22 @@ namespace GamePlay
             {
                 var vector = record.Position.ToVector();
                 _board.Cells[vector].EnsureFree().OnMinesUpdated(record.Count);
+            }
+        }
+        
+        public class Explosion
+        {
+            public Explosion(IBoard board)
+            {
+                _board = board;
+            }
+
+            private readonly IBoard _board;
+
+            public void Execute(BoardSnapshotRecord.Explosion record)
+            {
+                var vector = record.Position.ToVector();
+                _board.Cells[vector].EnsureTaken().Explode(CellExplosionType.Mine);
             }
         }
     }

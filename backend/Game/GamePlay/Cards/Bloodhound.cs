@@ -30,8 +30,9 @@ public class Bloodhound : ICard
 
         foreach (var cell in selected)
             cell.ToFree();
-        
-        _target.Revealer.Reveal(_payload.Position);
+
+        foreach (var cell in selected)
+            _target.Revealer.Reveal(cell.Position);
 
         return EmptyResponse.Ok;
     }

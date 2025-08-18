@@ -40,7 +40,7 @@ namespace GamePlay.Services
                 if (_queue.Count == 0)
                     await UniTask.Yield();
 
-                while (_queue.TryPeek(out var record) == true)
+                while (_queue.TryDequeue(out var record) == true)
                 {
                     var type = record.GetType();
 

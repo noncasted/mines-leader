@@ -44,23 +44,12 @@ namespace GamePlay.Boards
                 _cellsDictionary.Add(cell.BoardPosition, cell);
                 rawCells.Add(cell.BoardPosition, cell);
             }
-
-            _entity.Events.GetEvent<BoardCellExplosionEvent>().Advise(lifetime, payload =>
-            {
-                if (rawCells.TryGetValue(payload.Position, out var cell))
-                    cell.Explode(CellExplosionType.Mine);
-            });
         }
 
         public void Setup(INetworkEntity entity)
         {
             foreach (var cell in _cells)
                 cell.Setup(_updater, _connection);
-        }
-
-        public void InvokeExplosion(IBoardCell cell)
-        {
-            _entity.Events.Send(new BoardCellExplosionEvent(cell.BoardPosition));
         }
 
         public void Construct(CellView[] cells, BoardConstructionData constructionData)

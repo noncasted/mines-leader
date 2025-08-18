@@ -33,11 +33,13 @@ public class MoveSnapshot
         _isLocked = false;
     }
 
-    public void RecordCard(Guid playerId, ICardActionData data)
+    public void RecordCard(Guid playerId, int entityId, CardType type, ICardActionData data)
     {
         _records.Add(new PlayerSnapshotRecord.Card()
         {
             PlayerId = playerId,
+            EntityId = entityId,
+            Type = type,
             Data = data
         });
     }
@@ -61,6 +63,7 @@ public class MoveSnapshot
             events.Flag.Advise(lifetime, Flag);
             events.Mines.Advise(lifetime, Mines);
             events.Record.Advise(lifetime, record => WriteBoardRecord(board, record));
+            events.Explode.Advise(lifetime, Explosion);
 
             void CellSet(ICell cell)
             {
@@ -91,6 +94,16 @@ public class MoveSnapshot
                 {
                     Position = cell.Position,
                     Count = count
+                };
+
+                WriteBoardRecord(board, record);
+            }
+            
+            void Explosion(ICell cell)
+            {
+                var record = new BoardSnapshotRecord.Explosion()
+                {
+                    Position = cell.Position,
                 };
 
                 WriteBoardRecord(board, record);

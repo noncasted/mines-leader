@@ -46,6 +46,8 @@ namespace GamePlay.Cards
         {
             _mana.Current.View(lifetime, Recalculate);
             _gameRound.Player.Advise(lifetime, Recalculate);
+            _moves.IsTurn.Advise(lifetime, Recalculate);
+            _moves.Current.Advise(lifetime, Recalculate);
         }
 
         private void Recalculate()

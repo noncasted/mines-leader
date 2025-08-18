@@ -29,13 +29,19 @@ namespace Shared
             public ICardUsePayload Payload { get; set; }
         }
 
+        [MemoryPackable]
+        public partial class SkipTurn : INetworkContext
+        {
+        }
+        
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
                 .Add<Open>()
                 .Add<SetFlag>()
                 .Add<RemoveFlag>()
-                .Add<CardUse>();
+                .Add<CardUse>()
+                .Add<SkipTurn>();
         }
     }
 }

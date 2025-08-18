@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardBloodhoundAction : ICardAction, ICardActionSync<CardActionSnapshot.Bloodhound>
+    public class CardBloodhoundAction : ICardAction
     {
         public CardBloodhoundAction(
             ICardContext context,
@@ -34,14 +34,22 @@ namespace GamePlay.Cards
             return new CardActionResult()
             {
                 IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.Trebuchet()
+                Payload = new CardUsePayload.Bloodhound()
                 {
                     Position = result.Position.ToPosition()
                 }
             };
         }
 
-        public class Pattern : ICardDropPattern 
+        public class Snapshot : ICardActionSync<CardActionSnapshot.Bloodhound>
+        {
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
+            {
+                return UniTask.CompletedTask;
+            }
+        }
+
+        public class Pattern : ICardDropPattern
         {
             public Pattern(IBoard board, int size)
             {
@@ -57,11 +65,6 @@ namespace GamePlay.Cards
                 var selected = _shape.SelectTaken(_board, pointer);
                 return selected;
             }
-        }
-
-        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

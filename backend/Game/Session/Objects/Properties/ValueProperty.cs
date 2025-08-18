@@ -38,6 +38,6 @@ public static class ValuePropertyExtensions
     {
         var value =  property.Value == null ? new T() : property.Value; 
         action(value);
-        property.OnUpdated();
+        property.Set(value);
     }
 }

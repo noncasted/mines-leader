@@ -11,7 +11,8 @@ public static class GameContextServiceExtensions
 
         services.Add<GameRound>()
             .As<IService>()
-            .As<IUsersConnected>();
+            .As<IUsersConnected>()
+            .As<IGameRound>();
 
         services.AddSingleton<ISnapshotSender, SnapshotSender>();
         services.AddSingleton<IGameReadyAwaiter, GameReadyAwaiter>();

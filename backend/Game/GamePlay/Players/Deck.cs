@@ -23,7 +23,7 @@ public class Deck : IDeck
 
     public void AddCard(CardType card)
     {
-        _state.Update(state =>state.Queue.Add(card));
+        _state.Update(state => state.Queue.Add(card));
     }
 
     public CardType DrawCard()
@@ -42,7 +42,7 @@ public static class DeckExtensions
     public static void AddRandom(this IDeck deck, int count)
     {
         var random = Random.Shared;
-        
+
         for (var i = 0; i < count; i++)
         {
             var index = random.Next(0, CardTypeExtensions.All.Count);

@@ -4,7 +4,7 @@ using Shared;
 
 namespace GamePlay.Cards
 {
-    public class CardGravediggerAction : ICardAction, ICardActionSync<CardActionSnapshot.Gravedigger>
+    public class CardGravediggerAction : ICardAction
     {
         public CardGravediggerAction(ICardDropDetector dropDetector)
         {
@@ -24,9 +24,12 @@ namespace GamePlay.Cards
             };
         }
 
-        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Gravedigger payload)
+        public class Snapshot : ICardActionSync<CardActionSnapshot.Gravedigger>
         {
-            return UniTask.CompletedTask;
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Gravedigger payload)
+            {
+                return UniTask.CompletedTask;
+            }
         }
     }
 }

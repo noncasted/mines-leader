@@ -1,5 +1,6 @@
 ﻿using Common.Network;
 using GamePlay.Players;
+using Global.Backend;
 using Internal;
 using Shared;
 
@@ -16,13 +17,18 @@ namespace GamePlay.Loop
 
     public class GameRound : NetworkService, IGameRound
     {
-        public GameRound(IGameContext gameContext, NetworkProperty<GameRoundState> state)
+        public GameRound(
+            INetworkConnection connection,
+            IGameContext gameContext,
+            NetworkProperty<GameRoundState> state)
         {
+            _connection = connection;
             _gameContext = gameContext;
             _roundTime = new ViewableProperty<float>(30);
             _state = state;
         }
 
+        private readonly INetworkConnection _connection;
         private readonly IGameContext _gameContext;
 
         private readonly NetworkProperty<GameRoundState> _state;
@@ -49,7 +55,8 @@ namespace GamePlay.Loop
         {
             if (IsTurnAllowed == false)
                 return;
-            
+
+            _connection.Request(new SharedGameAction.SkipTurn());
         }
     }
 }

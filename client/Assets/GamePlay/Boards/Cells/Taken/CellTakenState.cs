@@ -53,6 +53,11 @@ namespace GamePlay.Boards
             });
         }
 
+        public void Explode(CellExplosionType type)
+        {
+            _cell.Explode(type);
+        }
+
         public void OnFlagUpdated(bool isFlagged)
         {
             _isFlagged.Set(isFlagged);

@@ -4,7 +4,7 @@ namespace Game.GamePlay;
 
 public interface ICardFactory
 {
-    ICard Create(IPlayer owner, ICardUsePayload payload);
+    ICard Create(IPlayer owner, MoveSnapshot snapshot, ICardUsePayload payload);
 }
 
 public class CardFactory : ICardFactory
@@ -16,7 +16,7 @@ public class CardFactory : ICardFactory
 
     private readonly IGameContext _gameContext;
 
-    public ICard Create(IPlayer owner, ICardUsePayload payload)
+    public ICard Create(IPlayer owner, MoveSnapshot snapshot, ICardUsePayload payload)
     {
         return payload.Type switch
         {
@@ -43,11 +43,13 @@ public class CardFactory : ICardFactory
             CardType.ZipZap => new ZipZap(
                 owner,
                 GetPreparedTarget(owner, payload),
+                snapshot,
                 (CardUsePayload.ZipZap)payload
             ),
             CardType.ZipZap_Max => new ZipZap(
                 owner,
                 GetPreparedTarget(owner, payload),
+                snapshot,
                 (CardUsePayload.ZipZap)payload
             ),
             CardType.TrebuchetAimer => new TrebuchetAimer(

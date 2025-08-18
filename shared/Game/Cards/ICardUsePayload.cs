@@ -26,6 +26,7 @@ namespace Shared
         {
             public CardType Type { get; set; }
             public Position Position { get; set; }
+            public int EntityId { get; set; }
         }
 
         [MemoryPackable]

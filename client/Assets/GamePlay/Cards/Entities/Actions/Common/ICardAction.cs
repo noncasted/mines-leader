@@ -27,7 +27,7 @@ namespace GamePlay.Cards
 
     public static class CardActionExtensions
     {
-        public static IEntityBuilder AddCardActionSync<TImplementation, TData>(this IEntityBuilder builder)
+        public static IRegistration AddCardActionSyncResolver<TImplementation, TData>(this IEntityBuilder builder)
             where TImplementation : ICardActionSync<TData>
             where TData : ICardActionData
         {
@@ -35,7 +35,8 @@ namespace GamePlay.Cards
                 .As<ICardActionSync>()
                 .AsSelfResolvable();
 
-            return builder;
+            return builder.Register<TImplementation>()
+                .As<ICardActionSync<TData>>();
         }
 
         public class Resolver<TImplementation, TData> : ICardActionSync

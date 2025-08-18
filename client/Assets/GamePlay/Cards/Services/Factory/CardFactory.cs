@@ -89,6 +89,7 @@ namespace GamePlay.Cards
                 builder.Register<HandEntryHandle>()
                     .As<IHandEntryHandle>();
 
+                builder.AddCardActionSync(definition);
                 builder.AddCardAction(definition);
 
                 builder.RegisterInstance(definition);
@@ -119,6 +120,8 @@ namespace GamePlay.Cards
                     .AddCardRemoteComponents()
                     .AddCardRemoteRoot()
                     .AddCardRemoteStates();
+
+                builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition.Type);
                 builder.RegisterInstance(definition.Target);

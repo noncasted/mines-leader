@@ -5,7 +5,7 @@ using Shared;
 
 namespace GamePlay.Cards
 {
-    public class CardTrebuchetAimerAction : ICardAction, ICardActionSync<CardActionSnapshot.TrebuchetAimer>
+    public class CardTrebuchetAimerAction : ICardAction
     {
         public CardTrebuchetAimerAction(
             ICardDropDetector dropDetector,
@@ -29,9 +29,12 @@ namespace GamePlay.Cards
             };
         }
 
-        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.TrebuchetAimer payload)
+        public class Snapshot : ICardActionSync<CardActionSnapshot.TrebuchetAimer>
         {
-            return UniTask.CompletedTask;
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.TrebuchetAimer payload)
+            {
+                return UniTask.CompletedTask;
+            }
         }
     }
 }

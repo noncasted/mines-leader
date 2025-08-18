@@ -12,7 +12,8 @@ namespace GamePlay.Services
                 .As<IScopeSetup>();
 
             builder.RegisterCommand<SnapshotReceiver>()
-                .As<ISnapshotReceiver>();
+                .As<ISnapshotReceiver>()
+                .As<IScopeSetup>();
 
             return builder;
         }

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardErosionDozerAction : ICardAction, ICardActionSync<CardActionSnapshot.ErosionDozer>
+    public class CardErosionDozerAction : ICardAction
     {
         public CardErosionDozerAction(
             ICardDropArea dropArea,
@@ -38,11 +38,19 @@ namespace GamePlay.Cards
             return new CardActionResult()
             {
                 IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.Trebuchet()
+                Payload = new CardUsePayload.ErosionDozer()
                 {
                     Position = result.Position.ToPosition()
                 }
             };
+        }
+        
+        public class Snapshot : ICardActionSync<CardActionSnapshot.ErosionDozer>
+        {
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ErosionDozer payload)
+            {
+                return UniTask.CompletedTask;
+            }
         }
 
         public class Pattern : ICardDropPattern
@@ -64,11 +72,6 @@ namespace GamePlay.Cards
                 var limited = ordered.Take(_size).ToList();
                 return limited;
             }
-        }
-
-        public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ErosionDozer payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

@@ -9,10 +9,12 @@ public interface IBoardEvents
     IViewableDelegate<ICell, bool> Flag { get; }
     IViewableDelegate<ICell, int> Mines { get; }
     IViewableDelegate<IBoardSnapshotRecord> Record { get; }
+    IViewableDelegate<ICell> Explode { get; }
 
     void SetCell(ICell cell);
     void SetFlag(ICell cell, bool isFlagged);
     void SetMinesAround(ICell cell, int minesCount);
+    void SetExplosion(ICell cell);
 
     void ForceRecord(IBoardSnapshotRecord record);
 
@@ -26,19 +28,21 @@ public class BoardEvents : IBoardEvents
     private readonly ViewableDelegate<ICell, bool> _flag = new();
     private readonly ViewableDelegate<ICell, int> _mines = new();
     private readonly ViewableDelegate<IBoardSnapshotRecord> _record = new();
+    private readonly ViewableDelegate<ICell> _explode = new();
 
     private bool _isLocked;
-    
+
     public IViewableDelegate<ICell> CellSet => _cellSet;
     public IViewableDelegate<ICell, bool> Flag => _flag;
     public IViewableDelegate<ICell, int> Mines => _mines;
     public IViewableDelegate<IBoardSnapshotRecord> Record => _record;
+    public IViewableDelegate<ICell> Explode => _explode;
 
     public void SetCell(ICell cell)
     {
         if (_isLocked == true)
             return;
-        
+
         _cellSet.Invoke(cell);
     }
 
@@ -54,8 +58,16 @@ public class BoardEvents : IBoardEvents
     {
         if (_isLocked == true)
             return;
-        
+
         _mines.Invoke(cell, minesCount);
+    }
+
+    public void SetExplosion(ICell cell)
+    {
+        if (_isLocked == true)
+            return;
+
+        _explode.Invoke(cell);
     }
 
     public void ForceRecord(IBoardSnapshotRecord record)

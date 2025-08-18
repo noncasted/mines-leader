@@ -23,9 +23,7 @@ namespace Tools.MemoryPackTools
                 .Add<PlayerCreatePayload>();
 
             eventPayloads
-                .Add<MenuChatMessagePayload>()
-                .Add<GameFlowEvents.Lose>()
-                .Add<BoardCellExplosionEvent>();
+                .Add<MenuChatMessagePayload>();
 
             contexts
                 .Add<EmptyResponse>()

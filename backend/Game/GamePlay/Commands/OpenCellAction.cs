@@ -13,7 +13,7 @@ public class OpenCellAction(GameCommandUtils utils) : GameCommand<SharedGameActi
         if (targetCell.Status == CellStatus.Free)
             return EmptyResponse.Failed;
 
-        if (targetCell.Status == CellStatus.Taken)
+        if (targetCell.ToTaken().HasMine == true)
         {
             context.Player.Health.TakeDamage(1);
             targetCell.ToTaken().Explode();
