@@ -1,6 +1,5 @@
 ﻿using System.Net.WebSockets;
 using MemoryPack;
-using Shared;
 
 namespace Common;
 

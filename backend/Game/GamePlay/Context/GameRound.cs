@@ -39,10 +39,10 @@ public class GameRound : Service, IUsersConnected, IGameRound
     private readonly ISnapshotSender _snapshotSender;
     private readonly IOptions<GameOptions> _options;
 
-    private IPlayer _currentPlayer;
-    private ILifetime _roundLifetime;
+    private IPlayer? _currentPlayer;
+    private ILifetime? _roundLifetime;
 
-    public IPlayer CurrentPlayer => _currentPlayer;
+    public IPlayer CurrentPlayer => _currentPlayer!;
 
     public Task OnUsersConnected(IReadOnlyLifetime lifetime)
     {
@@ -58,7 +58,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
 
     public void SkipTurn()
     {
-        _roundLifetime.Terminate();
+        _roundLifetime!.Terminate();
     }
 
     private async Task Loop(IReadOnlyLifetime lifetime)
@@ -153,7 +153,8 @@ public class GameRound : Service, IUsersConnected, IGameRound
             {
                 timer--;
 
-                _state.Update(state => state.SecondsLeft = timer);
+                var timerValue = timer;
+                _state.Update(state => state.SecondsLeft = timerValue);
 
                 await Task.Delay(timeSpan, _roundLifetime.Token);
             }

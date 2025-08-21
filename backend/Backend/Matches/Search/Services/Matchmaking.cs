@@ -114,7 +114,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
 
             _lock.Release();
 
-            _logger.LogInformation("[Matchmaking] {UserID} and {UserID} are matched", first, second);
+            _logger.LogInformation("[Matchmaking] {First} and {Second} are matched", first, second);
 
             _matchFactory.Create(new[] { first, second }).NoAwait();
         }

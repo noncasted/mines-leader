@@ -5,8 +5,8 @@ using Infrastructure.Messaging;
 using Infrastructure.Orleans;
 using Management.Configs;
 using Management.Web;
-using MudBlazor.Services;
 using Management.Web.Components;
+using MudBlazor.Services;
 using ServiceLoop;
 
 var builder = WebApplication.CreateBuilder(args);

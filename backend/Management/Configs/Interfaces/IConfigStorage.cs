@@ -12,7 +12,7 @@ public static class ConfigStorageExtensions
 {
     public static IConfigStorage GetConfigStorage<T>(this IOrleans orleans)
     {
-        var key = typeof(T).Name!;
+        var key = typeof(T).Name;
         return orleans.GetGrain<IConfigStorage>(key);
     }
     
@@ -25,6 +25,6 @@ public static class ConfigStorageExtensions
     public static Task SetConfig<T>(this IOrleans orleans, T value)
     {
         var storage = orleans.GetConfigStorage<T>();
-        return storage.Set<T>(value);
+        return storage.Set(value);
     }
 }

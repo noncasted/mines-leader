@@ -16,6 +16,6 @@ namespace Shared
             All = Enum.GetValues(typeof(PlayerModifier)).Cast<PlayerModifier>().ToList();
         }
 
-        public static readonly List<PlayerModifier> All = new();
+        public static readonly List<PlayerModifier> All;
     }
 }

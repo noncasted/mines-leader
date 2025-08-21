@@ -1,7 +1,6 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ServiceLoop;
 
 namespace Backend.Gateway;
 
