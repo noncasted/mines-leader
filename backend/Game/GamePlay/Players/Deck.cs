@@ -7,6 +7,7 @@ public interface IDeck
     int Count { get; }
 
     void AddCard(CardType card);
+    void RemvoeCard(CardType card);
     CardType DrawCard();
 }
 
@@ -24,6 +25,11 @@ public class Deck : IDeck
     public void AddCard(CardType card)
     {
         _state.Update(state => state.Queue.Add(card));
+    }
+
+    public void RemvoeCard(CardType card)
+    {
+        _state.Update(state => state.Queue.Remove(card));
     }
 
     public CardType DrawCard()

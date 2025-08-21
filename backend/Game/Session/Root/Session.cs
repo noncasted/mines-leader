@@ -10,6 +10,7 @@ public interface ISession
     IUserFactory UserFactory { get; }
     IExecutionQueue ExecutionQueue { get; }
     SessionCreateOptions CreateOptions { get; }
+    IViewableDelegate AllUsersConnected { get; }
 
     Task Run();
 }
@@ -31,14 +32,12 @@ public class Session : ISession
 {
     public Session(
         SessionContainerData data,
-        ISessionEvents events,
         IUserFactory userFactory,
         ISessionUsers users,
         ISessionEntities entities,
         IExecutionQueue executionQueue)
     {
         _data = data;
-        _events = events;
         _users = users;
         _entities = entities;
         ExecutionQueue = executionQueue;
@@ -48,7 +47,7 @@ public class Session : ISession
     private readonly ISessionUsers _users;
     private readonly ISessionEntities _entities;
     private readonly SessionContainerData _data;
-    private readonly ISessionEvents _events;
+    private readonly ViewableDelegate _allUsersConnected = new();
 
     public Guid Id => _data.Id;
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
@@ -56,10 +55,10 @@ public class Session : ISession
     public IUserFactory UserFactory { get; }
     public IExecutionQueue ExecutionQueue { get; }
     public SessionCreateOptions CreateOptions => _data.CreateOptions;
+    public IViewableDelegate AllUsersConnected => _allUsersConnected;
 
     public async Task Run()
     {
-        await _events.OnCreated(Lifetime);
         await AwaitUsersJoin();
 
         if (_data.CreateOptions.ExpectedUsers == 0)
@@ -71,8 +70,8 @@ public class Session : ISession
             foreach (var user in _users)
                 HandleUser(user);
         }
-
-        await _events.OnAllConnected(Lifetime);
+        
+        _allUsersConnected.Invoke();
 
         await Task.Delay(TimeSpan.FromSeconds(30));
 

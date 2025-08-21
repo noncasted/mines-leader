@@ -1,12 +1,13 @@
 ﻿using System;
 using MemoryPack;
-using Shared;
+using UnityEngine;
 
-namespace Menu.Social
+namespace Shared
 {
     [MemoryPackable]
     public partial class MenuPlayerPayload : IEntityPayload
     {
         public Guid PlayerId { get; set; }
+        public Vector2 Position { get; set; }
     }
 }

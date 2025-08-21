@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.Cameras;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace GamePlay.Services
     {
         Camera Camera { get; }
 
+        void Enable();
         void Shake(float time, float intensity);
     }
 
@@ -20,6 +22,7 @@ namespace GamePlay.Services
         [SerializeField] private float _shakeInterval = 0.05f;
 
         private IUpdater _updater;
+        private ICurrentCamera _currentCamera;
 
         private float _shakeTimer;
         private float _currentShakeTime;
@@ -29,8 +32,9 @@ namespace GamePlay.Services
         public Camera Camera => _camera;
 
         [Inject]
-        private void Construct(IUpdater updater)
+        private void Construct(IUpdater updater, ICurrentCamera currentCamera)
         {
+            _currentCamera = currentCamera;
             _updater = updater;
             _cameraOrigin = _camera.transform.position;
         }
@@ -52,10 +56,16 @@ namespace GamePlay.Services
             var start = _camera.orthographicSize;
 
             _updater.Progression(this.GetObjectLifetime(), time, progress =>
-            {
-                var newSize = Mathf.Lerp(start, size, progress);
-                _camera.orthographicSize = newSize;
-            }).Forget();
+                {
+                    var newSize = Mathf.Lerp(start, size, progress);
+                    _camera.orthographicSize = newSize;
+                }
+            ).Forget();
+        }
+
+        public void Enable()
+        {
+            _currentCamera.SetCamera(_camera);
         }
 
         public void Shake(float time, float intensity)

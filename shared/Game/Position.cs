@@ -11,8 +11,8 @@ namespace Shared
             this.y = y;
         }
 
-        public int x { get; init; }
-        public int y { get; init; }
+        public int x { get; }
+        public int y { get; }
 
         public override bool Equals(object obj)
         {
@@ -46,7 +46,7 @@ namespace Shared
         {
             return new Position(left.x + right.x, left.y + right.y);
         }
-        
+
         public static Position operator -(Position left, Position right)
         {
             return new Position(left.x - right.x, left.y - right.y);
@@ -56,13 +56,13 @@ namespace Shared
         {
             return $"({x}, {y})";
         }
-        
+
         public double DistanceTo(Position other)
         {
             return Math.Sqrt(Math.Pow(x - other.x, 2) + Math.Pow(y - other.y, 2));
         }
     }
-    
+
     public static class PositionExtensions
     {
         public static Position ToPosition(this Vector2Int vector)

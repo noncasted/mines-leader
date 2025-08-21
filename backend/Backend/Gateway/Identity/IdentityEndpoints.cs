@@ -1,4 +1,5 @@
 ﻿using Backend.Users;
+using Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -21,17 +22,21 @@ public static class IdentityEndpoints
         [FromServices] IUserFactory factory,
         [FromServices] ILogger<IUserFactory> logger)
     {
+        using var activity = TraceExtensions.PlayerEndpoints.Start("DevelopSignUp");
+
         var options = new UserCreateOptions
         {
             Name = request.Name
         };
-        
+
         logger.LogInformation("[User] Develop sign up with name {Name}", request.Name);
 
         var id = await factory.Create(options);
- 
+
         logger.LogInformation("[User] Develop sign up is completed with id {Id}", id);
-        
+
+        activity.Stop();
+
         return new SharedBackendUserAuth.Response
         {
             Id = id

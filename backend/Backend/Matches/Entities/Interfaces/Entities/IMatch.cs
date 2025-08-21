@@ -8,5 +8,5 @@ public interface IMatch : IGrainWithGuidKey
     Task Setup(GameMatchType type, IReadOnlyList<Guid> participants);
 
     [Transaction(TransactionOption.Join)]
-    Task OnComplete(Guid winner);
+    Task OnComplete(Guid winnerId);
 }

@@ -2,6 +2,6 @@
 {
     public interface ISceneReloadListener
     {
-        void OnReload();
+        bool OnReload();
     }
 }

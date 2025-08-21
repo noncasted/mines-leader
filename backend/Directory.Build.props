@@ -14,6 +14,8 @@
     !('$(MSBuildProjectFullPath)' == '$(MSBuildThisFileDirectory)Common\Extensions\Extensions.csproj')
     and
     !('$(MSBuildProjectFullPath)' == '$(MSBuildThisFileDirectory)Common\Reactive\Reactive.csproj')
+    and
+    !('$(MSBuildProjectFullPath)' == '$(MSBuildThisFileDirectory)Aspire\AppHost\AppHost.csproj')
   ">
         <ProjectReference Include="$(MSBuildThisFileDirectory)Common\Extensions\Extensions.csproj" />
         <ProjectReference Include="$(MSBuildThisFileDirectory)Common\Reactive\Reactive.csproj" />

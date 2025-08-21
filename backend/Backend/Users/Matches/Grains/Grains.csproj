@@ -11,8 +11,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
       <ProjectReference Include="..\..\..\Matches\Entities\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Common\Extensions\Extensions.csproj" />
+      <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
     </ItemGroup>
 

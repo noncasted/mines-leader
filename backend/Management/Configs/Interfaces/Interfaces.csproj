@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
     </ItemGroup>
 
 </Project>

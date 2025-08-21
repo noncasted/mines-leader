@@ -12,11 +12,4 @@ public static class MatchServicesExtensions
         
         return builder;
     }
-    
-    public static IHostApplicationBuilder AddGameMatchServices(this IHostApplicationBuilder builder)
-    {
-        builder.Services.AddHostedService<ServerSessions>();
-        
-        return builder;
-    }
 }

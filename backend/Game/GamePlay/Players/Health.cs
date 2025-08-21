@@ -25,12 +25,18 @@ public class Health : IHealth
     private readonly ViewableProperty<int> _current = new(0);
 
     private int _max;
-    
+
     public IViewableProperty<int> Current => _current;
     public int Max => _max;
 
     public void SetCurrent(int value)
     {
+        if (value > _max)
+            value = _max;
+
+        if (value < 0)
+            value = 0;
+
         _current.Set(value);
         SyncState();
     }
@@ -47,7 +53,7 @@ public class Health : IHealth
             throw new ArgumentException("Damage cannot be negative", nameof(damage));
 
         var newHealth = _current.Value - damage;
-        
+
         if (newHealth < 0)
             newHealth = 0;
 
@@ -68,13 +74,14 @@ public class Health : IHealth
         _current.Set(newHealth);
         SyncState();
     }
-    
+
     private void SyncState()
     {
         _state.Set(new PlayerHealthState
-        {
-            Current = _current.Value,
-            Max = _max
-        });
+            {
+                Current = _current.Value,
+                Max = _max
+            }
+        );
     }
 }

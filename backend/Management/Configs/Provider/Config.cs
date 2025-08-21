@@ -1,4 +1,5 @@
 ﻿using Common;
+using Infrastructure.Orleans;
 
 namespace Management.Configs;
 

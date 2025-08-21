@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "Controls",
     "maps": [
         {
@@ -18,6 +19,15 @@
                     "name": "Open",
                     "type": "Button",
                     "id": "c3db6d4f-29f6-4b13-8564-0c66c33d266b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cheats",
+                    "type": "Button",
+                    "id": "776cc732-188f-414e-819d-b011839c6b49",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -44,6 +54,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Open",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4598903c-be2c-40ef-b59b-1fdb5c07b012",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cheats",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

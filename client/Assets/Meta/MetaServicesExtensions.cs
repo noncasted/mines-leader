@@ -38,6 +38,8 @@ namespace Meta
             builder.AddNetworkConnection();
 
             builder.RegisterCommand<BackendProjectionHub>();
+            builder.RegisterCommand<ConnectionCompletedCommand>()
+                .As<IMetaConnectionAwaiter>();
 
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()

@@ -10,19 +10,16 @@ public class BackendConnectionMiddleware
 {
     public BackendConnectionMiddleware(
         RequestDelegate next,
-        IConnectedUsers users,
-        IUserCommandsDispatcher commandsDispatcher,
+        IUserConnectionEntryPoint entryPoint,
         ILogger<BackendConnectionMiddleware> logger)
     {
         _next = next;
-        _users = users;
-        _commandsDispatcher = commandsDispatcher;
+        _entryPoint = entryPoint;
         _logger = logger;
     }
 
     private readonly RequestDelegate _next;
-    private readonly IConnectedUsers _users;
-    private readonly IUserCommandsDispatcher _commandsDispatcher;
+    private readonly IUserConnectionEntryPoint _entryPoint;
     private readonly ILogger<BackendConnectionMiddleware> _logger;
     private readonly IReadOnlyLifetime _lifetime = new Lifetime();
 
@@ -34,14 +31,17 @@ public class BackendConnectionMiddleware
             return;
         }
 
+        using var activity = TraceExtensions.PlayerConnection.Start();
+
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
         var handle = new ConnectionOneTimeHandle(webSocket);
-        
+
         var auth = await handle.ReadRequest<SharedBackendSocketAuth.Request>();
 
         _logger.LogInformation("[Backend] [Gateway] User connected: {Connection} {UserId}",
             context.Connection.Id,
-            auth);
+            auth
+        );
 
         var completion = new TaskCompletionSource();
 
@@ -52,7 +52,7 @@ public class BackendConnectionMiddleware
 
         await handle.SendResponse(response);
         handle.Dispose();
-        
+
         var connection = new Connection(webSocket, _lifetime, _logger);
 
         var userSession = new UserSession
@@ -62,16 +62,18 @@ public class BackendConnectionMiddleware
         };
 
         connection.Run().NoAwait();
-        _commandsDispatcher.Run(userSession);
-        _users.Add(userSession);
+
+        await _entryPoint.OnConnected(userSession);
 
         userSession.Lifetime.Listen(() => completion.TrySetResult());
+        activity.Stop();
 
         await completion.Task;
 
         _logger.LogInformation("[Game] [Gateway] User disconnected: {Connection} {UserId}",
             context.Connection.Id,
-            auth.UserId);
+            auth.UserId
+        );
     }
 }
 
@@ -83,7 +85,8 @@ public static class BackendMiddlewareExtensions
             .AllowAnyMethod()
             .AllowAnyHeader()
             .SetIsOriginAllowed(_ => true)
-            .AllowCredentials());
+            .AllowCredentials()
+        );
 
         app.UseWebSockets();
         app.UseMiddleware<BackendConnectionMiddleware>();

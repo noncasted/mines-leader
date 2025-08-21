@@ -3,45 +3,33 @@ using Microsoft.Extensions.Hosting;
 
 namespace ServiceLoop;
 
-public class ServiceLoop : BackgroundService
+public interface IServiceLoop
+{
+    Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime);
+    Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime);
+}
+
+public class ServiceLoop : IServiceLoop
 {
     public ServiceLoop(
-        IServiceLoopObserver observer,
-        IEnumerable<IOrleansLoopStage> orleans,
-        IEnumerable<IMessagingLoopStage> messaging,
-        IEnumerable<ISetupLoopStage> setup)
+        IEnumerable<ILocalSetupCompleted> local,
+        IEnumerable<ICoordinatorSetupCompleted> coordinator)
     {
-        _observer = observer;
-        _orleans = orleans;
-        _messaging = messaging;
-        _setup = setup;
+        _local = local;
+        _coordinator = coordinator;
     }
 
-    private readonly IServiceLoopObserver _observer;
-    private readonly IEnumerable<IOrleansLoopStage> _orleans;
-    private readonly IEnumerable<IMessagingLoopStage> _messaging;
-    private readonly IEnumerable<ISetupLoopStage> _setup;
+    private readonly IEnumerable<ILocalSetupCompleted> _local;
+    private readonly IEnumerable<ICoordinatorSetupCompleted> _coordinator;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        var lifetime = stoppingToken.ToLifetime();
-
-        _observer.IsOrleansStarted.View(lifetime, value =>
-        {
-            if (value == false)
-                return;
-            
-            Process(lifetime).NoAwait();
-        });
-        
-        return Task.CompletedTask;
+        return RunStage(_local, listener => listener.OnLocalSetupCompleted(lifetime));
     }
 
-    private async Task Process(IReadOnlyLifetime lifetime)
+    public Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await RunStage(_orleans, listener => listener.OnOrleansStage(lifetime));
-        await RunStage(_messaging, listener => listener.OnMessagingStage(lifetime));
-        await RunStage(_setup, listener => listener.OnSetupStage(lifetime));
+        return RunStage(_coordinator, listener => listener.OnCoordinatorSetupCompleted(lifetime));
     }
 
     private Task RunStage<T>(IEnumerable<T> entries, Func<T, Task> action)

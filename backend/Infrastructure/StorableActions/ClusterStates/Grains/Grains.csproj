@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Infrastructure.StorableActions.ClusterStates.Grains</AssemblyName>
+        <RootNamespace>Infrastructure.StorableActions</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Backend\Users\Common\Extensions\Extensions.csproj" />
+      <ProjectReference Include="..\..\..\Messaging\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+    </ItemGroup>
+
+</Project>

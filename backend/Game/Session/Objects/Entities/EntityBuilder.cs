@@ -29,7 +29,7 @@ public class EntityBuilder
     private readonly Dictionary<int, IObjectProperty> _properties = new();
     private readonly int _id;
 
-    private IEntityPayload _payload;
+    private IEntityPayload? _payload;
 
     public EntityBuilder WithProperty(ObjectProperty property)
     {
@@ -54,7 +54,7 @@ public class EntityBuilder
 
     public IEntity Build()
     {
-        var payloadBytes = MemoryPackSerializer.Serialize(_payload);
+        var payloadBytes = MemoryPackSerializer.Serialize(_payload!);
         var entity = new Entity(_owner, _properties, _id, payloadBytes);
 
         _entities.Add(entity);

@@ -6,6 +6,7 @@ public interface IMoves
 {
     int Left { get; }
 
+    void SetCurrent(int value);
     void SetMax(int value);
     void OnUsed();
     void Restore();
@@ -24,6 +25,20 @@ public class Moves : IMoves
     private int _maxTurns;
 
     public int Left => _state.Value.Left;
+
+    public void SetCurrent(int value)
+    {
+        _state.Update(state =>
+        {
+            state.Left = value;
+
+            if (state.Left < 0)
+                state.Left = 0;
+            
+            if (state.Left > _maxTurns)
+                state.Left = _maxTurns;
+        });
+    }
 
     public void SetMax(int value)
     {

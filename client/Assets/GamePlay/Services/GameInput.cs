@@ -11,6 +11,7 @@ namespace GamePlay.Services
     {
         IViewableProperty<bool> Flag { get; }
         IViewableProperty<bool> Open { get; }
+        IViewableDelegate Cheats { get; }
         
         Vector2 World { get; }
         Vector2 Screen { get; }
@@ -30,6 +31,7 @@ namespace GamePlay.Services
 
         private readonly ViewableProperty<bool> _flag = new();
         private readonly ViewableProperty<bool> _open = new();
+        private readonly ViewableDelegate _cheats = new();
         
         private readonly IUpdater _updater;
         private readonly ICameraUtils _cameraUtils;
@@ -40,6 +42,9 @@ namespace GamePlay.Services
 
         public IViewableProperty<bool> Flag => _flag;
         public IViewableProperty<bool> Open => _open;
+
+        public IViewableDelegate Cheats => _cheats;
+
         public Vector2 World => _world;
         public Vector2 Screen => _screen;
         
@@ -48,8 +53,10 @@ namespace GamePlay.Services
             _updater.Add(lifetime, this);
             
             var controls = _localUser.Controls.GamePlay;
+            
             controls.Flag.AttachFlag(lifetime, _flag);
             controls.Open.AttachFlag(lifetime, _open);
+            controls.Cheats.ListenPerformed(lifetime, _ => _cheats.Invoke());
         }
 
         public void OnUpdate(float delta)

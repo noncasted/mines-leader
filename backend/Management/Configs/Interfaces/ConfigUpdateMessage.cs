@@ -1,9 +1,7 @@
-﻿using Infrastructure.Messaging;
-
-namespace Management.Configs;
+﻿namespace Management.Configs;
 
 [GenerateSerializer]
-public class ConfigUpdateMessage : IClusterMessage
+public class ConfigUpdateMessage
 {
     [Id(0)]
     public required object Value { get; init; }

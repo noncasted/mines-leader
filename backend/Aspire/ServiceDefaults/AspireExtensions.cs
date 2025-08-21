@@ -67,12 +67,18 @@ public static class AspireExtensions
             })
             .WithTracing(tracing =>
             {
+                foreach (var source in TraceExtensions.AllSources)
+                    tracing.AddSource(source.Name);
+                
                 tracing.AddSource(builder.Environment.ApplicationName)
                     .AddAspNetCoreInstrumentation(options =>
                         options.Filter = context =>
                             !context.Request.Path.StartsWithSegments(HealthEndpointPath)
                             && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
                     )
+                    .AddHttpClientInstrumentation();
+                
+                tracing.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation();
             })
             .WithLogging();

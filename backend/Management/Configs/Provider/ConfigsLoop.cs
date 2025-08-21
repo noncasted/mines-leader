@@ -3,7 +3,7 @@ using ServiceLoop;
 
 namespace Management.Configs;
 
-public class ConfigsLoop : ISetupLoopStage
+public class ConfigsLoop : ILocalSetupCompleted
 {
     public ConfigsLoop(IEnumerable<IConfig> configs)
     {
@@ -12,7 +12,7 @@ public class ConfigsLoop : ISetupLoopStage
 
     private readonly IEnumerable<IConfig> _configs;
 
-    public Task OnSetupStage(IReadOnlyLifetime lifetime)
+    public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
         return Task.WhenAll(_configs.Select(config => config.Refresh()));
     }

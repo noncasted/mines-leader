@@ -5,9 +5,10 @@ using UnityEngine.SceneManagement;
 
 namespace Internal
 {
-    public class SceneServicesScanner : AssetModificationProcessor
+    public static class SceneServicesScanner
     {
-        private static string[] OnWillSaveAssets(string[] paths)
+        [MenuItem("Assets/Scan services %e", priority = -1000)]
+        private static void ScanServices()
         {
             var targets = new List<ISceneReloadListener>();
             var scenes = GetScenes();
@@ -25,12 +26,14 @@ namespace Internal
 
             foreach (var target in targets)
             {
-                target.OnReload();
-                EditorUtility.SetDirty(target as MonoBehaviour);
+                var hasChanged = target.OnReload();
+
+                if (hasChanged == true)
+                    EditorUtility.SetDirty(target as MonoBehaviour);
             }
 
-            return paths;
-            
+            return;
+
             IReadOnlyList<Scene> GetScenes()
             {
                 var foundScenes = new List<Scene>();

@@ -5,10 +5,11 @@ namespace Game;
 
 public interface IServiceFactory
 {
+    Task OnSessionCreated(IReadOnlyLifetime lifetime);
     IService GetOrCreate(SharedSessionService.GetRequest request);
 }
 
-public class ServiceFactory : IServiceFactory, ISessionCreated
+public class ServiceFactory : IServiceFactory
 {
     public ServiceFactory(
         IEnumerable<IService> services,

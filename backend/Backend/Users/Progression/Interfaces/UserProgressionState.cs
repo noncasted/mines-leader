@@ -16,12 +16,7 @@ public class UserProgressionState : IProjectionPayload
 
     public int CalculateTotal()
     {
-        var total = 0;
-
-        foreach (var record in Records)
-            total += record.GetExperience();
-
-        return total;
+        return Records.Sum(total => total.GetExperience());
     }
 
     public INetworkContext ToContext() => new SharedBackendUser.ProgressionProjection()

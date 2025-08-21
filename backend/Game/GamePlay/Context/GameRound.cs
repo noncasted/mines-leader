@@ -1,4 +1,6 @@
-﻿using Common;
+﻿using Backend.Matches;
+using Common;
+using Infrastructure.Orleans;
 using Microsoft.Extensions.Options;
 using Shared;
 
@@ -8,21 +10,24 @@ public interface IGameRound
 {
     IPlayer CurrentPlayer { get; }
 
+    Task<Guid> Process(IReadOnlyLifetime lifetime);
     void SkipTurn();
 }
 
-public class GameRound : Service, IUsersConnected, IGameRound
+public class GameRound : Service, IGameRound
 {
     public GameRound(
+        IOrleans orleans,
+        ISessionData sessionData,
         ISessionUsers users,
-        IPlayerFactory playerFactory,
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
         ISnapshotSender snapshotSender,
         IOptions<GameOptions> options) : base("game-round")
     {
+        _orleans = orleans;
+        _sessionData = sessionData;
         _users = users;
-        _playerFactory = playerFactory;
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
         _snapshotSender = snapshotSender;
@@ -32,41 +37,35 @@ public class GameRound : Service, IUsersConnected, IGameRound
     }
 
     private readonly ValueProperty<GameRoundState> _state = new(1);
+    private readonly IOrleans _orleans;
+    private readonly ISessionData _sessionData;
     private readonly ISessionUsers _users;
-    private readonly IPlayerFactory _playerFactory;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IOptions<GameOptions> _options;
 
-    private IPlayer _currentPlayer;
-    private ILifetime _roundLifetime;
+    private IPlayer? _currentPlayer;
+    private ILifetime? _roundLifetime;
 
-    public IPlayer CurrentPlayer => _currentPlayer;
-
-    public Task OnUsersConnected(IReadOnlyLifetime lifetime)
-    {
-        foreach (var user in _users)
-        {
-            var player = _playerFactory.Create(user);
-            _gameContext.AddPlayer(player);
-        }
-
-        Loop(lifetime).NoAwait();
-        return Task.CompletedTask;
-    }
+    public IPlayer CurrentPlayer => _currentPlayer!;
 
     public void SkipTurn()
     {
-        _roundLifetime.Terminate();
+        _roundLifetime!.Terminate();
     }
 
-    private async Task Loop(IReadOnlyLifetime lifetime)
+    public async Task<Guid> Process(IReadOnlyLifetime lifetime)
     {
+        var match = _orleans.GetGrain<IMatch>(_sessionData.Id);
+        await _orleans.InTransaction(() => match.Setup(GameMatchType.PvP, _users.Select(t => t.Id).ToList()));
+
         var options = _options.Value;
 
         foreach (var player in _gameContext.Players)
         {
+            player.User.Lifetime.Listen(SkipTurn);
+            
             player.Hand.SetSize(options.HandSize);
             player.Health.SetMax(options.MaxHealth);
             player.Health.SetCurrent(options.StartHealth);
@@ -102,10 +101,15 @@ public class GameRound : Service, IUsersConnected, IGameRound
             _currentPlayer = _gameContext.Players.First(t => t != _currentPlayer);
         }
 
-        return;
+        var winner = GetWinner();
+
+        return winner;
 
         bool IsGameOver()
         {
+            if (lifetime.IsTerminated == true)
+                return true;
+            
             if (_gameContext.Players.Any(p => p.Health.Current.Value == 0))
                 return true;
 
@@ -113,6 +117,23 @@ public class GameRound : Service, IUsersConnected, IGameRound
                 return true;
 
             return false;
+        }
+
+        Guid GetWinner()
+        {
+            foreach (var player in _gameContext.Players)
+            {
+                if (player.Health.Current.Value <= 0)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+
+            foreach (var (user, player) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+
+            return Guid.Empty;
         }
     }
 
@@ -133,7 +154,14 @@ public class GameRound : Service, IUsersConnected, IGameRound
         var snapshot = new MoveSnapshot(_gameContext, lifetime);
         snapshot.Start();
 
-        await Task.WhenAny(TimerCountdown(), TurnsCountdown());
+        try
+        {
+            await Task.WhenAny(TimerCountdown(), TurnsCountdown());
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignore
+        }
 
         _roundLifetime.Terminate();
 
@@ -153,7 +181,8 @@ public class GameRound : Service, IUsersConnected, IGameRound
             {
                 timer--;
 
-                _state.Update(state => state.SecondsLeft = timer);
+                var timerValue = timer;
+                _state.Update(state => state.SecondsLeft = timerValue);
 
                 await Task.Delay(timeSpan, _roundLifetime.Token);
             }
@@ -171,7 +200,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
     private async Task ManaLoop(IReadOnlyLifetime lifetime)
     {
         var timeSpan = TimeSpan.FromSeconds(3);
-        
+
         while (lifetime.IsTerminated == false)
         {
             await Task.Delay(timeSpan, lifetime.Token);

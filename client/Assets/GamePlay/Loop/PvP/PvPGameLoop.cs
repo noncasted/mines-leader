@@ -1,10 +1,7 @@
 ﻿using Common.Network;
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
-using GamePlay.Services;
+using GamePlay.UI;
 using Global.Backend;
-using Global.Cameras;
-using Global.UI;
 using Internal;
 using Meta;
 using Shared;
@@ -13,70 +10,57 @@ namespace GamePlay.Loop
 {
     public interface IPvPGameLoop
     {
-        UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
+        UniTask<IGameEndTransition> Process(IReadOnlyLifetime lifetime, SessionData sessionData);
     }
 
     public class PvPGameLoop : IPvPGameLoop
     {
         public PvPGameLoop(
-            IGlobalCamera globalCamera,
-            ILoadingScreen loadingScreen,
             IUser user,
             INetworkSession session,
-            IGameCamera gameCamera,
-            ICurrentCamera camera,
             IGameContext gameContext,
-            ICellsSelection cellsSelection,
-            ICellFlagAction cellFlagAction,
-            ICellOpenAction cellOpenAction,
-            IGameFlow gameFlow,
-            INetworkConnection connection)
+            IGameState gameState,
+            INetworkConnection connection,
+            IGameEnd gameEnd,
+            GameServicesInitializer servicesInitializer)
         {
-            _globalCamera = globalCamera;
-            _loadingScreen = loadingScreen;
             _user = user;
             _session = session;
-            _gameCamera = gameCamera;
-            _camera = camera;
             _gameContext = gameContext;
-            _cellsSelection = cellsSelection;
-            _cellFlagAction = cellFlagAction;
-            _cellOpenAction = cellOpenAction;
-            _gameFlow = gameFlow;
+            _gameState = gameState;
             _connection = connection;
+            _gameEnd = gameEnd;
+            _servicesInitializer = servicesInitializer;
         }
 
-        private readonly IGlobalCamera _globalCamera;
-        private readonly ILoadingScreen _loadingScreen;
         private readonly IUser _user;
         private readonly INetworkSession _session;
-        private readonly IGameCamera _gameCamera;
-        private readonly ICurrentCamera _camera;
-        private readonly IGameContext _gameContext;
-        private readonly ICellsSelection _cellsSelection;
-        private readonly ICellFlagAction _cellFlagAction;
-        private readonly ICellOpenAction _cellOpenAction;
-        private readonly IGameFlow _gameFlow;
         private readonly INetworkConnection _connection;
+        private readonly IGameContext _gameContext;
 
-        public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
+        private readonly IGameState _gameState;
+        private readonly IGameEnd _gameEnd;
+        private readonly GameServicesInitializer _servicesInitializer;
+
+        public async UniTask<IGameEndTransition> Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
-            _camera.SetCamera(_gameCamera.Camera);
+            _gameState.Set(GameStateType.WaitingFoPlayers);
+
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
 
             await UniTask.WaitUntil(() => _gameContext.All.Count == 2, cancellationToken: lifetime.Token);
+    
+            _servicesInitializer.Init(lifetime);
+            
+            _connection.OneWay(new MatchActionContexts.PlayerReady());
+            _gameState.Set(GameStateType.Active);
 
-            _cellsSelection.Start(lifetime);
-            _cellFlagAction.Start(lifetime);
-            _cellOpenAction.Start(lifetime);
-
-            _loadingScreen.Hide();
-            _globalCamera.Disable();
-
-            _connection.OneWay(new PlayerReadyContext());
-
-            await _gameFlow.Execute(lifetime);
+            var gameResult = await _gameState.WaitCompletion(lifetime);
             await _connection.ForceSendAll();
+
+            _gameState.Set(GameStateType.Completed);
+            var transition = await _gameEnd.Process(lifetime, gameResult);
+            return transition;
         }
     }
 }

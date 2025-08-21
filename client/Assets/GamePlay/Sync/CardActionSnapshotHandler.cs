@@ -25,9 +25,6 @@ namespace GamePlay
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
 
-            if (player.Info.IsLocal == false)
-                return;
-
             var card = player.Hand.Entries.First(t => t.EntityId == record.EntityId)!;
             await card.Use(_lifetime, record.Data);
 

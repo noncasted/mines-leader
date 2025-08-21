@@ -7,30 +7,46 @@ public static class States
 {
     public const string User_Entity = "User_Entity";
     public const string User_Progression = "User_Progression";
-    public const string User_MatchHistory = "User_MatchHistory";
-    public const string User_Projection = "User_Projection_Records";
-    public const string User_ProjectionConnection = "User_Projection_Connection";
+    public const string User_MatchHistory = "User_Match_History";
+    public const string User_Projection = "User_Projection";
     public const string User_Deck = "User_Deck";
 
     public const string Match_Entity = "Match_Entity";
 
     public const string Config = "Config";
+    
+    public const string Messaging_Queue = "Messaging_Queue";
+    public const string ClusterState = "ClusterState";
 
-    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity);
+    public static readonly IReadOnlyList<string> StateTables =
+    [
+        User_Entity,
+        User_Progression,
+        User_MatchHistory,
+        User_Projection,
+        User_Deck,
+        Match_Entity,
+        Config, 
+        Messaging_Queue,
+        ClusterState
+    ];
 
-    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression);
+    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity, User_Entity);
 
-    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory);
+    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression, User_Progression);
 
-    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection);
+    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory, User_MatchHistory);
 
-    public class UserProjectionConnectionAttribute() : PersistentStateAttribute(User_ProjectionConnection);
+    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection, User_Projection);
 
-    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck);
+    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck, User_Deck);
 
-    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity);
+    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
 
-    public class ConfigStorageAttribute() : PersistentStateAttribute(Config);
+    public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
+    
+    public class MessageQueueAttribute() : PersistentStateAttribute(Messaging_Queue, Messaging_Queue);
+    public class ClusterStateAttribute() : PersistentStateAttribute(ClusterState, ClusterState);
 }
 
 public static class StateAttributesExtensions
@@ -42,11 +58,12 @@ public static class StateAttributesExtensions
         AddTransactionalAttribute<States.UserMatchHistoryAttribute>();
         AddTransactionalAttribute<States.UserProjectionAttribute>();
         AddTransactionalAttribute<States.UserDeckAttribute>();
-        AddPersistentAttribute<States.UserProjectionConnectionAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
-
+        
+        AddPersistentAttribute<States.MessageQueueAttribute>();
         AddPersistentAttribute<States.ConfigStorageAttribute>();
+        AddPersistentAttribute<States.ClusterStateAttribute>();
 
         return builder;
 

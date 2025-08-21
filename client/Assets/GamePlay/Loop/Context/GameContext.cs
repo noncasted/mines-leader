@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GamePlay.Players;
+using Internal;
 
 namespace GamePlay.Loop
 {
+    
+    
     public interface IGameContext
     {
         IGamePlayer Self { get; }
@@ -22,6 +25,7 @@ namespace GamePlay.Loop
 
         private IGamePlayer _self;
         private IGamePlayer _other;
+        
         private readonly List<IGamePlayer> _all = new();
 
         public IGamePlayer Self => _self;

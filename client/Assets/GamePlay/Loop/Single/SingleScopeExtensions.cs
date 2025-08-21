@@ -14,7 +14,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GamePlayServicesScene>(),
+                loader.Assets.GetAsset<GameServicesScene>(),
                 Construct,
                 false);
             
@@ -35,7 +35,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GamePlayServicesScene>(),
+                loader.Assets.GetAsset<GameServicesScene>(),
                 Construct,
                 true);
             
@@ -55,15 +55,12 @@ namespace GamePlay.Loop
             builder.Register<SingleGameLoop>()
                 .As<ISingleGameLoop>();
 
-            builder.Register<SingleGameFlow>()
-                .As<IGameFlow>();
-
             return UniTask.WhenAll(builder.AddScene());
         }
 
         private static async UniTask AddScene(this IScopeBuilder builder)
         {
-            await builder.FindOrLoadSceneWithServices<GamePlayScene>();
+            await builder.FindOrLoadSceneWithServices<GameFieldScene>();
         }
     }
 }

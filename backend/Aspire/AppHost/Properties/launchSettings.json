@@ -5,10 +5,13 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,
-      "applicationUrl": "https://localhost:17216;http://localhost:15178",
+      "applicationUrl": "https://localhost:17216",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
+        "ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid": "true",
+        "ASPNETCORE_Kestrel__Certificates__Default__Password": "root",
+        "ASPNETCORE_Kestrel__Certificates__Default__Path": "/https/aspnetapp.pfx",
         "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21013",
         "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22165"
       }

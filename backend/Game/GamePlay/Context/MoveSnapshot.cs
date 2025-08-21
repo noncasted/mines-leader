@@ -44,6 +44,16 @@ public class MoveSnapshot
         });
     }
     
+    public void RecordCardRemove(Guid playerId, int entityId, CardType type)
+    {
+        _records.Add(new PlayerSnapshotRecord.CardRemove()
+        {
+            PlayerId = playerId,
+            EntityId = entityId,
+            Type = type
+        });
+    }
+    
     public void RecordCardDraw(Guid playerId, CardType type)
     {
         _records.Add(new PlayerSnapshotRecord.CardDraw()

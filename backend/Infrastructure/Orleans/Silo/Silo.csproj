@@ -9,6 +9,7 @@
         <PackageReference Include="Aspire.Npgsql"/>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
         <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Runtime" />
         <PackageReference Include="Microsoft.Orleans.Server"/>
         <PackageReference Include="Microsoft.Orleans.Transactions"/>
     </ItemGroup>
@@ -31,12 +32,26 @@
         <ProjectReference Include="..\..\..\Backend\Users\Progression\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\..\Backend\Users\Projections\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\..\Backend\Users\Projections\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Common\ProjectsSetup\ProjectsSetup.csproj" />
         <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
-        <ProjectReference Include="..\..\Discovery\Servers\Servers.csproj"/>
+        <ProjectReference Include="..\..\Discovery\Services\Services.csproj" />
         <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj"/>
-        <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
-        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\Messaging\Pipes\Service\Service.csproj" />
+        <ProjectReference Include="..\..\Messaging\Queues\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Messaging\Queues\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\Messaging\Queues\Service\Service.csproj" />
+        <ProjectReference Include="..\..\Messaging\Service\Service.csproj" />
+        <ProjectReference Include="..\..\Messaging\Pipes\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Messaging\Pipes\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\StorableActions\Batchers\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\StorableActions\Batchers\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\StorableActions\ClusterStates\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\StorableActions\ClusterStates\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\StorableActions\ClusterStates\Service\Service.csproj" />
+        <ProjectReference Include="..\..\TaskScheduling\Service\Service.csproj" />
+        <ProjectReference Include="..\Common\Common.csproj" />
+        <ProjectReference Include="..\Storage\GrainStorage\GrainStorage.csproj" />
     </ItemGroup>
 
 </Project>

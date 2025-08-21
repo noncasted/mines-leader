@@ -21,7 +21,7 @@ namespace Meta
         {
             var projectionContext = context.Context;
             var type = projectionContext.GetType();
-
+            
             if (_projections.TryGetValue(type, out var projection) == false)
             {
                 Debug.Log($"[Projection] No projection for type: {type.FullName}");

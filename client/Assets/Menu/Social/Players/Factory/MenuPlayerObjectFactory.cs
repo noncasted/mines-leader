@@ -6,6 +6,7 @@ namespace Menu.Social
     public interface IMenuPlayerObjectFactory
     {
         MenuPlayerView Create();
+        MenuPlayerView Create(Vector2 position);
     }
     
     public class MenuPlayerObjectFactory : MonoBehaviour, ISceneService, IMenuPlayerObjectFactory
@@ -24,7 +25,12 @@ namespace Menu.Social
         {
             var position = (Vector2)transform.position + DirectionUtils.Random(0f, _radius);
             var view = Instantiate(_prefab, position, Quaternion.identity, _playersRoot);
+            return view;
+        }
 
+        public MenuPlayerView Create(Vector2 position)
+        {
+            var view = Instantiate(_prefab, position, Quaternion.identity, _playersRoot);
             return view;
         }
 

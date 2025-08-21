@@ -2,16 +2,16 @@
 {
     public class GameOptions
     {
-        public int StartMana { get; init; } = 5;
-        public int MaxMana { get; init; } = 10;
+        public int StartMana { get; set; } = 5;
+        public int MaxMana { get; set; } = 10;
         
-        public int MaxHealth { get; init; } = 10;
-        public int StartHealth { get; init; } = 10;
+        public int MaxHealth { get; set; } = 10;
+        public int StartHealth { get; set; } = 10;
 
-        public int DeckSize { get; init; } = 10;
+        public int DeckSize { get; set; } = 10;
 
-        public int HandSize { get; init; } = 5;
-        public int RoundTime { get; init; } = 30;
-        public int MovesCount { get; init; } = 5;
+        public int HandSize { get; set; } = 5;
+        public int RoundTime { get; set; } = 30;
+        public int MovesCount { get; set; } = 5;
     }
 }

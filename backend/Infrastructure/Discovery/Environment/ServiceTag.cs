@@ -2,8 +2,9 @@
 
 public enum ServiceTag
 {
-    Server, 
-    Backend,
-    Silo,
-    Console
+    Coordinator = 100,
+    Gateway = 200,
+    Game = 300, 
+    Silo = 400,
+    Console = 500,
 }

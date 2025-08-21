@@ -10,6 +10,8 @@ namespace Common
 
         private bool _isIterated;
         
+        public int Count => _list.Count;
+        
         public void Add(T value)
         {
             if (_isIterated == true)

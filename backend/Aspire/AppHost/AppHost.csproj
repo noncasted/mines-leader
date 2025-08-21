@@ -19,6 +19,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Backend\Gateway\BackendGateway\BackendGateway.csproj"/>
         <ProjectReference Include="..\..\Game\Gateway\GameGateway\GameGateway.csproj"/>
+        <ProjectReference Include="..\..\Infrastructure\Coordination\Coordinator\Coordinator.csproj" />
         <ProjectReference Include="..\..\Infrastructure\Orleans\Silo\Silo.csproj"/>
         <ProjectReference Include="..\..\Management\Web\Console\Console.csproj"/>
         <ProjectReference Include="..\Startup\Startup.csproj"/>

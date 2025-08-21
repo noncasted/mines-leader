@@ -9,6 +9,7 @@
         <PackageReference Include="Microsoft.Orleans.Sdk" />
         <PackageReference Include="Microsoft.Orleans.Transactions" />
     </ItemGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
     </ItemGroup>

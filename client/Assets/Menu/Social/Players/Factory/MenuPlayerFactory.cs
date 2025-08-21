@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
+using Shared;
 using VContainer.Unity;
 
 namespace Menu.Social
@@ -43,12 +44,14 @@ namespace Menu.Social
 
         public async UniTask Create(IReadOnlyLifetime lifetime)
         {
+            var view = _objectFactory.Create();
+            
             var payload = new MenuPlayerPayload()
             {
-                PlayerId = _user.Id
+                PlayerId = _user.Id,
+                Position = view.transform.position
             };
 
-            var view = _objectFactory.Create();
             var scope = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
             var entity = scope.Get<INetworkEntity>();
 
@@ -56,6 +59,7 @@ namespace Menu.Social
 
             var player = scope.Get<IMenuPlayer>();
             _playersCollection.Add(player);
+
             void Build(IEntityBuilder builder)
             {
                 builder.Register<MenuPlayer>()
@@ -77,7 +81,7 @@ namespace Menu.Social
         {
             var payload = data.ReadPayload<MenuPlayerPayload>();
 
-            var view = _objectFactory.Create();
+            var view = _objectFactory.Create(payload.Position);
             var scope = await _entityScopeLoader.Load(data.Owner.Lifetime, _parentScope, view, Build);
             var entity = scope.Get<INetworkEntity>();
 

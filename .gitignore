@@ -100,3 +100,4 @@ ExportedObj/
 /client/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 /client/[Aa]ssets/[Ss]treamingAssets/aa.meta
 /client/[Aa]ssets/[Ss]treamingAssets/aa/
+/client/[Aa]ssets/_Recovery/

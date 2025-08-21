@@ -8,7 +8,7 @@ namespace Loop
 {
     public interface IMenuLoader
     {
-        UniTask<MenuResult> Load();
+        UniTask<GameLoadData> Load();
     }
 
     public class MenuLoader : IMenuLoader
@@ -24,7 +24,7 @@ namespace Loop
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
 
-        public async UniTask<MenuResult> Load()
+        public async UniTask<GameLoadData> Load()
         {
             _globalCamera.Enable();
             _loadingScreen.Show();

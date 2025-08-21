@@ -1,7 +1,11 @@
 ﻿using Common.Network;
 using Cysharp.Threading.Tasks;
+using GamePlay.Cheats;
+using GamePlay.UI;
+using Global.Backend;
 using Internal;
 using Meta;
+using Shared;
 using VContainer;
 
 namespace GamePlay.Loop
@@ -14,9 +18,10 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GamePlayServicesScene>(),
+                loader.Assets.GetAsset<GameServicesScene>(),
                 Construct,
-                false);
+                false
+            );
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -31,9 +36,10 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GamePlayServicesScene>(),
+                loader.Assets.GetAsset<GameServicesScene>(),
                 Construct,
-                true);
+                true
+            );
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -46,19 +52,33 @@ namespace GamePlay.Loop
         private static UniTask Construct(IScopeBuilder builder)
         {
             builder.AddDefaultGamePlayServices();
+            builder.AddGameEndServices();
 
+            builder.Register<GameServicesInitializer>();
+            
             builder.Register<PvPGameLoop>()
                 .As<IPvPGameLoop>();
 
-            builder.AddNetworkService<PvPGameFlow>("game-flow")
-                .Registration.As<IGameFlow>();
-            
-            return UniTask.WhenAll(builder.AddScene());
+            builder.AddNetworkService<GameState>("game-flow")
+                .WithProperty<GameFlowState>(1)
+                .Registration.As<IGameState>();
+
+            builder.Register<MatchEventLoop>()
+                .As<IScopeSetup>();
+
+
+            return builder.AddScene();
         }
 
-        private static async UniTask AddScene(this IScopeBuilder builder)
+        private static UniTask AddScene(this IScopeBuilder builder)
         {
-            await builder.FindOrLoadSceneWithServices<GamePlayScene>();
+            return UniTask.WhenAll(
+                builder.FindOrLoadSceneWithServices<GameFieldScene>(),
+                builder.FindOrLoadSceneWithServices<GameOverlayScene>(),
+                builder.FindOrLoadSceneWithServices<GamePauseScene>(),
+                builder.FindOrLoadSceneWithServices<GameEndScene>(),
+                builder.FindOrLoadSceneWithServices<GameCheatsScene>()
+            );
         }
     }
 }

@@ -17,9 +17,29 @@ namespace Internal
             }
         }
 
-        public void OnReload()
+        public bool OnReload()
         {
-            _services = this.GetObjectsWithComponentInScene<ISceneService>();
+            var newServices = this.GetObjectsWithComponentInScene<ISceneService>();
+
+            if (HasChanged() == false)
+                return false;
+
+            _services = newServices;
+            return true;
+            
+            bool HasChanged()
+            {
+                if (_services.Length != newServices.Length)
+                    return true;
+
+                for (var i = 0; i < _services.Length; i++)
+                {
+                    if (_services[i] != newServices[i])
+                        return true;
+                }
+
+                return false;
+            }
         }
     }
 }

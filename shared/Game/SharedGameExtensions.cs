@@ -6,8 +6,10 @@
         {
             SharedMoveSnapshot.Register(builder);
             SharedGameAction.Register(builder);
+            RematchContexts.Register(builder);
+            GameCheatContexts.Register(builder);
 
-            builder.Add<PlayerReadyContext>();
+            builder.Add<MatchActionContexts.PlayerReady>();
             
             return builder;
         }

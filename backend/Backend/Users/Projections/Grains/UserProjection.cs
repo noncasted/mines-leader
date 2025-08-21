@@ -1,52 +1,53 @@
 ﻿using Common;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
+using Orleans.Concurrency;
 using Orleans.Transactions.Abstractions;
 
 namespace Backend.Users;
 
+[Reentrant]
 public class UserProjection : Grain, IUserProjection
 {
     public UserProjection(
         [States.UserProjection] ITransactionalState<UserProjectionState> state,
-        [States.UserProjectionConnection] IPersistentState<UserProjectionConnectionState> connectionState,
-        IMessagingClient messaging,
+        IMessaging messaging,
         ILogger<UserProjection> logger)
     {
         _state = state;
-        _connectionState = connectionState;
         _messaging = messaging;
         _logger = logger;
-        _userId = this.GetPrimaryKey();
+        _pipeId = new UserProjectionPipeId(this.GetPrimaryKey());
     }
 
     private readonly ITransactionalState<UserProjectionState> _state;
-    private readonly IPersistentState<UserProjectionConnectionState> _connectionState;
-    private readonly IMessagingClient _messaging;
-    private readonly Guid _userId;
+    private readonly IMessaging _messaging;
     private readonly ILogger<UserProjection> _logger;
+    private readonly UserProjectionPipeId _pipeId;
 
     private readonly List<IProjectionPayload> _pending = new();
 
-    private UserProjectionConnectionState connectionState => _connectionState.State;
+    private bool _isConnected;
 
-    public Task OnConnected(Guid connectionServiceId)
+    public Task OnConnected()
     {
-        connectionState.ConnectionServiceId = connectionServiceId;
-        return _connectionState.WriteStateAsync();
+        _isConnected = true;
+        return Task.CompletedTask;
     }
 
     public Task OnDisconnected()
     {
-        connectionState.ConnectionServiceId = Guid.Empty;
-        return _connectionState.WriteStateAsync();
+        _isConnected = false;
+        return Task.CompletedTask;
     }
 
     public async Task ForceNotify()
     {
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
-            _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
+            _logger.LogWarning("[User] [Projection] Failed to force notify. User {Id} is not connected",
+                this.GetPrimaryKey()
+            );
             return;
         }
 
@@ -68,13 +69,14 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Sending cached {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey());
+            this.GetPrimaryKey()
+        );
 
         await _state.Write(state => state.Values[payload.GetType().Name] = payload);
 
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
-            _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
+            _logger.LogWarning("[User] [Projection] Failed to send cached. User {Id} is not connected", this.GetPrimaryKey());
             _pending.Add(payload);
             return;
         }
@@ -86,8 +88,9 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Saving cached {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey());
-        
+            this.GetPrimaryKey()
+        );
+
         return _state.Write(state => state.Values[payload.GetType().Name] = payload);
     }
 
@@ -95,11 +98,12 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Sending one time {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey());
+            this.GetPrimaryKey()
+        );
 
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
-            _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
+            _logger.LogWarning("[User] [Projection] Failed to send one time. User {Id} is not connected", this.GetPrimaryKey());
             _pending.Add(payload);
             return Task.CompletedTask;
         }
@@ -109,10 +113,6 @@ public class UserProjection : Grain, IUserProjection
 
     private Task Send(IProjectionPayload payload)
     {
-        return _messaging.Send(connectionState.ConnectionServiceId, new ProjectionPayloadValue
-        {
-            Value = payload,
-            UserId = _userId
-        });
+        return _messaging.SendPipe(_pipeId, payload);
     }
 }

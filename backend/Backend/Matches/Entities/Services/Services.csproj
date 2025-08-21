@@ -18,11 +18,11 @@
         <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj"/>
         <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj"/>
         <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj"/>
-        <ProjectReference Include="..\..\..\..\Game\Global\Global.csproj"/>
-        <ProjectReference Include="..\..\..\..\Game\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\..\..\Game\Global\Global.csproj" />
         <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Environment\Environment.csproj"/>
-        <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
+        <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Services\Services.csproj" />
         <ProjectReference Include="..\..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
         <ProjectReference Include="..\..\..\Users\Projections\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>
     </ItemGroup>

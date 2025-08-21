@@ -26,7 +26,7 @@ namespace GamePlay.Loop
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
-            IGameFlow gameFlow, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
+            IGameState gameState, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
         {
             _user = user;
             _session = session;
@@ -36,7 +36,7 @@ namespace GamePlay.Loop
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
-            _gameFlow = gameFlow;
+            _gameState = gameState;
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
         }
@@ -49,7 +49,7 @@ namespace GamePlay.Loop
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
         private readonly ICellOpenAction _cellOpenAction;
-        private readonly IGameFlow _gameFlow;
+        private readonly IGameState _gameState;
 
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
@@ -67,7 +67,7 @@ namespace GamePlay.Loop
             _loadingScreen.Hide();
             _globalCamera.Disable();
 
-            await _gameFlow.Execute(lifetime);
+            await _gameState.WaitCompletion(lifetime);
 
             await UniTask.Delay(TimeSpan.FromDays(12), cancellationToken: lifetime.Token);
         }

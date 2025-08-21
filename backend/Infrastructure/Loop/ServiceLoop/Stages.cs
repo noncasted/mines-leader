@@ -1,23 +1,17 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Configuration.Internal;
 
 namespace ServiceLoop;
 
-public interface IOrleansLoopStage
+public interface ILocalSetupCompleted
 {
-    Task OnOrleansStage(IReadOnlyLifetime lifetime);
+    Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime);
 }
 
-public interface IMessagingLoopStage
+public interface ICoordinatorSetupCompleted
 {
-    Task OnMessagingStage(IReadOnlyLifetime lifetime);
-}
-
-public interface ISetupLoopStage
-{
-    Task OnSetupStage(IReadOnlyLifetime lifetime);
+    Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime);
 }
 
 public static class LoopExtensions
@@ -26,30 +20,19 @@ public static class LoopExtensions
     {
         builder.Services.Add<ServiceLoopObserver>()
             .As<IServiceLoopObserver>()
-            .As<ILifecycleParticipant<IClusterClientLifecycle>>();
+            .As<ILifecycleParticipant<IClusterClientLifecycle>>()
+            .As<ILifecycleParticipant<ISiloLifecycle>>();
         
-        builder.Services.AddHostedService<ServiceLoop>();
+        builder.Services.Add<ServiceLoop>()
+            .As<IServiceLoop>();
+        
         return builder;
-    }
-
-    public static ContainerExtensions.Registration AsOrleansLoopStage(
-        this ContainerExtensions.Registration registration)
-    {
-        return registration
-            .As<IOrleansLoopStage>();
-    }
-
-    public static ContainerExtensions.Registration AsMessagingLoopStage(
-        this ContainerExtensions.Registration registration)
-    {
-        return registration
-            .As<IMessagingLoopStage>();
     }
 
     public static ContainerExtensions.Registration AsSetupLoopStage(
         this ContainerExtensions.Registration registration)
     {
         return registration
-            .As<ISetupLoopStage>();
+            .As<ILocalSetupCompleted>();
     }
 }

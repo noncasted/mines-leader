@@ -10,6 +10,7 @@ public static class GameGlobalExtensions
         app.Services.AddSingleton<ISessionsCollection, SessionsCollection>();
         app.Services.AddSingleton<ISessionFactory, SessionFactory>();
         app.Services.AddSingleton<ISessionSearch, SessionSearch>();
+        app.Services.AddHostedService<SessionEndpoints>();
 
         return app;
     }

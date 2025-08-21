@@ -10,7 +10,7 @@ namespace Menu.Common
 {
     public interface IMenuLoop
     {
-        UniTask<MenuResult> Process(IReadOnlyLifetime lifetime);
+        UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime);
     }
     
     public class MenuLoop : IMenuLoop
@@ -34,7 +34,7 @@ namespace Menu.Common
 
         private IReadOnlyLifetime _lifetime;
 
-        public async UniTask<MenuResult> Process(IReadOnlyLifetime lifetime)
+        public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
             var completion = new UniTaskCompletionSource<SessionData>();
 
@@ -47,7 +47,7 @@ namespace Menu.Common
 
             var sessionData = await completion.Task;
             
-            return new MenuResult()
+            return new GameLoadData()
             {
                 GameMode = GameMode.PvP,
                 SessionData = sessionData

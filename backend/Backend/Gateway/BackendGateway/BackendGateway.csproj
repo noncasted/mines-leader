@@ -16,18 +16,36 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Common\ProjectsSetup\ProjectsSetup.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
-        <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Queues\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Queues\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Queues\Service\Service.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Service\Service.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Pipes\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Pipes\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\Messaging\Pipes\Service\Service.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\StorableActions\Batchers\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\..\Infrastructure\StorableActions\Batchers\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Infrastructure\StorableActions\ClusterStates\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\StorableActions\ClusterStates\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\StorableActions\ClusterStates\Service\Service.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Identity\Identity.csproj"/>
+        <ProjectReference Include="..\UserFlow\UserFlow.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\Matches\Entities\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Matches\Entities\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Matches\Entities\Services\Services.csproj"/>
         <ProjectReference Include="..\..\Matches\Search\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Matches\Search\Services\Services.csproj"/>
-        <ProjectReference Include="..\..\Users\Common\Commands\Commands.csproj"/>
         <ProjectReference Include="..\..\Users\Decks\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Users\Decks\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Users\Entities\Grains\Grains.csproj"/>
@@ -39,8 +57,6 @@
         <ProjectReference Include="..\..\Users\Progression\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Users\Projections\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Users\Projections\Interfaces\Interfaces.csproj"/>
-        <ProjectReference Include="..\Identity\Identity.csproj"/>
-        <ProjectReference Include="..\UserFlow\UserFlow.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -13,6 +13,14 @@ namespace Shared
             public CardType Type { get; set; }
             public int EntityId { get; set; }
         }
+        
+        [MemoryPackable]
+        public partial class CardRemove : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public CardType Type { get; set; }
+            public int EntityId { get; set; }
+        }
 
         [MemoryPackable]
         public partial class CardDraw : IMoveSnapshotRecord

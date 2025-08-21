@@ -10,7 +10,6 @@ public static class SessionExtensions
         services.AddLogging();
         services.AddSingleton<ISession, Session>();
 
-        services.AddSingleton<ISessionEvents, SessionEvents>();
         services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();
 
         services.AddSingleton(data);
@@ -33,8 +32,7 @@ public static class SessionExtensions
         services.AddSingleton<IEntityFactory, EntityFactory>();
         services.AddSingleton<ISessionEntities, SessionEntities>();
 
-        services.Add<IServiceFactory, ServiceFactory>()
-            .As<ISessionCreated>();
+        services.Add<IServiceFactory, ServiceFactory>();
 
         services.AddSingleton<ISessionServices, SessionServices>();
 
