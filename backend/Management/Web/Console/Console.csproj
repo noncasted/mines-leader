@@ -6,15 +6,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MudBlazor" Version="8.*"/>
+        <PackageReference Include="MudBlazor" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.1" />
-        <PackageReference Include="Aspire.Npgsql" Version="9.3.1" />
-        <PackageReference Include="Npgsql" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" />
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Aspire.Npgsql" />
+        <PackageReference Include="Npgsql" />
     </ItemGroup>
 
     <ItemGroup>

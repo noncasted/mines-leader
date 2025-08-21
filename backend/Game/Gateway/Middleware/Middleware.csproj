@@ -7,8 +7,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj"/>
-        <ProjectReference Include="..\..\..\..\shared\Session\Session.csproj" />
-        <ProjectReference Include="..\..\..\Common\Connections\Connections.csproj" />
+        <ProjectReference Include="..\..\..\..\shared\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Connections\Connections.csproj"/>
         <ProjectReference Include="..\..\Global\Global.csproj"/>
         <ProjectReference Include="..\..\Session\Session.csproj"/>
     </ItemGroup>
@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Newtonsoft.Json"/>
     </ItemGroup>
 
 </Project>

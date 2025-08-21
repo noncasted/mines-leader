@@ -6,37 +6,37 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql" Version="9.3.1" />
-        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Server" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.1" />
+        <PackageReference Include="Aspire.Npgsql"/>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Server"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj"/>
-        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Services\Services.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Matches\Search\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Matches\Search\Services\Services.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Decks\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Decks\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Entities\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Entities\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Entities\Services\Services.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Matches\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Matches\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Progression\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Progression\Interfaces\Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Projections\Grains\Grains.csproj" />
-        <ProjectReference Include="..\..\..\Backend\Users\Projections\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Matches\Entities\Services\Services.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Matches\Search\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Matches\Search\Services\Services.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Decks\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Decks\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Entities\Services\Services.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Matches\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Matches\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Progression\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Progression\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Projections\Grains\Grains.csproj"/>
+        <ProjectReference Include="..\..\..\Backend\Users\Projections\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
         <ProjectReference Include="..\..\Discovery\Servers\Servers.csproj"/>
-        <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj" />
+        <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj"/>
         <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
-        <ProjectReference Include="..\Extensions\Extensions.csproj" />
+        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.1" />
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -15,16 +15,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
-      <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj" />
-      <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
-      <ProjectReference Include="..\..\..\..\Game\Global\Global.csproj" />
-      <ProjectReference Include="..\..\..\..\Game\Session\Session.csproj" />
-      <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
-      <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Servers\Servers.csproj" />
-      <ProjectReference Include="..\..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
-      <ProjectReference Include="..\..\..\Users\Projections\Interfaces\Interfaces.csproj" />
-      <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\..\..\..\Game\Global\Global.csproj"/>
+        <ProjectReference Include="..\..\..\..\Game\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Environment\Environment.csproj"/>
+        <ProjectReference Include="..\..\..\..\Infrastructure\Discovery\Servers\Servers.csproj"/>
+        <ProjectReference Include="..\..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Users\Projections\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>
     </ItemGroup>
 
 </Project>
