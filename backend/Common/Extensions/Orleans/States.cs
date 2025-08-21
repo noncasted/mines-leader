@@ -1,21 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Orleans.Transactions.Abstractions;
 
 namespace Common;
 
 public static class States
 {
-    private const string User_Entity = "User_Entity";
-    private const string User_Progression = "User_Progression";
-    private const string User_MatchHistory = "User_MatchHistory";
-    private const string User_Projection = "User_Projection_Records";
-    private const string User_ProjectionConnection = "User_Projection_Connection";
-    private const string User_Deck = "User_Deck";
+    public const string User_Entity = "User_Entity";
+    public const string User_Progression = "User_Progression";
+    public const string User_MatchHistory = "User_MatchHistory";
+    public const string User_Projection = "User_Projection_Records";
+    public const string User_ProjectionConnection = "User_Projection_Connection";
+    public const string User_Deck = "User_Deck";
 
-    private const string Match_Entity = "Match_Entity";
-    
-    private const string Config = "Config";
+    public const string Match_Entity = "Match_Entity";
+
+    public const string Config = "Config";
 
     public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity);
 
@@ -29,9 +28,9 @@ public static class States
 
     public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck);
 
-    public class MatchAttribute() : TransactionalStateAttribute(Config);
+    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity);
 
-    public class ConfigStorageAttribute() : PersistentStateAttribute("Config");
+    public class ConfigStorageAttribute() : PersistentStateAttribute(Config);
 }
 
 public static class StateAttributesExtensions
@@ -46,7 +45,7 @@ public static class StateAttributesExtensions
         AddPersistentAttribute<States.UserProjectionConnectionAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
-        
+
         AddPersistentAttribute<States.ConfigStorageAttribute>();
 
         return builder;
@@ -55,7 +54,7 @@ public static class StateAttributesExtensions
             where TAttribute : TransactionalStateAttribute, new()
         {
             builder.Services.Add<IAttributeToFactoryMapper<TAttribute>,
-                    GenericTransactionalStateAttributeMapper<TAttribute>>();
+                GenericTransactionalStateAttributeMapper<TAttribute>>();
         }
 
         void AddPersistentAttribute<TAttribute>()

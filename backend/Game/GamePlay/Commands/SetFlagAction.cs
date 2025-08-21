@@ -18,6 +18,7 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
             return EmptyResponse.Failed;
 
         taken.SetFlag();
+        board.OnUpdated();
 
         return EmptyResponse.Ok;
     }

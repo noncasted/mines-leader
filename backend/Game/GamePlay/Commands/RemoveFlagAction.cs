@@ -18,6 +18,7 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
             return EmptyResponse.Failed;
 
         taken.RemoveFlag();
+        board.OnUpdated();
 
         return EmptyResponse.Ok;
     }

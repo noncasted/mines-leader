@@ -1,7 +1,9 @@
-﻿using Shared;
+﻿using Common;
+using Shared;
 
 namespace Backend.Users;
 
+[Alias(States.User_Progression)]
 [GenerateSerializer]
 public class UserProgressionState : IProjectionPayload
 {
