@@ -1,6 +1,7 @@
 ﻿using Common.Network;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Cards
 {
@@ -26,7 +27,10 @@ namespace GamePlay.Cards
         
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _state.Advise(lifetime, () => _view.UpdateAmount(_state.Value.Queue.Count));
+            _state.Advise(lifetime, () =>
+            {
+                _view.UpdateAmount(_state.Value.Queue.Count);
+            });
         }
     }
 }

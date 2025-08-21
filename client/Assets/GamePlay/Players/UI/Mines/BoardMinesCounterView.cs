@@ -19,7 +19,7 @@ namespace GamePlay.Players
         {
             _board = board;
         }
-        
+
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -29,29 +29,18 @@ namespace GamePlay.Players
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _text.text = "?";
-            
-            _board.Updated.Advise(lifetime, () =>
-            {
-                var mines = 0;
-                var flags = 0;
-                
-                foreach (var (_, cell) in _board.Cells)
-                {
-                    // if (cell.HasMine() == true)
-                    //     mines++;
-                    
-                    if (cell.HasFlag() == true)
-                        flags++;
-                }
-                
-                if (mines != 0)
-                    _gameStarted = true;
-                
-                if (_gameStarted == false)
-                    return;
 
-                _text.text = (mines - flags).ToString();
-            });
+            _board.State.Advise(lifetime, state =>
+                {
+                    if (_gameStarted == false)
+                    {
+                        _gameStarted = true;
+                        return;
+                    }
+                    
+                    _text.text = (state.Mines - state.Flags).ToString();
+                }
+            );
         }
     }
 }

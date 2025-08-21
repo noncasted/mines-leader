@@ -6,6 +6,6 @@ namespace Shared
     [MemoryPackable]
     public partial class PlayerDeckState
     {
-        public List<CardType> Queue { get; } = new();
+        public List<CardType> Queue { get; set; }
     }
 }

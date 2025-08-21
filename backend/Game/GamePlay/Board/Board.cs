@@ -23,14 +23,14 @@ public interface IBoard
 
 public class Board : IBoard
 {
-    public Board(Guid ownerId, IOptions<BoardOptions> options)
+    public Board(ValueProperty<BoardState> state, Guid ownerId, IOptions<BoardOptions> options)
     {
         OwnerId = ownerId;
         Events = new BoardEvents();
         Generator = new BoardGenerator(this, options);
         Revealer = new BoardRevealer(this);
         Size = new Position(options.Value.Size, options.Value.Size);
-        MinesScanner = new BoardMinesScanner(this);
+        MinesScanner = new BoardMinesScanner(this, state);
     }
 
     private readonly Dictionary<Position, ICell> _cells = new();

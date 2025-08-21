@@ -17,6 +17,9 @@ public class CardUse(GameCommandUtils utils) : GameCommand<SharedGameAction.Card
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
         
+        context.Player.Stash.Add(request.Payload.Type);
+        context.Player.Moves.OnUsed();
+        
         return result;
     }
 }

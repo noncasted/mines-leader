@@ -11,7 +11,7 @@ public static class CellExtensions
     
     public static bool IsFree(this ICell cell)
     {
-        return cell.Status == CellStatus.Taken;
+        return cell.Status == CellStatus.Free;
     }
     
     public static ITakenCell AsTaken(this ICell cell)

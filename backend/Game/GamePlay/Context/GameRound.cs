@@ -38,12 +38,12 @@ public class GameRound : Service, IUsersConnected, IGameRound
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IOptions<GameOptions> _options;
-    
+
     private IPlayer _currentPlayer;
     private ILifetime _roundLifetime;
 
     public IPlayer CurrentPlayer => _currentPlayer;
-    
+
     public Task OnUsersConnected(IReadOnlyLifetime lifetime)
     {
         foreach (var user in _users)
@@ -55,7 +55,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
         Loop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
-    
+
     public void SkipTurn()
     {
         _roundLifetime.Terminate();
@@ -80,7 +80,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
         await _readyAwaiter.Await(lifetime);
 
         ManaLoop(roundLifetime).NoAwait();
-        
+
         var snapshot = new MoveSnapshot(_gameContext, lifetime);
         snapshot.Start();
 
@@ -92,7 +92,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
 
         foreach (var player in _gameContext.Players)
             player.Board.MinesScanner.Start(lifetime);
-        
+
         _snapshotSender.Send(snapshot);
         _currentPlayer = _gameContext.Players.First();
 
@@ -127,7 +127,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
                 state.CurrentPlayer = player.User.Id;
             }
         );
-        
+
         player.Moves.Restore();
 
         var snapshot = new MoveSnapshot(_gameContext, lifetime);
@@ -170,9 +170,11 @@ public class GameRound : Service, IUsersConnected, IGameRound
 
     private async Task ManaLoop(IReadOnlyLifetime lifetime)
     {
+        var timeSpan = TimeSpan.FromSeconds(3);
+        
         while (lifetime.IsTerminated == false)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1), lifetime.Token);
+            await Task.Delay(timeSpan, lifetime.Token);
 
             foreach (var player in _gameContext.Players)
                 player.Mana.SetCurrent(player.Mana.Current + 1);

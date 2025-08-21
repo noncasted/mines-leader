@@ -23,14 +23,15 @@ public class ErosionDozer : ICard
         var ordered = selected.OrderBy(t => t.Position.DistanceTo(_payload.Position));
 
         var limited = ordered.Take(size).ToList();
-        
+
         if (limited.Count == 0)
             return EmptyResponse.Fail("No taken cells in the pattern");
 
-        foreach (var cell in selected)
+        foreach (var cell in limited)
             cell.ToFree();
 
-        _target.Revealer.Reveal(_payload.Position);
+        foreach (var cell in limited)
+            _target.Revealer.Reveal(cell.Position);
 
         return EmptyResponse.Ok;
     }

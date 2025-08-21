@@ -26,6 +26,7 @@ namespace Shared
     [MemoryPackUnion(0, typeof(SharedBoardSnapshot))]
     [MemoryPackUnion(1, typeof(PlayerSnapshotRecord.Card))]
     [MemoryPackUnion(2, typeof(PlayerSnapshotRecord.CardDraw))]
+    [MemoryPackUnion(3, typeof(PlayerSnapshotRecord.CardTakeoutFromStash))]
     public partial interface IMoveSnapshotRecord
     {
     }

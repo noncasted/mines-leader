@@ -53,6 +53,15 @@ public class MoveSnapshot
         });
     }
     
+    public void RecordCardTakeoutFromStash(Guid playerId, CardType type)
+    {
+        _records.Add(new PlayerSnapshotRecord.CardTakeoutFromStash()
+        {
+            PlayerId = playerId,
+            Type = type
+        });
+    }
+    
     private void HandleBoards(IReadOnlyLifetime lifetime)
     {
         foreach (var (_, board) in _gameContext.Boards)

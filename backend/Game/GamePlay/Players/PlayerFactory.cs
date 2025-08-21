@@ -23,6 +23,7 @@ public class PlayerFactory : IPlayerFactory
     {
         var entityBuilder = _entityFactory.Create(user);
 
+        var boardProperty = entityBuilder.AddProperty<BoardState>(PlayerStateIds.Board);
         var healthProperty = entityBuilder.AddProperty<PlayerHealthState>(PlayerStateIds.Health);
         var manaProperty = entityBuilder.AddProperty<PlayerManaState>(PlayerStateIds.Mana);
         var modifiersProperty = entityBuilder.AddProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
@@ -41,7 +42,7 @@ public class PlayerFactory : IPlayerFactory
 
         var entity = entityBuilder.Build();
 
-        var board = new Board(entity.Owner.Id, _boardOptions);
+        var board = new Board(boardProperty, entity.Owner.Id, _boardOptions);
         var health = new Health(healthProperty);
         var mana = new Mana(manaProperty);
         var modifiers = new Modifiers(modifiersProperty);
@@ -52,6 +53,8 @@ public class PlayerFactory : IPlayerFactory
 
         var player = new Player(entity, board, health, mana, modifiers, deck, moves, hand, stash);
 
+        deckProperty.Update(state => state.Queue = new List<CardType>());
+        
         return player;
     }
 }

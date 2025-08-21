@@ -3,6 +3,7 @@ using Common.Network;
 using Global.Backend;
 using Global.Systems;
 using Internal;
+using Shared;
 using UnityEngine;
 using VContainer;
 
@@ -20,15 +21,22 @@ namespace GamePlay.Boards
         private INetworkEntity _entity;
         private IUpdater _updater;
         private INetworkConnection _connection;
+        private NetworkProperty<BoardState> _state;
 
         public IBoardConstructionData ConstructionDataData => _constructionData;
+        public IViewableProperty<BoardState> State => _state;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
         public bool IsMine => _entity.Owner.IsLocal;
         public IViewableDelegate Updated => _updated;
 
         [Inject]
-        private void Construct(IUpdater updater, INetworkEntity entity, INetworkConnection connection)
+        private void Construct(
+            IUpdater updater,
+            INetworkEntity entity,
+            NetworkProperty<BoardState> state,
+            INetworkConnection connection)
         {
+            _state = state;
             _connection = connection;
             _updater = updater;
             _entity = entity;

@@ -6,13 +6,16 @@ public class GraveDigger : ICard
 {
     public GraveDigger(
         IPlayer owner,
+        MoveSnapshot snapshot,
         CardUsePayload.Gravedigger payload)
     {
         _owner = owner;
+        _snapshot = snapshot;
         _payload = payload;
     }
 
     private readonly IPlayer _owner;
+    private readonly MoveSnapshot _snapshot;
     private readonly CardUsePayload.Gravedigger _payload;
 
     public EmptyResponse Use()
@@ -21,9 +24,10 @@ public class GraveDigger : ICard
             return EmptyResponse.Fail("No cards in stash");
         
         var card = _owner.Stash.Pick();
-        _owner.Hand.Add(card);
         
-        _owner.Modifiers.Inc(PlayerModifier.TrebuchetBoost);
+        _owner.Hand.Add(card);
+        _snapshot.RecordCardTakeoutFromStash(_owner.User.Id, card);
+
         return EmptyResponse.Ok;
     }
 }

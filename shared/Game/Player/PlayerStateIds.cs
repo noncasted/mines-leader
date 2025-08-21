@@ -2,12 +2,13 @@
 {
     public class PlayerStateIds
     {
-        public const int Health = 1;
-        public const int Mana = 2;
-        public const int Modifiers = 3;
-        public const int Moves = 4;
-        public const int Deck = 5;
-        public const int Hand = 6;
-        public const int Stash = 7;
+        public const int Board = 1;
+        public const int Health = 2;
+        public const int Mana = 3;
+        public const int Modifiers = 4;
+        public const int Moves = 5;
+        public const int Deck = 6;
+        public const int Hand = 7;
+        public const int Stash = 8;
     }
 }

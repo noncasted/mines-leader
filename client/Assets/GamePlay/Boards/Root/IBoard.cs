@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Common.Network;
 using Internal;
+using Shared;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,6 +11,7 @@ namespace GamePlay.Boards
     public interface IBoard
     {
         IBoardConstructionData ConstructionDataData { get; }
+        IViewableProperty<BoardState> State { get; }
 
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }

@@ -1,6 +1,8 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -20,6 +22,8 @@ namespace GamePlay.Boards
         {
             var board = Instantiate(_prefab, _parent);
             board.transform.localPosition = Vector3.zero;
+
+            context.Builder.RegisterProperty<BoardState>(PlayerStateIds.Board);
 
             context.Builder.RegisterComponent(board)
                 .As<IBoard>()

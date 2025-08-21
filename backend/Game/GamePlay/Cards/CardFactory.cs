@@ -70,6 +70,7 @@ public class CardFactory : ICardFactory
             ),
             CardType.Gravedigger => new GraveDigger(
                 owner,
+                snapshot,
                 (CardUsePayload.Gravedigger)payload
             ),
             _ => throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, null)
