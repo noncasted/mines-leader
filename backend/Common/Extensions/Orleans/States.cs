@@ -7,7 +7,7 @@ public static class States
 {
     public const string User_Entity = "User_Entity";
     public const string User_Progression = "User_Progression";
-    public const string User_MatchHistory = "User_MatchHistory";
+    public const string User_MatchHistory = "User_Match_History";
     public const string User_Projection = "User_Projection_Records";
     public const string User_ProjectionConnection = "User_Projection_Connection";
     public const string User_Deck = "User_Deck";
@@ -16,21 +16,34 @@ public static class States
 
     public const string Config = "Config";
 
-    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity);
+    public static readonly IReadOnlyList<string> StateTables =
+    [
+        User_Entity,
+        User_Progression,
+        User_MatchHistory,
+        User_Projection,
+        User_ProjectionConnection,
+        User_Deck,
+        Match_Entity,
+        Config
+    ];
 
-    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression);
+    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity, User_Entity);
 
-    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory);
+    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression, User_Progression);
 
-    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection);
+    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory, User_MatchHistory);
 
-    public class UserProjectionConnectionAttribute() : PersistentStateAttribute(User_ProjectionConnection);
+    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection, User_Projection);
 
-    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck);
+    public class UserProjectionConnectionAttribute()
+        : PersistentStateAttribute(User_ProjectionConnection, User_ProjectionConnection);
 
-    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity);
+    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck, User_Deck);
 
-    public class ConfigStorageAttribute() : PersistentStateAttribute(Config);
+    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
+
+    public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
 }
 
 public static class StateAttributesExtensions

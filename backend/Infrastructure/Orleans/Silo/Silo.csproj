@@ -9,6 +9,7 @@
         <PackageReference Include="Aspire.Npgsql"/>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
         <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Runtime" />
         <PackageReference Include="Microsoft.Orleans.Server"/>
         <PackageReference Include="Microsoft.Orleans.Transactions"/>
     </ItemGroup>
@@ -37,6 +38,7 @@
         <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\Storage\GrainStorage\GrainStorage.csproj" />
     </ItemGroup>
 
 </Project>
