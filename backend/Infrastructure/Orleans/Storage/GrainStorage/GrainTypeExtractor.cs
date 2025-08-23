@@ -9,7 +9,7 @@ public class GrainTypeExtractor
     /// </summary>
     private static readonly char[] BaseClassExtractionSplitDelimeters = ['[', ']'];
 
-    public readonly Dictionary<string, string> _typeNameToBaseClass = new();
+    private readonly Dictionary<string, string> _typeNameToBaseClass = new();
 
     public string Extract(string typeName)
     {
