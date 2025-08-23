@@ -19,6 +19,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
         ISnapshotSender snapshotSender,
+        IGameFlow gameFlow,
         IOptions<GameOptions> options) : base("game-round")
     {
         _users = users;
@@ -26,6 +27,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
         _snapshotSender = snapshotSender;
+        _gameFlow = gameFlow;
         _options = options;
 
         BindProperty(_state);
@@ -37,6 +39,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
+    private readonly IGameFlow _gameFlow;
     private readonly IOptions<GameOptions> _options;
 
     private IPlayer? _currentPlayer;
@@ -101,6 +104,9 @@ public class GameRound : Service, IUsersConnected, IGameRound
             await ProcessRound(lifetime, _currentPlayer);
             _currentPlayer = _gameContext.Players.First(t => t != _currentPlayer);
         }
+        
+        var winner = GetWinner();
+        _gameFlow.GameEnd(winner);
 
         return;
 
@@ -113,6 +119,23 @@ public class GameRound : Service, IUsersConnected, IGameRound
                 return true;
 
             return false;
+        }
+
+        Guid GetWinner()
+        {
+            foreach (var player in _gameContext.Players)
+            {
+                if (player.Health.Current.Value < 0)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+
+            foreach (var (user, player) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+            
+            throw new InvalidOperationException("No winner found.");
         }
     }
 

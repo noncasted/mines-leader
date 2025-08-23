@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
+using Shared;
 using VContainer;
 
 namespace GamePlay.Loop
@@ -51,6 +52,7 @@ namespace GamePlay.Loop
                 .As<IPvPGameLoop>();
 
             builder.AddNetworkService<PvPGameFlow>("game-flow")
+                .WithProperty<GameFlowState>(1)
                 .Registration.As<IGameFlow>();
             
             return UniTask.WhenAll(builder.AddScene());

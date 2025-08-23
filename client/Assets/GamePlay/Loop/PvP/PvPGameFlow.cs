@@ -1,7 +1,8 @@
-﻿using Common.Network;
+﻿using System;
+using Common.Network;
 using Cysharp.Threading.Tasks;
-using GamePlay.Players;
 using Internal;
+using Shared;
 
 namespace GamePlay.Loop
 {
@@ -9,58 +10,44 @@ namespace GamePlay.Loop
     {
         public PvPGameFlow(
             IGameContext context,
-            IGameRound gameRound,
-            INetworkUsersCollection sessionUsers)
+            NetworkProperty<GameFlowState> state)
         {
             _context = context;
-            _gameRound = gameRound;
-            _sessionUsers = sessionUsers;
+            _state = state;
         }
 
         private readonly IGameContext _context;
-        private readonly IGameRound _gameRound;
-        private readonly INetworkUsersCollection _sessionUsers;
+        private readonly NetworkProperty<GameFlowState> _state;
         private readonly UniTaskCompletionSource<GameResult> _completion = new();
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
+            _state.Advise(lifetime, state =>
+            {
+                if (state.Winner == Guid.Empty)
+                    return;
+                
+                var player = _context.GetPlayer(state.Winner);
+
+                _completion.TrySetResult(new GameResult()
+                    {
+                        Type = player.Info.IsLocal == true ? GameResultType.Win : GameResultType.Lose
+                    }
+                );
+            });
         }
 
-        public async UniTask<GameResult> Execute(IReadOnlyLifetime lifetime)
+        public UniTask<GameResult> Execute(IReadOnlyLifetime lifetime)
         {
-            var flowLifetime = lifetime.Child();
-            flowLifetime.Terminate();
-
-            await _completion.Task;
-
-            return new GameResult();
-        }
-
-        public void OnLose(IGamePlayer player)
-        {
-            _completion.TrySetResult(new GameResult()
-                {
-                    Type = GameResultType.Lose
-                }
-            );
-        }
-
-        public void OnWin(IGamePlayer player)
-        {
-            _completion.TrySetResult(new GameResult()
-                {
-                    Type = GameResultType.Win
-                }
-            );
+            return _completion.Task;
         }
 
         public void OnLeave()
         {
             _completion.TrySetResult(new GameResult()
-                {
-                    Type = GameResultType.Leave
-                }
-            );
+            {
+                Type = GameResultType.Leave
+            });
         }
     }
 }

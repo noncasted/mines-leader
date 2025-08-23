@@ -75,7 +75,7 @@ namespace GamePlay.Loop
 
             _connection.OneWay(new PlayerReadyContext());
 
-            await _gameFlow.Execute(lifetime);
+            var gameResult = await _gameFlow.Execute(lifetime);
             await _connection.ForceSendAll();
         }
     }
