@@ -28,7 +28,7 @@ namespace GamePlay.Cards
 
             return builder;
         }
-        
+
         public static IEntityBuilder AddCardRemoteStates(this IEntityBuilder builder)
         {
             builder.Register<CardRemoteIdle>()
@@ -41,8 +41,8 @@ namespace GamePlay.Cards
 
             return builder;
         }
-        
-        public static IRegistration AddCardAction(this IEntityBuilder builder, ICardDefinition definition)
+
+        public static void AddCardAction(this IEntityBuilder builder, ICardDefinition definition)
         {
             var type = definition.Type;
 
@@ -57,39 +57,43 @@ namespace GamePlay.Cards
                 CardType.ErosionDozer => builder.Register<CardErosionDozerAction>(),
                 CardType.ErosionDozer_Max => builder.Register<CardErosionDozerAction>(),
                 CardType.Gravedigger => builder.Register<CardGravediggerAction>(),
-                CardType.ZipZap => builder.Register<CardZipZapAction>().WithAsset<ZipZapOptions>(),
-                CardType.ZipZap_Max => builder.Register<CardZipZapAction>().WithAsset<ZipZapOptions>(),
+                CardType.ZipZap => builder.Register<CardZipZapAction>(),
+                CardType.ZipZap_Max => builder.Register<CardZipZapAction>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
             registration.As<ICardAction>();
-
-            return registration;
         }
-        
-        public static IRegistration AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)
+
+        public static void AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)
         {
             var type = definition.Type;
 
-            var registration = type switch
+            _ = type switch
             {
-                CardType.Trebuchet => builder.Register<CardTrebuchetActionSync>(),
-                CardType.Trebuchet_Max => builder.Register<CardTrebuchetActionSync>(),
-                CardType.Bloodhound => builder.Register<CardBloodhoundActionSync>(),
-                CardType.Bloodhound_Max => builder.Register<CardBloodhoundActionSync>(),
-                CardType.TrebuchetAimer => builder.Register<CardTrebuchetAimerActionSync>(),
-                CardType.TrebuchetAimer_Max => builder.Register<CardTrebuchetAimerActionSync>(),
-                CardType.ErosionDozer => builder.Register<CardErosionDozerActionSync>(),
-                CardType.ErosionDozer_Max => builder.Register<CardErosionDozerActionSync>(),
-                CardType.Gravedigger => builder.Register<CardGravediggerActionSync>(),
-                CardType.ZipZap => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
-                CardType.ZipZap_Max => builder.Register<CardZipZapActionSync>().WithAsset<ZipZapOptions>(),
+                CardType.Trebuchet => Sync<CardTrebuchetAction.Snapshot, CardActionSnapshot.Trebuchet>(),
+                CardType.Trebuchet_Max => Sync<CardTrebuchetAction.Snapshot, CardActionSnapshot.Trebuchet>(),
+                CardType.Bloodhound => Sync<CardBloodhoundAction.Snapshot, CardActionSnapshot.Bloodhound>(),
+                CardType.Bloodhound_Max => Sync<CardBloodhoundAction.Snapshot, CardActionSnapshot.Bloodhound>(),
+                CardType.TrebuchetAimer => Sync<CardTrebuchetAimerAction.Snapshot, CardActionSnapshot.TrebuchetAimer>(),
+                CardType.TrebuchetAimer_Max =>
+                    Sync<CardTrebuchetAimerAction.Snapshot, CardActionSnapshot.TrebuchetAimer>(),
+                CardType.ErosionDozer => Sync<CardErosionDozerAction.Snapshot, CardActionSnapshot.ErosionDozer>(),
+                CardType.ErosionDozer_Max => Sync<CardErosionDozerAction.Snapshot, CardActionSnapshot.ErosionDozer>(),
+                CardType.Gravedigger => Sync<CardGravediggerAction.Snapshot, CardActionSnapshot.Gravedigger>(),
+                CardType.ZipZap => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>()
+                    .WithAsset<ZipZapOptions>(),
+                CardType.ZipZap_Max => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>()
+                    .WithAsset<ZipZapOptions>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
-            registration.As<ICardActionSync>();
-
-            return registration;
+            IRegistration Sync<TImplementation, TData>()
+                where TImplementation : ICardActionSync<TData>
+                where TData : ICardActionData
+            {
+                return builder.AddCardActionSyncResolver<TImplementation, TData>();
+            }
         }
     }
 }

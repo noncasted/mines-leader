@@ -4,7 +4,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class PlayerDisconnectedCommand : OneWayCommand<UserContexts.RemoteDisconnect>
+    public class PlayerDisconnectedCommand : OneWayCommand<SharedSessionPlayer.RemoteDisconnect>
     {
         private readonly INetworkUsersCollection _users;
 
@@ -13,7 +13,7 @@ namespace Common.Network
             _users = users;
         }
 
-        protected override void Execute(IReadOnlyLifetime lifetime, UserContexts.RemoteDisconnect context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionPlayer.RemoteDisconnect context)
         {
             _users.Entries[context.Index].DisposeRemote();
         }

@@ -40,12 +40,10 @@ namespace Global.Backend
     {
         public static IRegistration RegisterCommand<T>(this IScopeBuilder builder) where T : INetworkCommand
         {
-            builder.Register<T>();
-
             var registration = builder.Register<CommandResolver<T>>();
             registration.AsSelfResolvable();
 
-            return registration;
+            return builder.Register<T>();
         }
 
         public class CommandResolver<T> where T : INetworkCommand

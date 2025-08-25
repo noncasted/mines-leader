@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Game;
 
@@ -9,18 +10,19 @@ public static class SessionExtensions
         services.AddLogging();
         services.AddSingleton<ISession, Session>();
 
+        services.AddSingleton<ISessionEvents, SessionEvents>();
+        services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();
+
         services.AddSingleton(data);
-        services.AddSingleton<ISessionData>(sp =>
-        {
-            return new SessionData
+        services.AddSingleton<ISessionData>(new SessionData
             {
                 ExpectedUsers = data.CreateOptions.ExpectedUsers,
                 Type = data.CreateOptions.Type,
                 Id = data.Id,
                 Lifetime = data.Lifetime
-            };
-        });
-        
+            }
+        );
+
         services.AddSingleton<ICommandsCollection, CommandsCollection>();
         services.AddSingleton<IExecutionQueue, ExecutionQueue>();
 
@@ -30,7 +32,10 @@ public static class SessionExtensions
         services.AddSingleton<ISessionObjects, SessionObjects>();
         services.AddSingleton<IEntityFactory, EntityFactory>();
         services.AddSingleton<ISessionEntities, SessionEntities>();
-        services.AddSingleton<IServiceFactory, ServiceFactory>();
+
+        services.Add<IServiceFactory, ServiceFactory>()
+            .As<ISessionCreated>();
+
         services.AddSingleton<ISessionServices, SessionServices>();
 
         services.AddSingleton<IResponseCommand, EntityCreateCommand>();

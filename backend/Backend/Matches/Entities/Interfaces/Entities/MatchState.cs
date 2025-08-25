@@ -1,7 +1,9 @@
-﻿using Shared;
+﻿using Common;
+using Shared;
 
 namespace Backend.Matches;
 
+[Alias(States.Match_Entity)]
 [GenerateSerializer]
 public class MatchState
 {

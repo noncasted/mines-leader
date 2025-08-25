@@ -56,7 +56,7 @@ namespace Common.Network
 
         public void Send(IEventPayload rawPayload)
         {
-            _connection.OneWay(new ObjectContexts.Event()
+            _connection.OneWay(new SharedSessionObject.Event()
             {
                 ObjectId = _object.Id,
                 Value = MemoryPackSerializer.Serialize(rawPayload)

@@ -37,7 +37,7 @@ public class BackendConnectionMiddleware
         var webSocket = await context.WebSockets.AcceptWebSocketAsync();
         var handle = new ConnectionOneTimeHandle(webSocket);
         
-        var auth = await handle.ReadRequest<BackendConnectionAuth.Request>();
+        var auth = await handle.ReadRequest<SharedBackendSocketAuth.Request>();
 
         _logger.LogInformation("[Backend] [Gateway] User connected: {Connection} {UserId}",
             context.Connection.Id,
@@ -45,7 +45,7 @@ public class BackendConnectionMiddleware
 
         var completion = new TaskCompletionSource();
 
-        var response = new BackendConnectionAuth.Response()
+        var response = new SharedBackendSocketAuth.Response()
         {
             IsSuccess = true
         };

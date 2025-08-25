@@ -25,7 +25,7 @@ public class CommandDispatcher : ICommandDispatcher
         var writer = user.Connection.Writer;
 
         reader.OneWay.Advise(lifetime, HandleOneWay);
-        reader.Requests.Advise(lifetime, request => HandleRequest(request));
+        reader.Requests.Advise(lifetime, HandleRequest);
         reader.Responses.Advise(lifetime, HandleResponse);
 
         void HandleOneWay(OneWayMessageFromClient oneWay)
@@ -33,7 +33,8 @@ public class CommandDispatcher : ICommandDispatcher
             _executionQueue.Enqueue(() =>
             {
                 var type = oneWay.Context.GetType();
-                _commands.OneWay[type].Execute(user, oneWay.Context);
+                var command = _commands.OneWay[type];
+                command.Execute(user, oneWay.Context);
             });
         }
 

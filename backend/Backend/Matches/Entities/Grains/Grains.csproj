@@ -6,15 +6,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.1" />
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+        <PackageReference Include="Microsoft.Orleans.Transactions"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
-      <ProjectReference Include="..\..\..\Users\Common\Extensions\Extensions.csproj" />
-      <ProjectReference Include="..\..\..\Users\Matches\Interfaces\Interfaces.csproj" />
-      <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\..\..\Users\Common\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Users\Matches\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>
     </ItemGroup>
 
 </Project>

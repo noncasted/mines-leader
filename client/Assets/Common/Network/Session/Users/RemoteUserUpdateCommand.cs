@@ -4,7 +4,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class RemoteUserUpdateCommand : OneWayCommand<UserContexts.RemoteUpdate>
+    public class RemoteUserUpdateCommand : OneWayCommand<SharedSessionPlayer.RemoteUpdate>
     {
         public RemoteUserUpdateCommand(
             INetworkUsersCollection users,
@@ -17,7 +17,7 @@ namespace Common.Network
         private readonly INetworkUsersCollection _users;
         private readonly INetworkSession _session;
 
-        protected override void Execute(IReadOnlyLifetime lifetime, UserContexts.RemoteUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionPlayer.RemoteUpdate context)
         {
             if (_users.Entries.ContainsKey(context.Index) == true)
                 return;

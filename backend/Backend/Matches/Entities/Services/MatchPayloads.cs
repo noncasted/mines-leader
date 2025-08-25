@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Messaging;
+using Shared;
 
 namespace Backend.Matches;
 
@@ -10,7 +11,7 @@ public class MatchPayloads
         public class Request : IClusterMessage
         {
             [Id(0)]
-            public required string Type { get; init; }
+            public required SessionType Type { get; init; }
             
             [Id(1)]
             public required int ExpectedUsers { get; init; }
@@ -30,7 +31,7 @@ public class MatchPayloads
         public class Request : IClusterMessage
         {
             [Id(0)]
-            public required string Type { get; init; }
+            public required SessionType Type { get; init; }
         }
         
         [GenerateSerializer]

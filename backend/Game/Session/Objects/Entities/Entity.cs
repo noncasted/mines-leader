@@ -42,18 +42,18 @@ public class Entity : IEntity
 
     public INetworkContext CreateOverview()
     {
-        var properties = new List<ObjectContexts.PropertyUpdate>();
+        var properties = new List<SharedSessionObject.PropertyUpdate>();
 
         foreach (var (_, property) in Properties)
         {
-            properties.Add(new ObjectContexts.PropertyUpdate()
+            properties.Add(new SharedSessionObject.PropertyUpdate()
             {
                 PropertyId = property.Id,
-                Value = property.Value
+                Value = property.RawValue
             });
         }
 
-        var updatedContext = new EntityContexts.CreatedOverview()
+        var updatedContext = new SharedSessionEntity.CreatedOverview()
         {
             EntityId = Id,
             Properties = properties,

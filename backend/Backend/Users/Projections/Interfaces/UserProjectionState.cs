@@ -1,5 +1,8 @@
-﻿namespace Backend.Users;
+﻿using Common;
 
+namespace Backend.Users;
+
+[Alias(States.User_Projection)]
 [GenerateSerializer]
 public class UserProjectionState
 {

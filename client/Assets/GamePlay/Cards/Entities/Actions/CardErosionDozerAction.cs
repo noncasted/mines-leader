@@ -14,40 +14,43 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             CardType cardType,
-            ICardContext context,
-            ICardUseSync useSync)
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _cardType = cardType;
             _context = context;
-            _useSync = useSync;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly CardType _cardType;
         private readonly ICardContext _context;
-        private readonly ICardUseSync _useSync;
 
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var size = _cardType.GetSize();
             var pattern = new Pattern(_context.TargetBoard, size);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            foreach (var cell in selected)
-                cell.EnsureFree();
-
-            selected.CleanupAround();
-            _useSync.Send(new CardUseEvents.ErosionDozer());
-
-            return true;
+            return new CardActionResult()
+            {
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.ErosionDozer()
+                {
+                    Position = result.Position.ToPosition()
+                }
+            };
+        }
+        
+        public class Snapshot : ICardActionSync<CardActionSnapshot.ErosionDozer>
+        {
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ErosionDozer payload)
+            {
+                return UniTask.CompletedTask;
+            }
         }
 
         public class Pattern : ICardDropPattern
@@ -65,18 +68,10 @@ namespace GamePlay.Cards
             {
                 var selected = _board.GetClosedShape(pointer);
                 var ordered = selected.OrderBy(t => Vector2Int.Distance(t.BoardPosition, pointer));
-                
+
                 var limited = ordered.Take(_size).ToList();
                 return limited;
             }
-        }
-    }
-    
-    public class CardErosionDozerActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            return UniTask.CompletedTask;
         }
     }
 }

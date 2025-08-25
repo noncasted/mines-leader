@@ -66,7 +66,7 @@ MonoBehaviour:
   axis: 0
   hBehaviour: 6
   vBehaviour: 0
-  hAlign: 2
+  hAlign: 0
   vAlign: 0
   margins:
     m_Left: 0

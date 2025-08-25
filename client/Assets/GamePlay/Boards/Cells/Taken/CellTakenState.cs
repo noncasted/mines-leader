@@ -1,27 +1,27 @@
-﻿using Internal;
+﻿using Global.Backend;
+using Internal;
+using Shared;
 
 namespace GamePlay.Boards
 {
     public class CellTakenState : ICellTakenState
     {
-        public CellTakenState(
-            IBoardCell cell,
-            CellTakenView view)
+        public CellTakenState(IBoardCell cell, CellTakenView view, INetworkConnection connection)
         {
             _cell = cell;
             _view = view;
+            _connection = connection;
         }
 
         private readonly IBoardCell _cell;
         private readonly CellTakenView _view;
+        private readonly INetworkConnection _connection;
 
         private readonly ViewableProperty<bool> _isFlagged = new(false);
-        private readonly ViewableProperty<bool> _hasMine = new(false);
 
         public CellStatus Status => CellStatus.Taken;
 
         public IViewableProperty<bool> IsFlagged => _isFlagged;
-        public IViewableProperty<bool> HasMine => _hasMine;
         public CellTakenView View => _view;
 
         public void Construct(IReadOnlyLifetime lifetime)
@@ -31,45 +31,36 @@ namespace GamePlay.Boards
 
         public void Flag()
         {
-            _isFlagged.Set(true);
+            _connection.Request(new SharedGameAction.SetFlag()
+            {
+                Position = _cell.BoardPosition.ToPosition()
+            });
         }
 
         public void UnFlag()
         {
-            _isFlagged.Set(false);
-        }
-
-        public void SetMine()
-        {
-            _hasMine.Set(true);
-        }
-
-        public bool Open()
-        {
-            if (_hasMine.Value == false)
+            _connection.Request(new SharedGameAction.RemoveFlag()
             {
-                _cell.EnsureFree();
-                return false;
-            }
-
-            _cell.Explode(CellExplosionType.Mine);
-            _view.OnExplosion();
-            return true;
+                Position = _cell.BoardPosition.ToPosition()
+            });
         }
 
-        public void OnUpdate(NetworkCellTakenState payload)
+        public void Open()
         {
-            _isFlagged.Set(payload.IsFlagged);
-            _hasMine.Set(payload.HasMine);
-        }
-
-        public INetworkCellState ToNetwork()
-        {
-            return new NetworkCellTakenState()
+            _connection.Request(new SharedGameAction.Open()
             {
-                IsFlagged = _isFlagged.Value,
-                HasMine = _hasMine.Value
-            };
+                Position = _cell.BoardPosition.ToPosition()
+            });
+        }
+
+        public void Explode(CellExplosionType type)
+        {
+            _cell.Explode(type);
+        }
+
+        public void OnFlagUpdated(bool isFlagged)
+        {
+            _isFlagged.Set(isFlagged);
         }
     }
 }

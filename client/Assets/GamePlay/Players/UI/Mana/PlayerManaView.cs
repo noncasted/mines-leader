@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Internal;
 using UnityEngine;
 using VContainer;
@@ -10,8 +11,6 @@ namespace GamePlay.Players
     {
         [SerializeField] private PlayerManaPointView _pointPrefab;
         [SerializeField] private Transform _root;
-
-        private readonly List<PlayerManaPointView> _points = new();
 
         private IPlayerMana _mana;
 
@@ -29,24 +28,20 @@ namespace GamePlay.Players
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            for (int i = 0; i < _mana.Max.Value; i++)
-            {
-                var point = Instantiate(_pointPrefab, _root);
-                _points.Add(point);
-            }
-            
-            _points.Reverse();
-
             _mana.Current.View(lifetime, current =>
-            {
-                for (int i = 0; i < _points.Count; i++)
                 {
-                    if (i < current)
-                        _points[i].SetFull();
-                    else
-                        _points[i].SetEmpty();
+                    var points = _root.CreateRequiredFromPrefab(_pointPrefab, _mana.Max.Value);
+                    points = points.Reverse().ToList();
+
+                    for (int i = 0; i < points.Count; i++)
+                    {
+                        if (i < current)
+                            points[i].SetFull();
+                        else
+                            points[i].SetEmpty();
+                    }
                 }
-            });
+            );
         }
     }
 }

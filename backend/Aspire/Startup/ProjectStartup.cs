@@ -30,53 +30,42 @@ public class ProjectStartup : BackgroundService
 
         _logger.LogInformation("[Startup] Connection string 2: {ConnectionString}", connectionString);
 
-        const string checkTableQuery = @"
-                                        SELECT EXISTS (
-                                            SELECT 1
-                                            FROM information_schema.tables
-                                            WHERE table_schema = 'public' AND table_name = 'orleansstorage'
-                                        )";
+        await using var connection = await GetConnection();
 
-        var connection = await GetConnection();
+        var isStorageExists = await IsTableExists("orleansstorage");
 
-        await using var checkCommand = new NpgsqlCommand(checkTableQuery, connection);
+        if (isStorageExists == false)
+        {
+            var sqlFiles = new[]
+            {
+                "PostgreSQL-Main.sql",
+                "PostgreSQL-Persistence.sql",
+                "PostgreSQL-Clustering.sql",
+                "PostgreSQL-Clustering-3.7.0.sql"
+            };
 
-        var tableExists = await checkCommand.ExecuteScalarAsync(cancellation);
+            foreach (var file in sqlFiles)
+            {
+                var script = await File.ReadAllTextAsync(file, cancellation);
 
-        if (tableExists is bool exists && exists == true)
+                _logger.LogInformation("[Startup] Execute db script: {File}", file);
+
+                await using var command = new NpgsqlCommand(script, connection);
+                await command.ExecuteNonQueryAsync(cancellation);
+            }
+        }
+        else
         {
             const string membershipTruncateQuery = "TRUNCATE TABLE orleansmembershiptable;";
             await using var membershipTruncateCommand = new NpgsqlCommand(membershipTruncateQuery, connection);
             await membershipTruncateCommand.ExecuteNonQueryAsync(cancellation);
-            
-            _logger.LogInformation("[Startup] Startup is not required");
-            _applicationLifetime.StopApplication();
-            connection.Dispose();
-            return;
         }
 
-        var sqlFiles = new[]
-        {
-            "PostgreSQL-Main.sql",
-            "PostgreSQL-Persistence.sql",
-            "PostgreSQL-Clustering.sql",
-            "PostgreSQL-Clustering-3.7.0.sql"
-        };
-
-        foreach (var file in sqlFiles)
-        {
-            var script = await File.ReadAllTextAsync(file, cancellation);
-
-            _logger.LogInformation("[Startup] Execute db script: {File}", file);
-
-            await using var command = new NpgsqlCommand(script, connection);
-            await command.ExecuteNonQueryAsync(cancellation);
-        }
-
+        foreach (var tableName in States.StateTables)
+            await CreateGrainStorageTable(tableName);
 
         _logger.LogInformation("[Startup] Startup completed");
         _applicationLifetime.StopApplication();
-        connection.Dispose();
 
         async Task<NpgsqlConnection> GetConnection()
         {
@@ -101,6 +90,33 @@ public class ProjectStartup : BackgroundService
             }
 
             throw new Exception();
+        }
+
+        async Task CreateGrainStorageTable(string tableName)
+        {
+            if (await IsTableExists(tableName) == true)
+                return;
+
+            var script = await File.ReadAllTextAsync("NamedGrainStorage.sql", cancellation);
+
+            script = script.Replace("TABLE_NAME", tableName);
+
+            await using var command = new NpgsqlCommand(script, connection);
+            await command.ExecuteNonQueryAsync(cancellation);
+        }
+
+        async Task<bool> IsTableExists(string tableName)
+        {
+            var checkTableQuery = $@"
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.tables
+                    WHERE table_schema = 'public' AND table_name = '{tableName}'
+                );";
+
+            await using var checkTableCommand = new NpgsqlCommand(checkTableQuery, connection);
+            var result = await checkTableCommand.ExecuteScalarAsync(cancellation);
+            return result is bool exists && exists;
         }
     }
 }

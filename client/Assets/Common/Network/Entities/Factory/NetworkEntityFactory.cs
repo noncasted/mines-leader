@@ -46,11 +46,11 @@ namespace Common.Network
 
         public async UniTask Send(IReadOnlyLifetime lifetime, INetworkEntity entity, IEntityPayload payload)
         {
-            var properties = new List<ObjectContexts.PropertyUpdate>();
+            var properties = new List<SharedSessionObject.PropertyUpdate>();
 
             foreach (var (id, property) in entity.Properties)
             {
-                properties.Add(new ObjectContexts.PropertyUpdate()
+                properties.Add(new SharedSessionObject.PropertyUpdate()
                 {
                     ObjectId = entity.Id,
                     PropertyId = id,
@@ -58,14 +58,14 @@ namespace Common.Network
                 });
             }
 
-            var request = new EntityContexts.CreateRequest()
+            var request = new SharedSessionEntity.CreateRequest()
             {
                 Id = entity.Id,
                 Properties = properties,
                 Payload = MemoryPackSerializer.Serialize(payload)
             };
 
-            await _connection.Request<EntityContexts.CreateResponse>(request);
+            await _connection.Request<SharedSessionEntity.CreateResponse>(request);
 
             _objects.Add(entity);
             _entities.Add(entity);

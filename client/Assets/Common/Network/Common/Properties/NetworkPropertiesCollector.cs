@@ -39,7 +39,7 @@ namespace Common.Network
 
             _timer = 0f;
 
-            var contexts = new List<ObjectContexts.SetProperty>();
+            var contexts = new List<SharedSessionObject.SetProperty>();
 
             foreach (var (_, networkObject) in _objects.Entries)
             {
@@ -48,7 +48,7 @@ namespace Common.Network
                     if (property.IsDirty == false)
                         continue;
 
-                    contexts.Add(new ObjectContexts.SetProperty()
+                    contexts.Add(new SharedSessionObject.SetProperty()
                     {
                         ObjectId = networkObject.Id,
                         PropertyId = id,
@@ -60,7 +60,7 @@ namespace Common.Network
             Send(contexts);
         }
 
-        private void Send(IReadOnlyList<ObjectContexts.SetProperty> requests)
+        private void Send(IReadOnlyList<SharedSessionObject.SetProperty> requests)
         {
             foreach (var request in requests)
                 _connection.OneWay(request);

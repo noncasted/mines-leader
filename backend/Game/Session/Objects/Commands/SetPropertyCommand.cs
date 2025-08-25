@@ -2,7 +2,7 @@
 
 namespace Game;
 
-public class SetPropertyCommand : Command<ObjectContexts.SetProperty>
+public class SetPropertyCommand : Command<SharedSessionObject.SetProperty>
 {
     public SetPropertyCommand(ISessionObjects objects, ISessionUsers users)
     {
@@ -13,13 +13,13 @@ public class SetPropertyCommand : Command<ObjectContexts.SetProperty>
     private readonly ISessionObjects _objects;
     private readonly ISessionUsers _users;
 
-    protected override void Execute(IUser user, ObjectContexts.SetProperty context)
+    protected override void Execute(IUser user, SharedSessionObject.SetProperty context)
     {
         var networkObject = _objects.Entries[context.ObjectId];
         var property = networkObject.Properties[context.PropertyId];
         property.Update(context.Value);
 
-        var updatedContext = new ObjectContexts.PropertyUpdate()
+        var updatedContext = new SharedSessionObject.PropertyUpdate()
         {
             ObjectId = context.ObjectId,
             PropertyId = context.PropertyId,

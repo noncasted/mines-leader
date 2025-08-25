@@ -1,6 +1,8 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -24,6 +26,8 @@ namespace GamePlay.Cards
 
             builder.Register<Hand>()
                 .As<IHand>();
+
+            builder.RegisterProperty<PlayerHandState>(PlayerStateIds.Hand);
             
             builder.RegisterComponent(_view.Positions)
                 .As<IScopeSetup>()

@@ -33,11 +33,11 @@ public class Matchmaking : BackgroundService, IMatchmaking
         return Task.CompletedTask;
     }
 
-    public async Task Search(Guid userId, string type)
+    public async Task Search(Guid userId, SessionType type)
     {
         switch (type)
         {
-            case MatchmakingConstants.GameType:
+            case SessionType.Game:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a game", userId);
 
@@ -47,7 +47,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
 
                 break;
             }
-            case MatchmakingConstants.LobbyType:
+            case SessionType.Lobby:
             {
                 _logger.LogInformation("[Matchmaking] {UserID} is searching for a lobby", userId);
 
@@ -114,7 +114,7 @@ public class Matchmaking : BackgroundService, IMatchmaking
 
             _lock.Release();
 
-            _logger.LogInformation("[Matchmaking] {UserID} and {UserID} are matched", first, second);
+            _logger.LogInformation("[Matchmaking] {First} and {Second} are matched", first, second);
 
             _matchFactory.Create(new[] { first, second }).NoAwait();
         }

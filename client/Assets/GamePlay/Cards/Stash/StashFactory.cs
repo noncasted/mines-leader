@@ -2,14 +2,14 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
     public interface IStashFactory
     {
-        UniTask CreateLocal(PlayerBuildContext context);
-        UniTask CreateRemote(PlayerBuildContext context);
+        UniTask Create(PlayerBuildContext context);
     }
     
     [DisallowMultipleComponent]
@@ -17,34 +17,19 @@ namespace GamePlay.Cards
     {
         [SerializeField] private StashView _view;
 
-        public UniTask CreateLocal(PlayerBuildContext context)
+        public UniTask Create(PlayerBuildContext context)
         {
             var builder = context.Builder;
 
-            builder.RegisterProperty<StashState>();
+            builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);
             
             builder.RegisterComponent(_view)
                 .As<IStashView>();
 
-            builder.Register<LocalStash>()
+            builder.Register<Stash>()
+                .As<IScopeLoaded>()
                 .As<IStash>()
                 .AsSelfResolvable();
-            
-            return UniTask.CompletedTask;
-        }
-
-        public UniTask CreateRemote(PlayerBuildContext context)
-        {
-            var builder = context.Builder;
-
-            builder.RegisterProperty<StashState>();
-            
-            builder.RegisterComponent(_view)
-                .As<IStashView>();
-
-            builder.Register<RemoteStash>()
-                .As<IStash>()
-                .As<IScopeLoaded>();
             
             return UniTask.CompletedTask;
         }

@@ -23,7 +23,7 @@ namespace Common.Network
 
         public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
         {
-            var auth = new GameConnectionAuth.Request
+            var auth = new SharedSessionAuth.Request
             {
                 SessionId = sessionId,
                 UserId = userId
@@ -33,7 +33,7 @@ namespace Common.Network
 
             await _connection.Run(lifetime, serverUrl);
 
-            var response = await _connection.Request<GameConnectionAuth.Response>(auth);
+            var response = await _connection.Request<SharedSessionAuth.Response>(auth);
 
             if (response.IsSuccess == false)
             {

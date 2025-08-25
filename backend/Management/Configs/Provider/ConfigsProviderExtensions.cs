@@ -8,10 +8,10 @@ public static class ConfigsProviderExtensions
 {
     public static IHostApplicationBuilder AddConfigsServices(this IHostApplicationBuilder builder)
     {
-        builder.AddSingleton<ConfigsLoop>()
+        builder.Services.Add<ConfigsLoop>()
             .AsSetupLoopStage();
 
-        builder.AddSingleton<ConfigsObserver>()
+        builder.Services.Add<ConfigsObserver>()
             .AsSetupLoopStage();
 
         return builder;

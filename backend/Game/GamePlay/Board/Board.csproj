@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Game.GamePlay.Board</AssemblyName>
+        <RootNamespace>Game.GamePlay</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\Game\Game.csproj" />
+      <ProjectReference Include="..\..\Session\Session.csproj" />
+    </ItemGroup>
+
+</Project>

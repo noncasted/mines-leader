@@ -17,7 +17,7 @@ public interface ISession
 public class SessionCreateOptions
 {
     public required int ExpectedUsers { get; init; }
-    public required string Type { get; init; }
+    public required SessionType Type { get; init; }
 }
 
 public class SessionContainerData
@@ -25,29 +25,20 @@ public class SessionContainerData
     public required SessionCreateOptions CreateOptions { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
-
-    public static SessionContainerData Default => new SessionContainerData
-    {
-        CreateOptions = new SessionCreateOptions
-        {
-            ExpectedUsers = 0,
-            Type = "null"
-        },
-        Id = default,
-        Lifetime = new TerminatedLifetime()
-    };
 }
 
 public class Session : ISession
 {
     public Session(
         SessionContainerData data,
+        ISessionEvents events,
         IUserFactory userFactory,
         ISessionUsers users,
         ISessionEntities entities,
         IExecutionQueue executionQueue)
     {
         _data = data;
+        _events = events;
         _users = users;
         _entities = entities;
         ExecutionQueue = executionQueue;
@@ -57,6 +48,7 @@ public class Session : ISession
     private readonly ISessionUsers _users;
     private readonly ISessionEntities _entities;
     private readonly SessionContainerData _data;
+    private readonly ISessionEvents _events;
 
     public Guid Id => _data.Id;
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
@@ -67,9 +59,20 @@ public class Session : ISession
 
     public async Task Run()
     {
+        await _events.OnCreated(Lifetime);
         await AwaitUsersJoin();
 
-        _users.View(Lifetime, user => HandleUserJoin(user).NoAwait());
+        if (_data.CreateOptions.ExpectedUsers == 0)
+        {
+            _users.View(Lifetime, HandleUser);
+        }
+        else
+        {
+            foreach (var user in _users)
+                HandleUser(user);
+        }
+
+        await _events.OnAllConnected(Lifetime);
 
         await Task.Delay(TimeSpan.FromSeconds(30));
 
@@ -93,35 +96,50 @@ public class Session : ISession
         }
     }
 
-    private async Task HandleUserJoin(IUser user)
+    private void HandleUser(IUser user)
+    {
+        var connectionTask = HandleUserConnect(user);
+        HandleUserDisconnect(user, connectionTask).NoAwait();
+    }
+
+    private Task HandleUserConnect(IUser user)
     {
         user.Dispatcher.Run(user.Lifetime, user);
 
         var connectionTask = user.Connection.Run();
 
-        user.Send(new UserContexts.LocalUpdate()
-        {
-            Index = user.Index
-        });
+        user.Send(new SharedSessionPlayer.LocalUpdate()
+            {
+                Index = user.Index
+            }
+        );
 
         _users.IterateOthers(user, other =>
-        {
-            user.Send(new UserContexts.RemoteUpdate()
             {
-                Index = other.Index,
-                BackendId = other.Id
-            });
+                user.Send(new SharedSessionPlayer.RemoteUpdate()
+                    {
+                        Index = other.Index,
+                        BackendId = other.Id
+                    }
+                );
 
-            other.Send(new UserContexts.RemoteUpdate()
-            {
-                Index = user.Index,
-                BackendId = user.Id
-            });
-        });
+                other.Send(new SharedSessionPlayer.RemoteUpdate()
+                    {
+                        Index = user.Index,
+                        BackendId = user.Id
+                    }
+                );
+            }
+        );
 
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
 
+        return connectionTask;
+    }
+
+    private async Task HandleUserDisconnect(IUser user, Task connectionTask)
+    {
         await connectionTask;
 
         foreach (var targetUser in _users)
@@ -129,12 +147,13 @@ public class Session : ISession
             if (targetUser == user)
                 continue;
 
-            targetUser.Send(new UserContexts.RemoteDisconnect()
-            {
-                Index = user.Index
-            });
+            targetUser.Send(new SharedSessionPlayer.RemoteDisconnect()
+                {
+                    Index = user.Index
+                }
+            );
         }
-        
-        user.Lifetime.Terminate();
+
+        ExecutionQueue.Enqueue(user.Lifetime.Terminate);
     }
 }

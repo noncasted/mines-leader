@@ -6,9 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MemoryPack.Core" Version="1.21.4" />
-        <PackageReference Include="Microsoft.Orleans.Sdk" Version="9.2.1" />
-        <PackageReference Include="Microsoft.Orleans.Transactions" Version="9.2.1" />
+        <PackageReference Include="MemoryPack.Core" />
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
     </ItemGroup>
 
     <ItemGroup>
@@ -16,6 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\shared\Backend\Backend.csproj" />
+      <ProjectReference Include="..\..\..\shared\Domain\Domain.csproj" />
+      <ProjectReference Include="..\..\..\shared\Game\Game.csproj" />
       <ProjectReference Include="..\..\..\shared\Protocol\Protocol.csproj" />
+      <ProjectReference Include="..\..\..\shared\Session\Session.csproj" />
     </ItemGroup>
 </Project>

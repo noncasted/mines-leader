@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
-using GamePlay.Players;
 using GamePlay.Services;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -13,109 +14,89 @@ namespace GamePlay.Cards
     public class CardZipZapAction : ICardAction
     {
         public CardZipZapAction(
-            IGameCamera camera,
+            INetworkEntity entity,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            IPlayerModifiers modifiers,
-            ICardContext context,
-            ICardVfxFactory vfxFactory,
-            ICardUseSync useSync,
-            ZipZapOptions options)
+            ICardContext context)
         {
-            _camera = camera;
+            _entity = entity;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
-            _modifiers = modifiers;
             _context = context;
-            _vfxFactory = vfxFactory;
-            _options = options;
-            _useSync = useSync;
         }
 
-        private readonly IGameCamera _camera;
+        private readonly INetworkEntity _entity;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
-        private readonly ICardVfxFactory _vfxFactory;
-        private readonly ICardUseSync _useSync;
-        private readonly ZipZapOptions _options;
 
-        private const int _searchRadius = 6;
-
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var pattern = new Pattern(_context.TargetBoard);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            var size = _context.Type.GetSize();
-
-            var searchShape = PatternShapes.Rhombus(_searchRadius);
-
-            var targets = new List<IBoardCell>();
-            var current = SelectTarget(pattern.LastPointer);
-            targets.Add(current);
-
-            for (var i = 1; i < size; i++)
+            return new CardActionResult()
             {
-                current = SelectTarget(current.BoardPosition);
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.ZipZap()
+                {
+                    Position = result.Position.ToPosition(),
+                    EntityId = _entity.Id
+                }
+            };
+        }
 
-                if (current == null)
-                    break;
-
-                targets.Add(current);
+        public class Snapshot : ICardActionSync<CardActionSnapshot.ZipZap>
+        {
+            public Snapshot(
+                IGameCamera camera,
+                IGameContext context,
+                ICardVfxFactory vfxFactory,
+                ZipZapOptions options)
+            {
+                _camera = camera;
+                _context = context;
+                _vfxFactory = vfxFactory;
+                _options = options;
             }
 
-            if (targets.Count == 0)
-                return false;
-
-            _useSync.Send(new CardUseEvents.ZipZap(targets.Select(t => t.BoardPosition).ToList()));
-
-            targets.First().Explode(CellExplosionType.ZipZap).Forget();
-            _camera.BaseShake();
-            var lines = new List<ZipZapLine>();
-
-            for (var index = 1; index < targets.Count; index++)
+            private readonly IGameCamera _camera;
+            private readonly IGameContext _context;
+            private readonly ICardVfxFactory _vfxFactory;
+            private readonly ZipZapOptions _options;
+            
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ZipZap payload)
             {
-                var start = targets[index - 1];
-                var target = targets[index];
+                var targets = new List<IBoardCell>();
+                var board = _context.GetPlayer(payload.TargetPlayer).Board;
 
-                var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
-                await line.Show(lifetime, start, target);
-                target.Explode(CellExplosionType.ZipZap).Forget();
+                foreach (var position in payload.Targets)
+                {
+                    var boardPosition = position.ToVector();
+                    var cell = board.Cells[boardPosition];
+                    targets.Add(cell);
+                }
+
+                targets.First().Explode(CellExplosionType.ZipZap).Forget();
                 _camera.BaseShake();
-                lines.Add(line);
-            }
+                var lines = new List<ZipZapLine>();
 
-            foreach (var line in lines)
-                Object.Destroy(line.gameObject);
+                for (var index = 1; index < targets.Count; index++)
+                {
+                    var start = targets[index - 1];
+                    var target = targets[index];
 
-            targets.CleanupAround();
+                    var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
+                    await line.Show(lifetime, start, target);
+                    target.Explode(CellExplosionType.ZipZap).Forget();
+                    _camera.BaseShake();
+                    lines.Add(line);
+                }
 
-            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
-
-            return true;
-
-            IBoardCell SelectTarget(Vector2Int center)
-            {
-                var searchPositions = searchShape.SelectTaken(_context.TargetBoard, center);
-                var hasMine = searchPositions.Where(x => x.HasMine() == true);
-                var hasFlags = hasMine.Where(x => x.HasFlag() == false);
-                var unique = hasFlags.Where(x => targets.Contains(x) == false);
-
-                var ordered = unique
-                    .OrderBy(x => Vector2Int.Distance(center, x.BoardPosition))
-                    .ToList();
-
-                if (ordered.Count == 0)
-                    return null;
-
-                return ordered.First();
+                foreach (var line in lines)
+                    Object.Destroy(line.gameObject);
             }
         }
 
@@ -140,57 +121,6 @@ namespace GamePlay.Cards
 
                 return startPositions;
             }
-        }
-    }
-
-    public class CardZipZapActionSync : ICardActionSync
-    {
-        public CardZipZapActionSync(
-            IGameCamera camera,
-            IGameContext gameContext,
-            ICardVfxFactory vfxFactory,
-            ZipZapOptions options)
-        {
-            _camera = camera;
-            _gameContext = gameContext;
-            _vfxFactory = vfxFactory;
-            _options = options;
-        }
-
-        private readonly IGameCamera _camera;
-        private readonly IGameContext _gameContext;
-        private readonly ICardVfxFactory _vfxFactory;
-        private readonly ZipZapOptions _options;
-
-        public async UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
-        {
-            if (payload is not CardUseEvents.ZipZap data)
-                return;
-
-            var targetsPositions = data.Targets;
-            var targets = targetsPositions
-                .Select(position => _gameContext.Other.Board.Cells[position])
-                .ToList();
-
-            targets.First().Explode(CellExplosionType.ZipZap).Forget();
-            _camera.BaseShake();
-
-            var lines = new List<ZipZapLine>();
-
-            for (var index = 1; index < targets.Count; index++)
-            {
-                var start = targets[index - 1];
-                var target = targets[index];
-
-                var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
-                await line.Show(lifetime, start, target);
-                target.Explode(CellExplosionType.ZipZap).Forget();
-                _camera.BaseShake();
-                lines.Add(line);
-            }
-
-            foreach (var line in lines)
-                Object.Destroy(line.gameObject);
         }
     }
 }

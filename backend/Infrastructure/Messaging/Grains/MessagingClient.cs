@@ -33,7 +33,7 @@ public class MessagingClient : IOrleansLoopStage, IMessagingClient
     {
         _hub = _orleans.GetMessagingHub();
         _observer = new MessagingObserver();
-        _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer)!;
+        _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer);
 
         GC.KeepAlive(_observer);
         GC.KeepAlive(_observerReference);
@@ -117,17 +117,26 @@ public class MessagingClient : IOrleansLoopStage, IMessagingClient
         _asyncActions[type] = callback;
 
         lifetime.Listen(() =>
-        {
-            if (_asyncActions[type] != callback)
-                return;
+            {
+                if (_asyncActions[type] != callback)
+                    return;
 
-            _asyncActions.Remove(type);
-        });
+                _asyncActions.Remove(type);
+            }
+        );
 
         async Task<IClusterMessage> Listener(IClusterMessage payload)
         {
-            var result = await listener.Invoke((TRequest)payload);
-            return result;
+            try
+            {
+                var result = await listener.Invoke((TRequest)payload);
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[Messaging] Error in listener for {MessageType}", type.Name);
+                throw;
+            }
         }
     }
 
@@ -144,7 +153,7 @@ public class MessagingClient : IOrleansLoopStage, IMessagingClient
                     Tag = _environment.Tag
                 };
 
-                await _hub.BindClient(overview, _observerReference);
+                await _hub!.BindClient(overview, _observerReference!);
             }
             catch (Exception e)
             {

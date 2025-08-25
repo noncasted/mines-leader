@@ -4,7 +4,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class EntityPropertyUpdateCommand : OneWayCommand<ObjectContexts.PropertyUpdate>
+    public class EntityPropertyUpdateCommand : OneWayCommand<SharedSessionObject.PropertyUpdate>
     {
         public EntityPropertyUpdateCommand(INetworkObjectsCollection objects)
         {
@@ -13,7 +13,7 @@ namespace Common.Network
 
         private readonly INetworkObjectsCollection _objects;
         
-        protected override void Execute(IReadOnlyLifetime lifetime, ObjectContexts.PropertyUpdate context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionObject.PropertyUpdate context)
         {
             var networkObject = _objects.Entries[context.ObjectId];
             var property = networkObject.Properties[context.PropertyId];

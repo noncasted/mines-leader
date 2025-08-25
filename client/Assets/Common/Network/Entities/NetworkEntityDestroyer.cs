@@ -19,7 +19,7 @@ namespace Common.Network
 
         public void Destroy(INetworkEntity entity)
         {
-            var context = new EntityContexts.Destroy()
+            var context = new SharedSessionEntity.Destroy()
             {
                 EntityId = entity.Id
             };

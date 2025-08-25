@@ -12,7 +12,7 @@ public class MatchSearchResultUpdate : IProjectionPayload
 
     public INetworkContext ToContext()
     {
-        return new MatchmakingContexts.GameResult()
+        return new SharedMatchmaking.GameResult()
         {
             SessionId = SessionId,
             ServerUrl = ServerUrl

@@ -15,13 +15,11 @@ namespace GamePlay.Cards
         public CardLocalDrop(
             IUpdater updater,
             ICardStateLifetime stateLifetime,
-            IStash stash,
             ILocalCard card,
             ICardTransform transform,
             CardDropOptions options)
         {
             _updater = updater;
-            _stash = stash;
             _card = card;
             _transform = transform;
             _options = options;
@@ -30,7 +28,6 @@ namespace GamePlay.Cards
 
         private readonly IUpdater _updater;
         private readonly ICardStateLifetime _stateLifetime;
-        private readonly IStash _stash;
         private readonly ILocalCard _card;
         private readonly ICardTransform _transform;
         private readonly CardDropOptions _options;
@@ -57,7 +54,6 @@ namespace GamePlay.Cards
                 _transform.SetPosition(position);
             });
 
-            _stash.AddCard(_card.Type);
             await _card.Destroy();
         }
     }

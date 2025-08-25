@@ -1,0 +1,21 @@
+﻿using System;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+namespace Shared
+{
+    public class SharedBackendUserAuth
+    {
+        public const string Endpoint = "/develop_signup";
+
+        public class Request
+        {
+            public string Name { get; set; }
+        }
+
+        public class Response
+        {
+            public Guid Id { get; set; }
+        }
+    }
+}

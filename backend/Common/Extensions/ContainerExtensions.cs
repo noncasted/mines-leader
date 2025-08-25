@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Common;
 
@@ -8,39 +7,38 @@ public static class ContainerExtensions
     public class Registration
     {
         public required Type Type { get; init; }
-        public required IHostApplicationBuilder Builder { get; init; }
+        public required IServiceCollection Collection { get; init; }
     }
 
-    public static Registration AddSingleton<TInterface, TImplementation>(
-        this IHostApplicationBuilder builder)
+    public static Registration Add<TInterface, TImplementation>(this IServiceCollection builder)
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        builder.Services.AddSingleton<TInterface, TImplementation>();
+        builder.AddSingleton<TImplementation>();
+        builder.AddSingleton<TInterface>(sp => sp.GetRequiredService<TImplementation>());
 
         return new Registration
         {
-            Builder = builder,
+            Collection = builder,
             Type = typeof(TImplementation)
         };
     }
 
-    public static Registration AddSingleton<TImplementation>(
-        this IHostApplicationBuilder builder)
+    public static Registration Add<TImplementation>(this IServiceCollection builder)
         where TImplementation : class
     {
-        builder.Services.AddSingleton<TImplementation>();
+        builder.AddSingleton<TImplementation>();
 
         return new Registration
         {
-            Builder = builder,
+            Collection = builder,
             Type = typeof(TImplementation)
         };
     }
-    
+
     public static Registration As<T>(this Registration registration) where T : class
     {
-        registration.Builder.Services.AddSingleton(sp => (T)sp.GetRequiredService(registration.Type));
+        registration.Collection.AddSingleton(sp => (T)sp.GetRequiredService(registration.Type));
         return registration;
     }
 }

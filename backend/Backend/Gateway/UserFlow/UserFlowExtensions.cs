@@ -1,7 +1,6 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ServiceLoop;
 
 namespace Backend.Gateway;
 
@@ -22,7 +21,7 @@ public static class UserFlowExtensions
     public static IHostApplicationBuilder AddUserCommand<T>(this IHostApplicationBuilder builder)
         where T : class, IUserCommand
     {
-        builder.AddSingleton<IUserCommand, T>();
+        builder.Services.Add<IUserCommand, T>();
         return builder;
     }
 }

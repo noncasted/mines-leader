@@ -15,56 +15,35 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
-            ICardContext context,
-            ICardUseSync useSync)
+            ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
             _context = context;
-            _useSync = useSync;
         }
-
-        private int _minesAmount => _context.Type switch
-        {
-            CardType.Trebuchet => CardsConfigs.Trebuchet.NormalMines,
-            CardType.Trebuchet_Max => CardsConfigs.Trebuchet.MaxMines,
-            _ => throw new ArgumentOutOfRangeException()
-        };
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
-        private readonly ICardUseSync _useSync;
 
-        public async UniTask<bool> Execute(IReadOnlyLifetime lifetime)
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var size = _context.Type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
             var pattern = new Pattern(_context.TargetBoard, size);
-            var selected = await _dropArea.Show(lifetime, selectionLifetime, pattern);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            if (selected == null || selected.Count == 0 || lifetime.IsTerminated == true)
-                return false;
-
-            var shuffled = new List<IBoardCell>(selected);
-            shuffled.Shuffle();
-
-            for (var index = 0; index < shuffled.Count; index++)
+            return new CardActionResult()
             {
-                var cell = shuffled[index];
-                var taken = cell.EnsureTaken();
-
-                if (index < _minesAmount)
-                    taken.SetMine();
-            }
-
-            _modifiers.Reset(PlayerModifier.TrebuchetBoost);
-            _useSync.Send(new CardUseEvents.Trebuchet());
-
-            return true;
+                IsSuccess = result.IsSuccess,
+                Payload = new CardUsePayload.Trebuchet()
+                {
+                    Position = result.Position.ToPosition()
+                }
+            };
         }
 
         public class Pattern : ICardDropPattern
@@ -83,13 +62,13 @@ namespace GamePlay.Cards
                 return _shape.SelectFree(_board, pointer);
             }
         }
-    }
-    
-    public class CardTrebuchetActionSync : ICardActionSync
-    {
-        public UniTask ShowOnRemote(IReadOnlyLifetime lifetime, ICardUseEvent payload)
+
+        public class Snapshot : ICardActionSync<CardActionSnapshot.Trebuchet>
         {
-            return UniTask.CompletedTask;
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Trebuchet payload)
+            {
+                return UniTask.CompletedTask;
+            }
         }
     }
 }

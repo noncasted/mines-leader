@@ -1,37 +1,49 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Orleans.Transactions.Abstractions;
 
 namespace Common;
 
 public static class States
 {
-    private const string User_Entity = "User_Entity";
-    private const string User_Progression = "User_Progression";
-    private const string User_MatchHistory = "User_MatchHistory";
-    private const string User_Projection = "User_Projection_Records";
-    private const string User_ProjectionConnection = "User_Projection_Connection";
-    private const string User_Deck = "User_Deck";
+    public const string User_Entity = "User_Entity";
+    public const string User_Progression = "User_Progression";
+    public const string User_MatchHistory = "User_Match_History";
+    public const string User_Projection = "User_Projection_Records";
+    public const string User_ProjectionConnection = "User_Projection_Connection";
+    public const string User_Deck = "User_Deck";
 
-    private const string Match_Entity = "Match_Entity";
-    
-    private const string Config = "Config";
+    public const string Match_Entity = "Match_Entity";
 
-    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity);
+    public const string Config = "Config";
 
-    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression);
+    public static readonly IReadOnlyList<string> StateTables =
+    [
+        User_Entity,
+        User_Progression,
+        User_MatchHistory,
+        User_Projection,
+        User_ProjectionConnection,
+        User_Deck,
+        Match_Entity,
+        Config
+    ];
 
-    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory);
+    public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity, User_Entity);
 
-    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection);
+    public class UserProgressionAttribute() : TransactionalStateAttribute(User_Progression, User_Progression);
 
-    public class UserProjectionConnectionAttribute() : PersistentStateAttribute(User_ProjectionConnection);
+    public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory, User_MatchHistory);
 
-    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck);
+    public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection, User_Projection);
 
-    public class MatchAttribute() : TransactionalStateAttribute(Config);
+    public class UserProjectionConnectionAttribute()
+        : PersistentStateAttribute(User_ProjectionConnection, User_ProjectionConnection);
 
-    public class ConfigStorageAttribute() : PersistentStateAttribute("Config");
+    public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck, User_Deck);
+
+    public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
+
+    public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
 }
 
 public static class StateAttributesExtensions
@@ -46,7 +58,7 @@ public static class StateAttributesExtensions
         AddPersistentAttribute<States.UserProjectionConnectionAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
-        
+
         AddPersistentAttribute<States.ConfigStorageAttribute>();
 
         return builder;
@@ -54,14 +66,14 @@ public static class StateAttributesExtensions
         void AddTransactionalAttribute<TAttribute>()
             where TAttribute : TransactionalStateAttribute, new()
         {
-            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
-                    GenericTransactionalStateAttributeMapper<TAttribute>>();
+            builder.Services.Add<IAttributeToFactoryMapper<TAttribute>,
+                GenericTransactionalStateAttributeMapper<TAttribute>>();
         }
 
         void AddPersistentAttribute<TAttribute>()
             where TAttribute : PersistentStateAttribute
         {
-            builder.Services.AddSingleton<IAttributeToFactoryMapper<TAttribute>,
+            builder.Services.Add<IAttributeToFactoryMapper<TAttribute>,
                 GenericPersistentStateAttributeMapper<TAttribute>>();
         }
     }

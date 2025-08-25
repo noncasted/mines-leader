@@ -24,10 +24,10 @@ namespace GamePlay.Boards
 
         public void Start(IReadOnlyLifetime lifetime)
         {
-            _input.Flag.AdviseTrue(lifetime, TrySwitchMark);
+            _input.Flag.AdviseTrue(lifetime, Perform);
         }
 
-        private void TrySwitchMark()
+        private void Perform()
         {
             var own = _selection.Selected.Value;
 
@@ -46,8 +46,6 @@ namespace GamePlay.Boards
                 state.Flag();
             else
                 state.UnFlag();
-            
-            _gameContext.Self.Board.InvokeUpdated();
         }
     }
 }

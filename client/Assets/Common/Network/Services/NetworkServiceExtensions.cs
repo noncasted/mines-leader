@@ -59,7 +59,7 @@ namespace Common.Network
                     propertyId = _propertiesIndex;
                 }
 
-                var property = new NetworkProperty<T>(_id);
+                var property = new NetworkProperty<T>(propertyId);
                 Registration.WithParameter(property);
                 _properties.Add(propertyId, property);
 
@@ -93,13 +93,13 @@ namespace Common.Network
             {
                 var propertiesIds = _properties.Select(x => x.Key).ToList();
 
-                var request = new ServiceContexts.GetRequest()
+                var request = new SharedSessionService.GetRequest()
                 {
                     Key = _key,
                     PropertiesIds = propertiesIds
                 };
 
-                var response = await _connection.Request<ServiceContexts.GetResponse>(request);
+                var response = await _connection.Request<SharedSessionService.GetResponse>(request);
 
                 for (var index = 0; index < response.Properties.Count; index++)
                 {

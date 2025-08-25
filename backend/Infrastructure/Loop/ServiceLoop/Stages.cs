@@ -1,7 +1,6 @@
 ﻿using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans.Configuration.Internal;
 
 namespace ServiceLoop;
 
@@ -24,7 +23,7 @@ public static class LoopExtensions
 {
     public static IHostApplicationBuilder AddServiceLoop(this IHostApplicationBuilder builder)
     {
-        builder.AddSingleton<ServiceLoopObserver>()
+        builder.Services.Add<ServiceLoopObserver>()
             .As<IServiceLoopObserver>()
             .As<ILifecycleParticipant<IClusterClientLifecycle>>();
         

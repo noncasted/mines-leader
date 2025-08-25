@@ -2,9 +2,9 @@
 {
     public enum GameResultType
     {
-        Win,
-        Lose, 
-        Leave
+        Win = 1,
+        Lose = 2,
+        Leave = 3
     }
 
     public class GameResult

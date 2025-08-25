@@ -32,6 +32,18 @@
             }
           },
           {
+            "id": "b5d5fcaf65f7d625",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "drawings/server based game.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "server based game"
+            }
+          },
+          {
             "id": "4244c7fcb65d2e87",
             "type": "leaf",
             "state": {
@@ -86,7 +98,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -229,8 +241,10 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "6c9aaf7070f6c4ec",
+  "active": "b5d5fcaf65f7d625",
   "lastOpenFiles": [
+    "drawings/server based game.md",
+    "Excalidraw/project structure.png",
     "drawings/projections.md",
     "Excalidraw/Drawing 2025-06-17 18.33.47.excalidraw.md",
     "drawings/network.md",
@@ -243,7 +257,6 @@
     "Excalidraw",
     "Механики.md",
     "Welcome.md",
-    "Excalidraw/project structure.png",
     "Storage/Pasted image 20250202005140.png",
     "Pictures/Pasted image 20250103105014.png",
     "Excalidraw/Drawing 2024-12-30 04.13.44.excalidraw.md",
@@ -264,8 +277,6 @@
     "Storage/Игровое поле/Портреты игроков.md",
     "Storage/Игровое поле/Рука врага.md",
     "Storage/Игровое поле/Рука игрока.md",
-    "Storage/Игровое поле/Счётчик мин.md",
-    "Storage/Игровое поле/ХП.md",
     "Storage/Игровое поле/Карта",
     "Storage/Игровое поле",
     "Storage",

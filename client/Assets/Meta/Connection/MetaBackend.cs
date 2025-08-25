@@ -45,13 +45,13 @@ namespace Meta
             Debug.Log("[Meta] Connecting to backend...");
             await _connection.Run(lifetime, _options.SocketUrl);
 
-            var authRequest = new BackendConnectionAuth.Request()
+            var authRequest = new SharedBackendSocketAuth.Request()
             {
                 UserId = User.Id
             };
 
             Debug.Log("[Meta] Authenticating with backend...");
-            var authResponse = await _connection.Request<BackendConnectionAuth.Response>(authRequest);
+            var authResponse = await _connection.Request<SharedBackendSocketAuth.Response>(authRequest);
 
             if (authResponse.IsSuccess == false)
             {

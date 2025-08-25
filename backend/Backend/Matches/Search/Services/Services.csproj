@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
     <ItemGroup>
@@ -14,6 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
+      <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj" />
       <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
       <ProjectReference Include="..\..\..\Gateway\UserFlow\UserFlow.csproj" />
       <ProjectReference Include="..\..\Entities\Interfaces\Interfaces.csproj" />

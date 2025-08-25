@@ -1,5 +1,7 @@
 ﻿using Common;
+using Infrastructure.Orleans.Storage;
 using Orleans.Configuration;
+using Orleans.Runtime.Hosting;
 
 namespace Infrastructure.Orleans;
 
@@ -12,24 +14,33 @@ public static class SiloExtensions
         TransactionalStateOptions.DefaultLockTimeout = TimeSpan.FromSeconds(5);
 
         builder.UseOrleans(siloBuilder =>
-        {
-            var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
-
-            siloBuilder.UseTransactions();
-            
-            siloBuilder.UseAdoNetClustering(options => {
-                options.Invariant = "Npgsql";
-                options.ConnectionString = npgsqlConnectionString;
-            });
-
-            siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
             {
-                options.Invariant = "Npgsql";
-                options.ConnectionString = npgsqlConnectionString;
-            });
+                var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
 
-            siloBuilder.AddActivityPropagation();
-        });
+                siloBuilder.UseTransactions();
+
+                siloBuilder.UseAdoNetClustering(options =>
+                    {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = npgsqlConnectionString;
+                    }
+                );
+
+                siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
+                    {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = npgsqlConnectionString;
+                    }
+                );
+
+                foreach (var name in States.StateTables)
+                    siloBuilder.Services.AddGrainStorage(name,
+                        (s, _) => NamedGrainStorageFactory.Create(s, name, npgsqlConnectionString)
+                    );
+
+                siloBuilder.AddActivityPropagation();
+            }
+        );
 
         return builder;
     }

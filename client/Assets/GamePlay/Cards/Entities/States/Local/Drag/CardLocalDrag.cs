@@ -1,9 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
-using GamePlay.Loop;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using GamePlay.Players;
+using Global.Backend;
 using Global.Systems;
 using Internal;
 using Meta;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -12,44 +14,44 @@ namespace GamePlay.Cards
     {
         UniTask Enter(ICardLocalIdle idle);
     }
-    
+
     public class CardLocalDrag : ICardLocalDrag
     {
         public CardLocalDrag(
-            IGameContext gameContext,
+            INetworkConnection connection,
             IUpdater updater,
-            IPlayerMana mana,
+            INetworkEntity entity,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
             ICardAction action,
             ICardLocalDrop drop,
-            IPlayerTurns turns,
+            IPlayerMoves moves,
             ICardDefinition definition,
             CardDragOptions options)
         {
-            _gameContext = gameContext;
+            _connection = connection;
             _updater = updater;
-            _mana = mana;
+            _entity = entity;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _stateLifetime = stateLifetime;
             _action = action;
             _drop = drop;
-            _turns = turns;
+            _moves = moves;
             _definition = definition;
             _options = options;
         }
 
-        private readonly IGameContext _gameContext;
+        private readonly INetworkConnection _connection;
         private readonly IUpdater _updater;
-        private readonly IPlayerMana _mana;
+        private readonly INetworkEntity _entity;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
         private readonly ICardLocalDrop _drop;
-        private readonly IPlayerTurns _turns;
+        private readonly IPlayerMoves _moves;
         private readonly ICardDefinition _definition;
         private readonly CardDragOptions _options;
 
@@ -59,36 +61,48 @@ namespace GamePlay.Cards
             var lifetime = _stateLifetime.OccupyLifetime();
             var startForce = _transform.HandForce;
             var positionHandle = _handEntryHandle.PositionHandle;
-            var selectionLifetime = lifetime.Child();
+            var useLifetime = lifetime.Child();
 
-            _turns.IsTurn.Advise(lifetime, isTurn =>
+            _moves.IsTurn.Advise(lifetime, isTurn =>
+                {
+                    if (isTurn == false)
+                        useLifetime.Terminate();
+                }
+            );
+
+            _updater.RunUpdateAction(useLifetime, _ => MoveTowards(startPosition)).Forget();
+
+            var useResult = await _action.TryUse(useLifetime);
+
+            if (useResult.IsSuccess == true)
             {
-                if (isTurn == false)
-                    selectionLifetime.Terminate();
-            });
-
-            _updater.RunUpdateAction(selectionLifetime, _ => MoveTowards(startPosition)).Forget();
-
-            var isUsed = await _action.Execute(selectionLifetime);
-            selectionLifetime.Terminate();
-            
-            if (isUsed == false)
-            {
-                await _updater.RunUpdateAction(lifetime, () =>
+                useResult.Payload.Type = _definition.Type;
+                var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                     {
-                        var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
-                        return distance > 0.1f;
-                    },
-                    _ => MoveTowards(positionHandle.SupposedPosition));
+                        Index = _entity.Id,
+                        Payload = useResult.Payload
+                    }
+                );
 
-                idle.Enter();
-                return;
+                if (requestResult.HasError == false)
+                {
+                    _drop.Enter().Forget();
+                    return;
+                }
             }
 
-            _gameContext.Self.Board.InvokeUpdated();
-            _mana.RemoveCurrent(_definition.ManaCost);
-            _turns.OnUsed();
-            _drop.Enter().Forget();
+            useLifetime.Terminate();
+
+            await _updater.RunUpdateAction(lifetime, () =>
+                {
+                    var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
+                    return distance > 0.1f;
+                },
+                _ => MoveTowards(positionHandle.SupposedPosition)
+            );
+
+            idle.Enter();
+            return;
 
             void MoveTowards(Vector2 target)
             {

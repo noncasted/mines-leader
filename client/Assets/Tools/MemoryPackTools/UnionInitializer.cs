@@ -4,9 +4,8 @@ using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
-using MemoryPack;
-using MemoryPack.Formatters;
 using Menu.Social;
+using Shared;
 
 namespace Tools.MemoryPackTools
 {
@@ -14,22 +13,27 @@ namespace Tools.MemoryPackTools
     {
         public override void Execute()
         {
-            var payloads = new DynamicUnionFormatter<IEntityPayload>(
-                (1, typeof(BoardCreatePayload)),
-                (2, typeof(CardCreatePayload)),
-                (3, typeof(GamePlayerCreatePayload)),
+            var entityPayloads = new UnionBuilder<IEntityPayload>();
+            var eventPayloads = new UnionBuilder<IEventPayload>();
+            var contexts = new UnionBuilder<INetworkContext>();
 
-                // (3, typeof(GamePlayerCreatePayload)),
-                (10000, typeof(MenuPlayerPayload)));
+            entityPayloads
+                .Add<MenuPlayerPayload>()
+                .Add<CardCreatePayload>()
+                .Add<PlayerCreatePayload>();
 
-            var events = new DynamicUnionFormatter<IEventPayload>(
-                (0, typeof(MenuChatMessagePayload)),
-                (1, typeof(GameFlowEvents.Lose)),
-                (2, typeof(CardUseSyncPayload)),
-                (3, typeof(BoardCellExplosionEvent)));
+            eventPayloads
+                .Add<MenuChatMessagePayload>();
 
-            MemoryPackFormatterProvider.Register(payloads);
-            MemoryPackFormatterProvider.Register(events);
+            contexts
+                .Add<EmptyResponse>()
+                .AddSharedBackend()
+                .AddSharedGame()
+                .AddSharedSession();
+
+            contexts.Build();
+            eventPayloads.Build();
+            entityPayloads.Build();
         }
     }
 }

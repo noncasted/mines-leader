@@ -11,7 +11,7 @@ public static class CorsExtensions
         {
             options.AddPolicy("cors", policy =>
             {
-                var url = GetUrl();
+               // var url = GetUrl();
 
                 policy
                     .AllowAnyOrigin()
@@ -27,14 +27,14 @@ public static class CorsExtensions
 
         return;
 
-        string GetUrl()
-        {
-            return "*";
-
-            if (builder.Environment.IsDevelopment() == true)
-                return "*";
-
-            return Environment.GetEnvironmentVariable("BUILD_URL")!;
-        }
+        // string GetUrl()
+        // {
+        //     return "*";
+        //
+        //     if (builder.Environment.IsDevelopment() == true)
+        //         return "*";
+        //
+        //     return Environment.GetEnvironmentVariable("BUILD_URL")!;
+        // }
     }
 }

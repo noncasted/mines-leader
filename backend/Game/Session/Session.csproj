@@ -6,7 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\Domain\Domain.csproj" />
         <ProjectReference Include="..\..\..\shared\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\..\..\shared\Session\Session.csproj" />
         <ProjectReference Include="..\..\Common\Connections\Connections.csproj" />
     </ItemGroup>
 

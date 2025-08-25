@@ -1,5 +1,6 @@
 ﻿using Common.Network;
 using Internal;
+using Shared;
 
 namespace GamePlay.Players
 {
@@ -7,9 +8,6 @@ namespace GamePlay.Players
     {
         IViewableProperty<int> Current { get; }
         IViewableProperty<int> Max { get; }
-        
-        void SetCurrent(int amount);
-        void SetMax(int amount);
     }
     
     public class PlayerHealth : IPlayerHealth, IScopeLoaded
@@ -35,18 +33,6 @@ namespace GamePlay.Players
                 _current.Set(state.Current);
                 _max.Set(state.Max);
             });   
-        }
-        
-        public void SetCurrent(int amount)
-        {
-            _state.Value.Current = amount;
-            _state.MarkDirty();
-        }
-
-        public void SetMax(int amount)
-        {
-            _state.Value.Max = amount;
-            _state.MarkDirty();
         }
     }
 }

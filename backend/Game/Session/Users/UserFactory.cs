@@ -31,7 +31,9 @@ public class UserFactory : IUserFactory
     public IUser Create(IReadOnlyLifetime parentLifetime, Guid userId, WebSocket webSocket)
     {
         var index = _users.GetNextIndex();
-        var lifetime = parentLifetime.Child();
+        var connectionLifetime = parentLifetime.Child();
+        var userLifetime = new Lifetime();
+        connectionLifetime.Listen(() => _executionQueue.Enqueue(userLifetime.Terminate));
 
         var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
         var connection = new Connection(webSocket, parentLifetime, _logger);
@@ -40,7 +42,7 @@ public class UserFactory : IUserFactory
         {
             Id = userId,
             Index = index,
-            Lifetime = lifetime,
+            Lifetime = userLifetime,
             Dispatcher = dispatcher,
             Connection = connection
         };

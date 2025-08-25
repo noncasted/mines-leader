@@ -5,7 +5,7 @@ using Shared;
 
 namespace Common.Network
 {
-    public class EntityCreatedCommand : OneWayCommand<EntityContexts.CreatedOverview>
+    public class EntityCreatedCommand : OneWayCommand<SharedSessionEntity.CreatedOverview>
     {
         private readonly INetworkEntityFactory _factory;
         private readonly INetworkUsersCollection _users;
@@ -16,7 +16,7 @@ namespace Common.Network
             _users = users;
         }
 
-        protected override void Execute(IReadOnlyLifetime lifetime, EntityContexts.CreatedOverview context)
+        protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionEntity.CreatedOverview context)
         {
             var owner = _users.Entries[context.OwnerId];
 
