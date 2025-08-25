@@ -11,10 +11,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
         <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj"/>
         <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj"/>
         <ProjectReference Include="..\..\..\Users\Common\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\..\..\Users\Matches\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\..\Users\Progression\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\Interfaces\Interfaces.csproj"/>
     </ItemGroup>
 

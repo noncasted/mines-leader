@@ -40,14 +40,26 @@ namespace Shared
                 public IReadOnlyList<CardType> Cards { get; set; }
             }
         }
-        
+
+        [MemoryPackable]
+        public partial class Match : INetworkContext
+        {
+            public Guid Id { get; set; }
+            public List<Guid> Participants { get; set; }
+            public DateTime Date { get; set; }
+            public Guid Winner { get; set; }
+            public TimeSpan Time { get; set; }
+            public GameMatchType Type { get; set; }
+        }
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
                 .Add<ProfileProjection>()
                 .Add<ProgressionProjection>()
                 .Add<UpdateDeckRequest>()
-                .Add<DeckProjection>();
+                .Add<DeckProjection>()
+                .Add<Match>();
         }
     }
 }

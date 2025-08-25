@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Backend.Matches;
+using Common;
 using Microsoft.Extensions.Options;
 using Shared;
 
@@ -14,6 +15,8 @@ public interface IGameRound
 public class GameRound : Service, IUsersConnected, IGameRound
 {
     public GameRound(
+        IOrleans orleans,
+        ISessionData sessionData,
         ISessionUsers users,
         IPlayerFactory playerFactory,
         IGameContext gameContext,
@@ -22,6 +25,8 @@ public class GameRound : Service, IUsersConnected, IGameRound
         IGameFlow gameFlow,
         IOptions<GameOptions> options) : base("game-round")
     {
+        _orleans = orleans;
+        _sessionData = sessionData;
         _users = users;
         _playerFactory = playerFactory;
         _gameContext = gameContext;
@@ -34,6 +39,8 @@ public class GameRound : Service, IUsersConnected, IGameRound
     }
 
     private readonly ValueProperty<GameRoundState> _state = new(1);
+    private readonly IOrleans _orleans;
+    private readonly ISessionData _sessionData;
     private readonly ISessionUsers _users;
     private readonly IPlayerFactory _playerFactory;
     private readonly IGameContext _gameContext;
@@ -66,6 +73,9 @@ public class GameRound : Service, IUsersConnected, IGameRound
 
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
+        var match = _orleans.GetGrain<IMatch>(_sessionData.Id);
+        await _orleans.InTransaction(() => match.Setup(GameMatchType.PvP, _users.Select(t => t.Id).ToList()));
+
         var options = _options.Value;
 
         foreach (var player in _gameContext.Players)
@@ -104,9 +114,9 @@ public class GameRound : Service, IUsersConnected, IGameRound
             await ProcessRound(lifetime, _currentPlayer);
             _currentPlayer = _gameContext.Players.First(t => t != _currentPlayer);
         }
-        
+
         var winner = GetWinner();
-        _gameFlow.GameEnd(winner);
+        await _gameFlow.GameEnd(winner);
 
         return;
 
@@ -134,7 +144,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
                 if (user.Lifetime.IsTerminated == true)
                     return _gameContext.GetOpponent(player).User.Id;
             }
-            
+
             throw new InvalidOperationException("No winner found.");
         }
     }
@@ -195,7 +205,7 @@ public class GameRound : Service, IUsersConnected, IGameRound
     private async Task ManaLoop(IReadOnlyLifetime lifetime)
     {
         var timeSpan = TimeSpan.FromSeconds(3);
-        
+
         while (lifetime.IsTerminated == false)
         {
             await Task.Delay(timeSpan, lifetime.Token);

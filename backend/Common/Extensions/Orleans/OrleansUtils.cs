@@ -14,7 +14,7 @@ public class OrleansUtils : IOrleans
 {
     public OrleansUtils(
         IGrainFactory grains,
-        ITransactions transactions, 
+        ITransactions transactions,
         ILogger<OrleansUtils> logger)
     {
         Grains = grains;
@@ -33,7 +33,7 @@ public static class OrleansUtilsExtensions
     {
         builder.Services.Add<ITransactions, Transactions>();
         builder.Services.Add<IOrleans, OrleansUtils>();
-        
+
         return builder;
     }
 
@@ -41,15 +41,33 @@ public static class OrleansUtilsExtensions
     {
         return orleans.Grains.GetGrain<T>(key);
     }
-    
+
     public static T GetGrain<T>(this IOrleans orleans, Guid key) where T : IGrainWithGuidKey
     {
         return orleans.Grains.GetGrain<T>(key);
     }
-    
+
     public static T GetGrain<T>(this IOrleans orleans) where T : IGrainWithGuidKey
     {
         return orleans.Grains.GetGrain<T>(Guid.Empty);
+    }
+
+    public static IReadOnlyList<T> GetGrains<T>(this IOrleans orleans, IReadOnlyList<Guid> ids)
+        where T : IGrainWithGuidKey
+    {
+        var grains = new T[ids.Count];
+
+        for (var i = 0; i < ids.Count; i++)
+            grains[i] = orleans.Grains.GetGrain<T>(ids[i]);
+
+        return grains;
+    }
+
+    public static Task Iterate<T>(this IReadOnlyList<T> grains, Func<T, Task> action)
+        where T : IGrainWithGuidKey
+    {
+        var tasks = grains.Select(action);
+        return Task.WhenAll(tasks);
     }
 
     public static Task InTransaction(this IOrleans orleans, Func<Task> action)

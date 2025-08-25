@@ -19,6 +19,5 @@ public interface IUserProjection : IGrainWithGuidKey
     [Transaction(TransactionOption.Join)]
     Task Cache(IProjectionPayload payload);
     
-    [AlwaysInterleave]
     Task SendOneTime(IProjectionPayload payload);
 }

@@ -1,11 +1,12 @@
-﻿using Shared;
+﻿using Backend.Users;
+using Shared;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Backend.Matches;
 
 [GenerateSerializer]
-public class MatchOverview
+public class MatchOverview : IProjectionPayload
 {
     [Id(0)]
     public required Guid Id { get; init; }
@@ -24,4 +25,17 @@ public class MatchOverview
     
     [Id(5)]
     public required GameMatchType Type { get; init; }
+
+    public INetworkContext ToContext()
+    {
+        return new SharedBackendUser.Match()
+        {
+            Id = Id,
+            Participants = Participants,
+            Date = Date,
+            Winner = Winner,
+            Time = Time,
+            Type = Type
+        };
+    }
 }
