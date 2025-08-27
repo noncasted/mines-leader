@@ -11,17 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
   m_Name: Default Local Group
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
-  m_GUID: de6a2b947c11b5947aafcb90a544b98d
+  m_GUID: fdc78b9c6bdff184e9f37d59bfb8ab38
   m_SerializeEntries:
   - m_GUID: 4b636264c7ac7224aa40de5dc5ec86f3
-    m_Address: Assets/Features/GamePlay/Loop/Options/GamePlay.unity
+    m_Address: Assets/GamePlay/Loop/Options/GamePlay.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4d21236cc0b1e1146b72afd98396ebb4
-    m_Address: Assets/Features/Menu/Common/Options/Menu_Services.unity
+    m_Address: Assets/Menu/Common/Options/Menu_Services.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -31,17 +31,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 92101a9411609634391317ab2ff7fd37
-    m_Address: Assets/Features/GamePlay/UI/Options/GamePlay_UI.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 974b052432fbdba498b4e519fbee2214
-    m_Address: Assets/Settings/ScopeData/Global_Services.asset
+    m_Address: Assets/GamePlay/UI/Options/GamePlay_UI.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b072020bf5a8f9c44a8f48ef9ae3fe23
-    m_Address: Assets/Features/Menu/Options/Menu_UI.unity
+    m_Address: Assets/Menu/Common/Options/Menu.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -51,18 +46,23 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d8cf087558b3f9d4f9791bd93ed518af
-    m_Address: Assets/Features/GamePlay/Loop/Options/GamePlay_Services.unity
+    m_Address: Assets/GamePlay/Loop/Options/GamePlay_Services.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e192e966f28f2434fad44cfad9dbeca2
+    m_Address: Assets/Startup/Startup.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fa9902c71b5f7cd4f98e1a5c19e15def
-    m_Address: Assets/Settings/ScopeData/Services_Global.unity
+    m_Address: Assets/Global/Setup/Global_Services.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
-  m_Settings: {fileID: 11400000, guid: 85c780a6d4ee5c8469bf23258987d453, type: 2}
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: b9cc9dcbb20bf4d40a369d24d186d3cb, type: 2}
-    - {fileID: 11400000, guid: 81b29c12448218a48b8a14b51f4883d8, type: 2}
+    - {fileID: 11400000, guid: ca14bf07e76286d4a854c394747b6dd8, type: 2}
+    - {fileID: 11400000, guid: 3cf2481b23c62a5479b2a781506f767a, type: 2}
