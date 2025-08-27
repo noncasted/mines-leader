@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Backend.Users.Common.Handle</AssemblyName>
+        <RootNamespace>Backend.Users</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Decks\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\Entities\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\Matches\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\Progression\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
+    </ItemGroup>
+
+</Project>

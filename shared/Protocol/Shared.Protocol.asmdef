@@ -1,9 +1,7 @@
 {
     "name": "Shared.Protocol",
     "rootNamespace": "Shared",
-    "references": [
-        "GUID:756335c0388f7114790e504ed368ae1d"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

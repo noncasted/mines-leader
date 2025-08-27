@@ -14,12 +14,16 @@ namespace GamePlay.UI
     [DisallowMultipleComponent]
     public class GameEndMenu : MonoBehaviour, IGameEndMenu
     {
-        [SerializeField] private DesignButton _completeButton;
+        [SerializeField] private GameEndRating _rating;
+        
+        [SerializeField] private DesignButton _menuButton;
+        [SerializeField] private DesignButton _rematchButton;
         
         public UniTask Show(IReadOnlyLifetime lifetime, GameResult result)
         {
+            _rating.Show(result.CurrentRating, result.RatingChange);
             gameObject.SetActive(true);
-            return _completeButton.WaitClick(lifetime);
+            return _menuButton.WaitClick(lifetime);
         }
     }
 }

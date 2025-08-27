@@ -13,7 +13,7 @@ namespace GamePlay.Loop
 {
     public interface IPvPGameLoop
     {
-        UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
+        UniTask<GameEndTransitionData> Process(IReadOnlyLifetime lifetime, SessionData sessionData);
     }
 
     public class PvPGameLoop : IPvPGameLoop
@@ -59,7 +59,7 @@ namespace GamePlay.Loop
         private readonly IGameFlow _gameFlow;
         private readonly INetworkConnection _connection;
 
-        public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
+        public async UniTask<GameEndTransitionData> Process(IReadOnlyLifetime lifetime, SessionData sessionData)
         {
             _camera.SetCamera(_gameCamera.Camera);
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
@@ -77,6 +77,8 @@ namespace GamePlay.Loop
 
             var gameResult = await _gameFlow.Execute(lifetime);
             await _connection.ForceSendAll();
+            
+            return new GameEndTransitionData();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Loop
 {
     public interface IGamePlayLoader
     {
-        UniTask Load(MenuResult menuResult);
+        UniTask<GameEndTransitionData> Load(GameLoadData gameLoadData);
     }
 
     public class GamePlayLoader : IGamePlayLoader
@@ -28,13 +28,15 @@ namespace Loop
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
 
-        public async UniTask Load(MenuResult menuResult)
+        public async UniTask<GameEndTransitionData> Load(GameLoadData gameLoadData)
         {
             await _loadingScreen.Show();
             _globalCamera.Enable();
             var scope = await _scopeLoader.Load(PvPScopeExtensions.LoadPvp);
             var loop = scope.Container.Container.Resolve<IPvPGameLoop>();
-            await loop.Process(scope.Lifetime, menuResult.SessionData);
+            var transitionData = await loop.Process(scope.Lifetime, gameLoadData.SessionData);
+
+            return transitionData;
         }
     }
 }

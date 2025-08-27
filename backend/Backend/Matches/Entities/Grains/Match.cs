@@ -35,40 +35,41 @@ public class Match : Grain, IMatch
         );
     }
 
-    public async Task OnComplete(Guid winner)
+    public async Task OnComplete(Guid winnerId)
     {
         var endDate = DateTime.UtcNow;
 
         var state = await _state.Update(state =>
             {
-                state.Winner = winner;
+                state.Winner = winnerId;
                 state.Time = endDate - state.StartDate;
             }
         );
 
+        var loserId = state.Participants.First(p => p != winnerId);
+        
+        var winner = _orleans.CreateUserHandle(winnerId);
+        var loser = _orleans.CreateUserHandle(loserId);
+
         var overview = state.CreateOverview(this.GetPrimaryKey());
+        
+        var winRecord = new UserProgressionRecords.Win
+        {
+            Date = endDate,
+            Experience = _options.Value.WinExperience
+        };
 
-        await _orleans
-            .GetGrains<IUserMatchHistory>(state.Participants)
-            .Iterate(history => history.Add(overview));
-
-        var loser = state.Participants.First(p => p != winner);
-        var winnerProgression = _orleans.GetGrain<IUserProgression>(winner);
-        var loserProgression = _orleans.GetGrain<IUserProgression>(loser);
-
+        var lossRecord = new UserProgressionRecords.Loss
+        {
+            Date = endDate,
+            Experience = _options.Value.LossExperience
+        };
+        
         await Task.WhenAll(
-            winnerProgression.AddRecord(new UserProgressionRecords.Win
-                {
-                    Date = endDate,
-                    Experience = _options.Value.WinExperience
-                }
-            ),
-            loserProgression.AddRecord(new UserProgressionRecords.Loss
-                {
-                    Date = endDate,
-                    Experience = _options.Value.LossExperience
-                }
-            )
+            winner.MatchHistory.Add(overview),
+            winner.Progression.AddRecord(winRecord),
+            loser.MatchHistory.Add(overview),
+            loser.Progression.AddRecord(lossRecord)
         );
     }
 }

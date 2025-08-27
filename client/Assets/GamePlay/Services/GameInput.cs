@@ -47,9 +47,9 @@ namespace GamePlay.Services
         {
             _updater.Add(lifetime, this);
             
-            var controls = _localUser.Controls.GamePlay;
-            controls.Flag.AttachFlag(lifetime, _flag);
-            controls.Open.AttachFlag(lifetime, _open);
+            // var controls = _localUser.Controls.GamePlay;
+            // controls.Flag.AttachFlag(lifetime, _flag);
+            // controls.Open.AttachFlag(lifetime, _open);
         }
 
         public void OnUpdate(float delta)

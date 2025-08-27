@@ -1,4 +1,6 @@
-﻿namespace GamePlay.Loop
+﻿using System;
+
+namespace GamePlay.Loop
 {
     public enum GameResultType
     {
@@ -10,5 +12,8 @@
     public class GameResult
     {
         public GameResultType Type { get; set; }
+        public TimeSpan Duration { get; set; }
+        public int RatingChange { get; set; }
+        public int CurrentRating { get; set; }
     }
 }

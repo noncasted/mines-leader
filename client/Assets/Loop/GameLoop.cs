@@ -1,6 +1,7 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using Internal;
+using Menu.Common;
 using Meta;
 
 namespace Loop
@@ -25,17 +26,37 @@ namespace Loop
         {
             while (lifetime.IsTerminated == false)
             {
-                var menuResult = await _menuLoader.Load();
+                // switch (menuResult.GameMode)
+                // {
+                //     case GameMode.Single:
+                //         break;
+                //     case GameMode.PvP:
+                //         var transitionData = await _gamePlayLoader.Load(menuResult);
+                //
+                //
+                //         break;
+                //     default:
+                //         throw new ArgumentOutOfRangeException();
+                // }
+            }
 
-                switch (menuResult.GameMode)
+            async UniTask Menu()
+            {
+                var menuResult = await _menuLoader.Load();
+            }
+
+            async UniTask Game(GameLoadData loadData)
+            {
+                var transitionData = await _gamePlayLoader.Load(loadData);
+
+                if (transitionData.ShouldRematch == true)
                 {
-                    case GameMode.Single:
-                        break;
-                    case GameMode.PvP:
-                        await _gamePlayLoader.Load(menuResult);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    // Game(new GameLoadData()
+                    //     {
+                    //         GameMode = loadData.GameMode,
+                    //         SessionData = new SessionData()
+                    //     }
+                    // );
                 }
             }
         }
