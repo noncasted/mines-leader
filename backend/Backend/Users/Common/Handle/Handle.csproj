@@ -16,6 +16,7 @@
       <ProjectReference Include="..\..\Matches\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Progression\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Projections\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Extensions\Extensions.csproj" />
     </ItemGroup>
 
 </Project>

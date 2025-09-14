@@ -9,6 +9,7 @@ public static class GameCommandsExtensions
         services.AddSingleton<IResponseCommand, CardUse>();
         services.AddSingleton<IResponseCommand, OpenCellAction>();
         services.AddSingleton<ICommand, PlayerReadyCommand>();
+        services.AddSingleton<ICommand, RematchRequestCommand>();
         services.AddSingleton<IResponseCommand, RemoveFlagAction>();
         services.AddSingleton<IResponseCommand, SetFlagAction>();
         services.AddSingleton<IResponseCommand, SkipTurn>();

@@ -7,7 +7,8 @@
             SharedMoveSnapshot.Register(builder);
             SharedGameAction.Register(builder);
 
-            builder.Add<PlayerReadyContext>();
+            builder.Add<MatchActionContexts.PlayerReady>();
+            builder.Add<MatchActionContexts.RequestRematch>();
             
             return builder;
         }

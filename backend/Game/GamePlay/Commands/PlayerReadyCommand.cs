@@ -2,7 +2,7 @@
 
 namespace Game.GamePlay;
 
-public class PlayerReadyCommand : Command<PlayerReadyContext>
+public class PlayerReadyCommand : Command<MatchActionContexts.PlayerReady>
 {
     public PlayerReadyCommand(IGameReadyAwaiter readyAwaiter)
     {
@@ -11,7 +11,7 @@ public class PlayerReadyCommand : Command<PlayerReadyContext>
 
     private readonly IGameReadyAwaiter _readyAwaiter;
 
-    protected override void Execute(IUser user, PlayerReadyContext context)
+    protected override void Execute(IUser user, MatchActionContexts.PlayerReady context)
     {
         _readyAwaiter.OnPlayerReady(user.Id);
     }

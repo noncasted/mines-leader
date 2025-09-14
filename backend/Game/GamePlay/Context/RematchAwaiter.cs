@@ -6,7 +6,6 @@ public interface IRematchAwaiter
 {
     Task<bool> ShouldRematch(IReadOnlyLifetime lifetime, TimeSpan timeout);
     void OnRematchAccepted(Guid playerId);
-    void OnRematchDeclined(Guid playerId);
 }
 
 public class RematchAwaiter : IRematchAwaiter
@@ -38,10 +37,5 @@ public class RematchAwaiter : IRematchAwaiter
         
         if (_acceptCount >= _context.Players.Count)
             _completion.TrySetResult(true);
-    }
-
-    public void OnRematchDeclined(Guid playerId)
-    {
-        _completion.TrySetResult(false);
     }
 }

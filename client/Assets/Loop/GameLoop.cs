@@ -26,39 +26,39 @@ namespace Loop
         {
             while (lifetime.IsTerminated == false)
             {
-                // switch (menuResult.GameMode)
-                // {
-                //     case GameMode.Single:
-                //         break;
-                //     case GameMode.PvP:
-                //         var transitionData = await _gamePlayLoader.Load(menuResult);
-                //
-                //
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException();
-                // }
-            }
-
-            async UniTask Menu()
-            {
                 var menuResult = await _menuLoader.Load();
-            }
-
-            async UniTask Game(GameLoadData loadData)
-            {
-                var transitionData = await _gamePlayLoader.Load(loadData);
-
-                if (transitionData.ShouldRematch == true)
+                
+                switch (menuResult.GameMode)
                 {
-                    // Game(new GameLoadData()
-                    //     {
-                    //         GameMode = loadData.GameMode,
-                    //         SessionData = new SessionData()
-                    //     }
-                    // );
+                    case GameMode.Single:
+                        break;
+                    case GameMode.PvP:
+                        var transitionData = await _gamePlayLoader.Load(menuResult);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
+
+            // async UniTask Menu()
+            // {
+            //     var menuResult = await _menuLoader.Load();
+            // }
+            //
+            // async UniTask Game(GameLoadData loadData)
+            // {
+            //     var transitionData = await _gamePlayLoader.Load(loadData);
+            //
+            //     if (transitionData.ShouldRematch == true)
+            //     {
+            //         // Game(new GameLoadData()
+            //         //     {
+            //         //         GameMode = loadData.GameMode,
+            //         //         SessionData = new SessionData()
+            //         //     }
+            //         // );
+            //     }
+            // }
         }
     }
 }

@@ -73,7 +73,7 @@ namespace GamePlay.Loop
             _loadingScreen.Hide();
             _globalCamera.Disable();
 
-            _connection.OneWay(new PlayerReadyContext());
+            _connection.OneWay(new MatchActionContexts.PlayerReady());
 
             var gameResult = await _gameFlow.Execute(lifetime);
             await _connection.ForceSendAll();
