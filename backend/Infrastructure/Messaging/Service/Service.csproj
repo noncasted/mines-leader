@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Infrastructure.Messaging.Service</AssemblyName>
+        <RootNamespace>Infrastructure.Messaging</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Queues\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Streams\Interfaces\Interfaces.csproj" />
+    </ItemGroup>
+
+</Project>

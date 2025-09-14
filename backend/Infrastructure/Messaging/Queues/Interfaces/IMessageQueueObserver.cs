@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Messaging;
 
-public interface IMessageQueue : IGrainWithStringKey
+public interface IMessageQueueObserver : IGrainObserver
 {
     Task Send(IClusterMessage message);
 }
