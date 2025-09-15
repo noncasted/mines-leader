@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 public interface IRelationalStorage
 {

@@ -29,8 +29,7 @@ public class MessageStream : Grain, IMessageStream
         await _observer!.Send(message);
     }
 
-    public async Task<TResponse> SendStream<TResponse>(IMessageOptions options, IClusterMessage message)
-        where TResponse : IClusterMessage
+    public async Task<TResponse> Send<TResponse>(IClusterMessage message) where TResponse : IClusterMessage
     {
         var hasObserver = await CheckObserver();
 

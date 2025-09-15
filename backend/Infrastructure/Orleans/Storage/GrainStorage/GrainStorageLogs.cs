@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans.Runtime.Configuration;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 public static partial class GrainStorageLogs
 {

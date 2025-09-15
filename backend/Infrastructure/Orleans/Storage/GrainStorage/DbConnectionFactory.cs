@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using Npgsql;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 public class DbConnectionFactory
 {

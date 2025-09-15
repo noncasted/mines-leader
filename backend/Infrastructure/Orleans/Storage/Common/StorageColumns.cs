@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Orleans.Storage;
+﻿namespace Infrastructure.Orleans;
 
 public static class StorageColumns
 {

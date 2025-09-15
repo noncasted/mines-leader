@@ -8,7 +8,7 @@ using Orleans.Serialization;
 using Orleans.Serialization.Serializers;
 using Orleans.Storage;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 public static class NamedGrainStorageFactory
 {

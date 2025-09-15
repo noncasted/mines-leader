@@ -1,6 +1,6 @@
 ﻿using Orleans.Storage;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 public static class GrainStorageVersionGuard
 {

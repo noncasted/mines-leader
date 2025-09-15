@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 
-namespace Infrastructure.Orleans.Storage;
+namespace Infrastructure.Orleans;
 
 /// <summary>
 /// Contains some convenience methods to use in conjunction with <see cref="IRelationalStorage">IRelationalStorage</see> and <see cref="RelationalStorage">GenericRelationalStorage</see>.

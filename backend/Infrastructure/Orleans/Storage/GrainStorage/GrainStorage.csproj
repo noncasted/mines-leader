@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <AssemblyName>Infrastructure.Orleans.Storage.GrainStorage</AssemblyName>
-        <RootNamespace>Infrastructure.Orleans.Storage</RootNamespace>
+        <RootNamespace>Infrastructure.Orleans</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
