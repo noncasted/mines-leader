@@ -37,6 +37,7 @@
         <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj"/>
         <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\TaskScheduling\Service\Service.csproj" />
         <ProjectReference Include="..\Common\Common.csproj" />
         <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Storage\GrainStorage\GrainStorage.csproj" />

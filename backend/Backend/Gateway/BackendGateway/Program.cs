@@ -1,39 +1,9 @@
 using Aspire;
 using Backend.Gateway;
-using Backend.Matches;
-using Backend.Users;
-using Common;
-using Infrastructure.Discovery;
-using Infrastructure.Messaging;
-using Infrastructure.Orleans;
-using ServiceLoop;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Basic services
-builder
-    .AddServiceDefaults()
-    .AddOrleansClient();
-
-// Cluster services
-builder
-    .AddEnvironment(ServiceTag.Backend)
-    .AddServiceLoop()
-    .AddMessaging()
-    .AddOrleansUtils()
-    .AddStateAttributes()
-    .AddServersCollection()
-    .ConfigureCors();
-
-// Project services
-builder
-    .AddUserFlow()
-    .AddUserFactory()
-    .AddBackendMatchServices()
-    .AddMatchmakingServices()
-    .AddUserCommands();
-
-builder.Services.AddOpenApi();
+builder.SetupBackendGateway();
 
 var app = builder.Build();
 

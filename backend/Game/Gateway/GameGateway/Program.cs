@@ -1,37 +1,9 @@
 using Aspire;
-using Backend.Matches;
-using Common;
-using Game;
 using Game.Gateway;
-using Infrastructure.Discovery;
-using Infrastructure.Messaging;
-using Infrastructure.Orleans;
-using ServiceLoop;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Basic services
-builder
-    .AddServiceDefaults()
-    .AddOrleansClient();
-
-// Cluster services
-builder
-    .AddEnvironment(ServiceTag.Server)
-    .AddServiceLoop()
-    .AddMessaging()
-    .AddOrleansUtils()
-    .AddServerOverviewPusher()
-    .ConfigureCors();
-
-// Project services
-builder
-    .AddGameMatchServices()
-    .AddGlobalSessions();
-
-builder.Services
-    .AddOpenApi()
-    .AddCors();
+builder.SetupGameGateway();
 
 var app = builder.Build();
 

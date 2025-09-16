@@ -6,4 +6,6 @@ public interface IBatchWriter<T> : IGrainWithStringKey
     
     [Transaction(TransactionOption.Join)]
     Task Write(T value);
+    
+    Task Loop();
 }

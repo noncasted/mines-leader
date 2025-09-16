@@ -1,9 +1,23 @@
 ﻿using Common;
 using Infrastructure.Orleans;
+using Infrastructure.TaskScheduling;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Orleans.Transactions;
 
 namespace Infrastructure.StorableActions;
+
+public class BatchWriterTask<T> : IPriorityTask
+{
+    public required string Id { get; init; }
+    public required TaskPriority Priority { get; init; }
+    public required IBatchWriter<T> Batcher { get; init; }
+
+    public Task Execute()
+    {
+        return Batcher.Loop();
+    }
+}
 
 public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactionHook
 {
@@ -11,14 +25,32 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
     {
         _state = state;
         _orleans = ServiceProvider.GetRequiredService<IOrleans>();
+        _taskScheduler = ServiceProvider.GetRequiredService<ITaskScheduler>();
+        _logger = ServiceProvider.GetRequiredService<ILogger<BatchWriter<T>>>();
+
+        _task = new BatchWriterTask<T>
+        {
+            Id = this.GetPrimaryKeyString(),
+            Priority = TaskPriority.Low,
+            Batcher = this
+        };
     }
 
+    private readonly ILogger<BatchWriter<T>> _logger;
     private readonly IOrleans _orleans;
+    private readonly ITaskScheduler _taskScheduler;
+
     private readonly IPersistentState<BatchWriterState<T>> _state;
     private readonly Dictionary<Guid, List<T>> _pending = new();
 
+    private readonly IPriorityTask _task;
+
     public Task Start()
     {
+        if (_state.State.Entries.Count == 0)
+            return Task.CompletedTask;
+
+        _taskScheduler.Schedule(_task);
         return Task.CompletedTask;
     }
 
@@ -37,11 +69,12 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
         return Task.CompletedTask;
     }
 
-    public Task OnSuccess(Guid transactionId)
+    public async Task OnSuccess(Guid transactionId)
     {
         _state.State.Entries.AddRange(_pending[transactionId]);
         _pending.Remove(transactionId);
-        return _state.WriteStateAsync();
+        await _state.WriteStateAsync();
+        _taskScheduler.Schedule(_task);
     }
 
     public Task OnFailure(Guid transactionId)
@@ -50,7 +83,7 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
         return Task.CompletedTask;
     }
 
-    private async Task Loop()
+    public async Task Loop()
     {
         var state = _state.State;
 
@@ -71,8 +104,17 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "[BatchWriter] Process failed {writerName} {batchType}", 
+                this.GetPrimaryKeyString(),
+                typeof(T).Name
+            );
+            
+            _taskScheduler.Schedule(_task);
             return;
         }
+
+        if (state.Entries.Count > 0)
+            _taskScheduler.Schedule(_task);
     }
 
     protected abstract Task Process(IReadOnlyList<T> entries);

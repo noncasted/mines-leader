@@ -27,6 +27,7 @@
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\..\Infrastructure\TaskScheduling\Service\Service.csproj" />
         <ProjectReference Include="..\..\Global\Global.csproj"/>
         <ProjectReference Include="..\..\Session\Session.csproj"/>
         <ProjectReference Include="..\Middleware\Middleware.csproj"/>

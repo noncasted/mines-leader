@@ -1,38 +1,9 @@
-using Aspire;
-using Common;
-using Infrastructure.Discovery;
-using Infrastructure.Messaging;
-using Infrastructure.Orleans;
-using Management.Configs;
 using Management.Web;
 using Management.Web.Components;
-using MudBlazor.Services;
-using ServiceLoop;
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
 
-// Basic services
-builder
-    .AddServiceDefaults()
-    .AddOrleansClient();
-
-// Cluster services
-builder
-    .AddEnvironment(ServiceTag.Console)
-    .AddServiceLoop()
-    .AddMessaging()
-    .AddOrleansUtils()
-    .AddServersCollection()
-    .AddConfigsServices();
-
-// Project services
-services
-    .AddMudServices()
-    .AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.AddCommonConsoleComponents();
+builder.SetupWeb();
 
 var app = builder.Build();
 
