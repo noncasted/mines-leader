@@ -198,6 +198,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interfaces", "Infrastructur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grains", "Infrastructure\Orleans\Transactions\Grains\Grains.csproj", "{931A3A8E-7FCF-4DA8-9514-D6C44CD7ECCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Infrastructure\Orleans\Common\Common.csproj", "{12411609-EE26-47F0-9DD0-36D8A5348E2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -296,6 +298,7 @@ Global
 		{B0F7E2FC-B2B7-4351-8E2F-9EB9AAD5353C} = {5A75C5D2-0059-4860-98AF-B0DC1FBBB7F0}
 		{9F910658-EFA3-41B5-B384-2F6D6382A4DD} = {5A75C5D2-0059-4860-98AF-B0DC1FBBB7F0}
 		{931A3A8E-7FCF-4DA8-9514-D6C44CD7ECCF} = {ADC3DF8A-DAC4-4719-9004-5B6ACF7EED0F}
+		{12411609-EE26-47F0-9DD0-36D8A5348E2C} = {940D9E39-F631-49B4-837A-B8CC27986052}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B9FA98D2-007B-4F88-A231-72AF33C52FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -566,5 +569,9 @@ Global
 		{931A3A8E-7FCF-4DA8-9514-D6C44CD7ECCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{931A3A8E-7FCF-4DA8-9514-D6C44CD7ECCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{931A3A8E-7FCF-4DA8-9514-D6C44CD7ECCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12411609-EE26-47F0-9DD0-36D8A5348E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12411609-EE26-47F0-9DD0-36D8A5348E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12411609-EE26-47F0-9DD0-36D8A5348E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12411609-EE26-47F0-9DD0-36D8A5348E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

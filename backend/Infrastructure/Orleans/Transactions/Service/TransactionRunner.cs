@@ -19,7 +19,7 @@ public class TransactionRunner : ITransactionRunner
     private readonly ITransactionResolver _transactionResolver;
     private readonly Serializer<OrleansTransactionAbortedException> _serializer;
 
-    public async Task Run(Func<Task> action, Func<Task> commitAction)
+    public async Task Run(TransactionRunOptions options)
     {
         var transactionTimeout = Debugger.IsAttached ? TimeSpan.FromMinutes(30) : TimeSpan.FromSeconds(10);
         var transactionInfo = await _transactionResolver.StartTransaction(readOnly: false, transactionTimeout);
@@ -28,7 +28,7 @@ public class TransactionRunner : ITransactionRunner
 
         try
         {
-            await action();
+            await options.Action();
         }
         catch (Exception exception)
         {
@@ -49,7 +49,7 @@ public class TransactionRunner : ITransactionRunner
         else
         {
             // Try to resolve transaction
-            var (status, exception) = await _transactionResolver.Resolve(transactionInfo, commitAction);
+            var (status, exception) = await _transactionResolver.Resolve(transactionInfo, options);
 
             if (status != TransactionalStatus.Ok)
             {

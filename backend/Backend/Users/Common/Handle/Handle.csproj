@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
       <ProjectReference Include="..\..\Decks\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Entities\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Matches\Interfaces\Interfaces.csproj" />

@@ -1,5 +1,6 @@
 ﻿using Backend.Users;
 using Common;
+using Infrastructure.Orleans;
 using Microsoft.Extensions.Options;
 using Orleans.Concurrency;
 using Orleans.Transactions.Abstractions;

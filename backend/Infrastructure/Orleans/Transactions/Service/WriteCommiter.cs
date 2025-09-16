@@ -17,7 +17,7 @@ public class WriteCommiter
 
     public async Task<(TransactionalStatus, Exception?)> Execute(
         TransactionParticipants participants,
-        Func<Task> commitAction)
+        TransactionRunOptions options)
     {
         TransactionalStatus status;
         Exception? exception;
@@ -44,7 +44,7 @@ public class WriteCommiter
                 participants.Resources.Count
             );
 
-            await commitAction();
+            await options.SuccessAction!();
 
             exception = null;
         }
@@ -122,6 +122,8 @@ public class WriteCommiter
                         )
                     );
                 }
+
+                await options.FailureAction!();
             }
             catch (Exception ex)
             {

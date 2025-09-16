@@ -1,18 +1,21 @@
-﻿namespace Common;
+﻿namespace Infrastructure.Orleans;
 
 public interface ITransactions
 {
     ITransactionClient Client { get; }
+    ITransactionRunner Runner { get; }
 }
 
 public class Transactions : ITransactions
 {
-    public Transactions(ITransactionClient client)
+    public Transactions(ITransactionClient client, ITransactionRunner runner)
     {
         Client = client;
+        Runner = runner;
     }
-    
+
     public ITransactionClient Client { get; }
+    public ITransactionRunner Runner { get; }
 }
 
 public static class TransactionsExtensions
@@ -31,7 +34,7 @@ public static class TransactionsExtensions
     {
         return transactions.Run(TransactionOption.Create, action);
     }
-    
+
     public static Task<T> Join<T>(this ITransactions transactions, Func<Task<T>> action)
     {
         return transactions.Run(TransactionOption.Join, action);

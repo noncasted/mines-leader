@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\..\..\shared\Protocol\Protocol.csproj" />
         <ProjectReference Include="..\..\..\Backend\Matches\Entities\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\..\Backend\Users\Matches\Interfaces\Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
         <ProjectReference Include="..\..\Session\Session.csproj" />
         <ProjectReference Include="..\Board\Board.csproj" />
         <ProjectReference Include="..\Players\Players.csproj" />

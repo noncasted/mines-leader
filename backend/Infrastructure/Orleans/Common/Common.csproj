@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <AssemblyName>Infrastructure.Orleans.Common</AssemblyName>
+        <RootNamespace>Infrastructure.Orleans</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk" />
+        <PackageReference Include="Microsoft.Orleans.Transactions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Transactions\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Transactions\Service\Service.csproj" />
+    </ItemGroup>
+
+</Project>

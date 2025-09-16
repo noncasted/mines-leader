@@ -10,10 +10,10 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
     protected BatchWriter(IPersistentState<BatchWriterState<T>> state)
     {
         _state = state;
-        _transactions = ServiceProvider.GetRequiredService<ITransactionRunner>();
+        _orleans = ServiceProvider.GetRequiredService<IOrleans>();
     }
 
-    private readonly ITransactionRunner _transactions;
+    private readonly IOrleans _orleans;
     private readonly IPersistentState<BatchWriterState<T>> _state;
     private readonly Dictionary<Guid, List<T>> _pending = new();
 
@@ -59,14 +59,15 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
 
         try
         {
-            await _transactions.Run(
-                () => Process(state.Entries),
-                () =>
-                {
-                    state.Entries.Clear();
-                    return _state.WriteStateAsync();
-                }
-            );
+            await _orleans
+                .RunTransaction(() => Process(state.Entries))
+                .WithSuccessAction(() =>
+                    {
+                        state.Entries.Clear();
+                        return _state.WriteStateAsync();
+                    }
+                )
+                .Start();
         }
         catch (Exception e)
         {

@@ -14,6 +14,7 @@
         <ProjectReference Include="..\..\..\..\..\shared\Backend\Backend.csproj" />
         <ProjectReference Include="..\..\..\..\..\shared\Domain\Domain.csproj" />
         <ProjectReference Include="..\..\..\..\..\shared\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
         <ProjectReference Include="..\..\..\Gateway\UserFlow\UserFlow.csproj" />
         <ProjectReference Include="..\..\Decks\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\Extensions\Extensions.csproj" />

@@ -2,6 +2,7 @@
 using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
+using Infrastructure.Orleans;
 using Microsoft.Extensions.Logging;
 using Shared;
 

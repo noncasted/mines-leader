@@ -6,7 +6,7 @@ namespace Infrastructure.Orleans;
 
 public interface ITransactionResolver : ITransactionAgent
 {
-    Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo, Func<Task> commitAction);
+    Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo, TransactionRunOptions options);
 }
 
 public class TransactionResolver : ITransactionResolver
@@ -49,12 +49,12 @@ public class TransactionResolver : ITransactionResolver
 
     public Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo)
     {
-        return  Resolve(transactionInfo, () => Task.CompletedTask);
+        return Resolve(transactionInfo, TransactionRunOptions.Empty);
     }
 
     public async Task<(TransactionalStatus, Exception?)> Resolve(
-        TransactionInfo transactionInfo, 
-        Func<Task> commitAction)
+        TransactionInfo transactionInfo,
+        TransactionRunOptions options)
     {
         transactionInfo.TimeStamp = _clock.MergeUtcNow(transactionInfo.TimeStamp);
 
@@ -72,7 +72,7 @@ public class TransactionResolver : ITransactionResolver
             var (status, exception) = participants.Write.Count switch
             {
                 0 => await _readCommiter.Execute(participants),
-                _ => await _writeCommiter.Execute(participants, commitAction)
+                _ => await _writeCommiter.Execute(participants, options)
             };
 
             if (status == TransactionalStatus.Ok)

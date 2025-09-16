@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Common;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Orleans.Transactions;
 
-namespace Common;
+namespace Infrastructure.Orleans;
 
 public interface IOrleans
 {
@@ -31,8 +33,12 @@ public static class OrleansUtilsExtensions
 {
     public static IHostApplicationBuilder AddOrleansUtils(this IHostApplicationBuilder builder)
     {
-        builder.Services.Add<ITransactions, Transactions>();
-        builder.Services.Add<IOrleans, OrleansUtils>();
+        var services = builder.Services;
+
+        services.Add<ITransactionAgent, TransactionResolver>();
+        services.Add<ITransactionRunner, TransactionRunner>();
+        services.Add<ITransactions, Transactions>();
+        services.Add<IOrleans, OrleansUtils>();
 
         return builder;
     }
@@ -73,5 +79,10 @@ public static class OrleansUtilsExtensions
     public static Task InTransaction(this IOrleans orleans, Func<Task> action)
     {
         return orleans.Transactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
+    }
+    
+    public static TransactionRunBuilder RunTransaction(this IOrleans orleans, Func<Task> action)
+    {
+        return orleans.Transactions.Runner.Create(action);
     }
 }

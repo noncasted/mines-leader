@@ -13,6 +13,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
     </ItemGroup>
 
