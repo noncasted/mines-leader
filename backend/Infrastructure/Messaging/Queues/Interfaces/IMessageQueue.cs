@@ -3,6 +3,6 @@
 public interface IMessageQueue : IGrainWithStringKey
 {
     Task AddObserver(IMessageQueueObserver observer);
-    Task PushDirect(IClusterMessage message);
-    Task PushTransactional(IClusterMessage message);
+    Task PushDirect(object message);
+    Task PushTransactional(object message);
 }

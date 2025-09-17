@@ -33,7 +33,6 @@
         <ProjectReference Include="..\..\..\Backend\Users\Projections\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\..\Backend\Users\Projections\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\Discovery\Environment\Environment.csproj"/>
-        <ProjectReference Include="..\..\Discovery\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Discovery\Servers\Servers.csproj"/>
         <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj"/>
         <ProjectReference Include="..\..\Messaging\Grains\Grains.csproj"/>

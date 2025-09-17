@@ -3,7 +3,7 @@
 namespace Infrastructure.Messaging;
 
 [GenerateSerializer]
-public class MessageQueueState : BatchWriterState<IClusterMessage>
+public class MessageQueueState : BatchWriterState<object>
 {
     
 }

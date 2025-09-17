@@ -9,8 +9,4 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
-    </ItemGroup>
-
 </Project>

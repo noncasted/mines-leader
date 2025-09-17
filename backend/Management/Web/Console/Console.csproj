@@ -20,7 +20,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\Aspire\ServiceDefaults\ServiceDefaults.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Discovery\Environment\Environment.csproj" />
-      <ProjectReference Include="..\..\..\Infrastructure\Discovery\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Discovery\Servers\Servers.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Messaging\Grains\Grains.csproj" />

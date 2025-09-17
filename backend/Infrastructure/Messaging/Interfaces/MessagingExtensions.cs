@@ -3,7 +3,7 @@ using Infrastructure.Discovery;
 
 namespace Infrastructure.Messaging;
 
-public static class MessagingExtensions
+public static class MessagingExtensionsaa
 {
     public static IMessagingHub GetMessagingHub(this IGrainFactory grainFactory)
     {

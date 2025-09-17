@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using Orleans.Concurrency;
 
 namespace Infrastructure.Messaging;
 
+[Reentrant]
 public class MessageStream : Grain, IMessageStream
 {
     public MessageStream(ILogger<MessageStream> logger)

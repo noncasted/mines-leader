@@ -7,6 +7,21 @@ public interface IMessageQueueId
     string ToString();
 }
 
+public class MessageQueueId : IMessageQueueId
+{
+    public MessageQueueId(string id)
+    {
+        _id = id;
+    }
+
+    private readonly string _id;
+
+    public override string ToString()
+    {
+        return _id;
+    }
+}
+
 public interface IMessageStreamId
 {
     string ToString();
@@ -14,9 +29,7 @@ public interface IMessageStreamId
 
 public interface IMessaging
 {
-    Task PushTransactionalQueue(IMessageQueueId id, IClusterMessage message);
-    Task PushDirectQueue(IMessageQueueId id, IClusterMessage message);
-    void ListenQueue<T>(IReadOnlyLifetime lifetime, Action<T> listener) where T : IClusterMessage;
+    IMessageQueueClient Queue { get; }
 
     Task SendStream(IMessageOptions options, IClusterMessage message);
 
@@ -28,5 +41,27 @@ public interface IMessaging
     void ListenStream<TRequest, TResponse>(IReadOnlyLifetime lifetime, Func<TRequest, Task<TResponse>> listener)
         where TRequest : IClusterMessage
         where TResponse : IClusterMessage;
+}
 
+public static class MessagingExtensions
+{
+    public static Task PushTransactionalQueue(this IMessaging messaging, IMessageQueueId id, object message)
+    {
+        return messaging.Queue.PushTransactional(id, message);
+    }
+
+    public static Task PushDirectQueue(this IMessaging messaging, IMessageQueueId id, object message)
+    {
+        return messaging.Queue.PushDirect(id, message);
+    }
+
+    public static void ListenQueue<T>(
+        this IMessaging messaging,
+        IReadOnlyLifetime lifetime,
+        IMessageQueueId id,
+        Action<T> listener)
+    {
+        var consumer = messaging.Queue.GetOrCreateConsumer<T>(id);
+        consumer.Advise(lifetime, listener);
+    }
 }

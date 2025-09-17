@@ -6,7 +6,7 @@ using ServiceLoop;
 
 namespace Service;
 
-public class MessageQueueClient : IMessageQueueClient, IMessagingLoopStage
+public class MessageQueueClient : IMessageQueueClient, IOrleansLoopStage
 {
     public MessageQueueClient(IOrleans orleans, ILogger<MessageQueueClient> logger)
     {
@@ -19,13 +19,13 @@ public class MessageQueueClient : IMessageQueueClient, IMessagingLoopStage
     private readonly Dictionary<Type, object> _delegates = new();
     private readonly List<Func<Task>> _resubscribeActions = new();
 
-    public Task OnMessagingStage(IReadOnlyLifetime lifetime)
+    public Task OnOrleansStage(IReadOnlyLifetime lifetime)
     {
         ResubscribeLoop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
 
-    public IViewableDelegate<T> GetOrCreateConsumer<T>(IMessageQueueId id) where T : IClusterMessage
+    public IViewableDelegate<T> GetOrCreateConsumer<T>(IMessageQueueId id)
     {
         var type = typeof(T);
 
@@ -46,10 +46,10 @@ public class MessageQueueClient : IMessageQueueClient, IMessagingLoopStage
 
             GC.KeepAlive(observer);
             GC.KeepAlive(observerReference);
-            
+
             Subscribe().NoAwait();
             _resubscribeActions.Add(Subscribe);
-            
+
             _delegates[type] = source;
 
             Task Subscribe()
@@ -71,12 +71,12 @@ public class MessageQueueClient : IMessageQueueClient, IMessagingLoopStage
         return (ViewableDelegate<T>)_delegates[type];
     }
 
-    public Task PushTransactional(IMessageQueueId id, IClusterMessage message)
+    public Task PushTransactional(IMessageQueueId id, object message)
     {
         return GetQueue(id).PushTransactional(message);
     }
 
-    public Task PushDirect(IMessageQueueId id, IClusterMessage message)
+    public Task PushDirect(IMessageQueueId id, object message)
     {
         return GetQueue(id).PushDirect(message);
     }

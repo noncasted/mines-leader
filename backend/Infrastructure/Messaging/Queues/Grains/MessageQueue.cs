@@ -4,18 +4,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Messaging;
 
-public class MessageQueue : BatchWriter<MessageQueueState, IClusterMessage>, IMessageQueue
+public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueue
 {
     public MessageQueue(
         [States.MessageQueue] IPersistentState<MessageQueueState> state,
         ILogger<MessageQueue> logger) : base(state)
     {
-        _state = state;
         _logger = logger;
     }
 
     private readonly List<IMessageQueueObserver> _observers = new();
-    private readonly IPersistentState<MessageQueueState> _state;
     private readonly ILogger<MessageQueue> _logger;
 
     protected override BatchWriterOptions Options { get; } = new()
@@ -29,17 +27,17 @@ public class MessageQueue : BatchWriter<MessageQueueState, IClusterMessage>, IMe
         return Task.CompletedTask;
     }
 
-    public Task PushDirect(IClusterMessage message)
+    public Task PushDirect(object message)
     {
         return WriteDirect(message);
     }
 
-    public Task PushTransactional(IClusterMessage message)
+    public Task PushTransactional(object message)
     {
         return WriteTransactional(message);
     }
 
-    protected override async Task Process(IReadOnlyList<IClusterMessage> entries)
+    protected override async Task Process(IReadOnlyList<object> entries)
     {
         var toRemove = new List<IMessageQueueObserver>();
 

@@ -2,6 +2,6 @@
 
 public interface IMessageStreamObserver : IGrainObserver
 {
-    Task Send(IClusterMessage message);
-    Task<TResponse> Send<TResponse>(IClusterMessage message);
+    Task Send(object message);
+    Task<TResponse> Send<TResponse>(object message);
 }
