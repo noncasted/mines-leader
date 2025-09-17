@@ -7,6 +7,7 @@ namespace Infrastructure.Orleans;
 
 public interface IOrleans
 {
+    IClusterClient Client { get; }
     IGrainFactory Grains { get; }
     ITransactions Transactions { get; }
     ILogger Logger { get; }
@@ -15,6 +16,7 @@ public interface IOrleans
 public class OrleansUtils : IOrleans
 {
     public OrleansUtils(
+        IClusterClient client,
         IGrainFactory grains,
         ITransactions transactions,
         ILogger<OrleansUtils> logger)
@@ -22,8 +24,10 @@ public class OrleansUtils : IOrleans
         Grains = grains;
         Transactions = transactions;
         Logger = logger;
+        Client = client;
     }
 
+    public IClusterClient Client { get; }
     public IGrainFactory Grains { get; }
     public ITransactions Transactions { get; }
     public ILogger Logger { get; }
@@ -81,7 +85,7 @@ public static class OrleansUtilsExtensions
         return orleans.Transactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
     }
     
-    public static TransactionRunBuilder RunTransaction(this IOrleans orleans, Func<Task> action)
+    public static TransactionRunBuilder Transaction(this IOrleans orleans, Func<Task> action)
     {
         return orleans.Transactions.Runner.Create(action);
     }

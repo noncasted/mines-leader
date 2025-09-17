@@ -25,15 +25,15 @@ public class MessagingClient : IOrleansLoopStage, IMessagingClient
     private readonly ILogger<MessagingClient> _logger;
     private readonly IServiceEnvironment _environment;
 
-    private MessagingObserver? _observer;
-    private IMessagingObserver? _observerReference;
+    private MessagingListener? _observer;
+    private IMessagingListener? _observerReference;
     private IMessagingHub? _hub;
 
     public async Task OnOrleansStage(IReadOnlyLifetime lifetime)
     {
         _hub = _orleans.GetMessagingHub();
-        _observer = new MessagingObserver();
-        _observerReference = _orleans.CreateObjectReference<IMessagingObserver>(_observer);
+        _observer = new MessagingListener();
+        _observerReference = _orleans.CreateObjectReference<IMessagingListener>(_observer);
 
         GC.KeepAlive(_observer);
         GC.KeepAlive(_observerReference);

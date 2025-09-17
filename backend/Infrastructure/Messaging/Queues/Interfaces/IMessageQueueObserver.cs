@@ -2,5 +2,5 @@
 
 public interface IMessageQueueObserver : IGrainObserver
 {
-    Task Send(IClusterMessage message);
+    Task Send(IReadOnlyList<IClusterMessage> messages);
 }

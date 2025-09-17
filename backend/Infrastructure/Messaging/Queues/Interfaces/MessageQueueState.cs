@@ -1,7 +1,9 @@
-﻿namespace Infrastructure.Messaging;
+﻿using Infrastructure.StorableActions;
+
+namespace Infrastructure.Messaging;
 
 [GenerateSerializer]
-public class MessageQueueState
+public class MessageQueueState : BatchWriterState<IClusterMessage>
 {
     
 }

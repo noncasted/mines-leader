@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Messaging;
 
-public interface IMessagingObserver : IGrainObserver
+public interface IMessagingListener : IGrainObserver
 {
     Task Ping();
     Task Send(IClusterMessage message);

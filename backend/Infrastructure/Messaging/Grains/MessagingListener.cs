@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Messaging;
 
-public class MessagingObserver : IMessagingObserver
+public class MessagingListener : IMessagingListener
 {
     private readonly ViewableDelegate<IClusterMessage> _messageReceived = new();
     private readonly ViewableDelegate<IClusterMessage, Action<Task<IClusterMessage>>> _responseMessageReceived = new();

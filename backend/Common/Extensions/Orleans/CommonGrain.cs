@@ -7,5 +7,6 @@ public interface ICommonGrain
 
 public class CommonGrain : Grain, ICommonGrain
 {
+    public string StringId => this.GetPrimaryKeyString();
     public IGrainFactory Grains => GrainFactory;
 }

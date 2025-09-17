@@ -15,6 +15,8 @@ public static class States
     public const string Match_Entity = "Match_Entity";
 
     public const string Config = "Config";
+    
+    public const string Messaging_Queue = "Messaging_Queue";
 
     public static readonly IReadOnlyList<string> StateTables =
     [
@@ -25,7 +27,8 @@ public static class States
         User_ProjectionConnection,
         User_Deck,
         Match_Entity,
-        Config
+        Config, 
+        Messaging_Queue
     ];
 
     public class UserEntityAttribute() : TransactionalStateAttribute(User_Entity, User_Entity);
@@ -44,6 +47,9 @@ public static class States
     public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
 
     public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
+    
+    public class MessageQueueAttribute() : PersistentStateAttribute(Messaging_Queue, Messaging_Queue);
+
 }
 
 public static class StateAttributesExtensions

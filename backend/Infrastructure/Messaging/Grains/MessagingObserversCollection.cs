@@ -15,17 +15,17 @@ public class MessagingObserversCollection
     private readonly TimeSpan _timeout;
     private readonly ConcurrentDictionary<Guid, Entry> _entries = new();
 
-    public void Add(MessagingObserverOverview overview, IMessagingObserver observer)
+    public void Add(MessagingObserverOverview overview, IMessagingListener listener)
     {
         _entries[overview.ServiceId] = new Entry
         {
-            Observer = observer,
+            Listener = listener,
             LastTimeSeen = DateTime.UtcNow,
             Overview = overview
         };
     }
 
-    public async Task Notify(Func<MessagingObserverOverview, bool> selector, Func<IMessagingObserver, Task> action)
+    public async Task Notify(Func<MessagingObserverOverview, bool> selector, Func<IMessagingListener, Task> action)
     {
         var targets = _entries
             .Where(x => selector(x.Value.Overview))
@@ -50,7 +50,7 @@ public class MessagingObserversCollection
 
                 try
                 {
-                    await target.Observer.Ping();
+                    await target.Listener.Ping();
                 }
                 catch (Exception ex)
                 {
@@ -71,7 +71,7 @@ public class MessagingObserversCollection
         {
             try
             {
-                await action(target.Observer);
+                await action(target.Listener);
             }
             catch (Exception ex)
             {
@@ -82,7 +82,7 @@ public class MessagingObserversCollection
 
     public class Entry
     {
-        public required IMessagingObserver Observer { get; init; }
+        public required IMessagingListener Listener { get; init; }
         public required DateTime LastTimeSeen { get; init; }
         public required MessagingObserverOverview Overview { get; init; }
     }

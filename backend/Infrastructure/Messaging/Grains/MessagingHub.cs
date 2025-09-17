@@ -23,9 +23,9 @@ public class MessagingHub : Grain, IMessagingHub
         _deactivationLocker = new GrainDeactivationLocker(contextAccessor);
     }
 
-    public Task BindClient(MessagingObserverOverview overview, IMessagingObserver observer)
+    public Task BindClient(MessagingObserverOverview overview, IMessagingListener listener)
     {
-        _observersCollection.Add(overview, observer);
+        _observersCollection.Add(overview, listener);
         return Task.CompletedTask;
     }
 

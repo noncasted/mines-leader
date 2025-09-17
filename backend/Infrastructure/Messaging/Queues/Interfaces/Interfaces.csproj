@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\StorableActions\Batchers\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\Interfaces\Interfaces.csproj" />
     </ItemGroup>
 

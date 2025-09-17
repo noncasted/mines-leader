@@ -19,16 +19,23 @@ public class BatchWriterTask<T> : IPriorityTask
     }
 }
 
-public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactionHook
+public class BatchWriterOptions
 {
-    protected BatchWriter(IPersistentState<BatchWriterState<T>> state)
+    public TimeSpan Delay { get; set; } = TimeSpan.FromSeconds(1);
+    public bool RequiresTransaction { get; set; } = true;
+}
+
+public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHook, IBatchWriter<TEntry>
+    where TState : BatchWriterState<TEntry>
+{
+    protected BatchWriter(IPersistentState<TState> state)
     {
         _state = state;
         _orleans = ServiceProvider.GetRequiredService<IOrleans>();
         _taskScheduler = ServiceProvider.GetRequiredService<ITaskScheduler>();
-        _logger = ServiceProvider.GetRequiredService<ILogger<BatchWriter<T>>>();
+        _logger = ServiceProvider.GetRequiredService<ILogger<BatchWriter<TState, TEntry>>>();
 
-        _task = new BatchWriterTask<T>
+        _task = new BatchWriterTask<TEntry>
         {
             Id = this.GetPrimaryKeyString(),
             Priority = TaskPriority.Low,
@@ -36,14 +43,16 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
         };
     }
 
-    private readonly ILogger<BatchWriter<T>> _logger;
+    private readonly ILogger<BatchWriter<TState, TEntry>> _logger;
     private readonly IOrleans _orleans;
     private readonly ITaskScheduler _taskScheduler;
 
-    private readonly IPersistentState<BatchWriterState<T>> _state;
-    private readonly Dictionary<Guid, List<T>> _pending = new();
+    private readonly IPersistentState<TState> _state;
+    private readonly Dictionary<Guid, List<TEntry>> _pending = new();
 
     private readonly IPriorityTask _task;
+    
+    protected abstract BatchWriterOptions Options { get; }
 
     public Task Start()
     {
@@ -54,19 +63,25 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
         return Task.CompletedTask;
     }
 
-    public Task Write(T value)
+    public Task WriteTransactional(TEntry value)
     {
         this.AsTransactionHook();
 
         var transactionId = TransactionContext.GetRequiredTransactionInfo().TransactionId;
         if (_pending.TryGetValue(transactionId, out var list) == false)
         {
-            list = new List<T>();
+            list = new List<TEntry>();
             _pending[transactionId] = list;
         }
 
         list.Add(value);
         return Task.CompletedTask;
+    }
+    
+    public Task WriteDirect(TEntry value)
+    {
+        _state.State.Entries.Add(value);
+        return _state.WriteStateAsync();
     }
 
     public async Task OnSuccess(Guid transactionId)
@@ -92,21 +107,30 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
 
         try
         {
-            await _orleans
-                .RunTransaction(() => Process(state.Entries))
-                .WithSuccessAction(() =>
-                    {
-                        state.Entries.Clear();
-                        return _state.WriteStateAsync();
-                    }
-                )
-                .Start();
+            if (Options.RequiresTransaction == true)
+            {
+                await _orleans
+                    .Transaction(() => Process(state.Entries))
+                    .WithSuccessAction(() =>
+                        {
+                            state.Entries.Clear();
+                            return _state.WriteStateAsync();
+                        }
+                    )
+                    .Start();
+            }
+            else
+            {
+                await Process(state.Entries);
+                state.Entries.Clear();
+                await _state.WriteStateAsync();
+            }
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[BatchWriter] Process failed {writerName} {batchType}", 
                 this.GetPrimaryKeyString(),
-                typeof(T).Name
+                typeof(TEntry).Name
             );
             
             _taskScheduler.Schedule(_task);
@@ -117,5 +141,5 @@ public abstract class BatchWriter<T> : CommonGrain, IBatchWriter<T>, ITransactio
             _taskScheduler.Schedule(_task);
     }
 
-    protected abstract Task Process(IReadOnlyList<T> entries);
+    protected abstract Task Process(IReadOnlyList<TEntry> entries);
 }
