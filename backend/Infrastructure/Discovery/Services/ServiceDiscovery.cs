@@ -1,7 +1,6 @@
 ﻿using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServiceLoop;

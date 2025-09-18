@@ -1,5 +1,4 @@
-﻿using Menu.Social;
-using Shared;
+﻿using Shared;
 
 namespace Common;
 

@@ -1,8 +1,7 @@
 ﻿using System;
 using MemoryPack;
-using Shared;
 
-namespace Menu.Social
+namespace Shared
 {
     [MemoryPackable]
     public partial class MenuPlayerPayload : IEntityPayload

@@ -1,5 +1,5 @@
 ﻿using Common;
-using Services;
+using Infrastructure.Discovery;
 
 namespace Infrastructure.Messaging;
 

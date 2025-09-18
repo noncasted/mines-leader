@@ -1,6 +1,4 @@
-﻿using Infrastructure.Messaging;
-
-namespace Management.Configs;
+﻿namespace Management.Configs;
 
 [GenerateSerializer]
 public class ConfigUpdateMessage

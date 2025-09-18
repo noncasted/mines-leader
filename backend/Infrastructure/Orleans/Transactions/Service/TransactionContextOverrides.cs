@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Orleans.Transactions;
 
-namespace Atlantis.Orleans.Limiters;
+namespace Infrastructure.Orleans;
 
 public static class TransactionContextOverrides {
     private static readonly Type TransactionContextType = typeof(TransactionContext);

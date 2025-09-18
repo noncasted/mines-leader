@@ -1,6 +1,4 @@
-﻿using Infrastructure.Discovery;
-
-namespace Services;
+﻿namespace Infrastructure.Discovery;
 
 public interface IServiceOverview
 {
