@@ -5,7 +5,7 @@ namespace Backend.Users;
 
 public interface IUserProjection : IGrainWithGuidKey
 {
-    Task OnConnected(Guid connectionServiceId);
+    Task OnConnected();
     Task OnDisconnected();
 
     [AlwaysInterleave]

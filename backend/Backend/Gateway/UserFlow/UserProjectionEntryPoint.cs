@@ -1,6 +1,5 @@
 ﻿using Backend.Users;
 using Common;
-using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Hosting;
 using Shared;
@@ -12,18 +11,15 @@ public class UserProjectionEntryPoint : BackgroundService
     public UserProjectionEntryPoint(
         IConnectedUsers users,
         IClusterClient orleans,
-        IServiceEnvironment environment,
         IMessaging messaging)
     {
         _users = users;
         _orleans = orleans;
-        _environment = environment;
         _messaging = messaging;
     }
 
     private readonly IConnectedUsers _users;
     private readonly IClusterClient _orleans;
-    private readonly IServiceEnvironment _environment;
     private readonly IMessaging _messaging;
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,26 +33,22 @@ public class UserProjectionEntryPoint : BackgroundService
     {
         var projection = _orleans.GetGrain<IUserProjection>(user.UserId);
 
-        await projection.OnConnected(_environment.ServiceId);
+        await projection.OnConnected();
         await projection.ForceNotify();
 
         user.Lifetime.Listen(() => projection.OnDisconnected().NoAwait());
 
         var pipeId = new UserProjectionPipeId(user.UserId);
-        _messaging.ListenPipe<ProjectionPayloadValue>(user.Lifetime, pipeId, OnProjectionReceived);
-    }
+        
+        _messaging.ListenPipe<IProjectionPayload>(user.Lifetime, pipeId, payload =>
+        {
+            var context = payload.ToContext();
 
-    private void OnProjectionReceived(ProjectionPayloadValue payload)
-    {
-        if (_users.Entries.TryGetValue(payload.UserId, out var user) == false)
-            return;
-
-        var context = payload.Value.ToContext();
-
-        user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
-            {
-                Context = context
-            }
-        );
+            user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
+                {
+                    Context = context
+                }
+            );
+        });
     }
 }

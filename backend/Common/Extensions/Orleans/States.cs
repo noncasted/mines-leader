@@ -8,8 +8,7 @@ public static class States
     public const string User_Entity = "User_Entity";
     public const string User_Progression = "User_Progression";
     public const string User_MatchHistory = "User_Match_History";
-    public const string User_Projection = "User_Projection_Records";
-    public const string User_ProjectionConnection = "User_Projection_Connection";
+    public const string User_Projection = "User_Projection";
     public const string User_Deck = "User_Deck";
 
     public const string Match_Entity = "Match_Entity";
@@ -24,7 +23,6 @@ public static class States
         User_Progression,
         User_MatchHistory,
         User_Projection,
-        User_ProjectionConnection,
         User_Deck,
         Match_Entity,
         Config, 
@@ -38,9 +36,6 @@ public static class States
     public class UserMatchHistoryAttribute() : TransactionalStateAttribute(User_MatchHistory, User_MatchHistory);
 
     public class UserProjectionAttribute() : TransactionalStateAttribute(User_Projection, User_Projection);
-
-    public class UserProjectionConnectionAttribute()
-        : PersistentStateAttribute(User_ProjectionConnection, User_ProjectionConnection);
 
     public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck, User_Deck);
 
@@ -61,7 +56,6 @@ public static class StateAttributesExtensions
         AddTransactionalAttribute<States.UserMatchHistoryAttribute>();
         AddTransactionalAttribute<States.UserProjectionAttribute>();
         AddTransactionalAttribute<States.UserDeckAttribute>();
-        AddPersistentAttribute<States.UserProjectionConnectionAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
 

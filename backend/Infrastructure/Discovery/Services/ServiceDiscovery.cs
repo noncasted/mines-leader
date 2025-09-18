@@ -23,14 +23,8 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
-        
-        _self = new ServiceOverview
-        {
-            Id = _environment.ServiceId,
-            Name = _environment.ServiceName,
-            Tag = _environment.Tag,
-            UpdateTime = DateTime.UtcNow
-        };
+
+        _self = CreateOverview();
     }
 
     private readonly IMessaging _messaging;
@@ -55,13 +49,7 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
     {
         while (lifetime.IsTerminated == false)
         {
-            _self = new ServiceOverview
-            {
-                Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
-                Tag = _environment.Tag,
-                UpdateTime = DateTime.UtcNow
-            };
+            _self = CreateOverview();
 
             try
             {
@@ -74,6 +62,43 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
 
             await Task.Delay(TimeSpan.FromSeconds(10));
         }
+    }
+
+    private IServiceOverview CreateOverview()
+    {
+        return _environment.Tag switch
+        {
+            ServiceTag.Server => new GameServerOverview
+            {
+                Id = _environment.ServiceId,
+                Name = _environment.ServiceName,
+                Tag = ServiceTag.Server,
+                UpdateTime = DateTime.UtcNow,
+                Url = _environment.ServiceUrl
+            },
+            ServiceTag.Backend => new ServiceOverview()
+            {
+                Id = _environment.ServiceId,
+                Name = _environment.ServiceName,
+                Tag = ServiceTag.Backend,
+                UpdateTime = DateTime.UtcNow,
+            },
+            ServiceTag.Silo => new ServiceOverview()
+            {
+                Id = _environment.ServiceId,
+                Name = _environment.ServiceName,
+                Tag = ServiceTag.Silo,
+                UpdateTime = DateTime.UtcNow,
+            },
+            ServiceTag.Console => new ServiceOverview()
+            {
+                Id = _environment.ServiceId,
+                Name = _environment.ServiceName,
+                Tag = ServiceTag.Console,
+                UpdateTime = DateTime.UtcNow,
+            },
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }
 

@@ -9,44 +9,39 @@ public class UserProjection : Grain, IUserProjection
 {
     public UserProjection(
         [States.UserProjection] ITransactionalState<UserProjectionState> state,
-        [States.UserProjectionConnection] IPersistentState<UserProjectionConnectionState> connectionState,
         IMessaging messaging,
         ILogger<UserProjection> logger)
     {
         _state = state;
-        _connectionState = connectionState;
         _messaging = messaging;
         _logger = logger;
-        _userId = this.GetPrimaryKey();
-        _pipeId = new UserProjectionPipeId(_userId);
+        _pipeId = new UserProjectionPipeId(this.GetPrimaryKey());
     }
 
     private readonly ITransactionalState<UserProjectionState> _state;
-    private readonly IPersistentState<UserProjectionConnectionState> _connectionState;
     private readonly IMessaging _messaging;
-    private readonly Guid _userId;
     private readonly ILogger<UserProjection> _logger;
     private readonly UserProjectionPipeId _pipeId;
 
     private readonly List<IProjectionPayload> _pending = new();
 
-    private UserProjectionConnectionState connectionState => _connectionState.State;
+    private bool _isConnected;
 
-    public Task OnConnected(Guid connectionServiceId)
+    public Task OnConnected()
     {
-        connectionState.ConnectionServiceId = connectionServiceId;
-        return _connectionState.WriteStateAsync();
+        _isConnected = true;
+        return Task.CompletedTask;
     }
 
     public Task OnDisconnected()
     {
-        connectionState.ConnectionServiceId = Guid.Empty;
-        return _connectionState.WriteStateAsync();
+        _isConnected = false;
+        return Task.CompletedTask;
     }
 
     public async Task ForceNotify()
     {
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
             _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
             return;
@@ -74,7 +69,7 @@ public class UserProjection : Grain, IUserProjection
 
         await _state.Write(state => state.Values[payload.GetType().Name] = payload);
 
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
             _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
             _pending.Add(payload);
@@ -99,7 +94,7 @@ public class UserProjection : Grain, IUserProjection
             payload.GetType().Name,
             this.GetPrimaryKey());
 
-        if (connectionState.ConnectionServiceId == Guid.Empty)
+        if (_isConnected == false)
         {
             _logger.LogWarning("[User] [Projection] No connection service id found for {Id}", this.GetPrimaryKey());
             _pending.Add(payload);
@@ -111,10 +106,6 @@ public class UserProjection : Grain, IUserProjection
 
     private Task Send(IProjectionPayload payload)
     {
-        return _messaging.SendPipe(_pipeId, new ProjectionPayloadValue
-        {
-            Value = payload,
-            UserId = _userId
-        });
+        return _messaging.SendPipe(_pipeId, payload);
     }
 }
