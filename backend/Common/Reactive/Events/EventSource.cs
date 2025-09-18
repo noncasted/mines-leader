@@ -4,6 +4,8 @@
     {
         protected readonly ModifiableList<T> Listeners = new();
 
+        public int ListenersCount => Listeners.Count;
+        
         public void Advise(IReadOnlyLifetime lifetime, T handler)
         {
             Listeners.Add(handler);

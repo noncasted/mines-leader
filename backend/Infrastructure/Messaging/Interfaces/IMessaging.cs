@@ -1,4 +1,5 @@
 ﻿using Common;
+using Services;
 
 namespace Infrastructure.Messaging;
 
@@ -22,25 +23,47 @@ public class MessageQueueId : IMessageQueueId
     }
 }
 
-public interface IMessageStreamId
+public interface IMessagePipeId
 {
-    string ToString();
+    string ToRaw();
+}
+
+public class MessagePipeId : IMessagePipeId
+{
+    public MessagePipeId(string id)
+    {
+        _id = id;
+    }
+
+    private readonly string _id;
+
+    public string ToRaw()
+    {
+        return _id;
+    }
+}
+
+public class MessagePipeServiceRequestId : IMessagePipeId
+{
+    public MessagePipeServiceRequestId(IServiceOverview serviceOverview, Type type)
+    {
+        _serviceOverview = serviceOverview;
+        _type = type;
+    }
+
+    private readonly IServiceOverview _serviceOverview;
+    private readonly Type _type;
+
+    public string ToRaw()
+    {
+        return $"service-pipe-request-{_serviceOverview.Id}-{_type.FullName}";
+    }
 }
 
 public interface IMessaging
 {
     IMessageQueueClient Queue { get; }
-
-    Task SendStream(IMessageOptions options, IClusterMessage message);
-
-    Task<TResponse> SendStream<TResponse>(IMessageOptions options, IClusterMessage message)
-        where TResponse : IClusterMessage;
-    
-    IViewableDelegate<T> GetStreamDelegate<T>() where T : IClusterMessage;
-
-    void ListenStream<TRequest, TResponse>(IReadOnlyLifetime lifetime, Func<TRequest, Task<TResponse>> listener)
-        where TRequest : IClusterMessage
-        where TResponse : IClusterMessage;
+    IMessagePipeClient Pipe { get; }
 }
 
 public static class MessagingExtensions
@@ -63,5 +86,34 @@ public static class MessagingExtensions
     {
         var consumer = messaging.Queue.GetOrCreateConsumer<T>(id);
         consumer.Advise(lifetime, listener);
+    }
+
+    public static void ListenPipe<T>(
+        this IMessaging messaging,
+        IReadOnlyLifetime lifetime,
+        IMessagePipeId id,
+        Action<T> listener)
+    {
+        var consumer = messaging.Pipe.GetOrCreateConsumer<T>(id);
+        consumer.Advise(lifetime, listener);
+    }
+
+    public static void AddPipeRequestHandler<TRequest, TResponse>(
+        this IMessaging messaging,
+        IReadOnlyLifetime lifetime,
+        IMessagePipeId id,
+        Func<TRequest, Task<TResponse>> listener)
+    {
+        messaging.Pipe.AddHandler(lifetime, id, listener);
+    }
+
+    public static Task SendPipe(this IMessaging messaging, IMessagePipeId id, object message)
+    {
+        return messaging.Pipe.Send(id, message);
+    }
+
+    public static Task<TResponse> SendPipe<TResponse>(this IMessaging messaging, IMessagePipeId id, object message)
+    {
+        return messaging.Pipe.Send<TResponse>(id, message);
     }
 }

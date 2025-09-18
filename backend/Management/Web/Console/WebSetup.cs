@@ -6,6 +6,7 @@ using Infrastructure.TaskScheduling;
 using Management.Configs;
 using MudBlazor.Services;
 using ServiceLoop;
+using Services;
 
 namespace Management.Web;
 
@@ -26,7 +27,7 @@ public static class WebSetup
             .AddServiceLoop()
             .AddMessaging()
             .AddOrleansUtils()
-            .AddServersCollection()
+            .AddServiceDiscovery()
             .AddConfigsServices()
             .AddTaskScheduling();
 

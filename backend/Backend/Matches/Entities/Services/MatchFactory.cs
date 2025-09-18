@@ -1,9 +1,9 @@
 ﻿using Backend.Users;
-using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Infrastructure.Orleans;
 using Microsoft.Extensions.Logging;
+using Services;
 using Shared;
 
 namespace Backend.Matches;
@@ -11,25 +11,23 @@ namespace Backend.Matches;
 public class MatchFactory : IMatchFactory
 {
     public MatchFactory(
-        IClusterClient orleans,
-        ITransactions transactions,
-        IServers servers,
-        IMessagingClient messaging,
+        IOrleans orleans,
+        IMessaging messaging,
+        IServiceDiscovery serviceDiscovery,
         IServiceEnvironment environment,
         ILogger<MatchFactory> logger)
     {
         _orleans = orleans;
-        _transactions = transactions;
-        _servers = servers;
         _messaging = messaging;
+        _serviceDiscovery = serviceDiscovery;
+        _orleans = orleans;
         _environment = environment;
         _logger = logger;
     }
 
-    private readonly IClusterClient _orleans;
-    private readonly ITransactions _transactions;
-    private readonly IServers _servers;
-    private readonly IMessagingClient _messaging;
+    private readonly IOrleans _orleans;
+    private readonly IMessaging _messaging;
+    private readonly IServiceDiscovery _serviceDiscovery;
     private readonly IServiceEnvironment _environment;
     private readonly ILogger<MatchFactory> _logger;
 
@@ -37,17 +35,18 @@ public class MatchFactory : IMatchFactory
     {
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
 
-        await _transactions.Create(() => match.Setup(GameMatchType.Single, participants));
+        await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, participants));
 
-        var targetServer = _servers.Entries.Random();
+        var targetServer = _serviceDiscovery.RandomServer();
 
         var request = new MatchPayloads.Create.Request
         {
             Type = SessionType.Game,
             ExpectedUsers = participants.Count,
         };
-
-        var response = await _messaging.Send<MatchPayloads.Create.Response>(targetServer.ClientId, request);
+        
+        var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
+        var response = await _messaging.SendPipe<MatchPayloads.Create.Response>(pipeId, request);
 
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL}",
             match.GetPrimaryKey(),
@@ -60,6 +59,6 @@ public class MatchFactory : IMatchFactory
         };
 
         foreach (var participant in participants)
-            await _orleans.SendOneTimeProjection(participant, result);
+            await _orleans.Grains.SendOneTimeProjection(participant, result);
     }
 }

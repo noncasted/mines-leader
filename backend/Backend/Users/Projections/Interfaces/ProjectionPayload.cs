@@ -1,9 +1,7 @@
-﻿using Infrastructure.Messaging;
-
-namespace Backend.Users;
+﻿namespace Backend.Users;
 
 [GenerateSerializer]
-public class ProjectionPayloadValue : IClusterMessage
+public class ProjectionPayloadValue
 {
     [Id(0)]
     public required Guid UserId { get; init; }

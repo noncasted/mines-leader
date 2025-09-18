@@ -8,18 +8,17 @@ public class ConfigsObserver : ISetupLoopStage
 {
     public ConfigsObserver(
         IEnumerable<IConfig> config,
-        IMessagingClient messaging)
+        IMessaging messaging)
     {
         _config = config.ToDictionary(t => t.Type);
         _messaging = messaging;
     }
 
     private readonly IReadOnlyDictionary<Type, IConfig> _config;
-    private readonly IMessagingClient _messaging;
+    private readonly IMessaging _messaging;
     
     public Task OnSetupStage(IReadOnlyLifetime lifetime)
     {
-        _messaging.Listen<ConfigUpdateMessage>(lifetime, OnUpdated);
         
         return Task.CompletedTask;
     }

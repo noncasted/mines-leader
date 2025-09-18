@@ -7,14 +7,14 @@ public class ConfigStorage : Grain, IConfigStorage
 {
     public ConfigStorage(
         [States.ConfigStorage] IPersistentState<ConfigStorageState> state,
-        IMessagingClient messaging)
+        IMessaging messaging)
     {
         _state = state;
         _messaging = messaging;
     }
 
     private readonly IPersistentState<ConfigStorageState> _state;
-    private readonly IMessagingClient _messaging;
+    private readonly IMessaging _messaging;
 
     public Task<T> Get<T>()
     {
@@ -26,9 +26,5 @@ public class ConfigStorage : Grain, IConfigStorage
         _state.State.Value = value;
         await _state.WriteStateAsync();
         
-        await _messaging.SendAll(new ConfigUpdateMessage
-        {
-            Value = value!
-        });
     }
 }

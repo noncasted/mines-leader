@@ -7,6 +7,7 @@ using Infrastructure.Messaging;
 using Infrastructure.Orleans;
 using Infrastructure.TaskScheduling;
 using ServiceLoop;
+using Services;
 
 namespace Backend.Gateway;
 
@@ -26,7 +27,7 @@ public static class BackendGatewaySetup
             .AddMessaging()
             .AddOrleansUtils()
             .AddStateAttributes()
-            .AddServersCollection()
+            .AddServiceDiscovery()
             .AddTaskScheduling()
             .ConfigureCors();
 

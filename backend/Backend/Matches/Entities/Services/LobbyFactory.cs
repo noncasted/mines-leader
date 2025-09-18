@@ -1,8 +1,8 @@
 ﻿using Backend.Users;
-using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
+using Services;
 using Shared;
 
 namespace Backend.Matches;
@@ -11,34 +11,35 @@ public class LobbyFactory : ILobbyFactory
 {
     public LobbyFactory(
         IClusterClient orleans,
-        IServers servers,
-        IMessagingClient messaging,
+        IServiceDiscovery serviceDiscovery,
+        IMessaging messaging,
         IServiceEnvironment environment,
         ILogger<LobbyFactory> logger)
     {
         _orleans = orleans;
-        _servers = servers;
+        _serviceDiscovery = serviceDiscovery;
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
     }
 
     private readonly IClusterClient _orleans;
-    private readonly IServers _servers;
-    private readonly IMessagingClient _messaging;
+    private readonly IServiceDiscovery _serviceDiscovery;
+    private readonly IMessaging _messaging;
     private readonly IServiceEnvironment _environment;
     private readonly ILogger<LobbyFactory> _logger;
 
     public async Task GetOrCreate(Guid userId)
     {
-        var targetServer = _servers.Entries.Random();
+        var targetServer = _serviceDiscovery.RandomServer();
 
         var request = new MatchPayloads.GetOrCreate.Request()
         {
             Type = SessionType.Lobby,
         };
 
-        var response = await _messaging.Send<MatchPayloads.GetOrCreate.Response>(targetServer.ClientId, request);
+        var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
+        var response = await _messaging.SendPipe<MatchPayloads.GetOrCreate.Response>(pipeId, request);
 
         var serverUrl = _environment.ServerUrlToWebSocket(targetServer.Url);
         

@@ -14,7 +14,9 @@
       <ProjectReference Include="..\..\Orleans\Common\Common.csproj" />
       <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\Queues\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Queues\Service\Service.csproj" />
       <ProjectReference Include="..\Streams\Interfaces\Interfaces.csproj" />
+      <ProjectReference Include="..\Streams\Service\Service.csproj" />
     </ItemGroup>
 
 </Project>

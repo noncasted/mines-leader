@@ -13,7 +13,7 @@ public class UserProjectionEntryPoint : BackgroundService
         IConnectedUsers users,
         IClusterClient orleans,
         IServiceEnvironment environment,
-        IMessagingClient messaging)
+        IMessaging messaging)
     {
         _users = users;
         _orleans = orleans;
@@ -24,13 +24,12 @@ public class UserProjectionEntryPoint : BackgroundService
     private readonly IConnectedUsers _users;
     private readonly IClusterClient _orleans;
     private readonly IServiceEnvironment _environment;
-    private readonly IMessagingClient _messaging;
+    private readonly IMessaging _messaging;
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var lifetime = stoppingToken.ToLifetime();
         _users.Connected.Advise(lifetime, user => Task.Run(() => OnConnected(user)));
-        _messaging.Listen<ProjectionPayloadValue>(lifetime, OnProjectionReceived);
         return Task.CompletedTask;
     }
 
@@ -42,18 +41,22 @@ public class UserProjectionEntryPoint : BackgroundService
         await projection.ForceNotify();
 
         user.Lifetime.Listen(() => projection.OnDisconnected().NoAwait());
+
+        var pipeId = new UserProjectionPipeId(user.UserId);
+        _messaging.ListenPipe<ProjectionPayloadValue>(user.Lifetime, pipeId, OnProjectionReceived);
     }
 
     private void OnProjectionReceived(ProjectionPayloadValue payload)
     {
         if (_users.Entries.TryGetValue(payload.UserId, out var user) == false)
             return;
-        
+
         var context = payload.Value.ToContext();
 
         user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
-        {
-            Context = context
-        });
+            {
+                Context = context
+            }
+        );
     }
 }

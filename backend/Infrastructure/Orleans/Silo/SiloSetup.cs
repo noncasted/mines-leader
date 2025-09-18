@@ -4,6 +4,7 @@ using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Infrastructure.TaskScheduling;
 using ServiceLoop;
+using Services;
 
 namespace Infrastructure.Orleans;
 
@@ -23,7 +24,7 @@ public static class SiloSetup
             .AddMessaging()
             .AddOrleansUtils()
             .AddStateAttributes()
-            .AddServersCollection()
+            .AddServiceDiscovery()
             .AddTaskScheduling();
         
         return builder;

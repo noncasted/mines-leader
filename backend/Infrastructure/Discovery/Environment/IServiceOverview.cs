@@ -10,10 +10,21 @@ public interface IServiceOverview
     public DateTime UpdateTime { get; }
 }
 
-public class ServiceOverview
+[GenerateSerializer]
+public class ServiceOverview : IServiceOverview
 {
-    public required Guid Id { get; init; }
-    public required string Name { get; init; }
-    public required ServiceTag Tag { get; init; }
-    public required DateTime UpdateTime { get; init; }
+    [Id(0)] public required Guid Id { get; init; }
+    [Id(1)] public required string Name { get; init; }
+    [Id(2)] public required ServiceTag Tag { get; init; }
+    [Id(3)] public required DateTime UpdateTime { get; init; }
+}
+
+[GenerateSerializer]
+public class GameServerOverview : IServiceOverview
+{
+    [Id(0)] public required Guid Id { get; init; }
+    [Id(1)] public required string Name { get; init; }
+    [Id(2)] public required ServiceTag Tag { get; init; }
+    [Id(3)] public required DateTime UpdateTime { get; init; }
+    [Id(4)] public required string Url { get; init; }
 }

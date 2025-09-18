@@ -1,38 +1,31 @@
-﻿using Common;
-using Infrastructure.Orleans;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Service;
 
 namespace Infrastructure.Messaging;
 
 public class Messaging : IMessaging
 {
-    public Messaging(IOrleans orleans, IMessageQueueClient queue)
+    public Messaging(IMessageQueueClient queue, IMessagePipeClient pipe)
     {
-        _orleans = orleans;
         Queue = queue;
+        Pipe = pipe;
     }
-
-    private readonly IOrleans _orleans;
 
     public IMessageQueueClient Queue { get; }
+    public IMessagePipeClient Pipe { get; }
+}
 
-    public async Task SendStream(IMessageOptions options, IClusterMessage message)
+public static class MessagingExtensions
+{
+    public static IHostApplicationBuilder AddMessaging(this IHostApplicationBuilder builder)
     {
-    }
-
-    public Task<TResponse> SendStream<TResponse>(IMessageOptions options, IClusterMessage message)
-        where TResponse : IClusterMessage
-    {
-        return null;
-    }
-
-    public IViewableDelegate<T> GetStreamDelegate<T>() where T : IClusterMessage
-    {
-        return null;
-    }
-
-    public void ListenStream<TRequest, TResponse>(IReadOnlyLifetime lifetime, Func<TRequest, Task<TResponse>> listener)
-        where TRequest : IClusterMessage
-        where TResponse : IClusterMessage
-    {
+        var services = builder.Services;
+        
+        services.AddSingleton<IMessaging, Messaging>();
+        services.AddSingleton<IMessageQueueClient, MessageQueueClient>();
+        services.AddSingleton<IMessagePipeClient, MessagePipeClient>();
+        
+        return builder;
     }
 }

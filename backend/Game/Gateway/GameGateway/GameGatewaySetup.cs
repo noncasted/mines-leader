@@ -6,6 +6,7 @@ using Infrastructure.Messaging;
 using Infrastructure.Orleans;
 using Infrastructure.TaskScheduling;
 using ServiceLoop;
+using Services;
 
 namespace Game.Gateway;
 
@@ -24,7 +25,7 @@ public static class GameGatewaySetup
             .AddServiceLoop()
             .AddMessaging()
             .AddOrleansUtils()
-            .AddServerOverviewPusher()
+            .AddServiceDiscovery()
             .AddTaskScheduling()
             .ConfigureCors();
 

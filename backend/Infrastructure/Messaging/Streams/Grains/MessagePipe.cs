@@ -4,24 +4,24 @@ using Orleans.Concurrency;
 namespace Infrastructure.Messaging;
 
 [Reentrant]
-public class MessageStream : Grain, IMessageStream
+public class MessagePipe : Grain, IMessagePipe
 {
-    public MessageStream(ILogger<MessageStream> logger)
+    public MessagePipe(ILogger<MessagePipe> logger)
     {
         _logger = logger;
     }
 
-    private readonly ILogger<MessageStream> _logger;
+    private readonly ILogger<MessagePipe> _logger;
 
-    private IMessageStreamObserver? _observer;
+    private IMessagePipeObserver? _observer;
 
-    public Task BindObserver(IMessageStreamObserver observer)
+    public Task BindObserver(IMessagePipeObserver observer)
     {
         _observer = observer;
         return Task.CompletedTask;
     }
 
-    public async Task Send(IClusterMessage message)
+    public async Task Send(object message)
     {
         var hasObserver = await CheckObserver();
 
@@ -31,7 +31,7 @@ public class MessageStream : Grain, IMessageStream
         await _observer!.Send(message);
     }
 
-    public async Task<TResponse> Send<TResponse>(IClusterMessage message) where TResponse : IClusterMessage
+    public async Task<TResponse> Send<TResponse>(object message)
     {
         var hasObserver = await CheckObserver();
 

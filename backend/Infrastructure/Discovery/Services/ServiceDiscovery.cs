@@ -1,6 +1,8 @@
 ﻿using Common;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServiceLoop;
 
@@ -8,6 +10,7 @@ namespace Services;
 
 public interface IServiceDiscovery
 {
+    IServiceOverview Self { get; }
     IReadOnlyDictionary<Guid, IServiceOverview> Entries { get; }
 }
 
@@ -21,6 +24,14 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
+        
+        _self = new ServiceOverview
+        {
+            Id = _environment.ServiceId,
+            Name = _environment.ServiceName,
+            Tag = _environment.Tag,
+            UpdateTime = DateTime.UtcNow
+        };
     }
 
     private readonly IMessaging _messaging;
@@ -29,6 +40,9 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
     private readonly Dictionary<Guid, IServiceOverview> _entries = new();
     private readonly IMessageQueueId _queueId = new MessageQueueId("service-discovery");
 
+    private IServiceOverview _self;
+
+    public IServiceOverview Self => _self;
     public IReadOnlyDictionary<Guid, IServiceOverview> Entries => _entries;
 
     public Task OnSetupStage(IReadOnlyLifetime lifetime)
@@ -42,7 +56,7 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
     {
         while (lifetime.IsTerminated == false)
         {
-            var overview = new ServiceOverview
+            _self = new ServiceOverview
             {
                 Id = _environment.ServiceId,
                 Name = _environment.ServiceName,
@@ -52,7 +66,7 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
 
             try
             {
-                await _messaging.PushDirectQueue(_queueId, overview);
+                await _messaging.PushDirectQueue(_queueId, _self);
             }
             catch (Exception e)
             {
@@ -61,5 +75,27 @@ public class ServiceDiscovery : IServiceDiscovery, ISetupLoopStage
 
             await Task.Delay(TimeSpan.FromSeconds(10));
         }
+    }
+}
+
+public static class ServiceDiscoveryExtensions
+{
+    public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder)
+    {
+        builder.Services.Add<ServiceDiscovery>()
+            .As<IServiceDiscovery>()
+            .AsSetupLoopStage();
+
+        return builder;
+    }
+
+    public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery)
+    {
+        var servers = serviceDiscovery.Entries.Values
+            .Where(t => t.Tag == ServiceTag.Server)
+            .OfType<GameServerOverview>()
+            .ToList();
+
+        return servers.Random();
     }
 }

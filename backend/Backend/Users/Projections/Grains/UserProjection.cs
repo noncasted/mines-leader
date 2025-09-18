@@ -10,7 +10,7 @@ public class UserProjection : Grain, IUserProjection
     public UserProjection(
         [States.UserProjection] ITransactionalState<UserProjectionState> state,
         [States.UserProjectionConnection] IPersistentState<UserProjectionConnectionState> connectionState,
-        IMessagingClient messaging,
+        IMessaging messaging,
         ILogger<UserProjection> logger)
     {
         _state = state;
@@ -18,13 +18,15 @@ public class UserProjection : Grain, IUserProjection
         _messaging = messaging;
         _logger = logger;
         _userId = this.GetPrimaryKey();
+        _pipeId = new UserProjectionPipeId(_userId);
     }
 
     private readonly ITransactionalState<UserProjectionState> _state;
     private readonly IPersistentState<UserProjectionConnectionState> _connectionState;
-    private readonly IMessagingClient _messaging;
+    private readonly IMessaging _messaging;
     private readonly Guid _userId;
     private readonly ILogger<UserProjection> _logger;
+    private readonly UserProjectionPipeId _pipeId;
 
     private readonly List<IProjectionPayload> _pending = new();
 
@@ -109,7 +111,7 @@ public class UserProjection : Grain, IUserProjection
 
     private Task Send(IProjectionPayload payload)
     {
-        return _messaging.Send(connectionState.ConnectionServiceId, new ProjectionPayloadValue
+        return _messaging.SendPipe(_pipeId, new ProjectionPayloadValue
         {
             Value = payload,
             UserId = _userId
