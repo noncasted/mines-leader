@@ -36,10 +36,13 @@
         <ProjectReference Include="..\..\Discovery\Services\Services.csproj" />
         <ProjectReference Include="..\..\Loop\ServiceLoop\ServiceLoop.csproj"/>
         <ProjectReference Include="..\..\Messaging\Interfaces\Interfaces.csproj"/>
+        <ProjectReference Include="..\..\Messaging\Queues\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Messaging\Queues\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\Messaging\Service\Service.csproj" />
+        <ProjectReference Include="..\..\Messaging\Streams\Grains\Grains.csproj" />
+        <ProjectReference Include="..\..\Messaging\Streams\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\TaskScheduling\Service\Service.csproj" />
         <ProjectReference Include="..\Common\Common.csproj" />
-        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Storage\GrainStorage\GrainStorage.csproj" />
     </ItemGroup>
 

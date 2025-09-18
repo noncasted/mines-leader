@@ -8,6 +8,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Orleans.Sdk" />
         <PackageReference Include="Microsoft.Orleans.Transactions" />
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" />
     </ItemGroup>
 
     <ItemGroup>

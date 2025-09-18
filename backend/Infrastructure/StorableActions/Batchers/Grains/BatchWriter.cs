@@ -39,7 +39,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         {
             Id = this.GetPrimaryKeyString(),
             Priority = TaskPriority.Low,
-            Batcher = this
+            Batcher = this.AsReference<IBatchWriter<TEntry>>()
         };
     }
 
@@ -78,10 +78,11 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         return Task.CompletedTask;
     }
     
-    public Task WriteDirect(TEntry value)
+    public async Task WriteDirect(TEntry value)
     {
         _state.State.Entries.Add(value);
-        return _state.WriteStateAsync();
+        await _state.WriteStateAsync();
+        _taskScheduler.Schedule(_task);
     }
 
     public async Task OnSuccess(Guid transactionId)

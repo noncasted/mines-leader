@@ -24,7 +24,6 @@
       <ProjectReference Include="..\..\..\Infrastructure\Loop\ServiceLoop\ServiceLoop.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Messaging\Service\Service.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\Orleans\Common\Common.csproj" />
-      <ProjectReference Include="..\..\..\Infrastructure\Orleans\Extensions\Extensions.csproj" />
       <ProjectReference Include="..\..\..\Infrastructure\TaskScheduling\Service\Service.csproj" />
       <ProjectReference Include="..\..\Configs\Provider\Provider.csproj" />
       <ProjectReference Include="..\Common\Common.csproj" />

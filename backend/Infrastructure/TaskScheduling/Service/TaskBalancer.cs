@@ -37,6 +37,7 @@ public class TaskBalancer : ISetupLoopStage
     public Task OnSetupStage(IReadOnlyLifetime lifetime)
     {
         CollectLoop(lifetime).NoAwait();
+        ExecuteLoop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
 

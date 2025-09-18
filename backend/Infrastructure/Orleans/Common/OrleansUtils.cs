@@ -39,7 +39,9 @@ public static class OrleansUtilsExtensions
     {
         var services = builder.Services;
 
-        services.Add<ITransactionAgent, TransactionResolver>();
+        services.Add<ITransactionAgent, TransactionResolver>()
+            .As<ITransactionResolver>();
+
         services.Add<ITransactionRunner, TransactionRunner>();
         services.Add<ITransactions, Transactions>();
         services.Add<IOrleans, OrleansUtils>();
@@ -84,7 +86,7 @@ public static class OrleansUtilsExtensions
     {
         return orleans.Transactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
     }
-    
+
     public static TransactionRunBuilder Transaction(this IOrleans orleans, Func<Task> action)
     {
         return orleans.Transactions.Runner.Create(action);

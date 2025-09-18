@@ -94,7 +94,7 @@ public class ProjectStartup : BackgroundService
 
         async Task CreateGrainStorageTable(string tableName)
         {
-            if (await IsTableExists(tableName) == true)
+            if (await IsTableExists(tableName.ToLower()) == true)
                 return;
 
             var script = await File.ReadAllTextAsync("NamedGrainStorage.sql", cancellation);
@@ -116,7 +116,11 @@ public class ProjectStartup : BackgroundService
 
             await using var checkTableCommand = new NpgsqlCommand(checkTableQuery, connection);
             var result = await checkTableCommand.ExecuteScalarAsync(cancellation);
-            return result is bool exists && exists;
+            
+            if (result is not bool tableExists)
+                throw new Exception("Failed to check if table exists");
+            
+            return tableExists;
         }
     }
 }

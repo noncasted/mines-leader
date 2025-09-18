@@ -94,7 +94,6 @@ public class MessagePipeClient : IMessagePipeClient, IOrleansLoopStage
             return existing;
 
         var observer = new MessagePipeObserver(_logger);
-
         var observerReference = _orleans.Client.CreateObjectReference<IMessagePipeObserver>(observer);
 
         GC.KeepAlive(observer);

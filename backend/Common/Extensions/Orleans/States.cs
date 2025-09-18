@@ -44,7 +44,6 @@ public static class States
     public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
     
     public class MessageQueueAttribute() : PersistentStateAttribute(Messaging_Queue, Messaging_Queue);
-
 }
 
 public static class StateAttributesExtensions
@@ -58,7 +57,8 @@ public static class StateAttributesExtensions
         AddTransactionalAttribute<States.UserDeckAttribute>();
 
         AddTransactionalAttribute<States.MatchAttribute>();
-
+        
+        AddPersistentAttribute<States.MessageQueueAttribute>();
         AddPersistentAttribute<States.ConfigStorageAttribute>();
 
         return builder;

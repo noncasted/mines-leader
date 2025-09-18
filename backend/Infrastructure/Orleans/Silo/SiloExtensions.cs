@@ -18,12 +18,19 @@ public static class SiloExtensions
 
                 siloBuilder.UseTransactions();
 
-                siloBuilder.UseAdoNetClustering(options =>
-                    {
-                        options.Invariant = "Npgsql";
-                        options.ConnectionString = npgsqlConnectionString;
-                    }
-                );
+                if (builder.Environment.IsDevelopment() == true)
+                {
+                    siloBuilder.UseLocalhostClustering();
+                }
+                else
+                {
+                    siloBuilder.UseAdoNetClustering(options =>
+                        {
+                            options.Invariant = "Npgsql";
+                            options.ConnectionString = npgsqlConnectionString;
+                        }
+                    );
+                }
 
                 siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
                     {
@@ -33,9 +40,11 @@ public static class SiloExtensions
                 );
 
                 foreach (var name in States.StateTables)
+                {
                     siloBuilder.Services.AddGrainStorage(name,
                         (s, _) => NamedGrainStorageFactory.Create(s, name, npgsqlConnectionString)
                     );
+                }
 
                 siloBuilder.AddActivityPropagation();
             }

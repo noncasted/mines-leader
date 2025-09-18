@@ -7,12 +7,12 @@ var postgres = builder.AddPostgres("postgres")
     .WithPgAdmin()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var startup = builder.AddProject<Startup>("startup")
-    .WithReference(postgres)
-    .WaitFor(postgres);
+// var startup = builder.AddProject<Startup>("startup")
+//     .WithReference(postgres)
+//     .WaitFor(postgres);
 
 var silo = builder.AddProject<Silo>("silo")
-    .WaitForCompletion(startup)
+  //  .WaitForCompletion(startup)
     .WithReference(postgres);
 
 builder.AddProject<BackendGateway>("backend")

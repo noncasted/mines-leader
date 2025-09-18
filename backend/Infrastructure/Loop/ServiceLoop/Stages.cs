@@ -25,7 +25,8 @@ public static class LoopExtensions
     {
         builder.Services.Add<ServiceLoopObserver>()
             .As<IServiceLoopObserver>()
-            .As<ILifecycleParticipant<IClusterClientLifecycle>>();
+            .As<ILifecycleParticipant<IClusterClientLifecycle>>()
+            .As<ILifecycleParticipant<ISiloLifecycle>>();
         
         builder.Services.AddHostedService<ServiceLoop>();
         return builder;

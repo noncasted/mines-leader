@@ -7,8 +7,15 @@ public interface ITaskScheduler
 
 public class TaskScheduler : ITaskScheduler
 {
+    public TaskScheduler(ITaskQueue queue)
+    {
+        _queue = queue;
+    }
+
+    private readonly ITaskQueue _queue;
+    
     public void Schedule(IPriorityTask task)
     {
-        
+        _queue.Enqueue(task);
     }
 }
