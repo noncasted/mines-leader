@@ -26,6 +26,14 @@ public class RematchAwaiter : IRematchAwaiter
         {
             if (player.User.Lifetime.IsTerminated == true)
                 return false;
+            
+            player.User.Lifetime.Listen(() =>
+            {
+                if (lifetime.IsTerminated == true)
+                    return;
+                
+                _completion.TrySetResult(false);
+            });
         }
         
         lifetime.Listen(() => _completion.TrySetResult(false));

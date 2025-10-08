@@ -72,41 +72,46 @@ public class ServiceDiscovery : IServiceDiscovery
             ServiceTag.Game => new GameServerOverview
             {
                 Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
                 Tag = ServiceTag.Game,
                 UpdateTime = DateTime.UtcNow,
-                Url = _environment.ServiceUrl
+                Url = GetGameServerUrl(),
             },
             ServiceTag.Gateway => new ServiceOverview()
             {
                 Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
                 Tag = ServiceTag.Gateway,
                 UpdateTime = DateTime.UtcNow,
             },
             ServiceTag.Silo => new ServiceOverview()
             {
                 Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
                 Tag = ServiceTag.Silo,
                 UpdateTime = DateTime.UtcNow,
             },
             ServiceTag.Console => new ServiceOverview()
             {
                 Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
                 Tag = ServiceTag.Console,
                 UpdateTime = DateTime.UtcNow,
             },
             ServiceTag.Coordinator => new ServiceOverview()
             {
                 Id = _environment.ServiceId,
-                Name = _environment.ServiceName,
                 Tag = ServiceTag.Coordinator,
                 UpdateTime = DateTime.UtcNow,
             },
             _ => throw new ArgumentOutOfRangeException()
         };
+        
+        string GetGameServerUrl()
+        {
+            var url = Environment.GetEnvironmentVariable("GAME_SERVER_URL");
+         
+            if (string.IsNullOrWhiteSpace(url))
+                return "http://localhost:5268";
+            
+            return url;
+        }
     }
 }
 

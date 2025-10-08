@@ -1,5 +1,4 @@
 ﻿using Common;
-using Microsoft.Extensions.Hosting;
 
 namespace ServiceLoop;
 

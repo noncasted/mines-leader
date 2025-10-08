@@ -52,6 +52,7 @@
       <ProjectReference Include="..\..\StorableActions\ClusterStates\Interfaces\Interfaces.csproj" />
       <ProjectReference Include="..\..\StorableActions\ClusterStates\Service\Service.csproj" />
       <ProjectReference Include="..\..\TaskScheduling\Service\Service.csproj" />
+      <ProjectReference Include="..\Common\Common.csproj" />
       <ProjectReference Include="..\Features\Features.csproj" />
     </ItemGroup>
 

@@ -59,7 +59,7 @@ public class MessageQueueClient : IMessageQueueClient
             {
                 try
                 {
-                    return GetQueue(id).AddObserver(observerReference);
+                    return GetQueue(id).AddObserver(observer.Id, observerReference);
                 }
                 catch (Exception e)
                 {

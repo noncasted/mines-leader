@@ -5,6 +5,7 @@ using Global.Backend;
 using Internal;
 using Meta;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Loop
 {
@@ -57,6 +58,8 @@ namespace GamePlay.Loop
 
             var gameResult = await _gameState.WaitCompletion(lifetime);
             await _connection.ForceSendAll();
+            
+            Debug.Log($"[Game] Match completed with result: {gameResult.Type}");
 
             _gameState.Set(GameStateType.Completed);
             var transition = await _gameEnd.Process(lifetime, gameResult);

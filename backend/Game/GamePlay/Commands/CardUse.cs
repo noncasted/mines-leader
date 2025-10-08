@@ -6,8 +6,9 @@ public class CardUse(GameCommandUtils utils) : GameCommand<SharedGameAction.Card
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
     {
-        var card = Utils.CardFactory.Create(context.Player, context.Snapshot, request.Payload);
-        context.Player.Hand.Remove(request.Payload.Type);
+        var player = context.Player;
+        var card = Utils.CardFactory.Create(player, context.Snapshot, request.Payload);
+        player.Hand.Remove(request.Payload.Type);
 
         var result = card.Use();
 
@@ -17,8 +18,9 @@ public class CardUse(GameCommandUtils utils) : GameCommand<SharedGameAction.Card
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
         
-        context.Player.Stash.Add(request.Payload.Type);
-        context.Player.Moves.OnUsed();
+        player.Stash.Add(request.Payload.Type);
+        player.Mana.Use(request.Payload.Type.GetManaCost());
+        player.Moves.OnUsed();
         
         return result;
     }

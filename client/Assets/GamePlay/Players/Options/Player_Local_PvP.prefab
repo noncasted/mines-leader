@@ -138,6 +138,10 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4900987444384741209, guid: d99da6ea5e209384a9cba4b471d30155, type: 3}
+      propertyPath: m_BlockingMask.m_Bits
+      value: 55
+      objectReference: {fileID: 0}
     - target: {fileID: 5898351656717148386, guid: d99da6ea5e209384a9cba4b471d30155, type: 3}
       propertyPath: _autoDetected.Array.size
       value: 2
@@ -156,7 +160,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6213277735969657446, guid: d99da6ea5e209384a9cba4b471d30155, type: 3}
       propertyPath: m_SortingLayerID
-      value: 198678841
+      value: 1503071599
       objectReference: {fileID: 0}
     - target: {fileID: 6213277735969657446, guid: d99da6ea5e209384a9cba4b471d30155, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag

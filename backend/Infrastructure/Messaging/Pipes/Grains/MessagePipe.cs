@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
 
 namespace Infrastructure.Messaging;
 
-[Reentrant]
 public class MessagePipe : Grain, IMessagePipe
 {
     public MessagePipe(ILogger<MessagePipe> logger)
@@ -14,11 +12,24 @@ public class MessagePipe : Grain, IMessagePipe
     private readonly ILogger<MessagePipe> _logger;
 
     private IMessagePipeObserver? _observer;
+    private DateTime _setDate;
 
+    public override async Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    {
+        var timeSinceLastUpdate = DateTime.UtcNow - _setDate;
+
+        if (timeSinceLastUpdate > TimeSpan.FromMinutes(3))
+            return;
+
+        while (cancellationToken.IsCancellationRequested == false)
+            await Task.Delay(TimeSpan.FromSeconds(1));
+    }
+    
     public Task BindObserver(IMessagePipeObserver observer)
     {
         _logger.LogDebug("[Messaging] [Pipe] Binding observer to pipe {PipeId}", this.GetPrimaryKeyString());
         _observer = observer;
+        _setDate = DateTime.UtcNow;
         return Task.CompletedTask;
     }
 

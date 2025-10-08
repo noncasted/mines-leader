@@ -49,7 +49,7 @@ namespace Meta
             var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(request);
 
             if (response.HasError == true)
-                Debug.LogError($"Request {typeof(TRequest).Name} executed with error");
+                Debug.LogError($"Request {typeof(TRequest).Name} executed with error: {response.Message}");
         }
 
         private static UniTask<TResponse> Post<TResponse, TRequest>(

@@ -8,8 +8,6 @@ builder.SetupBackendGateway();
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-
 app.AddIdentityEndpoints();
 app.AddBackendMiddleware();
 

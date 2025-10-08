@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Service;
 using ServiceLoop;
 
-namespace Features;
+namespace Infrastructure.Coordination;
 
 public interface IClusterFeatures
 {

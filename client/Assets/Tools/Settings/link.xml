@@ -24,7 +24,6 @@
     <assembly fullname="Sirenix.Utilities" preserve="all" />
     <assembly fullname="Startup" preserve="all" />
     <assembly fullname="System.Collections.Immutable" preserve="all" />
-    <assembly fullname="System.Runtime.CompilerServices.Unsafe" preserve="all" />
     <assembly fullname="Tools.MemoryPack" preserve="all" />
     <assembly fullname="Tools.Scene" preserve="all" />
     <assembly fullname="UniClipboard" preserve="all" />

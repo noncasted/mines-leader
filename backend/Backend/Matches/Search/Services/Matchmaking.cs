@@ -1,12 +1,12 @@
 ﻿using Backend.Gateway;
 using Common;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ServiceLoop;
 using Shared;
 
 namespace Backend.Matches;
 
-public class Matchmaking : BackgroundService, IMatchmaking
+public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
 {
     public Matchmaking(
         IMatchFactory matchFactory,
@@ -27,9 +27,10 @@ public class Matchmaking : BackgroundService, IMatchmaking
     private readonly List<Guid> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        Loop(stoppingToken).NoAwait();
+        _logger.LogInformation("[Matchmaking] starting matchmaking loop");
+        Loop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
 
@@ -78,17 +79,17 @@ public class Matchmaking : BackgroundService, IMatchmaking
         return _matchFactory.Create(new[] { userId });
     }
 
-    private async Task Loop(CancellationToken cancellation)
+    private async Task Loop(IReadOnlyLifetime lifetime)
     {
-        while (cancellation.IsCancellationRequested == false)
+        while (lifetime.IsTerminated == false)
         {
             if (_searchQueue.Count < 2)
             {
-                await Task.Delay(100, cancellation);
+                await Task.Delay(100, lifetime.Token);
                 continue;
             }
 
-            await _lock.WaitAsync(cancellation);
+            await _lock.WaitAsync(lifetime.Token);
 
             var first = _searchQueue[0];
             var second = _searchQueue[1];

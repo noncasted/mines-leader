@@ -6,8 +6,41 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Startup/Startup.unity
+    guid: e192e966f28f2434fad44cfad9dbeca2
+  - enabled: 1
+    path: Assets/Global/Setup/Global_Services.unity
+    guid: fa9902c71b5f7cd4f98e1a5c19e15def
+  - enabled: 1
+    path: Assets/Meta/Setup/Meta_Services.unity
+    guid: b70b56507d8b176409f686c0c5e39968
+  - enabled: 1
+    path: Assets/Loop/Setup/GameLoop_Services.unity
+    guid: 76a5a435461b3bc44991fe8c8cde3571
+  - enabled: 1
+    path: Assets/Menu/Common/Options/Menu.unity
+    guid: b072020bf5a8f9c44a8f48ef9ae3fe23
+  - enabled: 1
+    path: Assets/Menu/Common/Options/Menu_Services.unity
+    guid: 4d21236cc0b1e1146b72afd98396ebb4
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_Cheats.unity
+    guid: 0070934dd04b367409ad1814192012ad
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_End.unity
+    guid: e0fdfc16c2402b84b95cf19dfb3c0dee
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_Field.unity
+    guid: 4b636264c7ac7224aa40de5dc5ec86f3
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_Overlay.unity
+    guid: a40f8b3a93a368543998dcebf0c0d2a0
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_Pause.unity
+    guid: ae7402daa45d16947a14e8a81e0cd4c0
+  - enabled: 1
+    path: Assets/GamePlay/Scenes/Game_Services.unity
+    guid: d8cf087558b3f9d4f9791bd93ed518af
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 2f917adb7b86e4942ada705fdc461f1b, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: f157979029c46694e8f5a734f718af86, type: 3}

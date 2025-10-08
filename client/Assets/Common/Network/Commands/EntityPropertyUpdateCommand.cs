@@ -1,6 +1,7 @@
 ﻿using Global.Backend;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace Common.Network
 {
@@ -15,7 +16,12 @@ namespace Common.Network
         
         protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionObject.PropertyUpdate context)
         {
-            var networkObject = _objects.Entries[context.ObjectId];
+            if (_objects.Entries.TryGetValue(context.ObjectId, out var networkObject) == false)
+            {
+                Debug.LogWarning("[Network] Received property update for unknown object ID: " + context.ObjectId);
+                return;
+            }
+            
             var property = networkObject.Properties[context.PropertyId];
             property.Update(context.Value);
         }

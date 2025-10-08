@@ -9,7 +9,6 @@ builder.SetupGameGateway();
 var app = builder.Build();
 
 app.AddMiddleware();
-app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
 
 app.UseCors("cors");

@@ -8,8 +8,8 @@ namespace GamePlay.UI
     {
         [SerializeField] private TMP_Text _text;
 
-        [SerializeField] private Color _lossColor = Color.softRed;
-        [SerializeField] private Color _winColor = Color.mediumSeaGreen;
+        [SerializeField] private Color _lossColor = Color.red;
+        [SerializeField] private Color _winColor = Color.green;
 
         public void Show(int current, int change)
         {

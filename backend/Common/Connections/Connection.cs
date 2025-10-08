@@ -36,14 +36,14 @@ public class Connection : IConnection
     {
         _writer.Run(_lifetime).NoAwait();
         await _reader.Run(_lifetime);
-        
+
         if (_lifetime.IsTerminated == true)
             return;
-        
+
         _lifetime.Terminate();
         OnDisconnected();
     }
-    
+
     public void OnPingFailed()
     {
         _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Ping failed", CancellationToken.None);

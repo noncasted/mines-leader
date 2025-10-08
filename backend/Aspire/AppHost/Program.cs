@@ -3,13 +3,60 @@ using Projects;
 using Console = Projects.Console;
 
 var builder = DistributedApplication.CreateBuilder(args);
-var token = Environment.GetEnvironmentVariable("ASPIRE_TOKEN");
-System.Console.WriteLine($"11");
 
-if (token != null)
+var startup = builder.AddProject<Startup>("startup");
+var silo = builder.AddProject<Silo>("silo");
+var coordinator = builder.AddProject<Coordinator>("coordinator");
+var backend = builder.AddProject<BackendGateway>("backend");
+
+var game = builder.AddProject<GameGateway>("game")
+    .WithEnvironment(options =>
+        options.EnvironmentVariables["GAME_SERVER_URL"] = Environment.GetEnvironmentVariable("GAME_SERVER_URL")
+    );
+
+var console = builder.AddProject<Console>("console");
+
+SetupDB();
+
+silo.WaitForCompletion(startup);
+coordinator.WaitFor(silo);
+backend.WaitFor(silo);
+game.WaitFor(silo);
+console.WaitFor(silo);
+
+SetDashboardToken();
+
+builder.Build().Run();
+
+return;
+
+void SetupDB()
 {
-    System.Console.WriteLine($"22");
-    System.Console.Write($"Token: {token}");
+    var externalDb = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+
+    var projectResources = new[]
+    {
+        startup,
+        silo,
+        coordinator,
+        backend,
+        game,
+        console
+    };
+
+    if (externalDb == null)
+        externalDb = builder.Configuration.GetConnectionString("db");
+
+    foreach (var resource in projectResources)
+        resource.WithEnvironment(context => context.EnvironmentVariables["ConnectionStrings__postgres"] = externalDb);
+}
+
+void SetDashboardToken()
+{
+    var token = Environment.GetEnvironmentVariable("ASPIRE_TOKEN");
+
+    if (token == null)
+        return;
 
     builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
@@ -17,51 +64,3 @@ if (token != null)
         }
     );
 }
-
-var postgres = builder.AddPostgres("postgres")
-    .WithAnnotation(new ContainerNameAnnotation()
-        {
-            Name = "mines-leader-postgres",
-        }
-    )
-    .WithPgAdmin(configure =>
-        {
-            configure
-                .WithAnnotation(new ContainerNameAnnotation()
-                    {
-                        Name = "mines-leader-pgadmin",
-                    }
-                )
-                .WithLifetime(ContainerLifetime.Persistent);
-        }
-    )
-    .WithLifetime(ContainerLifetime.Persistent);
-
-var startup = builder.AddProject<Startup>("startup")
-    .WithReference(postgres)
-    .WaitFor(postgres);
-
-var silo = builder.AddProject<Silo>("silo")
-    .WaitForCompletion(startup)
-    .WithReference(postgres);
-
-builder.AddProject<Coordinator>("coordinator")
-    .WaitForStart(silo)
-    .WithReference(postgres);
-
-builder.AddProject<BackendGateway>("backend")
-    .WaitForStart(silo)
-    .WithReference(postgres)
-    .WithExternalHttpEndpoints();
-
-builder.AddProject<GameGateway>("game")
-    .WaitForStart(silo)
-    .WithReference(postgres)
-    .WithExternalHttpEndpoints();
-
-builder.AddProject<Console>("console")
-    .WaitForStart(silo)
-    .WithReference(postgres)
-    .WithExternalHttpEndpoints();
-
-builder.Build().Run();

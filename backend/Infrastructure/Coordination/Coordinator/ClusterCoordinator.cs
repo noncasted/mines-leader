@@ -1,19 +1,26 @@
-﻿using Features;
+﻿using Common;
+using Infrastructure.Messaging;
+using ServiceLoop;
 
 namespace Infrastructure.Coordination;
 
-public class ClusterCoordinator : BackgroundService
+public class ClusterCoordinator : ILocalSetupCompleted
 {
-    public ClusterCoordinator(IClusterFeatures clusterFeatures, ILogger<ClusterCoordinator> logger)
+    public ClusterCoordinator(
+        IMessaging messaging,
+        IClusterFeatures clusterFeatures,
+        ILogger<ClusterCoordinator> logger)
     {
+        _messaging = messaging;
         _clusterFeatures = clusterFeatures;
         _logger = logger;
     }
 
+    private readonly IMessaging _messaging;
     private readonly IClusterFeatures _clusterFeatures;
     private readonly ILogger<ClusterCoordinator> _logger;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
         _logger.LogInformation("[Coordinator] Starting cluster coordinator...");
         
@@ -23,5 +30,7 @@ public class ClusterCoordinator : BackgroundService
         await _clusterFeatures.SetAcceptingConnections(true);
         
         _logger.LogInformation("[Coordinator] Cluster coordinator finished");
+
+        await _messaging.PushDirectQueue(CoordinatorEvents.ReadyId, new CoordinatorEvents.ReadyPayload());
     }
 }
