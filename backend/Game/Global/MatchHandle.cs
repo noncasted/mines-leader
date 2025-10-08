@@ -56,7 +56,7 @@ public class MatchHandle
             var rematchSuccess = new RematchContexts.Success
             {
                 SessionId = sessionId,
-                ServerUrl = _environment.ServerUrlToWebSocket(serviceOverview!.Url)
+                ServerUrl = serviceOverview!.Url.ServerUrlToWebSocket()
             };
 
             _users.SendAll(rematchSuccess);

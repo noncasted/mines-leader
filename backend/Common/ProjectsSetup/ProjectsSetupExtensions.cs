@@ -2,8 +2,8 @@
 using Backend.Gateway;
 using Backend.Matches;
 using Backend.Users;
-using Features;
 using Game;
+using Infrastructure.Coordination;
 using Infrastructure.Discovery;
 using Infrastructure.Messaging;
 using Infrastructure.Orleans;
@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServiceLoop;
 using Services;
-using Startup;
 
 namespace Common;
 
@@ -36,7 +35,6 @@ public static class ProjectsSetupExtensions
         return builder;
     }
 
-    
     public static IHostApplicationBuilder SetupBackendGateway(this IHostApplicationBuilder builder)
     {
         // Basic services
@@ -85,7 +83,7 @@ public static class ProjectsSetupExtensions
         return builder;
     }
 
-    public static IHostApplicationBuilder SetupSilo(this WebApplicationBuilder builder)
+    public static IHostApplicationBuilder SetupSilo(this IHostApplicationBuilder builder)
     {
         // Basic services
         builder
@@ -98,7 +96,7 @@ public static class ProjectsSetupExtensions
 
         return builder;
     }
-    
+
     public static IHostApplicationBuilder SetupConsole(this IHostApplicationBuilder builder)
     {
         // Basic services
@@ -109,14 +107,17 @@ public static class ProjectsSetupExtensions
         // Cluster services
         builder
             .AddBase(ServiceTag.Console);
-        
+
         return builder;
     }
 
     private static IHostApplicationBuilder AddBase(this IHostApplicationBuilder builder, ServiceTag serviceTag)
     {
+        if (builder is WebApplicationBuilder webBuilder)
+            webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
+
         builder.Services.AddHostedService<ClusterParticipantStartup>();
-        
+
         builder
             .AddEnvironment(serviceTag)
             .AddStateAttributes()

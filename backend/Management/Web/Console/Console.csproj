@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Infrastructure\Coordination\Common\Common.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Pipes\Grains\Grains.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Pipes\Interfaces\Interfaces.csproj" />

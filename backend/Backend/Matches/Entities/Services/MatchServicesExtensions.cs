@@ -5,7 +5,7 @@ namespace Backend.Matches;
 
 public static class MatchServicesExtensions
 {
-    public static IHostApplicationBuilder AddBackendMatchServices(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddBackendMatchServices(this IHostApplicationBuilder builder)                                   
     {
         builder.Services.AddSingleton<IMatchFactory, MatchFactory>();
         builder.Services.AddSingleton<ILobbyFactory, LobbyFactory>();

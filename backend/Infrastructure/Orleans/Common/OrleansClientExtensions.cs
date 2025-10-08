@@ -39,7 +39,7 @@ public static class OrleansClientExtensions
         return builder;
     }
 
-    public static IHostApplicationBuilder ConfigureSilo(this WebApplicationBuilder builder)
+    public static IHostApplicationBuilder ConfigureSilo(this IHostApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
 

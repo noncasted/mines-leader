@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Global.UI;
 using Internal;
@@ -22,6 +23,7 @@ namespace GamePlay.UI
     [DisallowMultipleComponent]
     public class GameEndUI : MonoBehaviour, IGameEndUI, ISceneService
     {
+        [SerializeField] private TMP_Text _title;
         [SerializeField] private GameEndRating _rating;
 
         [SerializeField] private DesignButton _menuButton;
@@ -37,6 +39,24 @@ namespace GamePlay.UI
         
         public async UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result)
         {
+            switch (result.Type)
+            {
+                case MatchResultType.Leave:
+                case MatchResultType.Win:
+                    _title.text = "You Won!";
+                    break;
+                case MatchResultType.Lose:
+                    _title.text = "You Lose...";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if (result.Type == MatchResultType.Leave)
+                _rematchButton.gameObject.SetActive(false);
+            else
+                _rematchButton.gameObject.SetActive(true);
+            
             _rating.Show(result.CurrentRating, result.RatingChange);
             gameObject.SetActive(true);
 

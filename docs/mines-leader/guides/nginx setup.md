@@ -55,6 +55,7 @@ git clone https://github.com/noncasted/mines-leader.git
 cd /mslead/mines-leader/backend/Aspire/AppHost/
 tmux
 
+dotnet clean --configuration Release 
 aspire run
 
 
@@ -78,3 +79,15 @@ netstat -tlnp | grep 17216
 
 apt-get update && apt-get install -y nginx
 server { listen 0.0.0.0:17217; server_name _; location / { proxy_pass https://10.0.1.23:17216; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; # Handle SSL verification issues with backend proxy_ssl_verify off; proxy_ssl_session_reuse on; } }
+
+cd /mslead/mines-leader/backend/Aspire/AppHost/
+tmux
+
+dotnet clean --configuration Release 
+aspire run
+
+netstat -tlnp
+cat /var/log/aspire.log
+tail -50 /var/log/aspire.log
+tail -50 /var/log/nginx/error.log
+tail -50 /var/log/nginx/access.log

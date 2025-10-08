@@ -15,8 +15,8 @@
               "state": {
                 "file": "drawings/rematch.md"
               },
-              "icon": "excalidraw-icon",
-              "title": "rematch"
+              "icon": "lucide-ghost",
+              "title": "excalidraw"
             }
           },
           {
@@ -178,7 +178,7 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "a54ab60f59a1992a",
+  "active": "12ee32fd7fe38f41",
   "lastOpenFiles": [
     "guides/Claude code setup.md",
     "guides/nginx setup.md",

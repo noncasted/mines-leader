@@ -56,7 +56,7 @@ public class MatchFactory : IMatchFactory
         var result = new MatchSearchResultUpdate()
         {
             SessionId = response.SessionId,
-            ServerUrl = _environment.ServerUrlToWebSocket(targetServer.Url)
+            ServerUrl = targetServer.Url.ServerUrlToWebSocket()
         };
 
         foreach (var participant in participants)

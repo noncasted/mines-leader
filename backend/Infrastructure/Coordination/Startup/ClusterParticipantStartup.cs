@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using ServiceLoop;
 using Services;
 
-namespace Startup;
+namespace Infrastructure.Coordination;
 
 public class ClusterParticipantStartup : BackgroundService
 {
@@ -37,7 +37,9 @@ public class ClusterParticipantStartup : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken cancellation)
     {
         var lifetime = cancellation.ToLifetime();
+        var startupLifetime = lifetime.Child();
         var serviceName = _discovery.Self.Tag.ToString();
+        var coordinatorCompletion = new TaskCompletionSource();
 
         lifetime.Listen(() => _logger.LogError("[Startup] {Service} cancellation requested", serviceName));
 
@@ -56,6 +58,12 @@ public class ClusterParticipantStartup : BackgroundService
 
         await _messaging.Start(lifetime);
 
+        _messaging.ListenQueue<CoordinatorEvents.ReadyPayload>(
+            startupLifetime,
+            CoordinatorEvents.ReadyId,
+            _ => coordinatorCompletion.TrySetResult()
+        );
+
         _logger.LogInformation("[Startup] {Service} messaging started", serviceName);
         _logger.LogInformation("[Startup] {Service} starting service discovery", serviceName);
 
@@ -72,8 +80,16 @@ public class ClusterParticipantStartup : BackgroundService
         await _loop.OnLocalSetupCompleted(lifetime);
 
         _logger.LogInformation("[Startup] {Service} local setup loop completed", serviceName);
+        _logger.LogInformation("[Startup] {Service} waiting for coordinator to be ready", serviceName);
+
+        await coordinatorCompletion.Task;
+        await _loop.OnCoordinatorSetupCompleted(lifetime);
+
+        _logger.LogInformation("[Startup] {Service} coordinator is ready", serviceName);
         _logger.LogInformation("[Startup] {Service} startup finished", serviceName);
-        
+
+        startupLifetime.Terminate();
+
         return;
 
         async Task WaitDiscovery()

@@ -66,6 +66,8 @@ public class ProjectStartup : BackgroundService
 
         _logger.LogInformation("[Startup] Startup completed");
         _applicationLifetime.StopApplication();
+        
+        return;
 
         async Task<NpgsqlConnection> GetConnection()
         {

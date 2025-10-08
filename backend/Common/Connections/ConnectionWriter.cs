@@ -38,7 +38,7 @@ public class ConnectionWriter : IConnectionWriter
             SingleReader = true,
             SingleWriter = false,
             FullMode = BoundedChannelFullMode.Wait,
-            AllowSynchronousContinuations = false
+            AllowSynchronousContinuations = true
         });
 
     private int _requestId = 1_000_000;
@@ -48,6 +48,12 @@ public class ConnectionWriter : IConnectionWriter
         var reader = _queue.Reader;
         var buffer = new MemoryStream();
         var cancellation = lifetime.Token;
+        
+        lifetime.Listen(() =>
+        {
+            foreach (var (_, completion) in _pendingRequests)
+                completion.TrySetCanceled();
+        });
 
         while (IsAlive() == true)
         {

@@ -60,7 +60,7 @@ public class GameRound : Service, IGameRound
         var match = _orleans.GetGrain<IMatch>(_sessionData.Id);
         await _orleans.InTransaction(() => match.Setup(GameMatchType.PvP, _users.Select(t => t.Id).ToList()));
 
-        var options = _options.Value;
+        var options = _options.Value; 
 
         foreach (var player in _gameContext.Players)
         {
@@ -72,6 +72,25 @@ public class GameRound : Service, IGameRound
             player.Mana.SetMax(options.MaxMana);
             player.Mana.SetCurrent(options.StartMana);
             player.Moves.SetMax(options.MovesCount);
+        }
+
+        foreach (var player in _gameContext.Players)
+        {
+            player.Health.Current.Advise(lifetime, health =>
+            {
+                if (health > 0)
+                    return;
+                
+                _roundLifetime?.Terminate();
+            });
+            
+            player.User.Lifetime.Listen(() =>
+            {
+                if (lifetime.IsTerminated == true || _roundLifetime == null)
+                    return;
+                
+                _roundLifetime.Terminate();
+            });
         }
 
         var roundLifetime = lifetime.Child();

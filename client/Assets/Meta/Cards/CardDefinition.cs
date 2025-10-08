@@ -20,7 +20,6 @@ namespace Meta
     {
         [SerializeField] private CardType _type;
         [SerializeField] private CardTarget _target;
-        [SerializeField] private int _manaCost;
 
         [SerializeField] private string _name;
         [SerializeField] [Multiline] private string _description;
@@ -30,7 +29,7 @@ namespace Meta
 
         public CardType Type => _type;
         public CardTarget Target => _target;
-        public int ManaCost => _manaCost;
+        public int ManaCost => _type.GetManaCost();
         public string Name => _name;
         public string Description => _description;
         public Sprite Image => _image;

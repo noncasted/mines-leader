@@ -10,6 +10,8 @@ public class MessageQueueObserver : IMessageQueueObserver
     }
 
     private readonly Action<object> _onMessage;
+    
+    public Guid Id { get; } = Guid.NewGuid();
 
     public Task Send(IReadOnlyList<object> messages)
     {

@@ -31,9 +31,14 @@ namespace Shared
             {
                 await task;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return EmptyResponse.Failed;
+                throw;
+                return new EmptyResponse()
+                {
+                    HasError = true,
+                    Message = e.Message
+                };
             }
             
             return EmptyResponse.Ok;

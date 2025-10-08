@@ -42,7 +42,7 @@ public class LobbyFactory : ILobbyFactory
         var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
         var response = await _messaging.SendPipe<MatchPayloads.GetOrCreate.Response>(pipeId, request);
 
-        var serverUrl = _environment.ServerUrlToWebSocket(targetServer.Url);
+        var serverUrl = targetServer.Url.ServerUrlToWebSocket();
         
         var result = new LobbySearchResultUpdate()
         {

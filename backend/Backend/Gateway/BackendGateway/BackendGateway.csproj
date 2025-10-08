@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Infrastructure\Coordination\Common\Common.csproj" />
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Interfaces\Interfaces.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Queues\Grains\Grains.csproj"/>
         <ProjectReference Include="..\..\..\Infrastructure\Messaging\Queues\Interfaces\Interfaces.csproj"/>

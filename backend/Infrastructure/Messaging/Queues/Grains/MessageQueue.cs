@@ -13,7 +13,7 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
         _logger = logger;
     }
 
-    private readonly List<IMessageQueueObserver> _observers = new();
+    private readonly Dictionary<Guid, ObserverData> _observers = new();
     private readonly ILogger<MessageQueue> _logger;
 
     protected override BatchWriterOptions Options { get; } = new()
@@ -21,9 +21,35 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
         RequiresTransaction = false
     };
 
-    public Task AddObserver(IMessageQueueObserver observer)
+    public override async Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
-        _observers.Add(observer);
+        var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
+        var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
+
+        if (timeSinceLastUpdate > TimeSpan.FromMinutes(3))
+            return;
+
+        while (cancellationToken.IsCancellationRequested == false)
+            await Task.Delay(TimeSpan.FromSeconds(1));
+    }
+
+    public Task AddObserver(Guid id, IMessageQueueObserver observer)
+    {
+        if (_observers.TryGetValue(id, out var data) == false)
+        {
+            data = new ObserverData
+            {
+                Observer = observer,
+                UpdateDate = DateTime.UtcNow,
+                Id = id
+            };
+
+            _observers[id] = data;
+        }
+
+        data.Observer = observer;
+        data.UpdateDate = DateTime.UtcNow;
+
         return Task.CompletedTask;
     }
 
@@ -39,29 +65,39 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
 
     protected override async Task Process(IReadOnlyList<object> entries)
     {
-        var toRemove = new List<IMessageQueueObserver>();
+        var toRemove = new List<Guid>();
 
-        await Task.WhenAll(_observers.Select(observer =>
+        await Task.WhenAll(_observers.Values.Select(data =>
                 {
+                    var observer = data.Observer;
+
                     try
                     {
                         return observer.Send(entries);
                     }
                     catch (Exception e)
                     {
-                        toRemove.Add(observer);
-                        
+                        toRemove.Add(data.Id);
+
                         _logger.LogError(e,
                             "[Messaging] [Queue] Delevering message from {QueueName} to observer failed",
                             StringId
                         );
+
                         return Task.CompletedTask;
                     }
                 }
             )
         );
-        
+
         foreach (var observer in toRemove)
             _observers.Remove(observer);
+    }
+
+    public class ObserverData
+    {
+        public required Guid Id { get; init; }
+        public required IMessageQueueObserver Observer { get; set; }
+        public required DateTime UpdateDate { get; set; }
     }
 }
