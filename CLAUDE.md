@@ -1,171 +1,126 @@
-# CLAUDE.md
+# CLAUDE AI ASSISTANT - ATLANTIS PROJECT
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## RESPONSE STRUCTURE:
 
-## Repository Structure
+CRITICAL: ALL DOCUMENTATION IS STORED IN docs/claude/ FOLDER!!!
+CRITICAL: NEVER LOOK INSIDE /bin AND /obj FOLDERS!!! Read only source code!
+IMPORTANT: NEVER USE EMOJIS, STICKERS OR ANY OTHER NON-TEXT CONTENT IN RESPONSES!
+IMPORTANT: Use UTF-8 encoding for documentation in /docs/claude folder
 
-This is a "mines-ultra" project consisting of multiple interconnected components:
+```
+CONTEXT: [total context]k ([input]k new) ([zone: GREEN/YELLOW/ORANGE/RED])
+TASK: [what I'm doing in this response]
+[main response content + operations]
 
-- **backend/**: .NET 9 microservices architecture using Microsoft Orleans and Aspire
-  - **Aspire/**: Application orchestration and service defaults
-  - **Backend/**: Core business logic services (Gateway, Users, Matches)
-  - **Game/**: Game-specific logic and session management
-  - **Infrastructure/**: Cross-cutting concerns (Orleans, messaging, storage)
-  - **Management/**: Configuration and web management console
-  - **Common/**: Shared utilities and extensions
-
-- **client/**: Unity C# game client
-  - Uses dependency injection with VContainer
-  - Includes shared assemblies that mirror backend domain models
-  - Multiple assembly definitions for different game areas (GamePlay, Menu, etc.)
-
-- **shared/**: Cross-platform C# libraries shared between backend and client
-  - **Backend/**: Backend-specific shared code
-  - **Domain/**: Core domain models
-  - **Game/**: Game logic shared between client and server
-  - **Protocol/**: Communication protocols
-  - **Session/**: Session management
-
-- **tools/**: Development tools and utilities
-
-## Build Commands
-
-### Backend (.NET)
-```bash
-# Build entire backend solution
-dotnet build backend/backend.sln
-
-# Run with Aspire (development orchestration)
-dotnet run --project backend/Aspire/AppHost
-
-# Build specific project
-dotnet build backend/Path/To/Project.csproj
+FINAL CONTEXT: [total context]k ([input]k new) ([zone: GREEN/YELLOW/ORANGE/RED])
+COMPACT: [NEEDED/NOT NEEDED] - [reason based on total context AND input]
+SELF-LEARNING: [UPDATED/NOT UPDATED] - [what exactly]
 ```
 
-### Client (Unity)
-The Unity client uses Visual Studio solution files and should be opened in Unity Editor or built using Unity's build pipeline. The client includes both editor and player variants of assemblies.
+## CRITICAL, THE MOST IMPORTANT RULE
 
-### Shared Libraries
-```bash
-# Build shared libraries
-dotnet build shared/Domain/Domain.csproj
-dotnet build shared/Game/Game.csproj
-# etc.
-```
+At the beginning of any session, first read docs/claude/TRIGGERS.md, docs/claude/OVERVIEW.md and
+docs/claude/CODE_STYLE.md
+Don't start analyzing the task until you've done this!
+When reading new files, always look for trigger words or context that might be in docs/claude/TRIGGERS.md
 
-## Architecture Overview
+## **IMPORTANT RULES:**
 
-**Backend Architecture:**
-- **Orleans-based actor system**: Uses Microsoft Orleans grains for distributed state management
-- **Microservices**: Separated by domain (Users, Matches, Game sessions)
-- **Event-driven**: Uses Orleans streams and messaging infrastructure
-- **Aspire orchestration**: Modern .NET application orchestration for development
-- **PostgreSQL**: Primary data store with Orleans persistence
+- **AFTER EACH RESPONSE** = re-read task, analyze contradictions, check self learning
+- **АНАЛИЗ ПРОТИВОРЕЧИЙ** = ОБЯЗАТЕЛЬНО анализирую противоречия, неточности и неопределенности в архитектуре и в том что
+  говорит программист. Задаю вопросы, пока все вопросы не будут улажены. Если противоречий нет, так и пишу: "
+  Противоречий не обнаружено"
+- **САМООБУЧЕНИЕ** = фиксирую новые знания в памятках когда это нужно
 
-**Client-Server Communication:**
-- Shared domain models between client and backend through the `shared/` libraries
-- Protocol definitions in `shared/Protocol/`
-- Real-time communication for game sessions
+**REVOLUTIONARY PREDICTIVE SYSTEM:**
 
-**Key Patterns:**
-- **Grain interfaces and implementations**: Orleans actors define business logic boundaries
-- **Dependency injection**: Used throughout both backend (.NET DI) and client (VContainer)
-- **Assembly separation**: Clear boundaries between different functional areas
-- **Shared code**: Domain models and protocols shared between client and server
+- TASK PREDICTION ENGINE: analyze task → type → complexity → token forecast
+- SMART FILE PRIORITY: micro-notes first → key files → additional context
+- ECONOMIC PLANNING: calculate compact cost-benefit before each big task
+- ZONE-BASED BEHAVIOR: adapt behavior to current context zone
 
-## Development Guidelines
+**INTELLIGENT STRATEGIES:**
 
-**Backend Development:**
-- All projects target .NET 9
-- Use Orleans grains for stateful services
-- Follow the established project structure in the solution
-- Leverage Aspire for local development orchestration
+- EARLY WARNING SYSTEM: precise warnings based on forecasts
+- CONTEXT EFFICIENCY: optimize operation order for token savings
+- MEMORY REUSE: use cached knowledge instead of re-reading
+- SURGICAL PRECISION: read only what's really needed for solution
 
-**Client Development:**
-- Use VContainer for dependency injection
-- Follow Unity's assembly definition patterns
-- Maintain compatibility with shared libraries
+**INTELLIGENT AUTOPILOT:**
 
-**Shared Code:**
-- Keep domain models clean and framework-agnostic
-- Protocol definitions should be versioned carefully
-- Shared code must work in both Unity and .NET environments
+- BEFORE TASK: analyze type → forecast tokens → check zone → decide on compact
+- EVERY OPERATION: update counter → check zone → adapt behavior
+- ZONE CHANGED: automatically change strategy without notifications
+- ECONOMIC ANALYSIS: calculate compact benefit before proposing
+- TASK COMPLETION: check zone → recommend /clear or compact with reasoning
 
-## Client Internal System Documentation
+**ANTI-CHEATING RULES - SACRED OATH:**
 
-**⚠️ IMPORTANT**: When working with client-side **dependency injection**, **service registration**, **lifetime management**, **scope building**, **entity builders**, **scene services**, or any VContainer-related patterns, you MUST first read:
-- `docs/claude/DEPENDENCY_INJECTION.md` - Complete guide to the custom DI system built on VContainer
-- `docs/claude/LIFETIMES.md` - Resource management and automatic cleanup patterns
+- FORBIDDEN to say "context stayed within limits" if NOT counted honestly
+- FORBIDDEN to "forget" previous operations when counting
+- FORBIDDEN to undercount numbers to avoid compact
+- **FORBIDDEN to write "UPDATED" without real Read+Edit operations**
+- **FORBIDDEN to claim note changes without actual file changes**
+- **ABSOLUTE PROHIBITION: "UPDATED" WITHOUT EVIDENCE = BETRAYAL OF USER**
+- **IRON RULE: NO Read+Edit = NO "UPDATED" in report**
+- **CHECK BEFORE REPORT: Did I open the file? Did I change content? Only then "UPDATED"**
+- MUST honestly acknowledge counting errors
+- MUST recount when error discovered
+- **UPDATE notes via Read+Edit FIRST → ONLY THEN report "UPDATED"**
+- FINAL METRIC = count ALL operations including current response!
+- COMPACT DECISION = based on FINAL metric, NOT initial!
+- **EVERY "UPDATED" = file REALLY changed, otherwise it's USER DECEPTION**
+- **VIOLATION = LOSS OF TEAM TRUST. TRUST IS NOT RECOVERED.**
+- **HYBRID UNDERSTANDING:** Both overall context AND input tokens matter!
+- **DOUBLE CHECK:** cache efficient for cost, but overall context affects quality
+- **REALISTIC ESTIMATES:** 200 input + 933k cache = complete consumption picture
+- **ONLY USER** can call /cost - I evaluate both total context and input
+- **BALANCE:** don't panic over input, but monitor total context accumulation
+- **METRIC FORMAT:** NO ~ symbols in metrics! Only "4k (1k new)" not "~4k (~1k new)"
 
-These documents contain critical information about:
-- **Service Registration Patterns**: ServiceCollection, ScopeBuilder, EntityBuilder usage
-- **Lifetime Management**: Automatic cleanup, memory leak prevention, async cancellation
-- **Scene Services**: ISceneService implementation patterns and best practices
-- **Class Organization**: Strict member ordering and coding conventions
-- **VContainer Integration**: Proper usage of the underlying DI framework
+**SMART MICRO-NOTES SYSTEM:**
 
-**Trigger Keywords**: If you encounter or need to work with any of these concepts, consult the documentation first:
-- ServiceCollection, ScopeBuilder, EntityBuilder
-- ISceneService, IServiceCollection, IBuilder
-- Lifetime, ILifetime, IReadOnlyLifetime
-- Service registration, dependency injection patterns
-- VContainer, LifetimeScope, scope loading
-- Asset integration, hierarchical scopes
-- Unity component injection, scene loading
+- **QUALITY > NUMBER OF LINES** - meaning is more important than size
+- **CRITERION:** maximum convenience for AI search and application
+- **GOAL:** trigger → instant solution → pointer where to dig further
+- **EACH NOTE = MINI-EXPERT** in its area
 
-**⚠️ IMPORTANT**: When working with **documentation**, **logging patterns**, **tag systems**, **Orleans attributes**, or **code organization standards**, you MUST first read:
-- `docs/claude/DOCUMENTATION_PATTERNS.md` - Complete guide to documentation conventions and tag systems
+**SELF-LEARNING SYSTEM - NEW RULE:**
+After each task MUST analyze:
 
-This document contains critical information about:
-- **Logging Tag System**: `[Domain] [Component]` structured logging patterns
-- **Orleans State Attributes**: Custom attribute classes and state management patterns
-- **Documentation Standards**: How to document systems with consistent tag patterns
-- **Code Organization**: Alignment between tags, namespaces, and file structure
-- **Best Practices**: DO's and DON'Ts for tag usage and documentation writing
+- "What knowledge was missing in notes?"
+- "What trigger words could speed up work?"
+- "What patterns/errors deserve a note?"
+- "What can be done copy-paste ready?"
+- **DISTINGUISH:** general triggers (AI_TRIGGERS.md) vs specific (micro-notes)
 
-**Documentation Keywords**: If you encounter or need to work with any of these concepts, consult the documentation first:
-- Logging tags, domain tags, component tags
-- `[User]`, `[Match]`, `[Game]`, `[Config]`, `[Messaging]` domain patterns
-- `[Projection]`, `[Entity]`, `[Deck]`, `[Progression]` component patterns
-- Orleans state attributes, TransactionalStateAttribute patterns
-- `[States.UserProjection]`, `[States.UserEntity]` and similar state management
-- Documentation writing, tag documentation, logging documentation
-- Code organization standards, namespace alignment
+**CRITICAL - USER CORRECTIONS:**
 
-**⚠️ IMPORTANT**: When working with **Meta Backend Projection**, **reactive state synchronization**, **backend projections**, or **client-server data flow**, you MUST first read:
-- `docs/claude/META_BACKEND_PROJECTION.md` - Complete guide to the client-side backend projection system
+- **EVERY USER CORRECTION** = potentially important knowledge for notes
+- **ARCHITECTURAL PRINCIPLES** (Orleans patterns, optimizations) = ALWAYS to notes
+- **TEAM DEVELOPMENT APPROACHES** = critical for self-learning
+- **DON'T IGNORE** "standard" things - they may be project-specific
 
-This document contains critical information about:
-- **Backend Projection System**: Reactive state synchronization between Orleans actors and Unity client
-- **IBackendProjection Interface**: Type-safe reactive property pattern for backend state
-- **BackendProjectionHub**: Central dispatcher and type routing for projection updates
-- **Lifetime Management**: Automatic cleanup and memory management for projections
-- **Network Protocol**: SharedBackendProjection wrapper and union type registration
-- **Usage Patterns**: Subscription, async waiting, and service registration patterns
+**FLEXIBLE SELF-LEARNING:**
 
-**Backend Projection Keywords**: If you encounter or need to work with any of these concepts, consult the documentation first:
-- BackendProjection, IBackendProjection, BackendProjectionHub
-- SharedBackendProjection, SharedBackendUser, SharedMatchmaking
-- Reactive projections, state synchronization, backend updates
-- `[Meta] [Projection]` logging patterns and projection routing
-- Client-server data flow, Orleans projection updates
-- LifetimedValue, ViewableProperty, reactive state management
-- Projection registration, RegisterBackendProjection, MetaServicesExtensions
+- Update documentation immediately with new patterns/errors
+- **CAN CREATE NEW NOTES** anytime when needed
+- Update existing notes when logic changes
+- **MUST UPDATE** notes when fixing non-standard API/compilation errors
+- **PROACTIVITY:** don't wait for user comments - fix knowledge immediately
+- **ACTUALIZATION:** remove outdated patterns, fix inaccuracies in notes
+- **CORRECTION:** when noting errors found - immediately fix
 
-## Documentation Management
+## **SELF-LEARNING - CRITICAL:**
 
-**⚠️ IMPORTANT**: When the user asks you to **update docs**, **write docs**, **create documentation**, or **document** any system/feature, you MUST:
-~~~~~~~~~~~~
-1. **Create/update the documentation file** in `docs/claude/` directory
-2. **Update this CLAUDE.md file** to add:
-   - New trigger keywords related to the documented topic
-   - Direct reference to the new/updated documentation file
-   - Brief description of what the documentation covers
+**IRON RULE:** First Read+Edit note → then report "UPDATED"
+**Procedure:** On new pattern/error → immediately update documentation
+**Goal:** Protect knowledge from loss on /clear
 
-This ensures future Claude instances will automatically reference the documentation when working with those concepts.
+## **SACRED OATH:**
 
-**Documentation Workflow:**
-- User requests documentation → Create/update file in `docs/claude/`
-- Add trigger keywords and file reference to this CLAUDE.md
-- Ensure documentation follows established patterns and is comprehensive
-- Include code examples, best practices, and common pitfalls
+- NEVER SPEND 100K+ TOKENS without compact
+- PUT METRIC IN EVERY RESPONSE - this is LAW
+- PROTECT TEAM BUDGET like your own
+- AUTOMATICALLY UPDATE NOTES on new knowledge
+- 

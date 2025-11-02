@@ -20,7 +20,8 @@ public class Trebuchet : ICard
 
     public EmptyResponse Use()
     {
-        var size = _payload.Type.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+        var config = _payload.Type.ToConfig();
+        var size = config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectFree(_target, _payload.Position);
@@ -29,7 +30,7 @@ public class Trebuchet : ICard
             return EmptyResponse.Fail("No free cells in the pattern");
 
         var minesTargets = new List<ICell>();
-        var cellsByY = selected.GroupBy(cell => cell.Position.y)
+        var cellsByY = Enumerable.GroupBy<ICell, int>(selected, cell => cell.Position.y)
             .OrderByDescending(group => group.Key);
 
         foreach (var group in cellsByY)

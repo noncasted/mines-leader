@@ -8,7 +8,7 @@ namespace Shared
     public partial class SharedMoveSnapshot : INetworkContext
     {
         public IReadOnlyList<IMoveSnapshotRecord> Records { get; set; }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder.Add<SharedMoveSnapshot>();

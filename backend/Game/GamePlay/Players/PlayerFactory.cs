@@ -1,26 +1,38 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Game.Session;
+using Infrastructure;
+using Meta.Users;
+using Microsoft.Extensions.Options;
 using Shared;
+using IUser = Game.Session.IUser;
 
 namespace Game.GamePlay;
 
 public interface IPlayerFactory
 {
-    IPlayer Create(IUser user);
+    Task<IPlayer> Create(IUser user);
 }
 
 public class PlayerFactory : IPlayerFactory
 {
-    public PlayerFactory(IEntityFactory entityFactory, IOptions<BoardOptions> boardOptions)
+    public PlayerFactory(
+        IOrleans orleans,
+        IEntityFactory entityFactory,
+        IOptions<BoardOptions> boardOptions)
     {
+        _orleans = orleans;
         _entityFactory = entityFactory;
         _boardOptions = boardOptions;
     }
 
+    private readonly IOrleans _orleans;
     private readonly IEntityFactory _entityFactory;
     private readonly IOptions<BoardOptions> _boardOptions;
 
-    public IPlayer Create(IUser user)
+    public async Task<IPlayer> Create(IUser user)
     {
+        var userHandle = _orleans.CreateUserHandle(user.Id);
+        var selectedDeck = await userHandle.Deck.GetSelected();
+        
         var entityBuilder = _entityFactory.Create(user);
 
         var boardProperty = entityBuilder.AddProperty<BoardState>(PlayerStateIds.Board);
@@ -46,7 +58,7 @@ public class PlayerFactory : IPlayerFactory
         var health = new Health(healthProperty);
         var mana = new Mana(manaProperty);
         var modifiers = new Modifiers(modifiersProperty);
-        var deck = new Deck(deckProperty);
+        var deck = new Deck(deckProperty, selectedDeck);
         var moves = new Moves(movesProperty);
         var hand = new Hand(handProperty);
         var stash = new Stash(stashProperty);

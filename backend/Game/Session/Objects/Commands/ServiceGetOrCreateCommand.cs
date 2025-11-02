@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public class ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.GetRequest, SharedSessionService.GetResponse>
 {

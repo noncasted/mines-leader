@@ -7,12 +7,13 @@ using Global.Cameras;
 using Global.UI;
 using Internal;
 using Meta;
+using Shared;
 
 namespace GamePlay.Loop
 {
     public interface ISingleGameLoop
     {
-        UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData);
+        UniTask Process(IReadOnlyLifetime lifetime, SharedMatchmaking.MatchResult sessionData);
     }
 
     public class SingleGameLoop : ISingleGameLoop
@@ -54,7 +55,7 @@ namespace GamePlay.Loop
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
 
-        public async UniTask Process(IReadOnlyLifetime lifetime, SessionData sessionData)
+        public async UniTask Process(IReadOnlyLifetime lifetime, SharedMatchmaking.MatchResult sessionData)
         {
             _camera.SetCamera(_gameCamera.Camera);
 

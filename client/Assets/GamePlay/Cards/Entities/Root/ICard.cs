@@ -9,7 +9,6 @@ namespace GamePlay.Cards
     {
         int EntityId { get; }
         CardType Type { get; }
-        CardTarget Target { get; }
         ICardDefinition Definition { get; }
         IHand Hand { get; }
         ICardTransform Transform { get; }

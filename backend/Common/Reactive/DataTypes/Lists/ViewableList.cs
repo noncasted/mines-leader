@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public class ViewableList<TSource> : ViewableList<TSource, TSource> where TSource : notnull
     {

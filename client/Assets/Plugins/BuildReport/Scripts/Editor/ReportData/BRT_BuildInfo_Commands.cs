@@ -34,6 +34,11 @@ namespace BuildReportTool
 			return DldUtil.UnityVersion.IsUnityVersionAtLeast(UnityVersion, majorAtLeast, minorAtLeast, patchAtLeast);
 		}
 
+		public bool IsUnityVersionLessThan(int majorAtLeast, int minorAtLeast, int patchAtLeast)
+		{
+			return !IsUnityVersionAtLeast(majorAtLeast, minorAtLeast, patchAtLeast);
+		}
+
 		public bool IsUnityVersionAtMost(int majorAtMost, int minorAtMost, int patchAtMost)
 		{
 			return DldUtil.UnityVersion.IsUnityVersionAtMost(UnityVersion, majorAtMost, minorAtMost, patchAtMost);

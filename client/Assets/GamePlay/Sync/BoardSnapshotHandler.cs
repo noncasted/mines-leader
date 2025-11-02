@@ -42,6 +42,8 @@ namespace GamePlay
                 _flag = new Flag(board);
                 _minesAround = new MinesAround(board);
                 _explosion = new Explosion(board);
+                _effectAdded = new EffectAdded(board);
+                _effectRemoved = new EffectRemoved(board);
             }
 
             private readonly CellTaken _cellTaken;
@@ -49,6 +51,8 @@ namespace GamePlay
             private readonly Flag _flag;
             private readonly MinesAround _minesAround;
             private readonly Explosion _explosion;
+            private readonly EffectAdded _effectAdded;
+            private readonly EffectRemoved _effectRemoved;
 
             public void Resolve(IBoardSnapshotRecord record)
             {
@@ -68,6 +72,12 @@ namespace GamePlay
                         break;
                     case BoardSnapshotRecord.Explosion explosion:
                         _explosion.Execute(explosion);
+                        break;
+                    case BoardSnapshotRecord.EffectAdded effectAdded:
+                        _effectAdded.Execute(effectAdded);
+                        break;
+                    case BoardSnapshotRecord.EffectRemoved effectRemoved:
+                        _effectRemoved.Execute(effectRemoved);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(record), record, null);
@@ -152,6 +162,44 @@ namespace GamePlay
             {
                 var vector = record.Position.ToVector();
                 _board.Cells[vector].EnsureTaken().Explode(CellExplosionType.Mine);
+            }
+        }
+
+        public class EffectAdded
+        {
+            public EffectAdded(IBoard board)
+            {
+                _board = board;
+            }
+
+            private readonly IBoard _board;
+
+            public void Execute(BoardSnapshotRecord.EffectAdded record)
+            {
+                var vector = record.Position.ToVector();
+                if (_board.Cells[vector] is CellView cellView)
+                {
+                    cellView.Effects.AddEffect(record.EffectId, record.Type);
+                }
+            }
+        }
+
+        public class EffectRemoved
+        {
+            public EffectRemoved(IBoard board)
+            {
+                _board = board;
+            }
+
+            private readonly IBoard _board;
+
+            public void Execute(BoardSnapshotRecord.EffectRemoved record)
+            {
+                var vector = record.Position.ToVector();
+                if (_board.Cells[vector] is CellView cellView)
+                {
+                    cellView.Effects.RemoveEffect(record.EffectId);
+                }
             }
         }
     }

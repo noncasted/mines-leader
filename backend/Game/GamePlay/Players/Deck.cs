@@ -1,4 +1,6 @@
-﻿using Shared;
+﻿using Common.Extensions;
+using Game.Session;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -6,28 +8,47 @@ public interface IDeck
 {
     int Count { get; }
 
+    void Init();
     void AddCard(CardType card);
-    void RemvoeCard(CardType card);
+    void RemoveCard(CardType card);
     CardType DrawCard();
 }
 
 public class Deck : IDeck
 {
-    public Deck(ValueProperty<PlayerDeckState> state)
+    public Deck(ValueProperty<PlayerDeckState> state, IReadOnlyList<CardType> selected)
     {
         _state = state;
+        _selected = selected;
     }
 
     private readonly ValueProperty<PlayerDeckState> _state;
+    private readonly IReadOnlyList<CardType> _selected;
 
     public int Count => _state.Value.Queue.Count;
+
+    public void Init()
+    {
+        var cards = new List<CardType>(_selected.Count * 2);
+        
+        foreach (var card in _selected)
+        {
+            cards.Add(card);
+            cards.Add(card);
+        }
+        
+        cards.Shuffle();
+
+        foreach (var card in cards)
+            AddCard(card);
+    }
 
     public void AddCard(CardType card)
     {
         _state.Update(state => state.Queue.Add(card));
     }
 
-    public void RemvoeCard(CardType card)
+    public void RemoveCard(CardType card)
     {
         _state.Update(state => state.Queue.Remove(card));
     }

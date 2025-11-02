@@ -61,8 +61,11 @@ namespace Common.Network
                     $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}");
 
             foreach (var rawProperty in data.RawProperties)
-                properties[rawProperty.PropertyId].Update(rawProperty.Value);
-
+            {
+                var property = properties[rawProperty.PropertyId];
+                property.Update(rawProperty.Value, property.Version);
+            }
+            
             return result;
         }
     }

@@ -13,18 +13,15 @@ namespace GamePlay.Boards
     public class CellOpenAction : ICellOpenAction
     {
         public CellOpenAction(
-            IGameCamera camera,
             IGameContext gameContext,
             IGameInput input,
             ICellsSelection selection)
         {
-            _camera = camera;
             _gameContext = gameContext;
             _input = input;
             _selection = selection;
         }
 
-        private readonly IGameCamera _camera;
         private readonly IGameContext _gameContext;
         private readonly IGameInput _input;
         private readonly ICellsSelection _selection;

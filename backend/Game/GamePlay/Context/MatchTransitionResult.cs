@@ -2,6 +2,6 @@
 
 public enum MatchTransitionResult
 {
-    End = 100, 
+    End = 100,
     Rematch = 200
 }

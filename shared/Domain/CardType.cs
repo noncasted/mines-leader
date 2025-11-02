@@ -8,20 +8,31 @@ namespace Shared
     {
         Trebuchet = 100,
         Trebuchet_Max = 110,
-        
+
         Bloodhound = 200,
         Bloodhound_Max = 210,
-        
+
         TrebuchetAimer = 300,
         TrebuchetAimer_Max = 310,
-        
+
         ErosionDozer = 400,
         ErosionDozer_Max = 410,
-        
+
         Gravedigger = 500,
-        
+
         ZipZap = 600,
         ZipZap_Max = 610,
+
+        OpponentBomb = 700,
+
+        OpponentFlagErase = 800,
+        OpponentFlagErase_Max = 810,
+
+        OpponentFlagReshuffle = 900,
+        OpponentFlagReshuffle_Max = 910,
+
+        Smoke = 1000,
+        Smoke_Max = 1010,
     }
 
     public enum CardTarget
@@ -31,7 +42,7 @@ namespace Shared
         Self,
         Opponent,
     }
-    
+
     public static class CardTypeExtensions
     {
         static CardTypeExtensions()
@@ -40,24 +51,5 @@ namespace Shared
         }
 
         public static readonly IReadOnlyList<CardType> All;
-
-        public static bool RequiresBoard(this CardType type)
-        {
-            return type switch
-            {
-                CardType.Trebuchet => true,
-                CardType.Trebuchet_Max => true,
-                CardType.Bloodhound => true,
-                CardType.Bloodhound_Max => true,
-                CardType.TrebuchetAimer => false,
-                CardType.TrebuchetAimer_Max => false,
-                CardType.ErosionDozer => true,
-                CardType.ErosionDozer_Max => true,
-                CardType.Gravedigger => false,
-                CardType.ZipZap => true,
-                CardType.ZipZap_Max => true,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-        }
     }
 }

@@ -13,7 +13,6 @@ namespace GamePlay.Cards
             ICardView view,
             ILifetime containerLifetime,
             CardType type,
-            CardTarget target,
             ICardActionSync actionSync,
             IHand hand,
             ICardTransform transform, 
@@ -24,7 +23,6 @@ namespace GamePlay.Cards
             _containerLifetime = containerLifetime;
             _actionSync = actionSync;
             Type = type;
-            Target = target;
             Hand = hand;
             Transform = transform;
             Definition = definition;
@@ -38,7 +36,6 @@ namespace GamePlay.Cards
 
         public int EntityId => _entity.Id;
         public CardType Type { get; }
-        public CardTarget Target { get; }
         public ICardDefinition Definition { get; }
         public IHand Hand { get; }
         public ICardTransform Transform { get; }

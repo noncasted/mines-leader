@@ -7,8 +7,8 @@ public class GameCommandUtils
     public GameCommandUtils(
         IGameContext gameContext,
         IGameRound gameRound,
-        ICardFactory cardFactory, 
-        ISnapshotSender snapshotSender, 
+        ICardFactory cardFactory,
+        ISnapshotSender snapshotSender,
         ILogger<GameCommandUtils> logger)
     {
         GameContext = gameContext;

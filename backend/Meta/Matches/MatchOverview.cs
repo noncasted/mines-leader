@@ -1,0 +1,41 @@
+﻿using Meta.Users;
+using Shared;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+namespace Meta.Matches;
+
+[GenerateSerializer]
+public class MatchOverview : IProjectionPayload
+{
+    [Id(0)]
+    public required Guid Id { get; init; }
+    
+    [Id(1)]
+    public required List<Guid> Participants { get; init; }
+    
+    [Id(2)]
+    public required DateTime Date { get; init; }
+    
+    [Id(3)]
+    public required Guid Winner { get; init; }
+    
+    [Id(4)]
+    public required TimeSpan Time { get; init; }
+    
+    [Id(5)]
+    public required GameMatchType Type { get; init; }
+
+    public INetworkContext ToContext()
+    {
+        return new SharedBackendUser.Match()
+        {
+            Id = Id,
+            Participants = Participants,
+            Date = Date,
+            Winner = Winner,
+            Time = Time,
+            Type = Type
+        };
+    }
+}

@@ -8,20 +8,17 @@ namespace Global.Publisher
     {
         public static IScopeBuilder AddPublisher(this IScopeBuilder builder)
         {
-            var platformOptions = builder.GetOptions<PlatformOptions>();
+            var platformOptions = builder.Options.PlatformOptions;
 
             switch (platformOptions.PlatformType)
             {
+                case PlatformType.Website:
                 case PlatformType.ItchIO:
                     AddItchIO(builder);
-                    break;
-                case PlatformType.Yandex:
                     break;
                 case PlatformType.IOS:
                     break;
                 case PlatformType.Android:
-                    break;
-                case PlatformType.CrazyGames:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -32,7 +29,7 @@ namespace Global.Publisher
 
         private static void AddItchIO(IScopeBuilder builder)
         {
-            var platformOptions = builder.GetOptions<PlatformOptions>();
+            var platformOptions = builder.Options.PlatformOptions;
             var options = builder.GetAsset<GlobalPublisherOptions>();
 
             var callbacks = builder.Instantiate(options.ItchCallbacksPrefab);

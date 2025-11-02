@@ -1,31 +1,40 @@
 ﻿using System.Collections;
 
-namespace Common
+namespace Common.Reactive
 {
     public class ModifiableList<T> : IEnumerable<T>
     {
+        private readonly SemaphoreSlim _lock = new(1, 1);
         private readonly List<T> _list = new();
         private readonly List<T> _add = new(0);
         private readonly List<T> _remove = new(0);
 
         private bool _isIterated;
-        
+
         public int Count => _list.Count;
-        
+
         public void Add(T value)
         {
+            _lock.Wait();
+
             if (_isIterated == true)
                 _add.Add(value);
             else
                 _list.Add(value);
+
+            _lock.Release();
         }
 
         public void Remove(T value)
         {
+            _lock.Wait();
+
             if (_isIterated == true)
                 _remove.Add(value);
             else
                 _list.Remove(value);
+
+            _lock.Release();
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -42,7 +51,7 @@ namespace Common
 
             foreach (var remove in _remove)
                 _list.Remove(remove);
-            
+
             _add.Clear();
             _remove.Clear();
         }
@@ -54,8 +63,12 @@ namespace Common
 
         public void Clear()
         {
+            _lock.Wait();
+
             _list.Clear();
             _list.TrimExcess();
+
+            _lock.Release();
         }
     }
 }

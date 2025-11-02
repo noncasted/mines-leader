@@ -4,7 +4,6 @@ using GamePlay.Cards;
 using GamePlay.Players;
 using GamePlay.Services;
 using Internal;
-using Shared;
 
 namespace GamePlay.Loop
 {
@@ -22,10 +21,6 @@ namespace GamePlay.Loop
 
             builder.Register<GameContext>()
                 .As<IGameContext>();
-
-            builder.AddNetworkService<GameRound>("game-round")
-                .WithProperty<GameRoundState>(1)
-                .Registration.As<IGameRound>();
 
             return builder;
         }

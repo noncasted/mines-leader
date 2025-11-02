@@ -16,65 +16,71 @@ public static class BoardPositionsExtensions
         new(-1, 1),
     };
 
-    public static HashSet<Position> NeighbourPositions(this IBoard board, Position position)
+    extension(IBoard board)
     {
-        var bounds = board.Size;
-
-        var neighbours = new HashSet<Position>
+        public HashSet<Position> NeighbourPositions(Position position)
         {
-            new(position.x - 1, position.y),
-            new(position.x + 1, position.y),
-            new(position.x, position.y - 1),
-            new(position.x, position.y + 1),
-            new(position.x - 1, position.y - 1),
-            new(position.x + 1, position.y + 1),
-            new(position.x - 1, position.y + 1),
-            new(position.x + 1, position.y - 1)
-        };
+            var bounds = board.Size;
 
-        neighbours.RemoveWhere(neighbour =>
-            neighbour.x < 0 || neighbour.x >= bounds.x || neighbour.y < 0 || neighbour.y >= bounds.y);
+            var neighbours = new HashSet<Position>
+            {
+                new(position.x - 1, position.y),
+                new(position.x + 1, position.y),
+                new(position.x, position.y - 1),
+                new(position.x, position.y + 1),
+                new(position.x - 1, position.y - 1),
+                new(position.x + 1, position.y + 1),
+                new(position.x - 1, position.y + 1),
+                new(position.x + 1, position.y - 1)
+            };
 
-        return neighbours;
-    }
+            neighbours.RemoveWhere(neighbour => neighbour.x < 0 ||
+                                                neighbour.x >= bounds.x ||
+                                                neighbour.y < 0 ||
+                                                neighbour.y >= bounds.y
+            );
 
-    public static void IterateNeighbours(this IBoard board, Position position, Action<Position> action)
-    {
-        var neighbours = board.NeighbourPositions(position);
-
-        foreach (var neighbour in neighbours)
-        {
-            if (board.Cells.TryGetValue(neighbour, out var cell) == false)
-                continue;
-
-            action(neighbour);
-        }
-    }
-
-    public static Position RandomPosition(this IBoard board)
-    {
-        var bounds = board.Size;
-        return new Position(Random.Shared.Next(0, bounds.x), Random.Shared.Next(0, bounds.y));
-    }
-
-    public static bool HasMinesAround(this IBoard board, Position position)
-    {
-        var neighbours = board.NeighbourPositions(position);
-
-        foreach (var neighbour in neighbours)
-        {
-            var cell = board.Cells[neighbour];
-
-            if (cell.Status != CellStatus.Taken)
-                continue;
-
-            var taken = cell.AsTaken();
-
-            if (taken.HasMine == true)
-                return true;
+            return neighbours;
         }
 
-        return false;
+        public void IterateNeighbours(Position position, Action<Position> action)
+        {
+            var neighbours = board.NeighbourPositions(position);
+
+            foreach (var neighbour in neighbours)
+            {
+                if (board.Cells.TryGetValue(neighbour, out var cell) == false)
+                    continue;
+
+                action(neighbour);
+            }
+        }
+
+        public Position RandomPosition()
+        {
+            var bounds = board.Size;
+            return new Position(Random.Shared.Next(0, bounds.x), Random.Shared.Next(0, bounds.y));
+        }
+
+        public bool HasMinesAround(Position position)
+        {
+            var neighbours = board.NeighbourPositions(position);
+
+            foreach (var neighbour in neighbours)
+            {
+                var cell = board.Cells[neighbour];
+
+                if (cell.Status != CellStatus.Taken)
+                    continue;
+
+                var taken = cell.AsTaken();
+
+                if (taken.HasMine == true)
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     public static void CleanupAround(this IReadOnlyList<ICell> cells)

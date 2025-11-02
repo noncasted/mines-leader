@@ -17,13 +17,13 @@ namespace Shared
             public int EntityId { get; set; }
             public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class ChangeMana : INetworkContext
         {
             public int Value { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class ChangeHealth : INetworkContext
         {
@@ -35,7 +35,7 @@ namespace Shared
         {
             public int Value { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class EndMatch : INetworkContext
         {

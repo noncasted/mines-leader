@@ -10,7 +10,7 @@ public class SkipTurn(GameCommandUtils utils) : GameCommand<SharedGameAction.Ski
             return EmptyResponse.Fail("Not your turn");
 
         Utils.GameRound.SkipTurn();
-        
+
         return EmptyResponse.Ok;
     }
 }

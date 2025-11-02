@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public class SetPropertyCommand : Command<SharedSessionObject.SetProperty>
 {
@@ -23,7 +23,8 @@ public class SetPropertyCommand : Command<SharedSessionObject.SetProperty>
         {
             ObjectId = context.ObjectId,
             PropertyId = context.PropertyId,
-            Value = context.Value
+            Value = context.Value,
+            Version = property.Version 
         };
 
         _users.SendAllExceptSelf(user, updatedContext);

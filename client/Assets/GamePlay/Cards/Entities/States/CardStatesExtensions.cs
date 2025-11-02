@@ -59,6 +59,13 @@ namespace GamePlay.Cards
                 CardType.Gravedigger => builder.Register<CardGravediggerAction>(),
                 CardType.ZipZap => builder.Register<CardZipZapAction>(),
                 CardType.ZipZap_Max => builder.Register<CardZipZapAction>(),
+                CardType.OpponentBomb => builder.Register<CardOpponentBombAction>(),
+                CardType.OpponentFlagErase => builder.Register<CardOpponentFlagEraseAction>(),
+                CardType.OpponentFlagErase_Max => builder.Register<CardOpponentFlagEraseAction>(),
+                CardType.OpponentFlagReshuffle => builder.Register<CardOpponentFlagReshuffleAction>(),
+                CardType.OpponentFlagReshuffle_Max => builder.Register<CardOpponentFlagReshuffleAction>(),
+                CardType.Smoke => builder.Register<CardSmokeAction>(),
+                CardType.Smoke_Max => builder.Register<CardSmokeAction>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -85,6 +92,17 @@ namespace GamePlay.Cards
                     .WithAsset<ZipZapOptions>(),
                 CardType.ZipZap_Max => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>()
                     .WithAsset<ZipZapOptions>(),
+                CardType.OpponentBomb => Sync<CardOpponentBombAction.Snapshot, CardActionSnapshot.OpponentBomb>(),
+                CardType.OpponentFlagErase =>
+                    Sync<CardOpponentFlagEraseAction.Snapshot, CardActionSnapshot.OpponentFlagErase>(),
+                CardType.OpponentFlagErase_Max =>
+                    Sync<CardOpponentFlagEraseAction.Snapshot, CardActionSnapshot.OpponentFlagErase>(),
+                CardType.OpponentFlagReshuffle => Sync<CardOpponentFlagReshuffleAction.Snapshot,
+                    CardActionSnapshot.OpponentFlagReshuffle>(),
+                CardType.OpponentFlagReshuffle_Max => Sync<CardOpponentFlagReshuffleAction.Snapshot,
+                    CardActionSnapshot.OpponentFlagReshuffle>(),
+                CardType.Smoke => Sync<CardSmokeAction.Snapshot, CardActionSnapshot.Smoke>(),
+                CardType.Smoke_Max => Sync<CardSmokeAction.Snapshot, CardActionSnapshot.Smoke>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 

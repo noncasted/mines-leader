@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Common</AssemblyName>
+        <RootNamespace>Common</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MemoryPack.Core"/>
+        <PackageReference Include="Npgsql"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.aspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\shared.csproj"/>
+    </ItemGroup>
+
+</Project>

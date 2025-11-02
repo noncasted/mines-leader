@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Global.Backend;
 using Shared;
 using UnityEngine;
@@ -7,22 +8,32 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
-        public static UniTask<SharedBackendUserAuth.Response> Auth(this IMetaBackend backend, string name)
+        public static UniTask<SharedBackendUserSignUp.Response> SignUp(this IMetaBackend backend, string name)
         {
-            return backend.Post<SharedBackendUserAuth.Response, SharedBackendUserAuth.Request>(
-                SharedBackendUserAuth.Endpoint,
-                new SharedBackendUserAuth.Request()
-                {
-                    Name = name
-                });
+            return backend.Post<SharedBackendUserSignUp.Response, SharedBackendUserSignUp.Request>(
+                SharedBackendUserSignUp.Endpoint,
+                new SharedBackendUserSignUp.Request()
+            );
         }
 
-        public static UniTask SearchGame(this IMetaBackend backend)
+        public static UniTask<SharedBackendUserLogin.Response> LogIn(this IMetaBackend backend, Guid id)
         {
-            return backend.ExecuteCommand(new SharedMatchmaking.Search()
-            {
-                Type = SessionType.Game
-            });
+            return backend.Post<SharedBackendUserLogin.Response, SharedBackendUserLogin.Request>(
+                SharedBackendUserLogin.Endpoint,
+                new SharedBackendUserLogin.Request()
+                {
+                    Id = id
+                }
+            );
+        }
+
+        public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type)
+        {
+            return backend.ExecuteCommand(new SharedMatchmaking.SearchMatch()
+                {
+                    Type = type
+                }
+            );
         }
 
         public static UniTask CancelSearch(this IMetaBackend backend)
@@ -37,10 +48,7 @@ namespace Meta
 
         public static UniTask SearchLobby(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new SharedMatchmaking.Search()
-            {
-                Type = SessionType.Lobby
-            });
+            return backend.ExecuteCommand(new SharedMatchmaking.SearchLobby());
         }
 
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)

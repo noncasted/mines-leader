@@ -574,16 +574,28 @@ namespace BuildReportTool
 							// no shader assigned to material
 							continue;
 						}
+#if UNITY_6000_2_OR_NEWER
+						int shaderPropertyCount = shader.GetPropertyCount();
+#else
 						int shaderPropertyCount = ShaderUtil.GetPropertyCount(shader);
+#endif
 						for (int pIdx = 0; pIdx < shaderPropertyCount; ++pIdx)
 						{
+#if UNITY_6000_2_OR_NEWER
+							if (shader.GetPropertyType(pIdx) != UnityEngine.Rendering.ShaderPropertyType.Texture)
+#else
 							if (ShaderUtil.GetPropertyType(shader, pIdx) != ShaderUtil.ShaderPropertyType.TexEnv)
+#endif
 							{
 								// go through texture properties only
 								continue;
 							}
 
+#if UNITY_6000_2_OR_NEWER
+							var texture = material.GetTexture(shader.GetPropertyName(pIdx));
+#else
 							var texture = material.GetTexture(ShaderUtil.GetPropertyName(shader, pIdx));
+#endif
 							if (texture == null)
 							{
 								// no texture currently assigned to this texture property

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Game</AssemblyName>
+        <RootNamespace>Game</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Meta\Meta.csproj"/>
+    </ItemGroup>
+
+</Project>

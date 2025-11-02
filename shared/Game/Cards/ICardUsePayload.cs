@@ -9,11 +9,15 @@ namespace Shared
     [MemoryPackUnion(3, typeof(CardUsePayload.Gravedigger))]
     [MemoryPackUnion(4, typeof(CardUsePayload.Trebuchet))]
     [MemoryPackUnion(5, typeof(CardUsePayload.TrebuchetAimer))]
+    [MemoryPackUnion(6, typeof(CardUsePayload.OpponentBomb))]
+    [MemoryPackUnion(7, typeof(CardUsePayload.OpponentFlagErase))]
+    [MemoryPackUnion(8, typeof(CardUsePayload.OpponentFlagReshuffle))]
+    [MemoryPackUnion(9, typeof(CardUsePayload.Smoke))]
     public partial interface ICardUsePayload
     {
         CardType Type { get; set; }
     }
-    
+
     public interface IBoardCardUsePayload : ICardUsePayload
     {
         Position Position { get; set; }
@@ -60,6 +64,34 @@ namespace Shared
         public partial class TrebuchetAimer : ICardUsePayload
         {
             public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class OpponentBomb : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class OpponentFlagErase : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class OpponentFlagReshuffle : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Smoke : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
         }
     }
 }

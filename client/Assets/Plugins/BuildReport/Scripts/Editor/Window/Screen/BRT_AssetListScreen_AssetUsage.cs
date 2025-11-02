@@ -528,10 +528,16 @@ namespace BuildReportTool.Window.Screen
 					GUILayout.BeginVertical(string.Empty, assetInfoPanelNoListStyle, BRT_BuildReportWindow.LayoutNone);
 					GUILayout.BeginHorizontal(BRT_BuildReportWindow.LayoutNone);
 
+#if UNITY_6000_0
+					assetStyle.padding.right += BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 					if (GUILayout.Button(_selectedAsset, assetStyle, BRT_BuildReportWindow.LayoutNone))
 					{
 						Utility.PingAssetInProject(_selectedAssetPath);
 					}
+#if UNITY_6000_0
+					assetStyle.padding.right -= BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 
 					if (Event.current.type == EventType.Repaint &&
 					    (Event.current.mousePosition.x < position.width ||
@@ -1974,6 +1980,10 @@ namespace BuildReportTool.Window.Screen
 			{
 				assetHoveredStyle = GUI.skin.label;
 			}
+#if UNITY_6000_0
+			assetStyle.padding.right += BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+			assetHoveredStyle.padding.right += BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 			if (assetLabelInBetweenStyle == null)
 			{
 				assetLabelInBetweenStyle = GUI.skin.label;
@@ -2350,6 +2360,10 @@ namespace BuildReportTool.Window.Screen
 			{
 				GUILayout.Label(AssetUsageAncestryDefaultMaterialInFbxOfScene, BRT_BuildReportWindow.LayoutNone);
 			}
+#if UNITY_6000_0
+			assetStyle.padding.right -= BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+			assetHoveredStyle.padding.right -= BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 		}
 
 
@@ -2388,6 +2402,9 @@ namespace BuildReportTool.Window.Screen
 				// width of the asset name
 
 				var widthToAdd = assetStyle.CalcSize(list[n].Label).x;
+#if UNITY_6000_0
+				widthToAdd += BRT_BuildReportWindow.ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 
 #if BRT_ASSET_LIST_SCREEN_DEBUG
 				_debugText.AppendFormat("Item {0} name width: {1}\n",

@@ -1,7 +1,7 @@
-﻿using Common;
+﻿using Common.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Game;
+namespace Game.Session;
 
 public static class SessionExtensions
 {
@@ -15,10 +15,10 @@ public static class SessionExtensions
         services.AddSingleton(data);
         services.AddSingleton<ISessionData>(new SessionData
             {
-                ExpectedUsers = data.CreateOptions.ExpectedUsers,
-                Type = data.CreateOptions.Type,
                 Id = data.Id,
-                Lifetime = data.Lifetime
+                Lifetime = data.Lifetime,
+                ExpectedUsers = data.ExpectedUsers,
+                Type = data.Type
             }
         );
 

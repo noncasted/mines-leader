@@ -200,6 +200,12 @@ namespace BuildReportTool
 		public string IL2CPPCompilerConfig;
 
 		/// <summary>
+		/// <see cref="UnityEditor.PlayerSettings.GetIl2CppStacktraceInformation(UnityEditor.Build.NamedBuildTarget)"/>
+		/// Added in Unity 2023.1
+		/// </summary>
+		public string IL2CPPStacktraceInfo;
+
+		/// <summary>
 		/// <see cref="UnityEditor.EditorUserBuildSettings.activeScriptCompilationDefines"/>
 		/// </summary>
 		public string[] CompileDefines;
@@ -234,6 +240,7 @@ namespace BuildReportTool
 
 		/// <summary>
 		/// <see cref="UnityEditor.PlayerSettings.aotOptions"/>
+		/// Removed in Unity 6.
 		/// </summary>
 		public string AOTOptions;
 
@@ -530,6 +537,7 @@ namespace BuildReportTool
 
 		/// <summary>
 		/// <see cref="UnityEditor.PlayerSettings.captureSingleScreen"/>
+		/// Removed in Unity 6.
 		/// </summary>
 		public bool StandaloneCaptureSingleScreen;
 
@@ -771,6 +779,12 @@ namespace BuildReportTool
 		// ---------------------------------------------------------------
 
 		/// <summary>
+		/// <see cref="UnityEditor.EditorUserBuildSettings.androidBuildType"/>
+		/// Added in Unity 5.6
+		/// </summary>
+		public string AndroidBuildType;
+
+		/// <summary>
 		/// <see cref="UnityEditor.EditorUserBuildSettings.androidBuildSubtarget"/>
 		/// </summary>
 		public string AndroidBuildSubtarget;
@@ -780,6 +794,12 @@ namespace BuildReportTool
 		/// Added in Unity 2021.1
 		/// </summary>
 		public string AndroidCreateSymbols;
+
+		/// <summary>
+		/// <see cref="UnityEditor.Android.UserBuildSettings.DebugSymbols"/>
+		/// Added in Unity 6
+		/// </summary>
+		public string AndroidDebugSymbols;
 
 		/// <summary>
 		/// <see cref="UnityEditor.PlayerSettings.Android.buildApkPerCpuArchitecture"/>
@@ -813,6 +833,12 @@ namespace BuildReportTool
 		/// Added in Unity 2022.2
 		/// </summary>
 		public bool AndroidEnableArmV9SecurityFeatures;
+
+		/// <summary>
+		/// <see cref="UnityEditor.PlayerSettings.Android.appCategory"/>
+		/// Added in Unity 6. Replaces <see cref="AndroidIsGame"/>.
+		/// </summary>
+		public string AndroidAppCategory;
 
 		/// <summary>
 		/// <see cref="UnityEditor.PlayerSettings.Android.androidIsGame"/>
@@ -861,7 +887,8 @@ namespace BuildReportTool
 
 		/// <summary>
 		/// <see cref="UnityEditor.PlayerSettings.Android.androidTargetDevices"/>
-		/// Formerly <see cref="UnityEditor.PlayerSettings.Android.targetDevice"/>
+		/// Formerly <see cref="UnityEditor.PlayerSettings.Android.targetDevice"/>.
+		/// Removed in Unity 6.
 		/// </summary>
 		public string AndroidTargetDevice;
 
@@ -1192,7 +1219,7 @@ namespace BuildReportTool
 			public string DisplayName;
 
 			/// <summary>
-			/// For normal packages, this is the version used.<br/>
+			/// For normal packages, this is the semantic version used.<br/>
 			/// For git packages, this is the commit id.<br/>
 			/// For local folder packages, this will be null.
 			/// </summary>
@@ -1212,7 +1239,49 @@ namespace BuildReportTool
 			public string LocalPath;
 		}
 
+
+		[System.Serializable]
+		public struct PackageDependencyEntry
+		{
+			/// <summary>
+			/// Name of package using reverse domain name notation. Serves as the unique identifier.
+			/// </summary>
+			public string PackageName;
+
+			/// <summary>
+			/// User-friendly readable name of the package.
+			/// </summary>
+			public string DisplayName;
+
+			/// <summary>
+			/// For normal packages, this is the semantic version used.<br/>
+			/// For git packages, this is the commit id.<br/>
+			/// For local folder packages, this will be null.
+			/// </summary>
+			public string VersionUsed;
+
+			/// <summary>
+			/// For normal packages, this will be the registry url that matches this package.<br/>
+			/// For git packages, this is the repo url.<br/>
+			/// For local folder packages, this is the path.
+			/// </summary>
+			public string Location;
+
+			/// <summary>
+			/// Absolute path in local PC where package was found.
+			/// This will normally be in the project's "Library/PackageCache/" subfolder.
+			/// </summary>
+			public string LocalPath;
+
+			/// <summary>
+			/// The names of the packages that are using this package.
+			/// </summary>
+			public List<string> Dependents;
+		}
+
 		public List<PackageEntry> PackageEntries = new List<PackageEntry>();
+
+		public List<PackageDependencyEntry> DependencyPackageEntries = new List<PackageDependencyEntry>();
 
 		[System.Serializable]
 		public struct BuiltInPackageEntry

@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public interface IViewableList<T> : IEventSource<IReadOnlyLifetime, T>, IReadOnlyList<T>
     {

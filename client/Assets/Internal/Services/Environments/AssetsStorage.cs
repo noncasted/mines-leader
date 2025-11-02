@@ -7,21 +7,29 @@ using UnityEngine;
 
 namespace Internal
 {
+    public interface IAssetsStorage
+    {
+        OptionsContainer Options { get; }
+        IReadOnlyDictionary<string, IReadOnlyList<EnvAsset>> Assets { get; }
+
+        void Cache();
+    }
+
     [InlineEditor]
     public class AssetsStorage : ScriptableObject, IAssetsStorage
     {
         [SerializeField] private List<EnvAsset> _assets;
-        [SerializeField] private OptionsDictionary _options;
+        [SerializeField] private OptionsContainer _options;
 
         private readonly Dictionary<string, IReadOnlyList<EnvAsset>> _convertedAssets = new();
 
+        public OptionsContainer Options => _options;
         public IReadOnlyDictionary<string, IReadOnlyList<EnvAsset>> Assets => _convertedAssets;
-        public IReadOnlyDictionary<PlatformType, OptionsRegistry> Options => _options;
 
         public void Cache()
         {
             _convertedAssets.Clear();
-            
+
             foreach (var asset in _assets)
             {
                 var key = GetKey();
@@ -42,7 +50,7 @@ namespace Internal
                     return asset.GetType().FullName!;
                 }
             }
-            
+
         }
 
         [Button]
@@ -52,7 +60,7 @@ namespace Internal
             _assets.Clear();
 
             AssetDatabase.Refresh();
-            
+
             var all = GetAssets();
             var index = GetMaxIndex();
             var ids = new HashSet<int>();

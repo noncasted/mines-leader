@@ -37,6 +37,7 @@ namespace Menu.Social
 
             Debug.Log($"[Menu] [Social] Lobby found: {lobby.ServerUrl} / {lobby.SessionId}");
             await _session.Start(lifetime, lobby.ServerUrl, lobby.SessionId, _user.Id);
+            Debug.Log($"[Menu] [Social] Connection established to lobby session.");
 
             await _playerFactory.Create(lifetime);
         }

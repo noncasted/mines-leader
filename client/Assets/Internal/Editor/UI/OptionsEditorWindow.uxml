@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="root" class="options-root">
+        <ui:VisualElement name="header" class="options-header">
+            <ui:Label text="Internal Options Editor" class="header-title" />
+            <ui:Button text="Save" name="save-button" class="save-button" />
+        </ui:VisualElement>
+
+        <ui:ScrollView name="content-scroll" class="options-content">
+            <ui:Foldout text="Assets Options" name="assets-foldout" class="options-section">
+                <ui:Toggle label="Use Addressables" name="use-addressables" binding-path="_assets._useAddressables" />
+            </ui:Foldout>
+
+            <ui:Foldout text="Debug Options" name="debug-foldout" class="options-section">
+                <ui:Toggle label="Enable Gizmos" name="enable-gizmos" binding-path="_debug._enableGizmos" />
+                <ui:Toggle label="Enable Logs" name="enable-logs" binding-path="_debug._enableLogs" />
+            </ui:Foldout>
+
+            <ui:Foldout text="Version Options" name="version-foldout" class="options-section">
+                <ui:TextField label="Version" name="version-value" binding-path="_version._value" />
+            </ui:Foldout>
+
+            <ui:Foldout text="Backend Options" name="backend-foldout" class="options-section">
+                <uie:EnumField label="Environment" name="backend-environment" binding-path="_backend._environment" />
+                <ui:TextField label="Production URL" name="backend-production-url" binding-path="_backend._productionApiUrl" />
+                <ui:TextField label="Local URL" name="backend-local-url" binding-path="_backend._localApiUrl" />
+            </ui:Foldout>
+
+            <ui:Foldout text="Platform Options" name="platform-foldout" class="options-section">
+                <uie:EnumField label="Platform Type" name="platform-type" binding-path="_platform._platform" />
+                <ui:Toggle label="Is Mobile" name="is-mobile" binding-path="_platform._isMobile" />
+                <ui:Toggle label="Is Editor" name="is-editor" binding-path="_platform._isEditor" />
+            </ui:Foldout>
+        </ui:ScrollView>
+
+        <ui:VisualElement name="footer" class="options-footer">
+            <ui:Label text="Ready" name="status-label" class="status-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

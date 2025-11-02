@@ -1,7 +1,8 @@
-﻿using Common;
+﻿using Common.Network;
+using Common.Reactive;
 using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IUser
 {
@@ -23,13 +24,16 @@ public class User : IUser
 
 public static class UserExtensions
 {
-    public static void Send(this IUser user, INetworkContext context)
+    extension(IUser user)
     {
-        user.Connection.Writer.WriteOneWay(context);
-    }
+        public void Send(INetworkContext context)
+        {
+            user.Connection.Writer.WriteOneWay(context);
+        }
 
-    public static void Send(this IUser user, INetworkContext context, int requestId)
-    {
-        user.Connection.Writer.WriteResponse(context, requestId);
+        public void Send(INetworkContext context, int requestId)
+        {
+            user.Connection.Writer.WriteResponse(context, requestId);
+        }
     }
 }

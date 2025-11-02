@@ -40,7 +40,7 @@ namespace Menu.Decks
             _image.sprite = definition.Image;
             _name.text = definition.Name;
             _description.text = definition.Description;
-            _manaCost.text = definition.ManaCost.ToString();
+            _manaCost.text = definition.Config.Size.ToString();
         }
 
         public void OnBeginDrag(PointerEventData eventData)

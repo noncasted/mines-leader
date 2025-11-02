@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public class Lifetime : ILifetime
     {

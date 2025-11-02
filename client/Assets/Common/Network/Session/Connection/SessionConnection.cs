@@ -1,6 +1,5 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -29,15 +28,19 @@ namespace Common.Network
                 UserId = userId
             };
 
-            Debug.Log($"User {userId} connecting to session {sessionId} at {serverUrl}");
-
+            Debug.Log($"[Network] [Session] User {userId} connecting to session {sessionId} at {serverUrl}");
             await _connection.Run(lifetime, serverUrl);
+            Debug.Log($"[Network] [Session] Connection started successfully for user {userId}, authenticating...");
 
             var response = await _connection.Request<SharedSessionAuth.Response>(auth);
 
+            Debug.Log(
+                $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}"
+            );
+
             if (response.IsSuccess == false)
             {
-                Debug.LogError($"Failed to authenticate user {userId} for session {sessionId}");
+                Debug.LogError($"[Network] [Session] Failed to authenticate user {userId} for session {sessionId}");
                 throw new Exception("Authentication failed");
             }
         }

@@ -3,7 +3,6 @@
     <assembly fullname="ADF-RBG.Mulligan" preserve="all" />
     <assembly fullname="BuildReportTool" preserve="all" />
     <assembly fullname="Common" preserve="all" />
-    <assembly fullname="endel.nativewebsocket" preserve="all" />
     <assembly fullname="ForceFour" preserve="all" />
     <assembly fullname="GamePlay" preserve="all" />
     <assembly fullname="Global" preserve="all" />

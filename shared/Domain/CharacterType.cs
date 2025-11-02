@@ -2,7 +2,7 @@
 {
     public enum CharacterType
     {
-        BOMJ, 
+        BOMJ,
         BIBA,
         BOBA,
         CHENOSOS

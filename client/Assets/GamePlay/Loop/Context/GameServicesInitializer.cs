@@ -16,7 +16,8 @@ namespace GamePlay.Loop
             IGameOverlayUI overlayUI,
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
-            ICellOpenAction cellOpenAction)
+            ICellOpenAction cellOpenAction,
+            ICellMultipleOpenAction cellMultipleOpenAction)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -25,11 +26,13 @@ namespace GamePlay.Loop
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
+            _cellMultipleOpenAction = cellMultipleOpenAction;
         }
 
         private readonly ICellsSelection _cellsSelection;
         private readonly ICellFlagAction _cellFlagAction;
         private readonly ICellOpenAction _cellOpenAction;
+        private readonly ICellMultipleOpenAction _cellMultipleOpenAction;
 
         private readonly IGameOverlayUI _overlayUI;
         
@@ -42,6 +45,7 @@ namespace GamePlay.Loop
             _cellsSelection.Start(lifetime);
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
+            _cellMultipleOpenAction.Start(lifetime);
             
             _overlayUI.Show();
 

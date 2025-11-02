@@ -1,4 +1,6 @@
-﻿namespace Game.GamePlay;
+﻿using Game.Session;
+
+namespace Game.GamePlay;
 
 public interface ISnapshotSender
 {
@@ -13,11 +15,11 @@ public class SnapshotSender : ISnapshotSender
     }
 
     private readonly IGameContext _context;
-    
+
     public void Send(MoveSnapshot snapshot)
     {
         var context = snapshot.Collect();
-        
+
         foreach (var (user, _) in _context.UserToPlayer)
             user.Send(context);
     }

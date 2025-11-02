@@ -43,7 +43,7 @@ namespace GamePlay.Players
             builder.Register<GamePlayer>()
                 .WithParameter(builder.Scope)
                 .As<IGamePlayer>();
-
+            
             return builder;
         }
     }

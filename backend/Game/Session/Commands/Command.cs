@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface ICommand
 {

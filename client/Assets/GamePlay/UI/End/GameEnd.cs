@@ -1,7 +1,7 @@
 ﻿using System;
+using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using Global.Backend;
 using Internal;
 using Shared;
 

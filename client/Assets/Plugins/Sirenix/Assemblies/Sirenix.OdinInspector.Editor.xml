@@ -2513,6 +2513,15 @@
             For now, it only exists to denote which internally defined resolvers support prefab modifications being set.
             </summary>
         </member>
+        <member name="T:Sirenix.OdinInspector.Editor.OdinCacheableProcessorAttribute">
+            <summary>
+            Marks an <see cref="T:Sirenix.OdinInspector.Editor.OdinAttributeProcessor"/> or <see cref="T:Sirenix.OdinInspector.Editor.OdinPropertyProcessor"/> as cacheable.
+            </summary>
+            <remarks>
+            Only mark a processor as cacheable if it always produces the same attributes for the same properties in the same order.  
+            Caching is applied only when all processors that run on a property are cacheable; if any running processor is not, the result will not be cached.
+            </remarks>
+        </member>
         <member name="T:Sirenix.OdinInspector.Editor.CollectionChangeInfo">
             <summary>
             Contains information about a change that is going to occur/has occurred to a collection.
@@ -3694,6 +3703,11 @@
             The base type of the value entry. If this is value entry represents a member value, this is the type of the member. If the value entry represents a collection element, this is the element type of the collection.
             </summary>
         </member>
+        <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.TValueGenericTypeArgument">
+            <summary>
+            The generic value type of the value entry alias itself, IE, the PropertyValueEntryAlias implements the IPropertyValueEntry&lt;TValue&gt; interface - this member returns TValue regardless of the actual type of the backing objects. This is a performance shortcut to checking TValue using reflection, used internally by the property system to determine whether a value entry alias needs to be swapped out with an alias for a different type.
+            </summary>
+        </member>
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.ValueState">
             <summary>
             The special state of the value entry.
@@ -3845,6 +3859,11 @@
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.BaseValueType">
             <summary>
             The base type of the value entry. If this is value entry represents a member value, this is the type of the member. If the value entry represents a collection element, this is the element type of the collection.
+            </summary>
+        </member>
+        <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.TValueGenericTypeArgument">
+            <summary>
+            The generic value type of the value entry alias itself, IE, the PropertyValueEntryAlias implements the IPropertyValueEntry&lt;TValue&gt; interface - this member returns TValue regardless of the actual type of the backing objects. This is a performance shortcut to checking TValue using reflection, used internally by the property system to determine whether a value entry alias needs to be swapped out with an alias for a different type.
             </summary>
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.ValueState">
@@ -4484,6 +4503,13 @@
             Draws the property layout.
             </summary>
             <param name="label">The label.</param>
+        </member>
+        <member name="M:Sirenix.OdinInspector.Editor.Drawers.InlineEditorAttributeDrawer`1.DrawAnimationClipEditorPreview(UnityEngine.Rect)">
+            <summary>
+            
+            </summary>
+            <param name="rect"></param>
+            <remarks>Will set <see cref="P:UnityEngine.GUI.enabled">GUI.enabled</see> to false during some cases, to avoid the Preview eating events when it really shouldn't.</remarks>
         </member>
         <member name="T:Sirenix.OdinInspector.Editor.Drawers.InlinePropertyAttributeDrawer">
             <summary>
@@ -7181,6 +7207,30 @@
             <param name="reference"></param>
             <remarks>Ensure <see cref="M:Sirenix.OdinInspector.Editor.Internal.OdinGUIScrollView.BeginAllocations"/> is called before calling this, and ensure <see cref="M:Sirenix.OdinInspector.Editor.Internal.OdinGUIScrollView.EndAllocations"/> is called after you're done with <see cref="M:Sirenix.OdinInspector.Editor.Internal.OdinGUIScrollView.AllocateRect(System.Single,System.Object)"/></remarks>
         </member>
+        <member name="M:Sirenix.OdinInspector.Editor.Internal.DropCommit.TryCommit(Sirenix.OdinInspector.Editor.Internal.DesignerEditorContext,Sirenix.OdinInspector.Editor.Internal.DragAndDropState)">
+            <summary>
+            Commit a vertical drop using DragAndDropState.
+            Center on an empty group inserts INTO that group.
+            Top/Bottom on any item inserts as a SIBLING in the parent container.
+            Returns true if the model changed.
+            </summary>
+        </member>
+        <member name="M:Sirenix.OdinInspector.Editor.Internal.DesignerEditorWindow.HandleWindowMovement(System.Boolean,UnityEngine.Vector2,UnityEditor.EditorWindow,System.Int32)">
+            <summary>
+            Handles the window's linux-like drag behaviour.
+            </summary>
+            <param name="isDragging">Are we currently dragging (provided by the calling window)</param>
+            <param name="dragStartPosition">Where did the drag start (provided by the calling window)</param>
+            <param name="editorWindow">The window to move</param>
+            <param name="controlID">A passive control id to make sure the window keeps getting events while dragging (provided by the calling window)</param>
+            <returns>A bool so the calling window can update its "isDragging" variable and a Vector2 so the calling window can update its "dragStartPosition" variable</returns>
+        </member>
+        <member name="T:Sirenix.OdinInspector.Editor.Internal.RefList`1.IndexRef">
+            <summary>
+            
+            </summary>
+            <remarks>Does not guarantee stability.</remarks>
+        </member>
         <member name="T:Sirenix.OdinInspector.Editor.Internal.OdinInternalDragAndDropUtils">
             <summary> Temporary. </summary>
             <warning>This implementation <b>will</b> get refactored.</warning>
@@ -9168,26 +9218,31 @@
             <summary>
             Adds a menu item with the specified object instance at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,UnityEngine.Texture)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,Sirenix.OdinInspector.SdfIconType)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,UnityEngine.Sprite)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,Sirenix.Utilities.Editor.EditorIcon)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.AddRange``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String})">
             <summary>
@@ -10183,6 +10238,9 @@
             <summary>
             Sets the selected types.
             </summary>
+        </member>
+        <member name="M:Sirenix.OdinInspector.Editor.OdinVisualDesignerConfig.ToggleFavorite(System.Type)">
+            <returns>The favorite state *after* toggling.</returns>
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.OdinObjectSelector.SelectorProperty">
             <summary>

@@ -327,6 +327,7 @@ The original width and height of the image <i>before</i> it was resized by the <
 
 		public const string NPOT_SCALE_NONE_NOT_POT = "None (Not Power of 2)";
 		public const string NPOT_SCALE_NONE_IS_POT = "None (Is Power of 2)";
+		public const string IMPORT_ERROR = "Import Error";
 
 		public struct Entry
 		{
@@ -1076,9 +1077,23 @@ The original width and height of the image <i>before</i> it was resized by the <
 						return _shownCompressionQualityLabel;
 					// ------------------------
 					case DataId.ImportedWidthAndHeight:
-						return string.Format("{0}x{1}", ImportedWidth.ToString(), ImportedHeight.ToString());
+						if (ImportedWidth == 0 || ImportedHeight == 0)
+						{
+							return IMPORT_ERROR;
+						}
+						else
+						{
+							return string.Format("{0}x{1}", ImportedWidth.ToString(), ImportedHeight.ToString());
+						}
 					case DataId.RealWidthAndHeight:
-						return string.Format("{0}x{1}", RealWidth.ToString(), RealHeight.ToString());
+						if (RealWidth <= 0)
+						{
+							return IMPORT_ERROR;
+						}
+						else
+						{
+							return string.Format("{0}x{1}", RealWidth.ToString(), RealHeight.ToString());
+						}
 					// ------------------------
 					default:
 						return string.Empty;

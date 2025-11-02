@@ -1,6 +1,6 @@
-﻿using GamePlay.Loop;
+﻿using Common.Network;
+using GamePlay.Loop;
 using GamePlay.Players;
-using Global.Backend;
 using Internal;
 using Shared;
 using UnityEngine;

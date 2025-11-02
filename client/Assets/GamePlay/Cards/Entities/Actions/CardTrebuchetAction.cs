@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Players;
@@ -32,7 +31,7 @@ namespace GamePlay.Cards
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _context.Type.GetSize() + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+            var size = _context.Config.Size + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

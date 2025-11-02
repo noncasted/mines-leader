@@ -4,6 +4,7 @@ using Global.Systems;
 using Global.UI;
 using Internal;
 using Meta;
+using Shared;
 using TMPro;
 using UnityEngine;
 using VContainer;
@@ -12,9 +13,9 @@ namespace Menu.Main
 {
     public interface IMenuPlay
     {
-        IViewableDelegate<SessionData> GameFound { get; }
+        IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound { get; }
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuPlay : MonoBehaviour, ISceneService, IMenuPlay
     {
@@ -22,15 +23,20 @@ namespace Menu.Main
         [SerializeField] private TMP_Text _buttonText;
         [SerializeField] private DesignButton _button;
 
+        [SerializeField] private GameObject _modeSelection;
+        [SerializeField] private DesignButton _timeLimited;
+        [SerializeField] private DesignButton _lastManStanding;
+
         private IMatchmaking _matchmaking;
         private bool _isInSearch;
         private IUpdater _updater;
         private ILifetime _searchLifetime;
+        private ILifetime _selectionLifetime;
         private float _time;
 
-        private readonly ViewableDelegate<SessionData> _gameFound = new();
+        private readonly ViewableDelegate<SharedMatchmaking.MatchResult> _gameFound = new();
 
-        public IViewableDelegate<SessionData> GameFound => _gameFound;
+        public IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound => _gameFound;
 
         [Inject]
         private void Construct(
@@ -67,26 +73,65 @@ namespace Menu.Main
             }
             else
             {
-                Search(lifetime).Forget();
+                ProcessModeSelection().Forget();
             }
         }
 
-        private async UniTask Search(IReadOnlyLifetime lifetime)
+        private async UniTask ProcessModeSelection()
+        {
+            _selectionLifetime?.Terminate();
+            _selectionLifetime = this.GetObjectLifetime().Child();
+
+            var completion = new UniTaskCompletionSource<(bool, GameMatchType)>();
+
+            _button.ListenClick(_selectionLifetime, () => completion.TrySetResult((false, GameMatchType.Single)));
+            _timeLimited.ListenClick(_selectionLifetime, () => completion.TrySetResult((true, GameMatchType.TimeLimited)));
+            _lastManStanding.ListenClick(_selectionLifetime,
+                () => completion.TrySetResult((true, GameMatchType.LastManStanding))
+            );
+
+            _modeSelection.SetActive(true);
+
+            _selectionLifetime.Listen(() =>
+                {
+                    _modeSelection.SetActive(false);
+                    completion.TrySetCanceled();
+                }
+            );
+
+            var (confirmed, type) = await completion.Task;
+
+            if (confirmed == true)
+            {
+                _modeSelection.SetActive(false);
+                Search(type).Forget();
+            }
+            else
+            {
+                _modeSelection.SetActive(false);
+            }
+
+            _selectionLifetime.Terminate();
+        }
+
+        private async UniTask Search(GameMatchType type)
         {
             _isInSearch = true;
-            _searchLifetime = lifetime.Child();
+            _searchLifetime = this.GetObjectLifetime().Child();
             _timer.gameObject.SetActive(true);
             _buttonText.text = "cancel";
             _time = 0;
 
             _updater.RunUpdateAction(_searchLifetime, delta =>
-            {
-                _time += delta;
-                var timeSpan = TimeSpan.FromSeconds(_time);
-                _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
-            }).Forget();
+                    {
+                        _time += delta;
+                        var timeSpan = TimeSpan.FromSeconds(_time);
+                        _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
+                    }
+                )
+                .Forget();
 
-            var sessionData = await _matchmaking.SearchGame(lifetime);
+            var sessionData = await _matchmaking.SearchGame(_searchLifetime, type);
             _gameFound.Invoke(sessionData);
         }
     }

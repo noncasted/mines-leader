@@ -93,6 +93,13 @@ public class BRT_BuildReportWindow : EditorWindow
 	const int TOOLTIP_PADDING_L = 2;
 	const int TOOLTIP_PADDING_R = 2;
 
+	/// <summary>
+	/// The spacing between an image and the text for a GUIContent
+	/// (when the style's Image Position is set to Image Left) is too large in Unity 6.0.
+	/// This adjustment is needed to compensate for that.
+	/// </summary>
+	public const int ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0 = 10;
+
 	public static Vector2 IconSize = new Vector2(15, 15);
 
 	public static readonly GUILayoutOption[] LayoutNone = { };
@@ -2092,6 +2099,9 @@ public class BRT_BuildReportWindow : EditorWindow
 			for (int n = 0, len = Mathf.Min(endUsers.Count, TOOLTIP_END_USERS_MAX_COUNT); n < len; ++n)
 			{
 				var endUserSize = assetStyle.CalcSize(endUsers[n]);
+#if UNITY_6000_0
+				endUserSize.x += ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 
 				endUsersSize.x = Mathf.Max(endUsersSize.x, endUserSize.x);
 				endUsersSize.y += endUserSize.y;
@@ -2130,6 +2140,9 @@ public class BRT_BuildReportWindow : EditorWindow
 		Rect endUserRect = new Rect(pos.x + TOOLTIP_PADDING_T, pos.y + TOOLTIP_PADDING_L, 0, 0);
 
 		endUserRect.size = labelStyle.CalcSize(label);
+#if UNITY_6000
+		endUserRect.width += 50;
+#endif
 		GUI.Label(endUserRect, label, labelStyle);
 
 		if (endUsers != null && endUsers.Count > 0)
@@ -2138,6 +2151,9 @@ public class BRT_BuildReportWindow : EditorWindow
 
 			EditorGUIUtility.SetIconSize(IconSize);
 
+#if UNITY_6000_0
+			assetStyle.padding.right += ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 			for (int n = 0, len = Mathf.Min(endUsers.Count, TOOLTIP_END_USERS_MAX_COUNT); n < len; ++n)
 			{
 				endUserRect.size = assetStyle.CalcSize(endUsers[n]);
@@ -2146,6 +2162,9 @@ public class BRT_BuildReportWindow : EditorWindow
 
 				endUserRect.y += endUserRect.height;
 			}
+#if UNITY_6000_0
+			assetStyle.padding.right -= ASSET_STYLE_ADDITIONAL_WIDTH_FOR_UNITY_6_0;
+#endif
 
 			if (endUsers.Count > TOOLTIP_END_USERS_MAX_COUNT)
 			{
@@ -2190,6 +2209,10 @@ public class BRT_BuildReportWindow : EditorWindow
 				thumbnailImage.height);
 
 			labelSize = labelStyle.CalcSize(TextureDataTooltipLabel);
+#if UNITY_6000_0_OR_NEWER
+			labelSize.x += 10;
+#endif
+
 			return true;
 		}
 
@@ -2224,6 +2247,9 @@ public class BRT_BuildReportWindow : EditorWindow
 			}
 
 			labelSize = labelStyle.CalcSize(TextureDataTooltipLabel);
+#if UNITY_6000_0_OR_NEWER
+			labelSize.x += 10;
+#endif
 
 			return true;
 		}
@@ -2252,6 +2278,10 @@ public class BRT_BuildReportWindow : EditorWindow
 				desiredSize.x = Mathf.Max(desiredSize.x, textureDataLabelSize.x);
 				desiredSize.y += textureDataLabelSize.y;
 			}
+#if UNITY_6000_0_OR_NEWER
+			desiredSize.x += 5;
+			desiredSize.y += 5;
+#endif
 
 			var tooltipRect = BRT_BuildReportWindow.DrawTooltip(position, desiredSize.x, desiredSize.y);
 
@@ -2282,6 +2312,10 @@ public class BRT_BuildReportWindow : EditorWindow
 	public static void DrawEndUsersTooltip(Rect position, GUIContent label, List<GUIContent> endUsers, Rect assetRect)
 	{
 		var endUsersSize = BRT_BuildReportWindow.GetEndUsersListSize(label, endUsers);
+#if UNITY_6000_0_OR_NEWER
+		endUsersSize.x += 5;
+		endUsersSize.y += 5;
+#endif
 
 		var tooltipRect = BRT_BuildReportWindow.DrawTooltip(position, endUsersSize.x, endUsersSize.y);
 
@@ -2322,6 +2356,10 @@ public class BRT_BuildReportWindow : EditorWindow
 				tooltipSize.x = Mathf.Max(tooltipSize.x, textureDataLabelSize.x);
 				tooltipSize.y += textureDataLabelSize.y;
 			}
+#if UNITY_6000_0_OR_NEWER
+			tooltipSize.x += 5;
+			tooltipSize.y += 5;
+#endif
 
 			var tooltipRect = BRT_BuildReportWindow.DrawTooltip(position, tooltipSize.x, tooltipSize.y);
 

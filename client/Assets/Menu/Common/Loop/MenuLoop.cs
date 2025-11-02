@@ -5,6 +5,7 @@ using Internal;
 using Menu.Main;
 using Menu.Social;
 using Meta;
+using Shared;
 
 namespace Menu.Common
 {
@@ -36,21 +37,20 @@ namespace Menu.Common
 
         public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
-            var completion = new UniTaskCompletionSource<SessionData>();
+            var completion = new UniTaskCompletionSource<SharedMatchmaking.MatchResult>();
 
             await _socialLoop.Start(lifetime);
             
             _loadingScreen.Hide();
             _globalCamera.Disable();
             
-            _play.GameFound.Advise(lifetime, sessionData => completion.TrySetResult(sessionData));
+            _play.MatchFound.Advise(lifetime, sessionData => completion.TrySetResult(sessionData));
 
-            var sessionData = await completion.Task;
+            var result = await completion.Task;
             
             return new GameLoadData()
             {
-                GameMode = GameMode.PvP,
-                SessionData = sessionData
+                Result = result
             };
         }
     }

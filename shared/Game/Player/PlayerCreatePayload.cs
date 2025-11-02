@@ -7,7 +7,7 @@ namespace Shared
     public partial class PlayerCreatePayload : IEntityPayload
     {
         public string Name { get; set; }
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
         public CharacterType SelectedCharacter { get; set; }
     }
 }

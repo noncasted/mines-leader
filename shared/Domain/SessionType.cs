@@ -2,7 +2,7 @@
 {
     public enum SessionType
     {
-        Lobby = 1, 
-        Game = 2,
+        Lobby = 1,
+        Match = 2,
     }
 }

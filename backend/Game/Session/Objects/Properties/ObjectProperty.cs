@@ -1,8 +1,9 @@
-﻿namespace Game;
+﻿namespace Game.Session;
 
 public interface IObjectProperty
 {
     int Id { get; }
+    int Version { get; }
     byte[] RawValue { get; }
 
     void Construct(IPropertyUpdateSender updateSender, int objectId);
@@ -19,9 +20,11 @@ public class ObjectProperty : IObjectProperty
 
     private byte[] _rawValue;
     private int _objectId;
+    private int _version;  
     private IPropertyUpdateSender? _updateSender;
 
     public int Id { get; }
+    public int Version => _version;
     public byte[] RawValue => _rawValue;
 
     public void Construct(IPropertyUpdateSender updateSender, int objectId)
@@ -33,6 +36,7 @@ public class ObjectProperty : IObjectProperty
     public void Update(byte[] value)
     {
         _rawValue = value;
+        _version++;
     }
 
     public void Push()

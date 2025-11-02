@@ -19,7 +19,7 @@ namespace Loop
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
         }
-        
+
         private readonly IGameLoopScopeLoader _scopeLoader;
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
@@ -27,12 +27,12 @@ namespace Loop
         public async UniTask<GameLoadData> Load()
         {
             _globalCamera.Enable();
-            _loadingScreen.Show();
+            await _loadingScreen.Show();
 
             var scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
             var loop = scope.Container.Container.Resolve<IMenuLoop>();
             var result = await loop.Process(scope.Lifetime);
-            
+
             return result;
         }
     }

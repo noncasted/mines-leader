@@ -1,4 +1,4 @@
-﻿using Global.Backend;
+﻿using Common.Network;
 using Internal;
 
 namespace GamePlay.Services

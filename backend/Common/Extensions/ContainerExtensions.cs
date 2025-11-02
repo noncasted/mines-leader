@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Common;
+namespace Common.Extensions;
 
 public static class ContainerExtensions
 {
@@ -10,35 +10,58 @@ public static class ContainerExtensions
         public required IServiceCollection Collection { get; init; }
     }
 
-    public static Registration Add<TInterface, TImplementation>(this IServiceCollection builder)
-        where TInterface : class
-        where TImplementation : class, TInterface
+    extension(IServiceCollection builder)
     {
-        builder.AddSingleton<TImplementation>();
-        builder.AddSingleton<TInterface>(sp => sp.GetRequiredService<TImplementation>());
-
-        return new Registration
+        public Registration Add<TInterface, TImplementation>()
+            where TInterface : class
+            where TImplementation : class, TInterface
         {
-            Collection = builder,
-            Type = typeof(TImplementation)
-        };
+            builder.AddSingleton<TImplementation>();
+            builder.AddSingleton<TInterface>(sp => sp.GetRequiredService<TImplementation>());
+
+            return new Registration
+            {
+                Collection = builder,
+                Type = typeof(TImplementation)
+            };
+        }
+
+        public Registration Add<T>()
+            where T : class
+        {
+            builder.AddSingleton<T>();
+
+            return new Registration
+            {
+                Collection = builder,
+                Type = typeof(T)
+            };
+        }
+        
+        public Registration Add<T>(T instance)
+            where T : class
+        {
+            builder.AddSingleton(instance);
+
+            return new Registration
+            {
+                Collection = builder,
+                Type = typeof(T)
+            };
+        }
+
+        public Registration Pass<T>(IServiceProvider services) where T : class
+        {
+            return builder.Add(services.GetRequiredService<T>());
+        }
     }
 
-    public static Registration Add<TImplementation>(this IServiceCollection builder)
-        where TImplementation : class
+    extension(Registration registration)
     {
-        builder.AddSingleton<TImplementation>();
-
-        return new Registration
+        public Registration As<T>() where T : class
         {
-            Collection = builder,
-            Type = typeof(TImplementation)
-        };
-    }
-
-    public static Registration As<T>(this Registration registration) where T : class
-    {
-        registration.Collection.AddSingleton(sp => (T)sp.GetRequiredService(registration.Type));
-        return registration;
+            registration.Collection.AddSingleton(sp => (T)sp.GetRequiredService(registration.Type));
+            return registration;
+        }
     }
 }

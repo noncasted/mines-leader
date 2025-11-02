@@ -2,20 +2,30 @@
 
 namespace Game.GamePlay;
 
+public enum CellStatus
+{
+    Free,
+    Taken,
+}
+
+public interface ICellEffect
+{
+    Guid Id { get; }
+    CellEffectType Type { get; }
+}
+
 public interface ICell
 {
     IBoard Source { get; }
     CellStatus Status { get; }
     Position Position { get; }
+    IReadOnlyList<ICellEffect> Effects { get; }
 
     ITakenCell ToTaken();
     IFreeCell ToFree();
-}
 
-public enum CellStatus
-{
-    Free,
-    Taken,
+    void AddEffect(ICellEffect effect);
+    void RemoveEffect(Guid id);
 }
 
 public interface IFreeCell : ICell
@@ -46,14 +56,21 @@ public class FreeCell : IFreeCell
         Source = board;
     }
 
+    private readonly List<ICellEffect> _effects = new();
+
     public IBoard Source { get; }
     public CellStatus Status => CellStatus.Free;
     public Position Position { get; }
+
+    public IReadOnlyList<ICellEffect> Effects => _effects;
 
     public int MinesAround { get; private set; }
 
     public void UpdateMinesAround(int minesCount)
     {
+        if (minesCount == MinesAround)
+            return;
+
         MinesAround = minesCount;
         Source.Events.SetMinesAround(this, minesCount);
     }
@@ -69,6 +86,18 @@ public class FreeCell : IFreeCell
     {
         return this;
     }
+
+    public void AddEffect(ICellEffect effect)
+    {
+        _effects.Add(effect);
+        Source.Events.AddEffect(this, effect);
+    }
+
+    public void RemoveEffect(Guid id)
+    {
+        _effects.RemoveAll(e => e.Id == id);
+        Source.Events.RemoveEffect(this, id);
+    }
 }
 
 public class TakenCell : ITakenCell
@@ -81,11 +110,14 @@ public class TakenCell : ITakenCell
         Source = board;
     }
 
+    private readonly List<ICellEffect> _effects = new();
+
     public IBoard Source { get; }
     public CellStatus Status => CellStatus.Taken;
     public Position Position { get; }
     public bool IsFlagged { get; private set; }
     public bool HasMine { get; private set; }
+    public IReadOnlyList<ICellEffect> Effects => _effects;
 
     public void SetFlag()
     {
@@ -119,5 +151,17 @@ public class TakenCell : ITakenCell
         var free = new FreeCell(Position, Source);
         Source.SetCell(free);
         return free;
+    }
+
+    public void AddEffect(ICellEffect effect)
+    {
+        _effects.Add(effect);
+        Source.Events.AddEffect(this, effect);
+    }
+
+    public void RemoveEffect(Guid id)
+    {
+        _effects.RemoveAll(e => e.Id == id);
+        Source.Events.RemoveEffect(this, id);
     }
 }

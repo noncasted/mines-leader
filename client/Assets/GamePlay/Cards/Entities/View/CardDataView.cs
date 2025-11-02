@@ -30,7 +30,7 @@ namespace GamePlay.Cards
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _name.text = _definition.Name;
-            _manaCost.text = _definition.ManaCost.ToString();
+            _manaCost.text = _definition.Config.ManaCost.ToString();
             _image.sprite = _definition.Image;
         }
     }

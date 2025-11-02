@@ -1,6 +1,6 @@
 ﻿using MemoryPack;
 
-namespace Game;
+namespace Game.Session;
 
 public class ValueProperty<T> : ObjectProperty where T : new()
 {

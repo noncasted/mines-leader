@@ -2,10 +2,12 @@
 {
     public enum PlatformType
     {
-        ItchIO = 0,
-        Yandex = 1,
-        IOS = 2,
-        Android = 3,
-        CrazyGames = 4
+        // Web
+        Website = 110,
+        ItchIO = 120,
+        
+        // Mobile
+        IOS = 210,
+        Android = 220,
     }
 }

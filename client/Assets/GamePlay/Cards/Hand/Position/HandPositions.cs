@@ -12,7 +12,7 @@ namespace GamePlay.Cards
         void AddCard(IReadOnlyLifetime lifetime, ICard card);
         ICardPositionHandle GetPositionHandle(ICard card);
     }
-    
+
     [DisallowMultipleComponent]
     public class HandPositions : MonoBehaviour, IHandPositions, IUpdatable, IScopeSetup
     {
@@ -42,10 +42,11 @@ namespace GamePlay.Cards
             _cardToHandle.Add(card, handle);
 
             lifetime.Listen(() =>
-            {
-                _handles.Remove(handle);
-                _cardToHandle.Remove(card);
-            });
+                {
+                    _handles.Remove(handle);
+                    _cardToHandle.Remove(card);
+                }
+            );
         }
 
         public ICardPositionHandle GetPositionHandle(ICard card)
@@ -151,7 +152,6 @@ namespace GamePlay.Cards
 
             [SerializeField] public float Evaluation;
             [SerializeField] public float Weight;
-            [SerializeField] public float Force => Transform.HandForce;
 
             [SerializeField] public Vector2 Position;
             [SerializeField] public float Rotation;
@@ -160,6 +160,7 @@ namespace GamePlay.Cards
             public Vector2 SupposedPosition => Position;
             public float SupposedRotation => Rotation;
             public int SupposedRenderOrder => RenderOrder;
+            public float Force => Transform.HandForce;
         }
     }
 }

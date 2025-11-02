@@ -45,7 +45,7 @@ namespace GamePlay.Boards
 
             var animationLifetime = lifetime.Child();
             anim.OnSetup(animationLifetime);
-            await anim.PlayAsync(lifetime);
+            await anim.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
 
             gameObject.SetActive(false);

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Common;
+namespace Common.Extensions;
 
 public static class TraceExtensions
 {
@@ -13,13 +13,16 @@ public static class TraceExtensions
         PlayerConnection
     ];
     
-    public static Activity Start(this ActivitySource source)
+    extension(ActivitySource source)
     {
-        return source.StartActivity(source.Name)!;
-    }
-    
-    public static Activity Start(this ActivitySource source, string name)
-    {
-        return source.StartActivity(name)!;
+        public Activity Start()
+        {
+            return source.StartActivity(source.Name)!;
+        }
+
+        public Activity Start(string name)
+        {
+            return source.StartActivity(name)!;
+        }
     }
 }

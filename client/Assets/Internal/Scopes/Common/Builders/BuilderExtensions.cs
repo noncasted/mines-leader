@@ -106,11 +106,6 @@ namespace Internal
             return builder.Assets.GetAsset<T>();
         }
 
-        public static T GetOptions<T>(this IBuilder builder) where T : class, IOptionsEntry
-        {
-            return builder.Assets.GetOptions<T>();
-        }
-
         public static IRegistration RegisterAsset<T>(this IBuilder builder) where T : ScriptableObject
         {
             var asset = builder.GetAsset<T>();

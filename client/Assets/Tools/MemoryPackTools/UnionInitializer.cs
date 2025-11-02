@@ -1,8 +1,4 @@
 ﻿using Common.Network;
-using GamePlay.Boards;
-using GamePlay.Cards;
-using GamePlay.Loop;
-using GamePlay.Players;
 using Internal;
 using Menu.Social;
 using Shared;

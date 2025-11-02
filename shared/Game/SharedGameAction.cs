@@ -11,6 +11,12 @@ namespace Shared
         }
 
         [MemoryPackable]
+        public partial class OpenMultiple : INetworkContext
+        {
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
         public partial class SetFlag : INetworkContext
         {
             public Position Position { get; set; }
@@ -33,11 +39,12 @@ namespace Shared
         public partial class SkipTurn : INetworkContext
         {
         }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
                 .Add<Open>()
+                .Add<OpenMultiple>()
                 .Add<SetFlag>()
                 .Add<RemoveFlag>()
                 .Add<CardUse>()

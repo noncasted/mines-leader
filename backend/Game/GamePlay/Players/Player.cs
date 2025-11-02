@@ -1,4 +1,6 @@
-﻿namespace Game.GamePlay;
+﻿using Game.Session;
+
+namespace Game.GamePlay;
 
 public interface IPlayer
 {

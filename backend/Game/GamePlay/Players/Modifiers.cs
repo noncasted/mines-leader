@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Game.Session;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -38,18 +39,21 @@ public class Modifiers : IModifiers
 
 public static class PlayerModifiersExtensions
 {
-    public static float Get(this IModifiers modifiers, PlayerModifier type)
+    extension(IModifiers modifiers)
     {
-        return modifiers.Values[type];
-    }
+        public float Get(PlayerModifier type)
+        {
+            return modifiers.Values[type];
+        }
 
-    public static void Inc(this IModifiers modifiers, PlayerModifier type)
-    {
-        modifiers.Set(type, modifiers.Values[type] + 1);
-    }
+        public void Inc(PlayerModifier type)
+        {
+            modifiers.Set(type, modifiers.Values[type] + 1);
+        }
 
-    public static void Reset(this IModifiers modifiers, PlayerModifier type)
-    {
-        modifiers.Set(type, 0f);
+        public void Reset(PlayerModifier type)
+        {
+            modifiers.Set(type, 0f);
+        }
     }
 }

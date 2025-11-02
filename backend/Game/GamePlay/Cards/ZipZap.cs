@@ -23,9 +23,10 @@ public class ZipZap : ICard
 
     public EmptyResponse Use()
     {
-        var size = _payload.Type.GetSize() + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+        var config = _payload.Type.ToConfig<CardsConfigs.IZipZap>();
+        var size = config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
-        var searchShape = PatternShapes.Rhombus(CardsConfigs.ZipZap.SearchRadius);
+        var searchShape = PatternShapes.Rhombus(config.SearchRadius);
 
         var selected = pattern.SelectFree(_target, _payload.Position);
 
@@ -74,7 +75,7 @@ public class ZipZap : ICard
         ITakenCell? SelectTarget(Position center)
         {
             var searchPositions = searchShape.SelectTaken(_target, center);
-            var hasMine = searchPositions.Where(x => x.HasMine == true);
+            var hasMine = Enumerable.Where<ITakenCell>(searchPositions, x => x.HasMine == true);
             var hasFlags = hasMine.Where(x => x.IsFlagged == false);
             var unique = hasFlags.Where(x => targets.Contains(x) == false);
 

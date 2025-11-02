@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Common.Network;
+using Cysharp.Threading.Tasks;
 using Global.Backend;
 using Internal;
 using Shared;
@@ -13,7 +14,7 @@ namespace Meta
         INetworkConnection Connection { get; }
         IReadOnlyLifetime Lifetime { get; }
 
-        UniTask Connect(IReadOnlyLifetime lifetime);
+        UniTask<bool> Connect(IReadOnlyLifetime lifetime);
     }
 
     public class MetaBackend : IMetaBackend
@@ -40,7 +41,7 @@ namespace Meta
         public INetworkConnection Connection => _connection;
         public IReadOnlyLifetime Lifetime { get; }
 
-        public async UniTask Connect(IReadOnlyLifetime lifetime)
+        public async UniTask<bool> Connect(IReadOnlyLifetime lifetime)
         {
             Debug.Log("[Meta] Connecting to backend...");
             await _connection.Run(lifetime, _options.SocketUrl);
@@ -61,6 +62,8 @@ namespace Meta
             {
                 Debug.Log("[Meta] Successfully authenticated with backend");
             }
+
+            return authResponse.IsSuccess;
         }
     }
 }

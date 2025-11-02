@@ -69,14 +69,8 @@ namespace Internal
 
 #if UNITY_EDITOR
             var config = FindAsset<InternalScopeConfig>();
-
-            var optionsRegistry = config.AssetsStorage.Options[config.Platform];
-            
-            optionsRegistry.CacheRegistry();
-            optionsRegistry.AddOptions(new PlatformOptions(config.Platform, Application.isMobilePlatform));
             config.AssetsStorage.Cache();
-            
-            var assets = new AssetEnvironment(config.AssetsStorage, optionsRegistry);
+            var assets = new AssetEnvironment(config.AssetsStorage);
             return assets;
 #endif
             return null;

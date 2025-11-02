@@ -1,4 +1,6 @@
-﻿namespace Game;
+﻿using Game.Session;
+
+namespace Game.Global;
 
 public interface ISessionsCollection
 {
