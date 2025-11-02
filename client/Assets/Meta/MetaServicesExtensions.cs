@@ -1,4 +1,5 @@
-﻿using Global.Backend;
+﻿using Common.Network;
+using Global.Backend;
 using Internal;
 using Shared;
 
@@ -10,12 +11,6 @@ namespace Meta
         {
             builder.Register<MetaLoop>()
                 .As<IScopeBaseSetupAsync>();
-            
-            builder.Register<Authentication>()
-                .As<IAuthentication>();
-
-            builder.RegisterScriptableRegistry<CardsRegistry, CardDefinition>()
-                .As<ICardsRegistry>();
 
             builder.Register<DeckService>()
                 .WithScopeLifetime()
@@ -23,10 +18,9 @@ namespace Meta
                 .As<IScopeSetup>();
 
             builder.Register<MetaBackend>()
-                .WithAsset<BackendOptions>()
                 .WithScopeLifetime()
                 .As<IMetaBackend>();
-            
+
             builder.Register<Matchmaking>()
                 .As<IMatchmaking>();
 
@@ -34,6 +28,12 @@ namespace Meta
                 .As<IUser>();
 
             builder.RegisterAsset<CharacterAvatars>();
+
+            builder.Register<Authentication>()
+                .As<IAuthentication>();
+
+            builder.RegisterScriptableRegistry<CardsRegistry, CardDefinition>()
+                .As<ICardsRegistry>();
 
             builder.AddNetworkConnection();
 
@@ -44,11 +44,9 @@ namespace Meta
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
-                .RegisterBackendProjection<SharedMatchmaking
-.GameResult>()
-                .RegisterBackendProjection<SharedMatchmaking
-.LobbyResult>();
-            
+                .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
+                .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
+
             return builder;
         }
     }

@@ -20,7 +20,8 @@ public class Bloodhound : ICard
 
     public EmptyResponse Use()
     {
-        var size = _payload.Type.GetSize();
+        var config = _payload.Type.ToConfig();
+        var size = config.Size;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectTaken(_target, _payload.Position);

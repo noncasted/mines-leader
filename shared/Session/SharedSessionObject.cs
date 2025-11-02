@@ -18,6 +18,7 @@ namespace Shared
             public int ObjectId { get; set; }
             public int PropertyId { get; set; }
             public byte[] Value { get; set; }
+            public int Version { get; set; }
         }
 
         [MemoryPackable]
@@ -26,7 +27,7 @@ namespace Shared
             public int ObjectId { get; set; }
             public byte[] Value { get; set; }
         }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder

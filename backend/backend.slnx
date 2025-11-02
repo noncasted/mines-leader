@@ -1,0 +1,20 @@
+<Solution>
+    <Folder Name="/Orchestration/">
+        <Project Path="Orchestration/Aspire/Aspire.csproj" />
+        <Project Path="Orchestration/Console/Console.csproj" />
+        <Project Path="Orchestration/Coordinator/Coordinator.csproj" />
+        <Project Path="Orchestration/Extensions/Extensions.csproj" />
+        <Project Path="Orchestration/GameGateway/GameGateway.csproj" />
+        <Project Path="Orchestration/MetaGateway/MetaGateway.csproj" />
+        <Project Path="Orchestration/Silo/Silo.csproj" />
+    </Folder>
+
+    <Project Path="../shared/shared.csproj" />
+    <Project Path="../tools/deploy/deploy.csproj" />
+    <Project Path="Cluster/Cluster.csproj" />
+    <Project Path="Common/Common.csproj" />
+    <Project Path="Game/Game.csproj" />
+    <Project Path="Infrastructure/Infrastructure.csproj" />
+    <Project Path="Meta/Meta.csproj" />
+    <Project Path="Tests/Tests.csproj" />
+</Solution>

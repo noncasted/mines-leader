@@ -1,4 +1,4 @@
-﻿using Common;
+﻿using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -13,7 +13,7 @@ public class MoveSnapshot
 
     private readonly IGameContext _gameContext;
     private readonly List<IMoveSnapshotRecord> _records = new();
-    
+
     private readonly ILifetime _lifetime;
 
     private bool _isLocked = false;
@@ -36,42 +36,46 @@ public class MoveSnapshot
     public void RecordCard(Guid playerId, int entityId, CardType type, ICardActionData data)
     {
         _records.Add(new PlayerSnapshotRecord.Card()
-        {
-            PlayerId = playerId,
-            EntityId = entityId,
-            Type = type,
-            Data = data
-        });
+            {
+                PlayerId = playerId,
+                EntityId = entityId,
+                Type = type,
+                Data = data
+            }
+        );
     }
-    
+
     public void RecordCardRemove(Guid playerId, int entityId, CardType type)
     {
         _records.Add(new PlayerSnapshotRecord.CardRemove()
-        {
-            PlayerId = playerId,
-            EntityId = entityId,
-            Type = type
-        });
+            {
+                PlayerId = playerId,
+                EntityId = entityId,
+                Type = type
+            }
+        );
     }
-    
+
     public void RecordCardDraw(Guid playerId, CardType type)
     {
         _records.Add(new PlayerSnapshotRecord.CardDraw()
-        {
-            PlayerId = playerId,
-            Type = type
-        });
+            {
+                PlayerId = playerId,
+                Type = type
+            }
+        );
     }
-    
+
     public void RecordCardTakeoutFromStash(Guid playerId, CardType type)
     {
         _records.Add(new PlayerSnapshotRecord.CardTakeoutFromStash()
-        {
-            PlayerId = playerId,
-            Type = type
-        });
+            {
+                PlayerId = playerId,
+                Type = type
+            }
+        );
     }
-    
+
     private void HandleBoards(IReadOnlyLifetime lifetime)
     {
         foreach (var (_, board) in _gameContext.Boards)
@@ -83,6 +87,10 @@ public class MoveSnapshot
             events.Mines.Advise(lifetime, Mines);
             events.Record.Advise(lifetime, record => WriteBoardRecord(board, record));
             events.Explode.Advise(lifetime, Explosion);
+            events.EffectAdded.Advise(lifetime, (cell, effect) => EffectAdded(board, cell, effect));
+            events.EffectRemoved.Advise(lifetime, (cell, effectId) => EffectRemoved(board, cell, effectId));
+
+            continue;
 
             void CellSet(ICell cell)
             {
@@ -117,7 +125,7 @@ public class MoveSnapshot
 
                 WriteBoardRecord(board, record);
             }
-            
+
             void Explosion(ICell cell)
             {
                 var record = new BoardSnapshotRecord.Explosion()
@@ -127,13 +135,38 @@ public class MoveSnapshot
 
                 WriteBoardRecord(board, record);
             }
+
+            void EffectAdded(IBoard targetBoard, ICell cell, ICellEffect effect)
+            {
+                var record = new BoardSnapshotRecord.EffectAdded()
+                {
+                    Position = cell.Position,
+                    Type = effect.Type,
+                    EffectId = effect.Id
+                };
+
+                WriteBoardRecord(targetBoard, record);
+            }
+
+            void EffectRemoved(IBoard targetBoard, ICell cell, Guid effectId)
+            {
+                var record = new BoardSnapshotRecord.EffectRemoved()
+                {
+                    Position = cell.Position,
+                    EffectId = effectId
+                };
+
+                WriteBoardRecord(targetBoard, record);
+            }
         }
+
+        return;
 
         void WriteBoardRecord(IBoard board, IBoardSnapshotRecord record)
         {
             if (_isLocked == true)
                 return;
-            
+
             if (_records.Count == 0 ||
                 _records.Last() is not SharedBoardSnapshot boardRecord ||
                 boardRecord.BoardOwnerId != board.OwnerId)

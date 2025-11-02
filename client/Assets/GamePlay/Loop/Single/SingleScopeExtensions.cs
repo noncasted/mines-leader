@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
+using Shared;
 using VContainer;
 
 namespace GamePlay.Loop
@@ -10,7 +11,7 @@ namespace GamePlay.Loop
         public static async UniTask<ILoadedScope> ProcessSingle(
             this IServiceScopeLoader loader,
             ILoadedScope parent,
-            SessionData sessionData)
+            SharedMatchmaking.MatchResult sessionData)
         {
             var options = new ScopeLoadOptions(
                 parent,
@@ -31,7 +32,7 @@ namespace GamePlay.Loop
         public static async UniTask<ILoadedScope> ProcessSingleMock(
             this IServiceScopeLoader loader,
             ILoadedScope parent,
-            SessionData sessionData)
+            SharedMatchmaking.MatchResult sessionData)
         {
             var options = new ScopeLoadOptions(
                 parent,

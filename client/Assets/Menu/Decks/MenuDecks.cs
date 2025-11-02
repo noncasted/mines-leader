@@ -160,7 +160,7 @@ namespace Menu.Decks
             var avgMana = 0f;
 
             foreach (var card in _deckCards)
-                avgMana += card.CurrentDefinition.ManaCost;
+                avgMana += card.CurrentDefinition.Config.Size;
 
             avgMana /= _deckCards.Count;
             _avgManaText.text = avgMana.ToString("F1");

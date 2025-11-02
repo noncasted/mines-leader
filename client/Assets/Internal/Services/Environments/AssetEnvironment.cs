@@ -5,18 +5,24 @@ using UnityEngine;
 
 namespace Internal
 {
+    public interface IAssetEnvironment
+    {
+        OptionsContainer Options { get; }
+        
+        T GetAsset<T>() where T : ScriptableObject;
+        IReadOnlyList<T> GetAssets<T>() where T : ScriptableObject;
+    }
+    
     public class AssetEnvironment : IAssetEnvironment
     {
-        public AssetEnvironment(
-            IAssetsStorage assetsStorage,
-            OptionsRegistry optionsRegistry)
+        public AssetEnvironment(IAssetsStorage assetsStorage)
         {
             _assetsStorage = assetsStorage;
-            _optionsRegistry = optionsRegistry;
         }
 
         private readonly IAssetsStorage _assetsStorage;
-        private readonly OptionsRegistry _optionsRegistry;
+
+        public OptionsContainer Options => _assetsStorage.Options;
 
         public T GetAsset<T>() where T : ScriptableObject
         {
@@ -40,13 +46,29 @@ namespace Internal
 
             return result;
         }
-
-        public T GetOptions<T>() where T : class, IOptionsEntry
+    }
+    
+    public static class AssetsEnvironmentExtensions
+    {
+        public static IScopeBuilder RegisterEnvDictionary<TKey, TValue, TSource>(this IScopeBuilder builder)
+            where TSource : EnvAsset, IEnvDictionaryKeyProvider<TKey>, TValue
         {
-            if (_optionsRegistry.TryGetEntry<T>(out var options) == true)
-                return options;
+            var assets = builder.Assets.GetAssets<TSource>();
 
-            throw new NullReferenceException();
+            var dictionary = new EnvDictionary<TKey, TValue>();
+
+            foreach (var asset in assets)
+            {
+                if (asset is not IEnvDictionaryKeyProvider<TKey> keyProvider)
+                    throw new Exception();
+
+                dictionary.Add(keyProvider.EnvKey, asset);
+            }
+
+            builder.RegisterInstance(dictionary)
+                .As<IEnvDictionary<TKey, TValue>>();
+
+            return builder;
         }
     }
 }

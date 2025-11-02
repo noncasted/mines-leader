@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public class EntityDestroyCommand : Command<SharedSessionEntity.Destroy>
 {

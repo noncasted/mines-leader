@@ -1,0 +1,94 @@
+.options-root {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: rgb(45, 45, 45);
+}
+
+.options-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: rgb(56, 56, 56);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(35, 35, 35);
+    min-height: 44px;
+}
+
+.header-title {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(210, 210, 210);
+    flex-grow: 1;
+}
+
+.save-button {
+    min-width: 80px;
+    height: 24px;
+    background-color: rgb(80, 120, 200);
+    color: white;
+    border-radius: 4px;
+    border-width: 0;
+    font-size: 12px;
+    -unity-font-style: normal;
+    cursor: link;
+}
+
+.save-button:hover {
+    background-color: rgb(100, 140, 220);
+}
+
+.save-button:active {
+    background-color: rgb(60, 100, 180);
+}
+
+.options-content {
+    flex-grow: 1;
+    padding: 10px;
+    flex-direction: column;
+}
+
+.options-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: rgb(60, 60, 60);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgb(40, 40, 40);
+}
+
+.options-section > Foldout {
+    --unity-colors-default-border: rgb(40, 40, 40);
+}
+
+.options-section > Foldout > Toggle {
+    margin-left: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.options-section > Foldout > TextField,
+.options-section > Foldout > Toggle {
+    padding: 2px;
+    margin: 2px 0;
+    min-height: 20px;
+}
+
+.options-section > Foldout > TextField {
+    margin-left: 10px;
+}
+
+.options-footer {
+    padding: 8px 10px;
+    background-color: rgb(56, 56, 56);
+    border-top-width: 1px;
+    border-top-color: rgb(35, 35, 35);
+    min-height: 28px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.status-label {
+    font-size: 12px;
+    color: rgb(180, 180, 180);
+}

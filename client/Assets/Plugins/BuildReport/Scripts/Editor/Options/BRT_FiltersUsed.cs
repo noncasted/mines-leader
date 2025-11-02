@@ -101,6 +101,9 @@ namespace BuildReportTool
 				new FileFilters("GUI",
 					new[]
 					{
+						".uxml",
+						".uss",
+						".tss",
 						".guiskin",
 						".fontsettings",
 						".ttf",

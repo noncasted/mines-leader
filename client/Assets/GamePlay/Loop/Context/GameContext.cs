@@ -2,27 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using GamePlay.Players;
-using Internal;
 
 namespace GamePlay.Loop
 {
-    
-    
     public interface IGameContext
     {
         IGamePlayer Self { get; }
         IGamePlayer Other { get; }
         IReadOnlyList<IGamePlayer> All { get; }
 
-        GameOptions Options { get; }
-
         void AddPlayer(IGamePlayer player);
     }
 
     public class GameContext : IGameContext
     {
-        private readonly GameOptions _options = new();
-
         private IGamePlayer _self;
         private IGamePlayer _other;
         
@@ -31,7 +24,6 @@ namespace GamePlay.Loop
         public IGamePlayer Self => _self;
         public IGamePlayer Other => _other;
         public IReadOnlyList<IGamePlayer> All => _all;
-        public GameOptions Options => _options;
 
         public void AddPlayer(IGamePlayer player)
         {

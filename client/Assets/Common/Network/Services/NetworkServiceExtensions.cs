@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Internal;
 using Shared;
 
@@ -107,7 +106,7 @@ namespace Common.Network
                     var targetProperty = _properties[receivedProperty.PropertyId];
 
                     if (receivedProperty.Value.Length != 0)
-                        targetProperty.Update(receivedProperty.Value);
+                        targetProperty.Update(receivedProperty.Value, receivedProperty.Version);
                 }
 
                 var events = new NetworkEvents(_connection, _service);

@@ -1,6 +1,7 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using Internal;
+using UnityEngine;
 
 namespace Common.Network
 {
@@ -40,9 +41,14 @@ namespace Common.Network
             _userId = userId;
             _lifetime = lifetime.Child();
 
+            Debug.Log("[Network] [Session] Starting session connection...");
             await _connection.Connect(_lifetime, serverUrl, sessionId, userId);
+            Debug.Log("[Network] [Session] Session connection established.");
+            Debug.Log("[Network] [Session] Waiting for local user data...");
             await UniTask.WaitUntil(() => Users.Local != null);
 
+            Debug.Log("[Network] [Session] Local user data received.");
+            Debug.Log("[Network] [Session] Starting session services");
             await _callbacks.InvokeSessionSetupCompleted(lifetime);
         }
     }

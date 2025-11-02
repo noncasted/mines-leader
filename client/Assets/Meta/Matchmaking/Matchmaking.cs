@@ -6,17 +6,17 @@ namespace Meta
 {
     public interface IMatchmaking
     {
-        UniTask<SessionData> SearchGame(IReadOnlyLifetime lifetime);
+        UniTask<SharedMatchmaking.MatchResult> SearchGame(IReadOnlyLifetime lifetime, GameMatchType type);
         UniTask CancelSearch(IReadOnlyLifetime lifetime);
-        UniTask<SessionData> SearchLobby(IReadOnlyLifetime lifetime);
-        UniTask<SessionData> CreateGame(IReadOnlyLifetime lifetime);
+        UniTask<SharedMatchmaking.LobbyResult> SearchLobby(IReadOnlyLifetime lifetime);
+        UniTask<SharedMatchmaking.MatchResult> CreateGame(IReadOnlyLifetime lifetime);
     }
 
     public class Matchmaking : IMatchmaking
     {
         public Matchmaking(
             IMetaBackend backend,
-            IBackendProjection<SharedMatchmaking.GameResult> gameResultProjection,
+            IBackendProjection<SharedMatchmaking.MatchResult> gameResultProjection,
             IBackendProjection<SharedMatchmaking.LobbyResult> lobbyResultProjection)
         {
             _backend = backend;
@@ -25,15 +25,15 @@ namespace Meta
         }
 
         private readonly IMetaBackend _backend;
-        private readonly IBackendProjection<SharedMatchmaking .GameResult> _gameResultProjection;
+        private readonly IBackendProjection<SharedMatchmaking .MatchResult> _gameResultProjection;
         private readonly IBackendProjection<SharedMatchmaking .LobbyResult> _lobbyResultProjection;
 
-        public async UniTask<SessionData> SearchGame(IReadOnlyLifetime lifetime)
+        public async UniTask<SharedMatchmaking.MatchResult> SearchGame(IReadOnlyLifetime lifetime, GameMatchType type)
         {
             var resultAwait = _gameResultProjection.WaitOnce(lifetime);
-            await _backend.SearchGame();
+            await _backend.SearchGame(type);
             var result = await resultAwait;
-            return new SessionData(result.ServerUrl, result.SessionId);
+            return result;
         }
 
         public UniTask CancelSearch(IReadOnlyLifetime lifetime)
@@ -41,20 +41,20 @@ namespace Meta
             return _backend.CancelSearch();
         }
 
-        public async UniTask<SessionData> CreateGame(IReadOnlyLifetime lifetime)
+        public async UniTask<SharedMatchmaking.MatchResult> CreateGame(IReadOnlyLifetime lifetime)
         {
             var resultAwait = _gameResultProjection.WaitOnce(lifetime);
             await _backend.CreateGame();
             var result = await resultAwait;
-            return new SessionData(result.ServerUrl, result.SessionId);
+            return result;
         }
 
-        public async UniTask<SessionData> SearchLobby(IReadOnlyLifetime lifetime)
+        public async UniTask<SharedMatchmaking.LobbyResult> SearchLobby(IReadOnlyLifetime lifetime)
         {
             var resultAwait = _lobbyResultProjection.WaitOnce(lifetime);
             await _backend.SearchLobby();
             var result = await resultAwait;
-            return new SessionData(result.ServerUrl, result.SessionId);
+            return result;
         }
     }
 }

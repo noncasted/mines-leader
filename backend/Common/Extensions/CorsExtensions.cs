@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Common;
+namespace Common.Extensions;
 
 public static class CorsExtensions
 {

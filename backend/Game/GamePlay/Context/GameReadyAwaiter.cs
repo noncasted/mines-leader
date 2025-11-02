@@ -1,4 +1,4 @@
-﻿using Common;
+﻿using Common.Reactive;
 
 namespace Game.GamePlay;
 
@@ -18,7 +18,7 @@ public class GameReadyAwaiter : IGameReadyAwaiter
         {
             if (_ready.Count == 2)
                 break;
-            
+
             await Task.Delay(100);
         }
     }

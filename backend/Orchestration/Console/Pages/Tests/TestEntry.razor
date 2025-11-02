@@ -1,0 +1,26 @@
+@using global::Common.Extensions
+@typeparam TPayload where TPayload : class
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.subtitle1">@Title</MudText>
+        <PayloadForm @bind-Payload="Payload"/>
+        <OperationView Name="Run" StartCallback="StartCallback"/>
+    </MudStack>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public required string Title { get; set; }
+
+    [Parameter]
+    public required TPayload Payload { get; set; }
+
+    [Parameter]
+    public required EventCallback<TPayload> PayloadChanged { get; set; }
+
+    [Parameter]
+    public required Func<IOperationProgress, Task> StartCallback { get; set; }
+
+}

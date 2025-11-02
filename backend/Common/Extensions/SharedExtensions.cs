@@ -1,11 +1,10 @@
-﻿using Shared;
-
-namespace Common;
+﻿namespace Common.Extensions;
 
 public static class SharedExtensions
 {
     public static void AddSharedContexts()
     {
+        /*
         var builder = new UnionBuilder<INetworkContext>();
 
         builder
@@ -23,5 +22,6 @@ public static class SharedExtensions
         
         builder.Build();
         entityPayloads.Build();
+    */
     }
 }

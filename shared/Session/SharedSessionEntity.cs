@@ -18,7 +18,7 @@ namespace Shared
         {
             public int EntityId { get; set; }
         }
-    
+
         [MemoryPackable]
         public partial class CreatedOverview : INetworkContext
         {
@@ -27,19 +27,19 @@ namespace Shared
             public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
             public byte[] Payload { get; set; }
         }
-    
+
         [MemoryPackable]
         public partial class Destroy : INetworkContext
         {
             public int EntityId { get; set; }
         }
-    
+
         [MemoryPackable]
         public partial class DestroyUpdate : INetworkContext
         {
             public int EntityId { get; set; }
         }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder

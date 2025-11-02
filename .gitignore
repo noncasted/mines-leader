@@ -7,6 +7,7 @@
 /backend/**/[Bb]in/
 /backend/**/[Ll]og/
 /backend/**/[Oo]bj/
+/backend/Orchestration/Aspire/appsettings.local.json
 
 /server/**/x64/
 /server/**/x86/
@@ -24,9 +25,12 @@
 /tools/**/[Aa][Rr][Mm]/
 /tools/**/[Aa][Rr][Mm]64/
 /tools/**/bld/
-/tools/**/[Bb]in/
 /tools/**/[Ll]og/
+/tools/**/[Bb]in/
 /tools/**/[Oo]bj/
+
+/bin/
+/obj/
 
 /deploy/**/x64/
 /deploy/**/x86/

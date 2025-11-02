@@ -8,14 +8,20 @@ namespace Shared
     public static partial class SharedMatchmaking
     {
         [MemoryPackable]
-        public partial class Search : INetworkContext
+        public partial class SearchLobby : INetworkContext
         {
-            public SessionType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class SearchMatch : INetworkContext
+        {
+            public GameMatchType Type { get; set; }
         }
 
         [MemoryPackable]
         public partial class Create : INetworkContext
         {
+            public GameMatchType Type { get; set; }
         }
 
         [MemoryPackable]
@@ -24,10 +30,11 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class GameResult : INetworkContext
+        public partial class MatchResult : INetworkContext
         {
             public string ServerUrl { get; set; }
             public Guid SessionId { get; set; }
+            public GameMatchType Type { get; set; }
         }
 
         [MemoryPackable]
@@ -36,14 +43,15 @@ namespace Shared
             public string ServerUrl { get; set; }
             public Guid SessionId { get; set; }
         }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<Search>()
+                .Add<SearchLobby>()
+                .Add<SearchMatch>()
                 .Add<Create>()
                 .Add<CancelSearch>()
-                .Add<GameResult>()
+                .Add<MatchResult>()
                 .Add<LobbyResult>();
         }
     }

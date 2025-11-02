@@ -13,7 +13,7 @@ namespace Shared
             public CardType Type { get; set; }
             public int EntityId { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class CardRemove : IMoveSnapshotRecord
         {
@@ -28,7 +28,7 @@ namespace Shared
             public Guid PlayerId { get; set; }
             public CardType Type { get; set; }
         }
-        
+
         [MemoryPackable]
         public partial class CardTakeoutFromStash : IMoveSnapshotRecord
         {

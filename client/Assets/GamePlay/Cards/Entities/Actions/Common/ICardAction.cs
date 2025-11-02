@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
@@ -54,7 +55,7 @@ namespace GamePlay.Cards
             {
                 if (data is not TData typedPayload)
                 {
-                    throw new System.InvalidCastException(
+                    throw new InvalidCastException(
                         $"Payload type {data.GetType()} does not match expected type {typeof(TData)}."
                     );
                 }

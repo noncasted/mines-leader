@@ -1,8 +1,9 @@
 ﻿using System.Net.WebSockets;
-using Common;
+using Common.Network;
+using Common.Reactive;
 using Microsoft.Extensions.Logging;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IUserFactory
 {

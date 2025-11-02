@@ -1,29 +1,34 @@
-﻿using Common;
+﻿using Common.Extensions;
+using Common.Reactive;
 using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface ISession
 {
     Guid Id { get; }
+    SessionType Type { get; }
     IReadOnlyLifetime Lifetime { get; }
     IUserFactory UserFactory { get; }
     IExecutionQueue ExecutionQueue { get; }
-    SessionCreateOptions CreateOptions { get; }
     IViewableDelegate AllUsersConnected { get; }
 
     Task Run();
 }
 
-public class SessionCreateOptions
+public class LobbyCreateOptions
 {
-    public required int ExpectedUsers { get; init; }
-    public required SessionType Type { get; init; }
+}
+
+public class MatchCreateOptions
+{
+    public required GameMatchType Type { get; init; }
 }
 
 public class SessionContainerData
 {
-    public required SessionCreateOptions CreateOptions { get; init; }
+    public required SessionType Type { get; init; }
+    public required int ExpectedUsers { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
 }
@@ -50,27 +55,27 @@ public class Session : ISession
     private readonly ViewableDelegate _allUsersConnected = new();
 
     public Guid Id => _data.Id;
+    public SessionType Type => _data.Type;
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
 
     public IUserFactory UserFactory { get; }
     public IExecutionQueue ExecutionQueue { get; }
-    public SessionCreateOptions CreateOptions => _data.CreateOptions;
     public IViewableDelegate AllUsersConnected => _allUsersConnected;
 
     public async Task Run()
     {
         await AwaitUsersJoin();
 
-        if (_data.CreateOptions.ExpectedUsers == 0)
+        if (_data.ExpectedUsers == 0)
         {
-            _users.View(Lifetime, HandleUser);
+            _users.View(Lifetime, user => HandleUser(user).NoAwait());
         }
         else
         {
             foreach (var user in _users)
-                HandleUser(user);
+                HandleUser(user).NoAwait();
         }
-        
+
         _allUsersConnected.Invoke();
 
         await Task.Delay(TimeSpan.FromSeconds(30));
@@ -81,10 +86,10 @@ public class Session : ISession
 
         async Task AwaitUsersJoin()
         {
-            if (_data.CreateOptions.ExpectedUsers == 0)
+            if (_data.ExpectedUsers == 0)
                 return;
 
-            while (_users.Count < _data.CreateOptions.ExpectedUsers)
+            while (_users.Count < _data.ExpectedUsers)
                 await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
@@ -95,10 +100,10 @@ public class Session : ISession
         }
     }
 
-    private void HandleUser(IUser user)
+    private async Task HandleUser(IUser user)
     {
-        var connectionTask = HandleUserConnect(user);
-        HandleUserDisconnect(user, connectionTask).NoAwait();
+        await HandleUserConnect(user);
+        ExecutionQueue.Enqueue(() => HandleUserDisconnect(user));
     }
 
     private Task HandleUserConnect(IUser user)
@@ -137,10 +142,8 @@ public class Session : ISession
         return connectionTask;
     }
 
-    private async Task HandleUserDisconnect(IUser user, Task connectionTask)
+    private void HandleUserDisconnect(IUser user)
     {
-        await connectionTask;
-
         foreach (var targetUser in _users)
         {
             if (targetUser == user)

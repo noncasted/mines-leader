@@ -8,7 +8,7 @@ public static class BoardActionExtensions
     {
         if (board.Cells.Count != 0)
             return;
-        
+
         board.Generator.Generate(position);
         board.Revealer.Reveal(position);
         board.OnUpdated();

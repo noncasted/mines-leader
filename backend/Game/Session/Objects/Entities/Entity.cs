@@ -1,7 +1,7 @@
-﻿using Common;
+﻿using Common.Reactive;
 using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IEntity : IObject
 {

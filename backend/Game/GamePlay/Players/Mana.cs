@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Common.Reactive;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -12,7 +13,7 @@ public interface IMana
     void SetMax(int value);
 
     void Use(int amount);
-    void Restore(int amount);
+    void Restore();
 }
 
 public class Mana : IMana
@@ -62,17 +63,9 @@ public class Mana : IMana
         SyncState();
     }
 
-    public void Restore(int amount)
+    public void Restore()
     {
-        if (amount < 0)
-            throw new ArgumentException("Amount cannot be negative", nameof(amount));
-
-        var newMana = _current.Value + amount;
-
-        if (newMana > _max)
-            newMana = _max;
-
-        _current.Set(newMana);
+        _current.Set(_max);
         SyncState();
     }
 

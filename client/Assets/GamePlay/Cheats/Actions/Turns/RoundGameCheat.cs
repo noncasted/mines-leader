@@ -1,5 +1,5 @@
-﻿using GamePlay.Loop;
-using Global.Backend;
+﻿using Common.Network;
+using GamePlay.Loop;
 using Global.UI;
 using Internal;
 using Shared;

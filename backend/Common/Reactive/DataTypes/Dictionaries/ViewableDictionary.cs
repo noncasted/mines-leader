@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public class ViewableDictionary<TKey, TSource> : ViewableDictionary<TKey, TSource, TSource>
         where TKey : notnull
@@ -6,7 +6,8 @@
     }
 
     public class ViewableDictionary<TKey, TSource, TView> :
-        Dictionary<TKey, TSource>, IViewableDictionary<TKey, TView>
+        Dictionary<TKey, TSource>,
+        IViewableDictionary<TKey, TView>
         where TKey : notnull
         where TSource : TView
     {
@@ -83,13 +84,13 @@
         public bool TryGetValue(TKey key, out TView value)
         {
             var result = base.TryGetValue(key, out var source);
-            
+
             if (result == false)
             {
                 value = default!;
                 return false;
             }
-            
+
             value = source!;
             return result;
         }

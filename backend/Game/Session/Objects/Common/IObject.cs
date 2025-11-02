@@ -1,6 +1,6 @@
-﻿using Common;
+﻿using Common.Reactive;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IObject
 {

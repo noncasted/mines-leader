@@ -1,80 +1,89 @@
-﻿using Common;
-using Infrastructure.Messaging;
-using Microsoft.Extensions.Hosting;
-using Services;
+﻿using Cluster.Coordination;
+using Cluster.Discovery;
+using Common.Reactive;
+using Game.Session;
+using Infrastructure;
+using Meta.Matches;
+using Microsoft.Extensions.Logging;
 
-namespace Game;
+namespace Game.Global;
 
-public class SessionEndpoints : BackgroundService
+public class SessionEndpoints : ICoordinatorSetupCompleted
 {
     public SessionEndpoints(
         IMessaging messaging,
         ISessionFactory sessionFactory,
         IServiceDiscovery serviceDiscovery,
-        ISessionSearch sessionSearch)
+        ISessionSearch sessionSearch,
+        ILogger<SessionEndpoints> logger)
     {
         _messaging = messaging;
         _sessionFactory = sessionFactory;
         _serviceDiscovery = serviceDiscovery;
         _sessionSearch = sessionSearch;
+        _logger = logger;
     }
 
     private readonly IMessaging _messaging;
     private readonly ISessionFactory _sessionFactory;
     private readonly IServiceDiscovery _serviceDiscovery;
     private readonly ISessionSearch _sessionSearch;
+    private readonly ILogger<SessionEndpoints> _logger;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        var lifetime = stoppingToken.ToLifetime();
-
         _messaging.AddPipeRequestHandler<
-            MatchPayloads.Create.Request,
-            MatchPayloads.Create.Response>(
+            MatchPayloads.Match.Request,
+            MatchPayloads.Match.Response>(
             lifetime,
-            new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Create.Request)),
-            CreateSession
+            new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Match.Request)),
+            CreateMatch
         );
 
         _messaging.AddPipeRequestHandler<
-            MatchPayloads.GetOrCreate.Request,
-            MatchPayloads.GetOrCreate.Response>(
+            MatchPayloads.Lobby.Request,
+            MatchPayloads.Lobby.Response>(
             lifetime,
-            new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.GetOrCreate.Request)),
-            GetOrCreateSession
+            new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Lobby.Request)),
+            GetOrCreateLobby
         );
 
         return Task.CompletedTask;
 
-        Task<MatchPayloads.Create.Response> CreateSession(MatchPayloads.Create.Request request)
+        Task<MatchPayloads.Match.Response> CreateMatch(MatchPayloads.Match.Request request)
         {
-            var id = _sessionFactory.Create(new SessionCreateOptions
+            var id = _sessionFactory.CreateMatch(new MatchCreateOptions
                 {
-                    ExpectedUsers = request.ExpectedUsers,
-                    Type = request.Type
+                    Type = request.Type,
                 }
             );
 
-            return Task.FromResult(new MatchPayloads.Create.Response
+            return Task.FromResult(new MatchPayloads.Match.Response
                 {
                     SessionId = id
                 }
             );
         }
 
-        Task<MatchPayloads.GetOrCreate.Response> GetOrCreateSession(MatchPayloads.GetOrCreate.Request request)
+        Task<MatchPayloads.Lobby.Response> GetOrCreateLobby(MatchPayloads.Lobby.Request request)
         {
-            var id = _sessionSearch.GetOrCreate(new SessionSearchParameters
-                {
-                    Type = request.Type
-                }
+            _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session request received",
+                request.UserId
             );
 
-            return Task.FromResult(new MatchPayloads.GetOrCreate.Response
+            var id = _sessionSearch.GetOrCreateLobby();
+
+            _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session returning session {SessionID}",
+                request.UserId,
+                id
+            );
+
+            return Task.FromResult(new MatchPayloads.Lobby.Response
                 {
                     SessionId = id
                 }
             );
         }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
+using Common.Network;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
+using GamePlay.Boards.Effects;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace GamePlay.Boards
         [SerializeField] private CellSelectionView _selection;
 
         [SerializeField] private CellAnimator _animator;
+        [SerializeField] private CellEffects _effects;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
         private INetworkConnection _connection;
@@ -31,6 +33,7 @@ namespace GamePlay.Boards
         public ICellPointerHandler PointerHandler => _pointerHandler;
         public IBoard Source => _board;
         public ICellSelectionView Selection => _selection;
+        public CellEffects Effects => _effects;
 
         public void ConstructFromBuild(Vector2Int position, Board board)
         {
@@ -51,6 +54,8 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellTakenState)
             {
+                Effects.Clear();
+
                 var taken = new CellTakenState(this, _takenView, _connection);
                 _state.Set(taken);
                 taken.Construct(_state.ValueLifetime);
@@ -63,6 +68,8 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellFreeState)
             {
+                Effects.Clear();
+                
                 var free = new CellFreeState(_boardPosition, _freeView);
                 _state.Set(free);
                 free.Construct(_state.ValueLifetime);
@@ -82,7 +89,7 @@ namespace GamePlay.Boards
 
             return _animator.PlayExplosion(this.GetObjectLifetime(), type);
         }
-
+        
         public override string ToString()
         {
             return name;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Frozen;
 
-namespace Game;
+namespace Game.Session;
 
 public interface ICommandsCollection
 {

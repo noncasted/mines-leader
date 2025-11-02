@@ -1,0 +1,72 @@
+# Commit Skill
+
+When the user runs `/commit`, follow these rules for generating commit messages:
+
+## Rules
+
+### 1. Title Format
+- Extract the ticket ID from the current branch name (e.g., `ATS-123`)
+- If ticket ID exists: `[ATS-123] Brief description`
+- If no ticket ID: `[Scope] Brief description`
+  - Scope is determined by the area of work (e.g., [Visual], [Timeline], [Objects], [Editor], [Core], [UI], [Network], [Animation])
+- Keep the title SHORT and descriptive
+
+### 2. Description Format
+- Use bullet points, each starting with `-`
+- Each bullet must start with one of these tags:
+  - `add:` - for new features or additions
+  - `fix:` - for bug fixes
+  - `refactor:` - for code refactoring
+  - `remove:` - for deletions
+- Example:
+  ```
+  - add: support for object pivoting in visual editor
+  - refactor: extract transform logic into separate service
+  - fix: prevent null reference when loading objects
+  - remove: deprecated animation frame caching
+  ```
+
+## Execution Steps
+
+1. Run `git status` to get unstaged/untracked files
+2. Run `git log -10 --oneline` to see staged and unstaged changes
+3. Get current branch name with `git rev-parse --abbrev-ref HEAD`
+4. Analyze changes in the diff output:
+   - Extract ticket ID (e.g., `ATS-123`) from branch name
+   - Identify which files changed and their purposes
+   - Determine the scope if no ticket ID (Visual, Timeline, Objects, Editor, Core, UI, Network, Animation, etc.)
+5. Generate commit title: `[TICKET_ID or SCOPE] Brief description`
+6. Generate description with bullet points using add:/fix:/refactor:/remove: tags
+7. Run `git add .` to stage all changes
+8. Run `git commit -m "title\n\ndescription"`
+9. Run `git push -u origin CURRENT_BRANCH`
+
+## Example Commit
+
+**Title:** `[ATS-123] Add object pivot point editing`
+
+**Description:**
+```
+- add: visual pivot editor in object properties panel
+- add: real-time preview of pivot point changes
+- refactor: move transform calculations to ObjectTransformService
+- fix: handle negative coordinates in pivot display
+```
+
+**Full commit message:**
+```
+[ATS-123] Add object pivot point editing
+
+- add: visual pivot editor in object properties panel
+- add: real-time preview of pivot point changes
+- refactor: move transform calculations to ObjectTransformService
+- fix: handle negative coordinates in pivot display
+```
+
+## Important Notes
+
+- ALL text must be in ENGLISH (titles, scopes, descriptions, tags)
+- Be concise but specific
+- If multiple features/fixes, list them all with appropriate tags
+- Always push to the current branch after commit
+- Use the commit message format exactly as specified

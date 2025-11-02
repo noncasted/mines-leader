@@ -10,7 +10,6 @@ namespace GamePlay.Cards
     {
         public LocalCard(
             CardType type,
-            CardTarget target,
             ILifetime containerLifetime,
             ICardActionSync actionSync,
             IHand hand,
@@ -20,7 +19,6 @@ namespace GamePlay.Cards
             ICardDefinition definition)
         {
             Type = type;
-            Target = target;
             _containerLifetime = containerLifetime;
             _actionSync = actionSync;
             _entity = entity;
@@ -39,7 +37,6 @@ namespace GamePlay.Cards
 
         public int EntityId => _entity.Id;
         public CardType Type { get; }
-        public CardTarget Target { get; }
         public ICardDefinition Definition { get; }
         public IHand Hand { get; }
         public ICardTransform Transform { get; }

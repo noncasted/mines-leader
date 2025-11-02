@@ -13,7 +13,7 @@ namespace Shared
     public class UnionBuilder<T> : IUnionBuilder<T> where T : class
     {
         private readonly List<Type> _items = new();
-        
+
         public IUnionBuilder<T> Add<TImplementation>() where TImplementation : T
         {
             _items.Add(typeof(TImplementation));
@@ -23,10 +23,10 @@ namespace Shared
         public void Build()
         {
             var types = new (ushort, Type)[_items.Count];
-            
+
             for (ushort i = 0; i < _items.Count; i++)
                 types[i] = (i, _items[i]);
-            
+
             var formatter = new DynamicUnionFormatter<T>(types);
             MemoryPackFormatterProvider.Register(formatter);
         }

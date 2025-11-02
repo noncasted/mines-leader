@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public interface IViewableDictionary<TKey, TValue> :
         IEventSource<IReadOnlyLifetime, TKey, TValue>,

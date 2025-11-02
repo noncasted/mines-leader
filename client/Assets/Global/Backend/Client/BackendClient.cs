@@ -1,4 +1,6 @@
-﻿namespace Global.Backend
+﻿using Internal;
+
+namespace Global.Backend
 {
     public interface IBackendClient
     {

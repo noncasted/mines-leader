@@ -26,8 +26,8 @@ namespace GamePlay.Cards
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
-
-            var size = _context.Type.GetSize();
+            
+            var size = _context.Config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

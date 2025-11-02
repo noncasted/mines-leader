@@ -14,8 +14,8 @@ namespace ImageUtility
 			get
 			{
 				Dimensions returnValue;
-				returnValue.Width = 0;
-				returnValue.Height = 0;
+				returnValue.Width = -1;
+				returnValue.Height = -1;
 				return returnValue;
 			}
 		}

@@ -1,11 +1,11 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public class EventSourceBase<T> : IEventSourceBase<T>
     {
         protected readonly ModifiableList<T> Listeners = new();
 
         public int ListenersCount => Listeners.Count;
-        
+
         public void Advise(IReadOnlyLifetime lifetime, T handler)
         {
             Listeners.Add(handler);

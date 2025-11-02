@@ -19,7 +19,7 @@ namespace Shared
         {
             public bool IsSuccess { get; set; }
         }
-        
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder

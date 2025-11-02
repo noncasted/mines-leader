@@ -1,0 +1,23 @@
+using MetaGateway;
+using MetaGateway.Matchmaking;
+using MetaGateway.UserFlow;
+using MetaGateway.UserFlow.Connection;
+using Orchestration;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder
+    .SetupMetaGateway()
+    .AddMatchmakingServices()
+    .AddUserFlow()
+    .AddUserCommands();
+
+var app = builder.Build();
+
+app.AddIdentityEndpoints();
+app.AddBackendMiddleware();
+
+app.MapDefaultEndpoints();
+app.UseCors("cors");
+
+app.Run();

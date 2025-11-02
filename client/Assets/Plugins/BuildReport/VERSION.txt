@@ -1,3 +1,25 @@
+Version 3.13.3
+- NEW: Included an additional recorded project setting
+  (PlayerSettings.GetIl2CppStacktraceInformation).
+- FIX: Fixed exceptions when image in project is corrupted.
+- FIX: Fixed not getting DLL file sizes when building with IL2CPP.
+- FIX: Minor fixes to GUI sizing in Unity 6000.0
+
+
+Version 3.13.2
+- CHANGE: Minor update to default file filters to
+  include UI Toolkit file types.
+
+
+Version 3.13.1
+- FIX: Fixed compile errors in Unity 6000.1.1f1.
+
+
+Version 3.13
+- FIX: Fixed incompatibility with Unity 6.
+- NEW: Package dependencies are now shown in the Project Settings tab.
+
+
 Version 3.12.2
 - FIX: Fix for null reference exception when Unity path
   is not found in the editor log.

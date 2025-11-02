@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Common.Reactive;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -38,9 +39,7 @@ public class BoardMinesScanner : IBoardMinesScanner
                 continue;
 
             var freeState = cell.ToFree();
-
-            if (freeState.MinesAround != target[cell.Position])
-                freeState.UpdateMinesAround(target[cell.Position]);
+            freeState.UpdateMinesAround(target[cell.Position]);
         }
 
         _state.Update(state =>
@@ -49,7 +48,7 @@ public class BoardMinesScanner : IBoardMinesScanner
                 state.Flags = GetTotalFlags();
             }
         );
-        
+
         return;
 
         int GetTotalMines()

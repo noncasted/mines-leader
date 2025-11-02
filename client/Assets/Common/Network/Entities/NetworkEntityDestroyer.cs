@@ -1,5 +1,4 @@
-﻿using Global.Backend;
-using Shared;
+﻿using Shared;
 
 namespace Common.Network
 {

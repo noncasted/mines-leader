@@ -1,6 +1,6 @@
 ﻿using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IPropertyUpdateSender
 {
@@ -22,7 +22,8 @@ public class PropertyUpdateSender : IPropertyUpdateSender
         {
             ObjectId = objectId,
             PropertyId = property.Id,
-            Value = property.RawValue
+            Value = property.RawValue,
+            Version = property.Version
         };
 
         _users.SendAll(context);

@@ -12,6 +12,9 @@ namespace GamePlay.Boards
             builder.Register<CellOpenAction>()
                 .As<ICellOpenAction>();
 
+            builder.Register<CellMultipleOpenAction>()
+                .As<ICellMultipleOpenAction>();
+            
             builder.Register<CellsSelection>()
                 .As<ICellsSelection>();
 

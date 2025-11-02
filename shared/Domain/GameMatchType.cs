@@ -2,7 +2,8 @@
 {
     public enum GameMatchType
     {
-        Single = 1,
-        PvP = 2,
+        Single = 10,
+        TimeLimited = 20,
+        LastManStanding = 30,
     }
 }

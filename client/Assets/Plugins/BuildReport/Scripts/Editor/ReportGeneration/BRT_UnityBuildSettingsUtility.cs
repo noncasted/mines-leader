@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if UNITY_ANDROID
+using Unity.Android.Types;
+#endif
 #if UNITY_5_3_OR_NEWER // 5.2 and greater
 using System.Linq;
 #endif
@@ -286,7 +289,10 @@ namespace BuildReportTool
 #if !UNITY_4
 			settings.EnableCrashReportApi = PlayerSettings.enableCrashReportAPI;
 			settings.EnableInternalProfiler = PlayerSettings.enableInternalProfiler;
+
+#if !UNITY_6000_2_OR_NEWER
 			settings.ActionOnDotNetUnhandledException = PlayerSettings.actionOnDotNetUnhandledException.ToString();
+#endif
 #endif
 
 			settings.ConnectProfiler = EditorUserBuildSettings.connectProfiler;
@@ -426,6 +432,10 @@ namespace BuildReportTool
 			settings.IL2CPPCodeGeneration = EditorUserBuildSettings.il2CppCodeGeneration.ToString();
 #endif
 
+#if UNITY_2023_1_OR_NEWER
+			settings.IL2CPPStacktraceInfo = PlayerSettings.GetIl2CppStacktraceInformation(namedBuildTarget).ToString();
+#endif
+
 #if UNITY_2022_1_OR_NEWER
 			settings.InsecureHttpOption = PlayerSettings.insecureHttpOption.ToString();
 #endif
@@ -446,7 +456,9 @@ namespace BuildReportTool
 			settings.AssemblyVersionValidation = PlayerSettings.assemblyVersionValidation;
 #endif
 
+#if !UNITY_6000_0_OR_NEWER
 			settings.AOTOptions = PlayerSettings.aotOptions;
+#endif
 
 #if UNITY_5_5_OR_NEWER
 			settings.LocationUsageDescription = PlayerSettings.iOS.locationUsageDescription;
@@ -658,7 +670,9 @@ namespace BuildReportTool
 			settings.StandaloneAllowFullScreenSwitch = PlayerSettings.allowFullscreenSwitch;
 #endif
 
+#if !UNITY_6000_0_OR_NEWER
 			settings.StandaloneCaptureSingleScreen = PlayerSettings.captureSingleScreen;
+#endif
 
 			settings.StandaloneForceSingleInstance = PlayerSettings.forceSingleInstance;
 			settings.StandaloneEnableResizableWindow = PlayerSettings.resizableWindow;
@@ -818,13 +832,40 @@ namespace BuildReportTool
 			// Android only build settings
 			// ---------------------------------------------------------------
 
+			settings.AndroidBuildType = EditorUserBuildSettings.androidBuildType.ToString();
 			settings.AndroidBuildSubtarget = EditorUserBuildSettings.androidBuildSubtarget.ToString();
 
 #if UNITY_2018_2_OR_NEWER
 			settings.AndroidBuildApkPerCpuArch = PlayerSettings.Android.buildApkPerCpuArchitecture;
 #endif
 
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
+#if UNITY_ANDROID
+			var debugSymbolsFormat = UnityEditor.Android.UserBuildSettings.DebugSymbols.format;
+			string debugSymbolsFormatText = null;
+			if ((debugSymbolsFormat & DebugSymbolFormat.Zip) == DebugSymbolFormat.Zip)
+			{
+				debugSymbolsFormatText = "Zip";
+			}
+			if ((debugSymbolsFormat & DebugSymbolFormat.IncludeInBundle) == DebugSymbolFormat.IncludeInBundle)
+			{
+				if (!string.IsNullOrEmpty(debugSymbolsFormatText))
+				{
+					debugSymbolsFormatText += ", ";
+				}
+				debugSymbolsFormatText += "Include In Bundle";
+			}
+			if ((debugSymbolsFormat & DebugSymbolFormat.LegacyExtensions) == DebugSymbolFormat.LegacyExtensions)
+			{
+				if (!string.IsNullOrEmpty(debugSymbolsFormatText))
+				{
+					debugSymbolsFormatText += ", ";
+				}
+				debugSymbolsFormatText += "Legacy Extensions";
+			}
+			settings.AndroidDebugSymbols = $"{debugSymbolsFormatText} (Level: {UnityEditor.Android.UserBuildSettings.DebugSymbols.level})";
+#endif
+#elif UNITY_2021_1_OR_NEWER
 			settings.AndroidCreateSymbols = EditorUserBuildSettings.androidCreateSymbols.ToString();
 #endif
 
@@ -836,7 +877,11 @@ namespace BuildReportTool
 
 #if !UNITY_4
 			settings.AndroidAsAndroidProject = EditorUserBuildSettings.exportAsGoogleAndroidProject;
+#if UNITY_6000_2_OR_NEWER
+			settings.AndroidAppCategory = PlayerSettings.Android.appCategory;
+#else
 			settings.AndroidIsGame = PlayerSettings.Android.androidIsGame;
+#endif
 			settings.AndroidTvCompatible = PlayerSettings.Android.androidTVCompatibility;
 #endif
 
@@ -869,12 +914,10 @@ namespace BuildReportTool
 			settings.AndroidTargetSDKVersion = PlayerSettings.Android.targetSdkVersion.ToString();
 #endif
 
-			// Available in 2019.4+ (but was removed in 2020.3.0 to 2020.3.16, returned in 2020.3.17)
-#if UNITY_2019_4_OR_NEWER && !UNITY_2020_3_0 && !UNITY_2020_3_1 && !UNITY_2020_3_2 && !UNITY_2020_3_3 && !UNITY_2020_3_4 && !UNITY_2020_3_5 && !UNITY_2020_3_6 && !UNITY_2020_3_7 && !UNITY_2020_3_8 && !UNITY_2020_3_9 && !UNITY_2020_3_10 && !UNITY_2020_3_11 && !UNITY_2020_3_12 && !UNITY_2020_3_13 && !UNITY_2020_3_14 && !UNITY_2020_3_15 && !UNITY_2020_3_16
+			// Available in 2019.4+ (but was removed in 2020.3.0 to 2020.3.16, returned in 2020.3.17, removed in 6000.0)
+#if UNITY_2019_4_OR_NEWER && !UNITY_2020_3_0 && !UNITY_2020_3_1 && !UNITY_2020_3_2 && !UNITY_2020_3_3 && !UNITY_2020_3_4 && !UNITY_2020_3_5 && !UNITY_2020_3_6 && !UNITY_2020_3_7 && !UNITY_2020_3_8 && !UNITY_2020_3_9 && !UNITY_2020_3_10 && !UNITY_2020_3_11 && !UNITY_2020_3_12 && !UNITY_2020_3_13 && !UNITY_2020_3_14 && !UNITY_2020_3_15 && !UNITY_2020_3_16 && !UNITY_6000_0_OR_NEWER
 			settings.AndroidTargetDevice = PlayerSettings.Android.androidTargetDevices.ToString();
-#elif UNITY_2020_3_OR_NEWER
-			settings.AndroidTargetDevice = PlayerSettings.Android.targetArchitectures.ToString();
-#else
+#elif !UNITY_2020_3_OR_NEWER
 			settings.AndroidTargetDevice = PlayerSettings.Android.targetDevice.ToString();
 #endif
 
@@ -1202,6 +1245,9 @@ namespace BuildReportTool
 			var packageList = settings.PackageEntries;
 			packageList.Clear();
 
+			var dependencyPackageList = settings.DependencyPackageEntries;
+			dependencyPackageList.Clear();
+
 			var builtInPackageList = settings.BuiltInPackageEntries;
 			builtInPackageList.Clear();
 
@@ -1229,13 +1275,15 @@ namespace BuildReportTool
 				packagesLockJsonText = null;
 			}
 
-			PopulatePackageList(manifestJsonText, packagesLockJsonText, packageList, builtInPackageList);
+			PopulatePackageList(manifestJsonText, packagesLockJsonText, packageList, dependencyPackageList, builtInPackageList);
 		}
 
 		public const string DEFAULT_REGISTRY_URL = "https://packages.unity.com";
 
 		static void PopulatePackageList(string manifestJsonText, string packagesLockJsonText,
-			List<BuildReportTool.UnityBuildSettings.PackageEntry> packageList, List<BuildReportTool.UnityBuildSettings.BuiltInPackageEntry> builtInPackageList)
+			List<BuildReportTool.UnityBuildSettings.PackageEntry> packageList,
+			List<BuildReportTool.UnityBuildSettings.PackageDependencyEntry> dependencyPackageList,
+			List<BuildReportTool.UnityBuildSettings.BuiltInPackageEntry> builtInPackageList)
 		{
 			//Debug.Log($"Exists: {manifestJsonPath}");
 			var manifest = MiniJSON.Json.Deserialize(manifestJsonText) as Dictionary<string, object>;
@@ -1283,6 +1331,10 @@ namespace BuildReportTool
 				externalLock = null;
 			}
 
+			string projectPackagesCachePath = Application.dataPath;
+			projectPackagesCachePath = projectPackagesCachePath.Substring(0, projectPackagesCachePath.Length - 6);
+			projectPackagesCachePath = string.Format("{0}Library/PackageCache/", projectPackagesCachePath);
+
 			if (manifest.ContainsKey("dependencies"))
 			{
 				Dictionary<string, object> embeddedLockUsed;
@@ -1298,11 +1350,6 @@ namespace BuildReportTool
 				var dependencies = manifest["dependencies"] as Dictionary<string, object>;
 				if (dependencies != null)
 				{
-
-					var projectPackagesCachePath = Application.dataPath;
-					projectPackagesCachePath = projectPackagesCachePath.Substring(0, projectPackagesCachePath.Length - 6);
-					projectPackagesCachePath = string.Format("{0}Library/PackageCache/", projectPackagesCachePath);
-
 					foreach (var pair in dependencies)
 					{
 						//Debug.Log($"package name: {pair.Key} version: {pair.Value}");
@@ -1326,12 +1373,12 @@ namespace BuildReportTool
 						newEntry.VersionUsed = null;
 						newEntry.LocalPath = null;
 
-						var gotValue = pair.Value as string;
+						string version = pair.Value as string;
 						if (embeddedLockUsed != null && embeddedLockUsed.ContainsKey(newEntry.PackageName))
 						{
 							// if this is a git package, it should have an entry in the manifest's lock
 
-							newEntry.Location = gotValue;
+							newEntry.Location = version;
 							var lockEntry = embeddedLockUsed[newEntry.PackageName] as Dictionary<string, object>;
 							if (lockEntry != null && lockEntry.ContainsKey("hash"))
 							{
@@ -1357,7 +1404,7 @@ namespace BuildReportTool
 									}
 
 									// for git packages, the git url is the value in the manifest
-									newEntry.Location = gotValue;
+									newEntry.Location = version;
 								}
 								else if (source == "registry" && lockEntry.ContainsKey("url"))
 								{
@@ -1368,62 +1415,66 @@ namespace BuildReportTool
 									}
 									else
 									{
+										// url is null
 										newEntry.Location = null;
 									}
 								}
 								else
 								{
+									// source isn't git or url
 									newEntry.Location = null;
 								}
 							}
 							else
 							{
+								// no source
 								newEntry.Location = null;
 							}
 						}
 						else
 						{
+							// no lock
 							newEntry.Location = null;
 						}
 
 						if (string.IsNullOrEmpty(newEntry.VersionUsed))
 						{
-							if (gotValue != null &&
-							    (gotValue.StartsWith("file://") ||
-							     gotValue.StartsWith("https://") ||
-							     gotValue.StartsWith("git://") ||
-							     gotValue.StartsWith("ssh://") ||
-							     gotValue.StartsWith("git+https://") ||
-							     gotValue.StartsWith("git+ssh://") ||
-							     gotValue.StartsWith("git+file://")))
+							if (version != null &&
+							    (version.StartsWith("file://") ||
+							     version.StartsWith("https://") ||
+							     version.StartsWith("git://") ||
+							     version.StartsWith("ssh://") ||
+							     version.StartsWith("git+https://") ||
+							     version.StartsWith("git+ssh://") ||
+							     version.StartsWith("git+file://")))
 							{
 								// git package, but no entry in the manifest's lock
 
 								// check if commit hash is specified in the url
-								var lastHash = gotValue.LastIndexOf('#');
+								var lastHash = version.LastIndexOf('#');
 								if (lastHash > -1)
 								{
-									var afterHash = gotValue.Substring(lastHash);
+									var afterHash = version.Substring(lastHash);
 									newEntry.VersionUsed = afterHash;
-									newEntry.Location = gotValue.Substring(0, lastHash);
+									newEntry.Location = version.Substring(0, lastHash);
 								}
 								else
 								{
 									// no commit hash specified
 									newEntry.VersionUsed = null;
-									newEntry.Location = gotValue;
+									newEntry.Location = version;
 								}
 							}
-							else if (gotValue != null && gotValue.StartsWith("file:") && !gotValue.StartsWith("file://"))
+							else if (version != null && version.StartsWith("file:") && !version.StartsWith("file://"))
 							{
-								// local package
+								// local/embedded package
 								newEntry.VersionUsed = null;
-								newEntry.Location = gotValue;
+								newEntry.Location = version;
 							}
 							else
 							{
 								// regular package
-								newEntry.VersionUsed = gotValue;
+								newEntry.VersionUsed = version;
 								if (scopedRegistries != null)
 								{
 									newEntry.Location = GetMatchingRegistry(newEntry.PackageName, scopedRegistries);
@@ -1441,32 +1492,142 @@ namespace BuildReportTool
 						// we need the VersionUsed since that's used as part of the folder name
 						if (!string.IsNullOrEmpty(newEntry.VersionUsed))
 						{
-							newEntry.LocalPath = GetPackageCachePath(newEntry, projectPackagesCachePath);
-
-							if (!string.IsNullOrEmpty(newEntry.LocalPath))
-							{
-								string packageManifestPath = string.Format("{0}package.json", newEntry.LocalPath);
-								if (System.IO.File.Exists(packageManifestPath))
-								{
-									var packageManifest = MiniJSON.Json.Deserialize(System.IO.File.ReadAllText(packageManifestPath)) as Dictionary<string, object>;
-									if (packageManifest != null && packageManifest.ContainsKey("displayName"))
-									{
-										newEntry.DisplayName = packageManifest["displayName"] as string;
-									}
-									else
-									{
-										// no package.json, or package.json has no displayName
-										// we can hardcode some detections here
-										if (newEntry.PackageName == "com.unity.ads")
-										{
-											newEntry.DisplayName = "Advertisement";
-										}
-									}
-								}
-							}
+							newEntry.LocalPath = GetPackageCachePath(newEntry.PackageName, newEntry.VersionUsed, newEntry.Location, projectPackagesCachePath);
+							newEntry.DisplayName = FindDisplayName(newEntry.PackageName, newEntry.LocalPath);
 						}
 
 						packageList.Add(newEntry);
+					}
+				}
+			}
+
+			if (externalLock != null)
+			{
+				// loop through the packages lock, and find the ones we haven't had a package for
+				// those will be the packages that got included only because they are dependencies
+				foreach (var pair in externalLock)
+				{
+					if (pair.Key.StartsWith("com.unity.modules."))
+					{
+						continue;
+					}
+
+					bool packageIsAlreadyInList = false;
+					for (int n = 0, len = packageList.Count; n < len; ++n)
+					{
+						if (packageList[n].PackageName == pair.Key)
+						{
+							packageIsAlreadyInList = true;
+							break;
+						}
+					}
+
+					if (packageIsAlreadyInList)
+					{
+						continue;
+					}
+
+					BuildReportTool.UnityBuildSettings.PackageDependencyEntry newEntry;
+					newEntry.PackageName = pair.Key;
+					newEntry.DisplayName = null;
+					newEntry.VersionUsed = null;
+					newEntry.Location = null;
+					newEntry.LocalPath = null;
+					newEntry.Dependents = null;
+					var lockEntry = pair.Value as Dictionary<string, object>;
+					if (lockEntry != null && lockEntry.ContainsKey("source"))
+					{
+						if (lockEntry.ContainsKey("version"))
+						{
+							newEntry.VersionUsed = lockEntry["version"] as string;
+						}
+
+						string source = lockEntry["source"] as string;
+						if (source == "registry" && lockEntry.ContainsKey("url"))
+						{
+							string packageUrl = lockEntry["url"] as string;
+							if (packageUrl != null)
+							{
+								newEntry.Location = packageUrl;
+							}
+							else
+							{
+								// url is null
+								newEntry.Location = null;
+							}
+						}
+
+						if (!string.IsNullOrEmpty(newEntry.VersionUsed))
+						{
+							newEntry.LocalPath = GetPackageCachePath(newEntry.PackageName, newEntry.VersionUsed, newEntry.Location, projectPackagesCachePath);
+							newEntry.DisplayName = FindDisplayName(newEntry.PackageName, newEntry.LocalPath);
+						}
+					}
+
+					foreach (var depPair in externalLock)
+					{
+						if (depPair.Key.StartsWith("com.unity.modules."))
+						{
+							continue;
+						}
+						if (pair.Key == depPair.Key)
+						{
+							continue;
+						}
+
+						var depEntry = depPair.Value as Dictionary<string, object>;
+						if (depEntry.ContainsKey("dependencies"))
+						{
+							var deps = depEntry["dependencies"] as Dictionary<string, object>;
+							if (deps.ContainsKey(pair.Key))
+							{
+								if (newEntry.Dependents == null)
+								{
+									newEntry.Dependents = new List<string>();
+								}
+								newEntry.Dependents.Add(depPair.Key);
+							}
+						}
+					}
+
+					dependencyPackageList.Add(newEntry);
+				}
+
+				// convert the dependents from their package name to their display name
+				for (int n = 0, len = dependencyPackageList.Count; n < len; ++n)
+				{
+					if (dependencyPackageList[n].Dependents == null || dependencyPackageList[n].Dependents.Count == 0)
+					{
+						continue;
+					}
+
+					for (int i = 0, dLen = dependencyPackageList[n].Dependents.Count; i < dLen; ++i)
+					{
+						string dependent = dependencyPackageList[n].Dependents[i];
+
+						bool foundInPackageList = false;
+						for (int p = 0, pLen = packageList.Count; p < pLen; ++p)
+						{
+							if (packageList[p].PackageName == dependent)
+							{
+								dependencyPackageList[n].Dependents[i] = packageList[p].DisplayName;
+								foundInPackageList = true;
+								break;
+							}
+						}
+
+						if (!foundInPackageList)
+						{
+							// try to find in dependencyPackageList itself
+							for (int p = 0, pLen = dependencyPackageList.Count; p < pLen; ++p)
+							{
+								if (dependencyPackageList[p].PackageName == dependent)
+								{
+									dependencyPackageList[n].Dependents[i] = dependencyPackageList[p].DisplayName;
+									break;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1477,25 +1638,60 @@ namespace BuildReportTool
 				Debug.Log($"{packageList[n].PackageName} {packageList[n].VersionUsed}\n{packageList[n].DisplayName}\n{packageList[n].Location}");
 			}
 #endif
+
+			string FindDisplayName(string packageName, string localPath)
+			{
+				if (string.IsNullOrEmpty(localPath))
+				{
+					return null;
+				}
+
+				string packageManifestPath = string.Format("{0}package.json", localPath);
+				if (!System.IO.File.Exists(packageManifestPath))
+				{
+					return null;
+				}
+				//Debug.Log($"packageName: {packageName} packageManifestPath: {packageManifestPath}");
+
+				var packageManifest = MiniJSON.Json.Deserialize(System.IO.File.ReadAllText(packageManifestPath)) as Dictionary<string, object>;
+				if (packageManifest != null && packageManifest.ContainsKey("displayName"))
+				{
+					return packageManifest["displayName"] as string;
+				}
+				else
+				{
+					// no package.json, or package.json has no displayName
+					// we can hardcode some detections here
+					if (packageName == "com.unity.ads")
+					{
+						return "Advertisement";
+					}
+				}
+
+				return null;
+			}
 		}
-
+#if UNITY_6000_0_OR_NEWER
+		const int DEFAULT_SHORT_HASH_LENGTH = 12;
+#else
 		const int DEFAULT_SHORT_HASH_LENGTH = 10;
+#endif
 
-		static string GetPackageCachePath(BuildReportTool.UnityBuildSettings.PackageEntry entry, string projectPackagesCachePath)
+		static string GetPackageCachePath(string packageName, string versionUsed, string location, string projectPackagesCachePath)
 		{
-			string packageCachePath = string.Format("{0}{1}@{2}/", projectPackagesCachePath, entry.PackageName, entry.VersionUsed);
+			string packageCachePath = string.Format("{0}{1}@{2}/", projectPackagesCachePath, packageName, versionUsed);
 			if (System.IO.Directory.Exists(packageCachePath))
 			{
 				return packageCachePath;
 			}
 
-			if (entry.VersionUsed.Length > DEFAULT_SHORT_HASH_LENGTH)
+			if (versionUsed.Length > DEFAULT_SHORT_HASH_LENGTH)
 			{
 				// in Unity 2019+, git packages now only use the first 10 characters of the commit hash, so try that
 				// in case this is a git package
 				packageCachePath = string.Format("{0}{1}@{2}/",
-					projectPackagesCachePath, entry.PackageName,
-					entry.VersionUsed.Substring(0, DEFAULT_SHORT_HASH_LENGTH));
+					projectPackagesCachePath, packageName,
+					versionUsed.Substring(0, DEFAULT_SHORT_HASH_LENGTH));
 
 				if (System.IO.Directory.Exists(packageCachePath))
 				{
@@ -1503,9 +1699,19 @@ namespace BuildReportTool
 				}
 			}
 
+			// in Unity 6, packages are suffixed with the first 12 characters of the commit hash even if the manifest specifies a semantic version
+			foreach (string f in System.IO.Directory.EnumerateDirectories(projectPackagesCachePath))
+			{
+				string folderName = System.IO.Path.GetFileName(f);
+				if (folderName.StartsWith(packageName))
+				{
+					return f + "/";
+				}
+			}
+
 			// Not found in project's packageCache. Now Try finding from user's AppData
 
-			if (string.IsNullOrEmpty(entry.Location))
+			if (string.IsNullOrEmpty(location))
 			{
 				// we need the url found in Location since that's used as the folder name
 				// if we don't have it, we can't determine the package cache path
@@ -1514,10 +1720,10 @@ namespace BuildReportTool
 
 			// get the registry url and remove the url, that will be the folder name
 			string registryName;
-			int registrySlashIdx = entry.Location.LastIndexOf("//", StringComparison.Ordinal);
+			int registrySlashIdx = location.LastIndexOf("//", StringComparison.Ordinal);
 			if (registrySlashIdx > -1)
 			{
-				registryName = entry.Location.Substring(registrySlashIdx+2);
+				registryName = location.Substring(registrySlashIdx+2);
 			}
 			else
 			{
@@ -1542,24 +1748,34 @@ namespace BuildReportTool
 #endif
 
 			packageCachePath = string.Format("{0}/Unity/cache/packages/{1}/{2}@{3}/",
-				localAppDataVar, registryName, entry.PackageName, entry.VersionUsed);
+				localAppDataVar, registryName, packageName, versionUsed);
 
 			if (System.IO.Directory.Exists(packageCachePath))
 			{
 				return packageCachePath;
 			}
 
-			if (entry.VersionUsed.Length > DEFAULT_SHORT_HASH_LENGTH)
+			if (versionUsed.Length > DEFAULT_SHORT_HASH_LENGTH)
 			{
 				// in Unity 2019+, git packages now only use the first 10 characters of the commit hash, so try that
 				// in case this is a git package
 				packageCachePath = string.Format("{0}/Unity/cache/packages/{1}/{2}@{3}/",
-					localAppDataVar, registryName, entry.PackageName,
-					entry.VersionUsed.Substring(0, DEFAULT_SHORT_HASH_LENGTH));
+					localAppDataVar, registryName, packageName,
+					versionUsed.Substring(0, DEFAULT_SHORT_HASH_LENGTH));
 
 				if (System.IO.Directory.Exists(packageCachePath))
 				{
 					return packageCachePath;
+				}
+			}
+
+			// in Unity 6, packages are suffixed with the first 12 characters of the commit hash even if the manifest specifies a semantic version
+			foreach (string f in System.IO.Directory.EnumerateDirectories(string.Format("{0}/Unity/cache/packages/{1}", localAppDataVar, registryName)))
+			{
+				string folderName = System.IO.Path.GetFileName(f);
+				if (folderName.StartsWith(packageName))
+				{
+					return f + "/";
 				}
 			}
 

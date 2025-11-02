@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public static class EventSourceExtensions
     {
@@ -9,7 +9,7 @@
         {
             property.Advise(lifetime, _ => listener.Invoke());
         }
-        
+
         public static void Advise<T1, T2>(
             this IEventSource<T1, T2> property,
             IReadOnlyLifetime lifetime,
@@ -17,7 +17,7 @@
         {
             property.Advise(lifetime, (_, _) => listener.Invoke());
         }
-        
+
         public static void Advise<T1, T2, T3>(
             this IEventSource<T1, T2, T3> property,
             IReadOnlyLifetime lifetime,
@@ -25,7 +25,7 @@
         {
             property.Advise(lifetime, (_, _, _) => listener.Invoke());
         }
-        
+
         public static void Advise<T1, T2>(
             this IEventSource<T1, T2> property,
             IReadOnlyLifetime lifetime,

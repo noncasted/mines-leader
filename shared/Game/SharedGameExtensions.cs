@@ -10,7 +10,7 @@
             GameCheatContexts.Register(builder);
 
             builder.Add<MatchActionContexts.PlayerReady>();
-            
+
             return builder;
         }
     }

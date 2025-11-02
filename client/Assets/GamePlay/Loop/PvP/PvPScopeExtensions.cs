@@ -1,10 +1,9 @@
-﻿using Common.Network;
+﻿using System;
+using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cheats;
 using GamePlay.UI;
-using Global.Backend;
 using Internal;
-using Meta;
 using Shared;
 using VContainer;
 
@@ -14,12 +13,13 @@ namespace GamePlay.Loop
     {
         public static async UniTask<ILoadedScope> LoadPvp(
             this IServiceScopeLoader loader,
-            ILoadedScope parent)
+            ILoadedScope parent,
+            SharedMatchmaking.MatchResult sessionData)
         {
             var options = new ScopeLoadOptions(
                 parent,
                 loader.Assets.GetAsset<GameServicesScene>(),
-                Construct,
+                builder => Construct(builder, sessionData),
                 false
             );
 
@@ -32,12 +32,12 @@ namespace GamePlay.Loop
         public static async UniTask<ILoadedScope> ProcessPvPMock(
             this IServiceScopeLoader loader,
             ILoadedScope parent,
-            SessionData sessionData)
+            SharedMatchmaking.MatchResult sessionData)
         {
             var options = new ScopeLoadOptions(
                 parent,
                 loader.Assets.GetAsset<GameServicesScene>(),
-                Construct,
+                builder => Construct(builder, sessionData),
                 true
             );
 
@@ -49,13 +49,13 @@ namespace GamePlay.Loop
             return scope;
         }
 
-        private static UniTask Construct(IScopeBuilder builder)
+        private static UniTask Construct(IScopeBuilder builder, SharedMatchmaking.MatchResult sessionData)
         {
             builder.AddDefaultGamePlayServices();
             builder.AddGameEndServices();
 
             builder.Register<GameServicesInitializer>();
-            
+
             builder.Register<PvPGameLoop>()
                 .As<IPvPGameLoop>();
 
@@ -66,6 +66,21 @@ namespace GamePlay.Loop
             builder.Register<MatchEventLoop>()
                 .As<IScopeSetup>();
 
+            switch (sessionData.Type)
+            {
+                case GameMatchType.TimeLimited:
+                    builder.AddNetworkService<TimeLimitedGameRound>("game-round")
+                        .WithProperty<TimeLimitedRoundState>(1)
+                        .Registration.As<IGameRound>();
+                    break;
+                case GameMatchType.LastManStanding:
+                    builder.AddNetworkService<LastManStandingRound>("game-round")
+                        .WithProperty<LastManStandingRoundState>(1)
+                        .Registration.As<IGameRound>();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             return builder.AddScene();
         }

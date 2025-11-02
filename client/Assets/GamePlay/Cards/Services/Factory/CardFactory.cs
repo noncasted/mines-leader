@@ -81,7 +81,7 @@ namespace GamePlay.Cards
                     .AddCardLocalStates();
 
                 builder.RegisterInstance(definition.Type);
-                builder.RegisterInstance(definition.Target);
+                builder.RegisterInstance(definition.Config);
 
                 builder.RegisterInstance(_gameContext.Self);
                 builder.RegisterInstance(_gameContext.Self.Hand);
@@ -124,7 +124,7 @@ namespace GamePlay.Cards
                 builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition.Type);
-                builder.RegisterInstance(definition.Target);
+                builder.RegisterInstance(definition.Type.ToConfig());
                 builder.RegisterInstance(gamePlayer);
                 builder.RegisterInstance(gamePlayer.Hand);
 

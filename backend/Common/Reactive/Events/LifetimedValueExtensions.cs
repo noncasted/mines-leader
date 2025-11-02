@@ -1,49 +1,53 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public static class LifetimedValueExtensions
     {
-        public static void View<T>(this ILifetimedValue<T> property, IReadOnlyLifetime lifetime, Action listener)
+        extension<T>(ILifetimedValue<T> property)
         {
-            property.Advise(lifetime, (_, _) => listener.Invoke());
-            listener.Invoke();
-        }
+            public void View(IReadOnlyLifetime lifetime, Action listener)
+            {
+                property.Advise(lifetime, (_, _) => listener.Invoke());
+                listener.Invoke();
+            }
 
-        public static void View<T>(this ILifetimedValue<T> property, IReadOnlyLifetime lifetime, Action<T> listener)
-        {
-            property.Advise(lifetime, (_, value) => listener.Invoke(value));
-            listener.Invoke(property.Value);
-        }
-
-        public static void ViewNotNull<T>(
-            this ILifetimedValue<T?> property,
-            IReadOnlyLifetime lifetime,
-            Action<T> listener) where T : class
-        {
-            property.Advise(lifetime, (_, value) =>
-                {
-                    if (value != null)
-                        listener.Invoke(value);
-                }
-            );
-
-            if (property.Value != null)
+            public void View(IReadOnlyLifetime lifetime, Action<T> listener)
+            {
+                property.Advise(lifetime, (_, value) => listener.Invoke(value));
                 listener.Invoke(property.Value);
+            }
         }
 
-        public static void ViewNotNull<T>(
-            this ILifetimedValue<T?> property,
-            IReadOnlyLifetime lifetime,
-            Action<IReadOnlyLifetime, T> listener) where T : class
+        extension<T>(ILifetimedValue<T?> property) where T : class
         {
-            property.Advise(lifetime, (valueLifetime, value) =>
-                {
-                    if (value != null)
-                        listener.Invoke(valueLifetime, value);
-                }
-            );
+            public void ViewNotNull(
+                IReadOnlyLifetime lifetime,
+                Action<T> listener)
+            {
+                property.Advise(lifetime, (_, value) =>
+                    {
+                        if (value != null)
+                            listener.Invoke(value);
+                    }
+                );
 
-            if (property.Value != null)
-                listener.Invoke(property.ValueLifetime, property.Value);
+                if (property.Value != null)
+                    listener.Invoke(property.Value);
+            }
+
+            public void ViewNotNull(
+                IReadOnlyLifetime lifetime,
+                Action<IReadOnlyLifetime, T> listener)
+            {
+                property.Advise(lifetime, (valueLifetime, value) =>
+                    {
+                        if (value != null)
+                            listener.Invoke(valueLifetime, value);
+                    }
+                );
+
+                if (property.Value != null)
+                    listener.Invoke(property.ValueLifetime, property.Value);
+            }
         }
 
 
@@ -56,67 +60,69 @@
             listener.Invoke(property.ValueLifetime, property.Value);
         }
 
-        public static void AdviseTrue(
-            this ILifetimedValue<bool> property,
-            IReadOnlyLifetime lifetime,
-            Action listener)
+        extension(ILifetimedValue<bool> property)
         {
-            property.Advise(lifetime, (_, value) => OnChange(value));
-
-            void OnChange(bool value)
+            public void AdviseTrue(
+                IReadOnlyLifetime lifetime,
+                Action listener)
             {
-                if (value == false)
-                    return;
+                property.Advise(lifetime, (_, value) => OnChange(value));
 
-                listener.Invoke();
-            }
-        }
-
-        public static Task WaitFalse(this ILifetimedValue<bool> property, IReadOnlyLifetime lifetime)
-        {
-            if (property.Value == false)
-                return Task.CompletedTask;
-
-            var completion = new TaskCompletionSource();
-            lifetime.Listen(() => completion.TrySetCanceled());
-
-            property.Advise(lifetime, (_, value) => OnChange(value));
-
-            return completion.Task;
-
-            void OnChange(bool value)
-            {
-                if (value == false)
+                void OnChange(bool value)
                 {
-                    completion.TrySetResult();
-                    return;
-                }
+                    if (value == false)
+                        return;
 
-                throw new Exception();
+                    listener.Invoke();
+                }
             }
-        }
-        
-        public static Task WaitTrue(this ILifetimedValue<bool> property, IReadOnlyLifetime lifetime)
-        {
-            if (property.Value == true)
-                return Task.CompletedTask;
 
-            var completion = new TaskCompletionSource();
-            lifetime.Listen(() => completion.TrySetCanceled());
-
-            property.Advise(lifetime, (_, value) => OnChange(value));
-
-            return completion.Task;
-
-            void OnChange(bool value)
+            public Task WaitFalse(IReadOnlyLifetime lifetime)
             {
-                if (value == true)
-                {
-                    completion.TrySetResult();
-                    return;
-                }
+                if (property.Value == false)
+                    return Task.CompletedTask;
 
-                throw new Exception();
+                var completion = new TaskCompletionSource();
+                lifetime.Listen(() => completion.TrySetCanceled());
+
+                property.Advise(lifetime, (_, value) => OnChange(value));
+
+                return completion.Task;
+
+                void OnChange(bool value)
+                {
+                    if (value == false)
+                    {
+                        completion.TrySetResult();
+                        return;
+                    }
+
+                    throw new Exception();
+                }
+            }
+
+            public Task WaitTrue(IReadOnlyLifetime lifetime)
+            {
+                if (property.Value == true)
+                    return Task.CompletedTask;
+
+                var completion = new TaskCompletionSource();
+                lifetime.Listen(() => completion.TrySetCanceled());
+
+                property.Advise(lifetime, (_, value) => OnChange(value));
+
+                return completion.Task;
+
+                void OnChange(bool value)
+                {
+                    if (value == true)
+                    {
+                        completion.TrySetResult();
+                        return;
+                    }
+
+                    throw new Exception();
+                }
             }
         }
     }

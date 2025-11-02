@@ -13,6 +13,7 @@ namespace GamePlay.Cards
         IBoard TargetBoard { get; }
         IViewableProperty<bool> IsAvailable { get; }
         CardType Type { get; }
+        ICardConfig Config { get; }
     }
 
     public class CardContext : ICardContext, IScopeSetup
@@ -22,13 +23,23 @@ namespace GamePlay.Cards
             IPlayerMana mana,
             IGameRound gameRound,
             IPlayerMoves moves,
-            ICardDefinition definition)
+            ICardDefinition definition,
+            ICardConfig config)
         {
             _mana = mana;
             _gameRound = gameRound;
             _moves = moves;
             _definition = definition;
-            TargetBoard = SelectTargetBoard(definition.Type, gameContext);
+            Config = config;
+
+            TargetBoard = config.Target switch
+            {
+                CardTarget.OwnBoard => gameContext.Self.Board,
+                CardTarget.OpponentBoard => gameContext.Other.Board,
+                CardTarget.Self => null,
+                CardTarget.Opponent => null,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         private readonly IPlayerMana _mana;
@@ -41,6 +52,7 @@ namespace GamePlay.Cards
         public IBoard TargetBoard { get; }
         public IViewableProperty<bool> IsAvailable => _isAvailable;
         public CardType Type => _definition.Type;
+        public ICardConfig Config { get; }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -58,7 +70,7 @@ namespace GamePlay.Cards
                 return;
             }
 
-            if (_definition.ManaCost > _mana.Current.Value)
+            if (Config.ManaCost > _mana.Current.Value)
             {
                 _isAvailable.Set(false);
                 return;
@@ -75,6 +87,8 @@ namespace GamePlay.Cards
 
         private IBoard SelectTargetBoard(CardType type, IGameContext gameContext)
         {
+            
+            
             return type switch
             {
                 CardType.Trebuchet => gameContext.Other.Board,
@@ -88,6 +102,11 @@ namespace GamePlay.Cards
                 CardType.TrebuchetAimer => null,
                 CardType.TrebuchetAimer_Max => null,
                 CardType.Gravedigger => null,
+                CardType.OpponentBomb => gameContext.Other.Board,
+                CardType.OpponentFlagErase => gameContext.Other.Board,
+                CardType.OpponentFlagErase_Max => gameContext.Other.Board,
+                CardType.OpponentFlagReshuffle => gameContext.Other.Board,
+                CardType.OpponentFlagReshuffle_Max => gameContext.Other.Board,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

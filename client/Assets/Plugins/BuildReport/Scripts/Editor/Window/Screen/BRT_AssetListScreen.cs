@@ -1392,6 +1392,9 @@ namespace BuildReportTool.Window.Screen
 						tooltipSize.x = MAX_TOOLTIP_WIDTH;
 						tooltipSize.y = tooltipTextStyle.CalcHeight(_textureDataTooltipLabel, tooltipSize.x);
 					}
+#if UNITY_6000_0_OR_NEWER
+					tooltipSize.x += 5;
+#endif
 
 					var tooltipRect = BRT_BuildReportWindow.DrawTooltip(position, tooltipSize.x, tooltipSize.y, 5);
 					GUI.Label(tooltipRect, _textureDataTooltipLabel, tooltipTextStyle);
@@ -1444,6 +1447,10 @@ namespace BuildReportTool.Window.Screen
 							tooltipSize.x = MAX_TOOLTIP_WIDTH;
 							tooltipSize.y = tooltipTextStyle.CalcHeight(_textureDataTooltipLabel, tooltipSize.x);
 						}
+#if UNITY_6000_0_OR_NEWER
+						tooltipSize.x += 5;
+						tooltipSize.y += 5;
+#endif
 
 						var tooltipRect = BRT_BuildReportWindow.DrawTooltip(position, tooltipSize.x, tooltipSize.y, 5);
 						GUI.Label(tooltipRect, _textureDataTooltipLabel, tooltipTextStyle);

@@ -1,15 +1,11 @@
-﻿using Shared;
+﻿using Game.Session;
+using Shared;
 
-namespace Game;
+namespace Game.Global;
 
 public interface ISessionSearch
 {
-    Guid GetOrCreate(SessionSearchParameters parameters);
-}
-
-public class SessionSearchParameters
-{
-    public required SessionType Type { get; init; }
+    Guid GetOrCreateLobby();
 }
 
 public class SessionSearch : ISessionSearch
@@ -23,20 +19,16 @@ public class SessionSearch : ISessionSearch
     private readonly ISessionFactory _factory;
     private readonly ISessionsCollection _collection;
 
-    public Guid GetOrCreate(SessionSearchParameters parameters)
+    public Guid GetOrCreateLobby()
     {
         foreach (var (id, session) in _collection.Entries)
         {
-            if (session.CreateOptions.Type != parameters.Type || session.Lifetime.IsTerminated == true)
+            if (session.Type != SessionType.Lobby || session.Lifetime.IsTerminated == true)
                 continue;
 
             return id;
         }
 
-        return _factory.Create(new SessionCreateOptions()
-        {
-            ExpectedUsers = 0,
-            Type = parameters.Type
-        });
+        return _factory.CreateLobby(new LobbyCreateOptions());
     }
 }

@@ -1,7 +1,7 @@
-﻿using Common;
+﻿using Common.Reactive;
 using Shared;
 
-namespace Game;
+namespace Game.Session;
 
 public interface ISessionUsers : IViewableList<IUser>
 {
@@ -28,42 +28,45 @@ public class SessionUsers : ViewableList<IUser>, ISessionUsers
 
 public static class SessionUsersExtensions
 {
-    public static void IterateOthers(this ISessionUsers users, IUser exclude, Action<IUser> action)
+    extension(ISessionUsers users)
     {
-        foreach (var user in users)
+        public void IterateOthers(IUser exclude, Action<IUser> action)
         {
-            if (user == exclude)
-                continue;
+            foreach (var user in users)
+            {
+                if (user == exclude)
+                    continue;
 
-            action(user);
+                action(user);
+            }
         }
-    }
 
-    public static async Task IterateOthers(this ISessionUsers users, IUser exclude, Func<IUser, Task> action)
-    {
-        foreach (var user in users)
+        public async Task IterateOthers(IUser exclude, Func<IUser, Task> action)
         {
-            if (user == exclude)
-                continue;
+            foreach (var user in users)
+            {
+                if (user == exclude)
+                    continue;
 
-            await action(user);
+                await action(user);
+            }
         }
-    }
 
-    public static void SendAllExceptSelf(this ISessionUsers users, IUser self, INetworkContext context)
-    {
-        foreach (var user in users)
+        public void SendAllExceptSelf(IUser self, INetworkContext context)
         {
-            if (user == self)
-                continue;
+            foreach (var user in users)
+            {
+                if (user == self)
+                    continue;
 
-            user.Send(context);
+                user.Send(context);
+            }
         }
-    }
-    
-    public static void SendAll(this ISessionUsers users, INetworkContext context)
-    {
-        foreach (var user in users)
-            user.Send(context);
+
+        public void SendAll(INetworkContext context)
+        {
+            foreach (var user in users)
+                user.Send(context);
+        }
     }
 }

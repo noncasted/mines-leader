@@ -3,13 +3,14 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
+using Shared;
 using UnityEngine;
 
 namespace Tools
 {
     public class GameMock : MockBase
     {
-        [SerializeField] private GameMode _mode;
+        [SerializeField] private GameMatchType _mode;
 
         public override async UniTaskVoid Process()
         {
@@ -20,17 +21,17 @@ namespace Tools
 
             var sessionData = _mode switch
             {
-                GameMode.Single => await matchmaking.CreateGame(scope.Lifetime),
-                GameMode.PvP => await matchmaking.SearchGame(scope.Lifetime),
+                GameMatchType.Single => await matchmaking.CreateGame(scope.Lifetime),
+                GameMatchType.LastManStanding => await matchmaking.SearchGame(scope.Lifetime, GameMatchType.LastManStanding),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
             switch (_mode)
             {
-                case GameMode.Single:
+                case GameMatchType.Single:
                     await scopeLoaderFactory.ProcessSingleMock(scope, sessionData);
                     break;
-                case GameMode.PvP:
+                case GameMatchType.LastManStanding:
                     await scopeLoaderFactory.ProcessPvPMock(scope, sessionData);
                     break;
                 default:

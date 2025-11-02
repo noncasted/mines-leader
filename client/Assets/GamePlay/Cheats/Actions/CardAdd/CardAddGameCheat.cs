@@ -1,4 +1,4 @@
-﻿using Global.Backend;
+﻿using Common.Network;
 using Internal;
 using Meta;
 using Shared;

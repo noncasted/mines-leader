@@ -1929,9 +1929,13 @@ namespace BuildReportTool
 				// need to remove ".exe" at end
 				// then append "_Data" at end
 				//
-				buildFolder = buildFolder.Substring(0, buildFolder.Length - WINDOWS_APP_FILE_TYPE.Length);
+				string subFolder = buildFolder.Substring(0, buildFolder.Length - WINDOWS_APP_FILE_TYPE.Length);
+				buildFolder = subFolder + "_Data/Managed";
 
-				buildFolder += "_Data/Managed";
+				if (!System.IO.Directory.Exists(buildFolder))
+				{
+					buildFolder = subFolder + "_BackUpThisFolder_ButDontShipItWithYourGame/Managed";
+				}
 			}
 			else if (buildFolder.EndsWith(LINUX_32_APP_FILE_TYPE, StringComparison.OrdinalIgnoreCase)
 			) // Linux 32-bit Standalone
@@ -1943,9 +1947,13 @@ namespace BuildReportTool
 				// need to remove ".x86" at end
 				// then append "_Data" at end
 				//
-				buildFolder = buildFolder.Substring(0, buildFolder.Length - LINUX_32_APP_FILE_TYPE.Length);
+				string subFolder = buildFolder.Substring(0, buildFolder.Length - LINUX_32_APP_FILE_TYPE.Length);
+				buildFolder = subFolder + "_Data/Managed";
 
-				buildFolder += "_Data/Managed";
+				if (!System.IO.Directory.Exists(buildFolder))
+				{
+					buildFolder = subFolder + "_BackUpThisFolder_ButDontShipItWithYourGame/Managed";
+				}
 			}
 			else if (buildFolder.EndsWith(LINUX_64_APP_FILE_TYPE, StringComparison.OrdinalIgnoreCase)
 			) // Linux 64-bit Standalone
@@ -1957,9 +1965,13 @@ namespace BuildReportTool
 				// need to remove ".x86_64" at end
 				// then append "_Data" at end
 				//
-				buildFolder = buildFolder.Substring(0, buildFolder.Length - LINUX_64_APP_FILE_TYPE.Length);
+				string subFolder = buildFolder.Substring(0, buildFolder.Length - LINUX_64_APP_FILE_TYPE.Length);
+				buildFolder = subFolder + "_Data/Managed";
 
-				buildFolder += "_Data/Managed";
+				if (!System.IO.Directory.Exists(buildFolder))
+				{
+					buildFolder = subFolder + "_BackUpThisFolder_ButDontShipItWithYourGame/Managed";
+				}
 			}
 			else if (buildFolder.EndsWith(MAC_APP_FILE_TYPE, StringComparison.OrdinalIgnoreCase)) // Mac OS X
 			{

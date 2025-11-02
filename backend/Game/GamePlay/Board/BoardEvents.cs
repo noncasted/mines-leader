@@ -1,4 +1,4 @@
-﻿using Common;
+﻿using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -10,11 +10,15 @@ public interface IBoardEvents
     IViewableDelegate<ICell, int> Mines { get; }
     IViewableDelegate<IBoardSnapshotRecord> Record { get; }
     IViewableDelegate<ICell> Explode { get; }
+    IViewableDelegate<ICell, ICellEffect> EffectAdded { get; }
+    IViewableDelegate<ICell, Guid> EffectRemoved { get; }
 
     void SetCell(ICell cell);
     void SetFlag(ICell cell, bool isFlagged);
     void SetMinesAround(ICell cell, int minesCount);
     void SetExplosion(ICell cell);
+    void AddEffect(ICell cell, ICellEffect effect);
+    void RemoveEffect(ICell cell, Guid effectId);
 
     void ForceRecord(IBoardSnapshotRecord record);
 
@@ -29,6 +33,8 @@ public class BoardEvents : IBoardEvents
     private readonly ViewableDelegate<ICell, int> _mines = new();
     private readonly ViewableDelegate<IBoardSnapshotRecord> _record = new();
     private readonly ViewableDelegate<ICell> _explode = new();
+    private readonly ViewableDelegate<ICell, ICellEffect> _effectAdded = new();
+    private readonly ViewableDelegate<ICell, Guid> _effectRemoved = new();
 
     private bool _isLocked;
 
@@ -37,6 +43,8 @@ public class BoardEvents : IBoardEvents
     public IViewableDelegate<ICell, int> Mines => _mines;
     public IViewableDelegate<IBoardSnapshotRecord> Record => _record;
     public IViewableDelegate<ICell> Explode => _explode;
+    public IViewableDelegate<ICell, ICellEffect> EffectAdded => _effectAdded;
+    public IViewableDelegate<ICell, Guid> EffectRemoved => _effectRemoved;
 
     public void SetCell(ICell cell)
     {
@@ -68,6 +76,22 @@ public class BoardEvents : IBoardEvents
             return;
 
         _explode.Invoke(cell);
+    }
+
+    public void AddEffect(ICell cell, ICellEffect effect)
+    {
+        if (_isLocked == true)
+            return;
+
+        _effectAdded.Invoke(cell, effect);
+    }
+
+    public void RemoveEffect(ICell cell, Guid effectId)
+    {
+        if (_isLocked == true)
+            return;
+
+        _effectRemoved.Invoke(cell, effectId);
     }
 
     public void ForceRecord(IBoardSnapshotRecord record)

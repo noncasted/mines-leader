@@ -126,6 +126,16 @@ namespace BuildReportTool
 			// textureImporter.textureType: enum (whether it's GUI, lightmap, normal map, sprite, etc.)
 			result.TextureType = TextureTypeToReadableString(textureImporter.textureType);
 
+			// -----------------------------------------------------------------------
+
+			var gotDimensions = GetImageRealWidthAndHeight(assetPath, textureImporter, debugLog);
+			result.RealWidth = gotDimensions.Width;
+			result.RealHeight = gotDimensions.Height;
+
+			bool importError = result.RealWidth <= 0;
+
+			// -----------------------------------------------------------------------
+
 #if UNITY_5_5_OR_NEWER
 			result.IsSRGB = textureImporter.sRGBTexture;
 #else
@@ -224,7 +234,11 @@ namespace BuildReportTool
 #else
 			result.TextureResizeAlgorithm = string.Empty;
 #endif
-			if (defaultSettings.format == TextureImporterFormat.Automatic)
+			if (importError)
+			{
+				result.TextureFormat = BuildReportTool.TextureData.IMPORT_ERROR;
+			}
+			else if (defaultSettings.format == TextureImporterFormat.Automatic)
 			{
 				result.TextureFormat = textureImporter.GetAutomaticFormat(platform).ToString();
 			}
@@ -260,7 +274,11 @@ namespace BuildReportTool
 #else
 				result.OverridingTextureResizeAlgorithm = string.Empty;
 #endif
-				if (overrideSettings.format == TextureImporterFormat.Automatic)
+				if (importError)
+				{
+					result.OverridingTextureFormat = BuildReportTool.TextureData.IMPORT_ERROR;
+				}
+				else if (overrideSettings.format == TextureImporterFormat.Automatic)
 				{
 					result.OverridingTextureFormat = textureImporter.GetAutomaticFormat(platform).ToString();
 				}
@@ -341,10 +359,6 @@ namespace BuildReportTool
 			{
 				result.NPotScale = textureImporter.npotScale.ToString();
 			}
-
-			var gotDimensions = GetImageRealWidthAndHeight(assetPath, textureImporter, debugLog);
-			result.RealWidth = gotDimensions.Width;
-			result.RealHeight = gotDimensions.Height;
 
 			return result;
 		}

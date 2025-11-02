@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System;
+using MemoryPack;
 
 namespace Shared
 {
@@ -35,6 +36,25 @@ namespace Shared
         {
             public Position Position { get; set; }
         }
+
+        [MemoryPackable]
+        public partial class EffectAdded : IBoardSnapshotRecord
+        {
+            public Position Position { get; set; }
+            public CellEffectType Type { get; set; }
+
+            [MemoryPackAllowSerialize]
+            public Guid EffectId { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class EffectRemoved : IBoardSnapshotRecord
+        {
+            public Position Position { get; set; }
+
+            [MemoryPackAllowSerialize]
+            public Guid EffectId { get; set; }
+        }
     }
 
     [MemoryPackable]
@@ -43,6 +63,8 @@ namespace Shared
     [MemoryPackUnion(2, typeof(BoardSnapshotRecord.Flag))]
     [MemoryPackUnion(3, typeof(BoardSnapshotRecord.MinesAround))]
     [MemoryPackUnion(4, typeof(BoardSnapshotRecord.Explosion))]
+    [MemoryPackUnion(5, typeof(BoardSnapshotRecord.EffectAdded))]
+    [MemoryPackUnion(6, typeof(BoardSnapshotRecord.EffectRemoved))]
     public partial interface IBoardSnapshotRecord
     {
     }

@@ -1,32 +1,35 @@
-﻿namespace Common
+﻿namespace Common.Reactive
 {
     public static class LifetimeExtensions
     {
-        public static ILifetime Child(this IReadOnlyLifetime lifetime)
+        extension(IReadOnlyLifetime lifetime)
         {
-            var child = new Lifetime(lifetime);
-            lifetime.Listen(child.Terminate);
-            return child;
-        }
-
-        public static ILifetime Intersect(this IReadOnlyLifetime lifetimeA, IReadOnlyLifetime lifetimeB)
-        {
-            var child = new Lifetime();
-
-            lifetimeA.Listen(OnTermination);
-            lifetimeB.Listen(OnTermination);
-
-            return child;
-
-            void OnTermination()
+            public ILifetime Child()
             {
-                child.Terminate();
+                var child = new Lifetime(lifetime);
+                lifetime.Listen(child.Terminate);
+                return child;
+            }
 
-                lifetimeA.RemoveListener(OnTermination);
-                lifetimeB.RemoveListener(OnTermination);
+            public ILifetime Intersect(IReadOnlyLifetime lifetimeB)
+            {
+                var child = new Lifetime();
+
+                lifetime.Listen(OnTermination);
+                lifetimeB.Listen(OnTermination);
+
+                return child;
+
+                void OnTermination()
+                {
+                    child.Terminate();
+
+                    lifetime.RemoveListener(OnTermination);
+                    lifetimeB.RemoveListener(OnTermination);
+                }
             }
         }
-        
+
         public static IReadOnlyLifetime ToLifetime(this CancellationToken cancellation)
         {
             var child = new Lifetime();

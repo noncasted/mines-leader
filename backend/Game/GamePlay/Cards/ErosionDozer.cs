@@ -17,7 +17,8 @@ public class ErosionDozer : ICard
 
     public EmptyResponse Use()
     {
-        var size = _payload.Type.GetSize();
+        var config = _payload.Type.ToConfig();
+        var size = config.Size;
 
         var selected = _target.GetClosedShape(_payload.Position);
         var ordered = selected.OrderBy(t => t.Position.DistanceTo(_payload.Position));

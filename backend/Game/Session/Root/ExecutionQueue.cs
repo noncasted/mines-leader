@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
 
-namespace Game;
+namespace Game.Session;
 
 public interface IExecutionQueue
 {

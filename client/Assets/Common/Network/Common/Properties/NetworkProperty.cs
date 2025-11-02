@@ -8,8 +8,9 @@ namespace Common.Network
     {
         bool IsDirty { get; }
         int Id { get; }
+        int Version { get; }
 
-        void Update(byte[] value);
+        void Update(byte[] value, int version);
         byte[] Collect();
     }
 
@@ -27,9 +28,11 @@ namespace Common.Network
         private readonly LifetimedValue<T> _lifetimedValue = new(new T());
 
         private bool _isDirty;
+        private int _version;
 
         public bool IsDirty => _isDirty;
         public int Id { get; }
+        public int Version => _version;
         public T Value => _lifetimedValue.Value;
         public IReadOnlyLifetime ValueLifetime => _lifetimedValue.ValueLifetime;
 
@@ -49,10 +52,11 @@ namespace Common.Network
             _lifetimedValue.Dispose();
         }
 
-        public void Update(byte[] value)
+        public void Update(byte[] value, int version)
         {
             var deserialized = MemoryPackSerializer.Deserialize<T>(value);
             _lifetimedValue.Set(deserialized);
+            _version = version;
         }
 
         public byte[] Collect()

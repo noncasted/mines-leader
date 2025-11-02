@@ -1,0 +1,57 @@
+{
+  "$id": "1",
+  "$type": "Atlantis.GamePlay.Auction.AuctionState, Atlantis.GamePlay.Auction.Interfaces",
+  "Id": "b79ae282-3978-4ffb-a901-f44aae12748f",
+  "Initial": {
+    "$id": "2",
+    "$type": "Atlantis.GamePlay.Auction.AuctionState+InitialState, Atlantis.GamePlay.Auction.Interfaces",
+    "StartPrice": 15.98,
+    "StartTick": 42040610,
+    "CreatedAt": "2026-01-28T17:27:50.2205288Z",
+    "TargetEndTick": 42127010
+  },
+  "CurrentStage": {
+    "$id": "3",
+    "$type": "Atlantis.GamePlay.Auction.AuctionState+Completed, Atlantis.GamePlay.Auction.Interfaces",
+    "WinnerID": "ec7f6324-7e59-410a-be7d-a85e451275de",
+    "WinnerColonyId": 489501,
+    "SellPrice": 16.2,
+    "EndTick": 42127010
+  },
+  "Artifact": {
+    "Id": {
+      "Type": "buildingembeddablebuffartifact",
+      "Key": "72008a08c6d84cc4aadfe6f12b78b534"
+    },
+    "Interface": "Atlantis.GamePlay.Colony.Artifacts.IBuildingEmbeddableBuffArtifact"
+  },
+  "ArtifactType": 202,
+  "Status": 2,
+  "BidHistory": {
+    "$type": "System.Collections.Generic.List`1[[Atlantis.GamePlay.Auction.AuctionBid, Atlantis.GamePlay.Auction.Interfaces]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$id": "4",
+        "$type": "Atlantis.GamePlay.Auction.AuctionBid, Atlantis.GamePlay.Auction.Interfaces",
+        "Id": "7c7dbd4a-15b7-4c76-bb8d-52881e578160",
+        "BidderId": "ec7f6324-7e59-410a-be7d-a85e451275de",
+        "BidAmount": 16.0,
+        "CreatedAt": "2026-01-29T16:11:59.2597286Z",
+        "Tick": 42119221,
+        "BidderColonyId": 489501
+      },
+      {
+        "$id": "5",
+        "$type": "Atlantis.GamePlay.Auction.AuctionBid, Atlantis.GamePlay.Auction.Interfaces",
+        "Id": "4cb2c2be-be97-42c1-9bf1-6ab1df645122",
+        "BidderId": "ec7f6324-7e59-410a-be7d-a85e451275de",
+        "BidAmount": 16.2,
+        "CreatedAt": "2026-01-29T16:12:12.0422259Z",
+        "Tick": 42119234,
+        "BidderColonyId": 489501
+      }
+    ]
+  },
+  "StrategyId": "290cc998-1fa7-4ee6-b1f0-8509cb1a2678",
+  "StrategyTypeId": 1
+}

@@ -6,5 +6,6 @@
         IAssetEnvironment Assets { get; }
         IScopeEventListeners Events { get; }
         IReadOnlyLifetime Lifetime { get; }
+        OptionsContainer Options { get; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Game;
+﻿namespace Game.Session;
 
 public interface ISessionServices
 {

@@ -35,7 +35,19 @@ namespace Meta
             _user.Init(userId);
 
             Debug.Log("[Meta] [Loop] Connecting to backend");
-            await _backend.Connect(lifetime);
+            var connectionLifetime = lifetime.Child();
+            var isSuccess = await _backend.Connect(connectionLifetime);
+
+            if (isSuccess == false)
+            {
+                connectionLifetime.Terminate();
+                Debug.Log("[Meta] [Loop] Backend connection failed, signing up new user");
+                var response = await _backend.SignUp("HUESOS");
+                PlayerPrefs.SetString("userId", response.Id.ToString());
+                _user.Init(response.Id);
+                await _backend.Connect(lifetime);
+            }
+
             Debug.Log("[Meta] [Loop] Backend connection established");
 
             Debug.Log("[Meta] [Loop] Waiting for connection completion");
