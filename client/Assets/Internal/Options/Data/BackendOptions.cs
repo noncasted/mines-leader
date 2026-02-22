@@ -40,8 +40,8 @@ namespace Internal
             {
                 return _environment switch
                 {
-                    BackendEnvironment.Local => _localApiUrl.Replace("http", "ws"),
-                    BackendEnvironment.Production => _productionApiUrl.Replace("https", "wss"),
+                    BackendEnvironment.Local => Url.Replace("http", "ws"),
+                    BackendEnvironment.Production => Url.Replace("https", "wss"),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
