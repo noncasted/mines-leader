@@ -15,20 +15,23 @@ namespace GamePlay.Cards {
         public CardSmokeAction(
             ICardContext context,
             ICardDropArea dropArea,
-            ICardPointerHandler pointerHandler) {
+            ICardPointerHandler pointerHandler,
+            CardsConfigs.Smoke config) {
             _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
+            _config = config;
         }
 
         private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
+        private readonly CardsConfigs.Smoke _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime) {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _context.Config.Size;
+            var size = _config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

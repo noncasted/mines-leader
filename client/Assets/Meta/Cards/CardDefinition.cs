@@ -8,7 +8,6 @@ namespace Meta
     public interface ICardDefinition
     {
         CardType Type { get; }
-        ICardConfig Config { get; }
         string Name { get; }
         string Description { get; }
         Sprite Image { get; }
@@ -27,7 +26,6 @@ namespace Meta
         private Sprite _image;
 
         public CardType Type => _type;
-        public ICardConfig Config => _type.ToConfig();
         public string Name => _name;
         public string Description => _description;
         public Sprite Image => _image;

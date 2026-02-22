@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using Internal;
+using Meta;
 using Shared;
 using UnityEngine;
 
@@ -12,22 +13,25 @@ namespace GamePlay.Cards
         public CardBloodhoundAction(
             ICardContext context,
             ICardDropArea dropArea,
-            ICardPointerHandler pointerHandler)
+            ICardPointerHandler pointerHandler,
+            CardsConfigs.Bloodhound config)
         {
             _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
+            _config = config;
         }
 
         private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
+        private readonly CardsConfigs.Bloodhound _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
             
-            var size = _context.Config.Size;
+            var size = _config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

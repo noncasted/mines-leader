@@ -22,15 +22,8 @@ namespace Menu.Decks
 
         public ICardDefinition CurrentDefinition => _currentCard.CardDefinition;
         public IViewableDelegate Changed => _changed;
-
-        private void UpdateDisplay(ICardDefinition definition)
-        {
-            _image.sprite = definition.Image;
-            _name.text = definition.Name;
-            _description.text = definition.Description;
-            _manaCost.text = definition.Config.Size.ToString();
-        }
-
+        public MenuDeckPoolCard CurrentCard => _currentCard;
+        
         public void OnCardDropped(MenuDeckPoolCard droppedCard)
         {
             _currentCard?.ReturnToSpot();
@@ -49,6 +42,14 @@ namespace Menu.Decks
             _selectionHighlight.OnDeselected();
         }
 
+        private void UpdateDisplay(ICardDefinition definition)
+        {
+            _image.sprite = definition.Image;
+            _name.text = definition.Name;
+            _description.text = definition.Description;
+            _manaCost.text = _currentCard.Config.ManaCost.ToString();
+        }
+        
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (eventData.pointerDrag != null && eventData.pointerDrag.GetComponent<MenuDeckPoolCard>() != null)

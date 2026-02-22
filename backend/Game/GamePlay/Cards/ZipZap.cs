@@ -8,25 +8,27 @@ public class ZipZap : ICard
         IPlayer owner,
         IBoard target,
         MoveSnapshot snapshot,
+        CardsConfigs.ZipZap config,
         CardUsePayload.ZipZap payload)
     {
         _owner = owner;
         _target = target;
         _snapshot = snapshot;
+        _config = config;
         _payload = payload;
     }
 
     private readonly IPlayer _owner;
     private readonly IBoard _target;
     private readonly MoveSnapshot _snapshot;
+    private readonly CardsConfigs.ZipZap _config;
     private readonly CardUsePayload.ZipZap _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig<CardsConfigs.IZipZap>();
-        var size = config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+        var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
-        var searchShape = PatternShapes.Rhombus(config.SearchRadius);
+        var searchShape = PatternShapes.Rhombus(_config.SearchRadius);
 
         var selected = pattern.SelectFree(_target, _payload.Position);
 

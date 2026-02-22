@@ -1,4 +1,6 @@
-﻿using Cluster.Coordination;
+﻿using Cluster;
+using Cluster.Configs;
+using Cluster.Coordination;
 using Cluster.Discovery;
 using Cluster.State;
 using Common.Extensions;
@@ -107,6 +109,8 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Console)
                 .AddBlazorComponents();
 
+            // Project services
+
             return builder;
         }
 
@@ -129,7 +133,8 @@ public static class ProjectsSetupExtensions
                 .AddTaskScheduling()
                 .AddClusterFeatures()
                 .AddMemoryPack()
-                .AddClusterTests();
+                .AddClusterTests()
+                .AddCardConfigs();
 
             builder.Services.Add<DbSource>()
                 .As<IDbSource>();

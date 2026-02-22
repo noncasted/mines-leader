@@ -7,21 +7,23 @@ public class Trebuchet : ICard
     public Trebuchet(
         IPlayer owner,
         IBoard target,
+        CardsConfigs.Trebuchet config,
         CardUsePayload.Trebuchet payload)
     {
         _owner = owner;
         _target = target;
+        _config = config;
         _payload = payload;
     }
 
     private readonly IPlayer _owner;
     private readonly IBoard _target;
+    private readonly CardsConfigs.Trebuchet _config;
     private readonly CardUsePayload.Trebuchet _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig();
-        var size = config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+        var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectFree(_target, _payload.Position);

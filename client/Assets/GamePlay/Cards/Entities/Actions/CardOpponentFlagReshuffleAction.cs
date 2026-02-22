@@ -12,21 +12,24 @@ namespace GamePlay.Cards
         public CardOpponentFlagReshuffleAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            ICardContext context)
+            ICardContext context,
+            CardsConfigs.OpponentFlagReshuffle config)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _context = context;
+            _config = config;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly ICardContext _context;
+        private readonly CardsConfigs.OpponentFlagReshuffle _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
-            var size = _context.Config.Size;
+            var size = _config.Size;
 
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);

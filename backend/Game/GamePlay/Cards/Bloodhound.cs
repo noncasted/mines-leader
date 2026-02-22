@@ -5,23 +5,22 @@ namespace Game.GamePlay;
 public class Bloodhound : ICard
 {
     public Bloodhound(
-        IPlayer owner,
         IBoard target,
+        CardsConfigs.Bloodhound config,
         CardUsePayload.Bloodhound payload)
     {
-        _owner = owner;
         _target = target;
+        _config = config;
         _payload = payload;
     }
 
-    private readonly IPlayer _owner;
     private readonly IBoard _target;
+    private readonly CardsConfigs.Bloodhound _config;
     private readonly CardUsePayload.Bloodhound _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig();
-        var size = config.Size;
+        var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectTaken(_target, _payload.Position);

@@ -14,10 +14,12 @@ namespace GamePlay.Cards
         [SerializeField] private SpriteRenderer _image;
 
         private ICardDefinition _definition;
+        private ICardConfigs _configs;
 
         [Inject]
-        private void Construct(ICardDefinition definition)
+        private void Construct(ICardDefinition definition, ICardConfigs configs)
         {
+            _configs = configs;
             _definition = definition;
         }
         
@@ -30,7 +32,7 @@ namespace GamePlay.Cards
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _name.text = _definition.Name;
-            _manaCost.text = _definition.Config.ManaCost.ToString();
+            _manaCost.text = _configs.Value.All[_definition.Type].ManaCost.ToString();
             _image.sprite = _definition.Image;
         }
     }

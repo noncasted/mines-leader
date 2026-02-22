@@ -1,5 +1,0 @@
-select *
-from orleansstorage
-where graintypestring = 'ModifiersProjection_BatchWriter'
-and grainidn0 = 0
-and grainidn1 = 0

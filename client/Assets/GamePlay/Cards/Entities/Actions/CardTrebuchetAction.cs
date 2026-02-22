@@ -14,24 +14,27 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
-            ICardContext context)
+            ICardContext context,
+            CardsConfigs.Trebuchet config)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _modifiers = modifiers;
             _context = context;
+            _config = config;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
+        private readonly CardsConfigs.Trebuchet _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _context.Config.Size + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+            var size = _config.Size + (int)_modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

@@ -42,7 +42,7 @@ namespace GamePlay.Cards
             return builder;
         }
 
-        public static void AddCardAction(this IEntityBuilder builder, ICardDefinition definition)
+        public static void AddCardAction(this IEntityBuilder builder, CardsConfigs configs, ICardDefinition definition)
         {
             var type = definition.Type;
 
@@ -69,7 +69,37 @@ namespace GamePlay.Cards
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
+            _ = type switch
+            {
+                CardType.Trebuchet => registration.WithParameter(configs.Trebuchet_Normal),
+                CardType.Trebuchet_Max => registration.WithParameter(configs.Trebuchet_Max),
+                CardType.Bloodhound => registration.WithParameter(configs.BloodHound_Normal),
+                CardType.Bloodhound_Max => registration.WithParameter(configs.BloodHound_Max),
+                CardType.TrebuchetAimer => registration.WithParameter(configs.TrebuchetAimer_Normal),
+                CardType.TrebuchetAimer_Max => registration.WithParameter(configs.TrebuchetAimer_Max),
+                CardType.ErosionDozer => registration.WithParameter(configs.ErosionDozer_Normal),
+                CardType.ErosionDozer_Max => registration.WithParameter(configs.ErosionDozer_Max),
+                CardType.Gravedigger => registration.WithParameter(configs.Gravedigger_Normal),
+                CardType.ZipZap => registration.WithParameter(configs.ZipZap_Normal),
+                CardType.ZipZap_Max => registration.WithParameter(configs.ZipZap_Max),
+                CardType.OpponentBomb => registration.WithParameter(configs.OpponentBomb_Normal),
+                CardType.OpponentFlagErase => registration.WithParameter(configs.OpponentFlagErase_Normal),
+                CardType.OpponentFlagErase_Max => registration.WithParameter(configs.OpponentFlagErase_Max),
+                CardType.OpponentFlagReshuffle => registration.WithParameter(configs.OpponentFlagReshuffle_Normal),
+                CardType.OpponentFlagReshuffle_Max => registration.WithParameter(configs.OpponentFlagReshuffle_Max),
+                CardType.Smoke => registration.WithParameter(configs.Smoke_Normal),
+                CardType.Smoke_Max => registration.WithParameter(configs.Smoke_Max),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
+
             registration.As<ICardAction>();
+
+            IRegistration Register<T, TConfig>(TConfig config)
+            {
+                return builder.Register<T>()
+                    .WithParameter(config);
+            }
         }
 
         public static void AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)

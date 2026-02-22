@@ -2,6 +2,13 @@ using Infrastructure.Execution;
 
 namespace Infrastructure;
 
+public interface IAddressableDictionary<TKey, TValue> : IGrainWithGuidKey
+    where TKey : notnull
+
+{
+    Task<IReadOnlyDictionary<TKey, TValue>> GetAll();
+}
+
 [GenerateSerializer]
 public class AddressableDictionaryState<TKey, TValue> :
     BatchWriterState<AddressableDictionaryCallbacks<TKey, TValue>.IEntry>
@@ -69,7 +76,8 @@ public class AddressableDictionaryMessageQueueId : IMessageQueueId
 }
 
 public abstract class AddressableDictionary<TState, TKey, TValue> :
-    BatchWriter<TState, AddressableDictionaryCallbacks<TKey, TValue>.IEntry>
+    BatchWriter<TState, AddressableDictionaryCallbacks<TKey, TValue>.IEntry>,
+    IAddressableDictionary<TKey, TValue>
     where TState : AddressableDictionaryState<TKey, TValue>
     where TKey : notnull
 {
@@ -79,18 +87,18 @@ public abstract class AddressableDictionary<TState, TKey, TValue> :
     {
         _state = state;
         _messaging = messaging;
+        _queueId = new AddressableDictionaryMessageQueueId($"{typeof(TKey)}-{typeof(TValue)}");
     }
 
     private readonly IPersistentState<TState> _state;
     private readonly IMessaging _messaging;
+    private readonly AddressableDictionaryMessageQueueId _queueId;
 
     protected override BatchWriterOptions Options { get; } = new()
     {
         Delay = TimeSpan.FromSeconds(5),
         RequiresTransaction = true
     };
-
-    protected abstract AddressableDictionaryMessageQueueId QueueId { get; }
 
     protected override Task Process(IReadOnlyList<AddressableDictionaryCallbacks<TKey, TValue>.IEntry> entries)
     {
@@ -111,10 +119,10 @@ public abstract class AddressableDictionary<TState, TKey, TValue> :
                     break;
             }
         }
-        
-        return _messaging.PushTransactionalQueue(QueueId, update);
+
+        return _messaging.PushTransactionalQueue(_queueId, update);
     }
-    
+
     public Task Write(TKey key, TValue value)
     {
         var entry = new AddressableDictionaryCallbacks<TKey, TValue>.Add
@@ -125,7 +133,7 @@ public abstract class AddressableDictionary<TState, TKey, TValue> :
 
         return WriteTransactional(entry);
     }
-    
+
     public Task Erase(TKey key)
     {
         var entry = new AddressableDictionaryCallbacks<TKey, TValue>.Remove
@@ -134,5 +142,10 @@ public abstract class AddressableDictionary<TState, TKey, TValue> :
         };
 
         return WriteTransactional(entry);
+    }
+
+    public Task<IReadOnlyDictionary<TKey, TValue>> GetAll()
+    {
+        return Task.FromResult(_state.State.Items);
     }
 }

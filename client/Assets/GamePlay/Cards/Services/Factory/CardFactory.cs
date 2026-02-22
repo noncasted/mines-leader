@@ -14,13 +14,14 @@ namespace GamePlay.Cards
     {
         UniTask Create(IReadOnlyLifetime lifetime, CardType type, Vector2 position);
     }
-    
+
     public class CardFactory : ICardFactory, IScopeSetup
     {
         public CardFactory(
             IEntityScopeLoader entityScopeLoader,
             INetworkEntityFactory entityFactory,
             IGameContext gameContext,
+            ICardConfigs configs,
             IEnvDictionary<CardType, ICardDefinition> definitionsCollection,
             IObjectFactory<CardScopeEntity> objectFactory,
             LifetimeScope parentScope,
@@ -28,6 +29,7 @@ namespace GamePlay.Cards
         {
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
+            _configs = configs;
             _definitionsCollection = definitionsCollection;
             _objectFactory = objectFactory;
             _entityFactory = entityFactory;
@@ -37,6 +39,7 @@ namespace GamePlay.Cards
 
         private readonly IEntityScopeLoader _entityScopeLoader;
         private readonly IGameContext _gameContext;
+        private readonly ICardConfigs _configs;
         private readonly IEnvDictionary<CardType, ICardDefinition> _definitionsCollection;
         private readonly IObjectFactory<CardScopeEntity> _objectFactory;
         private readonly INetworkEntityFactory _entityFactory;
@@ -80,8 +83,9 @@ namespace GamePlay.Cards
                     .AddCardLocalRoot()
                     .AddCardLocalStates();
 
+                builder.RegisterInstance(_configs.Value.All[definition.Type]);
+
                 builder.RegisterInstance(definition.Type);
-                builder.RegisterInstance(definition.Config);
 
                 builder.RegisterInstance(_gameContext.Self);
                 builder.RegisterInstance(_gameContext.Self.Hand);
@@ -90,7 +94,7 @@ namespace GamePlay.Cards
                     .As<IHandEntryHandle>();
 
                 builder.AddCardActionSync(definition);
-                builder.AddCardAction(definition);
+                builder.AddCardAction(_configs.Value, definition);
 
                 builder.RegisterInstance(definition);
             }
@@ -124,7 +128,6 @@ namespace GamePlay.Cards
                 builder.AddCardActionSync(definition);
 
                 builder.RegisterInstance(definition.Type);
-                builder.RegisterInstance(definition.Type.ToConfig());
                 builder.RegisterInstance(gamePlayer);
                 builder.RegisterInstance(gamePlayer.Hand);
 

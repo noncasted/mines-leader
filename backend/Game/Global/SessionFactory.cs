@@ -1,4 +1,5 @@
-﻿using Cluster.Discovery;
+﻿using Cluster.Configs;
+using Cluster.Discovery;
 using Common.Extensions;
 using Common.Reactive;
 using Game.GamePlay;
@@ -97,6 +98,7 @@ public class SessionFactory : ISessionFactory
         services.Pass<IOrleans>(_serviceProvider);
         services.Pass<IServiceEnvironment>(_serviceProvider);
         services.Pass<IServiceDiscovery>(_serviceProvider);
+        services.Pass<ICardConfigs>(_serviceProvider);
 
         services.AddCardServices();
         services.AddGameCommands();

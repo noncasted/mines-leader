@@ -16,6 +16,7 @@ public static class States
 
     public const string Match_Entity = "match_entity";
 
+    public const string Config_Card = "config_card";
     public const string Config = "config";
     public const string Messaging_Queue = "messaging_queue";
     public const string ClusterState = "clusterState";
@@ -31,6 +32,7 @@ public static class States
         User_Collection,
         Match_Entity,
         Config,
+        Config_Card,
         Messaging_Queue,
         ClusterState
     ];
@@ -52,6 +54,7 @@ public static class States
     public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
 
     public class ConfigStorageAttribute() : PersistentStateAttribute(Config, Config);
+    public class CardConfigAttribute() : PersistentStateAttribute(Config_Card, Config_Card);
 
     public class MessageQueueAttribute() : PersistentStateAttribute(Messaging_Queue, Messaging_Queue);
 
@@ -75,6 +78,7 @@ public static class StateAttributesExtensions
         AddPersistentAttribute<States.ConfigStorageAttribute>();
         AddPersistentAttribute<States.ClusterStateAttribute>();
         AddPersistentAttribute<States.UserCollectionAttribute>();
+        AddPersistentAttribute<States.CardConfigAttribute>();
 
         return builder;
 
