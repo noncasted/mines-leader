@@ -7,7 +7,7 @@ public static class Certificates
         Console.WriteLine("[Deploy] Setting up .NET dev certificates...");
 
         await Command.Run("dotnet", "dev-certs https --clean");
-        await Command.Run("dotnet", "dev-certs https --trust");
+        // await Command.Run("dotnet", "dev-certs https --trust");
 
         Directory.CreateDirectory(Options.HttpsPath);
 
