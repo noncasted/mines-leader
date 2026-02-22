@@ -5,6 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4315cbfa-733b-4482-bc8c-f9452daa3678" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../backend/Cluster/Configs/CardConfigsExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/CardConfigsExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableStateStorage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableStateStorage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/RawAddressableState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/RawAddressableState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/backend.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/backend.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/CardConfigsStorage.cs" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/ClusterConfigsSetup.cs" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/RawAddressableState.cs" afterDir="false" />

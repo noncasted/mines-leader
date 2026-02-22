@@ -1,8 +1,7 @@
-using System.Text.Json;
+using Common.Extensions;
 using Common.Reactive;
-using Infrastructure;
 
-namespace Cluster.Configs;
+namespace Infrastructure;
 
 [GenerateSerializer]
 public class RawAddressableState
@@ -26,7 +25,15 @@ public abstract class RawAddressableStateView<T> :
     {
         this!.ViewNotNull<RawAddressableState>(lifetime, raw =>
             {
-                Value = JsonSerializer.Deserialize<T>(raw.Raw)!;
+                try
+                {
+                    var newValue = JsonUtils.Deserialize<T>(raw.Raw)!;
+                    Value = newValue;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         );
     }
@@ -35,7 +42,7 @@ public abstract class RawAddressableStateView<T> :
     {
         Advise(lifetime, (valueLifetime, raw) =>
             {
-                var value = JsonSerializer.Deserialize<T>(raw.Raw)!;
+                var value = JsonUtils.Deserialize<T>(raw.Raw)!;
                 handler(valueLifetime, value);
             }
         );
@@ -45,7 +52,7 @@ public abstract class RawAddressableStateView<T> :
     {
         return SetValue(new RawAddressableState()
             {
-                Raw = JsonSerializer.Serialize(value),
+                Raw = JsonUtils.Serialize(value),
             }
         );
     }

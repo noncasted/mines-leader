@@ -26,7 +26,7 @@ public static class OrleansSetupExtensions
                     clientBuilder.Configure<ClientMessagingOptions>(options =>
                         {
                             options.ResponseTimeout = ReplyTimeoutSeconds;
-                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds;
+                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
                         }
                     );
 
@@ -66,7 +66,7 @@ public static class OrleansSetupExtensions
                     siloBuilder.Configure<SiloMessagingOptions>(options =>
                         {
                             options.ResponseTimeout = ReplyTimeoutSeconds;
-                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds;
+                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
                         }
                     );
 

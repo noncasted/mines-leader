@@ -15,7 +15,6 @@ public class AddressableStateMessageQueueId<T> : IMessageQueueId
 
     public string ToRaw()
     {
-        var type = typeof(T);
         return $"addressable-state-{Name}";
     }
 }
@@ -101,9 +100,7 @@ public static class ClusterStateExtensions
 
         private IAddressableStateStorage<T> GetClusterStateGrain<T>(string name)
         {
-            var type = typeof(T);
-            var grainId = $"{type.FullName!}-{name}";
-            return grains.GetGrain<IAddressableStateStorage<T>>(grainId);
+            return grains.GetGrain<IAddressableStateStorage<T>>(name);
         }
     }
 }

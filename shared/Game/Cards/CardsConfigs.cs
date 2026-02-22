@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MemoryPack;
+using Newtonsoft.Json;
 
 namespace Shared
 {
@@ -38,34 +39,36 @@ namespace Shared
     [MemoryPackable]
     public partial class CardsConfigs : INetworkContext
     {
-        public Bloodhound BloodHound_Normal { get; } = new();
-        public Bloodhound BloodHound_Max { get; } = new();
+        public Bloodhound BloodHound_Normal { get; set; }
+        public Bloodhound BloodHound_Max { get; set; }
 
-        public Trebuchet Trebuchet_Normal { get; } = new();
-        public Trebuchet Trebuchet_Max { get; } = new();
+        public Trebuchet Trebuchet_Normal { get; set; }
+        public Trebuchet Trebuchet_Max { get; set; }
 
-        public TrebuchetAimer TrebuchetAimer_Normal { get; } = new();
-        public TrebuchetAimer TrebuchetAimer_Max { get; } = new();
+        public TrebuchetAimer TrebuchetAimer_Normal { get; set; }
+        public TrebuchetAimer TrebuchetAimer_Max { get; set; }
 
-        public ErosionDozer ErosionDozer_Normal { get; } = new();
-        public ErosionDozer ErosionDozer_Max { get; } = new();
+        public ErosionDozer ErosionDozer_Normal { get; set; }
+        public ErosionDozer ErosionDozer_Max { get; set; }
 
-        public Gravedigger Gravedigger_Normal { get; } = new();
+        public Gravedigger Gravedigger_Normal { get; set; }
 
-        public ZipZap ZipZap_Normal { get; } = new();
-        public ZipZap ZipZap_Max { get; } = new();
+        public ZipZap ZipZap_Normal { get; set; }
+        public ZipZap ZipZap_Max { get; set; }
 
-        public OpponentFlagErase OpponentFlagErase_Normal { get; } = new();
-        public OpponentFlagErase OpponentFlagErase_Max { get; } = new();
+        public OpponentFlagErase OpponentFlagErase_Normal { get; set; }
+        public OpponentFlagErase OpponentFlagErase_Max { get; set; }
 
-        public OpponentBomb OpponentBomb_Normal { get; } = new();
+        public OpponentBomb OpponentBomb_Normal { get; set; }
 
-        public OpponentFlagReshuffle OpponentFlagReshuffle_Normal { get; } = new();
-        public OpponentFlagReshuffle OpponentFlagReshuffle_Max { get; } = new();
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Normal { get; set; }
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Max { get; set; }
 
-        public Smoke Smoke_Normal { get; } = new();
-        public Smoke Smoke_Max { get; } = new();
+        public Smoke Smoke_Normal { get; set; }
+        public Smoke Smoke_Max { get; set; }
 
+        [JsonIgnore]
+        [MemoryPackIgnore]
         public IReadOnlyDictionary<CardType, ICardConfig> All => new Dictionary<CardType, ICardConfig>()
         {
             { CardType.Bloodhound, BloodHound_Normal },

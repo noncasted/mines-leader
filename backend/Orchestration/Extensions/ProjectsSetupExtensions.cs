@@ -34,7 +34,9 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Coordinator);
 
             // Project services
-
+            builder.Services.Add<ClusterConfigsSetup>()
+                .As<ICoordinatorSetupCompleted>();
+            
             return builder;
         }
 
