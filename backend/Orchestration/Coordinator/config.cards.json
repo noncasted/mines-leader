@@ -10,22 +10,22 @@
   "BloodHound_Max": {
     "$type": "Shared.CardsConfigs+Bloodhound, Shared",
     "Type": 210,
-    "Size": 4,
+    "Size": 3,
     "ManaCost": 4,
     "Target": 0
   },
   "Trebuchet_Normal": {
     "$type": "Shared.CardsConfigs+Trebuchet, Shared",
     "Type": 100,
-    "Size": 4,
+    "Size": 3,
     "ManaCost": 3,
     "Target": 1
   },
   "Trebuchet_Max": {
     "$type": "Shared.CardsConfigs+Trebuchet, Shared",
     "Type": 110,
-    "Size": 4,
-    "ManaCost": 3,
+    "Size": 5,
+    "ManaCost": 4,
     "Target": 1
   },
   "TrebuchetAimer_Normal": {
@@ -38,21 +38,21 @@
   "TrebuchetAimer_Max": {
     "$type": "Shared.CardsConfigs+TrebuchetAimer, Shared",
     "Type": 310,
-    "Size": 1,
-    "ManaCost": 2,
+    "Size": 2,
+    "ManaCost": 3,
     "Target": 0
   },
   "ErosionDozer_Normal": {
     "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
     "Type": 400,
-    "Size": 5,
-    "ManaCost": 4,
+    "Size": 3,
+    "ManaCost": 3,
     "Target": 0
   },
   "ErosionDozer_Max": {
     "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
     "Type": 410,
-    "Size": 5,
+    "Size": 4,
     "ManaCost": 4,
     "Target": 0
   },
@@ -73,16 +73,16 @@
   "ZipZap_Max": {
     "$type": "Shared.CardsConfigs+ZipZap, Shared",
     "Type": 610,
-    "Size": 3,
-    "ManaCost": 3,
+    "Size": 5,
+    "ManaCost": 5,
     "Target": 0,
     "SearchRadius": 4
   },
   "OpponentFlagErase_Normal": {
     "$type": "Shared.CardsConfigs+OpponentFlagErase, Shared",
     "Type": 810,
-    "Size": 3,
-    "ManaCost": 3,
+    "Size": 5,
+    "ManaCost": 5,
     "Target": 1
   },
   "OpponentFlagErase_Max": {
@@ -101,8 +101,8 @@
   "OpponentFlagReshuffle_Normal": {
     "$type": "Shared.CardsConfigs+OpponentFlagReshuffle, Shared",
     "Type": 910,
-    "Size": 3,
-    "ManaCost": 2,
+    "Size": 5,
+    "ManaCost": 5,
     "Target": 1
   },
   "OpponentFlagReshuffle_Max": {
@@ -123,8 +123,8 @@
   "Smoke_Max": {
     "$type": "Shared.CardsConfigs+Smoke, Shared",
     "Type": 1010,
-    "Size": 3,
-    "ManaCost": 3,
+    "Size": 5,
+    "ManaCost": 5,
     "Target": 1,
     "Duration": 3
   }
