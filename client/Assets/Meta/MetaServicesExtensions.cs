@@ -47,6 +47,11 @@ namespace Meta
                 .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
                 .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
 
+            builder.Register<CardConfigs>()
+                .As<IBackendProjection<CardsConfigs>>()
+                .As<IBackendProjection>()
+                .As<ICardConfigs>();
+            
             return builder;
         }
     }

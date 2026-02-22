@@ -1,217 +1,189 @@
 ﻿using System.Collections.Generic;
+using MemoryPack;
 
 namespace Shared
 {
-    public interface ICardConfig
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardsConfigs.Bloodhound))]
+    [MemoryPackUnion(1, typeof(CardsConfigs.Trebuchet))]
+    [MemoryPackUnion(2, typeof(CardsConfigs.TrebuchetAimer))]
+    [MemoryPackUnion(3, typeof(CardsConfigs.ErosionDozer))]
+    [MemoryPackUnion(4, typeof(CardsConfigs.Gravedigger))]
+    [MemoryPackUnion(5, typeof(CardsConfigs.ZipZap))]
+    [MemoryPackUnion(6, typeof(CardsConfigs.OpponentFlagErase))]
+    [MemoryPackUnion(7, typeof(CardsConfigs.OpponentFlagReshuffle))]
+    [MemoryPackUnion(8, typeof(CardsConfigs.OpponentBomb))]
+    [MemoryPackUnion(9, typeof(CardsConfigs.Smoke))]
+    public partial interface ICardConfig
     {
-        CardType Type { get; }
-        int Size { get; }
-        int ManaCost { get; }
+        CardType Type { get; set; }
+        int ManaCost { get; set; }
         CardTarget Target { get; }
     }
 
-    public static class CardsConfigs
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardsConfigs.Bloodhound))]
+    [MemoryPackUnion(1, typeof(CardsConfigs.Trebuchet))]
+    [MemoryPackUnion(2, typeof(CardsConfigs.TrebuchetAimer))]
+    [MemoryPackUnion(3, typeof(CardsConfigs.ErosionDozer))]
+    [MemoryPackUnion(4, typeof(CardsConfigs.ZipZap))]
+    [MemoryPackUnion(5, typeof(CardsConfigs.OpponentFlagErase))]
+    [MemoryPackUnion(6, typeof(CardsConfigs.OpponentFlagReshuffle))]
+    [MemoryPackUnion(7, typeof(CardsConfigs.Smoke))]
+    public partial interface ICardSizeConfig
     {
-        public class Bloodhound : ICardConfig
+        int Size { get; set; }
+    }
+
+    [MemoryPackable]
+    public partial class CardsConfigs : INetworkContext
+    {
+        public Bloodhound BloodHound_Normal { get; } = new();
+        public Bloodhound BloodHound_Max { get; } = new();
+
+        public Trebuchet Trebuchet_Normal { get; } = new();
+        public Trebuchet Trebuchet_Max { get; } = new();
+
+        public TrebuchetAimer TrebuchetAimer_Normal { get; } = new();
+        public TrebuchetAimer TrebuchetAimer_Max { get; } = new();
+
+        public ErosionDozer ErosionDozer_Normal { get; } = new();
+        public ErosionDozer ErosionDozer_Max { get; } = new();
+
+        public Gravedigger Gravedigger_Normal { get; } = new();
+
+        public ZipZap ZipZap_Normal { get; } = new();
+        public ZipZap ZipZap_Max { get; } = new();
+
+        public OpponentFlagErase OpponentFlagErase_Normal { get; } = new();
+        public OpponentFlagErase OpponentFlagErase_Max { get; } = new();
+
+        public OpponentBomb OpponentBomb_Normal { get; } = new();
+
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Normal { get; } = new();
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Max { get; } = new();
+
+        public Smoke Smoke_Normal { get; } = new();
+        public Smoke Smoke_Max { get; } = new();
+
+        public IReadOnlyDictionary<CardType, ICardConfig> All => new Dictionary<CardType, ICardConfig>()
         {
-            public CardType Type => CardType.Bloodhound;
-            public int Size => 4;
-            public int ManaCost => 2;
+            { CardType.Bloodhound, BloodHound_Normal },
+            { CardType.Bloodhound_Max, BloodHound_Max },
+
+            { CardType.Trebuchet, Trebuchet_Normal },
+            { CardType.Trebuchet_Max, Trebuchet_Max },
+
+            { CardType.TrebuchetAimer, TrebuchetAimer_Normal },
+            { CardType.TrebuchetAimer_Max, TrebuchetAimer_Max },
+
+            { CardType.ErosionDozer, ErosionDozer_Normal },
+            { CardType.ErosionDozer_Max, ErosionDozer_Max },
+
+            { CardType.ZipZap, ZipZap_Normal },
+            { CardType.ZipZap_Max, ZipZap_Max },
+
+            { CardType.OpponentFlagErase, OpponentFlagErase_Normal },
+            { CardType.OpponentFlagErase_Max, OpponentFlagErase_Normal },
+
+            { CardType.OpponentFlagReshuffle, OpponentFlagReshuffle_Normal },
+            { CardType.OpponentFlagReshuffle_Max, OpponentFlagReshuffle_Normal },
+
+            { CardType.Smoke, Smoke_Normal },
+            { CardType.Smoke_Max, Smoke_Max },
+
+            { CardType.OpponentBomb, OpponentBomb_Normal },
+            { CardType.Gravedigger, Gravedigger_Normal },
+        };
+
+        [MemoryPackable]
+        public partial class Bloodhound : ICardConfig, ICardSizeConfig
+        {
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 4;
+            public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
         }
 
-        public class Bloodhound_Max : ICardConfig
+        [MemoryPackable]
+        public partial class Trebuchet : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.Bloodhound_Max;
-            public int Size => 4;
-            public int ManaCost => 2;
-            public CardTarget Target => CardTarget.OwnBoard;
-        }
-
-        public class Trebuchet : ICardConfig
-        {
-            public CardType Type => CardType.Trebuchet;
-            public int Size => 4;
-            public int ManaCost => 3;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 4;
+            public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
         }
 
-        public class Trebuchet_Max : ICardConfig
+        [MemoryPackable]
+        public partial class TrebuchetAimer : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.Trebuchet_Max;
-            public int Size => 6;
-            public int ManaCost => 5;
-            public CardTarget Target => CardTarget.OpponentBoard;
-        }
-
-        public class TrebuchetAimer : ICardConfig
-        {
-            public CardType Type => CardType.TrebuchetAimer;
-            public int Size => 0;
-            public int ManaCost => 2;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 1;
+            public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
         }
 
-        public class TrebuchetAimer_Max : ICardConfig
+        [MemoryPackable]
+        public partial class ErosionDozer : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.TrebuchetAimer_Max;
-            public int Size => 0;
-            public int ManaCost => 4;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 5;
+            public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.OwnBoard;
         }
 
-        public class ErosionDozer : ICardConfig
+        [MemoryPackable]
+        public partial class Gravedigger : ICardConfig
         {
-            public CardType Type => CardType.ErosionDozer;
-            public int Size => 5;
-            public int ManaCost => 4;
-            public CardTarget Target => CardTarget.OwnBoard;
-        }
-
-        public class ErosionDozer_Max : ICardConfig
-        {
-            public CardType Type => CardType.ErosionDozer_Max;
-            public int Size => 7;
-            public int ManaCost => 5;
-            public CardTarget Target => CardTarget.OwnBoard;
-        }
-
-        public class Gravedigger : ICardConfig
-        {
-            public CardType Type => CardType.Gravedigger;
-            public int Size => 0;
-            public int ManaCost => 4;
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.Self;
         }
 
-        public interface IZipZap : ICardConfig
+        [MemoryPackable]
+        public partial class ZipZap : ICardConfig, ICardSizeConfig
         {
-            int SearchRadius { get; }
-        }
-
-        public class ZipZap : IZipZap
-        {
-            public CardType Type => CardType.ZipZap;
-            public int Size => 3;
-            public int ManaCost => 3;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 3;
+            public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
             public int SearchRadius => 4;
         }
 
-        public class ZipZap_Max : IZipZap
+        [MemoryPackable]
+        public partial class OpponentFlagErase : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.ZipZap_Max;
-            public int Size => 4;
-            public int ManaCost => 5;
-            public CardTarget Target => CardTarget.OwnBoard;
-            public int SearchRadius => 4;
-        }
-
-        public class OpponentFlagErase : ICardConfig
-        {
-            public CardType Type => CardType.OpponentFlagErase;
-            public int Size => 3;
-            public int ManaCost => 3;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 3;
+            public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
         }
 
-        public class OpponentFlagErase_Max : ICardConfig
+        [MemoryPackable]
+        public partial class OpponentFlagReshuffle : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.OpponentFlagErase_Max;
-            public int Size => 4;
-            public int ManaCost => 5;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 3;
+            public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
         }
 
-        public class OpponentFlagReshuffle : ICardConfig
+        [MemoryPackable]
+        public partial class OpponentBomb : ICardConfig
         {
-            public CardType Type => CardType.OpponentFlagReshuffle;
-            public int Size => 3;
-            public int ManaCost => 2;
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
         }
 
-        public class OpponentFlagReshuffle_Max : ICardConfig
+        [MemoryPackable]
+        public partial class Smoke : ICardConfig, ICardSizeConfig
         {
-            public CardType Type => CardType.OpponentFlagReshuffle_Max;
-            public int Size => 4;
-            public int ManaCost => 4;
-            public CardTarget Target => CardTarget.OpponentBoard;
-        }
-
-        public class OpponentBomb : ICardConfig
-        {
-            public CardType Type => CardType.OpponentBomb;
-            public int Size => 0;
-            public int ManaCost => 2;
-            public CardTarget Target => CardTarget.OpponentBoard;
-        }
-
-        public interface ISmoke : ICardConfig
-        {
-            int Duration { get; }
-        }
-
-        public class Smoke : ISmoke
-        {
-            public CardType Type => CardType.Smoke;
-            public int Size => 3;
-            public int ManaCost => 3;
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 3;
+            public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int Duration => 3;
-        }
-
-        public class Smoke_Max : ISmoke
-        {
-            public CardType Type => CardType.Smoke_Max;
-            public int Size => 4;
-            public int ManaCost => 5;
-            public CardTarget Target => CardTarget.OpponentBoard;
-            public int Duration => 3;
-        }
-
-        static CardsConfigs()
-        {
-            var entries = new Dictionary<CardType, ICardConfig>();
-            _entries = entries;
-
-            AddEntry(new Trebuchet());
-            AddEntry(new Trebuchet_Max());
-            AddEntry(new Bloodhound());
-            AddEntry(new Bloodhound_Max());
-            AddEntry(new TrebuchetAimer());
-            AddEntry(new TrebuchetAimer_Max());
-            AddEntry(new ErosionDozer());
-            AddEntry(new ErosionDozer_Max());
-            AddEntry(new Gravedigger());
-            AddEntry(new ZipZap());
-            AddEntry(new ZipZap_Max());
-            AddEntry(new OpponentBomb());
-            AddEntry(new OpponentFlagErase());
-            AddEntry(new OpponentFlagErase_Max());
-            AddEntry(new OpponentFlagReshuffle());
-            AddEntry(new OpponentFlagReshuffle_Max());
-            AddEntry(new Smoke());
-            AddEntry(new Smoke_Max());
-
-            return;
-
-            void AddEntry(ICardConfig config)
-            {
-                entries[config.Type] = config;
-            }
-        }
-
-        private static readonly IReadOnlyDictionary<CardType, ICardConfig> _entries;
-
-        public static ICardConfig ToConfig(this CardType type)
-        {
-            return _entries[type];
-        }
-
-        public static T ToConfig<T>(this CardType type) where T : ICardConfig
-        {
-            return (T)_entries[type];
         }
     }
 }

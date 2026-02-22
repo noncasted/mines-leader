@@ -1,4 +1,6 @@
-﻿using Common.Extensions;
+﻿using Cluster.Configs;
+using Common.Extensions;
+using Common.Reactive;
 using Infrastructure;
 using Meta.Users;
 using MetaGateway.UserFlow.Commands;
@@ -20,11 +22,13 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         IUserCommandsDispatcher commandsDispatcher,
         IClusterClient orleans,
         IMessaging messaging,
+        ICardConfigs cardConfigs,
         ILogger<UserConnectionEntryPoint> logger)
     {
         _users = users;
         _orleans = orleans;
         _messaging = messaging;
+        _cardConfigs = cardConfigs;
         _logger = logger;
         _commandsDispatcher = commandsDispatcher;
     }
@@ -34,6 +38,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
     private readonly IClusterClient _orleans;
     private readonly IMessaging _messaging;
+    private readonly ICardConfigs _cardConfigs;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
     public async Task OnConnected(IUserSession user)
@@ -82,6 +87,13 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
             _logger.LogInformation("[User] [EntryPoint] Forcing initial notify for user {UserId}", user.UserId);
             await projection.ForceNotify();
+
+            _cardConfigs.View(user.Lifetime, value => user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
+                    {
+                        Context = value
+                    }
+                )
+            );
 
             await user.Connection.Writer.WriteOneWay(new SharedConnectionCompleted());
 

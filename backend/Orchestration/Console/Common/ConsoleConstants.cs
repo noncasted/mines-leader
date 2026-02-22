@@ -6,5 +6,6 @@ public static class ConsoleConstants
     {
         public const string Home = "/";
         public const string Tests = "/tests";
+        public const string Configs = "/configs";
     }
 }

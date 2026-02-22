@@ -1,8 +1,11 @@
-﻿using Shared;
+﻿using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
-public class CardUseCommand(GameCommandUtils utils) : GameCommand<SharedGameAction.CardUse>(utils)
+public class CardUseCommand(
+    GameCommandUtils utils,
+    ICardConfigs configs) : GameCommand<SharedGameAction.CardUse>(utils)
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
     {
@@ -18,7 +21,7 @@ public class CardUseCommand(GameCommandUtils utils) : GameCommand<SharedGameActi
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
 
-        var config = request.Payload.Type.ToConfig();
+        var config = configs.Value.All[request.Payload.Type];
         player.Stash.Add(request.Payload.Type);
         player.Mana.Use(config.ManaCost);
         player.Moves.OnUsed();

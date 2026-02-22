@@ -8,9 +8,10 @@
         <Project Path="Orchestration/MetaGateway/MetaGateway.csproj" />
         <Project Path="Orchestration/Silo/Silo.csproj" />
     </Folder>
-
-    <Project Path="../shared/shared.csproj" />
-    <Project Path="../tools/deploy/deploy.csproj" />
+    <Folder Name="/Tools/">
+        <Project Path="../shared/shared.csproj" />
+        <Project Path="../tools/deploy/deploy.csproj" />
+    </Folder>
     <Project Path="Cluster/Cluster.csproj" />
     <Project Path="Common/Common.csproj" />
     <Project Path="Game/Game.csproj" />

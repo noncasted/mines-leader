@@ -7,11 +7,10 @@ public class UsersCollectionState : AddressableDictionaryState<Guid, UserState>
 {
 }
 
-public interface IUsersCollection : IGrainWithGuidKey
+public interface IUsersCollection : IAddressableDictionary<Guid, UserState>
 {
     [Transaction(TransactionOption.Join)]
     Task AddOrUpdate(UserState user);
-    
 
     [Transaction(TransactionOption.Join)]
     Task Remove(Guid id);
@@ -29,8 +28,6 @@ public class UsersCollection : AddressableDictionary<UsersCollectionState, Guid,
     {
     }
 
-    protected override AddressableDictionaryMessageQueueId QueueId { get; } = new("users");
-
     public Task AddOrUpdate(UserState user)
     {
         return Write(user.Id, user);
@@ -42,11 +39,9 @@ public class UsersCollection : AddressableDictionary<UsersCollectionState, Guid,
     }
 }
 
-public class UsersCollectionView : AddressableDictionaryView<Guid, UserState>, IUsersCollectionView
+public class UsersCollectionView : AddressableDictionaryView<Guid, UserState, IUsersCollection>, IUsersCollectionView
 {
-    public UsersCollectionView(IMessaging messaging) : base(messaging)
+    public UsersCollectionView(IOrleans orleans, IMessaging messaging) : base(orleans, messaging)
     {
     }
-
-    protected override string Name => "users";
 }

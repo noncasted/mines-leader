@@ -16,6 +16,8 @@ public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T>
 
     private readonly IPersistentState<T> _state;
     private readonly IMessaging _messaging;
+    
+    public virtual string Name => typeof(T).FullName!;
 
     public Task Set(T value)
     {
@@ -23,7 +25,10 @@ public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T>
 
         return Task.WhenAll(
             _state.WriteStateAsync(),
-            _messaging.PushDirectQueue(new AddressableStateMessageQueueId<T>(), value!)
+            _messaging.PushDirectQueue(new AddressableStateMessageQueueId<T>
+            {
+                Name = Name
+            }, value!)
         );
     }
 

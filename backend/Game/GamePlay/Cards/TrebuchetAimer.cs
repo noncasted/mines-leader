@@ -4,20 +4,19 @@ namespace Game.GamePlay;
 
 public class TrebuchetAimer : ICard
 {
-    public TrebuchetAimer(
-        IPlayer owner,
-        CardUsePayload.TrebuchetAimer payload)
+    public TrebuchetAimer(IPlayer owner, CardsConfigs.TrebuchetAimer config)
     {
         _owner = owner;
-        _payload = payload;
+        _config = config;
     }
 
     private readonly IPlayer _owner;
-    private readonly CardUsePayload.TrebuchetAimer _payload;
+    private readonly CardsConfigs.TrebuchetAimer _config;
 
     public EmptyResponse Use()
     {
-        _owner.Modifiers.Inc(PlayerModifier.TrebuchetBoost);
+        var newValue = _owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] + _config.Size;
+        _owner.Modifiers.Set(PlayerModifier.TrebuchetBoost, newValue);
         return EmptyResponse.Ok;
     }
 }

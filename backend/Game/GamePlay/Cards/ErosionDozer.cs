@@ -6,19 +6,21 @@ public class ErosionDozer : ICard
 {
     public ErosionDozer(
         IBoard target,
+        CardsConfigs.ErosionDozer config,
         CardUsePayload.ErosionDozer payload)
     {
         _target = target;
+        _config = config;
         _payload = payload;
     }
 
     private readonly IBoard _target;
+    private readonly CardsConfigs.ErosionDozer _config;
     private readonly CardUsePayload.ErosionDozer _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig();
-        var size = config.Size;
+        var size = _config.Size;
 
         var selected = _target.GetClosedShape(_payload.Position);
         var ordered = selected.OrderBy(t => t.Position.DistanceTo(_payload.Position));

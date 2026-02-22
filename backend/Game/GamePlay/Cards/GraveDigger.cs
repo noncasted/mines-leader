@@ -6,17 +6,14 @@ public class GraveDigger : ICard
 {
     public GraveDigger(
         IPlayer owner,
-        MoveSnapshot snapshot,
-        CardUsePayload.Gravedigger payload)
+        MoveSnapshot snapshot)
     {
         _owner = owner;
         _snapshot = snapshot;
-        _payload = payload;
     }
 
     private readonly IPlayer _owner;
     private readonly MoveSnapshot _snapshot;
-    private readonly CardUsePayload.Gravedigger _payload;
 
     public EmptyResponse Use()
     {

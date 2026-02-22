@@ -13,25 +13,25 @@ namespace GamePlay.Cards
         public CardErosionDozerAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardType cardType,
+            CardsConfigs.ErosionDozer config,
             ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
-            _cardType = cardType;
+            _config = config;
             _context = context;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardType _cardType;
+        private readonly CardsConfigs.ErosionDozer _config;
         private readonly ICardContext _context;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var size = _context.Config.Size;
+            var size = _config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 

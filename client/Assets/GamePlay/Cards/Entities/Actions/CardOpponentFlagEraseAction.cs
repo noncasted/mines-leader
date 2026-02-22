@@ -12,21 +12,24 @@ namespace GamePlay.Cards
         public CardOpponentFlagEraseAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
+            CardsConfigs.OpponentFlagErase config,
             ICardContext context)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
+            _config = config;
             _context = context;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
+        private readonly CardsConfigs.OpponentFlagErase _config;
         private readonly ICardContext _context;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
-            var size = _context.Config.Size;
+            var size = _config.Size;
 
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
@@ -66,5 +69,4 @@ namespace GamePlay.Cards
             }
         }
     }
-
 }

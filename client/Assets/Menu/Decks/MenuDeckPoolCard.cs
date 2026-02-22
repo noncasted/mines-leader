@@ -1,5 +1,6 @@
 ﻿using Menu.Services;
 using Meta;
+using Shared;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,15 +22,18 @@ namespace Menu.Decks
         private MenuDeckPoolSpot _parentPoolSpot;
         private RectTransform _rectTransform;
         private IMenuMoveArea _moveArea;
+        private ICardConfigs _configs;
+        private ICardConfig _config;
 
         public ICardDefinition CardDefinition => _cardDefinition;
+        public ICardConfig Config => _config;
 
         [Inject]
-        private void Construct(IMenuMoveArea moveArea)
+        private void Construct(IMenuMoveArea moveArea, ICardConfigs configs)
         {
+            _configs = configs;
             _moveArea = moveArea;
             _rectTransform = GetComponent<RectTransform>();
-            
         }
 
         public void Setup(ICardDefinition definition, MenuDeckPoolSpot parentPoolSpot)
@@ -40,7 +44,8 @@ namespace Menu.Decks
             _image.sprite = definition.Image;
             _name.text = definition.Name;
             _description.text = definition.Description;
-            _manaCost.text = definition.Config.Size.ToString();
+            _config = _configs.Value.All[definition.Type];
+            _manaCost.text = _config.ManaCost.ToString();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -55,7 +60,8 @@ namespace Menu.Decks
                     _moveArea.Transform,
                     eventData.position,
                     eventData.pressEventCamera,
-                    out var localPointerPosition))
+                    out var localPointerPosition
+                ))
             {
                 _rectTransform.localPosition = localPointerPosition;
             }
@@ -87,7 +93,7 @@ namespace Menu.Decks
         public void ReturnToSpot()
         {
             _raycastImage.raycastTarget = true;
-            
+
             _rectTransform.SetParent(_parentPoolSpot.Transform, true);
             _rectTransform.localPosition = Vector3.zero;
             gameObject.SetActive(true);

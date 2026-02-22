@@ -11,14 +11,17 @@ public interface IAddressableState<T> : IViewableProperty<T> where T : class, ne
 
 public class AddressableStateMessageQueueId<T> : IMessageQueueId
 {
+    public required string Name { get; init; }
+
     public string ToRaw()
     {
         var type = typeof(T);
-        return $"addressable-state-{type.FullName!}";
+        return $"addressable-state-{Name}";
     }
 }
 
-public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IAddressableState<T> where T : class, new()
+public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IAddressableState<T>
+    where T : class, new()
 {
     public AddressableState(IOrleans orleans, IMessaging messaging) : base(new T())
     {
@@ -28,12 +31,17 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
 
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
+    public virtual string Name => typeof(T).FullName!;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await _messaging.ListenQueue<T>(lifetime, new AddressableStateMessageQueueId<T>(), OnUpdate);
+        await _messaging.ListenQueue<T>(lifetime, new AddressableStateMessageQueueId<T>
+            {
+                Name = Name
+            }, OnUpdate
+        );
 
-        var currentValue = await _orleans.GetClusterState<T>();
+        var currentValue = await _orleans.GetClusterState<T>(Name);
         Set(currentValue);
 
         OnSetup(lifetime);
@@ -47,7 +55,7 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
     public Task SetValue(T value)
     {
         Set(value);
-        return _orleans.SetClusterState(value);
+        return _orleans.SetClusterState(Name, value);
     }
 
     protected virtual void OnSetup(IReadOnlyLifetime lifetime)
@@ -67,34 +75,34 @@ public static class ClusterStateExtensions
         return builder;
     }
 
-    public static Task SetClusterState<T>(this IOrleans orleans, T value)
+    public static Task SetClusterState<T>(this IOrleans orleans, string name, T value)
     {
-        return orleans.Grains.SetClusterState(value);
+        return orleans.Grains.SetClusterState(name, value);
     }
 
-    public static Task SetClusterState<T>(this IGrainFactory grains, T value)
+    public static Task SetClusterState<T>(this IGrainFactory grains, string name, T value)
     {
-        var grain = grains.GetClusterStateGrain<T>();
+        var grain = grains.GetClusterStateGrain<T>(name);
         return grain.Set(value);
     }
 
-    public static ValueTask<T> GetClusterState<T>(this IOrleans orleans)
+    public static ValueTask<T> GetClusterState<T>(this IOrleans orleans, string name)
     {
-        return orleans.Grains.GetClusterState<T>();
+        return orleans.Grains.GetClusterState<T>(name);
     }
 
     extension(IGrainFactory grains)
     {
-        public ValueTask<T> GetClusterState<T>()
+        public ValueTask<T> GetClusterState<T>(string name)
         {
-            var grain = grains.GetClusterStateGrain<T>();
+            var grain = grains.GetClusterStateGrain<T>(name);
             return grain.Get();
         }
 
-        private IAddressableStateStorage<T> GetClusterStateGrain<T>()
+        private IAddressableStateStorage<T> GetClusterStateGrain<T>(string name)
         {
             var type = typeof(T);
-            var grainId = type.FullName!;
+            var grainId = $"{type.FullName!}-{name}";
             return grains.GetGrain<IAddressableStateStorage<T>>(grainId);
         }
     }

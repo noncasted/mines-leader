@@ -7,21 +7,23 @@ public class Smoke : ICard
     public Smoke(
         IBoard target,
         CardUsePayload.Smoke payload,
+        CardsConfigs.Smoke config,
         IRoundActionService roundActionService)
     {
         _target = target;
         _payload = payload;
+        _config = config;
         _roundActionService = roundActionService;
     }
 
     private readonly IBoard _target;
     private readonly CardUsePayload.Smoke _payload;
+    private readonly CardsConfigs.Smoke _config;
     private readonly IRoundActionService _roundActionService;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig<CardsConfigs.ISmoke>();
-        var size = config.Size;
+        var size = _config.Size;
 
         var pattern = PatternShapes.Rhombus(size);
 
@@ -40,7 +42,7 @@ public class Smoke : ICard
             affectedCells.Add(cell);
         }
 
-        var duration = config.Duration;
+        var duration = _config.Duration;
         var disposeAction = new SmokeDisposeAction(effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, duration);
 

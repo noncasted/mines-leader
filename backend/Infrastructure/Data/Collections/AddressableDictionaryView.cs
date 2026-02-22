@@ -8,28 +8,35 @@ public interface IAddressableDictionaryView<TKey, TValue> : IReadOnlyDictionary<
 {
 }
 
-public abstract class AddressableDictionaryView<TKey, TValue> :
+public abstract class AddressableDictionaryView<TKey, TValue, TGrain> :
     Dictionary<TKey, TValue>,
     ILocalSetupCompleted,
     IAddressableDictionaryView<TKey, TValue>
     where TKey : notnull
+    where TGrain : IAddressableDictionary<TKey, TValue>
 {
-    public AddressableDictionaryView(IMessaging messaging)
+    public AddressableDictionaryView(IOrleans orleans, IMessaging messaging)
     {
+        _orleans = orleans;
         _messaging = messaging;
+        _queueId = new AddressableDictionaryMessageQueueId($"{typeof(TKey)}-{typeof(TValue)}");
     }
 
+    private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
+    private readonly AddressableDictionaryMessageQueueId _queueId;
 
-    protected abstract string Name { get; }
-
-    public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
+    public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        var queueId = new AddressableDictionaryMessageQueueId(Name);
+        var grain = _orleans.GetGrain<TGrain>(Guid.Empty);
+        var entries = await grain.GetAll();
 
-        return _messaging.ListenQueue<AddressableDictionaryUpdateMessage<TKey, TValue>>(
+        foreach (var (key, value) in entries)
+            this[key] = value;
+        
+        await _messaging.ListenQueue<AddressableDictionaryUpdateMessage<TKey, TValue>>(
             lifetime,
-            queueId,
+            _queueId,
             OnUpdate
         );
     }

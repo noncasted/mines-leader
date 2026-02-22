@@ -19,9 +19,11 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Common\Common.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" IsAspireProjectResource="false"/>
-        <ProjectReference Include="..\Console\Console.csproj" />
+    </ItemGroup>
 
-        <ProjectReference Include="..\Extensions\Extensions.csproj" />
+    <ItemGroup>
+        <ProjectReference Include="..\Console\Console.csproj"/>
+        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Coordinator\Coordinator.csproj"/>
         <ProjectReference Include="..\GameGateway\GameGateway.csproj"/>
         <ProjectReference Include="..\MetaGateway\MetaGateway.csproj"/>
@@ -44,25 +46,25 @@
         <Content Update="Startup\PostgreSQL-Persistence.sql">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Startup\NamedGrainStorage.sql" />
+        <None Remove="Startup\NamedGrainStorage.sql"/>
         <Content Include="Startup\NamedGrainStorage.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Startup\PostgreSQL-Clustering.sql" />
+        <None Remove="Startup\PostgreSQL-Clustering.sql"/>
         <Content Include="Startup\PostgreSQL-Clustering.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Startup\PostgreSQL-Clustering-3.7.0.sql" />
+        <None Remove="Startup\PostgreSQL-Clustering-3.7.0.sql"/>
         <Content Include="Startup\PostgreSQL-Clustering-3.7.0.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Startup\PostgreSQL-Main.sql" />
+        <None Remove="Startup\PostgreSQL-Main.sql"/>
         <Content Include="Startup\PostgreSQL-Main.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Startup\PostgreSQL-Persistence.sql" />
+        <None Remove="Startup\PostgreSQL-Persistence.sql"/>
         <Content Include="Startup\PostgreSQL-Persistence.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 

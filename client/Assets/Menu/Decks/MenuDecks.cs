@@ -36,6 +36,7 @@ namespace Menu.Decks
         private IDeckService _deckService;
         private ICardsRegistry _cardsRegistry;
         private IViewInjector _viewInjector;
+        private ICardConfigs _configs;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -43,8 +44,10 @@ namespace Menu.Decks
         private void Construct(
             IDeckService deckService,
             ICardsRegistry cardsRegistry,
-            IViewInjector viewInjector)
+            IViewInjector viewInjector,
+            ICardConfigs configs)
         {
+            _configs = configs;
             _viewInjector = viewInjector;
             _cardsRegistry = cardsRegistry;
             _deckService = deckService;
@@ -97,9 +100,9 @@ namespace Menu.Decks
             foreach (var (type, definition) in _cardsRegistry.Cards)
             {
                 var view = Instantiate(_poolPrefab, _poolRoot);
+                _viewInjector.Inject(view.Card);
                 view.Setup(definition);
                 _typeToPoolSpot.Add(type, view);
-                _viewInjector.Inject(view.Card);
             }
 
             var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
@@ -160,7 +163,7 @@ namespace Menu.Decks
             var avgMana = 0f;
 
             foreach (var card in _deckCards)
-                avgMana += card.CurrentDefinition.Config.Size;
+                avgMana += card.CurrentCard.Config.ManaCost;
 
             avgMana /= _deckCards.Count;
             _avgManaText.text = avgMana.ToString("F1");

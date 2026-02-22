@@ -1,0 +1,121 @@
+@page "/configs"
+@using System.Text.Json
+@using Shared
+@using Cluster.Configs
+
+<PageTitle>Configs</PageTitle>
+<PageHeader Title="Card Configs"/>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="px-4 py-4">
+    <MudStack Spacing="3">
+        <MudStack Row="true" Spacing="2">
+            <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                OnClick="Reload">
+                Reload
+            </MudButton>
+            <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Success"
+                OnClick="Save">
+                Save
+            </MudButton>
+            <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Info"
+                OnClick="UpdateJson"
+                Disabled="_isUpdatingJson">
+                Update json
+            </MudButton>
+        </MudStack>
+
+        <MudGrid Spacing="3">
+            @foreach (var (cardType, config) in _value.All)
+            {
+                if (config is ICardSizeConfig sizeConfig)
+                {
+                    <MudItem xs="12" sm="6">
+                        <CardConfigEditor
+                            @key="cardType"
+                            Value="config"
+                            SizeConfig="sizeConfig"
+                            Type="cardType"/>
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" sm="6">
+                        <CardConfigEditor
+                            @key="cardType"
+                            Value="config"
+                            Type="cardType"/>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+    </MudStack>
+</MudContainer>
+
+@code {
+
+    [Inject]
+    public ICardConfigs CardConfigs { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private CardsConfigs _value = new();
+    private bool _isUpdatingJson;
+
+    protected override void OnInitialized()
+    {
+        Reload();
+    }
+
+    private void Reload()
+    {
+        var raw = JsonSerializer.Serialize(CardConfigs.Value);
+        _value = JsonSerializer.Deserialize<CardsConfigs>(raw)!;
+
+        foreach (var (type, value) in _value.All)
+            value.Type = type;
+    }
+
+    private void Save()
+    {
+        CardConfigs.SetValue(_value);
+    }
+
+    private async Task UpdateJson()
+    {
+        _isUpdatingJson = true;
+
+        try
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            var json = JsonSerializer.Serialize(_value, options);
+
+            var projectRoot = AppContext.BaseDirectory;
+            var coordinatorPath = Path.Combine(projectRoot, "..", "..", "..", "..", "Coordinator", "config.cards.json");
+            var coordinatorFullPath = Path.GetFullPath(coordinatorPath);
+
+            await File.WriteAllTextAsync(coordinatorFullPath, json);
+
+            Snackbar.Add($"Config saved to config.cards.json", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isUpdatingJson = false;
+        }
+    }
+
+}

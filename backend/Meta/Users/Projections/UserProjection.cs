@@ -41,7 +41,6 @@ public class UserProjectionPipeId : IMessagePipeId
     }
 }
 
-[Reentrant]
 public class UserProjection : Grain, IUserProjection
 {
     public UserProjection(

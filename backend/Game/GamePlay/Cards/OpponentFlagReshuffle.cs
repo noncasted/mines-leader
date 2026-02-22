@@ -6,19 +6,21 @@ public class OpponentFlagReshuffle : ICard
 {
     public OpponentFlagReshuffle(
         IBoard target,
+        CardsConfigs.OpponentFlagReshuffle config,
         CardUsePayload.OpponentFlagReshuffle payload)
     {
         _target = target;
+        _config = config;
         _payload = payload;
     }
 
     private readonly IBoard _target;
+    private readonly CardsConfigs.OpponentFlagReshuffle _config;
     private readonly CardUsePayload.OpponentFlagReshuffle _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig();
-        var size = config.Size;
+        var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectTaken(_target, _payload.Position);

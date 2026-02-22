@@ -6,19 +6,21 @@ public class OpponentFlagErase : ICard
 {
     public OpponentFlagErase(
         IBoard target,
+        CardsConfigs.OpponentFlagErase config,
         CardUsePayload.OpponentFlagErase payload)
     {
         _target = target;
+        _config = config;
         _payload = payload;
     }
 
     private readonly IBoard _target;
+    private readonly CardsConfigs.OpponentFlagErase _config;
     private readonly CardUsePayload.OpponentFlagErase _payload;
 
     public EmptyResponse Use()
     {
-        var config = _payload.Type.ToConfig();
-        var size = config.Size;
+        var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
 
         var selected = pattern.SelectTaken(_target, _payload.Position);
