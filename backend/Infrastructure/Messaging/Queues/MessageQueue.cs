@@ -36,6 +36,9 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
+        if (_observers.Count == 0)
+            return Task.CompletedTask;
+        
         var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
         var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
 

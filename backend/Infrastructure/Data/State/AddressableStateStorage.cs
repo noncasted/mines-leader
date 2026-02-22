@@ -17,17 +17,16 @@ public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T>
     private readonly IPersistentState<T> _state;
     private readonly IMessaging _messaging;
     
-    public virtual string Name => typeof(T).FullName!;
-
     public Task Set(T value)
     {
         _state.State = value;
+        var name = this.GetPrimaryKeyString();
 
         return Task.WhenAll(
             _state.WriteStateAsync(),
             _messaging.PushDirectQueue(new AddressableStateMessageQueueId<T>
             {
-                Name = Name
+                Name = name
             }, value!)
         );
     }

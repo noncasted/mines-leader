@@ -2,6 +2,9 @@
 @using System.Text.Json
 @using Shared
 @using Cluster.Configs
+@using global::Common.Extensions
+@using Newtonsoft.Json
+@using JsonSerializer = System.Text.Json.JsonSerializer
 
 <PageTitle>Configs</PageTitle>
 <PageHeader Title="Card Configs"/>
@@ -75,8 +78,8 @@
 
     private void Reload()
     {
-        var raw = JsonSerializer.Serialize(CardConfigs.Value);
-        _value = JsonSerializer.Deserialize<CardsConfigs>(raw)!;
+        var raw = JsonUtils.Serialize(CardConfigs.Value);
+        _value = JsonUtils.Deserialize<CardsConfigs>(raw);
 
         foreach (var (type, value) in _value.All)
             value.Type = type;
@@ -93,12 +96,7 @@
 
         try
         {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
-            var json = JsonSerializer.Serialize(_value, options);
+            var json = JsonUtils.Serialize(_value);
 
             var projectRoot = AppContext.BaseDirectory;
             var coordinatorPath = Path.Combine(projectRoot, "..", "..", "..", "..", "Coordinator", "config.cards.json");

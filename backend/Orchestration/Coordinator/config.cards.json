@@ -1,58 +1,69 @@
 {
+  "$type": "Shared.CardsConfigs, Shared",
   "BloodHound_Normal": {
+    "$type": "Shared.CardsConfigs+Bloodhound, Shared",
     "Type": 200,
-    "Size": 4,
-    "ManaCost": 2,
+    "Size": 2,
+    "ManaCost": 3,
     "Target": 0
   },
   "BloodHound_Max": {
+    "$type": "Shared.CardsConfigs+Bloodhound, Shared",
     "Type": 210,
     "Size": 4,
-    "ManaCost": 2,
+    "ManaCost": 4,
     "Target": 0
   },
   "Trebuchet_Normal": {
+    "$type": "Shared.CardsConfigs+Trebuchet, Shared",
     "Type": 100,
     "Size": 4,
     "ManaCost": 3,
     "Target": 1
   },
   "Trebuchet_Max": {
+    "$type": "Shared.CardsConfigs+Trebuchet, Shared",
     "Type": 110,
     "Size": 4,
     "ManaCost": 3,
     "Target": 1
   },
   "TrebuchetAimer_Normal": {
+    "$type": "Shared.CardsConfigs+TrebuchetAimer, Shared",
     "Type": 300,
     "Size": 1,
     "ManaCost": 2,
     "Target": 0
   },
   "TrebuchetAimer_Max": {
+    "$type": "Shared.CardsConfigs+TrebuchetAimer, Shared",
     "Type": 310,
     "Size": 1,
     "ManaCost": 2,
     "Target": 0
   },
   "ErosionDozer_Normal": {
+    "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
     "Type": 400,
     "Size": 5,
     "ManaCost": 4,
     "Target": 0
   },
   "ErosionDozer_Max": {
+    "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
     "Type": 410,
     "Size": 5,
     "ManaCost": 4,
     "Target": 0
   },
   "Gravedigger_Normal": {
+    "$type": "Shared.CardsConfigs+Gravedigger, Shared",
     "Type": 500,
     "ManaCost": 4,
     "Target": 2
   },
   "ZipZap_Normal": {
+    "$type": "Shared.CardsConfigs+ZipZap, Shared",
     "Type": 600,
     "Size": 3,
     "ManaCost": 3,
@@ -60,6 +71,7 @@
     "SearchRadius": 4
   },
   "ZipZap_Max": {
+    "$type": "Shared.CardsConfigs+ZipZap, Shared",
     "Type": 610,
     "Size": 3,
     "ManaCost": 3,
@@ -67,35 +79,41 @@
     "SearchRadius": 4
   },
   "OpponentFlagErase_Normal": {
+    "$type": "Shared.CardsConfigs+OpponentFlagErase, Shared",
     "Type": 810,
     "Size": 3,
     "ManaCost": 3,
     "Target": 1
   },
   "OpponentFlagErase_Max": {
+    "$type": "Shared.CardsConfigs+OpponentFlagErase, Shared",
     "Type": 0,
     "Size": 3,
     "ManaCost": 3,
     "Target": 1
   },
   "OpponentBomb_Normal": {
+    "$type": "Shared.CardsConfigs+OpponentBomb, Shared",
     "Type": 700,
     "ManaCost": 2,
     "Target": 1
   },
   "OpponentFlagReshuffle_Normal": {
+    "$type": "Shared.CardsConfigs+OpponentFlagReshuffle, Shared",
     "Type": 910,
     "Size": 3,
     "ManaCost": 2,
     "Target": 1
   },
   "OpponentFlagReshuffle_Max": {
+    "$type": "Shared.CardsConfigs+OpponentFlagReshuffle, Shared",
     "Type": 0,
     "Size": 3,
     "ManaCost": 2,
     "Target": 1
   },
   "Smoke_Normal": {
+    "$type": "Shared.CardsConfigs+Smoke, Shared",
     "Type": 1000,
     "Size": 3,
     "ManaCost": 3,
@@ -103,102 +121,11 @@
     "Duration": 3
   },
   "Smoke_Max": {
+    "$type": "Shared.CardsConfigs+Smoke, Shared",
     "Type": 1010,
     "Size": 3,
     "ManaCost": 3,
     "Target": 1,
     "Duration": 3
-  },
-  "All": {
-    "Bloodhound": {
-      "Type": 200,
-      "ManaCost": 2,
-      "Target": 0
-    },
-    "Bloodhound_Max": {
-      "Type": 210,
-      "ManaCost": 2,
-      "Target": 0
-    },
-    "Trebuchet": {
-      "Type": 100,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "Trebuchet_Max": {
-      "Type": 110,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "TrebuchetAimer": {
-      "Type": 300,
-      "ManaCost": 2,
-      "Target": 0
-    },
-    "TrebuchetAimer_Max": {
-      "Type": 310,
-      "ManaCost": 2,
-      "Target": 0
-    },
-    "ErosionDozer": {
-      "Type": 400,
-      "ManaCost": 4,
-      "Target": 0
-    },
-    "ErosionDozer_Max": {
-      "Type": 410,
-      "ManaCost": 4,
-      "Target": 0
-    },
-    "ZipZap": {
-      "Type": 600,
-      "ManaCost": 3,
-      "Target": 0
-    },
-    "ZipZap_Max": {
-      "Type": 610,
-      "ManaCost": 3,
-      "Target": 0
-    },
-    "OpponentFlagErase": {
-      "Type": 810,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "OpponentFlagErase_Max": {
-      "Type": 810,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "OpponentFlagReshuffle": {
-      "Type": 910,
-      "ManaCost": 2,
-      "Target": 1
-    },
-    "OpponentFlagReshuffle_Max": {
-      "Type": 910,
-      "ManaCost": 2,
-      "Target": 1
-    },
-    "Smoke": {
-      "Type": 1000,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "Smoke_Max": {
-      "Type": 1010,
-      "ManaCost": 3,
-      "Target": 1
-    },
-    "OpponentBomb": {
-      "Type": 700,
-      "ManaCost": 2,
-      "Target": 1
-    },
-    "Gravedigger": {
-      "Type": 500,
-      "ManaCost": 4,
-      "Target": 2
-    }
   }
 }
