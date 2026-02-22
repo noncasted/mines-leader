@@ -24,6 +24,7 @@
     <ItemGroup>
         <PackageReference Include="MemoryPack" Version="1.21.4"/>
         <PackageReference Include="MemoryPack.UnityShims" Version="1.21.4"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -34,9 +35,4 @@
         <EditorConfigFiles Remove="Session\.editorconfig"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="Newtonsoft.Json">
-        <HintPath>..\..\..\home\nndd\.nuget\packages\newtonsoft.json\13.0.4\lib\net6.0\Newtonsoft.Json.dll</HintPath>
-      </Reference>
-    </ItemGroup>
 </Project>
