@@ -5,65 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4315cbfa-733b-4482-bc8c-f9452daa3678" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/CardConfigsStorage.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/ClusterConfigsSetup.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/RawAddressableState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../backend/Orchestration/Coordinator/config.cards.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Meta/Cards/CardConfigs.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Meta/Cards/CardConfigs.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Meta/Cards/CardsCollection.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Meta/Cards/CardsCollection.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Cluster/Cluster.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Cluster/Cluster.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Directory.Packages.props" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Directory.Packages.props" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Bloodhound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Bloodhound.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ErosionDozer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ErosionDozer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/GraveDigger.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/GraveDigger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagErase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagErase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagReshuffle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagReshuffle.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Smoke.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Smoke.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Trebuchet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Trebuchet.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/TrebuchetAimer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/TrebuchetAimer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ZipZap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ZipZap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/Collections/AddressableDictionary.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/Collections/AddressableDictionary.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/Collections/AddressableDictionaryView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/Collections/AddressableDictionaryView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/ClusterStateStorage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Data/State/AddressableStateStorage.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Messaging/Pipes/NewFile1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Orleans/Utils/States.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Orleans/Utils/States.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Meta/Users/Entities/UsersCollection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Meta/Users/Entities/UsersCollection.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Meta/Users/Projections/UserProjection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Meta/Users/Projections/UserProjection.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Aspire/Aspire.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Aspire/Aspire.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Common/ConsoleConstants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Common/ConsoleConstants.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Console.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Console.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Console.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Console.csproj.DotSettings" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Home/Home.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Home/Home.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Extensions/ProjectsSetupExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Extensions/ProjectsSetupExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/MetaGateway/UserFlow/UserConnectionEntryPoint.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/MetaGateway/UserFlow/UserConnectionEntryPoint.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/backend.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/backend.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/backend.slnx" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/backend.slnx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardBloodhoundAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardBloodhoundAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardErosionDozerAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardErosionDozerAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardOpponentFlagEraseAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardOpponentFlagEraseAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardOpponentFlagReshuffleAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardOpponentFlagReshuffleAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardSmokeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardSmokeAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardTrebuchetAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/CardTrebuchetAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/CardStatesExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/CardStatesExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/View/CardDataView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/View/CardDataView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDeckCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDeckCard.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDeckPoolCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDeckPoolCard.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDecks.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Menu/Decks/MenuDecks.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Meta/Cards/CardDefinition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Meta/Cards/CardDefinition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Meta/MetaServicesExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Meta/MetaServicesExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../shared/Game/Cards/CardsConfigs.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Cards/CardsConfigs.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../shared/Game/SharedGameExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/SharedGameExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Serialization.dll.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Serialization.dll.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Utilities.dll.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Utilities.dll.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Serialization.dll.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Serialization.dll.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Utilities.dll.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Utilities.dll.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tools/Settings/UniversalRP.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tools/Settings/UniversalRP.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tools/Settings/UniversalRenderPipelineGlobalSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tools/Settings/UniversalRenderPipelineGlobalSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,28 +99,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/projects/post-radio&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "deploy/frontend",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "/projects/post-radio",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.fileTypes",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="/tools/unity/6000.3.8f1/Editor/Unity" />
