@@ -6,3 +6,16 @@ docker run -d \
      -p 9432:5432 \
      -v ml-pg-data:/var/lib/postgresql/data \
      postgres:17
+     
+TRUNCATE TABLE user_entity;
+TRUNCATE TABLE user_auth;
+TRUNCATE TABLE user_progression;
+TRUNCATE TABLE user_match_history;
+TRUNCATE TABLE user_projection;
+TRUNCATE TABLE user_deck;
+TRUNCATE TABLE user_collection;
+TRUNCATE TABLE match_entity;
+TRUNCATE TABLE config_card;
+TRUNCATE TABLE config;
+TRUNCATE TABLE messaging_queue;
+TRUNCATE TABLE clusterState;
