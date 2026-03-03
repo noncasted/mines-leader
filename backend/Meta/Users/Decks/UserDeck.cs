@@ -13,6 +13,9 @@ public interface IUserDeck : IUserGrain
     [Transaction(TransactionOption.Join)]
     Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex);
 
+    [Transaction(TransactionOption.Join)]
+    Task Update(int index, IReadOnlyList<CardType> cards);
+
     [Transaction(TransactionOption.CreateOrJoin)]
     Task<IReadOnlyList<CardType>> GetSelected();
 }
@@ -35,7 +38,8 @@ public class UserDeckState : IProjectionPayload
                 {
                     DeckIndex = entry.Value.Index,
                     Cards = entry.Value.Cards
-                })
+                }
+            )
         };
     }
 
@@ -61,20 +65,21 @@ public class UserDeck : UserGrain, IUserDeck
     public async Task Initialize()
     {
         var state = await _state.Update(state =>
-        {
-            for (var i = 0; i < DeckOptions.MaxDecks; i++)
             {
-                var cards = new List<CardType>(DeckOptions.BaseDeck);
-
-                state.Entries[i] = new UserDeckState.Entry
+                for (var i = 0; i < DeckOptions.MaxDecks; i++)
                 {
-                    Index = i,
-                    Cards = cards
-                };
-            }
+                    var cards = new List<CardType>(DeckOptions.BaseDeck);
 
-            state.SelectedIndex = 0;
-        });
+                    state.Entries[i] = new UserDeckState.Entry
+                    {
+                        Index = i,
+                        Cards = cards
+                    };
+                }
+
+                state.SelectedIndex = 0;
+            }
+        );
 
         await this.SendCachedProjection(state);
     }
@@ -82,8 +87,26 @@ public class UserDeck : UserGrain, IUserDeck
     public async Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex)
     {
         var state = await _state.Update(state =>
-        {
-            foreach (var (index, cards) in decks)
+            {
+                foreach (var (index, cards) in decks)
+                {
+                    state.Entries[index] = new UserDeckState.Entry
+                    {
+                        Index = index,
+                        Cards = cards
+                    };
+                }
+
+                state.SelectedIndex = selectedIndex;
+            }
+        );
+
+        await this.CacheProjection(state);
+    }
+
+    public async Task Update(int index, IReadOnlyList<CardType> cards)
+    {
+        var state = await _state.Update(state =>
             {
                 state.Entries[index] = new UserDeckState.Entry
                 {
@@ -91,10 +114,8 @@ public class UserDeck : UserGrain, IUserDeck
                     Cards = cards
                 };
             }
+        );
 
-            state.SelectedIndex = selectedIndex;
-        });
-        
         await this.CacheProjection(state);
     }
 

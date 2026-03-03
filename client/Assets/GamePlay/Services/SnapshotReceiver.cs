@@ -4,6 +4,7 @@ using Common.Network;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Services
 {
@@ -40,14 +41,21 @@ namespace GamePlay.Services
                 if (_queue.Count == 0)
                     await UniTask.Yield();
 
-                while (_queue.TryDequeue(out var record) == true)
+                try
                 {
-                    var type = record.GetType();
+                    while (_queue.TryDequeue(out var record) == true)
+                    {
+                        var type = record.GetType();
 
-                    if (_handlers.TryGetValue(type, out var handler) == false)
-                        throw new ArgumentException($"No handler found for record type {type.Name}.");
+                        if (_handlers.TryGetValue(type, out var handler) == false)
+                            throw new ArgumentException($"No handler found for record type {type.Name}.");
 
-                    await handler.Invoke(record);
+                        await handler.Invoke(record);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Exception occurred while processing move snapshot records: {e}");
                 }
             }
         }

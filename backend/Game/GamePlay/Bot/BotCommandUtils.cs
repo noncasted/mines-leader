@@ -12,7 +12,10 @@ public interface IBotCommandUtils
 
 public class BotCommandUtils : IBotCommandUtils
 {
-    public BotCommandUtils(ISnapshotSender snapshotSender, IGameContext gameContext, ICardFactory cardFactory)
+    public BotCommandUtils(
+        ISnapshotSender snapshotSender,
+        IGameContext gameContext,
+        ICardFactory cardFactory)
     {
         _snapshotSender = snapshotSender;
         _gameContext = gameContext;
@@ -52,12 +55,17 @@ public class BotCommandUtils : IBotCommandUtils
         var cardUsed = false;
 
         WithSnapshot(snapshot =>
-        {
-            var card = _cardFactory.Create(bot, snapshot, payload);
-            var result = card.Use();
-            cardUsed = result.HasError == false;
-        });
+            {
+                var card = _cardFactory.Create(bot, snapshot, payload);
+                var result = card.Use();
+                cardUsed = result.HasError == false;
+
+                foreach (var (_, board) in _gameContext.Boards)
+                    board.OnUpdated();
+            }
+        );
 
         return cardUsed;
+
     }
 }

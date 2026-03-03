@@ -18,6 +18,7 @@ namespace GamePlay
 
         public UniTask Handle(PlayerSnapshotRecord.CardRemove record)
         {
+            return UniTask.CompletedTask;
             var player = _gameContext.GetPlayer(record.PlayerId);
 
             var card = player.Hand.Entries.First(t => t.EntityId == record.EntityId)!;

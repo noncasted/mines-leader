@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Services
 {
@@ -44,6 +45,8 @@ namespace GamePlay.Services
                         nameof(moveRecord)
                     );
                 }
+                
+                Debug.Log($"[Snapshot] Handling record of type {typeof(T).Name}.");
 
                 return _handler.Handle(record);
             }

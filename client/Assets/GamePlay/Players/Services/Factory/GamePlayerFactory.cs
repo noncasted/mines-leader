@@ -41,7 +41,7 @@ namespace GamePlay.Players
 
         private async UniTask<INetworkEntity> OnReceived(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
-            var payload = data.ReadPayload<PlayerCreatePayload>();
+            var payload = (PlayerCreatePayload)data.Payload;
 
             var prefab = data.Owner.IsLocal == true ? _options.LocalPrefab : _options.RemotePrefab;
             var view = _objectFactory.Create(prefab);

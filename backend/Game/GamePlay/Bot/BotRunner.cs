@@ -1,6 +1,5 @@
-using Common.Reactive;
 using Cluster.Configs;
-using Common.Extensions;
+using Common.Reactive;
 using Game.Session;
 
 namespace Game.GamePlay;
@@ -72,8 +71,12 @@ public class BotRunner : IBotRunner
             await Task.Delay(delay, lifetime.Token);
 
             if (_botContext.Bot.Board.Cells.Count == 0)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2f), lifetime.Token);
                 _cellAction.TryExecute();
-
+                await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);
+            }
+            
             for (var i = 0; i < configValue.FlagsPerRound; i++)
             {
                 if (_flagAction.TryExecute() == false)
@@ -105,7 +108,7 @@ public class BotRunner : IBotRunner
                 var usedCard = _cardAction.TryExecute(lifetime);
 
                 if (usedCard == false)
-                    break;
+                    continue;
 
                 await Task.Delay(delay, lifetime.Token);
             }

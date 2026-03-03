@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Cards
 {
@@ -46,6 +47,7 @@ namespace GamePlay.Cards
 
         public UniTask Destroy()
         {
+            Debug.Log($"[Game] [Card] Destroying local card with Entity ID: {EntityId}");
             _containerLifetime.Terminate();
             _entity.Destroy();
             _view.Destroy();

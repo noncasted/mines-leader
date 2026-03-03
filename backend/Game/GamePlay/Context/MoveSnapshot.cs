@@ -42,25 +42,6 @@ public class MoveSnapshot
         );
     }
 
-    public void RecordCardDraw(Guid playerId, CardType type)
-    {
-        _records.Add(new PlayerSnapshotRecord.CardDraw()
-            {
-                PlayerId = playerId,
-                Type = type
-            }
-        );
-    }
-
-    public void RecordCardTakeoutFromStash(Guid playerId, CardType type)
-    {
-        _records.Add(new PlayerSnapshotRecord.CardTakeoutFromStash()
-            {
-                PlayerId = playerId,
-                Type = type
-            }
-        );
-    }
 
     public void HandleBoards(IReadOnlyLifetime lifetime, IGameContext gameContext)
     {

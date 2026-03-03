@@ -10,7 +10,7 @@ namespace Shared
         {
             public int Id { get; set; }
             public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
-            public byte[] Payload { get; set; }
+            public IEntityPayload Payload { get; set; }
         }
 
         [MemoryPackable]
@@ -25,7 +25,7 @@ namespace Shared
             public int OwnerId { get; set; }
             public int EntityId { get; set; }
             public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
-            public byte[] Payload { get; set; }
+            public IEntityPayload Payload { get; set; }
         }
 
         [MemoryPackable]

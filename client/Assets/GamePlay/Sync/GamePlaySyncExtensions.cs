@@ -10,10 +10,7 @@ namespace GamePlay
         {
             builder.AddSnapshotHandler<BoardSnapshotHandler, SharedBoardSnapshot>();
             builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.Card>();
-            builder.AddSnapshotHandler<CardDrawSnapshotHandler, PlayerSnapshotRecord.CardDraw>();
             builder.AddSnapshotHandler<CardRemoveSnapshotHandler, PlayerSnapshotRecord.CardRemove>();
-            builder
-                .AddSnapshotHandler<CardTakeoutFromStashSnapshotHandler, PlayerSnapshotRecord.CardTakeoutFromStash>();
 
             return builder;
         }

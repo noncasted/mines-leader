@@ -5,17 +5,11 @@ using GamePlay.Loop;
 using Internal;
 using Meta;
 using Shared;
-using UnityEngine;
 using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
-    public interface ICardFactory
-    {
-        UniTask Create(IReadOnlyLifetime lifetime, CardType type, Vector2 position);
-    }
-
-    public class CardFactory : ICardFactory, IScopeSetup
+    public class CardFactory : IScopeSetup
     {
         public CardFactory(
             IEntityScopeLoader entityScopeLoader,
@@ -48,94 +42,85 @@ namespace GamePlay.Cards
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _entityFactory.ListenRemote<CardCreatePayload>(lifetime, OnRemote);
+            _entityFactory.ListenRemote<CardCreatePayload>(lifetime, Create);
         }
 
-        public async UniTask Create(IReadOnlyLifetime lifetime, CardType type, Vector2 position)
+        private async UniTask<INetworkEntity> Create(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
-            var definition = _definitionsCollection[type];
-
-            var payload = new CardCreatePayload()
-            {
-                Type = definition.Type,
-                OwnerId = _gameContext.Self.Id,
-                SpawnPoint = position
-            };
-
-            var view = _objectFactory.Create(_options.LocalPrefab, position);
-
-            var parentScope = _gameContext.Self.Scope;
-            var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
-            var entity = loadResult.Get<INetworkEntity>();
-            await _entityFactory.Send(lifetime, entity, payload);
-
-            var spawn = loadResult.Get<ICardLocalSpawn>();
-            await spawn.Execute();
-
-            return;
-
-            void Build(IEntityBuilder builder)
-            {
-                builder.AddLocalEntity(_entityFactory);
-
-                builder
-                    .AddCardLocalComponents()
-                    .AddCardLocalRoot()
-                    .AddCardLocalStates();
-
-                builder.RegisterInstance(_configs.Value.All[definition.Type]);
-
-                builder.RegisterInstance(definition.Type);
-
-                builder.RegisterInstance(_gameContext.Self);
-                builder.RegisterInstance(_gameContext.Self.Hand);
-
-                builder.Register<HandEntryHandle>()
-                    .As<IHandEntryHandle>();
-
-                builder.AddCardActionSync(definition);
-                builder.AddCardAction(_configs.Value, definition);
-
-                builder.RegisterInstance(definition);
-            }
-        }
-
-        private async UniTask<INetworkEntity> OnRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
-        {
-            var payload = data.ReadPayload<CardCreatePayload>();
+            var payload = (CardCreatePayload)data.Payload;
             var gamePlayer = _gameContext.GetPlayer(payload.OwnerId);
             var definition = _definitionsCollection[payload.Type];
 
-            var view = _objectFactory.Create(_options.RemotePrefab, payload.SpawnPoint);
-            var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            var isLocal = data.Owner.IsLocal;
+            var prefab = isLocal ? _options.LocalPrefab : _options.RemotePrefab;
+            var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
+            var spawnPoint = isLocal ? _gameContext.Self.Deck.View.PickPoint : _gameContext.Other.Deck.View.PickPoint;
+
+            var view = _objectFactory.Create(prefab, spawnPoint);
+            var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
 
             loadResult.FillProperties(data);
 
-            var spawn = loadResult.Get<ICardRemoteSpawn>();
-            await spawn.Execute();
-
+            if (isLocal == true)
+            {
+                var spawn = loadResult.Get<ICardLocalSpawn>();
+                await spawn.Execute();
+            }
+            else
+            {
+                var spawn = loadResult.Get<ICardRemoteSpawn>();
+                await spawn.Execute();
+            }
+            
             return loadResult.Get<INetworkEntity>();
 
             void Build(IEntityBuilder builder)
             {
-                builder.AddRemoteEntity(data);
+                if (isLocal == true)
+                {
+                    builder.AddLocalEntity(_entityFactory);
 
-                builder
-                    .AddCardRemoteComponents()
-                    .AddCardRemoteRoot()
-                    .AddCardRemoteStates();
+                    builder
+                        .AddCardLocalComponents()
+                        .AddCardLocalRoot()
+                        .AddCardLocalStates();
 
-                builder.AddCardActionSync(definition);
+                    builder.RegisterInstance(_configs.Value.All[definition.Type]);
 
-                builder.RegisterInstance(definition.Type);
-                builder.RegisterInstance(gamePlayer);
-                builder.RegisterInstance(gamePlayer.Hand);
+                    builder.RegisterInstance(definition.Type);
 
-                builder.Register<HandEntryHandle>()
-                    .WithParameter(gamePlayer.Hand)
-                    .As<IHandEntryHandle>();
+                    builder.RegisterInstance(_gameContext.Self);
+                    builder.RegisterInstance(_gameContext.Self.Hand);
 
-                builder.RegisterInstance(definition);
+                    builder.Register<HandEntryHandle>()
+                        .As<IHandEntryHandle>();
+
+                    builder.AddCardActionSync(definition);
+                    builder.AddCardAction(_configs.Value, definition);
+
+                    builder.RegisterInstance(definition);
+                }
+                else
+                {
+                    builder.AddRemoteEntity(data);
+
+                    builder
+                        .AddCardRemoteComponents()
+                        .AddCardRemoteRoot()
+                        .AddCardRemoteStates();
+
+                    builder.AddCardActionSync(definition);
+
+                    builder.RegisterInstance(definition.Type);
+                    builder.RegisterInstance(gamePlayer);
+                    builder.RegisterInstance(gamePlayer.Hand);
+
+                    builder.Register<HandEntryHandle>()
+                        .WithParameter(gamePlayer.Hand)
+                        .As<IHandEntryHandle>();
+
+                    builder.RegisterInstance(definition);
+                }
             }
         }
     }
