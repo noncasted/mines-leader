@@ -13,6 +13,13 @@ public class MatchPayloads
         }
 
         [GenerateSerializer]
+        public class RequestWithBot
+        {
+            [Id(0)] public required GameMatchType Type { get; init; }
+            [Id(1)] public required Guid BotId { get; init; }
+        }
+        
+        [GenerateSerializer]
         public class Response
         {
             [Id(0)] public required Guid SessionId { get; init; }

@@ -46,6 +46,15 @@ namespace Meta
             return backend.ExecuteCommand(new SharedMatchmaking.Create());
         }
 
+        public static UniTask CreateGameWithBot(this IMetaBackend backend, GameMatchType type)
+        {
+            return backend.ExecuteCommand(new SharedMatchmaking.CreateWithBot()
+                {
+                    Type = type
+                }
+            );
+        }
+
         public static UniTask SearchLobby(this IMetaBackend backend)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.SearchLobby());

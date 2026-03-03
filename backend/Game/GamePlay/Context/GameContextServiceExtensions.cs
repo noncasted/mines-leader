@@ -23,9 +23,6 @@ public static class GameContextServiceExtensions
         services.Add<SnapshotSender>()
             .As<ISnapshotSender>();
 
-        services.Add<GameReadyAwaiter>()
-            .As<IGameReadyAwaiter>();
-
         return services;
     }
 }

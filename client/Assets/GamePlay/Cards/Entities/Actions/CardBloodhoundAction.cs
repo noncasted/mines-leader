@@ -14,7 +14,7 @@ namespace GamePlay.Cards
             ICardContext context,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardsConfigs.Bloodhound config)
+            CardConfigOptions.Bloodhound config)
         {
             _context = context;
             _dropArea = dropArea;
@@ -25,7 +25,7 @@ namespace GamePlay.Cards
         private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardsConfigs.Bloodhound _config;
+        private readonly CardConfigOptions.Bloodhound _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {

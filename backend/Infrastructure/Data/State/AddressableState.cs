@@ -30,6 +30,7 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
 
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
+    
     public virtual string Name => typeof(T).FullName!;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)

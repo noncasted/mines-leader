@@ -1,34 +1,51 @@
-using System.Text.Json;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
-using Newtonsoft.Json;
 using Shared;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Cluster.Configs;
 
 public class ClusterConfigsSetup : ICoordinatorSetupCompleted
 {
-    public ClusterConfigsSetup(ICardConfigs cardConfigs)
+    public ClusterConfigsSetup(ICardConfigs cardConfig, IBotConfig botConfig)
     {
-        _cardConfigs = cardConfigs;
+        _cardConfig = cardConfig;
+        _botConfig = botConfig;
     }
 
-    private readonly ICardConfigs _cardConfigs;
+    private readonly ICardConfigs _cardConfig;
+    private readonly IBotConfig _botConfig;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        if (_cardConfigs.Value.BloodHound_Max != null)
-            return;
+        if (_cardConfig.IsInitialized == false)
+        {
+            try
+            {
+                var configPath = Path.Combine(AppContext.BaseDirectory, "config.cards.json");
+                var json = await File.ReadAllTextAsync(configPath);
+                var value = JsonUtils.Deserialize<CardConfigOptions>(json)!;
+                await _cardConfig.SetValue(value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load card config: {ex.Message}");
+            }
+        }
 
-        var configPath = Path.Combine(AppContext.BaseDirectory, "config.cards.json");
-
-        if (!File.Exists(configPath))
-            return;
-        
-        var json = await File.ReadAllTextAsync(configPath);
-        var value = JsonUtils.Deserialize<CardsConfigs>(json)!;
-        await _cardConfigs.SetValue(value);
+        if (_botConfig.IsInitialized == false)
+        {
+            try
+            {
+                var configPath = Path.Combine(AppContext.BaseDirectory, "config.bot.json");
+                var json = await File.ReadAllTextAsync(configPath);
+                var value = JsonUtils.Deserialize<BotConfigOptions>(json)!;
+                await _botConfig.SetValue(value);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to load bot config: {e.Message}");
+            }
+        }
     }
 }

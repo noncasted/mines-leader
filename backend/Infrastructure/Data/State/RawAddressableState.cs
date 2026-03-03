@@ -3,16 +3,24 @@ using Common.Reactive;
 
 namespace Infrastructure;
 
+public interface IRawAddressableState<T> : IAddressableState<T> where T : class, new()
+{
+    bool IsInitialized { get; }
+}
+
 [GenerateSerializer]
 public class RawAddressableState
 {
     [Id(0)]
     public string Raw { get; set; }
+
+    [Id(1)]
+    public bool IsInitialized { get; set; }
 }
 
 public abstract class RawAddressableStateView<T> :
     AddressableState<RawAddressableState>,
-    IAddressableState<T> where T : class, new()
+    IRawAddressableState<T> where T : class, new()
 {
     public RawAddressableStateView(IOrleans orleans, IMessaging messaging) : base(orleans, messaging)
     {
@@ -20,15 +28,17 @@ public abstract class RawAddressableStateView<T> :
     }
 
     public new T Value { get; private set; }
+    public bool IsInitialized { get; private set; }
 
     protected override void OnSetup(IReadOnlyLifetime lifetime)
     {
-        this!.ViewNotNull<RawAddressableState>(lifetime, raw =>
+        this!.ViewNotNull<RawAddressableState>(lifetime, state =>
             {
                 try
                 {
-                    var newValue = JsonUtils.Deserialize<T>(raw.Raw)!;
+                    var newValue = JsonUtils.Deserialize<T>(state.Raw)!;
                     Value = newValue;
+                    IsInitialized = state.IsInitialized;
                 }
                 catch (Exception e)
                 {
@@ -53,6 +63,7 @@ public abstract class RawAddressableStateView<T> :
         return SetValue(new RawAddressableState()
             {
                 Raw = JsonUtils.Serialize(value),
+                IsInitialized = true
             }
         );
     }

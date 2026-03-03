@@ -8,7 +8,7 @@ public class ZipZap : ICard
         IPlayer owner,
         IBoard target,
         MoveSnapshot snapshot,
-        CardsConfigs.ZipZap config,
+        CardConfigOptions.ZipZap config,
         CardUsePayload.ZipZap payload)
     {
         _owner = owner;
@@ -21,7 +21,7 @@ public class ZipZap : ICard
     private readonly IPlayer _owner;
     private readonly IBoard _target;
     private readonly MoveSnapshot _snapshot;
-    private readonly CardsConfigs.ZipZap _config;
+    private readonly CardConfigOptions.ZipZap _config;
     private readonly CardUsePayload.ZipZap _payload;
 
     public EmptyResponse Use()

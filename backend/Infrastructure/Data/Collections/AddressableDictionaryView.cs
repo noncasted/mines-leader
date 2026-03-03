@@ -6,6 +6,7 @@ namespace Infrastructure;
 
 public interface IAddressableDictionaryView<TKey, TValue> : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
 {
+    IViewableDelegate Updated { get; }
 }
 
 public abstract class AddressableDictionaryView<TKey, TValue, TGrain> :
@@ -25,6 +26,9 @@ public abstract class AddressableDictionaryView<TKey, TValue, TGrain> :
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly AddressableDictionaryMessageQueueId _queueId;
+    private readonly ViewableDelegate _updated = new();
+
+    public IViewableDelegate Updated => _updated;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
@@ -34,6 +38,8 @@ public abstract class AddressableDictionaryView<TKey, TValue, TGrain> :
         foreach (var (key, value) in entries)
             this[key] = value;
         
+        _updated.Invoke();
+
         await _messaging.ListenQueue<AddressableDictionaryUpdateMessage<TKey, TValue>>(
             lifetime,
             _queueId,
@@ -48,6 +54,8 @@ public abstract class AddressableDictionaryView<TKey, TValue, TGrain> :
 
         foreach (var removal in message.Removals)
             Remove(removal);
+        
+        _updated.Invoke();
     }
 }
 

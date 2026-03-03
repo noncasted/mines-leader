@@ -25,6 +25,12 @@ namespace Shared
         }
 
         [MemoryPackable]
+        public partial class CreateWithBot : INetworkContext
+        {
+            public GameMatchType Type { get; set; }
+        }
+
+        [MemoryPackable]
         public partial class CancelSearch : INetworkContext
         {
         }
@@ -50,6 +56,7 @@ namespace Shared
                 .Add<SearchLobby>()
                 .Add<SearchMatch>()
                 .Add<Create>()
+                .Add<CreateWithBot>()
                 .Add<CancelSearch>()
                 .Add<MatchResult>()
                 .Add<LobbyResult>();

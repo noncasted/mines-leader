@@ -14,6 +14,8 @@ public static class States
     public const string User_Deck = "user_deck";
     public const string User_Collection = "user_collection";
 
+    public const string Bot_Collection = "bot_collection";
+
     public const string Match_Entity = "match_entity";
 
     public const string Config_Card = "config_card";
@@ -30,6 +32,7 @@ public static class States
         User_Projection,
         User_Deck,
         User_Collection,
+        Bot_Collection,
         Match_Entity,
         Config,
         Config_Card,
@@ -50,6 +53,8 @@ public static class States
     public class UserDeckAttribute() : TransactionalStateAttribute(User_Deck, User_Deck);
 
     public class UserCollectionAttribute() : PersistentStateAttribute(User_Collection, User_Collection);
+
+    public class BotCollectionAttribute() : PersistentStateAttribute(Bot_Collection, Bot_Collection);
 
     public class MatchAttribute() : TransactionalStateAttribute(Match_Entity, Match_Entity);
 
@@ -78,6 +83,7 @@ public static class StateAttributesExtensions
         AddPersistentAttribute<States.ConfigStorageAttribute>();
         AddPersistentAttribute<States.ClusterStateAttribute>();
         AddPersistentAttribute<States.UserCollectionAttribute>();
+        AddPersistentAttribute<States.BotCollectionAttribute>();
         AddPersistentAttribute<States.CardConfigAttribute>();
 
         return builder;

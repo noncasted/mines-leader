@@ -6,7 +6,7 @@ public class Bloodhound : ICard
 {
     public Bloodhound(
         IBoard target,
-        CardsConfigs.Bloodhound config,
+        CardConfigOptions.Bloodhound config,
         CardUsePayload.Bloodhound payload)
     {
         _target = target;
@@ -15,7 +15,7 @@ public class Bloodhound : ICard
     }
 
     private readonly IBoard _target;
-    private readonly CardsConfigs.Bloodhound _config;
+    private readonly CardConfigOptions.Bloodhound _config;
     private readonly CardUsePayload.Bloodhound _payload;
 
     public EmptyResponse Use()

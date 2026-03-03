@@ -42,7 +42,7 @@ namespace GamePlay.Cards
             return builder;
         }
 
-        public static void AddCardAction(this IEntityBuilder builder, CardsConfigs configs, ICardDefinition definition)
+        public static void AddCardAction(this IEntityBuilder builder, CardConfigOptions configs, ICardDefinition definition)
         {
             var type = definition.Type;
 

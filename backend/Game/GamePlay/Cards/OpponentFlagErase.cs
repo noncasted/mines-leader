@@ -6,7 +6,7 @@ public class OpponentFlagErase : ICard
 {
     public OpponentFlagErase(
         IBoard target,
-        CardsConfigs.OpponentFlagErase config,
+        CardConfigOptions.OpponentFlagErase config,
         CardUsePayload.OpponentFlagErase payload)
     {
         _target = target;
@@ -15,7 +15,7 @@ public class OpponentFlagErase : ICard
     }
 
     private readonly IBoard _target;
-    private readonly CardsConfigs.OpponentFlagErase _config;
+    private readonly CardConfigOptions.OpponentFlagErase _config;
     private readonly CardUsePayload.OpponentFlagErase _payload;
 
     public EmptyResponse Use()

@@ -1,5 +1,4 @@
 ﻿using Common.Network;
-using Global.Backend;
 using Internal;
 using Shared;
 
@@ -48,7 +47,7 @@ namespace Meta
                 .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
 
             builder.Register<CardConfigs>()
-                .As<IBackendProjection<CardsConfigs>>()
+                .As<IBackendProjection<CardConfigOptions>>()
                 .As<IBackendProjection>()
                 .As<ICardConfigs>();
             

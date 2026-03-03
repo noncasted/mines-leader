@@ -64,7 +64,6 @@ public class UserDeck : UserGrain, IUserDeck
         {
             for (var i = 0; i < DeckOptions.MaxDecks; i++)
             {
-                var deckIndex = i;
                 var cards = new List<CardType>(DeckOptions.BaseDeck);
 
                 state.Entries[i] = new UserDeckState.Entry

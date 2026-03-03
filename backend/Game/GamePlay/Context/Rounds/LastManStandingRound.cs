@@ -5,7 +5,8 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class LastManStandingRound : Service, IGameRound {
+public class LastManStandingRound : Service, IGameRound
+{
     public LastManStandingRound(
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
@@ -13,7 +14,8 @@ public class LastManStandingRound : Service, IGameRound {
         IRoundActionService roundActionService,
         RoundPlayers players,
         IOptions<GameOptions> gameOptions,
-        IOptions<RoundsOptions> roundOptions) : base("game-round") {
+        IOptions<RoundsOptions> roundOptions) : base("game-round")
+    {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
         _snapshotSender = snapshotSender;
@@ -34,20 +36,22 @@ public class LastManStandingRound : Service, IGameRound {
     private readonly IOptions<GameOptions> _gameOptions;
     private readonly IOptions<RoundsOptions> _roundOptions;
 
-    private IPlayer? _currentPlayer;
+    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
+
     private ILifetime? _roundForcedLifetime;
 
-    public IPlayer CurrentPlayer => _currentPlayer!;
+    public IViewableProperty<IPlayer> CurrentPlayer => _currentPlayer!;
 
-    public async Task<Guid> Process(IReadOnlyLifetime lifetime) {
+    public async Task<Guid> Process(IReadOnlyLifetime lifetime)
+    {
         _players.Setup();
         ListenPlayersEvents(lifetime);
 
         await _readyAwaiter.Await(lifetime);
 
         var players = _gameContext.Players;
-        var snapshot = new MoveSnapshot(_gameContext, lifetime);
-        snapshot.Start();
+        var snapshot = new MoveSnapshot();
+        snapshot.HandleBoards(lifetime, _gameContext);
 
         foreach (var player in players)
             player.Deck.Init();
@@ -59,11 +63,12 @@ public class LastManStandingRound : Service, IGameRound {
             player.Board.MinesScanner.Start(lifetime);
 
         _snapshotSender.Send(snapshot);
-        _currentPlayer = players.First();
+        _currentPlayer.Set(players.First());
 
-        while (IsGameOver() == false) {
-            await ProcessRound(lifetime, _currentPlayer);
-            _currentPlayer = players.First(t => t != _currentPlayer);
+        while (IsGameOver() == false)
+        {
+            await ProcessRound(lifetime, _currentPlayer.Value);
+            _currentPlayer.Set(players.First(t => t != _currentPlayer.Value));
 
             _state.Update(state => state.CurrentRound++);
         }
@@ -72,7 +77,8 @@ public class LastManStandingRound : Service, IGameRound {
 
         return winner;
 
-        bool IsGameOver() {
+        bool IsGameOver()
+        {
             if (lifetime.IsTerminated == true)
                 return true;
 
@@ -92,8 +98,10 @@ public class LastManStandingRound : Service, IGameRound {
             return false;
         }
 
-        Guid GetWinner() {
-            foreach (var player in players) {
+        Guid GetWinner()
+        {
+            foreach (var player in players)
+            {
                 if (player.Health.Current.Value <= 0)
                     continue;
 
@@ -102,7 +110,8 @@ public class LastManStandingRound : Service, IGameRound {
                     return player.User.Id;
             }
 
-            foreach (var (user, player) in _gameContext.UserToPlayer) {
+            foreach (var (user, player) in _gameContext.UserToPlayer)
+            {
                 if (user.Lifetime.IsTerminated == true)
                     return _gameContext.GetOpponent(player).User.Id;
             }
@@ -116,11 +125,13 @@ public class LastManStandingRound : Service, IGameRound {
         }
     }
 
-    public void SkipTurn() {
+    public void SkipTurn()
+    {
         _roundForcedLifetime!.Terminate();
     }
 
-    private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player) {
+    private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player)
+    {
         _roundForcedLifetime = lifetime.Child();
         var roundLifetime = lifetime.Child();
 
@@ -128,12 +139,15 @@ public class LastManStandingRound : Service, IGameRound {
 
         player.Moves.Restore();
 
-        var snapshot = new MoveSnapshot(_gameContext, roundLifetime);
-        snapshot.Start();
+        var snapshot = new MoveSnapshot();
+        snapshot.HandleBoards(roundLifetime, _gameContext);
 
-        try {
+        try
+        {
             await Task.WhenAny(TimerCountdown(), TurnsCountdown());
-        } catch (TaskCanceledException) {
+        }
+        catch (TaskCanceledException)
+        {
             // Ignore
         }
 
@@ -151,7 +165,8 @@ public class LastManStandingRound : Service, IGameRound {
 
         return;
 
-        async Task TimerCountdown() {
+        async Task TimerCountdown()
+        {
             var timer = _roundOptions.Value.LastManStandingRoundSeconds;
             var timeSpan = TimeSpan.FromSeconds(1);
 
@@ -166,7 +181,8 @@ public class LastManStandingRound : Service, IGameRound {
             }
         }
 
-        async Task TurnsCountdown() {
+        async Task TurnsCountdown()
+        {
             var timeSpan = TimeSpan.FromSeconds(0.2);
 
             while (player.Moves.Left > 0 && _roundForcedLifetime.IsTerminated == false)
@@ -174,23 +190,29 @@ public class LastManStandingRound : Service, IGameRound {
         }
     }
 
-    private void ListenPlayersEvents(IReadOnlyLifetime lifetime) {
-        foreach (var player in _gameContext.Players) {
-            player.Health.Current.Advise(lifetime, health => {
-                if (health > 0)
-                    return;
+    private void ListenPlayersEvents(IReadOnlyLifetime lifetime)
+    {
+        foreach (var player in _gameContext.Players)
+        {
+            player.Health.Current.Advise(lifetime, health =>
+                {
+                    if (health > 0)
+                        return;
 
-                _roundForcedLifetime?.Terminate();
-            });
+                    _roundForcedLifetime?.Terminate();
+                }
+            );
 
-            player.User.Lifetime.Listen(() => {
-                SkipTurn();
+            player.User.Lifetime.Listen(() =>
+                {
+                    SkipTurn();
 
-                if (lifetime.IsTerminated == true || _roundForcedLifetime == null)
-                    return;
+                    if (lifetime.IsTerminated == true || _roundForcedLifetime == null)
+                        return;
 
-                _roundForcedLifetime.Terminate();
-            });
+                    _roundForcedLifetime.Terminate();
+                }
+            );
         }
     }
 }

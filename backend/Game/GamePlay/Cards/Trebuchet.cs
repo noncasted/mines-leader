@@ -7,7 +7,7 @@ public class Trebuchet : ICard
     public Trebuchet(
         IPlayer owner,
         IBoard target,
-        CardsConfigs.Trebuchet config,
+        CardConfigOptions.Trebuchet config,
         CardUsePayload.Trebuchet payload)
     {
         _owner = owner;
@@ -18,7 +18,7 @@ public class Trebuchet : ICard
 
     private readonly IPlayer _owner;
     private readonly IBoard _target;
-    private readonly CardsConfigs.Trebuchet _config;
+    private readonly CardConfigOptions.Trebuchet _config;
     private readonly CardUsePayload.Trebuchet _payload;
 
     public EmptyResponse Use()

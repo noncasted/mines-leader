@@ -16,7 +16,7 @@ namespace GamePlay.Cards {
             ICardContext context,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardsConfigs.Smoke config) {
+            CardConfigOptions.Smoke config) {
             _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
@@ -26,7 +26,7 @@ namespace GamePlay.Cards {
         private readonly ICardContext _context;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardsConfigs.Smoke _config;
+        private readonly CardConfigOptions.Smoke _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime) {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);

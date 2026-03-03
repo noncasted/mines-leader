@@ -8,6 +8,7 @@ namespace Game.Session;
 public interface IUserFactory
 {
     IUser Create(IReadOnlyLifetime lifetime, Guid userId, WebSocket webSocket);
+    IUser CreateBot(IReadOnlyLifetime lifetime, Guid userId);
 }
 
 public class UserFactory : IUserFactory
@@ -53,5 +54,35 @@ public class UserFactory : IUserFactory
         _logger.LogInformation("[Session] User created: {Index} {UserId}", user.Index, user.Id);
 
         return user;
+    }
+
+    public IUser CreateBot(IReadOnlyLifetime parentLifetime, Guid userId)
+    {
+        var index = _users.GetNextIndex();
+        var connectionLifetime = parentLifetime.Child();
+        var userLifetime = new Lifetime();
+        connectionLifetime.Listen(() => _executionQueue.Enqueue(userLifetime.Terminate));
+
+        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
+        var connection = new BotConnection
+        {
+            Lifetime = parentLifetime
+        };
+
+        var user = new User
+        {
+            Id = userId,
+            Index = index,
+            Lifetime = userLifetime,
+            Dispatcher = dispatcher,
+            Connection = connection
+        };
+
+        _users.AddUser(user);
+
+        _logger.LogInformation("[Session] Bot created: {Index} {UserId}", user.Index, user.Id);
+
+        return user;
+
     }
 }

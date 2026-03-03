@@ -7,7 +7,7 @@ public class Smoke : ICard
     public Smoke(
         IBoard target,
         CardUsePayload.Smoke payload,
-        CardsConfigs.Smoke config,
+        CardConfigOptions.Smoke config,
         IRoundActionService roundActionService)
     {
         _target = target;
@@ -18,7 +18,7 @@ public class Smoke : ICard
 
     private readonly IBoard _target;
     private readonly CardUsePayload.Smoke _payload;
-    private readonly CardsConfigs.Smoke _config;
+    private readonly CardConfigOptions.Smoke _config;
     private readonly IRoundActionService _roundActionService;
 
     public EmptyResponse Use()

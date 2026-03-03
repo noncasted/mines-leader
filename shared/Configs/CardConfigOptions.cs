@@ -5,16 +5,16 @@ using Newtonsoft.Json;
 namespace Shared
 {
     [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardsConfigs.Bloodhound))]
-    [MemoryPackUnion(1, typeof(CardsConfigs.Trebuchet))]
-    [MemoryPackUnion(2, typeof(CardsConfigs.TrebuchetAimer))]
-    [MemoryPackUnion(3, typeof(CardsConfigs.ErosionDozer))]
-    [MemoryPackUnion(4, typeof(CardsConfigs.Gravedigger))]
-    [MemoryPackUnion(5, typeof(CardsConfigs.ZipZap))]
-    [MemoryPackUnion(6, typeof(CardsConfigs.OpponentFlagErase))]
-    [MemoryPackUnion(7, typeof(CardsConfigs.OpponentFlagReshuffle))]
-    [MemoryPackUnion(8, typeof(CardsConfigs.OpponentBomb))]
-    [MemoryPackUnion(9, typeof(CardsConfigs.Smoke))]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.Bloodhound))]
+    [MemoryPackUnion(1, typeof(CardConfigOptions.Trebuchet))]
+    [MemoryPackUnion(2, typeof(CardConfigOptions.TrebuchetAimer))]
+    [MemoryPackUnion(3, typeof(CardConfigOptions.ErosionDozer))]
+    [MemoryPackUnion(4, typeof(CardConfigOptions.Gravedigger))]
+    [MemoryPackUnion(5, typeof(CardConfigOptions.ZipZap))]
+    [MemoryPackUnion(6, typeof(CardConfigOptions.OpponentFlagErase))]
+    [MemoryPackUnion(7, typeof(CardConfigOptions.OpponentFlagReshuffle))]
+    [MemoryPackUnion(8, typeof(CardConfigOptions.OpponentBomb))]
+    [MemoryPackUnion(9, typeof(CardConfigOptions.Smoke))]
     public partial interface ICardConfig
     {
         CardType Type { get; set; }
@@ -23,49 +23,49 @@ namespace Shared
     }
 
     [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardsConfigs.Bloodhound))]
-    [MemoryPackUnion(1, typeof(CardsConfigs.Trebuchet))]
-    [MemoryPackUnion(2, typeof(CardsConfigs.TrebuchetAimer))]
-    [MemoryPackUnion(3, typeof(CardsConfigs.ErosionDozer))]
-    [MemoryPackUnion(4, typeof(CardsConfigs.ZipZap))]
-    [MemoryPackUnion(5, typeof(CardsConfigs.OpponentFlagErase))]
-    [MemoryPackUnion(6, typeof(CardsConfigs.OpponentFlagReshuffle))]
-    [MemoryPackUnion(7, typeof(CardsConfigs.Smoke))]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.Bloodhound))]
+    [MemoryPackUnion(1, typeof(CardConfigOptions.Trebuchet))]
+    [MemoryPackUnion(2, typeof(CardConfigOptions.TrebuchetAimer))]
+    [MemoryPackUnion(3, typeof(CardConfigOptions.ErosionDozer))]
+    [MemoryPackUnion(4, typeof(CardConfigOptions.ZipZap))]
+    [MemoryPackUnion(5, typeof(CardConfigOptions.OpponentFlagErase))]
+    [MemoryPackUnion(6, typeof(CardConfigOptions.OpponentFlagReshuffle))]
+    [MemoryPackUnion(7, typeof(CardConfigOptions.Smoke))]
     public partial interface ICardSizeConfig
     {
         int Size { get; set; }
     }
 
     [MemoryPackable]
-    public partial class CardsConfigs : INetworkContext
+    public partial class CardConfigOptions : INetworkContext
     {
-        public Bloodhound BloodHound_Normal { get; set; }
-        public Bloodhound BloodHound_Max { get; set; }
+        public Bloodhound BloodHound_Normal { get; set; } = new();
+        public Bloodhound BloodHound_Max { get; set; } = new();
 
-        public Trebuchet Trebuchet_Normal { get; set; }
-        public Trebuchet Trebuchet_Max { get; set; }
+        public Trebuchet Trebuchet_Normal { get; set; } = new();
+        public Trebuchet Trebuchet_Max { get; set; } = new();
 
-        public TrebuchetAimer TrebuchetAimer_Normal { get; set; }
-        public TrebuchetAimer TrebuchetAimer_Max { get; set; }
+        public TrebuchetAimer TrebuchetAimer_Normal { get; set; } = new();
+        public TrebuchetAimer TrebuchetAimer_Max { get; set; } = new();
 
-        public ErosionDozer ErosionDozer_Normal { get; set; }
-        public ErosionDozer ErosionDozer_Max { get; set; }
+        public ErosionDozer ErosionDozer_Normal { get; set; } = new();
+        public ErosionDozer ErosionDozer_Max { get; set; } = new();
 
-        public Gravedigger Gravedigger_Normal { get; set; }
+        public Gravedigger Gravedigger_Normal { get; set; } = new();
 
-        public ZipZap ZipZap_Normal { get; set; }
-        public ZipZap ZipZap_Max { get; set; }
+        public ZipZap ZipZap_Normal { get; set; } = new();
+        public ZipZap ZipZap_Max { get; set; } = new();
 
-        public OpponentFlagErase OpponentFlagErase_Normal { get; set; }
-        public OpponentFlagErase OpponentFlagErase_Max { get; set; }
+        public OpponentFlagErase OpponentFlagErase_Normal { get; set; } = new();
+        public OpponentFlagErase OpponentFlagErase_Max { get; set; } = new();
 
-        public OpponentBomb OpponentBomb_Normal { get; set; }
+        public OpponentBomb OpponentBomb_Normal { get; set; } = new();
 
-        public OpponentFlagReshuffle OpponentFlagReshuffle_Normal { get; set; }
-        public OpponentFlagReshuffle OpponentFlagReshuffle_Max { get; set; }
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Normal { get; set; } = new();
+        public OpponentFlagReshuffle OpponentFlagReshuffle_Max { get; set; } = new();
 
-        public Smoke Smoke_Normal { get; set; }
-        public Smoke Smoke_Max { get; set; }
+        public Smoke Smoke_Normal { get; set; } = new();
+        public Smoke Smoke_Max { get; set; } = new();
 
         [JsonIgnore]
         [MemoryPackIgnore]

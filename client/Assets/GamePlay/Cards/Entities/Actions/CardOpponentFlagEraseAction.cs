@@ -12,7 +12,7 @@ namespace GamePlay.Cards
         public CardOpponentFlagEraseAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardsConfigs.OpponentFlagErase config,
+            CardConfigOptions.OpponentFlagErase config,
             ICardContext context)
         {
             _dropArea = dropArea;
@@ -23,7 +23,7 @@ namespace GamePlay.Cards
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardsConfigs.OpponentFlagErase _config;
+        private readonly CardConfigOptions.OpponentFlagErase _config;
         private readonly ICardContext _context;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)

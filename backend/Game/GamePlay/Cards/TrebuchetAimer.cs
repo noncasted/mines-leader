@@ -4,14 +4,14 @@ namespace Game.GamePlay;
 
 public class TrebuchetAimer : ICard
 {
-    public TrebuchetAimer(IPlayer owner, CardsConfigs.TrebuchetAimer config)
+    public TrebuchetAimer(IPlayer owner, CardConfigOptions.TrebuchetAimer config)
     {
         _owner = owner;
         _config = config;
     }
 
     private readonly IPlayer _owner;
-    private readonly CardsConfigs.TrebuchetAimer _config;
+    private readonly CardConfigOptions.TrebuchetAimer _config;
 
     public EmptyResponse Use()
     {

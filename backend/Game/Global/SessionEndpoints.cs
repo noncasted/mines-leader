@@ -41,6 +41,14 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
         );
 
         _messaging.AddPipeRequestHandler<
+            MatchPayloads.Match.RequestWithBot,
+            MatchPayloads.Match.Response>(
+            lifetime,
+            new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Match.RequestWithBot)),
+            CreateMatchWithBot
+        );
+
+        _messaging.AddPipeRequestHandler<
             MatchPayloads.Lobby.Request,
             MatchPayloads.Lobby.Response>(
             lifetime,
@@ -65,6 +73,21 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
             );
         }
 
+        Task<MatchPayloads.Match.Response> CreateMatchWithBot(MatchPayloads.Match.RequestWithBot request)
+        {
+            var id = _sessionFactory.CreateMatchWithBot(request.BotId, new MatchCreateOptions
+                {
+                    Type = request.Type,
+                }
+            );
+
+            return Task.FromResult(new MatchPayloads.Match.Response
+                {
+                    SessionId = id
+                }
+            );
+        }
+        
         Task<MatchPayloads.Lobby.Response> GetOrCreateLobby(MatchPayloads.Lobby.Request request)
         {
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session request received",

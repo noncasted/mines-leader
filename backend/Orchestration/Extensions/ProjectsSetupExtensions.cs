@@ -7,6 +7,7 @@ using Common.Extensions;
 using Game.Global;
 using Infrastructure;
 using Infrastructure.Execution;
+using Meta.Bots;
 using Meta.Matches;
 using Meta.Users;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +36,9 @@ public static class ProjectsSetupExtensions
 
             // Project services
             builder.Services.Add<ClusterConfigsSetup>()
+                .As<ICoordinatorSetupCompleted>();
+            
+            builder.Services.Add<ClusterBotsSetup>()
                 .As<ICoordinatorSetupCompleted>();
             
             return builder;
@@ -136,7 +140,9 @@ public static class ProjectsSetupExtensions
                 .AddClusterFeatures()
                 .AddMemoryPack()
                 .AddClusterTests()
-                .AddCardConfigs();
+                .AddConfigs();
+            
+            builder.AddBotServices();
 
             builder.Services.Add<DbSource>()
                 .As<IDbSource>();

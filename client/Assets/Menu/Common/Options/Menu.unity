@@ -471,7 +471,7 @@ GameObject:
   - component: {fileID: 168405645}
   - component: {fileID: 168405646}
   - component: {fileID: 168405647}
-  m_Layer: 6
+  m_Layer: 16
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -958,7 +958,7 @@ GameObject:
   - component: {fileID: 328038521}
   - component: {fileID: 328038523}
   - component: {fileID: 328038522}
-  m_Layer: 6
+  m_Layer: 16
   m_Name: Border_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1942,7 +1942,7 @@ GameObject:
   - component: {fileID: 698979403}
   - component: {fileID: 698979405}
   - component: {fileID: 698979404}
-  m_Layer: 6
+  m_Layer: 16
   m_Name: House
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2012,9 +2012,9 @@ PolygonCollider2D:
     m_Paths:
     - - {x: -614.6878, y: -385.3593}
       - {x: -822.95483, y: -347.54956}
-      - {x: -991.3627, y: -348.59833}
-      - {x: -983.8804, y: -72.79377}
-      - {x: -247.86469, y: 106.56398}
+      - {x: -883.546, y: -262.345}
+      - {x: -700.4766, y: 16.540016}
+      - {x: -264.29388, y: -1.2527008}
       - {x: -246.4412, y: -196.9892}
       - {x: -250.3988, y: -291.73026}
       - {x: -287.8, y: -333.88824}
@@ -4681,7 +4681,7 @@ GameObject:
   - component: {fileID: 1671348062}
   - component: {fileID: 1671348064}
   - component: {fileID: 1671348063}
-  m_Layer: 6
+  m_Layer: 16
   m_Name: Border_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4697,7 +4697,7 @@ Transform:
   m_GameObject: {fileID: 1671348061}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: -541, z: 0}
+  m_LocalPosition: {x: 3, y: -432, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4880,7 +4880,7 @@ GameObject:
   - component: {fileID: 1908524920}
   - component: {fileID: 1908524922}
   - component: {fileID: 1908524921}
-  m_Layer: 6
+  m_Layer: 16
   m_Name: Border_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4896,7 +4896,7 @@ Transform:
   m_GameObject: {fileID: 1908524919}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: 197, z: 0}
+  m_LocalPosition: {x: 3, y: 51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

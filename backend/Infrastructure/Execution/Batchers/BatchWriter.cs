@@ -35,7 +35,7 @@ public class BatchWriterTask<T> : IPriorityTask
 
 public class BatchWriterOptions
 {
-    public TimeSpan Delay { get; set; } = TimeSpan.FromSeconds(1);
+    public TimeSpan Delay { get; set; } = TimeSpan.FromSeconds(0.1f);
     public bool RequiresTransaction { get; set; } = true;
 }
 
@@ -51,7 +51,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
 
         _task = new BatchWriterTask<TEntry>
         {
-            Id = this.GetPrimaryKeyString(),
+            Id = $"{this.GetPrimaryKeyString()}-{typeof(TState).FullName}",
             Priority = TaskPriority.Low,
             Batcher = this.AsReference<IBatchWriter<TEntry>>()
         };
@@ -67,6 +67,12 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
     private readonly ITaskScheduler _taskScheduler;
 
     protected abstract BatchWriterOptions Options { get; }
+
+    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        _task.Delay = Options.Delay;
+        return base.OnActivateAsync(cancellationToken);
+    }
 
     public Task Start()
     {
@@ -96,7 +102,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
                             return _state.WriteStateAsync();
                         }
                     )
-                    .Start();
+                    .Run();
             }
             else
             {
@@ -122,33 +128,6 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
             _taskScheduler.Schedule(_task);
     }
 
-    public async Task OnSuccess(Guid transactionId)
-    {
-        _logger.LogTrace(
-            "[BatchWriter] OnSuccess {writerName} {batchType} {transactionId}",
-            this.GetPrimaryKeyString(),
-            typeof(TEntry).Name,
-            transactionId
-        );
-
-        _state.State.Entries.AddRange(_pending[transactionId]);
-        _pending.Remove(transactionId);
-        await _state.WriteStateAsync();
-        _taskScheduler.Schedule(_task);
-    }
-
-    public Task OnFailure(Guid transactionId)
-    {
-        _pending.Remove(transactionId);
-        return Task.CompletedTask;
-    }
-
-    public override Task OnActivateAsync(CancellationToken cancellationToken)
-    {
-        _task.Delay = Options.Delay;
-        return base.OnActivateAsync(cancellationToken);
-    }
-
     public async Task WriteTransactional(TEntry value)
     {
         await this.AsTransactionHook();
@@ -165,9 +144,10 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         _taskScheduler.Schedule(_task);
 
         _logger.LogTrace(
-            "[BatchWriter] WriteTransactional {writerName} {batchType} {transactionId}",
+            "[BatchWriter] WriteTransactional {writerName} {stateType} {batchType} {transactionId}",
             this.GetPrimaryKeyString(),
-            typeof(TEntry).Name,
+            typeof(TState).FullName,
+            typeof(TEntry).FullName,
             transactionId
         );
     }
@@ -179,10 +159,44 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         _taskScheduler.Schedule(_task);
 
         _logger.LogTrace(
-            "[BatchWriter] WriteDirect {writerName} {batchType}",
+            "[BatchWriter] WriteDirect {writerName} {stateType} {batchType}",
             this.GetPrimaryKeyString(),
-            typeof(TEntry).Name
+            typeof(TState).FullName,
+            typeof(TEntry).FullName
         );
+    }
+
+    public async Task OnSuccess(Guid transactionId)
+    {
+        if (_pending.TryGetValue(transactionId, out var pending) == false)
+            return;
+
+        _logger.LogTrace(
+            "[BatchWriter] OnSuccess {writerName} {stateType} {batchType} {transactionId}",
+            this.GetPrimaryKeyString(),
+            typeof(TState).FullName,
+            typeof(TEntry).Name,
+            transactionId
+        );
+
+        _state.State.Entries.AddRange(pending);
+        _pending.Remove(transactionId);
+        await _state.WriteStateAsync();
+        _taskScheduler.Schedule(_task);
+    }
+
+    public Task OnFailure(Guid transactionId)
+    {
+        _logger.LogWarning(
+            "[BatchWriter] OnFailure {writerName} {stateType} {batchType} {transactionId}",
+            this.GetPrimaryKeyString(),
+            typeof(TState).FullName,
+            typeof(TEntry).Name,
+            transactionId
+        );
+
+        _pending.Remove(transactionId);
+        return Task.CompletedTask;
     }
 
     protected abstract Task Process(IReadOnlyList<TEntry> entries);

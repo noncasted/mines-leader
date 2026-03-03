@@ -2,11 +2,11 @@ using Shared;
 
 namespace Meta
 {
-    public interface ICardConfigs : IBackendProjection<CardsConfigs>
+    public interface ICardConfigs : IBackendProjection<CardConfigOptions>
     {
     }
 
-    public class CardConfigs : BackendProjection<CardsConfigs>, ICardConfigs
+    public class CardConfigs : BackendProjection<CardConfigOptions>, ICardConfigs
     {
     }
 }
