@@ -6,7 +6,7 @@ namespace Infrastructure;
 
 public interface ITransactionResolver : ITransactionAgent
 {
-    Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo, TransactionRunOptions options);
+    Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo);
 }
 
 public class TransactionResolver : ITransactionResolver
@@ -48,14 +48,7 @@ public class TransactionResolver : ITransactionResolver
         return Task.FromResult(new TransactionInfo(guid, ts, ts));
     }
 
-    public Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo)
-    {
-        return Resolve(transactionInfo, TransactionRunOptions.Empty);
-    }
-
-    public async Task<(TransactionalStatus, Exception?)> Resolve(
-        TransactionInfo transactionInfo,
-        TransactionRunOptions options)
+    public async Task<(TransactionalStatus, Exception?)> Resolve(TransactionInfo transactionInfo)
     {
         _logger.LogTrace("[Transaction] Resolving transaction {TransactionInfo}", transactionInfo);
 
@@ -76,7 +69,7 @@ public class TransactionResolver : ITransactionResolver
             var (status, exception) = participants.Write.Count switch
             {
                 0 => await _readCommiter.Execute(participants),
-                _ => await _writeCommiter.Execute(participants, options)
+                _ => await _writeCommiter.Execute(participants)
             };
 
             if (status == TransactionalStatus.Ok)

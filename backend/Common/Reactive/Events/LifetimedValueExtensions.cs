@@ -17,7 +17,7 @@
             }
         }
 
-        extension<T>(ILifetimedValue<T?> property) where T : class
+        extension<T>(ILifetimedValue<T> property) where T : class
         {
             public void ViewNotNull(
                 IReadOnlyLifetime lifetime,

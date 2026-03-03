@@ -15,7 +15,7 @@ namespace GamePlay.Cards
             ICardPointerHandler pointerHandler,
             IPlayerModifiers modifiers,
             ICardContext context,
-            CardsConfigs.Trebuchet config)
+            CardConfigOptions.Trebuchet config)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
@@ -28,7 +28,7 @@ namespace GamePlay.Cards
         private readonly ICardPointerHandler _pointerHandler;
         private readonly IPlayerModifiers _modifiers;
         private readonly ICardContext _context;
-        private readonly CardsConfigs.Trebuchet _config;
+        private readonly CardConfigOptions.Trebuchet _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {

@@ -13,7 +13,7 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             ICardContext context,
-            CardsConfigs.OpponentFlagReshuffle config)
+            CardConfigOptions.OpponentFlagReshuffle config)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
@@ -24,7 +24,7 @@ namespace GamePlay.Cards
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly ICardContext _context;
-        private readonly CardsConfigs.OpponentFlagReshuffle _config;
+        private readonly CardConfigOptions.OpponentFlagReshuffle _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {

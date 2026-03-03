@@ -67,4 +67,19 @@ public class MatchmakingCommands
             return _matchmaking.Create(session.UserId, request.Type).FromResult();
         }
     }
+
+    public class CreateWithBot : UserCommand<SharedMatchmaking.CreateWithBot>
+    {
+        public CreateWithBot(IMatchmaking matchmaking)
+        {
+            _matchmaking = matchmaking;
+        }
+
+        private readonly IMatchmaking _matchmaking;
+
+        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.CreateWithBot request)
+        {
+            return _matchmaking.CreateWithBot(session.UserId, request.Type).FromResult();
+        }
+    }
 }

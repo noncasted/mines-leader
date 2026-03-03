@@ -6,7 +6,7 @@ public class ErosionDozer : ICard
 {
     public ErosionDozer(
         IBoard target,
-        CardsConfigs.ErosionDozer config,
+        CardConfigOptions.ErosionDozer config,
         CardUsePayload.ErosionDozer payload)
     {
         _target = target;
@@ -15,7 +15,7 @@ public class ErosionDozer : ICard
     }
 
     private readonly IBoard _target;
-    private readonly CardsConfigs.ErosionDozer _config;
+    private readonly CardConfigOptions.ErosionDozer _config;
     private readonly CardUsePayload.ErosionDozer _payload;
 
     public EmptyResponse Use()

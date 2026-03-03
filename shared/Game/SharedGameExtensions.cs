@@ -9,7 +9,7 @@
             RematchContexts.Register(builder);
             GameCheatContexts.Register(builder);
 
-            builder.Add<CardsConfigs>();
+            builder.Add<CardConfigOptions>();
             builder.Add<MatchActionContexts.PlayerReady>();
 
             return builder;

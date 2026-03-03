@@ -36,10 +36,11 @@ public class TimeLimitedRound : Service, IGameRound
     private readonly IOptions<GameOptions> _gameOptions;
     private readonly IOptions<RoundsOptions> _roundOptions;
 
-    private IPlayer? _currentPlayer;
+    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
+
     private ILifetime? _roundForcedLifetime;
 
-    public IPlayer CurrentPlayer => _currentPlayer!;
+    public IViewableProperty<IPlayer> CurrentPlayer => _currentPlayer;
 
     public async Task<Guid> Process(IReadOnlyLifetime lifetime)
     {
@@ -61,8 +62,7 @@ public class TimeLimitedRound : Service, IGameRound
             }
         );
 
-        var snapshot = new MoveSnapshot(_gameContext, lifetime);
-        snapshot.Start();
+        var snapshot = new MoveSnapshot();
 
         foreach (var player in players)
             player.Deck.Init();
@@ -74,14 +74,12 @@ public class TimeLimitedRound : Service, IGameRound
             player.Board.MinesScanner.Start(lifetime);
 
         _snapshotSender.Send(snapshot);
-        _currentPlayer = players.First();
 
         var roundsCount = 0;
 
         while (IsGameOver() == false)
         {
-            await ProcessRound(lifetime, _currentPlayer);
-            _currentPlayer = players.First(t => t != _currentPlayer);
+            await ProcessRound(lifetime, players.First(t => t != _currentPlayer.Value));
             roundsCount++;
         }
 
@@ -150,35 +148,33 @@ public class TimeLimitedRound : Service, IGameRound
     private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player)
     {
         _roundForcedLifetime = lifetime.Child();
-        var roundLifetime = lifetime.Child();
+        var roundForcedLifetime = _roundForcedLifetime;
 
         _state.Update(state => state.CurrentPlayer = player.User.Id);
 
         player.Moves.Restore();
-
-        var snapshot = new MoveSnapshot(_gameContext, roundLifetime);
-        snapshot.Start();
-
+        _currentPlayer.Set(player);
+        
         try
         {
             await Task.WhenAny(TimerCountdown());
         }
         catch (TaskCanceledException)
         {
-            // Ignoreo
+            // Ignore
         }
 
         player.Mana.SetMax(player.Mana.Max + 1);
         player.Mana.Restore();
 
+        var snapshot = new MoveSnapshot();
         _players.RestoreCard(player, snapshot);
 
         _roundActionService.Tick();
         _snapshotSender.Send(snapshot);
         player.Moves.Lock();
 
-        _roundForcedLifetime.Terminate();
-        roundLifetime.Terminate();
+        roundForcedLifetime.Terminate();
 
         return;
 
@@ -186,10 +182,10 @@ public class TimeLimitedRound : Service, IGameRound
         {
             var timeSpan = TimeSpan.FromSeconds(1);
 
-            while (_state.Value.SecondsLeft[player.User.Id] > 0 && _roundForcedLifetime.IsTerminated == false)
+            while (_state.Value.SecondsLeft[player.User.Id] > 0 && roundForcedLifetime.IsTerminated == false)
             {
                 _state.Update(state => state.SecondsLeft[player.User.Id]--);
-                await Task.Delay(timeSpan, _roundForcedLifetime.Token);
+                await Task.Delay(timeSpan, roundForcedLifetime.Token);
             }
         }
     }

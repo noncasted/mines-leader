@@ -15,6 +15,7 @@ public interface ISessionFactory
 {
     Guid CreateLobby(LobbyCreateOptions createOptions);
     Guid CreateMatch(MatchCreateOptions createOptions);
+    Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions);
 }
 
 public class SessionFactory : ISessionFactory
@@ -104,6 +105,9 @@ public class SessionFactory : ISessionFactory
         services.AddGameCommands();
         services.AddGameContext();
         services.AddPlayerServices();
+        
+        services.Add<GameReadyAwaiter>()
+            .As<IGameReadyAwaiter>();
 
         services.Add<RoundPlayers>();
 
@@ -149,6 +153,95 @@ public class SessionFactory : ISessionFactory
             await session.AllUsersConnected.WaitInvoke(session.Lifetime);
             var handle = provider.GetRequiredService<MatchHandle>();
             handle.Process().NoAwait();
+
+            _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
+                session.Id, createOptions
+            );
+        }
+    }
+
+    public Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions)
+    {
+        _logger.LogInformation("[Matchmaking] Creating match: {Type}", createOptions.Type);
+
+        var lifetime = new Lifetime();
+
+        var data = new SessionContainerData
+        {
+            Id = Guid.NewGuid(),
+            Lifetime = lifetime,
+            Type = SessionType.Match,
+            ExpectedUsers = 2,
+        };
+
+        var services = new ServiceCollection();
+
+        services.AddSessionServices(data);
+
+        services.Pass<IOrleans>(_serviceProvider);
+        services.Pass<IServiceEnvironment>(_serviceProvider);
+        services.Pass<IServiceDiscovery>(_serviceProvider);
+        services.Pass<ICardConfigs>(_serviceProvider);
+        services.Pass<IBotConfig>(_serviceProvider);
+
+        services.AddCardServices();
+        services.AddGameCommands();
+        services.AddGameContext();
+        services.AddPlayerServices();
+        services.AddBotServices();
+        
+        services.Add<BotGameReadyAwaiter>()
+            .As<IGameReadyAwaiter>();
+
+        services.Add<RoundPlayers>();
+
+        switch (createOptions.Type)
+        {
+            case GameMatchType.Single:
+                break;
+            case GameMatchType.TimeLimited:
+                services.Add<TimeLimitedRound>()
+                    .As<IService>()
+                    .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStanding:
+                services.Add<LastManStandingRound>()
+                    .As<IService>()
+                    .As<IGameRound>();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        services.Add<ISessionFactory>(this);
+        services.Add<MatchHandle>();
+        services.Add(createOptions);
+
+        var provider = services.BuildServiceProvider();
+        var session = provider.GetRequiredService<ISession>();
+        var serviceFactory = provider.GetRequiredService<IServiceFactory>();
+        var userFactory = provider.GetRequiredService<IUserFactory>();
+        var botRunner = provider.GetRequiredService<IBotRunner>();
+
+        _collection.Add(session);
+
+        RunSession().NoAwait();
+
+        return data.Id;
+
+        async Task RunSession()
+        {
+            await serviceFactory.OnSessionCreated(lifetime);
+            session.Run().NoAwait();
+            lifetime.Listen(provider.Dispose);
+
+            var bot = userFactory.CreateBot(session.Lifetime, botId);
+
+            await session.AllUsersConnected.WaitInvoke(session.Lifetime);
+            var handle = provider.GetRequiredService<MatchHandle>();
+            handle.Process().NoAwait();
+
+            botRunner.Run(bot).NoAwait();
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
                 session.Id, createOptions

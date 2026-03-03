@@ -53,13 +53,21 @@ public class TransactionRunner : ITransactionRunner
         else
         {
             // Try to resolve transaction
-            var (status, exception) = await _transactionResolver.Resolve(transactionInfo, options);
+            var (status, exception) = await _transactionResolver.Resolve(transactionInfo);
 
             if (status != TransactionalStatus.Ok)
             {
                 // Resolving transaction failed
+                if (options.FailureAction != null)
+                    await options.FailureAction();
+
                 transactionException = status.ConvertToUserException(transactionInfo.Id, exception);
                 ExceptionDispatchInfo.SetCurrentStackTrace(transactionException);
+            }
+            else
+            {
+                if (options.SuccessAction != null)
+                    await options.SuccessAction();
             }
         }
 

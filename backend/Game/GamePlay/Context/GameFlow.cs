@@ -54,6 +54,7 @@ public class GameFlow : Service, IGameFlow
             _context.AddPlayer(player);
         }
 
+        _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
         _state.Update(state => state.Winner = winner);
 

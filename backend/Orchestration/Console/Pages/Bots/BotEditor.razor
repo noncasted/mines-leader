@@ -1,0 +1,197 @@
+@page "/bots/{Id}"
+@using Cluster.Configs
+@using Infrastructure
+@using Meta.Bots
+@using Meta.Users
+@using Shared
+@using System.Collections.Generic
+
+<PageTitle>Edit Bot</PageTitle>
+<PageHeader Title="Bot Settings"/>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="px-4 py-4">
+    @if (_isLoading) {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+    }
+    else if (_bot != null) {
+        <MudStack Spacing="3">
+            <MudCard>
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudText Typo="Typo.subtitle1">Bot Information</MudText>
+                        <MudTextField
+                            Label="Name"
+                            @bind-Value="_botName"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"/>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            ID: @_bot.Id
+                        </MudText>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+
+            <MudCard>
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudText Typo="Typo.subtitle1">Deck</MudText>
+
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            Average Mana Cost: @GetAverageMana()
+                        </MudText>
+
+                        @if (_deckCards != null && _deckCards.Count > 0) {
+                            <MudStack Spacing="1">
+                                @foreach (var (index, card) in _deckCards.Select((c, i) => (i, c))) {
+                                    var cardLabel = $"Card {index + 1}";
+                                    <MudGrid Spacing="1">
+                                        <MudItem xs="12" sm="6">
+                                            <MudSelect
+                                                T="CardType"
+                                                Value="card"
+                                                ValueChanged="@((CardType c) => UpdateCard(index, c))"
+                                                Label="@cardLabel"
+                                                Variant="Variant.Outlined"
+                                                Margin="Margin.Dense"
+                                                AnchorOrigin="Origin.BottomCenter">
+                                                @foreach (var cardType in CardTypeExtensions.All) {
+                                                    <MudSelectItem Value="@cardType">
+                                                        @cardType.ToString()
+                                                    </MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="12" sm="3">
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Text">
+                                                Mana: @GetCardManaCost(card)
+                                            </MudChip>
+                                        </MudItem>
+                                    </MudGrid>
+                                }
+                            </MudStack>
+                        }
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+
+            <MudStack Row="true" Spacing="2">
+                <MudButton
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    OnClick="SaveChanges">
+                    Save
+                </MudButton>
+                <MudButton
+                    Variant="Variant.Text"
+                    Color="Color.Default"
+                    OnClick="NavigateBack">
+                    Cancel
+                </MudButton>
+            </MudStack>
+        </MudStack>
+    }
+    else {
+        <MudAlert Severity="Severity.Error">Bot not found</MudAlert>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
+
+    [Inject]
+    public IBotCollectionView BotCollection { get; set; } = null!;
+
+    [Inject]
+    public IOrleans Orleans { get; set; } = null!;
+
+    [Inject]
+    public ICardConfigs CardConfigs { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager Navigation { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private BotState? _bot;
+    private string _botName = string.Empty;
+    private List<CardType>? _deckCards;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync() {
+        _isLoading = true;
+
+        if (Guid.TryParse(Id, out var botId) && BotCollection.TryGetValue(botId, out var bot)) {
+            _bot = bot;
+            _botName = bot.Name;
+
+            try {
+                var handle = Orleans.CreateUserHandle(botId);
+                var selectedDeck = await handle.Deck.GetSelected();
+                _deckCards = new List<CardType>(selectedDeck);
+            }
+            catch (Exception ex) {
+                Snackbar.Add($"Error loading deck: {ex.Message}", Severity.Error);
+                _deckCards = new List<CardType>();
+            }
+        }
+
+        _isLoading = false;
+    }
+
+    private int GetCardManaCost(CardType cardType) {
+        if (CardConfigs.Value.All.TryGetValue(cardType, out var config)) {
+            return config.ManaCost;
+        }
+        return 0;
+    }
+
+    private float GetAverageMana() {
+        if (_deckCards == null || _deckCards.Count == 0)
+            return 0;
+
+        var total = _deckCards.Sum(GetCardManaCost);
+        return (float)total / _deckCards.Count;
+    }
+
+    private void UpdateCard(int index, CardType cardType) {
+        if (_deckCards != null && index >= 0 && index < _deckCards.Count) {
+            _deckCards[index] = cardType;
+            InvokeAsync(StateHasChanged);
+         }
+    }
+
+    private async Task SaveChanges() {
+        if (_bot == null)
+            return;
+
+        try {
+            var handle = Orleans.CreateUserHandle(_bot.Id);
+
+            // Save name
+            if (_botName != _bot.Name) {
+                await Orleans.Transactions.Create(() => handle.Entity.SetName(_botName));
+            }
+
+            // Save deck
+            if (_deckCards != null && _deckCards.Count > 0) {
+                var deckUpdate = new Dictionary<int, IReadOnlyList<CardType>>
+                {
+                    { 0, _deckCards }
+                };
+                await Orleans.Transactions.Create(() => handle.Deck.Update(deckUpdate, 0));
+            }
+
+            Snackbar.Add("Bot saved successfully", Severity.Success);
+            NavigateBack();
+        }
+        catch (Exception ex) {
+            Snackbar.Add($"Error saving bot: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void NavigateBack() {
+        Navigation.NavigateTo("/bots");
+    }
+}

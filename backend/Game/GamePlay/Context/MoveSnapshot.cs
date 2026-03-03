@@ -5,23 +5,9 @@ namespace Game.GamePlay;
 
 public class MoveSnapshot
 {
-    public MoveSnapshot(IGameContext gameContext, IReadOnlyLifetime lifetime)
-    {
-        _gameContext = gameContext;
-        _lifetime = lifetime.Child();
-    }
-
-    private readonly IGameContext _gameContext;
     private readonly List<IMoveSnapshotRecord> _records = new();
 
-    private readonly ILifetime _lifetime;
-
     private bool _isLocked = false;
-
-    public void Start()
-    {
-        HandleBoards(_lifetime);
-    }
 
     public void Lock()
     {
@@ -76,9 +62,9 @@ public class MoveSnapshot
         );
     }
 
-    private void HandleBoards(IReadOnlyLifetime lifetime)
+    public void HandleBoards(IReadOnlyLifetime lifetime, IGameContext gameContext)
     {
-        foreach (var (_, board) in _gameContext.Boards)
+        foreach (var (_, board) in gameContext.Boards)
         {
             var events = board.Events;
 
@@ -186,8 +172,6 @@ public class MoveSnapshot
 
     public SharedMoveSnapshot Collect()
     {
-        _lifetime.Terminate();
-
         return new SharedMoveSnapshot
         {
             Records = _records.AsReadOnly()

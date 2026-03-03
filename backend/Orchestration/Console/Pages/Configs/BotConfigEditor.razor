@@ -1,0 +1,66 @@
+@using Shared
+
+<MudCard Class="mb-3">
+    <MudCardContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1">
+                    Bot Configuration
+                </MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField
+                    Label="Matchmaking Apply Threshold (seconds)"
+                    @bind-Value="Value.MatchmakingApplyThreshold"
+                    InputType="InputType.Number"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    Step="0.1f"
+                    HelperText="Auto-match with bot after this wait time"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField
+                    Label="Action Delay (seconds)"
+                    @bind-Value="Value.ActionDelay"
+                    InputType="InputType.Number"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    Step="0.1f"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField
+                    Label="Flags Per Round"
+                    @bind-Value="Value.FlagsPerRound"
+                    InputType="InputType.Number"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField
+                    Label="Cells Open Per Round"
+                    @bind-Value="Value.CellsOpenPerRound"
+                    InputType="InputType.Number"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudTextField
+                    Label="Cards Use Per Round"
+                    @bind-Value="Value.CardsUsePerRound"
+                    InputType="InputType.Number"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"/>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public BotConfigOptions Value { get; set; } = null!;
+}

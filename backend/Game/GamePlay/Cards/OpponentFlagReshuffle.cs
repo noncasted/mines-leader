@@ -6,7 +6,7 @@ public class OpponentFlagReshuffle : ICard
 {
     public OpponentFlagReshuffle(
         IBoard target,
-        CardsConfigs.OpponentFlagReshuffle config,
+        CardConfigOptions.OpponentFlagReshuffle config,
         CardUsePayload.OpponentFlagReshuffle payload)
     {
         _target = target;
@@ -15,7 +15,7 @@ public class OpponentFlagReshuffle : ICard
     }
 
     private readonly IBoard _target;
-    private readonly CardsConfigs.OpponentFlagReshuffle _config;
+    private readonly CardConfigOptions.OpponentFlagReshuffle _config;
     private readonly CardUsePayload.OpponentFlagReshuffle _payload;
 
     public EmptyResponse Use()

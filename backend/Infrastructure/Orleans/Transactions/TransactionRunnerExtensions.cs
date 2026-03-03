@@ -50,7 +50,7 @@ public static class TransactionRunnerExtensions
             return builder;
         }
 
-        public Task Start()
+        public Task Run()
         {
             return builder.Runner.Run(builder.Options);
         }

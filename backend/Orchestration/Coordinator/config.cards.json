@@ -1,130 +1,130 @@
 {
-  "$type": "Shared.CardsConfigs, Shared",
+  "$type": "Shared.CardConfigOptions, Shared",
   "BloodHound_Normal": {
-    "$type": "Shared.CardsConfigs+Bloodhound, Shared",
-    "Type": 200,
-    "Size": 2,
-    "ManaCost": 3,
+    "$type": "Shared.CardConfigOptions+Bloodhound, Shared",
+    "Type": 0,
+    "Size": 4,
+    "ManaCost": 2,
     "Target": 0
   },
   "BloodHound_Max": {
-    "$type": "Shared.CardsConfigs+Bloodhound, Shared",
-    "Type": 210,
-    "Size": 3,
-    "ManaCost": 4,
+    "$type": "Shared.CardConfigOptions+Bloodhound, Shared",
+    "Type": 0,
+    "Size": 4,
+    "ManaCost": 2,
     "Target": 0
   },
   "Trebuchet_Normal": {
-    "$type": "Shared.CardsConfigs+Trebuchet, Shared",
-    "Type": 100,
-    "Size": 3,
+    "$type": "Shared.CardConfigOptions+Trebuchet, Shared",
+    "Type": 0,
+    "Size": 4,
     "ManaCost": 3,
     "Target": 1
   },
   "Trebuchet_Max": {
-    "$type": "Shared.CardsConfigs+Trebuchet, Shared",
-    "Type": 110,
-    "Size": 5,
-    "ManaCost": 4,
+    "$type": "Shared.CardConfigOptions+Trebuchet, Shared",
+    "Type": 0,
+    "Size": 4,
+    "ManaCost": 3,
     "Target": 1
   },
   "TrebuchetAimer_Normal": {
-    "$type": "Shared.CardsConfigs+TrebuchetAimer, Shared",
-    "Type": 300,
+    "$type": "Shared.CardConfigOptions+TrebuchetAimer, Shared",
+    "Type": 0,
     "Size": 1,
     "ManaCost": 2,
     "Target": 0
   },
   "TrebuchetAimer_Max": {
-    "$type": "Shared.CardsConfigs+TrebuchetAimer, Shared",
-    "Type": 310,
-    "Size": 2,
-    "ManaCost": 3,
+    "$type": "Shared.CardConfigOptions+TrebuchetAimer, Shared",
+    "Type": 0,
+    "Size": 1,
+    "ManaCost": 2,
     "Target": 0
   },
   "ErosionDozer_Normal": {
-    "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
-    "Type": 400,
-    "Size": 3,
-    "ManaCost": 3,
+    "$type": "Shared.CardConfigOptions+ErosionDozer, Shared",
+    "Type": 0,
+    "Size": 5,
+    "ManaCost": 4,
     "Target": 0
   },
   "ErosionDozer_Max": {
-    "$type": "Shared.CardsConfigs+ErosionDozer, Shared",
-    "Type": 410,
-    "Size": 4,
+    "$type": "Shared.CardConfigOptions+ErosionDozer, Shared",
+    "Type": 0,
+    "Size": 5,
     "ManaCost": 4,
     "Target": 0
   },
   "Gravedigger_Normal": {
-    "$type": "Shared.CardsConfigs+Gravedigger, Shared",
-    "Type": 500,
+    "$type": "Shared.CardConfigOptions+Gravedigger, Shared",
+    "Type": 0,
     "ManaCost": 4,
     "Target": 2
   },
   "ZipZap_Normal": {
-    "$type": "Shared.CardsConfigs+ZipZap, Shared",
-    "Type": 600,
+    "$type": "Shared.CardConfigOptions+ZipZap, Shared",
+    "Type": 0,
     "Size": 3,
     "ManaCost": 3,
     "Target": 0,
     "SearchRadius": 4
   },
   "ZipZap_Max": {
-    "$type": "Shared.CardsConfigs+ZipZap, Shared",
-    "Type": 610,
-    "Size": 5,
-    "ManaCost": 5,
+    "$type": "Shared.CardConfigOptions+ZipZap, Shared",
+    "Type": 0,
+    "Size": 3,
+    "ManaCost": 3,
     "Target": 0,
     "SearchRadius": 4
   },
   "OpponentFlagErase_Normal": {
-    "$type": "Shared.CardsConfigs+OpponentFlagErase, Shared",
-    "Type": 810,
-    "Size": 5,
-    "ManaCost": 5,
+    "$type": "Shared.CardConfigOptions+OpponentFlagErase, Shared",
+    "Type": 0,
+    "Size": 3,
+    "ManaCost": 3,
     "Target": 1
   },
   "OpponentFlagErase_Max": {
-    "$type": "Shared.CardsConfigs+OpponentFlagErase, Shared",
+    "$type": "Shared.CardConfigOptions+OpponentFlagErase, Shared",
     "Type": 0,
     "Size": 3,
     "ManaCost": 3,
     "Target": 1
   },
   "OpponentBomb_Normal": {
-    "$type": "Shared.CardsConfigs+OpponentBomb, Shared",
-    "Type": 700,
+    "$type": "Shared.CardConfigOptions+OpponentBomb, Shared",
+    "Type": 0,
     "ManaCost": 2,
     "Target": 1
   },
   "OpponentFlagReshuffle_Normal": {
-    "$type": "Shared.CardsConfigs+OpponentFlagReshuffle, Shared",
-    "Type": 910,
-    "Size": 5,
-    "ManaCost": 5,
+    "$type": "Shared.CardConfigOptions+OpponentFlagReshuffle, Shared",
+    "Type": 0,
+    "Size": 3,
+    "ManaCost": 2,
     "Target": 1
   },
   "OpponentFlagReshuffle_Max": {
-    "$type": "Shared.CardsConfigs+OpponentFlagReshuffle, Shared",
+    "$type": "Shared.CardConfigOptions+OpponentFlagReshuffle, Shared",
     "Type": 0,
     "Size": 3,
     "ManaCost": 2,
     "Target": 1
   },
   "Smoke_Normal": {
-    "$type": "Shared.CardsConfigs+Smoke, Shared",
-    "Type": 1000,
+    "$type": "Shared.CardConfigOptions+Smoke, Shared",
+    "Type": 0,
     "Size": 3,
     "ManaCost": 3,
     "Target": 1,
     "Duration": 3
   },
   "Smoke_Max": {
-    "$type": "Shared.CardsConfigs+Smoke, Shared",
-    "Type": 1010,
-    "Size": 5,
-    "ManaCost": 5,
+    "$type": "Shared.CardConfigOptions+Smoke, Shared",
+    "Type": 0,
+    "Size": 3,
+    "ManaCost": 3,
     "Target": 1,
     "Duration": 3
   }

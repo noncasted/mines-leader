@@ -19,8 +19,8 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
         var player = Utils.GameContext.UserToPlayer[user];
         var lifetime = new Lifetime();
 
-        var snapshot = new MoveSnapshot(Utils.GameContext, lifetime);
-        snapshot.Start();
+        var snapshot = new MoveSnapshot();
+        snapshot.HandleBoards(lifetime, Utils.GameContext);
 
         var commandContext = new Context
         {

@@ -13,7 +13,7 @@ namespace GamePlay.Cards
         public CardErosionDozerAction(
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardsConfigs.ErosionDozer config,
+            CardConfigOptions.ErosionDozer config,
             ICardContext context)
         {
             _dropArea = dropArea;
@@ -24,7 +24,7 @@ namespace GamePlay.Cards
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
-        private readonly CardsConfigs.ErosionDozer _config;
+        private readonly CardConfigOptions.ErosionDozer _config;
         private readonly ICardContext _context;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)

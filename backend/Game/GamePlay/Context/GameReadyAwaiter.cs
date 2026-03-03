@@ -28,3 +28,24 @@ public class GameReadyAwaiter : IGameReadyAwaiter
         _ready.Add(id);
     }
 }
+
+public class BotGameReadyAwaiter : IGameReadyAwaiter
+{
+    private readonly HashSet<Guid> _ready = new();
+
+    public async Task Await(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
+            if (_ready.Count == 1)
+                break;
+
+            await Task.Delay(100);
+        }
+    }
+
+    public void OnPlayerReady(Guid id)
+    {
+        _ready.Add(id);
+    }
+}

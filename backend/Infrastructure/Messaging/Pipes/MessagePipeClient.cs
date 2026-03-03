@@ -95,6 +95,8 @@ public class MessagePipeClient : IMessagePipeClient
     {
         var observer = new MessagePipeObserver(_logger);
         var observerReference = _orleans.Client.CreateObjectReference<IMessagePipeObserver>(observer);
+        
+        lifetime.Listen(() => _orleans.Client.DeleteObjectReference<IMessagePipeObserver>(observerReference));
 
         var toRemove = new List<Guid>();
 

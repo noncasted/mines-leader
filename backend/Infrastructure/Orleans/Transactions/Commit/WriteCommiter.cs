@@ -17,9 +17,7 @@ public class WriteCommiter
         _logger = logger;
     }
 
-    public async Task<(TransactionalStatus, Exception?)> Execute(
-        TransactionParticipants participants,
-        TransactionRunOptions options)
+    public async Task<(TransactionalStatus, Exception?)> Execute(TransactionParticipants participants)
     {
         TransactionalStatus status;
         Exception? exception;
@@ -45,9 +43,6 @@ public class WriteCommiter
                 participants.Write,
                 participants.Resources.Count
             );
-
-            if (options.SuccessAction != null)
-                await options.SuccessAction();
 
             if (participants.ContainsHook == true)
             {
@@ -131,9 +126,6 @@ public class WriteCommiter
                         )
                     );
                 }
-
-                if (options.FailureAction != null)
-                    await options.FailureAction();
 
                 if (participants.ContainsHook == true)
                 {

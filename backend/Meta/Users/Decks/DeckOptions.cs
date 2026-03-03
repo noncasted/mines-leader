@@ -14,5 +14,6 @@ public static class DeckOptions
         CardType.Gravedigger,
         CardType.Trebuchet,
         CardType.TrebuchetAimer,
+        CardType.ZipZap
     };
 }
