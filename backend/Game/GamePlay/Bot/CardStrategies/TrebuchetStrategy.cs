@@ -1,4 +1,3 @@
-using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -36,6 +35,7 @@ public class TrebuchetStrategy : IBotCardStrategy
 
         // Проверяем есть ли вообще закрытые клетки у противника
         var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+        
         if (opponentTakenCount == 0)
             return 0f;
 

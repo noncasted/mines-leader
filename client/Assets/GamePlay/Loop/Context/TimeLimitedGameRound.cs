@@ -40,7 +40,6 @@ namespace GamePlay.Loop
                     if (state.CurrentPlayer == Guid.Empty)
                         return;
                     
-                    Debug.Log($"[Round] Current Player: {state.CurrentPlayer}, Seconds Left: {state.SecondsLeft[_gameContext.Self.Id]}");
                     var player = _gameContext.GetPlayer(state.CurrentPlayer);
                     _player.Set(player);
                     _roundTime.Set(state.SecondsLeft[player.Id]);

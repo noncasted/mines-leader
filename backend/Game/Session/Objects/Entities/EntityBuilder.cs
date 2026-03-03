@@ -1,5 +1,4 @@
-﻿using MemoryPack;
-using Shared;
+﻿using Shared;
 
 namespace Game.Session;
 
@@ -54,8 +53,7 @@ public class EntityBuilder
 
     public IEntity Build()
     {
-        var payloadBytes = MemoryPackSerializer.Serialize(_payload!);
-        var entity = new Entity(_owner, _properties, _id, payloadBytes);
+        var entity = new Entity(_owner, _properties, _id, _payload!);
 
         _entities.Add(entity);
         _objects.Add(entity);

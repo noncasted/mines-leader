@@ -105,7 +105,7 @@ public class SessionFactory : ISessionFactory
         services.AddGameCommands();
         services.AddGameContext();
         services.AddPlayerServices();
-        
+
         services.Add<GameReadyAwaiter>()
             .As<IGameReadyAwaiter>();
 
@@ -189,7 +189,7 @@ public class SessionFactory : ISessionFactory
         services.AddGameContext();
         services.AddPlayerServices();
         services.AddBotServices();
-        
+
         services.Add<BotGameReadyAwaiter>()
             .As<IGameReadyAwaiter>();
 
@@ -239,9 +239,9 @@ public class SessionFactory : ISessionFactory
 
             await session.AllUsersConnected.WaitInvoke(session.Lifetime);
             var handle = provider.GetRequiredService<MatchHandle>();
-            handle.Process().NoAwait();
-
-            botRunner.Run(bot).NoAwait();
+            
+            Task.Run(() => handle.Process());
+            Task.Run(() => botRunner.Run(bot));
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
                 session.Id, createOptions

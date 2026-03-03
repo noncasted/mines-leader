@@ -6,6 +6,7 @@ namespace Game.Session;
 public interface IEntity : IObject
 {
     IUser Owner { get; }
+    IEntityPayload Payload { get; }
 
     void Destroy();
     INetworkContext CreateOverview();
@@ -17,7 +18,7 @@ public class Entity : IEntity
         IUser owner,
         IReadOnlyDictionary<int, IObjectProperty> properties,
         int id,
-        byte[] payload)
+        IEntityPayload payload)
     {
         _payload = payload;
         Owner = owner;
@@ -28,10 +29,11 @@ public class Entity : IEntity
     }
 
     private readonly ILifetime _lifetime;
-    private readonly byte[] _payload;
+    private readonly IEntityPayload _payload;
 
     public int Id { get; }
     public IUser Owner { get; }
+    public IEntityPayload Payload => _payload;
     public IReadOnlyDictionary<int, IObjectProperty> Properties { get; }
     public IReadOnlyLifetime Lifetime => _lifetime;
 

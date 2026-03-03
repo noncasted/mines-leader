@@ -1,5 +1,6 @@
 ﻿using Common.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Game.Session;
 
@@ -7,7 +8,7 @@ public static class SessionExtensions
 {
     public static void AddSessionServices(this IServiceCollection services, SessionContainerData data)
     {
-        services.AddLogging();
+        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Information));
         services.AddSingleton<ISession, Session>();
 
         services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();

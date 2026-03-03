@@ -22,18 +22,5 @@ namespace Shared
             public int EntityId { get; set; }
         }
 
-        [MemoryPackable]
-        public partial class CardDraw : IMoveSnapshotRecord
-        {
-            public Guid PlayerId { get; set; }
-            public CardType Type { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class CardTakeoutFromStash : IMoveSnapshotRecord
-        {
-            public Guid PlayerId { get; set; }
-            public CardType Type { get; set; }
-        }
     }
 }

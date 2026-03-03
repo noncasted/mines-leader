@@ -10,7 +10,6 @@ namespace GamePlay.Cards
         {
             builder.Register<CardFactory>()
                 .WithAsset<CardFactoryOptions>()
-                .As<ICardFactory>()
                 .As<IScopeSetup>();
 
             builder.RegisterEnvDictionary<CardType, ICardDefinition, CardDefinition>();

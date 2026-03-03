@@ -1,5 +1,6 @@
 using Common.Reactive;
 using Game.Session;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared;
 
@@ -13,6 +14,7 @@ public class TimeLimitedRound : Service, IGameRound
         ISnapshotSender snapshotSender,
         IRoundActionService roundActionService,
         RoundPlayers players,
+        ILogger<TimeLimitedRound> logger,
         IOptions<GameOptions> gameOptions,
         IOptions<RoundsOptions> roundOptions) : base("game-round")
     {
@@ -21,6 +23,7 @@ public class TimeLimitedRound : Service, IGameRound
         _snapshotSender = snapshotSender;
         _roundActionService = roundActionService;
         _players = players;
+        _logger = logger;
         _gameOptions = gameOptions;
         _roundOptions = roundOptions;
 
@@ -29,6 +32,7 @@ public class TimeLimitedRound : Service, IGameRound
 
     private readonly ValueProperty<TimeLimitedRoundState> _state = new(1);
     private readonly RoundPlayers _players;
+    private readonly ILogger<TimeLimitedRound> _logger;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
@@ -68,7 +72,7 @@ public class TimeLimitedRound : Service, IGameRound
             player.Deck.Init();
 
         foreach (var player in players)
-            _players.RestoreCard(player, snapshot);
+            _players.RestoreCards(player);
 
         foreach (var player in players)
             player.Board.MinesScanner.Start(lifetime);
@@ -154,7 +158,7 @@ public class TimeLimitedRound : Service, IGameRound
 
         player.Moves.Restore();
         _currentPlayer.Set(player);
-        
+
         try
         {
             await Task.WhenAny(TimerCountdown());
@@ -163,15 +167,17 @@ public class TimeLimitedRound : Service, IGameRound
         {
             // Ignore
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in round timer");
+        }
 
         player.Mana.SetMax(player.Mana.Max + 1);
         player.Mana.Restore();
 
-        var snapshot = new MoveSnapshot();
-        _players.RestoreCard(player, snapshot);
+        _players.RestoreCards(player);
 
         _roundActionService.Tick();
-        _snapshotSender.Send(snapshot);
         player.Moves.Lock();
 
         roundForcedLifetime.Terminate();

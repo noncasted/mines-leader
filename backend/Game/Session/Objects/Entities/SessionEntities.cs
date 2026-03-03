@@ -6,12 +6,14 @@ public interface ISessionEntities
     IReadOnlyDictionary<IUser, IReadOnlyList<IEntity>> ByUser { get; }
 
     void Add(IEntity entity);
+    int CountByUser(IUser user);
 }
 
 public class SessionEntities : ISessionEntities
 {
     private readonly Dictionary<int, IEntity> _entries = new();
     private readonly Dictionary<IUser, IReadOnlyList<IEntity>> _byUser = new();
+    private readonly Dictionary<IUser, int> _counter = new();
 
     public IReadOnlyDictionary<int, IEntity> Entries => _entries;
     public IReadOnlyDictionary<IUser, IReadOnlyList<IEntity>> ByUser => _byUser;
@@ -35,12 +37,11 @@ public class SessionEntities : ISessionEntities
             userEntities.Remove(entity);
         });
     }
-}
 
-public static class SessionEntitiesExtensions
-{
-    public static int CountByUser(this ISessionEntities collection, IUser user)
+    public int CountByUser(IUser user)
     {
-        return collection.ByUser.TryGetValue(user, out var entities) ? entities.Count : 0;
+        _counter.TryAdd(user, 0);
+        _counter[user]++;
+        return _counter[user];
     }
 }

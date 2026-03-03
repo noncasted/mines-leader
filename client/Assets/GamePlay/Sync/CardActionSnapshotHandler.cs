@@ -5,6 +5,7 @@ using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay
 {
@@ -23,13 +24,11 @@ namespace GamePlay
 
         public async UniTask Handle(PlayerSnapshotRecord.Card record)
         {
-            var player = _gameContext.GetPlayer(record.PlayerId);
+            var player = _gameContext.GetPlayer(record.PlayerId);   
 
+            Debug.Log($"Handling card action snapshot for player {record.PlayerId}, card {record.EntityId}, data {record.Data}");
             var card = player.Hand.Entries.First(t => t.EntityId == record.EntityId)!;
             await card.Use(_lifetime, record.Data);
-
-            if (card is ILocalCard local)
-                local.Destroy().Forget();
         }
     }
 }

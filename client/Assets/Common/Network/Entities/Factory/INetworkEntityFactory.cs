@@ -76,7 +76,7 @@ namespace Common.Network
             INetworkUser owner,
             int id,
             IReadOnlyList<SharedSessionObject.PropertyUpdate> rawProperties,
-            byte[] payload)
+            IEntityPayload payload)
         {
             Owner = owner;
             Id = id;
@@ -87,11 +87,6 @@ namespace Common.Network
         public INetworkUser Owner { get; }
         public int Id { get; }
         public IReadOnlyList<SharedSessionObject.PropertyUpdate> RawProperties { get; }
-        public byte[] Payload { get; }
-
-        public T ReadPayload<T>() where T : IEntityPayload, new()
-        {
-            return (T)MemoryPackSerializer.Deserialize<IEntityPayload>(Payload);
-        }
+        public IEntityPayload Payload { get; }
     }
 }

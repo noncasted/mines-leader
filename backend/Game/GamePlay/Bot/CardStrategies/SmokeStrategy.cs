@@ -1,4 +1,3 @@
-using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -11,24 +10,19 @@ public class SmokeStrategy : IBotCardStrategy
 {
     public SmokeStrategy(
         IBotContext context,
-        ICardFactory cardFactory,
-        ISnapshotSender snapshotSender,
-        IGameContext gameContext,
         BotBoardUtils boardUtils,
         IBotCommandUtils commandUtils)
     {
         _context = context;
-        _cardFactory = cardFactory;
         _boardUtils = boardUtils;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly ICardFactory _cardFactory;
     private readonly BotBoardUtils _boardUtils;
     private readonly IBotCommandUtils _commandUtils;
 
-    public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Smoke];
+    public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Smoke, CardType.Smoke_Max];
 
     public float Evaluate(CardType type)
     {
@@ -51,13 +45,13 @@ public class SmokeStrategy : IBotCardStrategy
             return false;
 
         var bot = _context.Bot;
-        
+
         var payload = new CardUsePayload.Smoke
         {
             Position = position,
             Type = cardType
         };
-        
+
         return _commandUtils.UseCard(bot, payload);
     }
 }

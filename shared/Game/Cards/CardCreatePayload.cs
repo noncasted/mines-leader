@@ -9,6 +9,5 @@ namespace Shared
     {
         public CardType Type { get; set; }
         public Guid OwnerId { get; set; }
-        public Vector2 SpawnPoint { get; set; }
     }
 }

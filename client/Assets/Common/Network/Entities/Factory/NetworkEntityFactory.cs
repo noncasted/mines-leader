@@ -61,7 +61,7 @@ namespace Common.Network
             {
                 Id = entity.Id,
                 Properties = properties,
-                Payload = MemoryPackSerializer.Serialize(payload)
+                Payload = payload
             };
 
             await _connection.Request<SharedSessionEntity.CreateResponse>(request);
@@ -74,8 +74,7 @@ namespace Common.Network
         {
             await UniTask.SwitchToMainThread();
 
-            var payload = MemoryPackSerializer.Deserialize<IEntityPayload>(data.Payload);
-            var entity = await _listeners[payload.GetType()].Invoke(lifetime, data);
+            var entity = await _listeners[data.Payload.GetType()].Invoke(lifetime, data);
             _entities.Add(entity);
             _objects.Add(entity);
         }

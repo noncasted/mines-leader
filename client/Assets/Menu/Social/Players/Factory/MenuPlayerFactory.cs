@@ -79,7 +79,7 @@ namespace Menu.Social
 
         private async UniTask<INetworkEntity> OnRemote(IReadOnlyLifetime lifetime, RemoteEntityData data)
         {
-            var payload = data.ReadPayload<MenuPlayerPayload>();
+            var payload = (MenuPlayerPayload)data.Payload;
 
             var view = _objectFactory.Create(payload.Position);
             var scope = await _entityScopeLoader.Load(data.Owner.Lifetime, _parentScope, view, Build);

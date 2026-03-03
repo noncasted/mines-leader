@@ -5,15 +5,17 @@ namespace Game.GamePlay;
 
 public class RoundPlayers
 {
-    public RoundPlayers(IGameContext gameContext, IOptions<GameOptions> options)
+    public RoundPlayers(IGameContext gameContext, IOptions<GameOptions> options, ICardFactory cardFactory)
     {
         _gameContext = gameContext;
         _options = options;
+        _cardFactory = cardFactory;
     }
 
     private readonly IGameContext _gameContext;
     private readonly IOptions<GameOptions> _options;
-    
+    private readonly ICardFactory _cardFactory;
+
     public void Setup()
     {
         var options = _options.Value;
@@ -32,7 +34,7 @@ public class RoundPlayers
         }
     }
     
-    public void RestoreCard(IPlayer player, MoveSnapshot snapshot) {
+    public void RestoreCards(IPlayer player) {
         var cardsNeeded = _options.Value.HandSize - player.Hand.Entries.Count;
 
         for (var i = 0; i < cardsNeeded; i++) {
@@ -45,13 +47,17 @@ public class RoundPlayers
 
             var card = player.Deck.DrawCard();
             player.Hand.Add(card);
-            snapshot.RecordCardDraw(player.User.Id, card);
+            _cardFactory.CreateEntity(player, card);
         }
     }
+    
 
     public Guid GetFlagWinner() {
         foreach (var (player, board) in _gameContext.Boards) {
             var allMinesFlagged = true;
+            
+            if (board.Cells.Count == 0)
+                continue;
 
             foreach (var (_, cell) in board.Cells) {
                 if (cell.Status == CellStatus.Free)
