@@ -53,7 +53,7 @@ public class TrebuchetStrategy : IBotCardStrategy
         return 2f; // Низкий приоритет - мы впереди
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
         var position = _boardUtils.FindRandomTakenPosition(opponent: true);
 
@@ -68,6 +68,6 @@ public class TrebuchetStrategy : IBotCardStrategy
             Type = cardType
         };
         
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

@@ -18,7 +18,7 @@ public class OpponentFlagReshuffle : ICard
     private readonly CardConfigOptions.OpponentFlagReshuffle _config;
     private readonly CardUsePayload.OpponentFlagReshuffle _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
@@ -26,8 +26,14 @@ public class OpponentFlagReshuffle : ICard
         var selected = pattern.SelectTaken(_target, _payload.Position);
 
         if (selected.Count == 0)
-            return EmptyResponse.Fail("No free cells in the pattern");
-        
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No free cells in the pattern"),
+                ActionData = null
+            };
+        }
+
         var flagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == true).ToList();
         var notFlagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == false).ToList();
 
@@ -36,13 +42,20 @@ public class OpponentFlagReshuffle : ICard
             var firstFlagged = flagged.First();
             var randomNotFlaggedIndex = Random.Shared.Next(0, notFlagged.Count);
             var randomNotFlagged = notFlagged[randomNotFlaggedIndex];
-            
+
             firstFlagged.RemoveFlag();
             randomNotFlagged.SetFlag();
             flagged.RemoveAt(0);
             notFlagged.RemoveAt(randomNotFlaggedIndex);
         }
 
-        return EmptyResponse.Ok;
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.OpponentFlagReshuffle()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }

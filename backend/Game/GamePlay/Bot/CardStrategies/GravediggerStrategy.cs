@@ -37,7 +37,7 @@ public class GravediggerStrategy : IBotCardStrategy
         return Random.Shared.Next(3, 7);
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
         
@@ -46,6 +46,6 @@ public class GravediggerStrategy : IBotCardStrategy
             Type = cardType
         };
         
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

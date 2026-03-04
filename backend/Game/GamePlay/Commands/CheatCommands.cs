@@ -2,12 +2,12 @@
 
 namespace Game.GamePlay;
 
-public class CardAddCheat(GameCommandUtils utils, ICardFactory cardFactory) : GameCommand<GameCheatContexts.CardAdd>(utils)
+public class CardAddCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.CardAdd>(utils)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.CardAdd request)
     {
-        context.Player.Hand.Add(request.Type);
-        cardFactory.CreateEntity(context.Player, request.Type);
+        var activeCard = context.Player.Hand.Add(request.Type);
+        context.Snapshot.RecordCardAdd(context.Player.User.Id, activeCard.Id, activeCard.Type);
 
         return EmptyResponse.Ok;
     }
@@ -17,8 +17,7 @@ public class CardDiscardCheat(GameCommandUtils utils) : GameCommand<GameCheatCon
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.CardRemove request)
     {
-        context.Player.Hand.Remove(request.Type);
-        context.Snapshot.RecordCardRemove(context.Player.User.Id, request.EntityId, request.Type);
+        context.Player.Hand.Remove(request.CardId);
         return EmptyResponse.Ok;
     }
 }

@@ -1,4 +1,5 @@
-﻿using Common.Network;
+﻿using System;
+using Common.Network;
 using Common.Objects;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
@@ -9,11 +10,10 @@ using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
-    public class CardFactory : IScopeSetup
+    public class CardFactory
     {
         public CardFactory(
             IEntityScopeLoader entityScopeLoader,
-            INetworkEntityFactory entityFactory,
             IGameContext gameContext,
             ICardConfigs configs,
             IEnvDictionary<CardType, ICardDefinition> definitionsCollection,
@@ -26,7 +26,6 @@ namespace GamePlay.Cards
             _configs = configs;
             _definitionsCollection = definitionsCollection;
             _objectFactory = objectFactory;
-            _entityFactory = entityFactory;
             _parentScope = parentScope;
             _options = options;
         }
@@ -36,30 +35,20 @@ namespace GamePlay.Cards
         private readonly ICardConfigs _configs;
         private readonly IEnvDictionary<CardType, ICardDefinition> _definitionsCollection;
         private readonly IObjectFactory<CardScopeEntity> _objectFactory;
-        private readonly INetworkEntityFactory _entityFactory;
         private readonly LifetimeScope _parentScope;
         private readonly CardFactoryOptions _options;
 
-        public void OnSetup(IReadOnlyLifetime lifetime)
+        public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
         {
-            _entityFactory.ListenRemote<CardCreatePayload>(lifetime, Create);
-        }
+            var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
+            var definition = _definitionsCollection[cardType];
 
-        private async UniTask<INetworkEntity> Create(IReadOnlyLifetime lifetime, RemoteEntityData data)
-        {
-            var payload = (CardCreatePayload)data.Payload;
-            var gamePlayer = _gameContext.GetPlayer(payload.OwnerId);
-            var definition = _definitionsCollection[payload.Type];
-
-            var isLocal = data.Owner.IsLocal;
             var prefab = isLocal ? _options.LocalPrefab : _options.RemotePrefab;
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _gameContext.Self.Deck.View.PickPoint : _gameContext.Other.Deck.View.PickPoint;
 
             var view = _objectFactory.Create(prefab, spawnPoint);
             var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
-
-            loadResult.FillProperties(data);
 
             if (isLocal == true)
             {
@@ -71,15 +60,13 @@ namespace GamePlay.Cards
                 var spawn = loadResult.Get<ICardRemoteSpawn>();
                 await spawn.Execute();
             }
-            
-            return loadResult.Get<INetworkEntity>();
 
             void Build(IEntityBuilder builder)
             {
+                builder.RegisterInstance(cardId);
+
                 if (isLocal == true)
                 {
-                    builder.AddLocalEntity(_entityFactory);
-
                     builder
                         .AddCardLocalComponents()
                         .AddCardLocalRoot()
@@ -102,8 +89,6 @@ namespace GamePlay.Cards
                 }
                 else
                 {
-                    builder.AddRemoteEntity(data);
-
                     builder
                         .AddCardRemoteComponents()
                         .AddCardRemoteRoot()

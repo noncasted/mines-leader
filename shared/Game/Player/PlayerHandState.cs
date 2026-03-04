@@ -6,6 +6,6 @@ namespace Shared
     [MemoryPackable]
     public partial class PlayerHandState
     {
-        public List<CardType> Entries { get; } = new();
+        public List<ActiveCard> Entries { get; } = new();
     }
 }

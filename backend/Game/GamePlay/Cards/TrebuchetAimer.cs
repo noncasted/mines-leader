@@ -13,10 +13,15 @@ public class TrebuchetAimer : ICard
     private readonly IPlayer _owner;
     private readonly CardConfigOptions.TrebuchetAimer _config;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var newValue = _owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] + _config.Size;
         _owner.Modifiers.Set(PlayerModifier.TrebuchetBoost, newValue);
-        return EmptyResponse.Ok;
+
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.TrebuchetAimer()
+        };
     }
 }

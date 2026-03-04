@@ -19,24 +19,27 @@ public class MoveSnapshot
         _isLocked = false;
     }
 
-    public void RecordCard(Guid playerId, int entityId, CardType type, ICardActionData data)
+    public void RecordCard(Guid playerId, Guid cardId, ICardActionData data)
     {
-        _records.Add(new PlayerSnapshotRecord.Card()
-            {
-                PlayerId = playerId,
-                EntityId = entityId,
-                Type = type,
-                Data = data
-            }
-        );
+        var record = new PlayerSnapshotRecord.CardUse()
+        {
+            PlayerId = playerId,
+            CardId = cardId,
+            Data = data
+        };
+
+        if (_records.Count != 0)
+            _records.Insert(0, record);
+        else
+            _records.Add(record);
     }
 
-    public void RecordCardRemove(Guid playerId, int entityId, CardType type)
+    public void RecordCardAdd(Guid playerId, Guid cardId, CardType type)
     {
-        _records.Add(new PlayerSnapshotRecord.CardRemove()
+        _records.Add(new PlayerSnapshotRecord.CardAdd()
             {
                 PlayerId = playerId,
-                EntityId = entityId,
+                CardId = cardId,
                 Type = type
             }
         );

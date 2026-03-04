@@ -9,11 +9,10 @@ namespace GamePlay.Cards
         public static IScopeBuilder AddCardServices(this IScopeBuilder builder)
         {
             builder.Register<CardFactory>()
-                .WithAsset<CardFactoryOptions>()
-                .As<IScopeSetup>();
+                .WithAsset<CardFactoryOptions>();
 
             builder.RegisterEnvDictionary<CardType, ICardDefinition, CardDefinition>();
-            
+
             return builder;
         }
     }

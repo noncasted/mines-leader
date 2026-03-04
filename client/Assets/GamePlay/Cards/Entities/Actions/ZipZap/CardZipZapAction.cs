@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
@@ -8,24 +8,25 @@ using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GamePlay.Cards
 {
     public class CardZipZapAction : ICardAction
     {
         public CardZipZapAction(
-            INetworkEntity entity,
+            Guid cardId,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             ICardContext context)
         {
-            _entity = entity;
+            _cardId = cardId;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _context = context;
         }
 
-        private readonly INetworkEntity _entity;
+        private readonly Guid _cardId;
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly ICardContext _context;
@@ -43,7 +44,7 @@ namespace GamePlay.Cards
                 Payload = new CardUsePayload.ZipZap()
                 {
                     Position = result.Position.ToPosition(),
-                    EntityId = _entity.Id
+                    CardId = _cardId
                 }
             };
         }

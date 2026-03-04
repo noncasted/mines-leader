@@ -5,16 +5,14 @@ namespace Game.GamePlay;
 
 public class RoundPlayers
 {
-    public RoundPlayers(IGameContext gameContext, IOptions<GameOptions> options, ICardFactory cardFactory)
+    public RoundPlayers(IGameContext gameContext, IOptions<GameOptions> options)
     {
         _gameContext = gameContext;
         _options = options;
-        _cardFactory = cardFactory;
     }
 
     private readonly IGameContext _gameContext;
     private readonly IOptions<GameOptions> _options;
-    private readonly ICardFactory _cardFactory;
 
     public void Setup()
     {
@@ -34,7 +32,7 @@ public class RoundPlayers
         }
     }
     
-    public void RestoreCards(IPlayer player) {
+    public void RestoreCards(IPlayer player, MoveSnapshot snapshot) {
         var cardsNeeded = _options.Value.HandSize - player.Hand.Entries.Count;
 
         for (var i = 0; i < cardsNeeded; i++) {
@@ -46,8 +44,8 @@ public class RoundPlayers
             }
 
             var card = player.Deck.DrawCard();
-            player.Hand.Add(card);
-            _cardFactory.CreateEntity(player, card);
+            var activeCard = player.Hand.Add(card);
+            snapshot.RecordCardAdd(player.User.Id, activeCard.Id, activeCard.Type);
         }
     }
     

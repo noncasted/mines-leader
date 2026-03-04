@@ -18,13 +18,25 @@ public class OpponentBomb : ICard
     private readonly IBoard _target;
     private readonly CardUsePayload.OpponentBomb _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
-            return EmptyResponse.Fail($"No cell at position {_payload.Position}");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail($"No cell at position {_payload.Position}"),
+                ActionData = null
+            };
+        }
 
         if (cell.IsTaken() == false)
-            return EmptyResponse.Fail($"Cell at position {_payload.Position} is not taken");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail($"Cell at position {_payload.Position} is not taken"),
+                ActionData = null
+            };
+        }
 
         var taken = cell.ToTaken();
 
@@ -40,6 +52,13 @@ public class OpponentBomb : ICard
 
         _target.Revealer.Reveal(cell.Position);
 
-        return EmptyResponse.Ok;
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.OpponentBomb()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }

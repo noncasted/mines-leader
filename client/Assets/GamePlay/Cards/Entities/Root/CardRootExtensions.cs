@@ -19,8 +19,7 @@ namespace GamePlay.Cards
             builder.Register<RemoteCard>()
                 .WithParameter(builder.ScopeLifetime)
                 .As<IRemoteCard>()
-                .As<ICard>()
-                .As<IScopeSetup>();
+                .As<ICard>();
 
             return builder;
         }

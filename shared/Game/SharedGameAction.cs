@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System;
+using MemoryPack;
 
 namespace Shared
 {
@@ -31,7 +32,7 @@ namespace Shared
         [MemoryPackable]
         public partial class CardUse : INetworkContext
         {
-            public int Index { get; set; }
+            public Guid CardId { get; set; }
             public ICardUsePayload Payload { get; set; }
         }
 

@@ -6,21 +6,19 @@ namespace Shared
     public partial class PlayerSnapshotRecord
     {
         [MemoryPackable]
-        public partial class Card : IMoveSnapshotRecord
+        public partial class CardUse : IMoveSnapshotRecord
         {
             public Guid PlayerId { get; set; }
             public ICardActionData Data { get; set; }
-            public CardType Type { get; set; }
-            public int EntityId { get; set; }
+            public Guid CardId { get; set; }
         }
 
         [MemoryPackable]
-        public partial class CardRemove : IMoveSnapshotRecord
+        public partial class CardAdd : IMoveSnapshotRecord
         {
             public Guid PlayerId { get; set; }
             public CardType Type { get; set; }
-            public int EntityId { get; set; }
+            public Guid CardId { get; set; }
         }
-
     }
 }

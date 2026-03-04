@@ -7,7 +7,7 @@ public interface IBotCommandUtils
 {
     void WithSnapshot(Action action);
     void WithSnapshot(Action<MoveSnapshot> action);
-    bool UseCard(IPlayer bot, ICardUsePayload payload);
+    bool UseCard(IPlayer bot, Guid cardId, ICardUsePayload payload);
 }
 
 public class BotCommandUtils : IBotCommandUtils
@@ -50,22 +50,26 @@ public class BotCommandUtils : IBotCommandUtils
         _snapshotSender.Send(snapshot);
     }
 
-    public bool UseCard(IPlayer bot, ICardUsePayload payload)
+    public bool UseCard(IPlayer bot, Guid cardId, ICardUsePayload payload)
     {
-        var cardUsed = false;
+        var wasUsed = false;
 
         WithSnapshot(snapshot =>
             {
                 var card = _cardFactory.Create(bot, snapshot, payload);
-                var result = card.Use();
-                cardUsed = result.HasError == false;
+                var use = card.Use();
+                wasUsed = use.Result.HasError == false;
+
+                if (wasUsed == false)
+                    return;
+                
+                snapshot.RecordCard(bot.User.Id, cardId, use.ActionData!);
 
                 foreach (var (_, board) in _gameContext.Boards)
                     board.OnUpdated();
             }
         );
 
-        return cardUsed;
-
+        return wasUsed;
     }
 }

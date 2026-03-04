@@ -43,7 +43,7 @@
                         @if (_deckCards != null && _deckCards.Count > 0) {
                             <MudStack Spacing="1">
                                 @foreach (var (index, card) in _deckCards.Select((c, i) => (i, c))) {
-                                    var cardLabel = $"Card {index + 1}";
+                                    var cardLabel = $"CardUse {index + 1}";
                                     <MudGrid Spacing="1">
                                         <MudItem xs="12" sm="6">
                                             <MudSelect

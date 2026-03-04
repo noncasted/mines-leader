@@ -18,7 +18,7 @@ public class ErosionDozer : ICard
     private readonly CardConfigOptions.ErosionDozer _config;
     private readonly CardUsePayload.ErosionDozer _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size;
 
@@ -28,7 +28,13 @@ public class ErosionDozer : ICard
         var limited = ordered.Take(size).ToList();
 
         if (limited.Count == 0)
-            return EmptyResponse.Fail("No taken cells in the pattern");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No taken cells in the pattern"),
+                ActionData = null
+            };
+        }
 
         foreach (var cell in limited)
             cell.ToFree();
@@ -36,6 +42,13 @@ public class ErosionDozer : ICard
         foreach (var cell in limited)
             _target.Revealer.Reveal(cell.Position);
 
-        return EmptyResponse.Ok;
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.ErosionDozer()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }

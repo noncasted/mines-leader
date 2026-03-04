@@ -6,7 +6,6 @@ namespace GamePlay.Cards
     public interface ILocalCard : ICard
     {
         IViewableDelegate Used { get; }
-        
-        UniTask Destroy();
+        ICardLocalDrop Drop { get; }
     }
 }

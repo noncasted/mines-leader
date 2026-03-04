@@ -53,7 +53,7 @@ public class OpponentFlagReshuffleStrategy : IBotCardStrategy
         return 3f;
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
         if (!_boardUtils.HasFlaggedCells(opponent: true))
             return false;
@@ -67,6 +67,6 @@ public class OpponentFlagReshuffleStrategy : IBotCardStrategy
             Type = cardType
         };
         
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

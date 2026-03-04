@@ -19,24 +19,22 @@ namespace GamePlay.Cards
         public CardLocalDrag(
             INetworkConnection connection,
             IUpdater updater,
-            INetworkEntity entity,
+            ILocalCard card,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
             ICardAction action,
-            ICardLocalDrop drop,
             IPlayerMoves moves,
             ICardDefinition definition,
             CardDragOptions options)
         {
             _connection = connection;
             _updater = updater;
-            _entity = entity;
+            _card = card;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _stateLifetime = stateLifetime;
             _action = action;
-            _drop = drop;
             _moves = moves;
             _definition = definition;
             _options = options;
@@ -44,12 +42,11 @@ namespace GamePlay.Cards
 
         private readonly INetworkConnection _connection;
         private readonly IUpdater _updater;
-        private readonly INetworkEntity _entity;
+        private readonly ILocalCard _card;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
-        private readonly ICardLocalDrop _drop;
         private readonly IPlayerMoves _moves;
         private readonly ICardDefinition _definition;
         private readonly CardDragOptions _options;
@@ -78,14 +75,13 @@ namespace GamePlay.Cards
                 useResult.Payload.Type = _definition.Type;
                 var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                     {
-                        Index = _entity.Id,
+                        CardId = _card.Id,
                         Payload = useResult.Payload
                     }
                 );
 
                 if (requestResult.HasError == false)
                 {
-                    _drop.Enter().Forget();
                     return;
                 }
             }

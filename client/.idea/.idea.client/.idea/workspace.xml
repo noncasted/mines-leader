@@ -5,11 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4315cbfa-733b-4482-bc8c-f9452daa3678" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Remote/Drop.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Remote/Drop/CardRemoteDrop.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Remote/Drop/CardRemoteDrop.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardAddSnapshotHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardAddSnapshotHandler.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../shared/Game/Player/ActiveCard.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../shared/Game/Player/ActiveCard.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotCardAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotCardAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotCellAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotCellAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotFlagAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/Actions/BotFlagAction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/BotCommandUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/BotCommandUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/BotRunner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/BotRunner.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/BloodhoundStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/BloodhoundStrategy.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/BotCardStrategies.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/BotCardStrategies.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/ErosionDozerStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/ErosionDozerStrategy.cs" afterDir="false" />
@@ -21,45 +25,51 @@
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/TrebuchetAimerStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/TrebuchetAimerStrategy.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/TrebuchetStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/TrebuchetStrategy.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/ZipZapStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Bot/CardStrategies/ZipZapStrategy.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Bloodhound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Bloodhound.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ErosionDozer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ErosionDozer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/GraveDigger.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/GraveDigger.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ICard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ICard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentBomb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentBomb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagErase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagErase.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagReshuffle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentFlagReshuffle.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Smoke.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Smoke.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Trebuchet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/Trebuchet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/TrebuchetAimer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/TrebuchetAimer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ZipZap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/ZipZap.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CheatCommands.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CheatCommands.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/MoveSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/MoveSnapshot.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/RoundPlayers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/RoundPlayers.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/Entity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/Entity.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/EntityBuilder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/EntityBuilder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/SessionEntities.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Session/Objects/Entities/SessionEntities.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Game/Session/SessionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Session/SessionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Meta/Bots/BotFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Meta/Bots/BotFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Meta/Users/Decks/DeckOptions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Meta/Users/Decks/DeckOptions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/Meta/Users/Decks/UserDeck.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Meta/Users/Decks/UserDeck.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Hand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Hand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Bots/BotEditor.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Bots/BotEditor.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Configs/Configs.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Configs/Configs.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Common/Network/Commands/EntityDestroyedCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Common/Network/Commands/EntityDestroyedCommand.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Common/Network/Entities/Factory/INetworkEntityFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Common/Network/Entities/Factory/INetworkEntityFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Common/Network/Entities/Factory/NetworkEntityFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Common/Network/Entities/Factory/NetworkEntityFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/ZipZap/CardZipZapAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Actions/ZipZap/CardZipZapAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/CardRootExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/CardRootExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/ICard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/ICard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/ILocalCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/ILocalCard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/IRemoteCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/IRemoteCard.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/LocalCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/LocalCard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/RemoteCard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/Root/RemoteCard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/CardStatesExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/CardStatesExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Local/Drag/CardLocalDrag.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Local/Drag/CardLocalDrag.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Local/Drop/CardLocalDrop.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/States/Local/Drop/CardLocalDrop.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/CardServicesExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/CardServicesExtensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Loop/Context/TimeLimitedGameRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Loop/Context/TimeLimitedGameRound.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Players/Services/Factory/GamePlayerFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Players/Services/Factory/GamePlayerFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Services/ISnapshotHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Services/ISnapshotHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Services/SnapshotReceiver.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Services/SnapshotReceiver.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cheats/Actions/CardDiscard/CardDiscardGameCheat.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cheats/Actions/CardDiscard/CardDiscardGameCheat.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardActionSnapshotHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardActionSnapshotHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardDrawSnapshotHandler.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardDrawSnapshotHandler.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardRemoveSnapshotHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardRemoveSnapshotHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardTakeoutFromStashSnapshotHandler.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardTakeoutFromStashSnapshotHandler.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardRemoveSnapshotHandler.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/CardRemoveSnapshotHandler.cs.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Sync/GamePlaySyncExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Sync/GamePlaySyncExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Menu/Social/Players/Factory/MenuPlayerFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Menu/Social/Players/Factory/MenuPlayerFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../shared/Game/Cards/CardCreatePayload.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Cards/CardCreatePayload.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Cards/ICardUsePayload.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Cards/ICardUsePayload.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Cheats/GameCheatContexts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Cheats/GameCheatContexts.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Player/PlayerHandState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Player/PlayerHandState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/SharedGameAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/SharedGameAction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../shared/Game/Snapshots/PlayerSnapshotRecord.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Snapshots/PlayerSnapshotRecord.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../shared/Game/Snapshots/SharedMoveSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Game/Snapshots/SharedMoveSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../shared/Session/SharedSessionEntity.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../shared/Session/SharedSessionEntity.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

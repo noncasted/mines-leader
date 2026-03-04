@@ -24,7 +24,7 @@ public class ZipZap : ICard
     private readonly CardConfigOptions.ZipZap _config;
     private readonly CardUsePayload.ZipZap _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
@@ -33,13 +33,25 @@ public class ZipZap : ICard
         var selected = pattern.SelectFree(_target, _payload.Position);
 
         if (selected.Count == 0)
-            return EmptyResponse.Fail("No taken cells in the pattern");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No taken cells in the pattern"),
+                ActionData = null
+            };
+        }
 
         var targets = new List<ITakenCell>();
         var current = SelectTarget(_payload.Position);
 
         if (current == null)
-            return EmptyResponse.Fail("No target found in the pattern");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No target found in the pattern"),
+                ActionData = null
+            };
+        }
 
         targets.Add(current);
 
@@ -54,7 +66,13 @@ public class ZipZap : ICard
         }
 
         if (targets.Count == 0)
-            return EmptyResponse.Fail("No targets found in the pattern");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No targets found in the pattern"),
+                ActionData = null
+            };
+        }
 
         _snapshot.Lock();
 
@@ -63,21 +81,23 @@ public class ZipZap : ICard
 
         _snapshot.Unlock();
 
-        var snapshot = new CardActionSnapshot.ZipZap()
-        {
-            TargetPlayer = _owner.User.Id,
-            Targets = targets.Select(t => t.Position).ToList()
-        };
-        
-        _snapshot.RecordCard(_owner.User.Id, _payload.EntityId, _payload.Type, snapshot);
-
         foreach (var target in targets)
             _target.Revealer.Reveal(target.Position);
 
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.ZipZap()
+            {
+                TargetPlayer = _target.OwnerId,
+                Targets = targets.Select(t => t.Position).ToList()
+            }
+        };
+        
         ITakenCell? SelectTarget(Position center)
         {
             var searchPositions = searchShape.SelectTaken(_target, center);
-            var hasMine = Enumerable.Where<ITakenCell>(searchPositions, x => x.HasMine == true);
+            var hasMine = searchPositions.Where(x => x.HasMine == true);
             var hasFlags = hasMine.Where(x => x.IsFlagged == false);
             var unique = hasFlags.Where(x => targets.Contains(x) == false);
 
@@ -90,7 +110,5 @@ public class ZipZap : ICard
 
             return ordered.First();
         }
-
-        return EmptyResponse.Ok;
     }
 }

@@ -7,34 +7,27 @@ namespace GamePlay.Cards
 {
     public interface ICardLocalDrop
     {
-        UniTask Enter();
+        UniTask Enter(IReadOnlyLifetime lifetime);
     }
     
     public class CardLocalDrop : ICardLocalDrop
     {
         public CardLocalDrop(
             IUpdater updater,
-            ICardStateLifetime stateLifetime,
-            ILocalCard card,
             ICardTransform transform,
             CardDropOptions options)
         {
             _updater = updater;
-            _card = card;
             _transform = transform;
             _options = options;
-            _stateLifetime = stateLifetime;
         }
 
         private readonly IUpdater _updater;
-        private readonly ICardStateLifetime _stateLifetime;
-        private readonly ILocalCard _card;
         private readonly ICardTransform _transform;
         private readonly CardDropOptions _options;
 
-        public async UniTask Enter()
+        public async UniTask Enter(IReadOnlyLifetime lifetime)
         {
-            var lifetime = _stateLifetime.OccupyLifetime();
             var startPosition = _transform.Position;
             var direction = (_transform.Rotation + 90f).ToAngle().ToVector2();
             var targetPosition = startPosition + direction * _options.MoveDistance;
@@ -53,8 +46,6 @@ namespace GamePlay.Cards
                 _transform.SetScale(new Vector2(xScale, 1f));
                 _transform.SetPosition(position);
             });
-
-            await _card.Destroy();
         }
     }
 }
