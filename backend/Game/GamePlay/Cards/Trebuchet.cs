@@ -23,6 +23,15 @@ public class Trebuchet : ICard
 
     public CardUseResult Use()
     {
+        if (_target.Cells.Count == 0)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("Target board has no cells"),
+                ActionData = null
+            };
+        }
+        
         var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 
