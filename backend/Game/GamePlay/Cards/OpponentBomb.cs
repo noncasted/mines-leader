@@ -20,6 +20,15 @@ public class OpponentBomb : ICard
 
     public CardUseResult Use()
     {
+        if (_target.Cells.Count == 0)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("Target board has no cells"),
+                ActionData = null
+            };
+        }
+        
         if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
         {
             return new CardUseResult
