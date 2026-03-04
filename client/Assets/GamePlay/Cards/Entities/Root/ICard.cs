@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
 using Shared;
@@ -7,7 +8,7 @@ namespace GamePlay.Cards
 {
     public interface ICard
     {
-        int EntityId { get; }
+        Guid Id { get; }
         CardType Type { get; }
         ICardDefinition Definition { get; }
         IHand Hand { get; }
@@ -15,5 +16,6 @@ namespace GamePlay.Cards
         IReadOnlyLifetime Lifetime { get; }
 
         UniTask Use(IReadOnlyLifetime lifetime, ICardActionData payload);
+        UniTask Destroy();
     }
 }

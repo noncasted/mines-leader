@@ -37,7 +37,7 @@ public class SmokeStrategy : IBotCardStrategy
         return Random.Shared.Next(1, 5);
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
         var position = _boardUtils.FindRandomTakenPosition(opponent: true);
 
@@ -52,6 +52,6 @@ public class SmokeStrategy : IBotCardStrategy
             Type = cardType
         };
 
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

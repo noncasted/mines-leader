@@ -31,6 +31,10 @@ namespace GamePlay.Cards
 
         public static IEntityBuilder AddCardRemoteStates(this IEntityBuilder builder)
         {
+            builder.Register<CardRemoteDrop>()
+                .WithAsset<CardDropOptions>()
+                .As<ICardRemoteDrop>();
+
             builder.Register<CardRemoteIdle>()
                 .WithAsset<CardRemoteIdleOptions>()
                 .As<ICardRemoteIdle>();

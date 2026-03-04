@@ -9,8 +9,8 @@ namespace GamePlay
         public static IScopeBuilder AddSnapshotSync(this IScopeBuilder builder)
         {
             builder.AddSnapshotHandler<BoardSnapshotHandler, SharedBoardSnapshot>();
-            builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.Card>();
-            builder.AddSnapshotHandler<CardRemoveSnapshotHandler, PlayerSnapshotRecord.CardRemove>();
+            builder.AddSnapshotHandler<CardAddSnapshotHandler, PlayerSnapshotRecord.CardAdd>();
+            builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.CardUse>();
 
             return builder;
         }

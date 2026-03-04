@@ -41,26 +41,54 @@ public class ZipZapStrategy : IBotCardStrategy
         return 2f;
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = _boardUtils.FindClosestUnflaggedMine();
+        var position = GetPosition();
 
         if (position == new Position(-1, -1))
             return false;
 
         var bot = _context.Bot;
 
-        var entity = _sessionEntities.Entries.Values
-            .Where(e => e.Owner == bot.User)
-            .FirstOrDefault(e => e.Payload is CardCreatePayload { Type: CardType.ZipZap or CardType.ZipZap_Max })!;
-
         var payload = new CardUsePayload.ZipZap
         {
             Position = position,
             Type = cardType,
-            EntityId = entity.Id
+            CardId = cardId
         };
 
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
+
+        Position GetPosition()
+        {
+            var board = _context.Bot.Board;
+        
+            foreach (var (checkPosition, cell) in board.Cells)
+            {
+                if (cell.IsTaken() == true)
+                    continue;
+            
+                if (cell.AsFree().MinesAround == 0)
+                    continue;
+
+                var neighbours = board.NeighbourPositions(checkPosition);
+                
+                foreach (var neighbour in neighbours)
+                {
+                    if (board.Cells[neighbour].IsTaken() == false)
+                        continue;
+
+                    var takenCell = board.Cells[neighbour].AsTaken();
+                    
+                    if (takenCell.IsFlagged == true)
+                        continue;
+
+                    if (takenCell.HasMine == true)
+                        return checkPosition;
+                }
+            }
+            
+            return new Position(-1, -1);
+        }
     }
 }

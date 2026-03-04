@@ -40,7 +40,7 @@ public class ErosionDozerStrategy : IBotCardStrategy
         return 2f;
     }
 
-    public bool Execute(CardType cardType)
+    public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
         var position = _boardUtils.FindRandomTakenPosition();
@@ -54,6 +54,6 @@ public class ErosionDozerStrategy : IBotCardStrategy
             Type = cardType
         };
         
-        return _commandUtils.UseCard(bot, payload);
+        return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

@@ -57,7 +57,7 @@ public class LastManStandingRound : Service, IGameRound
             player.Deck.Init();
 
         foreach (var player in players)
-            _players.RestoreCards(player);
+            _players.RestoreCards(player, snapshot);
 
         foreach (var player in players)
             player.Board.MinesScanner.Start(lifetime);
@@ -151,7 +151,9 @@ public class LastManStandingRound : Service, IGameRound
         player.Mana.SetMax(player.Mana.Max + 1);
         player.Mana.Restore();
 
-        _players.RestoreCards(player);
+        var snapshot = new MoveSnapshot();
+        _players.RestoreCards(player, snapshot);
+        _snapshotSender.Send(snapshot);
 
         _roundActionService.Tick();
         player.Moves.Lock();

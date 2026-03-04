@@ -5,12 +5,12 @@ namespace Game.GamePlay;
 
 public interface IHand
 {
-    IReadOnlyList<CardType> Entries { get; }
+    IReadOnlyList<ActiveCard> Entries { get; }
     int Size { get; }
 
     void SetSize(int value);
-    void Add(CardType card);
-    void Remove(CardType card);
+    ActiveCard Add(CardType cardType);
+    void Remove(Guid cardId);
 }
 
 public class Hand : IHand
@@ -24,7 +24,7 @@ public class Hand : IHand
 
     private int _size;
 
-    public IReadOnlyList<CardType> Entries => _state.Value.Entries;
+    public IReadOnlyList<ActiveCard> Entries => _state.Value.Entries;
     public int Size => _size;
 
     public void SetSize(int value)
@@ -32,13 +32,15 @@ public class Hand : IHand
         _size = value;
     }
 
-    public void Add(CardType card)
+    public ActiveCard Add(CardType cardType)
     {
-        _state.Value.Entries.Add(card);
+        var activeCard = new ActiveCard { Id = Guid.NewGuid(), Type = cardType };
+        _state.Value.Entries.Add(activeCard);
+        return activeCard;
     }
 
-    public void Remove(CardType card)
+    public void Remove(Guid cardId)
     {
-        _state.Value.Entries.Remove(card);
+        _state.Value.Entries.RemoveAll(c => c.Id == cardId);
     }
 }

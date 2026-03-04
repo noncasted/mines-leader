@@ -14,8 +14,7 @@ namespace Shared
         [MemoryPackable]
         public partial class CardRemove : INetworkContext
         {
-            public int EntityId { get; set; }
-            public CardType Type { get; set; }
+            public Guid CardId { get; set; }
         }
 
         [MemoryPackable]

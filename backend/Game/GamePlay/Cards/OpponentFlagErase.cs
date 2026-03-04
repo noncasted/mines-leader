@@ -18,7 +18,7 @@ public class OpponentFlagErase : ICard
     private readonly CardConfigOptions.OpponentFlagErase _config;
     private readonly CardUsePayload.OpponentFlagErase _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
@@ -26,13 +26,26 @@ public class OpponentFlagErase : ICard
         var selected = pattern.SelectTaken(_target, _payload.Position);
 
         if (selected.Count == 0)
-            return EmptyResponse.Fail("No free cells in the pattern");
-        
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No free cells in the pattern"),
+                ActionData = null
+            };
+        }
+
         var flagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == true);
 
         foreach (var cell in flagged)
             cell.RemoveFlag();
-        
-        return EmptyResponse.Ok;
+
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.OpponentFlagErase()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }

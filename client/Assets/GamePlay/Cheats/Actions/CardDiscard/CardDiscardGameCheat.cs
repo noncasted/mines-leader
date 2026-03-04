@@ -41,8 +41,7 @@ namespace GamePlay.Cheats
 
                     view.Clicked.Advise(lifetime, () => _connection.Request(new GameCheatContexts.CardRemove()
                             {
-                                Type = card.Definition.Type,
-                                EntityId = card.EntityId
+                                CardId = card.Id
                             }
                         )
                     );

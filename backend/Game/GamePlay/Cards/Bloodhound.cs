@@ -18,7 +18,7 @@ public class Bloodhound : ICard
     private readonly CardConfigOptions.Bloodhound _config;
     private readonly CardUsePayload.Bloodhound _payload;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
@@ -26,14 +26,26 @@ public class Bloodhound : ICard
         var selected = pattern.SelectTaken(_target, _payload.Position);
 
         if (selected.Count == 0)
-            return EmptyResponse.Fail("No taken cells in the pattern");
-
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No taken cells in the pattern"),
+                ActionData = null
+            };
+        }
         foreach (var cell in selected)
             cell.ToFree();
 
         foreach (var cell in selected)
             _target.Revealer.Reveal(cell.Position);
 
-        return EmptyResponse.Ok;
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.Bloodhound()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }

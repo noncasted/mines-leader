@@ -7,7 +7,6 @@ namespace Game.GamePlay;
 public interface ICardFactory
 {
     ICard Create(IPlayer owner, MoveSnapshot snapshot, ICardUsePayload payload);
-    void CreateEntity(IPlayer owner, CardType cardType);
 }
 
 public class CardFactory : ICardFactory
@@ -15,19 +14,16 @@ public class CardFactory : ICardFactory
     public CardFactory(
         IGameContext gameContext,
         IRoundActionService roundActionService,
-        ICardConfigs configs,
-        IEntityFactory entityFactory)
+        ICardConfigs configs)
     {
         _gameContext = gameContext;
         _roundActionService = roundActionService;
         _configs = configs;
-        _entityFactory = entityFactory;
     }
 
     private readonly IGameContext _gameContext;
     private readonly IRoundActionService _roundActionService;
     private readonly ICardConfigs _configs;
-    private readonly IEntityFactory _entityFactory;
 
     public ICard Create(IPlayer owner, MoveSnapshot snapshot, ICardUsePayload payload)
     {
@@ -87,7 +83,7 @@ public class CardFactory : ICardFactory
                 _configs.Value.ErosionDozer_Max,
                 (CardUsePayload.ErosionDozer)payload
             ),
-            CardType.Gravedigger => new GraveDigger(owner, snapshot, this),
+            CardType.Gravedigger => new GraveDigger(owner, snapshot),
             CardType.OpponentBomb => new OpponentBomb(
                 _gameContext.GetOpponent(owner),
                 GetBoard(_gameContext.GetOpponent(owner), payload),
@@ -127,19 +123,6 @@ public class CardFactory : ICardFactory
             ),
             _ => throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, null)
         };
-    }
-
-    public void CreateEntity(IPlayer owner, CardType cardType)
-    {
-        var entityBuilder = _entityFactory.Create(owner.User);
-
-        var payload = new CardCreatePayload()
-        {
-            Type = cardType,
-            OwnerId = owner.User.Id,
-        };
-
-        entityBuilder.WithPayload(payload).Build();
     }
 
     IBoard GetBoard(IPlayer owner, ICardUsePayload payload)

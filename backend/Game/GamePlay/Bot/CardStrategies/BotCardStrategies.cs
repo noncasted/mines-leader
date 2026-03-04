@@ -7,7 +7,7 @@ public interface IBotCardStrategy
     IReadOnlyList<CardType> TargetCards { get; }
 
     float Evaluate(CardType type);
-    bool Execute(CardType cardType);
+    bool Execute(Guid cardId, CardType cardType);
 }
 
 public interface IBotCardStrategies

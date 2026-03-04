@@ -4,33 +4,39 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class CardUseCommand
-(GameCommandUtils utils,
-    ICardConfigs configs) : GameCommand<SharedGameAction.CardUse>(utils)
+public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
+    : GameCommand<SharedGameAction.CardUse>(utils)
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
     {
-        Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
-            context.Player.User.Id, request.Payload.Type
-        );
-        
         var player = context.Player;
+        var handCard = player.Hand.Entries.FirstOrDefault(c => c.Id == request.CardId);
+
+        if (handCard == null)
+            return EmptyResponse.Fail($"Card {request.CardId} not found in hand");
+
+        Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
+            context.Player.User.Id, handCard.Type
+        );
+
         var card = Utils.CardFactory.Create(player, context.Snapshot, request.Payload);
-        player.Hand.Remove(request.Payload.Type);
+        player.Hand.Remove(request.CardId);
 
-        var result = card.Use();
+        var use = card.Use();
 
-        if (result.HasError == true)
-            return result;
+        if (use.Result.HasError == true)
+            return use.Result;
 
+        context.Snapshot.RecordCard(player.User.Id, request.CardId, use.ActionData!);
+        
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
 
-        var config = configs.Value.All[request.Payload.Type];
-        player.Stash.Add(request.Payload.Type);
+        var config = configs.Value.All[handCard.Type];
+        player.Stash.Add(handCard.Type);
         player.Mana.Use(config.ManaCost);
         player.Moves.OnUsed();
 
-        return result;
+        return use.Result;
     }
 }

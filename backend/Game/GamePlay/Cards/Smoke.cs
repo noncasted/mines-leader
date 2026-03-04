@@ -21,7 +21,7 @@ public class Smoke : ICard
     private readonly CardConfigOptions.Smoke _config;
     private readonly IRoundActionService _roundActionService;
 
-    public EmptyResponse Use()
+    public CardUseResult Use()
     {
         var size = _config.Size;
 
@@ -30,7 +30,13 @@ public class Smoke : ICard
         var selected = pattern.SelectAll(_target, _payload.Position);
 
         if (selected.Count == 0)
-            return EmptyResponse.Fail("No cells in the pattern");
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No cells in the pattern"),
+                ActionData = null
+            };
+        }
 
         var effectId = Guid.NewGuid();
         var affectedCells = new List<ICell>();
@@ -46,7 +52,14 @@ public class Smoke : ICard
         var disposeAction = new SmokeDisposeAction(effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, duration);
 
-        return EmptyResponse.Ok;
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok,
+            ActionData = new CardActionSnapshot.Smoke()
+            {
+                TargetPlayer = _target.OwnerId
+            }
+        };
     }
 }
 

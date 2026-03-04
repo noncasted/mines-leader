@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System;
+using MemoryPack;
 
 namespace Shared
 {
@@ -30,7 +31,7 @@ namespace Shared
         {
             public CardType Type { get; set; }
             public Position Position { get; set; }
-            public int EntityId { get; set; }
+            public Guid CardId { get; set; }
         }
 
         [MemoryPackable]

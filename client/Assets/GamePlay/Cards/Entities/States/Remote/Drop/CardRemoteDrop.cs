@@ -1,18 +1,18 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public interface ICardLocalDrop
+    public interface ICardRemoteDrop
     {
         UniTask Enter(IReadOnlyLifetime lifetime);
     }
-    
-    public class CardLocalDrop : ICardLocalDrop
+
+    public class CardRemoteDrop : ICardRemoteDrop
     {
-        public CardLocalDrop(
+        public CardRemoteDrop(
             IUpdater updater,
             ICardTransform transform,
             CardDropOptions options)
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
         {
             var startPosition = _transform.Position;
             var direction = (_transform.Rotation + 90f).ToAngle().ToVector2();
-            var targetPosition = startPosition + direction * _options.MoveDistance;
+            var targetPosition = startPosition + direction * _options.MoveDistance * -1f;
 
             var timer = 0f;
 
