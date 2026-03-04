@@ -20,7 +20,6 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
         }
 
         context.Player.Moves.OnUsed();
-        board.Revealer.Reveal(request.Position);
         targetCell.ToFree();
         board.Revealer.Reveal(request.Position);
         board.OnUpdated();

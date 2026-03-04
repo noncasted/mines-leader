@@ -103,13 +103,70 @@ public static class BoardPositionsExtensions
 
         void Check(Position target)
         {
-            var neighbours = board.NeighbourPositions(target);
-            neighbours.RemoveWhere(t => passed.Contains(t));
-            neighbours.RemoveWhere(t => board.Cells[t].Status == CellStatus.Free);
+            var containsInvalidFreeCell = false;
 
-            foreach (var neighbour in neighbours)
+            foreach (var direction in Directions)
             {
-                var cell = board.Cells[neighbour];
+                var checkPosition = target + direction;
+
+                if (board.Cells.TryGetValue(checkPosition, out var cell) == false)
+                    continue;
+
+                if (cell.Status != CellStatus.Taken)
+                    continue;
+
+                if (passed.Contains(checkPosition) == false)
+                    continue;
+
+                foreach (var checkFreeDirection in Directions)
+                {
+                    var checkFreePosition = checkPosition + checkFreeDirection;
+
+                    if (board.Cells.TryGetValue(checkFreePosition, out var checkFreeCell) == false)
+                        continue;
+
+                    if (checkFreeCell.Status != CellStatus.Free)
+                        continue;
+
+                    var minesAroundCount = GetMinesAroundCount(checkFreePosition);
+
+                    if (minesAroundCount == 0)
+                    {
+                        containsInvalidFreeCell = true;
+                        break;
+                    }
+                }
+            }
+
+            if (containsInvalidFreeCell == false)
+                return;
+
+            passed.Add(target);
+
+            foreach (var direction in Directions)
+            {
+                var checkPosition = target + direction;
+
+                if (board.Cells.TryGetValue(checkPosition, out var cell) == false)
+                    continue;
+
+                if (cell.Status != CellStatus.Taken)
+                    continue;
+
+                Check(checkPosition);
+            }
+        }
+
+        int GetMinesAroundCount(Position targetPosition)
+        {
+            var count = 0;
+
+            foreach (var direction in Directions)
+            {
+                var checkPosition = targetPosition + direction;
+
+                if (board.Cells.TryGetValue(checkPosition, out var cell) == false)
+                    continue;
 
                 if (cell.Status != CellStatus.Taken)
                     continue;
@@ -117,14 +174,10 @@ public static class BoardPositionsExtensions
                 var taken = cell.AsTaken();
 
                 if (taken.HasMine == true)
-                    return;
+                    count++;
             }
 
-            foreach (var neighbour in neighbours)
-            {
-                passed.Add(neighbour);
-                Check(neighbour);
-            }
+            return count;
         }
     }
 
