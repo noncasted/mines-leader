@@ -18,43 +18,82 @@ public class BoardRevealer : IBoardRevealer
 
     public void Reveal(Position position)
     {
-        var passed = new HashSet<Position> { position };
+        _board.OnUpdated();
 
-        Check(position);
+        var initialTargets = _board.NeighbourPositions(position)
+            .Where(t => _board.Cells[t].Status != CellStatus.Free)
+            .ToList();
 
-        foreach (var target in passed)
-        {
-            var cell = _board.Cells[target];
-            cell.ToFree();
-        }
+        Check(initialTargets);
 
         return;
 
-        void Check(Position target)
+        void Check(IReadOnlyList<Position> targets)
         {
-            var neighbours = _board.NeighbourPositions(target);
+            var cleanupTargets = new List<Position>();
 
-            neighbours.RemoveWhere(t => passed.Contains(t));
-            neighbours.RemoveWhere(t => _board.Cells[t].Status == CellStatus.Free);
-
-            foreach (var neighbour in neighbours)
+            foreach (var target in targets)
             {
-                var cell = _board.Cells[neighbour];
+                if (_board.Cells[target].Status != CellStatus.Taken)
+                    continue;
+                
+                if (_board.Cells[target].ToTaken().HasMine == true)
+                    continue;
+                
+                if (HasInvalidFreeCell(target) == true)
+                    cleanupTargets.Add(target);
+            }
 
-                if (cell.Status != CellStatus.Taken)
+            foreach (var cleanupTarget in cleanupTargets)
+            {
+                var targetCell = _board.Cells[cleanupTarget];
+                targetCell.AsTaken().ToFree();
+            }
+
+            _board.OnUpdated();
+
+            var newTargets = new List<Position>();
+
+            foreach (var cleanupTargetPosition in cleanupTargets)
+            {
+                foreach (var direction in BoardPositionsExtensions.Directions)
+                {
+                    var newTargetPosition = cleanupTargetPosition + direction;
+
+                    if (_board.Cells.TryGetValue(newTargetPosition, out var cell) == false)
+                        continue;
+
+                    if (cell.Status != CellStatus.Taken)
+                        continue;
+
+                    if (newTargets.Contains(newTargetPosition) == true)
+                        continue;
+
+                    newTargets.Add(newTargetPosition);
+                }
+            }
+
+            if (newTargets.Count > 0)
+                Check(newTargets);
+        }
+
+        bool HasInvalidFreeCell(Position target)
+        {
+            foreach (var direction in BoardPositionsExtensions.Directions)
+            {
+                var checkPosition = target + direction;
+
+                if (_board.Cells.TryGetValue(checkPosition, out var cell) == false)
                     continue;
 
-                var taken = cell.ToTaken();
+                if (cell.Status != CellStatus.Free)
+                    continue;
 
-                if (taken.HasMine == true)
-                    return;
+                if (cell.AsFree().MinesAround == 0)
+                    return true;
             }
 
-            foreach (var neighbour in neighbours)
-            {
-                passed.Add(neighbour);
-                Check(neighbour);
-            }
+            return false;
         }
     }
 }

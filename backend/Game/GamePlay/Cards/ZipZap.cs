@@ -80,9 +80,12 @@ public class ZipZap : ICard
             target.ToFree();
 
         _snapshot.Unlock();
+        _target.OnUpdated();
 
         foreach (var target in targets)
             _target.Revealer.Reveal(target.Position);
+
+        _target.OnUpdated();
 
         return new CardUseResult
         {
