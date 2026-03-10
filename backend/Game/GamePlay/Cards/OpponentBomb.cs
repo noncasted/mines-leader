@@ -24,7 +24,7 @@ public class OpponentBomb : ICard
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Target board has no cells"),
+                Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }
@@ -59,6 +59,7 @@ public class OpponentBomb : ICard
             taken.ToFree();
         }
 
+        _target.OnUpdated();
         _target.Revealer.Reveal(cell.Position);
 
         return new CardUseResult

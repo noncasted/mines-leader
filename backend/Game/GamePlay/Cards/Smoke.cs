@@ -27,7 +27,7 @@ public class Smoke : ICard
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Target board has no cells"),
+                Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }

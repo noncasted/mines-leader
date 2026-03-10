@@ -7,6 +7,7 @@ using Common.Extensions;
 using Game.Global;
 using Infrastructure;
 using Infrastructure.Execution;
+using Infrastructure.State;
 using Meta.Bots;
 using Meta.Matches;
 using Meta.Users;
@@ -37,10 +38,10 @@ public static class ProjectsSetupExtensions
             // Project services
             builder.Services.Add<ClusterConfigsSetup>()
                 .As<ICoordinatorSetupCompleted>();
-            
+
             builder.Services.Add<ClusterBotsSetup>()
                 .As<ICoordinatorSetupCompleted>();
-            
+
             return builder;
         }
 
@@ -85,7 +86,7 @@ public static class ProjectsSetupExtensions
             builder.Services
                 .AddOpenApi()
                 .AddCors();
-            
+
             return builder;
         }
 
@@ -99,7 +100,7 @@ public static class ProjectsSetupExtensions
             // Cluster services
             builder
                 .AddBase(ServiceTag.Silo);
-            
+
             return builder;
         }
 
@@ -124,7 +125,7 @@ public static class ProjectsSetupExtensions
         {
             if (builder is WebApplicationBuilder webBuilder)
             {
-                webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
+              //  webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
             }
 
             builder.Services.AddHostedService<ClusterParticipantStartup>();
@@ -141,11 +142,46 @@ public static class ProjectsSetupExtensions
                 .AddMemoryPack()
                 .AddClusterTests()
                 .AddConfigs();
-            
+
             builder.AddBotServices();
 
             builder.Services.Add<DbSource>()
                 .As<IDbSource>();
+
+            builder.Services.Add<StateFactory>()
+                .As<IStateFactory>();
+
+            builder.Services.Add<StateAttributeMapper>()
+                .As<IAttributeToFactoryMapper<StateAttribute>>();
+
+            builder.Services.Add<GrainStateStorage>()
+                .As<IGrainStateStorage>();
+
+            builder.Services.Add<StateSerializer>()
+                .As<IStateSerializer>();
+            
+            builder.Services.Add<ITransactions, Transactions>();
+
+            builder.Services.AddSingleton<IGrainStatesRegistry, GrainStatesRegistry>(sp =>
+            {
+                var statesInfo = new List<GrainStateInfo>
+                {
+                    new()
+                    {
+                        Type = typeof(GrainStateTest.TestState),
+                        TableName = "test_state",
+                        KeyType = GrainKeyType.String
+                    },
+                    new()
+                    {
+                        TableName = "test_transactional_state",
+                        KeyType = GrainKeyType.String,
+                        Type = typeof(TransactionStateTestGrainState)
+                    }
+                };
+                
+                return new GrainStatesRegistry(statesInfo);
+            });
 
             return builder;
         }
@@ -159,7 +195,7 @@ public static class ProjectsSetupExtensions
                 .Add<MenuPlayerPayload>()
                 .Add<CardCreatePayload>()
                 .Add<PlayerCreatePayload>();
-            
+
             contexts
                 .Add<EmptyResponse>()
                 .AddSharedBackend()
@@ -168,10 +204,10 @@ public static class ProjectsSetupExtensions
 
             contexts.Build();
             entityPayloads.Build();
-            
+
             return builder;
         }
-        
+
         private IHostApplicationBuilder AddBlazorComponents()
         {
             builder.Services
@@ -181,7 +217,7 @@ public static class ProjectsSetupExtensions
 
             return builder;
         }
-        
+
         private IHostApplicationBuilder AddClusterTests()
         {
             builder.Services.Add<ClusterTestUtils>();

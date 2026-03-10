@@ -26,6 +26,16 @@
             Title="Messaging pipe send with response (request-response)"
             @bind-Payload="_messagePipeSendResponseStressTestPayload"
             StartCallback="Run_MessagePipe_SendResponse"/>
+        
+        <TestEntry
+            Title="Custom grain state"
+            @bind-Payload="_grainStateTestPayload"
+            StartCallback="Run_GrainState"/>
+        
+        <TestEntry
+            Title="Custom transactional grain state"
+            @bind-Payload="_grainTransactionalStateTestPayload"
+            StartCallback="Run_Transactional_GrainState"/>
     </MudStack>
 </MudContainer>
 
@@ -34,6 +44,8 @@
     [Inject] public MessagingTransactionalQueueStressTest.Root MessagingTransactionalQueueStressTest { get; set; }
     [Inject] public MessagePipeSendStressTest.Root MessagePipeSendStressTest { get; set; }
     [Inject] public MessagePipeSendResponseStressTest.Root MessagePipeSendResponseStressTest { get; set; }
+    [Inject] public GrainStateTest.Root GrainStateTest { get; set; }
+    [Inject] public GrainTransactionalStateTest.Root GrainTransactionalStateTest { get; set; }
     
     private MessagingDirectQueueStressTest.StartPayload _messagingDirectQueueStressTestPayload = new()
     {
@@ -58,6 +70,14 @@
         MessageCount = 10,
         Delay = 0.01f
     };
+    
+    private GrainStateTest.StartPayload _grainStateTestPayload = new()
+    {
+    };
+    
+    private GrainTransactionalStateTest.StartPayload _grainTransactionalStateTestPayload = new()
+    {
+    };
 
     private Task Run_Messaging_DirectQueue(IOperationProgress progress)
     {
@@ -78,5 +98,15 @@
     {
         return MessagePipeSendResponseStressTest.Start(progress, _messagePipeSendResponseStressTestPayload);
     }
+    
+    private Task Run_GrainState(IOperationProgress progress)
+    {
+        return GrainStateTest.Start(progress, _grainStateTestPayload);
+    }
+    
+    private Task Run_Transactional_GrainState(IOperationProgress progress)
+    {
+        return GrainTransactionalStateTest.Start(progress, _grainTransactionalStateTestPayload);
+    } 
 
 }

@@ -16,7 +16,7 @@ public class BotFactory : IBotFactory {
     private readonly IOrleans _orleans;
 
     public Task<Guid> Create(string name) {
-        return _orleans.Transactions.Create(async () => {
+        return _orleans.OldTransactions.Create(async () => {
             var id = Guid.NewGuid();
             var handle = _orleans.CreateUserHandle(id);
 

@@ -12,6 +12,8 @@ builder.Services.Add<MessagingDirectQueueStressTest.Root>();
 builder.Services.Add<MessagingTransactionalQueueStressTest.Root>();
 builder.Services.Add<MessagePipeSendStressTest.Root>();
 builder.Services.Add<MessagePipeSendResponseStressTest.Root>();
+builder.Services.Add<GrainStateTest.Root>();
+builder.Services.Add<GrainTransactionalStateTest.Root>();
 
 var app = builder.Build();
 

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.SetupCoordinator();
 
 builder.Services.Add<BatchWritersWakeUp>();
+builder.Services.Add<StatesSetup>();
 
 builder.Services.Add<ClusterCoordinator>()
     .As<ILocalSetupCompleted>();

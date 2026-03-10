@@ -4,11 +4,13 @@ namespace Common.Extensions;
 
 public static class JsonUtils
 {
-    private static readonly JsonSerializerSettings _options = new()
+    public static readonly JsonSerializerSettings Settings = new()
     {
         Formatting = Formatting.Indented,
         TypeNameHandling = TypeNameHandling.All,
     };
+
+    private static readonly JsonSerializerSettings _options = Settings;
 
 
     public static string Serialize(object value)

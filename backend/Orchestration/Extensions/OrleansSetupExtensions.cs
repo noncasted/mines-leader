@@ -1,5 +1,6 @@
 ﻿using Common.Extensions;
 using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Orleans.Configuration;
@@ -99,6 +100,8 @@ public static class OrleansSetupExtensions
                     }
 
                     siloBuilder.AddActivityPropagation();
+
+                    siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();
                 }
             );
 

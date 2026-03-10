@@ -1,14 +1,14 @@
 ﻿namespace Infrastructure;
 
-public interface ITransactions
+public interface IOldTransactions
 {
     ITransactionClient Client { get; }
     ITransactionRunner Runner { get; }
 }
 
-public class Transactions : ITransactions
+public class OldTransactions : IOldTransactions
 {
-    public Transactions(ITransactionClient client, ITransactionRunner runner)
+    public OldTransactions(ITransactionClient client, ITransactionRunner runner)
     {
         Client = client;
         Runner = runner;
@@ -20,26 +20,26 @@ public class Transactions : ITransactions
 
 public static class TransactionsExtensions
 {
-    extension(ITransactions transactions)
+    extension(IOldTransactions oldTransactions)
     {
         public Task Create(Func<Task> action)
         {
-            return transactions.Client.RunTransaction(TransactionOption.Create, action);
+            return oldTransactions.Client.RunTransaction(TransactionOption.Create, action);
         }
 
         public Task Join(Func<Task> action)
         {
-            return transactions.Client.RunTransaction(TransactionOption.Join, action);
+            return oldTransactions.Client.RunTransaction(TransactionOption.Join, action);
         }
 
         public Task<T> Create<T>(Func<Task<T>> action)
         {
-            return transactions.Run(TransactionOption.Create, action);
+            return oldTransactions.Run(TransactionOption.Create, action);
         }
 
         public Task<T> Join<T>(Func<Task<T>> action)
         {
-            return transactions.Run(TransactionOption.Join, action);
+            return oldTransactions.Run(TransactionOption.Join, action);
         }
 
         public async Task<T> Run<T>(
@@ -48,7 +48,7 @@ public static class TransactionsExtensions
         {
             T result = default!;
 
-            await transactions.Client.RunTransaction(option, async () =>
+            await oldTransactions.Client.RunTransaction(option, async () =>
                 {
                     result = await action();
                 }

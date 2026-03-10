@@ -11,6 +11,7 @@
     <Folder Name="/Tools/">
         <Project Path="../shared/shared.csproj" />
         <Project Path="../tools/deploy/deploy.csproj" />
+        <Project Path="../tools/docs/docs.csproj" />
     </Folder>
     <Project Path="Cluster/Cluster.csproj" />
     <Project Path="Common/Common.csproj" />
