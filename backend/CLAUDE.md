@@ -1,5 +1,3 @@
-# 🚀 CLAUDE AI ASSISTANT - ATLANTIS PROJECT
-
 ## 🚨 **СТРУКТУРА КАЖДОГО ОТВЕТА:**
 
 КРИТИЧНО: ВСЯ ДОКУМЕНТАЦИЯ ХРАНИТСЯ В /mines-leader/backend/docs/

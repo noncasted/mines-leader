@@ -9,7 +9,7 @@ namespace Infrastructure;
 public interface IOrleans
 {
     IClusterClient Client { get; }
-    ITransactions Transactions { get; }
+    IOldTransactions OldTransactions { get; }
     IDbSource DbSource { get; }
     OrleansJsonSerializer Serializer { get; }
     ILogger Logger { get; }
@@ -20,13 +20,13 @@ public class OrleansUtils : IOrleans
     public OrleansUtils(
         IClusterClient client,
         IGrainFactory grains,
-        ITransactions transactions,
+        IOldTransactions oldTransactions,
         IDbSource dbSource,
         OrleansJsonSerializer serializer,
         ILogger<OrleansUtils> logger)
     {
         Grains = grains;
-        Transactions = transactions;
+        OldTransactions = oldTransactions;
         Logger = logger;
         Serializer = serializer;
         DbSource = dbSource;
@@ -36,7 +36,7 @@ public class OrleansUtils : IOrleans
     public IGrainFactory Grains { get; }
 
     public IClusterClient Client { get; }
-    public ITransactions Transactions { get; }
+    public IOldTransactions OldTransactions { get; }
     public IDbSource DbSource { get; }
     public OrleansJsonSerializer Serializer { get; }
     public ILogger Logger { get; }
@@ -52,7 +52,7 @@ public static class OrleansUtilsExtensions
             .As<ITransactionResolver>();
 
         services.Add<ITransactionRunner, TransactionRunner>();
-        services.Add<ITransactions, Transactions>();
+        services.Add<IOldTransactions, OldTransactions>();
         services.Add<IOrleans, OrleansUtils>();
 
         return builder;
@@ -102,12 +102,12 @@ public static class OrleansUtilsExtensions
 
         public Task InTransaction(Func<Task> action)
         {
-            return orleans.Transactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
+            return orleans.OldTransactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
         }
 
         public TransactionRunBuilder Transaction(Func<Task> action)
         {
-            return orleans.Transactions.Runner.Create(action);
+            return orleans.OldTransactions.Runner.Create(action);
         }
     }
 }

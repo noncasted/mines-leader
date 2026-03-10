@@ -86,9 +86,21 @@
               "icon": "excalidraw-icon",
               "title": "Drawing 2026-02-26 21.14.49.excalidraw"
             }
+          },
+          {
+            "id": "c029fe84c914ee49",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.12.4"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.12.4"
+            }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -232,7 +244,7 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "37694156ecf09ebc",
+  "active": "4c1822adb6eeb3be",
   "lastOpenFiles": [
     "Excalidraw/Drawing 2026-02-26 21.14.49.excalidraw.md",
     "Storage/Игровое поле/Карта/1.md",

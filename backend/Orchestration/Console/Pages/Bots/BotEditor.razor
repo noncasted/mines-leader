@@ -79,7 +79,7 @@
                     Variant="Variant.Filled"
                     Color="Color.Primary"
                     OnClick="SaveChanges">
-                    Save
+                    Write
                 </MudButton>
                 <MudButton
                     Variant="Variant.Text"
@@ -169,18 +169,18 @@
         try {
             var handle = Orleans.CreateUserHandle(_bot.Id);
 
-            // Save name
+            // Write name
             if (_botName != _bot.Name) {
-                await Orleans.Transactions.Create(() => handle.Entity.SetName(_botName));
+                await Orleans.OldTransactions.Create(() => handle.Entity.SetName(_botName));
             }
 
-            // Save deck
+            // Write deck
             if (_deckCards != null && _deckCards.Count > 0) {
                 var deckUpdate = new Dictionary<int, IReadOnlyList<CardType>>
                 {
                     { 0, _deckCards }
                 };
-                await Orleans.Transactions.Create(() => handle.Deck.Update(deckUpdate, 0));
+                await Orleans.OldTransactions.Create(() => handle.Deck.Update(deckUpdate, 0));
             }
 
             Snackbar.Add("Bot saved successfully", Severity.Success);
