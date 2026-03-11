@@ -21,6 +21,11 @@ public class BotConnection : IConnection, IConnectionWriter, IConnectionReader
         return completion.Task;
     }
 
+    public void ForceDisconnect()
+    {
+        
+    }
+
     public void OnPingFailed()
     {
     }
