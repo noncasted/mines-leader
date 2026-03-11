@@ -8,7 +8,7 @@ public interface IDeck
 {
     int Count { get; }
 
-    void Init();
+    void Init(int size);
     void AddCard(CardType card);
     void RemoveCard(CardType card);
     CardType DrawCard();
@@ -27,14 +27,20 @@ public class Deck : IDeck
 
     public int Count => _state.Value.Queue.Count;
 
-    public void Init()
+    public void Init(int size)
     {
-        var cards = new List<CardType>(_selected.Count * 2);
-        
-        foreach (var card in _selected)
+        var cards = new List<CardType>(size);
+        var index = 0;
+
+        for (var i = 0; i < size; i++)
         {
-            cards.Add(card);
-            cards.Add(card);
+            var type = _selected[index];
+            cards.Add(type);
+            
+            index++;
+            
+            if (index >= _selected.Count)
+                index = 0;
         }
         
         cards.Shuffle();

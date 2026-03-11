@@ -10,7 +10,7 @@ namespace GamePlay.Loop
         public LastManStandingRound(
             INetworkConnection connection,
             IGameContext gameContext,
-            NetworkProperty<TimeLimitedRoundState> state)
+            NetworkProperty<LastManStandingRoundState> state)
         {
             _connection = connection;
             _gameContext = gameContext;
@@ -21,7 +21,7 @@ namespace GamePlay.Loop
         private readonly INetworkConnection _connection;
         private readonly IGameContext _gameContext;
 
-        private readonly NetworkProperty<TimeLimitedRoundState> _state;
+        private readonly NetworkProperty<LastManStandingRoundState> _state;
 
         private readonly ViewableProperty<float> _roundTime;
         private readonly ViewableProperty<IGamePlayer> _player = new();
@@ -37,7 +37,7 @@ namespace GamePlay.Loop
                 {
                     var player = _gameContext.GetPlayer(state.CurrentPlayer);
                     _player.Set(player);
-                    _roundTime.Set(state.SecondsLeft[player.Id]);
+                    _roundTime.Set(state.SecondsLeft);
                 }
             );
         }

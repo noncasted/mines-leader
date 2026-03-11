@@ -36,6 +36,7 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
         player.Stash.Add(handCard.Type);
         player.Mana.Use(config.ManaCost);
         player.Moves.OnUsed();
+        context.Player.Actions.OnCardUsed();
 
         return use.Result;
     }

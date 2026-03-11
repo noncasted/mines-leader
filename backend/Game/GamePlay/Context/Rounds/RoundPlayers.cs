@@ -1,39 +1,16 @@
-using Microsoft.Extensions.Options;
-using Shared;
-
 namespace Game.GamePlay;
 
 public class RoundPlayers
 {
-    public RoundPlayers(IGameContext gameContext, IOptions<GameOptions> options)
+    public RoundPlayers(IGameContext gameContext)
     {
         _gameContext = gameContext;
-        _options = options;
     }
 
     private readonly IGameContext _gameContext;
-    private readonly IOptions<GameOptions> _options;
 
-    public void Setup()
-    {
-        var options = _options.Value;
-
-        foreach (var player in _gameContext.Players)
-        {
-            player.Hand.SetSize(options.HandSize);
-
-            player.Health.SetMax(options.MaxHealth);
-            player.Health.SetCurrent(options.MaxHealth);
-
-            player.Mana.SetMax(options.StartMana);
-            player.Mana.Restore();
-
-            player.Moves.SetMax(options.MovesCount);
-        }
-    }
-    
     public void RestoreCards(IPlayer player, MoveSnapshot snapshot) {
-        var cardsNeeded = _options.Value.HandSize - player.Hand.Entries.Count;
+        var cardsNeeded = player.Hand.Size - player.Hand.Entries.Count;
 
         for (var i = 0; i < cardsNeeded; i++) {
             if (player.Deck.Count == 0) {

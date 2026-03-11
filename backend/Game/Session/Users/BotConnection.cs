@@ -26,10 +26,6 @@ public class BotConnection : IConnection, IConnectionWriter, IConnectionReader
         
     }
 
-    public void OnPingFailed()
-    {
-    }
-
     public ValueTask WriteOneWay(INetworkContext context)
     {
         return ValueTask.CompletedTask;
