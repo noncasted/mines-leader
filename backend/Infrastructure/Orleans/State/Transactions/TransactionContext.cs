@@ -9,7 +9,7 @@ public class TransactionContext
     public required Guid Id { get; init; }
 
     [Id(1)]
-    public Dictionary<Guid, ITransactionParticipant> Participants { get; } = new();
+    public Dictionary<Guid, IGrainTransactionHandler> Participants { get; } = new();
 
     [Id(2)]
     public string? ExceptionMessage { get; set; }
@@ -27,16 +27,4 @@ public static class TransactionContextProvider
     }
 
     public static void Clear() => _current.Value = null;
-}
-
-public interface ITransactionParticipant : IGrainExtension
-{
-    [AlwaysInterleave]
-    Task<IReadOnlyList<object>> CollectStates(Guid transactionId);
-
-    [AlwaysInterleave]
-    Task OnSuccess(Guid transactionId);
-
-    [AlwaysInterleave]
-    Task OnFailure(Guid transactionId);
 }

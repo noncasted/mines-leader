@@ -71,15 +71,12 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         {
             TransactionContextProvider.SetCurrent(Context);
 
-            var secondTarget = _grains.GetGrain<ITransactionStateTestGrain>("test-transactional");
-            await secondTarget.A();
-            var castedSecond = secondTarget.AsReference<IGrainTransactionHandler>();
 
             var response = await BaseInvoke();
 
-            await castedSecond.Test();
-            // var (participantId, participant) = await target.Join(Context.Id);
-            // Context.Participants.TryAdd(participantId, participant);
+            var castedTarget = Target.AsReference<IGrainTransactionHandler>();
+            var participantId = await castedTarget.Join(Context.Id);
+            Context.Participants.TryAdd(participantId, castedTarget);
 
             if (response.Exception != null)
                 Context.ExceptionMessage = response.Exception.Message;
