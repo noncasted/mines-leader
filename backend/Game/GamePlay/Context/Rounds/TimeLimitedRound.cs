@@ -1,7 +1,7 @@
+using Cluster.Configs;
 using Common.Reactive;
 using Game.Session;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Shared;
 
 namespace Game.GamePlay;
@@ -14,41 +14,53 @@ public class TimeLimitedRound : Service, IGameRound
         ISnapshotSender snapshotSender,
         IRoundActionService roundActionService,
         RoundPlayers players,
-        ILogger<TimeLimitedRound> logger,
-        IOptions<GameOptions> gameOptions,
-        IOptions<RoundsOptions> roundOptions) : base("game-round")
+        IGameModeConfig modeOptions,
+        ILogger<TimeLimitedRound> logger) : base("game-round")
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
         _snapshotSender = snapshotSender;
         _roundActionService = roundActionService;
         _players = players;
+        _modeOptions = modeOptions;
         _logger = logger;
-        _gameOptions = gameOptions;
-        _roundOptions = roundOptions;
 
         BindProperty(_state);
     }
 
     private readonly ValueProperty<TimeLimitedRoundState> _state = new(1);
     private readonly RoundPlayers _players;
+    private readonly IGameModeConfig _modeOptions;
     private readonly ILogger<TimeLimitedRound> _logger;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IRoundActionService _roundActionService;
-    private readonly IOptions<GameOptions> _gameOptions;
-    private readonly IOptions<RoundsOptions> _roundOptions;
 
     private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
 
     private ILifetime? _roundForcedLifetime;
+    private TimeLimitedModeOptions ModeOptions => _modeOptions.Value.TimeLimited;
 
     public IViewableProperty<IPlayer> CurrentPlayer => _currentPlayer;
 
     public async Task<Guid> Process(IReadOnlyLifetime lifetime)
     {
-        _players.Setup();
+        foreach (var player in _gameContext.Players)
+        {
+            player.Hand.SetSize(ModeOptions.HandSize);
+
+            player.Health.SetMax(ModeOptions.PlayerHealth);
+            player.Health.SetCurrent(ModeOptions.PlayerHealth);
+
+            player.Mana.SetMax(ModeOptions.PlayerStartMana);
+            player.Mana.Restore();
+
+            player.Moves.SetMax(ModeOptions.PlayerMoves);
+
+            player.Deck.Init(ModeOptions.DeckSize);
+        }
+
         ListenPlayersEvents(lifetime);
 
         await _readyAwaiter.Await(lifetime);
@@ -60,16 +72,13 @@ public class TimeLimitedRound : Service, IGameRound
                 var playersSecondsLeft = new Dictionary<Guid, long>();
 
                 foreach (var player in players)
-                    playersSecondsLeft.Add(player.User.Id, _roundOptions.Value.TimeLimitedSeconds);
+                    playersSecondsLeft.Add(player.User.Id, ModeOptions.RoundTime);
 
                 state.SecondsLeft = playersSecondsLeft;
             }
         );
 
         var snapshot = new MoveSnapshot();
-
-        foreach (var player in players)
-            player.Deck.Init();
 
         foreach (var player in players)
             _players.RestoreCards(player, snapshot);
@@ -108,6 +117,7 @@ public class TimeLimitedRound : Service, IGameRound
             if (roundsCount >= 2)
             {
                 var flagWinner = _players.GetFlagWinner();
+                
                 if (flagWinner != Guid.Empty)
                     return true;
             }
@@ -159,6 +169,11 @@ public class TimeLimitedRound : Service, IGameRound
         player.Moves.Restore();
         _currentPlayer.Set(player);
 
+        var roundLock = new SemaphoreSlim(1, 1);
+
+        player.Actions.CellOpened.Advise(roundForcedLifetime, AddTimeForAction);
+        player.Actions.CardUsed.Advise(roundForcedLifetime, AddTimeForAction);
+
         try
         {
             await Task.WhenAny(TimerCountdown());
@@ -192,8 +207,30 @@ public class TimeLimitedRound : Service, IGameRound
 
             while (_state.Value.SecondsLeft[player.User.Id] > 0 && roundForcedLifetime.IsTerminated == false)
             {
-                _state.Update(state => state.SecondsLeft[player.User.Id]--);
+                try
+                {
+                    await roundLock.WaitAsync();
+                    _state.Update(state => state.SecondsLeft[player.User.Id]--);
+                }
+                finally
+                {
+                    roundLock.Release();
+                }
+
                 await Task.Delay(timeSpan, roundForcedLifetime.Token);
+            }
+        }
+
+        void AddTimeForAction()
+        {
+            try
+            {
+                roundLock.Wait();
+                _state.Update(state => state.SecondsLeft[player.User.Id] += ModeOptions.TimeGainPerAction);
+            }
+            finally
+            {
+                roundLock.Release();
             }
         }
     }

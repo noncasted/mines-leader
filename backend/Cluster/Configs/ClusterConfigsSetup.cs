@@ -1,46 +1,51 @@
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
-using Shared;
 
 namespace Cluster.Configs;
 
 public class ClusterConfigsSetup : ICoordinatorSetupCompleted
 {
-    public ClusterConfigsSetup(ICardConfigs cardConfig, IBotConfig botConfig)
+    public ClusterConfigsSetup(
+        ICardConfigs cards,
+        IBotConfig bots,
+        IGameModeConfig gameMode)
     {
-        _cardConfig = cardConfig;
-        _botConfig = botConfig;
+        _cards = cards;
+        _bots = bots;
+        _gameMode = gameMode;
     }
 
-    private readonly ICardConfigs _cardConfig;
-    private readonly IBotConfig _botConfig;
+    private readonly ICardConfigs _cards;
+    private readonly IBotConfig _bots;
+    private readonly IGameModeConfig _gameMode;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        if (_cardConfig.IsInitialized == false)
-        {
-            try
-            {
-                var configPath = Path.Combine(AppContext.BaseDirectory, "config.cards.json");
-                var json = await File.ReadAllTextAsync(configPath);
-                var value = JsonUtils.Deserialize<CardConfigOptions>(json)!;
-                await _cardConfig.SetValue(value);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to load card config: {ex.Message}");
-            }
-        }
+        await InitializeConfig("config.cards", _cards);
+        await InitializeConfig("config.bot", _bots);
+        await InitializeConfig("config.gameMode", _gameMode);
 
-        if (_botConfig.IsInitialized == false)
+        return;
+
+        async Task InitializeConfig<T>(string jsonPath, IRawAddressableState<T> storage) where T : class, new()
         {
             try
             {
-                var configPath = Path.Combine(AppContext.BaseDirectory, "config.bot.json");
+                if (storage.IsInitialized == true)
+                    return;
+                
+                var configPath = Path.Combine(AppContext.BaseDirectory, $"{jsonPath}.json");
+
+                if (File.Exists(configPath) == false)
+                {
+                    await storage.SetValue(new T());
+                    return;
+                }
+
                 var json = await File.ReadAllTextAsync(configPath);
-                var value = JsonUtils.Deserialize<BotConfigOptions>(json)!;
-                await _botConfig.SetValue(value);
+                var value = JsonUtils.Deserialize<T>(json)!;
+                await storage.SetValue(value);
             }
             catch (Exception e)
             {

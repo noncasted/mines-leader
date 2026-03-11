@@ -1,6 +1,7 @@
+using Cluster.Configs;
 using Common.Reactive;
 using Game.Session;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.GamePlay;
@@ -13,16 +14,16 @@ public class LastManStandingRound : Service, IGameRound
         ISnapshotSender snapshotSender,
         IRoundActionService roundActionService,
         RoundPlayers players,
-        IOptions<GameOptions> gameOptions,
-        IOptions<RoundsOptions> roundOptions) : base("game-round")
+        IGameModeConfig modeOptions,
+        ILogger<TimeLimitedRound> logger) : base("game-round")
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
         _snapshotSender = snapshotSender;
         _roundActionService = roundActionService;
         _players = players;
-        _gameOptions = gameOptions;
-        _roundOptions = roundOptions;
+        _modeOptions = modeOptions;
+        _logger = logger;
 
         BindProperty(_state);
     }
@@ -33,28 +34,41 @@ public class LastManStandingRound : Service, IGameRound
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IRoundActionService _roundActionService;
-    private readonly IOptions<GameOptions> _gameOptions;
-    private readonly IOptions<RoundsOptions> _roundOptions;
+    private readonly IGameModeConfig _modeOptions;
+    private readonly ILogger<TimeLimitedRound> _logger;
 
     private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
 
     private ILifetime? _roundForcedLifetime;
 
+    private LastManStandingModeOptions ModeOptions => _modeOptions.Value.LastManStanding;
+
     public IViewableProperty<IPlayer> CurrentPlayer => _currentPlayer!;
 
     public async Task<Guid> Process(IReadOnlyLifetime lifetime)
     {
-        _players.Setup();
+        foreach (var player in _gameContext.Players)
+        {
+            player.Hand.SetSize(ModeOptions.HandSize);
+
+            player.Health.SetMax(ModeOptions.PlayerHealth);
+            player.Health.SetCurrent(ModeOptions.PlayerHealth);
+
+            player.Mana.SetMax(ModeOptions.PlayerStartMana);
+            player.Mana.Restore();
+
+            player.Moves.SetMax(ModeOptions.PlayerMoves);
+
+            player.Deck.Init(ModeOptions.DeckSize);
+        }
+
         ListenPlayersEvents(lifetime);
 
         await _readyAwaiter.Await(lifetime);
 
         var players = _gameContext.Players;
-        var snapshot = new MoveSnapshot();
-        snapshot.HandleBoards(lifetime, _gameContext);
 
-        foreach (var player in players)
-            player.Deck.Init();
+        var snapshot = new MoveSnapshot();
 
         foreach (var player in players)
             _players.RestoreCards(player, snapshot);
@@ -63,14 +77,13 @@ public class LastManStandingRound : Service, IGameRound
             player.Board.MinesScanner.Start(lifetime);
 
         _snapshotSender.Send(snapshot);
-        _currentPlayer.Set(players.First());
+        var roundsCount = 0;
 
         while (IsGameOver() == false)
         {
-            await ProcessRound(lifetime, _currentPlayer.Value);
-            _currentPlayer.Set(players.First(t => t != _currentPlayer.Value));
-
+            await ProcessRound(lifetime, players.First(t => t != _currentPlayer.Value));
             _state.Update(state => state.CurrentRound++);
+            roundsCount++;
         }
 
         var winner = GetWinner();
@@ -82,18 +95,19 @@ public class LastManStandingRound : Service, IGameRound
             if (lifetime.IsTerminated == true)
                 return true;
 
-            var alivePlayers = players.Count(p => p.Health.Current.Value > 0);
-
-            if (alivePlayers <= 1)
+            if (players.Any(p => p.Health.Current.Value == 0))
                 return true;
 
             if (players.Any(p => p.User.Lifetime.IsTerminated == true))
                 return true;
 
-            var flagWinner = _players.GetFlagWinner();
-
-            if (flagWinner != Guid.Empty)
-                return true;
+            if (roundsCount >= 2)
+            {
+                var flagWinner = _players.GetFlagWinner();
+                
+                if (flagWinner != Guid.Empty)
+                    return true;
+            }
 
             return false;
         }
@@ -103,11 +117,7 @@ public class LastManStandingRound : Service, IGameRound
             foreach (var player in players)
             {
                 if (player.Health.Current.Value <= 0)
-                    continue;
-
-                var opponent = players.FirstOrDefault(p => p != player && p.Health.Current.Value > 0);
-                if (opponent == null)
-                    return player.User.Id;
+                    return _gameContext.GetOpponent(player).User.Id;
             }
 
             foreach (var (user, player) in _gameContext.UserToPlayer)
@@ -133,11 +143,12 @@ public class LastManStandingRound : Service, IGameRound
     private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player)
     {
         _roundForcedLifetime = lifetime.Child();
-        var roundLifetime = lifetime.Child();
+        var roundForcedLifetime = _roundForcedLifetime;
 
         _state.Update(state => state.CurrentPlayer = player.User.Id);
 
         player.Moves.Restore();
+        _currentPlayer.Set(player);
 
         try
         {
@@ -147,6 +158,11 @@ public class LastManStandingRound : Service, IGameRound
         {
             // Ignore
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in round timer");
+        }
+
 
         player.Mana.SetMax(player.Mana.Max + 1);
         player.Mana.Restore();
@@ -158,14 +174,13 @@ public class LastManStandingRound : Service, IGameRound
         _roundActionService.Tick();
         player.Moves.Lock();
 
-        _roundForcedLifetime.Terminate();
-        roundLifetime.Terminate();
+        roundForcedLifetime.Terminate();
 
         return;
 
         async Task TimerCountdown()
         {
-            var timer = _roundOptions.Value.LastManStandingRoundSeconds;
+            var timer = ModeOptions.RoundTime;
             var timeSpan = TimeSpan.FromSeconds(1);
 
             while (timer > 0 && _roundForcedLifetime.IsTerminated == false)

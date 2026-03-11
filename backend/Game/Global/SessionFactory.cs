@@ -49,12 +49,9 @@ public class SessionFactory : ISessionFactory
         };
 
         var services = new ServiceCollection();
+        PassDefaultDependencies(services);
 
         services.AddSessionServices(data);
-        services.Pass<IOrleans>(_serviceProvider);
-        services.Pass<IServiceEnvironment>(_serviceProvider);
-        services.Pass<IServiceDiscovery>(_serviceProvider);
-
         var provider = services.BuildServiceProvider();
 
         RunSession().NoAwait();
@@ -93,14 +90,10 @@ public class SessionFactory : ISessionFactory
         };
 
         var services = new ServiceCollection();
+        
+        PassDefaultDependencies(services);
 
         services.AddSessionServices(data);
-
-        services.Pass<IOrleans>(_serviceProvider);
-        services.Pass<IServiceEnvironment>(_serviceProvider);
-        services.Pass<IServiceDiscovery>(_serviceProvider);
-        services.Pass<ICardConfigs>(_serviceProvider);
-
         services.AddCardServices();
         services.AddGameCommands();
         services.AddGameContext();
@@ -176,14 +169,9 @@ public class SessionFactory : ISessionFactory
 
         var services = new ServiceCollection();
 
+        PassDefaultDependencies(services);
+        
         services.AddSessionServices(data);
-
-        services.Pass<IOrleans>(_serviceProvider);
-        services.Pass<IServiceEnvironment>(_serviceProvider);
-        services.Pass<IServiceDiscovery>(_serviceProvider);
-        services.Pass<ICardConfigs>(_serviceProvider);
-        services.Pass<IBotConfig>(_serviceProvider);
-
         services.AddCardServices();
         services.AddGameCommands();
         services.AddGameContext();
@@ -247,5 +235,15 @@ public class SessionFactory : ISessionFactory
                 session.Id, createOptions
             );
         }
+    }
+
+    private void PassDefaultDependencies(ServiceCollection collection)
+    {
+        collection.Pass<IOrleans>(_serviceProvider);
+        collection.Pass<IServiceEnvironment>(_serviceProvider);
+        collection.Pass<IServiceDiscovery>(_serviceProvider);
+        collection.Pass<ICardConfigs>(_serviceProvider);
+        collection.Pass<IBotConfig>(_serviceProvider);
+        collection.Pass<IGameModeConfig>(_serviceProvider);
     }
 }

@@ -13,6 +13,7 @@ public interface IPlayer
     IMana Mana { get; }
     IMoves Moves { get; }
     IModifiers Modifiers { get; }
+    IPlayerActions Actions { get; }
 }
 
 public class Player : IPlayer
@@ -25,7 +26,9 @@ public class Player : IPlayer
         Modifiers modifiers,
         Deck deck,
         Moves moves,
-        Hand hand, Stash stash)
+        Hand hand,
+        Stash stash,
+        PlayerActions playerActions)
     {
         _entity = entity;
         _board = board;
@@ -36,6 +39,7 @@ public class Player : IPlayer
         _moves = moves;
         _hand = hand;
         _stash = stash;
+        _playerActions = playerActions;
     }
 
     private readonly IEntity _entity;
@@ -44,6 +48,7 @@ public class Player : IPlayer
     private readonly Mana _mana;
     private readonly Modifiers _modifiers;
     private readonly Stash _stash;
+    private readonly PlayerActions _playerActions;
     private readonly Deck _deck;
     private readonly Moves _moves;
     private readonly Hand _hand;
@@ -57,4 +62,5 @@ public class Player : IPlayer
     public IMana Mana => _mana;
     public IMoves Moves => _moves;
     public IModifiers Modifiers => _modifiers;
+    public IPlayerActions Actions => _playerActions;
 }

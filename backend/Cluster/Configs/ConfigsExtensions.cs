@@ -18,6 +18,10 @@ public static class ConfigsExtensions
             .As<IBotConfig>()
             .As<ILocalSetupCompleted>();
 
+        services.Add<GameModeConfigView>()
+            .As<IGameModeConfig>()
+            .As<ILocalSetupCompleted>();
+        
         return builder;
     }
 }

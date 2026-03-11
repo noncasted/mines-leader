@@ -5,9 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4315cbfa-733b-4482-bc8c-f9452daa3678" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../backend/Infrastructure/Orleans/State/Transactions/GrainTransactionHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Infrastructure/Orleans/State/Transactions/GrainTransactionHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/GameModeConfig.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/PlayerActions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../shared/Configs/GameModeOptions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../shared/Configs/GameModeOptions.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Cluster/Configs/ClusterConfigsSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/ClusterConfigsSetup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Cluster/Configs/ConfigsExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Cluster/Configs/ConfigsExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/CardFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/CardUseCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/OpenCellCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Commands/OpenCellCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/RoundPlayers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/RoundPlayers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Deck.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Deck.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/PlayerFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Players/PlayerFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Global/SessionFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Game/Session/Users/BotConnection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/Session/Users/BotConnection.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Configs/Configs.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Console/Pages/Configs/Configs.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Orchestration/Coordinator/config.bot.json" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Orchestration/Coordinator/config.bot.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Scenes/Game_Overlay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Scenes/Game_Overlay.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Loop/Context/LastManStandingRound.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Loop/Context/LastManStandingRound.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Internal/Options/OptionsContainer.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Internal/Options/OptionsContainer.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Options/GameOptions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Options/GameOptions.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Options/RoundsOptions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../shared/Game/Options/RoundsOptions.cs.meta" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

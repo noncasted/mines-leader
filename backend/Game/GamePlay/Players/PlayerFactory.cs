@@ -32,7 +32,7 @@ public class PlayerFactory : IPlayerFactory
     {
         var userHandle = _orleans.CreateUserHandle(user.Id);
         var selectedDeck = await userHandle.Deck.GetSelected();
-        
+
         var entityBuilder = _entityFactory.Create(user);
 
         var boardProperty = entityBuilder.AddProperty<BoardState>(PlayerStateIds.Board);
@@ -62,11 +62,23 @@ public class PlayerFactory : IPlayerFactory
         var moves = new Moves(movesProperty);
         var hand = new Hand(handProperty);
         var stash = new Stash(stashProperty);
-
-        var player = new Player(entity, board, health, mana, modifiers, deck, moves, hand, stash);
+        var actions = new PlayerActions();
+        
+        var player = new Player(
+            entity: entity,
+            board: board,
+            health: health,
+            mana: mana,
+            modifiers: modifiers,
+            deck: deck,
+            moves: moves,
+            hand: hand,
+            stash: stash,
+            playerActions: actions
+        );
 
         deckProperty.Update(state => state.Queue = new List<CardType>());
-        
+
         return player;
     }
 }

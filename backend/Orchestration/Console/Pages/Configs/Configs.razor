@@ -39,6 +39,14 @@
         <MudDivider Class="my-4"/>
 
         <MudText Typo="Typo.h6" Class="mb-2">
+            Game Mode Configuration
+        </MudText>
+
+        <GameModeConfigEditor Value="_gameModeValue"/>
+
+        <MudDivider Class="my-4"/>
+
+        <MudText Typo="Typo.h6" Class="mb-2">
             CardUse Configurations
         </MudText>
 
@@ -78,10 +86,14 @@
     public IBotConfig BotConfig { get; set; } = null!;
 
     [Inject]
+    public IGameModeConfig GameModeConfig { get; set; } = null!;
+
+    [Inject]
     public ISnackbar Snackbar { get; set; } = null!;
 
     private CardConfigOptions _cardsValue = new();
     private BotConfigOptions _botValue = new();
+    private GameModeOptions _gameModeValue = new();
     private bool _isUpdatingJson;
 
     protected override void OnInitialized()
@@ -93,6 +105,7 @@
     {
         ReloadField(CardConfigs.Value, ref _cardsValue);
         ReloadField(BotConfig.Value, ref _botValue);
+        ReloadField(GameModeConfig.Value, ref _gameModeValue);
 
         InvokeAsync(StateHasChanged);
 
@@ -109,27 +122,21 @@
     {
         CardConfigs.SetValue(_cardsValue);
         BotConfig.SetValue(_botValue);
+        GameModeConfig.SetValue(_gameModeValue);
     }
 
     private async Task UpdateJson()
     {
         _isUpdatingJson = true;
 
+        var coordinatorFolder = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+
         try
         {
-            var cardsValue = JsonUtils.Serialize(_cardsValue);
-            var botValue = JsonUtils.Serialize(_botValue);
 
-            var projectRoot = AppContext.BaseDirectory;
-            var targetFolder = Path.Combine(projectRoot, "..", "..", "..", "..", "Coordinator");
-            var cardsPath = Path.Combine(targetFolder, "config.cards.json");
-            var botPath = Path.Combine(targetFolder, "config.bot.json");
-
-            var cardsFullPath = Path.GetFullPath(cardsPath);
-            var botFullPath = Path.GetFullPath(botPath);
-
-            await File.WriteAllTextAsync(cardsFullPath, cardsValue);
-            await File.WriteAllTextAsync(botFullPath, botValue);
+            await SaveConfig("config.cards", _cardsValue);
+            await SaveConfig("config.bot", _botValue);
+            await SaveConfig("config.gameMode", _gameModeValue);
 
             Snackbar.Add($"Configs saved", Severity.Success);
         }
@@ -140,6 +147,16 @@
         finally
         {
             _isUpdatingJson = false;
+        }
+
+        return;
+
+        async Task SaveConfig<T>(string jsonPath, T value)
+        {
+            var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
+            var fullPath = Path.GetFullPath(configPath);
+            var json = JsonUtils.Serialize(value)!;
+            await File.WriteAllTextAsync(fullPath, json);
         }
     }
 
