@@ -20,15 +20,15 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
         );
 
         var card = Utils.CardFactory.Create(player, context.Snapshot, request.Payload);
-        player.Hand.Remove(request.CardId);
 
         var use = card.Use();
 
         if (use.Result.HasError == true)
             return use.Result;
 
+        player.Hand.Remove(request.CardId);
         context.Snapshot.RecordCard(player.User.Id, request.CardId, use.ActionData!);
-        
+
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
 

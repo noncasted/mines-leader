@@ -5,7 +5,6 @@ using Infrastructure;
 using Meta.Users;
 using MetaGateway.UserFlow.Commands;
 using MetaGateway.UserFlow.Connection;
-using Orleans;
 using Shared;
 
 namespace MetaGateway.UserFlow;
@@ -43,6 +42,12 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
     public async Task OnConnected(IUserSession user)
     {
+        if (_users.Entries.TryGetValue(user.UserId, out var existingUser))
+        {
+            existingUser.Connection.ForceDisconnect();
+            _users.Remove(existingUser);
+        }
+
         _users.Add(user);
         _commandsDispatcher.Run(user);
 

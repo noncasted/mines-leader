@@ -12,7 +12,7 @@ public interface IConnection
     IConnectionWriter Writer { get; }
 
     Task Run();
-    void OnPingFailed();
+    void ForceDisconnect();
 }
 
 public class Connection : IConnection
@@ -38,7 +38,7 @@ public class Connection : IConnection
     {
         if (_lifetime.IsTerminated == true)
             throw new InvalidOperationException("Connection is terminated");
-        
+
         _writer.Run(_lifetime).NoAwait();
         await _reader.Run(_lifetime);
 
@@ -49,13 +49,21 @@ public class Connection : IConnection
         OnDisconnected();
     }
 
-    public void OnPingFailed()
+    public void ForceDisconnect()
     {
-        _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Ping failed", CancellationToken.None);
+        _lifetime.Terminate();
+        OnDisconnected();
     }
 
     private void OnDisconnected()
     {
-        _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User disconnected", CancellationToken.None);
+        try
+        {
+            _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User disconnected", CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }
