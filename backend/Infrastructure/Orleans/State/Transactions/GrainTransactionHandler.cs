@@ -19,14 +19,8 @@ public interface IGrainTransactionHandler : IGrainExtension
 
 public class GrainTransactionHandler : IGrainTransactionHandler
 {
-    public GrainTransactionHandler(IGrainContext context)
-    {
-        _context = context;
-    }
-
     private Guid _currentTransactionId;
 
-    private readonly IGrainContext _context;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Guid _participantId = Guid.NewGuid();
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();

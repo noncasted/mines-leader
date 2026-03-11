@@ -9,6 +9,7 @@ public interface IConnectedUsers
     IReadOnlyDictionary<Guid, IUserSession> Entries { get; }
 
     void Add(IUserSession session);
+    void Remove(IUserSession session);
     bool IsConnected(Guid userId);
 }
 
@@ -26,6 +27,11 @@ public class ConnectedUsers : IConnectedUsers
         session.Lifetime.Listen(() => _entries.Remove(session.UserId));
 
         _connected.Invoke(session);
+    }
+
+    public void Remove(IUserSession session)
+    {
+        _entries.Remove(session.UserId);
     }
 
     public bool IsConnected(Guid userId)
