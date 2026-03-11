@@ -23,7 +23,7 @@ namespace GamePlay.Cards
         public void Destroy()
         {
             _scope.DisposeCore();
-            
+
             if (gameObject != null)
                 Destroy(gameObject);
         }

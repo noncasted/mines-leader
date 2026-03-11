@@ -1,4 +1,5 @@
 using Infrastructure.State;
+using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
 
 namespace Tests;
@@ -7,8 +8,6 @@ public interface ITransactionStateTestGrain : IGrainWithStringKey
 {
     [Infrastructure.State.Transaction]
     Task Test();
-
-    Task A();
 }
 
 [GenerateSerializer]
@@ -18,19 +17,24 @@ public class TransactionStateTestGrainState
     public int Inc { get; set; }
 }
 
-
-
-[Reentrant]
 public class TransactionStateTestGrain : Grain, ITransactionStateTestGrain
 {
-    public async Task Test()
+    public TransactionStateTestGrain(
+        [State] State<TransactionStateTestGrainState> state,
+        ILogger<TransactionStateTestGrain> logger)
     {
-
-        await GrainContext.GetComponent<IGrainTransactionHandler>().Test();
+        _state = state;
+        _logger = logger;
     }
 
-    public Task A()
+    private readonly State<TransactionStateTestGrainState> _state;
+    private readonly ILogger<TransactionStateTestGrain> _logger;
+
+    public async Task Test()
     {
-        return Task.CompletedTask;
+        await _state.Read();
+        _state.Value.Inc++;
+        await _state.Write();
+        _logger.LogInformation("[Test] Inc: {ValueInc}", _state.Value.Inc);
     }
 }

@@ -5,13 +5,19 @@ namespace Infrastructure.State;
 public interface IGrainTransactionHandler : IGrainExtension
 {
     [AlwaysInterleave]
-    Task<(Guid participantId, ITransactionParticipant participant)> Join(Guid transactionId);
+    Task<Guid> Join(Guid transactionId);
 
     [AlwaysInterleave]
-    Task Test();
+    Task<IReadOnlyList<object>> CollectStates(Guid transactionId);
+
+    [AlwaysInterleave]
+    Task OnSuccess(Guid transactionId);
+
+    [AlwaysInterleave]
+    Task OnFailure(Guid transactionId);
 }
 
-public class GrainTransactionHandler : IGrainTransactionHandler, ITransactionParticipant
+public class GrainTransactionHandler : IGrainTransactionHandler
 {
     public GrainTransactionHandler(IGrainContext context)
     {
@@ -25,15 +31,15 @@ public class GrainTransactionHandler : IGrainTransactionHandler, ITransactionPar
     private readonly Guid _participantId = Guid.NewGuid();
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
 
-    public async Task<(Guid participantId, ITransactionParticipant participant)> Join(Guid transactionId)
+    public async Task<Guid> Join(Guid transactionId)
     {
         if (_currentTransactionId == transactionId)
-            return (_participantId, _context.GrainReference.AsReference<ITransactionParticipant>());
+            return _participantId;
 
         if (_currentTransactionId == Guid.Empty)
         {
             _currentTransactionId = transactionId;
-            return (_participantId, _context.GrainReference.AsReference<ITransactionParticipant>());
+            return _participantId;
         }
 
         await _lock.WaitAsync(TimeSpan.FromSeconds(10f));
@@ -45,18 +51,13 @@ public class GrainTransactionHandler : IGrainTransactionHandler, ITransactionPar
             );
         }
 
-        return (_participantId, _context.GrainReference.AsReference<ITransactionParticipant>());
-    }
-
-    public async Task Test()
-    {
+        return _participantId;
     }
 
     public void RecordStateChanged(IGrainStateTransactionParticipant state)
     {
         _states.Add(state);
     }
-
 
     public Task<IReadOnlyList<object>> CollectStates(Guid transactionId)
     {
@@ -90,7 +91,9 @@ public class GrainTransactionHandler : IGrainTransactionHandler, ITransactionPar
         _states.Clear();
         _currentTransactionId = Guid.Empty;
 
-        _lock.Release();
+        if (_lock.CurrentCount == 0)
+            _lock.Release();
+
         return Task.CompletedTask;
     }
 
@@ -105,7 +108,9 @@ public class GrainTransactionHandler : IGrainTransactionHandler, ITransactionPar
         _states.Clear();
         _currentTransactionId = Guid.Empty;
 
-        _lock.Release();
+        if (_lock.CurrentCount == 0)
+            _lock.Release();
+   
         return Task.CompletedTask;
     }
 }

@@ -20,7 +20,7 @@ MonoBehaviour:
   _version:
     _value: 1.0.0
   _backend:
-    _environment: 0
+    _environment: 1
     _productionApiUrl: https://gateway.minesleader.xyz
     _localApiUrl: http://localhost:5003
   _platform:

@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4315cbfa-733b-4482-bc8c-f9452daa3678" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentBomb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Game/GamePlay/Cards/OpponentBomb.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.client/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/View/CardView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GamePlay/Cards/Entities/View/CardView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Internal/Options/InternalSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Internal/Options/InternalSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Internal/Options/OptionsContainer.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Internal/Options/OptionsContainer.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,9 +23,9 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
+      <entry key="edit-panel" value="GPT-4.1" />
       <entry key="chat-panel" value="GPT-4.1" />
       <entry key="agent-panel" value="GPT-4.1" />
-      <entry key="edit-panel" value="GPT-4.1" />
     </selectedModels>
   </component>
   <component name="DpaMonitoringSettings">
