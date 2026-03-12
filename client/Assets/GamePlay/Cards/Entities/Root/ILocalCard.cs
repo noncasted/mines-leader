@@ -7,5 +7,6 @@ namespace GamePlay.Cards
     {
         IViewableDelegate Used { get; }
         ICardLocalDrop Drop { get; }
+        ICardPointerHandler PointerHandler { get; }
     }
 }
