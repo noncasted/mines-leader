@@ -18,7 +18,8 @@ namespace GamePlay.Cards
             ICardTransform transform,
             ICardLocalDrop drop,
             ICardView view,
-            ICardDefinition definition)
+            ICardDefinition definition,
+            ICardPointerHandler pointerHandler)
         {
             Id = id;
             Type = type;
@@ -30,6 +31,7 @@ namespace GamePlay.Cards
             Hand = hand;
             Transform = transform;
             Lifetime = containerLifetime;
+            PointerHandler = pointerHandler;
         }
 
         private readonly ILifetime _containerLifetime;
@@ -47,6 +49,7 @@ namespace GamePlay.Cards
 
         public IViewableDelegate Used => _used;
         public ICardLocalDrop Drop => _drop;
+        public ICardPointerHandler PointerHandler { get; }
 
         public UniTask Destroy()
         {
