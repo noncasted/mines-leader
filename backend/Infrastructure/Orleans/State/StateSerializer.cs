@@ -18,7 +18,7 @@ public class StateSerializer : IStateSerializer
     {
         _settings = new JsonSerializerSettings
         {
-            TypeNameHandling = TypeNameHandling.All,
+            TypeNameHandling = TypeNameHandling.Auto,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
             DefaultValueHandling = DefaultValueHandling.Ignore,

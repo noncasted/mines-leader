@@ -26,20 +26,24 @@ When the user runs `/commit`, follow these rules for generating commit messages:
   - remove: deprecated animation frame caching
   ```
 
+NEVER NEVER NEVER ADD CLAUDE TO CO-AUTHORS 
+NEVER NEVER NEVER ADD CLAUDE TO CO-AUTHORS 
+
 ## Execution Steps
 
 1. Run `git status` to get unstaged/untracked files
-2. Run `git log -10 --oneline` to see staged and unstaged changes
+2. Run `git log -10 --oneline` to see recent commits and understand context
 3. Get current branch name with `git rev-parse --abbrev-ref HEAD`
-4. Analyze changes in the diff output:
+4. Analyze changes:
    - Extract ticket ID (e.g., `ATS-123`) from branch name
    - Identify which files changed and their purposes
    - Determine the scope if no ticket ID (Visual, Timeline, Objects, Editor, Core, UI, Network, Animation, etc.)
 5. Generate commit title: `[TICKET_ID or SCOPE] Brief description`
 6. Generate description with bullet points using add:/fix:/refactor:/remove: tags
-7. Run `git add .` to stage all changes
-8. Run `git commit -m "title\n\ndescription"`
-9. Run `git push -u origin CURRENT_BRANCH`
+7. [Scope] should reflect the area of work, not just copy branch name
+8. Run `git add .` to stage all changes
+9. Run `git commit -m "title\n\ndescription"`
+10. Report the commit hash and summary to user
 
 ## Example Commit
 
@@ -68,5 +72,5 @@ When the user runs `/commit`, follow these rules for generating commit messages:
 - ALL text must be in ENGLISH (titles, scopes, descriptions, tags)
 - Be concise but specific
 - If multiple features/fixes, list them all with appropriate tags
-- Always push to the current branch after commit
 - Use the commit message format exactly as specified
+- Commits are created locally; push to remote is handled separately

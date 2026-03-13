@@ -96,5 +96,29 @@ namespace Internal
                 throw new Exception();
             }
         }
+        
+        public static UniTask WaitTrue(this ILifetimedValue<bool> property, IReadOnlyLifetime lifetime)
+        {
+            if (property.Value == true)
+                return UniTask.CompletedTask;
+
+            var completion = new UniTaskCompletionSource();
+            lifetime.Listen(() => completion.TrySetCanceled());
+
+            property.Advise(lifetime, (_, value) => OnChange(value));
+
+            return completion.Task;
+
+            void OnChange(bool value)
+            {
+                if (value == true)
+                {
+                    completion.TrySetResult();
+                    return;
+                }
+
+                throw new Exception();
+            }
+        }
     }
 }

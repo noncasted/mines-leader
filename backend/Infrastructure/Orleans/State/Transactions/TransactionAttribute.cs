@@ -2,7 +2,6 @@ using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans.Serialization;
 using Orleans.Serialization.Invocation;
-using Tests;
 
 namespace Infrastructure.State;
 
@@ -72,10 +71,10 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
             TransactionContextProvider.SetCurrent(Context);
 
 
-            var response = await BaseInvoke();
-
             var castedTarget = Target.AsReference<IGrainTransactionHandler>();
             var participantId = await castedTarget.Join(Context.Id);
+            var response = await BaseInvoke();
+
             Context.Participants.TryAdd(participantId, castedTarget);
 
             if (response.Exception != null)

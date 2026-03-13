@@ -5,7 +5,7 @@ namespace Internal
 {
     public static class ViewableDelegatesExtensions
     {
-        public static UniTask WaitInvoke(this IViewableDelegate viewableDelegate, IReadOnlyLifetime lifetime)
+        public static UniTask WaitInvoke(this IEventSource viewableDelegate, IReadOnlyLifetime lifetime)
         {
             var completion = new UniTaskCompletionSource();
 
@@ -16,7 +16,7 @@ namespace Internal
         }
 
         public static UniTask<T> WaitInvoke<T>(
-            this IViewableDelegate<T> viewableDelegate,
+            this IEventSource<T> viewableDelegate,
             IReadOnlyLifetime lifetime)
         {
             var completion = new UniTaskCompletionSource<T>();

@@ -20,3 +20,9 @@ Collections
 There should be no global collection in a singleton grain, like PlayersCollection.
 Instead there should be a dedicated db table, where all entities are stored and CollectionView which represents 
 this table and provides all operations with it. It may even cache all entities and load them during startup.
+
+State versioning
+Each state should have property Version which is incremented each time when state is changed. 
+Every time state is changed its copy with version postfix State_v{Version}.cs and corresponding migration should be created.
+Then, during state read we check state version from db, and apply each migration until we get the latest version of state.
+During state write, we should write new version in db.
