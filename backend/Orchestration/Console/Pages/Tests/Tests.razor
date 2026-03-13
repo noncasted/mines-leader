@@ -1,112 +1,58 @@
 @page "/tests"
-@using global::Common.Extensions
 @using global::Tests
 
 <PageTitle>Tests</PageTitle>
 <PageHeader Title="Tests"/>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="px-4 py-4">
-    <MudStack Spacing="4">
-        <TestEntry
-            Title="Messaging direct queue"
-            @bind-Payload="_messagingDirectQueueStressTestPayload"
-            StartCallback="Run_Messaging_DirectQueue"/>
-
-        <TestEntry
-            Title="Messaging transactional queue"
-            @bind-Payload="_messagingTransactionalQueueStressTest"
-            StartCallback="Run_Messaging_TransactionalQueue"/>
-
-        <TestEntry
-            Title="Messaging pipe send (one-way)"
-            @bind-Payload="_messagePipeSendStressTestPayload"
-            StartCallback="Run_MessagePipe_Send"/>
-
-        <TestEntry
-            Title="Messaging pipe send with response (request-response)"
-            @bind-Payload="_messagePipeSendResponseStressTestPayload"
-            StartCallback="Run_MessagePipe_SendResponse"/>
-        
-        <TestEntry
-            Title="Custom grain state"
-            @bind-Payload="_grainStateTestPayload"
-            StartCallback="Run_GrainState"/>
-        
-        <TestEntry
-            Title="Custom transactional grain state"
-            @bind-Payload="_grainTransactionalStateTestPayload"
-            StartCallback="Run_Transactional_GrainState"/>
-    </MudStack>
+    <MudExpansionPanels MultiExpansion="true">
+        @foreach (var group in ClusterTests.GroupBy(t => t.Group))
+        {
+            var groupTests = group.ToList();
+            <MudExpansionPanel>
+                <TitleContent>
+                    <div class="d-flex align-center justify-space-between" style="width: 100%">
+                        <MudText>@group.Key</MudText>
+                        <div @onclick:stopPropagation="true">
+                            <MudButton Variant="Variant.Outlined"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => RunGroup(groupTests))">
+                                Run All
+                            </MudButton>
+                        </div>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <MudStack Spacing="4" Class="pt-2">
+                        @foreach (var test in groupTests)
+                        {
+                            <TestEntry @ref="_entries[test]" Test="test"/>
+                        }
+                    </MudStack>
+                </ChildContent>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
 </MudContainer>
 
 @code {
-    [Inject] public MessagingDirectQueueStressTest.Root MessagingDirectQueueStressTest { get; set; }
-    [Inject] public MessagingTransactionalQueueStressTest.Root MessagingTransactionalQueueStressTest { get; set; }
-    [Inject] public MessagePipeSendStressTest.Root MessagePipeSendStressTest { get; set; }
-    [Inject] public MessagePipeSendResponseStressTest.Root MessagePipeSendResponseStressTest { get; set; }
-    [Inject] public GrainStateTest.Root GrainStateTest { get; set; }
-    [Inject] public GrainTransactionalStateTest.Root GrainTransactionalStateTest { get; set; }
-    
-    private MessagingDirectQueueStressTest.StartPayload _messagingDirectQueueStressTestPayload = new()
-    {
-        MessageCount = 100,
-        Delay = 0.01f
-    };
+    [Inject] public IEnumerable<IClusterTest> ClusterTests { get; set; } = [];
 
-    private MessagingTransactionalQueueStressTest.StartPayload _messagingTransactionalQueueStressTest = new()
-    {
-        MessageCount = 1,
-        Delay = 0.01f
-    };
+    private readonly Dictionary<IClusterTest, TestEntry?> _entries = new();
 
-    private MessagePipeSendStressTest.StartPayload _messagePipeSendStressTestPayload = new()
+    protected override void OnParametersSet()
     {
-        MessageCount = 100,
-        Delay = 0.01f
-    };
-
-    private MessagePipeSendResponseStressTest.StartPayload _messagePipeSendResponseStressTestPayload = new()
-    {
-        MessageCount = 10,
-        Delay = 0.01f
-    };
-    
-    private GrainStateTest.StartPayload _grainStateTestPayload = new()
-    {
-    };
-    
-    private GrainTransactionalStateTest.StartPayload _grainTransactionalStateTestPayload = new()
-    {
-    };
-
-    private Task Run_Messaging_DirectQueue(IOperationProgress progress)
-    {
-        return MessagingDirectQueueStressTest.Start(progress, _messagingDirectQueueStressTestPayload);
+        foreach (var test in ClusterTests)
+            _entries.TryAdd(test, null);
     }
 
-    private Task Run_Messaging_TransactionalQueue(IOperationProgress progress)
+    private async Task RunGroup(List<IClusterTest> tests)
     {
-        return MessagingTransactionalQueueStressTest.Start(progress, _messagingTransactionalQueueStressTest);
+        foreach (var test in tests)
+        {
+            if (_entries.TryGetValue(test, out var entry) && entry != null)
+                await entry.Run();
+        }
     }
-
-    private Task Run_MessagePipe_Send(IOperationProgress progress)
-    {
-        return MessagePipeSendStressTest.Start(progress, _messagePipeSendStressTestPayload);
-    }
-
-    private Task Run_MessagePipe_SendResponse(IOperationProgress progress)
-    {
-        return MessagePipeSendResponseStressTest.Start(progress, _messagePipeSendResponseStressTestPayload);
-    }
-    
-    private Task Run_GrainState(IOperationProgress progress)
-    {
-        return GrainStateTest.Start(progress, _grainStateTestPayload);
-    }
-    
-    private Task Run_Transactional_GrainState(IOperationProgress progress)
-    {
-        return GrainTransactionalStateTest.Start(progress, _grainTransactionalStateTestPayload);
-    } 
-
 }

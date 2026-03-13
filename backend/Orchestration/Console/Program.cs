@@ -8,12 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.SetupConsole();
 builder.AddCommonConsoleComponents();
-builder.Services.Add<MessagingDirectQueueStressTest.Root>();
-builder.Services.Add<MessagingTransactionalQueueStressTest.Root>();
-builder.Services.Add<MessagePipeSendStressTest.Root>();
-builder.Services.Add<MessagePipeSendResponseStressTest.Root>();
-builder.Services.Add<GrainStateTest.Root>();
-builder.Services.Add<GrainTransactionalStateTest.Root>();
+
+builder.Services.Add<MessagingDirectQueueStressTest.Root>().As<IClusterTest>();
+builder.Services.Add<MessagingTransactionalQueueStressTest.Root>().As<IClusterTest>();
+builder.Services.Add<MessagePipeSendStressTest.Root>().As<IClusterTest>();
+builder.Services.Add<MessagePipeSendResponseStressTest.Root>().As<IClusterTest>();
+builder.Services.Add<GrainStateTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionStateTest.Root>().As<IClusterTest>();
+builder.Services.Add<ChainedTransactionStateTest.Root>().As<IClusterTest>();
+builder.Services.Add<ChainedTransactionStateTestFail.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionLimiterTest.Root>().As<IClusterTest>();
 
 var app = builder.Build();
 

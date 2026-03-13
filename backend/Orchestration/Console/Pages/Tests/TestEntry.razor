@@ -1,26 +1,28 @@
-@using global::Common.Extensions
-@typeparam TPayload where TPayload : class
+@using global::Tests
 
 <MudPaper Class="pa-4" Elevation="2">
     <MudStack Spacing="3">
-        <MudText Typo="Typo.subtitle1">@Title</MudText>
-        <PayloadForm @bind-Payload="Payload"/>
-        <OperationView Name="Run" StartCallback="StartCallback"/>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+            <MudIconButton Icon="@(_expanded ? Icons.Material.Filled.ExpandMore : Icons.Material.Filled.ChevronRight)"
+                           Size="Size.Small"
+                           OnClick="@(() => _expanded = !_expanded)" />
+            <MudText Typo="Typo.subtitle1">@Test.Title</MudText>
+        </MudStack>
+        <MudCollapse Expanded="_expanded">
+            <PayloadForm Payload="Test.Payload" PayloadChanged="val => Test.Payload = val"/>
+        </MudCollapse>
+        <OperationView @ref="_operationView" Name="Run" StartCallback="Test.Start"/>
     </MudStack>
 </MudPaper>
 
 @code {
 
     [Parameter]
-    public required string Title { get; set; }
+    public required IClusterTest Test { get; set; }
 
-    [Parameter]
-    public required TPayload Payload { get; set; }
+    private bool _expanded;
+    private OperationView _operationView = null!;
 
-    [Parameter]
-    public required EventCallback<TPayload> PayloadChanged { get; set; }
-
-    [Parameter]
-    public required Func<IOperationProgress, Task> StartCallback { get; set; }
+    public Task Run() => _operationView.Run();
 
 }

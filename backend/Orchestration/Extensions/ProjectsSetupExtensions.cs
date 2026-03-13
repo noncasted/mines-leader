@@ -174,9 +174,9 @@ public static class ProjectsSetupExtensions
                     },
                     new()
                     {
-                        TableName = "test_transactional_state",
-                        KeyType = GrainKeyType.String,
-                        Type = typeof(TransactionStateTestGrainState)
+                        TableName = "test_transaction_state",
+                        KeyType = GrainKeyType.Guid,
+                        Type = typeof(TransactionTestState)
                     }
                 };
                 

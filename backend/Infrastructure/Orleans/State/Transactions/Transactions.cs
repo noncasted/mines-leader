@@ -31,7 +31,7 @@ public class Transactions : ITransactions
         try
         {
             await action();
-            var states = CollectStates();
+            var states = await CollectStates();
 
             await _storage.Write(states);
 
@@ -53,20 +53,29 @@ public class Transactions : ITransactions
             IsSuccess = true
         };
 
-        IReadOnlyList<(GrainId id, object value)> CollectStates()
+        async Task<IReadOnlyList<(GrainId id, object value)>> CollectStates()
         {
             var states = new List<(GrainId id, object value)>();
 
-            foreach (var (_, participant) in context.Participants)
-            {
-                var participantStates = participant.CollectStates(context.Id).Result;
-                var participantId = participant.GetGrainId();
+            var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Value)));
 
-                foreach (var state in participantStates)
-                    states.Add((participantId, state));
-            }
+            foreach (var collection in collections)
+                states.AddRange(collection);
 
             return states;
+
+            async Task<IReadOnlyList<(GrainId id, object value)>> Collect(IGrainTransactionHandler handler)
+            {
+                var collection = new List<(GrainId id, object value)>();
+
+                var participantStates = await handler.CollectStates(context.Id);
+                var participantId = handler.GetGrainId();
+
+                foreach (var state in participantStates)
+                    collection.Add((participantId, state));
+
+                return collection;
+            }
         }
     }
 
@@ -81,6 +90,7 @@ public class Transactions : ITransactions
             }
             catch (Exception e)
             {
+                
             }
         }
     }

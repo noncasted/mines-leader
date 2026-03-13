@@ -1,7 +1,6 @@
 @using System.Reflection
 @using System.Text.RegularExpressions
 @using MudBlazor
-@typeparam TPayload
 
 <MudStack Spacing="2" Class="mb-3">
     @foreach (var prop in _properties)
@@ -19,17 +18,17 @@
 
 @code {
     [Parameter]
-    public required TPayload Payload { get; set; }
+    public required object Payload { get; set; }
 
     [Parameter]
-    public required EventCallback<TPayload> PayloadChanged { get; set; }
+    public required EventCallback<object> PayloadChanged { get; set; }
 
     private PropertyInfo[] _properties = Array.Empty<PropertyInfo>();
     private readonly Dictionary<string, string> _values = new();
 
     protected override void OnInitialized()
     {
-        _properties = typeof(TPayload).GetProperties(
+        _properties = Payload.GetType().GetProperties(
             BindingFlags.Public | BindingFlags.Instance);
 
         foreach (var prop in _properties)
@@ -65,7 +64,7 @@
                 {
                     // Для init-only свойств используем BackingField
                     var fieldName = $"<{prop.Name}>k__BackingField";
-                    var field = typeof(TPayload).GetField(fieldName,
+                    var field = Payload.GetType().GetField(fieldName,
                         BindingFlags.NonPublic | BindingFlags.Instance);
 
                     if (field != null)

@@ -122,7 +122,9 @@
             : $"{duration.Minutes:D2}:{duration.Seconds:D2}";
     }
 
-    private void Start()
+    private void Start() => Run().NoAwait();
+
+    public async Task Run()
     {
         _operation = new OperationProgress();
         _operation.SetStatus(OperationStatus.Preparing);
@@ -131,7 +133,7 @@
         _operation.Status.View(_lifetime, () => InvokeAsync(StateHasChanged));
         _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
 
-        StartCallback(_operation);
+        await StartCallback(_operation);
     }
 
     public void Dispose()
