@@ -9,7 +9,7 @@ public class ChainedTransactionStateTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload()
+    public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
         public int ChainLength { get; set; } = 3;
@@ -39,51 +39,16 @@ public class ChainedTransactionStateTest
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-
-            var processedCount = 0;
-            var totalCount = payload.Iterations * payload.Concurrent;
-
-            for (var i = 0; i < payload.Iterations; i++)
-            {
-                var tasks = new List<Task>();
-
-                for (int j = 0; j < payload.Concurrent; j++)
-                    tasks.Add(Process(payload.ChainLength, OnProcessed));
-
-                await Task.WhenAll(tasks);
-            }
-
-            return;
-
-            void OnProcessed()
-            {
-                var count = Interlocked.Increment(ref processedCount);
-                handle.Progress.SetProgress((float)count / totalCount);
-                handle.Progress.Log($"Processed {count}/{totalCount} transactions");
-            }
+            await handle.RunConcurrentIterations(payload, () => Process(payload.ChainLength));
         }
 
-        private async Task Process(int chainLength, Action onProcessed)
+        private async Task Process(int chainLength)
         {
-            var ids = new List<Guid>();
+            var ids = TestParticipants.Create(_orleans, chainLength);
+            var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
 
-            for (var i = 0; i < chainLength; i++)
-                ids.Add(Guid.NewGuid());
-
-            var result = await _transactions.Run(async () =>
-                {
-                    foreach (var id in ids)
-                    {
-                        var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
-                        await grain.Increment();
-                    }
-                }
-            );
-
-            if (!result.IsSuccess)
+            if (result.IsSuccess == false)
                 throw new Exception("Chained transaction failed");
-
-            onProcessed();
         }
     }
 }
