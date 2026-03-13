@@ -5,7 +5,7 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class GrainStateTest
+public class StateTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -82,8 +82,7 @@ public class GrainStateTest
         private readonly IOrleans _orleans;
 
         public override string Group => TestGroups.State;
-        public override string Title => "Custom grain state";
-        protected override string Name => "grain-state";
+        public override string Title => "state";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

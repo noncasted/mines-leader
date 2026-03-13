@@ -5,7 +5,7 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class ChainedTransactionStateTest
+public class TransactionStateChainedTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -33,8 +33,7 @@ public class ChainedTransactionStateTest
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "Chained transactional state update across two grains";
-        protected override string Name => "chained-state";
+        public override string Title => "transactions-state-chained";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

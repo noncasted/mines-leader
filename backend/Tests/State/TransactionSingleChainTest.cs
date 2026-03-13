@@ -5,20 +5,20 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class TransactionLimiterTest
+public class TransactionSingleChainTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int ChainLength { get; set; } = 3;
+        public int Iterations { get; set; } = 10;
 
         [Id(1)]
-        public int Iterations { get; set; } = 100;
-
-        [Id(2)]
         public int Concurrent { get; set; } = 3;
+        
+        [Id(2)]
+        public int ChainLength { get; set; } = 3;
     }
 
     public class Root : ClusterTestRoot<StartPayload>
@@ -33,27 +33,24 @@ public class TransactionLimiterTest
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "Overwriting transactions";
-        protected override string Name => "chained-state";
+        public override string Title => "transactions-single-target";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-            await handle.RunConcurrentIterations(payload, () => Process(payload.ChainLength));
+            var ids = TestParticipants.Create(_orleans, payload.ChainLength);
+            await handle.RunConcurrentIterations(payload, () => Process(ids));
         }
 
-        private async Task Process(int chainLength)
+        private async Task Process(TestParticipants ids)
         {
-            var ids = TestParticipants.Create(_orleans, chainLength);
+            var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
 
-            var taskA = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
-            var taskB = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
-
-            var resultA = await taskA;
-            var resultB = await taskB;
-
-            if (resultA.IsSuccess == false || resultB.IsSuccess == false)
+            if (result.IsSuccess == false)
                 throw new Exception("Chained transaction failed");
+
+            if (!result.IsSuccess)
+                throw new Exception("Transaction failed");
         }
     }
 }

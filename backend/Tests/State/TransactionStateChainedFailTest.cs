@@ -5,7 +5,7 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class ChainedTransactionStateTestFail
+public class TransactionStateChainedFailTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -33,8 +33,7 @@ public class ChainedTransactionStateTestFail
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "Chained transactional state rollback on error";
-        protected override string Name => "chained-state-fail";
+        public override string Title => "transactions-state-chained-fail";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

@@ -5,16 +5,19 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class TransactionStateTest
+public class TransactionStateOverlappingTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 10;
+        public int ChainLength { get; set; } = 3;
 
         [Id(1)]
+        public int Iterations { get; set; } = 100;
+
+        [Id(2)]
         public int Concurrent { get; set; } = 3;
     }
 
@@ -30,21 +33,26 @@ public class TransactionStateTest
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "transactions-state";
+        public override string Title => "transactions-state-overlapping";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-            await handle.RunConcurrentIterations(payload, Process);
+            await handle.RunConcurrentIterations(payload, () => Process(payload.ChainLength));
         }
 
-        private async Task Process()
+        private async Task Process(int chainLength)
         {
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
-            var result = await _transactions.Run(() => grain.Increment());
+            var ids = TestParticipants.Create(_orleans, chainLength);
 
-            if (!result.IsSuccess)
-                throw new Exception("Transaction failed");
+            var taskA = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+            var taskB = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+
+            var resultA = await taskA;
+            var resultB = await taskB;
+
+            if (resultA.IsSuccess == false || resultB.IsSuccess == false)
+                throw new Exception("Chained transaction failed");
         }
     }
 }

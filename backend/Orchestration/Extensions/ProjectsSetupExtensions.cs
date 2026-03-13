@@ -168,7 +168,7 @@ public static class ProjectsSetupExtensions
                 {
                     new()
                     {
-                        Type = typeof(GrainStateTest.TestState),
+                        Type = typeof(StateTest.TestState),
                         TableName = "test_state",
                         KeyType = GrainKeyType.String
                     },

@@ -5,7 +5,7 @@ using Infrastructure.State;
 
 namespace Tests;
 
-public class TransactionStateTest
+public class TransactionSingleTargetTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -30,17 +30,18 @@ public class TransactionStateTest
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "transactions-state";
+        public override string Title => "transactions-single-chain";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-            await handle.RunConcurrentIterations(payload, Process);
+            var id = Guid.NewGuid();
+            await handle.RunConcurrentIterations(payload, () => Process(id));
         }
 
-        private async Task Process()
+        private async Task Process(Guid id)
         {
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
+            var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
             var result = await _transactions.Run(() => grain.Increment());
 
             if (!result.IsSuccess)
