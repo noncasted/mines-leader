@@ -9,13 +9,13 @@ public class GrainStateTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload()
+    public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 10;
+        public int Iterations { get; set; } = 100;
 
         [Id(1)]
-        public int Concurrent { get; set; } = 3;
+        public int Concurrent { get; set; } = 10;
     }
 
     [GenerateSerializer]
@@ -88,35 +88,13 @@ public class GrainStateTest
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-
-            var processedCount = 0;
-            var totalCount = payload.Iterations * payload.Concurrent;
-
-            for (var i = 0; i < payload.Iterations; i++)
-            {
-                var tasks = new List<Task>();
-
-                for (var j = 0; j < payload.Concurrent; j++)
-                    tasks.Add(Process(OnProcessed));
-
-                await Task.WhenAll(tasks);
-            }
-
-            return;
-
-            void OnProcessed()
-            {
-                var count = Interlocked.Increment(ref processedCount);
-                handle.Progress.SetProgress((float)count / totalCount);
-                handle.Progress.Log($"Processed {count}/{totalCount} iterations");
-            }
+            await handle.RunConcurrentIterations(payload, Process);
         }
 
-        private async Task Process(Action onProcessed)
+        private async Task Process()
         {
             var grain = _orleans.GetGrain<IGrain>(Guid.NewGuid().ToString());
             await grain.Test();
-            onProcessed();
         }
     }
 }
