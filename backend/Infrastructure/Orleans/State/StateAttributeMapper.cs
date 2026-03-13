@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans.Serialization;
 
 namespace Infrastructure.State;
 

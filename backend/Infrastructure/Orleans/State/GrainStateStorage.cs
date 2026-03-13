@@ -3,6 +3,7 @@ using System.Text;
 using Common.Extensions;
 using Newtonsoft.Json;
 using Npgsql;
+using NpgsqlTypes;
 using Orleans.Serialization;
 
 namespace Infrastructure.State;
@@ -119,7 +120,7 @@ public class GrainStateStorage : IGrainStateStorage
                 PassIdentity(command.Parameters, stateInfo, grainId);
 
                 var valueParameter = command.Parameters.AddWithValue("@value", json);
-                valueParameter.NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Jsonb;
+                valueParameter.NpgsqlDbType = NpgsqlDbType.Jsonb;
 
                 await command.ExecuteNonQueryAsync();
             }

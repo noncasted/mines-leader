@@ -1,5 +1,3 @@
-using Orleans.Concurrency;
-
 namespace Infrastructure.State;
 
 [GenerateSerializer]
