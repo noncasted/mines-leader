@@ -2,13 +2,23 @@ using Orleans.Concurrency;
 
 namespace Infrastructure.State;
 
+[GenerateSerializer]
+public class TransactionHandlerResult
+{
+    [Id(0)]
+    public required IReadOnlyList<object> States { get; init; }
+
+    [Id(1)]
+    public required IReadOnlyList<ISideEffect> SideEffects { get; init; }
+}
+
 public interface IGrainTransactionHandler : IGrainExtension
 {
     [AlwaysInterleave]
     Task<Guid> Join(Guid transactionId);
 
     [AlwaysInterleave]
-    Task<IReadOnlyList<object>> CollectStates(Guid transactionId);
+    Task<TransactionHandlerResult> CollectResult(Guid transactionId);
 
     [AlwaysInterleave]
     Task OnSuccess(Guid transactionId);
@@ -33,7 +43,7 @@ public interface IGrainTransactionHandler : IGrainExtension
 //       → Join() is called on the target grain's handler (registers participant)
 //       → grain method executes, calls State.Write() → RecordStateChanged()
 //   After all grain calls finish:
-//     → CollectStates() — snapshots current in-memory state for DB write
+//     → CollectResult() — snapshots current in-memory state for DB write
 //     → [DB write happens atomically in a single Postgres transaction]
 //     → OnSuccess() — confirms commit, releases lock
 //   On any exception:
@@ -56,8 +66,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     // Stable identity returned to Transactions.Run() to track this grain as a participant.
     private readonly Guid _participantId = Guid.NewGuid();
 
-    // State objects modified by the current transaction.
-    // Populated via RecordStateChanged(), drained on OnSuccess/OnFailure.
+    private readonly List<ISideEffect> _sideEffects = new();
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
@@ -129,17 +138,20 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         return _participantId;
     }
 
-    // Called by State<T>.Write() to mark that this state object was modified
-    // and must be included in the next CollectStates() snapshot.
     public void RecordStateChanged(IGrainStateTransactionParticipant state)
     {
         _states.Add(state);
     }
 
+    public void RecordSideEffect(ISideEffect sideEffect)
+    {
+        _sideEffects.Add(sideEffect);
+    }
+    
     // Called by Transactions.Run() after all grain methods have executed.
     // Returns the current in-memory snapshots of all modified states.
     // These are then written atomically to Postgres in a single DB transaction.
-    public Task<IReadOnlyList<object>> CollectStates(Guid transactionId)
+    public Task<TransactionHandlerResult> CollectResult(Guid transactionId)
     {
         if (_currentTransactionId != transactionId)
         {
@@ -153,7 +165,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         foreach (var state in _states)
             states.Add(state.GetState());
 
-        return Task.FromResult((IReadOnlyList<object>)states);
+        return Task.FromResult(new TransactionHandlerResult
+        {
+            States = states,
+            SideEffects = new List<ISideEffect>()
+        });
     }
 
     // Called by Transactions.Run() after the DB write succeeds.

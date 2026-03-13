@@ -1,8 +1,16 @@
+using Common.Extensions;
+
 namespace Infrastructure.State;
 
 public class TransactionResult
 {
     public required bool IsSuccess { get; init; }
+}
+
+public class TransactionCommitResult
+{
+    public required IReadOnlyList<GrainStateRecord> States { get; init; }
+    public required IReadOnlyList<ISideEffect> SideEffects { get; init; }
 }
 
 public interface ITransactions
@@ -12,12 +20,19 @@ public interface ITransactions
 
 public class Transactions : ITransactions
 {
-    public Transactions(IGrainStateStorage storage)
+    public Transactions(
+        IGrainStateStorage stateStorage,
+        IDbSource dbSource,
+        ISideEffectsStorage sideEffectsStorage)
     {
-        _storage = storage;
+        _stateStorage = stateStorage;
+        _dbSource = dbSource;
+        _sideEffectsStorage = sideEffectsStorage;
     }
 
-    private readonly IGrainStateStorage _storage;
+    private readonly IGrainStateStorage _stateStorage;
+    private readonly IDbSource _dbSource;
+    private readonly ISideEffectsStorage _sideEffectsStorage;
 
     public async Task<TransactionResult> Run(Func<Task> action)
     {
@@ -31,12 +46,56 @@ public class Transactions : ITransactions
         try
         {
             await action();
-            var states = await CollectStates();
+        }
+        catch (Exception e)
+        {
+            await Rollback(context);
 
-            await _storage.Write(states);
+            return new TransactionResult
+            {
+                IsSuccess = false
+            };
+        }
 
-            var confirmTasks = context.Participants.Select(t => t.Value.OnSuccess(context.Id));
-            await Task.WhenAll(confirmTasks);
+        TransactionCommitResult result;
+
+        try
+        {
+            result = await CollectStates();
+        }
+        catch (Exception e)
+        {
+            await Rollback(context);
+
+            return new TransactionResult
+            {
+                IsSuccess = false
+            };
+        }
+
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                if (result.States.Count != 0)
+                    await _stateStorage.Write(transaction, result.States);
+
+                if (result.SideEffects.Count != 0)
+                    await _sideEffectsStorage.Write(transaction, result.SideEffects);
+
+                await transaction.CommitAsync();
+
+                var confirmTasks = context.Participants.Select(t => t.Value.OnSuccess(context.Id));
+                await Task.WhenAll(confirmTasks);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         catch (Exception e)
         {
@@ -53,28 +112,48 @@ public class Transactions : ITransactions
             IsSuccess = true
         };
 
-        async Task<IReadOnlyList<(GrainId id, object value)>> CollectStates()
+        async Task<TransactionCommitResult> CollectStates()
         {
-            var states = new List<(GrainId id, object value)>();
+            var states = new List<GrainStateRecord>();
+            var sideEffects = new List<ISideEffect>();
 
             var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Value)));
 
             foreach (var collection in collections)
-                states.AddRange(collection);
-
-            return states;
-
-            async Task<IReadOnlyList<(GrainId id, object value)>> Collect(IGrainTransactionHandler handler)
             {
-                var collection = new List<(GrainId id, object value)>();
+                states.AddRange(collection.States);
+                sideEffects.AddRange(collection.SideEffects);
+            }
 
-                var participantStates = await handler.CollectStates(context.Id);
+            return new TransactionCommitResult()
+            {
+                States = states,
+                SideEffects = sideEffects
+            };
+            ;
+
+            async Task<TransactionCommitResult> Collect(IGrainTransactionHandler handler)
+            {
+                var grainStates = new List<GrainStateRecord>();
+
+                var result = await handler.CollectResult(context.Id);
                 var participantId = handler.GetGrainId();
 
-                foreach (var state in participantStates)
-                    collection.Add((participantId, state));
+                foreach (var state in result.States)
+                {
+                    grainStates.Add(new GrainStateRecord
+                        {
+                            Id = participantId,
+                            Value = state
+                        }
+                    );
+                }
 
-                return collection;
+                return new TransactionCommitResult
+                {
+                    States = grainStates,
+                    SideEffects = result.SideEffects
+                };
             }
         }
     }
@@ -90,7 +169,7 @@ public class Transactions : ITransactions
             }
             catch (Exception e)
             {
-                
+
             }
         }
     }

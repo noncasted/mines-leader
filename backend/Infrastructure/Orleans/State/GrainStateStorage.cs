@@ -8,12 +8,18 @@ using Orleans.Serialization;
 
 namespace Infrastructure.State;
 
+public class GrainStateRecord
+{
+    public required GrainId Id { get; init; }
+    public required object Value { get; init; }
+}
+
 public interface IGrainStateStorage
 {
     Task<T> Read<T>(GrainId id) where T : class, new();
     Task<string> ReadRaw<T>(GrainId id) where T : class, new();
     Task Write(GrainId id, object value);
-    Task Write(IReadOnlyList<(GrainId id, object value)> states);
+    Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records);
 }
 
 public class GrainStateStorage : IGrainStateStorage
@@ -80,23 +86,37 @@ public class GrainStateStorage : IGrainStateStorage
 
     public async Task Write(GrainId id, object value)
     {
-        var states = new[] { (id, value) };
-        await Write(states);
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            await Write(transaction, [
+                    new GrainStateRecord
+                    {
+                        Id = id,
+                        Value = value
+                    }
+                ]
+            );
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
-    public async Task Write(IReadOnlyList<(GrainId id, object value)> states)
+    public async Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records)
     {
         try
         {
-            await using var connection = await _dbSource.Value.OpenConnectionAsync();
-            await using var transaction = await connection.BeginTransactionAsync();
-
-            foreach (var (grainId, value) in states)
+            foreach (var record in records)
             {
-                var stateInfo = _statesRegistry.States[value.GetType().FullName!];
-                var json = _serializer.Serialize(value);
+                var stateInfo = _statesRegistry.States[record.Value.GetType().FullName!];
+                var json = _serializer.Serialize(record.Value);
 
-                await using var command = connection.CreateCommand();
+                await using var command = transaction.Connection!.CreateCommand();
                 command.Transaction = transaction;
 
                 var extension = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
@@ -117,7 +137,7 @@ public class GrainStateStorage : IGrainStateStorage
 
                 command.CommandText = commandText;
 
-                PassIdentity(command.Parameters, stateInfo, grainId);
+                PassIdentity(command.Parameters, stateInfo, record.Id);
 
                 var valueParameter = command.Parameters.AddWithValue("@value", json);
                 valueParameter.NpgsqlDbType = NpgsqlDbType.Jsonb;

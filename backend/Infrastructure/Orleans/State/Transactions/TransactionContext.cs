@@ -8,8 +8,8 @@ public class TransactionContext
 
     [Id(1)]
     public Dictionary<Guid, IGrainTransactionHandler> Participants { get; } = new();
-
-    [Id(2)]
+    
+    [Id(20)]
     public string? ExceptionMessage { get; set; }
 }
 
