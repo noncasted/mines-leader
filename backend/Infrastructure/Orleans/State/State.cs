@@ -56,7 +56,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
         if (TransactionContextProvider.Current.Id != _currentTransactionId)
             throw new InvalidOperationException("Concurrent transactions are not supported.");
 
-        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>();
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
         handler.RecordStateChanged(this);
         
         return Task.CompletedTask;
