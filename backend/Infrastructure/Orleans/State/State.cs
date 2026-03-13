@@ -1,5 +1,3 @@
-using Orleans.Serialization;
-
 namespace Infrastructure.State;
 
 public interface IGrainStateTransactionParticipant
