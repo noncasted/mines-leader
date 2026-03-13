@@ -11,23 +11,26 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
     protected ClusterTestRoot(ClusterTestUtils utils)
     {
         _utils = utils;
-        _payload = new  TPayload();
+        _payload = new TPayload();
     }
 
     private readonly ClusterTestUtils _utils;
     private TPayload _payload;
 
-    object IClusterTest.Payload { get => _payload!; set => _payload = (TPayload)value; }
+    object IClusterTest.Payload
+    {
+        get => _payload!;
+        set => _payload = (TPayload)value;
+    }
+
     Task IClusterTest.Start(IOperationProgress progress) => Start(progress, _payload);
-    public virtual string Group => string.Empty;
-    public virtual string Title => Name;
+    public abstract string Group { get; }
+    public abstract string Title { get; }
 
     public IMessaging Messaging => _utils.Messaging;
     public IServiceEnvironment Environment => _utils.Environment;
     public ILogger Logger => _utils.Logger;
     public ClusterTestUtils Utils => _utils;
-
-    protected abstract string Name { get; }
 
     public async Task Start(IOperationProgress progress, TPayload payload)
     {
@@ -43,9 +46,9 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
         catch (Exception e)
         {
             progress.SetStatus(OperationStatus.Failed);
-            Logger.LogError(e, "Test {TestName} failed with exception", Name);
+            Logger.LogError(e, "Test {TestName} failed with exception", Title);
         }
-        
+
         lifetime.Terminate();
         await handle.TerminateAllNodes();
     }

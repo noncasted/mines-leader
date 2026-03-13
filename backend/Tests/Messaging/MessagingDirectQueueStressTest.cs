@@ -35,7 +35,6 @@ public class MessagingDirectQueueStressTest
 
         public override string Group => TestGroups.Messaging;
         public override string Title => "Messaging direct queue";
-        protected override string Name => TestName;
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

@@ -30,8 +30,7 @@ public class TransactionStateTest
         private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "Custom transactional grain state";
-        protected override string Name => "grain-state";
+        public override string Title => "transactions-state";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

@@ -40,7 +40,6 @@ public class MessagePipeSendStressTest
 
         public override string Group => TestGroups.Messaging;
         public override string Title => "Messaging pipe send (one-way)";
-        protected override string Name => TestName;
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {

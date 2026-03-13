@@ -13,11 +13,13 @@ builder.Services.Add<MessagingDirectQueueStressTest.Root>().As<IClusterTest>();
 builder.Services.Add<MessagingTransactionalQueueStressTest.Root>().As<IClusterTest>();
 builder.Services.Add<MessagePipeSendStressTest.Root>().As<IClusterTest>();
 builder.Services.Add<MessagePipeSendResponseStressTest.Root>().As<IClusterTest>();
-builder.Services.Add<GrainStateTest.Root>().As<IClusterTest>();
+builder.Services.Add<StateTest.Root>().As<IClusterTest>();
 builder.Services.Add<TransactionStateTest.Root>().As<IClusterTest>();
-builder.Services.Add<ChainedTransactionStateTest.Root>().As<IClusterTest>();
-builder.Services.Add<ChainedTransactionStateTestFail.Root>().As<IClusterTest>();
-builder.Services.Add<TransactionLimiterTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionStateChainedTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionStateChainedFailTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionStateOverlappingTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionSingleChainTest.Root>().As<IClusterTest>();
+builder.Services.Add<TransactionSingleTargetTest.Root>().As<IClusterTest>();
 
 var app = builder.Build();
 
