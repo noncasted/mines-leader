@@ -140,7 +140,7 @@ public static class ServiceDiscoveryExtensions
 {
     public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder)
     {
-        builder.Services.Add<ServiceDiscovery>()
+        builder.Add<ServiceDiscovery>()
             .As<IServiceDiscovery>();
 
         return builder;

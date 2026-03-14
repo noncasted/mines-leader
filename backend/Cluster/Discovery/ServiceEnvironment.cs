@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Cluster.Discovery;
@@ -23,7 +24,7 @@ public static class EnvironmentExtensions
     {
         if (builder.Environment.IsDevelopment() == true)
         {
-            builder.Services.AddSingleton<IServiceEnvironment>(new ServiceEnvironment
+            builder.Add<IServiceEnvironment>(new ServiceEnvironment
                 {
                     IsDevelopment = true,
                     Tag = tag
@@ -32,7 +33,7 @@ public static class EnvironmentExtensions
         }
         else
         {
-            builder.Services.AddSingleton<IServiceEnvironment>(new ServiceEnvironment
+            builder.Add<IServiceEnvironment>(new ServiceEnvironment
                 {
                     IsDevelopment = false,
                     Tag = tag

@@ -66,7 +66,8 @@ public static class AddressableDictionaryViewExtensions
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        return builder.Services.Add<TInterface, TImplementation>()
+        return builder.Add<TImplementation>()
+            .As<TInterface>()
             .AsSetupLoopStage();
     }
 }

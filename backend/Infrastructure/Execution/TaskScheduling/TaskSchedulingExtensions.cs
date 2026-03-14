@@ -7,15 +7,13 @@ public static class TaskSchedulingExtensions
 {
     public static IHostApplicationBuilder AddTaskScheduling(this IHostApplicationBuilder builder)
     {
-        var services = builder.Services;
-
-        services.Add<TaskScheduler>()
+        builder.Add<TaskScheduler>()
             .As<ITaskScheduler>();
 
-        services.Add<TaskQueue>()
+        builder.Add<TaskQueue>()
             .As<ITaskQueue>();
 
-        services.Add<TaskBalancer>()
+        builder.Add<TaskBalancer>()
             .As<ITaskBalancer>();
 
         return builder;

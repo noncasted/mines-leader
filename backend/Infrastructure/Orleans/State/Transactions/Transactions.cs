@@ -1,4 +1,5 @@
 using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.State;
 
@@ -23,16 +24,19 @@ public class Transactions : ITransactions
     public Transactions(
         IGrainStateStorage stateStorage,
         IDbSource dbSource,
-        ISideEffectsStorage sideEffectsStorage)
+        ISideEffectsStorage sideEffectsStorage,
+        ILogger<Transactions> logger)
     {
         _stateStorage = stateStorage;
         _dbSource = dbSource;
         _sideEffectsStorage = sideEffectsStorage;
+        _logger = logger;
     }
 
     private readonly IGrainStateStorage _stateStorage;
     private readonly IDbSource _dbSource;
     private readonly ISideEffectsStorage _sideEffectsStorage;
+    private readonly ILogger<Transactions> _logger;
 
     public async Task<TransactionResult> Run(Func<Task> action)
     {
@@ -49,6 +53,11 @@ public class Transactions : ITransactions
         }
         catch (Exception e)
         {
+            _logger.LogError(e,
+                "[Transaction] [Error] In action exception occured during transaction {TransactionId}",
+                context.Id
+            );
+
             await Rollback(context);
 
             return new TransactionResult
@@ -65,6 +74,11 @@ public class Transactions : ITransactions
         }
         catch (Exception e)
         {
+            _logger.LogError(e,
+                "[Transaction] [Error] Failed to collect commit result during transaction {TransactionId}",
+                context.Id
+            );
+
             await Rollback(context);
 
             return new TransactionResult
@@ -91,14 +105,24 @@ public class Transactions : ITransactions
                 var confirmTasks = context.Participants.Select(t => t.Value.OnSuccess(context.Id));
                 await Task.WhenAll(confirmTasks);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e,
+                    "[Transaction] [Error] Failed to record changes during transaction {TransactionId}",
+                    context.Id
+                );
+                
                 await transaction.RollbackAsync();
                 throw;
             }
         }
         catch (Exception e)
         {
+            _logger.LogError(e,
+                "[Transaction] [Error] Failed to commit to db during transaction {TransactionId}",
+                context.Id
+            );
+            
             await Rollback(context);
 
             return new TransactionResult

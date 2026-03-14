@@ -1,5 +1,4 @@
-﻿using Cluster;
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Cluster.Coordination;
 using Cluster.Discovery;
 using Cluster.State;
@@ -36,10 +35,10 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Coordinator);
 
             // Project services
-            builder.Services.Add<ClusterConfigsSetup>()
+            builder.Add<ClusterConfigsSetup>()
                 .As<ICoordinatorSetupCompleted>();
 
-            builder.Services.Add<ClusterBotsSetup>()
+            builder.Add<ClusterBotsSetup>()
                 .As<ICoordinatorSetupCompleted>();
 
             return builder;
@@ -124,9 +123,7 @@ public static class ProjectsSetupExtensions
         private IHostApplicationBuilder AddBase(ServiceTag serviceTag)
         {
             if (builder is WebApplicationBuilder webBuilder)
-            {
-              //  webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
-            }
+                webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
 
             builder.Services.AddHostedService<ClusterParticipantStartup>();
 
@@ -141,47 +138,83 @@ public static class ProjectsSetupExtensions
                 .AddClusterFeatures()
                 .AddMemoryPack()
                 .AddClusterTests()
-                .AddConfigs();
+                .AddConfigs()
+                .AddSideEffects()
+                .AddStates();
 
             builder.AddBotServices();
 
-            builder.Services.Add<DbSource>()
+            builder.Add<DbSource>()
                 .As<IDbSource>();
 
-            builder.Services.Add<StateFactory>()
+            builder.Add<StateFactory>()
                 .As<IStateFactory>();
 
-            builder.Services.Add<StateAttributeMapper>()
+            builder.Add<StateAttributeMapper>()
                 .As<IAttributeToFactoryMapper<StateAttribute>>();
 
-            builder.Services.Add<GrainStateStorage>()
+            builder.Add<GrainStateStorage>()
                 .As<IGrainStateStorage>();
 
-            builder.Services.Add<StateSerializer>()
+            builder.Add<StateSerializer>()
                 .As<IStateSerializer>();
-            
-            builder.Services.Add<ITransactions, Transactions>();
 
-            builder.Services.AddSingleton<IGrainStatesRegistry, GrainStatesRegistry>(sp =>
+            builder.Add<Transactions>()
+                .As<ITransactions>();
+
+
+            return builder;
+        }
+
+        private IHostApplicationBuilder AddStates()
+        {
+            var states = new List<GrainStateInfo>();
+
+            Add<StateTest.TestState>("state_test_default_state", GrainKeyType.String);
+            Add<TransactionTestState>("state_test_transactional_state", GrainKeyType.Guid);
+            // Add<UserState>("state_user_entity", GrainKeyType.Guid);
+            // Add<UserAuthState>("state_user_auth", GrainKeyType.Guid);
+            // Add<UserProgressionState>("state_user_progression", GrainKeyType.Guid);
+            // Add<UserMatchHistoryState>("state_user_match_history", GrainKeyType.Guid);
+            // Add<UserDeckState>("state_user_projection", GrainKeyType.Guid);
+            // Add<MatchState>("state_match_entity", GrainKeyType.Guid);
+            // Add<MessageQueueState>("state_message_queue", GrainKeyType.Guid);
+
+            var lookup = new HashSet<string>();
+
+            foreach (var stateInfo in states)
             {
-                var statesInfo = new List<GrainStateInfo>
+                if (lookup.Add(stateInfo.TableName) == false)
+                    throw new Exception($"Duplicate state table name: {stateInfo.TableName}");
+            }
+
+            var registry = new GrainStatesRegistry(states);
+
+            builder.Add(registry)
+                .As<IGrainStatesRegistry>();
+
+            return builder;
+
+            void Add<T>(string tableName, GrainKeyType keyType)
+            {
+                var info = new GrainStateInfo
                 {
-                    new()
-                    {
-                        Type = typeof(StateTest.TestState),
-                        TableName = "test_state",
-                        KeyType = GrainKeyType.String
-                    },
-                    new()
-                    {
-                        TableName = "test_transaction_state",
-                        KeyType = GrainKeyType.Guid,
-                        Type = typeof(TransactionTestState)
-                    }
+                    TableName = tableName,
+                    KeyType = keyType,
+                    Type = typeof(T)
                 };
-                
-                return new GrainStatesRegistry(statesInfo);
-            });
+
+                states.Add(info);
+            }
+        }
+
+        private IHostApplicationBuilder AddSideEffects()
+        {
+            builder.Add<SideEffectsStorage>()
+                .As<ISideEffectsStorage>();
+
+            builder.Add<SideEffectsWorker>()
+                .As<ICoordinatorSetupCompleted>();
 
             return builder;
         }
@@ -220,7 +253,7 @@ public static class ProjectsSetupExtensions
 
         private IHostApplicationBuilder AddClusterTests()
         {
-            builder.Services.Add<ClusterTestUtils>();
+            builder.Add<ClusterTestUtils>();
             builder.AddClusterTestNode<MessagingDirectQueueStressTest.Node>();
             builder.AddClusterTestNode<MessagingTransactionalQueueStressTest.Node>();
             builder.AddClusterTestNode<MessagePipeSendStressTest.Node>();

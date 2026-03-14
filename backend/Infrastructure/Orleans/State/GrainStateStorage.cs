@@ -109,25 +109,23 @@ public class GrainStateStorage : IGrainStateStorage
 
     public async Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records)
     {
-        try
+        foreach (var record in records)
         {
-            foreach (var record in records)
-            {
-                var stateInfo = _statesRegistry.States[record.Value.GetType().FullName!];
-                var json = _serializer.Serialize(record.Value);
+            var stateInfo = _statesRegistry.States[record.Value.GetType().FullName!];
+            var json = _serializer.Serialize(record.Value);
 
-                await using var command = transaction.Connection!.CreateCommand();
-                command.Transaction = transaction;
+            await using var command = transaction.Connection!.CreateCommand();
+            command.Transaction = transaction;
 
-                var extension = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
-                    ? ", extension"
-                    : "";
+            var extension = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
+                ? ", extension"
+                : "";
 
-                var extensionParam = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
-                    ? ", @extension"
-                    : "";
+            var extensionParam = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
+                ? ", @extension"
+                : "";
 
-                var commandText = $@"
+            var commandText = $@"
                     insert into {stateInfo.TableName}
                     (key, type, value{extension})
                     values (@key, @type, @value::jsonb{extensionParam})
@@ -135,22 +133,14 @@ public class GrainStateStorage : IGrainStateStorage
                     do update set value = EXCLUDED.value
                 ";
 
-                command.CommandText = commandText;
+            command.CommandText = commandText;
 
-                PassIdentity(command.Parameters, stateInfo, record.Id);
+            PassIdentity(command.Parameters, stateInfo, record.Id);
 
-                var valueParameter = command.Parameters.AddWithValue("@value", json);
-                valueParameter.NpgsqlDbType = NpgsqlDbType.Jsonb;
+            var valueParameter = command.Parameters.AddWithValue("@value", json);
+            valueParameter.NpgsqlDbType = NpgsqlDbType.Jsonb;
 
-                await command.ExecuteNonQueryAsync();
-            }
-
-            await transaction.CommitAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
+            await command.ExecuteNonQueryAsync();
         }
     }
 
