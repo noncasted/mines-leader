@@ -210,6 +210,12 @@ public static class ProjectsSetupExtensions
 
         private IHostApplicationBuilder AddSideEffects()
         {
+            builder.Services.Configure<SideEffectsOptions>(
+                builder.Configuration.GetSection("SideEffects")
+            );
+
+            builder.Add<SideEffectsSetup>();
+
             builder.Add<SideEffectsStorage>()
                 .As<ISideEffectsStorage>();
 

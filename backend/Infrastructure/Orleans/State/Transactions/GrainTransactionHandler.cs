@@ -168,7 +168,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         return Task.FromResult(new TransactionHandlerResult
         {
             States = states,
-            SideEffects = new List<ISideEffect>()
+            SideEffects = _sideEffects.ToList()
         });
     }
 
@@ -189,6 +189,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             state.OnTransactionSuccess();
 
         _states.Clear();
+        _sideEffects.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)
@@ -209,6 +210,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             state.OnTransactionFailure();
 
         _states.Clear();
+        _sideEffects.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)
