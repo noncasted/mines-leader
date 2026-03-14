@@ -8,10 +8,17 @@ public static class GameGlobalExtensions
 {
     public static IHostApplicationBuilder AddGlobalSessions(this IHostApplicationBuilder app)
     {
-        app.Services.Add<ISessionsCollection, SessionsCollection>();
-        app.Services.Add<ISessionFactory, SessionFactory>();
-        app.Services.Add<ISessionSearch, SessionSearch>();
-        app.Services.Add<ICoordinatorSetupCompleted, SessionEndpoints>();
+        app.Add<SessionsCollection>()
+            .As<ISessionsCollection>();
+        
+        app.Add<SessionFactory>()
+            .As<ISessionFactory>();
+        
+        app.Add<SessionSearch>()
+            .As<ISessionSearch>();
+        
+        app.Add<SessionEndpoints>()
+            .As<ICoordinatorSetupCompleted>();
 
         return app;
     }

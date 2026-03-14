@@ -62,7 +62,7 @@ public static class ClusterFeaturesExtensions
 {
     public static IHostApplicationBuilder AddClusterFeatures(this IHostApplicationBuilder builder)
     {
-        builder.Services.Add<ClusterFeatures>()
+        builder.Add<ClusterFeatures>()
             .As<IDynamicState<ClusterFeaturesState>>()
             .As<IClusterFeatures>()
             .As<ILocalSetupCompleted>();

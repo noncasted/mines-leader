@@ -35,16 +35,13 @@ public class User : UserGrain, IUser
 {
     public User(
         [States.UserEntity] ITransactionalState<UserState> state,
-        IGrainFactory grains,
         ILogger<User> logger)
     {
         _state = state;
-        _grains = grains;
         _logger = logger;
     }
 
     private readonly ITransactionalState<UserState> _state;
-    private readonly IGrainFactory _grains;
     private readonly ILogger<User> _logger;
 
     public async Task Initialize()
@@ -56,9 +53,6 @@ public class User : UserGrain, IUser
         );
 
         _logger.LogInformation("[User] Created user {Id} with name {Name}", state.Id, state.Name);
-
-        var collection = _grains.GetGrain<IUsersCollection>(Guid.Empty);
-        await collection.AddOrUpdate(state);
 
         await this.SendCachedProjection(state);
     }
@@ -73,9 +67,6 @@ public class User : UserGrain, IUser
 
         _logger.LogInformation("[User] User {Id} changed name to {name}", state.Id, state.Name);
 
-        var collection = _grains.GetGrain<IUsersCollection>(Guid.Empty);
-        await collection.AddOrUpdate(state);
-        
         await this.SendCachedProjection(state);
     }
 }

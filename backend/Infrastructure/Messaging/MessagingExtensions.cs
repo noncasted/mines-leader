@@ -98,14 +98,13 @@ public static class MessagingExtensions
 
     public static IHostApplicationBuilder AddMessaging(this IHostApplicationBuilder builder)
     {
-        var services = builder.Services;
+        builder.Add<Messaging>()
+            .As<IMessaging>();
 
-        services.AddSingleton<IMessaging, Messaging>();
-
-        services.Add<MessageQueueClient>()
+        builder.Add<MessageQueueClient>()
             .As<IMessageQueueClient>();
 
-        services.Add<MessagePipeClient>()
+        builder.Add<MessagePipeClient>()
             .As<IMessagePipeClient>();
 
         return builder;

@@ -42,6 +42,13 @@ public static class ProjectStartup
         foreach (var tableName in States.StateTables)
             await CreateGrainStorageTable(tableName);
 
+        var requiresDrop = builder.Configuration.GetSection("Local").GetSection("ClearStates").Get<bool>();
+
+        if (requiresDrop == true)
+        {
+  
+        }
+        
         var requiresCleanup = builder.Configuration.GetSection("Local").GetSection("ClearStates").Get<bool>();
 
         if (requiresCleanup == true)

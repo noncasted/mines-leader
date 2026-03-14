@@ -46,14 +46,18 @@ public static class OrleansUtilsExtensions
 {
     public static IHostApplicationBuilder AddOrleansUtils(this IHostApplicationBuilder builder)
     {
-        var services = builder.Services;
-
-        services.Add<ITransactionAgent, TransactionResolver>()
+        builder.Add<TransactionResolver>()
+            .As<ITransactionAgent>()
             .As<ITransactionResolver>();
 
-        services.Add<ITransactionRunner, TransactionRunner>();
-        services.Add<IOldTransactions, OldTransactions>();
-        services.Add<IOrleans, OrleansUtils>();
+        builder.Add<TransactionRunner>()
+            .As<ITransactionRunner>();
+        
+        builder.Add<OldTransactions>()
+            .As<IOldTransactions>();
+        
+        builder.Add<OrleansUtils>()
+            .As<IOrleans>();
 
         return builder;
     }
