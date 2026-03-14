@@ -172,4 +172,9 @@ Read-only транзакции могут выполняться паралле�
 
 **Затрагивает:** `Transactions.cs`, новый сервис 'IClusterLocks'
 
+## 11. Query cache в GrainStateStorage
+
+**Что:** Кешировть собранные запросы в базу
+**Затрагивает:** `GrainStateStorage.cs`
+
 

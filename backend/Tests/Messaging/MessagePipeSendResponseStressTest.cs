@@ -14,10 +14,10 @@ public class MessagePipeSendResponseStressTest
     public class StartPayload()
     {
         [Id(0)]
-        public required int MessageCount { get; init; } = 100;
+        public required int MessageCount { get; init; } = 1000;
 
         [Id(1)]
-        public required float Delay { get; init; } = 0.01f;
+        public required float Delay { get; init; } = 0.001f;
     }
 
     [GenerateSerializer]
