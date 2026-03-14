@@ -65,9 +65,7 @@ public static class ClusterTestNodeExtensions
     public static IHostApplicationBuilder AddClusterTestNode<TNode>(this IHostApplicationBuilder builder)
         where TNode : class
     {
-        var services = builder.Services;
-
-        services.Add<TNode>()
+        builder.Add<TNode>()
             .As<ICoordinatorSetupCompleted>();
 
         return builder;
