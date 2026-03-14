@@ -1,11 +1,18 @@
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Infrastructure.State;
 
 public class TransactionResult
 {
     public required bool IsSuccess { get; init; }
+}
+
+public class TransactionParameters
+{
+    public required Func<Task> Action { get; init; }
+    public required List<Func<NpgsqlTransaction, Task>> Callbacks { get; init; }
 }
 
 public class TransactionCommitResult
@@ -16,7 +23,7 @@ public class TransactionCommitResult
 
 public interface ITransactions
 {
-    Task<TransactionResult> Run(Func<Task> action);
+    Task<TransactionResult> Run(TransactionParameters action);
 }
 
 public class Transactions : ITransactions
@@ -38,7 +45,7 @@ public class Transactions : ITransactions
     private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<Transactions> _logger;
 
-    public async Task<TransactionResult> Run(Func<Task> action)
+    public async Task<TransactionResult> Run(TransactionParameters parameters)
     {
         var context = new TransactionContext
         {
@@ -49,7 +56,7 @@ public class Transactions : ITransactions
 
         try
         {
-            await action();
+            await parameters.Action();
         }
         catch (Exception e)
         {
@@ -99,6 +106,9 @@ public class Transactions : ITransactions
 
                 if (result.SideEffects.Count != 0)
                     await _sideEffectsStorage.Write(transaction, result.SideEffects);
+
+                foreach (var callback in parameters.Callbacks)
+                    await callback(transaction);
 
                 await transaction.CommitAsync();
 
