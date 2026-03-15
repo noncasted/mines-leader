@@ -15,6 +15,8 @@ MonoBehaviour:
   _assetId: 130
   _type: 610
   _target: 1
-  _name: Zip zap Max
-  _description: 
+  _name: "\u041C\u043E\u043B\u043D\u0438\u044F+"
+  _description: "\u0426\u0435\u043F\u043D\u043E\u0439 \u0440\u0435\u0430\u043A\u0446\u0438\u0435\u0439
+    \u0443\u043D\u0438\u0447\u0442\u043E\u0436\u0430\u0435\u0442 \u0431\u043B\u0438\u0437\u043B\u0435\u0436\u0430\u0449\u0438\u0435
+    \u043A \u043A\u043B\u0435\u0442\u043A\u0435 \u043C\u0438\u043D\u044B"
   _image: {fileID: 980816723633420232, guid: 4bcbfdca3a9184f42a601f0b14a99e0e, type: 3}

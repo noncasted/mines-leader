@@ -15,11 +15,9 @@ MonoBehaviour:
   _assetId: 92
   _type: 500
   _target: 2
-  _manaCost: 2
-  _name: Gravedigger
-  _description: 'Gavno
-
-    Gavno
-
-    Gavno'
-  _image: {fileID: 4130640169021434097, guid: 38c83acdfd7b9984aad91da65dcd1826, type: 3}
+  _name: "\u0412\u0442\u043E\u0440\u043E\u0439 \u0448\u0430\u043D\u0441"
+  _description: "\u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u0438\u0437
+    \u043E\u0442\u0431\u043E\u044F \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u044E\u044E
+    \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u043D\u0443\u044E
+    \u0432\u0430\u043C\u0438 \u043A\u0430\u0440\u0442\u0443"
+  _image: {fileID: -4178046375966092550, guid: 7c08f4bd5fffe01499c37434b4d32406, type: 3}
