@@ -9,8 +9,15 @@ namespace GamePlay.Cards
     {
         [SerializeField] private CardRenderer _renderer;
 
-        [SerializeField] private Color _available;
-        [SerializeField] private Color _locked;
+        // Sprite colors
+        [SerializeField] private Color _availableSpriteColor;
+        [SerializeField] private Color _lockedSpriteColor;
+
+        // Text colors (CardRenderer applies them in order: 0 = name, 1 = description)
+        [SerializeField] private Color _availableNameColor;
+        [SerializeField] private Color _availableDescriptionColor;
+        [SerializeField] private Color _lockedNameColor;
+        [SerializeField] private Color _lockedDescriptionColor;
         
         private ICardContext _context;
 
@@ -31,9 +38,17 @@ namespace GamePlay.Cards
             _context.IsAvailable.View(lifetime, isAvailable =>
             {
                 if (isAvailable)
-                    _renderer.SetAllColor(_available);
+                {
+                    _renderer.SetAllColor(_availableSpriteColor);
+                    _renderer.SetNameTextColor(_availableNameColor);
+                    _renderer.SetDescriptionTextColor(_availableDescriptionColor);
+                }
                 else
-                    _renderer.SetAllColor(_locked);
+                {
+                    _renderer.SetAllColor(_lockedSpriteColor);
+                    _renderer.SetNameTextColor(_lockedNameColor);
+                    _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
+                }
             });
         }
     }
