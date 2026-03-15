@@ -10,6 +10,7 @@ namespace GamePlay.Cards
     public class CardDataView : MonoBehaviour, IEntityComponent, IScopeSetup
     {
         [SerializeField] private TMP_Text _name;
+        [SerializeField] private TMP_Text _description;
         [SerializeField] private TMP_Text _manaCost;
         [SerializeField] private SpriteRenderer _image;
 
@@ -32,6 +33,7 @@ namespace GamePlay.Cards
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _name.text = _definition.Name;
+            _description.text = _definition.Description;
             _manaCost.text = _configs.Value.All[_definition.Type].ManaCost.ToString();
             _image.sprite = _definition.Image;
         }
