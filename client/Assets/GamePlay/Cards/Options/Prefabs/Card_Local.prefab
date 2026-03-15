@@ -492,8 +492,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4288263887
-  m_fontColor: {r: 0.8117647, g: 0.7137255, b: 0.6, a: 1}
+    rgba: 4289580781
+  m_fontColor: {r: 0.92941177, g: 0.80784315, b: 0.6784314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -676,8 +676,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4280893046
-  m_fontColor: {r: 0.4627451, g: 0.24313726, b: 0.16078432, a: 1}
+    rgba: 4281025412
+  m_fontColor: {r: 0.5176471, g: 0.2627451, b: 0.16862746, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -822,6 +822,18 @@ PrefabInstance:
       propertyPath: m_SortingLayerID
       value: -792798813
       objectReference: {fileID: 0}
+    - target: {fileID: 2923760966560062959, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2923760966560062959, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2923760966560062959, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3016949449394654484, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
       propertyPath: _autoDetected.Array.size
       value: 7
@@ -858,6 +870,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Card_Local
       objectReference: {fileID: 0}
+    - target: {fileID: 4832429913776078572, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
+      propertyPath: _nameText
+      value: 
+      objectReference: {fileID: 6902934597596925966}
+    - target: {fileID: 4832429913776078572, guid: 35a3b7fc7f836b4418c9a3450c70616e, type: 3}
+      propertyPath: _descriptionText
+      value: 
+      objectReference: {fileID: 1965430755944998063}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -951,3 +971,7 @@ MonoBehaviour:
   _renderer: {fileID: 1960163124473993560}
   _available: {r: 1, g: 1, b: 1, a: 1}
   _locked: {r: 0.4716981, g: 0.42571494, b: 0.42895597, a: 1}
+  _availableNameColor: {r: 0.92941177, g: 0.80784315, b: 0.6784314, a: 1}
+  _availableDescriptionColor: {r: 0.5176471, g: 0.2627451, b: 0.16862746, a: 1}
+  _lockedNameColor: {r: 0.43529412, g: 0.34117648, b: 0.27450982, a: 1}
+  _lockedDescriptionColor: {r: 0.22745098, g: 0.09019608, b: 0.050980393, a: 1}
