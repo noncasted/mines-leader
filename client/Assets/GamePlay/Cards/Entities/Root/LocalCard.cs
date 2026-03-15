@@ -39,6 +39,7 @@ namespace GamePlay.Cards
         private readonly ICardLocalDrop _drop;
         private readonly ICardView _view;
         private readonly ViewableDelegate _used = new();
+        private readonly ViewableProperty<bool> _isInSpawnAnimation = new();
 
         public Guid Id { get; }
         public CardType Type { get; }
@@ -50,6 +51,12 @@ namespace GamePlay.Cards
         public IViewableDelegate Used => _used;
         public ICardLocalDrop Drop => _drop;
         public ICardPointerHandler PointerHandler { get; }
+        public IViewableProperty<bool> IsInSpawnAnimation => _isInSpawnAnimation;
+
+        public void SetSpawning(bool isSpawning)
+        {
+            _isInSpawnAnimation.Set(isSpawning);
+        }
 
         public UniTask Destroy()
         {
