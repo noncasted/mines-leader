@@ -41,15 +41,27 @@ namespace GamePlay.UI
 
             localCard.PointerHandler.IsHovered.Advise(cardLifetime, isHovered =>
             {
-                if (isHovered)
+                if (isHovered && !localCard.IsInSpawnAnimation.Value)
                 {
                     _ui.DisplayCard(
                         card.Definition.Name,
                         card.Definition.Description);
                 }
+                else if (localCard.IsInSpawnAnimation.Value)
+                {
+                    _ui.HideImmediately();
+                }
                 else
                 {
                     _ui.Hide();
+                }
+            });
+
+            localCard.IsInSpawnAnimation.Advise(cardLifetime, isSpawning =>
+            {
+                if (isSpawning)
+                {
+                    _ui.HideImmediately();
                 }
             });
         }

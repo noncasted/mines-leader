@@ -41,6 +41,14 @@ namespace GamePlay.UI
             _fadeCoroutine = StartCoroutine(FadeOut());
         }
 
+        public void HideImmediately()
+        {
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+
+            _canvasGroup.alpha = 0f;
+        }
+
         private System.Collections.IEnumerator FadeIn()
         {
             float elapsed = 0f;
