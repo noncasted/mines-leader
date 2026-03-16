@@ -25,6 +25,7 @@
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.Unity.Addressables.csproj" />
   <Project Path="Loop.csproj" />
+  <Project Path="Docs.csproj" />
   <Project Path="Tools.Scene.csproj" />
   <Project Path="UniClipboard.csproj" />
   <Project Path="Tools.MemoryPack.csproj" />

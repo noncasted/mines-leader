@@ -8,7 +8,7 @@ namespace GamePlay.Cards
     {
         UniTask Execute();
     }
-    
+
     public class CardLocalSpawn : ICardLocalSpawn
     {
         public CardLocalSpawn(
@@ -17,6 +17,7 @@ namespace GamePlay.Cards
             ICardTransform transform,
             ICardLocalIdle idle,
             ICardStateLifetime stateLifetime,
+            ILocalCard localCard,
             CardLocalSpawnOptions options)
         {
             _updater = updater;
@@ -24,6 +25,7 @@ namespace GamePlay.Cards
             _transform = transform;
             _idle = idle;
             _stateLifetime = stateLifetime;
+            _localCard = localCard;
             _options = options;
         }
 
@@ -32,11 +34,14 @@ namespace GamePlay.Cards
         private readonly ICardTransform _transform;
         private readonly ICardLocalIdle _idle;
         private readonly ICardStateLifetime _stateLifetime;
+        private readonly ILocalCard _localCard;
         private readonly CardLocalSpawnOptions _options;
 
         public async UniTask Execute()
         {
+            _localCard.SetSpawning(true);
             _handEntryHandle.AddToHand();
+
             var positionHandle = _handEntryHandle.PositionHandle;
 
             var moveCurve = _options.MoveCurve.CreateInstance();
@@ -62,6 +67,7 @@ namespace GamePlay.Cards
                 _transform.SetRotation(rotation);
             });
 
+            _localCard.SetSpawning(false);
             _idle.Enter();
         }
     }
