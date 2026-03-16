@@ -39,7 +39,7 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
     private void OnUpdate(T value)
     {
         Set(value);
-        _logger.LogInformation("[Cluster] [DynamicState] Update {Type} : {Key}", typeof(T).Name, value.ToString());
+        _logger.LogInformation("[Cluster] [DynamicState] Write {Type} : {Key}", typeof(T).Name, value.ToString());
     }
 
     public Task SetValue(T value)

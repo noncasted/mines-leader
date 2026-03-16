@@ -1,11 +1,8 @@
 ﻿using Common.Extensions;
 using Infrastructure;
-using Infrastructure.State;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Runtime.Hosting;
 
 namespace Orchestration;
 
@@ -21,8 +18,6 @@ public static class OrleansSetupExtensions
                 {
                     var postgresConnectionString =
                         clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)!;
-
-                    clientBuilder.UseTransactions();
 
                     clientBuilder.Configure<ClientMessagingOptions>(options =>
                         {
@@ -56,13 +51,9 @@ public static class OrleansSetupExtensions
         {
             var configuration = builder.Configuration;
 
-            TransactionalStateOptions.DefaultLockTimeout = ReplyTimeoutSeconds;
-
             builder.UseOrleans(siloBuilder =>
                 {
                     var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
-
-                    siloBuilder.UseTransactions();
 
                     siloBuilder.Configure<SiloMessagingOptions>(options =>
                         {
@@ -91,13 +82,6 @@ public static class OrleansSetupExtensions
                             options.ConnectionString = npgsqlConnectionString;
                         }
                     );
-
-                    foreach (var name in States.StateTables)
-                    {
-                        siloBuilder.Services.AddGrainStorage(name,
-                            (s, _) => NamedGrainStorageFactory.Create(s, name, npgsqlConnectionString)
-                        );
-                    }
 
                     siloBuilder.AddActivityPropagation();
 

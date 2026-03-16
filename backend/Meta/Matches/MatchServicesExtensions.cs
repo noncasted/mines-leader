@@ -1,5 +1,4 @@
-﻿using Meta.Bots;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Meta.Matches;

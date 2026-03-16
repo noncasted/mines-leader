@@ -1,4 +1,6 @@
-﻿namespace Infrastructure;
+﻿using Infrastructure.State;
+
+namespace Infrastructure;
 
 public interface IAddressableStateStorage<T> : IGrainWithStringKey
 {
@@ -6,33 +8,31 @@ public interface IAddressableStateStorage<T> : IGrainWithStringKey
     ValueTask<T> Get();
 }
 
-public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T>
+public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T> where T : class, new()
 {
-    public AddressableStateStorage([States.ClusterState] IPersistentState<T> state, IMessaging messaging)
+    public AddressableStateStorage([State] State<T> state, IMessaging messaging)
     {
         _state = state;
         _messaging = messaging;
     }
 
-    private readonly IPersistentState<T> _state;
+    private readonly State<T> _state;
     private readonly IMessaging _messaging;
-    
-    public Task Set(T value)
+
+    public async Task Set(T value)
     {
-        _state.State = value;
+        await _state.Replace(value);
         var name = this.GetPrimaryKeyString();
 
-        return Task.WhenAll(
-            _state.WriteStateAsync(),
-            _messaging.PushDirectQueue(new AddressableStateMessageQueueId<T>
+        await _messaging.PushDirectQueue(new AddressableStateMessageQueueId<T>
             {
                 Name = name
-            }, value!)
+            }, value!
         );
     }
 
-    public ValueTask<T> Get()
+    public async ValueTask<T> Get()
     {
-        return ValueTask.FromResult(_state.State);
+        return await _state.ReadValue();
     }
 }

@@ -1,5 +1,6 @@
 using System.Buffers.Text;
 using System.Text;
+using Common;
 using Common.Extensions;
 using Newtonsoft.Json;
 using Npgsql;
@@ -17,6 +18,7 @@ public class GrainStateRecord
 public interface IGrainStateStorage
 {
     Task<T> Read<T>(GrainId id) where T : class, new();
+    Task<T> Read<T>(object key, string extension = "") where T : class, new();
     Task<string> ReadRaw<T>(GrainId id) where T : class, new();
     Task Write(GrainId id, object value);
     Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records);
@@ -45,6 +47,51 @@ public class GrainStateStorage : IGrainStateStorage
     {
         var raw = await ReadRaw<T>(id);
         return _serializer.TryDeserialize<T>(raw) ?? new T();
+    }
+
+    public async Task<T> Read<T>(object key, string extension = "") where T : class, new()
+    {
+        var stateInfo = _statesRegistry.States[typeof(T).FullName!];
+
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var command = connection.CreateCommand();
+
+        var extensionQuery = stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString
+            ? "and extension = @extension"
+            : "";
+        
+        if (stateInfo.KeyType is GrainKeyType.GuidAndString or GrainKeyType.IntegerAndString && extension == "")
+            throw new Exception($"State {typeof(T).FullName} requires extension value.");
+
+        var commandText = $@"
+            select value
+            from {stateInfo.TableName}
+            where key = @key
+            and type = @type
+            {extensionQuery}
+            ";
+
+        command.CommandText = commandText;
+
+        command.Parameters.AddWithValue("type", stateInfo.Type.FullName!);
+        command.Parameters.AddWithValue("key", key);
+
+        if (extension != "")
+            command.Parameters.AddWithValue("extension", extension);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        if (!await reader.ReadAsync())
+            throw new Exception();
+
+        var payloadBinary = reader.GetFieldValue<byte[]>(0);
+
+        if (payloadBinary == null || payloadBinary.Length == 0)
+            throw new Exception();
+
+        var startIndex = payloadBinary[0] == 0x01 ? 1 : 0;
+        var raw = Encoding.UTF8.GetString(payloadBinary, startIndex, payloadBinary.Length - startIndex);
+        return _serializer.TryDeserialize<T>(raw)!;
     }
 
     public async Task<string> ReadRaw<T>(GrainId id) where T : class, new()
@@ -99,6 +146,8 @@ public class GrainStateStorage : IGrainStateStorage
                     }
                 ]
             );
+
+            await transaction.CommitAsync();
         }
         catch (Exception e)
         {

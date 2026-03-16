@@ -7,7 +7,6 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-        <PackageReference Include="Microsoft.Orleans.Transactions"/>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
         <PackageReference Include="Microsoft.Orleans.Sdk"/>
     </ItemGroup>

@@ -1,28 +1,27 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 
 namespace Meta.Users;
 
 public interface IUserProjection : IGrainWithGuidKey
 {
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task OnConnected();
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task OnDisconnected();
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task ForceNotify();
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task SendCached(IProjectionPayload payload);
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task Cache(IProjectionPayload payload);
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task SendOneTime(IProjectionPayload payload);
 }
 
@@ -44,7 +43,7 @@ public class UserProjectionPipeId : IMessagePipeId
 public class UserProjection : Grain, IUserProjection
 {
     public UserProjection(
-        [States.UserProjection] ITransactionalState<UserProjectionState> state,
+        [State] State<UserProjectionState> state,
         IMessaging messaging,
         ILogger<UserProjection> logger)
     {
@@ -54,7 +53,7 @@ public class UserProjection : Grain, IUserProjection
         _pipeId = new UserProjectionPipeId(this.GetPrimaryKey());
     }
 
-    private readonly ITransactionalState<UserProjectionState> _state;
+    private readonly State<UserProjectionState> _state;
     private readonly IMessaging _messaging;
     private readonly ILogger<UserProjection> _logger;
     private readonly UserProjectionPipeId _pipeId;
@@ -71,7 +70,7 @@ public class UserProjection : Grain, IUserProjection
 
     public async Task ForceNotify()
     {
-        var state = await _state.Read();
+        var state = await _state.ReadValue();
 
         if (state.IsConnected == false)
         {
@@ -123,7 +122,7 @@ public class UserProjection : Grain, IUserProjection
             this.GetPrimaryKey()
         );
 
-        var state = await _state.Read();
+        var state = await _state.ReadValue();
 
         if (state.IsConnected == false)
         {

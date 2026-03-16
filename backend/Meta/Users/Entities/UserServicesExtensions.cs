@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Extensions;
+using Infrastructure;
 using Microsoft.Extensions.Hosting;
 
 namespace Meta.Users;
@@ -7,7 +8,12 @@ public static class UserServicesExtensions
 {
     public static IHostApplicationBuilder AddUserFactory(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IUserFactory, UserFactory>();
+        builder.Add<UserFactory>()
+            .As<IUserFactory>();
+        
+        builder.AddStateCollection<UserCollection, Guid, UserState>()
+            .As<IUserCollection>();
+
         return builder;
     }
 }

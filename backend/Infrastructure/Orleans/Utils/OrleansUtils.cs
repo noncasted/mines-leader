@@ -1,16 +1,18 @@
 ﻿using Common.Extensions;
+using Infrastructure.State;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Serialization;
-using Orleans.Transactions;
 
 namespace Infrastructure;
 
 public interface IOrleans
 {
     IClusterClient Client { get; }
-    IOldTransactions OldTransactions { get; }
+    ITransactions Transactions { get; }
     IDbSource DbSource { get; }
+    IGrainStateStorage StateStorage { get; }
+    IGrainStatesRegistry GrainStatesRegistry { get; }
     OrleansJsonSerializer Serializer { get; }
     ILogger Logger { get; }
 }
@@ -20,24 +22,30 @@ public class OrleansUtils : IOrleans
     public OrleansUtils(
         IClusterClient client,
         IGrainFactory grains,
-        IOldTransactions oldTransactions,
+        ITransactions transactions,
         IDbSource dbSource,
         OrleansJsonSerializer serializer,
-        ILogger<OrleansUtils> logger)
+        ILogger<OrleansUtils> logger,
+        IGrainStatesRegistry grainStatesRegistry,
+        IGrainStateStorage stateStorage)
     {
         Grains = grains;
-        OldTransactions = oldTransactions;
+        Transactions = transactions;
         Logger = logger;
+        GrainStatesRegistry = grainStatesRegistry;
+        StateStorage = stateStorage;
         Serializer = serializer;
         DbSource = dbSource;
         Client = client;
     }
 
     public IGrainFactory Grains { get; }
+    public ITransactions Transactions { get; }
 
     public IClusterClient Client { get; }
-    public IOldTransactions OldTransactions { get; }
     public IDbSource DbSource { get; }
+    public IGrainStateStorage StateStorage { get; }
+    public IGrainStatesRegistry GrainStatesRegistry { get; }
     public OrleansJsonSerializer Serializer { get; }
     public ILogger Logger { get; }
 }
@@ -46,15 +54,20 @@ public static class OrleansUtilsExtensions
 {
     public static IHostApplicationBuilder AddOrleansUtils(this IHostApplicationBuilder builder)
     {
-        builder.Add<TransactionResolver>()
-            .As<ITransactionAgent>()
-            .As<ITransactionResolver>();
+        builder.Add<StateFactory>()
+            .As<IStateFactory>();
 
-        builder.Add<TransactionRunner>()
-            .As<ITransactionRunner>();
-        
-        builder.Add<OldTransactions>()
-            .As<IOldTransactions>();
+        builder.Add<StateAttributeMapper>()
+            .As<IAttributeToFactoryMapper<StateAttribute>>();
+
+        builder.Add<GrainStateStorage>()
+            .As<IGrainStateStorage>();
+
+        builder.Add<StateSerializer>()
+            .As<IStateSerializer>();
+
+        builder.Add<Transactions>()
+            .As<ITransactions>();
         
         builder.Add<OrleansUtils>()
             .As<IOrleans>();
@@ -100,18 +113,13 @@ public static class OrleansUtilsExtensions
 
             for (var i = 0; i < ids.Count; i++)
                 grains[i] = orleans.Grains.GetGrain<T>(ids[i]);
-
+            
             return grains;
         }
 
         public Task InTransaction(Func<Task> action)
         {
-            return orleans.OldTransactions.Client.RunTransaction(TransactionOption.CreateOrJoin, action);
-        }
-
-        public TransactionRunBuilder Transaction(Func<Task> action)
-        {
-            return orleans.OldTransactions.Runner.Create(action);
+            return orleans.Transactions.Run(action);
         }
     }
 }

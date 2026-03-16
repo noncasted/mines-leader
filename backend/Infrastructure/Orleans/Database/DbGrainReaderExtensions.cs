@@ -4,58 +4,46 @@ namespace Infrastructure;
 
 public static class DbGrainReaderExtensions
 {
-    public static Guid GetId(this DbGrainEntry entry)
+    public static DbGrainReader<TState> CreateDbReader<TState>(this IOrleans orleans, string table)
     {
-        var guidBytes = new byte[16];
-
-        BitConverter.GetBytes(entry.Id0).CopyTo(guidBytes, 0);
-        BitConverter.GetBytes(entry.Id1).CopyTo(guidBytes, 8);
-
-        return new Guid(guidBytes);
+        return new DbGrainReader<TState>(orleans);
     }
 
-    public static DbGrainReader CreateDbReader(this IOrleans orleans, string table)
+    public static TState Deserialize<TState>(this DbGrainReader<TState> reader, DbGrainEntry entry) where TState : class
     {
-        return new DbGrainReader(orleans, table);
-    }
-
-    public static T Deserialize<T>(this DbGrainReader reader, DbGrainEntry entry) where T : class
-    {
-        var stringPayload = Encoding.UTF8.GetString(entry.Payload);
-        var value = reader.Orleans.Serializer.Deserialize(typeof(T), stringPayload) as T;
+        var stringPayload = Encoding.UTF8.GetString(entry.Value);
+        var value = reader.Orleans.Serializer.Deserialize(typeof(TState), stringPayload) as TState;
         return value!;
     }
 
-    extension(DbGrainReader reader)
+
+    public static DbGrainReader<TState> WhereType<TState>(this DbGrainReader<TState> reader, string type)
     {
-        public DbGrainReader WhereType(string type)
-        {
-            reader.Where.Type = type;
-            return reader;
-        }
+        reader.Where.Type = type;
+        return reader;
+    }
 
-        public DbGrainReader WhereExtension(string extension)
-        {
-            reader.Where.Extension = extension;
-            return reader;
-        }
+    public static DbGrainReader<TState> WhereExtension<TState>(this DbGrainReader<TState> reader, string extension)
+    {
+        reader.Where.Extension = extension;
+        return reader;
+    }
 
-        public DbGrainReader SelectID()
-        {
-            reader.Select.Id = true;
-            return reader;
-        }
+    public static DbGrainReader<TState> SelectID<TState>(this DbGrainReader<TState> reader)
+    {
+        reader.Select.Id = true;
+        return reader;
+    }
 
-        public DbGrainReader SelectPayload()
-        {
-            reader.Select.Payload = true;
-            return reader;
-        }
+    public static DbGrainReader<TState> SelectPayload<TState>(this DbGrainReader<TState> reader)
+    {
+        reader.Select.Value = true;
+        return reader;
+    }
 
-        public DbGrainReader SelectExtension()
-        {
-            reader.Select.Extension = true;
-            return reader;
-        }
+    public static DbGrainReader<TState> SelectExtension<TState>(this DbGrainReader<TState> reader)
+    {
+        reader.Select.Extension = true;
+        return reader;
     }
 }

@@ -18,25 +18,27 @@ public class RawAddressableState
     public bool IsInitialized { get; set; }
 }
 
-public abstract class RawAddressableStateView<T> :
-    AddressableState<RawAddressableState>,
-    IRawAddressableState<T> where T : class, new()
+public abstract class RawAddressableStateView<TView, TState> :
+    AddressableState<TState>,
+    IRawAddressableState<TView>
+    where TView : class, new()
+    where TState : RawAddressableState, new()
 {
     public RawAddressableStateView(IOrleans orleans, IMessaging messaging) : base(orleans, messaging)
     {
-        Value = new T();
+        Value = new TView();
     }
 
-    public new T Value { get; private set; }
+    public new TView Value { get; private set; }
     public bool IsInitialized { get; private set; }
 
     protected override void OnSetup(IReadOnlyLifetime lifetime)
     {
-        this!.ViewNotNull<RawAddressableState>(lifetime, state =>
+        this!.ViewNotNull<TState>(lifetime, state =>
             {
                 try
                 {
-                    var newValue = JsonUtils.Deserialize<T>(state.Raw)!;
+                    var newValue = JsonUtils.Deserialize<TView>(state.Raw)!;
                     Value = newValue;
                     IsInitialized = state.IsInitialized;
                 }
@@ -48,19 +50,19 @@ public abstract class RawAddressableStateView<T> :
         );
     }
 
-    public void Advise(IReadOnlyLifetime lifetime, Action<IReadOnlyLifetime, T> handler)
+    public void Advise(IReadOnlyLifetime lifetime, Action<IReadOnlyLifetime, TView> handler)
     {
         Advise(lifetime, (valueLifetime, raw) =>
             {
-                var value = JsonUtils.Deserialize<T>(raw.Raw)!;
+                var value = JsonUtils.Deserialize<TView>(raw.Raw)!;
                 handler(valueLifetime, value);
             }
         );
     }
 
-    public Task SetValue(T value)
+    public Task SetValue(TView value)
     {
-        return SetValue(new RawAddressableState()
+        return SetValue(new TState()
             {
                 Raw = JsonUtils.Serialize(value),
                 IsInitialized = true

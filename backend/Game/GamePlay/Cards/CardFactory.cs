@@ -127,7 +127,7 @@ public class CardFactory : ICardFactory
     IBoard GetBoard(IPlayer owner, ICardUsePayload payload)
     {
         if (payload is not IBoardCardUsePayload boardPayload)
-            throw new ArgumentException("Payload must implement IBoardCardUsePayload", nameof(payload));
+            throw new ArgumentException("Value must implement IBoardCardUsePayload", nameof(payload));
 
         var board = owner.Board;
         board.EnsureGenerated(boardPayload.Position);

@@ -21,7 +21,7 @@ Quick rules: → [rules/ORLEANS_GRAINS.md](../rules/ORLEANS_GRAINS.md) | [rules/
 ```csharp
 // Interface — one key type only
 public interface IMyGrain : IGrainWithGuidKey {
-    [Transaction(TransactionOption.Join)]  // only if called inside a transaction
+    [Transaction]  // only if called inside a transaction
     Task<string> GetValue();
 
     Task FireAndForget();  // no attribute if not transactional
@@ -128,10 +128,10 @@ public class MyCollectionState : AddressableDictionaryState<Guid, MyItem> { }
 
 // 2. Interface
 public interface IMyCollection : IAddressableDictionary<Guid, MyItem> {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task AddOrUpdate(MyItem item);
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Remove(Guid id);
 }
 

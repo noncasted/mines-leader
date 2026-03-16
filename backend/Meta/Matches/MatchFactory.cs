@@ -20,7 +20,7 @@ public class MatchFactory : IMatchFactory
         IOrleans orleans,
         IMessaging messaging,
         IServiceDiscovery serviceDiscovery,
-        IBotCollectionView botCollection,
+        IBotCollection botCollection,
         ILogger<MatchFactory> logger)
     {
         _orleans = orleans;
@@ -33,7 +33,7 @@ public class MatchFactory : IMatchFactory
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly IServiceDiscovery _serviceDiscovery;
-    private readonly IBotCollectionView _botCollection;
+    private readonly IBotCollection _botCollection;
     private readonly ILogger<MatchFactory> _logger;
 
     public async Task Create(IReadOnlyList<Guid> participants, GameMatchType type)

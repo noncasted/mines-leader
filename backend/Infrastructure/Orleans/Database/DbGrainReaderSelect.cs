@@ -3,7 +3,7 @@ namespace Infrastructure;
 public class DbGrainReaderSelect
 {
     public bool Id { get; set; }
-    public bool Payload { get; set; }
+    public bool Value { get; set; }
     public bool Extension { get; set; }
 
     public string FormQuery()
@@ -11,10 +11,10 @@ public class DbGrainReaderSelect
         var entries = new List<string>();
 
         if (Id == true)
-            entries.Add("id_0, id_1");
+            entries.Add("key");
 
-        if (Payload == true)
-            entries.Add("payload");
+        if (Value == true)
+            entries.Add("value");
 
         if (Extension == true)
             entries.Add("extension");
@@ -27,10 +27,10 @@ public class DbGrainReaderSelect
 
     public void Validate()
     {
-        if (Id == false && Payload == false && Extension == false)
+        if (Id == false && Value == false && Extension == false)
         {
             Id = true;
-            Payload = true;
+            Value = true;
             Extension = true;
         }
     }

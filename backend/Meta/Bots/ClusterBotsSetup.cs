@@ -5,13 +5,13 @@ namespace Meta.Bots;
 
 public class ClusterBotsSetup : ICoordinatorSetupCompleted
 {
-    public ClusterBotsSetup(IBotCollectionView collection, IBotFactory factory)
+    public ClusterBotsSetup(IBotCollection collection, IBotFactory factory)
     {
         _collection = collection;
         _factory = factory;
     }
 
-    private readonly IBotCollectionView _collection;
+    private readonly IBotCollection _collection;
     private readonly IBotFactory _factory;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)

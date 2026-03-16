@@ -47,24 +47,21 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <None Remove="Startup\NamedGrainStorage.sql"/>
-        <Content Include="Startup\NamedGrainStorage.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <None Remove="Startup\PostgreSQL-Clustering.sql"/>
-        <Content Include="Startup\PostgreSQL-Clustering.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <None Remove="Startup\PostgreSQL-Clustering-3.7.0.sql"/>
-        <Content Include="Startup\PostgreSQL-Clustering-3.7.0.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <None Remove="Startup\PostgreSQL-Main.sql"/>
-        <Content Include="Startup\PostgreSQL-Main.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <None Remove="Startup\PostgreSQL-Persistence.sql"/>
-        <Content Include="Startup\PostgreSQL-Persistence.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Content Update="Startup\Queries\PostgreSQL-Clustering.sql">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Startup\Queries\PostgreSQL-Persistence.sql">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Startup\Queries\PostgreSQL-Main.sql">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Startup\Queries\PostgreSQL-Clustering-3.7.0.sql">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 

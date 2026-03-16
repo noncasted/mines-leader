@@ -2,6 +2,7 @@ using Common.Extensions;
 using Infrastructure.State;
 using Npgsql;
 using NpgsqlTypes;
+using Orleans.Serialization;
 
 namespace Infrastructure;
 
@@ -14,7 +15,9 @@ public class SideEffectEntry
 
 public interface ISideEffectsStorage
 {
-    // Write new side effects into side_effects_queue (called within Transactions.Run() pgTransaction)
+    Task Write(ISideEffect effects);
+
+    // Write new side effects into side_effects_queue (called within Transactions.Process() pgTransaction)
     Task Write(NpgsqlTransaction transaction, IReadOnlyList<ISideEffect> effects);
 
     // Atomically move up to `count` oldest entries from queue → processing. Returns them.
@@ -43,6 +46,22 @@ public class SideEffectsStorage : ISideEffectsStorage
 
     private readonly IDbSource _dbSource;
     private readonly IStateSerializer _serializer;
+
+    public async Task Write(ISideEffect effects)
+    {
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            await Write(transaction, [effects]);
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+        }
+    }
 
     public async Task Write(NpgsqlTransaction transaction, IReadOnlyList<ISideEffect> effects)
     {
@@ -107,15 +126,16 @@ public class SideEffectsStorage : ISideEffectsStorage
                 var effect = _serializer.Deserialize<ISideEffect>(payloadJson);
                 entries.Add(new SideEffectEntry { Id = id, Effect = effect, RetryCount = retryCount });
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // If deserialization fails, the entry stays in processing and will be failed later.
                 entries.Add(new SideEffectEntry
-                {
-                    Id = id,
-                    Effect = new DeadLetterSideEffect(),
-                    RetryCount = retryCount
-                });
+                    {
+                        Id = id,
+                        Effect = new DeadLetterSideEffect(),
+                        RetryCount = retryCount
+                    }
+                );
             }
         }
 

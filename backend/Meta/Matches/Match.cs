@@ -1,22 +1,21 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Meta.Users;
 using Microsoft.Extensions.Options;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 using Shared;
 
 namespace Meta.Matches;
 
 public interface IMatch : IGrainWithGuidKey
 {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Setup(GameMatchType type, IReadOnlyList<Guid> participants);
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task OnComplete(Guid winnerId);
 }
 
-[Alias(States.Match_Entity)]
 [GenerateSerializer]
 public class MatchState
 {
@@ -44,7 +43,7 @@ public class MatchState
 public class Match : Grain, IMatch
 {
     public Match(
-        [States.Match] ITransactionalState<MatchState> state,
+        [State] State<MatchState> state,
         IOrleans orleans,
         IOptions<ProgressionOptions> options)
     {
@@ -53,13 +52,13 @@ public class Match : Grain, IMatch
         _options = options;
     }
 
-    private readonly ITransactionalState<MatchState> _state;
+    private readonly State<MatchState> _state;
     private readonly IOrleans _orleans;
     private readonly IOptions<ProgressionOptions> _options;
 
     public Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
-        return _state.PerformUpdate(state =>
+        return _state.Write(state =>
             {
                 state.Type = type;
                 state.StartDate = DateTime.UtcNow;

@@ -1,27 +1,19 @@
+using Common;
 using Common.Extensions;
-using Infrastructure.State;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-namespace Coordinator;
+namespace Aspire;
 
 public class StatesSetup
 {
-    public StatesSetup(IDbSource dbSource, IGrainStatesRegistry statesRegistry)
+    public static async Task Run(IConfigurationManager configuration)
     {
-        _dbSource = dbSource;
-        _statesRegistry = statesRegistry;
-    }
+        await using var connection = await configuration.GetConnection();
 
-    private readonly IDbSource _dbSource;
-    private readonly IGrainStatesRegistry _statesRegistry;
-
-    public async Task Run()
-    {
-        await using var connection = await _dbSource.Value.OpenConnectionAsync();
-
-        foreach (var (_, info) in _statesRegistry.States)
+        foreach (var info in StatesLookup.All)
         {
-            if (await IsTableExists(info.TableName) == true)
+            if (await connection.IsTableExists(info.TableName) == true)
                 continue;
 
             string key;
@@ -61,6 +53,7 @@ public class StatesSetup
                         key {key} ,
                         type character varying(512) not null,
                         value jsonb NOT NULL,
+                        version int NOT NULL,
                         primary key {index}
                     );
 
@@ -72,26 +65,5 @@ public class StatesSetup
             await using var createTableCommand = new NpgsqlCommand(createTableQuery, connection);
             await createTableCommand.ExecuteNonQueryAsync();
         }
-
-        return;
-
-        async Task<bool> IsTableExists(string tableName)
-        {
-            var checkTableQuery = $@"
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM information_schema.tables
-                    WHERE table_schema = 'public' AND table_name = '{tableName}'
-                );";
-
-            await using var checkTableCommand = new NpgsqlCommand(checkTableQuery, connection);
-            var result = await checkTableCommand.ExecuteScalarAsync();
-
-            if (result is not bool tableExists)
-                throw new Exception("Failed to check if table exists");
-
-            return tableExists;
-        }
-
     }
 }

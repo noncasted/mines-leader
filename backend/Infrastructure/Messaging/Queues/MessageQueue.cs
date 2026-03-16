@@ -1,27 +1,16 @@
-﻿using Infrastructure.Execution;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
 public interface IMessageQueue : IGrainWithStringKey
 {
     Task AddObserver(Guid id, IMessageQueueObserver observer);
-    Task PushDirect(object message);
-
-    [Transaction(TransactionOption.Join)]
-    Task PushTransactional(object message);
+    Task Push(object message);
 }
 
-[GenerateSerializer]
-public class MessageQueueState : BatchWriterState<object>
+public class MessageQueue : Grain, IMessageQueue
 {
-}
-
-public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueue
-{
-    public MessageQueue(
-        [States.MessageQueue] IPersistentState<MessageQueueState> state,
-        ILogger<MessageQueue> logger) : base(state)
+    public MessageQueue(ILogger<MessageQueue> logger)
     {
         _logger = logger;
     }
@@ -29,16 +18,11 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
     private readonly Dictionary<Guid, ObserverData> _observers = new();
     private readonly ILogger<MessageQueue> _logger;
 
-    protected override BatchWriterOptions Options { get; } = new()
-    {
-        RequiresTransaction = false
-    };
-
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
         if (_observers.Count == 0)
             return Task.CompletedTask;
-        
+
         var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
         var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
 
@@ -68,17 +52,7 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
         return Task.CompletedTask;
     }
 
-    public Task PushDirect(object message)
-    {
-        return WriteDirect(message);
-    }
-
-    public Task PushTransactional(object message)
-    {
-        return WriteTransactional(message);
-    }
-
-    protected override async Task Process(IReadOnlyList<object> entries)
+    public async Task Push(object message)
     {
         var toRemove = new List<Guid>();
 
@@ -88,7 +62,7 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
 
                     try
                     {
-                        return observer.Send(entries);
+                        return observer.Send(new List<object>() { message });
                     }
                     catch (Exception e)
                     {
@@ -96,7 +70,7 @@ public class MessageQueue : BatchWriter<MessageQueueState, object>, IMessageQueu
 
                         _logger.LogError(e,
                             "[Messaging] [Queue] Delevering message from {QueueName} to observer failed",
-                            StringId
+                            this.GetPrimaryKeyString()
                         );
 
                         return Task.CompletedTask;

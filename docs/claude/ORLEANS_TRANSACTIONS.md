@@ -91,7 +91,7 @@ var newState = await _state.Update(async state => {  // ERROR: Can't be async
 ### Pattern: Read, Calculate, Update, Act
 
 ```csharp
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task ComplexOperation()
 {
     // 1. Read current state synchronously
@@ -121,7 +121,7 @@ public async Task ComplexOperation()
 ### Intra-Grain Transactions
 
 ```csharp
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task UpdateThenNotify()
 {
     // Update state within transaction
@@ -190,7 +190,7 @@ await messaging.PushTransactionalQueue(queueId, message);
 ### Automatic Rollback
 
 ```csharp
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task OperationWithError()
 {
     var state = await _state.Update(state => {
@@ -227,7 +227,7 @@ public async Task Inner()
 }
 
 // CORRECT:
-[Transaction(TransactionOption.Join)]  // Join existing, don't create
+[Transaction]  // Join existing, don't create
 public async Task Inner() { }
 ```
 
@@ -292,7 +292,7 @@ public async Task CreateUser(string name)
 ### Pattern 2: Update with Side Effects
 
 ```csharp
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task SetName(string newName)
 {
     var newState = await _state.Update(state => {
@@ -307,7 +307,7 @@ public async Task SetName(string newName)
 ### Pattern 3: Match Completion (Multi-Grain Atomic)
 
 ```csharp
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task OnComplete(Guid winnerId)
 {
     // Atomic state update

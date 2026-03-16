@@ -6,10 +6,10 @@ using Silo = Projects.Silo;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.local.json", true);
+var configuration = builder.Configuration;
+configuration.AddJsonFile("appsettings.local.json", true);
 
-var dbConnection = GetDbConnectionString();
-await builder.SetupDb(dbConnection);
+var dbConnection = await GetOrCreateDb();
 
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
@@ -29,6 +29,24 @@ game.WaitFor(silo);
 console.WaitFor(silo);
 
 SetDashboardToken();
+
+builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) =>
+    {
+        var localSection = builder.Configuration.GetSection("Local");
+        var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
+        var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
+
+        if (requiresDrop == true)
+            await StatesDrop.Run(configuration);
+
+        await OrleansSetup.Run(configuration);
+        await StatesSetup.Run(configuration);
+        await SideEffectsSetup.Run(configuration);
+
+        if (requiresCleanup == true)
+            await StatesCleanup.Run(configuration);
+    }
+);
 
 builder.Build().Run();
 
@@ -56,20 +74,43 @@ void SetDashboardToken()
     if (token == null)
         return;
 
-    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+    configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["AppHost:BrowserToken"] = token,
         }
     );
 }
 
-string GetDbConnectionString()
+Task<string> GetOrCreateDb()
 {
     var externalDb = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 
     if (externalDb != null)
-        return externalDb;
+        return Task.FromResult(externalDb);
 
-    return builder.Configuration.GetConnectionString("db") ??
-           throw new Exception("Database connection string is not set");
+    var localDb = configuration.GetConnectionString("db")!;
+
+    var parts = localDb
+        .Split(';', StringSplitOptions.RemoveEmptyEntries)
+        .Select(p => p.Split('=', 2))
+        .Where(p => p.Length == 2)
+        .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
+
+    var host = parts["Server"];
+    var port = int.Parse(parts["Port"]);
+    var database = parts["Database"];
+    var user = parts["User Id"];
+    var password = parts["Password"];
+
+    builder
+        .AddContainer("postgres", "postgres", "17.6")
+        .WithHttpEndpoint(port: port, targetPort: 5432, name: "tcp", isProxied: false)
+        .WithVolume("mines-leader-postgres-data", "/var/lib/postgresql/data")
+        .WithEnvironment("POSTGRES_PASSWORD", password)
+        .WithEnvironment("POSTGRES_DB", database)
+        .WithEnvironment("POSTGRES_USER", user)
+        .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
+        .WithLifetime(ContainerLifetime.Persistent);
+
+    return Task.FromResult($"Host={host};Port={port};Database={database};Username={user};Password={password}");
 }

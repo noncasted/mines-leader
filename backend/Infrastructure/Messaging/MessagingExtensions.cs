@@ -1,6 +1,5 @@
 ﻿using Common.Extensions;
 using Common.Reactive;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
@@ -49,9 +48,9 @@ public static class MessagingExtensions
 {
     extension(IMessaging messaging)
     {
-        public Task PushTransactionalQueue(IMessageQueueId id, object message)
+        public void PushTransactionalQueue(IMessageQueueId id, object message)
         {
-            return messaging.Queue.PushTransactional(id, message);
+            messaging.Queue.PushTransactional(id, message);
         }
 
         public Task PushDirectQueue(IMessageQueueId id, object message)

@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace Infrastructure.State;
+namespace Infrastructure;
 
 [GenerateSerializer]
 public class TransactionContext
@@ -11,6 +11,9 @@ public class TransactionContext
     [Id(1)]
     public Dictionary<Guid, IGrainTransactionHandler> Participants { get; } = new();
 
+    [Id(2)]
+    public Dictionary<Guid, ISideEffect> SideEffects { get; } = new();
+    
     [Id(20)]
     public string? ExceptionMessage { get; set; }
 }

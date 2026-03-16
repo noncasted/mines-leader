@@ -1,14 +1,15 @@
 using Npgsql;
 
-namespace Infrastructure.State;
+namespace Infrastructure;
+
+public class TransactionBuilder
+{
+    public required TransactionParameters Parameters { get; init; }
+    public required ITransactions Transactions { get; init; }
+}
 
 public static class TransactionsExtensions
 {
-    public class TransactionBuilder
-    {
-        public required TransactionParameters Parameters { get; init; }
-        public required ITransactions Transactions { get; init; }
-    }
 
     extension(ITransactions transactions)
     {
@@ -20,10 +21,33 @@ public static class TransactionsExtensions
                 Callbacks = []
             };
 
-            return transactions.Run(parameters);
+            return transactions.Process(parameters);
         }
 
-        public TransactionBuilder Create(Func<Task> action)
+        public async Task<T> Run<T>(Func<Task<T>> action)
+        {
+            T? result = default;
+
+            var parameters = new TransactionParameters
+            {
+                Action = Process,
+                Callbacks = []
+            };
+
+            await transactions.Process(parameters);
+            
+            if (result == null)
+                throw new NullReferenceException("Result is null");
+
+            return result;
+
+            async Task Process()
+            {
+                result = await action();
+            }
+        }
+
+        public TransactionBuilder CreateBuilder(Func<Task> action)
         {
             var builder = new TransactionBuilder
             {
@@ -49,7 +73,7 @@ public static class TransactionsExtensions
 
         public Task<TransactionResult> Run()
         {
-            return builder.Transactions.Run(builder.Parameters);
+            return builder.Transactions.Process(builder.Parameters);
         }
     }
 }

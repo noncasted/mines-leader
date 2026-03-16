@@ -23,7 +23,7 @@ public class UserFactory : IUserFactory
 
     public Task<Guid> Create(UserCreateOptions options)
     {
-        return _orleans.OldTransactions.Create(async () =>
+        return _orleans.Transactions.Run(async () =>
             {
                 var id = Guid.NewGuid();
 

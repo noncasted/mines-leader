@@ -1,26 +1,25 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 using Shared;
 
 namespace Meta.Users;
 
 public interface IUserDeck : IUserGrain
 {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Initialize();
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex);
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Update(int index, IReadOnlyList<CardType> cards);
 
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task<IReadOnlyList<CardType>> GetSelected();
 }
 
-[Alias(States.User_Deck)]
 [GenerateSerializer]
 public class UserDeckState : IProjectionPayload
 {
@@ -55,12 +54,12 @@ public class UserDeckState : IProjectionPayload
 [Reentrant]
 public class UserDeck : UserGrain, IUserDeck
 {
-    public UserDeck([States.UserDeck] ITransactionalState<UserDeckState> state)
+    public UserDeck([State] State<UserDeckState> state)
     {
         _state = state;
     }
 
-    private readonly ITransactionalState<UserDeckState> _state;
+    private readonly State<UserDeckState> _state;
 
     public async Task Initialize()
     {
@@ -121,7 +120,7 @@ public class UserDeck : UserGrain, IUserDeck
 
     public Task<IReadOnlyList<CardType>> GetSelected()
     {
-        return _state.PerformRead(state =>
+        return _state.Read(state =>
             {
                 var selectedDeck = state.Entries[state.SelectedIndex];
                 return selectedDeck.Cards;

@@ -1,17 +1,16 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Meta.Matches;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 
 namespace Meta.Users;
 
 public interface IUserMatchHistory : IUserGrain
 {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Add(MatchOverview match);
 }
 
-[Alias(States.User_MatchHistory)]
 [GenerateSerializer]
 public class UserMatchHistoryState
 {
@@ -21,17 +20,17 @@ public class UserMatchHistoryState
 [Reentrant]
 public class UserMatchHistory : UserGrain, IUserMatchHistory
 {
-    public UserMatchHistory([States.UserMatchHistory] ITransactionalState<UserMatchHistoryState> state)
+    public UserMatchHistory([State] State<UserMatchHistoryState> state)
     {
         _state = state;
     }
 
-    private readonly ITransactionalState<UserMatchHistoryState> _state;
+    private readonly State<UserMatchHistoryState> _state;
 
     public Task Add(MatchOverview match)
     {
         return Task.WhenAll(
-            _state.PerformUpdate(state => state.Matches.Add(match)),
+            _state.Write(state => state.Matches.Add(match)),
             this.SendCachedProjection(match)
         );
     }

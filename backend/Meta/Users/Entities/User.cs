@@ -1,21 +1,20 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 using Shared;
 
 namespace Meta.Users;
 
 public interface IUser : IUserGrain
 {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task Initialize();
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task SetName(string name);
 }
 
-[Alias(States.User_Entity)]
 [GenerateSerializer]
 public class UserState : IProjectionPayload
 {
@@ -34,14 +33,14 @@ public class UserState : IProjectionPayload
 public class User : UserGrain, IUser
 {
     public User(
-        [States.UserEntity] ITransactionalState<UserState> state,
+        [State] State<UserState> state,
         ILogger<User> logger)
     {
         _state = state;
         _logger = logger;
     }
 
-    private readonly ITransactionalState<UserState> _state;
+    private readonly State<UserState> _state;
     private readonly ILogger<User> _logger;
 
     public async Task Initialize()
