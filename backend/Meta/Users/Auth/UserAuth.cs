@@ -1,11 +1,10 @@
 using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 
 namespace Meta.Users;
 
-[Alias(States.User_Auth)]
 [GenerateSerializer]
 public class UserAuthState
 {
@@ -15,10 +14,10 @@ public class UserAuthState
 
 public interface IUserAuth : IUserGrain
 {
-    [Transaction(TransactionOption.CreateOrJoin)]
+    [Transaction]
     Task<bool> IsExists();
 
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task OnRegistered();
 }
 
@@ -26,17 +25,17 @@ public interface IUserAuth : IUserGrain
 public class UserAuth : UserGrain, IUserAuth
 {
     public UserAuth(
-        [States.UserAuth] ITransactionalState<UserAuthState> state,
+        [State] State<UserAuthState> state,
         ILogger<UserAuth> logger)
     {
         _state = state;
         _logger = logger;
     }
 
-    private readonly ITransactionalState<UserAuthState> _state;
+    private readonly State<UserAuthState> _state;
     private readonly ILogger<UserAuth> _logger;
 
-    public Task<bool> IsExists() => _state.PerformRead(state => state.IsExists);
+    public Task<bool> IsExists() => _state.Read(state => state.IsExists);
 
     public async Task OnRegistered()
     {

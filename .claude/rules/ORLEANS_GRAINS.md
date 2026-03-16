@@ -7,7 +7,7 @@ Full details: → [docs/COMMON_ORLEANS.md](../docs/COMMON_ORLEANS.md)
 ```csharp
 // Interface
 public interface IMyGrain : IGrainWithGuidKey {
-    [Transaction(TransactionOption.Join)]   // only if called inside a transaction
+    [Transaction]   // only if called inside a transaction
     Task DoSomething(string value);
 }
 
@@ -51,4 +51,4 @@ public class MyState {
 - [ ] New state registered in `States.cs` → `StateAttributesExtensions` → `StateTables`
 
 ❌ **WRONG — use only when method is called inside a transaction:**
-- `[Transaction(TransactionOption.Join)]` — only on methods invoked within transaction scope
+- `[Transaction]` — only on methods invoked within transaction scope

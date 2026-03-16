@@ -2,6 +2,7 @@
 using Cluster.Coordination;
 using Cluster.Discovery;
 using Cluster.State;
+using Common;
 using Common.Extensions;
 using Game.Global;
 using Infrastructure;
@@ -129,7 +130,6 @@ public static class ProjectsSetupExtensions
 
             builder
                 .AddEnvironment(serviceTag)
-                .AddStateAttributes()
                 .AddServiceLoop()
                 .AddMessaging()
                 .AddOrleansUtils()
@@ -147,22 +147,6 @@ public static class ProjectsSetupExtensions
             builder.Add<DbSource>()
                 .As<IDbSource>();
 
-            builder.Add<StateFactory>()
-                .As<IStateFactory>();
-
-            builder.Add<StateAttributeMapper>()
-                .As<IAttributeToFactoryMapper<StateAttribute>>();
-
-            builder.Add<GrainStateStorage>()
-                .As<IGrainStateStorage>();
-
-            builder.Add<StateSerializer>()
-                .As<IStateSerializer>();
-
-            builder.Add<Transactions>()
-                .As<ITransactions>();
-
-
             return builder;
         }
 
@@ -170,23 +154,19 @@ public static class ProjectsSetupExtensions
         {
             var states = new List<GrainStateInfo>();
 
-            Add<StateTest.TestState>("state_test_default_state", GrainKeyType.String);
-            Add<TransactionTestState>("state_test_transactional_state", GrainKeyType.Guid);
-            // Add<UserState>("state_user_entity", GrainKeyType.Guid);
-            // Add<UserAuthState>("state_user_auth", GrainKeyType.Guid);
-            // Add<UserProgressionState>("state_user_progression", GrainKeyType.Guid);
-            // Add<UserMatchHistoryState>("state_user_match_history", GrainKeyType.Guid);
-            // Add<UserDeckState>("state_user_projection", GrainKeyType.Guid);
-            // Add<MatchState>("state_match_entity", GrainKeyType.Guid);
-            // Add<MessageQueueState>("state_message_queue", GrainKeyType.Guid);
-
-            var lookup = new HashSet<string>();
-
-            foreach (var stateInfo in states)
-            {
-                if (lookup.Add(stateInfo.TableName) == false)
-                    throw new Exception($"Duplicate state table name: {stateInfo.TableName}");
-            }
+            Add<StateTest.TestState>(StatesLookup.StateTestTest);
+            Add<TransactionTestState>(StatesLookup.TransactionTest);
+            Add<UserState>(StatesLookup.User);
+            Add<UserAuthState>(StatesLookup.UserAuth);
+            Add<UserProgressionState>(StatesLookup.UserProgression);
+            Add<UserProjectionState>(StatesLookup.UserProjection);
+            Add<UserMatchHistoryState>(StatesLookup.UserMatchHistory);
+            Add<UserDeckState>(StatesLookup.UserDeck);
+            Add<MatchState>(StatesLookup.Match);
+            Add<BotState>(StatesLookup.Bot);
+            Add<BotConfigState>(StatesLookup.BotConfig);
+            Add<CardConfigState>(StatesLookup.CardConfig);
+            Add<GameModeConfigState>(StatesLookup.GameModeConfig);
 
             var registry = new GrainStatesRegistry(states);
 
@@ -195,12 +175,12 @@ public static class ProjectsSetupExtensions
 
             return builder;
 
-            void Add<T>(string tableName, GrainKeyType keyType)
+            void Add<T>(StatesLookup.Info lookupInfo)
             {
                 var info = new GrainStateInfo
                 {
-                    TableName = tableName,
-                    KeyType = keyType,
+                    TableName = lookupInfo.TableName,
+                    KeyType = lookupInfo.KeyType,
                     Type = typeof(T)
                 };
 
@@ -214,13 +194,11 @@ public static class ProjectsSetupExtensions
                 builder.Configuration.GetSection("SideEffects")
             );
 
-            builder.Add<SideEffectsSetup>();
-
             builder.Add<SideEffectsStorage>()
                 .As<ISideEffectsStorage>();
 
             builder.Add<SideEffectsWorker>()
-                .As<ICoordinatorSetupCompleted>();
+                .As<IHostedService>();
 
             return builder;
         }

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;

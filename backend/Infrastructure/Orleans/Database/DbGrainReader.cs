@@ -1,18 +1,20 @@
 using System.Runtime.CompilerServices;
+using Common;
 using Common.Extensions;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public class DbGrainReader
+public class DbGrainReader<TState>
 {
-    public DbGrainReader(IOrleans orleans, string table)
+    public DbGrainReader(IOrleans orleans)
     {
         Orleans = orleans;
-        _table = table;
+        _stateInfo = orleans.GrainStatesRegistry.States[typeof(TState).FullName!];
     }
 
-    private readonly string _table;
+    private readonly GrainStateInfo _stateInfo;
 
     public readonly DbGrainReaderSelect Select = new();
     public readonly DbGrainReaderWhere Where = new();
@@ -24,7 +26,7 @@ public class DbGrainReader
         await using var connection = await Orleans.DbSource.OpenConnection();
         await using var command = connection.CreateCommand();
 
-        var query = $"SELECT COUNT(*) FROM {_table}";
+        var query = $"SELECT COUNT(*) FROM {_stateInfo.TableName}";
 
         var where = Where.FormQuery();
 
@@ -49,7 +51,7 @@ public class DbGrainReader
 
         Select.Validate();
         var select = Select.FormQuery();
-        var query = $"SELECT {select} FROM {_table}";
+        var query = $"SELECT {select} FROM {_stateInfo.TableName}";
 
         var where = Where.FormQuery();
 
@@ -69,19 +71,60 @@ public class DbGrainReader
             {
                 if (Select.Id == true)
                 {
-                    if (reader["id_0"] is not long id0 || reader["id_1"] is not long id1)
-                        throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+                    switch (_stateInfo.KeyType)
+                    {
 
-                    entry.Id0 = id0;
-                    entry.Id1 = id1;
+                        case GrainKeyType.Integer:
+                        {
+                            if (reader["key"] is not long key)
+                                throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+
+                            entry.LongId = key;
+                            break;
+                        }
+                        case GrainKeyType.String:
+                        {
+                            if (reader["key"] is not string key)
+                                throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+
+                            entry.StringKey = key;
+                            break;
+                        }
+                        case GrainKeyType.Guid:
+                        {
+                            if (reader["key"] is not Guid key)
+                                throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+
+                            entry.GuidKey = key;
+                            break;
+                        }
+                        case GrainKeyType.IntegerAndString:
+                        {
+                            if (reader["key"] is not long key)
+                                throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+
+                            entry.LongId = key;
+                            break;
+                        }
+                        case GrainKeyType.GuidAndString:
+                        {
+                            if (reader["key"] is not Guid key)
+                                throw new InvalidOperationException("Grain ID fields are not present or invalid.");
+
+                            entry.GuidKey = key;
+                            break;
+                        }
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
 
-                if (Select.Payload == true)
+                if (Select.Value == true)
                 {
                     if (reader["payload"] is not byte[] payloadBytes)
-                        throw new InvalidOperationException("Payload binary field is not present or invalid.");
+                        throw new InvalidOperationException("Value binary field is not present or invalid.");
 
-                    entry.Payload = payloadBytes;
+                    entry.Value = payloadBytes;
                 }
 
                 if (Select.Extension == true)
@@ -104,8 +147,9 @@ public class DbGrainReader
 
 public class DbGrainEntry
 {
-    public long Id0 { get; set; }
-    public long Id1 { get; set; }
+    public string StringKey { get; set; }
+    public long LongId { get; set; }
+    public Guid GuidKey { get; set; }
     public string Extension { get; set; } = string.Empty;
-    public byte[] Payload { get; set; } = [];
+    public byte[] Value { get; set; } = [];
 }

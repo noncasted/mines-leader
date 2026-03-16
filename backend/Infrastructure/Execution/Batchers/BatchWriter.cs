@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Infrastructure.State;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Orleans.Transactions;
 
 namespace Infrastructure.Execution;
 
@@ -39,10 +39,10 @@ public class BatchWriterOptions
     public bool RequiresTransaction { get; set; } = true;
 }
 
-public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHook, IBatchWriter<TEntry>
-    where TState : BatchWriterState<TEntry>
+public abstract class BatchWriter<TState, TEntry> : CommonGrain, IBatchWriter<TEntry>
+    where TState : BatchWriterState<TEntry>, new()
 {
-    protected BatchWriter(IPersistentState<TState> state)
+    protected BatchWriter(State<TState> state)
     {
         _state = state;
         _orleans = ServiceProvider.GetRequiredService<IOrleans>();
@@ -61,7 +61,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
     private readonly IOrleans _orleans;
     private readonly Dictionary<Guid, List<TEntry>> _pending = new();
 
-    private readonly IPersistentState<TState> _state;
+    private readonly State<TState> _state;
 
     private readonly BatchWriterTask<TEntry> _task;
     private readonly ITaskScheduler _taskScheduler;
@@ -74,18 +74,21 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         return base.OnActivateAsync(cancellationToken);
     }
 
-    public Task Start()
+    public async Task Start()
     {
-        if (_state.State.Entries.Count == 0)
-            return Task.CompletedTask;
+        await _state.Read();
+
+        if (_state.Value.Entries.Count == 0)
+            return;
 
         _taskScheduler.Schedule(_task);
-        return Task.CompletedTask;
+        return;
     }
 
     public async Task Loop()
     {
-        var state = _state.State;
+        await _state.Read();
+        var state = _state.Value;
 
         if (state.Entries.Count == 0)
             return;
@@ -94,21 +97,23 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         {
             if (Options.RequiresTransaction == true)
             {
-                await _orleans
-                    .Transaction(() => Process(state.Entries))
-                    .WithSuccessAction(() =>
-                        {
-                            state.Entries.Clear();
-                            return _state.WriteStateAsync();
-                        }
-                    )
-                    .Run();
+                _orleans.Transactions.Run(() => Process(state.Entries));
+
+
+                // await _orleans.Transactions.CreateBuilder(() => Process(state.Entries))
+                //     .WithSuccessAction(() =>
+                //         {
+                //             state.Entries.Clear();
+                //             return _state.WriteStateAsync();
+                //         }
+                //     )
+                //     .Process();
             }
             else
             {
                 await Process(state.Entries);
                 state.Entries.Clear();
-                await _state.WriteStateAsync();
+                await _state.Write();
             }
         }
         catch (Exception e)
@@ -130,9 +135,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
 
     public async Task WriteTransactional(TEntry value)
     {
-        await this.AsTransactionHook();
-
-        var transactionId = TransactionContext.GetRequiredTransactionInfo().TransactionId;
+        var transactionId = TransactionContextProvider.Current!.Id;
 
         if (_pending.TryGetValue(transactionId, out var list) == false)
         {
@@ -154,8 +157,9 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
 
     public async Task WriteDirect(TEntry value)
     {
-        _state.State.Entries.Add(value);
-        await _state.WriteStateAsync();
+        await _state.Read();
+        _state.Value.Entries.Add(value);
+        await _state.Write();
         _taskScheduler.Schedule(_task);
 
         _logger.LogTrace(
@@ -171,6 +175,7 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
         if (_pending.TryGetValue(transactionId, out var pending) == false)
             return;
 
+        await _state.Read();
         _logger.LogTrace(
             "[BatchWriter] OnSuccess {writerName} {stateType} {batchType} {transactionId}",
             this.GetPrimaryKeyString(),
@@ -179,9 +184,9 @@ public abstract class BatchWriter<TState, TEntry> : CommonGrain, ITransactionHoo
             transactionId
         );
 
-        _state.State.Entries.AddRange(pending);
+        _state.Value.Entries.AddRange(pending);
         _pending.Remove(transactionId);
-        await _state.WriteStateAsync();
+        await _state.Write();
         _taskScheduler.Schedule(_task);
     }
 

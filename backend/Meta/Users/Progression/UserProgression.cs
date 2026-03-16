@@ -1,18 +1,17 @@
 ﻿using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
-using Orleans.Transactions.Abstractions;
 using Shared;
 
 namespace Meta.Users;
 
 public interface IUserProgression : IUserGrain
 {
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     Task AddRecord(IUserProgressionRecord record);
 }
 
-[Alias(States.User_Progression)]
 [GenerateSerializer]
 public class UserProgressionState : IProjectionPayload
 {
@@ -38,14 +37,14 @@ public class UserProgressionState : IProjectionPayload
 public class UserProgression : UserGrain, IUserProgression
 {
     public UserProgression(
-        [States.UserProgression] ITransactionalState<UserProgressionState> state,
+        [State] State<UserProgressionState> state,
         ILogger<UserProgression> logger)
     {
         _state = state;
         _logger = logger;
     }
     
-    private readonly ITransactionalState<UserProgressionState> _state;
+    private readonly State<UserProgressionState> _state;
     private readonly ILogger<UserProgression> _logger;
     
     public async Task AddRecord(IUserProgressionRecord record)

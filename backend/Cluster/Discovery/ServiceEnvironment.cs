@@ -1,5 +1,4 @@
 ﻿using Common.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Cluster.Discovery;

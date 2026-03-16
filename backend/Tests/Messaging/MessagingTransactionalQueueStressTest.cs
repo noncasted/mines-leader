@@ -106,14 +106,18 @@ public class MessagingTransactionalQueueStressTest
                         Environment.Tag.ToString()
                     );
 
-                    await _orleans.InTransaction(() => Messaging.PushTransactionalQueue(
+                    await _orleans.InTransaction(() =>
+                    {
+                        Messaging.PushTransactionalQueue(
                             new MessageQueueId(TestName),
                             new MessagePayload
                             {
                                 Service = Environment.Tag.ToString()
                             }
-                        )
-                    );
+                        );
+
+                        return Task.CompletedTask;
+                    });
 
                     Logger.LogInformation("Successfully sent message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,

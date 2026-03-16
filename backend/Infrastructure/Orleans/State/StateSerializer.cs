@@ -8,6 +8,7 @@ namespace Infrastructure.State;
 public interface IStateSerializer
 {
     string Serialize(object value);
+    string Serialize<T>(T value);
     T Deserialize<T>(string value);
     T? TryDeserialize<T>(string value);
 }
@@ -18,8 +19,9 @@ public class StateSerializer : IStateSerializer
     {
         _settings = new JsonSerializerSettings
         {
-            TypeNameHandling = TypeNameHandling.Auto,
-            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            TypeNameHandling = TypeNameHandling.All,
+            MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
+            PreserveReferencesHandling = PreserveReferencesHandling.None,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
             DefaultValueHandling = DefaultValueHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -41,6 +43,11 @@ public class StateSerializer : IStateSerializer
     public string Serialize(object value)
     {
         return JsonConvert.SerializeObject(value, _settings);
+    }
+
+    public string Serialize<T>(T value)
+    {
+        return JsonConvert.SerializeObject(value, typeof(T), _settings);
     }
 
     public T Deserialize<T>(string value)

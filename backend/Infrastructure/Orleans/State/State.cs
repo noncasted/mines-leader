@@ -43,6 +43,9 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
         if (_currentTransactionId != Guid.Empty && TransactionContextProvider.Current.Id != _currentTransactionId)
             throw new InvalidOperationException("Concurrent transactions are not supported.");
 
+        if (_currentTransactionId == TransactionContextProvider.Current.Id)
+            return;
+        
         _currentTransactionId = TransactionContextProvider.Current.Id;
         _rawValue = await _stateStorage.ReadRaw<T>(_context.GrainId);
         _value = _serializer.Deserialize<T>(_rawValue);
@@ -58,9 +61,28 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
 
         var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
         handler.RecordStateChanged(this);
-        
+
         return Task.CompletedTask;
     }
+
+    public Task Replace(T value)
+    {
+        if (TransactionContextProvider.Current == null)
+        {
+            _value = value;
+            return _stateStorage.Write(_context.GrainId, _value!);
+        }
+
+        if (TransactionContextProvider.Current.Id != _currentTransactionId)
+            throw new InvalidOperationException("Concurrent transactions are not supported.");
+
+        _value = value;
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
+        handler.RecordStateChanged(this);
+
+        return Task.CompletedTask;
+    }
+
 
     public object GetState()
     {

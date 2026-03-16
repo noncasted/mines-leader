@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure;
-using Infrastructure.State;
 
 namespace Tests;
 

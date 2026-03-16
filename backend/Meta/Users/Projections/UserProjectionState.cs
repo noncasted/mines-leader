@@ -1,8 +1,5 @@
-﻿using Infrastructure;
+﻿namespace Meta.Users;
 
-namespace Meta.Users;
-
-[Alias(States.User_Projection)]
 [GenerateSerializer]
 public class UserProjectionState
 {

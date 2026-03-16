@@ -64,7 +64,7 @@ public class MyGrain : Grain, IMyGrain
         _state.PerformRead(state => state.Value);
 
     // Modify operations
-    [Transaction(TransactionOption.Join)]
+    [Transaction]
     public async Task SetValue(int value)
     {
         var newState = await _state.Update(state => {
@@ -143,7 +143,7 @@ await batcher.WriteDirect(entry);
 public class MyGrain : Grain { }
 
 // Participate in Orleans transaction
-[Transaction(TransactionOption.Join)]
+[Transaction]
 public async Task DoSomething() { }
 
 // Start new transaction (rare, for factory methods)

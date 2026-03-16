@@ -14,7 +14,7 @@ public class MessagePipeSendStressTest
     public class StartPayload()
     {
         [Id(0)]
-        public required int MessageCount { get; init; } = 1000;
+        public required int MessageCount { get; init; } = 10000;
 
         [Id(1)]
         public required float Delay { get; init; } = 0.001f;

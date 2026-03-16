@@ -1,23 +1,21 @@
 using Common.Extensions;
 using Common.Reactive;
-using Infrastructure.State;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure;
 
-public class SideEffectsWorker : ICoordinatorSetupCompleted
+public class SideEffectsWorker : IHostedService
 {
     public SideEffectsWorker(
         ISideEffectsStorage storage,
-        SideEffectsSetup setup,
         ITransactions transactions,
         IOrleans orleans,
         IOptions<SideEffectsOptions> options,
         ILogger<SideEffectsWorker> logger)
     {
         _storage = storage;
-        _setup = setup;
         _transactions = transactions;
         _orleans = orleans;
         _options = options.Value;
@@ -25,7 +23,6 @@ public class SideEffectsWorker : ICoordinatorSetupCompleted
     }
 
     private readonly ISideEffectsStorage _storage;
-    private readonly SideEffectsSetup _setup;
     private readonly ITransactions _transactions;
     private readonly IOrleans _orleans;
     private readonly SideEffectsOptions _options;
@@ -33,10 +30,11 @@ public class SideEffectsWorker : ICoordinatorSetupCompleted
 
     private int _inProgress;
 
-    public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        await _setup.Run();
+        var lifetime = cancellationToken.ToLifetime();
         Loop(lifetime).NoAwait();
+        return Task.CompletedTask;
     }
 
     private async Task Loop(IReadOnlyLifetime lifetime)
@@ -75,7 +73,7 @@ public class SideEffectsWorker : ICoordinatorSetupCompleted
             if (entry.Effect is ITransactionalSideEffect)
             {
                 var result = await _transactions
-                    .Create(() => entry.Effect.Execute(_orleans))
+                    .CreateBuilder(() => entry.Effect.Execute(_orleans))
                     .WithCallback(npgsqlTransaction => _storage.CompleteProcessing(npgsqlTransaction, entry.Id))
                     .Run();
 
@@ -113,5 +111,10 @@ public class SideEffectsWorker : ICoordinatorSetupCompleted
         {
             Interlocked.Decrement(ref _inProgress);
         }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 }

@@ -14,7 +14,7 @@
                 Variant="Variant.Filled"
                 Color="Color.Primary"
                 OnClick="@ToggleCreateForm">
-                Create Bot
+                ProcessBuilder Bot
             </MudButton>
         }
         else
@@ -22,7 +22,7 @@
             <MudCard>
                 <MudCardContent>
                     <MudStack Spacing="2">
-                        <MudText Typo="Typo.h6">Create New Bot</MudText>
+                        <MudText Typo="Typo.h6">ProcessBuilder New Bot</MudText>
                         <MudTextField
                             @bind-Value="_newBotName"
                             Label="Bot Name"
@@ -35,7 +35,7 @@
                                 Color="Color.Primary"
                                 OnClick="@SubmitCreateBot"
                                 Disabled="@string.IsNullOrWhiteSpace(_newBotName)">
-                                Create
+                                ProcessBuilder
                             </MudButton>
                             <MudButton
                                 Variant="Variant.Outlined"
@@ -74,7 +74,7 @@
 @code {
 
     [Inject]
-    public IBotCollectionView BotCollection { get; set; } = null!;
+    public IBotCollection BotCollection { get; set; } = null!;
 
     [Inject]
     public IBotFactory BotFactory { get; set; } = null!;

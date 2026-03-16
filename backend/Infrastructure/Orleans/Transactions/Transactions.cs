@@ -1,8 +1,9 @@
 using Common.Extensions;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace Infrastructure.State;
+namespace Infrastructure;
 
 public class TransactionResult
 {
@@ -18,12 +19,11 @@ public class TransactionParameters
 public class TransactionCommitResult
 {
     public required IReadOnlyList<GrainStateRecord> States { get; init; }
-    public required IReadOnlyList<ISideEffect> SideEffects { get; init; }
 }
 
 public interface ITransactions
 {
-    Task<TransactionResult> Run(TransactionParameters action);
+    Task<TransactionResult> Process(TransactionParameters action);
 }
 
 public class Transactions : ITransactions
@@ -45,7 +45,7 @@ public class Transactions : ITransactions
     private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<Transactions> _logger;
 
-    public async Task<TransactionResult> Run(TransactionParameters parameters)
+    public async Task<TransactionResult> Process(TransactionParameters parameters)
     {
         var context = new TransactionContext
         {
@@ -104,8 +104,8 @@ public class Transactions : ITransactions
                 if (result.States.Count != 0)
                     await _stateStorage.Write(transaction, result.States);
 
-                if (result.SideEffects.Count != 0)
-                    await _sideEffectsStorage.Write(transaction, result.SideEffects);
+                if (context.SideEffects.Count != 0)
+                    await _sideEffectsStorage.Write(transaction, context.SideEffects.Values.ToList());
 
                 foreach (var callback in parameters.Callbacks)
                     await callback(transaction);
@@ -149,22 +149,16 @@ public class Transactions : ITransactions
         async Task<TransactionCommitResult> CollectStates()
         {
             var states = new List<GrainStateRecord>();
-            var sideEffects = new List<ISideEffect>();
 
             var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Value)));
 
             foreach (var collection in collections)
-            {
                 states.AddRange(collection.States);
-                sideEffects.AddRange(collection.SideEffects);
-            }
 
             return new TransactionCommitResult()
             {
                 States = states,
-                SideEffects = sideEffects
             };
-            ;
 
             async Task<TransactionCommitResult> Collect(IGrainTransactionHandler handler)
             {
@@ -186,7 +180,6 @@ public class Transactions : ITransactions
                 return new TransactionCommitResult
                 {
                     States = grainStates,
-                    SideEffects = result.SideEffects
                 };
             }
         }

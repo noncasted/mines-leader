@@ -10,15 +10,19 @@ public interface IMessageQueueClient
     Task Start(IReadOnlyLifetime lifetime);
 
     Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IMessageQueueId id);
-    Task PushTransactional(IMessageQueueId id, object message);
+    void PushTransactional(IMessageQueueId id, object message);
     Task PushDirect(IMessageQueueId id, object message);
 }
 
 public class MessageQueueClient : IMessageQueueClient
 {
-    public MessageQueueClient(IOrleans orleans, ILogger<MessageQueueClient> logger)
+    public MessageQueueClient(
+        IOrleans orleans,
+        ISideEffectsStorage sideEffectsStorage,
+        ILogger<MessageQueueClient> logger)
     {
         _orleans = orleans;
+        _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
     }
 
@@ -27,6 +31,7 @@ public class MessageQueueClient : IMessageQueueClient
     private readonly ConcurrentDictionary<string, Listener> _listeners = new();
 
     private readonly IOrleans _orleans;
+    private readonly ISideEffectsStorage _sideEffectsStorage;
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
@@ -71,14 +76,28 @@ public class MessageQueueClient : IMessageQueueClient
         return source;
     }
 
-    public Task PushTransactional(IMessageQueueId id, object message)
+    public void PushTransactional(IMessageQueueId id, object message)
     {
-        return GetQueue(id).PushTransactional(message);
+        if (TransactionContextProvider.Current == null)
+            throw new InvalidOperationException();
+
+        var sideEffect = new MessageQueueSideEffect()
+        {
+            QueueName = id.ToRaw(),
+            Message = message
+        };
+
+        sideEffect.AddToTransaction();
     }
 
     public Task PushDirect(IMessageQueueId id, object message)
     {
-        return GetQueue(id).PushDirect(message);
+        return _sideEffectsStorage.Write(new MessageQueueSideEffect()
+            {
+                QueueName = id.ToRaw(),
+                Message = message
+            }
+        );
     }
 
     private IMessageQueue GetQueue(IMessageQueueId id)

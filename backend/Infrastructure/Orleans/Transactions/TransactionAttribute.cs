@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Orleans.Serialization;
 using Orleans.Serialization.Invocation;
 
-namespace Infrastructure.State;
+namespace Infrastructure;
 
 [InvokableBaseType(typeof(GrainReference), typeof(ValueTask), typeof(TransactionRequest))]
 [InvokableBaseType(typeof(GrainReference), typeof(ValueTask<>), typeof(TransactionRequest<>))]
@@ -53,10 +53,13 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
                     ExceptionDispatchInfo.Throw(exception);
                 }
 
-                var currentContext = TransactionContextProvider.Current;
+                var currentContext = TransactionContextProvider.Current!;
 
-                foreach (var (newParticipantId, newParticipant) in response.Context.Participants)
-                    currentContext.Participants.TryAdd(newParticipantId, newParticipant);
+                foreach (var (id, participants) in response.Context.Participants)
+                    currentContext.Participants.TryAdd(id, participants);
+                
+                foreach (var (id, sideEffect) in response.Context.SideEffects)
+                    currentContext.SideEffects.TryAdd(id, sideEffect);
             }
         }
     }

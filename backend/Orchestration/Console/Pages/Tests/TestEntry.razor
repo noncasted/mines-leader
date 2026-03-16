@@ -1,5 +1,4 @@
 @using global::Tests
-
 <MudPaper Class="pa-4" Elevation="2">
     <MudStack Spacing="3">
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
@@ -11,7 +10,7 @@
         <MudCollapse Expanded="_expanded">
             <PayloadForm Payload="Test.Payload" PayloadChanged="val => Test.Payload = val"/>
         </MudCollapse>
-        <OperationView @ref="_operationView" Name="Run" StartCallback="Test.Start"/>
+        <OperationView @ref="_operationView" Name="Process" StartCallback="Test.Start"/>
     </MudStack>
 </MudPaper>
 

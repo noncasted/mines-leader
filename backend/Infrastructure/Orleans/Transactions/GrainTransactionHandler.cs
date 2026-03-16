@@ -1,15 +1,13 @@
+using Infrastructure.State;
 using Orleans.Concurrency;
 
-namespace Infrastructure.State;
+namespace Infrastructure;
 
 [GenerateSerializer]
 public class TransactionHandlerResult
 {
     [Id(0)]
     public required IReadOnlyList<object> States { get; init; }
-
-    [Id(1)]
-    public required IReadOnlyList<ISideEffect> SideEffects { get; init; }
 }
 
 public interface IGrainTransactionHandler : IGrainExtension
@@ -38,7 +36,7 @@ public interface IGrainTransactionHandler : IGrainExtension
 // even if the grain itself is busy — hence the semaphore is required.
 //
 // Transaction lifecycle on this grain:
-//   Transactions.Run() calls grain methods
+//   Transactions.Process() calls grain methods
 //     → TransactionAttribute intercepts each outgoing call
 //       → Join() is called on the target grain's handler (registers participant)
 //       → grain method executes, calls State.Write() → RecordStateChanged()
@@ -63,17 +61,16 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     // Initial count 1 = grain is free (unlocked).
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    // Stable identity returned to Transactions.Run() to track this grain as a participant.
+    // Stable identity returned to Transactions.Process() to track this grain as a participant.
     private readonly Guid _participantId = Guid.NewGuid();
 
-    private readonly List<ISideEffect> _sideEffects = new();
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
-    // Returns _participantId so Transactions.Run() can track this grain.
+    // Returns _participantId so Transactions.Process() can track this grain.
     public async Task<Guid> Join(Guid transactionId)
     {
-        // Same transaction calling again (e.g. multiple [Transaction] methods in one Run).
+        // Same transaction calling again (e.g. multiple [Transaction] methods in one Process).
         // Refresh timestamp so the stuck-transaction check stays accurate.
         if (_currentTransactionId == transactionId)
         {
@@ -142,13 +139,8 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     {
         _states.Add(state);
     }
-
-    public void RecordSideEffect(ISideEffect sideEffect)
-    {
-        _sideEffects.Add(sideEffect);
-    }
     
-    // Called by Transactions.Run() after all grain methods have executed.
+    // Called by Transactions.Process() after all grain methods have executed.
     // Returns the current in-memory snapshots of all modified states.
     // These are then written atomically to Postgres in a single DB transaction.
     public Task<TransactionHandlerResult> CollectResult(Guid transactionId)
@@ -168,11 +160,10 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         return Task.FromResult(new TransactionHandlerResult
         {
             States = states,
-            SideEffects = _sideEffects.ToList()
         });
     }
 
-    // Called by Transactions.Run() after the DB write succeeds.
+    // Called by Transactions.Process() after the DB write succeeds.
     // Confirms the commit to each state object and releases the lock.
     public Task OnSuccess(Guid transactionId)
     {
@@ -189,7 +180,6 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             state.OnTransactionSuccess();
 
         _states.Clear();
-        _sideEffects.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)
@@ -198,7 +188,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         return Task.CompletedTask;
     }
 
-    // Called by Transactions.Run() on any exception (before or after DB write).
+    // Called by Transactions.Process() on any exception (before or after DB write).
     // Rolls back in-memory state and releases the lock.
     public Task OnFailure(Guid transactionId)
     {
@@ -210,7 +200,6 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             state.OnTransactionFailure();
 
         _states.Clear();
-        _sideEffects.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)

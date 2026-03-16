@@ -11,7 +11,7 @@ public class TransactionTestState
 
 public interface ITransactionTestGrain : IGrainWithGuidKey
 {
-    [Infrastructure.State.Transaction]
+    [Infrastructure.Transaction]
     Task Increment();
 
     Task<int> Get();
@@ -28,7 +28,7 @@ public class TransactionTestGrain : Grain, ITransactionTestGrain
 
     public Task Increment()
     {
-        return _state.Update(s => { s.Value += 1; });
+        return _state.Write(s => { s.Value += 1; });
     }
 
     public async Task<int> Get()

@@ -7,8 +7,13 @@ public interface IBotConfig : IRawAddressableState<BotConfigOptions>
 {
 }
 
+[GenerateSerializer]
+public class BotConfigState : RawAddressableState
+{
+}
+
 public class BotConfigView(IOrleans orleans, IMessaging messaging)
-    : RawAddressableStateView<BotConfigOptions>(orleans, messaging), IBotConfig
+    : RawAddressableStateView<BotConfigOptions, BotConfigState>(orleans, messaging), IBotConfig
 {
     public override string Name => "config-bot";
 }

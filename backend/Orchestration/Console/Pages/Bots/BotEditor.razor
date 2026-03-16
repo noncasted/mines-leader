@@ -4,7 +4,6 @@
 @using Meta.Bots
 @using Meta.Users
 @using Shared
-@using System.Collections.Generic
 
 <PageTitle>Edit Bot</PageTitle>
 <PageHeader Title="Bot Settings"/>
@@ -100,7 +99,7 @@
     public string Id { get; set; } = string.Empty;
 
     [Inject]
-    public IBotCollectionView BotCollection { get; set; } = null!;
+    public IBotCollection BotCollection { get; set; } = null!;
 
     [Inject]
     public IOrleans Orleans { get; set; } = null!;
@@ -171,7 +170,7 @@
 
             // Write name
             if (_botName != _bot.Name) {
-                await Orleans.OldTransactions.Create(() => handle.Entity.SetName(_botName));
+                await Orleans.Transactions.Run(() => handle.Entity.SetName(_botName));
             }
 
             // Write deck
@@ -180,7 +179,7 @@
                 {
                     { 0, _deckCards }
                 };
-                await Orleans.OldTransactions.Create(() => handle.Deck.Update(deckUpdate, 0));
+                await Orleans.Transactions.Run(() => handle.Deck.Update(deckUpdate, 0));
             }
 
             Snackbar.Add("Bot saved successfully", Severity.Success);

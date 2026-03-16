@@ -1,4 +1,4 @@
-using System;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Common.Extensions;
@@ -45,13 +45,13 @@ public class PostgresJsonbConverter<T> : JsonConverter<T> where T : class
 
         // Skip PostgreSQL jsonb magic byte (0x01)
         var startIndex = data[0] == 0x01 ? 1 : 0;
-        return System.Text.Encoding.UTF8.GetString(data, startIndex, data.Length - startIndex);
+        return Encoding.UTF8.GetString(data, startIndex, data.Length - startIndex);
     }
 
 
     private static byte[] EncodeBinary(string json)
     {
-        var utf8Bytes = System.Text.Encoding.UTF8.GetBytes(json);
+        var utf8Bytes = Encoding.UTF8.GetBytes(json);
         var result = new byte[utf8Bytes.Length + 1];
         result[0] = 0x01; // PostgreSQL jsonb magic byte
         Buffer.BlockCopy(utf8Bytes, 0, result, 1, utf8Bytes.Length);
