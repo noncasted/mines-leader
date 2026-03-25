@@ -12,9 +12,11 @@ public interface IUserMatchHistory : IUserGrain
 }
 
 [GenerateSerializer]
-public class UserMatchHistoryState
+public class UserMatchHistoryState : IStateValue
 {
     [Id(0)] public List<MatchOverview> Matches { get; } = new();
+    
+    public int Version => 0;
 }
 
 [Reentrant]

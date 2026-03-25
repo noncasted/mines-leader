@@ -21,11 +21,13 @@ public interface IUserDeck : IUserGrain
 }
 
 [GenerateSerializer]
-public class UserDeckState : IProjectionPayload
+public class UserDeckState : IProjectionPayload, IStateValue
 {
     [Id(0)] public Dictionary<int, Entry> Entries { get; } = new();
     [Id(1)] public int SelectedIndex { get; set; }
 
+    public int Version => 0;
+    
     public INetworkContext ToContext()
     {
         return new SharedBackendUser.DeckProjection()

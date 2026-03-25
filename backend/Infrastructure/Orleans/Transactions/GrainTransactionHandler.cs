@@ -7,7 +7,7 @@ namespace Infrastructure;
 public class TransactionHandlerResult
 {
     [Id(0)]
-    public required IReadOnlyList<object> States { get; init; }
+    public required IReadOnlyList<IStateValue> States { get; init; }
 }
 
 public interface IGrainTransactionHandler : IGrainExtension
@@ -152,7 +152,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             );
         }
 
-        var states = new List<object>();
+        var states = new List<IStateValue>();
 
         foreach (var state in _states)
             states.Add(state.GetState());

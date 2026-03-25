@@ -14,6 +14,7 @@ builder.Services.Add<MessagingTransactionalQueueStressTest.Root>().As<IClusterTe
 builder.Services.Add<MessagePipeSendStressTest.Root>().As<IClusterTest>();
 builder.Services.Add<MessagePipeSendResponseStressTest.Root>().As<IClusterTest>();
 builder.Services.Add<StateTest.Root>().As<IClusterTest>();
+builder.Services.Add<StateMigrationTest.Root>().As<IClusterTest>();
 builder.Services.Add<TransactionStateTest.Root>().As<IClusterTest>();
 builder.Services.Add<TransactionStateChainedTest.Root>().As<IClusterTest>();
 builder.Services.Add<TransactionStateChainedFailTest.Root>().As<IClusterTest>();

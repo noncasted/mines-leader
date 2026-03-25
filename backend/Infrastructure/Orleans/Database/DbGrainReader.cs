@@ -11,7 +11,7 @@ public class DbGrainReader<TState>
     public DbGrainReader(IOrleans orleans)
     {
         Orleans = orleans;
-        _stateInfo = orleans.GrainStatesRegistry.States[typeof(TState).FullName!];
+        _stateInfo = orleans.GrainStatesRegistry.Get<TState>();
     }
 
     private readonly GrainStateInfo _stateInfo;

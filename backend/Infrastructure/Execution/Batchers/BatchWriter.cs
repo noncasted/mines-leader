@@ -40,7 +40,7 @@ public class BatchWriterOptions
 }
 
 public abstract class BatchWriter<TState, TEntry> : CommonGrain, IBatchWriter<TEntry>
-    where TState : BatchWriterState<TEntry>, new()
+    where TState : BatchWriterState<TEntry>, IStateValue, new()
 {
     protected BatchWriter(State<TState> state)
     {

@@ -1,16 +1,21 @@
 namespace Infrastructure.State;
 
+public interface IStateValue
+{
+    int Version { get; }
+}
+
 public interface IGrainStateTransactionParticipant
 {
-    object GetState();
+    IStateValue GetState();
     void OnTransactionSuccess();
     void OnTransactionFailure();
 }
 
-public class State<T> : IGrainStateTransactionParticipant where T : class, new()
+public class State<T> : IGrainStateTransactionParticipant where T : class, IStateValue, new()
 {
     public State(
-        IGrainStateStorage stateStorage,
+        IStateStorage stateStorage,
         IGrainContext context,
         IStateSerializer serializer)
     {
@@ -19,11 +24,10 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
         _serializer = serializer;
     }
 
-    private readonly IGrainStateStorage _stateStorage;
+    private readonly IStateStorage _stateStorage;
     private readonly IGrainContext _context;
     private readonly IStateSerializer _serializer;
 
-    private string? _rawValue;
     private T? _value;
     private Guid _currentTransactionId;
 
@@ -45,10 +49,9 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
 
         if (_currentTransactionId == TransactionContextProvider.Current.Id)
             return;
-        
+
         _currentTransactionId = TransactionContextProvider.Current.Id;
-        _rawValue = await _stateStorage.ReadRaw<T>(_context.GrainId);
-        _value = _serializer.Deserialize<T>(_rawValue);
+        _value = await _stateStorage.Read<T>(_context.GrainId);
     }
 
     public Task Write()
@@ -83,8 +86,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
         return Task.CompletedTask;
     }
 
-
-    public object GetState()
+    public IStateValue GetState()
     {
         return _value!;
     }
@@ -96,7 +98,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, new()
 
     public void OnTransactionFailure()
     {
-        _value = _serializer.Deserialize<T>(_rawValue!);
+        _value = null;
         _currentTransactionId = Guid.Empty;
     }
 }

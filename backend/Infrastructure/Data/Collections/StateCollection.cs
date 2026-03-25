@@ -27,7 +27,7 @@ public class StateCollectionUpdate<TKey, TValue>
 
 public class StateCollectionUtils<TKey, TValue>
     where TKey : notnull
-    where TValue : class, new()
+    where TValue : class, IStateValue, new()
 {
     public StateCollectionUtils(
         IOrleans orleans,
@@ -47,11 +47,7 @@ public class StateCollectionUtils<TKey, TValue>
 
     public async Task<IReadOnlyDictionary<TKey, TValue>> Load()
     {
-        var stateName = typeof(TValue).FullName!;
-
-        if (!_statesRegistry.States.TryGetValue(stateName, out var stateInfo))
-            throw new Exception($"State {stateName} is not registered in {nameof(IGrainStatesRegistry)}");
-
+        var stateInfo = _statesRegistry.Get<TValue>();
         var grainStateType = stateInfo.Type;
 
         if (!typeof(TValue).IsAssignableFrom(grainStateType))
@@ -65,7 +61,7 @@ public class StateCollectionUtils<TKey, TValue>
 
         await foreach (var item in reader.Read())
         {
-            var value = reader.Deserialize(item);
+            var value = reader.Deserialize<TValue>(item);
             var key = GetKey(item);
             dictionary.Add(key, value);
         }
@@ -80,11 +76,6 @@ public class StateCollectionUtils<TKey, TValue>
 
             throw new InvalidOperationException($"Unsupported key type: {typeof(TKey)}");
         }
-    }
-
-    public Task<TValue> LoadNew(TKey key)
-    {
-        return _orleans.StateStorage.Read<TValue>(key);
     }
 
     public Task PushUpdate(TKey key, TValue value)
@@ -112,7 +103,7 @@ public class StateCollection<TKey, TValue> :
     IStateCollection<TKey, TValue>,
     ILocalSetupCompleted
     where TKey : notnull
-    where TValue : class, new()
+    where TValue : class, IStateValue, new()
 {
     public StateCollection(StateCollectionUtils<TKey, TValue> utils)
     {
@@ -126,10 +117,11 @@ public class StateCollection<TKey, TValue> :
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
         await _utils.ListenUpdates(lifetime, (key, value) =>
-        {
-            this[key] = value;
-            _updated.Invoke();
-        });
+            {
+                this[key] = value;
+                _updated.Invoke();
+            }
+        );
 
         var existing = await _utils.Load();
 

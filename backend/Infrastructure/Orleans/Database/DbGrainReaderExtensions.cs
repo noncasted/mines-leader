@@ -1,4 +1,5 @@
 using System.Text;
+using Infrastructure.State;
 
 namespace Infrastructure;
 
@@ -9,7 +10,8 @@ public static class DbGrainReaderExtensions
         return new DbGrainReader<TState>(orleans);
     }
 
-    public static TState Deserialize<TState>(this DbGrainReader<TState> reader, DbGrainEntry entry) where TState : class
+    public static TState Deserialize<TState>(this DbGrainReader<TState> reader, DbGrainEntry entry)
+        where TState : class, IStateValue
     {
         var stringPayload = Encoding.UTF8.GetString(entry.Value);
         var value = reader.Orleans.Serializer.Deserialize(typeof(TState), stringPayload) as TState;

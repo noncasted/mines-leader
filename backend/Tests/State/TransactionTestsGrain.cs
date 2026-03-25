@@ -3,10 +3,12 @@ using Infrastructure.State;
 namespace Tests;
 
 [GenerateSerializer]
-public class TransactionTestState
+public class TransactionTestState : IStateValue
 {
     [Id(0)]
     public int Value { get; set; }
+
+    public int Version => 0;
 }
 
 public interface ITransactionTestGrain : IGrainWithGuidKey
@@ -28,7 +30,11 @@ public class TransactionTestGrain : Grain, ITransactionTestGrain
 
     public Task Increment()
     {
-        return _state.Write(s => { s.Value += 1; });
+        return _state.Write(s =>
+            {
+                s.Value += 1;
+            }
+        );
     }
 
     public async Task<int> Get()

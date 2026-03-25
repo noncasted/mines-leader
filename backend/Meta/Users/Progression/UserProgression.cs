@@ -13,10 +13,12 @@ public interface IUserProgression : IUserGrain
 }
 
 [GenerateSerializer]
-public class UserProgressionState : IProjectionPayload
+public class UserProgressionState : IProjectionPayload, IStateValue
 {
     [Id(0)] public List<IUserProgressionRecord> Records { get; } = new();
 
+    public int Version => 0;
+    
     public void AddRecord(IUserProgressionRecord record)
     {
         Records.Add(record);

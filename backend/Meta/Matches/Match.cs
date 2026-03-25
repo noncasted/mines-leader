@@ -17,7 +17,7 @@ public interface IMatch : IGrainWithGuidKey
 }
 
 [GenerateSerializer]
-public class MatchState
+public class MatchState : IStateValue
 {
     [Id(0)] public GameMatchType Type { get; set; }
     [Id(1)] public Guid Winner { get; set; }
@@ -25,6 +25,8 @@ public class MatchState
     [Id(3)] public DateTime StartDate { get; set; }
     [Id(4)] public IReadOnlyList<Guid> Participants { get; set; } = new List<Guid>();
 
+    public int Version => 0;
+    
     public MatchOverview CreateOverview(Guid matchId)
     {
         return new MatchOverview

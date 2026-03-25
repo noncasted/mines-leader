@@ -5,7 +5,7 @@ using Npgsql;
 
 namespace Infrastructure.State;
 
-public static class GrainStateStorageExtensions
+public static class StateStorageExtensions
 {
     extension(IStateStorage storage)
     {
