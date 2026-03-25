@@ -8,6 +8,7 @@ public interface IStateCollection<TKey, TValue> : IReadOnlyDictionary<TKey, TVal
     IViewableDelegate Updated { get; }
 
     Task OnUpdated(TKey key, TValue value);
+    Task OnUpdatedTransactional(TKey key, TValue value);
 }
 
 public class StateCollectionMessageQueueId<TKey, TValue> : IMessageQueueId
@@ -30,22 +31,22 @@ public class StateCollectionUtils<TKey, TValue>
     where TValue : class, IStateValue, new()
 {
     public StateCollectionUtils(
-        IOrleans orleans,
         IGrainStatesRegistry statesRegistry,
+        IStateStorage storage,
         IMessaging messaging)
     {
-        _orleans = orleans;
         _statesRegistry = statesRegistry;
+        _storage = storage;
         _messaging = messaging;
     }
 
-    private readonly IOrleans _orleans;
     private readonly IGrainStatesRegistry _statesRegistry;
+    private readonly IStateStorage _storage;
     private readonly IMessaging _messaging;
 
     private readonly StateCollectionMessageQueueId<TKey, TValue> _queueId = new();
 
-    public async Task<IReadOnlyDictionary<TKey, TValue>> Load()
+    public async Task<IReadOnlyDictionary<TKey, TValue>> Load(IReadOnlyLifetime lifetime)
     {
         var stateInfo = _statesRegistry.Get<TValue>();
         var grainStateType = stateInfo.Type;
@@ -53,29 +54,14 @@ public class StateCollectionUtils<TKey, TValue>
         if (!typeof(TValue).IsAssignableFrom(grainStateType))
             throw new Exception($"State type {grainStateType} is not assignable to {typeof(TValue)}");
 
-        var reader = _orleans.CreateDbReader<TValue>(stateInfo.TableName)
-            .SelectID()
-            .SelectPayload();
+        var reader = _storage.ReadAll<TKey, TValue>(lifetime);
 
         var dictionary = new Dictionary<TKey, TValue>();
 
-        await foreach (var item in reader.Read())
-        {
-            var value = reader.Deserialize<TValue>(item);
-            var key = GetKey(item);
+        await foreach (var (key, value) in reader)
             dictionary.Add(key, value);
-        }
 
         return dictionary;
-
-        TKey GetKey(DbGrainEntry entry)
-        {
-            if (typeof(TKey) == typeof(Guid)) return (TKey)(object)entry.GuidKey;
-            if (typeof(TKey) == typeof(string)) return (TKey)(object)entry.StringKey;
-            if (typeof(TKey) == typeof(int)) return (TKey)(object)(int)entry.LongId;
-
-            throw new InvalidOperationException($"Unsupported key type: {typeof(TKey)}");
-        }
     }
 
     public Task PushUpdate(TKey key, TValue value)
@@ -86,6 +72,18 @@ public class StateCollectionUtils<TKey, TValue>
                 Value = value
             }
         );
+    }
+
+    public Task PushTransactionalUpdate(TKey key, TValue value)
+    {
+        _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
+            {
+                Key = key,
+                Value = value
+            }
+        );
+
+        return Task.CompletedTask;
     }
 
     public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue> onUpdate)
@@ -112,6 +110,7 @@ public class StateCollection<TKey, TValue> :
 
     private readonly StateCollectionUtils<TKey, TValue> _utils;
     private readonly ViewableDelegate _updated = new();
+
     public IViewableDelegate Updated => _updated;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
@@ -123,15 +122,20 @@ public class StateCollection<TKey, TValue> :
             }
         );
 
-        var existing = await _utils.Load();
+        var existing = await _utils.Load(lifetime);
 
         foreach (var (key, value) in existing)
             this[key] = value;
     }
 
-    public async Task OnUpdated(TKey key, TValue value)
+    public Task OnUpdated(TKey key, TValue value)
     {
         this[key] = value;
-        await _utils.PushUpdate(key, value);
+        return _utils.PushUpdate(key, value);
+    }
+
+    public Task OnUpdatedTransactional(TKey key, TValue value)
+    {
+        return _utils.PushTransactionalUpdate(key, value);
     }
 }

@@ -2,7 +2,6 @@
 using Infrastructure.State;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Orleans.Serialization;
 
 namespace Infrastructure;
 
@@ -10,10 +9,8 @@ public interface IOrleans
 {
     IClusterClient Client { get; }
     ITransactions Transactions { get; }
-    IDbSource DbSource { get; }
     IStateStorage StateStorage { get; }
-    IGrainStatesRegistry GrainStatesRegistry { get; }
-    OrleansJsonSerializer Serializer { get; }
+    IStateSerializer Serializer { get; }
     ILogger Logger { get; }
 }
 
@@ -23,19 +20,15 @@ public class OrleansUtils : IOrleans
         IClusterClient client,
         IGrainFactory grains,
         ITransactions transactions,
-        IDbSource dbSource,
-        OrleansJsonSerializer serializer,
+        IStateSerializer serializer,
         ILogger<OrleansUtils> logger,
-        IGrainStatesRegistry grainStatesRegistry,
         IStateStorage stateStorage)
     {
         Grains = grains;
         Transactions = transactions;
         Logger = logger;
-        GrainStatesRegistry = grainStatesRegistry;
         StateStorage = stateStorage;
         Serializer = serializer;
-        DbSource = dbSource;
         Client = client;
     }
 
@@ -43,10 +36,8 @@ public class OrleansUtils : IOrleans
     public ITransactions Transactions { get; }
 
     public IClusterClient Client { get; }
-    public IDbSource DbSource { get; }
     public IStateStorage StateStorage { get; }
-    public IGrainStatesRegistry GrainStatesRegistry { get; }
-    public OrleansJsonSerializer Serializer { get; }
+    public IStateSerializer Serializer { get; }
     public ILogger Logger { get; }
 }
 

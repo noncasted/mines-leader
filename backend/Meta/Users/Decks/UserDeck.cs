@@ -1,6 +1,5 @@
 ﻿using Infrastructure;
 using Infrastructure.State;
-using Orleans.Concurrency;
 using Shared;
 
 namespace Meta.Users;
@@ -53,7 +52,6 @@ public class UserDeckState : IProjectionPayload, IStateValue
     }
 }
 
-[Reentrant]
 public class UserDeck : UserGrain, IUserDeck
 {
     public UserDeck([State] State<UserDeckState> state)

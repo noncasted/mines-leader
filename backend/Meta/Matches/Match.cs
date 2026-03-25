@@ -2,7 +2,6 @@
 using Infrastructure.State;
 using Meta.Users;
 using Microsoft.Extensions.Options;
-using Orleans.Concurrency;
 using Shared;
 
 namespace Meta.Matches;
@@ -41,7 +40,6 @@ public class MatchState : IStateValue
     }
 }
 
-[Reentrant]
 public class Match : Grain, IMatch
 {
     public Match(

@@ -1,7 +1,6 @@
 ﻿using Infrastructure;
 using Infrastructure.State;
 using Meta.Matches;
-using Orleans.Concurrency;
 
 namespace Meta.Users;
 
@@ -19,7 +18,6 @@ public class UserMatchHistoryState : IStateValue
     public int Version => 0;
 }
 
-[Reentrant]
 public class UserMatchHistory : UserGrain, IUserMatchHistory
 {
     public UserMatchHistory([State] State<UserMatchHistoryState> state)

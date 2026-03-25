@@ -1,7 +1,6 @@
 ﻿using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
 using Shared;
 
 namespace Meta.Users;
@@ -13,6 +12,9 @@ public interface IUser : IUserGrain
 
     [Transaction]
     Task SetName(string name);
+    
+    [Transaction]
+    Task<UserState> GetState();
 }
 
 [GenerateSerializer]
@@ -31,7 +33,6 @@ public class UserState : IProjectionPayload, IStateValue
     };
 }
 
-[Reentrant]
 public class User : UserGrain, IUser
 {
     public User(
@@ -69,5 +70,10 @@ public class User : UserGrain, IUser
         _logger.LogInformation("[User] User {Id} changed name to {name}", state.Id, state.Name);
 
         await this.SendCachedProjection(state);
+    }
+
+    public Task<UserState> GetState()
+    {
+        return _state.ReadValue();
     }
 }

@@ -13,8 +13,6 @@ public static class StateCollectionExtensions
         where TKey : notnull
         where TState : class, IStateValue, new()
     {
-        builder.Add<StateCollectionUtils<TKey, TState>>();
-
         builder.Services.AddSingleton(typeof(StateCollectionUtils<,>));
         builder.Services.AddSingleton(typeof(IStateCollection<,>), typeof(StateCollection<,>));
 

@@ -8,18 +8,18 @@ public static class ConfigsExtensions
 {
     public static IHostApplicationBuilder AddConfigs(this IHostApplicationBuilder builder)
     {
-        builder.Add<CardConfigsView>()
+        builder.Add<CardConfigsState>()
             .As<ICardConfigs>()
             .As<ILocalSetupCompleted>();
 
-        builder.Add<BotConfigView>()
+        builder.Add<BotConfigState>()
             .As<IBotConfig>()
             .As<ILocalSetupCompleted>();
 
-        builder.Add<GameModeConfigView>()
+        builder.Add<GameModeConfigState>()
             .As<IGameModeConfig>()
             .As<ILocalSetupCompleted>();
-        
+
         return builder;
     }
 }

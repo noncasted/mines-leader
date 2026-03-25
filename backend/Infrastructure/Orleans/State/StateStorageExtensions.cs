@@ -20,9 +20,9 @@ public static class StateStorageExtensions
         {
             var stateInfo = storage.Registry.Get<T>();
             var stateIdentity = id.ToIdentity(stateInfo);
-            return storage.ReadRaw<T>(stateIdentity);
+            return storage.ReadRaw(stateIdentity);
         }
-        
+
         public Task Write(GrainId id, IStateValue value)
         {
             var stateInfo = storage.Registry.Get(value.GetType());
@@ -30,7 +30,7 @@ public static class StateStorageExtensions
 
             return storage.Write(stateIdentity, value);
         }
-        
+
         public Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records)
         {
             var identityToRecord = new Dictionary<StateIdentity, IStateValue>();
@@ -62,7 +62,8 @@ public static class StateStorageExtensions
                 {
                     Key = key,
                     Type = stateInfo.Name,
-                    Extension = null
+                    Extension = null,
+                    TableName = stateInfo.TableName
                 };
             }
             case GrainKeyType.String:
@@ -71,7 +72,8 @@ public static class StateStorageExtensions
                 {
                     Key = grainId.Key.ToString(),
                     Type = stateInfo.Name,
-                    Extension = null
+                    Extension = null,
+                    TableName = stateInfo.TableName
                 };
             }
             case GrainKeyType.Guid:
@@ -83,7 +85,8 @@ public static class StateStorageExtensions
                 {
                     Key = key,
                     Type = stateInfo.Name,
-                    Extension = null
+                    Extension = null,
+                    TableName = stateInfo.TableName
                 };
             }
             case GrainKeyType.IntegerAndString:
@@ -99,7 +102,8 @@ public static class StateStorageExtensions
                 {
                     Key = key,
                     Type = stateInfo.Name,
-                    Extension = extension
+                    Extension = extension,
+                    TableName = stateInfo.TableName
                 };
             }
             case GrainKeyType.GuidAndString:
@@ -114,7 +118,8 @@ public static class StateStorageExtensions
                 {
                     Key = key,
                     Type = stateInfo.Name,
-                    Extension = extension
+                    Extension = extension,
+                    TableName = stateInfo.TableName
                 };
             }
             default:

@@ -89,16 +89,18 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
         // Another transaction is active. Wait up to 10s for it to finish.
         // The previous transaction releases the lock in OnSuccess/OnFailure.
-        var isAcquired = await _lock.WaitAsync(TimeSpan.FromSeconds(10f));
+        var isAcquired = await _lock.WaitAsync(TimeSpan.FromSeconds(3f));
 
         if (!isAcquired)
         {
             // Timed out. If the stuck transaction is still within its 30s grace period,
             // we cannot take over — it may still be running normally but slowly.
             if (_currentTransactionTime.AddSeconds(30) >= DateTime.UtcNow)
+            {
                 throw new Exception(
                     $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
                 );
+            }
 
             // The transaction has been inactive for >30s — treat it as stuck.
             // Force-release its semaphore and acquire for ourselves.
@@ -139,7 +141,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     {
         _states.Add(state);
     }
-    
+
     // Called by Transactions.Process() after all grain methods have executed.
     // Returns the current in-memory snapshots of all modified states.
     // These are then written atomically to Postgres in a single DB transaction.
@@ -158,9 +160,10 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             states.Add(state.GetState());
 
         return Task.FromResult(new TransactionHandlerResult
-        {
-            States = states,
-        });
+            {
+                States = states,
+            }
+        );
     }
 
     // Called by Transactions.Process() after the DB write succeeds.

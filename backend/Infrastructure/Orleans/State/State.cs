@@ -52,6 +52,8 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
 
         _currentTransactionId = TransactionContextProvider.Current.Id;
         _value = await _stateStorage.Read<T>(_context.GrainId);
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
+        handler.RecordStateChanged(this);
     }
 
     public Task Write()

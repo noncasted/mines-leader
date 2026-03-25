@@ -7,10 +7,9 @@ Quick rules: → [rules/ORLEANS_GRAINS.md](../rules/ORLEANS_GRAINS.md) | [rules/
 | Looking for... | Go to section |
 |----------------|---------------|
 | Grain interface + class boilerplate | Grain Pattern |
-| ITransactionalState vs IPersistentState | State Types |
+| State<T>, IStateValue, operations | State |
 | GetGrain, cross-grain calls | IOrleans Interface |
-| Multiple items stored as a collection | AddressableDictionary |
-| Read-only projection of a collection | AddressableDictionaryView |
+| Multiple items stored as a collection | StateCollection |
 | Push updates to clients | Messaging |
 | OnActivateAsync, OnDeactivateAsync | Grain Lifecycle |
 
@@ -28,11 +27,10 @@ public interface IMyGrain : IGrainWithGuidKey {
 }
 
 // Implementation
-[Reentrant]  // always — allows concurrent reentrant calls
 public class MyGrain : Grain, IMyGrain {
     // Constructor injection — never [Inject] fields
     public MyGrain(
-        [States.MyState] ITransactionalState<MyState> state,
+        [State] State<MyState> state,
         IOrleans orleans,
         ILogger<MyGrain> logger) {
         _state = state;
@@ -40,12 +38,12 @@ public class MyGrain : Grain, IMyGrain {
         _logger = logger;
     }
 
-    private readonly ITransactionalState<MyState> _state;
+    private readonly State<MyState> _state;
     private readonly IOrleans _orleans;
     private readonly ILogger<MyGrain> _logger;
 
     public async Task<string> GetValue() {
-        var s = await _state.GetCurrentState();
+        var s = await _state.ReadValue();
         return s.Value;
     }
 }
@@ -54,35 +52,67 @@ public class MyGrain : Grain, IMyGrain {
 **Key types:**
 - `IGrainWithGuidKey` — Guid-based identity (most common for aggregates)
 - `IGrainWithStringKey` — string-based identity (named singleton-like services)
-- `CommonGrain` — base class alternative to `Grain`, adds `StringId`, `Grains`, `Reference` shortcuts
 
 ---
 
-## State Types
+## State
 
-### ITransactionalState — entity data
+### State class
 
 ```csharp
-// Read
-var state = await _state.GetCurrentState();
-
-// Write — returns updated snapshot
-var snapshot = await _state.Update(s => {
-    s.Name = name;
-});
-
-// State class requirements
 [GenerateSerializer]
-[Alias(States.MyEntity)]      // must match States constant
-public class MyState {
+public class MyState : IStateValue {
     [Id(0)] public Guid Id { get; set; }    // Id(N) sequential, no gaps
     [Id(1)] public string Name { get; set; } = string.Empty;
+    public int Version => 0;                 // always required
 }
 ```
 
-### IPersistentState — collection data
+### Injecting
 
-Used as the backing store for `AddressableDictionary` subclasses. Do not use directly for entity data.
+```csharp
+// In grain constructor — [State] attribute triggers IStateFactory
+public MyGrain([State] State<MyState> state) { ... }
+```
+
+### Operations
+
+```csharp
+// Read + modify + write — returns updated value
+var state = await _state.Update(s => {
+    s.Name = name;
+});
+
+// Read + modify + write — returns void
+await _state.Write(s => {
+    s.Name = name;
+});
+
+// Read only — returns T
+var state = await _state.ReadValue();
+
+// Read + transform
+var name = await _state.Read(s => s.Name);
+```
+
+### Adding New State — 3 Steps
+
+**Step 1** — add entry to `backend/Common/Lookups/StatesLookup.cs`:
+```csharp
+public static readonly Info MyEntity = new() {
+    TableName = "state_my_entity",    // DB table name
+    StateName = "my_entity",          // discriminator in DB
+    KeyType = GrainKeyType.Guid       // must match grain key type
+};
+// Also add to the All list at the bottom
+```
+
+**Step 2** — register in `ProjectsSetupExtensions.AddStates()`:
+```csharp
+Add<MyState>(StatesLookup.MyEntity);
+```
+
+**Step 3 (collections only)** — register StateCollection in service extension (see below).
 
 ---
 
@@ -93,12 +123,14 @@ Central access point to Orleans from non-grain code (gateways, services):
 ```csharp
 public interface IOrleans {
     IClusterClient Client { get; }
-    IGrainFactory Grains { get; }
+    ITransactions Transactions { get; }
     IDbSource DbSource { get; }
+    IStateStorage StateStorage { get; }
+    IGrainStatesRegistry GrainStatesRegistry { get; }
     ILogger Logger { get; }
 }
 
-// Extension methods (use these, not Grains directly):
+// Extension methods (use these, not Client directly):
 orleans.GetGrain<IMyGrain>(guid);          // IGrainWithGuidKey
 orleans.GetGrain<IMyGrain>("key");         // IGrainWithStringKey
 orleans.GetGrain<IMyGrain>();              // IGrainWithGuidKey with Guid.Empty (singletons)
@@ -111,82 +143,63 @@ await orleans.InTransaction(async () => {
 });
 ```
 
-**Inside a grain** — use `GrainFactory` directly (injected as `IGrainFactory`), or inherit `CommonGrain` for `.Grains` shortcut.
+**Inside a grain** — use `GrainFactory` directly (injected as `IGrainFactory`).
 
 ---
 
-## AddressableDictionary
+## StateCollection
 
-Use when you need a persistent collection of items addressable by key, with client sync via messaging.
-
-### How to Create
+Use when you need a persistent collection of items addressable by key, with sync via messaging.
 
 ```csharp
-// 1. State class
+// 1. State class (same IStateValue rules apply)
 [GenerateSerializer]
-public class MyCollectionState : AddressableDictionaryState<Guid, MyItem> { }
-
-// 2. Interface
-public interface IMyCollection : IAddressableDictionary<Guid, MyItem> {
-    [Transaction]
-    Task AddOrUpdate(MyItem item);
-
-    [Transaction]
-    Task Remove(Guid id);
-}
-
-// 3. Grain implementation
-public class MyCollection : AddressableDictionary<MyCollectionState, Guid, MyItem>, IMyCollection {
-    public MyCollection(
-        [States.MyCollection] IPersistentState<MyCollectionState> state,
-        IMessaging messaging) : base(state, messaging) { }
-
-    public Task AddOrUpdate(MyItem item) => Write(item.Id, item);
-    public Task Remove(Guid id) => Erase(id);
-}
-
-// 4. Item class
-[GenerateSerializer]
-public class MyItem {
+public class MyItemState : IStateValue {
     [Id(0)] public Guid Id { get; set; }
     [Id(1)] public string Name { get; set; } = string.Empty;
-}
-```
-
-`Write()` and `Erase()` are provided by `AddressableDictionary<>` base class.
-
----
-
-## AddressableDictionaryView
-
-Read-only projection of an `AddressableDictionary` in backend services. Loads full state on startup, then stays in sync via messaging.
-
-```csharp
-// Interface
-public interface IMyCollectionView : IAddressableDictionaryView<Guid, MyItem> { }
-
-// Implementation — minimal, base class does everything
-public class MyCollectionView
-    : AddressableDictionaryView<Guid, MyItem, IMyCollection>, IMyCollectionView {
-    public MyCollectionView(IOrleans orleans, IMessaging messaging)
-        : base(orleans, messaging) { }
+    public int Version => 0;
 }
 
-// Usage (read access)
-var item = _view[itemId];                  // dictionary access
-var all = _view.Values;                    // all items
-_view.Updated.Advise(lifetime, OnChange); // subscribe to changes
+// 2. Interface
+public interface IMyCollection : IStateCollection<Guid, MyItemState> { }
+
+// 3. Implementation — minimal, base class does everything
+public class MyCollection(StateCollectionUtils<Guid, MyItemState> utils)
+    : StateCollection<Guid, MyItemState>(utils), IMyCollection;
+
+// 4. Grain that writes to the collection
+public class MyItem : Grain, IMyItem {
+    public MyItem([State] State<MyItemState> state, IMyCollection collection) {
+        _state = state;
+        _collection = collection;
+    }
+
+    public async Task OnUpdated() {
+        var state = await _state.ReadValue();
+        await _collection.OnUpdatedTransactional(state.Id, state);  // inside transaction
+        // or: await _collection.OnUpdated(state.Id, state);        // outside transaction
+    }
+}
 ```
 
 ### Registration
 
 ```csharp
 // In service extension method:
-builder.AddAddressableDictionaryView<IMyCollectionView, MyCollectionView>();
-// This registers it as singleton AND wires up initialization (AsSetupLoopStage)
+builder.AddStateCollection<MyCollection, Guid, MyItemState>()
+    .As<IMyCollection>();
 ```
 
-**Note:** `IAddressableDictionaryView` implements `IReadOnlyDictionary`, so it can be used directly as a dictionary.
+### Usage (read access from services)
+
+```csharp
+var item = _collection[itemId];                    // dictionary access
+var all = _collection.Values;                      // all items
+_collection.Updated.Advise(lifetime, OnChange);    // subscribe to changes
+```
+
+`StateCollection` implements `IReadOnlyDictionary`, so it can be used directly as a dictionary.
+It loads all existing items on startup (`ILocalSetupCompleted`) and stays in sync via messaging.
 
 ---
 
@@ -218,7 +231,7 @@ public class MyUpdateMessage {
 }
 ```
 
-**AddressableDictionary uses messaging internally** — `AddressableDictionaryView` listens to the queue automatically. You only write messaging directly if building a custom sync mechanism.
+**StateCollection uses messaging internally** — it listens to updates automatically. You only write messaging directly if building a custom sync mechanism.
 
 ---
 
@@ -252,12 +265,12 @@ Use `OnDeactivateAsync` for: flushing pending writes, preventing premature deact
 
 | File | Purpose |
 |------|---------|
-| `backend/Infrastructure/Orleans/Utils/States.cs` | All state constants, attribute classes, StateTables list |
-| `backend/Infrastructure/Orleans/Utils/StateAttributesExtensions.cs` | Registers state attributes with DI |
-| `backend/Infrastructure/Orleans/Utils/OrleansUtils.cs` | IOrleans implementation + extension methods |
-| `backend/Infrastructure/Orleans/Utils/CommonGrain.cs` | Base grain class with shortcuts |
-| `backend/Infrastructure/Data/Collections/AddressableDictionary.cs` | AddressableDictionary base |
-| `backend/Infrastructure/Data/Collections/AddressableDictionaryView.cs` | AddressableDictionaryView base |
-| `backend/Meta/Bots/BotCollection.cs` | AddressableDictionary example |
-| `backend/Meta/Users/Entities/User.cs` | ITransactionalState example |
-| `backend/Meta/Matches/Match.cs` | Multi-grain transaction example |
+| `backend/Common/Lookups/StatesLookup.cs` | All state info (table name, state name, key type) |
+| `backend/Orchestration/Extensions/ProjectsSetupExtensions.cs` | Registers state types in `AddStates()` |
+| `backend/Infrastructure/Orleans/State/State.cs` | `State<T>` implementation |
+| `backend/Infrastructure/Orleans/State/StateExtensions.cs` | `Update()`, `Write()`, `ReadValue()`, `Read()` helpers |
+| `backend/Infrastructure/Data/Collections/StateCollection.cs` | `StateCollection<TKey, TValue>` base |
+| `backend/Infrastructure/Orleans/Utils/OrleansUtils.cs` | `IOrleans` implementation + extension methods |
+| `backend/Meta/Bots/BotEntity.cs` | Grain + State<T> example |
+| `backend/Meta/Users/Entities/User.cs` | Grain + State<T> example |
+| `backend/Meta/Bots/BotCollection.cs` | StateCollection example |
