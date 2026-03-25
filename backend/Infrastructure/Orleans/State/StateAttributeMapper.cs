@@ -34,21 +34,21 @@ public class StateAttributeMapper : IAttributeToFactoryMapper<StateAttribute>
 
 public interface IStateFactory
 {
-    State<TState> Create<TState>(IGrainContext context) where TState : class, new();
+    State<TState> Create<TState>(IGrainContext context) where TState : class, IStateValue, new();
 }
 
 public class StateFactory : IStateFactory
 {
-    public StateFactory(IGrainStateStorage stateStorage, IStateSerializer serializer)
+    public StateFactory(IStateStorage stateStorage, IStateSerializer serializer)
     {
         _stateStorage = stateStorage;
         _serializer = serializer;
     }
 
-    private readonly IGrainStateStorage _stateStorage;
+    private readonly IStateStorage _stateStorage;
     private readonly IStateSerializer _serializer;
 
-    public State<TState> Create<TState>(IGrainContext context) where TState : class, new()
+    public State<TState> Create<TState>(IGrainContext context) where TState : class, IStateValue, new()
     {
         return new State<TState>(_stateStorage, context, _serializer);
     }

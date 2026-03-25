@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Common.Reactive;
+using Infrastructure.State;
 
 namespace Infrastructure;
 
@@ -9,13 +10,15 @@ public interface IRawAddressableState<T> : IAddressableState<T> where T : class,
 }
 
 [GenerateSerializer]
-public class RawAddressableState
+public class RawAddressableState : IStateValue
 {
     [Id(0)]
     public string Raw { get; set; }
 
     [Id(1)]
     public bool IsInitialized { get; set; }
+
+    public int Version => 0;
 }
 
 public abstract class RawAddressableStateView<TView, TState> :
@@ -38,6 +41,9 @@ public abstract class RawAddressableStateView<TView, TState> :
             {
                 try
                 {
+                    if (state.IsInitialized == false)
+                        return;
+                    
                     var newValue = JsonUtils.Deserialize<TView>(state.Raw)!;
                     Value = newValue;
                     IsInitialized = state.IsInitialized;

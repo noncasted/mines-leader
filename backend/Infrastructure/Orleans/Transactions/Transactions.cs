@@ -29,7 +29,7 @@ public interface ITransactions
 public class Transactions : ITransactions
 {
     public Transactions(
-        IGrainStateStorage stateStorage,
+        IStateStorage stateStorage,
         IDbSource dbSource,
         ISideEffectsStorage sideEffectsStorage,
         ILogger<Transactions> logger)
@@ -40,7 +40,7 @@ public class Transactions : ITransactions
         _logger = logger;
     }
 
-    private readonly IGrainStateStorage _stateStorage;
+    private readonly IStateStorage _stateStorage;
     private readonly IDbSource _dbSource;
     private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<Transactions> _logger;

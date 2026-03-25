@@ -6,10 +6,12 @@ using Orleans.Concurrency;
 namespace Meta.Users;
 
 [GenerateSerializer]
-public class UserAuthState
+public class UserAuthState : IStateValue
 {
     [Id(0)]
     public bool IsExists { get; set; }
+    
+    public int Version => 0;
 }
 
 public interface IUserAuth : IUserGrain

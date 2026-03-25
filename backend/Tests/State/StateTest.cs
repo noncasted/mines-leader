@@ -19,7 +19,7 @@ public class StateTest
     }
 
     [GenerateSerializer]
-    public class TestState
+    public class TestState : IStateValue
     {
         [Id(0)]
         public int Inc { get; set; }
@@ -29,6 +29,8 @@ public class StateTest
 
         [Id(2)]
         public TestStateA A0 { get; set; }
+
+        public int Version => 0;
     }
 
     [GenerateSerializer]
@@ -67,7 +69,7 @@ public class StateTest
                 A1 = _testState.Value.Inc + 122,
                 A2 = grain2
             };
-            
+
             await _testState.Write();
         }
     }

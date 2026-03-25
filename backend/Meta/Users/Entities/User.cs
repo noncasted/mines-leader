@@ -16,12 +16,14 @@ public interface IUser : IUserGrain
 }
 
 [GenerateSerializer]
-public class UserState : IProjectionPayload
+public class UserState : IProjectionPayload, IStateValue
 {
     [Id(0)] public Guid Id { get; set; }
 
     [Id(1)] public string Name { get; set; } = string.Empty;
 
+    public int Version => 0;
+    
     public INetworkContext ToContext() => new SharedBackendUser.ProfileProjection()
     {
         Id = Id,

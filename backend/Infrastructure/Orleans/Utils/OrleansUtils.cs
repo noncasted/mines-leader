@@ -11,7 +11,7 @@ public interface IOrleans
     IClusterClient Client { get; }
     ITransactions Transactions { get; }
     IDbSource DbSource { get; }
-    IGrainStateStorage StateStorage { get; }
+    IStateStorage StateStorage { get; }
     IGrainStatesRegistry GrainStatesRegistry { get; }
     OrleansJsonSerializer Serializer { get; }
     ILogger Logger { get; }
@@ -27,7 +27,7 @@ public class OrleansUtils : IOrleans
         OrleansJsonSerializer serializer,
         ILogger<OrleansUtils> logger,
         IGrainStatesRegistry grainStatesRegistry,
-        IGrainStateStorage stateStorage)
+        IStateStorage stateStorage)
     {
         Grains = grains;
         Transactions = transactions;
@@ -44,7 +44,7 @@ public class OrleansUtils : IOrleans
 
     public IClusterClient Client { get; }
     public IDbSource DbSource { get; }
-    public IGrainStateStorage StateStorage { get; }
+    public IStateStorage StateStorage { get; }
     public IGrainStatesRegistry GrainStatesRegistry { get; }
     public OrleansJsonSerializer Serializer { get; }
     public ILogger Logger { get; }
@@ -60,8 +60,11 @@ public static class OrleansUtilsExtensions
         builder.Add<StateAttributeMapper>()
             .As<IAttributeToFactoryMapper<StateAttribute>>();
 
-        builder.Add<GrainStateStorage>()
-            .As<IGrainStateStorage>();
+        builder.Add<StateMigrations>()
+            .As<IStateMigrations>();
+
+        builder.Add<StateStorage>()
+            .As<IStateStorage>();
 
         builder.Add<StateSerializer>()
             .As<IStateSerializer>();

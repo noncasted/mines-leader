@@ -155,6 +155,8 @@ public static class ProjectsSetupExtensions
             var states = new List<GrainStateInfo>();
 
             Add<StateTest.TestState>(StatesLookup.StateTestTest);
+            Add<StateMigrationTest.MigrationTestState_0>(StatesLookup.StateMigrationTest);
+            Add<StateMigrationTest.MigrationTestState_1>(StatesLookup.StateMigrationTest);
             Add<TransactionTestState>(StatesLookup.TransactionTest);
             Add<UserState>(StatesLookup.User);
             Add<UserAuthState>(StatesLookup.UserAuth);
@@ -181,7 +183,8 @@ public static class ProjectsSetupExtensions
                 {
                     TableName = lookupInfo.TableName,
                     KeyType = lookupInfo.KeyType,
-                    Type = typeof(T)
+                    Type = typeof(T),
+                    Name = lookupInfo.StateName
                 };
 
                 states.Add(info);
@@ -242,6 +245,11 @@ public static class ProjectsSetupExtensions
             builder.AddClusterTestNode<MessagingTransactionalQueueStressTest.Node>();
             builder.AddClusterTestNode<MessagePipeSendStressTest.Node>();
             builder.AddClusterTestNode<MessagePipeSendResponseStressTest.Node>();
+
+            builder.Add<StateMigrationTest.MigrationTestStep_V0>()
+                .As<IStateMigrationStep>();
+            builder.Add<StateMigrationTest.MigrationTestStep_V1>()
+                .As<IStateMigrationStep>();
 
             return builder;
         }

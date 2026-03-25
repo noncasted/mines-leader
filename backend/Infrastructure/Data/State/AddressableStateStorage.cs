@@ -8,7 +8,7 @@ public interface IAddressableStateStorage<T> : IGrainWithStringKey
     ValueTask<T> Get();
 }
 
-public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T> where T : class, new()
+public class AddressableStateStorage<T> : Grain, IAddressableStateStorage<T> where T : class, IStateValue, new()
 {
     public AddressableStateStorage([State] State<T> state, IMessaging messaging)
     {
