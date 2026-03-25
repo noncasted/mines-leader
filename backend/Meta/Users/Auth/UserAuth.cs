@@ -1,7 +1,6 @@
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
 
 namespace Meta.Users;
 
@@ -23,7 +22,6 @@ public interface IUserAuth : IUserGrain
     Task OnRegistered();
 }
 
-[Reentrant]
 public class UserAuth : UserGrain, IUserAuth
 {
     public UserAuth(

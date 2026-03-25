@@ -28,13 +28,13 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
 
         return;
 
-        async Task InitializeConfig<T>(string jsonPath, IRawAddressableState<T> storage) where T : class, new()
+        async Task InitializeConfig<T>(string jsonPath, IAddressableState<T> storage) where T : class, new()
         {
             try
             {
                 if (storage.IsInitialized == true)
                     return;
-                
+
                 var configPath = Path.Combine(AppContext.BaseDirectory, $"{jsonPath}.json");
 
                 if (File.Exists(configPath) == false)

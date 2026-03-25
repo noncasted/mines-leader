@@ -1,11 +1,27 @@
-﻿using Common.Extensions;
-using Common.Reactive;
-using Microsoft.Extensions.Hosting;
+﻿using Common.Reactive;
+using Infrastructure.State;
 
 namespace Infrastructure;
 
+[GenerateSerializer]
+public class AddressableStateValue : IStateValue
+{
+    [Id(0)]
+    public string Value { get; set; } = string.Empty;
+
+    [Id(1)]
+    public bool IsInitialized { get; set; }
+
+    [Id(2)]
+    public DateTime UpdateDate { get; set; }
+
+    public int Version => 0;
+}
+
 public interface IAddressableState<T> : IViewableProperty<T> where T : class, new()
 {
+    bool IsInitialized { get; }
+
     Task SetValue(T value);
 }
 
@@ -26,82 +42,71 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
     {
         _orleans = orleans;
         _messaging = messaging;
+
+        var stateInfo = _orleans.StateStorage.Registry.Get<T>();
+
+        _identity = new StateIdentity
+        {
+            Key = stateInfo.Name,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        };
+
+        _queueId = new AddressableStateMessageQueueId<T>
+        {
+            Name = _identity.Type
+        };
     }
 
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
-    
-    public virtual string Name => typeof(T).FullName!;
+    private readonly StateIdentity _identity;
+    private readonly AddressableStateMessageQueueId<T> _queueId;
+
+    private bool _isInitialized;
+    private DateTime _updateDate;
+
+    public bool IsInitialized => _isInitialized;
+    public DateTime UpdateDate => _updateDate;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await _messaging.ListenQueue<T>(lifetime, new AddressableStateMessageQueueId<T>
-            {
-                Name = Name
-            }, OnUpdate
-        );
+        await _messaging.ListenQueue<AddressableStateValue>(lifetime, _queueId, OnUpdate);
 
-        var currentValue = await _orleans.GetClusterState<T>(Name);
-        Set(currentValue);
+        var state = await _orleans.StateStorage.Read<AddressableStateValue>(_identity);
 
-        OnSetup(lifetime);
-    }
+        if (state.IsInitialized == false)
+            return;
 
-    private void OnUpdate(T value)
-    {
+        var value = _orleans.Serializer.Deserialize<T>(state.Value);
         Set(value);
     }
 
-    public Task SetValue(T value)
+    private void OnUpdate(AddressableStateValue state)
     {
+        _isInitialized = true;
+        _updateDate = DateTime.UtcNow;
+        var value = _orleans.Serializer.Deserialize<T>(state.Value);
         Set(value);
-        return _orleans.SetClusterState(Name, value);
     }
 
-    protected virtual void OnSetup(IReadOnlyLifetime lifetime)
-    {
-    }
-}
 
-public static class ClusterStateExtensions
-{
-    public static IHostApplicationBuilder AddClusterState<T>(this IHostApplicationBuilder builder)
-        where T : class, new()
+    public async Task SetValue(T value)
     {
-        builder.Services.Add<AddressableState<T>>()
-            .As<IAddressableState<T>>()
-            .As<ILocalSetupCompleted>();
+        _isInitialized = true;
+        _updateDate = DateTime.UtcNow;
 
-        return builder;
-    }
+        Set(value);
 
-    public static Task SetClusterState<T>(this IOrleans orleans, string name, T value)
-    {
-        return orleans.Grains.SetClusterState(name, value);
-    }
-
-    public static Task SetClusterState<T>(this IGrainFactory grains, string name, T value)
-    {
-        var grain = grains.GetClusterStateGrain<T>(name);
-        return grain.Set(value);
-    }
-
-    public static ValueTask<T> GetClusterState<T>(this IOrleans orleans, string name)
-    {
-        return orleans.Grains.GetClusterState<T>(name);
-    }
-
-    extension(IGrainFactory grains)
-    {
-        public ValueTask<T> GetClusterState<T>(string name)
+        var state = new AddressableStateValue()
         {
-            var grain = grains.GetClusterStateGrain<T>(name);
-            return grain.Get();
-        }
+            IsInitialized = true,
+            UpdateDate = _updateDate,
+            Value = _orleans.Serializer.Serialize(value)
+        };
 
-        private IAddressableStateStorage<T> GetClusterStateGrain<T>(string name)
-        {
-            return grains.GetGrain<IAddressableStateStorage<T>>(name);
-        }
+        await _orleans.StateStorage.Write(_identity, state);
+        await _messaging.Queue.PushDirect(_queueId, state);
     }
 }

@@ -1,6 +1,9 @@
 @page "/bots"
+@using global::Common.Extensions
 @using global::Common.Reactive
+@using Infrastructure.State
 @using Meta.Bots
+@using Meta.Users
 @implements IDisposable
 
 <PageTitle>Bots</PageTitle>
@@ -57,7 +60,7 @@
                 <MudTh></MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@context.Name</MudTd>
+                <MudTd>@_names[context.Id]</MudTd>
                 <MudTd>@context.Id</MudTd>
                 <MudTd @onclick:stopPropagation="true">
                     <MudIconButton
@@ -80,6 +83,9 @@
     public IBotFactory BotFactory { get; set; } = null!;
 
     [Inject]
+    public IStateStorage Storage { get; set; } = null!;
+
+    [Inject]
     public NavigationManager Navigation { get; set; } = null!;
 
     [Inject]
@@ -88,19 +94,45 @@
     private List<BotState> _bots = new();
     private bool _showCreateForm = false;
     private string _newBotName = string.Empty;
+
+    private readonly Dictionary<Guid, string> _names = new();
     private readonly Lifetime _lifetime = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        ReloadBots();
-        
-        BotCollection.Updated.Advise(_lifetime, ReloadBots);
+        await ReloadBots();
+
+        BotCollection.Updated.Advise(_lifetime, () => ReloadBots().NoAwait());
     }
 
-    private void ReloadBots()
+    private async Task ReloadBots()
     {
+        if (BotCollection.Values.Any() == false)
+            return;
+
+        var stateIdentities = new List<StateIdentity>();
+        var stateInfo = Storage.Registry.Get<UserState>();
+
+        foreach (var botState in BotCollection.Values)
+        {
+            var identity = new StateIdentity
+            {
+                Key = botState.Id,
+                Type = stateInfo.Name,
+                Extension = null,
+                TableName = stateInfo.TableName
+            };
+
+            stateIdentities.Add(identity);
+        }
+
+        var botUsers = await Storage.Read<Guid, UserState>(stateIdentities);
+
+        foreach (var (id, userState) in botUsers)
+            _names[id] = userState.Name;
+
         _bots = BotCollection.Values.ToList();
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ToggleCreateForm()

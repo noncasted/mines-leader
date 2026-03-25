@@ -2,7 +2,6 @@ using Common.Extensions;
 using Infrastructure.State;
 using Npgsql;
 using NpgsqlTypes;
-using Orleans.Serialization;
 
 namespace Infrastructure;
 

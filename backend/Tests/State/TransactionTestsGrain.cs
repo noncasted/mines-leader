@@ -1,3 +1,4 @@
+using Infrastructure;
 using Infrastructure.State;
 
 namespace Tests;
@@ -13,7 +14,7 @@ public class TransactionTestState : IStateValue
 
 public interface ITransactionTestGrain : IGrainWithGuidKey
 {
-    [Infrastructure.Transaction]
+    [Transaction]
     Task Increment();
 
     Task<int> Get();

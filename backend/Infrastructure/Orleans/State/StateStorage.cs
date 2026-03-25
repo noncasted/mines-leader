@@ -1,5 +1,7 @@
 using System.Text;
+using Common;
 using Common.Extensions;
+using Common.Reactive;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using NpgsqlTypes;
@@ -10,6 +12,7 @@ public class StateIdentity
 {
     public required object Key { get; init; }
     public required string Type { get; init; }
+    public required string TableName { get; init; }
     public required string? Extension { get; init; }
 }
 
@@ -24,7 +27,14 @@ public interface IStateStorage
     IGrainStatesRegistry Registry { get; }
 
     Task<T> Read<T>(StateIdentity stateIdentity) where T : IStateValue, new();
-    Task<(string, int)> ReadRaw<T>(StateIdentity stateIdentity) where T : IStateValue, new();
+    Task<(string, int)> ReadRaw(StateIdentity stateIdentity);
+
+    IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
+        where TValue : IStateValue, new();
+
+    Task<IReadOnlyDictionary<TKey, TValue>> Read<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
+        where TValue : IStateValue, new();
+
     Task Write(StateIdentity identity, IStateValue value);
     Task Write(NpgsqlTransaction transaction, IReadOnlyDictionary<StateIdentity, IStateValue> records);
 }
@@ -58,7 +68,7 @@ public class StateStorage : IStateStorage
     {
         try
         {
-            var (raw, version) = await ReadRaw<T>(stateIdentity);
+            var (raw, version) = await ReadRaw(stateIdentity);
 
             if (raw == string.Empty)
                 return new T();
@@ -75,18 +85,18 @@ public class StateStorage : IStateStorage
             _logger.LogError(e, "[StateStorage] Failed to read {Type} key={Key} type={StateType}",
                 typeof(T).Name, stateIdentity.Key, stateIdentity.Type
             );
-            
+
             throw;
         }
     }
 
-    public async Task<(string, int)> ReadRaw<T>(StateIdentity stateIdentity) where T : IStateValue, new()
+    public async Task<(string, int)> ReadRaw(StateIdentity stateIdentity)
     {
         try
         {
             await using var connection = await _dbSource.Value.OpenConnectionAsync();
             await using var command = connection.CreateCommand();
-            command.CommandText = _cache.GetReadQuery<T>(stateIdentity.Extension != null);
+            command.CommandText = _cache.GetReadQuery(stateIdentity);
 
             command.Parameters.AddWithValue("type", stateIdentity.Type);
             command.Parameters.AddWithValue("key", stateIdentity.Key);
@@ -112,13 +122,128 @@ public class StateStorage : IStateStorage
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[StateStorage] Failed to read raw {Type} key={Key} type={StateType}",
-                typeof(T).Name, stateIdentity.Key, stateIdentity.Type
+            _logger.LogError(e, "[StateStorage] Failed to read raw key={Key} type={StateType}",
+                stateIdentity.Key, stateIdentity.Type
             );
-            
+
             throw;
         }
     }
+
+    public async IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
+        where TValue : IStateValue, new()
+    {
+        var stateInfo = Registry.Get<TValue>();
+        var cancellation = lifetime.Token;
+        var latestVersion = _migrations.GetLatestVersion<TValue>();
+
+        await using var connection = await _dbSource.Value.OpenConnectionAsync(cancellation);
+        await using var command = connection.CreateCommand();
+
+        var identity = new StateIdentity
+        {
+            Key = null!,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        };
+
+
+        command.CommandText = _cache.GetReadAllQuery(identity);
+        command.Parameters.AddWithValue("type", stateInfo.Name);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+        while (await reader.ReadAsync(cancellation))
+        {
+            var key = ReadKeyFromReader<TKey>(reader, stateInfo);
+
+            var payloadBinary = reader.GetFieldValue<byte[]>(1);
+            var version = reader.GetFieldValue<int>(2);
+
+            var startIndex = payloadBinary[0] == 0x01 ? 1 : 0;
+            var raw = Encoding.UTF8.GetString(payloadBinary, startIndex, payloadBinary.Length - startIndex);
+
+            var value = version < latestVersion
+                ? _migrations.Migrate<TValue>(raw, version)
+                : _serializer.TryDeserialize<TValue>(raw)!;
+
+            yield return (key, value);
+        }
+    }
+
+    public async Task<IReadOnlyDictionary<TKey, TValue>> Read<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
+        where TValue : IStateValue, new()
+    {
+        if (identities.Count == 0)
+            return new Dictionary<TKey, TValue>();
+
+        var stateInfo = Registry.Get<TValue>();
+        var latestVersion = _migrations.GetLatestVersion<TValue>();
+        var result = new Dictionary<TKey, TValue>(identities.Count);
+
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+
+            foreach (var group in identities.GroupBy(i => i.Extension))
+            {
+                var groupList = group.ToList();
+                var hasExtension = group.Key != null;
+
+                await using var command = connection.CreateCommand();
+                command.CommandText = _cache.GetReadBatchQuery(groupList.First());
+                command.Parameters.AddWithValue("type", stateInfo.Name);
+                command.Parameters.AddWithValue("keys", BuildKeysArray(groupList, stateInfo.KeyType));
+
+                if (hasExtension)
+                    command.Parameters.AddWithValue("extension", group.Key!);
+
+                await using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    var key = ReadKeyFromReader<TKey>(reader, stateInfo);
+
+                    var payloadBinary = reader.GetFieldValue<byte[]>(1);
+                    var version = reader.GetFieldValue<int>(2);
+
+                    var startIndex = payloadBinary[0] == 0x01 ? 1 : 0;
+                    var raw = Encoding.UTF8.GetString(payloadBinary, startIndex, payloadBinary.Length - startIndex);
+
+                    result[key] = version < latestVersion
+                        ? _migrations.Migrate<TValue>(raw, version)
+                        : _serializer.TryDeserialize<TValue>(raw)!;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateStorage] Failed to batch read {Type} count={Count}",
+                typeof(TValue).Name, identities.Count
+            );
+
+            throw;
+        }
+
+        return result;
+    }
+
+    private static TKey ReadKeyFromReader<TKey>(NpgsqlDataReader reader, GrainStateInfo info) => info.KeyType switch
+    {
+        GrainKeyType.Guid or GrainKeyType.GuidAndString => (TKey)(object)reader.GetFieldValue<Guid>(0),
+        GrainKeyType.String => (TKey)(object)reader.GetFieldValue<string>(0),
+        GrainKeyType.Integer or GrainKeyType.IntegerAndString => (TKey)(object)reader.GetFieldValue<long>(0),
+        _ => throw new InvalidOperationException($"[StateStorage] Unsupported key type: {info.KeyType}")
+    };
+
+    private static object BuildKeysArray(IList<StateIdentity> identities, GrainKeyType keyType) => keyType switch
+    {
+        GrainKeyType.Guid or GrainKeyType.GuidAndString => identities.Select(i => (Guid)i.Key).ToArray(),
+        GrainKeyType.String => identities.Select(i => (string)i.Key).ToArray(),
+        GrainKeyType.Integer or GrainKeyType.IntegerAndString => identities.Select(i => (long)i.Key).ToArray(),
+        _ => throw new InvalidOperationException($"[StateStorage] Unsupported key type: {keyType}")
+    };
 
     public async Task Write(StateIdentity identity, IStateValue value)
     {
@@ -141,7 +266,7 @@ public class StateStorage : IStateStorage
                 value.GetType().Name, identity.Key, identity.Type
             );
             await transaction.RollbackAsync();
-            
+
             throw;
         }
     }
@@ -156,7 +281,7 @@ public class StateStorage : IStateStorage
 
                 await using var command = transaction.Connection!.CreateCommand();
                 command.Transaction = transaction;
-                command.CommandText = _cache.GetWriteQuery(value.GetType(), identity.Extension != null);
+                command.CommandText = _cache.GetWriteQuery(identity);
 
                 command.Parameters.AddWithValue("type", identity.Type);
                 command.Parameters.AddWithValue("key", identity.Key);

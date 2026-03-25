@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Infrastructure.State;
 
 public class StateStorageCache
@@ -8,54 +10,82 @@ public class StateStorageCache
     }
 
     private readonly IGrainStatesRegistry _statesRegistry;
-    private readonly Dictionary<Type, string> _readQueries = new();
-    private readonly Dictionary<Type, string> _readExtQueries = new();
-    private readonly Dictionary<Type, string> _writeQueries = new();
-    private readonly Dictionary<Type, string> _writeExtQueries = new();
+    private readonly ConcurrentDictionary<string, string> _readQueries = new();
+    private readonly ConcurrentDictionary<string, string> _readExtQueries = new();
+    private readonly ConcurrentDictionary<string, string> _readAllQueries = new();
+    private readonly ConcurrentDictionary<string, string> _readBatchQueries = new();
+    private readonly ConcurrentDictionary<string, string> _readBatchExtQueries = new();
+    private readonly ConcurrentDictionary<string, string> _writeQueries = new();
+    private readonly ConcurrentDictionary<string, string> _writeExtQueries = new();
 
-    public string GetReadQuery<T>(bool hasExtension) where T : IStateValue, new()
+    public string GetReadQuery(StateIdentity stateIdentity)
     {
+        var hasExtension = stateIdentity.Extension != null;
         var cache = hasExtension ? _readExtQueries : _readQueries;
-        var key = typeof(T);
 
-        if (cache.TryGetValue(key, out var query))
+        if (cache.TryGetValue(stateIdentity.Type, out var query))
             return query;
 
-        var stateInfo = _statesRegistry.Get<T>();
         var extensionClause = hasExtension ? "and extension = @extension" : string.Empty;
 
         query = $@"
             select value, version
-            from {stateInfo.TableName}
+            from {stateIdentity.TableName}
             where key = @key
             and type = @type
             {extensionClause}
             ";
 
-        cache[key] = query;
+        cache[stateIdentity.Type] = query;
         return query;
     }
 
-    public string GetWriteQuery(Type type, bool hasExtension)
+    public string GetReadAllQuery(StateIdentity stateIdentity)
     {
-        var cache = hasExtension ? _writeExtQueries : _writeQueries;
-
-        if (cache.TryGetValue(type, out var query))
+        if (_readAllQueries.TryGetValue(stateIdentity.Type, out var query))
             return query;
 
-        var stateInfo = _statesRegistry.Get(type);
+        query = $"SELECT key, value, version FROM {stateIdentity.TableName} WHERE type = @type";
+
+        _readAllQueries[stateIdentity.Type] = query;
+        return query;
+    }
+
+    public string GetReadBatchQuery(StateIdentity stateIdentity)
+    {
+        var hasExtension = stateIdentity.Extension != null;
+        var cache = hasExtension ? _readBatchExtQueries : _readBatchQueries;
+
+        if (cache.TryGetValue(stateIdentity.Type, out var query))
+            return query;
+
+        var extensionClause = hasExtension ? "AND extension = @extension" : string.Empty;
+        query = $"SELECT key, value, version FROM {stateIdentity.TableName} WHERE type = @type AND key = ANY(@keys) {extensionClause}";
+
+        cache[stateIdentity.Type] = query;
+        return query;
+    }
+
+    public string GetWriteQuery(StateIdentity stateIdentity)
+    {
+        var hasExtension = stateIdentity.Extension != null;
+        var cache = hasExtension ? _writeExtQueries : _writeQueries;
+
+        if (cache.TryGetValue(stateIdentity.Type, out var query))
+            return query;
+
         var extension = hasExtension ? ", extension" : string.Empty;
         var extensionParam = hasExtension ? ", @extension" : string.Empty;
 
         query = $@"
-            insert into {stateInfo.TableName}
+            insert into {stateIdentity.TableName}
             (key, type, version, value{extension})
             values (@key, @type, @version, @value::jsonb{extensionParam})
             on conflict (key, type{extension})
             do update set value = EXCLUDED.value
             ";
 
-        cache[type] = query;
+        cache[stateIdentity.Type] = query;
         return query;
     }
 }

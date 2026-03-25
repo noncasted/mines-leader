@@ -166,9 +166,9 @@ public static class ProjectsSetupExtensions
             Add<UserDeckState>(StatesLookup.UserDeck);
             Add<MatchState>(StatesLookup.Match);
             Add<BotState>(StatesLookup.Bot);
-            Add<BotConfigState>(StatesLookup.BotConfig);
-            Add<CardConfigState>(StatesLookup.CardConfig);
-            Add<GameModeConfigState>(StatesLookup.GameModeConfig);
+            Add<BotConfigOptions>(StatesLookup.BotConfig);
+            Add<CardConfigOptions>(StatesLookup.CardConfig);
+            Add<GameModeOptions>(StatesLookup.GameModeConfig);
 
             var registry = new GrainStatesRegistry(states);
 

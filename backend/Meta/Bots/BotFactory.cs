@@ -35,7 +35,9 @@ public class BotFactory : IBotFactory
                 var selectedCards = cards.Take(DeckOptions.DeckSize).ToList();
                 await handle.Deck.Update(0, selectedCards);
 
-                await _botCollection.OnUpdated(id, new BotState { Id = id, Name = name });
+                var bot = _orleans.GetGrain<IBot>(id);
+                await bot.Initialize();
+                await bot.OnUpdated();
 
                 return id;
             }

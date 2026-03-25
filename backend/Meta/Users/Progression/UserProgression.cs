@@ -1,7 +1,6 @@
 ﻿using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
 using Shared;
 
 namespace Meta.Users;
@@ -35,7 +34,6 @@ public class UserProgressionState : IProjectionPayload, IStateValue
     };
 }
 
-[Reentrant]
 public class UserProgression : UserGrain, IUserProgression
 {
     public UserProgression(

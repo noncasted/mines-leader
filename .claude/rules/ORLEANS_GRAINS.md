@@ -12,16 +12,15 @@ public interface IMyGrain : IGrainWithGuidKey {
 }
 
 // Implementation
-[Reentrant]
 public class MyGrain : Grain, IMyGrain {
     public MyGrain(
-        [States.MyState] ITransactionalState<MyState> state,
+        [State] State<MyState> state,
         IOrleans orleans) {
         _state = state;
         _orleans = orleans;
     }
 
-    private readonly ITransactionalState<MyState> _state;
+    private readonly State<MyState> _state;
     private readonly IOrleans _orleans;
 
     public async Task DoSomething(string value) {
@@ -31,10 +30,10 @@ public class MyGrain : Grain, IMyGrain {
 
 // State class
 [GenerateSerializer]
-[Alias(States.MyState_Entity)]
-public class MyState {
+public class MyState : IStateValue {
     [Id(0)] public Guid Id { get; set; }
     [Id(1)] public string Value { get; set; } = string.Empty;
+    public int Version => 0;
 }
 ```
 
@@ -42,13 +41,12 @@ public class MyState {
 
 ❌ **WILL FAIL IF MISSING:**
 - [ ] Interface extends `IGrainWithGuidKey` or `IGrainWithStringKey`
-- [ ] `[Reentrant]` on grain class
 - [ ] Constructor injection — NOT field `[Inject]` (this is Orleans, not VContainer)
-- [ ] State injected via attribute: `[States.X] ITransactionalState<T>`
+- [ ] State injected via `[State]` attribute: `[State] State<T>`
 - [ ] `[GenerateSerializer]` on every state class
 - [ ] `[Id(N)]` on every property of state class (sequential: 0, 1, 2...)
-- [ ] `[Alias(States.X)]` on state class
-- [ ] New state registered in `States.cs` → `StateAttributesExtensions` → `StateTables`
+- [ ] State class implements `IStateValue` with `int Version => 0;`
+- [ ] New state entry in `StatesLookup.cs` + registered in `ProjectsSetupExtensions.AddStates()`
 
 ❌ **WRONG — use only when method is called inside a transaction:**
-- `[Transaction]` — only on methods invoked within transaction scope
+- `[Transaction]` — only on methods invoked within transaction scope (custom attribute from `Infrastructure`, NOT Orleans native)

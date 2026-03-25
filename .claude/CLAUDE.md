@@ -15,8 +15,8 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | EventSource, ViewableProperty, ViewableList, reactive, observable, event | rules/REACTIVE.md |
 | UniTask, async, IReadOnlyList, file I/O, callback wrapping | rules/API_DESIGN.md |
 | member order, _camelCase, GC.KeepAlive, NoAwait, braces | rules/CODE_STYLE.md |
-| Grain, IGrainWithGuidKey, [Reentrant], [Transaction], constructor injection | rules/ORLEANS_GRAINS.md |
-| ITransactionalState, IPersistentState, [GenerateSerializer], [Id(N)], States.cs, StateTables | rules/ORLEANS_STATE.md |
+| Grain, IGrainWithGuidKey, [Transaction], constructor injection | rules/ORLEANS_GRAINS.md |
+| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | rules/ORLEANS_STATE.md |
 | which pattern to use, decision | docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |
 | game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking | docs/GAMEPLAY.md |
@@ -32,9 +32,8 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - Lifetime: every Advise/View/ListenClick needs Lifetime or memory leak
 
 **Backend (.NET Orleans):**
-- Grains: [Reentrant] class + IGrainWithGuidKey interface + constructor DI
-- State: ITransactionalState<T> for entities, IPersistentState<T> for collections
-- Collections: AddressableDictionary (persistent) + AddressableDictionaryView (read projection)
+- State: `State<T>` for all grain state — inject via `[State]` in constructor
+- Collections: `StateCollection<TKey, TValue>` — in-memory dict, auto-syncs from DB via messaging
 - Messaging: IMessaging for pushing updates to subscribers (uses Lifetime for subscriptions)
 
 **Shared:**
