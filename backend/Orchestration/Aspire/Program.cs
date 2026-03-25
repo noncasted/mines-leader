@@ -1,7 +1,6 @@
 ﻿using Aspire;
 using Microsoft.Extensions.Configuration;
 using Projects;
-using Console = Projects.Console;
 using Silo = Projects.Silo;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -14,11 +13,11 @@ var dbConnection = await GetOrCreateDb();
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var backend = builder.AddProject<MetaGateway>("backend");
-var console = builder.AddProject<Console>("console");
+var console = builder.AddProject<ConsoleGateway>("console");
 
 var game = builder.AddProject<GameGateway>("game")
     .WithEnvironment(options =>
-        options.EnvironmentVariables["GAME_SERVER_URL"] = Environment.GetEnvironmentVariable("GAME_SERVER_URL")
+        options.EnvironmentVariables["GAME_SERVER_URL"] = Environment.GetEnvironmentVariable("GAME_SERVER_URL")!
     );
 
 SetupDB();

@@ -1,0 +1,121 @@
+@using global::Common.Extensions
+@using global::Common.Reactive
+@implements IDisposable
+
+<div class="rounded-lg border bg-card p-3 @Class">
+    <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-3">
+            @if (_operation.Status.Value is OperationStatus.NotStarted or OperationStatus.Failed or OperationStatus.Success)
+            {
+                <BbButton Size="ButtonSize.Small" @onclick="Start">
+                    Run
+                </BbButton>
+            }
+
+            <div class="flex w-8 shrink-0 justify-center">
+                @switch (_operation.Status.Value)
+                {
+                    case OperationStatus.NotStarted:
+                        <LucideIcon Name="circle" Size="16" class="text-muted-foreground" />
+                        break;
+                    case OperationStatus.Preparing:
+                        <LucideIcon Name="loader-circle" Size="16" class="animate-spin text-yellow-500" />
+                        break;
+                    case OperationStatus.InProgress:
+                        <LucideIcon Name="loader-circle" Size="16" class="animate-spin text-primary" />
+                        break;
+                    case OperationStatus.Success:
+                        <LucideIcon Name="circle-check" Size="16" class="text-green-500" />
+                        break;
+                    case OperationStatus.Failed:
+                        <LucideIcon Name="circle-x" Size="16" class="text-destructive" />
+                        break;
+                }
+            </div>
+
+            <span class="w-40 shrink-0 text-sm font-medium">@Name</span>
+
+            <div class="flex flex-1 items-center gap-2">
+                <div class="relative h-2.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                    <div class="h-full rounded-full transition-all @GetProgressBarClass()"
+                         style="width: @($"{_operation.Progress.Value * 100:F0}%")">
+                    </div>
+                </div>
+                <div class="w-24 shrink-0 text-right">
+                    <span class="text-sm">@($"{_operation.Progress.Value * 100:F0}%")</span>
+                    @if (_operation.StartTime != DateTime.MinValue)
+                    {
+                        <p class="text-xs text-muted-foreground">@FormatDuration()</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_operation.Message.Value))
+        {
+            <BbAlert>
+                <ChildContent>
+                    <BbAlertDescription>
+                        <span class="font-mono text-xs break-all">@_operation.Message.Value</span>
+                    </BbAlertDescription>
+                </ChildContent>
+            </BbAlert>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Name { get; set; } = string.Empty;
+    [Parameter] public Func<IOperationProgress, Task> StartCallback { get; set; } = null!;
+    [Parameter] public string? Class { get; set; }
+
+    private IOperationProgress _operation = new OperationProgress();
+    private Timer? _timer;
+    private readonly ILifetime _lifetime = new Lifetime();
+
+    protected override void OnInitialized()
+    {
+        _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private string GetProgressBarClass() => _operation.Status.Value switch
+    {
+        OperationStatus.Success => "bg-green-500",
+        OperationStatus.Failed => "bg-destructive",
+        _ => "bg-primary"
+    };
+
+    private string FormatDuration()
+    {
+        if (_operation.StartTime == DateTime.MinValue)
+            return "00:00";
+
+        var duration = _operation.EndTime != DateTime.MinValue
+            ? _operation.EndTime - _operation.StartTime
+            : DateTime.UtcNow - _operation.StartTime;
+
+        return duration.TotalHours >= 1
+            ? $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}:{duration.Seconds:D2}"
+            : $"{duration.Minutes:D2}:{duration.Seconds:D2}";
+    }
+
+    private void Start() => Run().NoAwait();
+
+    public async Task Run()
+    {
+        _operation = new OperationProgress();
+        _operation.SetStatus(OperationStatus.Preparing);
+
+        _operation.Progress.View(_lifetime, () => InvokeAsync(StateHasChanged));
+        _operation.Status.View(_lifetime, () => InvokeAsync(StateHasChanged));
+        _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
+
+        await StartCallback(_operation);
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _lifetime.Terminate();
+    }
+}

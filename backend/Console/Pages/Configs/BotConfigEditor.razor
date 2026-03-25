@@ -1,0 +1,46 @@
+@using Shared
+
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md bg-blue-500/15 p-1.5">
+            <LucideIcon Name="bot" Size="14" class="text-blue-400" />
+        </div>
+        <h2 class="text-sm font-semibold">Bot Configuration</h2>
+    </div>
+    <div class="flex flex-col">
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
+            <input type="number" @bind="Value.MatchmakingApplyThreshold" step="0.1"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="zap" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Action Delay (sec)</span>
+            <input type="number" @bind="Value.ActionDelay" step="0.1"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="flag" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Flags Per Round</span>
+            <input type="number" @bind="Value.FlagsPerRound"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="grid-2x2" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Cells Open Per Round</span>
+            <input type="number" @bind="Value.CellsOpenPerRound"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5">
+            <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Cards Use Per Round</span>
+            <input type="number" @bind="Value.CardsUsePerRound"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public BotConfigOptions Value { get; set; } = null!;
+}

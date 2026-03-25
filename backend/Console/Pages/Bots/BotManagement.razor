@@ -1,0 +1,150 @@
+@page "/bots"
+@using global::Common.Extensions
+@using global::Common.Reactive
+@using Infrastructure.State
+@using Meta.Bots
+@using Meta.Users
+@inject ToastService ToastService
+@implements IDisposable
+
+<PageTitle>Bots</PageTitle>
+<PageHeader Title="Bot Management" />
+
+<div class="container mx-auto max-w-4xl px-4 py-4 flex flex-col gap-3">
+    @if (_showCreateForm)
+    {
+        <div class="flex items-center gap-2 pb-3 border-b">
+            <BbInput @bind-Value="_newBotName" Placeholder="Bot name" class="max-w-xs" />
+            <BbButton @onclick="SubmitCreateBot" Disabled="@string.IsNullOrWhiteSpace(_newBotName)">Create</BbButton>
+            <BbButton Variant="ButtonVariant.Ghost" @onclick="ToggleCreateForm">Cancel</BbButton>
+        </div>
+    }
+    else
+    {
+        <div>
+            <BbButton @onclick="ToggleCreateForm">
+                <LucideIcon Name="plus" Size="16" class="mr-2" />
+                Create Bot
+            </BbButton>
+        </div>
+    }
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b bg-muted/50">
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground w-12"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var bot in _bots)
+                {
+                    <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer" @onclick="@(() => NavigateToBotEditor(bot.Id))">
+                        <td class="px-4 py-2.5 font-medium">@(_names.TryGetValue(bot.Id, out var name) ? name : bot.Id.ToString())</td>
+                        <td class="px-4 py-2.5 text-muted-foreground font-mono text-xs">@bot.Id</td>
+                        <td class="px-4 py-2.5" @onclick:stopPropagation="true">
+                            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                                      @onclick="@(() => NavigateToBotEditor(bot.Id))">
+                                <LucideIcon Name="pencil" Size="14" />
+                            </BbButton>
+                        </td>
+                    </tr>
+                }
+                @if (_bots.Count == 0)
+                {
+                    <tr>
+                        <td colspan="3" class="px-4 py-8 text-center text-muted-foreground">No bots found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Inject] public IBotCollection BotCollection { get; set; } = null!;
+    [Inject] public IBotFactory BotFactory { get; set; } = null!;
+    [Inject] public IStateStorage Storage { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+
+    private List<BotState> _bots = new();
+    private bool _showCreateForm;
+    private string _newBotName = string.Empty;
+    private readonly Dictionary<Guid, string> _names = new();
+    private readonly Lifetime _lifetime = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ReloadBots();
+        BotCollection.Updated.Advise(_lifetime, () => ReloadBots().NoAwait());
+    }
+
+    private async Task ReloadBots()
+    {
+        if (!BotCollection.Values.Any())
+            return;
+
+        var stateIdentities = new List<StateIdentity>();
+        var stateInfo = Storage.Registry.Get<UserState>();
+
+        foreach (var botState in BotCollection.Values)
+        {
+            stateIdentities.Add(new StateIdentity
+            {
+                Key = botState.Id,
+                Type = stateInfo.Name,
+                Extension = null,
+                TableName = stateInfo.TableName
+            });
+        }
+
+        var botUsers = await Storage.Read<Guid, UserState>(stateIdentities);
+
+        foreach (var (id, userState) in botUsers)
+            _names[id] = userState.Name;
+
+        _bots = BotCollection.Values.ToList();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleCreateForm()
+    {
+        _showCreateForm = !_showCreateForm;
+        if (!_showCreateForm)
+            _newBotName = string.Empty;
+    }
+
+    private async Task SubmitCreateBot()
+    {
+        if (string.IsNullOrWhiteSpace(_newBotName))
+        {
+            ToastService.Show(_newBotName, "Bot name cannot be empty");
+            return;
+        }
+
+        try
+        {
+            await BotFactory.Create(_newBotName);
+            ToastService.Success($"Bot '{_newBotName}' created successfully", "Created");
+            _showCreateForm = false;
+            _newBotName = string.Empty;
+            ReloadBots().NoAwait();
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error creating bot: {ex.Message}", "Error");
+        }
+    }
+
+    private void NavigateToBotEditor(Guid botId)
+    {
+        Navigation.NavigateTo($"/bots/{botId}");
+    }
+
+    public void Dispose()
+    {
+        _lifetime.Terminate();
+    }
+}

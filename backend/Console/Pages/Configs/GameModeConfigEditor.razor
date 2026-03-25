@@ -1,0 +1,107 @@
+@using Shared
+
+<div class="grid gap-3 sm:grid-cols-2">
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-red-500/15 p-1.5">
+                <LucideIcon Name="sword" Size="14" class="text-red-400" />
+            </div>
+            <h2 class="text-sm font-semibold">Last Man Standing</h2>
+        </div>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="heart" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Health</span>
+                <input type="number" @bind="Value.LastManStanding.PlayerHealth"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="move" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Moves</span>
+                <input type="number" @bind="Value.LastManStanding.PlayerMoves"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="droplets" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Start Mana</span>
+                <input type="number" @bind="Value.LastManStanding.PlayerStartMana"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="hand" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Hand Size</span>
+                <input type="number" @bind="Value.LastManStanding.HandSize"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="database" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Deck Size</span>
+                <input type="number" @bind="Value.LastManStanding.DeckSize"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5">
+                <LucideIcon Name="clock" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Round Time (sec)</span>
+                <input type="number" @bind="Value.LastManStanding.RoundTime"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+        </div>
+    </div>
+
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-amber-500/15 p-1.5">
+                <LucideIcon Name="timer" Size="14" class="text-amber-400" />
+            </div>
+            <h2 class="text-sm font-semibold">Time Limited</h2>
+        </div>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="heart" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Health</span>
+                <input type="number" @bind="Value.TimeLimited.PlayerHealth"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="move" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Moves</span>
+                <input type="number" @bind="Value.TimeLimited.PlayerMoves"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="droplets" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Start Mana</span>
+                <input type="number" @bind="Value.TimeLimited.PlayerStartMana"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="hand" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Hand Size</span>
+                <input type="number" @bind="Value.TimeLimited.HandSize"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="database" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Deck Size</span>
+                <input type="number" @bind="Value.TimeLimited.DeckSize"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="clock" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Round Time (sec)</span>
+                <input type="number" @bind="Value.TimeLimited.RoundTime"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5">
+                <LucideIcon Name="plus-circle" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Time Gain Per Action (sec)</span>
+                <input type="number" @bind="Value.TimeLimited.TimeGainPerAction"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public GameModeOptions Value { get; set; } = null!;
+}
