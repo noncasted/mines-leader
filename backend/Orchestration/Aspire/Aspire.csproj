@@ -19,11 +19,11 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Common\Common.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" IsAspireProjectResource="false"/>
+        <ProjectReference Include="..\Extensions\Extensions.csproj" IsAspireProjectResource="false"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Console\Console.csproj"/>
-        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\ConsoleGateway\ConsoleGateway.csproj" />
         <ProjectReference Include="..\Coordinator\Coordinator.csproj"/>
         <ProjectReference Include="..\GameGateway\GameGateway.csproj"/>
         <ProjectReference Include="..\MetaGateway\MetaGateway.csproj"/>

@@ -14,7 +14,6 @@ using Meta.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MudBlazor.Services;
 using Shared;
 using Tests;
 
@@ -116,7 +115,16 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Console)
                 .AddBlazorComponents();
 
-            // Project services
+            // Project services — auto-discover all IClusterTest implementations in Tests assembly
+            var testsAssembly = typeof(IClusterTest).Assembly;
+            foreach (var type in testsAssembly.GetTypes())
+            {
+                if (type.IsAbstract || type.IsInterface) continue;
+                if (!typeof(IClusterTest).IsAssignableFrom(type)) continue;
+
+                builder.Services.AddSingleton(type);
+                builder.Services.AddSingleton(typeof(IClusterTest), sp => sp.GetRequiredService(type));
+            }
 
             return builder;
         }
@@ -137,7 +145,7 @@ public static class ProjectsSetupExtensions
                 .AddTaskScheduling()
                 .AddClusterFeatures()
                 .AddMemoryPack()
-                .AddClusterTests()
+                .AddTests()
                 .AddConfigs()
                 .AddSideEffects()
                 .AddStates();
@@ -231,20 +239,26 @@ public static class ProjectsSetupExtensions
         private IHostApplicationBuilder AddBlazorComponents()
         {
             builder.Services
-                .AddMudServices()
                 .AddRazorComponents()
                 .AddInteractiveServerComponents();
 
             return builder;
         }
 
-        private IHostApplicationBuilder AddClusterTests()
+        private IHostApplicationBuilder AddTests()
         {
             builder.Add<ClusterTestUtils>();
-            builder.AddClusterTestNode<MessagingDirectQueueStressTest.Node>();
-            builder.AddClusterTestNode<MessagingTransactionalQueueStressTest.Node>();
-            builder.AddClusterTestNode<MessagePipeSendStressTest.Node>();
-            builder.AddClusterTestNode<MessagePipeSendResponseStressTest.Node>();
+
+            // Auto-discover all ClusterTestNode<> subclasses in Tests assembly
+            var testsAssembly = typeof(IClusterTest).Assembly;
+            foreach (var type in testsAssembly.GetTypes())
+            {
+                if (type.IsAbstract || type.IsInterface) continue;
+                if (!IsTestNodeType(type)) continue;
+
+                builder.Services.AddSingleton(type);
+                builder.Services.AddSingleton(typeof(ICoordinatorSetupCompleted), sp => sp.GetRequiredService(type));
+            }
 
             builder.Add<StateMigrationTest.MigrationTestStep_V0>()
                 .As<IStateMigrationStep>();
@@ -252,6 +266,18 @@ public static class ProjectsSetupExtensions
                 .As<IStateMigrationStep>();
 
             return builder;
+        }
+
+        private static bool IsTestNodeType(Type type)
+        {
+            var current = type.BaseType;
+            while (current != null)
+            {
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(ClusterTestNode<>))
+                    return true;
+                current = current.BaseType;
+            }
+            return false;
         }
     }
 }

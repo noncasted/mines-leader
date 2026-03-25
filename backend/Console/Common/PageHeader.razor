@@ -1,0 +1,13 @@
+<div class="sticky top-14 z-40 border-b bg-background">
+    <div class="container flex h-12 items-center gap-3">
+        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" @onclick="@(() => Navigation.NavigateTo("/"))">
+            <LucideIcon Name="arrow-left" Size="16" />
+        </BbButton>
+        <h2 class="text-lg font-semibold">@Title</h2>
+    </div>
+</div>
+
+@code {
+    [Parameter] public required string Title { get; set; }
+    [Inject] private IConsoleNavigation Navigation { get; set; } = null!;
+}

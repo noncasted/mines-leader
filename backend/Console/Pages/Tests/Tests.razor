@@ -1,0 +1,59 @@
+@page "/tests"
+@using global::Tests
+
+<PageTitle>Tests</PageTitle>
+<PageHeader Title="Tests" />
+
+<div class="container mx-auto max-w-3xl px-4 py-4 flex flex-col gap-6">
+    @foreach (var group in ClusterTests.GroupBy(t => t.Group))
+    {
+        var groupTests = group.ToList();
+        <div class="flex flex-col">
+            <div class="flex items-center justify-between pb-2 border-b border-border">
+                <button class="flex items-center gap-2 text-left transition-colors hover:text-foreground/80"
+                        @onclick="@(() => _groupOpen[group.Key] = !_groupOpen[group.Key])">
+                    <LucideIcon Name="@(_groupOpen[group.Key] ? "chevron-down" : "chevron-right")" Size="14" class="text-muted-foreground shrink-0" />
+                    <span class="font-semibold text-sm">@group.Key</span>
+                </button>
+                <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Outline"
+                          @onclick="@(() => RunGroup(groupTests))">
+                    Run All
+                </BbButton>
+            </div>
+            @if (_groupOpen[group.Key])
+            {
+                <div class="flex flex-col divide-y divide-border/60">
+                    @foreach (var test in groupTests)
+                    {
+                        <TestEntry @ref="_entries[test]" Test="test" />
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Inject] public IEnumerable<IClusterTest> ClusterTests { get; set; } = [];
+
+    private readonly Dictionary<IClusterTest, TestEntry?> _entries = new();
+    private readonly Dictionary<string, bool> _groupOpen = new();
+
+    protected override void OnParametersSet()
+    {
+        foreach (var test in ClusterTests)
+        {
+            _entries.TryAdd(test, null);
+            _groupOpen.TryAdd(test.Group, false);
+        }
+    }
+
+    private async Task RunGroup(List<IClusterTest> tests)
+    {
+        foreach (var test in tests)
+        {
+            if (_entries.TryGetValue(test, out var entry) && entry != null)
+                await entry.Run();
+        }
+    }
+}

@@ -1,0 +1,174 @@
+@page "/configs"
+@using Cluster.Configs
+@using global::Common.Extensions
+@using Shared
+@inject ToastService ToastService
+
+<PageTitle>Configs</PageTitle>
+<PageHeader Title="Configurations" />
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
+    <div class="flex gap-2">
+        <BbButton @onclick="Reload">
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2" />
+            Reload
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Secondary" @onclick="Save">
+            <LucideIcon Name="save" Size="16" class="mr-2" />
+            Save
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Outline" @onclick="UpdateJson" Disabled="_isUpdatingJson">
+            <LucideIcon Name="file-json" Size="16" class="mr-2" />
+            Write JSON
+        </BbButton>
+    </div>
+
+    <BotConfigEditor Value="_botValue" />
+
+    <GameModeConfigEditor Value="_gameModeValue" />
+
+    <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-violet-500/15 p-1.5">
+                <LucideIcon Name="layers" Size="14" class="text-violet-400" />
+            </div>
+            <h2 class="text-sm font-semibold">Card Configurations</h2>
+        </div>
+
+        @{
+            var ownCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.OwnBoard).ToList();
+            var oppCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.OpponentBoard).ToList();
+            var selfCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.Self).ToList();
+        }
+
+        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Own Board</span>
+                <span class="text-xs text-muted-foreground">affects your own board</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                @foreach (var (cardType, config) in ownCards)
+                {
+                    if (config is ICardSizeConfig sizeConfig)
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" SizeConfig="sizeConfig" Type="cardType" />
+                    }
+                    else
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Opponent Board</span>
+                <span class="text-xs text-muted-foreground">affects opponent's board</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                @foreach (var (cardType, config) in oppCards)
+                {
+                    if (config is ICardSizeConfig sizeConfig)
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" SizeConfig="sizeConfig" Type="cardType" />
+                    }
+                    else
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
+                    }
+                }
+            </div>
+        </div>
+
+        @if (selfCards.Count > 0)
+        {
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Self</span>
+                    <span class="text-xs text-muted-foreground">affects the player</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach (var (cardType, config) in selfCards)
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Inject] public ICardConfigs CardConfigs { get; set; } = null!;
+    [Inject] public IBotConfig BotConfig { get; set; } = null!;
+    [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
+
+    private CardConfigOptions _cardsValue = new();
+    private BotConfigOptions _botValue = new();
+    private GameModeOptions _gameModeValue = new();
+    private bool _isUpdatingJson;
+
+    protected override void OnInitialized()
+    {
+        Reload();
+    }
+
+    private void Reload()
+    {
+        ReloadField(CardConfigs.Value, ref _cardsValue);
+        ReloadField(BotConfig.Value, ref _botValue);
+        ReloadField(GameModeConfig.Value, ref _gameModeValue);
+        InvokeAsync(StateHasChanged);
+
+        return;
+
+        void ReloadField<T>(T current, ref T field)
+        {
+            var raw = JsonUtils.Serialize(current!);
+            field = JsonUtils.Deserialize<T>(raw);
+        }
+    }
+
+    private void Save()
+    {
+        CardConfigs.SetValue(_cardsValue);
+        BotConfig.SetValue(_botValue);
+        GameModeConfig.SetValue(_gameModeValue);
+        ToastService.Success("Configs saved", "Saved");
+    }
+
+    private async Task UpdateJson()
+    {
+        _isUpdatingJson = true;
+
+        var coordinatorFolder = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+
+        try
+        {
+            await SaveConfig("config.cards", _cardsValue);
+            await SaveConfig("config.bot", _botValue);
+            await SaveConfig("config.gameMode", _gameModeValue);
+
+            ToastService.Success("Configs saved to JSON", "Saved");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isUpdatingJson = false;
+        }
+
+        return;
+
+        async Task SaveConfig<T>(string jsonPath, T value)
+        {
+            var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
+            var fullPath = Path.GetFullPath(configPath);
+            var json = JsonUtils.Serialize(value)!;
+            await File.WriteAllTextAsync(fullPath, json);
+        }
+    }
+}
