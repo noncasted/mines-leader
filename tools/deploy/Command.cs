@@ -49,7 +49,8 @@ public static class Command
     public static void RunInBackground(
         string command,
         string arguments,
-        string? workingDirectory = null)
+        string? workingDirectory = null,
+        Dictionary<string, string>? environment = null)
     {
         var processInfo = new ProcessStartInfo(command)
         {
@@ -62,6 +63,12 @@ public static class Command
 
         if (string.IsNullOrEmpty(workingDirectory) == false)
             processInfo.WorkingDirectory = workingDirectory;
+
+        if (environment != null)
+        {
+            foreach (var (key, value) in environment)
+                processInfo.Environment[key] = value;
+        }
 
         var process = Process.Start(processInfo);
 

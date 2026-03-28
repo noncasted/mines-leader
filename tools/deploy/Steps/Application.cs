@@ -13,11 +13,19 @@ public static class Application
 
         Console.WriteLine("[Deploy] Starting Aspire...");
 
-        var pfxExport = $"ASPNETCORE_Kestrel__Certificates__Default__Password={Options.PfxPassword}";
         var aspire = "aspire run > /var/log/aspire.log 2>&1";
-        
-        var runCommand = $"-c \"cd {aspireProjectPath} && {pfxExport} {aspire}\"";
-        
-        Command.RunInBackground("bash", runCommand);
+        var runCommand = $"-c \"cd {aspireProjectPath} && {aspire}\"";
+
+        var environment = new Dictionary<string, string>
+        {
+            ["ASPNETCORE_Kestrel__Certificates__Default__Password"] = Options.PfxPassword,
+        };
+
+        var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+
+        if (dbConnectionString != null)
+            environment["DB_CONNECTION_STRING"] = dbConnectionString;
+
+        Command.RunInBackground("bash", runCommand, environment: environment);
     }
 }
