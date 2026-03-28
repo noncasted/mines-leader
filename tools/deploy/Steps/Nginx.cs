@@ -31,10 +31,10 @@ public static class Nginx
         var template = await File.ReadAllTextAsync(templatePath);
         var configs = new List<string>();
 
-        foreach (var (from, to) in Options.Ports)
+        foreach (var (domain, to) in Options.Domains)
         {
             var config = template
-                .Replace("{from}", from.ToString())
+                .Replace("{domain}", domain)
                 .Replace("{to}", to.ToString());
 
             configs.Add(config);
