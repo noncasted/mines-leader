@@ -3,6 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Projects;
 using Silo = Projects.Silo;
 
+Console.WriteLine("[AppHost] Environment variables:");
+foreach (System.Collections.DictionaryEntry entry in System.Environment.GetEnvironmentVariables())
+    Console.WriteLine($"[AppHost]   {entry.Key}={entry.Value}");
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
