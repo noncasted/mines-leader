@@ -48,18 +48,18 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         {
             if (context.Response is TransactionResponse response)
             {
+                var currentContext = Context!;
+
+                foreach (var (id, participants) in response.Context.Participants)
+                    currentContext.Participants.TryAdd(id, participants);
+
+                foreach (var (id, sideEffect) in response.Context.SideEffects)
+                    currentContext.SideEffects.TryAdd(id, sideEffect);
+                
                 if (response.GetException() is { } exception)
                 {
                     ExceptionDispatchInfo.Throw(exception);
                 }
-
-                var currentContext = TransactionContextProvider.Current!;
-
-                foreach (var (id, participants) in response.Context.Participants)
-                    currentContext.Participants.TryAdd(id, participants);
-                
-                foreach (var (id, sideEffect) in response.Context.SideEffects)
-                    currentContext.SideEffects.TryAdd(id, sideEffect);
             }
         }
     }
@@ -72,13 +72,19 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         try
         {
             TransactionContextProvider.SetCurrent(Context);
-
-
             var castedTarget = Target.AsReference<IGrainTransactionHandler>();
             var participantId = await castedTarget.Join(Context.Id);
-            var response = await BaseInvoke();
-
             Context.Participants.TryAdd(participantId, castedTarget);
+        }
+        catch (Exception e)
+        {
+            TransactionContextProvider.Clear();
+            return Response.FromException(e);
+        }
+
+        try
+        {
+            var response = await BaseInvoke();
 
             if (response.Exception != null)
                 Context.ExceptionMessage = response.Exception.Message;
@@ -87,7 +93,8 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         }
         catch (Exception e)
         {
-            return Response.FromException(e);
+            Context.ExceptionMessage = e.Message;
+            return TransactionResponse.Create(Response.FromException(e), Context);
         }
         finally
         {

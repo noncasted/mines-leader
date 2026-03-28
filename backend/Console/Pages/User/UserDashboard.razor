@@ -107,7 +107,8 @@
                     <tbody>
                     @foreach (var match in _matchPageItems)
                     {
-                        <tr class="border-b last:border-b-0">
+                        <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
+                            @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.Match, match.Id)))">
                             <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Date.ToString("yyyy-MM-dd HH:mm")</td>
                             <td class="px-4 py-2.5 text-xs">@match.Type</td>
                             <td class="px-4 py-2.5">
@@ -166,6 +167,7 @@
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
     [Inject] public IStateStorage Storage { get; set; } = null!;
     [Inject] public IOrleans Orleans { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
 
     private const int MatchPageSize = 10;
 
@@ -221,7 +223,7 @@
                 _xp = await handle.Progression.GetTotal();
                 _rating = await handle.Rating.GetTotal();
                 _deckState = await handle.Deck.GetState();
-                _allMatches = await handle.MatchHistory.GetBlock(100);
+                _allMatches = (await handle.MatchHistory.GetBlock(100)).Reverse().ToList();
                 _registeredAt = await handle.Auth.GetDate();
             }
         );

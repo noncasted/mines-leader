@@ -11,5 +11,6 @@ public static class ConsoleConstants
         public const string BotEditor = "/bots/{0}";
         public const string Users = "/users";
         public const string UserDashboard = "/users/{0}";
+        public const string Match = "/match/{0}";
     }
 }

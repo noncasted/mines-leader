@@ -8,11 +8,14 @@ var builder = DistributedApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 configuration.AddJsonFile("appsettings.local.json", true);
 
+if (configuration.GetSection("Local").GetSection("KillPrevious").Get<bool>())
+    ProcessCleanup.Run();
+
 var dbConnection = await GetOrCreateDb();
 
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
-var backend = builder.AddProject<MetaGateway>("backend");
+var meta = builder.AddProject<MetaGateway>("meta");
 var console = builder.AddProject<ConsoleGateway>("console");
 
 var game = builder.AddProject<GameGateway>("game")
@@ -23,7 +26,7 @@ var game = builder.AddProject<GameGateway>("game")
 SetupDB();
 
 coordinator.WaitFor(silo);
-backend.WaitFor(silo);
+meta.WaitFor(silo);
 game.WaitFor(silo);
 console.WaitFor(silo);
 
@@ -74,7 +77,7 @@ void SetupDB()
     {
         silo,
         coordinator,
-        backend,
+        meta,
         game,
         console
     };
