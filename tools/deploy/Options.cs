@@ -18,13 +18,6 @@ public static class Options
         { 7003, 7103 }, // Console
     };
 
-    public static readonly Dictionary<string, int> Domains = new()
-    {
-        { "aspire.minesleader.xyz",   7100 }, // Aspire
-        { "gateway.minesleader.xyz",  7101 }, // Meta
-        { "server.minesleader.xyz",   7102 }, // Game
-        { "console.minesleader.xyz",  7103 }, // Console
-    };
 
     // Private
     // 6001 - Coordinator
