@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Infrastructure;
+using Infrastructure.Execution;
 using Microsoft.Extensions.Hosting;
 
 namespace Cluster.Configs;
@@ -8,21 +9,26 @@ public static class ConfigsExtensions
 {
     public static IHostApplicationBuilder AddConfigs(this IHostApplicationBuilder builder)
     {
-        builder.Add<CardConfigsState>()
-            .As<ICardConfigs>()
-            .As<ILocalSetupCompleted>();
+        builder.AddAddressableState<CardConfigsState>()
+            .As<ICardConfigs>();
 
-        builder.Add<BotConfigState>()
-            .As<IBotConfig>()
-            .As<ILocalSetupCompleted>();
+        builder.AddAddressableState<BotConfigState>()
+            .As<IBotConfig>();
 
-        builder.Add<GameModeConfigState>()
-            .As<IGameModeConfig>()
-            .As<ILocalSetupCompleted>();
+        builder.AddAddressableState<GameModeConfigState>()
+            .As<IGameModeConfig>();
 
-        builder.Add<RatingConfigState>()
-            .As<IRatingConfig>()
-            .As<ILocalSetupCompleted>();
+        builder.AddAddressableState<RatingConfigState>()
+            .As<IRatingConfig>();
+
+        builder.AddAddressableState<SideEffectsConfigState>()
+            .As<ISideEffectsConfig>();
+
+        builder.AddAddressableState<MessageQueueConfigState>()
+            .As<IMessageQueueConfig>();
+
+        builder.AddAddressableState<TaskBalancerConfigState>()
+            .As<ITaskBalancerConfig>();
 
         return builder;
     }

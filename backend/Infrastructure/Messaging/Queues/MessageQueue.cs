@@ -10,13 +10,15 @@ public interface IMessageQueue : IGrainWithStringKey
 
 public class MessageQueue : Grain, IMessageQueue
 {
-    public MessageQueue(ILogger<MessageQueue> logger)
+    public MessageQueue(ILogger<MessageQueue> logger, IMessageQueueConfig config)
     {
         _logger = logger;
+        _config = config;
     }
 
     private readonly Dictionary<Guid, ObserverData> _observers = new();
     private readonly ILogger<MessageQueue> _logger;
+    private readonly IMessageQueueConfig _config;
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
@@ -26,7 +28,7 @@ public class MessageQueue : Grain, IMessageQueue
         var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
         var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
 
-        if (timeSinceLastUpdate > TimeSpan.FromMinutes(3))
+        if (timeSinceLastUpdate > TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes))
             return Task.CompletedTask;
 
         throw new Exception("[Messaging] [Queue] Keeping queue alive because observer was recently set");

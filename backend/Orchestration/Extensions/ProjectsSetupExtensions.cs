@@ -183,6 +183,9 @@ public static class ProjectsSetupExtensions
             Add<CardConfigOptions>(StatesLookup.CardConfig);
             Add<GameModeOptions>(StatesLookup.GameModeConfig);
             Add<RatingOptions>(StatesLookup.RatingConfig);
+            Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
+            Add<MessageQueueOptions>(StatesLookup.MessageQueueConfig);
+            Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
             Add<UserRatingState>(StatesLookup.UserRating);
 
             var registry = new GrainStatesRegistry(states);
@@ -208,13 +211,9 @@ public static class ProjectsSetupExtensions
 
         private IHostApplicationBuilder AddSideEffects()
         {
-            builder.Services.Configure<SideEffectsOptions>(
-                builder.Configuration.GetSection("SideEffects")
-            );
-
             builder.Add<SideEffectsStorage>()
                 .As<ISideEffectsStorage>();
-            
+
             return builder;
         }
 

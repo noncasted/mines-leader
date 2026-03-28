@@ -1,0 +1,105 @@
+@page "/infrastructure-options"
+@using global::Common.Extensions
+@using global::Infrastructure
+@using global::Infrastructure.Execution
+@inject ToastService ToastService
+
+<PageTitle>Infrastructure Options</PageTitle>
+<PageHeader Title="Infrastructure Options" />
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
+    <div class="flex gap-2">
+        <BbButton @onclick="Reload">
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2" />
+            Reload
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Secondary" @onclick="Save">
+            <LucideIcon Name="save" Size="16" class="mr-2" />
+            Save
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Outline" @onclick="UpdateJson" Disabled="_isUpdatingJson">
+            <LucideIcon Name="file-json" Size="16" class="mr-2" />
+            Write JSON
+        </BbButton>
+    </div>
+
+    <SideEffectsOptionsEditor Value="_sideEffectsValue" />
+
+    <MessageQueueOptionsEditor Value="_messageQueueValue" />
+
+    <TaskBalancerOptionsEditor Value="_taskBalancerValue" />
+</div>
+
+@code {
+    [Inject] public ISideEffectsConfig SideEffectsConfig { get; set; } = null!;
+    [Inject] public IMessageQueueConfig MessageQueueConfig { get; set; } = null!;
+    [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
+
+    private SideEffectsOptions _sideEffectsValue = new();
+    private MessageQueueOptions _messageQueueValue = new();
+    private TaskBalancerOptions _taskBalancerValue = new();
+    private bool _isUpdatingJson;
+
+    protected override void OnInitialized()
+    {
+        Reload();
+    }
+
+    private void Reload()
+    {
+        ReloadField(SideEffectsConfig.Value, ref _sideEffectsValue);
+        ReloadField(MessageQueueConfig.Value, ref _messageQueueValue);
+        ReloadField(TaskBalancerConfig.Value, ref _taskBalancerValue);
+        InvokeAsync(StateHasChanged);
+
+        return;
+
+        void ReloadField<T>(T current, ref T field)
+        {
+            var raw = JsonUtils.Serialize(current!);
+            field = JsonUtils.Deserialize<T>(raw);
+        }
+    }
+
+    private void Save()
+    {
+        SideEffectsConfig.SetValue(_sideEffectsValue);
+        MessageQueueConfig.SetValue(_messageQueueValue);
+        TaskBalancerConfig.SetValue(_taskBalancerValue);
+        ToastService.Success("Infrastructure options saved", "Saved");
+    }
+
+    private async Task UpdateJson()
+    {
+        _isUpdatingJson = true;
+
+        var coordinatorFolder = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+
+        try
+        {
+            await SaveConfig("config.sideEffects", _sideEffectsValue);
+            await SaveConfig("config.messageQueue", _messageQueueValue);
+            await SaveConfig("config.taskBalancer", _taskBalancerValue);
+
+            ToastService.Success("Infrastructure options saved to JSON", "Saved");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isUpdatingJson = false;
+        }
+
+        return;
+
+        async Task SaveConfig<T>(string jsonPath, T value)
+        {
+            var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
+            var fullPath = Path.GetFullPath(configPath);
+            var json = JsonUtils.Serialize(value)!;
+            await File.WriteAllTextAsync(fullPath, json);
+        }
+    }
+}
