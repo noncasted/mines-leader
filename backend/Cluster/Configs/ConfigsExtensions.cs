@@ -30,6 +30,12 @@ public static class ConfigsExtensions
         builder.AddAddressableState<TaskBalancerConfigState>()
             .As<ITaskBalancerConfig>();
 
+        builder.AddAddressableState<RuntimePipeConfigState>()
+            .As<IRuntimePipeConfig>();
+
+        builder.AddAddressableState<RuntimeChannelConfigState>()
+            .As<IRuntimeChannelConfig>();
+
         return builder;
     }
 }

@@ -7,6 +7,7 @@ using Common.Extensions;
 using Game.Global;
 using Infrastructure;
 using Infrastructure.Execution;
+using Infrastructure.Startup;
 using Infrastructure.State;
 using Meta.Bots;
 using Meta.Matches;
@@ -140,6 +141,9 @@ public static class ProjectsSetupExtensions
 
             builder.Services.AddHostedService<ClusterParticipantStartup>();
 
+            builder.Add<ClusterParticipantContext>()
+                .As<IClusterParticipantContext>();
+
             builder
                 .AddEnvironment(serviceTag)
                 .AddServiceLoop()
@@ -186,6 +190,8 @@ public static class ProjectsSetupExtensions
             Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
             Add<DurableQueueOptions>(StatesLookup.MessageQueueConfig);
             Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
+            Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
+            Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
             Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
             Add<UserRatingState>(StatesLookup.UserRating);
 

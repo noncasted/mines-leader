@@ -3,6 +3,7 @@ using Common;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
+using Infrastructure.Startup;
 using Meta.Matches;
 using MetaGateway.UserFlow;
 using Shared;
@@ -38,6 +39,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         IConnectedUsers users,
         IBotConfig botConfig,
         IClusterFlags clusterFlags,
+        IClusterParticipantContext participantContext,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
@@ -45,6 +47,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         _users = users;
         _botConfig = botConfig;
         _clusterFlags = clusterFlags;
+        _participantContext = participantContext;
         _logger = logger;
 
         foreach (var type in Enum.GetValues<GameMatchType>())
@@ -56,6 +59,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly IConnectedUsers _users;
     private readonly IBotConfig _botConfig;
     private readonly IClusterFlags _clusterFlags;
+    private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
@@ -115,6 +119,8 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
 
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
+        await _participantContext.IsInitialized.WaitTrue(lifetime);
+
         while (lifetime.IsTerminated == false)
         {
             if (_clusterFlags.MatchmakingEnabled == false)

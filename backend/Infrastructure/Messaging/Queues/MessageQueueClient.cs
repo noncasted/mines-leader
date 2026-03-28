@@ -31,6 +31,7 @@ public class DurableQueueClient : IDurableQueueClient
     private readonly ILogger<DurableQueueClient> _logger;
 
     private readonly ConcurrentDictionary<string, Listener> _listeners = new();
+    private readonly SemaphoreSlim _createLock = new(1, 1);
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
@@ -45,33 +46,45 @@ public class DurableQueueClient : IDurableQueueClient
         if (_listeners.TryGetValue(rawId, out var existing))
             return (ViewableDelegate<T>)existing.Delegate;
 
-        var source = new ViewableDelegate<T>();
+        await _createLock.WaitAsync();
 
-        var observer = new DurableQueueObserver(message =>
-            {
-                if (message is not T castedMessage)
-                    throw new InvalidCastException();
-
-                source.Invoke(castedMessage);
-            }
-        );
-
-        var observerReference = _orleans.Client.CreateObjectReference<IDurableQueueObserver>(observer);
-
-        var listener = new Listener
+        try
         {
-            Id = id,
-            ObserverSource = observer,
-            ObserverReference = observerReference,
-            Queue = GetQueue(id),
-            Logger = _logger,
-            Delegate = source
-        };
+            if (_listeners.TryGetValue(rawId, out existing))
+                return (ViewableDelegate<T>)existing.Delegate;
 
-        _listeners[rawId] = listener;
-        await listener.Resubscribe();
+            var source = new ViewableDelegate<T>();
 
-        return source;
+            var observer = new DurableQueueObserver(message =>
+                {
+                    if (message is not T castedMessage)
+                        throw new InvalidCastException();
+
+                    source.Invoke(castedMessage);
+                }
+            );
+
+            var observerReference = _orleans.Client.CreateObjectReference<IDurableQueueObserver>(observer);
+
+            var listener = new Listener
+            {
+                Id = id,
+                ObserverSource = observer,
+                ObserverReference = observerReference,
+                Queue = GetQueue(id),
+                Logger = _logger,
+                Delegate = source
+            };
+
+            _listeners[rawId] = listener;
+            await listener.Resubscribe();
+
+            return source;
+        }
+        finally
+        {
+            _createLock.Release();
+        }
     }
 
     public void PushTransactional(IDurableQueueId id, object message)
@@ -122,19 +135,24 @@ public class DurableQueueClient : IDurableQueueClient
         public required ILogger Logger { get; init; }
         public required object Delegate { get; init; }
 
-        public Task Resubscribe()
+        private int _consecutiveFailures;
+
+        public async Task Resubscribe()
         {
             try
             {
-                return Queue.AddObserver(ObserverSource.Id, ObserverReference);
+                await Queue.AddObserver(ObserverSource.Id, ObserverReference);
+                _consecutiveFailures = 0;
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "[Messaging] [DurableQueue] Failed to rebind observer to queue {QueueId}",
-                    Id.ToRaw()
-                );
+                _consecutiveFailures++;
 
-                return Task.CompletedTask;
+                if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
+                    Logger.LogError(e,
+                        "[Messaging] [DurableQueue] Failed to rebind observer (attempt {Count}) to queue {QueueId}",
+                        _consecutiveFailures, Id.ToRaw()
+                    );
             }
         }
     }

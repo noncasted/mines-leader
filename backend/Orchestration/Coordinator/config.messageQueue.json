@@ -1,4 +1,4 @@
 {
-  "$type": "Infrastructure.MessageQueueOptions, Infrastructure",
+  "$type": "Infrastructure.DurableQueueOptions, Infrastructure",
   "ObserverKeepAliveMinutes": 3
 }

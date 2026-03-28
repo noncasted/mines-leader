@@ -78,7 +78,12 @@ public class GrainIdConverter : JsonConverter
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
         var json = JObject.Load(reader);
-        var split = json["key"]!.ToObject<string>()!.Split(':');
+        var raw = json["key"]!.ToObject<string>()!;
+        var split = raw.Split(':', count: 2);
+
+        if (split.Length != 2)
+            throw new JsonSerializationException($"[GrainIdConverter] Invalid GrainId format: '{raw}'");
+
         var grainId = GrainId.Create(split[0], split[1]);
         return grainId;
     }
@@ -119,7 +124,11 @@ public class GrainReferenceJsonConverter : JsonConverter
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
         var json = JToken.Load(reader);
-        var split = json.Value<string>()!.Split(':');
+        var raw = json.Value<string>()!;
+        var split = raw.Split(':', count: 3);
+
+        if (split.Length != 3)
+            throw new JsonSerializationException($"[GrainReferenceJsonConverter] Invalid GrainReference format: '{raw}'");
 
         var encodedInterface = split[0];
         var interfaceType = string.IsNullOrWhiteSpace(encodedInterface)

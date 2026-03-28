@@ -2,6 +2,7 @@
 using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Execution;
+using Infrastructure.Startup;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,7 @@ public class ClusterParticipantStartup : BackgroundService
         IServiceLoopObserver loopObserver,
         IServiceLoop loop,
         IMessaging messaging,
+        IClusterParticipantContext context,
         ILogger<ClusterParticipantStartup> logger)
     {
         _taskBalancer = taskBalancer;
@@ -22,6 +24,7 @@ public class ClusterParticipantStartup : BackgroundService
         _loopObserver = loopObserver;
         _loop = loop;
         _messaging = messaging;
+        _context = context;
         _logger = logger;
     }
 
@@ -30,6 +33,7 @@ public class ClusterParticipantStartup : BackgroundService
     private readonly IServiceLoopObserver _loopObserver;
     private readonly IServiceLoop _loop;
     private readonly IMessaging _messaging;
+    private readonly IClusterParticipantContext _context;
     private readonly ILogger<ClusterParticipantStartup> _logger;
 
     protected override async Task ExecuteAsync(CancellationToken cancellation)
@@ -89,6 +93,10 @@ public class ClusterParticipantStartup : BackgroundService
         _logger.LogInformation("[Startup] {Service} startup finished", serviceName);
 
         startupLifetime.Terminate();
+
+        _context.Initialize();
+
+        _logger.LogInformation("[Startup] {Service} cluster participant initialized", serviceName);
 
         return;
 

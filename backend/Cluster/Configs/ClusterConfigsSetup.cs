@@ -16,6 +16,8 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         ISideEffectsConfig sideEffects,
         IDurableQueueConfig messageQueue,
         ITaskBalancerConfig taskBalancer,
+        IRuntimePipeConfig runtimePipe,
+        IRuntimeChannelConfig runtimeChannel,
         ILogger<ClusterConfigsSetup> logger)
     {
         _cards = cards;
@@ -25,6 +27,8 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _sideEffects = sideEffects;
         _durableQueue = messageQueue;
         _taskBalancer = taskBalancer;
+        _runtimePipe = runtimePipe;
+        _runtimeChannel = runtimeChannel;
         _logger = logger;
     }
 
@@ -35,6 +39,8 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly ISideEffectsConfig _sideEffects;
     private readonly IDurableQueueConfig _durableQueue;
     private readonly ITaskBalancerConfig _taskBalancer;
+    private readonly IRuntimePipeConfig _runtimePipe;
+    private readonly IRuntimeChannelConfig _runtimeChannel;
     private readonly ILogger<ClusterConfigsSetup> _logger;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
@@ -46,6 +52,8 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitializeConfig("config.sideEffects", _sideEffects);
         await InitializeConfig("config.messageQueue", _durableQueue);
         await InitializeConfig("config.taskBalancer", _taskBalancer);
+        await InitializeConfig("config.runtimePipe", _runtimePipe);
+        await InitializeConfig("config.runtimeChannel", _runtimeChannel);
 
         return;
 
