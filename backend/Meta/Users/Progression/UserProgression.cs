@@ -5,10 +5,20 @@ using Shared;
 
 namespace Meta.Users;
 
+public interface IUserProgressionRecord
+{
+    DateTime Date { get; }
+
+    int GetExperience();
+}
+
 public interface IUserProgression : IUserGrain
 {
     [Transaction]
     Task AddRecord(IUserProgressionRecord record);
+    
+    [Transaction]
+    Task<int> GetTotal();
 }
 
 [GenerateSerializer]
@@ -56,5 +66,10 @@ public class UserProgression : UserGrain, IUserProgression
         
         var state = await _state.Update(state => state.AddRecord(record));
         await this.SendCachedProjection(state);
+    }
+
+    public Task<int> GetTotal()
+    {
+        return _state.Read(state => state.CalculateTotal());
     }
 }

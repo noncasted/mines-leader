@@ -30,6 +30,7 @@ public class BotFactory : IBotFactory
                 await handle.Entity.Initialize();
                 await handle.Entity.SetName(name);
                 await handle.Deck.Initialize();
+                await handle.Auth.OnRegistered();
 
                 var cards = new List<CardType>(DeckOptions.BotPool).Shuffle();
                 var selectedCards = cards.Take(DeckOptions.DeckSize).ToList();

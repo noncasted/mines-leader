@@ -1,0 +1,185 @@
+@using global::Common.Extensions
+@using global::Common.Reactive
+@using Infrastructure.State
+@using Meta.Users
+@inherits UiComponent
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Players</h2>
+        <span class="text-xs text-muted-foreground">@_allUsers.Count total</span>
+    </div>
+
+    <BbInput Value="@_search" ValueChanged="@OnSearchChanged" Placeholder="Search by name or ID..." />
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">XP</th>
+                <th class="h-10 px-4 w-10"></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var user in _pageUsers)
+            {
+                <tr class="border-b last:border-b-0 hover:bg-muted/30 group">
+                    <td class="px-4 py-2.5 font-medium">@user.Name</td>
+                    <td class="px-4 py-2.5">
+                        <button class="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                title="Click to copy"
+                                @onclick="@(() => CopyId(user.Id))">
+                            @(user.Id.ToString()[..8])&hellip;
+                        </button>
+                    </td>
+                    <td class="px-4 py-2.5 text-muted-foreground text-xs">
+                        @(_xp.TryGetValue(user.Id, out var xp) ? xp.ToString() : "—")
+                    </td>
+                    <td class="px-4 py-2.5">
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
+                            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, user.Id)))">
+                                <LucideIcon Name="ellipsis" Size="14"/>
+                            </BbButton>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            @if (_pageUsers.Count == 0)
+            {
+                <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No players found</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_totalPages > 1)
+    {
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">@_filteredUsers.Count players</span>
+            <div class="flex items-center gap-1">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                          Disabled="@(_page == 0)"
+                          @onclick="PrevPage">
+                    <LucideIcon Name="chevron-left" Size="14"/>
+                </BbButton>
+                <span class="text-xs text-muted-foreground px-2">@(_page + 1) / @_totalPages</span>
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                          Disabled="@(_page >= _totalPages - 1)"
+                          @onclick="NextPage">
+                    <LucideIcon Name="chevron-right" Size="14"/>
+                </BbButton>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject] public IUserCollection UserCollection { get; set; } = null!;
+    [Inject] public IStateStorage Storage { get; set; } = null!;
+
+    private const int PageSize = 10;
+
+    private List<UserState> _allUsers = new();
+    private List<UserState> _filteredUsers = new();
+    private List<UserState> _pageUsers = new();
+    private Dictionary<Guid, int> _xp = new();
+    private string _search = string.Empty;
+    private int _page;
+    private int _totalPages;
+
+    protected override async Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        await ReloadUsers();
+        UserCollection.Updated.Advise(lifetime, () => ReloadUsers().NoAwait());
+    }
+
+    private async Task ReloadUsers()
+    {
+        _allUsers = UserCollection.Values.ToList();
+        ApplyFilter();
+        await LoadXpForCurrentPage();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(_search))
+        {
+            _filteredUsers = _allUsers;
+        }
+        else
+        {
+            var query = _search.Trim();
+            _filteredUsers = _allUsers
+                .Where(u => u.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                            || u.Id.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        _totalPages = _filteredUsers.Count == 0 ? 1 : (_filteredUsers.Count + PageSize - 1) / PageSize;
+        if (_page >= _totalPages) _page = 0;
+        _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
+    }
+
+    private async Task LoadXpForCurrentPage()
+    {
+        if (_pageUsers.Count == 0)
+        {
+            _xp = new Dictionary<Guid, int>();
+            return;
+        }
+
+        var stateInfo = Storage.Registry.Get<UserProgressionState>();
+        var identities = _pageUsers.Select(u => new StateIdentity
+            {
+                Key = u.Id,
+                Type = stateInfo.Name,
+                Extension = null,
+                TableName = stateInfo.TableName
+            })
+            .ToList();
+
+        var result = await Storage.Read<Guid, UserProgressionState>(identities);
+        _xp = result.ToDictionary(kv => kv.Key, kv => kv.Value.CalculateTotal());
+    }
+
+    private async Task OnSearchChanged(string value)
+    {
+        _search = value;
+        _page = 0;
+        ApplyFilter();
+        await LoadXpForCurrentPage();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CopyId(Guid id)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", id.ToString());
+    }
+
+    private async Task PrevPage()
+    {
+        if (_page <= 0) return;
+        _page--;
+        _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
+        await LoadXpForCurrentPage();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task NextPage()
+    {
+        if (_page >= _totalPages - 1) return;
+        _page++;
+        _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
+        await LoadXpForCurrentPage();
+        await InvokeAsync(StateHasChanged);
+    }
+}

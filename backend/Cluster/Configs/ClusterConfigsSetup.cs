@@ -9,22 +9,26 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     public ClusterConfigsSetup(
         ICardConfigs cards,
         IBotConfig bots,
-        IGameModeConfig gameMode)
+        IGameModeConfig gameMode,
+        IRatingConfig rating)
     {
         _cards = cards;
         _bots = bots;
         _gameMode = gameMode;
+        _rating = rating;
     }
 
     private readonly ICardConfigs _cards;
     private readonly IBotConfig _bots;
     private readonly IGameModeConfig _gameMode;
+    private readonly IRatingConfig _rating;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
         await InitializeConfig("config.cards", _cards);
         await InitializeConfig("config.bot", _bots);
         await InitializeConfig("config.gameMode", _gameMode);
+        await InitializeConfig("config.rating", _rating);
 
         return;
 

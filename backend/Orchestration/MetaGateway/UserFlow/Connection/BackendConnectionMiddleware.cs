@@ -60,7 +60,7 @@ public class BackendConnectionMiddleware
         var completion = new TaskCompletionSource();
         
         var userHandle = _orleans.CreateUserHandle(auth.UserId);
-        var isExists = await userHandle.Auth.IsExists();
+        var isExists = await _orleans.Transactions.Run(() => userHandle.Auth.IsExists());
 
         if (isExists == false)
         {

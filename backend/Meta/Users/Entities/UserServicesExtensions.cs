@@ -6,7 +6,7 @@ namespace Meta.Users;
 
 public static class UserServicesExtensions
 {
-    public static IHostApplicationBuilder AddUserFactory(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddUserServices(this IHostApplicationBuilder builder)
     {
         builder.Add<UserFactory>()
             .As<IUserFactory>();

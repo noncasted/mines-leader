@@ -15,7 +15,7 @@ public interface ILobbyFactory
 public class LobbyFactory : ILobbyFactory
 {
     public LobbyFactory(
-        IClusterClient orleans,
+        IOrleans orleans,
         IServiceDiscovery serviceDiscovery,
         IMessaging messaging,
         IServiceEnvironment environment,
@@ -28,7 +28,7 @@ public class LobbyFactory : ILobbyFactory
         _logger = logger;
     }
 
-    private readonly IClusterClient _orleans;
+    private readonly IOrleans _orleans;
     private readonly IServiceDiscovery _serviceDiscovery;
     private readonly IMessaging _messaging;
     private readonly IServiceEnvironment _environment;

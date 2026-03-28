@@ -20,6 +20,10 @@ public static class ConfigsExtensions
             .As<IGameModeConfig>()
             .As<ILocalSetupCompleted>();
 
+        builder.Add<RatingConfigState>()
+            .As<IRatingConfig>()
+            .As<ILocalSetupCompleted>();
+
         return builder;
     }
 }

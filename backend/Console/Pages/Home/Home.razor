@@ -2,30 +2,36 @@
 
 <PageTitle>Console</PageTitle>
 
-<div class="container mx-auto px-6 py-10 max-w-5xl">
-    <div class="mb-10">
-        <h1 class="text-3xl font-bold tracking-tight">Mines Leader Console</h1>
-        <p class="text-muted-foreground mt-1">Game management and administration panel</p>
-    </div>
+<div class="h-full px-6 py-8">
+    <div class="flex gap-8 h-full">
+        <div class="w-1/2 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold">Sections</h2>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <HomeNavCard
+                    Icon="flask-conical"
+                    Title="Tests"
+                    Description="Run cluster tests and check service health"
+                    Target="@ConsoleConstants.Pages.Tests" />
 
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <HomeNavCard
-            Icon="flask-conical"
-            Title="Tests"
-            Description="Run cluster integration tests and check service health"
-            Target="@ConsoleConstants.Pages.Tests" />
+                <HomeNavCard
+                    Icon="sliders-horizontal"
+                    Title="Configs"
+                    Description="Edit game mode, bot and card configurations"
+                    Target="@ConsoleConstants.Pages.Configs" />
 
-        <HomeNavCard
-            Icon="sliders-horizontal"
-            Title="Configs"
-            Description="Edit game mode, bot and card configurations"
-            Target="@ConsoleConstants.Pages.Configs" />
+                <HomeNavCard
+                    Icon="bot"
+                    Title="Bots"
+                    Description="Manage bots, create and edit their decks"
+                    Target="@ConsoleConstants.Pages.Bots" />
+            </div>
+        </div>
 
-        <HomeNavCard
-            Icon="bot"
-            Title="Bots"
-            Description="Manage bot players, create bots and edit their decks"
-            Target="@ConsoleConstants.Pages.Bots" />
+        <div class="w-1/2">
+            <PlayersWidget />
+        </div>
     </div>
 </div>
 

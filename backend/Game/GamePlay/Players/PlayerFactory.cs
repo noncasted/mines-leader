@@ -31,7 +31,7 @@ public class PlayerFactory : IPlayerFactory
     public async Task<IPlayer> Create(IUser user)
     {
         var userHandle = _orleans.CreateUserHandle(user.Id);
-        var selectedDeck = await userHandle.Deck.GetSelected();
+        var selectedDeck = await _orleans.Transactions.Run(() => userHandle.Deck.GetSelected());
 
         var entityBuilder = _entityFactory.Create(user);
 
@@ -63,7 +63,7 @@ public class PlayerFactory : IPlayerFactory
         var hand = new Hand(handProperty);
         var stash = new Stash(stashProperty);
         var actions = new PlayerActions();
-        
+
         var player = new Player(
             entity: entity,
             board: board,

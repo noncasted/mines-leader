@@ -27,6 +27,8 @@
 
     <GameModeConfigEditor Value="_gameModeValue" />
 
+    <RatingConfigEditor Value="_ratingValue" />
+
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
             <div class="rounded-md bg-violet-500/15 p-1.5">
@@ -103,10 +105,12 @@
     [Inject] public ICardConfigs CardConfigs { get; set; } = null!;
     [Inject] public IBotConfig BotConfig { get; set; } = null!;
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
+    [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
 
     private CardConfigOptions _cardsValue = new();
     private BotConfigOptions _botValue = new();
     private GameModeOptions _gameModeValue = new();
+    private RatingOptions _ratingValue = new();
     private bool _isUpdatingJson;
 
     protected override void OnInitialized()
@@ -119,6 +123,7 @@
         ReloadField(CardConfigs.Value, ref _cardsValue);
         ReloadField(BotConfig.Value, ref _botValue);
         ReloadField(GameModeConfig.Value, ref _gameModeValue);
+        ReloadField(RatingConfig.Value, ref _ratingValue);
         InvokeAsync(StateHasChanged);
 
         return;
@@ -135,6 +140,7 @@
         CardConfigs.SetValue(_cardsValue);
         BotConfig.SetValue(_botValue);
         GameModeConfig.SetValue(_gameModeValue);
+        RatingConfig.SetValue(_ratingValue);
         ToastService.Success("Configs saved", "Saved");
     }
 
@@ -149,6 +155,7 @@
             await SaveConfig("config.cards", _cardsValue);
             await SaveConfig("config.bot", _botValue);
             await SaveConfig("config.gameMode", _gameModeValue);
+            await SaveConfig("config.rating", _ratingValue);
 
             ToastService.Success("Configs saved to JSON", "Saved");
         }
