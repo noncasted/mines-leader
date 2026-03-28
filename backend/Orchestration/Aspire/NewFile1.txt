@@ -1,1 +1,0 @@
-Server=qxeff0tbfccmhj4i8qn404o6;Port=5432;Database=mslead;User Id=mslead-root;Password=EjEuGwnjOaoYkl7WuXZx76E8JKkLDCUk0DOQ9yj8yP8OVu9e2CpDhQrMfMXcTRER;Pooling=true;Timeout=120;Command Timeout=120;Keepalive=30;Internal Command Timeout=120;
