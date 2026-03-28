@@ -116,6 +116,27 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
+    public static readonly Info SideEffectsConfig = new()
+    {
+        TableName = "configs",
+        StateName = "side_effects_config",
+        KeyType = GrainKeyType.String
+    };
+
+    public static readonly Info MessageQueueConfig = new()
+    {
+        TableName = "configs",
+        StateName = "message_queue_config",
+        KeyType = GrainKeyType.String
+    };
+
+    public static readonly Info TaskBalancerConfig = new()
+    {
+        TableName = "configs",
+        StateName = "task_balancer_config",
+        KeyType = GrainKeyType.String
+    };
+
     public static readonly Info UserRating = new()
     {
         TableName = "state_user_rating",
@@ -140,6 +161,9 @@ public static class StatesLookup
         CardConfig,
         GameModeConfig,
         RatingConfig,
+        SideEffectsConfig,
+        MessageQueueConfig,
+        TaskBalancerConfig,
         UserRating,
     ];
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using Common.Extensions;
@@ -14,16 +14,15 @@ public interface ITaskBalancer
 
 public class TaskBalancer : ITaskBalancer
 {
-    public TaskBalancer(ITaskQueue queue, ILogger<TaskBalancer> logger)
+    public TaskBalancer(ITaskQueue queue, ILogger<TaskBalancer> logger, ITaskBalancerConfig config)
     {
         _queue = queue;
         _logger = logger;
+        _config = config;
     }
 
-    private readonly TimeSpan _emptyDelay = TimeSpan.FromMilliseconds(500);
-
     private readonly ILogger<TaskBalancer> _logger;
-    private readonly TimeSpan _nextDelay = TimeSpan.FromMilliseconds(100);
+    private readonly ITaskBalancerConfig _config;
 
     private readonly IReadOnlyDictionary<TaskPriority, int> _priorityToScore = new Dictionary<TaskPriority, int>
     {
@@ -36,9 +35,6 @@ public class TaskBalancer : ITaskBalancer
     private readonly ITaskQueue _queue;
 
     private readonly ConcurrentDictionary<string, TaskEntry> _scheduled = new();
-    private const int _iterationScore = 1;
-    private const int _exceptionPenalty = 50;
-    private const int _concurrentTasks = 10;
 
     public Task Run(IReadOnlyLifetime lifetime)
     {
@@ -51,22 +47,23 @@ public class TaskBalancer : ITaskBalancer
     {
         while (lifetime.IsTerminated == false)
         {
+            var options = _config.Value;
             var items = _queue.Collect();
 
             if (items.Count == 0)
             {
-                await Task.Delay(_emptyDelay);
+                await Task.Delay(options.EmptyDelayMs);
                 continue;
             }
 
             foreach (var (_, entry) in _scheduled)
-                entry.Score += _iterationScore;
+                entry.Score += options.IterationScore;
 
             foreach (var task in items)
             {
                 if (_scheduled.TryGetValue(task.Id, out var entry) == true)
                 {
-                    entry.Score += _iterationScore;
+                    entry.Score += options.IterationScore;
                     continue;
                 }
 
@@ -80,7 +77,7 @@ public class TaskBalancer : ITaskBalancer
 
             LogEntries();
 
-            await Task.Delay(_nextDelay);
+            await Task.Delay(options.NextDelayMs);
         }
 
         void LogEntries()
@@ -97,13 +94,16 @@ public class TaskBalancer : ITaskBalancer
 
     private async Task ExecuteLoop(IReadOnlyLifetime lifetime)
     {
-        var executionLock = new SemaphoreSlim(_concurrentTasks, _concurrentTasks);
+        var concurrentTasks = _config.Value.ConcurrentTasks;
+        var executionLock = new SemaphoreSlim(concurrentTasks, concurrentTasks);
 
         while (lifetime.IsTerminated == false)
         {
+            var options = _config.Value;
+
             if (_scheduled.Any() == false)
             {
-                await Task.Delay(_emptyDelay);
+                await Task.Delay(options.EmptyDelayMs);
                 continue;
             }
 
@@ -112,7 +112,7 @@ public class TaskBalancer : ITaskBalancer
             if (TryPickMaxScored(out var entry) == false)
             {
                 executionLock.Release();
-                await Task.Delay(_emptyDelay);
+                await Task.Delay(options.EmptyDelayMs);
                 continue;
             }
 
@@ -138,7 +138,7 @@ public class TaskBalancer : ITaskBalancer
             catch (Exception e)
             {
                 stopwatch.Stop();
-                entry.Score -= _exceptionPenalty;
+                entry.Score -= _config.Value.ExceptionPenalty;
                 _scheduled.AddOrUpdate(entry.Key, _ => entry, (_, _) => entry);
 
                 _logger.LogError(

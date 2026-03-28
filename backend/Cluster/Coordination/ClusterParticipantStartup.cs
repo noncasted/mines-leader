@@ -49,6 +49,8 @@ public class ClusterParticipantStartup : BackgroundService
         _logger.LogInformation("[Startup] {Service} orleans started", serviceName);
         _logger.LogInformation("[Startup] {Service} starting task balancer", serviceName);
 
+        await _loop.OnOrleansStarted(lifetime);
+
         await _taskBalancer.Run(lifetime);
 
         _logger.LogInformation("[Startup] {Service} task balancer started", serviceName);

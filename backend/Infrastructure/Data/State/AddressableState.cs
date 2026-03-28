@@ -1,5 +1,7 @@
-﻿using Common.Reactive;
+﻿using Common.Extensions;
+using Common.Reactive;
 using Infrastructure.State;
+using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
 
@@ -35,7 +37,7 @@ public class AddressableStateMessageQueueId<T> : IMessageQueueId
     }
 }
 
-public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IAddressableState<T>
+public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddressableState<T>
     where T : class, new()
 {
     public AddressableState(IOrleans orleans, IMessaging messaging) : base(new T())
@@ -70,7 +72,7 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
     public bool IsInitialized => _isInitialized;
     public DateTime UpdateDate => _updateDate;
 
-    public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
+    public async Task OnOrleansStarted(IReadOnlyLifetime lifetime)
     {
         await _messaging.ListenQueue<AddressableStateValue>(lifetime, _queueId, OnUpdate);
 
@@ -108,5 +110,15 @@ public class AddressableState<T> : ViewableProperty<T>, ILocalSetupCompleted, IA
 
         await _orleans.StateStorage.Write(_identity, state);
         await _messaging.Queue.PushDirect(_queueId, state);
+    }
+}
+
+public static class AddressableStateExtensions
+{
+    public static ContainerExtensions.Registration AddAddressableState<T>(this IHostApplicationBuilder builder)
+        where T : class
+    {
+        return builder.Add<T>()
+            .As<IOrleansStarted>();
     }
 }

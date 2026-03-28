@@ -2,7 +2,6 @@ using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Infrastructure;
 
@@ -13,14 +12,14 @@ public class SideEffectsWorker : IHostedService
         ITransactions transactions,
         IOrleans orleans,
         IServiceLoopObserver loopObserver,
-        IOptions<SideEffectsOptions> options,
+        ISideEffectsConfig config,
         ILogger<SideEffectsWorker> logger)
     {
         _storage = storage;
         _transactions = transactions;
         _orleans = orleans;
         _loopObserver = loopObserver;
-        _options = options.Value;
+        _config = config;
         _logger = logger;
     }
 
@@ -28,7 +27,7 @@ public class SideEffectsWorker : IHostedService
     private readonly ITransactions _transactions;
     private readonly IOrleans _orleans;
     private readonly IServiceLoopObserver _loopObserver;
-    private readonly SideEffectsOptions _options;
+    private readonly ISideEffectsConfig _config;
     private readonly ILogger<SideEffectsWorker> _logger;
 
     private int _inProgress;
@@ -50,7 +49,8 @@ public class SideEffectsWorker : IHostedService
             {
                 await _storage.RequeueReady();
 
-                var freeSlots = _options.ConcurrentExecutions - _inProgress;
+                var options = _config.Value;
+                var freeSlots = options.ConcurrentExecutions - _inProgress;
 
                 if (freeSlots > 0)
                 {
@@ -65,7 +65,7 @@ public class SideEffectsWorker : IHostedService
                 _logger.LogError(e, "[SideEffects] Error in scan loop");
             }
 
-            await Task.Delay(_options.ScanDelay, lifetime.Token);
+            await Task.Delay(_config.Value.ScanDelay, lifetime.Token);
         }
     }
 
@@ -93,9 +93,11 @@ public class SideEffectsWorker : IHostedService
         }
         catch (Exception e)
         {
+            var options = _config.Value;
+
             _logger.LogError(e,
                 "[SideEffects] Effect {Id} failed (attempt {RetryCount}/{MaxRetry})",
-                entry.Id, entry.RetryCount + 1, _options.MaxRetryCount
+                entry.Id, entry.RetryCount + 1, options.MaxRetryCount
             );
 
             try
@@ -103,8 +105,8 @@ public class SideEffectsWorker : IHostedService
                 await _storage.FailProcessing(
                     entry.Id,
                     entry.RetryCount,
-                    _options.MaxRetryCount,
-                    _options.IncrementalRetryDelay
+                    options.MaxRetryCount,
+                    options.IncrementalRetryDelay
                 );
             }
             catch (Exception failEx)
