@@ -31,19 +31,36 @@ SetDashboardToken();
 
 builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) =>
     {
-        var localSection = builder.Configuration.GetSection("Local");
-        var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
-        var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
+        for (var attempt = 1; attempt <= 5; attempt++)
+        {
+            try
+            {
+                var localSection = builder.Configuration.GetSection("Local");
+                var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
+                var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
 
-        if (requiresDrop == true)
-            await StatesDrop.Run(configuration);
+                if (requiresDrop == true)
+                    await StatesDrop.Run(configuration);
 
-        await OrleansSetup.Run(configuration);
-        await StatesSetup.Run(configuration);
-        await SideEffectsSetup.Run(configuration);
+                await OrleansSetup.Run(configuration);
+                await StatesSetup.Run(configuration);
+                await SideEffectsSetup.Run(configuration);
 
-        if (requiresCleanup == true)
-            await StatesCleanup.Run(configuration);
+                if (requiresCleanup == true)
+                    await StatesCleanup.Run(configuration);
+
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Aspire] Setup attempt {attempt}/5 failed: {ex.Message}");
+
+                if (attempt < 5)
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+        }
+
+        Console.WriteLine("[Aspire] Setup failed after 5 attempts");
     }
 );
 
