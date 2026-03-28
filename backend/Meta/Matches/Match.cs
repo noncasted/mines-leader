@@ -14,6 +14,9 @@ public interface IMatch : IGrainWithGuidKey
 
     [Transaction]
     Task OnComplete(Guid winnerId);
+
+    [Transaction]
+    Task<MatchState> GetState();
 }
 
 [GenerateSerializer]
@@ -24,6 +27,8 @@ public class MatchState : IStateValue
     [Id(2)] public TimeSpan Time { get; set; }
     [Id(3)] public DateTime StartDate { get; set; }
     [Id(4)] public IReadOnlyList<Guid> Participants { get; set; } = new List<Guid>();
+    [Id(5)] public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; set; } = new();
+    [Id(6)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
 
     public int Version => 0;
     
@@ -60,13 +65,21 @@ public class Match : Grain, IMatch
     private readonly IOptions<ProgressionOptions> _options;
     private readonly IRatingConfig _ratingConfig;
 
-    public Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
+    public async Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
-        return _state.Write(state =>
+        var deckResults = await Task.WhenAll(participants.Select(async p =>
+        {
+            var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
+            return (UserId: p, Cards: cards);
+        }));
+
+        await _state.Write(state =>
             {
                 state.Type = type;
                 state.StartDate = DateTime.UtcNow;
                 state.Participants = participants;
+                foreach (var (userId, cards) in deckResults)
+                    state.ParticipantDecks[userId] = cards;
             }
         );
     }
@@ -115,6 +128,13 @@ public class Match : Grain, IMatch
             Rating = ratingOptions.LossRating
         };
 
+        await _state.Write(state =>
+            {
+                state.RatingChanges[winnerId] = winRatingRecord.GetRating();
+                state.RatingChanges[loserId] = lossRatingRecord.GetRating();
+            }
+        );
+
         await Task.WhenAll(
             winner.MatchHistory.Add(overview),
             winner.Progression.AddRecord(winRecord),
@@ -123,5 +143,10 @@ public class Match : Grain, IMatch
             loser.Progression.AddRecord(lossRecord),
             loser.Rating.AddRecord(lossRatingRecord)
         );
+    }
+
+    public Task<MatchState> GetState()
+    {
+        return _state.ReadValue();
     }
 }

@@ -58,7 +58,6 @@ public static class ProjectsSetupExtensions
 
             // Project services
             builder
-                .AddUserServices()
                 .AddBackendMatchServices();
 
             builder.Services.AddOpenApi();
@@ -99,6 +98,9 @@ public static class ProjectsSetupExtensions
             // Cluster services
             builder
                 .AddBase(ServiceTag.Silo);
+            
+            builder.Add<SideEffectsWorker>()
+                .As<IHostedService>();
 
             return builder;
         }
@@ -116,8 +118,6 @@ public static class ProjectsSetupExtensions
                 .AddBlazorComponents();
 
             // Project services
-            builder
-                .AddUserServices();
             
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
@@ -152,7 +152,8 @@ public static class ProjectsSetupExtensions
                 .AddTests()
                 .AddConfigs()
                 .AddSideEffects()
-                .AddStates();
+                .AddStates()
+                .AddUserServices();
 
             builder.AddBotServices();
 
@@ -213,10 +214,7 @@ public static class ProjectsSetupExtensions
 
             builder.Add<SideEffectsStorage>()
                 .As<ISideEffectsStorage>();
-
-            builder.Add<SideEffectsWorker>()
-                .As<IHostedService>();
-
+            
             return builder;
         }
 

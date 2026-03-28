@@ -91,7 +91,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         // The previous transaction releases the lock in OnSuccess/OnFailure.
         var isAcquired = await _lock.WaitAsync(TimeSpan.FromSeconds(3f));
 
-        if (!isAcquired)
+        if (isAcquired == false)
         {
             // Timed out. If the stuck transaction is still within its 30s grace period,
             // we cannot take over — it may still be running normally but slowly.

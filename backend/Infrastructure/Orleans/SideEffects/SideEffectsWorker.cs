@@ -12,12 +12,14 @@ public class SideEffectsWorker : IHostedService
         ISideEffectsStorage storage,
         ITransactions transactions,
         IOrleans orleans,
+        IServiceLoopObserver loopObserver,
         IOptions<SideEffectsOptions> options,
         ILogger<SideEffectsWorker> logger)
     {
         _storage = storage;
         _transactions = transactions;
         _orleans = orleans;
+        _loopObserver = loopObserver;
         _options = options.Value;
         _logger = logger;
     }
@@ -25,6 +27,7 @@ public class SideEffectsWorker : IHostedService
     private readonly ISideEffectsStorage _storage;
     private readonly ITransactions _transactions;
     private readonly IOrleans _orleans;
+    private readonly IServiceLoopObserver _loopObserver;
     private readonly SideEffectsOptions _options;
     private readonly ILogger<SideEffectsWorker> _logger;
 
@@ -39,6 +42,8 @@ public class SideEffectsWorker : IHostedService
 
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
+        await _loopObserver.IsOrleansStarted.WaitTrue(lifetime);
+
         while (lifetime.IsTerminated == false)
         {
             try
