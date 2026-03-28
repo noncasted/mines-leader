@@ -137,6 +137,13 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
+    public static readonly Info ClusterFeatures = new()
+    {
+        TableName = "configs",
+        StateName = "cluster_features",
+        KeyType = GrainKeyType.String
+    };
+
     public static readonly Info UserRating = new()
     {
         TableName = "state_user_rating",
@@ -164,6 +171,7 @@ public static class StatesLookup
         SideEffectsConfig,
         MessageQueueConfig,
         TaskBalancerConfig,
+        ClusterFeatures,
         UserRating,
     ];
 

@@ -184,8 +184,9 @@ public static class ProjectsSetupExtensions
             Add<GameModeOptions>(StatesLookup.GameModeConfig);
             Add<RatingOptions>(StatesLookup.RatingConfig);
             Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
-            Add<MessageQueueOptions>(StatesLookup.MessageQueueConfig);
+            Add<DurableQueueOptions>(StatesLookup.MessageQueueConfig);
             Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
+            Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
             Add<UserRatingState>(StatesLookup.UserRating);
 
             var registry = new GrainStatesRegistry(states);

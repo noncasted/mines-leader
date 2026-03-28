@@ -46,7 +46,7 @@ public class MessagingTransactionalQueueStressTest
 
             handle.Progress.Log("Listening for messages...");
 
-            await Messaging.ListenQueue<MessagePayload>(handle.Lifetime, new MessageQueueId(TestName), OnMessage);
+            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage);
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");
@@ -109,7 +109,7 @@ public class MessagingTransactionalQueueStressTest
                     await _orleans.InTransaction(() =>
                     {
                         Messaging.PushTransactionalQueue(
-                            new MessageQueueId(TestName),
+                            new DurableQueueId(TestName),
                             new MessagePayload
                             {
                                 Service = Environment.Tag.ToString()

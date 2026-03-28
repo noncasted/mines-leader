@@ -44,7 +44,7 @@ public class MessagingDirectQueueStressTest
 
             handle.Progress.Log("Listening for messages...");
             
-            await Messaging.ListenQueue<MessagePayload>(handle.Lifetime, new MessageQueueId(TestName), OnMessage);
+            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage);
             
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");
@@ -89,7 +89,7 @@ public class MessagingDirectQueueStressTest
             {
                 try
                 {
-                    await Messaging.PushDirectQueue(new MessageQueueId(TestName), new MessagePayload());
+                    await Messaging.PushDirectQueue(new DurableQueueId(TestName), new MessagePayload());
                     await Task.Delay(TimeSpan.FromSeconds(payload.Delay));
                 }
                 catch (Exception e)

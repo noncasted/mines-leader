@@ -16,11 +16,11 @@ public abstract class ClusterTestNode<TPayload> : ICoordinatorSetupCompleted
 
     private readonly ClusterTestUtils _utils;
 
+    private ILifetime _testLifetime;
+
     public IMessaging Messaging => _utils.Messaging;
     public IServiceEnvironment Environment => _utils.Environment;
     public ILogger Logger => _utils.Logger;
-
-    private ILifetime _testLifetime;
 
     protected abstract string Name { get; }
 
@@ -29,13 +29,13 @@ public abstract class ClusterTestNode<TPayload> : ICoordinatorSetupCompleted
         await Messaging
             .AddPipeRequestHandler<ClusterTestNodeMessages.StartRequest, ClusterTestNodeMessages.StartResponse>(
                 lifetime,
-                new ClusterTestNodeMessages.PipeId(Environment.Tag, Name, "start"),
+                new ClusterTestNodeMessages.NodePipeId(Environment.Tag, Name),
                 OnStartRequest
             );
 
-        await Messaging.ListenPipe<ClusterTestNodeMessages.Terminate>(
+        await Messaging.ListenChannel<ClusterTestNodeMessages.Terminate>(
             lifetime,
-            new ClusterTestNodeMessages.PipeId(Environment.Tag, Name, "terminate"),
+            new ClusterTestNodeMessages.NodeChannelId(Environment.Tag, Name),
             OnTerminate);
     }
 

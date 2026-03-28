@@ -1,13 +1,13 @@
 ﻿namespace Infrastructure;
 
-public interface IMessageQueueObserver : IGrainObserver
+public interface IDurableQueueObserver : IGrainObserver
 {
     Task Send(IReadOnlyList<object> messages);
 }
 
-public class MessageQueueObserver : IMessageQueueObserver
+public class DurableQueueObserver : IDurableQueueObserver
 {
-    public MessageQueueObserver(Action<object> onMessage)
+    public DurableQueueObserver(Action<object> onMessage)
     {
         _onMessage = onMessage;
     }

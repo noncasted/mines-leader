@@ -6,8 +6,8 @@ namespace Cluster.Configs;
 public class SideEffectsConfigState(IOrleans orleans, IMessaging messaging)
     : AddressableState<SideEffectsOptions>(orleans, messaging), ISideEffectsConfig;
 
-public class MessageQueueConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<MessageQueueOptions>(orleans, messaging), IMessageQueueConfig;
+public class DurableQueueConfigState(IOrleans orleans, IMessaging messaging)
+    : AddressableState<DurableQueueOptions>(orleans, messaging), IDurableQueueConfig;
 
 public class TaskBalancerConfigState(IOrleans orleans, IMessaging messaging)
     : AddressableState<TaskBalancerOptions>(orleans, messaging), ITaskBalancerConfig;

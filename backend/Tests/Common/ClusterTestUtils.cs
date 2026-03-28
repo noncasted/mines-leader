@@ -19,7 +19,7 @@ public class ClusterTestUtils
 
     public Task StartNode(ServiceTag service, string nodeName, object? payload = null)
     {
-        var pipeId = new ClusterTestNodeMessages.PipeId(service, nodeName, "start");
+        var pipeId = new ClusterTestNodeMessages.NodePipeId(service, nodeName);
 
         var request = new ClusterTestNodeMessages.StartRequest
         {
@@ -30,12 +30,10 @@ public class ClusterTestUtils
 
         return Messaging.SendPipe<ClusterTestNodeMessages.StartResponse>(pipeId, request);
     }
-    
+
     public Task TerminateNode(ServiceTag service, string nodeName)
     {
-        var pipeId = new ClusterTestNodeMessages.PipeId(service, nodeName, "terminate");
-        var message = new ClusterTestNodeMessages.Terminate();
-
-        return Messaging.SendPipe(pipeId, message);
+        var channelId = new ClusterTestNodeMessages.NodeChannelId(service, nodeName);
+        return Messaging.PublishChannel(channelId, new ClusterTestNodeMessages.Terminate());
     }
 }

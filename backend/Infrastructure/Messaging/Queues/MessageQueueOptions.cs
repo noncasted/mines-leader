@@ -1,8 +1,8 @@
 namespace Infrastructure;
 
-public class MessageQueueOptions
+public class DurableQueueOptions
 {
     public int ObserverKeepAliveMinutes { get; set; } = 3;
 }
 
-public interface IMessageQueueConfig : IAddressableState<MessageQueueOptions> { }
+public interface IDurableQueueConfig : IAddressableState<DurableQueueOptions> { }

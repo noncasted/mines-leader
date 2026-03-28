@@ -1,36 +1,34 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public interface IMessagePipeClient
+public interface IRuntimePipeClient
 {
     Task Start(IReadOnlyLifetime lifetime);
 
-    Task Send(IMessagePipeId id, object message);
-    Task<TResponse> Send<TResponse>(IMessagePipeId id, object message);
-    Task<IViewableDelegate<T>> CreateListener<T>(IReadOnlyLifetime lifetime, IMessagePipeId id);
+    Task<TResponse> Send<TResponse>(IRuntimePipeId id, object message);
 
     Task AddHandler<TRequest, TResponse>(
         IReadOnlyLifetime lifetime,
-        IMessagePipeId id,
+        IRuntimePipeId id,
         Func<TRequest, Task<TResponse>> listener);
 }
 
-public class MessagePipeClient : IMessagePipeClient
+public class RuntimePipeClient : IRuntimePipeClient
 {
-    public MessagePipeClient(
+    public RuntimePipeClient(
         IOrleans orleans,
-        ILogger<MessagePipeClient> logger)
+        ILogger<RuntimePipeClient> logger)
     {
         _orleans = orleans;
         _logger = logger;
     }
 
     private readonly IOrleans _orleans;
-    private readonly ILogger<MessagePipeClient> _logger;
+    private readonly ILogger<RuntimePipeClient> _logger;
 
     private readonly ConcurrentDictionary<Guid, Listener> _listeners = new();
 
@@ -40,38 +38,15 @@ public class MessagePipeClient : IMessagePipeClient
         return Task.CompletedTask;
     }
 
-    public Task Send(IMessagePipeId id, object message)
-    {
-        var pipe = GetPipe(id);
-        return pipe.Send(message);
-    }
-
-    public Task<TResponse> Send<TResponse>(IMessagePipeId id, object message)
+    public Task<TResponse> Send<TResponse>(IRuntimePipeId id, object message)
     {
         var pipe = GetPipe(id);
         return pipe.Send<TResponse>(message);
     }
 
-    public async Task<IViewableDelegate<T>> CreateListener<T>(IReadOnlyLifetime lifetime, IMessagePipeId id)
-    {
-        var source = new ViewableDelegate<T>();
-        var observer = await CreateObserver(lifetime, id);
-
-        observer.BindOneWayHandler(message =>
-            {
-                if (message is not T castedMessage)
-                    throw new InvalidCastException($"Expected {typeof(T)}, but got {message.GetType()}");
-
-                source.Invoke(castedMessage);
-            }
-        );
-
-        return source;
-    }
-
     public async Task AddHandler<TRequest, TResponse>(
         IReadOnlyLifetime lifetime,
-        IMessagePipeId id,
+        IRuntimePipeId id,
         Func<TRequest, Task<TResponse>> listener)
     {
         var observer = await CreateObserver(lifetime, id);
@@ -91,12 +66,12 @@ public class MessagePipeClient : IMessagePipeClient
         );
     }
 
-    private async Task<MessagePipeObserver> CreateObserver(IReadOnlyLifetime lifetime, IMessagePipeId id)
+    private async Task<RuntimePipeObserver> CreateObserver(IReadOnlyLifetime lifetime, IRuntimePipeId id)
     {
-        var observer = new MessagePipeObserver(_logger);
-        var observerReference = _orleans.Client.CreateObjectReference<IMessagePipeObserver>(observer);
-        
-        lifetime.Listen(() => _orleans.Client.DeleteObjectReference<IMessagePipeObserver>(observerReference));
+        var observer = new RuntimePipeObserver(_logger);
+        var observerReference = _orleans.Client.CreateObjectReference<IRuntimePipeObserver>(observer);
+
+        lifetime.Listen(() => _orleans.Client.DeleteObjectReference<IRuntimePipeObserver>(observerReference));
 
         var toRemove = new List<Guid>();
 
@@ -110,7 +85,7 @@ public class MessagePipeClient : IMessagePipeClient
 
         foreach (var removeId in toRemove)
         {
-            _logger.LogWarning("[Messaging] [Pipe] Removing duplicate observer for pipe {PipeId}", id.ToRaw());
+            _logger.LogWarning("[Messaging] [RuntimePipe] Removing duplicate observer for pipe {PipeId}", id.ToRaw());
             _listeners.Remove(removeId, out _);
         }
 
@@ -133,10 +108,10 @@ public class MessagePipeClient : IMessagePipeClient
         return observer;
     }
 
-    private IMessagePipe GetPipe(IMessagePipeId id)
+    private IRuntimePipe GetPipe(IRuntimePipeId id)
     {
         var rawId = id.ToRaw();
-        return _orleans.GetGrain<IMessagePipe>(rawId);
+        return _orleans.GetGrain<IRuntimePipe>(rawId);
     }
 
     private async Task ResubscribeLoop(IReadOnlyLifetime lifetime)
@@ -156,10 +131,10 @@ public class MessagePipeClient : IMessagePipeClient
 
     public class Listener
     {
-        public required IMessagePipeId Id { get; init; }
-        public required MessagePipeObserver ObserverSource { get; init; }
-        public required IMessagePipeObserver Observer { get; init; }
-        public required IMessagePipe Pipe { get; init; }
+        public required IRuntimePipeId Id { get; init; }
+        public required RuntimePipeObserver ObserverSource { get; init; }
+        public required IRuntimePipeObserver Observer { get; init; }
+        public required IRuntimePipe Pipe { get; init; }
         public required ILogger Logger { get; init; }
 
         public Task Resubscribe()
@@ -170,7 +145,7 @@ public class MessagePipeClient : IMessagePipeClient
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "[Messaging] [Pipe] Failed to rebind observer to pipe {QueueId}",
+                Logger.LogError(e, "[Messaging] [RuntimePipe] Failed to rebind observer to pipe {PipeId}",
                     Id.ToRaw()
                 );
 

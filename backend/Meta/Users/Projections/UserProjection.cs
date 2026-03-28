@@ -25,9 +25,9 @@ public interface IUserProjection : IGrainWithGuidKey
     Task SendOneTime(IProjectionPayload payload);
 }
 
-public class UserProjectionPipeId : IMessagePipeId
+public class UserProjectionChannelId : IRuntimeChannelId
 {
-    public UserProjectionPipeId(Guid id)
+    public UserProjectionChannelId(Guid id)
     {
         _id = id;
     }
@@ -50,13 +50,13 @@ public class UserProjection : Grain, IUserProjection
         _state = state;
         _messaging = messaging;
         _logger = logger;
-        _pipeId = new UserProjectionPipeId(this.GetPrimaryKey());
+        _channelId = new UserProjectionChannelId(this.GetPrimaryKey());
     }
 
     private readonly State<UserProjectionState> _state;
     private readonly IMessaging _messaging;
     private readonly ILogger<UserProjection> _logger;
-    private readonly UserProjectionPipeId _pipeId;
+    private readonly UserProjectionChannelId _channelId;
 
     public Task OnConnected()
     {
@@ -138,6 +138,6 @@ public class UserProjection : Grain, IUserProjection
 
     private Task Send(IProjectionPayload payload)
     {
-        return _messaging.SendPipe(_pipeId, payload);
+        return _messaging.PublishChannel(_channelId, payload);
     }
 }

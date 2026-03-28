@@ -5,39 +5,38 @@
 @inject ToastService ToastService
 
 <PageTitle>Infrastructure Options</PageTitle>
-<PageHeader Title="Infrastructure Options" />
+<PageHeader Title="Infrastructure Options"/>
 
 <div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
     <div class="flex gap-2">
         <BbButton @onclick="Reload">
-            <LucideIcon Name="refresh-cw" Size="16" class="mr-2" />
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2"/>
             Reload
         </BbButton>
         <BbButton Variant="ButtonVariant.Secondary" @onclick="Save">
-            <LucideIcon Name="save" Size="16" class="mr-2" />
+            <LucideIcon Name="save" Size="16" class="mr-2"/>
             Save
         </BbButton>
         <BbButton Variant="ButtonVariant.Outline" @onclick="UpdateJson" Disabled="_isUpdatingJson">
-            <LucideIcon Name="file-json" Size="16" class="mr-2" />
+            <LucideIcon Name="file-json" Size="16" class="mr-2"/>
             Write JSON
         </BbButton>
     </div>
 
-    <SideEffectsOptionsEditor Value="_sideEffectsValue" />
-
-    <MessageQueueOptionsEditor Value="_messageQueueValue" />
-
-    <TaskBalancerOptionsEditor Value="_taskBalancerValue" />
+    <SideEffectsOptionsEditor Value="_sideEffectsValue"/>
+    <MessageQueueOptionsEditor Value="_messageQueueValue"/>
+    <TaskBalancerOptionsEditor Value="_taskBalancerValue"/>
 </div>
 
 @code {
     [Inject] public ISideEffectsConfig SideEffectsConfig { get; set; } = null!;
-    [Inject] public IMessageQueueConfig MessageQueueConfig { get; set; } = null!;
+    [Inject] public IDurableQueueConfig MessageQueueConfig { get; set; } = null!;
     [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
 
     private SideEffectsOptions _sideEffectsValue = new();
-    private MessageQueueOptions _messageQueueValue = new();
+    private DurableQueueOptions _messageQueueValue = new();
     private TaskBalancerOptions _taskBalancerValue = new();
+
     private bool _isUpdatingJson;
 
     protected override void OnInitialized()
@@ -102,4 +101,5 @@
             await File.WriteAllTextAsync(fullPath, json);
         }
     }
+
 }

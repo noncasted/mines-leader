@@ -24,8 +24,8 @@ public static class ConfigsExtensions
         builder.AddAddressableState<SideEffectsConfigState>()
             .As<ISideEffectsConfig>();
 
-        builder.AddAddressableState<MessageQueueConfigState>()
-            .As<IMessageQueueConfig>();
+        builder.AddAddressableState<DurableQueueConfigState>()
+            .As<IDurableQueueConfig>();
 
         builder.AddAddressableState<TaskBalancerConfigState>()
             .As<ITaskBalancerConfig>();

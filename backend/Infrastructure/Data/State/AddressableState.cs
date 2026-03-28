@@ -27,7 +27,7 @@ public interface IAddressableState<T> : IViewableProperty<T> where T : class, ne
     Task SetValue(T value);
 }
 
-public class AddressableStateMessageQueueId<T> : IMessageQueueId
+public class AddressableStateChannelId<T> : IRuntimeChannelId
 {
     public required string Name { get; init; }
 
@@ -55,7 +55,7 @@ public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddres
             Extension = null
         };
 
-        _queueId = new AddressableStateMessageQueueId<T>
+        _channelId = new AddressableStateChannelId<T>
         {
             Name = _identity.Type
         };
@@ -64,7 +64,7 @@ public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddres
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly StateIdentity _identity;
-    private readonly AddressableStateMessageQueueId<T> _queueId;
+    private readonly AddressableStateChannelId<T> _channelId;
 
     private bool _isInitialized;
     private DateTime _updateDate;
@@ -74,7 +74,7 @@ public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddres
 
     public async Task OnOrleansStarted(IReadOnlyLifetime lifetime)
     {
-        await _messaging.ListenQueue<AddressableStateValue>(lifetime, _queueId, OnUpdate);
+        await _messaging.ListenChannel<AddressableStateValue>(lifetime, _channelId, OnUpdate);
 
         var state = await _orleans.StateStorage.Read<AddressableStateValue>(_identity);
 
@@ -109,7 +109,7 @@ public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddres
         };
 
         await _orleans.StateStorage.Write(_identity, state);
-        await _messaging.Queue.PushDirect(_queueId, state);
+        await _messaging.PublishChannel(_channelId, state);
     }
 }
 

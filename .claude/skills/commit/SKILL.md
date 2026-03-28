@@ -32,7 +32,7 @@ NEVER NEVER NEVER ADD CLAUDE TO CO-AUTHORS
 ## Execution Steps
 
 1. Run `git status` to get unstaged/untracked files
-2. Run `git log -10 --oneline` to see recent commits and understand context
+2. Run `git log -40 --oneline` to see recent commits and understand context
 3. Get current branch name with `git rev-parse --abbrev-ref HEAD`
 4. Analyze changes:
    - Extract ticket ID (e.g., `ATS-123`) from branch name

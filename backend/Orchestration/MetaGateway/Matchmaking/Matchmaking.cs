@@ -1,4 +1,5 @@
 ﻿using Cluster.Configs;
+using Common;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
@@ -36,12 +37,14 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         ILobbyFactory lobbyFactory,
         IConnectedUsers users,
         IBotConfig botConfig,
+        IClusterFlags clusterFlags,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
         _lobbyFactory = lobbyFactory;
         _users = users;
         _botConfig = botConfig;
+        _clusterFlags = clusterFlags;
         _logger = logger;
 
         foreach (var type in Enum.GetValues<GameMatchType>())
@@ -52,6 +55,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly ILobbyFactory _lobbyFactory;
     private readonly IConnectedUsers _users;
     private readonly IBotConfig _botConfig;
+    private readonly IClusterFlags _clusterFlags;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
@@ -113,6 +117,12 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     {
         while (lifetime.IsTerminated == false)
         {
+            if (_clusterFlags.MatchmakingEnabled == false)
+            {
+                await Task.Delay(500, lifetime.Token);
+                continue;
+            }
+
             await _lock.WaitAsync(lifetime.Token);
 
             var hasMatched = false;

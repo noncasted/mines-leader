@@ -11,7 +11,7 @@ public interface IStateCollection<TKey, TValue> : IReadOnlyDictionary<TKey, TVal
     Task OnUpdatedTransactional(TKey key, TValue value);
 }
 
-public class StateCollectionMessageQueueId<TKey, TValue> : IMessageQueueId
+public class StateCollectionDurableQueueId<TKey, TValue> : IDurableQueueId
 {
     public string ToRaw()
     {
@@ -44,7 +44,7 @@ public class StateCollectionUtils<TKey, TValue>
     private readonly IStateStorage _storage;
     private readonly IMessaging _messaging;
 
-    private readonly StateCollectionMessageQueueId<TKey, TValue> _queueId = new();
+    private readonly StateCollectionDurableQueueId<TKey, TValue> _queueId = new();
 
     public async Task<IReadOnlyDictionary<TKey, TValue>> Load(IReadOnlyLifetime lifetime)
     {
@@ -88,7 +88,7 @@ public class StateCollectionUtils<TKey, TValue>
 
     public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue> onUpdate)
     {
-        return _messaging.ListenQueue<StateCollectionUpdate<TKey, TValue>>(
+        return _messaging.ListenDurableQueue<StateCollectionUpdate<TKey, TValue>>(
             lifetime,
             _queueId,
             update => onUpdate(update.Key, update.Value)

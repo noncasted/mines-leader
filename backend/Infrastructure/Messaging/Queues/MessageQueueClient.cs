@@ -5,33 +5,32 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public interface IMessageQueueClient
+public interface IDurableQueueClient
 {
     Task Start(IReadOnlyLifetime lifetime);
 
-    Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IMessageQueueId id);
-    void PushTransactional(IMessageQueueId id, object message);
-    Task PushDirect(IMessageQueueId id, object message);
+    Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IDurableQueueId id);
+    void PushTransactional(IDurableQueueId id, object message);
+    Task PushDirect(IDurableQueueId id, object message);
 }
 
-public class MessageQueueClient : IMessageQueueClient
+public class DurableQueueClient : IDurableQueueClient
 {
-    public MessageQueueClient(
+    public DurableQueueClient(
         IOrleans orleans,
         ISideEffectsStorage sideEffectsStorage,
-        ILogger<MessageQueueClient> logger)
+        ILogger<DurableQueueClient> logger)
     {
         _orleans = orleans;
         _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
     }
 
-    private readonly ILogger<MessageQueueClient> _logger;
-
-    private readonly ConcurrentDictionary<string, Listener> _listeners = new();
-
     private readonly IOrleans _orleans;
     private readonly ISideEffectsStorage _sideEffectsStorage;
+    private readonly ILogger<DurableQueueClient> _logger;
+
+    private readonly ConcurrentDictionary<string, Listener> _listeners = new();
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
@@ -39,16 +38,16 @@ public class MessageQueueClient : IMessageQueueClient
         return Task.CompletedTask;
     }
 
-    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IMessageQueueId id)
+    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IDurableQueueId id)
     {
         var rawId = id.ToRaw();
 
-        if (_listeners.TryGetValue(rawId, out var existing) == true)
+        if (_listeners.TryGetValue(rawId, out var existing))
             return (ViewableDelegate<T>)existing.Delegate;
 
         var source = new ViewableDelegate<T>();
 
-        var observer = new MessageQueueObserver(message =>
+        var observer = new DurableQueueObserver(message =>
             {
                 if (message is not T castedMessage)
                     throw new InvalidCastException();
@@ -57,7 +56,7 @@ public class MessageQueueClient : IMessageQueueClient
             }
         );
 
-        var observerReference = _orleans.Client.CreateObjectReference<IMessageQueueObserver>(observer);
+        var observerReference = _orleans.Client.CreateObjectReference<IDurableQueueObserver>(observer);
 
         var listener = new Listener
         {
@@ -75,12 +74,12 @@ public class MessageQueueClient : IMessageQueueClient
         return source;
     }
 
-    public void PushTransactional(IMessageQueueId id, object message)
+    public void PushTransactional(IDurableQueueId id, object message)
     {
         if (TransactionContextProvider.Current == null)
             throw new InvalidOperationException();
 
-        var sideEffect = new MessageQueueSideEffect()
+        var sideEffect = new DurableQueueSideEffect()
         {
             QueueName = id.ToRaw(),
             Message = message
@@ -89,9 +88,9 @@ public class MessageQueueClient : IMessageQueueClient
         sideEffect.AddToTransaction();
     }
 
-    public Task PushDirect(IMessageQueueId id, object message)
+    public Task PushDirect(IDurableQueueId id, object message)
     {
-        return _sideEffectsStorage.Write(new MessageQueueSideEffect()
+        return _sideEffectsStorage.Write(new DurableQueueSideEffect()
             {
                 QueueName = id.ToRaw(),
                 Message = message
@@ -99,10 +98,10 @@ public class MessageQueueClient : IMessageQueueClient
         );
     }
 
-    private IMessageQueue GetQueue(IMessageQueueId id)
+    private IDurableQueue GetQueue(IDurableQueueId id)
     {
         var rawId = id.ToRaw();
-        return _orleans.GetGrain<IMessageQueue>(rawId);
+        return _orleans.GetGrain<IDurableQueue>(rawId);
     }
 
     private async Task ResubscribeLoop(IReadOnlyLifetime lifetime)
@@ -116,10 +115,10 @@ public class MessageQueueClient : IMessageQueueClient
 
     public class Listener
     {
-        public required IMessageQueueId Id { get; init; }
-        public required MessageQueueObserver ObserverSource { get; init; }
-        public required IMessageQueueObserver ObserverReference { get; init; }
-        public required IMessageQueue Queue { get; init; }
+        public required IDurableQueueId Id { get; init; }
+        public required DurableQueueObserver ObserverSource { get; init; }
+        public required IDurableQueueObserver ObserverReference { get; init; }
+        public required IDurableQueue Queue { get; init; }
         public required ILogger Logger { get; init; }
         public required object Delegate { get; init; }
 
@@ -131,7 +130,7 @@ public class MessageQueueClient : IMessageQueueClient
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "[Messaging] [Queue] Failed to rebind observer to queue {QueueId}",
+                Logger.LogError(e, "[Messaging] [DurableQueue] Failed to rebind observer to queue {QueueId}",
                     Id.ToRaw()
                 );
 

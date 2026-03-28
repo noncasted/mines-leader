@@ -38,7 +38,7 @@ public class BackendConnectionMiddleware
             return;
         }
 
-        if (_clusterFeatures.AcceptingConnections.Value == false)
+        if (_clusterFeatures.Value.AcceptingConnections == false)
         {
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             await context.Response.WriteAsync("Cluster is not accepting connections");
