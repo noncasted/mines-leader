@@ -52,6 +52,12 @@ namespace Shared
             public GameMatchType Type { get; set; }
         }
 
+        [MemoryPackable]
+        public partial class RatingProjection : INetworkContext
+        {
+            public int Rating { get; set; }
+        }
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
@@ -59,7 +65,8 @@ namespace Shared
                 .Add<ProgressionProjection>()
                 .Add<UpdateDeckRequest>()
                 .Add<DeckProjection>()
-                .Add<Match>();
+                .Add<Match>()
+                .Add<RatingProjection>();
         }
     }
 }

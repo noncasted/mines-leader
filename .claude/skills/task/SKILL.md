@@ -56,7 +56,7 @@ Use the format below.
 
 After outputting the brief to the user:
 - Convert the task short name (from `## Задача: ...`) to a filename: lowercase, spaces → underscores, remove special characters
-- Write the full brief (exact same text shown to user) to `Docs/Tasks/<task_name>.md`
+- Write the full brief (exact same text shown to user) to `/docs/tasks/<task_name>.md`
 - Confirm to the user: `Задача сохранена: Assets/Docs/Tasks/<task_name>.md`
 - Then ask **"Начинаем реализацию?"**
 

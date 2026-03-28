@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Cluster.Configs;
+using Infrastructure;
 using Infrastructure.State;
 using Meta.Users;
 using Microsoft.Extensions.Options;
@@ -45,16 +46,19 @@ public class Match : Grain, IMatch
     public Match(
         [State] State<MatchState> state,
         IOrleans orleans,
-        IOptions<ProgressionOptions> options)
+        IOptions<ProgressionOptions> options,
+        IRatingConfig ratingConfig)
     {
         _state = state;
         _orleans = orleans;
         _options = options;
+        _ratingConfig = ratingConfig;
     }
 
     private readonly State<MatchState> _state;
     private readonly IOrleans _orleans;
     private readonly IOptions<ProgressionOptions> _options;
+    private readonly IRatingConfig _ratingConfig;
 
     public Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
@@ -96,12 +100,28 @@ public class Match : Grain, IMatch
             Date = endDate,
             Experience = _options.Value.LossExperience
         };
-        
+
+        var ratingOptions = _ratingConfig.Value;
+
+        var winRatingRecord = new UserRatingRecords.Win
+        {
+            Date = endDate,
+            Rating = ratingOptions.WinRating
+        };
+
+        var lossRatingRecord = new UserRatingRecords.Loss
+        {
+            Date = endDate,
+            Rating = ratingOptions.LossRating
+        };
+
         await Task.WhenAll(
             winner.MatchHistory.Add(overview),
             winner.Progression.AddRecord(winRecord),
+            winner.Rating.AddRecord(winRatingRecord),
             loser.MatchHistory.Add(overview),
-            loser.Progression.AddRecord(lossRecord)
+            loser.Progression.AddRecord(lossRecord),
+            loser.Rating.AddRecord(lossRatingRecord)
         );
     }
 }

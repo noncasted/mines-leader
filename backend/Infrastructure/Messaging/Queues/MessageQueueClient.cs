@@ -64,8 +64,7 @@ public class MessageQueueClient : IMessageQueueClient
             Id = id,
             ObserverSource = observer,
             ObserverReference = observerReference,
-            Queue = GetQueue(id
-            ),
+            Queue = GetQueue(id),
             Logger = _logger,
             Delegate = source
         };

@@ -7,9 +7,9 @@ namespace Meta.Users;
 [GenerateSerializer]
 public class UserAuthState : IStateValue
 {
-    [Id(0)]
-    public bool IsExists { get; set; }
-    
+    [Id(0)] public bool IsExists { get; set; }
+    [Id(1)] public DateTime RegisteredAt { get; set; }
+
     public int Version => 0;
 }
 
@@ -20,6 +20,9 @@ public interface IUserAuth : IUserGrain
 
     [Transaction]
     Task OnRegistered();
+    
+    [Transaction]
+    Task<DateTime> GetDate();
 }
 
 public class UserAuth : UserGrain, IUserAuth
@@ -42,9 +45,15 @@ public class UserAuth : UserGrain, IUserAuth
         await _state.Update(state =>
             {
                 state.IsExists = true;
+                state.RegisteredAt = DateTime.UtcNow;
             }
         );
 
         _logger.LogInformation("[User] [Auth] User {UserId} registered", this.GetPrimaryKey());
+    }
+
+    public Task<DateTime> GetDate()
+    {
+        return _state.Read(state => state.RegisteredAt);
     }
 }

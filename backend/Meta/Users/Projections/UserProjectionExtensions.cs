@@ -1,18 +1,18 @@
-﻿namespace Meta.Users;
+﻿using Infrastructure;
+
+namespace Meta.Users;
 
 public static class UserProjectionExtensions
 {
-    extension(IGrainFactory grains)
+    extension(IOrleans orleans)
     {
-        public Task SendCachedProjection(Guid id, IProjectionPayload payload)
-        {
-            var projection = grains.GetGrain<IUserProjection>(id);
-            return projection.SendCached(payload);
-        }
-
         public Task SendOneTimeProjection(Guid id, IProjectionPayload payload)
         {
-            var projection = grains.GetGrain<IUserProjection>(id);
+            var projection = orleans.GetGrain<IUserProjection>(id);
+
+            if (TransactionContextProvider.Current == null)
+                return orleans.InTransaction(() => projection.SendOneTime(payload));
+
             return projection.SendOneTime(payload);
         }
     }

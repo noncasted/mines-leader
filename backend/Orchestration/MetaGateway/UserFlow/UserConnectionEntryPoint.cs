@@ -19,7 +19,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     public UserConnectionEntryPoint(
         IConnectedUsers users,
         IUserCommandsDispatcher commandsDispatcher,
-        IClusterClient orleans,
+        IOrleans orleans,
         IMessaging messaging,
         ICardConfigs cardConfigs,
         ILogger<UserConnectionEntryPoint> logger)
@@ -35,7 +35,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IConnectedUsers _users;
     private readonly IUserCommandsDispatcher _commandsDispatcher;
 
-    private readonly IClusterClient _orleans;
+    private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
@@ -58,14 +58,15 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             var projection = _orleans.GetGrain<IUserProjection>(user.UserId);
 
             _logger.LogInformation("[User] [EntryPoint] Calling OnConnected for user {UserId}", user.UserId);
-            await projection.OnConnected();
+            await _orleans.InTransaction(projection.OnConnected);
 
             user.Lifetime.Listen(() =>
                 {
                     _logger.LogInformation("[User] [EntryPoint] User {UserId} disconnecting, calling OnDisconnected",
                         user.UserId
                     );
-                    projection.OnDisconnected().NoAwait();
+
+                    _orleans.InTransaction(projection.OnDisconnected).NoAwait();
                 }
             );
 
@@ -91,7 +92,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             );
 
             _logger.LogInformation("[User] [EntryPoint] Forcing initial notify for user {UserId}", user.UserId);
-            await projection.ForceNotify();
+            await _orleans.InTransaction(projection.ForceNotify);
 
             _cardConfigs.View(user.Lifetime, value => user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
                     {

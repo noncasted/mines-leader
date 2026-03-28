@@ -4,17 +4,17 @@
 @using Infrastructure.State
 @using Meta.Bots
 @using Meta.Users
+@inherits UiComponent
 @inject ToastService ToastService
-@implements IDisposable
 
 <PageTitle>Bots</PageTitle>
-<PageHeader Title="Bot Management" />
+<PageHeader Title="Bot Management"/>
 
 <div class="container mx-auto max-w-4xl px-4 py-4 flex flex-col gap-3">
     @if (_showCreateForm)
     {
         <div class="flex items-center gap-2 pb-3 border-b">
-            <BbInput @bind-Value="_newBotName" Placeholder="Bot name" class="max-w-xs" />
+            <BbInput @bind-Value="_newBotName" Placeholder="Bot name" class="max-w-xs"/>
             <BbButton @onclick="SubmitCreateBot" Disabled="@string.IsNullOrWhiteSpace(_newBotName)">Create</BbButton>
             <BbButton Variant="ButtonVariant.Ghost" @onclick="ToggleCreateForm">Cancel</BbButton>
         </div>
@@ -23,7 +23,7 @@
     {
         <div>
             <BbButton @onclick="ToggleCreateForm">
-                <LucideIcon Name="plus" Size="16" class="mr-2" />
+                <LucideIcon Name="plus" Size="16" class="mr-2"/>
                 Create Bot
             </BbButton>
         </div>
@@ -32,32 +32,34 @@
     <div class="rounded-lg border">
         <table class="w-full text-sm">
             <thead>
-                <tr class="border-b bg-muted/50">
-                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
-                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
-                    <th class="h-10 px-4 text-left font-medium text-muted-foreground w-12"></th>
-                </tr>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground w-12"></th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var bot in _bots)
-                {
-                    <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer" @onclick="@(() => NavigateToBotEditor(bot.Id))">
-                        <td class="px-4 py-2.5 font-medium">@(_names.TryGetValue(bot.Id, out var name) ? name : bot.Id.ToString())</td>
-                        <td class="px-4 py-2.5 text-muted-foreground font-mono text-xs">@bot.Id</td>
-                        <td class="px-4 py-2.5" @onclick:stopPropagation="true">
-                            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                                      @onclick="@(() => NavigateToBotEditor(bot.Id))">
-                                <LucideIcon Name="pencil" Size="14" />
-                            </BbButton>
-                        </td>
-                    </tr>
-                }
-                @if (_bots.Count == 0)
-                {
-                    <tr>
-                        <td colspan="3" class="px-4 py-8 text-center text-muted-foreground">No bots found</td>
-                    </tr>
-                }
+            @foreach (var bot in _bots)
+            {
+                <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
+                    @onclick="@(() => NavigateToBotEditor(bot.Id))">
+                    <td class="px-4 py-2.5 font-medium">@(_names.TryGetValue(bot.Id, out var name) ? name : bot.Id.ToString())</td>
+                    <td class="px-4 py-2.5 text-muted-foreground font-mono text-xs">@bot.Id</td>
+                    <td class="px-4 py-2.5" @onclick:stopPropagation="true">
+                        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                                  @onclick="@(() => NavigateToBotEditor(bot.Id))">
+                            <LucideIcon Name="pencil" Size="14"/>
+                        </BbButton>
+                    </td>
+                </tr>
+            }
+
+            @if (_bots.Count == 0)
+            {
+                <tr>
+                    <td colspan="3" class="px-4 py-8 text-center text-muted-foreground">No bots found</td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>
@@ -73,17 +75,16 @@
     private bool _showCreateForm;
     private string _newBotName = string.Empty;
     private readonly Dictionary<Guid, string> _names = new();
-    private readonly Lifetime _lifetime = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnSetup(IReadOnlyLifetime lifetime)
     {
         await ReloadBots();
-        BotCollection.Updated.Advise(_lifetime, () => ReloadBots().NoAwait());
+        BotCollection.Updated.Advise(lifetime, () => ReloadBots().NoAwait());
     }
 
     private async Task ReloadBots()
     {
-        if (!BotCollection.Values.Any())
+        if (BotCollection.Values.Any() == false)
             return;
 
         var stateIdentities = new List<StateIdentity>();
@@ -92,12 +93,13 @@
         foreach (var botState in BotCollection.Values)
         {
             stateIdentities.Add(new StateIdentity
-            {
-                Key = botState.Id,
-                Type = stateInfo.Name,
-                Extension = null,
-                TableName = stateInfo.TableName
-            });
+                {
+                    Key = botState.Id,
+                    Type = stateInfo.Name,
+                    Extension = null,
+                    TableName = stateInfo.TableName
+                }
+            );
         }
 
         var botUsers = await Storage.Read<Guid, UserState>(stateIdentities);
@@ -112,7 +114,8 @@
     private void ToggleCreateForm()
     {
         _showCreateForm = !_showCreateForm;
-        if (!_showCreateForm)
+
+        if (_showCreateForm == false)
             _newBotName = string.Empty;
     }
 
@@ -143,8 +146,4 @@
         Navigation.NavigateTo($"/bots/{botId}");
     }
 
-    public void Dispose()
-    {
-        _lifetime.Terminate();
-    }
 }

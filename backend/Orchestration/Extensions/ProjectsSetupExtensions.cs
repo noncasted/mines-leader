@@ -58,7 +58,7 @@ public static class ProjectsSetupExtensions
 
             // Project services
             builder
-                .AddUserFactory()
+                .AddUserServices()
                 .AddBackendMatchServices();
 
             builder.Services.AddOpenApi();
@@ -115,6 +115,10 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Console)
                 .AddBlazorComponents();
 
+            // Project services
+            builder
+                .AddUserServices();
+            
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
             foreach (var type in testsAssembly.GetTypes())
@@ -177,6 +181,8 @@ public static class ProjectsSetupExtensions
             Add<BotConfigOptions>(StatesLookup.BotConfig);
             Add<CardConfigOptions>(StatesLookup.CardConfig);
             Add<GameModeOptions>(StatesLookup.GameModeConfig);
+            Add<RatingOptions>(StatesLookup.RatingConfig);
+            Add<UserRatingState>(StatesLookup.UserRating);
 
             var registry = new GrainStatesRegistry(states);
 

@@ -8,13 +8,16 @@ public interface IUserMatchHistory : IUserGrain
 {
     [Transaction]
     Task Add(MatchOverview match);
+
+    [Transaction]
+    Task<IReadOnlyList<MatchOverview>> GetBlock(int count);
 }
 
 [GenerateSerializer]
 public class UserMatchHistoryState : IStateValue
 {
     [Id(0)] public List<MatchOverview> Matches { get; } = new();
-    
+
     public int Version => 0;
 }
 
@@ -33,5 +36,10 @@ public class UserMatchHistory : UserGrain, IUserMatchHistory
             _state.Write(state => state.Matches.Add(match)),
             this.SendCachedProjection(match)
         );
+    }
+
+    public Task<IReadOnlyList<MatchOverview>> GetBlock(int count)
+    {
+        return _state.Read(state => (IReadOnlyList<MatchOverview>)state.Matches.TakeLast(count).ToList());
     }
 }

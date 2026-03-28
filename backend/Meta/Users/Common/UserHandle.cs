@@ -15,6 +15,7 @@ public class UserHandle
     
     public IUser Entity => _orleans.GetGrain<IUser>(_id);
     public IUserProgression Progression => _orleans.GetGrain<IUserProgression>(_id);
+    public IUserRating Rating => _orleans.GetGrain<IUserRating>(_id);
     public IUserMatchHistory MatchHistory => _orleans.GetGrain<IUserMatchHistory>(_id);
     public IUserDeck Deck => _orleans.GetGrain<IUserDeck>(_id);
     public IUserAuth Auth => _orleans.GetGrain<IUserAuth>(_id);

@@ -17,6 +17,9 @@ public interface IUserDeck : IUserGrain
 
     [Transaction]
     Task<IReadOnlyList<CardType>> GetSelected();
+    
+    [Transaction]
+    Task<UserDeckState> GetState();
 }
 
 [GenerateSerializer]
@@ -126,5 +129,10 @@ public class UserDeck : UserGrain, IUserDeck
                 return selectedDeck.Cards;
             }
         );
+    }
+
+    public Task<UserDeckState> GetState()
+    {
+        return _state.ReadValue();
     }
 }

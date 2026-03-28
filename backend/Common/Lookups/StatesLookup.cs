@@ -109,6 +109,20 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
+    public static readonly Info RatingConfig = new()
+    {
+        TableName = "configs",
+        StateName = "rating_config",
+        KeyType = GrainKeyType.String
+    };
+
+    public static readonly Info UserRating = new()
+    {
+        TableName = "state_user_rating",
+        StateName = "user_rating",
+        KeyType = GrainKeyType.Guid
+    };
+
     public static IReadOnlyList<Info> All =>
     [
         StateTestTest,
@@ -125,6 +139,8 @@ public static class StatesLookup
         BotConfig,
         CardConfig,
         GameModeConfig,
+        RatingConfig,
+        UserRating,
     ];
 
 
