@@ -137,6 +137,20 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
+    public static readonly Info RuntimePipeConfig = new()
+    {
+        TableName = "configs",
+        StateName = "runtime_pipe_config",
+        KeyType = GrainKeyType.String
+    };
+
+    public static readonly Info RuntimeChannelConfig = new()
+    {
+        TableName = "configs",
+        StateName = "runtime_channel_config",
+        KeyType = GrainKeyType.String
+    };
+
     public static readonly Info ClusterFeatures = new()
     {
         TableName = "configs",
@@ -171,6 +185,8 @@ public static class StatesLookup
         SideEffectsConfig,
         MessageQueueConfig,
         TaskBalancerConfig,
+        RuntimePipeConfig,
+        RuntimeChannelConfig,
         ClusterFeatures,
         UserRating,
     ];

@@ -137,19 +137,24 @@ public class RuntimePipeClient : IRuntimePipeClient
         public required IRuntimePipe Pipe { get; init; }
         public required ILogger Logger { get; init; }
 
-        public Task Resubscribe()
+        private int _consecutiveFailures;
+
+        public async Task Resubscribe()
         {
             try
             {
-                return Pipe.BindObserver(Observer);
+                await Pipe.BindObserver(Observer);
+                _consecutiveFailures = 0;
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "[Messaging] [RuntimePipe] Failed to rebind observer to pipe {PipeId}",
-                    Id.ToRaw()
-                );
+                _consecutiveFailures++;
 
-                return Task.CompletedTask;
+                if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
+                    Logger.LogError(e,
+                        "[Messaging] [RuntimePipe] Failed to rebind observer (attempt {Count}) to pipe {PipeId}",
+                        _consecutiveFailures, Id.ToRaw()
+                    );
             }
         }
     }

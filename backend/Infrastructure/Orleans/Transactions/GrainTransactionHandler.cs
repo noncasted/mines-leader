@@ -1,4 +1,5 @@
 using Infrastructure.State;
+using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
 
 namespace Infrastructure;
@@ -48,6 +49,11 @@ public interface IGrainTransactionHandler : IGrainExtension
 //     → OnFailure() — rolls back in-memory state, releases lock
 public class GrainTransactionHandler : IGrainTransactionHandler
 {
+    public GrainTransactionHandler(ILogger<GrainTransactionHandler> logger)
+    {
+        _logger = logger;
+    }
+
     // Id of the transaction currently holding this grain.
     // Guid.Empty means the grain is free.
     private Guid _currentTransactionId;
@@ -65,6 +71,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     private readonly Guid _participantId = Guid.NewGuid();
 
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
+    private readonly ILogger<GrainTransactionHandler> _logger;
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
     // Returns _participantId so Transactions.Process() can track this grain.
@@ -97,6 +104,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             // we cannot take over — it may still be running normally but slowly.
             if (_currentTransactionTime.AddSeconds(30) >= DateTime.UtcNow)
             {
+                _logger.LogWarning(
+                    "[Transaction] [Join] Timeout waiting for lock. TransactionId={TransactionId} BlockedBy={BlockedBy}",
+                    transactionId, _currentTransactionId
+                );
+
                 throw new Exception(
                     $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
                 );
@@ -106,6 +118,13 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             // Force-release its semaphore and acquire for ourselves.
             // The stuck transaction's eventual OnSuccess/OnFailure will fail the ID check
             // and exit early without touching the semaphore or state.
+            var stuckAge = (DateTime.UtcNow - _currentTransactionTime).TotalSeconds;
+
+            _logger.LogWarning(
+                "[Transaction] [Takeover] Forcing takeover of stuck transaction. StuckTransactionId={StuckId} AgeSeconds={AgeSeconds} IncomingTransactionId={TransactionId}",
+                _currentTransactionId, stuckAge, transactionId
+            );
+
             if (_lock.CurrentCount == 0)
                 _lock.Release();
 
@@ -149,6 +168,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     {
         if (_currentTransactionId != transactionId)
         {
+            _logger.LogError(
+                "[Transaction] [CollectResult] Transaction ID mismatch. Expected={TransactionId} Current={CurrentId}",
+                transactionId, _currentTransactionId
+            );
+
             throw new Exception(
                 $"Handler failed to complete transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
             );
@@ -174,9 +198,12 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         // That transaction now owns the lock — do not release it here.
         if (_currentTransactionId != transactionId)
         {
-            throw new Exception(
-                $"Handler failed to complete transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
+            _logger.LogWarning(
+                "[Transaction] [OnSuccess] Skipped — grain was taken over. ExpectedId={TransactionId} CurrentId={CurrentId}",
+                transactionId, _currentTransactionId
             );
+
+            return Task.CompletedTask;
         }
 
         foreach (var state in _states)

@@ -10,24 +10,27 @@ public interface IRuntimePipe : IGrainWithStringKey
 
 public class RuntimePipe : Grain, IRuntimePipe
 {
-    public RuntimePipe(ILogger<RuntimePipe> logger)
+    public RuntimePipe(ILogger<RuntimePipe> logger, IRuntimePipeConfig config)
     {
         _logger = logger;
+        _config = config;
     }
 
     private readonly ILogger<RuntimePipe> _logger;
+    private readonly IRuntimePipeConfig _config;
 
     private IRuntimePipeObserver? _observer;
     private DateTime _setDate;
 
-    public override async Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
         var timeSinceLastUpdate = DateTime.UtcNow - _setDate;
+        var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
 
-        if (timeSinceLastUpdate > TimeSpan.FromMinutes(3))
-            return;
+        if (timeSinceLastUpdate < keepAlive)
+            DelayDeactivation(keepAlive - timeSinceLastUpdate);
 
-        throw new Exception("[Messaging] [RuntimePipe] Keeping pipe alive because observer was recently set");
+        return Task.CompletedTask;
     }
 
     public Task BindObserver(IRuntimePipeObserver observer)
@@ -56,7 +59,8 @@ public class RuntimePipe : Grain, IRuntimePipe
 
         try
         {
-            var response = await _observer!.Send<TResponse>(message);
+            var timeout = TimeSpan.FromSeconds(_config.Value.SendTimeoutSeconds);
+            var response = await _observer!.Send<TResponse>(message).WaitAsync(timeout);
             _logger.LogTrace(
                 "[Messaging] [RuntimePipe] Successfully received response {ResponseType} for message {MessageType} on pipe {PipeId}",
                 typeof(TResponse).Name, message.GetType().Name, this.GetPrimaryKeyString()

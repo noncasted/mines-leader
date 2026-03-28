@@ -11,3 +11,9 @@ public class DurableQueueConfigState(IOrleans orleans, IMessaging messaging)
 
 public class TaskBalancerConfigState(IOrleans orleans, IMessaging messaging)
     : AddressableState<TaskBalancerOptions>(orleans, messaging), ITaskBalancerConfig;
+
+public class RuntimePipeConfigState(IOrleans orleans, IMessaging messaging)
+    : AddressableState<RuntimePipeOptions>(orleans, messaging), IRuntimePipeConfig;
+
+public class RuntimeChannelConfigState(IOrleans orleans, IMessaging messaging)
+    : AddressableState<RuntimeChannelOptions>(orleans, messaging), IRuntimeChannelConfig;

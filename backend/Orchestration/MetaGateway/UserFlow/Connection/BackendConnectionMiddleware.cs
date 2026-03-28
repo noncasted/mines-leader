@@ -3,6 +3,7 @@ using Common.Extensions;
 using Common.Network;
 using Common.Reactive;
 using Infrastructure;
+using Infrastructure.Startup;
 using Meta.Users;
 using Shared;
 
@@ -15,12 +16,14 @@ public class BackendConnectionMiddleware
         IOrleans orleans,
         IUserConnectionEntryPoint entryPoint,
         IClusterFeatures clusterFeatures,
+        IClusterParticipantContext participantContext,
         ILogger<BackendConnectionMiddleware> logger)
     {
         _next = next;
         _orleans = orleans;
         _entryPoint = entryPoint;
         _clusterFeatures = clusterFeatures;
+        _participantContext = participantContext;
         _logger = logger;
     }
 
@@ -28,6 +31,7 @@ public class BackendConnectionMiddleware
     private readonly IOrleans _orleans;
     private readonly IUserConnectionEntryPoint _entryPoint;
     private readonly IClusterFeatures _clusterFeatures;
+    private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<BackendConnectionMiddleware> _logger;
 
     public async Task InvokeAsync(HttpContext context)
@@ -35,6 +39,13 @@ public class BackendConnectionMiddleware
         if (context.WebSockets.IsWebSocketRequest == false)
         {
             await _next(context);
+            return;
+        }
+
+        if (_participantContext.IsInitialized.Value == false)
+        {
+            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            await context.Response.WriteAsync("Cluster participant is not initialized");
             return;
         }
 

@@ -1,5 +1,7 @@
 ﻿using Common.Network;
 using Game.Global;
+using Infrastructure;
+using Infrastructure.Startup;
 using Shared;
 
 namespace GameGateway;
@@ -9,15 +11,18 @@ public class SessionConnectionMiddleware
     public SessionConnectionMiddleware(
         ISessionsCollection sessionsCollection,
         RequestDelegate next,
+        IClusterParticipantContext participantContext,
         ILogger<SessionConnectionMiddleware> logger)
     {
         _sessionsCollection = sessionsCollection;
         _next = next;
+        _participantContext = participantContext;
         _logger = logger;
     }
 
     private readonly ISessionsCollection _sessionsCollection;
     private readonly RequestDelegate _next;
+    private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<SessionConnectionMiddleware> _logger;
 
     public async Task InvokeAsync(HttpContext context)
@@ -25,6 +30,13 @@ public class SessionConnectionMiddleware
         if (context.WebSockets.IsWebSocketRequest == false)
         {
             await _next(context);
+            return;
+        }
+
+        if (_participantContext.IsInitialized.Value == false)
+        {
+            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            await context.Response.WriteAsync("Cluster participant is not initialized");
             return;
         }
 

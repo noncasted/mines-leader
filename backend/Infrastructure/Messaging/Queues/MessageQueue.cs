@@ -28,11 +28,12 @@ public class DurableQueue : Grain, IDurableQueue
 
         var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
         var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
+        var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
 
-        if (timeSinceLastUpdate > TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes))
-            return Task.CompletedTask;
+        if (timeSinceLastUpdate < keepAlive)
+            DelayDeactivation(keepAlive - timeSinceLastUpdate);
 
-        throw new Exception("[Messaging] [DurableQueue] Keeping queue alive because observer was recently set");
+        return Task.CompletedTask;
     }
 
     public Task AddObserver(Guid id, IDurableQueueObserver observer)
@@ -59,31 +60,27 @@ public class DurableQueue : Grain, IDurableQueue
     {
         var toRemove = new List<Guid>();
 
-        await Task.WhenAll(_observers.Values.Select(data =>
-                {
-                    var observer = data.Observer;
+        await Task.WhenAll(_observers.Values.Select(data => SendSafe(data)));
 
-                    try
-                    {
-                        return observer.Send(new List<object>() { message });
-                    }
-                    catch (Exception e)
-                    {
-                        toRemove.Add(data.Id);
+        foreach (var id in toRemove)
+            _observers.Remove(id);
 
-                        _logger.LogError(e,
-                            "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",
-                            this.GetPrimaryKeyString()
-                        );
+        async Task SendSafe(ObserverData data)
+        {
+            try
+            {
+                await data.Observer.Send(new List<object>() { message });
+            }
+            catch (Exception e)
+            {
+                toRemove.Add(data.Id);
 
-                        return Task.CompletedTask;
-                    }
-                }
-            )
-        );
-
-        foreach (var observer in toRemove)
-            _observers.Remove(observer);
+                _logger.LogError(e,
+                    "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",
+                    this.GetPrimaryKeyString()
+                );
+            }
+        }
     }
 
     public class ObserverData

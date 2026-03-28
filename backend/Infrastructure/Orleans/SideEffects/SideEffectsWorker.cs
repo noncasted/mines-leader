@@ -1,6 +1,7 @@
 using Common;
 using Common.Extensions;
 using Common.Reactive;
+using Infrastructure.Startup;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,7 @@ public class SideEffectsWorker : IHostedService
         IServiceLoopObserver loopObserver,
         ISideEffectsConfig config,
         IClusterFlags clusterFlags,
+        IClusterParticipantContext participantContext,
         ILogger<SideEffectsWorker> logger)
     {
         _storage = storage;
@@ -23,6 +25,7 @@ public class SideEffectsWorker : IHostedService
         _loopObserver = loopObserver;
         _config = config;
         _clusterFlags = clusterFlags;
+        _participantContext = participantContext;
         _logger = logger;
     }
 
@@ -32,6 +35,7 @@ public class SideEffectsWorker : IHostedService
     private readonly IServiceLoopObserver _loopObserver;
     private readonly ISideEffectsConfig _config;
     private readonly IClusterFlags _clusterFlags;
+    private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<SideEffectsWorker> _logger;
 
     private int _inProgress;
@@ -46,6 +50,7 @@ public class SideEffectsWorker : IHostedService
     private async Task Loop(IReadOnlyLifetime lifetime)
     {
         await _loopObserver.IsOrleansStarted.WaitTrue(lifetime);
+        await _participantContext.IsInitialized.WaitTrue(lifetime);
 
         while (lifetime.IsTerminated == false)
         {
@@ -54,6 +59,8 @@ public class SideEffectsWorker : IHostedService
                 await Task.Delay(500, lifetime.Token);
                 continue;
             }
+
+            var foundWork = false;
 
             try
             {
@@ -65,6 +72,7 @@ public class SideEffectsWorker : IHostedService
                 if (freeSlots > 0)
                 {
                     var entries = await _storage.Read(freeSlots);
+                    foundWork = entries.Count > 0;
 
                     foreach (var entry in entries)
                         ExecuteEntry(entry, lifetime).NoAwait();
@@ -75,7 +83,8 @@ public class SideEffectsWorker : IHostedService
                 _logger.LogError(e, "[SideEffects] Error in scan loop");
             }
 
-            await Task.Delay(_config.Value.ScanDelay, lifetime.Token);
+            var delay = foundWork ? _config.Value.ScanDelay : _config.Value.EmptyScanDelay;
+            await Task.Delay(delay, lifetime.Token);
         }
     }
 

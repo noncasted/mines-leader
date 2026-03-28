@@ -34,13 +34,30 @@ public interface IRuntimeChannel : IGrainWithStringKey
 
 public class RuntimeChannel : Grain, IRuntimeChannel
 {
-    public RuntimeChannel(ILogger<RuntimeChannel> logger)
+    public RuntimeChannel(ILogger<RuntimeChannel> logger, IRuntimeChannelConfig config)
     {
         _logger = logger;
+        _config = config;
     }
 
     private readonly ILogger<RuntimeChannel> _logger;
+    private readonly IRuntimeChannelConfig _config;
     private readonly ConcurrentDictionary<Guid, ObserverData> _observers = new();
+
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    {
+        if (_observers.Count == 0)
+            return Task.CompletedTask;
+
+        var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
+        var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
+        var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
+
+        if (timeSinceLastUpdate < keepAlive)
+            DelayDeactivation(keepAlive - timeSinceLastUpdate);
+
+        return Task.CompletedTask;
+    }
 
     public Task AddObserver(Guid id, IRuntimeChannelObserver observer)
     {
@@ -66,31 +83,29 @@ public class RuntimeChannel : Grain, IRuntimeChannel
     {
         var toRemove = new List<Guid>();
 
-        await Task.WhenAll(_observers.Values.Select(data =>
-                {
-                    var observer = data.Observer;
+        await Task.WhenAll(_observers.Values.Select(data => SendSafe(data)));
 
-                    try
-                    {
-                        return observer.Send(new List<object>() { message });
-                    }
-                    catch (Exception e)
-                    {
-                        toRemove.Add(data.Id);
+        foreach (var id in toRemove)
+            _observers.TryRemove(id, out _);
 
-                        _logger.LogError(e,
-                            "[Messaging] [Channel] Delivering message from {ChannelName} to observer failed",
-                            this.GetPrimaryKeyString()
-                        );
+        return;
+        
+        async Task SendSafe(ObserverData data)
+        {
+            try
+            {
+                await data.Observer.Send(new List<object>() { message });
+            }
+            catch (Exception e)
+            {
+                toRemove.Add(data.Id);
 
-                        return Task.CompletedTask;
-                    }
-                }
-            )
-        );
-
-        foreach (var observer in toRemove)
-            _observers.TryRemove(observer, out _);
+                _logger.LogError(e,
+                    "[Messaging] [Channel] Delivering message from {ChannelName} to observer failed",
+                    this.GetPrimaryKeyString()
+                );
+            }
+        }
     }
 
     public class ObserverData
