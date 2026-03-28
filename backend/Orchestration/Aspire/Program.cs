@@ -3,10 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Projects;
 using Silo = Projects.Silo;
 
-Console.WriteLine("[AppHost] Environment variables:");
-foreach (System.Collections.DictionaryEntry entry in System.Environment.GetEnvironmentVariables())
-    Console.WriteLine($"[AppHost]   {entry.Key}={entry.Value}");
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
@@ -82,10 +78,23 @@ void SetupDB()
         game,
         console
     };
+    
+    configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["postgres"] = dbConnection,
+            ["ConnectionStrings__postgres"] = dbConnection
+        }
+    );
 
     foreach (var resource in projectResources)
-        resource.WithEnvironment(context => context.EnvironmentVariables["ConnectionStrings__postgres"] = dbConnection);
-}
+    {
+        resource.WithEnvironment(context =>
+            {
+                context.EnvironmentVariables["postgres"] = dbConnection;
+                context.EnvironmentVariables["ConnectionStrings__postgres"] = dbConnection;
+            }
+        );
+    }}
 
 void SetDashboardToken()
 {
@@ -106,7 +115,10 @@ Task<string> GetOrCreateDb()
     var externalDb = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 
     if (externalDb != null)
+    {
+        Console.WriteLine($"[AppHost] [DB] Received external db: {externalDb}");
         return Task.FromResult(externalDb);
+    }
 
     var localDb = configuration.GetConnectionString("db")!;
 
@@ -132,5 +144,7 @@ Task<string> GetOrCreateDb()
         .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
         .WithLifetime(ContainerLifetime.Persistent);
 
-    return Task.FromResult($"Host={host};Port={port};Database={database};Username={user};Password={password}");
+    var result = $"Host={host};Port={port};Database={database};Username={user};Password={password}";
+    Console.WriteLine($"[AppHost] [DB] Create db string from options: {result}");
+    return Task.FromResult(result);
 }
