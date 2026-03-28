@@ -18,7 +18,6 @@ public static class Options
         { 7003, 7103 }, // Console
     };
 
-
     // Private
     // 6001 - Coordinator
     // 6002 - Silo
