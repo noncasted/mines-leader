@@ -3,7 +3,7 @@ using Infrastructure;
 
 namespace Cluster.Coordination;
 
-public class MessagePipeServiceRequestId : IMessagePipeId
+public class MessagePipeServiceRequestId : IRuntimePipeId
 {
     public MessagePipeServiceRequestId(IServiceOverview serviceOverview, Type type)
     {

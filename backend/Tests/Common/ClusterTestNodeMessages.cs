@@ -23,22 +23,37 @@ public static class ClusterTestNodeMessages
     {
     }
 
-    public class PipeId : IMessagePipeId
+    public class NodePipeId : IRuntimePipeId
     {
-        public PipeId(ServiceTag service, string name, string target)
+        public NodePipeId(ServiceTag service, string name)
         {
             _service = service;
             _name = name;
-            _target = target;
         }
 
         private readonly ServiceTag _service;
         private readonly string _name;
-        private readonly string _target;
 
         public string ToRaw()
         {
-            return $"cluster-test-node-{_service.ToString()}-{_name}-{_target}";
+            return $"cluster-test-node-{_service.ToString()}-{_name}-start";
+        }
+    }
+
+    public class NodeChannelId : IRuntimeChannelId
+    {
+        public NodeChannelId(ServiceTag service, string name)
+        {
+            _service = service;
+            _name = name;
+        }
+
+        private readonly ServiceTag _service;
+        private readonly string _name;
+
+        public string ToRaw()
+        {
+            return $"cluster-test-node-{_service.ToString()}-{_name}-terminate";
         }
     }
 }

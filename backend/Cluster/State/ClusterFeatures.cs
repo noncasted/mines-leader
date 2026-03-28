@@ -1,48 +1,58 @@
-﻿using Common.Extensions;
-using Common.Reactive;
+using Common;
+using Common.Extensions;
 using Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Cluster.State;
 
-public interface IClusterFeatures
+public interface IClusterFeatures : IAddressableState<ClusterFeaturesState>, IClusterFlags
 {
-    IViewableProperty<bool> AcceptingConnections { get; }
-
     Task SetAcceptingConnections(bool accepting);
+    Task SetMatchmakingEnabled(bool enabled);
+    Task SetSideEffectsEnabled(bool enabled);
 }
 
-public class ClusterFeatures : DynamicState<ClusterFeaturesState>, IClusterFeatures
+public class ClusterFeatures(IOrleans orleans, IMessaging messaging)
+    : AddressableState<ClusterFeaturesState>(orleans, messaging), IClusterFeatures
 {
-    public ClusterFeatures(IMessaging messaging, ILogger<ClusterFeatures> logger) : base(
-        messaging,
-        logger,
-        new ClusterFeaturesState()
-        {
-            AcceptingConnections = false
-        }
-    )
+    bool IClusterFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
+    bool IClusterFlags.SideEffectsEnabled => Value.SideEffectsEnabled;
+
+    public Task SetAcceptingConnections(bool accepting)
     {
-    }
-
-    private readonly ViewableProperty<bool> _acceptingConnections = new(false);
-
-    public IViewableProperty<bool> AcceptingConnections => _acceptingConnections;
-
-    protected override void OnSetup(IReadOnlyLifetime lifetime)
-    {
-        this.View(lifetime, value =>
+        var current = Value;
+        return SetValue(new ClusterFeaturesState
             {
-                _acceptingConnections.Set(value.AcceptingConnections);
+                AcceptingConnections = accepting,
+                MatchmakingEnabled = current.MatchmakingEnabled,
+                SideEffectsEnabled = current.SideEffectsEnabled
             }
         );
     }
 
-    public Task SetAcceptingConnections(bool accepting)
+    public Task SetMatchmakingEnabled(bool enabled)
     {
-        Value.AcceptingConnections = accepting;
-        return SetValue(Value);
+        var current = Value;
+        return SetValue(new ClusterFeaturesState
+            {
+                AcceptingConnections = current.AcceptingConnections,
+                MatchmakingEnabled = enabled,
+                SideEffectsEnabled = current.SideEffectsEnabled
+            }
+        );
+    }
+
+    public Task SetSideEffectsEnabled(bool enabled)
+    {
+        var current = Value;
+        return SetValue(new ClusterFeaturesState
+            {
+                AcceptingConnections = current.AcceptingConnections,
+                MatchmakingEnabled = current.MatchmakingEnabled,
+                SideEffectsEnabled = enabled
+            }
+        );
     }
 }
 
@@ -50,22 +60,23 @@ public class ClusterFeatures : DynamicState<ClusterFeaturesState>, IClusterFeatu
 public class ClusterFeaturesState
 {
     [Id(0)]
-    public bool AcceptingConnections { get; set; }
+    public bool AcceptingConnections { get; set; } = false;
 
-    public override string ToString()
-    {
-        return $"AcceptingConnections={AcceptingConnections}";
-    }
+    [Id(1)]
+    public bool MatchmakingEnabled { get; set; } = false;
+
+    [Id(2)]
+    public bool SideEffectsEnabled { get; set; } = false;
 }
 
 public static class ClusterFeaturesExtensions
 {
     public static IHostApplicationBuilder AddClusterFeatures(this IHostApplicationBuilder builder)
     {
-        builder.Add<ClusterFeatures>()
-            .As<IDynamicState<ClusterFeaturesState>>()
-            .As<IClusterFeatures>()
-            .As<ILocalSetupCompleted>();
+        builder.AddAddressableState<ClusterFeatures>()
+            .As<IClusterFeatures>();
+
+        builder.Services.AddSingleton<IClusterFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
 
         return builder;
     }

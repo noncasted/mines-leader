@@ -13,5 +13,6 @@ public static class ConsoleConstants
         public const string UserDashboard = "/users/{0}";
         public const string Match = "/match/{0}";
         public const string InfrastructureOptions = "/infrastructure-options";
+        public const string Features = "/features";
     }
 }

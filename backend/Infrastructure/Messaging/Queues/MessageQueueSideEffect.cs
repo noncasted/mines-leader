@@ -1,7 +1,7 @@
 namespace Infrastructure;
 
 [GenerateSerializer]
-public class MessageQueueSideEffect : ISideEffect
+public class DurableQueueSideEffect : ISideEffect
 {
     [Id(0)]
     public required string QueueName { get; set; }
@@ -11,7 +11,7 @@ public class MessageQueueSideEffect : ISideEffect
 
     public Task Execute(IOrleans orleans)
     {
-        var messageQueue = orleans.GetGrain<IMessageQueue>(QueueName);
-        return messageQueue.Push(Message);
+        var queue = orleans.GetGrain<IDurableQueue>(QueueName);
+        return queue.Push(Message);
     }
 }

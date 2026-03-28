@@ -58,7 +58,7 @@ public class ClusterParticipantStartup : BackgroundService
 
         await _messaging.Start(lifetime);
 
-        await _messaging.ListenQueue<CoordinatorEvents.ReadyPayload>(
+        await _messaging.ListenChannel<CoordinatorEvents.ReadyPayload>(
             startupLifetime,
             CoordinatorEvents.ReadyId,
             _ => coordinatorCompletion.TrySetResult()
@@ -105,7 +105,7 @@ public class ClusterParticipantStartup : BackgroundService
             while (lifetime.IsTerminated == false && AllServicesFound() == false)
             {
                 await _discovery.Push();
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellation);
+                await Task.Delay(TimeSpan.FromSeconds(0.2f), cancellation);
             }
 
             return;

@@ -2,23 +2,24 @@
 
 namespace Infrastructure;
 
-public interface IMessageQueue : IGrainWithStringKey
+public interface IDurableQueue : IGrainWithStringKey
 {
-    Task AddObserver(Guid id, IMessageQueueObserver observer);
+    Task AddObserver(Guid id, IDurableQueueObserver observer);
     Task Push(object message);
 }
 
-public class MessageQueue : Grain, IMessageQueue
+public class DurableQueue : Grain, IDurableQueue
 {
-    public MessageQueue(ILogger<MessageQueue> logger, IMessageQueueConfig config)
+    public DurableQueue(ILogger<DurableQueue> logger, IDurableQueueConfig config)
     {
         _logger = logger;
         _config = config;
     }
 
+    private readonly ILogger<DurableQueue> _logger;
+    private readonly IDurableQueueConfig _config;
+
     private readonly Dictionary<Guid, ObserverData> _observers = new();
-    private readonly ILogger<MessageQueue> _logger;
-    private readonly IMessageQueueConfig _config;
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
@@ -31,10 +32,10 @@ public class MessageQueue : Grain, IMessageQueue
         if (timeSinceLastUpdate > TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes))
             return Task.CompletedTask;
 
-        throw new Exception("[Messaging] [Queue] Keeping queue alive because observer was recently set");
+        throw new Exception("[Messaging] [DurableQueue] Keeping queue alive because observer was recently set");
     }
 
-    public Task AddObserver(Guid id, IMessageQueueObserver observer)
+    public Task AddObserver(Guid id, IDurableQueueObserver observer)
     {
         if (_observers.TryGetValue(id, out var data) == false)
         {
@@ -71,7 +72,7 @@ public class MessageQueue : Grain, IMessageQueue
                         toRemove.Add(data.Id);
 
                         _logger.LogError(e,
-                            "[Messaging] [Queue] Delevering message from {QueueName} to observer failed",
+                            "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",
                             this.GetPrimaryKeyString()
                         );
 
@@ -88,7 +89,7 @@ public class MessageQueue : Grain, IMessageQueue
     public class ObserverData
     {
         public required Guid Id { get; init; }
-        public required IMessageQueueObserver Observer { get; set; }
+        public required IDurableQueueObserver Observer { get; set; }
         public required DateTime UpdateDate { get; set; }
     }
 }

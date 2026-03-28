@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Tests;
 
-public class MessagingDirectQueueStressTest
+public class RuntimeChannelStressTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -23,9 +23,11 @@ public class MessagingDirectQueueStressTest
     [GenerateSerializer]
     public class MessagePayload
     {
+        [Id(0)]
+        public required string Service { get; init; }
     }
 
-    public static string TestName => "messaging-queue-direct-stress-test";
+    public static string TestName => "runtime-channel-stress-test";
 
     public class Root : ClusterTestRoot<StartPayload>
     {
@@ -34,7 +36,7 @@ public class MessagingDirectQueueStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "Messaging direct queue";
+        public override string Title => "RuntimeChannel direct (one-way broadcast)";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
@@ -42,12 +44,16 @@ public class MessagingDirectQueueStressTest
             var totalMessages = payload.MessageCount * 5;
             var receivedCount = 0;
 
-            handle.Progress.Log("Listening for messages...");
-            
-            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage);
-            
+            handle.Progress.Log("Listening for channel messages...");
+
+            await Messaging.ListenChannel<MessagePayload>(
+                handle.Lifetime,
+                new RuntimeChannelId(TestName),
+                OnMessage
+            );
+
             handle.Progress.SetStatus(OperationStatus.InProgress);
-            handle.Progress.Log("Starting test node...");
+            handle.Progress.Log("Starting test nodes...");
 
             await Task.WhenAll(
                 handle.StartNode(ServiceTag.Game, TestName, payload),
@@ -64,6 +70,12 @@ public class MessagingDirectQueueStressTest
             void OnMessage(MessagePayload message)
             {
                 Interlocked.Increment(ref receivedCount);
+
+                Logger.LogInformation("Received message {ReceivedCount}/{TotalMessages} from service {Service}",
+                    receivedCount,
+                    totalMessages,
+                    message.Service
+                );
 
                 var progressValue = (float)receivedCount / totalMessages;
                 handle.Progress.SetProgress(progressValue);
@@ -89,12 +101,25 @@ public class MessagingDirectQueueStressTest
             {
                 try
                 {
-                    await Messaging.PushDirectQueue(new DurableQueueId(TestName), new MessagePayload());
+                    Logger.LogInformation("Publishing message {MessageIndex}/{TotalMessages} from {Service}",
+                        i + 1,
+                        payload.MessageCount,
+                        Environment.Tag.ToString()
+                    );
+
+                    await Messaging.PublishChannel(
+                        new RuntimeChannelId(TestName),
+                        new MessagePayload
+                        {
+                            Service = Environment.Tag.ToString()
+                        }
+                    );
+
                     await Task.Delay(TimeSpan.FromSeconds(payload.Delay));
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, "Failed to send message {MessageIndex}/{TotalMessages}",
+                    Logger.LogError(e, "Failed to publish message {MessageIndex}/{TotalMessages}",
                         i + 1,
                         payload.MessageCount
                     );

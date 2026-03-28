@@ -33,7 +33,7 @@ public class ServiceDiscovery : IServiceDiscovery
     private readonly IServiceEnvironment _environment;
     private readonly ILogger<ServiceDiscovery> _logger;
     private readonly Dictionary<Guid, IServiceOverview> _entries = new();
-    private readonly IMessageQueueId _queueId = new MessageQueueId("service-discovery");
+    private readonly IRuntimeChannelId _channelId = new RuntimeChannelId("service-discovery");
 
     private IServiceOverview _self;
 
@@ -43,7 +43,7 @@ public class ServiceDiscovery : IServiceDiscovery
     public Task Start(IReadOnlyLifetime lifetime)
     {
         UpdateLoop(lifetime).NoAwait();
-        return _messaging.ListenQueue<IServiceOverview>(lifetime, _queueId, Update);
+        return _messaging.ListenChannel<IServiceOverview>(lifetime, _channelId, Update);
     }
 
     public Task Push()
@@ -51,7 +51,7 @@ public class ServiceDiscovery : IServiceDiscovery
         try
         {
             _self = CreateOverview();
-            return _messaging.PushDirectQueue(_queueId, _self);
+            return _messaging.PublishChannel(_channelId, _self);
         }
         catch (Exception e)
         {

@@ -4,9 +4,9 @@ namespace Cluster.Coordination;
 
 public class CoordinatorEvents
 {
-    public static readonly IMessageQueueId ReadyId = new ReadyPipeId();
+    public static readonly IRuntimeChannelId ReadyId = new ReadyChannelId();
 
-    public class ReadyPipeId : IMessageQueueId
+    public class ReadyChannelId : IRuntimeChannelId
     {
         public string ToRaw() => "coordinator-ready";
     }

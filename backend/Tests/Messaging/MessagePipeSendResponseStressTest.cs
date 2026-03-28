@@ -64,7 +64,7 @@ public class MessagePipeSendResponseStressTest
 
             await Messaging.AddPipeRequestHandler<RequestPayload, ResponsePayload>(
                 handle.Lifetime,
-                new MessagePipeId(TestName),
+                new RuntimePipeId(TestName),
                 OnRequest
             );
 
@@ -143,7 +143,7 @@ public class MessagePipeSendResponseStressTest
                     );
 
                     var response = await Messaging.SendPipe<ResponsePayload>(
-                        new MessagePipeId(TestName),
+                        new RuntimePipeId(TestName),
                         new RequestPayload
                         {
                             Service = Environment.Tag.ToString(),

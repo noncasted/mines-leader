@@ -4,38 +4,12 @@
 
 <div class="h-full px-6 py-8">
     <div class="flex gap-8 h-full">
-        <div class="w-1/2 flex flex-col gap-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-semibold">Sections</h2>
-            </div>
-            <div class="grid grid-cols-3 gap-3">
-                <HomeNavCard
-                    Icon="flask-conical"
-                    Title="Tests"
-                    Description="Run cluster tests and check service health"
-                    Target="@ConsoleConstants.Pages.Tests" />
-
-                <HomeNavCard
-                    Icon="sliders-horizontal"
-                    Title="Configs"
-                    Description="Edit game mode, bot and card configurations"
-                    Target="@ConsoleConstants.Pages.Configs" />
-
-                <HomeNavCard
-                    Icon="bot"
-                    Title="Bots"
-                    Description="Manage bots, create and edit their decks"
-                    Target="@ConsoleConstants.Pages.Bots" />
-
-                <HomeNavCard
-                    Icon="server"
-                    Title="Infrastructure"
-                    Description="Tune task balancer, side effects and messaging settings"
-                    Target="@ConsoleConstants.Pages.InfrastructureOptions" />
-            </div>
+        <div class="w-1/2">
+            <HomeSections />
         </div>
 
-        <div class="w-1/2">
+        <div class="w-1/2 flex flex-col gap-6">
+            <FeaturesStatusWidget />
             <PlayersWidget />
         </div>
     </div>

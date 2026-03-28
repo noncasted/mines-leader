@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Tests;
 
-public class MessagePipeSendStressTest
+public class RuntimeChannelSendStressTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -30,7 +30,7 @@ public class MessagePipeSendStressTest
         public required int MessageIndex { get; init; }
     }
 
-    public static string TestName => "messaging-pipe-send-stress-test";
+    public static string TestName => "runtime-channel-send-stress-test";
 
     public class Root : ClusterTestRoot<StartPayload>
     {
@@ -39,7 +39,7 @@ public class MessagePipeSendStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "Messaging pipe send (one-way)";
+        public override string Title => "RuntimeChannel send (one-way broadcast)";
 
         protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
         {
@@ -47,11 +47,11 @@ public class MessagePipeSendStressTest
             var totalMessages = payload.MessageCount * 5;
             var receivedCount = 0;
 
-            handle.Progress.Log("Setting up pipe listeners...");
+            handle.Progress.Log("Setting up channel listeners...");
 
-            await Messaging.ListenPipe<MessagePayload>(
+            await Messaging.ListenChannel<MessagePayload>(
                 handle.Lifetime,
-                new MessagePipeId(TestName),
+                new RuntimeChannelId(TestName),
                 OnMessage
             );
 
@@ -94,12 +94,9 @@ public class MessagePipeSendStressTest
 
     public class Node : ClusterTestNode<StartPayload>
     {
-        public Node(IOrleans orleans, ClusterTestUtils utils) : base(utils)
+        public Node(ClusterTestUtils utils) : base(utils)
         {
-            _orleans = orleans;
         }
-
-        private readonly IOrleans _orleans;
 
         protected override string Name => TestName;
 
@@ -110,14 +107,14 @@ public class MessagePipeSendStressTest
                 try
                 {
                     Logger.LogInformation(
-                        "Sending one-way message {MessageIndex}/{TotalMessages} from {Service}",
+                        "Publishing message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,
                         payload.MessageCount,
                         Environment.Tag.ToString()
                     );
 
-                    await Messaging.SendPipe(
-                        new MessagePipeId(TestName),
+                    await Messaging.PublishChannel(
+                        new RuntimeChannelId(TestName),
                         new MessagePayload
                         {
                             Service = Environment.Tag.ToString(),
@@ -126,7 +123,7 @@ public class MessagePipeSendStressTest
                     );
 
                     Logger.LogInformation(
-                        "Successfully sent one-way message {MessageIndex}/{TotalMessages} from {Service}",
+                        "Successfully published message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,
                         payload.MessageCount,
                         Environment.Tag.ToString()
@@ -138,7 +135,7 @@ public class MessagePipeSendStressTest
                 {
                     Logger.LogError(
                         e,
-                        "Failed to send one-way message {MessageIndex}/{TotalMessages}",
+                        "Failed to publish message {MessageIndex}/{TotalMessages}",
                         i + 1,
                         payload.MessageCount
                     );

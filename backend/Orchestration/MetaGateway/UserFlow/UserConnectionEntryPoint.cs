@@ -70,11 +70,11 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
                 }
             );
 
-            var pipeId = new UserProjectionPipeId(user.UserId);
+            var channelId = new UserProjectionChannelId(user.UserId);
 
-            _logger.LogInformation("[User] [EntryPoint] Setting up messaging pipe for user {PipeId}", pipeId.ToRaw());
+            _logger.LogInformation("[User] [EntryPoint] Setting up messaging channel for user {ChannelId}", channelId.ToRaw());
 
-            await _messaging.ListenPipe<IProjectionPayload>(user.Lifetime, pipeId, payload =>
+            await _messaging.ListenChannel<IProjectionPayload>(user.Lifetime, channelId, payload =>
                 {
                     _logger.LogInformation("[User] [EntryPoint] Sending {PayloadType} to user {UserId}",
                         payload.GetType().Name,

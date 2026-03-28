@@ -1,13 +1,13 @@
-﻿namespace Infrastructure;
+namespace Infrastructure;
 
-public interface IDurableQueueObserver : IGrainObserver
+public interface IRuntimeChannelObserver : IGrainObserver
 {
     Task Send(IReadOnlyList<object> messages);
 }
 
-public class DurableQueueObserver : IDurableQueueObserver
+public class RuntimeChannelObserver : IRuntimeChannelObserver
 {
-    public DurableQueueObserver(Action<object> onMessage)
+    public RuntimeChannelObserver(Action<object> onMessage)
     {
         _onMessage = onMessage;
     }

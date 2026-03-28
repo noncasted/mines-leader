@@ -10,7 +10,7 @@ public interface IDynamicState<T> : IViewableProperty<T> where T : class, new()
     Task SetValue(T value);
 }
 
-public class DynamicStateMessageQueueId<T> : IMessageQueueId
+public class DynamicStateChannelId<T> : IRuntimeChannelId
 {
     public string ToRaw()
     {
@@ -33,7 +33,7 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
     public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
         OnSetup(lifetime);
-        return _messaging.ListenQueue<T>(lifetime, new DynamicStateMessageQueueId<T>(), OnUpdate);
+        return _messaging.ListenChannel<T>(lifetime, new DynamicStateChannelId<T>(), OnUpdate);
     }
 
     private void OnUpdate(T value)
@@ -46,7 +46,7 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
     {
         Set(value);
         _logger.LogInformation("[Cluster] [DynamicState] Set {Type} : {Key}", typeof(T).Name, value.ToString());
-        return _messaging.PushDirectQueue(new DynamicStateMessageQueueId<T>(), value);
+        return _messaging.PublishChannel(new DynamicStateChannelId<T>(), value);
     }
 
     protected virtual void OnSetup(IReadOnlyLifetime lifetime)

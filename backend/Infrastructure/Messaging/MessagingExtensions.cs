@@ -1,17 +1,17 @@
-﻿using Common.Extensions;
+using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
 
-public interface IMessageQueueId
+public interface IDurableQueueId
 {
     string ToRaw();
 }
 
-public class MessageQueueId : IMessageQueueId
+public class DurableQueueId : IDurableQueueId
 {
-    public MessageQueueId(string id)
+    public DurableQueueId(string id)
     {
         _id = id;
     }
@@ -24,14 +24,14 @@ public class MessageQueueId : IMessageQueueId
     }
 }
 
-public interface IMessagePipeId
+public interface IRuntimePipeId
 {
     string ToRaw();
 }
 
-public class MessagePipeId : IMessagePipeId
+public class RuntimePipeId : IRuntimePipeId
 {
-    public MessagePipeId(string id)
+    public RuntimePipeId(string id)
     {
         _id = id;
     }
@@ -48,50 +48,50 @@ public static class MessagingExtensions
 {
     extension(IMessaging messaging)
     {
-        public void PushTransactionalQueue(IMessageQueueId id, object message)
+        public void PushTransactionalQueue(IDurableQueueId id, object message)
         {
-            messaging.Queue.PushTransactional(id, message);
+            messaging.DurableQueue.PushTransactional(id, message);
         }
 
-        public Task PushDirectQueue(IMessageQueueId id, object message)
+        public Task PushDirectQueue(IDurableQueueId id, object message)
         {
-            return messaging.Queue.PushDirect(id, message);
+            return messaging.DurableQueue.PushDirect(id, message);
         }
 
-        public async Task ListenQueue<T>(
+        public async Task ListenDurableQueue<T>(
             IReadOnlyLifetime lifetime,
-            IMessageQueueId id,
+            IDurableQueueId id,
             Action<T> listener)
         {
-            var consumer = await messaging.Queue.GetOrCreateConsumer<T>(id);
-            consumer.Advise(lifetime, listener);
-        }
-
-        public async Task ListenPipe<T>(
-            IReadOnlyLifetime lifetime,
-            IMessagePipeId id,
-            Action<T> listener)
-        {
-            var consumer = await messaging.Pipe.CreateListener<T>(lifetime, id);
+            var consumer = await messaging.DurableQueue.GetOrCreateConsumer<T>(id);
             consumer.Advise(lifetime, listener);
         }
 
         public Task AddPipeRequestHandler<TRequest, TResponse>(
             IReadOnlyLifetime lifetime,
-            IMessagePipeId id,
+            IRuntimePipeId id,
             Func<TRequest, Task<TResponse>> listener)
         {
-            return messaging.Pipe.AddHandler(lifetime, id, listener);
+            return messaging.RuntimePipe.AddHandler(lifetime, id, listener);
         }
 
-        public Task SendPipe(IMessagePipeId id, object message)
+        public Task<TResponse> SendPipe<TResponse>(IRuntimePipeId id, object message)
         {
-            return messaging.Pipe.Send(id, message);
+            return messaging.RuntimePipe.Send<TResponse>(id, message);
         }
 
-        public Task<TResponse> SendPipe<TResponse>(IMessagePipeId id, object message)
+        public Task PublishChannel(IRuntimeChannelId id, object message)
         {
-            return messaging.Pipe.Send<TResponse>(id, message);
+            return messaging.RuntimeChannel.Publish(id, message);
+        }
+
+        public async Task ListenChannel<T>(
+            IReadOnlyLifetime lifetime,
+            IRuntimeChannelId id,
+            Action<T> listener)
+        {
+            var consumer = await messaging.RuntimeChannel.GetOrCreateConsumer<T>(id);
+            consumer.Advise(lifetime, listener);
         }
     }
 
@@ -100,11 +100,14 @@ public static class MessagingExtensions
         builder.Add<Messaging>()
             .As<IMessaging>();
 
-        builder.Add<MessageQueueClient>()
-            .As<IMessageQueueClient>();
+        builder.Add<DurableQueueClient>()
+            .As<IDurableQueueClient>();
 
-        builder.Add<MessagePipeClient>()
-            .As<IMessagePipeClient>();
+        builder.Add<RuntimePipeClient>()
+            .As<IRuntimePipeClient>();
+
+        builder.Add<RuntimeChannelClient>()
+            .As<IRuntimeChannelClient>();
 
         return builder;
     }

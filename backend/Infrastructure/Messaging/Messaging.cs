@@ -1,28 +1,38 @@
-﻿using Common.Reactive;
+using Common.Reactive;
 
 namespace Infrastructure;
 
 public interface IMessaging
 {
-    IMessageQueueClient Queue { get; }
-    IMessagePipeClient Pipe { get; }
+    IDurableQueueClient DurableQueue { get; }
+    IRuntimePipeClient RuntimePipe { get; }
+    IRuntimeChannelClient RuntimeChannel { get; }
 
     Task Start(IReadOnlyLifetime lifetime);
 }
 
 public class Messaging : IMessaging
 {
-    public Messaging(IMessageQueueClient queue, IMessagePipeClient pipe)
+    public Messaging(
+        IDurableQueueClient durableQueue,
+        IRuntimePipeClient runtimePipe,
+        IRuntimeChannelClient runtimeChannel)
     {
-        Queue = queue;
-        Pipe = pipe;
+        DurableQueue = durableQueue;
+        RuntimePipe = runtimePipe;
+        RuntimeChannel = runtimeChannel;
     }
 
-    public IMessageQueueClient Queue { get; }
-    public IMessagePipeClient Pipe { get; }
+    public IDurableQueueClient DurableQueue { get; }
+    public IRuntimePipeClient RuntimePipe { get; }
+    public IRuntimeChannelClient RuntimeChannel { get; }
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
-        return Task.WhenAll(Queue.Start(lifetime), Pipe.Start(lifetime));
+        return Task.WhenAll(
+            DurableQueue.Start(lifetime),
+            RuntimePipe.Start(lifetime),
+            RuntimeChannel.Start(lifetime)
+        );
     }
 }

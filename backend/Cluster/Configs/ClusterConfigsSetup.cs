@@ -2,6 +2,7 @@ using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Execution;
+using Microsoft.Extensions.Logging;
 
 namespace Cluster.Configs;
 
@@ -13,16 +14,18 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         IGameModeConfig gameMode,
         IRatingConfig rating,
         ISideEffectsConfig sideEffects,
-        IMessageQueueConfig messageQueue,
-        ITaskBalancerConfig taskBalancer)
+        IDurableQueueConfig messageQueue,
+        ITaskBalancerConfig taskBalancer,
+        ILogger<ClusterConfigsSetup> logger)
     {
         _cards = cards;
         _bots = bots;
         _gameMode = gameMode;
         _rating = rating;
         _sideEffects = sideEffects;
-        _messageQueue = messageQueue;
+        _durableQueue = messageQueue;
         _taskBalancer = taskBalancer;
+        _logger = logger;
     }
 
     private readonly ICardConfigs _cards;
@@ -30,8 +33,9 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly IGameModeConfig _gameMode;
     private readonly IRatingConfig _rating;
     private readonly ISideEffectsConfig _sideEffects;
-    private readonly IMessageQueueConfig _messageQueue;
+    private readonly IDurableQueueConfig _durableQueue;
     private readonly ITaskBalancerConfig _taskBalancer;
+    private readonly ILogger<ClusterConfigsSetup> _logger;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
@@ -40,7 +44,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitializeConfig("config.gameMode", _gameMode);
         await InitializeConfig("config.rating", _rating);
         await InitializeConfig("config.sideEffects", _sideEffects);
-        await InitializeConfig("config.messageQueue", _messageQueue);
+        await InitializeConfig("config.messageQueue", _durableQueue);
         await InitializeConfig("config.taskBalancer", _taskBalancer);
 
         return;
@@ -66,7 +70,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Failed to load bot config: {e.Message}");
+                _logger.LogError(e, "[ClusterConfigsSetup] Failed to load config {JsonPath}", jsonPath);
             }
         }
     }

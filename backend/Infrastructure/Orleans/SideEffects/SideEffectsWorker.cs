@@ -1,3 +1,4 @@
+using Common;
 using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,7 @@ public class SideEffectsWorker : IHostedService
         IOrleans orleans,
         IServiceLoopObserver loopObserver,
         ISideEffectsConfig config,
+        IClusterFlags clusterFlags,
         ILogger<SideEffectsWorker> logger)
     {
         _storage = storage;
@@ -20,6 +22,7 @@ public class SideEffectsWorker : IHostedService
         _orleans = orleans;
         _loopObserver = loopObserver;
         _config = config;
+        _clusterFlags = clusterFlags;
         _logger = logger;
     }
 
@@ -28,6 +31,7 @@ public class SideEffectsWorker : IHostedService
     private readonly IOrleans _orleans;
     private readonly IServiceLoopObserver _loopObserver;
     private readonly ISideEffectsConfig _config;
+    private readonly IClusterFlags _clusterFlags;
     private readonly ILogger<SideEffectsWorker> _logger;
 
     private int _inProgress;
@@ -45,6 +49,12 @@ public class SideEffectsWorker : IHostedService
 
         while (lifetime.IsTerminated == false)
         {
+            if (_clusterFlags.SideEffectsEnabled == false)
+            {
+                await Task.Delay(500, lifetime.Token);
+                continue;
+            }
+
             try
             {
                 await _storage.RequeueReady();

@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Infrastructure.State;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -33,18 +34,23 @@ public interface ISideEffectsStorage
 
     // Move entries from side_effects_retry_queue → side_effects_queue where retry_after <= now
     Task RequeueReady();
+
+    // At startup: move everything from side_effects_processing back to side_effects_queue
+    Task RequeueStuck();
 }
 
 public class SideEffectsStorage : ISideEffectsStorage
 {
-    public SideEffectsStorage(IDbSource dbSource, IStateSerializer serializer)
+    public SideEffectsStorage(IDbSource dbSource, IStateSerializer serializer, ILogger<SideEffectsStorage> logger)
     {
         _dbSource = dbSource;
         _serializer = serializer;
+        _logger = logger;
     }
 
     private readonly IDbSource _dbSource;
     private readonly IStateSerializer _serializer;
+    private readonly ILogger<SideEffectsStorage> _logger;
 
     public async Task Write(ISideEffect effects)
     {
@@ -58,6 +64,7 @@ public class SideEffectsStorage : ISideEffectsStorage
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "[SideEffectsStorage] Failed to write side effect");
             await transaction.RollbackAsync();
         }
     }
@@ -198,6 +205,22 @@ public class SideEffectsStorage : ISideEffectsStorage
         await deleteCommand.ExecuteNonQueryAsync();
 
         await tx.CommitAsync();
+    }
+
+    public async Task RequeueStuck()
+    {
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = @"
+            WITH stuck AS (
+                DELETE FROM side_effects_processing
+                RETURNING id, payload, retry_count, created_at
+            )
+            INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
+            SELECT id, payload, retry_count, created_at FROM stuck
+            ON CONFLICT (id) DO NOTHING
+        ";
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task RequeueReady()
