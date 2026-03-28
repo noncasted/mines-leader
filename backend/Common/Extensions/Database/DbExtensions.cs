@@ -10,10 +10,10 @@ public static class DbExtensions
     {
         return builder.Configuration.GetConnection();
     }
-    
+
     public static async Task<NpgsqlConnection> GetConnection(this IConfigurationManager configuration)
     {
-        var dbConnection = configuration.GetConnectionString("db");
+        var dbConnection = configuration.GetSection("postgres").Get<string>();
         var safeGuard = 0;
 
         while (safeGuard < 10)
@@ -73,7 +73,7 @@ public static class DbExtensions
         await using var truncateCommand = new NpgsqlCommand(truncateQuery, connection);
         await truncateCommand.ExecuteNonQueryAsync();
     }
-    
+
     public static async Task Drop(this NpgsqlConnection connection, string tableName)
     {
         if (await connection.IsTableExists(tableName) == false)
