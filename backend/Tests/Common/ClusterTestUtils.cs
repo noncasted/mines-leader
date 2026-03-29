@@ -1,21 +1,31 @@
 using Cluster.Discovery;
 using Infrastructure;
+using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 
 namespace Tests;
 
 public class ClusterTestUtils
 {
-    public ClusterTestUtils(IMessaging messaging, IServiceEnvironment environment, ILogger<ClusterTestUtils> logger)
+    public ClusterTestUtils(
+        IMessaging messaging,
+        IServiceEnvironment environment,
+        IStateStorage stateStorage,
+        ILogger<ClusterTestUtils> logger,
+        ILogger<TestCleanup> cleanupLogger)
     {
         Messaging = messaging;
         Environment = environment;
+        StateStorage = stateStorage;
         Logger = logger;
+        Cleanup = new TestCleanup(stateStorage, cleanupLogger);
     }
 
     public readonly IMessaging Messaging;
     public readonly IServiceEnvironment Environment;
+    public readonly IStateStorage StateStorage;
     public readonly ILogger<ClusterTestUtils> Logger;
+    public readonly TestCleanup Cleanup;
 
     public Task StartNode(ServiceTag service, string nodeName, object? payload = null)
     {

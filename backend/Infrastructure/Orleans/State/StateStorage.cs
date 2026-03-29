@@ -37,6 +37,9 @@ public interface IStateStorage
 
     Task Write(StateIdentity identity, IStateValue value);
     Task Write(NpgsqlTransaction transaction, IReadOnlyDictionary<StateIdentity, IStateValue> records);
+
+    Task Delete(StateIdentity identity);
+    Task Delete(IReadOnlyList<StateIdentity> identities);
 }
 
 public class StateStorage : IStateStorage
@@ -52,7 +55,7 @@ public class StateStorage : IStateStorage
         _serializer = serializer;
         _migrations = migrations;
         _logger = logger;
-        _cache = new StateStorageCache(statesRegistry);
+        _cache = new StateStorageCache();
         Registry = statesRegistry;
     }
 
@@ -268,6 +271,44 @@ public class StateStorage : IStateStorage
             await transaction.RollbackAsync();
 
             throw;
+        }
+    }
+
+    public Task Delete(StateIdentity identity)
+    {
+        return Delete([identity]);
+    }
+
+    public async Task Delete(IReadOnlyList<StateIdentity> identities)
+    {
+        if (identities.Count == 0)
+            return;
+
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            foreach (var identity in identities)
+            {
+                await using var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = _cache.GetDeleteQuery(identity);
+
+                command.Parameters.AddWithValue("type", identity.Type);
+                command.Parameters.AddWithValue("key", identity.Key);
+
+                if (identity.Extension != null)
+                    command.Parameters.AddWithValue("extension", identity.Extension);
+
+                await command.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateStorage] Failed to delete {Count} records", identities.Count);
         }
     }
 

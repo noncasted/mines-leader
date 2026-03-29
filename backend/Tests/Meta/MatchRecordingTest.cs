@@ -32,6 +32,8 @@ public class MatchRecordingTest
             // Create two users
             var user1Id = await _userFactory.Create(new UserCreateOptions());
             var user2Id = await _userFactory.Create(new UserCreateOptions());
+            Cleanup.TrackUser(user1Id);
+            Cleanup.TrackUser(user2Id);
             var user1 = _orleans.CreateUserHandle(user1Id);
             var user2 = _orleans.CreateUserHandle(user2Id);
 
@@ -40,6 +42,7 @@ public class MatchRecordingTest
 
             // Create and setup match
             var matchId = Guid.NewGuid();
+            Cleanup.TrackMatch(matchId);
             var matchGrain = _orleans.GetGrain<IMatch>(matchId);
             var participants = new List<Guid> { user1Id, user2Id };
 

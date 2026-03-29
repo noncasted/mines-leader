@@ -24,6 +24,7 @@ public class TransactionTakeoverTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var id = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(id);
             var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
 
             // Start a transaction that holds the grain lock for 40s (> 30s takeover threshold)

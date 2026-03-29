@@ -29,6 +29,7 @@ public class UserProgressionRatingTest
 
             // Create a user through the factory
             var userId = await _userFactory.Create(new UserCreateOptions());
+            Cleanup.TrackUser(userId);
             var user = _orleans.CreateUserHandle(userId);
 
             handle.Progress.Log($"User created: {userId}");

@@ -31,6 +31,37 @@ public static class StateStorageExtensions
             return storage.Write(stateIdentity, value);
         }
 
+        public Task Delete<T>(object key) where T : IStateValue, new()
+        {
+            var stateInfo = storage.Registry.Get<T>();
+
+            var identity = new StateIdentity
+            {
+                Key = key,
+                Type = stateInfo.Name,
+                TableName = stateInfo.TableName,
+                Extension = null
+            };
+
+            return storage.Delete(identity);
+        }
+
+        public Task Delete<T>(IReadOnlyList<object> keys) where T : IStateValue, new()
+        {
+            var stateInfo = storage.Registry.Get<T>();
+
+            var identities = keys.Select(key => new StateIdentity
+                {
+                    Key = key,
+                    Type = stateInfo.Name,
+                    TableName = stateInfo.TableName,
+                    Extension = null
+                })
+                .ToList();
+
+            return storage.Delete(identities);
+        }
+
         public Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records)
         {
             var identityToRecord = new Dictionary<StateIdentity, IStateValue>();

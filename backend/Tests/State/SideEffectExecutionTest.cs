@@ -57,6 +57,7 @@ public class SideEffectExecutionTest
 
             var targetId = Guid.NewGuid();
             var sourceId = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(targetId);
 
             var sourceGrain = _orleans.GetGrain<ISideEffectTestGrain>(sourceId);
 
