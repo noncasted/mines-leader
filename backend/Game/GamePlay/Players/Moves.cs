@@ -6,6 +6,7 @@ namespace Game.GamePlay;
 public interface IMoves
 {
     int Left { get; }
+    int Max { get; }
 
     void SetCurrent(int value);
     void SetMax(int value);
@@ -26,6 +27,7 @@ public class Moves : IMoves
     private int _maxTurns;
 
     public int Left => _state.Value.Left;
+    public int Max => _maxTurns;
 
     public void SetCurrent(int value)
     {
@@ -44,6 +46,17 @@ public class Moves : IMoves
     public void SetMax(int value)
     {
         _maxTurns = value;
+        
+        _state.Update(state =>
+        {
+            state.Max = _maxTurns;
+
+            if (state.Left > _maxTurns)
+                state.Left = _maxTurns;
+            
+            if (state.Left < 0)
+                throw new InvalidOperationException("Turns cannot be less than zero.");
+        });
     }
 
     public void OnUsed()

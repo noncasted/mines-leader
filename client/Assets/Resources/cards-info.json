@@ -167,6 +167,24 @@
       "name": "Hand Scramble",
       "description": "Returns all cards in the opponent's hand to their deck, shuffles it, and redraws the same number.",
       "icon": "Cards/HandScramble"
+    },
+    {
+      "type": "Lockdown",
+      "name": "Lockdown",
+      "description": "Reduces the opponent's maximum actions per turn by 1 for 2 rounds.",
+      "icon": "Cards/Lockdown"
+    },
+    {
+      "type": "Sonar",
+      "name": "Sonar",
+      "description": "Automatically flags all mines in a diamond area on your field without revealing any cells.",
+      "icon": "Cards/Sonar"
+    },
+    {
+      "type": "Purge",
+      "name": "Purge",
+      "description": "Removes all enemy effects (Smoke, Fog) from your entire field.",
+      "icon": "Cards/Purge"
     }
   ]
 }

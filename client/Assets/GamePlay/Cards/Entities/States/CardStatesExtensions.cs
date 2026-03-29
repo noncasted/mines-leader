@@ -80,6 +80,9 @@ namespace GamePlay.Cards
                 CardType.FogOfWar_Max => builder.Register<CardFogOfWarAction>(),
                 CardType.Scavenger => builder.Register<CardScavengerAction>(),
                 CardType.HandScramble => builder.Register<CardHandScrambleAction>(),
+                CardType.Lockdown => builder.Register<CardLockdownAction>(),
+                CardType.Sonar => builder.Register<CardSonarAction>(),
+                CardType.Purge => builder.Register<CardPurgeAction>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -113,6 +116,9 @@ namespace GamePlay.Cards
                 CardType.FogOfWar_Max => registration.WithParameter(configs.FogOfWar_Max),
                 CardType.Scavenger => registration.WithParameter(configs.Scavenger_Normal),
                 CardType.HandScramble => registration.WithParameter(configs.HandScramble_Normal),
+                CardType.Lockdown => registration.WithParameter(configs.Lockdown_Normal),
+                CardType.Sonar => registration.WithParameter(configs.Sonar_Normal),
+                CardType.Purge => registration.WithParameter(configs.Purge_Normal),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -167,6 +173,9 @@ namespace GamePlay.Cards
                 CardType.FogOfWar_Max => Sync<CardFogOfWarAction.Snapshot, CardActionSnapshot.FogOfWar>(),
                 CardType.Scavenger => Sync<CardScavengerAction.Snapshot, CardActionSnapshot.Scavenger>(),
                 CardType.HandScramble => Sync<CardHandScrambleAction.Snapshot, CardActionSnapshot.HandScramble>(),
+                CardType.Lockdown => Sync<CardLockdownAction.Snapshot, CardActionSnapshot.Lockdown>(),
+                CardType.Sonar => Sync<CardSonarAction.Snapshot, CardActionSnapshot.Sonar>(),
+                CardType.Purge => Sync<CardPurgeAction.Snapshot, CardActionSnapshot.Purge>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 

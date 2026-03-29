@@ -199,5 +199,26 @@
     "Type": 0,
     "ManaCost": 3,
     "Target": 3
+  },
+  "Lockdown_Normal": {
+    "$type": "Shared.CardConfigOptions+Lockdown, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 3,
+    "Duration": 2,
+    "MovesReduction": 1
+  },
+  "Sonar_Normal": {
+    "$type": "Shared.CardConfigOptions+Sonar, Shared",
+    "Type": 0,
+    "Size": 4,
+    "ManaCost": 3,
+    "Target": 0
+  },
+  "Purge_Normal": {
+    "$type": "Shared.CardConfigOptions+Purge, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2
   }
 }

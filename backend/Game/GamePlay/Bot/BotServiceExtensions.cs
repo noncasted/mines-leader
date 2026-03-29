@@ -36,6 +36,9 @@ public static class BotServiceExtensions
         services.AddSingleton<IBotCardStrategy, FogOfWarStrategy>();
         services.AddSingleton<IBotCardStrategy, ScavengerStrategy>();
         services.AddSingleton<IBotCardStrategy, HandScrambleStrategy>();
+        services.AddSingleton<IBotCardStrategy, LockdownStrategy>();
+        services.AddSingleton<IBotCardStrategy, SonarStrategy>();
+        services.AddSingleton<IBotCardStrategy, PurgeStrategy>();
 
         return services;
     }

@@ -72,18 +72,12 @@
             <div class="grid grid-cols-2 gap-2">
                 @foreach (var (cardType, config) in oppCards)
                 {
-                    if (config is ICardSizeConfig sizeConfig)
-                    {
-                        <CardConfigEditor @key="cardType" Value="config" SizeConfig="sizeConfig" Type="cardType" />
-                    }
-                    else if (config is ICardChainReactionConfig chainConfig)
-                    {
-                        <CardConfigEditor @key="cardType" Value="config" ChainReactionConfig="chainConfig" Type="cardType" />
-                    }
-                    else
-                    {
-                        <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
-                    }
+                    var sizeConfig2 = config as ICardSizeConfig;
+                    var chainConfig2 = config as ICardChainReactionConfig;
+                    <CardConfigEditor @key="cardType" Value="config"
+                                      SizeConfig="sizeConfig2"
+                                      ChainReactionConfig="chainConfig2"
+                                      Type="cardType" />
                 }
             </div>
         </div>
@@ -114,14 +108,12 @@
                 <div class="grid grid-cols-2 gap-2">
                     @foreach (var (cardType, config) in opponentCards)
                     {
-                        if (config is ICardDrainConfig drainConfig)
-                        {
-                            <CardConfigEditor @key="cardType" Value="config" DrainConfig="drainConfig" Type="cardType" />
-                        }
-                        else
-                        {
-                            <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
-                        }
+                        var drainConfig2 = config as ICardDrainConfig;
+                        var lockdownConfig = config as ICardLockdownConfig;
+                        <CardConfigEditor @key="cardType" Value="config"
+                                          DrainConfig="drainConfig2"
+                                          LockdownConfig="lockdownConfig"
+                                          Type="cardType" />
                     }
                 </div>
             </div>

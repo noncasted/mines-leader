@@ -28,6 +28,21 @@
             </div>
         </div>
     }
+    @if (LockdownConfig != null)
+    {
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 flex-1">
+                <LucideIcon Name="clock" Size="11" class="text-muted-foreground shrink-0" />
+                <input type="number" @bind="LockdownConfig.Duration"
+                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-1.5 flex-1">
+                <LucideIcon Name="minus-circle" Size="11" class="text-red-400 shrink-0" />
+                <input type="number" @bind="LockdownConfig.MovesReduction"
+                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+        </div>
+    }
     <div class="flex items-center gap-2">
         @if (SizeConfig != null)
         {
@@ -58,6 +73,7 @@
     [Parameter] public ICardSizeConfig? SizeConfig { get; set; }
     [Parameter] public ICardDrainConfig? DrainConfig { get; set; }
     [Parameter] public ICardChainReactionConfig? ChainReactionConfig { get; set; }
+    [Parameter] public ICardLockdownConfig? LockdownConfig { get; set; }
     [Parameter] public CardType Type { get; set; }
 
     private string Name => Type.ToString();
