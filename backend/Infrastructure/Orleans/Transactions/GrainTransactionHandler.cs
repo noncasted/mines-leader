@@ -49,8 +49,11 @@ public interface IGrainTransactionHandler : IGrainExtension
 //     → OnFailure() — rolls back in-memory state, releases lock
 public class GrainTransactionHandler : IGrainTransactionHandler
 {
-    public GrainTransactionHandler(ILogger<GrainTransactionHandler> logger)
+    public GrainTransactionHandler(
+        ITransactionConfig transactionConfig,
+        ILogger<GrainTransactionHandler> logger)
     {
+        _transactionConfig = transactionConfig;
         _logger = logger;
     }
 
@@ -71,6 +74,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     private readonly Guid _participantId = Guid.NewGuid();
 
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
+    private readonly ITransactionConfig _transactionConfig;
     private readonly ILogger<GrainTransactionHandler> _logger;
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
@@ -94,15 +98,16 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             return _participantId;
         }
 
-        // Another transaction is active. Wait up to 10s for it to finish.
+        // Another transaction is active. Wait for it to finish.
         // The previous transaction releases the lock in OnSuccess/OnFailure.
-        var isAcquired = await _lock.WaitAsync(TimeSpan.FromSeconds(3f));
+        var options = _transactionConfig.Value ?? new TransactionOptions();
+        var isAcquired = await _lock.WaitAsync(TimeSpan.FromSeconds(options.LockWaitSeconds));
 
         if (isAcquired == false)
         {
-            // Timed out. If the stuck transaction is still within its 30s grace period,
+            // Timed out. If the stuck transaction is still within its grace period,
             // we cannot take over — it may still be running normally but slowly.
-            if (_currentTransactionTime.AddSeconds(30) >= DateTime.UtcNow)
+            if (_currentTransactionTime.AddSeconds(options.StuckGraceSeconds) >= DateTime.UtcNow)
             {
                 _logger.LogWarning(
                     "[Transaction] [Join] Timeout waiting for lock. TransactionId={TransactionId} BlockedBy={BlockedBy}",

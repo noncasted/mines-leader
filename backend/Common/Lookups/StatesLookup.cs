@@ -158,6 +158,13 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
+    public static readonly Info TransactionConfig = new()
+    {
+        TableName = "configs",
+        StateName = "transaction_config",
+        KeyType = GrainKeyType.String
+    };
+
     public static readonly Info ClusterFeatures = new()
     {
         TableName = "configs",
@@ -195,6 +202,7 @@ public static class StatesLookup
         TaskBalancerConfig,
         RuntimePipeConfig,
         RuntimeChannelConfig,
+        TransactionConfig,
         ClusterFeatures,
         UserRating,
     ];

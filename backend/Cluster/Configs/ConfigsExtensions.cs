@@ -36,6 +36,9 @@ public static class ConfigsExtensions
         builder.AddAddressableState<RuntimeChannelConfigState>()
             .As<IRuntimeChannelConfig>();
 
+        builder.AddAddressableState<TransactionConfigState>()
+            .As<ITransactionConfig>();
+
         return builder;
     }
 }

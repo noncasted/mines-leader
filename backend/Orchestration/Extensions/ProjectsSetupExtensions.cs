@@ -193,6 +193,7 @@ public static class ProjectsSetupExtensions
             Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
             Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
             Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
+            Add<TransactionOptions>(StatesLookup.TransactionConfig);
             Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
             Add<UserRatingState>(StatesLookup.UserRating);
 
