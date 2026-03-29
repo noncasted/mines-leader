@@ -1,0 +1,172 @@
+{
+  "cards": [
+    {
+      "type": "Trebuchet",
+      "name": "Trebuchet",
+      "description": "Places mines in a diamond pattern on the opponent's field.",
+      "icon": "Cards/Trebuchet"
+    },
+    {
+      "type": "Trebuchet_Max",
+      "name": "Trebuchet Max",
+      "description": "Places mines in a large diamond pattern on the opponent's field.",
+      "icon": "Cards/Trebuchet_Max"
+    },
+    {
+      "type": "Bloodhound",
+      "name": "Bloodhound",
+      "description": "Clears and reveals all cells in a diamond area on your field.",
+      "icon": "Cards/Bloodhound"
+    },
+    {
+      "type": "Bloodhound_Max",
+      "name": "Bloodhound Max",
+      "description": "Clears and reveals all cells in a large diamond area on your field.",
+      "icon": "Cards/Bloodhound_Max"
+    },
+    {
+      "type": "TrebuchetAimer",
+      "name": "Trebuchet Aimer",
+      "description": "Increases the power of the next Trebuchet, expanding its mine pattern.",
+      "icon": "Cards/TrebuchetAimer"
+    },
+    {
+      "type": "TrebuchetAimer_Max",
+      "name": "Trebuchet Aimer Max",
+      "description": "Greatly increases the power of the next Trebuchet, expanding its mine pattern.",
+      "icon": "Cards/TrebuchetAimer_Max"
+    },
+    {
+      "type": "ErosionDozer",
+      "name": "Erosion Dozer",
+      "description": "Clears up to 5 connected unrevealed cells starting from the target.",
+      "icon": "Cards/ErosionDozer"
+    },
+    {
+      "type": "ErosionDozer_Max",
+      "name": "Erosion Dozer Max",
+      "description": "Clears up to 5 connected unrevealed cells starting from the target with greater reach.",
+      "icon": "Cards/ErosionDozer_Max"
+    },
+    {
+      "type": "Gravedigger",
+      "name": "Gravedigger",
+      "description": "Returns the last card from your discard pile to your hand.",
+      "icon": "Cards/Gravedigger"
+    },
+    {
+      "type": "ZipZap",
+      "name": "Zip Zap",
+      "description": "Chain lightning that defuses up to 3 mines on your field.",
+      "icon": "Cards/ZipZap"
+    },
+    {
+      "type": "ZipZap_Max",
+      "name": "Zip Zap Max",
+      "description": "Chain lightning that defuses up to 3 mines on your field with wider search radius.",
+      "icon": "Cards/ZipZap_Max"
+    },
+    {
+      "type": "OpponentBomb",
+      "name": "Opponent Bomb",
+      "description": "Reveals one cell on the opponent's field. If it's a mine, they take 1 damage.",
+      "icon": "Cards/OpponentBomb"
+    },
+    {
+      "type": "OpponentFlagErase",
+      "name": "Flag Erase",
+      "description": "Removes all flags in a diamond area on the opponent's field.",
+      "icon": "Cards/OpponentFlagErase"
+    },
+    {
+      "type": "OpponentFlagErase_Max",
+      "name": "Flag Erase Max",
+      "description": "Removes all flags in a large diamond area on the opponent's field.",
+      "icon": "Cards/OpponentFlagErase_Max"
+    },
+    {
+      "type": "OpponentFlagReshuffle",
+      "name": "Flag Reshuffle",
+      "description": "Randomly shuffles flags among cells in a diamond area on the opponent's field.",
+      "icon": "Cards/OpponentFlagReshuffle"
+    },
+    {
+      "type": "OpponentFlagReshuffle_Max",
+      "name": "Flag Reshuffle Max",
+      "description": "Randomly shuffles flags among cells in a large diamond area on the opponent's field.",
+      "icon": "Cards/OpponentFlagReshuffle_Max"
+    },
+    {
+      "type": "Smoke",
+      "name": "Smoke",
+      "description": "Covers cells in a diamond area with smoke for 3 rounds, hiding their contents.",
+      "icon": "Cards/Smoke"
+    },
+    {
+      "type": "Smoke_Max",
+      "name": "Smoke Max",
+      "description": "Covers cells in a large diamond area with smoke for 3 rounds, hiding their contents.",
+      "icon": "Cards/Smoke_Max"
+    },
+    {
+      "type": "Medic",
+      "name": "Medic",
+      "description": "Restores 1 HP. Cannot exceed maximum health.",
+      "icon": "Cards/Medic"
+    },
+    {
+      "type": "MinefieldScout",
+      "name": "Minefield Scout",
+      "description": "Reveals a line of cells on your field. Mines get flagged instead of exploding.",
+      "icon": "Cards/MinefieldScout"
+    },
+    {
+      "type": "MinefieldScout_Max",
+      "name": "Minefield Scout Max",
+      "description": "Reveals a longer line of cells on your field. Mines get flagged instead of exploding.",
+      "icon": "Cards/MinefieldScout_Max"
+    },
+    {
+      "type": "Siphon",
+      "name": "Siphon",
+      "description": "Drains 1 mana from the opponent and adds it to yours.",
+      "icon": "Cards/Siphon"
+    },
+    {
+      "type": "ChainReaction",
+      "name": "Chain Reaction",
+      "description": "Finds up to 3 mines on the opponent's field and spawns additional mines around each in a diamond pattern.",
+      "icon": "Cards/ChainReaction"
+    },
+    {
+      "type": "Overclock",
+      "name": "Overclock",
+      "description": "Grants +2 extra actions this turn. Does not carry over to the next turn.",
+      "icon": "Cards/Overclock"
+    },
+    {
+      "type": "FogOfWar",
+      "name": "Fog of War",
+      "description": "Hides mine numbers on revealed cells in a diamond area for 2 rounds.",
+      "icon": "Cards/FogOfWar"
+    },
+    {
+      "type": "FogOfWar_Max",
+      "name": "Fog of War Max",
+      "description": "Hides mine numbers on revealed cells in a large diamond area for 2 rounds.",
+      "icon": "Cards/FogOfWar_Max"
+    },
+    {
+      "type": "Scavenger",
+      "name": "Scavenger",
+      "description": "Draws 2 cards from the deck into your hand, ignoring the hand limit.",
+      "icon": "Cards/Scavenger"
+    },
+    {
+      "type": "HandScramble",
+      "name": "Hand Scramble",
+      "description": "Returns all cards in the opponent's hand to their deck, shuffles it, and redraws the same number.",
+      "icon": "Cards/HandScramble"
+    }
+  ]
+}
