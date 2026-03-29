@@ -27,7 +27,7 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
             return use.Result;
 
         player.Hand.Remove(request.CardId);
-        context.Snapshot.RecordCard(player.User.Id, request.CardId, use.ActionData!);
+        context.Snapshot.RecordCardUse(player.User.Id, request.CardId, use.ActionData!);
 
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();

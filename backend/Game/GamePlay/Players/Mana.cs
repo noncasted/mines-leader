@@ -46,6 +46,10 @@ public class Mana : IMana
     public void SetMax(int value)
     {
         _max = value;
+        
+        if (_current.Value > _max)
+            _current.Set(_max);
+        
         SyncState();
     }
 
