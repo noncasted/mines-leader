@@ -81,7 +81,7 @@ void SetupDB()
         game,
         console
     };
-    
+
     configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["postgres"] = dbConnection,
@@ -97,7 +97,8 @@ void SetupDB()
                 context.EnvironmentVariables["ConnectionStrings__postgres"] = dbConnection;
             }
         );
-    }}
+    }
+}
 
 void SetDashboardToken()
 {
