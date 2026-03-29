@@ -28,6 +28,15 @@ public static class BotServiceExtensions
         services.AddSingleton<IBotCardStrategy, OpponentBombStrategy>();
         services.AddSingleton<IBotCardStrategy, SmokeStrategy>();
 
+        services.AddSingleton<IBotCardStrategy, MedicStrategy>();
+        services.AddSingleton<IBotCardStrategy, MinefieldScoutStrategy>();
+        services.AddSingleton<IBotCardStrategy, SiphonStrategy>();
+        services.AddSingleton<IBotCardStrategy, ChainReactionStrategy>();
+        services.AddSingleton<IBotCardStrategy, OverclockStrategy>();
+        services.AddSingleton<IBotCardStrategy, FogOfWarStrategy>();
+        services.AddSingleton<IBotCardStrategy, ScavengerStrategy>();
+        services.AddSingleton<IBotCardStrategy, HandScrambleStrategy>();
+
         return services;
     }
 }

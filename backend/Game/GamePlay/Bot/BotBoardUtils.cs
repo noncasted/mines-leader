@@ -86,6 +86,21 @@ public class BotBoardUtils
         return flaggedCells[randomIndex];
     }
 
+    public Position FindRandomFreePosition(bool opponent = false)
+    {
+        var board = opponent ? _context.Opponent.Board : _context.Bot.Board;
+        var freeCells = board.Cells
+            .Where(kvp => kvp.Value.Status == CellStatus.Free)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        if (freeCells.Count == 0)
+            return new Position(-1, -1);
+
+        var randomIndex = Random.Shared.Next(freeCells.Count);
+        return freeCells[randomIndex];
+    }
+
     public bool HasFlaggedCells(bool opponent = false)
     {
         var board = opponent ? _context.Opponent.Board : _context.Bot.Board;
