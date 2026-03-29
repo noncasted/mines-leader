@@ -16,7 +16,7 @@ namespace GamePlay.Cards
             IEntityScopeLoader entityScopeLoader,
             IGameContext gameContext,
             ICardConfigs configs,
-            IEnvDictionary<CardType, ICardDefinition> definitionsCollection,
+            ICardsRegistry registry,
             IObjectFactory<CardScopeEntity> objectFactory,
             LifetimeScope parentScope,
             CardFactoryOptions options)
@@ -24,7 +24,7 @@ namespace GamePlay.Cards
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
             _configs = configs;
-            _definitionsCollection = definitionsCollection;
+            _registry = registry;
             _objectFactory = objectFactory;
             _parentScope = parentScope;
             _options = options;
@@ -33,7 +33,7 @@ namespace GamePlay.Cards
         private readonly IEntityScopeLoader _entityScopeLoader;
         private readonly IGameContext _gameContext;
         private readonly ICardConfigs _configs;
-        private readonly IEnvDictionary<CardType, ICardDefinition> _definitionsCollection;
+        private readonly ICardsRegistry _registry;
         private readonly IObjectFactory<CardScopeEntity> _objectFactory;
         private readonly LifetimeScope _parentScope;
         private readonly CardFactoryOptions _options;
@@ -41,7 +41,7 @@ namespace GamePlay.Cards
         public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
         {
             var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
-            var definition = _definitionsCollection[cardType];
+            var definition = _registry.Entries[cardType];
 
             var prefab = isLocal ? _options.LocalPrefab : _options.RemotePrefab;
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
