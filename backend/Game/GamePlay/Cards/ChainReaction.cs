@@ -20,29 +20,63 @@ public class ChainReaction : ICard
 
     public CardUseResult Use()
     {
-        if (_target.Cells.Count == 0)
+        if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Target board has no cells"),
+                Result = EmptyResponse.Fail($"No cell at position {_payload.Position}"),
                 ActionData = null
             };
         }
 
-        var mines = FindMines(_payload.Position);
-        var spawnedMines = new List<Position>();
-        var spawnPattern = PatternShapes.Rhombus(_config.SpawnSize);
-
-        foreach (var mine in mines)
+        if (cell.IsTaken() == false || cell.AsTaken().HasMine == false)
         {
-            var candidates = spawnPattern.SelectTaken(_target, mine.Position);
-            foreach (var cell in candidates)
+            return new CardUseResult
             {
-                if (cell.HasMine)
-                    continue;
+                Result = EmptyResponse.Fail("Target cell has no mine"),
+                ActionData = null
+            };
+        }
 
-                cell.SetMine();
-                spawnedMines.Add(cell.Position);
+        var searchShape = PatternShapes.Rhombus(_config.SearchRadius);
+        var spawnShape = PatternShapes.Rhombus(_config.SpawnSize);
+
+        var targets = new List<ITakenCell> { cell.AsTaken() };
+
+        for (var i = 1; i < _config.MaxChain; i++)
+        {
+            var next = SelectMine(targets[^1].Position);
+
+            if (next == null)
+                break;
+
+            targets.Add(next);
+        }
+
+        var spawnedMines = new List<Position>();
+
+        foreach (var mine in targets)
+        {
+            var candidates = spawnShape.SelectAll(_target, mine.Position);
+
+            foreach (var candidate in candidates)
+            {
+                switch (candidate.Status)
+                {
+                    case CellStatus.Free:
+                        candidate.ToTaken().SetMine();
+                        spawnedMines.Add(candidate.Position);
+                        break;
+                    case CellStatus.Taken:
+                        if (candidate.AsTaken().HasMine)
+                            continue;
+
+                        candidate.AsTaken().SetMine();
+                        spawnedMines.Add(candidate.Position);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -57,51 +91,13 @@ public class ChainReaction : ICard
                 SpawnedMines = spawnedMines
             }
         };
-    }
 
-    private IReadOnlyList<ITakenCell> FindMines(Position start)
-    {
-        var result = new List<ITakenCell>();
-        var toProcess = new Queue<Position>();
-        var visited = new HashSet<Position>();
-
-        toProcess.Enqueue(start);
-
-        while (toProcess.Count > 0 && result.Count < _config.MaxChain)
+        ITakenCell? SelectMine(Position center)
         {
-            var pos = toProcess.Dequeue();
-
-            if (visited.Contains(pos))
-                continue;
-
-            visited.Add(pos);
-
-            if (_target.Cells.TryGetValue(pos, out var cell) == false)
-                continue;
-
-            if (cell.IsTaken() == false)
-                continue;
-
-            var taken = cell.ToTaken();
-
-            if (taken.HasMine)
-                result.Add(taken);
-
-            foreach (var neighbor in GetNeighbors(pos))
-                toProcess.Enqueue(neighbor);
+            return searchShape.SelectTaken(_target, center)
+                .Where(x => x.HasMine && x.IsFlagged == false && targets.Contains(x) == false)
+                .OrderBy(x => x.Position.DistanceTo(center))
+                .FirstOrDefault();
         }
-
-        return result;
-    }
-
-    private static IReadOnlyList<Position> GetNeighbors(Position position)
-    {
-        return new[]
-        {
-            new Position(position.x - 1, position.y),
-            new Position(position.x + 1, position.y),
-            new Position(position.x, position.y - 1),
-            new Position(position.x, position.y + 1),
-        };
     }
 }

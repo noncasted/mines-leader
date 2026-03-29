@@ -54,6 +54,15 @@ namespace Shared
     }
 
     [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.ChainReaction))]
+    public partial interface ICardChainReactionConfig
+    {
+        int MaxChain { get; set; }
+        int SearchRadius { get; set; }
+        int SpawnSize { get; set; }
+    }
+
+    [MemoryPackable]
     public partial class CardConfigOptions : INetworkContext
     {
         public Bloodhound BloodHound_Normal { get; set; } = new();
@@ -269,13 +278,14 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChainReaction : ICardConfig
+        public partial class ChainReaction : ICardConfig, ICardChainReactionConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.OpponentBoard;
-            public int MaxChain => 3;
-            public int SpawnSize => 2;
+            public int MaxChain { get; set; } = 3;
+            public int SearchRadius { get; set; } = 4;
+            public int SpawnSize { get; set; } = 2;
         }
 
         [MemoryPackable]

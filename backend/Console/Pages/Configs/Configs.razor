@@ -76,6 +76,10 @@
                     {
                         <CardConfigEditor @key="cardType" Value="config" SizeConfig="sizeConfig" Type="cardType" />
                     }
+                    else if (config is ICardChainReactionConfig chainConfig)
+                    {
+                        <CardConfigEditor @key="cardType" Value="config" ChainReactionConfig="chainConfig" Type="cardType" />
+                    }
                     else
                     {
                         <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
