@@ -24,6 +24,12 @@ namespace Shared
         }
 
         [MemoryPackable]
+        public partial class ChangeMaxMana : INetworkContext
+        {
+            public int Value { get; set; }
+        }
+
+        [MemoryPackable]
         public partial class ChangeHealth : INetworkContext
         {
             public int Value { get; set; }

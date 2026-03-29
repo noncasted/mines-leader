@@ -161,7 +161,8 @@
     "ManaCost": 3,
     "Target": 1,
     "MaxChain": 3,
-    "SpawnSize": 2
+    "SearchRadius": 4,
+    "SpawnSize": 3
   },
   "Overclock_Normal": {
     "$type": "Shared.CardConfigOptions+Overclock, Shared",

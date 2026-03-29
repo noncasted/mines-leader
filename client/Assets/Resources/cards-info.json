@@ -135,7 +135,7 @@
     {
       "type": "ChainReaction",
       "name": "Chain Reaction",
-      "description": "Finds up to 3 mines on the opponent's field and spawns additional mines around each in a diamond pattern.",
+      "description": "Chains through up to 3 mines on the opponent's field, jumping to the nearest mine each time, and spawns additional mines around each in a diamond pattern.",
       "icon": "Cards/ChainReaction"
     },
     {
