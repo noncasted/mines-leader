@@ -63,7 +63,7 @@ public class BotCommandUtils : IBotCommandUtils
                 if (wasUsed == false)
                     return;
                 
-                snapshot.RecordCard(bot.User.Id, cardId, use.ActionData!);
+                snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData!);
 
                 foreach (var (_, board) in _gameContext.Boards)
                     board.OnUpdated();
