@@ -57,6 +57,16 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         _logger = logger;
     }
 
+    // Mutex held for the entire duration of an active transaction.
+    // Initial count 1 = grain is free (unlocked).
+    private readonly SemaphoreSlim _lock = new(1, 1);
+
+    // Stable identity returned to Transactions.Process() to track this grain as a participant.
+    private readonly Guid _participantId = Guid.NewGuid();
+
+    private readonly ITransactionConfig _transactionConfig;
+    private readonly ILogger<GrainTransactionHandler> _logger;
+
     // Id of the transaction currently holding this grain.
     // Guid.Empty means the grain is free.
     private Guid _currentTransactionId;
@@ -66,16 +76,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     // Used to detect stuck transactions eligible for takeover.
     private DateTime _currentTransactionTime;
 
-    // Mutex held for the entire duration of an active transaction.
-    // Initial count 1 = grain is free (unlocked).
-    private readonly SemaphoreSlim _lock = new(1, 1);
-
-    // Stable identity returned to Transactions.Process() to track this grain as a participant.
-    private readonly Guid _participantId = Guid.NewGuid();
-
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
-    private readonly ITransactionConfig _transactionConfig;
-    private readonly ILogger<GrainTransactionHandler> _logger;
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
     // Returns _participantId so Transactions.Process() can track this grain.

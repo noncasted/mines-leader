@@ -41,6 +41,7 @@
             var ownCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.OwnBoard).ToList();
             var oppCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.OpponentBoard).ToList();
             var selfCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.Self).ToList();
+            var opponentCards = _cardsValue.All.Where(x => x.Value.Target == CardTarget.Opponent).ToList();
         }
 
         <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
@@ -94,6 +95,29 @@
                     @foreach (var (cardType, config) in selfCards)
                     {
                         <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (opponentCards.Count > 0)
+        {
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Opponent</span>
+                    <span class="text-xs text-muted-foreground">targets the opponent directly</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach (var (cardType, config) in opponentCards)
+                    {
+                        if (config is ICardDrainConfig drainConfig)
+                        {
+                            <CardConfigEditor @key="cardType" Value="config" DrainConfig="drainConfig" Type="cardType" />
+                        }
+                        else
+                        {
+                            <CardConfigEditor @key="cardType" Value="config" Type="cardType" />
+                        }
                     }
                 </div>
             </div>
