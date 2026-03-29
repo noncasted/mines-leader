@@ -14,6 +14,14 @@ namespace Shared
     [MemoryPackUnion(7, typeof(CardUsePayload.OpponentFlagErase))]
     [MemoryPackUnion(8, typeof(CardUsePayload.OpponentFlagReshuffle))]
     [MemoryPackUnion(9, typeof(CardUsePayload.Smoke))]
+    [MemoryPackUnion(10, typeof(CardUsePayload.Medic))]
+    [MemoryPackUnion(11, typeof(CardUsePayload.MinefieldScout))]
+    [MemoryPackUnion(13, typeof(CardUsePayload.Siphon))]
+    [MemoryPackUnion(16, typeof(CardUsePayload.ChainReaction))]
+    [MemoryPackUnion(17, typeof(CardUsePayload.Overclock))]
+    [MemoryPackUnion(18, typeof(CardUsePayload.FogOfWar))]
+    [MemoryPackUnion(19, typeof(CardUsePayload.Scavenger))]
+    [MemoryPackUnion(20, typeof(CardUsePayload.HandScramble))]
     public partial interface ICardUsePayload
     {
         CardType Type { get; set; }
@@ -93,6 +101,57 @@ namespace Shared
         {
             public CardType Type { get; set; }
             public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Medic : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MinefieldScout : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Siphon : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ChainReaction : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Overclock : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class FogOfWar : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Scavenger : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class HandScramble : ICardUsePayload
+        {
+            public CardType Type { get; set; }
         }
     }
 }

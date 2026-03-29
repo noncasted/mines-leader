@@ -15,6 +15,14 @@ namespace Shared
     [MemoryPackUnion(7, typeof(CardConfigOptions.OpponentFlagReshuffle))]
     [MemoryPackUnion(8, typeof(CardConfigOptions.OpponentBomb))]
     [MemoryPackUnion(9, typeof(CardConfigOptions.Smoke))]
+    [MemoryPackUnion(10, typeof(CardConfigOptions.Medic))]
+    [MemoryPackUnion(11, typeof(CardConfigOptions.MinefieldScout))]
+    [MemoryPackUnion(13, typeof(CardConfigOptions.Siphon))]
+    [MemoryPackUnion(16, typeof(CardConfigOptions.ChainReaction))]
+    [MemoryPackUnion(17, typeof(CardConfigOptions.Overclock))]
+    [MemoryPackUnion(18, typeof(CardConfigOptions.FogOfWar))]
+    [MemoryPackUnion(19, typeof(CardConfigOptions.Scavenger))]
+    [MemoryPackUnion(20, typeof(CardConfigOptions.HandScramble))]
     public partial interface ICardConfig
     {
         CardType Type { get; set; }
@@ -31,9 +39,18 @@ namespace Shared
     [MemoryPackUnion(5, typeof(CardConfigOptions.OpponentFlagErase))]
     [MemoryPackUnion(6, typeof(CardConfigOptions.OpponentFlagReshuffle))]
     [MemoryPackUnion(7, typeof(CardConfigOptions.Smoke))]
+    [MemoryPackUnion(8, typeof(CardConfigOptions.MinefieldScout))]
+    [MemoryPackUnion(11, typeof(CardConfigOptions.FogOfWar))]
     public partial interface ICardSizeConfig
     {
         int Size { get; set; }
+    }
+
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.Siphon))]
+    public partial interface ICardDrainConfig
+    {
+        int DrainAmount { get; set; }
     }
 
     [MemoryPackable]
@@ -67,6 +84,24 @@ namespace Shared
         public Smoke Smoke_Normal { get; set; } = new();
         public Smoke Smoke_Max { get; set; } = new();
 
+        public Medic Medic_Normal { get; set; } = new();
+
+        public MinefieldScout MinefieldScout_Normal { get; set; } = new();
+        public MinefieldScout MinefieldScout_Max { get; set; } = new();
+
+        public Siphon Siphon_Normal { get; set; } = new();
+
+        public ChainReaction ChainReaction_Normal { get; set; } = new();
+
+        public Overclock Overclock_Normal { get; set; } = new();
+
+        public FogOfWar FogOfWar_Normal { get; set; } = new();
+        public FogOfWar FogOfWar_Max { get; set; } = new();
+
+        public Scavenger Scavenger_Normal { get; set; } = new();
+
+        public HandScramble HandScramble_Normal { get; set; } = new();
+
         [JsonIgnore]
         [MemoryPackIgnore]
         public IReadOnlyDictionary<CardType, ICardConfig> All => new Dictionary<CardType, ICardConfig>()
@@ -97,6 +132,24 @@ namespace Shared
 
             { CardType.OpponentBomb, OpponentBomb_Normal },
             { CardType.Gravedigger, Gravedigger_Normal },
+
+            { CardType.Medic, Medic_Normal },
+
+            { CardType.MinefieldScout, MinefieldScout_Normal },
+            { CardType.MinefieldScout_Max, MinefieldScout_Max },
+
+            { CardType.Siphon, Siphon_Normal },
+
+            { CardType.ChainReaction, ChainReaction_Normal },
+
+            { CardType.Overclock, Overclock_Normal },
+
+            { CardType.FogOfWar, FogOfWar_Normal },
+            { CardType.FogOfWar_Max, FogOfWar_Max },
+
+            { CardType.Scavenger, Scavenger_Normal },
+
+            { CardType.HandScramble, HandScramble_Normal },
         };
 
         [MemoryPackable]
@@ -187,6 +240,78 @@ namespace Shared
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int Duration => 3;
+        }
+
+        [MemoryPackable]
+        public partial class Medic : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 4;
+            public CardTarget Target => CardTarget.Self;
+        }
+
+        [MemoryPackable]
+        public partial class MinefieldScout : ICardConfig, ICardSizeConfig
+        {
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 5;
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.OwnBoard;
+        }
+
+        [MemoryPackable]
+        public partial class Siphon : ICardConfig, ICardDrainConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 2;
+            public int DrainAmount { get; set; } = 1;
+            public CardTarget Target => CardTarget.Opponent;
+        }
+
+        [MemoryPackable]
+        public partial class ChainReaction : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 4;
+            public CardTarget Target => CardTarget.OpponentBoard;
+            public int MaxChain => 3;
+            public int SpawnSize => 2;
+        }
+
+        [MemoryPackable]
+        public partial class Overclock : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.Self;
+            public int ExtraMoves => 2;
+        }
+
+        [MemoryPackable]
+        public partial class FogOfWar : ICardConfig, ICardSizeConfig
+        {
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 4;
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.OpponentBoard;
+            public int Duration => 2;
+        }
+
+        [MemoryPackable]
+        public partial class Scavenger : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 2;
+            public CardTarget Target => CardTarget.Self;
+            public int DrawCount => 2;
+        }
+
+        [MemoryPackable]
+        public partial class HandScramble : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.Opponent;
         }
     }
 }

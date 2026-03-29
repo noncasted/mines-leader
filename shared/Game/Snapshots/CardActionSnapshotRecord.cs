@@ -15,6 +15,14 @@ namespace Shared
     [MemoryPackUnion(7, typeof(CardActionSnapshot.OpponentFlagErase))]
     [MemoryPackUnion(8, typeof(CardActionSnapshot.OpponentFlagReshuffle))]
     [MemoryPackUnion(9, typeof(CardActionSnapshot.Smoke))]
+    [MemoryPackUnion(10, typeof(CardActionSnapshot.Medic))]
+    [MemoryPackUnion(11, typeof(CardActionSnapshot.MinefieldScout))]
+    [MemoryPackUnion(13, typeof(CardActionSnapshot.Siphon))]
+    [MemoryPackUnion(16, typeof(CardActionSnapshot.ChainReaction))]
+    [MemoryPackUnion(17, typeof(CardActionSnapshot.Overclock))]
+    [MemoryPackUnion(18, typeof(CardActionSnapshot.FogOfWar))]
+    [MemoryPackUnion(19, typeof(CardActionSnapshot.Scavenger))]
+    [MemoryPackUnion(20, typeof(CardActionSnapshot.HandScramble))]
     public partial interface ICardActionData
     {
         Guid TargetPlayer { get; set; }
@@ -79,6 +87,56 @@ namespace Shared
 
         [MemoryPackable]
         public partial class Smoke : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Medic : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MinefieldScout : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> RevealedCells { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Siphon : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ChainReaction : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> SpawnedMines { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Overclock : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class FogOfWar : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Scavenger : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class HandScramble : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
         }
