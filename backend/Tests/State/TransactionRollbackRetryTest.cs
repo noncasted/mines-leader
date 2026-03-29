@@ -24,6 +24,7 @@ public class TransactionRollbackRetryTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var id = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(id);
             var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
 
             // First transaction: increment then throw — should rollback

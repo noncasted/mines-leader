@@ -31,6 +31,7 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
     public IServiceEnvironment Environment => _utils.Environment;
     public ILogger Logger => _utils.Logger;
     public ClusterTestUtils Utils => _utils;
+    public TestCleanup Cleanup => _utils.Cleanup;
 
     public async Task Start(IOperationProgress progress, TPayload payload)
     {
@@ -47,6 +48,15 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
         {
             progress.SetStatus(OperationStatus.Failed);
             Logger.LogError(e, "Test {TestName} failed with exception", Title);
+        }
+
+        try
+        {
+            await Cleanup.Execute();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Test {TestName} cleanup failed", Title);
         }
 
         lifetime.Terminate();

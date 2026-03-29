@@ -23,8 +23,12 @@ public class TransactionMidChainFailTest
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
-            var grainA = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
-            var grainB = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
+            var idA = Guid.NewGuid();
+            var idB = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(idA);
+            Cleanup.Track<TransactionTestState>(idB);
+            var grainA = _orleans.GetGrain<ITransactionTestGrain>(idA);
+            var grainB = _orleans.GetGrain<ITransactionTestGrain>(idB);
 
             // Transaction: A succeeds, B throws — both should rollback
             var result = await _transactions.Run(async () =>

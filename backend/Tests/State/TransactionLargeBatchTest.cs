@@ -34,6 +34,9 @@ public class TransactionLargeBatchTest
 
             var ids = TestParticipants.Create(_orleans, payload.GrainCount);
 
+            foreach (var id in ids.Entries)
+                Cleanup.Track<TransactionTestState>(id);
+
             handle.Progress.Log($"Starting transaction with {payload.GrainCount} grains...");
 
             var result = await _transactions.Run(() =>

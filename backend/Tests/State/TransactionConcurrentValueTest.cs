@@ -33,6 +33,7 @@ public class TransactionConcurrentValueTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var id = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(id);
             var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
             var successCount = 0;
 

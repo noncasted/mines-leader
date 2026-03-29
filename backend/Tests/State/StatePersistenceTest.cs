@@ -22,6 +22,7 @@ public class StatePersistenceTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var id = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(id);
             var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
 
             // Write value via non-transactional path

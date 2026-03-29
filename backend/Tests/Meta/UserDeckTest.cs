@@ -30,6 +30,7 @@ public class UserDeckTest
 
             // Create user — Initialize() sets up default decks
             var userId = await _userFactory.Create(new UserCreateOptions());
+            Cleanup.TrackUser(userId);
             var user = _orleans.CreateUserHandle(userId);
 
             handle.Progress.Log($"User created: {userId}");

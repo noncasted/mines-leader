@@ -106,6 +106,7 @@ public class StateCollectionSyncTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var testId = Guid.NewGuid();
+            Cleanup.Track<CollectionTestState>(testId);
             var label = $"test-{testId:N}";
 
             // Write via transactional grain call
