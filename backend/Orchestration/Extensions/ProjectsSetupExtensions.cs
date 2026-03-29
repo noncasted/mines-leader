@@ -175,6 +175,7 @@ public static class ProjectsSetupExtensions
             Add<StateMigrationTest.MigrationTestState_0>(StatesLookup.StateMigrationTest);
             Add<StateMigrationTest.MigrationTestState_1>(StatesLookup.StateMigrationTest);
             Add<TransactionTestState>(StatesLookup.TransactionTest);
+            Add<StateCollectionSyncTest.CollectionTestState>(StatesLookup.CollectionTest);
             Add<UserState>(StatesLookup.User);
             Add<UserAuthState>(StatesLookup.UserAuth);
             Add<UserProgressionState>(StatesLookup.UserProgression);
@@ -274,6 +275,12 @@ public static class ProjectsSetupExtensions
                 .As<IStateMigrationStep>();
             builder.Add<StateMigrationTest.MigrationTestStep_V1>()
                 .As<IStateMigrationStep>();
+
+            builder.AddStateCollection<
+                    StateCollectionSyncTest.CollectionTestCollection,
+                    Guid,
+                    StateCollectionSyncTest.CollectionTestState>()
+                .As<StateCollectionSyncTest.ICollectionTestCollection>();
 
             return builder;
         }

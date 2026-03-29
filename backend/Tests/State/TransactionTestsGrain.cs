@@ -17,7 +17,11 @@ public interface ITransactionTestGrain : IGrainWithGuidKey
     [Transaction]
     Task Increment();
 
+    [Transaction]
+    Task IncrementWithDelay(int delayMs);
+
     Task<int> Get();
+    Task Deactivate();
 }
 
 public class TransactionTestGrain : Grain, ITransactionTestGrain
@@ -38,9 +42,21 @@ public class TransactionTestGrain : Grain, ITransactionTestGrain
         );
     }
 
+    public async Task IncrementWithDelay(int delayMs)
+    {
+        await _state.Write(s => { s.Value += 1; });
+        await Task.Delay(delayMs);
+    }
+
     public async Task<int> Get()
     {
         await _state.Read();
         return _state.Value.Value;
+    }
+
+    public Task Deactivate()
+    {
+        DeactivateOnIdle();
+        return Task.CompletedTask;
     }
 }
