@@ -88,6 +88,9 @@
 
 @code {
     [Parameter] public required IClusterTest Test { get; set; }
+    [Parameter] public EventCallback<OperationStatus> StatusChanged { get; set; }
+
+    public OperationStatus Status => _operation.Status.Value;
 
     private bool _expanded;
     private IOperationProgress _operation = new OperationProgress();
@@ -128,7 +131,11 @@
         _operation.SetStatus(OperationStatus.Preparing);
 
         _operation.Progress.View(_lifetime, () => InvokeAsync(StateHasChanged));
-        _operation.Status.View(_lifetime, () => InvokeAsync(StateHasChanged));
+        _operation.Status.View(_lifetime, async () =>
+        {
+            await InvokeAsync(StateHasChanged);
+            await StatusChanged.InvokeAsync(_operation.Status.Value);
+        });
         _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
 
         await Test.Start(_operation);

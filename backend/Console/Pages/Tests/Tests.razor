@@ -1,8 +1,33 @@
 @page "/tests"
 @using global::Tests
+@using global::Common.Extensions
 
 <PageTitle>Tests</PageTitle>
 <PageHeader Title="Tests" />
+
+<div class="sticky top-[6.5rem] z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="container mx-auto max-w-3xl px-4 py-2.5 flex items-center gap-4">
+        <BbButton Size="ButtonSize.Small" @onclick="RunAll">Run All</BbButton>
+        <div class="flex items-center gap-4 text-xs">
+            <span class="flex items-center gap-1.5 text-muted-foreground">
+                <LucideIcon Name="circle" Size="12" />
+                @_pendingCount pending
+            </span>
+            <span class="flex items-center gap-1.5 text-yellow-500">
+                <LucideIcon Name="loader-circle" Size="12" />
+                @_runningCount running
+            </span>
+            <span class="flex items-center gap-1.5 text-green-500">
+                <LucideIcon Name="circle-check" Size="12" />
+                @_passedCount passed
+            </span>
+            <span class="flex items-center gap-1.5 text-destructive">
+                <LucideIcon Name="circle-x" Size="12" />
+                @_failedCount failed
+            </span>
+        </div>
+    </div>
+</div>
 
 <div class="container mx-auto max-w-3xl px-4 py-4 flex flex-col gap-6">
     @foreach (var group in ClusterTests.GroupBy(t => t.Group))
@@ -25,7 +50,7 @@
                 <div class="flex flex-col divide-y divide-border/60">
                     @foreach (var test in groupTests)
                     {
-                        <TestEntry @ref="_entries[test]" Test="test" />
+                        <TestEntry @ref="_entries[test]" Test="test" StatusChanged="OnStatusChanged" />
                     }
                 </div>
             }
@@ -39,6 +64,11 @@
     private readonly Dictionary<IClusterTest, TestEntry?> _entries = new();
     private readonly Dictionary<string, bool> _groupOpen = new();
 
+    private int _pendingCount;
+    private int _runningCount;
+    private int _passedCount;
+    private int _failedCount;
+
     protected override void OnParametersSet()
     {
         foreach (var test in ClusterTests)
@@ -46,10 +76,71 @@
             _entries.TryAdd(test, null);
             _groupOpen.TryAdd(test.Group, false);
         }
+        RecalculateCounts();
+    }
+
+    private void RecalculateCounts()
+    {
+        _pendingCount = 0;
+        _runningCount = 0;
+        _passedCount = 0;
+        _failedCount = 0;
+
+        foreach (var entry in _entries.Values)
+        {
+            if (entry == null)
+            {
+                _pendingCount++;
+                continue;
+            }
+            switch (entry.Status)
+            {
+                case OperationStatus.NotStarted:
+                    _pendingCount++;
+                    break;
+                case OperationStatus.Preparing:
+                case OperationStatus.InProgress:
+                    _runningCount++;
+                    break;
+                case OperationStatus.Success:
+                    _passedCount++;
+                    break;
+                case OperationStatus.Failed:
+                    _failedCount++;
+                    break;
+            }
+        }
+    }
+
+    private void OnStatusChanged(OperationStatus _)
+    {
+        RecalculateCounts();
+        StateHasChanged();
+    }
+
+    private async Task RunAll()
+    {
+        foreach (var key in _groupOpen.Keys)
+            _groupOpen[key] = true;
+        StateHasChanged();
+        await Task.Yield();
+
+        foreach (var test in ClusterTests)
+        {
+            if (_entries.TryGetValue(test, out var entry) && entry != null)
+                await entry.Run();
+        }
     }
 
     private async Task RunGroup(List<IClusterTest> tests)
     {
+        if (tests.Count > 0)
+        {
+            _groupOpen[tests[0].Group] = true;
+            StateHasChanged();
+            await Task.Yield();
+        }
+
         foreach (var test in tests)
         {
             if (_entries.TryGetValue(test, out var entry) && entry != null)
