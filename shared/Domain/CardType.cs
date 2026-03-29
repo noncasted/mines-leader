@@ -33,6 +33,24 @@ namespace Shared
 
         Smoke = 1000,
         Smoke_Max = 1010,
+
+        Medic = 1100,
+
+        MinefieldScout = 1200,
+        MinefieldScout_Max = 1210,
+
+        Siphon = 1400,
+
+        ChainReaction = 1700,
+
+        Overclock = 1800,
+
+        FogOfWar = 1900,
+        FogOfWar_Max = 1910,
+
+        Scavenger = 2000,
+
+        HandScramble = 2100,
     }
 
     public enum CardTarget
