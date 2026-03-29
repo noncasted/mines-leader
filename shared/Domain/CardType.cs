@@ -51,6 +51,12 @@ namespace Shared
         Scavenger = 2000,
 
         HandScramble = 2100,
+
+        Lockdown = 2200,
+
+        Sonar = 2400,
+
+        Purge = 2500,
     }
 
     public enum CardTarget

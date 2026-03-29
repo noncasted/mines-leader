@@ -23,6 +23,9 @@ namespace Shared
     [MemoryPackUnion(18, typeof(CardConfigOptions.FogOfWar))]
     [MemoryPackUnion(19, typeof(CardConfigOptions.Scavenger))]
     [MemoryPackUnion(20, typeof(CardConfigOptions.HandScramble))]
+    [MemoryPackUnion(21, typeof(CardConfigOptions.Lockdown))]
+    [MemoryPackUnion(23, typeof(CardConfigOptions.Sonar))]
+    [MemoryPackUnion(24, typeof(CardConfigOptions.Purge))]
     public partial interface ICardConfig
     {
         CardType Type { get; set; }
@@ -41,6 +44,7 @@ namespace Shared
     [MemoryPackUnion(7, typeof(CardConfigOptions.Smoke))]
     [MemoryPackUnion(8, typeof(CardConfigOptions.MinefieldScout))]
     [MemoryPackUnion(11, typeof(CardConfigOptions.FogOfWar))]
+    [MemoryPackUnion(13, typeof(CardConfigOptions.Sonar))]
     public partial interface ICardSizeConfig
     {
         int Size { get; set; }
@@ -51,6 +55,14 @@ namespace Shared
     public partial interface ICardDrainConfig
     {
         int DrainAmount { get; set; }
+    }
+
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.Lockdown))]
+    public partial interface ICardLockdownConfig
+    {
+        int Duration { get; set; }
+        int MovesReduction { get; set; }
     }
 
     [MemoryPackable]
@@ -111,6 +123,12 @@ namespace Shared
 
         public HandScramble HandScramble_Normal { get; set; } = new();
 
+        public Lockdown Lockdown_Normal { get; set; } = new();
+
+        public Sonar Sonar_Normal { get; set; } = new();
+
+        public Purge Purge_Normal { get; set; } = new();
+
         [JsonIgnore]
         [MemoryPackIgnore]
         public IReadOnlyDictionary<CardType, ICardConfig> All => new Dictionary<CardType, ICardConfig>()
@@ -159,6 +177,12 @@ namespace Shared
             { CardType.Scavenger, Scavenger_Normal },
 
             { CardType.HandScramble, HandScramble_Normal },
+
+            { CardType.Lockdown, Lockdown_Normal },
+
+            { CardType.Sonar, Sonar_Normal },
+
+            { CardType.Purge, Purge_Normal },
         };
 
         [MemoryPackable]
@@ -322,6 +346,33 @@ namespace Shared
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
+        }
+
+        [MemoryPackable]
+        public partial class Lockdown : ICardConfig, ICardLockdownConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.Opponent;
+            public int Duration { get; set; } = 2;
+            public int MovesReduction { get; set; } = 1;
+        }
+
+        [MemoryPackable]
+        public partial class Sonar : ICardConfig, ICardSizeConfig
+        {
+            public CardType Type { get; set; }
+            public int Size { get; set; } = 4;
+            public int ManaCost { get; set; } = 3;
+            public CardTarget Target => CardTarget.OwnBoard;
+        }
+
+        [MemoryPackable]
+        public partial class Purge : ICardConfig
+        {
+            public CardType Type { get; set; }
+            public int ManaCost { get; set; } = 2;
+            public CardTarget Target => CardTarget.Self;
         }
     }
 }

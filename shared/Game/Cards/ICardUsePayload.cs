@@ -22,6 +22,9 @@ namespace Shared
     [MemoryPackUnion(18, typeof(CardUsePayload.FogOfWar))]
     [MemoryPackUnion(19, typeof(CardUsePayload.Scavenger))]
     [MemoryPackUnion(20, typeof(CardUsePayload.HandScramble))]
+    [MemoryPackUnion(21, typeof(CardUsePayload.Lockdown))]
+    [MemoryPackUnion(23, typeof(CardUsePayload.Sonar))]
+    [MemoryPackUnion(24, typeof(CardUsePayload.Purge))]
     public partial interface ICardUsePayload
     {
         CardType Type { get; set; }
@@ -150,6 +153,25 @@ namespace Shared
 
         [MemoryPackable]
         public partial class HandScramble : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Lockdown : ICardUsePayload
+        {
+            public CardType Type { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Sonar : IBoardCardUsePayload
+        {
+            public CardType Type { get; set; }
+            public Position Position { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Purge : ICardUsePayload
         {
             public CardType Type { get; set; }
         }

@@ -152,6 +152,17 @@ public class CardFactory : ICardFactory
             ),
             CardType.Scavenger => new Scavenger(owner, snapshot, _configs.Value.Scavenger_Normal),
             CardType.HandScramble => new HandScramble(_gameContext.GetOpponent(owner), snapshot),
+            CardType.Lockdown => new Lockdown(
+                _gameContext.GetOpponent(owner),
+                _configs.Value.Lockdown_Normal,
+                _roundActionService
+            ),
+            CardType.Sonar => new Sonar(
+                GetBoard(owner, payload),
+                _configs.Value.Sonar_Normal,
+                (CardUsePayload.Sonar)payload
+            ),
+            CardType.Purge => new Purge(owner),
             _ => throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, null)
         };
     }

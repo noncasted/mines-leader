@@ -23,6 +23,9 @@ namespace Shared
     [MemoryPackUnion(18, typeof(CardActionSnapshot.FogOfWar))]
     [MemoryPackUnion(19, typeof(CardActionSnapshot.Scavenger))]
     [MemoryPackUnion(20, typeof(CardActionSnapshot.HandScramble))]
+    [MemoryPackUnion(21, typeof(CardActionSnapshot.Lockdown))]
+    [MemoryPackUnion(23, typeof(CardActionSnapshot.Sonar))]
+    [MemoryPackUnion(24, typeof(CardActionSnapshot.Purge))]
     public partial interface ICardActionData
     {
         Guid TargetPlayer { get; set; }
@@ -137,6 +140,25 @@ namespace Shared
 
         [MemoryPackable]
         public partial class HandScramble : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Lockdown : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Sonar : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> FlaggedCells { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Purge : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
         }
