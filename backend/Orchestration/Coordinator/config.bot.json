@@ -1,6 +1,6 @@
 {
   "$type": "Shared.BotConfigOptions, Shared",
-  "MatchmakingApplyThreshold": 20.0,
+  "MatchmakingApplyThreshold": 3.0,
   "ActionDelay": 0.3,
   "FlagsPerRound": 3,
   "CellsOpenPerRound": 3,
