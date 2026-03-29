@@ -18,6 +18,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         ITaskBalancerConfig taskBalancer,
         IRuntimePipeConfig runtimePipe,
         IRuntimeChannelConfig runtimeChannel,
+        ITransactionConfig transactionConfig,
         ILogger<ClusterConfigsSetup> logger)
     {
         _cards = cards;
@@ -29,6 +30,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _taskBalancer = taskBalancer;
         _runtimePipe = runtimePipe;
         _runtimeChannel = runtimeChannel;
+        _transactionConfig = transactionConfig;
         _logger = logger;
     }
 
@@ -41,6 +43,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly ITaskBalancerConfig _taskBalancer;
     private readonly IRuntimePipeConfig _runtimePipe;
     private readonly IRuntimeChannelConfig _runtimeChannel;
+    private readonly ITransactionConfig _transactionConfig;
     private readonly ILogger<ClusterConfigsSetup> _logger;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
@@ -54,6 +57,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitializeConfig("config.taskBalancer", _taskBalancer);
         await InitializeConfig("config.runtimePipe", _runtimePipe);
         await InitializeConfig("config.runtimeChannel", _runtimeChannel);
+        await InitializeConfig("config.transaction", _transactionConfig);
 
         return;
 

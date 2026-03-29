@@ -26,16 +26,19 @@
     <SideEffectsOptionsEditor Value="_sideEffectsValue"/>
     <MessageQueueOptionsEditor Value="_messageQueueValue"/>
     <TaskBalancerOptionsEditor Value="_taskBalancerValue"/>
+    <TransactionOptionsEditor Value="_transactionValue"/>
 </div>
 
 @code {
     [Inject] public ISideEffectsConfig SideEffectsConfig { get; set; } = null!;
     [Inject] public IDurableQueueConfig MessageQueueConfig { get; set; } = null!;
     [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
+    [Inject] public ITransactionConfig TransactionConfig { get; set; } = null!;
 
     private SideEffectsOptions _sideEffectsValue = new();
     private DurableQueueOptions _messageQueueValue = new();
     private TaskBalancerOptions _taskBalancerValue = new();
+    private TransactionOptions _transactionValue = new();
 
     private bool _isUpdatingJson;
 
@@ -49,6 +52,7 @@
         ReloadField(SideEffectsConfig.Value, ref _sideEffectsValue);
         ReloadField(MessageQueueConfig.Value, ref _messageQueueValue);
         ReloadField(TaskBalancerConfig.Value, ref _taskBalancerValue);
+        ReloadField(TransactionConfig.Value, ref _transactionValue);
         InvokeAsync(StateHasChanged);
 
         return;
@@ -65,6 +69,7 @@
         SideEffectsConfig.SetValue(_sideEffectsValue);
         MessageQueueConfig.SetValue(_messageQueueValue);
         TaskBalancerConfig.SetValue(_taskBalancerValue);
+        TransactionConfig.SetValue(_transactionValue);
         ToastService.Success("Infrastructure options saved", "Saved");
     }
 
@@ -79,6 +84,7 @@
             await SaveConfig("config.sideEffects", _sideEffectsValue);
             await SaveConfig("config.messageQueue", _messageQueueValue);
             await SaveConfig("config.taskBalancer", _taskBalancerValue);
+            await SaveConfig("config.transaction", _transactionValue);
 
             ToastService.Success("Infrastructure options saved to JSON", "Saved");
         }

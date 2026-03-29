@@ -17,3 +17,6 @@ public class RuntimePipeConfigState(IOrleans orleans, IMessaging messaging)
 
 public class RuntimeChannelConfigState(IOrleans orleans, IMessaging messaging)
     : AddressableState<RuntimeChannelOptions>(orleans, messaging), IRuntimeChannelConfig;
+
+public class TransactionConfigState(IOrleans orleans, IMessaging messaging)
+    : AddressableState<TransactionOptions>(orleans, messaging), ITransactionConfig;
