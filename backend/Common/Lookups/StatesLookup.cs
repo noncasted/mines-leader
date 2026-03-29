@@ -32,6 +32,13 @@ public static class StatesLookup
         KeyType = GrainKeyType.Guid
     };
 
+    public static readonly Info CollectionTest = new()
+    {
+        TableName = "state_test_collection",
+        StateName = "collection_test",
+        KeyType = GrainKeyType.Guid
+    };
+
     public static readonly Info User = new()
     {
         TableName = "state_user_entity",
@@ -170,6 +177,7 @@ public static class StatesLookup
         StateTestTest,
         StateMigrationTest,
         TransactionTest,
+        CollectionTest,
         User,
         UserAuth,
         UserProgression,
