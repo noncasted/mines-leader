@@ -31,7 +31,7 @@ namespace Meta
             builder.Register<Authentication>()
                 .As<IAuthentication>();
 
-            builder.RegisterScriptableRegistry<CardsRegistry, CardDefinition>()
+            builder.Register<CardsRegistry>()
                 .As<ICardsRegistry>();
 
             builder.AddNetworkConnection();

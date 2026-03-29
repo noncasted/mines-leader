@@ -1,6 +1,4 @@
-﻿using Internal;
 using Shared;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Meta
@@ -13,23 +11,19 @@ namespace Meta
         Sprite Image { get; }
     }
     
-    [InlineEditor]
-    public class CardDefinition : EnvAsset, IEnvDictionaryKeyProvider<CardType>, ICardDefinition
+    public class CardDefinition : ICardDefinition
     {
-        [SerializeField] private CardType _type;
-        [SerializeField] private CardTarget _target;
+        public CardDefinition(CardType type, string name, string description, Sprite image)
+        {
+            Type = type;
+            Name = name;
+            Description = description;
+            Image = image;
+        }
 
-        [SerializeField] private string _name;
-        [SerializeField] [Multiline] private string _description;
-
-        [SerializeField] [PreviewField(300, FilterMode = FilterMode.Point)]
-        private Sprite _image;
-
-        public CardType Type => _type;
-        public string Name => _name;
-        public string Description => _description;
-        public Sprite Image => _image;
-
-        public CardType EnvKey => Type;
+        public CardType Type { get; }
+        public string Name { get; }
+        public string Description { get; }
+        public Sprite Image { get; }
     }
 }

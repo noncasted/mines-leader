@@ -97,7 +97,7 @@ namespace Menu.Decks
 
             _indexButtons[_deckService.SelectedIndex.Value].Activate();
 
-            foreach (var (type, definition) in _cardsRegistry.Cards)
+            foreach (var (type, definition) in _cardsRegistry.Entries)
             {
                 var view = Instantiate(_poolPrefab, _poolRoot);
                 _viewInjector.Inject(view.Card);

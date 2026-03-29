@@ -51,7 +51,7 @@ namespace Meta
 
                     foreach (var cardType in entry.Cards)
                     {
-                        var definition = _cardsRegistry.Cards[cardType];
+                        var definition = _cardsRegistry.Entries[cardType];
                         cards.Add(definition);
                     }
 
