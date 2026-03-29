@@ -1,57 +1,198 @@
-# State Infrastructure — Test Roadmap
+# Test Roadmap
 
-### Что есть сейчас
+Кастомная система стейта поверх Orleans + Postgres. Кастомный тест-фреймворк (`ClusterTestRoot`/`ClusterTestNode`)
+запускает тесты на живом кластере — это интеграционные тесты, не юниты.
+
+---
+
+## Что есть сейчас
+
+### State (группа `State`)
 
 | Тест | Что проверяет |
 |---|---|
-| `GrainStateTest` | Не-транзакционный Read/Write, параллельные вызовы |
-| `TransactionStateTest` | Транзакция на один грейн |
-| `ChainedTransactionStateTest` | Транзакция на N грейнов, успех |
-| `ChainedTransactionStateTestFail` | Rollback при исключении, проверяет значения до и после |
-| `TransactionLimiterTest` | Две конкурентные транзакции на одних и тех же грейнах |
+| `StateTest` | Не-транзакционный Read/Write, вложенные объекты, grain references в стейте |
+| `TransactionStateTest` | Транзакция на один грейн с rollback |
+| `TransactionStateChainedTest` | Транзакция на N грейнов, успех |
+| `TransactionStateChainedFailTest` | Rollback при исключении, проверяет значения до и после |
+| `TransactionStateOverlappingTest` | Две конкурентные транзакции на пересекающихся грейнах |
+| `TransactionSingleTargetTest` | Конкурентный доступ к одному грейну |
+| `TransactionSingleChainTest` | Повторные chained-операции на одном грейне |
+| `StateMigrationTest` | Миграция стейта между версиями |
 
-### Чего не хватает
+### Messaging (группа `Messaging`)
 
-#### Персистентность в БД
+| Тест | Что проверяет |
+|---|---|
+| `MessagingDirectQueueStressTest` | Durable queue — direct push, доставка |
+| `MessagingTransactionalQueueStressTest` | Durable queue — push внутри транзакции |
+| `MessagePipeSendStressTest` | Runtime pipe — fire-and-forget |
+| `MessagePipeSendResponseStressTest` | Runtime pipe — request/response |
+| `RuntimeChannelStressTest` | Runtime channel — broadcast |
 
-Ни один тест не проверяет что данные реально сохранились в Postgres, а не живут только в памяти грейна.
-Нужен тест: записать → принудительно деактивировать грейн (`RequestContext` + `DeactivateOnIdle`) →
-прочитать снова → проверить значение.
+---
 
-Без этого теста нельзя утверждать что storage layer работает — грейны могут отдавать данные из кэша.
+### State — новые (реализовано)
 
-#### Корректность значений после транзакций
+| Тест | Что проверяет |
+|---|---|
+| `StatePersistenceTest` | Запись → деактивация → чтение из Postgres |
+| `TransactionStateValueTest` | N последовательных транзакций → итоговое значение == N |
+| `TransactionConcurrentValueTest` | K параллельных транзакций → итоговое значение == K |
+| `TransactionTakeoverTest` | Force takeover зависшей транзакции (>30s) |
+| `TransactionCrossPathReadTest` | Транзакционная запись → нетранзакционное чтение |
+| `StateCollectionSyncTest` | StateCollection синхронизация между сервисами (Root + Node) |
+| `TransactionEmptyTest` | Пустая транзакция (0 grain-вызовов) |
+| `TransactionLargeBatchTest` | Транзакция с 50+ грейнами |
+| `TransactionRollbackRetryTest` | Rollback → повторная транзакция без ожидания takeover |
+| `TransactionMidChainFailTest` | Исключение в середине цепочки → оба грейна откатились |
+| `StateMigrationConcurrentTest` | Миграция стейта под конкурентной нагрузкой |
+| `SideEffectExecutionTest` | Side effect регистрация → выполнение через SideEffectsWorker |
 
-`TransactionStateTest` и `ChainedTransactionStateTest` проверяют только отсутствие исключения.
-Они не проверяют что значение действительно инкрементировалось.
+### Messaging — новые (реализовано)
 
-Нужен тест: N последовательных транзакций на одном грейне → прочитать значение → проверить что оно равно N.
-Это поймает silent lost updates при конкурентном доступе к одному грейну.
+| Тест | Что проверяет |
+|---|---|
+| `DurableQueueDeliveryTest` | Отправка и доставка всех сообщений через durable queue |
 
-#### Конкурентные транзакции на одном грейне, проверка итогового значения
+### Game (группа `Game`, реализовано)
 
-`TransactionLimiterTest` запускает два конкурентных `Run()` на одних и тех же грейнах и проверяет
-что оба вернули `IsSuccess`. Но не проверяет что итоговое значение = 2 (а не 1 из-за lost update).
+| Тест | Что проверяет |
+|---|---|
+| `BoardGenerationTest` | Генерация доски, количество мин, безопасность стартовой позиции |
+| `BoardRevealTest` | Flood-fill reveal, идемпотентность повторного reveal |
+| `CellStateTest` | Переходы Taken↔Free, флаги, мины, взрыв |
+| `PlayerStatsTest` | Health/Mana/Moves: damage, heal, use, restore, clamp, lock |
+| `DeckHandStashTest` | Дека: init/draw/cycle, Hand: add/remove, Stash: LIFO/collect |
 
-#### Force takeover зависшей транзакции
+### Meta (группа `Meta`, реализовано)
 
-Нет теста для механизма takeover из `GrainTransactionHandler`. Нужен тест:
-запустить транзакцию с искусственной задержкой > 30s (через `Task.Delay`),
-параллельно запустить вторую транзакцию на том же грейне,
-убедиться что вторая успешно завершилась и значение корректно.
+| Тест | Что проверяет |
+|---|---|
+| `UserProgressionRatingTest` | XP и Rating: добавление Win/Loss записей, кумулятивный результат |
+| `UserDeckTest` | Инициализация дек, обновление, персистентность |
+| `MatchRecordingTest` | Создание матча → завершение → XP/Rating/History у обоих игроков |
 
-#### Пустая транзакция
+### Инфраструктура тестов (реализовано)
 
-`Transactions.Run(() => Task.CompletedTask)` — транзакция без единого grain-вызова.
-Должна завершиться успешно и не делать никаких записей в БД.
-Простой edge case, но важен для корректности `CollectStates` с пустым списком участников.
+| Файл | Что добавлено |
+|---|---|
+| `TestAssert.cs` | Assertion helpers: Equal, True, Throws, GreaterThan, Contains, NotNull |
+| `TestGroups.cs` | Группы Game и Meta |
+| `TransactionTestsGrain.cs` | Методы `IncrementWithDelay`, `Deactivate` |
 
-#### Нетранзакционное чтение после транзакционной записи
+---
 
-Написать через транзакцию → прочитать через обычный `State.Read()` (без `TransactionContext`) →
-проверить что значение совпадает. Проверяет корректность взаимодействия кэша и транзакционного пути.
+## Ещё не реализовано
 
-#### Большой батч участников
+### Следующий приоритет — Side effects retry и transactional side effects
 
-Транзакция с 50+ грейнами одновременно. Проверяет что batch write в одной Postgres-транзакции
-не упирается в лимиты (количество параметров, размер запроса, connection timeout).
+---
+
+#### Side effects: retry при ошибке
+
+Side effect бросает исключение на первом вызове → worker перекладывает в retry queue →
+при повторе эффект выполняется успешно. Проверить: количество попыток, задержку, итоговый результат.
+
+---
+
+#### ITransactionalSideEffect: откат при ошибке эффекта
+
+`ITransactionalSideEffect.Execute()` бросает исключение → вся транзакция откатывается.
+Стейты всех грейнов-участников не изменились.
+
+---
+
+### Игровая логика — расширение покрытия
+
+---
+
+#### Card effects: корректность паттернов
+
+Каждая карта имеет пространственный паттерн (Rhombus, Circle) и эффект. Минимум:
+
+| Карта | Что проверить |
+|---|---|
+| `Trebuchet` | Расстановка мин в паттерне, Y-axis группировка |
+| `ZipZap` | Chain через мины, boost от TrebuchetAimer |
+| `Bloodhound` | Reveal на чужой доске, конвертация Taken → Free |
+| `ErosionDozer` | Proximity-based reveal, корректный порядок |
+| `Smoke` | Timed effect: наложение и снятие через `RoundActionService` |
+| `GraveDigger` | Возврат карты из Stash в Hand |
+| `OpponentFlagReshuffle` | Рандомизация флагов в паттерне |
+
+---
+
+#### Game flow: полный матч (e2e)
+
+End-to-end тест полного матча:
+1. Создание сессии через `SessionFactory`
+2. Подключение двух игроков
+3. `PlayerReadyCommand` от обоих
+4. Несколько ходов (open cell, use card)
+5. Один игрок умирает (HP = 0) или время истекает
+6. Матч завершается, результат записывается в `Match` grain
+
+---
+
+#### Matchmaking
+
+- Два игрока ставятся в очередь → матч создаётся
+- Игрок отключается из очереди → матч не создаётся
+- Конкурентные matchmaking requests → нет дублирования матчей
+
+---
+
+### Хаос и надёжность (перед production)
+
+---
+
+#### Деактивация грейна во время транзакции
+
+Orleans может деактивировать idle грейн. Если грейн-участник деактивируется
+между `Join()` и `CollectStates()` — что произойдёт?
+
+**Ожидание:** транзакция должна зафейлиться, rollback, retry.
+
+---
+
+#### Потеря Postgres-соединения во время коммита
+
+`NpgsqlTransaction.CommitAsync()` бросает исключение → все участники должны получить
+`OnFailure()`, семафоры отпущены, in-memory кэш сброшен.
+
+---
+
+#### Messaging: потеря и дублирование
+
+- Runtime pipe/channel: сообщение теряется при падении получателя → sender получает ошибку
+  или timeout (не зависает навсегда)
+- Durable queue: при перезапуске consumer может получить дубль → idempotent обработка
+
+---
+
+#### Нагрузочный тест: много параллельных матчей
+
+50+ параллельных матчей на кластере. Проверяет:
+- Нет deadlock'ов в транзакциях
+- StateCollection не отстаёт критично
+- Side effects не копятся в очереди
+- Memory не утекает (Lifetime'ы терминируются)
+
+---
+
+## Улучшения тест-фреймворка
+
+Реализовано:
+- `TestAssert` — assertion helpers (Equal, True, Throws, GreaterThan, Contains, NotNull)
+
+Ещё нужно:
+
+1. **Grain test utilities** — хелпер для: создать грейн → выполнить действия → прочитать стейт →
+   проверить. Без написания полного `Root`/`Node` на каждый тест.
+
+2. **Таймауты тестов** — сейчас зависший тест висит вечно. Нужен глобальный timeout
+   с автоматическим `OperationStatus.Failed`.
+
+3. **Test isolation** — тесты используют общие грейны по GuidKey. Если тесты запускаются
+   параллельно, они могут конфликтовать. Каждый тест должен использовать уникальные ID.
