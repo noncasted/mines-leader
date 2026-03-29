@@ -13,12 +13,13 @@ namespace GamePlay.Cheats
         [SerializeField] private CardAddEntry _prefab;
         [SerializeField] private RectTransform _root;
 
-        private CardsRegistry _cards;
         private INetworkConnection _connection;
+        private ICardsRegistry _cards;
 
         [Inject]
-        private void Construct(INetworkConnection connection)
+        private void Construct(INetworkConnection connection, ICardsRegistry cards)
         {
+            _cards = cards;
             _connection = connection;
         }
 
@@ -27,12 +28,11 @@ namespace GamePlay.Cheats
             builder.RegisterComponent(this)
                 .As<IScopeSetup>();
 
-            _cards = builder.GetAsset<CardsRegistry>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            foreach (var definition in _cards.Objects)
+            foreach (var (type, definition) in _cards.Entries)
             {
                 var entry = Instantiate(_prefab, _root);
                 entry.Setup(definition);

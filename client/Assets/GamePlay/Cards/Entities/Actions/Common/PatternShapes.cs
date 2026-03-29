@@ -13,6 +13,7 @@ namespace GamePlay.Cards
     public static class PatternShapes
     {
         public static RhombusShape Rhombus(int size) => new(size);
+        public static LineShape Line(int length, bool horizontal) => new(length, horizontal);
 
         public static IReadOnlyList<IBoardCell> SelectTaken(this IPattenShape shape, IBoard board, Vector2Int center)
         {
@@ -112,6 +113,28 @@ namespace GamePlay.Cards
             }
 
             Positions = positions;
+        }
+
+        public IReadOnlyList<IReadOnlyList<bool>> Positions { get; }
+    }
+
+    public class LineShape : IPattenShape
+    {
+        public LineShape(int length, bool horizontal)
+        {
+            var grid = new bool[length][];
+            var center = length / 2;
+
+            for (var y = 0; y < length; y++)
+            {
+                grid[y] = new bool[length];
+                for (var x = 0; x < length; x++)
+                {
+                    grid[y][x] = horizontal ? y == center : x == center;
+                }
+            }
+
+            Positions = grid;
         }
 
         public IReadOnlyList<IReadOnlyList<bool>> Positions { get; }

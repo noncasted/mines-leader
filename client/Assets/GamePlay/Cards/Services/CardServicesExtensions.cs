@@ -11,8 +11,6 @@ namespace GamePlay.Cards
             builder.Register<CardFactory>()
                 .WithAsset<CardFactoryOptions>();
 
-            builder.RegisterEnvDictionary<CardType, ICardDefinition, CardDefinition>();
-
             return builder;
         }
     }

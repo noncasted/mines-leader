@@ -70,6 +70,16 @@ namespace GamePlay.Cards
                 CardType.OpponentFlagReshuffle_Max => builder.Register<CardOpponentFlagReshuffleAction>(),
                 CardType.Smoke => builder.Register<CardSmokeAction>(),
                 CardType.Smoke_Max => builder.Register<CardSmokeAction>(),
+                CardType.Medic => builder.Register<CardMedicAction>(),
+                CardType.MinefieldScout => builder.Register<CardMinefieldScoutAction>(),
+                CardType.MinefieldScout_Max => builder.Register<CardMinefieldScoutAction>(),
+                CardType.Siphon => builder.Register<CardSiphonAction>(),
+                CardType.ChainReaction => builder.Register<CardChainReactionAction>(),
+                CardType.Overclock => builder.Register<CardOverclockAction>(),
+                CardType.FogOfWar => builder.Register<CardFogOfWarAction>(),
+                CardType.FogOfWar_Max => builder.Register<CardFogOfWarAction>(),
+                CardType.Scavenger => builder.Register<CardScavengerAction>(),
+                CardType.HandScramble => builder.Register<CardHandScrambleAction>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -93,6 +103,16 @@ namespace GamePlay.Cards
                 CardType.OpponentFlagReshuffle_Max => registration.WithParameter(configs.OpponentFlagReshuffle_Max),
                 CardType.Smoke => registration.WithParameter(configs.Smoke_Normal),
                 CardType.Smoke_Max => registration.WithParameter(configs.Smoke_Max),
+                CardType.Medic => registration.WithParameter(configs.Medic_Normal),
+                CardType.MinefieldScout => registration.WithParameter(configs.MinefieldScout_Normal),
+                CardType.MinefieldScout_Max => registration.WithParameter(configs.MinefieldScout_Max),
+                CardType.Siphon => registration.WithParameter(configs.Siphon_Normal),
+                CardType.ChainReaction => registration.WithParameter(configs.ChainReaction_Normal),
+                CardType.Overclock => registration.WithParameter(configs.Overclock_Normal),
+                CardType.FogOfWar => registration.WithParameter(configs.FogOfWar_Normal),
+                CardType.FogOfWar_Max => registration.WithParameter(configs.FogOfWar_Max),
+                CardType.Scavenger => registration.WithParameter(configs.Scavenger_Normal),
+                CardType.HandScramble => registration.WithParameter(configs.HandScramble_Normal),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -137,6 +157,16 @@ namespace GamePlay.Cards
                     CardActionSnapshot.OpponentFlagReshuffle>(),
                 CardType.Smoke => Sync<CardSmokeAction.Snapshot, CardActionSnapshot.Smoke>(),
                 CardType.Smoke_Max => Sync<CardSmokeAction.Snapshot, CardActionSnapshot.Smoke>(),
+                CardType.Medic => Sync<CardMedicAction.Snapshot, CardActionSnapshot.Medic>(),
+                CardType.MinefieldScout => Sync<CardMinefieldScoutAction.Snapshot, CardActionSnapshot.MinefieldScout>(),
+                CardType.MinefieldScout_Max => Sync<CardMinefieldScoutAction.Snapshot, CardActionSnapshot.MinefieldScout>(),
+                CardType.Siphon => Sync<CardSiphonAction.Snapshot, CardActionSnapshot.Siphon>(),
+                CardType.ChainReaction => Sync<CardChainReactionAction.Snapshot, CardActionSnapshot.ChainReaction>(),
+                CardType.Overclock => Sync<CardOverclockAction.Snapshot, CardActionSnapshot.Overclock>(),
+                CardType.FogOfWar => Sync<CardFogOfWarAction.Snapshot, CardActionSnapshot.FogOfWar>(),
+                CardType.FogOfWar_Max => Sync<CardFogOfWarAction.Snapshot, CardActionSnapshot.FogOfWar>(),
+                CardType.Scavenger => Sync<CardScavengerAction.Snapshot, CardActionSnapshot.Scavenger>(),
+                CardType.HandScramble => Sync<CardHandScrambleAction.Snapshot, CardActionSnapshot.HandScramble>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
