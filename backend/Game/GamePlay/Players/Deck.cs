@@ -12,6 +12,7 @@ public interface IDeck
     void AddCard(CardType card);
     void RemoveCard(CardType card);
     CardType DrawCard();
+    void Shuffle();
 }
 
 public class Deck : IDeck
@@ -67,6 +68,11 @@ public class Deck : IDeck
         var card = _state.Value.Queue[0];
         _state.Update(state => state.Queue.RemoveAt(0));
         return card;
+    }
+
+    public void Shuffle()
+    {
+        _state.Update(state => state.Queue.Shuffle());
     }
 }
 

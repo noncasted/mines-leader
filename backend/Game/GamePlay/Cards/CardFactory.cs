@@ -120,6 +120,38 @@ public class CardFactory : ICardFactory
                 _configs.Value.Smoke_Max,
                 _roundActionService
             ),
+            CardType.Medic => new Medic(owner),
+            CardType.MinefieldScout => new MinefieldScout(
+                GetBoard(owner, payload),
+                (CardUsePayload.MinefieldScout)payload,
+                _configs.Value.MinefieldScout_Normal
+            ),
+            CardType.MinefieldScout_Max => new MinefieldScout(
+                GetBoard(owner, payload),
+                (CardUsePayload.MinefieldScout)payload,
+                _configs.Value.MinefieldScout_Max
+            ),
+            CardType.Siphon => new Siphon(owner, _gameContext.GetOpponent(owner), _configs.Value.Siphon_Normal),
+            CardType.ChainReaction => new ChainReaction(
+                GetBoard(_gameContext.GetOpponent(owner), payload),
+                (CardUsePayload.ChainReaction)payload,
+                _configs.Value.ChainReaction_Normal
+            ),
+            CardType.Overclock => new Overclock(owner, _configs.Value.Overclock_Normal),
+            CardType.FogOfWar => new FogOfWar(
+                GetBoard(_gameContext.GetOpponent(owner), payload),
+                (CardUsePayload.FogOfWar)payload,
+                _configs.Value.FogOfWar_Normal,
+                _roundActionService
+            ),
+            CardType.FogOfWar_Max => new FogOfWar(
+                GetBoard(_gameContext.GetOpponent(owner), payload),
+                (CardUsePayload.FogOfWar)payload,
+                _configs.Value.FogOfWar_Max,
+                _roundActionService
+            ),
+            CardType.Scavenger => new Scavenger(owner, snapshot, _configs.Value.Scavenger_Normal),
+            CardType.HandScramble => new HandScramble(_gameContext.GetOpponent(owner), snapshot),
             _ => throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, null)
         };
     }

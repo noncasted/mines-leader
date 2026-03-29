@@ -19,7 +19,7 @@ public class MoveSnapshot
         _isLocked = false;
     }
 
-    public void RecordCard(Guid playerId, Guid cardId, ICardActionData data)
+    public void RecordCardUse(Guid playerId, Guid cardId, ICardActionData data)
     {
         var record = new PlayerSnapshotRecord.CardUse()
         {
@@ -41,6 +41,16 @@ public class MoveSnapshot
                 PlayerId = playerId,
                 CardId = cardId,
                 Type = type
+            }
+        );
+    }
+
+    public void RecordCardRemove(Guid playerId, Guid cardId)
+    {
+        _records.Add(new PlayerSnapshotRecord.CardRemove()
+            {
+                PlayerId = playerId,
+                CardId = cardId
             }
         );
     }
