@@ -114,6 +114,31 @@ public void Show(DialogueTextTrack track, IReadOnlyLifetime lifetime) {
 
 ---
 
+## Lesson: new Lifetime() in Tests (CRITICAL)
+
+### Mistake Made
+```csharp
+// WRONG — orphan lifetime, won't be terminated if test fails
+var lifetime = new Lifetime();
+balancer.Run(lifetime);
+// ... test logic ...
+lifetime.Terminate(); // never reached if test throws above
+```
+
+### Correct Pattern
+```csharp
+// CORRECT — handle.Lifetime is auto-terminated by ClusterTestRoot
+balancer.Run(handle.Lifetime);
+```
+
+### Why This Matters
+ClusterTestRoot creates a Lifetime for each test run and terminates it after Run() completes (whether success or failure). Using `new Lifetime()` bypasses this — if the test throws an exception before manual `Terminate()`, background loops and subscriptions keep running forever, leaking resources and potentially affecting other tests.
+
+### Rule
+NEVER use `new Lifetime()` in tests. Always use `handle.Lifetime` or `handle.Lifetime.Child()`.
+
+---
+
 ## Related Documentation
 - **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
