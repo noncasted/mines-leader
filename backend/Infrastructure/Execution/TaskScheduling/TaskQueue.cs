@@ -1,18 +1,15 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Execution;
 
-public interface ITaskQueue
-{
+public interface ITaskQueue {
     void Enqueue(IPriorityTask task);
     IReadOnlyList<IPriorityTask> Collect();
 }
 
-public class TaskQueue : ITaskQueue
-{
-    public TaskQueue(ILogger<TaskQueue> logger)
-    {
+public class TaskQueue : ITaskQueue {
+    public TaskQueue(ILogger<TaskQueue> logger) {
         _logger = logger;
     }
 
@@ -20,59 +17,68 @@ public class TaskQueue : ITaskQueue
     private readonly ILogger<TaskQueue> _logger;
     private readonly Dictionary<string, Entry> _queue = new();
 
-    public void Enqueue(IPriorityTask task)
-    {
-        _lock.Wait();
+    public void Enqueue(IPriorityTask task) {
+        try {
+            _lock.Wait();
 
-        if (_queue.ContainsKey(task.Id) == false)
-            _queue[task.Id] = new Entry
-            {
-                Task = task,
-                ScheduleDate = DateTime.UtcNow + task.Delay
-            };
-
-        _lock.Release();
-    }
-
-    public IReadOnlyList<IPriorityTask> Collect()
-    {
-        if (_queue.Count == 0)
-            return [];
-
-        var tasks = new List<IPriorityTask>(_queue.Count);
-
-        _lock.Wait();
-
-        var sb = new StringBuilder();
-        sb.AppendLine($"[TaskQueue] Collecting tasks ({_queue.Count}): ");
-
-        foreach (var (_, entry) in _queue)
-        {
-            if (DateTime.UtcNow < entry.ScheduleDate)
-            {
-                sb.AppendLine(
-                    $"    Skipping task {entry.Task.Id}, wait for {(entry.ScheduleDate - DateTime.UtcNow).TotalSeconds:F1}s"
-                );
-
-                continue;
+            try {
+                _queue.TryAdd(task.Id, new Entry {
+                    Task = task,
+                    ScheduleDate = DateTime.UtcNow + task.Delay
+                });
             }
-
-            tasks.Add(entry.Task);
-            sb.AppendLine($"    Scheduling task {entry.Task.Id}");
+            finally {
+                _lock.Release();
+            }
         }
-
-        foreach (var task in tasks)
-            _queue.Remove(task.Id);
-
-        _lock.Release();
-
-        _logger.LogTrace(sb.ToString());
-
-        return tasks;
+        catch (Exception e) {
+            _logger.LogError(e, "[TaskQueue] Failed to enqueue task {TaskId}", task.Id);
+        }
     }
 
-    public class Entry
-    {
+    public IReadOnlyList<IPriorityTask> Collect() {
+        try {
+            _lock.Wait();
+
+            try {
+                var tasks = new List<IPriorityTask>(_queue.Count);
+
+                var sb = new StringBuilder();
+                sb.AppendLine($"[TaskQueue] Collecting tasks ({_queue.Count}): ");
+
+                var now = DateTime.UtcNow;
+
+                foreach (var (_, entry) in _queue) {
+                    if (now < entry.ScheduleDate) {
+                        sb.AppendLine(
+                            $"    Skipping task {entry.Task.Id}, wait for {(entry.ScheduleDate - now).TotalSeconds:F1}s"
+                        );
+
+                        continue;
+                    }
+
+                    tasks.Add(entry.Task);
+                    sb.AppendLine($"    Scheduling task {entry.Task.Id}");
+                }
+
+                foreach (var task in tasks)
+                    _queue.Remove(task.Id);
+
+                _logger.LogTrace(sb.ToString());
+
+                return tasks;
+            }
+            finally {
+                _lock.Release();
+            }
+        }
+        catch (Exception e) {
+            _logger.LogError(e, "[TaskQueue] Failed to collect tasks");
+            return Array.Empty<IPriorityTask>();
+        }
+    }
+
+    private class Entry {
         public required IPriorityTask Task { get; init; }
         public required DateTime ScheduleDate { get; init; }
     }

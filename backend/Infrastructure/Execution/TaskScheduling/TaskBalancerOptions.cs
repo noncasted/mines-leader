@@ -1,7 +1,6 @@
 namespace Infrastructure.Execution;
 
-public class TaskBalancerOptions
-{
+public class TaskBalancerOptions {
     public int EmptyDelayMs { get; set; } = 500;
     public int NextDelayMs { get; set; } = 100;
     public int IterationScore { get; set; } = 1;
