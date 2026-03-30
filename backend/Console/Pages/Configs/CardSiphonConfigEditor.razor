@@ -3,12 +3,13 @@
 <div class="rounded-lg border bg-card p-3 flex flex-col gap-2">
     <div class="flex items-center gap-2">
         <span class="text-sm font-medium flex-1 truncate" title="@Name">@BaseName</span>
-        @if (IsMax)
-        {
-            <span class="rounded px-1.5 py-0.5 text-xs font-medium bg-amber-500/15 text-amber-400">Max</span>
-        }
     </div>
     <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 flex-1">
+            <LucideIcon Name="zap" Size="11" class="text-yellow-400 shrink-0" />
+            <input type="number" @bind="Value.DrainAmount"
+                   class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
         <div class="flex items-center gap-1.5 flex-1">
             <LucideIcon Name="droplets" Size="11" class="text-blue-400 shrink-0" />
             <input type="number" @bind="Value.ManaCost"
@@ -18,10 +19,9 @@
 </div>
 
 @code {
-    [Parameter] public ICardConfig Value { get; set; } = null!;
+    [Parameter] public CardConfigOptions.Siphon Value { get; set; } = null!;
     [Parameter] public CardType Type { get; set; }
 
     private string Name => Type.ToString();
     private string BaseName => Name.Replace("_Max", "");
-    private bool IsMax => Name.EndsWith("_Max");
 }

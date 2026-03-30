@@ -34,47 +34,6 @@ namespace Shared
     }
 
     [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardConfigOptions.Bloodhound))]
-    [MemoryPackUnion(1, typeof(CardConfigOptions.Trebuchet))]
-    [MemoryPackUnion(2, typeof(CardConfigOptions.TrebuchetAimer))]
-    [MemoryPackUnion(3, typeof(CardConfigOptions.ErosionDozer))]
-    [MemoryPackUnion(4, typeof(CardConfigOptions.ZipZap))]
-    [MemoryPackUnion(5, typeof(CardConfigOptions.OpponentFlagErase))]
-    [MemoryPackUnion(6, typeof(CardConfigOptions.OpponentFlagReshuffle))]
-    [MemoryPackUnion(7, typeof(CardConfigOptions.Smoke))]
-    [MemoryPackUnion(8, typeof(CardConfigOptions.MinefieldScout))]
-    [MemoryPackUnion(11, typeof(CardConfigOptions.FogOfWar))]
-    [MemoryPackUnion(13, typeof(CardConfigOptions.Sonar))]
-    public partial interface ICardSizeConfig
-    {
-        int Size { get; set; }
-    }
-
-    [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardConfigOptions.Siphon))]
-    public partial interface ICardDrainConfig
-    {
-        int DrainAmount { get; set; }
-    }
-
-    [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardConfigOptions.Lockdown))]
-    public partial interface ICardLockdownConfig
-    {
-        int Duration { get; set; }
-        int MovesReduction { get; set; }
-    }
-
-    [MemoryPackable]
-    [MemoryPackUnion(0, typeof(CardConfigOptions.ChainReaction))]
-    public partial interface ICardChainReactionConfig
-    {
-        int MaxChain { get; set; }
-        int SearchRadius { get; set; }
-        int SpawnSize { get; set; }
-    }
-
-    [MemoryPackable]
     public partial class CardConfigOptions : INetworkContext
     {
         public Bloodhound BloodHound_Normal { get; set; } = new();
@@ -149,10 +108,10 @@ namespace Shared
             { CardType.ZipZap_Max, ZipZap_Max },
 
             { CardType.OpponentFlagErase, OpponentFlagErase_Normal },
-            { CardType.OpponentFlagErase_Max, OpponentFlagErase_Normal },
+            { CardType.OpponentFlagErase_Max, OpponentFlagErase_Max },
 
             { CardType.OpponentFlagReshuffle, OpponentFlagReshuffle_Normal },
-            { CardType.OpponentFlagReshuffle_Max, OpponentFlagReshuffle_Normal },
+            { CardType.OpponentFlagReshuffle_Max, OpponentFlagReshuffle_Max },
 
             { CardType.Smoke, Smoke_Normal },
             { CardType.Smoke_Max, Smoke_Max },
@@ -186,7 +145,7 @@ namespace Shared
         };
 
         [MemoryPackable]
-        public partial class Bloodhound : ICardConfig, ICardSizeConfig
+        public partial class Bloodhound : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -195,7 +154,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Trebuchet : ICardConfig, ICardSizeConfig
+        public partial class Trebuchet : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -204,7 +163,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class TrebuchetAimer : ICardConfig, ICardSizeConfig
+        public partial class TrebuchetAimer : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 1;
@@ -213,7 +172,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ErosionDozer : ICardConfig, ICardSizeConfig
+        public partial class ErosionDozer : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 5;
@@ -230,7 +189,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ZipZap : ICardConfig, ICardSizeConfig
+        public partial class ZipZap : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -240,7 +199,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class OpponentFlagErase : ICardConfig, ICardSizeConfig
+        public partial class OpponentFlagErase : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -249,7 +208,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class OpponentFlagReshuffle : ICardConfig, ICardSizeConfig
+        public partial class OpponentFlagReshuffle : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -266,7 +225,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Smoke : ICardConfig, ICardSizeConfig
+        public partial class Smoke : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -284,7 +243,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class MinefieldScout : ICardConfig, ICardSizeConfig
+        public partial class MinefieldScout : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 5;
@@ -293,7 +252,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Siphon : ICardConfig, ICardDrainConfig
+        public partial class Siphon : ICardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -302,7 +261,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChainReaction : ICardConfig, ICardChainReactionConfig
+        public partial class ChainReaction : ICardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 4;
@@ -322,7 +281,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class FogOfWar : ICardConfig, ICardSizeConfig
+        public partial class FogOfWar : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -349,7 +308,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Lockdown : ICardConfig, ICardLockdownConfig
+        public partial class Lockdown : ICardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -359,7 +318,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Sonar : ICardConfig, ICardSizeConfig
+        public partial class Sonar : ICardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
