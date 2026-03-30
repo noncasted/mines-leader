@@ -7,8 +7,9 @@ When the user runs `/commit`, follow these rules for generating commit messages:
 ### 1. Title Format
 - Extract the ticket ID from the current branch name (e.g., `ATS-123`)
 - If ticket ID exists: `[ATS-123] Brief description`
-- If no ticket ID: `[Scope] Brief description`
-  - Scope is determined by the area of work (e.g., [Visual], [Timeline], [Objects], [Editor], [Core], [UI], [Network], [Animation])
+- If no ticket ID: `[Scope] Brief description` or `[Scope1] [Scope2] Brief description`
+  - Use multiple tags when a commit spans several areas (e.g., `[Shared] [Console]`, `[Infra] [Tests]`)
+  - Scope is determined by the area of work (e.g., [Visual], [Timeline], [Objects], [Editor], [Core], [UI], [Network], [Animation], [Client], [Shared], [Console], [Infra], [Tests], [Cards], [Claude], [Docs])
 - Keep the title SHORT and descriptive
 
 ### 2. Description Format
@@ -38,7 +39,7 @@ NEVER NEVER NEVER ADD CLAUDE TO CO-AUTHORS
    - Extract ticket ID (e.g., `ATS-123`) from branch name
    - Identify which files changed and their purposes
    - Determine the scope if no ticket ID (Visual, Timeline, Objects, Editor, Core, UI, Network, Animation, etc.)
-5. Generate commit title: `[TICKET_ID or SCOPE] Brief description`
+5. Generate commit title: `[TICKET_ID or SCOPE] Brief description` (use multiple tags like `[Scope1] [Scope2]` when commit spans several areas)
 6. Generate description with bullet points using add:/fix:/refactor:/remove: tags
 7. [Scope] should reflect the area of work, not just copy branch name
 8. Run `git add .` to stage all changes
@@ -47,7 +48,8 @@ NEVER NEVER NEVER ADD CLAUDE TO CO-AUTHORS
 
 ## Example Commit
 
-**Title:** `[ATS-123] Add object pivot point editing`
+**Title (single scope):** `[ATS-123] Add object pivot point editing`
+**Title (multiple scopes):** `[Shared] [Console] Update card config options and editors`
 
 **Description:**
 ```

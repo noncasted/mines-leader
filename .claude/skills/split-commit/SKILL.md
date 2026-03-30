@@ -11,8 +11,9 @@ Follow the EXACT same format as `/commit`:
 ### Title Format
 - Extract the ticket ID from the current branch name (e.g., `ATS-123`)
 - If ticket ID exists: `[ATS-123] Brief description`
-- If no ticket ID: `[Scope] Brief description`
-  - Scope is determined by the area of work (e.g., [Visual], [Timeline], [Objects], [Editor], [Core], [UI], [Network], [Cards], [Console], [Tests], [Docs], [Infrastructure])
+- If no ticket ID: `[Scope] Brief description` or `[Scope1] [Scope2] Brief description`
+  - Use multiple tags when a commit spans several areas (e.g., `[Shared] [Console]`, `[Infra] [Tests]`)
+  - Scope is determined by the area of work (e.g., [Visual], [Timeline], [Objects], [Editor], [Core], [UI], [Network], [Client], [Shared], [Console], [Infra], [Tests], [Cards], [Claude], [Docs])
 - Keep the title SHORT and descriptive
 
 ### Description Format
