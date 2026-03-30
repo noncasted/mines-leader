@@ -17,10 +17,14 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | member order, _camelCase, GC.KeepAlive, NoAwait, braces | rules/CODE_STYLE.md |
 | Grain, IGrainWithGuidKey, [Transaction], constructor injection | rules/ORLEANS_GRAINS.md |
 | State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | rules/ORLEANS_STATE.md |
+| Blazor, razor, @inject, UiComponent, early return, console UI | rules/BLAZOR.md |
 | which pattern to use, decision | docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |
 | game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking | docs/GAMEPLAY.md |
 | IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/COMMON_ORLEANS.md |
+| trigger keywords, documentation finder, reading order | docs/TRIGGERS.md |
+| code examples, Docs_*.cs, working examples | docs/CODE_EXAMPLES.md |
+| common mistakes, top errors, checklist failures | rules/COMMON_MISTAKES.md |
 | full examples, Lifetime details, reactive details | docs/COMMON_*.md |
 
 ## Architecture
@@ -56,10 +60,12 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - `rules/MONOBEHAVIOUR.md` — MonoBehaviour service pattern checklist
 - `rules/LIFETIMES.md` — Lifetime usage, which lifetime to use
 - `rules/REACTIVE.md` — EventSource, ViewableProperty, ViewableList quick API
-- `rules/API_DESIGN.md` — UniTask, return types, error handling
-- `rules/CODE_STYLE.md` — member order, naming, braces, NoAwait
+- `rules/API_DESIGN.md` — UniTask, return types, error handling (full: `docs/API_DESIGN_FULL.md`)
+- `rules/CODE_STYLE.md` — member order, naming, braces, NoAwait (full: `docs/CODE_STYLE_FULL.md`)
+- `rules/COMMON_MISTAKES.md` — top mistakes checklist
 - `rules/ORLEANS_GRAINS.md` — Orleans grain pattern checklist
 - `rules/ORLEANS_STATE.md` — state types, adding new state
+- `rules/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
 
 **Docs (full reference):**
 - `docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
@@ -71,4 +77,6 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - `docs/COMMON_REACTIVE_*.md` — EventSource, ViewableProperty, ViewableList details
 - `docs/VOCABULARY.md` — consistent terminology
 - `docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
+- `docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
+- `docs/CODE_EXAMPLES.md` — index of runnable code examples
 - `client/Assets/Docs/Claude/*.cs` — runnable code examples for all patterns

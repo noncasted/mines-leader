@@ -104,5 +104,5 @@ public async UniTask<string> BrowseFile() {
 **Callbacks:** Poll with `UniTask.Delay(16)` until ready
 
 ## Related
-- **Code Style:** [CODE_STYLE.md](CODE_STYLE.md)
+- **Code Style:** [CODE_STYLE.md](../rules/CODE_STYLE.md)
 - **Container:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)

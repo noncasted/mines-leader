@@ -63,7 +63,7 @@
 **Keywords:** member order, field naming, method structure, local function, GC.KeepAlive, braces, logging, error handling
 
 ### Recommended Reading Order
-1. **START HERE:** [CODE_STYLE.md](CODE_STYLE.md) – Organization, naming, structure
+1. **START HERE:** [CODE_STYLE.md](../rules/CODE_STYLE.md) – Organization, naming, structure
 
 ### Common Mistakes
 - ❌ Wrong member order (fields before constructor) → harder to read
@@ -77,7 +77,7 @@
 **Keywords:** UniTask, IReadOnlyList, async, return type, collection, interface, callback, empty collection, file I/O
 
 ### Recommended Reading Order
-1. **START HERE:** [API_DESIGN.md](API_DESIGN.md) – Naming, return types, error handling
+1. **START HERE:** [API_DESIGN.md](../rules/API_DESIGN.md) – Naming, return types, error handling
 
 ### Common Mistakes
 - ❌ Returning `null` for empty collections → forces null checks

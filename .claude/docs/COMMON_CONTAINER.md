@@ -369,4 +369,4 @@ public class Service : MonoBehaviour, ISceneService, IScopeSetup {
 ## Related
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
 - **Reactive:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md)
-- **Code Style:** [CODE_STYLE.md](CODE_STYLE.md)
+- **Code Style:** [CODE_STYLE.md](../rules/CODE_STYLE.md)
