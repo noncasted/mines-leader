@@ -21,36 +21,58 @@ public class DynamicStateChannelId<T> : IRuntimeChannelId
 
 public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynamicState<T> where T : class, new()
 {
-    public DynamicState(IMessaging messaging, ILogger logger, T baseValue) : base(baseValue)
+    public DynamicState(IMessaging messaging, ILogger<DynamicState<T>> logger, T baseValue) : base(baseValue)
     {
         _messaging = messaging;
         _logger = logger;
     }
 
     private readonly IMessaging _messaging;
-    private readonly ILogger _logger;
+    private readonly ILogger<DynamicState<T>> _logger;
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
 
-    public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
+    public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        OnSetup(lifetime);
-        return _messaging.ListenChannel<T>(lifetime, new DynamicStateChannelId<T>(), OnUpdate);
+        OnInitialized(lifetime);
+
+        try
+        {
+            await _messaging.ListenChannel<T>(lifetime, new DynamicStateChannelId<T>(), OnUpdate);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[DynamicState] Failed to listen channel for {Type}", typeof(T).Name);
+        }
+    }
+
+    public async Task SetValue(T value)
+    {
+        await _writeLock.WaitAsync();
+
+        try
+        {
+            Set(value);
+            _logger.LogInformation("[DynamicState] Set {Type} : {Value}", typeof(T).Name, value.ToString());
+            await _messaging.PublishChannel(new DynamicStateChannelId<T>(), value);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[DynamicState] Failed to publish {Type}: {Value}", typeof(T).Name, value);
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
+    }
+
+    protected virtual void OnInitialized(IReadOnlyLifetime lifetime)
+    {
     }
 
     private void OnUpdate(T value)
     {
         Set(value);
-        _logger.LogInformation("[Cluster] [DynamicState] Write {Type} : {Key}", typeof(T).Name, value.ToString());
-    }
-
-    public Task SetValue(T value)
-    {
-        Set(value);
-        _logger.LogInformation("[Cluster] [DynamicState] Set {Type} : {Key}", typeof(T).Name, value.ToString());
-        return _messaging.PublishChannel(new DynamicStateChannelId<T>(), value);
-    }
-
-    protected virtual void OnSetup(IReadOnlyLifetime lifetime)
-    {
+        _logger.LogInformation("[DynamicState] Received {Type} : {Value}", typeof(T).Name, value.ToString());
     }
 }
 
