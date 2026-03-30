@@ -1,4 +1,5 @@
-﻿using Common.Extensions;
+using System.Collections.Concurrent;
+using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
 using Microsoft.Extensions.Hosting;
@@ -6,8 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Cluster.Discovery;
 
-public interface IServiceDiscovery
-{
+public interface IServiceDiscovery {
     IServiceOverview Self { get; }
     IReadOnlyDictionary<Guid, IServiceOverview> Entries { get; }
 
@@ -15,13 +15,11 @@ public interface IServiceDiscovery
     Task Push();
 }
 
-public class ServiceDiscovery : IServiceDiscovery
-{
+public class ServiceDiscovery : IServiceDiscovery {
     public ServiceDiscovery(
         IMessaging messaging,
         IServiceEnvironment environment,
-        ILogger<ServiceDiscovery> logger)
-    {
+        ILogger<ServiceDiscovery> logger) {
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
@@ -32,91 +30,85 @@ public class ServiceDiscovery : IServiceDiscovery
     private readonly IMessaging _messaging;
     private readonly IServiceEnvironment _environment;
     private readonly ILogger<ServiceDiscovery> _logger;
-    private readonly Dictionary<Guid, IServiceOverview> _entries = new();
+    private readonly ConcurrentDictionary<Guid, IServiceOverview> _entries = new();
     private readonly IRuntimeChannelId _channelId = new RuntimeChannelId("service-discovery");
 
-    private IServiceOverview _self;
+    private volatile IServiceOverview _self;
 
     public IServiceOverview Self => _self;
     public IReadOnlyDictionary<Guid, IServiceOverview> Entries => _entries;
 
-    public Task Start(IReadOnlyLifetime lifetime)
-    {
-        UpdateLoop(lifetime).NoAwait();
-        return _messaging.ListenChannel<IServiceOverview>(lifetime, _channelId, Update);
+    public async Task Start(IReadOnlyLifetime lifetime) {
+        try {
+            UpdateLoop(lifetime).NoAwait();
+            await _messaging.ListenChannel<IServiceOverview>(lifetime, _channelId, Update);
+        } catch (Exception e) {
+            _logger.LogError(e, "[ServiceDiscovery] Start failed");
+        }
     }
 
-    public Task Push()
-    {
-        try
-        {
+    public async Task Push() {
+        try {
             _self = CreateOverview();
-            return _messaging.PublishChannel(_channelId, _self);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[Discovery] Pushing service overview failed");
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private async Task UpdateLoop(IReadOnlyLifetime lifetime)
-    {
-        while (lifetime.IsTerminated == false)
-        {
-            await Push();
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await _messaging.PublishChannel(_channelId, _self);
+        } catch (Exception e) {
+            _logger.LogError(e, "[ServiceDiscovery] Push failed");
         }
     }
 
-    private void Update(IServiceOverview overview)
-    {
-        _entries[overview.Id] = overview;
-
-        var toRemove = new List<Guid>();
-
-        foreach (var (id, service) in _entries)
-        {
-            if (DateTime.UtcNow - service.UpdateTime > TimeSpan.FromSeconds(30))
-                toRemove.Add(id);
+    private async Task UpdateLoop(IReadOnlyLifetime lifetime) {
+        while (lifetime.IsTerminated == false) {
+            try {
+                await Push();
+                await Task.Delay(TimeSpan.FromSeconds(10));
+            } catch (OperationCanceledException) {
+                break;
+            } catch (Exception e) {
+                _logger.LogError(e, "[ServiceDiscovery] UpdateLoop iteration failed");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
         }
-
-        foreach (var id in toRemove)
-            _entries.Remove(id);
     }
 
-    private IServiceOverview CreateOverview()
-    {
-        return _environment.Tag switch
-        {
-            ServiceTag.Game => new GameServerOverview
-            {
+    private void Update(IServiceOverview overview) {
+        try {
+            _entries[overview.Id] = overview;
+
+            foreach (var (id, service) in _entries) {
+                if (DateTime.UtcNow - service.UpdateTime > TimeSpan.FromSeconds(30)) {
+                    if (_entries.TryRemove(id, out _))
+                        _logger.LogInformation("[ServiceDiscovery] Removed stale entry {Id} (tag={Tag})", id, service.Tag);
+                }
+            }
+        } catch (Exception e) {
+            _logger.LogError(e, "[ServiceDiscovery] Update failed");
+        }
+    }
+
+    private IServiceOverview CreateOverview() {
+        return _environment.Tag switch {
+            ServiceTag.Game => new GameServerOverview {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Game,
                 UpdateTime = DateTime.UtcNow,
                 Url = GetGameServerUrl(),
             },
-            ServiceTag.Meta => new ServiceOverview()
-            {
+            ServiceTag.Meta => new ServiceOverview {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Meta,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Silo => new ServiceOverview()
-            {
+            ServiceTag.Silo => new ServiceOverview {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Silo,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Console => new ServiceOverview()
-            {
+            ServiceTag.Console => new ServiceOverview {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Console,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Coordinator => new ServiceOverview()
-            {
+            ServiceTag.Coordinator => new ServiceOverview {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Coordinator,
                 UpdateTime = DateTime.UtcNow,
@@ -124,34 +116,35 @@ public class ServiceDiscovery : IServiceDiscovery
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        string GetGameServerUrl()
-        {
+        string GetGameServerUrl() {
             var url = Environment.GetEnvironmentVariable("GAME_SERVER_URL");
 
-            if (string.IsNullOrWhiteSpace(url))
+            if (string.IsNullOrWhiteSpace(url)) {
+                _logger.LogWarning("[ServiceDiscovery] GAME_SERVER_URL not set, falling back to localhost:5268");
                 return "http://localhost:5268";
+            }
 
             return url;
         }
     }
 }
 
-public static class ServiceDiscoveryExtensions
-{
-    public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder)
-    {
+public static class ServiceDiscoveryExtensions {
+    public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder) {
         builder.Add<ServiceDiscovery>()
             .As<IServiceDiscovery>();
 
         return builder;
     }
 
-    public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery)
-    {
+    public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery) {
         var servers = serviceDiscovery.Entries.Values
             .Where(t => t.Tag == ServiceTag.Game)
             .OfType<GameServerOverview>()
             .ToList();
+
+        if (servers.Count == 0)
+            throw new InvalidOperationException("No game servers available");
 
         return servers.Random();
     }
