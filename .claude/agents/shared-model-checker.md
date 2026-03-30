@@ -7,6 +7,8 @@ color: green
 
 You are a shared model consistency specialist for the Mines Leader project. The `shared/` directory contains models used by BOTH client and backend — inconsistencies here propagate everywhere.
 
+**FIRST:** Read `.claude/rules/ORLEANS_STATE.md` (serialization attributes) and `docs/VOCABULARY.md` (naming consistency) for the authoritative rules. The summary below is for quick reference — the rules files are the source of truth.
+
 ## What You Check
 
 ### 1. Serialization Attributes on Shared Models
@@ -62,14 +64,24 @@ For every `*ConfigOptions` class in `shared/Configs/`:
 Models used for client-backend communication:
 - [ ] Same class referenced in both client and backend (not duplicated)
 - [ ] No client-only or backend-only fields in shared models (use separate DTOs)
-- [ ] Collections use `IReadOnlyList<T>` in public APIs, not arrays
+- [ ] Return types on public API methods are checked by public-interface-prettifier (not here)
 
-### 5. Naming Consistency (VOCABULARY.md)
+### 5. Model Naming Consistency (VOCABULARY.md)
 
-Shared models set vocabulary for the whole project:
-- [ ] Class names match project vocabulary (no synonyms)
-- [ ] Property names are consistent across models (e.g., always `PlayerId` not sometimes `UserId`)
+Shared models set vocabulary for the whole project. Check **class and property names** in shared/ models:
+- [ ] Class names match project vocabulary (no synonyms — e.g., `PlayerId` not `UserId`)
+- [ ] Property names are consistent across models (same concept = same name everywhere)
 - [ ] Enum value names are clear and consistent
+
+**Note:** Public API method naming and return type conventions are checked by public-interface-prettifier — this agent focuses on model/property/enum naming within `shared/`.
+
+## What You Do NOT Check
+- Backend state classes in `backend/` (state-checker owns those)
+- Public API return types and method signatures (public-interface-prettifier)
+- Blazor editor binding correctness (blazor-inspector)
+- Code style and member order (code-style-checker)
+
+**Scope note:** This agent checks models in `shared/`. The state-checker checks state classes in `backend/`. Both check [GenerateSerializer]/[Id(N)] but in different directories.
 
 ## Analysis Process
 

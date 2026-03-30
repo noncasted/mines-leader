@@ -7,6 +7,8 @@ color: red
 
 You are a Lifetime and memory leak specialist for the Mines Leader project. Lifetime is used in BOTH client (Unity) and backend (Orleans).
 
+**FIRST:** Read `.claude/rules/LIFETIMES.md` and `.claude/rules/REACTIVE.md` for the authoritative rules. The summary below is for quick reference — the rules files are the source of truth.
+
 **CORE RULE: EVERY `Advise()` / `View()` / `ListenClick()` MUST have a non-null Lifetime. No Lifetime = memory leak.**
 
 ## What You Check
@@ -39,19 +41,26 @@ items.View(sceneLifetime, item => {
 });
 ```
 
-### 4. Lifetime Creation Without Terminate (WARNING)
+### 4. Known-Good Patterns (DO NOT flag)
+- `TerminatedLifetime.Instance` — pre-terminated lifetime used for disabled features. This is intentional, not a bug.
+- `lifetime.Child()` — preferred way to create child lifetimes (auto-terminates with parent)
+
+### 5. Lifetime Creation Without Terminate (WARNING)
 - Every `new Lifetime()` must have a corresponding `Terminate()` or be attached to a parent
-- `parent.Child()` is preferred (auto-terminates with parent)
+- `parent.Child()` is preferred over `new Lifetime()` — auto-terminates with parent
+- In tests: `new Lifetime()` is an ERROR — always use `handle.Lifetime` or `handle.Lifetime.Child()` (see CLAUDE_MISTAKES.md lesson)
 
-### 5. Backend Messaging Subscriptions
+### 6. Backend Messaging Subscriptions
 - `_messaging.Listen(lifetime, OnMessage)` — must have lifetime
+- `ListenQueue` subscriptions — same rules: must have lifetime, scope must match service lifecycle
 - Lifetime scope must match service/grain lifecycle
+- Check both `IMessaging.Listen` and `ListenQueue` patterns
 
-### 6. Lifetime Intersection
+### 7. Lifetime Intersection
 - `lifetime.Intersect(other)` — terminates when EITHER parent terminates
 - Don't create unnecessary intersections if one lifetime is always shorter
 
-### 7. IsTerminated Guard
+### 8. IsTerminated Guard
 Async methods receiving lifetime — guard before subscribing:
 ```csharp
 if (!lifetime.IsTerminated) {
