@@ -23,8 +23,8 @@
 </div>
 
 @code {
-    [Parameter] public ICardConfig Value { get; set; } = null!;
-    [Parameter] public CardType Type { get; set; }
+    [Parameter, EditorRequired] public ICardConfig Value { get; set; } = null!;
+    [Parameter, EditorRequired] public CardType Type { get; set; }
 
     private int SizeValue
     {

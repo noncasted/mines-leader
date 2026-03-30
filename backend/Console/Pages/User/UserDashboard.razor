@@ -3,7 +3,6 @@
 @using global::Infrastructure.State
 @using Meta.Users
 @using Meta.Matches
-@inject ToastService ToastService
 
 <PageTitle>Player Dashboard</PageTitle>
 <PageHeader Title="Player Dashboard"/>
@@ -168,6 +167,7 @@
     [Inject] public IStateStorage Storage { get; set; } = null!;
     [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private const int MatchPageSize = 10;
 
@@ -208,7 +208,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error loading player data: {ex.Message}", "Error");
+            ToastService.Error($"[UserDashboard] Error loading player data: {ex.Message}", "Error");
         }
 
         _isLoading = false;

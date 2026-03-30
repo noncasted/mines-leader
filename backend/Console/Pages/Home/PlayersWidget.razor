@@ -3,8 +3,6 @@
 @using global::Infrastructure.State
 @using Meta.Users
 @inherits UiComponent
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
 
 <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
@@ -84,6 +82,8 @@
 @code {
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
     [Inject] public IStateStorage Storage { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] public IJSRuntime JS { get; set; } = null!;
 
     private const int PageSize = 10;
 
@@ -103,10 +103,17 @@
 
     private async Task ReloadUsers()
     {
-        _allUsers = UserCollection.Values.ToList();
-        ApplyFilter();
-        await LoadXpForCurrentPage();
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            _allUsers = UserCollection.Values.ToList();
+            ApplyFilter();
+            await LoadXpForCurrentPage();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PlayersWidget] Error reloading users: {ex.Message}");
+        }
     }
 
     private void ApplyFilter()

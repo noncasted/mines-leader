@@ -3,7 +3,6 @@
 @using global::Common.Extensions
 @using global::Common.Reactive
 @inherits UiComponent
-@inject ToastService ToastService
 
 <PageTitle>Features</PageTitle>
 <PageHeader Title="Features"/>
@@ -15,39 +14,39 @@
         <div class="flex items-center justify-center py-16">
             <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
         </div>
+        return;
     }
-    else
-    {
-        <div class="rounded-lg border bg-card p-6 flex flex-col gap-4">
-            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Cluster</h2>
 
-            <FeatureToggle
-                Label="Accepting Connections"
-                Description="Allow new player connections to the cluster"
-                Value="_state.AcceptingConnections"
-                OnToggle="ToggleAcceptingConnections"
-                Saving="_isSaving" />
+    <div class="rounded-lg border bg-card p-6 flex flex-col gap-4">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Cluster</h2>
 
-            <FeatureToggle
-                Label="Matchmaking"
-                Description="Allow the matchmaking loop to create new matches"
-                Value="_state.MatchmakingEnabled"
-                OnToggle="ToggleMatchmakingEnabled"
-                Saving="_isSaving" />
+        <FeatureToggle
+            Label="Accepting Connections"
+            Description="Allow new player connections to the cluster"
+            Value="_state.AcceptingConnections"
+            OnToggle="ToggleAcceptingConnections"
+            Saving="_isSaving" />
 
-            <FeatureToggle
-                Label="Side Effects"
-                Description="Allow the side effects worker to process queued effects"
-                Value="_state.SideEffectsEnabled"
-                OnToggle="ToggleSideEffectsEnabled"
-                Saving="_isSaving" />
-        </div>
-    }
+        <FeatureToggle
+            Label="Matchmaking"
+            Description="Allow the matchmaking loop to create new matches"
+            Value="_state.MatchmakingEnabled"
+            OnToggle="ToggleMatchmakingEnabled"
+            Saving="_isSaving" />
+
+        <FeatureToggle
+            Label="Side Effects"
+            Description="Allow the side effects worker to process queued effects"
+            Value="_state.SideEffectsEnabled"
+            OnToggle="ToggleSideEffectsEnabled"
+            Saving="_isSaving" />
+    </div>
 
 </div>
 
 @code {
     [Inject] public IClusterFeatures ClusterFeatures { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private ClusterFeaturesState _state = new();
     private bool _isSaving;
@@ -78,7 +77,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error: {ex.Message}", "Error");
+            ToastService.Error($"[Features] Failed to toggle feature: {ex.Message}", "Error");
         }
         finally
         {

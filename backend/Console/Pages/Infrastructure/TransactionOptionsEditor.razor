@@ -23,5 +23,5 @@
 </div>
 
 @code {
-    [Parameter] public TransactionOptions Value { get; set; } = null!;
+    [Parameter, EditorRequired] public TransactionOptions Value { get; set; } = null!;
 }

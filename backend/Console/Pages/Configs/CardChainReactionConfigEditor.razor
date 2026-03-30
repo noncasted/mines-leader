@@ -31,8 +31,8 @@
 </div>
 
 @code {
-    [Parameter] public CardConfigOptions.ChainReaction Value { get; set; } = null!;
-    [Parameter] public CardType Type { get; set; }
+    [Parameter, EditorRequired] public CardConfigOptions.ChainReaction Value { get; set; } = null!;
+    [Parameter, EditorRequired] public CardType Type { get; set; }
 
     private string Name => Type.ToString();
     private string BaseName => Name.Replace("_Max", "");

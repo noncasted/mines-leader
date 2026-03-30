@@ -2,7 +2,6 @@
 @using Cluster.Configs
 @using global::Common.Extensions
 @using Shared
-@inject ToastService ToastService
 
 <PageTitle>Configs</PageTitle>
 <PageHeader Title="Configurations" />
@@ -131,6 +130,7 @@
     [Inject] public IBotConfig BotConfig { get; set; } = null!;
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private CardConfigOptions _cardsValue = new();
     private BotConfigOptions _botValue = new();
@@ -186,7 +186,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error: {ex.Message}", "Error");
+            ToastService.Error($"[Configs] Failed to write JSON: {ex.Message}", "Error");
         }
         finally
         {

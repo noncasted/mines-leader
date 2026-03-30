@@ -2,7 +2,6 @@
 @using global::Common.Extensions
 @using global::Infrastructure
 @using global::Infrastructure.Execution
-@inject ToastService ToastService
 
 <PageTitle>Infrastructure Options</PageTitle>
 <PageHeader Title="Infrastructure Options"/>
@@ -34,6 +33,7 @@
     [Inject] public IDurableQueueConfig MessageQueueConfig { get; set; } = null!;
     [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
     [Inject] public ITransactionConfig TransactionConfig { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private SideEffectsOptions _sideEffectsValue = new();
     private DurableQueueOptions _messageQueueValue = new();
@@ -90,7 +90,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error: {ex.Message}", "Error");
+            ToastService.Error($"[InfrastructureOptions] Failed to write JSON: {ex.Message}", "Error");
         }
         finally
         {

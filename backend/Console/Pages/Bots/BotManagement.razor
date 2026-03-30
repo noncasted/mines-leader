@@ -5,7 +5,6 @@
 @using Meta.Bots
 @using Meta.Users
 @inherits UiComponent
-@inject ToastService ToastService
 
 <PageTitle>Bots</PageTitle>
 <PageHeader Title="Bot Management"/>
@@ -70,6 +69,7 @@
     [Inject] public IBotFactory BotFactory { get; set; } = null!;
     [Inject] public IStateStorage Storage { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private List<BotState> _bots = new();
     private bool _showCreateForm;
@@ -84,31 +84,38 @@
 
     private async Task ReloadBots()
     {
-        if (BotCollection.Values.Any() == false)
-            return;
-
-        var stateIdentities = new List<StateIdentity>();
-        var stateInfo = Storage.Registry.Get<UserState>();
-
-        foreach (var botState in BotCollection.Values)
+        try
         {
-            stateIdentities.Add(new StateIdentity
-                {
-                    Key = botState.Id,
-                    Type = stateInfo.Name,
-                    Extension = null,
-                    TableName = stateInfo.TableName
-                }
-            );
+            if (BotCollection.Values.Any() == false)
+                return;
+
+            var stateIdentities = new List<StateIdentity>();
+            var stateInfo = Storage.Registry.Get<UserState>();
+
+            foreach (var botState in BotCollection.Values)
+            {
+                stateIdentities.Add(new StateIdentity
+                    {
+                        Key = botState.Id,
+                        Type = stateInfo.Name,
+                        Extension = null,
+                        TableName = stateInfo.TableName
+                    }
+                );
+            }
+
+            var botUsers = await Storage.Read<Guid, UserState>(stateIdentities);
+
+            foreach (var (id, userState) in botUsers)
+                _names[id] = userState.Name;
+
+            _bots = BotCollection.Values.ToList();
+            await InvokeAsync(StateHasChanged);
         }
-
-        var botUsers = await Storage.Read<Guid, UserState>(stateIdentities);
-
-        foreach (var (id, userState) in botUsers)
-            _names[id] = userState.Name;
-
-        _bots = BotCollection.Values.ToList();
-        await InvokeAsync(StateHasChanged);
+        catch (Exception ex)
+        {
+            ToastService.Error($"[BotManagement] Error reloading bots: {ex.Message}", "Error");
+        }
     }
 
     private void ToggleCreateForm()
@@ -137,7 +144,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error creating bot: {ex.Message}", "Error");
+            ToastService.Error($"[BotManagement] Error creating bot: {ex.Message}", "Error");
         }
     }
 

@@ -5,7 +5,6 @@
 @using Meta.Bots
 @using Meta.Users
 @using Shared
-@inject ToastService ToastService
 
 <PageTitle>Edit Bot</PageTitle>
 <PageHeader Title="Bot Settings"/>
@@ -91,6 +90,7 @@
     [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public ICardConfigs CardConfigs { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private BotState? _bot;
     private string _botName = string.Empty;
@@ -119,7 +119,7 @@
             }
             catch (Exception ex)
             {
-                ToastService.Error($"Error loading deck: {ex.Message}", "Error");
+                ToastService.Error($"[BotEditor] Error loading deck: {ex.Message}", "Error");
                 _deckCards = new List<CardType>();
             }
         }
@@ -164,7 +164,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error saving bot: {ex.Message}", "Error");
+            ToastService.Error($"[BotEditor] Error saving bot: {ex.Message}", "Error");
         }
     }
 

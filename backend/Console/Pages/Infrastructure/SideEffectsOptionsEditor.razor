@@ -14,6 +14,12 @@
                    class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
         </div>
         <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="timer" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Empty Scan Delay (ms)</span>
+            <input type="number" @bind="Value.EmptyScanDelay"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
             <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
             <span class="text-sm flex-1">Concurrent Executions</span>
             <input type="number" @bind="Value.ConcurrentExecutions"
@@ -35,5 +41,5 @@
 </div>
 
 @code {
-    [Parameter] public SideEffectsOptions Value { get; set; } = null!;
+    [Parameter, EditorRequired] public SideEffectsOptions Value { get; set; } = null!;
 }
