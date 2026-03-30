@@ -16,19 +16,21 @@ When the user runs `/check`, launch validation agents in parallel to audit code 
 
 ### Step 1 — Determine target files
 
-**If no argument given** — get git-modified files:
+**If no argument given** — get git-modified files and classify them:
 ```bash
-# Staged + unstaged
+# New (untracked) files
+git ls-files --others --exclude-standard
+
+# Modified (staged + unstaged)
 git diff --name-only HEAD
 git diff --name-only --cached
-# Untracked
-git ls-files --others --exclude-standard
 ```
 Merge results, deduplicate. Filter to `.cs` and `.razor` files only.
+Classify each file as **new** (from `ls-files --others`) or **modified** (from `diff`).
 
-**If directory argument given** — use Glob to find all `.cs` and `.razor` files recursively in that directory.
+**If directory argument given** — use Glob to find all `.cs` and `.razor` files recursively in that directory. Classify all as **modified** (assume existing).
 
-**If file argument given** — use that single file.
+**If file argument given** — use that single file. Check `git ls-files --error-unmatch <file>` to classify as new or modified.
 
 If no matching files found — report "Нет файлов для проверки" and stop.
 
@@ -49,9 +51,9 @@ Launch ONLY relevant agents. Use this mapping:
 
 **Always launch** (if any `.cs` files present):
 - `code-style-checker` — member order, naming, braces, client/backend separation, .csproj
-- `public-interface-prettifier` — return types, naming conventions, vocabulary
+- `public-interface-prettifier` — return types, naming conventions, vocabulary, Task vs UniTask
 - `logging-inspector` — log prefixes, silent failures, logger injection
-- `error-handling-checker` — try/catch coverage, rethrow violations, resource cleanup
+- `error-handling-checker` — try/catch coverage, rethrow rules (client/backend aware)
 
 **If `shared` files present:**
 - `shared-model-checker` — serialization attributes, enum completeness, ConfigOptions consistency, shared-to-client/backend sync
@@ -63,19 +65,32 @@ Launch ONLY relevant agents. Use this mapping:
 **If `backend` files present:**
 - `state-checker` — [GenerateSerializer], [Id(N)], StatesLookup, AddStates registration
 - `transaction-checker` — [Transaction] attribute, InTransaction usage, OnUpdated variants
-- `race-condition-checker` — interleaving after await, concurrent mutations
+- `race-condition-checker` — [Reentrant] check, interleaving after await, timer reentrancy
+- `lifetimes-inspector` — Lifetime is used in backend too (messaging subscriptions, ListenQueue)
 
-**If `backend` OR `client` files with async/UniTask present:**
-- `race-condition-checker` — (also covers client-side UniTask races)
+**If `client` files contain async UniTask patterns:**
+To detect: grep target files for `UniTask` or `async`. If found:
+- `race-condition-checker` — concurrent UniTask mutations, ViewableProperty races
 
 **If `backend-blazor` files present:**
 - `blazor-inspector` — model-editor completeness, @bind-Value, routing
 
-**If `client` AND `backend` files present (cross-cutting change):**
-- `lifetimes-inspector` — Lifetime is used in both client and backend
+**If any of these are true:**
+- New enum value added in `shared/`
+- New class with `Card` in the name
+- New `*ConfigOptions` class
+- New file in `shared/`
+- New file in `docs/` or `rules/`
 
-**If any significant changes (new features, new enums, new cards):**
+Then launch:
 - `docs-checker` — check if documentation needs updating
+
+### Test file handling
+
+Files matching `*Test.cs` or `*Tests.cs` patterns:
+- **DO include** in: code-style-checker, state-checker (test may define test state classes), lifetimes-inspector
+- **DO NOT include** in: error-handling-checker (test error handling rules differ — tests should throw on failure), public-interface-prettifier (test method naming conventions are different)
+- When passing files to agents, annotate test files: `[TEST] path/to/MyTest.cs` so agents can adjust severity
 
 ### Step 4 — Launch agents in PARALLEL
 
@@ -84,8 +99,11 @@ Launch all selected agents simultaneously using the Agent tool. Each agent recei
 ```
 Validate the following files for <agent-specific-scope>:
 
-Files to check:
-<list of files with full paths>
+New files (just created):
+<list of new files with full paths, or "none">
+
+Modified files (already existed):
+<list of modified files with full paths, or "none">
 
 Read each file and apply your validation rules. Report findings in your standard output format.
 ```
@@ -95,6 +113,8 @@ CRITICAL: Launch ALL agents in a SINGLE message with multiple Agent tool calls. 
 ### Step 5 — Collect and summarize results
 
 After all agents complete, produce a unified report.
+
+If an agent fails, returns an error, or produces no output — include it in the report as `[AGENT-ERROR] agent-name — <error description>` and continue with remaining results. Do not block the entire report because of one failed agent.
 
 ---
 
@@ -171,3 +191,5 @@ VERDICT: PASS | FAIL
 5. **Include file:line** where agents provide it
 6. **VERDICT** — FAIL if any CRITICAL or ERROR exists, PASS if only warnings or clean
 7. **Russian prose** for the report, English for code identifiers
+8. **Agent failure handling** — if an agent fails, times out, or returns empty, include `[AGENT-ERROR] agent-name — description` in the report and continue with other results. Do not block the full report.
+9. **Docs follow-up** — if docs-checker reports NEEDS-UPDATE, add to the report: "Рекомендация: запустить `/check` docs-writer для обновления документации" with the specific gaps found
