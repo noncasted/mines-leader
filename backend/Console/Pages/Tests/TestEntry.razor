@@ -102,6 +102,36 @@
         _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
     }
 
+    public async Task Run()
+    {
+        _operation = new OperationProgress();
+        _operation.SetStatus(OperationStatus.Preparing);
+
+        _operation.Progress.View(_lifetime, () => InvokeAsync(StateHasChanged));
+        _operation.Status.View(_lifetime, async () =>
+        {
+            await InvokeAsync(StateHasChanged);
+            await StatusChanged.InvokeAsync(_operation.Status.Value);
+        });
+        _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
+
+        try
+        {
+            await Test.Start(_operation);
+        }
+        catch (Exception ex)
+        {
+            _operation.SetStatus(OperationStatus.Failed);
+            _operation.Log(ex.Message);
+        }
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _lifetime.Terminate();
+    }
+
     private string GetProgressBarClass() => _operation.Status.Value switch
     {
         OperationStatus.Success => "bg-green-500",
@@ -124,26 +154,4 @@
     }
 
     private void Start() => Run().NoAwait();
-
-    public async Task Run()
-    {
-        _operation = new OperationProgress();
-        _operation.SetStatus(OperationStatus.Preparing);
-
-        _operation.Progress.View(_lifetime, () => InvokeAsync(StateHasChanged));
-        _operation.Status.View(_lifetime, async () =>
-        {
-            await InvokeAsync(StateHasChanged);
-            await StatusChanged.InvokeAsync(_operation.Status.Value);
-        });
-        _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
-
-        await Test.Start(_operation);
-    }
-
-    public void Dispose()
-    {
-        _timer?.Dispose();
-        _lifetime.Terminate();
-    }
 }

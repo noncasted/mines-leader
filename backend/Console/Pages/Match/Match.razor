@@ -1,11 +1,9 @@
 @page "/match/{Id}"
 @using global::Infrastructure
-@using Infrastructure
 @using Meta.Users
 @using Meta.Matches
 @using Shared
-@inject ToastService ToastService
-
+ 
 <PageTitle>Match</PageTitle>
 <PageHeader Title="Match"/>
 
@@ -72,6 +70,7 @@
     [Parameter] public string Id { get; set; } = string.Empty;
 
     [Inject] public IOrleans Orleans { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private Guid _matchId;
     private MatchState? _matchState;
@@ -101,7 +100,7 @@
         }
         catch (Exception ex)
         {
-            ToastService.Error($"Error loading match: {ex.Message}", "Error");
+            ToastService.Error($"[Match] Error loading match: {ex.Message}", "Error");
         }
 
         _isLoading = false;
