@@ -8,58 +8,7 @@
             <span class="rounded px-1.5 py-0.5 text-xs font-medium bg-amber-500/15 text-amber-400">Max</span>
         }
     </div>
-    @if (ChainReactionConfig != null)
-    {
-        <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="link" Size="11" class="text-muted-foreground shrink-0" />
-                <input type="number" @bind="ChainReactionConfig.MaxChain"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="scan" Size="11" class="text-muted-foreground shrink-0" />
-                <input type="number" @bind="ChainReactionConfig.SearchRadius"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="bomb" Size="11" class="text-orange-400 shrink-0" />
-                <input type="number" @bind="ChainReactionConfig.SpawnSize"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-        </div>
-    }
-    @if (LockdownConfig != null)
-    {
-        <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="clock" Size="11" class="text-muted-foreground shrink-0" />
-                <input type="number" @bind="LockdownConfig.Duration"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="minus-circle" Size="11" class="text-red-400 shrink-0" />
-                <input type="number" @bind="LockdownConfig.MovesReduction"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-        </div>
-    }
     <div class="flex items-center gap-2">
-        @if (SizeConfig != null)
-        {
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="expand" Size="11" class="text-muted-foreground shrink-0" />
-                <input type="number" @bind="SizeConfig.Size"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-        }
-        @if (DrainConfig != null)
-        {
-            <div class="flex items-center gap-1.5 flex-1">
-                <LucideIcon Name="zap" Size="11" class="text-yellow-400 shrink-0" />
-                <input type="number" @bind="DrainConfig.DrainAmount"
-                       class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-        }
         <div class="flex items-center gap-1.5 flex-1">
             <LucideIcon Name="droplets" Size="11" class="text-blue-400 shrink-0" />
             <input type="number" @bind="Value.ManaCost"
@@ -70,10 +19,6 @@
 
 @code {
     [Parameter] public ICardConfig Value { get; set; } = null!;
-    [Parameter] public ICardSizeConfig? SizeConfig { get; set; }
-    [Parameter] public ICardDrainConfig? DrainConfig { get; set; }
-    [Parameter] public ICardChainReactionConfig? ChainReactionConfig { get; set; }
-    [Parameter] public ICardLockdownConfig? LockdownConfig { get; set; }
     [Parameter] public CardType Type { get; set; }
 
     private string Name => Type.ToString();
