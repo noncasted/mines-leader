@@ -1,5 +1,6 @@
 using Common.Reactive;
 using Infrastructure.State;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
@@ -33,16 +34,19 @@ public class StateCollectionUtils<TKey, TValue>
     public StateCollectionUtils(
         IGrainStatesRegistry statesRegistry,
         IStateStorage storage,
-        IMessaging messaging)
+        IMessaging messaging,
+        ILogger<StateCollectionUtils<TKey, TValue>> logger)
     {
         _statesRegistry = statesRegistry;
         _storage = storage;
         _messaging = messaging;
+        _logger = logger;
     }
 
     private readonly IGrainStatesRegistry _statesRegistry;
     private readonly IStateStorage _storage;
     private readonly IMessaging _messaging;
+    private readonly ILogger<StateCollectionUtils<TKey, TValue>> _logger;
 
     private readonly StateCollectionDurableQueueId<TKey, TValue> _queueId = new();
 
@@ -52,36 +56,61 @@ public class StateCollectionUtils<TKey, TValue>
         var grainStateType = stateInfo.Type;
 
         if (!typeof(TValue).IsAssignableFrom(grainStateType))
-            throw new Exception($"State type {grainStateType} is not assignable to {typeof(TValue)}");
+        {
+            _logger.LogError("[StateCollectionUtils] Type mismatch: {GrainType} is not assignable to {Expected}", grainStateType, typeof(TValue));
+            return new Dictionary<TKey, TValue>();
+        }
 
         var reader = _storage.ReadAll<TKey, TValue>(lifetime);
 
         var dictionary = new Dictionary<TKey, TValue>();
 
-        await foreach (var (key, value) in reader)
-            dictionary.Add(key, value);
+        try
+        {
+            await foreach (var (key, value) in reader)
+                dictionary.Add(key, value);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateCollectionUtils] Failed to load {Type}, loaded {Count} entries before failure", typeof(TValue).Name, dictionary.Count);
+        }
 
         return dictionary;
     }
 
     public Task PushUpdate(TKey key, TValue value)
     {
-        return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-            {
-                Key = key,
-                Value = value
-            }
-        );
+        try
+        {
+            return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
+                {
+                    Key = key,
+                    Value = value
+                }
+            );
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateCollectionUtils] Failed to push update for {Type} key {Key}", typeof(TValue).Name, key);
+            return Task.CompletedTask;
+        }
     }
 
     public Task PushTransactionalUpdate(TKey key, TValue value)
     {
-        _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-            {
-                Key = key,
-                Value = value
-            }
-        );
+        try
+        {
+            _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
+                {
+                    Key = key,
+                    Value = value
+                }
+            );
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateCollectionUtils] Failed to push transactional update for {Type} key {Key}", typeof(TValue).Name, key);
+        }
 
         return Task.CompletedTask;
     }
@@ -103,29 +132,40 @@ public class StateCollection<TKey, TValue> :
     where TKey : notnull
     where TValue : class, IStateValue, new()
 {
-    public StateCollection(StateCollectionUtils<TKey, TValue> utils)
+    public StateCollection(StateCollectionUtils<TKey, TValue> utils, ILogger<StateCollection<TKey, TValue>> logger)
     {
         _utils = utils;
+        _logger = logger;
     }
 
     private readonly StateCollectionUtils<TKey, TValue> _utils;
+    private readonly ILogger<StateCollection<TKey, TValue>> _logger;
     private readonly ViewableDelegate _updated = new();
 
     public IViewableDelegate Updated => _updated;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await _utils.ListenUpdates(lifetime, (key, value) =>
-            {
+        try
+        {
+            var existing = await _utils.Load(lifetime);
+
+            foreach (var (key, value) in existing)
                 this[key] = value;
-                _updated.Invoke();
-            }
-        );
 
-        var existing = await _utils.Load(lifetime);
+            await _utils.ListenUpdates(lifetime, (key, value) =>
+                {
+                    this[key] = value;
+                    _updated.Invoke();
+                }
+            );
 
-        foreach (var (key, value) in existing)
-            this[key] = value;
+            _logger.LogInformation("[StateCollection] Loaded {Count} entries for {Type}", Count, typeof(TValue).Name);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[StateCollection] Failed to initialize {Type}", typeof(TValue).Name);
+        }
     }
 
     public Task OnUpdated(TKey key, TValue value)

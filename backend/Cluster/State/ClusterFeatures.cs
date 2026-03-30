@@ -13,8 +13,8 @@ public interface IClusterFeatures : IAddressableState<ClusterFeaturesState>, ICl
     Task SetSideEffectsEnabled(bool enabled);
 }
 
-public class ClusterFeatures(IOrleans orleans, IMessaging messaging)
-    : AddressableState<ClusterFeaturesState>(orleans, messaging), IClusterFeatures
+public class ClusterFeatures(AddressableStateUtils utils)
+    : AddressableState<ClusterFeaturesState>(utils), IClusterFeatures
 {
     bool IClusterFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
     bool IClusterFlags.SideEffectsEnabled => Value.SideEffectsEnabled;

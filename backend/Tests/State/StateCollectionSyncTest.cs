@@ -29,8 +29,8 @@ public class StateCollectionSyncTest
     {
     }
 
-    public class CollectionTestCollection(StateCollectionUtils<Guid, CollectionTestState> utils)
-        : StateCollection<Guid, CollectionTestState>(utils), ICollectionTestCollection;
+    public class CollectionTestCollection(StateCollectionUtils<Guid, CollectionTestState> utils, ILogger<CollectionTestCollection> logger)
+        : StateCollection<Guid, CollectionTestState>(utils, logger), ICollectionTestCollection;
 
     // --- Grain that writes state and pushes to collection ---
 

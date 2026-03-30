@@ -7,7 +7,6 @@ public interface IBotConfig : IAddressableState<BotConfigOptions>
 {
 }
 
-public class BotConfigState
-    (IOrleans orleans, IMessaging messaging) : AddressableState<BotConfigOptions>(orleans, messaging), IBotConfig
+public class BotConfigState(AddressableStateUtils utils) : AddressableState<BotConfigOptions>(utils), IBotConfig
 {
 }

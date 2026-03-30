@@ -3,20 +3,20 @@ using Infrastructure.Execution;
 
 namespace Cluster.Configs;
 
-public class SideEffectsConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<SideEffectsOptions>(orleans, messaging), ISideEffectsConfig;
+public class SideEffectsConfigState
+    (AddressableStateUtils utils) : AddressableState<SideEffectsOptions>(utils), ISideEffectsConfig;
 
-public class DurableQueueConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<DurableQueueOptions>(orleans, messaging), IDurableQueueConfig;
+public class DurableQueueConfigState(AddressableStateUtils utils)
+    : AddressableState<DurableQueueOptions>(utils), IDurableQueueConfig;
 
-public class TaskBalancerConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<TaskBalancerOptions>(orleans, messaging), ITaskBalancerConfig;
+public class TaskBalancerConfigState(AddressableStateUtils utils)
+    : AddressableState<TaskBalancerOptions>(utils), ITaskBalancerConfig;
 
-public class RuntimePipeConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<RuntimePipeOptions>(orleans, messaging), IRuntimePipeConfig;
+public class RuntimePipeConfigState(AddressableStateUtils utils)
+    : AddressableState<RuntimePipeOptions>(utils), IRuntimePipeConfig;
 
-public class RuntimeChannelConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<RuntimeChannelOptions>(orleans, messaging), IRuntimeChannelConfig;
+public class RuntimeChannelConfigState(AddressableStateUtils utils)
+    : AddressableState<RuntimeChannelOptions>(utils), IRuntimeChannelConfig;
 
-public class TransactionConfigState(IOrleans orleans, IMessaging messaging)
-    : AddressableState<TransactionOptions>(orleans, messaging), ITransactionConfig;
+public class TransactionConfigState(AddressableStateUtils utils)
+    : AddressableState<TransactionOptions>(utils), ITransactionConfig;

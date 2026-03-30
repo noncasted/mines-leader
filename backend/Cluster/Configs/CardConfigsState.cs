@@ -7,8 +7,6 @@ public interface ICardConfigs : IAddressableState<CardConfigOptions>
 {
 }
 
-public class CardConfigsState(IOrleans orleans, IMessaging messaging) :
-    AddressableState<CardConfigOptions>(orleans, messaging),
-    ICardConfigs
+public class CardConfigsState(AddressableStateUtils utils) : AddressableState<CardConfigOptions>(utils), ICardConfigs
 {
 }

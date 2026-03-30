@@ -7,7 +7,6 @@ public interface IRatingConfig : IAddressableState<RatingOptions>
 {
 }
 
-public class RatingConfigState
-    (IOrleans orleans, IMessaging messaging) : AddressableState<RatingOptions>(orleans, messaging), IRatingConfig
+public class RatingConfigState(AddressableStateUtils utils) : AddressableState<RatingOptions>(utils), IRatingConfig
 {
 }

@@ -7,8 +7,6 @@ public interface IGameModeConfig : IAddressableState<GameModeOptions>
 {
 }
 
-public class GameModeConfigState(IOrleans orleans, IMessaging messaging) :
-    AddressableState<GameModeOptions>(orleans, messaging),
-    IGameModeConfig
+public class GameModeConfigState(AddressableStateUtils utils) : AddressableState<GameModeOptions>(utils), IGameModeConfig
 {
 }
