@@ -1,4 +1,5 @@
 using Common.Extensions;
+using Common.Reactive;
 using Game.GamePlay;
 using Game.Session;
 using Microsoft.Extensions.Options;
@@ -42,7 +43,7 @@ public class BoardRevealTest
             // Reveal the starting position — convert it to Free
             var startCell = board.Cells[startPosition];
             startCell.ToFree();
-            board.MinesScanner.Start(new Common.Reactive.Lifetime());
+            board.MinesScanner.Start(new Lifetime());
             board.OnUpdated();
 
             // Now reveal (flood fill from start position)
