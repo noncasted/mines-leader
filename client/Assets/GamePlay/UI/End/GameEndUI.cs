@@ -5,6 +5,7 @@ using Global.UI;
 using Internal;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GamePlay.UI
 {
@@ -24,6 +25,9 @@ namespace GamePlay.UI
     public class GameEndUI : MonoBehaviour, IGameEndUI, ISceneService
     {
         [SerializeField] private TMP_Text _title;
+        [SerializeField] private Image _resultImage;
+        [SerializeField] private Sprite _winSprite;
+        [SerializeField] private Sprite _loseSprite;
         [SerializeField] private GameEndRating _rating;
 
         [SerializeField] private DesignButton _menuButton;
@@ -44,9 +48,11 @@ namespace GamePlay.UI
                 case MatchResultType.Leave:
                 case MatchResultType.Win:
                     _title.text = "You Won!";
+                    _resultImage.sprite = _winSprite;
                     break;
                 case MatchResultType.Lose:
                     _title.text = "You Lose...";
+                    _resultImage.sprite = _loseSprite;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
