@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 95d25086b1724b84ab1c3be0919e4ff1
+guid: c93a96df5ad53f0bd9d3062ef7ba2765
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2434396589234404517
-    second: moves_num_0
+      213: 1427152295749803995
+    second: after_game_0
   - first:
-      213: 2697782503550993295
-    second: moves_num_1
+      213: -1710608844199028930
+    second: after_game_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 32
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -99,30 +99,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Player_Turn_Active
+      name: after_game_0
       rect:
         serializedVersion: 2
         x: 1
         y: 1
-        width: 6
-        height: 6
+        width: 87
+        height: 99
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +118,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5ac3db7ccc6b8c120800000000000000
-      internalID: 2434396589234404517
+      spriteID: bdfdc8c93734ec310800000000000000
+      internalID: 1427152295749803995
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Player_Turn_Inactive
+      name: after_game_1
       rect:
         serializedVersion: 2
-        x: 9
+        x: 89
         y: 1
-        width: 6
-        height: 6
+        width: 87
+        height: 99
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,8 +140,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f83cb6db4e2707520800000000000000
-      internalID: 2697782503550993295
+      spriteID: e3710e3c152b248e0800000000000000
+      internalID: -1710608844199028930
       vertices: []
       indices: 
       edges: []
@@ -163,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: fd8ea2e4011fd3c4b908c16e66d89239
+    spriteID: 8f3f69161c7d66becb3f63d1ad8dd4d4
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Player_Turn_Active: 2434396589234404517
-      Player_Turn_Inactive: 2697782503550993295
+      after_game_0: 1427152295749803995
+      after_game_1: -1710608844199028930
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
