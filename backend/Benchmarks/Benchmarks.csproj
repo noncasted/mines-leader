@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Benchmarks</AssemblyName>
+        <RootNamespace>Benchmarks</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\Game\Game.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Meta\Meta.csproj"/>
+    </ItemGroup>
+
+</Project>

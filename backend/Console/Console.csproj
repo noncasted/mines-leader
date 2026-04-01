@@ -14,7 +14,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Orchestration\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Meta\Meta.csproj"/>
-        <ProjectReference Include="..\Tests\Tests.csproj"/>
+        <ProjectReference Include="..\Benchmarks\Benchmarks.csproj"/>
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\Common\Common.csproj"/>
         <ProjectReference Include="..\Cluster\Cluster.csproj"/>
