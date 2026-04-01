@@ -48,6 +48,7 @@ builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) =>
                 await OrleansSetup.Run(configuration);
                 await StatesSetup.Run(configuration);
                 await SideEffectsSetup.Run(configuration);
+                await BenchmarkSetup.Run(configuration);
 
                 if (requiresCleanup == true)
                     await StatesCleanup.Run(configuration);

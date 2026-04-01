@@ -10,5 +10,7 @@ public static class DbLookup
     public const string Orleans_Membership = "orleansmembershiptable";
     public const string Orleans_MembershipVersion = "orleansmembershipversiontable";
     public const string Orleans_Query = "olreansquery";
-    
+
+    public const string Benchmark_Results = "benchmark_results";
+    public const string Benchmark_Snapshots = "benchmark_snapshots";
 }

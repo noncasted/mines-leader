@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shared;
-using Tests;
+using Benchmarks;
 
 namespace Orchestration;
 
@@ -259,6 +259,7 @@ public static class ProjectsSetupExtensions
 
         private IHostApplicationBuilder AddTests()
         {
+            builder.Add<BenchmarkStorage>();
             builder.Add<ClusterTestUtils>();
 
             // Auto-discover all ClusterTestNode<> subclasses in Tests assembly

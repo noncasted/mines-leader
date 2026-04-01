@@ -179,8 +179,24 @@ public static class StatesLookup
         KeyType = GrainKeyType.Guid
     };
 
+    public static readonly Info SimpleTest = new()
+    {
+        TableName = "state_simple_test",
+        StateName = "simple_test",
+        KeyType = GrainKeyType.Guid
+    };
+
+    public static readonly Info TxTest = new()
+    {
+        TableName = "state_tx_test",
+        StateName = "tx_test",
+        KeyType = GrainKeyType.Guid
+    };
+
     public static IReadOnlyList<Info> All =>
     [
+        SimpleTest,
+        TxTest,
         StateTestTest,
         StateMigrationTest,
         TransactionTest,

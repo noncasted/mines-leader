@@ -1,21 +1,14 @@
-@using global::Tests
+@using global::Benchmarks
 @using global::Common.Extensions
 @using global::Common.Reactive
 @implements IDisposable
 
 <div class="flex flex-col py-2.5">
     <div class="flex items-center gap-2 min-w-0">
-        @if (Test.Payload != null)
-        {
-            <button class="flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-                    @onclick="@(() => _expanded = !_expanded)">
-                <LucideIcon Name="@(_expanded ? "chevron-down" : "chevron-right")" Size="14" />
-            </button>
-        }
-        else
-        {
-            <div class="w-5 shrink-0" />
-        }
+        <button class="flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                @onclick="@(() => _expanded = !_expanded)">
+            <LucideIcon Name="@(_expanded ? "chevron-down" : "chevron-right")" Size="14" />
+        </button>
 
         @if (_operation.Status.Value is OperationStatus.NotStarted or OperationStatus.Failed or OperationStatus.Success)
         {
@@ -47,7 +40,24 @@
             }
         </div>
 
-        <span class="w-56 shrink-0 truncate text-sm font-medium" title="@Test.Title">@Test.Title</span>
+        <span class="w-48 shrink-0 truncate text-sm font-medium" title="@Test.Title">@Test.Title</span>
+
+        <div class="flex items-center gap-2 w-36 shrink-0">
+            @if (Test.LastResult != null && Test.LastResult.MetricValue > 0)
+            {
+                <span class="font-mono text-xs font-semibold">@FormatMetric(Test.LastResult.MetricValue)</span>
+                <span class="text-xs text-muted-foreground">@Test.MetricName</span>
+            }
+            @if (_deltaPercent != 0)
+            {
+                var deltaClass = _deltaPercent > 0 ? "text-green-500" : "text-destructive";
+                var arrow = _deltaPercent > 0 ? "trending-up" : "trending-down";
+                <span class="flex items-center gap-0.5 text-xs font-mono @deltaClass">
+                    <LucideIcon Name="@arrow" Size="12" />
+                    @($"{(_deltaPercent > 0 ? "+" : "")}{_deltaPercent:F1}%")
+                </span>
+            }
+        </div>
 
         <div class="flex flex-1 items-center gap-2 min-w-0">
             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
@@ -65,16 +75,28 @@
         </div>
     </div>
 
-    @if (_expanded && Test.Payload != null)
+    @if (_expanded)
     {
-        <div class="mt-2 pl-28">
-            <PayloadForm Payload="Test.Payload" PayloadChanged="val => Test.Payload = val" />
+        <div class="mt-3 pl-8 flex flex-col gap-3">
+            @if (Test.Payload != null)
+            {
+                <div class="max-w-sm">
+                    <PayloadForm Payload="Test.Payload" PayloadChanged="val => Test.Payload = val" />
+                </div>
+            }
+
+            @if (_snapshots.Count > 0)
+            {
+                <BenchmarkProgressChart MetricName="@Test.MetricName" SnapshotsByRun="_snapshots" History="_history" />
+            }
+
+            <BenchmarkHistory MetricName="@Test.MetricName" History="_history" IsCurrentRun="@(Test.LastResult != null)" />
         </div>
     }
 
     @if (!string.IsNullOrEmpty(_operation.Message.Value))
     {
-        <div class="mt-1.5 pl-28">
+        <div class="mt-1.5 pl-8">
             <BbAlert>
                 <ChildContent>
                     <BbAlertDescription>
@@ -87,8 +109,10 @@
 </div>
 
 @code {
-    [Parameter] public required IClusterTest Test { get; set; }
+    [Parameter, EditorRequired] public IClusterTest Test { get; set; } = null!;
     [Parameter] public EventCallback<OperationStatus> StatusChanged { get; set; }
+
+    [Inject] public BenchmarkStorage BenchmarkStorage { get; set; } = null!;
 
     public OperationStatus Status => _operation.Status.Value;
 
@@ -96,10 +120,14 @@
     private IOperationProgress _operation = new OperationProgress();
     private Timer? _timer;
     private readonly ILifetime _lifetime = new Lifetime();
+    private IReadOnlyList<BenchmarkResult> _history = [];
+    private Dictionary<Guid, IReadOnlyList<BenchmarkSnapshot>> _snapshots = new();
+    private double _deltaPercent;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        await LoadHistory();
     }
 
     public async Task Run()
@@ -124,12 +152,36 @@
             _operation.SetStatus(OperationStatus.Failed);
             _operation.Log(ex.Message);
         }
+
+        await LoadHistory();
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
         _timer?.Dispose();
         _lifetime.Terminate();
+    }
+
+    private async Task LoadHistory()
+    {
+        _history = await BenchmarkStorage.GetHistory(Test.Title);
+
+        if (_history.Count >= 2)
+        {
+            var current = _history[0].MetricValue;
+            var previous = _history[1].MetricValue;
+            _deltaPercent = previous > 0 ? (current - previous) / previous * 100 : 0;
+        }
+        else
+        {
+            _deltaPercent = 0;
+        }
+
+        if (_history.Count > 0)
+            Test.LastResult = _history[0];
+
+        _snapshots = await BenchmarkStorage.GetSnapshots(Test.Title);
     }
 
     private string GetProgressBarClass() => _operation.Status.Value switch
@@ -151,6 +203,17 @@
         return duration.TotalHours >= 1
             ? $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}:{duration.Seconds:D2}"
             : $"{duration.Minutes:D2}:{duration.Seconds:D2}";
+    }
+
+    private static string FormatMetric(double value)
+    {
+        return value switch
+        {
+            >= 10000 => $"{value / 1000:F1}k",
+            >= 100 => $"{value:F0}",
+            >= 1 => $"{value:F1}",
+            _ => $"{value:F2}"
+        };
     }
 
     private void Start() => Run().NoAwait();
