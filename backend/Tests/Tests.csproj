@@ -1,17 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <AssemblyName>Tests</AssemblyName>
         <RootNamespace>Tests</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="Microsoft.Orleans.TestingHost"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\shared\shared.csproj"/>
         <ProjectReference Include="..\Cluster\Cluster.csproj"/>
         <ProjectReference Include="..\Common\Common.csproj"/>
-        <ProjectReference Include="..\Game\Game.csproj"/>
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Game\Game.csproj"/>
         <ProjectReference Include="..\Meta\Meta.csproj"/>
     </ItemGroup>
+
 
 </Project>
