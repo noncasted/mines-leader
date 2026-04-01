@@ -1,4 +1,5 @@
 ﻿using Internal;
+using Tools;
 
 namespace Global.Systems
 {
@@ -16,7 +17,7 @@ namespace Global.Systems
             builder.RegisterInstance(broker)
                 .As<IMessageBroker>();
 
-            var updaterPrefab = builder.GetAsset<GlobalSystemUtilsOptions>().UpdaterPrefab;
+            var updaterPrefab = Prefabs.GlobalUpdater.As<Updater>();
             var updater = builder.Instantiate(updaterPrefab);
 
             builder.RegisterComponent(updater)
@@ -27,6 +28,15 @@ namespace Global.Systems
                 .As<IDelayRunner>();
 
             return builder;
+        }
+    }
+
+    [PrefabDefinition]
+    public static class GlobalUpdaterPrefab {
+        public static void Define(PrefabBuilder builder) {
+            builder
+                .WithName("GlobalUpdater")
+                .WithComponent<Updater>();
         }
     }
 }
