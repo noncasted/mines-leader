@@ -1,15 +1,12 @@
 {
-    "name": "Common",
+    "name": "Tools.PrefabBuilder.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:01f60cffe1f34ab2a431167c2fa3d728",
-        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
-        "GUID:004191ba7e9fa37e9976d81dc0d56734",
         "GUID:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

@@ -1,4 +1,7 @@
-﻿using Internal;
+﻿using System.Collections.Generic;
+using Internal;
+using Tools;
+using UnityEngine;
 
 namespace Global.Audio
 {
@@ -6,20 +9,59 @@ namespace Global.Audio
     {
         public static IScopeBuilder AddAudio(this IScopeBuilder builder)
         {
-            var config = builder.GetAsset<GlobalAudioOptions>();
-            var player = builder.Instantiate(config.Player);
-            var listener = builder.Instantiate(config.Listener);
-            
-            builder.RegisterComponent(player)
+            builder.RegisterComponent(Prefabs.GlobalAudioPlayer.As<AudioPlayer>())
                 .As<IAudioVolume>()
                 .As<IAudioPlayer>()
                 .As<IScopeSetup>();
 
-            builder.RegisterComponent(listener) 
+            builder.RegisterComponent(Prefabs.GlobalAudioListener.As<AudioListener>())
                 .As<IAudioListener>()
                 .AsEventListener<IScopeBaseSetup>();
 
             return builder;
+        }
+    }
+
+    [PrefabDefinition]
+    public static class AudioPlayerPrefab
+    {
+        public static void Define(PrefabBuilder builder)
+        {
+            var soundSources = new List<AudioSource>();
+
+            for (var i = 0; i < 20; i++)
+            {
+                var soundSource = builder.WithChild<AudioSource>($"Sound_{i}");
+                soundSource.volume = 0.007f;
+                soundSource.playOnAwake = false;
+                soundSource.loop = false;
+                soundSources.Add(soundSource);
+            }
+
+            var musicSource = builder.WithChild<AudioSource>("Music");
+            musicSource.volume = 0.037f;
+            musicSource.playOnAwake = false;
+            musicSource.loop = true;
+
+            builder
+                .WithName("Global_Audio_Player")
+                .WithComponent<AudioPlayer>(player =>
+                    {
+                        player.Configure(musicSource, soundSources.ToArray());
+                    }
+                );
+        }
+    }
+
+    [PrefabDefinition]
+    public static class AudioListenerPrefab
+    {
+        public static void Define(PrefabBuilder builder)
+        {
+            builder
+                .WithName("Global_Audio_Listener")
+                .WithComponent<UnityEngine.AudioListener>()
+                .WithComponent<AudioListener>();
         }
     }
 }

@@ -25,6 +25,12 @@ namespace Global.Audio
         {
             _saves = saves;
         }
+        
+        public void Configure(AudioSource musicSource, AudioSource[] soundSources)
+        {
+            _musicSource = musicSource;
+            _soundSources = soundSources;
+        }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {

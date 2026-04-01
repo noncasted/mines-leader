@@ -1,4 +1,6 @@
 ﻿using Internal;
+using Tools;
+using UnityEngine.EventSystems;
 
 namespace Global.Inputs
 {
@@ -9,7 +11,7 @@ namespace Global.Inputs
             builder.Register<InputConstraintsStorage>()
                 .As<IInputConstraintsStorage>();
 
-            var eventSystemPrefab = builder.GetAsset<GlobalInputOptions>().EventSystemPrefab;
+            var eventSystemPrefab = Prefabs.GlobalEvents.As<EventSystem>();
             builder.Instantiate(eventSystemPrefab);
 
             builder.Register<GlobalControls>()
@@ -19,4 +21,16 @@ namespace Global.Inputs
             return builder;
         }
     }
+    
+    [PrefabDefinition]
+    public static class AudioListenerPrefab
+    {
+        public static void Define(PrefabBuilder builder)
+        {
+            builder
+                .WithName("Global_Events")
+                .WithComponent<EventSystem>();
+        }
+    }
+
 }
