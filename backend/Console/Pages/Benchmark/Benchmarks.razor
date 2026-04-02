@@ -18,7 +18,14 @@
 
 <div class="sticky top-[6.5rem] z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
     <div class="container mx-auto max-w-3xl px-4 py-2.5 flex items-center gap-4">
-        <BbButton Size="ButtonSize.Small" @onclick="RunAll">Run All</BbButton>
+        @if (_runningCount > 0 || Runner.HasQueued())
+        {
+            <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive" @onclick="CancelAll">Cancel All</BbButton>
+        }
+        else
+        {
+            <BbButton Size="ButtonSize.Small" @onclick="RunAll">Run All</BbButton>
+        }
         <div class="flex items-center gap-4 text-xs">
             <span class="flex items-center gap-1.5 text-muted-foreground">
                 <LucideIcon Name="circle" Size="12" />
@@ -51,17 +58,27 @@
                     <LucideIcon Name="@(_groupOpen[group.Key] ? "chevron-down" : "chevron-right")" Size="14" class="text-muted-foreground shrink-0" />
                     <span class="font-semibold text-sm">@group.Key</span>
                 </button>
-                <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Outline"
-                          @onclick="@(() => RunGroup(groupTests))">
-                    Run All
-                </BbButton>
+                @if (IsGroupRunning(groupTests))
+                {
+                    <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive"
+                              @onclick="@(() => CancelGroup(groupTests))">
+                        Cancel
+                    </BbButton>
+                }
+                else
+                {
+                    <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Outline"
+                              @onclick="@(() => RunGroup(groupTests))">
+                        Run All
+                    </BbButton>
+                }
             </div>
             @if (_groupOpen[group.Key])
             {
                 <div class="flex flex-col divide-y divide-border/60">
                     @foreach (var test in groupTests)
                     {
-                        <TestEntry @ref="_entries[test]" Test="test" StatusChanged="OnStatusChanged" />
+                        <BenchmarkEntry @ref="_entries[test]" Test="test" Runner="Runner" StatusChanged="OnStatusChanged" />
                     }
                 </div>
             }
@@ -72,8 +89,9 @@
 @code {
     [Inject] public IEnumerable<IClusterTest> ClusterTests { get; set; } = [];
     [Inject] public IClusterParticipantContext ParticipantContext { get; set; } = null!;
+    [Inject] public BenchmarkRunner Runner { get; set; } = null!;
 
-    private readonly Dictionary<IClusterTest, TestEntry?> _entries = new();
+    private readonly Dictionary<IClusterTest, BenchmarkEntry?> _entries = new();
     private readonly Dictionary<string, bool> _groupOpen = new();
 
     private bool _isInitialized;
@@ -97,6 +115,11 @@
             _entries.TryAdd(test, null);
             _groupOpen.TryAdd(test.Group, false);
         }
+
+        // Open groups that have running benchmarks
+        foreach (var info in Runner.GetRunning())
+            _groupOpen[info.Test.Group] = true;
+
         RecalculateCounts();
     }
 
@@ -129,6 +152,9 @@
                 case OperationStatus.Failed:
                     _failedCount++;
                     break;
+                case OperationStatus.Cancelled:
+                    _pendingCount++;
+                    break;
             }
         }
     }
@@ -136,7 +162,7 @@
     private void OnStatusChanged(OperationStatus _)
     {
         RecalculateCounts();
-        StateHasChanged();
+        InvokeAsync(StateHasChanged).NoAwait();
     }
 
     private async Task RunAll()
@@ -149,7 +175,7 @@
         foreach (var test in ClusterTests)
         {
             if (_entries.TryGetValue(test, out var entry) && entry != null)
-                await entry.Run();
+                entry.Run();
         }
     }
 
@@ -165,7 +191,28 @@
         foreach (var test in tests)
         {
             if (_entries.TryGetValue(test, out var entry) && entry != null)
-                await entry.Run();
+                entry.Run();
         }
+    }
+
+    private void CancelAll()
+    {
+        Runner.CancelAll();
+        RecalculateCounts();
+        StateHasChanged();
+    }
+
+    private void CancelGroup(List<IClusterTest> tests)
+    {
+        foreach (var test in tests)
+            Runner.Cancel(test.Title);
+
+        RecalculateCounts();
+        StateHasChanged();
+    }
+
+    private bool IsGroupRunning(List<IClusterTest> tests)
+    {
+        return tests.Any(t => Runner.IsRunning(t.Title));
     }
 }

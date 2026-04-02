@@ -10,13 +10,13 @@
             <LucideIcon Name="@(_expanded ? "chevron-down" : "chevron-right")" Size="14" />
         </button>
 
-        @if (_operation.Status.Value is OperationStatus.NotStarted or OperationStatus.Failed or OperationStatus.Success)
+        @if (_operation.Status.Value is OperationStatus.Preparing or OperationStatus.InProgress)
         {
-            <BbButton Size="ButtonSize.Small" @onclick="Start">Run</BbButton>
+            <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive" @onclick="Cancel">Cancel</BbButton>
         }
         else
         {
-            <div class="w-14 shrink-0" />
+            <BbButton Size="ButtonSize.Small" @onclick="Start">Run</BbButton>
         }
 
         <div class="flex w-4 shrink-0 justify-center">
@@ -36,6 +36,9 @@
                     break;
                 case OperationStatus.Failed:
                     <LucideIcon Name="circle-x" Size="14" class="text-destructive" />
+                    break;
+                case OperationStatus.Cancelled:
+                    <LucideIcon Name="circle-minus" Size="14" class="text-muted-foreground" />
                     break;
             }
         </div>
@@ -105,6 +108,7 @@
 
 @code {
     [Parameter, EditorRequired] public IClusterTest Test { get; set; } = null!;
+    [Parameter, EditorRequired] public BenchmarkRunner Runner { get; set; } = null!;
     [Parameter] public EventCallback<OperationStatus> StatusChanged { get; set; }
 
     [Inject] public BenchmarkStorage BenchmarkStorage { get; set; } = null!;
@@ -114,7 +118,7 @@
     private bool _expanded;
     private IOperationProgress _operation = new OperationProgress();
     private Timer? _timer;
-    private readonly ILifetime _lifetime = new Lifetime();
+    private ILifetime _subscriptionLifetime = new Lifetime();
     private IReadOnlyList<BenchmarkState> _history = [];
     private IReadOnlyList<BenchmarkState> _chartStates = [];
     private double _deltaPercent;
@@ -122,40 +126,48 @@
     protected override async Task OnInitializedAsync()
     {
         _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+
+        // Restore running benchmark state from BenchmarkRunner
+        var runInfo = Runner.GetRunInfo(Test.Title);
+        if (runInfo != null)
+            AttachToProgress(runInfo.Progress);
+
         await LoadHistory();
     }
 
-    public async Task Run()
+    public void Run()
     {
-        _operation = new OperationProgress();
-        _operation.SetStatus(OperationStatus.Preparing);
+        var progress = Runner.Start(Test);
+        AttachToProgress(progress);
+    }
 
-        _operation.Progress.View(_lifetime, () => InvokeAsync(StateHasChanged));
-        _operation.Status.View(_lifetime, async () =>
-        {
-            await InvokeAsync(StateHasChanged);
-            await StatusChanged.InvokeAsync(_operation.Status.Value);
-        });
-        _operation.Message.View(_lifetime, () => InvokeAsync(StateHasChanged));
-
-        try
-        {
-            await Test.Start(_operation);
-        }
-        catch (Exception ex)
-        {
-            _operation.SetStatus(OperationStatus.Failed);
-            _operation.Log(ex.Message);
-        }
-
-        await LoadHistory();
-        await InvokeAsync(StateHasChanged);
+    public void Cancel()
+    {
+        Runner.Cancel(Test.Title);
     }
 
     public void Dispose()
     {
         _timer?.Dispose();
-        _lifetime.Terminate();
+        _subscriptionLifetime.Terminate();
+    }
+
+    private void AttachToProgress(IOperationProgress progress)
+    {
+        _subscriptionLifetime.Terminate();
+        _subscriptionLifetime = new Lifetime();
+        _operation = progress;
+
+        progress.Progress.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
+        progress.Status.View(_subscriptionLifetime, async () =>
+        {
+            await InvokeAsync(StateHasChanged);
+            await StatusChanged.InvokeAsync(progress.Status.Value);
+
+            if (progress.Status.Value is OperationStatus.Success or OperationStatus.Failed or OperationStatus.Cancelled)
+                await LoadHistory();
+        });
+        progress.Message.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
     }
 
     private async Task LoadHistory()
@@ -186,6 +198,8 @@
                 Timestamp = latest.Date
             };
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private static double GetMetricValue(BenchmarkState state)
@@ -201,6 +215,7 @@
     {
         OperationStatus.Success => "bg-green-500",
         OperationStatus.Failed => "bg-destructive",
+        OperationStatus.Cancelled => "bg-muted-foreground",
         _ => "bg-primary"
     };
 
@@ -229,5 +244,5 @@
         };
     }
 
-    private void Start() => Run().NoAwait();
+    private void Start() => Run();
 }

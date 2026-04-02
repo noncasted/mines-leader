@@ -13,6 +13,7 @@ public static class BenchmarkEndpoints {
         group.MapGet("/", ListAll);
         group.MapGet("/group/{group}", ListByGroup);
         group.MapPost("/{title}/run", RunSingle);
+        group.MapPost("/{title}/cancel", CancelSingle);
         group.MapPost("/group/{group}/run", RunGroup);
         group.MapGet("/{title}/history", GetHistory);
         group.MapGet("/group/{group}/history", GetGroupHistory);
@@ -30,41 +31,63 @@ public static class BenchmarkEndpoints {
     }
 
     private static List<BenchmarkInfoDto> ListAll(
-        [FromServices] IEnumerable<IClusterTest> tests) {
-        return tests.Select(ToInfo).ToList();
+        [FromServices] IEnumerable<IClusterTest> tests,
+        [FromServices] BenchmarkRunner runner) {
+        return tests.Select(t => ToInfo(t, runner)).ToList();
     }
 
     private static List<BenchmarkInfoDto> ListByGroup(
         string group,
-        [FromServices] IEnumerable<IClusterTest> tests) {
+        [FromServices] IEnumerable<IClusterTest> tests,
+        [FromServices] BenchmarkRunner runner) {
         return tests
             .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
-            .Select(ToInfo)
+            .Select(t => ToInfo(t, runner))
             .ToList();
     }
 
-    private static async Task<IResult> RunSingle(
+    private static IResult RunSingle(
         string title,
-        [FromServices] IEnumerable<IClusterTest> tests) {
+        [FromServices] IEnumerable<IClusterTest> tests,
+        [FromServices] BenchmarkRunner runner) {
         var test = tests.FirstOrDefault(t => t.Title == title);
         if (test == null)
             return Results.NotFound($"Benchmark '{title}' not found");
 
-        var result = await RunTest(test);
-        return Results.Ok(result);
+        runner.Start(test);
+        return Results.Ok(new BenchmarkRunResultDto {
+            Title = test.Title,
+            Success = true,
+            MetricName = test.MetricName
+        });
     }
 
-    private static async Task<List<BenchmarkRunResultDto>> RunGroup(
+    private static IResult CancelSingle(
+        string title,
+        [FromServices] BenchmarkRunner runner) {
+        var cancelled = runner.Cancel(title);
+        if (!cancelled)
+            return Results.NotFound($"Benchmark '{title}' is not running");
+
+        return Results.Ok();
+    }
+
+    private static List<BenchmarkRunResultDto> RunGroup(
         string group,
-        [FromServices] IEnumerable<IClusterTest> tests) {
+        [FromServices] IEnumerable<IClusterTest> tests,
+        [FromServices] BenchmarkRunner runner) {
         var groupTests = tests
             .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var results = new List<BenchmarkRunResultDto>();
         foreach (var test in groupTests) {
-            var result = await RunTest(test);
-            results.Add(result);
+            runner.Start(test);
+            results.Add(new BenchmarkRunResultDto {
+                Title = test.Title,
+                Success = true,
+                MetricName = test.MetricName
+            });
         }
 
         return results;
@@ -99,36 +122,12 @@ public static class BenchmarkEndpoints {
         return results;
     }
 
-    private static async Task<BenchmarkRunResultDto> RunTest(IClusterTest test) {
-        var progress = new OperationProgress();
-
-        try {
-            await test.Start(progress);
-        }
-        catch (Exception e) {
-            return new BenchmarkRunResultDto {
-                Title = test.Title,
-                Success = false,
-                ErrorMessage = e.Message
-            };
-        }
-
-        var last = test.LastResult;
-        return new BenchmarkRunResultDto {
-            Title = test.Title,
-            Success = last?.Success ?? false,
-            MetricValue = last?.MetricValue ?? 0,
-            MetricName = test.MetricName,
-            DurationMs = last?.DurationMs ?? 0,
-            ErrorMessage = last?.ErrorMessage ?? string.Empty
-        };
-    }
-
-    private static BenchmarkInfoDto ToInfo(IClusterTest test) {
+    private static BenchmarkInfoDto ToInfo(IClusterTest test, BenchmarkRunner runner) {
         return new BenchmarkInfoDto {
             Title = test.Title,
             Group = test.Group,
             MetricName = test.MetricName,
+            IsRunning = runner.IsRunning(test.Title),
             LastMetricValue = test.LastResult?.MetricValue,
             LastSuccess = test.LastResult?.Success,
             LastDurationMs = test.LastResult?.DurationMs
@@ -160,6 +159,7 @@ public record BenchmarkInfoDto {
     public required string Title { get; init; }
     public required string Group { get; init; }
     public required string MetricName { get; init; }
+    public bool IsRunning { get; init; }
     public double? LastMetricValue { get; init; }
     public bool? LastSuccess { get; init; }
     public long? LastDurationMs { get; init; }

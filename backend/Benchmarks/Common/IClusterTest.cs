@@ -9,5 +9,5 @@ public interface IClusterTest
     string MetricName { get; }
     object Payload { get; set; }
     BenchmarkResult? LastResult { get; set; }
-    Task Start(IOperationProgress progress);
+    Task Start(IOperationProgress progress, CancellationToken cancellationToken = default);
 }

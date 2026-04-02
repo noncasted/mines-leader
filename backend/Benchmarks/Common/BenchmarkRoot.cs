@@ -27,7 +27,7 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
 
     BenchmarkResult? IClusterTest.LastResult { get; set; }
 
-    Task IClusterTest.Start(IOperationProgress progress) => Start(progress, _payload);
+    Task IClusterTest.Start(IOperationProgress progress, CancellationToken cancellationToken) => Start(progress, _payload, cancellationToken);
     public abstract string Group { get; }
     public abstract string Title { get; }
     public abstract string MetricName { get; }
@@ -38,21 +38,33 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
     public ClusterTestUtils Utils => _utils;
     public TestCleanup Cleanup => _utils.Cleanup;
 
-    public async Task Start(IOperationProgress progress, TPayload payload)
+    public async Task Start(IOperationProgress progress, TPayload payload, CancellationToken cancellationToken = default)
     {
         var lifetime = new Lifetime();
-        var handle = new BenchmarkNodeHandle(_utils, progress, lifetime);
+        var handle = new BenchmarkNodeHandle(_utils, progress, lifetime, cancellationToken);
         progress.SetStatus(OperationStatus.Preparing);
 
         var stopwatch = Stopwatch.StartNew();
         var success = false;
+        var cancelled = false;
         var errorMessage = string.Empty;
 
         try
         {
             await Run(handle, payload);
-            success = true;
-            progress.SetStatus(OperationStatus.Success);
+            success = !cancellationToken.IsCancellationRequested;
+            cancelled = cancellationToken.IsCancellationRequested;
+
+            if (cancelled)
+                progress.SetStatus(OperationStatus.Cancelled);
+            else
+                progress.SetStatus(OperationStatus.Success);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            cancelled = true;
+            progress.SetStatus(OperationStatus.Cancelled);
+            Logger.LogInformation("Benchmark {TestName} was cancelled", Title);
         }
         catch (Exception e)
         {
@@ -89,13 +101,16 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
 
         ((IClusterTest)this).LastResult = result;
 
-        try
+        if (!cancelled)
         {
-            await _utils.BenchmarkStorage.Write(state);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Benchmark {TestName} failed to save state", Title);
+            try
+            {
+                await _utils.BenchmarkStorage.Write(state);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Benchmark {TestName} failed to save state", Title);
+            }
         }
 
         try
