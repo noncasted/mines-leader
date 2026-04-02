@@ -45,12 +45,29 @@ public class ClusterParticipantStartup : BackgroundService
 
         lifetime.Listen(() => _logger.LogError("[Startup] {Service} cancellation requested", serviceName));
 
+        const string stageOrleans = "Orleans";
+        const string stageTaskBalancer = "Task Balancer";
+        const string stageMessaging = "Messaging";
+        const string stageDiscovery = "Service Discovery";
+        const string stageWaitServices = "Waiting for Services";
+        const string stageLocalSetup = "Local Setup";
+        const string stageCoordinator = "Coordinator";
+
+        _context.SetStages(new[] {
+            stageOrleans, stageTaskBalancer, stageMessaging,
+            stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
+        });
+
         _logger.LogInformation("[Startup] {Service} start", serviceName);
+
+        _context.SetStage(stageOrleans);
         _logger.LogInformation("[Startup] {Service} waiting for orleans...", serviceName);
 
         await _loopObserver.IsOrleansStarted.WaitTrue(lifetime);
 
         _logger.LogInformation("[Startup] {Service} orleans started", serviceName);
+
+        _context.SetStage(stageTaskBalancer);
         _logger.LogInformation("[Startup] {Service} starting task balancer", serviceName);
 
         await _loop.OnOrleansStarted(lifetime);
@@ -58,6 +75,8 @@ public class ClusterParticipantStartup : BackgroundService
         await _taskBalancer.Run(lifetime);
 
         _logger.LogInformation("[Startup] {Service} task balancer started", serviceName);
+
+        _context.SetStage(stageMessaging);
         _logger.LogInformation("[Startup] {Service} starting messaging", serviceName);
 
         await _messaging.Start(lifetime);
@@ -69,21 +88,29 @@ public class ClusterParticipantStartup : BackgroundService
         );
 
         _logger.LogInformation("[Startup] {Service} messaging started", serviceName);
+
+        _context.SetStage(stageDiscovery);
         _logger.LogInformation("[Startup] {Service} starting service discovery", serviceName);
 
         await _discovery.Start(lifetime);
 
         _logger.LogInformation("[Startup] {Service} service discovery started", serviceName);
+
+        _context.SetStage(stageWaitServices);
         _logger.LogInformation("[Startup] {Service} waiting for other services...", serviceName);
 
         await WaitDiscovery();
 
         _logger.LogInformation("[Startup] {Service} all required services found", serviceName);
+
+        _context.SetStage(stageLocalSetup);
         _logger.LogInformation("[Startup] {Service} running local setup loop", serviceName);
 
         await _loop.OnLocalSetupCompleted(lifetime);
 
         _logger.LogInformation("[Startup] {Service} local setup loop completed", serviceName);
+
+        _context.SetStage(stageCoordinator);
         _logger.LogInformation("[Startup] {Service} waiting for coordinator to be ready", serviceName);
 
         await coordinatorCompletion.Task;
