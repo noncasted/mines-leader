@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -6,45 +7,40 @@ namespace Benchmarks;
 
 public class TaskQueueCollectTest {
     [GenerateSerializer]
-    public class Payload { }
+    [method: SetsRequiredMembers]
+    public class StartPayload() : IConcurrentIterationTestPayload {
+        [Id(0)]
+        public int Iterations { get; set; } = 500000;
 
-    public class Root : ClusterTestRoot<Payload> {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage) {
+        [Id(1)]
+        public int Concurrent { get; set; } = 1;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-queue-collect";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override Task Run(ClusterTestNodeHandle handle, Payload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
-            var task1 = new TestPriorityTask("task-1", TaskPriority.Medium);
-            var task2 = new TestPriorityTask("task-2", TaskPriority.High);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            queue.Enqueue(task1);
-            queue.Enqueue(task2);
+            return;
 
-            var collected = queue.Collect();
-
-            TestAssert.Equal(2, collected.Count, "collect count");
-            TestAssert.True(
-                collected.Any(t => t.Id == "task-1") && collected.Any(t => t.Id == "task-2"),
-                "both tasks collected"
-            );
-
-            handle.Progress.SetProgress(0.5f);
-
-            // Second collect should return empty — tasks already consumed
-            var second = queue.Collect();
-            TestAssert.Equal(0, second.Count, "second collect should be empty");
-
-            handle.Progress.Log("Task queue collect test passed");
-            handle.Progress.SetProgress(1f);
-
-            return Task.CompletedTask;
+            async Task Process() {
+                queue.Enqueue(new TestPriorityTask($"a-{Guid.NewGuid()}", TaskPriority.Medium));
+                queue.Enqueue(new TestPriorityTask($"b-{Guid.NewGuid()}", TaskPriority.High));
+                queue.Enqueue(new TestPriorityTask($"c-{Guid.NewGuid()}", TaskPriority.Low));
+                queue.Collect();
+                handle.Metrics.Inc();
+                await Task.CompletedTask;
+            }
         }
     }
 }

@@ -14,15 +14,15 @@ public class TransactionStateChainedTest
         public int ChainLength { get; set; } = 3;
 
         [Id(1)]
-        public int Iterations { get; set; } = 100;
+        public int Iterations { get; set; } = 1250;
 
         [Id(2)]
         public int Concurrent { get; set; } = 3;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -35,19 +35,23 @@ public class TransactionStateChainedTest
         public override string Title => "transactions-state-chained";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, () => Process(payload.ChainLength));
-        }
 
-        private async Task Process(int chainLength)
-        {
-            var ids = TestParticipants.Create(_orleans, chainLength);
-            var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+            return;
 
-            if (result.IsSuccess == false)
-                throw new Exception("Chained transaction failed");
+            async Task Process(int chainLength)
+            {
+                var ids = TestParticipants.Create(_orleans, chainLength);
+                var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+
+                if (result.IsSuccess == false)
+                    throw new Exception("Chained transaction failed");
+
+                handle.Metrics.Inc();
+            }
         }
     }
 }

@@ -16,5 +16,7 @@ public class StatesDrop
         await connection.Drop(DbLookup.SE_Queue);
         await connection.Drop(DbLookup.SE_Processing);
         await connection.Drop(DbLookup.SE_Retry);
+
+        // Benchmark data now in state_benchmark (included in StatesLookup.All)
     }
 }

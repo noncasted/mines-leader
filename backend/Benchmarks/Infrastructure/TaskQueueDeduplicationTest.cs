@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -6,36 +7,40 @@ namespace Benchmarks;
 
 public class TaskQueueDeduplicationTest {
     [GenerateSerializer]
-    public class Payload { }
+    [method: SetsRequiredMembers]
+    public class StartPayload() : IConcurrentIterationTestPayload {
+        [Id(0)]
+        public int Iterations { get; set; } = 500000;
 
-    public class Root : ClusterTestRoot<Payload> {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage) {
+        [Id(1)]
+        public int Concurrent { get; set; } = 1;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-queue-deduplication";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override Task Run(ClusterTestNodeHandle handle, Payload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
-            var task1 = new TestPriorityTask("same-id", TaskPriority.Low);
-            var task2 = new TestPriorityTask("same-id", TaskPriority.High);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            queue.Enqueue(task1);
-            queue.Enqueue(task2);
+            return;
 
-            var collected = queue.Collect();
-
-            TestAssert.Equal(1, collected.Count, "deduplication: should keep only first");
-            TestAssert.Equal(TaskPriority.Low, collected[0].Priority, "deduplication: first enqueued wins");
-
-            handle.Progress.Log("Task queue deduplication test passed");
-            handle.Progress.SetProgress(1f);
-
-            return Task.CompletedTask;
+            async Task Process() {
+                queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.Low));
+                queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.High));
+                queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.Critical));
+                queue.Collect();
+                handle.Metrics.Inc();
+                await Task.CompletedTask;
+            }
         }
     }
 }

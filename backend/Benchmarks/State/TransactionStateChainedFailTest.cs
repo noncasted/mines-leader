@@ -14,15 +14,15 @@ public class TransactionStateChainedFailTest
         public int ChainLength { get; set; } = 3;
 
         [Id(1)]
-        public int Iterations { get; set; } = 100;
+        public int Iterations { get; set; } = 140;
 
         [Id(3)]
         public int Concurrent { get; set; } = 3;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -35,36 +35,40 @@ public class TransactionStateChainedFailTest
         public override string Title => "transactions-state-chained-fail";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, () => Process(payload.ChainLength));
-        }
 
-        private async Task Process(int chainLength)
-        {
-            var ids = TestParticipants.Create(_orleans, chainLength);
-            var initialState = await ids.Get<int, ITransactionTestGrain>(grain => grain.Get());
+            return;
 
-            var failResult = await _transactions.Run(async () =>
-                {
-                    await ids.Run<ITransactionTestGrain>(grain => grain.Increment());
-                    throw new Exception("Intentional rollback");
-                }
-            );
-
-            if (failResult.IsSuccess)
-                throw new Exception("Transaction should have failed but succeeded");
-
-            for (var index = 0; index < ids.Count; index++)
+            async Task Process(int chainLength)
             {
-                var id = ids.Entries[index];
-                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
-                var value = await grain.Get();
-                var initialValue = initialState[index];
+                var ids = TestParticipants.Create(_orleans, chainLength);
+                var initialState = await ids.Get<int, ITransactionTestGrain>(grain => grain.Get());
 
-                if (value != initialValue)
-                    throw new Exception($"Rollback failed for grain {id}: expected {initialValue}, got {value}");
+                var failResult = await _transactions.Run(async () =>
+                    {
+                        await ids.Run<ITransactionTestGrain>(grain => grain.Increment());
+                        throw new Exception("Intentional rollback");
+                    }
+                );
+
+                if (failResult.IsSuccess)
+                    throw new Exception("Transaction should have failed but succeeded");
+
+                for (var index = 0; index < ids.Count; index++)
+                {
+                    var id = ids.Entries[index];
+                    var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+                    var value = await grain.Get();
+                    var initialValue = initialState[index];
+
+                    if (value != initialValue)
+                        throw new Exception($"Rollback failed for grain {id}: expected {initialValue}, got {value}");
+                }
+
+                handle.Metrics.Inc();
             }
         }
     }

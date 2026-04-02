@@ -11,15 +11,15 @@ public class TransactionCrossPathReadTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 50;
+        public int Iterations { get; set; } = 2000;
 
         [Id(1)]
         public int Concurrent { get; set; } = 3;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -32,28 +32,32 @@ public class TransactionCrossPathReadTest
         public override string Title => "transactions-cross-path-read";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
-        }
 
-        private async Task Process()
-        {
-            var id = Guid.NewGuid();
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+            return;
 
-            // Write via transaction
-            var result = await _transactions.Run(() => grain.Increment());
+            async Task Process()
+            {
+                var id = Guid.NewGuid();
+                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
 
-            if (!result.IsSuccess)
-                throw new Exception("Transaction failed");
+                // Write via transaction
+                var result = await _transactions.Run(() => grain.Increment());
 
-            // Read via non-transactional path
-            var value = await grain.Get();
+                if (!result.IsSuccess)
+                    throw new Exception("Transaction failed");
 
-            if (value != 1)
-                throw new Exception($"Cross-path read mismatch: expected 1, got {value}");
+                // Read via non-transactional path
+                var value = await grain.Get();
+
+                if (value != 1)
+                    throw new Exception($"Cross-path read mismatch: expected 1, got {value}");
+
+                handle.Metrics.Inc();
+            }
         }
     }
 }

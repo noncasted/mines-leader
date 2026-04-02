@@ -11,15 +11,15 @@ public class TransactionStateTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 10;
+        public int Iterations { get; set; } = 3300;
 
         [Id(1)]
         public int Concurrent { get; set; } = 3;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -32,19 +32,23 @@ public class TransactionStateTest
         public override string Title => "transactions-state";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
-        }
 
-        private async Task Process()
-        {
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
-            var result = await _transactions.Run(() => grain.Increment());
+            return;
 
-            if (!result.IsSuccess)
-                throw new Exception("Transaction failed");
+            async Task Process()
+            {
+                var grain = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
+                var result = await _transactions.Run(() => grain.Increment());
+
+                if (!result.IsSuccess)
+                    throw new Exception("Transaction failed");
+
+                handle.Metrics.Inc();
+            }
         }
     }
 }

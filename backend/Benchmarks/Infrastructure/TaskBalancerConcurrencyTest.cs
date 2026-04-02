@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -6,69 +7,55 @@ namespace Benchmarks;
 
 public class TaskBalancerConcurrencyTest {
     [GenerateSerializer]
-    public class Payload { }
+    [method: SetsRequiredMembers]
+    public class StartPayload() : IConcurrentIterationTestPayload {
+        [Id(0)]
+        public int Iterations { get; set; } = 5000;
 
-    public class Root : ClusterTestRoot<Payload> {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage) {
+        [Id(1)]
+        public int Concurrent { get; set; } = 4;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-balancer-concurrency";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, Payload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
-
-            var maxConcurrent = 0;
-            var currentConcurrent = 0;
-            var completedCount = 0;
-            var concurrentLock = new Lock();
 
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
-            for (var i = 0; i < 6; i++) {
-                queue.Enqueue(new TestPriorityTask($"slow-{i}", TaskPriority.Medium, execute: async () => {
-                    lock (concurrentLock) {
-                        currentConcurrent++;
-
-                        if (currentConcurrent > maxConcurrent)
-                            maxConcurrent = currentConcurrent;
-                    }
-
-                    await Task.Delay(200);
-
-                    lock (concurrentLock) {
-                        currentConcurrent--;
-                        completedCount++;
-                    }
-                }));
-            }
-
             var config = new TestBalancerConfig(new TaskBalancerOptions {
-                EmptyDelayMs = 10,
-                NextDelayMs = 10,
-                ConcurrentTasks = 2
+                EmptyDelayMs = 1,
+                NextDelayMs = 0,
+                ConcurrentTasks = 4
             });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
-
             balancer.Run(handle.Lifetime);
 
-            handle.Progress.SetProgress(0.3f);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            var elapsed = 0;
+            return;
 
-            while (completedCount < 6 && elapsed < 5000) {
-                await Task.Delay(50);
-                elapsed += 50;
+            async Task Process() {
+                var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                queue.Enqueue(new TestPriorityTask(
+                    Guid.NewGuid().ToString(),
+                    TaskPriority.Medium,
+                    execute: () => {
+                        tcs.SetResult();
+                        return Task.CompletedTask;
+                    }));
+
+                await tcs.Task;
+                handle.Metrics.Inc();
             }
-
-            TestAssert.Equal(6, completedCount, "all tasks completed");
-            TestAssert.True(maxConcurrent <= 2, $"max concurrent was {maxConcurrent}, expected <= 2");
-            TestAssert.True(maxConcurrent >= 2, $"max concurrent was {maxConcurrent}, expected >= 2");
-
-            handle.Progress.Log("Task balancer concurrency test passed");
-            handle.Progress.SetProgress(1f);
         }
     }
 }

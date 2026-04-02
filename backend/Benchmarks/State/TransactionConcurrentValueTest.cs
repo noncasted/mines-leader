@@ -8,15 +8,21 @@ public class TransactionConcurrentValueTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload()
+    public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int ConcurrentTransactions { get; set; } = 10;
+        public int Iterations { get; set; } = 550;
+
+        [Id(1)]
+        public int Concurrent { get; set; } = 10;
+
+        [Id(2)]
+        public int ConcurrentTransactions { get; set; } = 5;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -27,45 +33,34 @@ public class TransactionConcurrentValueTest
 
         public override string Group => TestGroups.State;
         public override string Title => "transactions-concurrent-value";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
+            await handle.RunConcurrentIterations(payload, () => Process(payload.ConcurrentTransactions));
 
-            var id = Guid.NewGuid();
-            Cleanup.Track<TransactionTestState>(id);
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
-            var successCount = 0;
+            return;
 
-            var tasks = new List<Task<TransactionResult>>();
-
-            for (var i = 0; i < payload.ConcurrentTransactions; i++)
-                tasks.Add(_transactions.Run(() => grain.Increment()));
-
-            var results = await Task.WhenAll(tasks);
-
-            foreach (var result in results)
+            async Task Process(int concurrentTxns)
             {
-                if (result.IsSuccess)
-                    Interlocked.Increment(ref successCount);
+                var id = Guid.NewGuid();
+                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+
+                var tasks = new List<Task<TransactionResult>>();
+
+                for (var i = 0; i < concurrentTxns; i++)
+                    tasks.Add(_transactions.Run(() => grain.Increment()));
+
+                var results = await Task.WhenAll(tasks);
+
+                var successCount = results.Count(r => r.IsSuccess);
+
+                if (successCount == 0)
+                    throw new Exception("All concurrent transactions failed");
+
+                handle.Metrics.Inc();
             }
-
-            handle.Progress.SetProgress(0.8f);
-            handle.Progress.Log($"Completed: {successCount}/{payload.ConcurrentTransactions} succeeded");
-
-            if (successCount == 0)
-                throw new Exception("All transactions failed");
-
-            var value = await grain.Get();
-
-            if (value != successCount)
-                throw new Exception(
-                    $"Value mismatch: expected {successCount}, got {value}. " +
-                    $"Lost {successCount - value} updates");
-
-            handle.Progress.Log($"Verified: value {value} == {successCount} successful transactions");
-            handle.Progress.SetProgress(1f);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -6,55 +7,59 @@ namespace Benchmarks;
 
 public class TaskBalancerExceptionPenaltyTest {
     [GenerateSerializer]
-    public class Payload { }
+    [method: SetsRequiredMembers]
+    public class StartPayload() : IConcurrentIterationTestPayload {
+        [Id(0)]
+        public int Iterations { get; set; } = 1000;
 
-    public class Root : ClusterTestRoot<Payload> {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage) {
+        [Id(1)]
+        public int Concurrent { get; set; } = 4;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-balancer-exception-penalty";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, Payload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
-            var executionLog = new List<string>();
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
-            // Failing task with high priority — after exception it gets penalty and re-scheduled
-            queue.Enqueue(new TestPriorityTask("failing", TaskPriority.High, log: executionLog, failCount: 1));
-            queue.Enqueue(new TestPriorityTask("normal", TaskPriority.Medium, log: executionLog));
-
             var config = new TestBalancerConfig(new TaskBalancerOptions {
-                EmptyDelayMs = 10,
-                NextDelayMs = 10,
-                ConcurrentTasks = 1,
+                EmptyDelayMs = 1,
+                NextDelayMs = 0,
+                ConcurrentTasks = 4,
                 IterationScore = 0,
-                ExceptionPenalty = 100
+                ExceptionPenalty = 1
             });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
-
             balancer.Run(handle.Lifetime);
 
-            handle.Progress.SetProgress(0.3f);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            var elapsed = 0;
+            return;
 
-            while (executionLog.Count < 3 && elapsed < 5000) {
-                await Task.Delay(50);
-                elapsed += 50;
+            async Task Process() {
+                var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                // Task fails once, then succeeds on retry
+                queue.Enqueue(new TestPriorityTask(
+                    Guid.NewGuid().ToString(),
+                    TaskPriority.Medium,
+                    failCount: 1,
+                    execute: () => {
+                        tcs.TrySetResult();
+                        return Task.CompletedTask;
+                    }));
+
+                await tcs.Task;
+                handle.Metrics.Inc();
             }
-
-            // Execution order: failing (throws) -> normal -> failing (succeeds on retry)
-            TestAssert.True(executionLog.Count >= 3, $"expected at least 3 executions, got {executionLog.Count}");
-            TestAssert.Equal("failing", executionLog[0], "failing task tried first (high priority)");
-            TestAssert.Equal("normal", executionLog[1], "normal task runs while failing is penalized");
-            TestAssert.Equal("failing", executionLog[2], "failing task retried after penalty");
-
-            handle.Progress.Log("Task balancer exception penalty test passed");
-            handle.Progress.SetProgress(1f);
         }
     }
 }

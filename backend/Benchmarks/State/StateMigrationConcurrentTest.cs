@@ -11,15 +11,15 @@ public class StateMigrationConcurrentTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 20;
+        public int Iterations { get; set; } = 900;
 
         [Id(1)]
-        public int Concurrent { get; set; } = 5;
+        public int Concurrent { get; set; } = 10;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans) : base(utils)
         {
             _orleans = orleans;
         }
@@ -30,30 +30,34 @@ public class StateMigrationConcurrentTest
         public override string Title => "state-migration-concurrent";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
-        }
 
-        private async Task Process()
-        {
-            var key = Guid.NewGuid().ToString();
-            const int writtenValue = 77;
+            return;
 
-            // Write as V0
-            var v0Grain = _orleans.GetGrain<StateMigrationTest.IMigrationGrainV0>(key);
-            await v0Grain.Write(writtenValue);
+            async Task Process()
+            {
+                var key = Guid.NewGuid().ToString();
+                const int writtenValue = 77;
 
-            // Read as V1 — triggers migration
-            var v1Grain = _orleans.GetGrain<StateMigrationTest.IMigrationGrainV1>(key);
-            var (value, label) = await v1Grain.Read();
+                // Write as V0
+                var v0Grain = _orleans.GetGrain<StateMigrationTest.IMigrationGrainV0>(key);
+                await v0Grain.Write(writtenValue);
 
-            if (value != writtenValue)
-                throw new Exception($"Migration value mismatch: expected {writtenValue}, got {value}");
+                // Read as V1 — triggers migration
+                var v1Grain = _orleans.GetGrain<StateMigrationTest.IMigrationGrainV1>(key);
+                var (value, label) = await v1Grain.Read();
 
-            if (label != $"migrated-{writtenValue}")
-                throw new Exception($"Migration label mismatch: expected 'migrated-{writtenValue}', got '{label}'");
+                if (value != writtenValue)
+                    throw new Exception($"Migration value mismatch: expected {writtenValue}, got {value}");
+
+                if (label != $"migrated-{writtenValue}")
+                    throw new Exception($"Migration label mismatch: expected 'migrated-{writtenValue}', got '{label}'");
+
+                handle.Metrics.Inc();
+            }
         }
     }
 }

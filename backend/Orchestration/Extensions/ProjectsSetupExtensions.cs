@@ -99,7 +99,7 @@ public static class ProjectsSetupExtensions
             // Cluster services
             builder
                 .AddBase(ServiceTag.Silo);
-            
+
             builder.Add<SideEffectsWorker>()
                 .As<IHostedService>();
 
@@ -119,7 +119,7 @@ public static class ProjectsSetupExtensions
                 .AddBlazorComponents();
 
             // Project services
-            
+
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
             foreach (var type in testsAssembly.GetTypes())
@@ -175,7 +175,6 @@ public static class ProjectsSetupExtensions
             Add<StateMigrationTest.MigrationTestState_0>(StatesLookup.StateMigrationTest);
             Add<StateMigrationTest.MigrationTestState_1>(StatesLookup.StateMigrationTest);
             Add<TransactionTestState>(StatesLookup.TransactionTest);
-            Add<StateCollectionSyncTest.CollectionTestState>(StatesLookup.CollectionTest);
             Add<UserState>(StatesLookup.User);
             Add<UserAuthState>(StatesLookup.UserAuth);
             Add<UserProgressionState>(StatesLookup.UserProgression);
@@ -189,13 +188,14 @@ public static class ProjectsSetupExtensions
             Add<GameModeOptions>(StatesLookup.GameModeConfig);
             Add<RatingOptions>(StatesLookup.RatingConfig);
             Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
-            Add<DurableQueueOptions>(StatesLookup.MessageQueueConfig);
+            Add<DurableQueueOptions>(StatesLookup.DurableQueueConfig);
             Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
             Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
             Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
             Add<TransactionOptions>(StatesLookup.TransactionConfig);
             Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
             Add<UserRatingState>(StatesLookup.UserRating);
+            Add<BenchmarkState>(StatesLookup.Benchmark);
 
             var registry = new GrainStatesRegistry(states);
 
@@ -262,7 +262,7 @@ public static class ProjectsSetupExtensions
             builder.Add<BenchmarkStorage>();
             builder.Add<ClusterTestUtils>();
 
-            // Auto-discover all ClusterTestNode<> subclasses in Tests assembly
+            // Auto-discover all BenchmarkNode<> subclasses in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
             foreach (var type in testsAssembly.GetTypes())
             {
@@ -278,12 +278,6 @@ public static class ProjectsSetupExtensions
             builder.Add<StateMigrationTest.MigrationTestStep_V1>()
                 .As<IStateMigrationStep>();
 
-            builder.AddStateCollection<
-                    StateCollectionSyncTest.CollectionTestCollection,
-                    Guid,
-                    StateCollectionSyncTest.CollectionTestState>()
-                .As<StateCollectionSyncTest.ICollectionTestCollection>();
-
             return builder;
         }
 
@@ -292,10 +286,11 @@ public static class ProjectsSetupExtensions
             var current = type.BaseType;
             while (current != null)
             {
-                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(ClusterTestNode<>))
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(BenchmarkNode<>))
                     return true;
                 current = current.BaseType;
             }
+
             return false;
         }
     }
