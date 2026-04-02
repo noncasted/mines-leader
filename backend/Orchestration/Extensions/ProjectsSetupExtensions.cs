@@ -259,6 +259,7 @@ public static class ProjectsSetupExtensions
 
         private IHostApplicationBuilder AddTests()
         {
+            builder.Add<BenchmarkRunner>();
             builder.Add<BenchmarkStorage>();
             builder.Add<ClusterTestUtils>();
 

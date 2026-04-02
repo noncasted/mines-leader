@@ -22,7 +22,8 @@ public enum OperationStatus
     Preparing = 10,
     InProgress = 20,
     Success = 30,
-    Failed = 40
+    Failed = 40,
+    Cancelled = 50
 }
 
 public class OperationProgress : IOperationProgress
@@ -60,7 +61,7 @@ public class OperationProgress : IOperationProgress
         if (status == OperationStatus.Preparing)
             StartTime = DateTime.UtcNow;
 
-        if (status == OperationStatus.Success || status == OperationStatus.Failed)
+        if (status is OperationStatus.Success or OperationStatus.Failed or OperationStatus.Cancelled)
             EndTime = DateTime.UtcNow;
 
         _lock.Wait();
