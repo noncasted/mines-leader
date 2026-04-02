@@ -99,4 +99,53 @@ Adds Fog CellEffect to cells in pattern for Duration rounds.
 Constructor: `(IBoard target, Payload payload, Config config, IRoundActionService roundAction)`
 - [ ] Adds Fog effect to cells
 - [ ] Effect has correct duration
+- [ ] Only Free cells affected (not Taken)
 - [ ] Requires IRoundActionService mock
+- [ ] Scheduled cleanup removes effects after Duration rounds
+
+### Purge
+Removes all cell effects from all board cells.
+Constructor: `(IBoard target)`
+- [ ] Removes all Smoke effects from board
+- [ ] Removes all Fog effects from board
+- [ ] No effects on board — succeeds (no-op)
+- [ ] Mixed effect types — all removed
+
+## Todo — Cross-card edge cases
+
+### Max variant cards (Size increase)
+All cards with _Max suffix use larger Config values.
+- [ ] Bloodhound_Max — larger rhombus pattern than Bloodhound
+- [ ] ErosionDozer_Max — erodes more cells than base
+- [ ] ZipZap_Max — longer chain than base
+- [ ] OpponentFlagErase_Max — larger erase radius
+- [ ] OpponentFlagReshuffle_Max — larger reshuffle radius
+- [ ] Smoke_Max — larger smoke area
+- [ ] MinefieldScout_Max — larger search area
+- [ ] FogOfWar_Max — larger fog area
+
+### TrebuchetBoost modifier interaction
+Cards that read TrebuchetBoost modifier for enhanced size.
+- [ ] Trebuchet with TrebuchetBoost — increased area size
+- [ ] Trebuchet without boost — base size
+- [ ] Trebuchet resets TrebuchetBoost after use
+- [ ] ZipZap with TrebuchetBoost — increased chain length
+- [ ] ZipZap resets TrebuchetBoost after use
+- [ ] Multiple TrebuchetAimer stacks — cumulative boost
+
+### RoundActionService integration with cards
+Cards with delayed effects use RoundActionService.Schedule().
+- [ ] Smoke — RoundActionService.Tick() removes effects after Duration
+- [ ] FogOfWar — RoundActionService.Tick() removes effects after Duration
+- [ ] Lockdown — RoundActionService.Tick() restores moves after Duration
+- [ ] Multiple scheduled actions — all execute at correct round
+- [ ] Tick with no scheduled actions — no-op
+
+### MoveSnapshot recording
+Cards must record changes in MoveSnapshot for client sync.
+- [ ] ZipZap — snapshot Lock/Unlock wraps mine conversion
+- [ ] GraveDigger — snapshot records card additions
+- [ ] Scavenger — snapshot records card draws
+- [ ] HandScramble — snapshot records removals and additions
+- [ ] Board changes recorded via snapshot HandleBoards()
+- [ ] Snapshot Lock prevents recording during internal operations

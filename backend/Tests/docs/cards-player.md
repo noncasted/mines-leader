@@ -62,3 +62,29 @@ Removes all negative effects from owner.
 Constructor: `(IPlayer owner)`
 - [ ] Removes all modifiers/effects
 - [ ] No effects — still succeeds
+
+## Todo — Cross-card player edge cases
+
+### Mana cost validation
+All cards check mana before use.
+- [ ] Card use with exact mana — succeeds, mana = 0
+- [ ] Card use with insufficient mana — fails
+- [ ] Card use with excess mana — succeeds, remainder preserved
+- [ ] Zero-cost card — always playable
+
+### Card failure states
+Cards that operate on empty/invalid targets.
+- [ ] Siphon on opponent with 0 mana — drains nothing, still succeeds
+- [ ] Overclock when moves already at max — stacks above original max
+- [ ] Medic at max HP — heal clamped, still succeeds
+- [ ] GraveDigger with empty stash — fails
+- [ ] Scavenger with empty deck — draws nothing or partial
+- [ ] HandScramble on opponent with empty hand — no-op or fails
+- [ ] Lockdown on opponent already locked down — stacks or replaces?
+
+### Modifier system
+- [ ] TrebuchetBoost modifier set to 0 initially
+- [ ] TrebuchetBoost modifier incremented by TrebuchetAimer.Size
+- [ ] Multiple TrebuchetAimer uses accumulate modifier
+- [ ] Modifier value persists across turns until consumed
+- [ ] Modifier.Set fires SyncState

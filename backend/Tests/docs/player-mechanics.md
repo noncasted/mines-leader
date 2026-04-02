@@ -48,3 +48,58 @@ Use `ValueProperty<T>.ForTest()` for state without network sync.
 - [ ] Collect returns all and clears
 - [ ] Count reflects stash size
 - [ ] Pick from empty stash — behavior
+
+## Todo — Round Mechanics
+
+### TimeLimitedRound — turn timer and win conditions
+- [ ] Timer countdown decrements SecondsLeft per player
+- [ ] Time bonus on CellOpened action (+TimeGainPerAction)
+- [ ] Time bonus on CardUsed action (+TimeGainPerAction)
+- [ ] Time reaches 0 — round ends, opponent wins
+- [ ] Health reaches 0 — round ends, attacker wins
+- [ ] Flag winner detected after 2+ rounds
+- [ ] User lifetime terminated — immediate game end
+- [ ] Mana.Max increases by 1 each round
+- [ ] Cards restored to Hand.Size at round start
+
+### LastManStandingRound — move-based turns
+- [ ] Turn ends when Moves.Left reaches 0
+- [ ] Turn ends when timer expires (whichever first)
+- [ ] TurnsCountdown polls Moves.Left every 0.2s
+- [ ] Global timer (not per-player) countdown
+- [ ] Mana.Max increases by 1 each round
+
+### RoundPlayers — card restoration
+- [ ] RestoreCards fills hand to Hand.Size from deck
+- [ ] Deck empty — collects stash cards, re-adds to deck, then draws
+- [ ] Both deck and stash empty — draws nothing
+- [ ] Each card addition recorded in snapshot
+
+### RoundActionService — delayed actions
+- [ ] Schedule action with N rounds delay
+- [ ] Tick decrements all scheduled action counters
+- [ ] Action executes when RoundsLeft reaches 0
+- [ ] Multiple actions at same round — all execute
+- [ ] Schedule with 0 rounds — executes immediately on next Tick
+- [ ] No scheduled actions — Tick is no-op
+
+### PlayerActions — event tracking
+- [ ] OnCellOpened fires CellOpened delegate
+- [ ] OnCardUsed fires CardUsed delegate
+- [ ] Actions used for time bonus calculation in TimeLimitedRound
+
+### Modifiers — player modifier system
+- [ ] Initial modifier values all 0
+- [ ] Set modifier updates value and fires SyncState
+- [ ] Modifier values are floats (no bounds checking)
+- [ ] Modifier read returns current value
+
+### MoveSnapshot — recording system
+- [ ] RecordCardUse prepends to record list (position 0)
+- [ ] RecordCardAdd appends to record list
+- [ ] RecordCardRemove appends to record list
+- [ ] HandleBoards subscribes to all board events
+- [ ] Lock prevents recording board events
+- [ ] Unlock resumes recording
+- [ ] Collect returns SharedMoveSnapshot with all records
+- [ ] Board records grouped by BoardOwnerId
