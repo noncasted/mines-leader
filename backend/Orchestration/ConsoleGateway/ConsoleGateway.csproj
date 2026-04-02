@@ -9,6 +9,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\..\Console\Console.csproj"/>
+        <ProjectReference Include="..\..\Benchmarks\Benchmarks.csproj"/>
+        <ProjectReference Include="..\..\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
