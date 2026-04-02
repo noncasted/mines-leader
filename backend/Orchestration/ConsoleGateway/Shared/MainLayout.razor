@@ -29,7 +29,8 @@
                     Features
                 </NavLink>
             </nav>
-            <div class="flex flex-1 items-center justify-end space-x-2">
+            <div class="flex flex-1 items-center justify-end space-x-4">
+                <StartupStatusIndicator OnClick="ShowStartupOverlay" />
                 <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" @onclick="ToggleDarkMode">
                     @if (isDarkMode)
                     {
@@ -49,6 +50,7 @@
     </main>
 </div>
 
+<StartupOverlay @ref="_startupOverlay" />
 <BbToastProvider Position="ToastPosition.BottomRight" />
 <BbDialogProvider />
 <BbPortalHost />
