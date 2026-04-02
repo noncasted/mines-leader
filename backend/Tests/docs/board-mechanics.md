@@ -63,3 +63,72 @@ Unit tests (no Orleans). Core board logic: generation, reveal, scanner, cells, p
 - [x] Invalid center (-1,-1) returns empty
 - [x] Line horizontal shape
 - [x] Line vertical shape
+
+## Todo
+
+### BoardEvents — event firing and locking
+Board event system: CellSet, Flag, Explode, EffectAdded, EffectRemoved events.
+- [ ] CellSet event fires on ToFree/ToTaken transition
+- [ ] Flag event fires on SetFlag/RemoveFlag
+- [ ] Explode event fires on cell Explode()
+- [ ] EffectAdded event fires on AddEffect
+- [ ] EffectRemoved event fires on RemoveEffect
+- [ ] Lock() suppresses all event firing
+- [ ] Unlock() resumes event firing
+- [ ] Lock/Unlock nesting — events only fire after final Unlock
+- [ ] ForceRecord fires Record event with custom payload
+
+### Flag Actions — SetFlagAction / RemoveFlagAction
+Flag placement and removal command validation.
+- [ ] SetFlagAction on Taken cell — places flag
+- [ ] SetFlagAction on Free cell — fails
+- [ ] SetFlagAction on already flagged cell — fails
+- [ ] RemoveFlagAction on flagged cell — removes flag
+- [ ] RemoveFlagAction on unflagged cell — fails
+- [ ] Flag placement fires BoardEvents.Flag event
+
+### OpenMultipleCellsCommand — chord opening
+Classic minesweeper chord: auto-open neighbors when flag count matches MinesAround.
+- [ ] Correct flag count — opens all unflagged neighbors
+- [ ] Incorrect flag count — fails (not enough flags)
+- [ ] Source is Taken — fails (must be Free cell)
+- [ ] Unflagged neighbor has mine — explodes, deals damage
+- [ ] Multiple neighbors opened — all revealed correctly
+- [ ] Recursive reveal after chord open
+
+### Cell Explosion
+- [ ] Explode() on TakenCell fires SetExplosion event
+- [ ] Explode() marks cell as exploded
+
+### Cell Effects — persistence and interaction
+- [ ] AddEffect on TakenCell — effect persisted in Effects list
+- [ ] AddEffect on FreeCell — effect persisted in Effects list
+- [ ] RemoveEffect by Guid — correct effect removed
+- [ ] RemoveEffect with unknown Guid — no-op or fails
+- [ ] Effects survive ToFree/ToTaken transition
+- [ ] Multiple effects on same cell — all tracked
+
+### Board Utility Extensions
+- [ ] GetClosedShape — connected Taken region from start position
+- [ ] GetClosedShape at edge — clips correctly
+- [ ] GetClosedShape on Free cell — returns empty
+- [ ] HasMinesAround — correct neighbor mine detection
+- [ ] IterateNeighbours at corner — only valid positions returned
+- [ ] IterateNeighbours in center — all 8 neighbors
+- [ ] RandomPosition — within board bounds
+- [ ] CleanupAround — recursive cleanup algorithm correctness
+
+### EnsureGenerated — lazy board init
+- [ ] EnsureGenerated on empty board — generates then reveals
+- [ ] EnsureGenerated on existing board — no-op, just reveals
+- [ ] First click position is mine-free after generation
+
+### SkipTurn command
+- [ ] SkipTurn on current player's turn — succeeds
+- [ ] SkipTurn not on player's turn — fails
+
+### GetFlagWinner — win condition
+- [ ] All opponent mines flagged — returns winner ID
+- [ ] Some mines unflagged — returns Guid.Empty
+- [ ] No mines on board — edge case behavior
+- [ ] Flag winner checked only after 2+ rounds

@@ -57,6 +57,71 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
+    public async Task Transaction_Empty_Succeeds() {
+        var transactions = GetSiloService<ITransactions>();
+        var result = await transactions.Run(() => Task.CompletedTask);
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Transaction_MidChainFail_BothRolledBack() {
+        var idA = Guid.NewGuid();
+        var idB = Guid.NewGuid();
+        var grainA = GetGrain<ITxTestGrain>(idA);
+        var grainB = GetGrain<ITxTestGrain>(idB);
+
+        var transactions = GetSiloService<ITransactions>();
+        var result = await transactions.Run(async () => {
+            await grainA.Increment();
+            await grainB.Increment();
+            throw new Exception("Failure after both grains incremented");
+        });
+
+        result.IsSuccess.Should().BeFalse();
+
+        var valueA = await grainA.Get();
+        var valueB = await grainB.Get();
+        valueA.Should().Be(0);
+        valueB.Should().Be(0);
+
+        // Verify grains are usable after rollback
+        await RunTransaction(async () => {
+            await grainA.Increment();
+            await grainB.Increment();
+        });
+
+        var finalA = await grainA.Get();
+        var finalB = await grainB.Get();
+        finalA.Should().Be(1);
+        finalB.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Transaction_Takeover_SecondTransactionSucceeds() {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<ITxTestGrain>(id);
+
+        var transactions = GetSiloService<ITransactions>();
+
+        // Start slow transaction that holds grain lock for 40s (> 30s takeover threshold)
+        var slowTask = transactions.Run(() => grain.IncrementWithDelay(40_000));
+
+        // Wait for slow transaction to acquire the lock
+        await Task.Delay(2000);
+
+        // Second transaction should wait, then takeover after ~30s
+        var fastResult = await transactions.Run(() => grain.Increment());
+        fastResult.IsSuccess.Should().BeTrue();
+
+        // Wait for slow transaction to complete (should have been taken over)
+        var slowResult = await slowTask;
+        slowResult.IsSuccess.Should().BeFalse();
+
+        var value = await grain.Get();
+        value.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
     public async Task Transaction_StatePersistsAfterDeactivation() {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);

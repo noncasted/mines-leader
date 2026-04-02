@@ -77,6 +77,10 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
                 services.AddSingleton<IStateFactory, StateFactory>();
                 services.AddSingleton<IAttributeToFactoryMapper<StateAttribute>, StateAttributeMapper>();
 
+                // Migration steps
+                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V0>();
+                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V1>();
+
                 // Messaging
                 services.AddSingleton<IMessaging, Infrastructure.Messaging>();
                 services.AddSingleton<IDurableQueueClient, DurableQueueClient>();
@@ -136,7 +140,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         // Infrastructure configs — loaded from Orchestration/Coordinator JSON files
         RegisterConfig<ISideEffectsConfig, SideEffectsOptions>(services, "config.sideEffects");
         RegisterConfig<ITransactionConfig, TransactionOptions>(services, "config.transaction");
-        RegisterConfig<IDurableQueueConfig, DurableQueueOptions>(services, "config.messageQueue");
+        RegisterConfig<IDurableQueueConfig, DurableQueueOptions>(services, "config.durableQueue");
         RegisterConfig<ITaskBalancerConfig, TaskBalancerOptions>(services, "config.taskBalancer");
 
         // No JSON files for these — use defaults
@@ -191,6 +195,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         // Test grains
         Add<SimpleTestState>(StatesLookup.SimpleTest);
         Add<TxTestState>(StatesLookup.TxTest);
+        Add<MigrationTestState_1>(StatesLookup.StateMigrationTest);
 
         // Domain grains
         Add<UserState>(StatesLookup.User);
@@ -207,7 +212,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         Add<GameModeOptions>(StatesLookup.GameModeConfig);
         Add<RatingOptions>(StatesLookup.RatingConfig);
         Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
-        Add<DurableQueueOptions>(StatesLookup.MessageQueueConfig);
+        Add<DurableQueueOptions>(StatesLookup.DurableQueueConfig);
         Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
         Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
         Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
