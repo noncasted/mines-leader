@@ -64,19 +64,19 @@ public class SideEffectsWorker : IHostedService
 
             try
             {
-                await _storage.RequeueReady();
-
                 var options = _config.Value;
                 var freeSlots = options.ConcurrentExecutions - _inProgress;
 
-                if (freeSlots > 0)
-                {
-                    var entries = await _storage.Read(freeSlots);
-                    foundWork = entries.Count > 0;
+                if (freeSlots < 0)
+                    continue;
 
-                    foreach (var entry in entries)
-                        ExecuteEntry(entry, lifetime).NoAwait();
-                }
+                await _storage.RequeueReady();
+
+                var entries = await _storage.Read(freeSlots);
+                foundWork = entries.Count > 0;
+
+                foreach (var entry in entries)
+                    ExecuteEntry(entry, lifetime).NoAwait();
             }
             catch (Exception e)
             {

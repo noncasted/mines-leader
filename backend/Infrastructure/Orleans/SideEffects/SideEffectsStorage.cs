@@ -71,22 +71,34 @@ public class SideEffectsStorage : ISideEffectsStorage
 
     public async Task Write(NpgsqlTransaction transaction, IReadOnlyList<ISideEffect> effects)
     {
-        foreach (var effect in effects)
+        if (effects.Count == 0)
+            return;
+
+        await using var command = transaction.Connection!.CreateCommand();
+        command.Transaction = transaction;
+
+        var values = new List<string>(effects.Count);
+
+        for (var i = 0; i < effects.Count; i++)
         {
-            var payload = _serializer.Serialize(effect);
+            var payload = _serializer.Serialize(effects[i]);
 
-            await using var command = transaction.Connection!.CreateCommand();
-            command.Transaction = transaction;
-            command.CommandText = @"
-                INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
-                VALUES (@id, @payload::jsonb, 0, now())
-            ";
-            command.Parameters.AddWithValue("id", Guid.NewGuid());
-            var payloadParam = command.Parameters.AddWithValue("payload", payload);
-            payloadParam.NpgsqlDbType = NpgsqlDbType.Jsonb;
+            var idParam = $"id{i}";
+            var payloadParam = $"payload{i}";
 
-            await command.ExecuteNonQueryAsync();
+            command.Parameters.AddWithValue(idParam, Guid.NewGuid());
+            var p = command.Parameters.AddWithValue(payloadParam, payload);
+            p.NpgsqlDbType = NpgsqlDbType.Jsonb;
+
+            values.Add($"(@{idParam}, @{payloadParam}::jsonb, 0, now())");
         }
+
+        command.CommandText = $@"
+            INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
+            VALUES {string.Join(", ", values)}
+        ";
+
+        await command.ExecuteNonQueryAsync();
     }
 
     // Atomically move oldest `count` entries from queue to processing and return them.
