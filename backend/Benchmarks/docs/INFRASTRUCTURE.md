@@ -73,6 +73,12 @@ Tests task scheduling infrastructure, reactive primitives, DB connection pool, a
 - **What it measures**: Raw Npgsql connection pool acquisition throughput via DbSource.OpenConnection(). Foundational cost for all DB operations.
 - **Distributed**: No
 
+### side-effect-throughput
+- **File**: `backend/Benchmarks/Infrastructure/SideEffectThroughputTest.cs`
+- **Payload**: EffectCount=1000
+- **What it measures**: SideEffectsWorker throughput. Enqueues N no-op side effects to the queue, measures worker processing speed (queue read + deserialize + execute + complete). Uses static counter for zero-overhead completion tracking.
+- **Distributed**: No
+
 ### side-effect-transactional
 - **File**: `backend/Benchmarks/Infrastructure/SideEffectTransactionalTest.cs`
 - **Payload**: EmptyPayload

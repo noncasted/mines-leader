@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;
 
-public abstract class ClusterTestNode<TPayload> : ICoordinatorSetupCompleted
+public abstract class BenchmarkNode<TPayload> : ICoordinatorSetupCompleted
 {
-    public ClusterTestNode(ClusterTestUtils utils)
+    public BenchmarkNode(ClusterTestUtils utils)
     {
         _utils = utils;
     }

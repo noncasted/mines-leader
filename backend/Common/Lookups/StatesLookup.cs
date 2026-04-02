@@ -130,7 +130,7 @@ public static class StatesLookup
         KeyType = GrainKeyType.String
     };
 
-    public static readonly Info MessageQueueConfig = new()
+    public static readonly Info DurableQueueConfig = new()
     {
         TableName = "configs",
         StateName = "message_queue_config",
@@ -193,6 +193,13 @@ public static class StatesLookup
         KeyType = GrainKeyType.Guid
     };
 
+    public static readonly Info Benchmark = new()
+    {
+        TableName = "state_benchmark",
+        StateName = "benchmark",
+        KeyType = GrainKeyType.Guid
+    };
+
     public static IReadOnlyList<Info> All =>
     [
         SimpleTest,
@@ -214,13 +221,14 @@ public static class StatesLookup
         GameModeConfig,
         RatingConfig,
         SideEffectsConfig,
-        MessageQueueConfig,
+        DurableQueueConfig,
         TaskBalancerConfig,
         RuntimePipeConfig,
         RuntimeChannelConfig,
         TransactionConfig,
         ClusterFeatures,
         UserRating,
+        Benchmark,
     ];
 
 

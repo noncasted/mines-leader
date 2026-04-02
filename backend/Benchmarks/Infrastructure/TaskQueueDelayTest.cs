@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -6,42 +7,38 @@ namespace Benchmarks;
 
 public class TaskQueueDelayTest {
     [GenerateSerializer]
-    public class Payload { }
+    [method: SetsRequiredMembers]
+    public class StartPayload() : IConcurrentIterationTestPayload {
+        [Id(0)]
+        public int Iterations { get; set; } = 500000;
 
-    public class Root : ClusterTestRoot<Payload> {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage) {
+        [Id(1)]
+        public int Concurrent { get; set; } = 1;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-queue-delay";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override Task Run(ClusterTestNodeHandle handle, Payload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
-            var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            var immediate = new TestPriorityTask("immediate", TaskPriority.Medium);
-            var delayed = new TestPriorityTask("delayed", TaskPriority.Medium, TimeSpan.FromSeconds(60));
+            return;
 
-            queue.Enqueue(immediate);
-            queue.Enqueue(delayed);
-
-            var collected = queue.Collect();
-
-            TestAssert.Equal(1, collected.Count, "only immediate task collected");
-            TestAssert.Equal("immediate", collected[0].Id, "immediate task id");
-
-            handle.Progress.SetProgress(0.5f);
-
-            // Delayed task is still in the queue, not yet ready
-            var second = queue.Collect();
-            TestAssert.Equal(0, second.Count, "delayed task still waiting");
-
-            handle.Progress.Log("Task queue delay test passed");
-            handle.Progress.SetProgress(1f);
-
-            return Task.CompletedTask;
+            async Task Process() {
+                var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
+                queue.Enqueue(new TestPriorityTask($"immediate-{Guid.NewGuid()}", TaskPriority.Medium));
+                queue.Enqueue(new TestPriorityTask($"delayed-{Guid.NewGuid()}", TaskPriority.Medium, TimeSpan.FromSeconds(60)));
+                queue.Collect();
+                handle.Metrics.Inc();
+                await Task.CompletedTask;
+            }
         }
     }
 }

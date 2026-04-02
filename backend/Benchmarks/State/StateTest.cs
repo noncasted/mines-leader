@@ -12,7 +12,7 @@ public class StateTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int Iterations { get; set; } = 100;
+        public int Iterations { get; set; } = 3300;
 
         [Id(1)]
         public int Concurrent { get; set; } = 10;
@@ -74,9 +74,9 @@ public class StateTest
         }
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans) : base(utils)
         {
             _orleans = orleans;
         }
@@ -87,16 +87,20 @@ public class StateTest
         public override string Title => "state";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
-        }
+            
+            return;
+            
+            async Task Process()
+            {
+                var grain = _orleans.GetGrain<IGrain>(Guid.NewGuid().ToString());
+                await grain.Test();
 
-        private async Task Process()
-        {
-            var grain = _orleans.GetGrain<IGrain>(Guid.NewGuid().ToString());
-            await grain.Test();
+                handle.Metrics.Inc();
+            }
         }
     }
 }

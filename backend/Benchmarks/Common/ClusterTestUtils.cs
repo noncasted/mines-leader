@@ -11,12 +11,14 @@ public class ClusterTestUtils
         IMessaging messaging,
         IServiceEnvironment environment,
         IStateStorage stateStorage,
+        BenchmarkStorage benchmarkStorage,
         ILogger<ClusterTestUtils> logger,
         ILogger<TestCleanup> cleanupLogger)
     {
         Messaging = messaging;
         Environment = environment;
         StateStorage = stateStorage;
+        BenchmarkStorage = benchmarkStorage;
         Logger = logger;
         Cleanup = new TestCleanup(stateStorage, cleanupLogger);
     }
@@ -24,6 +26,7 @@ public class ClusterTestUtils
     public readonly IMessaging Messaging;
     public readonly IServiceEnvironment Environment;
     public readonly IStateStorage StateStorage;
+    public readonly BenchmarkStorage BenchmarkStorage;
     public readonly ILogger<ClusterTestUtils> Logger;
     public readonly TestCleanup Cleanup;
 

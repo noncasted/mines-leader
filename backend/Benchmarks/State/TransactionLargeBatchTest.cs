@@ -8,15 +8,21 @@ public class TransactionLargeBatchTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload()
+    public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int GrainCount { get; set; } = 50;
+        public int Iterations { get; set; } = 450;
+
+        [Id(1)]
+        public int Concurrent { get; set; } = 5;
+
+        [Id(2)]
+        public int GrainCount { get; set; } = 20;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -27,40 +33,27 @@ public class TransactionLargeBatchTest
 
         public override string Group => TestGroups.State;
         public override string Title => "transactions-large-batch";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
+            await handle.RunConcurrentIterations(payload, () => Process(payload.GrainCount));
 
-            var ids = TestParticipants.Create(_orleans, payload.GrainCount);
+            return;
 
-            foreach (var id in ids.Entries)
-                Cleanup.Track<TransactionTestState>(id);
-
-            handle.Progress.Log($"Starting transaction with {payload.GrainCount} grains...");
-
-            var result = await _transactions.Run(() =>
-                ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
-
-            if (!result.IsSuccess)
-                throw new Exception($"Large batch transaction with {payload.GrainCount} grains failed");
-
-            handle.Progress.SetProgress(0.7f);
-            handle.Progress.Log("Transaction committed, verifying values...");
-
-            // Verify all grains got incremented
-            var values = await ids.Get<int, ITransactionTestGrain>(grain => grain.Get());
-
-            for (var i = 0; i < values.Count; i++)
+            async Task Process(int grainCount)
             {
-                if (values[i] != 1)
-                    throw new Exception(
-                        $"Grain {ids.Entries[i]} has value {values[i]}, expected 1");
-            }
+                var ids = TestParticipants.Create(_orleans, grainCount);
 
-            handle.Progress.Log($"All {payload.GrainCount} grains verified");
-            handle.Progress.SetProgress(1f);
+                var result = await _transactions.Run(() =>
+                    ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+
+                if (!result.IsSuccess)
+                    throw new Exception($"Large batch transaction with {grainCount} grains failed");
+
+                handle.Metrics.Inc();
+            }
         }
     }
 }

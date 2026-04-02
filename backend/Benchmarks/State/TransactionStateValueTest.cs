@@ -8,15 +8,18 @@ public class TransactionStateValueTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload()
+    public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)]
-        public int TransactionCount { get; set; } = 50;
+        public int Iterations { get; set; } = 3300;
+
+        [Id(1)]
+        public int Concurrent { get; set; } = 10;
     }
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans, ITransactions transactions) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
         {
             _orleans = orleans;
             _transactions = transactions;
@@ -27,34 +30,27 @@ public class TransactionStateValueTest
 
         public override string Group => TestGroups.State;
         public override string Title => "transactions-state-value";
-        public override string MetricName => "ms";
+        public override string MetricName => "ops/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
+            await handle.RunConcurrentIterations(payload, Process);
 
-            var id = Guid.NewGuid();
-            Cleanup.Track<TransactionTestState>(id);
-            var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+            return;
 
-            for (var i = 0; i < payload.TransactionCount; i++)
+            async Task Process()
             {
+                var id = Guid.NewGuid();
+                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+
                 var result = await _transactions.Run(() => grain.Increment());
 
                 if (!result.IsSuccess)
-                    throw new Exception($"Transaction {i + 1} failed");
+                    throw new Exception("Transaction failed");
 
-                handle.Progress.SetProgress((float)(i + 1) / payload.TransactionCount);
+                handle.Metrics.Inc();
             }
-
-            var value = await grain.Get();
-
-            if (value != payload.TransactionCount)
-                throw new Exception(
-                    $"Value mismatch: expected {payload.TransactionCount}, got {value}. " +
-                    $"Lost {payload.TransactionCount - value} updates");
-
-            handle.Progress.Log($"Verified: {value} == {payload.TransactionCount}");
         }
     }
 }

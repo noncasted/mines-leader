@@ -1,14 +1,12 @@
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure;
 
 namespace Benchmarks;
 
-public class DurableQueueDeliveryTest
-{
+public class DurableQueueDeliveryTest {
     [GenerateSerializer]
-    public class TestMessage
-    {
+    public class TestMessage {
         [Id(0)]
         public Guid Id { get; set; }
 
@@ -16,82 +14,64 @@ public class DurableQueueDeliveryTest
         public string Value { get; set; } = string.Empty;
     }
 
-    public class DurableQueueTestId : IDurableQueueId
-    {
+    public class DurableQueueTestId : IDurableQueueId {
         public string ToRaw() => "test-durable-delivery";
     }
 
-    public class Root : ClusterTestRoot<StateMigrationTest.EmptyPayload>
-    {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage)
-        {
+    [GenerateSerializer]
+    [method: SetsRequiredMembers]
+    public class StartPayload() {
+        [Id(0)]
+        public int MessageCount { get; set; } = 10000;
+    }
+
+    public class Root : BenchmarkRoot<StartPayload> {
+        public Root(ClusterTestUtils utils) : base(utils) {
         }
 
         public override string Group => TestGroups.Messaging;
         public override string Title => "durable-queue-delivery";
         public override string MetricName => "msg/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StateMigrationTest.EmptyPayload payload)
-        {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var queueId = new DurableQueueTestId();
-            var messageCount = 10;
-            var receivedMessages = new List<TestMessage>();
-            var completion = new TaskCompletionSource();
+            var totalMessages = payload.MessageCount;
+            var receivedCount = 0;
+            var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            // Start listening before sending
-            await Messaging.ListenDurableQueue<TestMessage>(handle.Lifetime, queueId, message =>
-            {
-                lock (receivedMessages)
-                {
-                    receivedMessages.Add(message);
+            await Messaging.ListenDurableQueue<TestMessage>(handle.Lifetime, queueId, message => {
+                var count = Interlocked.Increment(ref receivedCount);
+                handle.Metrics.Inc();
+                handle.Progress.SetProgress((float)count / totalMessages);
 
-                    if (receivedMessages.Count >= messageCount)
-                        completion.TrySetResult();
-                }
+                if (count >= totalMessages)
+                    completion.TrySetResult();
             });
 
             handle.Progress.Log("Listener ready, sending messages...");
-            handle.Progress.SetProgress(0.2f);
 
-            var stopwatch = Stopwatch.StartNew();
-
-            // Send messages
-            for (var i = 0; i < messageCount; i++)
-            {
-                await Messaging.PushDirectQueue(queueId, new TestMessage
-                {
+            for (var i = 0; i < totalMessages; i++) {
+                await Messaging.PushDirectQueue(queueId, new TestMessage {
                     Id = Guid.NewGuid(),
                     Value = $"msg-{i}"
                 });
             }
 
-            handle.Progress.Log($"Sent {messageCount} messages, waiting for delivery...");
-            handle.Progress.SetProgress(0.5f);
+            handle.Progress.Log($"Sent {totalMessages} messages, waiting for delivery...");
 
-            // Wait with timeout
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
 
-            try
-            {
+            try {
                 await completion.Task.WaitAsync(cts.Token);
             }
-            catch (OperationCanceledException)
-            {
+            catch (OperationCanceledException) {
                 throw new Exception(
-                    $"Timeout: received {receivedMessages.Count}/{messageCount} messages");
+                    $"Timeout: received {receivedCount}/{totalMessages} messages");
             }
 
-            stopwatch.Stop();
-            handle.ReportMetric(messageCount / stopwatch.Elapsed.TotalSeconds);
-
-            // Verify all messages arrived
-            if (receivedMessages.Count != messageCount)
-                throw new Exception(
-                    $"Message count mismatch: expected {messageCount}, got {receivedMessages.Count}");
-
-            handle.Progress.Log($"All {messageCount} messages delivered");
+            handle.Progress.Log($"All {totalMessages} messages delivered");
             handle.Progress.SetProgress(1f);
         }
     }

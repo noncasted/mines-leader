@@ -15,10 +15,7 @@ public class RuntimeChannelSendStressTest
     public class StartPayload()
     {
         [Id(0)]
-        public required int MessageCount { get; init; } = 100;
-
-        [Id(1)]
-        public required float Delay { get; init; } = 0.001f;
+        public required int MessageCount { get; init; } = 75000;
     }
 
     [GenerateSerializer]
@@ -33,9 +30,9 @@ public class RuntimeChannelSendStressTest
 
     public static string TestName => "runtime-channel-send-stress-test";
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils) : base(utils)
         {
         }
 
@@ -43,7 +40,7 @@ public class RuntimeChannelSendStressTest
         public override string Title => "RuntimeChannel send (one-way broadcast)";
         public override string MetricName => "msg/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             var completion = new TaskCompletionSource();
             var totalMessages = payload.MessageCount * 5;
@@ -60,8 +57,6 @@ public class RuntimeChannelSendStressTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test nodes...");
 
-            var stopwatch = Stopwatch.StartNew();
-
             await Task.WhenAll(
                 handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
@@ -71,35 +66,24 @@ public class RuntimeChannelSendStressTest
             );
 
             await completion.Task;
-            stopwatch.Stop();
-
-            handle.ReportMetric(totalMessages / stopwatch.Elapsed.TotalSeconds);
 
             return;
 
             void OnMessage(MessagePayload message)
             {
-                Interlocked.Increment(ref receivedCount);
+                var count = Interlocked.Increment(ref receivedCount);
 
-                Logger.LogInformation(
-                    "Received message {ReceivedCount}/{TotalMessages} from service {Service} at index {MessageIndex}",
-                    receivedCount,
-                    totalMessages,
-                    message.Service,
-                    message.MessageIndex
-                );
+                handle.Metrics.Inc();
+                handle.Progress.SetProgress((float)count / totalMessages);
+                handle.Progress.Log($"Received {count}/{totalMessages} messages");
 
-                var progressValue = (float)receivedCount / totalMessages;
-                handle.Progress.SetProgress(progressValue);
-                handle.Progress.Log($"Received {receivedCount}/{totalMessages} messages");
-
-                if (receivedCount >= totalMessages)
+                if (count >= totalMessages)
                     completion.SetResult();
             }
         }
     }
 
-    public class Node : ClusterTestNode<StartPayload>
+    public class Node : BenchmarkNode<StartPayload>
     {
         public Node(ClusterTestUtils utils) : base(utils)
         {
@@ -135,8 +119,6 @@ public class RuntimeChannelSendStressTest
                         payload.MessageCount,
                         Environment.Tag.ToString()
                     );
-
-                    await Task.Delay(TimeSpan.FromSeconds(payload.Delay));
                 }
                 catch (Exception e)
                 {

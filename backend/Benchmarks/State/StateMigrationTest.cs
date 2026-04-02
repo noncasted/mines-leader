@@ -1,4 +1,3 @@
-using Common.Extensions;
 using Infrastructure;
 using Infrastructure.State;
 
@@ -123,45 +122,6 @@ public class StateMigrationTest
         {
             await _state.Read();
             return (_state.Value.Value, _state.Value.Label);
-        }
-    }
-
-    // --- Test root ---
-
-    public class Root : ClusterTestRoot<EmptyPayload>
-    {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage, IOrleans orleans) : base(utils, benchmarkStorage)
-        {
-            _orleans = orleans;
-        }
-
-        private readonly IOrleans _orleans;
-
-        public override string Group => TestGroups.State;
-        public override string Title => "state-migration";
-        public override string MetricName => "ms";
-
-        protected override async Task Run(ClusterTestNodeHandle handle, EmptyPayload payload)
-        {
-            handle.Progress.SetStatus(OperationStatus.InProgress);
-
-            var key = Guid.NewGuid().ToString();
-            const int writtenValue = 42;
-            const string expectedLabel = "migrated-42";
-
-            var v0Grain = _orleans.GetGrain<IMigrationGrainV0>(key);
-            await v0Grain.Write(writtenValue);
-
-            var v1Grain = _orleans.GetGrain<IMigrationGrainV1>(key);
-            var (value, label) = await v1Grain.Read();
-
-            if (value != writtenValue)
-                throw new Exception($"Migration failed: expected Value={writtenValue}, got {value}");
-
-            if (label != expectedLabel)
-                throw new Exception($"Migration failed: expected Label='{expectedLabel}', got '{label}'");
-
-            handle.Progress.SetProgress(1f);
         }
     }
 

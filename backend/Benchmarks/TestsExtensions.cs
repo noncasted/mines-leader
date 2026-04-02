@@ -5,7 +5,7 @@ namespace Benchmarks;
 public static class TestsExtensions
 {
     public static Task RunConcurrentIterations(
-        this ClusterTestNodeHandle handle,
+        this BenchmarkNodeHandle handle,
         IConcurrentIterationTestPayload payload,
         Func<Task> action)
     {
@@ -13,13 +13,12 @@ public static class TestsExtensions
     }
 
     public static async Task RunConcurrentIterations(
-        this ClusterTestNodeHandle handle,
+        this BenchmarkNodeHandle handle,
         int iterations,
         int concurrent,
         Func<Task> action)
     {
-        var stopwatch = Stopwatch.StartNew();
-        var snapshotInterval = Math.Max(1, iterations / 20); // ~5% steps
+        var logInterval = Math.Max(1, iterations / 100);
 
         for (var i = 0; i < iterations; i++)
         {
@@ -30,22 +29,11 @@ public static class TestsExtensions
 
             await Task.WhenAll(tasks);
 
-            var progress = (float)(i + 1) / iterations;
-            handle.Progress.SetProgress(progress);
-            handle.Progress.Log($"Processed {i + 1}/{iterations}");
-
-            if ((i + 1) % snapshotInterval == 0 || i == iterations - 1)
+            if ((i + 1) % logInterval == 0 || i == iterations - 1)
             {
-                var elapsed = stopwatch.Elapsed.TotalSeconds;
-                var totalOps = (i + 1) * concurrent;
-                var currentOpsPerSecond = elapsed > 0 ? totalOps / elapsed : 0;
-                handle.RecordSnapshot(progress, currentOpsPerSecond);
+                var progress = (float)(i + 1) / iterations;
+                handle.Progress.SetProgress(progress);
             }
         }
-
-        stopwatch.Stop();
-        var totalOpsAll = iterations * concurrent;
-        var opsPerSecond = totalOpsAll / stopwatch.Elapsed.TotalSeconds;
-        handle.ReportMetric(opsPerSecond);
     }
 }

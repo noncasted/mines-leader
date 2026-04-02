@@ -8,19 +8,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;
 
-public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : class, new()
+public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : class, new()
 {
-    protected ClusterTestRoot(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage)
+    protected BenchmarkRoot(ClusterTestUtils utils)
     {
         _utils = utils;
-        _benchmarkStorage = benchmarkStorage;
         _payload = new TPayload();
     }
 
     private readonly ClusterTestUtils _utils;
-    private readonly BenchmarkStorage _benchmarkStorage;
     private TPayload _payload;
-    private double _reportedMetric;
 
     object IClusterTest.Payload
     {
@@ -41,16 +38,10 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
     public ClusterTestUtils Utils => _utils;
     public TestCleanup Cleanup => _utils.Cleanup;
 
-    protected void ReportMetric(double value)
-    {
-        _reportedMetric = value;
-    }
-
     public async Task Start(IOperationProgress progress, TPayload payload)
     {
-        _reportedMetric = 0;
         var lifetime = new Lifetime();
-        var handle = new ClusterTestNodeHandle(_utils, progress, lifetime, ReportMetric);
+        var handle = new BenchmarkNodeHandle(_utils, progress, lifetime);
         progress.SetStatus(OperationStatus.Preparing);
 
         var stopwatch = Stopwatch.StartNew();
@@ -66,21 +57,30 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
         catch (Exception e)
         {
             errorMessage = e.Message;
+            progress.Log(e.Message);
             progress.SetStatus(OperationStatus.Failed);
             Logger.LogError(e, "Benchmark {TestName} failed with exception", Title);
         }
 
         stopwatch.Stop();
 
-        if (_reportedMetric == 0)
-            _reportedMetric = stopwatch.ElapsedMilliseconds;
+        var state = handle.Metrics.Collect();
+        state.Name = Title;
+        state.Success = success;
+
+        if (state.Duration == TimeSpan.Zero)
+            state.Duration = stopwatch.Elapsed;
+
+        var metricValue = state.Duration.TotalSeconds > 0
+            ? state.Records.Sum(r => r.Count) / state.Duration.TotalSeconds
+            : stopwatch.ElapsedMilliseconds;
 
         var result = new BenchmarkResult
         {
             BenchmarkName = Title,
             Group = Group,
             MetricName = MetricName,
-            MetricValue = _reportedMetric,
+            MetricValue = metricValue,
             DurationMs = stopwatch.ElapsedMilliseconds,
             PayloadJson = SerializePayload(payload),
             Success = success,
@@ -88,10 +88,15 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
         };
 
         ((IClusterTest)this).LastResult = result;
-        await _benchmarkStorage.Save(result);
 
-        if (handle.Snapshots.Count > 0)
-            await _benchmarkStorage.SaveSnapshots(result.Id, handle.Snapshots);
+        try
+        {
+            await _utils.BenchmarkStorage.Write(state);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Benchmark {TestName} failed to save state", Title);
+        }
 
         try
         {
@@ -106,7 +111,7 @@ public abstract class ClusterTestRoot<TPayload> : IClusterTest where TPayload : 
         await handle.TerminateAllNodes();
     }
 
-    protected abstract Task Run(ClusterTestNodeHandle handle, TPayload payload);
+    protected abstract Task Run(BenchmarkNodeHandle handle, TPayload payload);
 
     private static string SerializePayload(TPayload payload)
     {

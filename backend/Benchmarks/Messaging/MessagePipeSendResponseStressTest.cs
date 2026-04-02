@@ -15,10 +15,7 @@ public class MessagePipeSendResponseStressTest
     public class StartPayload()
     {
         [Id(0)]
-        public required int MessageCount { get; init; } = 100;
-
-        [Id(1)]
-        public required float Delay { get; init; } = 0.001f;
+        public required int MessageCount { get; init; } = 27000;
     }
 
     [GenerateSerializer]
@@ -46,9 +43,9 @@ public class MessagePipeSendResponseStressTest
 
     public static string TestName => "messaging-pipe-send-response-stress-test";
 
-    public class Root : ClusterTestRoot<StartPayload>
+    public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, BenchmarkStorage benchmarkStorage) : base(utils, benchmarkStorage)
+        public Root(ClusterTestUtils utils) : base(utils)
         {
         }
 
@@ -56,7 +53,7 @@ public class MessagePipeSendResponseStressTest
         public override string Title => "Messaging pipe send with response (request-response)";
         public override string MetricName => "msg/s";
 
-        protected override async Task Run(ClusterTestNodeHandle handle, StartPayload payload)
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
             var completion = new TaskCompletionSource();
             var totalMessages = payload.MessageCount * 5;
@@ -73,8 +70,6 @@ public class MessagePipeSendResponseStressTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test nodes...");
 
-            var stopwatch = Stopwatch.StartNew();
-
             await Task.WhenAll(
                 handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
@@ -84,27 +79,16 @@ public class MessagePipeSendResponseStressTest
             );
 
             await completion.Task;
-            stopwatch.Stop();
-
-            handle.ReportMetric(totalMessages / stopwatch.Elapsed.TotalSeconds);
 
             return;
 
             async Task<ResponsePayload> OnRequest(RequestPayload request)
             {
-                Interlocked.Increment(ref processedCount);
+                var count = Interlocked.Increment(ref processedCount);
 
-                Logger.LogInformation(
-                    "Processed request {ProcessedCount}/{TotalMessages} from service {Service} at index {MessageIndex}",
-                    processedCount,
-                    totalMessages,
-                    request.Service,
-                    request.MessageIndex
-                );
-
-                var progressValue = (float)processedCount / totalMessages;
-                handle.Progress.SetProgress(progressValue);
-                handle.Progress.Log($"Processed {processedCount}/{totalMessages} requests");
+                handle.Metrics.Inc();
+                handle.Progress.SetProgress((float)count / totalMessages);
+                handle.Progress.Log($"Processed {count}/{totalMessages} requests");
 
                 var response = new ResponsePayload
                 {
@@ -113,9 +97,8 @@ public class MessagePipeSendResponseStressTest
                     ProcessedBy = Environment.Tag.ToString()
                 };
 
-                if (processedCount >= totalMessages)
+                if (count >= totalMessages)
                 {
-                    // Delay slightly to ensure all responses are processed
                     await Task.Delay(100);
                     completion.SetResult();
                 }
@@ -125,7 +108,7 @@ public class MessagePipeSendResponseStressTest
         }
     }
 
-    public class Node : ClusterTestNode<StartPayload>
+    public class Node : BenchmarkNode<StartPayload>
     {
         public Node(IOrleans orleans, ClusterTestUtils utils) : base(utils)
         {
@@ -164,8 +147,6 @@ public class MessagePipeSendResponseStressTest
                         payload.MessageCount,
                         response.Message
                     );
-
-                    await Task.Delay(TimeSpan.FromSeconds(payload.Delay));
                 }
                 catch (Exception e)
                 {
