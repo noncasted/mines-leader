@@ -8,6 +8,11 @@ namespace Infrastructure;
 public class TransactionResult
 {
     public required bool IsSuccess { get; init; }
+    public Exception? Error { get; init; }
+
+    public override string ToString() => Error != null
+        ? $"TransactionResult(Success={IsSuccess}, Error={Error})"
+        : $"TransactionResult(Success={IsSuccess})";
 }
 
 public class TransactionParameters
@@ -69,7 +74,8 @@ public class Transactions : ITransactions
 
             return new TransactionResult
             {
-                IsSuccess = false
+                IsSuccess = false,
+                Error = e
             };
         }
 
@@ -90,7 +96,8 @@ public class Transactions : ITransactions
 
             return new TransactionResult
             {
-                IsSuccess = false
+                IsSuccess = false,
+                Error = e
             };
         }
 
@@ -137,7 +144,8 @@ public class Transactions : ITransactions
 
             return new TransactionResult
             {
-                IsSuccess = false
+                IsSuccess = false,
+                Error = e
             };
         }
 
