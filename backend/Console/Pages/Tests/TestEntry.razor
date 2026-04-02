@@ -75,6 +75,13 @@
         </div>
     </div>
 
+    @if (_operation.Status.Value == OperationStatus.Failed && !string.IsNullOrEmpty(_operation.Message.Value))
+    {
+        <div class="mt-1 pl-8">
+            <span class="text-xs text-destructive">@_operation.Message.Value</span>
+        </div>
+    }
+
     @if (_expanded)
     {
         <div class="mt-3 pl-8 flex flex-col gap-3">
@@ -85,27 +92,15 @@
                 </div>
             }
 
-            @if (_snapshots.Count > 0)
+            @if (_chartStates.Count > 0)
             {
-                <BenchmarkProgressChart MetricName="@Test.MetricName" SnapshotsByRun="_snapshots" History="_history" />
+                <BenchmarkProgressChart MetricName="@Test.MetricName" States="_chartStates" />
             }
 
             <BenchmarkHistory MetricName="@Test.MetricName" History="_history" IsCurrentRun="@(Test.LastResult != null)" />
         </div>
     }
 
-    @if (!string.IsNullOrEmpty(_operation.Message.Value))
-    {
-        <div class="mt-1.5 pl-8">
-            <BbAlert>
-                <ChildContent>
-                    <BbAlertDescription>
-                        <span class="font-mono text-xs break-all">@_operation.Message.Value</span>
-                    </BbAlertDescription>
-                </ChildContent>
-            </BbAlert>
-        </div>
-    }
 </div>
 
 @code {
@@ -120,8 +115,8 @@
     private IOperationProgress _operation = new OperationProgress();
     private Timer? _timer;
     private readonly ILifetime _lifetime = new Lifetime();
-    private IReadOnlyList<BenchmarkResult> _history = [];
-    private Dictionary<Guid, IReadOnlyList<BenchmarkSnapshot>> _snapshots = new();
+    private IReadOnlyList<BenchmarkState> _history = [];
+    private IReadOnlyList<BenchmarkState> _chartStates = [];
     private double _deltaPercent;
 
     protected override async Task OnInitializedAsync()
@@ -165,12 +160,13 @@
 
     private async Task LoadHistory()
     {
-        _history = await BenchmarkStorage.GetHistory(Test.Title);
+        _history = await BenchmarkStorage.GetAll(Test.Title);
+        _chartStates = _history.Where(s => s.Records.Count > 0).Take(10).ToList();
 
         if (_history.Count >= 2)
         {
-            var current = _history[0].MetricValue;
-            var previous = _history[1].MetricValue;
+            var current = GetMetricValue(_history[0]);
+            var previous = GetMetricValue(_history[1]);
             _deltaPercent = previous > 0 ? (current - previous) / previous * 100 : 0;
         }
         else
@@ -179,9 +175,26 @@
         }
 
         if (_history.Count > 0)
-            Test.LastResult = _history[0];
+        {
+            var latest = _history[0];
+            Test.LastResult = new BenchmarkResult
+            {
+                BenchmarkName = latest.Name,
+                MetricValue = GetMetricValue(latest),
+                DurationMs = (long)latest.Duration.TotalMilliseconds,
+                Success = latest.Success,
+                Timestamp = latest.Date
+            };
+        }
+    }
 
-        _snapshots = await BenchmarkStorage.GetSnapshots(Test.Title);
+    private static double GetMetricValue(BenchmarkState state)
+    {
+        if (state.Records.Count == 0 || state.Duration.TotalSeconds <= 0)
+            return 0;
+
+        var totalCount = state.Records.Sum(r => r.Count);
+        return totalCount / state.Duration.TotalSeconds;
     }
 
     private string GetProgressBarClass() => _operation.Status.Value switch

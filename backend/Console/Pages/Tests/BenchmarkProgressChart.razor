@@ -1,205 +1,134 @@
 @using global::Benchmarks
 
-@if (_runs.Count == 0)
+@if (_chartData.Count == 0)
 {
     return;
 }
 
-<div class="flex flex-col gap-2">
-    <div class="flex items-center justify-between">
-        <span class="text-xs font-medium text-muted-foreground">Progress across runs</span>
-        <div class="flex items-center gap-3">
-            @for (var ri = 0; ri < _runs.Count; ri++)
-            {
-                var run = _runs[ri];
-                var opacity = GetOpacity(ri, _runs.Count);
-                <div class="flex items-center gap-1">
-                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: hsl(var(--primary) / @opacity)"></div>
-                    <span class="text-xs text-muted-foreground">@run.Timestamp.ToString("MM/dd")</span>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="relative h-40 border rounded-md bg-muted/20 p-2">
-        @* Y axis labels *@
-        <div class="absolute left-0 top-2 bottom-6 w-12 flex flex-col justify-between text-right pr-1">
-            <span class="text-xs text-muted-foreground font-mono">@FormatValue(_maxValue)</span>
-            <span class="text-xs text-muted-foreground font-mono">@FormatValue(_maxValue / 2)</span>
-            <span class="text-xs text-muted-foreground font-mono">0</span>
-        </div>
-
-        @* Chart area *@
-        <div class="ml-12 h-full flex flex-col">
-            <div class="flex-1 relative">
-                @* Grid lines *@
-                <div class="absolute inset-0">
-                    <div class="absolute w-full border-t border-dashed border-border/40" style="top: 0%"></div>
-                    <div class="absolute w-full border-t border-dashed border-border/40" style="top: 50%"></div>
-                    <div class="absolute w-full border-t border-border/60" style="top: 100%"></div>
-                </div>
-
-                @* Lines for each run *@
-                @for (var ri = 0; ri < _runs.Count; ri++)
-                {
-                    var run = _runs[ri];
-                    var opacity = GetOpacity(ri, _runs.Count);
-                    var points = BuildSvgPoints(run.Snapshots);
-
-                    <svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
-                        <polyline
-                            points="@points"
-                            fill="none"
-                            stroke="hsl(var(--primary) / @opacity)"
-                            stroke-width="@(ri == 0 ? "2.5" : "1.5")"
-                            vector-effect="non-scaling-stroke" />
-
-                        @if (ri == 0)
-                        {
-                            @foreach (var dot in GetDotPositions(run.Snapshots))
-                            {
-                                <circle cx="@dot.X" cy="@dot.Y" r="3"
-                                        fill="hsl(var(--primary))"
-                                        stroke="hsl(var(--background))"
-                                        stroke-width="1.5"
-                                        vector-effect="non-scaling-stroke">
-                                    <title>@($"{dot.Value:F1} {MetricName} @ {dot.Percent:F0}%")</title>
-                                </circle>
-                            }
-                        }
-                    </svg>
-                }
-            </div>
-
-            @* X axis labels *@
-            <div class="flex justify-between mt-1 h-4">
-                @foreach (var label in _xLabels)
-                {
-                    <span class="text-xs text-muted-foreground">@label</span>
-                }
-            </div>
-        </div>
-    </div>
-</div>
+<BbAreaChart Data="@_chartData" Height="300px">
+    <BbXAxis DataKey="key"/>
+    <BbYAxis ShowGrid="false"/>
+    <BbChartTooltip/>
+    <BbChartLegend/>
+    @for (var i = 0; i < _seriesCount; i++)
+    {
+        var dataKey = $"s{i}";
+        var label = _seriesLabels[i];
+        var color = $"var(--chart-{(i % 10) + 1})";
+        <BbArea @key="dataKey" DataKey="@dataKey" Name="@label" Color="@color" Curve="CurveType.Smooth"/>
+    }
+</BbAreaChart>
 
 @code {
     [Parameter, EditorRequired] public string MetricName { get; set; } = string.Empty;
-    [Parameter, EditorRequired] public Dictionary<Guid, IReadOnlyList<BenchmarkSnapshot>> SnapshotsByRun { get; set; } = new();
-    [Parameter, EditorRequired] public IReadOnlyList<BenchmarkResult> History { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<BenchmarkState> States { get; set; } = [];
 
-    private List<RunData> _runs = [];
-    private double _maxValue;
-    private List<string> _xLabels = [];
+    private List<ChartRow> _chartData = [];
+    private List<string> _seriesLabels = [];
+    private int _seriesCount;
 
     protected override void OnParametersSet()
     {
-        BuildRuns();
+        BuildChartData();
     }
 
-    private void BuildRuns()
+    private void BuildChartData()
     {
-        _runs = [];
-        _maxValue = 0;
+        _chartData = [];
+        _seriesLabels = [];
+        _seriesCount = 0;
 
-        // Match snapshots to history entries (ordered by timestamp DESC)
-        foreach (var historyEntry in History)
+        if (States.Count == 0)
+            return;
+
+        _seriesCount = Math.Min(States.Count, 10);
+
+        for (var i = 0; i < _seriesCount; i++)
+            _seriesLabels.Add(States[i].Date.ToString("MM/dd HH:mm:ss"));
+
+        var maxSteps = States.Take(_seriesCount).Max(s => s.Records.Count);
+        if (maxSteps == 0)
+            return;
+
+        var cumulativeCounts = new int[_seriesCount];
+
+        for (var step = 0; step < maxSteps; step++)
         {
-            if (!SnapshotsByRun.TryGetValue(historyEntry.Id, out var snapshots)) continue;
-            if (snapshots.Count == 0) continue;
-
-            _runs.Add(new RunData {
-                ResultId = historyEntry.Id,
-                Timestamp = historyEntry.Timestamp,
-                Snapshots = snapshots
-            });
-
-            foreach (var s in snapshots)
+            for (var i = 0; i < _seriesCount; i++)
             {
-                if (s.DiffValue > _maxValue) _maxValue = s.DiffValue;
+                var records = States[i].Records;
+                if (step < records.Count)
+                    cumulativeCounts[i] += records[step].Count;
             }
-        }
 
-        if (_maxValue <= 0) _maxValue = 1;
+            var maxCumulative = cumulativeCounts.Take(_seriesCount).Max();
+            var row = new ChartRow { key = maxCumulative.ToString() };
 
-        // Build X labels from first run's step percents
-        _xLabels = [];
-        if (_runs.Count > 0)
-        {
-            var steps = _runs[0].Snapshots;
-            var labelInterval = Math.Max(1, steps.Count / 5);
-            for (var i = 0; i < steps.Count; i++)
+            for (var i = 0; i < _seriesCount; i++)
             {
-                _xLabels.Add(i % labelInterval == 0 || i == steps.Count - 1
-                    ? $"{steps[i].StepPercent * 100:F0}%"
-                    : "");
+                var records = States[i].Records;
+                var rate = 0;
+
+                if (step < records.Count)
+                {
+                    var record = records[step];
+                    rate = record.Time.TotalSeconds > 0
+                        ? (int)(record.Count / record.Time.TotalSeconds)
+                        : record.Count;
+                }
+
+                switch (i)
+                {
+                    case 0:
+                        row.s0 = rate;
+                        break;
+                    case 1:
+                        row.s1 = rate;
+                        break;
+                    case 2:
+                        row.s2 = rate;
+                        break;
+                    case 3:
+                        row.s3 = rate;
+                        break;
+                    case 4:
+                        row.s4 = rate;
+                        break;
+                    case 5:
+                        row.s5 = rate;
+                        break;
+                    case 6:
+                        row.s6 = rate;
+                        break;
+                    case 7:
+                        row.s7 = rate;
+                        break;
+                    case 8:
+                        row.s8 = rate;
+                        break;
+                    case 9:
+                        row.s9 = rate;
+                        break;
+                }
             }
+
+            _chartData.Add(row);
         }
     }
 
-    private string BuildSvgPoints(IReadOnlyList<BenchmarkSnapshot> snapshots)
+    private class ChartRow
     {
-        if (snapshots.Count == 0) return "";
-
-        var points = new List<string>();
-        for (var i = 0; i < snapshots.Count; i++)
-        {
-            var x = snapshots.Count > 1
-                ? (double)i / (snapshots.Count - 1) * 100
-                : 50;
-            var y = 100 - (snapshots[i].DiffValue / _maxValue * 100);
-            points.Add($"{x:F2}%,{y:F2}%");
-        }
-
-        return string.Join(" ", points);
+        public string key { get; set; } = "";
+        public int s0 { get; set; }
+        public int s1 { get; set; }
+        public int s2 { get; set; }
+        public int s3 { get; set; }
+        public int s4 { get; set; }
+        public int s5 { get; set; }
+        public int s6 { get; set; }
+        public int s7 { get; set; }
+        public int s8 { get; set; }
+        public int s9 { get; set; }
     }
 
-    private List<DotInfo> GetDotPositions(IReadOnlyList<BenchmarkSnapshot> snapshots)
-    {
-        var dots = new List<DotInfo>();
-        for (var i = 0; i < snapshots.Count; i++)
-        {
-            var x = snapshots.Count > 1
-                ? (double)i / (snapshots.Count - 1) * 100
-                : 50;
-            var y = 100 - (snapshots[i].DiffValue / _maxValue * 100);
-            dots.Add(new DotInfo {
-                X = $"{x:F2}%",
-                Y = $"{y:F2}%",
-                Value = snapshots[i].DiffValue,
-                Percent = snapshots[i].StepPercent * 100
-            });
-        }
-
-        return dots;
-    }
-
-    private static string GetOpacity(int index, int total)
-    {
-        if (index == 0) return "1";
-        var opacity = 1.0 - (double)index / total * 0.7;
-        return $"{opacity:F2}";
-    }
-
-    private static string FormatValue(double value)
-    {
-        return value switch {
-            >= 10000 => $"{value / 1000:F0}k",
-            >= 100 => $"{value:F0}",
-            >= 1 => $"{value:F1}",
-            _ => $"{value:F2}"
-        };
-    }
-
-    private class RunData {
-        public Guid ResultId { get; init; }
-        public DateTime Timestamp { get; init; }
-        public IReadOnlyList<BenchmarkSnapshot> Snapshots { get; init; } = [];
-    }
-
-    private record DotInfo {
-        public string X { get; init; } = "";
-        public string Y { get; init; } = "";
-        public double Value { get; init; }
-        public double Percent { get; init; }
-    }
 }

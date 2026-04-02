@@ -22,6 +22,8 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
+app.AddBenchmarkEndpoints();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies(typeof(global::Console.Pages.Home.Home).Assembly);

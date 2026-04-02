@@ -36,14 +36,15 @@
                 @for (var i = 0; i < _history.Count; i++)
                 {
                     var run = _history[i];
+                    var metric = GetMetricValue(run);
                     var isFirst = i == 0;
                     var delta = GetDelta(i);
                     var deltaClass = delta > 0 ? "text-green-500" : delta < 0 ? "text-destructive" : "text-muted-foreground";
                     var highlight = isFirst && IsCurrentRun ? "bg-primary/5" : "";
                     <tr class="@highlight">
-                        <td class="px-2 py-1.5 text-muted-foreground">@run.Timestamp.ToString("MM/dd HH:mm")</td>
-                        <td class="px-2 py-1.5 text-right font-mono">@FormatMetric(run.MetricValue)</td>
-                        <td class="px-2 py-1.5 text-right text-muted-foreground">@FormatDuration(run.DurationMs)</td>
+                        <td class="px-2 py-1.5 text-muted-foreground">@run.Date.ToString("MM/dd HH:mm")</td>
+                        <td class="px-2 py-1.5 text-right font-mono">@FormatMetric(metric)</td>
+                        <td class="px-2 py-1.5 text-right text-muted-foreground">@FormatDuration(run.Duration)</td>
                         <td class="px-2 py-1.5 text-right font-mono @deltaClass">
                             @if (delta != 0)
                             {
@@ -73,10 +74,10 @@
 
 @code {
     [Parameter, EditorRequired] public string MetricName { get; set; } = string.Empty;
-    [Parameter, EditorRequired] public IReadOnlyList<BenchmarkResult> History { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<BenchmarkState> History { get; set; } = [];
     [Parameter] public bool IsCurrentRun { get; set; }
 
-    private IReadOnlyList<BenchmarkResult> _history = [];
+    private IReadOnlyList<BenchmarkState> _history = [];
     private List<ChartItem> _chartData = [];
 
     protected override void OnParametersSet()
@@ -93,26 +94,36 @@
             return;
         }
 
-        var maxValue = _history.Max(h => h.MetricValue);
+        var values = _history.Select(GetMetricValue).ToList();
+        var maxValue = values.Max();
         if (maxValue <= 0) maxValue = 1;
 
         _chartData = _history
             .Reverse()
             .Select(h => new ChartItem
             {
-                Value = h.MetricValue,
+                Value = GetMetricValue(h),
                 MaxValue = maxValue,
                 Success = h.Success,
-                Timestamp = h.Timestamp
+                Timestamp = h.Date
             })
             .ToList();
+    }
+
+    private static double GetMetricValue(BenchmarkState state)
+    {
+        if (state.Records.Count == 0 || state.Duration.TotalSeconds <= 0)
+            return 0;
+
+        var totalCount = state.Records.Sum(r => r.Count);
+        return totalCount / state.Duration.TotalSeconds;
     }
 
     private double GetDelta(int index)
     {
         if (index + 1 >= _history.Count) return 0;
-        var current = _history[index].MetricValue;
-        var previous = _history[index + 1].MetricValue;
+        var current = GetMetricValue(_history[index]);
+        var previous = GetMetricValue(_history[index + 1]);
         if (previous == 0) return 0;
         return (current - previous) / previous * 100;
     }
@@ -128,12 +139,11 @@
         };
     }
 
-    private static string FormatDuration(long ms)
+    private static string FormatDuration(TimeSpan duration)
     {
-        var ts = TimeSpan.FromMilliseconds(ms);
-        return ts.TotalMinutes >= 1
-            ? $"{(int)ts.TotalMinutes}:{ts.Seconds:D2}"
-            : $"{ts.TotalSeconds:F1}s";
+        return duration.TotalMinutes >= 1
+            ? $"{(int)duration.TotalMinutes}:{duration.Seconds:D2}"
+            : $"{duration.TotalSeconds:F1}s";
     }
 
     private record ChartItem
