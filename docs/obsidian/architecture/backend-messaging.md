@@ -163,6 +163,6 @@ IMessaging
 | Файл | Описание |
 |------|----------|
 | `backend/Infrastructure/Messaging/Messaging.cs` | Фасад IMessaging |
-| `backend/Infrastructure/Messaging/Queues/MessageQueue.cs` | DurableQueue grain |
+| `backend/Infrastructure/Messaging/Queues/DurableQueue.cs` | DurableQueue grain |
 | `backend/Infrastructure/Messaging/Pipes/MessagePipe.cs` | RuntimePipe grain |
 | `backend/Infrastructure/Messaging/Channels/RuntimeChannel.cs` | RuntimeChannel grain |
