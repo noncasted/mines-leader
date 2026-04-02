@@ -23,20 +23,20 @@
     </div>
 
     <SideEffectsOptionsEditor Value="_sideEffectsValue"/>
-    <MessageQueueOptionsEditor Value="_messageQueueValue"/>
+    <DurableQueueOptionsEditor Value="_durableQueueValue"/>
     <TaskBalancerOptionsEditor Value="_taskBalancerValue"/>
     <TransactionOptionsEditor Value="_transactionValue"/>
 </div>
 
 @code {
     [Inject] public ISideEffectsConfig SideEffectsConfig { get; set; } = null!;
-    [Inject] public IDurableQueueConfig MessageQueueConfig { get; set; } = null!;
+    [Inject] public IDurableQueueConfig DurableQueueConfig { get; set; } = null!;
     [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
     [Inject] public ITransactionConfig TransactionConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
 
     private SideEffectsOptions _sideEffectsValue = new();
-    private DurableQueueOptions _messageQueueValue = new();
+    private DurableQueueOptions _durableQueueValue = new();
     private TaskBalancerOptions _taskBalancerValue = new();
     private TransactionOptions _transactionValue = new();
 
@@ -50,7 +50,7 @@
     private void Reload()
     {
         ReloadField(SideEffectsConfig.Value, ref _sideEffectsValue);
-        ReloadField(MessageQueueConfig.Value, ref _messageQueueValue);
+        ReloadField(DurableQueueConfig.Value, ref _durableQueueValue);
         ReloadField(TaskBalancerConfig.Value, ref _taskBalancerValue);
         ReloadField(TransactionConfig.Value, ref _transactionValue);
         InvokeAsync(StateHasChanged);
@@ -67,7 +67,7 @@
     private void Save()
     {
         SideEffectsConfig.SetValue(_sideEffectsValue);
-        MessageQueueConfig.SetValue(_messageQueueValue);
+        DurableQueueConfig.SetValue(_durableQueueValue);
         TaskBalancerConfig.SetValue(_taskBalancerValue);
         TransactionConfig.SetValue(_transactionValue);
         ToastService.Success("Infrastructure options saved", "Saved");
@@ -82,7 +82,7 @@
         try
         {
             await SaveConfig("config.sideEffects", _sideEffectsValue);
-            await SaveConfig("config.messageQueue", _messageQueueValue);
+            await SaveConfig("config.durableQueue", _durableQueueValue);
             await SaveConfig("config.taskBalancer", _taskBalancerValue);
             await SaveConfig("config.transaction", _transactionValue);
 
