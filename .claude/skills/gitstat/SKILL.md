@@ -29,12 +29,11 @@ git log --author="<email>" --since="<since>" --until="<until>" --pretty=format: 
 # Per-file stats (.cs only) — filter from the same numstat output
 ```
 
-4. From the numstat output, compute four categories:
+4. From the numstat output, compute three categories:
    - **All**: all files — count of unique files, sum of added lines, sum of removed lines, diff (added - removed)
    - **.cs**: files matching `*.cs`
    - **.md**: files matching `*.md` that are NOT inside `.claude/`
    - **.claude**: files with paths starting with `.claude/` (including .md files inside it)
-   - **Other**: everything that is not `.cs`, not `.md` (outside .claude), and not `.claude/`
 
 5. Output the result using a Unicode box-drawing table. Right-align all numbers.
 
@@ -49,7 +48,6 @@ Commits: 13 (today)
 │ .cs     │    34 │    895 │    438 │   +457 │
 │ .md     │    12 │    340 │     85 │   +255 │
 │ .claude │    82 │   9500 │   1200 │  +8300 │
-│ Other   │    23 │   2043 │    440 │  +1603 │
 ├─────────┼───────┼────────┼────────┼────────┤
 │ All     │   151 │  12778 │   2163 │ +10615 │
 └─────────┴───────┴────────┴────────┴────────┘
