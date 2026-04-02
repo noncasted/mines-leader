@@ -103,13 +103,13 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
 
         var transactions = GetSiloService<ITransactions>();
 
-        // Start slow transaction that holds grain lock for 40s (> 30s takeover threshold)
-        var slowTask = transactions.Run(() => grain.IncrementWithDelay(40_000));
+        // Start slow transaction that holds grain lock for 15s (> 5s StuckGraceSeconds test threshold)
+        var slowTask = transactions.Run(() => grain.IncrementWithDelay(15_000));
 
         // Wait for slow transaction to acquire the lock
         await Task.Delay(2000);
 
-        // Second transaction should wait, then takeover after ~30s
+        // Second transaction should wait, then takeover after StuckGraceSeconds
         var fastResult = await transactions.Run(() => grain.Increment());
         fastResult.IsSuccess.Should().BeTrue();
 

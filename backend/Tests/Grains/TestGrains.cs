@@ -1,5 +1,6 @@
 using Infrastructure;
 using Infrastructure.State;
+using Orleans.Concurrency;
 
 namespace Tests.Grains;
 
@@ -62,6 +63,7 @@ public interface ITxTestGrain : IGrainWithGuidKey {
     Task Deactivate();
 }
 
+[Reentrant]
 public class TxTestGrain : Grain, ITxTestGrain {
     public TxTestGrain([State] State<TxTestState> state) {
         _state = state;

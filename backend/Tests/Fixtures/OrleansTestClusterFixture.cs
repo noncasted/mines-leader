@@ -139,7 +139,8 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
     private static void RegisterTestConfigs(IServiceCollection services) {
         // Infrastructure configs — loaded from Orchestration/Coordinator JSON files
         RegisterConfig<ISideEffectsConfig, SideEffectsOptions>(services, "config.sideEffects");
-        RegisterConfig<ITransactionConfig, TransactionOptions>(services, "config.transaction");
+        RegisterConfig<ITransactionConfig, TransactionOptions>(services, "config.transaction",
+            o => { o.LockWaitSeconds = 2f; o.StuckGraceSeconds = 5f; });
         RegisterConfig<IDurableQueueConfig, DurableQueueOptions>(services, "config.durableQueue");
         RegisterConfig<ITaskBalancerConfig, TaskBalancerOptions>(services, "config.taskBalancer");
 
@@ -163,10 +164,12 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         services.AddSingleton(clusterFeatures);
     }
 
-    private static void RegisterConfig<TInterface, TOptions>(IServiceCollection services, string? jsonName = null)
+    private static void RegisterConfig<TInterface, TOptions>(IServiceCollection services, string? jsonName = null,
+        Action<TOptions>? configure = null)
         where TInterface : class, IAddressableState<TOptions>
         where TOptions : class, new() {
         var value = jsonName != null ? ConfigLoader.Load<TOptions>(jsonName) : new TOptions();
+        configure?.Invoke(value);
         var state = new TestAddressableState<TOptions>(value);
         services.AddSingleton<TInterface>(CreateConfigMock<TInterface, TOptions>(state));
     }
@@ -195,6 +198,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         // Test grains
         Add<SimpleTestState>(StatesLookup.SimpleTest);
         Add<TxTestState>(StatesLookup.TxTest);
+        Add<MigrationTestState_0>(StatesLookup.StateMigrationTest);
         Add<MigrationTestState_1>(StatesLookup.StateMigrationTest);
 
         // Domain grains
