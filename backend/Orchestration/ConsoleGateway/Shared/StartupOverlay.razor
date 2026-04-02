@@ -55,11 +55,13 @@
     [Inject] public IClusterParticipantContext ClusterParticipantContext { get; set; } = null!;
 
     private bool _isInitialized;
-    private bool _showOverlay = true;
+    private bool _showOverlay;
     private IReadOnlyList<string> _stages = Array.Empty<string>();
     private int _currentStageIndex;
 
     protected override Task OnSetup(IReadOnlyLifetime lifetime) {
+        _showOverlay = !ClusterParticipantContext.IsInitialized.Value;
+
         ClusterParticipantContext.IsInitialized.View(lifetime, value => {
             _isInitialized = value;
             InvokeAsync(StateHasChanged).NoAwait();
