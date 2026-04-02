@@ -53,7 +53,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitializeConfig("config.gameMode", _gameMode);
         await InitializeConfig("config.rating", _rating);
         await InitializeConfig("config.sideEffects", _sideEffects);
-        await InitializeConfig("config.messageQueue", _durableQueue);
+        await InitializeConfig("config.durableQueue", _durableQueue);
         await InitializeConfig("config.taskBalancer", _taskBalancer);
         await InitializeConfig("config.runtimePipe", _runtimePipe);
         await InitializeConfig("config.runtimeChannel", _runtimeChannel);
