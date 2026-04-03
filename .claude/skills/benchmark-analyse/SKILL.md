@@ -9,31 +9,7 @@ Run benchmarks through the ConsoleGateway API and interpret results.
 
 ## Prerequisites
 
-The Aspire cluster must be running. Check and start if needed.
-
-### Starting the cluster
-
-Launch command (uses http profile to avoid HTTPS cert issues):
-```bash
-dotnet run --project backend/Orchestration/Aspire/Aspire.csproj --launch-profile http
-```
-
-IMPORTANT: `aspire run` does NOT support `--launch-profile` (known issue). Use `dotnet run` instead.
-
-Start the cluster in the background, then poll for readiness:
-```bash
-# Start in background
-dotnet run --project backend/Orchestration/Aspire/Aspire.csproj --launch-profile http &
-
-# Poll until API is ready (up to 2 minutes)
-for i in $(seq 1 24); do
-  code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/benchmarks 2>/dev/null)
-  if [ "$code" = "200" ]; then echo "READY"; break; fi
-  sleep 5
-done
-```
-
-If the cluster fails to start (e.g., PostgreSQL not running), show the error and ask the user to fix the environment.
+The Aspire cluster must be running. Use `/start-cluster` skill to start it if needed, or follow the procedure from `skills/start-cluster/SKILL.md`.
 
 ## API Base URL
 
