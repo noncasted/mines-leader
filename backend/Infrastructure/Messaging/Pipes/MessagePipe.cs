@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
@@ -43,6 +44,9 @@ public class RuntimePipe : Grain, IRuntimePipe
 
     public async Task<TResponse> Send<TResponse>(object message)
     {
+        BackendMetrics.PipeRequestSent.Add(1);
+        using var watch = MetricWatch.Start(BackendMetrics.PipeDuration);
+
         _logger.LogTrace(
             "[Messaging] [RuntimePipe] Sending request-response message {MessageType} expecting {ResponseType} to pipe {PipeId}",
             message.GetType().Name, typeof(TResponse).Name, this.GetPrimaryKeyString()
@@ -66,6 +70,16 @@ public class RuntimePipe : Grain, IRuntimePipe
                 typeof(TResponse).Name, message.GetType().Name, this.GetPrimaryKeyString()
             );
             return response;
+        }
+        catch (TimeoutException ex)
+        {
+            BackendMetrics.PipeTimeout.Add(1);
+
+            _logger.LogError(ex,
+                "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
+                message.GetType().Name, this.GetPrimaryKeyString()
+            );
+            throw;
         }
         catch (Exception ex)
         {

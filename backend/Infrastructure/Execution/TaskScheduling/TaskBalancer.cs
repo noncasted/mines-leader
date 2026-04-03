@@ -116,8 +116,13 @@ public class TaskBalancer : ITaskBalancer {
                 if (TryPickMaxScored(out var entry) == false) {
                     executionLock.Release();
                     acquired = false;
+                    BackendMetrics.TaskQueueDepth.Record(0);
                     await Task.Delay(options.EmptyDelayMs);
                     continue;
+                }
+
+                lock (_scheduledLock) {
+                    BackendMetrics.TaskQueueDepth.Record(_scheduled.Count);
                 }
 
                 acquired = false;
@@ -136,6 +141,7 @@ public class TaskBalancer : ITaskBalancer {
         return;
 
         async Task Execute(TaskEntry entry) {
+            using var watch = MetricWatch.Start(BackendMetrics.TaskDuration);
             var stopwatch = Stopwatch.StartNew();
             var success = false;
 
@@ -163,6 +169,12 @@ public class TaskBalancer : ITaskBalancer {
             }
             finally {
                 executionLock.Release();
+                BackendMetrics.TaskExecuted.Add(1);
+
+                if (success)
+                    BackendMetrics.TaskSuccess.Add(1);
+                else
+                    BackendMetrics.TaskFailure.Add(1);
             }
 
             if (success) {
