@@ -106,8 +106,10 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
         // Start slow transaction that holds grain lock for 15s (> 5s StuckGraceSeconds test threshold)
         var slowTask = transactions.Run(() => grain.IncrementWithDelay(15_000));
 
-        // Wait for slow transaction to acquire the lock
-        await Task.Delay(2000);
+        // Wait long enough so that by the time the fast transaction's lock-wait
+        // times out (LockWaitSeconds=2s), the total elapsed time exceeds StuckGraceSeconds (5s).
+        // 4s wait + 2s lock timeout = 6s > 5s grace period → takeover triggers.
+        await Task.Delay(4000);
 
         // Second transaction should wait, then takeover after StuckGraceSeconds
         var fastResult = await transactions.Run(() => grain.Increment());

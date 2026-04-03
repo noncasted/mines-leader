@@ -124,9 +124,8 @@ Central access point to Orleans from non-grain code (gateways, services):
 public interface IOrleans {
     IClusterClient Client { get; }
     ITransactions Transactions { get; }
-    IDbSource DbSource { get; }
     IStateStorage StateStorage { get; }
-    IGrainStatesRegistry GrainStatesRegistry { get; }
+    IStateSerializer Serializer { get; }
     ILogger Logger { get; }
 }
 
