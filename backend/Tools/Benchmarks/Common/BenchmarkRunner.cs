@@ -107,20 +107,24 @@ public class BenchmarkRunner {
                 continue;
             }
 
-            try {
-                await info.Test.Start(info.Progress, info.Cts.Token);
-            }
-            catch (OperationCanceledException) when (info.Cts.IsCancellationRequested) {
-                info.Progress.SetStatus(OperationStatus.Cancelled);
-                _logger.LogInformation("[BenchmarkRunner] Benchmark {Title} cancelled", info.Test.Title);
-            }
-            catch (Exception e) {
-                _logger.LogError(e, "[BenchmarkRunner] Benchmark {Title} failed", info.Test.Title);
-            }
-            finally {
-                Remove(info);
-                _completed.Invoke(info.Test.Title);
-            }
+            _ = RunBenchmark(info);
+        }
+    }
+
+    private async Task RunBenchmark(BenchmarkRunInfo info) {
+        try {
+            await info.Test.Start(info.Progress, info.Cts.Token);
+        }
+        catch (OperationCanceledException) when (info.Cts.IsCancellationRequested) {
+            info.Progress.SetStatus(OperationStatus.Cancelled);
+            _logger.LogInformation("[BenchmarkRunner] Benchmark {Title} cancelled", info.Test.Title);
+        }
+        catch (Exception e) {
+            _logger.LogError(e, "[BenchmarkRunner] Benchmark {Title} failed", info.Test.Title);
+        }
+        finally {
+            Remove(info);
+            _completed.Invoke(info.Test.Title);
         }
     }
 
