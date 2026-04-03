@@ -127,6 +127,12 @@
     {
         _timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
 
+        Runner.Completed.Advise(_subscriptionLifetime, title =>
+        {
+            if (title == Test.Title)
+                InvokeAsync(OnCompleted).NoAwait();
+        });
+
         // Restore running benchmark state from BenchmarkRunner
         var runInfo = Runner.GetRunInfo(Test.Title);
         if (runInfo != null)
@@ -154,20 +160,19 @@
 
     private void AttachToProgress(IOperationProgress progress)
     {
-        _subscriptionLifetime.Terminate();
-        _subscriptionLifetime = new Lifetime();
         _operation = progress;
 
         progress.Progress.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
-        progress.Status.View(_subscriptionLifetime, async () =>
+        progress.Status.View(_subscriptionLifetime, () =>
         {
-            await InvokeAsync(StateHasChanged);
-            await StatusChanged.InvokeAsync(progress.Status.Value);
-
-            if (progress.Status.Value is OperationStatus.Success or OperationStatus.Failed or OperationStatus.Cancelled)
-                await LoadHistory();
+            InvokeAsync(() => StatusChanged.InvokeAsync(progress.Status.Value)).NoAwait();
         });
         progress.Message.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
+    }
+
+    private async Task OnCompleted()
+    {
+        await LoadHistory();
     }
 
     private async Task LoadHistory()

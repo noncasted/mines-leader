@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Common.Extensions;
+using Common.Reactive;
 using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;
@@ -21,6 +22,9 @@ public class BenchmarkRunner {
     private readonly Lock _lock = new();
     private readonly Dictionary<string, BenchmarkRunInfo> _all = new();
     private readonly Channel<BenchmarkRunInfo> _queue = Channel.CreateUnbounded<BenchmarkRunInfo>();
+    private readonly EventSource<string> _completed = new();
+
+    public IEventSource<string> Completed => _completed;
 
     public IOperationProgress Start(IClusterTest test) {
         lock (_lock) {
@@ -51,6 +55,7 @@ public class BenchmarkRunner {
         lock (_lock) {
             if (!_all.TryGetValue(title, out info))
                 return false;
+            _all.Remove(title);
         }
 
         info.Cts.Cancel();
@@ -62,6 +67,7 @@ public class BenchmarkRunner {
         List<BenchmarkRunInfo> all;
         lock (_lock) {
             all = _all.Values.ToList();
+            _all.Clear();
         }
 
         foreach (var info in all) {
@@ -113,13 +119,15 @@ public class BenchmarkRunner {
             }
             finally {
                 Remove(info);
+                _completed.Invoke(info.Test.Title);
             }
         }
     }
 
     private void Remove(BenchmarkRunInfo info) {
         lock (_lock) {
-            _all.Remove(info.Test.Title);
+            if (_all.TryGetValue(info.Test.Title, out var current) && current == info)
+                _all.Remove(info.Test.Title);
         }
 
         info.Cts.Dispose();

@@ -41,6 +41,7 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
     public async Task Start(IOperationProgress progress, TPayload payload, CancellationToken cancellationToken = default)
     {
         var lifetime = new Lifetime();
+        cancellationToken.Register(() => lifetime.Terminate());
         var handle = new BenchmarkNodeHandle(_utils, progress, lifetime, cancellationToken);
         progress.SetStatus(OperationStatus.Preparing);
 
@@ -51,26 +52,27 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
 
         try
         {
-            await Run(handle, payload);
-            success = !cancellationToken.IsCancellationRequested;
-            cancelled = cancellationToken.IsCancellationRequested;
+            var runTask = Run(handle, payload);
+            var cancelTask = Task.Delay(Timeout.Infinite, cancellationToken);
+            var completed = await Task.WhenAny(runTask, cancelTask);
 
-            if (cancelled)
-                progress.SetStatus(OperationStatus.Cancelled);
+            if (completed == cancelTask)
+                cancelled = true;
             else
-                progress.SetStatus(OperationStatus.Success);
+                await runTask;
+
+            success = !cancelled && !cancellationToken.IsCancellationRequested;
+            cancelled = cancelled || cancellationToken.IsCancellationRequested;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             cancelled = true;
-            progress.SetStatus(OperationStatus.Cancelled);
             Logger.LogInformation("Benchmark {TestName} was cancelled", Title);
         }
         catch (Exception e)
         {
             errorMessage = e.Message;
             progress.Log(e.Message);
-            progress.SetStatus(OperationStatus.Failed);
             Logger.LogError(e, "Benchmark {TestName} failed with exception", Title);
         }
 
@@ -112,6 +114,15 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
                 Logger.LogError(e, "Benchmark {TestName} failed to save state", Title);
             }
         }
+
+        // Set final status AFTER state is persisted so that UI callbacks
+        // (LoadHistory) see the new result in storage
+        if (cancelled)
+            progress.SetStatus(OperationStatus.Cancelled);
+        else if (!string.IsNullOrEmpty(errorMessage))
+            progress.SetStatus(OperationStatus.Failed);
+        else
+            progress.SetStatus(OperationStatus.Success);
 
         try
         {

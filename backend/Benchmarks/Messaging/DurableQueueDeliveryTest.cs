@@ -53,6 +53,7 @@ public class DurableQueueDeliveryTest {
             handle.Progress.Log("Listener ready, sending messages...");
 
             for (var i = 0; i < totalMessages; i++) {
+                handle.CancellationToken.ThrowIfCancellationRequested();
                 await Messaging.PushDirectQueue(queueId, new TestMessage {
                     Id = Guid.NewGuid(),
                     Value = $"msg-{i}"
@@ -61,15 +62,7 @@ public class DurableQueueDeliveryTest {
 
             handle.Progress.Log($"Sent {totalMessages} messages, waiting for delivery...");
 
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-
-            try {
-                await completion.Task.WaitAsync(cts.Token);
-            }
-            catch (OperationCanceledException) {
-                throw new Exception(
-                    $"Timeout: received {receivedCount}/{totalMessages} messages");
-            }
+            await completion.Task.WaitAsync(handle.CancellationToken);
 
             handle.Progress.Log($"All {totalMessages} messages delivered");
             handle.Progress.SetProgress(1f);
