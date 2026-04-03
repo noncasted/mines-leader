@@ -19,12 +19,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared\shared.csproj"/>
-        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
-        <ProjectReference Include="..\Common\Common.csproj"/>
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
-        <ProjectReference Include="..\Game\Game.csproj"/>
-        <ProjectReference Include="..\Meta\Meta.csproj"/>
+        <ProjectReference Include="..\..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Game\Game.csproj"/>
+        <ProjectReference Include="..\..\Meta\Meta.csproj"/>
     </ItemGroup>
 
 

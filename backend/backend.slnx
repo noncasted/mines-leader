@@ -11,13 +11,13 @@
     <Folder Name="/Tools/">
         <Project Path="../shared/shared.csproj" />
         <Project Path="../tools/deploy/deploy.csproj" />
+        <Project Path="Tools/Benchmarks/Benchmarks.csproj" />
+        <Project Path="Tools/Tests/Tests.csproj" />
     </Folder>
-    <Project Path="Benchmarks/Benchmarks.csproj" />
     <Project Path="Cluster/Cluster.csproj" />
     <Project Path="Common/Common.csproj" />
     <Project Path="Console/Console.csproj" />
     <Project Path="Game/Game.csproj" />
     <Project Path="Infrastructure/Infrastructure.csproj" />
     <Project Path="Meta/Meta.csproj" />
-    <Project Path="Tests/Tests.csproj" />
 </Solution>
