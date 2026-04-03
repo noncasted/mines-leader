@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
@@ -58,6 +59,9 @@ public class DurableQueue : Grain, IDurableQueue
 
     public async Task Push(object message)
     {
+        BackendMetrics.DurableQueuePushed.Add(1);
+        BackendMetrics.DurableQueueObserverCount.Record(_observers.Count);
+
         var toRemove = new List<Guid>();
 
         await Task.WhenAll(_observers.Values.Select(data => SendSafe(data)));
@@ -74,6 +78,7 @@ public class DurableQueue : Grain, IDurableQueue
             catch (Exception e)
             {
                 toRemove.Add(data.Id);
+                BackendMetrics.DurableQueueDeliveryFailure.Add(1);
 
                 _logger.LogError(e,
                     "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",

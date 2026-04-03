@@ -164,6 +164,8 @@ public static class ProjectsSetupExtensions
             builder.Add<DbSource>()
                 .As<IDbSource>();
 
+            builder.Services.AddHostedService<MetricsSnapshotService>();
+
             return builder;
         }
 

@@ -52,6 +52,8 @@ public class Transactions : ITransactions
 
     public async Task<TransactionResult> Process(TransactionParameters parameters)
     {
+        using var watch = MetricWatch.Start(BackendMetrics.TransactionDuration);
+
         var context = new TransactionContext
         {
             Id = Guid.NewGuid()
@@ -71,6 +73,8 @@ public class Transactions : ITransactions
             );
 
             await Rollback(context);
+            BackendMetrics.TransactionTotal.Add(1);
+            BackendMetrics.TransactionFailure.Add(1);
 
             return new TransactionResult
             {
@@ -93,6 +97,8 @@ public class Transactions : ITransactions
             );
 
             await Rollback(context);
+            BackendMetrics.TransactionTotal.Add(1);
+            BackendMetrics.TransactionFailure.Add(1);
 
             return new TransactionResult
             {
@@ -100,6 +106,8 @@ public class Transactions : ITransactions
                 Error = e
             };
         }
+
+        BackendMetrics.TransactionParticipantCount.Record(context.Participants.Count);
 
         try
         {
@@ -128,7 +136,7 @@ public class Transactions : ITransactions
                     "[Transaction] [Error] Failed to record changes during transaction {TransactionId}",
                     context.Id
                 );
-                
+
                 await transaction.RollbackAsync();
                 throw;
             }
@@ -139,8 +147,10 @@ public class Transactions : ITransactions
                 "[Transaction] [Error] Failed to commit to db during transaction {TransactionId}",
                 context.Id
             );
-            
+
             await Rollback(context);
+            BackendMetrics.TransactionTotal.Add(1);
+            BackendMetrics.TransactionFailure.Add(1);
 
             return new TransactionResult
             {
@@ -148,6 +158,9 @@ public class Transactions : ITransactions
                 Error = e
             };
         }
+
+        BackendMetrics.TransactionTotal.Add(1);
+        BackendMetrics.TransactionSuccess.Add(1);
 
         return new TransactionResult
         {
@@ -195,17 +208,18 @@ public class Transactions : ITransactions
 
     private async Task Rollback(TransactionContext context)
     {
+        BackendMetrics.TransactionRollback.Add(1);
+
         foreach (var (_, participant) in context.Participants)
         {
             try
             {
                 await participant.OnFailure(context.Id);
-
             }
             catch (Exception e)
             {
-
             }
         }
     }
+
 }

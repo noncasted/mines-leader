@@ -69,6 +69,8 @@ public class StateStorage : IStateStorage
 
     public async Task<T> Read<T>(StateIdentity stateIdentity) where T : IStateValue, new()
     {
+        using var watch = MetricWatch.Start(BackendMetrics.StateReadDuration);
+
         try
         {
             var (raw, version) = await ReadRaw(stateIdentity);
@@ -90,6 +92,10 @@ public class StateStorage : IStateStorage
             );
 
             throw;
+        }
+        finally
+        {
+            BackendMetrics.StateReadTotal.Add(1);
         }
     }
 
@@ -250,6 +256,8 @@ public class StateStorage : IStateStorage
 
     public async Task Write(StateIdentity identity, IStateValue value)
     {
+        using var watch = MetricWatch.Start(BackendMetrics.StateWriteDuration);
+
         await using var connection = await _dbSource.Value.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
 
@@ -272,6 +280,11 @@ public class StateStorage : IStateStorage
 
             throw;
         }
+        finally
+        {
+            BackendMetrics.StateWriteTotal.Add(1);
+            BackendMetrics.StateWriteBatchSize.Record(1);
+        }
     }
 
     public Task Delete(StateIdentity identity)
@@ -284,23 +297,52 @@ public class StateStorage : IStateStorage
         if (identities.Count == 0)
             return;
 
+        using var watch = MetricWatch.Start(BackendMetrics.StateDeleteDuration);
+
         try
         {
             await using var connection = await _dbSource.Value.OpenConnectionAsync();
             await using var transaction = await connection.BeginTransactionAsync();
 
+            var groups = new Dictionary<(string TableName, bool HasExtension), List<StateIdentity>>();
+
             foreach (var identity in identities)
+            {
+                var key = (identity.TableName, identity.Extension != null);
+
+                if (groups.TryGetValue(key, out var list) == false)
+                {
+                    list = new List<StateIdentity>();
+                    groups[key] = list;
+                }
+
+                list.Add(identity);
+            }
+
+            foreach (var ((tableName, hasExtension), entries) in groups)
             {
                 await using var command = connection.CreateCommand();
                 command.Transaction = transaction;
-                command.CommandText = _cache.GetDeleteQuery(identity);
 
-                command.Parameters.AddWithValue("type", identity.Type);
-                command.Parameters.AddWithValue("key", identity.Key);
+                var conditions = new List<string>(entries.Count);
 
-                if (identity.Extension != null)
-                    command.Parameters.AddWithValue("extension", identity.Extension);
+                for (var i = 0; i < entries.Count; i++)
+                {
+                    command.Parameters.AddWithValue($"key{i}", entries[i].Key);
+                    command.Parameters.AddWithValue($"type{i}", entries[i].Type);
 
+                    if (hasExtension)
+                    {
+                        command.Parameters.AddWithValue($"ext{i}", entries[i].Extension!);
+                        conditions.Add($"(key = @key{i} AND type = @type{i} AND extension = @ext{i})");
+                    }
+                    else
+                    {
+                        conditions.Add($"(key = @key{i} AND type = @type{i})");
+                    }
+                }
+
+                command.CommandText = $"DELETE FROM {tableName} WHERE {string.Join(" OR ", conditions)}";
                 await command.ExecuteNonQueryAsync();
             }
 
@@ -310,40 +352,86 @@ public class StateStorage : IStateStorage
         {
             _logger.LogError(e, "[StateStorage] Failed to delete {Count} records", identities.Count);
         }
+        finally
+        {
+            BackendMetrics.StateDeleteTotal.Add(1);
+        }
     }
 
     public async Task Write(NpgsqlTransaction transaction, IReadOnlyDictionary<StateIdentity, IStateValue> records)
     {
+        using var watch = MetricWatch.Start(BackendMetrics.StateWriteDuration);
+
+        var groups = new Dictionary<(string TableName, bool HasExtension), List<(StateIdentity Identity, IStateValue Value)>>();
+
         foreach (var (identity, value) in records)
+        {
+            var key = (identity.TableName, identity.Extension != null);
+
+            if (groups.TryGetValue(key, out var list) == false)
+            {
+                list = new List<(StateIdentity, IStateValue)>();
+                groups[key] = list;
+            }
+
+            list.Add((identity, value));
+        }
+
+        foreach (var ((tableName, hasExtension), entries) in groups)
         {
             try
             {
-                var json = _serializer.Serialize(value);
-
                 await using var command = transaction.Connection!.CreateCommand();
                 command.Transaction = transaction;
-                command.CommandText = _cache.GetWriteQuery(identity);
 
-                command.Parameters.AddWithValue("type", identity.Type);
-                command.Parameters.AddWithValue("key", identity.Key);
-                command.Parameters.AddWithValue("version", value.Version);
+                var values = new List<string>(entries.Count);
 
-                if (identity.Extension != null)
-                    command.Parameters.AddWithValue("extension", identity.Extension);
+                for (var i = 0; i < entries.Count; i++)
+                {
+                    var (identity, value) = entries[i];
+                    var json = _serializer.Serialize(value);
 
-                var valueParameter = command.Parameters.AddWithValue("@value", json);
-                valueParameter.NpgsqlDbType = NpgsqlDbType.Jsonb;
+                    command.Parameters.AddWithValue($"key{i}", identity.Key);
+                    command.Parameters.AddWithValue($"type{i}", identity.Type);
+                    command.Parameters.AddWithValue($"version{i}", value.Version);
+
+                    var p = command.Parameters.AddWithValue($"value{i}", json);
+                    p.NpgsqlDbType = NpgsqlDbType.Jsonb;
+
+                    if (hasExtension)
+                    {
+                        command.Parameters.AddWithValue($"ext{i}", identity.Extension!);
+                        values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb, @ext{i})");
+                    }
+                    else
+                    {
+                        values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb)");
+                    }
+                }
+
+                var extensionCol = hasExtension ? ", extension" : "";
+                var conflictCol = hasExtension ? ", extension" : "";
+
+                command.CommandText = $@"
+                    INSERT INTO {tableName} (key, type, version, value{extensionCol})
+                    VALUES {string.Join(", ", values)}
+                    ON CONFLICT (key, type{conflictCol})
+                    DO UPDATE SET value = EXCLUDED.value
+                ";
 
                 await command.ExecuteNonQueryAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[StateStorage] Failed to write record {Type} key={Key} type={StateType}",
-                    value.GetType().Name, identity.Key, identity.Type
+                _logger.LogError(e, "[StateStorage] Failed to batch write {Count} records to {Table}",
+                    entries.Count, tableName
                 );
 
                 throw;
             }
         }
+
+        BackendMetrics.StateWriteTotal.Add(1);
+        BackendMetrics.StateWriteBatchSize.Record(records.Count);
     }
 }

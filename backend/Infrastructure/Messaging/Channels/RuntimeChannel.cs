@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Common.Extensions;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
 
@@ -81,6 +82,9 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
     public async Task Publish(object message)
     {
+        BackendMetrics.ChannelPublished.Add(1);
+        BackendMetrics.ChannelObserverCount.Record(_observers.Count);
+
         var toRemove = new List<Guid>();
 
         await Task.WhenAll(_observers.Values.Select(data => SendSafe(data)));
@@ -89,7 +93,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
             _observers.TryRemove(id, out _);
 
         return;
-        
+
         async Task SendSafe(ObserverData data)
         {
             try
@@ -99,6 +103,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
             catch (Exception e)
             {
                 toRemove.Add(data.Id);
+                BackendMetrics.ChannelDeliveryFailure.Add(1);
 
                 _logger.LogError(e,
                     "[Messaging] [Channel] Delivering message from {ChannelName} to observer failed",

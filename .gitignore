@@ -11,6 +11,7 @@
 /backend/**/[Ll]og/
 /backend/**/[Oo]bj/
 /backend/Orchestration/Aspire/appsettings.local.json
+.telemetry/
 
 /server/**/x64/
 /server/**/x86/

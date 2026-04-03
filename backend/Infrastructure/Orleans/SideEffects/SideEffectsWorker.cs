@@ -74,6 +74,7 @@ public class SideEffectsWorker : IHostedService
 
                 var entries = await _storage.Read(freeSlots);
                 foundWork = entries.Count > 0;
+                BackendMetrics.SideEffectQueueDepth.Record(entries.Count);
 
                 foreach (var entry in entries)
                     ExecuteEntry(entry, lifetime).NoAwait();
@@ -91,6 +92,8 @@ public class SideEffectsWorker : IHostedService
     private async Task ExecuteEntry(SideEffectEntry entry, IReadOnlyLifetime lifetime)
     {
         Interlocked.Increment(ref _inProgress);
+        BackendMetrics.SideEffectInProgress.Add(1);
+        using var watch = MetricWatch.Start(BackendMetrics.SideEffectDuration);
 
         try
         {
@@ -109,6 +112,8 @@ public class SideEffectsWorker : IHostedService
                 await entry.Effect.Execute(_orleans);
                 await _storage.CompleteProcessing(entry.Id);
             }
+
+            BackendMetrics.SideEffectProcessed.Add(1);
         }
         catch (Exception e)
         {
@@ -118,6 +123,11 @@ public class SideEffectsWorker : IHostedService
                 "[SideEffects] Effect {Id} failed (attempt {RetryCount}/{MaxRetry})",
                 entry.Id, entry.RetryCount + 1, options.MaxRetryCount
             );
+
+            if (entry.RetryCount > 0)
+                BackendMetrics.SideEffectRetry.Add(1);
+
+            BackendMetrics.SideEffectFailed.Add(1);
 
             try
             {
@@ -135,6 +145,7 @@ public class SideEffectsWorker : IHostedService
         }
         finally
         {
+            BackendMetrics.SideEffectInProgress.Add(-1);
             Interlocked.Decrement(ref _inProgress);
         }
     }
