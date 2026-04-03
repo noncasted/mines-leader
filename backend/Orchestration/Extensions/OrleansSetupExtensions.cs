@@ -76,13 +76,6 @@ public static class OrleansSetupExtensions
                         );
                     }
 
-                    siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
-                        {
-                            options.Invariant = "Npgsql";
-                            options.ConnectionString = npgsqlConnectionString;
-                        }
-                    );
-
                     siloBuilder.AddActivityPropagation();
 
                     siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();

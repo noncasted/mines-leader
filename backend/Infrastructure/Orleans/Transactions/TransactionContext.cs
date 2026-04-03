@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Npgsql;
 
 namespace Infrastructure;
@@ -9,10 +10,10 @@ public class TransactionContext
     public required Guid Id { get; init; }
 
     [Id(1)]
-    public Dictionary<Guid, IGrainTransactionHandler> Participants { get; } = new();
+    public ConcurrentDictionary<Guid, IGrainTransactionHandler> Participants { get; } = new();
 
     [Id(2)]
-    public Dictionary<Guid, ISideEffect> SideEffects { get; } = new();
+    public ConcurrentDictionary<Guid, ISideEffect> SideEffects { get; } = new();
     
     [Id(20)]
     public string? ExceptionMessage { get; set; }

@@ -17,7 +17,5 @@ public static class StatesCleanup
         await connection.Truncate(DbLookup.SE_Processing);
         await connection.Truncate(DbLookup.SE_Retry);
 
-        await connection.Truncate(DbLookup.Orleans_Storage);
-        await connection.Truncate(DbLookup.Orleans_Membership);
     }
 }
