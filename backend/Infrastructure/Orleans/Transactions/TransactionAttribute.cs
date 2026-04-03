@@ -55,7 +55,7 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
 
                 foreach (var (id, sideEffect) in response.Context.SideEffects)
                     currentContext.SideEffects.TryAdd(id, sideEffect);
-                
+
                 if (response.GetException() is { } exception)
                 {
                     ExceptionDispatchInfo.Throw(exception);

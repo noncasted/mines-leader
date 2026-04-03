@@ -7,6 +7,6 @@ public static class SideEffectExtensions
         if (TransactionContextProvider.Current == null)
             throw new InvalidOperationException("Side effects can only be registered within a transaction.");
 
-        TransactionContextProvider.Current.SideEffects.Add(Guid.NewGuid(), sideEffect);
+        TransactionContextProvider.Current.SideEffects.TryAdd(Guid.NewGuid(), sideEffect);
     }
 }
