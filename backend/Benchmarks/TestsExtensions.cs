@@ -22,6 +22,8 @@ public static class TestsExtensions
 
         for (var i = 0; i < iterations; i++)
         {
+            handle.CancellationToken.ThrowIfCancellationRequested();
+
             var tasks = new List<Task>();
 
             for (var c = 0; c < concurrent; c++)
