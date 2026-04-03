@@ -45,7 +45,6 @@ builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) =>
                 if (requiresDrop == true)
                     await StatesDrop.Run(configuration);
 
-                await OrleansSetup.Run(configuration);
                 await StatesSetup.Run(configuration);
                 await SideEffectsSetup.Run(configuration);
                 await BenchmarkSetup.Run(configuration);
@@ -139,7 +138,7 @@ Task<string> GetOrCreateDb()
     var user = parts["User Id"];
     var password = parts["Password"];
 
-    builder
+    var postgres = builder
         .AddContainer("postgres", "postgres", "17.6")
         .WithHttpEndpoint(port: port, targetPort: 5432, name: "tcp", isProxied: false)
         .WithVolume("mines-leader-postgres-data", "/var/lib/postgresql/data")
@@ -149,7 +148,18 @@ Task<string> GetOrCreateDb()
         .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
         .WithLifetime(ContainerLifetime.Persistent);
 
-    var result = $"Host={host};Port={port};Database={database};Username={user};Password={password}";
-    Console.WriteLine($"[AppHost] [DB] Create db string from options: {result}");
+    var pgbouncerPort = port + 1;
+    var pgbouncerConfigPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/pgbouncer.ini");
+    var pgbouncerUserlistPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/userlist.txt");
+
+    builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
+        .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port", isProxied: false)
+        .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
+        .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
+        .WaitFor(postgres)
+        .WithLifetime(ContainerLifetime.Persistent);
+
+    var result = $"Host={host};Port={pgbouncerPort};Database={database};Username={user};Password={password}";
+    Console.WriteLine($"[AppHost] [DB] Create db string from options: {result} (via PgBouncer:{pgbouncerPort})");
     return Task.FromResult(result);
 }
