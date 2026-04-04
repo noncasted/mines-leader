@@ -26,6 +26,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | code examples, Docs_*.cs, working examples | docs/CODE_EXAMPLES.md |
 | common mistakes, top errors, checklist failures | rules/COMMON_MISTAKES.md |
 | full examples, Lifetime details, reactive details | docs/COMMON_*.md |
+| PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/PREFAB_CODEGEN.md |
 
 ## Architecture
 
@@ -71,6 +72,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - `docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
 - `docs/ERRORS.md` — error lookup table with causes & fixes
 - `docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
+- `docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
 - `docs/COMMON_ORLEANS.md` — IOrleans, AddressableDictionary, messaging, grain lifecycle
 - `docs/COMMON_CONTAINER.md` — VContainer DI full details, lifecycle phases, gotchas
 - `docs/COMMON_LIFETIMES.md` + `COMMON_LIFETIMES_PATTERNS.md` — Lifetime details
