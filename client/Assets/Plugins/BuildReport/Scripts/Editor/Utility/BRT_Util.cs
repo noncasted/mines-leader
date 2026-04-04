@@ -758,21 +758,21 @@ namespace BuildReportTool
 		}
 
 
-		public static string GetPathSizeReadable(string fileOrFolder)
+		public static string GetPathSizeReadable(string fileOrFolder, string excludePattern1 = null, string excludePattern2 = null)
 		{
 			if (string.IsNullOrEmpty(fileOrFolder))
 			{
 				return string.Empty;
 			}
 
-			return GetBytesReadable(GetPathSizeInBytes(fileOrFolder));
+			return GetBytesReadable(GetPathSizeInBytes(fileOrFolder, excludePattern1, excludePattern2));
 		}
 
-		public static double GetPathSizeInBytes(string fileOrFolder)
+		public static double GetPathSizeInBytes(string fileOrFolder, string excludePattern1 = null, string excludePattern2 = null)
 		{
 			if (System.IO.Directory.Exists(fileOrFolder))
 			{
-				return GetFolderSizeInBytes(fileOrFolder);
+				return GetFolderSizeInBytes(fileOrFolder, excludePattern1, excludePattern2);
 			}
 
 			if (System.IO.File.Exists(fileOrFolder))
@@ -783,7 +783,7 @@ namespace BuildReportTool
 			return 0;
 		}
 
-		public static double GetFolderSizeInBytes(string folderPath)
+		public static double GetFolderSizeInBytes(string folderPath, string excludePattern1 = null, string excludePattern2 = null)
 		{
 			if (string.IsNullOrEmpty(folderPath) || !System.IO.Directory.Exists(folderPath))
 			{
@@ -794,12 +794,28 @@ namespace BuildReportTool
 #if UNITY_2019_4_OR_NEWER
 			foreach (string file in System.IO.Directory.EnumerateFiles(folderPath, "*", SearchOption.AllDirectories))
 			{
+				if (!string.IsNullOrEmpty(excludePattern1) && file.Contains(excludePattern1))
+				{
+					continue;
+				}
+				if (!string.IsNullOrEmpty(excludePattern2) && file.Contains(excludePattern2))
+				{
+					continue;
+				}
 				totalBytesOfFilesInFolder += GetFileSizeInBytes(file);
 			}
 #else
 			// Note: Old versions of Unity did not have Directory.EnumerateFiles so we use this instead:
 			foreach (string file in DldUtil.TraverseDirectory.Do(folderPath))
 			{
+				if (!string.IsNullOrEmpty(excludePattern1) && file.Contains(excludePattern1))
+				{
+					continue;
+				}
+				if (!string.IsNullOrEmpty(excludePattern2) && file.Contains(excludePattern2))
+				{
+					continue;
+				}
 				totalBytesOfFilesInFolder += GetFileSizeInBytes(file);
 			}
 #endif
@@ -1635,6 +1651,60 @@ namespace BuildReportTool
 			OpenInFileBrowser(path);
 		}
 
+		public static void OpenInLinuxFileBrowser(string path)
+		{
+			bool openInsidesOfFolder = false;
+
+			string linuxPath = path.Replace("\\", "/"); // linux  doesn't like backward slashes
+
+			if (System.IO.Directory.Exists(linuxPath)) // if path requested is a folder, automatically open insides of that folder
+			{
+				openInsidesOfFolder = true;
+			}
+
+			try
+			{
+				// https://askubuntu.com/a/1424380
+				// Note: xdg-open only works properly when given a folder.
+				// If given a path to a file, xdg-open will open that file with the associated program.
+				// So we use dbus-send instead if we're showing a file.
+
+				string processName;
+				string arguments;
+				if (openInsidesOfFolder)
+				{
+					processName = "xdg-open";
+					arguments = $"\"{linuxPath}\"";
+				}
+				else
+				{
+					processName = "dbus-send";
+					arguments = $"--print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:\"file://{linuxPath}\" string:\"\"";
+				}
+
+				var processStartInfo = new System.Diagnostics.ProcessStartInfo
+				{
+					CreateNoWindow = false,
+					UseShellExecute = false,
+					FileName = processName,
+					Arguments = arguments,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true
+				};
+
+				System.Diagnostics.Process.Start(processStartInfo);
+			}
+			catch (Exception e)
+			{
+				e.HelpLink = ""; // do anything with this variable to silence warning about not using it
+				//Debug.LogError($"{e}");
+
+				// EditorUtility.RevealInFinder is sure to work, but for files, it doesn't allow us to pre-select the file specified.
+				// For folders, it can't open the insides of a folder, instead it will open the parent folder.
+				// Very strange behavior, so we use EditorUtility.RevealInFinder only as our last resort.
+				EditorUtility.RevealInFinder(path);
+			}
+		}
 
 		public static void OpenInMacFileBrowser(string path)
 		{
@@ -1667,12 +1737,14 @@ namespace BuildReportTool
 			{
 				System.Diagnostics.Process.Start("open", arguments);
 			}
-			catch (System.ComponentModel.Win32Exception e)
+			catch (Exception e)
 			{
-				// tried to open mac finder in windows
-				// just silently skip error
-				// we currently have no platform define for the current OS we are in, so we resort to this
 				e.HelpLink = ""; // do anything with this variable to silence warning about not using it
+
+				// EditorUtility.RevealInFinder is sure to work, but for files, it doesn't allow us to pre-select the file specified.
+				// For folders, it can't open the insides of a folder, instead it will open the parent folder.
+				// Very strange behavior, so we use EditorUtility.RevealInFinder only as our last resort.
+				EditorUtility.RevealInFinder(path);
 			}
 		}
 
@@ -1692,29 +1764,30 @@ namespace BuildReportTool
 			{
 				System.Diagnostics.Process.Start("explorer.exe", (openInsidesOfFolder ? "/root," : "/select,") + winPath);
 			}
-			catch (System.ComponentModel.Win32Exception e)
+			catch (Exception e)
 			{
-				// tried to open win explorer in mac
-				// just silently skip error
-				// we currently have no platform define for the current OS we are in, so we resort to this
 				e.HelpLink = ""; // do anything with this variable to silence warning about not using it
+
+				// EditorUtility.RevealInFinder is sure to work, but for files, it doesn't allow us to pre-select the file specified.
+				// For folders, it can't open the insides of a folder, instead it will open the parent folder.
+				// Very strange behavior, so we use EditorUtility.RevealInFinder only as our last resort.
+				EditorUtility.RevealInFinder(path);
 			}
 		}
 
 		public static void OpenInFileBrowser(string path)
 		{
-			if (IsInWinOS)
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
-				OpenInWinFileBrowser(path);
+				OpenInLinuxFileBrowser(path);
 			}
-			else if (IsInMacOS)
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
 				OpenInMacFileBrowser(path);
 			}
-			else // couldn't determine OS
+			else // assume Windows
 			{
 				OpenInWinFileBrowser(path);
-				OpenInMacFileBrowser(path);
 			}
 		}
 
@@ -1822,6 +1895,15 @@ namespace BuildReportTool
 		{
 			get
 			{
+				string editorLogFilePath = Application.consoleLogPath;
+				if (!string.IsNullOrEmpty(editorLogFilePath))
+				{
+					return editorLogFilePath;
+				}
+
+				// If for some reason, Application.consoleLogPath returned null,
+				// we fall back to old way of detecting log path.
+
 				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				{
 					return UserHomePath + "/.config/unity3d/Editor.log";
@@ -1841,6 +1923,17 @@ namespace BuildReportTool
 		{
 			get
 			{
+				string editorLogFilePath = Application.consoleLogPath;
+				if (!string.IsNullOrEmpty(editorLogFilePath))
+				{
+					// Replace ".log" at end of string to "-prev.log"
+					editorLogFilePath = editorLogFilePath.Substring(0, editorLogFilePath.Length - 4) + "-prev.log";
+					return editorLogFilePath;
+				}
+
+				// If for some reason, Application.consoleLogPath returned null,
+				// we fall back to old way of detecting log path.
+
 				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				{
 					return UserHomePath + "/.config/unity3d/Editor-prev.log";
@@ -2380,7 +2473,8 @@ namespace BuildReportTool
 				return string.Empty;
 			}
 
-			xmlData = xmlData.Replace("BuildSizePart", "SizePart");
+			xmlData = xmlData.Replace("<BuildSizePart>", "<SizePart>");
+			xmlData = xmlData.Replace("</BuildSizePart>", "</SizePart>");
 
 			// quick and dirty fix for invalid XML characters in filenames
 			xmlData = xmlData.Replace("&#x1;", "");
@@ -2460,14 +2554,9 @@ namespace BuildReportTool
 				}
 				else
 				{
-					// no corrections in the xml file
-					// proceed to open the file normally
-					using (var fs = new System.IO.FileStream(serializedBuildInfoFilePath, System.IO.FileMode.Open))
-					{
-						System.Xml.XmlReader reader = new System.Xml.XmlTextReader(fs);
-						ret = (BuildReportTool.BuildInfo) x.Deserialize(reader);
-						fs.Close();
-					}
+					// file is empty
+					Debug.LogError("Build Report Tool: Empty file: " + serializedBuildInfoFilePath);
+					return null;
 				}
 			}
 			catch (Exception e)
@@ -2610,7 +2699,7 @@ namespace BuildReportTool
 
 		// ---------------------------------
 
-		public static string SerializeAtFolder<T>(T data,
+		public static string GetDataFilePath<T>(T data,
 			string folderPathToSaveTo) where T : class, BuildReportTool.IDataFile
 		{
 			string filePath;
@@ -2635,6 +2724,14 @@ namespace BuildReportTool
 			{
 				filePath = data.GetDefaultFilename();
 			}
+
+			return filePath;
+		}
+
+		public static string SerializeAtFolder<T>(T data,
+			string folderPathToSaveTo) where T : class, BuildReportTool.IDataFile
+		{
+			string filePath = GetDataFilePath(data, folderPathToSaveTo);
 
 			Serialize(data, filePath);
 

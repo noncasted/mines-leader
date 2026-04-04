@@ -468,8 +468,8 @@ namespace BuildReportTool
 			BuildReportTool.Util.SaveBuildTimeDuration();
 #endif
 
-			// Later on, in BRT_BuildReportWindow.Update(),
-			// when `BuildReportTool.ReportGenerator.IsFinishedGettingValuesFromThread` is true,
+			// Later on, in BRT_BuildReportWindow.OnInspectorUpdate(),
+			// when `BuildReportTool.ReportGenerator.IsFinishedGettingValues` is true,
 			// the code will finally save the created build report
 			// (this value is saved in an xml file, so it will survive the assembly reload).
 			BuildReportTool.Util.SaveGetBuildReportNow();
@@ -2473,13 +2473,14 @@ namespace BuildReportTool
 
 			var folderOfBuildFile = Directory.Exists(buildFilePath) ? buildFilePath : Path.GetDirectoryName(buildFilePath);
 
+			const string DoNotShipSuffix1 = "_BurstDebugInformation_DoNotShip";
+			const string DoNotShipSuffix2 = "_BackUpThisFolder_ButDontShipItWithYourGame";
+
 			if (IsSingleStandaloneBuildInPath(folderOfBuildFile))
 			{
-				// then just get the total size of the parent folder
-
 				//Debug.LogFormat("GetStandaloneBuildWithDataFolderSize: Getting size of whole folder {0}", folderOfBuildFile);
 
-				double parentFolderByteSize = BuildReportTool.Util.GetPathSizeInBytes(folderOfBuildFile);
+				double parentFolderByteSize = BuildReportTool.Util.GetPathSizeInBytes(folderOfBuildFile, DoNotShipSuffix1, DoNotShipSuffix2);
 
 				return parentFolderByteSize;
 			}
@@ -3717,6 +3718,56 @@ namespace BuildReportTool
 				string savePathToUse = string.IsNullOrEmpty(customSavePath)
 					? _lastSavePath
 					: customSavePath;
+
+				if (!buildInfo.HasContents)
+				{
+					Debug.LogError("Build Report Tool: No build data detected. Try doing a Clean Build.");
+
+					// Since the build data is invalid, any temporarily saved build report file should be deleted.
+					string buildReportFile = BuildReportTool.Util.GetDataFilePath(buildInfo, savePathToUse);
+					if (System.IO.File.Exists(buildReportFile))
+					{
+						System.IO.File.Delete(buildReportFile);
+					}
+
+					if (BuildReportTool.Options.CalculateAssetDependencies)
+					{
+						string assetDependenciesFile = BuildReportTool.Util.GetDataFilePath(assetDependencies, savePathToUse);
+						if (System.IO.File.Exists(assetDependenciesFile))
+						{
+							System.IO.File.Delete(assetDependenciesFile);
+						}
+					}
+
+					if (BuildReportTool.Options.CollectTextureImportSettings)
+					{
+						string textureDataFile = BuildReportTool.Util.GetDataFilePath(textureData, savePathToUse);
+						if (System.IO.File.Exists(textureDataFile))
+						{
+							System.IO.File.Delete(textureDataFile);
+						}
+					}
+
+					if (BuildReportTool.Options.CollectMeshData)
+					{
+						string meshDataFile = BuildReportTool.Util.GetDataFilePath(meshData, savePathToUse);
+						if (System.IO.File.Exists(meshDataFile))
+						{
+							System.IO.File.Delete(meshDataFile);
+						}
+					}
+
+					if (BuildReportTool.Options.CollectPrefabData)
+					{
+						string prefabDataFile = BuildReportTool.Util.GetDataFilePath(prefabData, savePathToUse);
+						if (System.IO.File.Exists(prefabDataFile))
+						{
+							System.IO.File.Delete(prefabDataFile);
+						}
+					}
+
+					return null;
+				}
 
 				resultingFilePath = BuildReportTool.Util.SerializeAtFolder(buildInfo, savePathToUse);
 

@@ -2041,30 +2041,19 @@ public class BRT_BuildReportWindow : EditorWindow
 
 	public static void ProcessThumbnailControls()
 	{
-		if (Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.LeftAlt ||
-		                                                Event.current.keyCode == KeyCode.RightAlt))
+		if (Event.current.type == EventType.KeyUp)
 		{
-			ShowThumbnailsWithAlphaBlend = !ShowThumbnailsWithAlphaBlend;
-		}
-
-		if ((Event.current.keyCode == KeyCode.LeftControl ||
-		     Event.current.keyCode == KeyCode.RightControl))
-		{
-			if (Event.current.type == EventType.KeyDown)
+			if (Event.current.keyCode == KeyCode.LeftAlt ||
+			    Event.current.keyCode == KeyCode.RightAlt)
 			{
-				ZoomedInThumbnails = true;
+				ShowThumbnailsWithAlphaBlend = !ShowThumbnailsWithAlphaBlend;
 			}
-			else if (Event.current.type == EventType.KeyUp)
+			if ((Event.current.keyCode == KeyCode.LeftControl ||
+			     Event.current.keyCode == KeyCode.RightControl))
 			{
-				ZoomedInThumbnails = false;
+				ZoomedInThumbnails = !ZoomedInThumbnails;
 			}
 		}
-	}
-
-	public static void ResetThumbnailControls()
-	{
-		// ensure that thumbnails are not zoomed in
-		ZoomedInThumbnails = false;
 	}
 
 	public static void DrawThumbnail(float posX, float posY, Vector2 thumbnailSize, Texture thumbnailImage)

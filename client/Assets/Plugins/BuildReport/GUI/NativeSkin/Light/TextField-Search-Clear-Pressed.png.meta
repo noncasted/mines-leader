@@ -57,6 +57,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 8162
   packageName: Build Report Tool
-  packageVersion: 3.13.3
+  packageVersion: 3.13.5
   assetPath: Assets/Plugins/BuildReport/GUI/NativeSkin/Light/TextField-Search-Clear-Pressed.png
-  uploadId: 803770
+  uploadId: 861544

@@ -1357,7 +1357,7 @@ namespace BuildReportTool.Window.Screen
 			GUILayout.BeginHorizontal(BRT_BuildReportWindow.LayoutNone);
 			GUILayout.Space(20);
 			GUILayout.Label(
-				"Note: Hold Ctrl while a thumbnail tooltip is shown to zoom-in.",
+				"Note: Press Ctrl while a thumbnail tooltip is shown to toggle zoom-in/out.",
 				boxedLabelStyle, LayoutMaxWidth525);
 			GUILayout.EndHorizontal();
 
