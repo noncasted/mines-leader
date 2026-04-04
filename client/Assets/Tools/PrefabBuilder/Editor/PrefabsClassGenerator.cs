@@ -24,11 +24,7 @@ namespace Tools
             foreach (var (_, prefabName, prefabPath) in prefabs.OrderBy(p => p.prefabName))
             {
                 var propertyName = SanitizeIdentifier(prefabName);
-                var fieldName = $"_{char.ToLower(propertyName[0])}{propertyName.Substring(1)}";
-                sb.AppendLine($"        private static GameObject {fieldName};");
-                sb.AppendLine(
-                    $"        public static GameObject {propertyName} => {fieldName} ??= Resources.Load<GameObject>(\"{prefabPath}\");"
-                );
+                sb.AppendLine($"        public static readonly StaticPrefab {propertyName} = new(\"{prefabPath}\");");
             }
 
             sb.AppendLine("    }");

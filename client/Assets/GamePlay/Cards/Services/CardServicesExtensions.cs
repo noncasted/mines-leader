@@ -8,8 +8,7 @@ namespace GamePlay.Cards
     {
         public static IScopeBuilder AddCardServices(this IScopeBuilder builder)
         {
-            builder.Register<CardFactory>()
-                .WithAsset<CardFactoryOptions>();
+            builder.Register<CardFactory>();
 
             return builder;
         }

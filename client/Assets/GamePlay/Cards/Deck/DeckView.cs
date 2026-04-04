@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Global.Constants;
+using Tools;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -7,14 +8,13 @@ namespace GamePlay.Cards
     public interface IDeckView
     {
         Vector2 PickPoint { get; }
-        
+
         void UpdateAmount(int amount);
     }
-    
+
     [DisallowMultipleComponent]
     public class DeckView : MonoBehaviour, IDeckView
     {
-        [SerializeField] private DeckCard _prefab;
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private readonly List<DeckCard> _cards = new();
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
                 for (var i = 0; i < delta; i++)
                 {
                     var position = transform.position + Vector3.up * _cardHeight * _cards.Count;
-                    var card = Instantiate(_prefab,position, Quaternion.identity, transform);
+                    var card = Instantiate(Prefabs.DeckCard.As<DeckCard>(), position, Quaternion.identity, transform);
                     _cards.Add(card);
                     card.Construct(_cards.Count);
                 }

@@ -1,4 +1,5 @@
 ﻿using Internal;
+using Tools;
 using UnityEngine;
 
 namespace Menu.Social
@@ -8,13 +9,12 @@ namespace Menu.Social
         MenuPlayerView Create();
         MenuPlayerView Create(Vector2 position);
     }
-    
+
     public class MenuPlayerObjectFactory : MonoBehaviour, ISceneService, IMenuPlayerObjectFactory
     {
         [SerializeField] private float _radius = 1f;
         [SerializeField] private Transform _playersRoot;
-        [SerializeField] private MenuPlayerView _prefab;
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -24,13 +24,13 @@ namespace Menu.Social
         public MenuPlayerView Create()
         {
             var position = (Vector2)transform.position + DirectionUtils.Random(0f, _radius);
-            var view = Instantiate(_prefab, position, Quaternion.identity, _playersRoot);
+            var view = Instantiate(Prefabs.MenuPlayer.As<MenuPlayerView>(), position, Quaternion.identity, _playersRoot);
             return view;
         }
 
         public MenuPlayerView Create(Vector2 position)
         {
-            var view = Instantiate(_prefab, position, Quaternion.identity, _playersRoot);
+            var view = Instantiate(Prefabs.MenuPlayer.As<MenuPlayerView>(), position, Quaternion.identity, _playersRoot);
             return view;
         }
 

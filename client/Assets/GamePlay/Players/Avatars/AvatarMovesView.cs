@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Common.Network;
 using Internal;
+using Tools;
 using UnityEngine;
 using VContainer;
 
@@ -10,7 +11,6 @@ namespace GamePlay.Players
     public class AvatarMovesView : MonoBehaviour, IScopeLoaded
     {
         [SerializeField] private float _spaceBetweenPoints = 0.1f;
-        [SerializeField] private AvatarTurnPointView _pointPrefab;
 
         private readonly List<AvatarTurnPointView> _points = new();
 
@@ -64,7 +64,7 @@ namespace GamePlay.Players
 
                         for (var i = 0; i < delta; i++)
                         {
-                            var point = Instantiate(_pointPrefab, transform);
+                            var point = Instantiate(Prefabs.PlayerTurnPoint.As<AvatarTurnPointView>(), transform);
                             _points.Add(point);
                         }
                     }

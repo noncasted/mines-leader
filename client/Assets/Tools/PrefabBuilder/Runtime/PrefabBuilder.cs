@@ -25,12 +25,62 @@ namespace Tools
         }
 
         public string PrefabName => _name;
+        public GameObject GameObject => _gameObject;
 
         public PrefabBuilder WithName(string name)
         {
             _name = name;
             _gameObject.name = name;
             return this;
+        }
+
+        public PrefabBuilder WithRectTransform(Action<RectTransform> configure = null)
+        {
+            var rt = _gameObject.GetComponent<RectTransform>();
+            if (rt == null)
+                rt = _gameObject.AddComponent<RectTransform>();
+            configure?.Invoke(rt);
+            return this;
+        }
+
+        public PrefabBuilder WithPosition(float x, float y, float z)
+        {
+            _gameObject.transform.localPosition = new Vector3(x, y, z);
+            return this;
+        }
+
+        public PrefabBuilder WithScale(float x, float y, float z)
+        {
+            _gameObject.transform.localScale = new Vector3(x, y, z);
+            return this;
+        }
+
+        public PrefabBuilder WithRotation(float x, float y, float z)
+        {
+            _gameObject.transform.localEulerAngles = new Vector3(x, y, z);
+            return this;
+        }
+
+        public static T LoadAsset<T>(string path) where T : UnityEngine.Object
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (asset == null)
+            {
+                Debug.LogWarning($"[PrefabBuilder] Asset not found at '{path}'");
+            }
+            return asset;
+        }
+
+        public static T LoadSubAsset<T>(string path, string subAssetName) where T : UnityEngine.Object
+        {
+            var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+            foreach (var asset in allAssets)
+            {
+                if (asset is T typed && asset.name == subAssetName)
+                    return typed;
+            }
+            Debug.LogWarning($"[PrefabBuilder] Sub-asset '{subAssetName}' not found at '{path}'");
+            return null;
         }
 
         public PrefabBuilder WithComponent<T>(out T component) where T : Component
@@ -87,6 +137,12 @@ namespace Tools
             return this;
         }
 
+        public PrefabBuilder WithActive(bool active)
+        {
+            _gameObject.SetActive(active);
+            return this;
+        }
+
         public PrefabBuilder WithChildObject(string name, Action<PrefabBuilder> configure)
         {
             var childGo = new GameObject(name);
@@ -97,17 +153,48 @@ namespace Tools
             return this;
         }
 
+        public PrefabBuilder WithChildObject(string name, bool active, Action<PrefabBuilder> configure)
+        {
+            var childGo = new GameObject(name);
+            childGo.transform.SetParent(_gameObject.transform, false);
+            var childBuilder = new PrefabBuilder(childGo);
+            configure(childBuilder);
+            childGo.SetActive(active);
+            _children.Add(childBuilder);
+            return this;
+        }
+
+        public GameObject WithPrefabChild(string assetPath, string name = null)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            if (prefab == null)
+            {
+                Debug.LogError($"[PrefabBuilder] Prefab not found at '{assetPath}'");
+                return null;
+            }
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            if (name != null) instance.name = name;
+            instance.transform.SetParent(_gameObject.transform, false);
+            return instance;
+        }
+
         public GameObject Build(string outputPath)
         {
-            ApplySerializedProperties();
-            foreach (var child in _children)
-            {
-                child.ApplySerializedProperties();
-            }
+            ApplyAllSerializedProperties();
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(_gameObject, outputPath);
             UnityEngine.Object.DestroyImmediate(_gameObject);
             return prefab;
+        }
+
+        private void ApplyAllSerializedProperties()
+        {
+            ApplySerializedProperties();
+            foreach (var child in _children)
+            {
+                child.ApplyAllSerializedProperties();
+            }
         }
 
         private void ApplySerializedProperties()
@@ -179,7 +266,22 @@ namespace Tools
                 case SerializedPropertyType.Enum:
                     property.enumValueIndex = Convert.ToInt32(value);
                     break;
+                case SerializedPropertyType.AnimationCurve:
+                    if (value is AnimationCurve curve) property.animationCurveValue = curve;
+                    break;
+                case SerializedPropertyType.Vector4:
+                    if (value is Vector4 v4) property.vector4Value = v4;
+                    break;
                 default:
+                    if (property.isArray && value is Array arr)
+                    {
+                        property.arraySize = arr.Length;
+                        for (int i = 0; i < arr.Length; i++)
+                        {
+                            SetPropertyValue(property.GetArrayElementAtIndex(i), arr.GetValue(i));
+                        }
+                        break;
+                    }
                     Debug.LogWarning(
                         $"[PrefabBuilder] Unsupported property type: {property.propertyType} for '{property.name}'"
                     );

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Global.Constants;
+using Tools;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -7,14 +8,13 @@ namespace GamePlay.Cards
     public interface IStashView
     {
         Vector2 PickPoint { get; }
-        
+
         void UpdateAmount(int amount);
     }
-    
+
     [DisallowMultipleComponent]
     public class StashView : MonoBehaviour, IStashView
     {
-        [SerializeField] private StashCard _prefab;
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private readonly List<StashCard> _cards = new();
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
                 for (var i = 0; i < delta; i++)
                 {
                     var position = transform.position + Vector3.up * _cardHeight * _cards.Count;
-                    var card = Instantiate(_prefab,position, Quaternion.identity, transform);
+                    var card = Instantiate(Prefabs.StashCard.As<StashCard>(), position, Quaternion.identity, transform);
                     _cards.Add(card);
                     card.Construct(_cards.Count);
                 }

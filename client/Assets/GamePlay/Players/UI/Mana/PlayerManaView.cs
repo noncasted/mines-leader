@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Internal;
+using Tools;
 using UnityEngine;
 using VContainer;
 
@@ -8,7 +9,6 @@ namespace GamePlay.Players
     [DisallowMultipleComponent]
     public class PlayerManaView : MonoBehaviour, IEntityComponent, IScopeLoaded
     {
-        [SerializeField] private PlayerManaPointView _pointPrefab;
         [SerializeField] private Transform _root;
 
         private IPlayerMana _mana;
@@ -29,7 +29,7 @@ namespace GamePlay.Players
         {
             _mana.Current.View(lifetime, current =>
                 {
-                    var points = _root.CreateRequiredFromPrefab(_pointPrefab, _mana.Max.Value);
+                    var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(), _mana.Max.Value);
                     points = points.Reverse().ToList();
 
                     for (int i = 0; i < points.Count; i++)

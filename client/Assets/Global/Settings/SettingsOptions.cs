@@ -5,8 +5,6 @@ namespace Global.Settings
 {
     public class SettingsOptions : EnvAsset
     {
-        [SerializeField] private SettingsView _prefab;
-        
         [SerializeField] private SettingsSave _defaultValues = new SettingsSave
         {
             MasterVolume = 1f,
@@ -15,8 +13,7 @@ namespace Global.Settings
             ShakeIntensity = 0.5f,
             VSync = true
         };
-        
-        public SettingsView Prefab => _prefab;
+
         public SettingsSave DefaultValues => _defaultValues;
     }
 }

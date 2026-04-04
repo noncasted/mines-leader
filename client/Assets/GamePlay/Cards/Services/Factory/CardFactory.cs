@@ -6,6 +6,7 @@ using GamePlay.Loop;
 using Internal;
 using Meta;
 using Shared;
+using Tools;
 using VContainer.Unity;
 
 namespace GamePlay.Cards
@@ -18,8 +19,7 @@ namespace GamePlay.Cards
             ICardConfigs configs,
             ICardsRegistry registry,
             IObjectFactory<CardScopeEntity> objectFactory,
-            LifetimeScope parentScope,
-            CardFactoryOptions options)
+            LifetimeScope parentScope)
         {
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
@@ -27,7 +27,6 @@ namespace GamePlay.Cards
             _registry = registry;
             _objectFactory = objectFactory;
             _parentScope = parentScope;
-            _options = options;
         }
 
         private readonly IEntityScopeLoader _entityScopeLoader;
@@ -36,14 +35,13 @@ namespace GamePlay.Cards
         private readonly ICardsRegistry _registry;
         private readonly IObjectFactory<CardScopeEntity> _objectFactory;
         private readonly LifetimeScope _parentScope;
-        private readonly CardFactoryOptions _options;
 
         public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
         {
             var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
             var definition = _registry.Entries[cardType];
 
-            var prefab = isLocal ? _options.LocalPrefab : _options.RemotePrefab;
+            var prefab = isLocal ? Prefabs.CardLocal.As<CardScopeEntity>() : Prefabs.CardRemote.As<CardScopeEntity>();
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _gameContext.Self.Deck.View.PickPoint : _gameContext.Other.Deck.View.PickPoint;
 

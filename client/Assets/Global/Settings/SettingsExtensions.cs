@@ -6,8 +6,7 @@ namespace Global.Settings
     {
         public static IScopeBuilder AddSettings(this IScopeBuilder builder)
         {
-            var options = builder.GetAsset<SettingsOptions>();
-            var view = builder.Instantiate(options.Prefab);
+            var view = builder.Instantiate(Tools.Prefabs.Settings.As<SettingsView>());
 
             builder.Register<Settings>()
                 .WithAsset<SettingsOptions>()

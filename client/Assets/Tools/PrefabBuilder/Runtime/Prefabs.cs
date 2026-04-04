@@ -5,15 +5,26 @@ namespace Tools
 {
     public static class Prefabs
     {
-        private static GameObject _globalAudioListener;
-        public static GameObject GlobalAudioListener => _globalAudioListener ??= Resources.Load<GameObject>("Generated/Global_Audio_Listener");
-        private static GameObject _globalAudioPlayer;
-        public static GameObject GlobalAudioPlayer => _globalAudioPlayer ??= Resources.Load<GameObject>("Generated/Global_Audio_Player");
-        private static GameObject _globalCamera;
-        public static GameObject GlobalCamera => _globalCamera ??= Resources.Load<GameObject>("Generated/Global_Camera");
-        private static GameObject _globalEvents;
-        public static GameObject GlobalEvents => _globalEvents ??= Resources.Load<GameObject>("Generated/Global_Events");
-        private static GameObject _globalUpdater;
-        public static GameObject GlobalUpdater => _globalUpdater ??= Resources.Load<GameObject>("Generated/GlobalUpdater");
+        public static readonly StaticPrefab Avatar = new("Avatar");
+        public static readonly StaticPrefab CardLocal = new("Card_Local");
+        public static readonly StaticPrefab CardRemote = new("Card_Remote");
+        public static readonly StaticPrefab Cell = new("Cell");
+        public static readonly StaticPrefab DeckCard = new("DeckCard");
+        public static readonly StaticPrefab GlobalAudioListener = new("Global_Audio_Listener");
+        public static readonly StaticPrefab GlobalAudioPlayer = new("Global_Audio_Player");
+        public static readonly StaticPrefab GlobalCamera = new("Global_Camera");
+        public static readonly StaticPrefab GlobalEvents = new("Global_Events");
+        public static readonly StaticPrefab GlobalUpdater = new("GlobalUpdater");
+        public static readonly StaticPrefab InternalScope = new("InternalScope");
+        public static readonly StaticPrefab LoadingScreen = new("LoadingScreen");
+        public static readonly StaticPrefab ManaPoint = new("ManaPoint");
+        public static readonly StaticPrefab MenuPlayer = new("MenuPlayer");
+        public static readonly StaticPrefab Mines = new("Mines");
+        public static readonly StaticPrefab PlayerLocalBase = new("Player_Local_Base");
+        public static readonly StaticPrefab PlayerRemoteBase = new("Player_Remote_Base");
+        public static readonly StaticPrefab PlayerTurnPoint = new("PlayerTurnPoint");
+        public static readonly StaticPrefab Settings = new("Settings");
+        public static readonly StaticPrefab SettingsSlider = new("SettingsSlider");
+        public static readonly StaticPrefab StashCard = new("StashCard");
     }
 }
