@@ -59,7 +59,7 @@ public class RuntimePipeClient : IRuntimePipeClient
                 var response = await listener(castedMessage);
 
                 if (response is null)
-                    throw new InvalidCastException($"Expected {typeof(TResponse)}, but got {response!.GetType()}");
+                    throw new InvalidCastException($"Expected {typeof(TResponse)}, but got null");
 
                 return response;
             }
@@ -125,7 +125,7 @@ public class RuntimePipeClient : IRuntimePipeClient
             }
 
             await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
-            await Task.Delay(TimeSpan.FromSeconds(120), lifetime.Token);
+            await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
         }
     }
 

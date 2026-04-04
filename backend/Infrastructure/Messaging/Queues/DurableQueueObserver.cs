@@ -1,14 +1,13 @@
-﻿namespace Infrastructure;
+namespace Infrastructure;
 
 public interface IDurableQueueObserver : IGrainObserver
 {
-    Task Send(IReadOnlyList<object> messages);
+    Task Send(object message);
 }
 
 public class DurableQueueObserver : IDurableQueueObserver
 {
-    public DurableQueueObserver(Action<object> onMessage)
-    {
+    public DurableQueueObserver(Action<object> onMessage) {
         _onMessage = onMessage;
     }
 
@@ -16,11 +15,8 @@ public class DurableQueueObserver : IDurableQueueObserver
 
     public Guid Id { get; } = Guid.NewGuid();
 
-    public Task Send(IReadOnlyList<object> messages)
-    {
-        foreach (var message in messages)
-            _onMessage(message);
-
+    public Task Send(object message) {
+        _onMessage(message);
         return Task.CompletedTask;
     }
 }

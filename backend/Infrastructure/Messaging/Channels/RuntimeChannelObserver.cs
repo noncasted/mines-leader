@@ -2,13 +2,12 @@ namespace Infrastructure;
 
 public interface IRuntimeChannelObserver : IGrainObserver
 {
-    Task Send(IReadOnlyList<object> messages);
+    Task Send(object message);
 }
 
 public class RuntimeChannelObserver : IRuntimeChannelObserver
 {
-    public RuntimeChannelObserver(Action<object> onMessage)
-    {
+    public RuntimeChannelObserver(Action<object> onMessage) {
         _onMessage = onMessage;
     }
 
@@ -16,11 +15,8 @@ public class RuntimeChannelObserver : IRuntimeChannelObserver
 
     public Guid Id { get; } = Guid.NewGuid();
 
-    public Task Send(IReadOnlyList<object> messages)
-    {
-        foreach (var message in messages)
-            _onMessage(message);
-
+    public Task Send(object message) {
+        _onMessage(message);
         return Task.CompletedTask;
     }
 }
