@@ -2,6 +2,8 @@
 using Internal;
 using Meta;
 using Shared;
+using Tools;
+using Tools.SceneBuilder;
 using VContainer;
 
 namespace GamePlay.Loop
@@ -15,10 +17,10 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GameServicesScene>(),
+                Scenes.GameServices.Value,
                 Construct,
                 false);
-            
+
             var scope = await loader.Load(options);
             await scope.Initialize();
 
@@ -36,10 +38,10 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GameServicesScene>(),
+                Scenes.GameServices.Value,
                 Construct,
                 true);
-            
+
             var scope = await loader.Load(options);
             await scope.Initialize();
 
@@ -61,7 +63,7 @@ namespace GamePlay.Loop
 
         private static async UniTask AddScene(this IScopeBuilder builder)
         {
-            await builder.FindOrLoadSceneWithServices<GameFieldScene>();
+            await builder.FindOrLoadSceneWithServices(Scenes.GameField.Value);
         }
     }
 }

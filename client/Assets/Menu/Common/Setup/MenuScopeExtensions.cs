@@ -1,7 +1,9 @@
-﻿using Common.Network;
+using Common.Network;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Menu.Social;
+using Tools;
+using Tools.SceneBuilder;
 
 namespace Menu.Common
 {
@@ -13,7 +15,7 @@ namespace Menu.Common
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<MenuServicesScene>(),
+                Scenes.MenuServices.Value,
                 Construct,
                 false);
 
@@ -40,7 +42,7 @@ namespace Menu.Common
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<MenuServicesScene>(),
+                Scenes.MenuServices.Value,
                 Construct,
                 true);
 
@@ -63,7 +65,7 @@ namespace Menu.Common
 
         private static UniTask AddScene(this IScopeBuilder builder)
         {
-            return builder.FindOrLoadSceneWithServices<MenuUIScene>();
+            return builder.FindOrLoadSceneWithServices(Scenes.Menu.Value);
         }
     }
 }

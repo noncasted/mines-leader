@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine.AddressableAssets;
 
 namespace Internal
 {
@@ -15,9 +16,9 @@ namespace Internal
 
         public IReadOnlyList<ILoadedScene> Results => _results;
 
-        public async UniTask<ILoadedScene> Load(SceneData sceneAsset, bool isMain = false)
+        public async UniTask<ILoadedScene> Load(AssetReference scene, bool isMain = false)
         {
-            var result = await _sceneLoader.Load(sceneAsset, isMain);
+            var result = await _sceneLoader.Load(scene, isMain);
 
             _results.Add(result);
 
