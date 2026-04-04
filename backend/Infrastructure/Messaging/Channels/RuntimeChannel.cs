@@ -12,15 +12,13 @@ public interface IRuntimeChannelId
 
 public class RuntimeChannelId : IRuntimeChannelId
 {
-    public RuntimeChannelId(string id)
-    {
+    public RuntimeChannelId(string id) {
         _id = id;
     }
 
     private readonly string _id;
 
-    public string ToRaw()
-    {
+    public string ToRaw() {
         return _id;
     }
 }
@@ -28,6 +26,7 @@ public class RuntimeChannelId : IRuntimeChannelId
 public interface IRuntimeChannel : IGrainWithStringKey
 {
     Task AddObserver(Guid id, IRuntimeChannelObserver observer);
+    Task RemoveObserver(Guid id);
 
     [AlwaysInterleave]
     Task Publish(object message);
@@ -35,8 +34,7 @@ public interface IRuntimeChannel : IGrainWithStringKey
 
 public class RuntimeChannel : Grain, IRuntimeChannel
 {
-    public RuntimeChannel(ILogger<RuntimeChannel> logger, IRuntimeChannelConfig config)
-    {
+    public RuntimeChannel(ILogger<RuntimeChannel> logger, IRuntimeChannelConfig config) {
         _logger = logger;
         _config = config;
     }
@@ -45,27 +43,17 @@ public class RuntimeChannel : Grain, IRuntimeChannel
     private readonly IRuntimeChannelConfig _config;
     private readonly ConcurrentDictionary<Guid, ObserverData> _observers = new();
 
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
-    {
-        if (_observers.Count == 0)
-            return Task.CompletedTask;
-
-        var latestUpdate = _observers.Values.Max(t => t.UpdateDate);
-        var timeSinceLastUpdate = DateTime.UtcNow - latestUpdate;
-        var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
-
-        if (timeSinceLastUpdate < keepAlive)
-            DelayDeactivation(keepAlive - timeSinceLastUpdate);
-
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken) {
+        var delay = MessagingGrainExtensions.GetKeepAliveDelay(
+            _observers.Values, d => d.UpdateDate, _config.Value.ObserverKeepAliveMinutes);
+        if (delay != null)
+            DelayDeactivation(delay.Value);
         return Task.CompletedTask;
     }
 
-    public Task AddObserver(Guid id, IRuntimeChannelObserver observer)
-    {
-        if (_observers.TryGetValue(id, out var data) == false)
-        {
-            data = new ObserverData
-            {
+    public Task AddObserver(Guid id, IRuntimeChannelObserver observer) {
+        if (_observers.TryGetValue(id, out var data) == false) {
+            data = new ObserverData {
                 Observer = observer,
                 UpdateDate = DateTime.UtcNow,
                 Id = id
@@ -80,12 +68,16 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         return Task.CompletedTask;
     }
 
-    public async Task Publish(object message)
-    {
+    public Task RemoveObserver(Guid id) {
+        _observers.TryRemove(id, out _);
+        return Task.CompletedTask;
+    }
+
+    public async Task Publish(object message) {
         BackendMetrics.ChannelPublished.Add(1);
         BackendMetrics.ChannelObserverCount.Record(_observers.Count);
 
-        var toRemove = new List<Guid>();
+        var toRemove = new ConcurrentBag<Guid>();
 
         await Task.WhenAll(_observers.Values.Select(data => SendSafe(data)));
 
@@ -94,14 +86,11 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
         return;
 
-        async Task SendSafe(ObserverData data)
-        {
-            try
-            {
-                await data.Observer.Send(new List<object>() { message });
+        async Task SendSafe(ObserverData data) {
+            try {
+                await data.Observer.Send(message);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 toRemove.Add(data.Id);
                 BackendMetrics.ChannelDeliveryFailure.Add(1);
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Logging;
@@ -19,8 +19,7 @@ public class DurableQueueClient : IDurableQueueClient
     public DurableQueueClient(
         IOrleans orleans,
         ISideEffectsStorage sideEffectsStorage,
-        ILogger<DurableQueueClient> logger)
-    {
+        ILogger<DurableQueueClient> logger) {
         _orleans = orleans;
         _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
@@ -33,14 +32,12 @@ public class DurableQueueClient : IDurableQueueClient
     private readonly ConcurrentDictionary<string, Listener> _listeners = new();
     private readonly SemaphoreSlim _createLock = new(1, 1);
 
-    public Task Start(IReadOnlyLifetime lifetime)
-    {
+    public Task Start(IReadOnlyLifetime lifetime) {
         ResubscribeLoop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
 
-    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IDurableQueueId id)
-    {
+    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IDurableQueueId id) {
         var rawId = id.ToRaw();
 
         if (_listeners.TryGetValue(rawId, out var existing))
@@ -48,15 +45,13 @@ public class DurableQueueClient : IDurableQueueClient
 
         await _createLock.WaitAsync();
 
-        try
-        {
+        try {
             if (_listeners.TryGetValue(rawId, out existing))
                 return (ViewableDelegate<T>)existing.Delegate;
 
             var source = new ViewableDelegate<T>();
 
-            var observer = new DurableQueueObserver(message =>
-                {
+            var observer = new DurableQueueObserver(message => {
                     if (message is not T castedMessage)
                         throw new InvalidCastException();
 
@@ -66,14 +61,14 @@ public class DurableQueueClient : IDurableQueueClient
 
             var observerReference = _orleans.Client.CreateObjectReference<IDurableQueueObserver>(observer);
 
-            var listener = new Listener
-            {
+            var listener = new Listener {
                 Id = id,
                 ObserverSource = observer,
                 ObserverReference = observerReference,
                 Queue = GetQueue(id),
                 Logger = _logger,
-                Delegate = source
+                Delegate = source,
+                Orleans = _orleans
             };
 
             _listeners[rawId] = listener;
@@ -81,19 +76,22 @@ public class DurableQueueClient : IDurableQueueClient
 
             return source;
         }
-        finally
-        {
+        finally {
             _createLock.Release();
         }
     }
 
-    public void PushTransactional(IDurableQueueId id, object message)
-    {
+    public void RemoveConsumer(IDurableQueueId id) {
+        var rawId = id.ToRaw();
+        if (_listeners.TryRemove(rawId, out var listener))
+            listener.Cleanup();
+    }
+
+    public void PushTransactional(IDurableQueueId id, object message) {
         if (TransactionContextProvider.Current == null)
             throw new InvalidOperationException();
 
-        var sideEffect = new DurableQueueSideEffect()
-        {
+        var sideEffect = new DurableQueueSideEffect() {
             QueueName = id.ToRaw(),
             Message = message
         };
@@ -101,26 +99,21 @@ public class DurableQueueClient : IDurableQueueClient
         sideEffect.AddToTransaction();
     }
 
-    public Task PushDirect(IDurableQueueId id, object message)
-    {
-        return _sideEffectsStorage.Write(new DurableQueueSideEffect()
-            {
+    public Task PushDirect(IDurableQueueId id, object message) {
+        return _sideEffectsStorage.Write(new DurableQueueSideEffect() {
                 QueueName = id.ToRaw(),
                 Message = message
             }
         );
     }
 
-    private IDurableQueue GetQueue(IDurableQueueId id)
-    {
+    private IDurableQueue GetQueue(IDurableQueueId id) {
         var rawId = id.ToRaw();
         return _orleans.GetGrain<IDurableQueue>(rawId);
     }
 
-    private async Task ResubscribeLoop(IReadOnlyLifetime lifetime)
-    {
-        while (lifetime.IsTerminated == false)
-        {
+    private async Task ResubscribeLoop(IReadOnlyLifetime lifetime) {
+        while (lifetime.IsTerminated == false) {
             await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
             await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
         }
@@ -134,18 +127,16 @@ public class DurableQueueClient : IDurableQueueClient
         public required IDurableQueue Queue { get; init; }
         public required ILogger Logger { get; init; }
         public required object Delegate { get; init; }
+        public required IOrleans Orleans { get; init; }
 
         private int _consecutiveFailures;
 
-        public async Task Resubscribe()
-        {
-            try
-            {
+        public async Task Resubscribe() {
+            try {
                 await Queue.AddObserver(ObserverSource.Id, ObserverReference);
                 _consecutiveFailures = 0;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 _consecutiveFailures++;
 
                 if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
@@ -154,6 +145,11 @@ public class DurableQueueClient : IDurableQueueClient
                         _consecutiveFailures, Id.ToRaw()
                     );
             }
+        }
+
+        public void Cleanup() {
+            Orleans.Client.DeleteObjectReference<IDurableQueueObserver>(ObserverReference);
+            Queue.RemoveObserver(ObserverSource.Id).NoAwait();
         }
     }
 }
