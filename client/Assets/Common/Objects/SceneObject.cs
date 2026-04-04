@@ -12,6 +12,8 @@ namespace Common.Objects
             OnSetup(lifetime);
         }
 
-        protected virtual void OnSetup(IReadOnlyLifetime lifetime) {}
+        protected virtual void OnSetup(IReadOnlyLifetime lifetime)
+        {
+        }
     }
 }

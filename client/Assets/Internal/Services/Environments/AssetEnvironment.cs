@@ -8,11 +8,11 @@ namespace Internal
     public interface IAssetEnvironment
     {
         OptionsContainer Options { get; }
-        
+
         T GetAsset<T>() where T : ScriptableObject;
         IReadOnlyList<T> GetAssets<T>() where T : ScriptableObject;
     }
-    
+
     public class AssetEnvironment : IAssetEnvironment
     {
         public AssetEnvironment(IAssetsStorage assetsStorage)
@@ -27,7 +27,7 @@ namespace Internal
         public T GetAsset<T>() where T : ScriptableObject
         {
             var type = typeof(T);
-            
+
             var assetCollection = _assetsStorage.Assets[type.FullName];
 
             if (assetCollection.Count != 1)
@@ -47,7 +47,7 @@ namespace Internal
             return result;
         }
     }
-    
+
     public static class AssetsEnvironmentExtensions
     {
         public static IScopeBuilder RegisterEnvDictionary<TKey, TValue, TSource>(this IScopeBuilder builder)

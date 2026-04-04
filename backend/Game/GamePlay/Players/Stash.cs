@@ -18,7 +18,7 @@ public class Stash : IStash
     {
         _state = state;
     }
-    
+
     private readonly List<CardType> _cards = new();
     private readonly ValueProperty<PlayerStashState> _state;
 

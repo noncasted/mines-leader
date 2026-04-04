@@ -32,7 +32,8 @@ public class ClusterParticipantContext : IClusterParticipantContext
     public void SetStage(string stage)
     {
         var index = _stages.IndexOf(stage);
-        if (index >= 0) {
+        if (index >= 0)
+        {
             _currentStageIndex.Set(index);
         }
     }

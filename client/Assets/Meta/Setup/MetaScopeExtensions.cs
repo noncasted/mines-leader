@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
-using Tools;
 using Tools.SceneBuilder;
 
 namespace Meta
@@ -13,8 +12,9 @@ namespace Meta
                 parent,
                 Scenes.MetaServices.Value,
                 Construct,
-                false);
-            
+                false
+            );
+
             var scope = await loader.Load(options);
             await scope.Initialize();
 

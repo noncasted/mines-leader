@@ -6,4 +6,6 @@ public class RuntimePipeOptions
     public int SendTimeoutSeconds { get; set; } = 30;
 }
 
-public interface IRuntimePipeConfig : IAddressableState<RuntimePipeOptions> { }
+public interface IRuntimePipeConfig : IAddressableState<RuntimePipeOptions>
+{
+}

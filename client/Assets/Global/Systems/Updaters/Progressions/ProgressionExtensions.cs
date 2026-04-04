@@ -32,7 +32,7 @@ namespace Global.Systems
             var handle = updater.CreateProgression(lifetime, time, callback, loop);
             await handle.Process();
         }
-        
+
         public static UniTask CurveProgression(
             this IUpdater updater,
             IReadOnlyLifetime lifetime,

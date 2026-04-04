@@ -6,9 +6,12 @@ using Xunit;
 
 namespace Tests.Game;
 
-public class BoardEventsTests {
-    private class TestEffect : ICellEffect {
-        public TestEffect(CellEffectType type) {
+public class BoardEventsTests
+{
+    private class TestEffect : ICellEffect
+    {
+        public TestEffect(CellEffectType type)
+        {
             Id = Guid.NewGuid();
             Type = type;
         }
@@ -18,12 +21,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void CellSet_FiresOnToFree() {
+    public void CellSet_FiresOnToFree()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -38,12 +43,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void CellSet_FiresOnToTaken() {
+    public void CellSet_FiresOnToTaken()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -57,12 +64,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void CellSet_DoesNotFireOnSameTypeTransition_Taken() {
+    public void CellSet_DoesNotFireOnSameTypeTransition_Taken()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -75,12 +84,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void CellSet_DoesNotFireOnSameTypeTransition_Free() {
+    public void CellSet_DoesNotFireOnSameTypeTransition_Free()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -93,12 +104,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void Flag_FiresOnSetFlag() {
+    public void Flag_FiresOnSetFlag()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -113,12 +126,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void Flag_FiresOnRemoveFlag() {
+    public void Flag_FiresOnRemoveFlag()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t g t
-            t t t
-            """);
+                                           t t t
+                                           t g t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -132,12 +147,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void Explode_FiresOnExplode() {
+    public void Explode_FiresOnExplode()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t m t
-            t t t
-            """);
+                                           t t t
+                                           t m t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -151,12 +168,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void EffectAdded_FiresOnAddEffect() {
+    public void EffectAdded_FiresOnAddEffect()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, ICellEffect Effect)>();
 
@@ -172,12 +191,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void EffectRemoved_FiresOnRemoveEffect() {
+    public void EffectRemoved_FiresOnRemoveEffect()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, Guid EffectId)>();
 
@@ -194,12 +215,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void Lock_SuppressesAllEvents() {
+    public void Lock_SuppressesAllEvents()
+    {
         var (board, _) = BoardParser.Parse("""
-            m t t
-            t t t
-            t t t
-            """);
+                                           m t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
 
         var cellSetFired = 0;
@@ -236,12 +259,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void Unlock_ResumesEventFiring() {
+    public void Unlock_ResumesEventFiring()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -260,12 +285,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void LockUnlock_IsSimpleBool_NotNested() {
+    public void LockUnlock_IsSimpleBool_NotNested()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -283,12 +310,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void MinesAround_FiresOnUpdateMinesAround() {
+    public void MinesAround_FiresOnUpdateMinesAround()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, int Count)>();
 
@@ -302,12 +331,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void MinesAround_DoesNotFireWhenSameValue() {
+    public void MinesAround_DoesNotFireWhenSameValue()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, int Count)>();
 
@@ -321,12 +352,14 @@ public class BoardEventsTests {
     }
 
     [Fact]
-    public void ForceRecord_IgnoresLock() {
+    public void ForceRecord_IgnoresLock()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = 0;
 

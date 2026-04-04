@@ -32,7 +32,7 @@ namespace Loop
         {
             await _loadingScreen.Show();
             _globalCamera.Enable();
-            
+
             var scope = await _scopeLoader.Load((loader, parent) => loader.LoadPvp(parent, gameLoadData.Result));
             var loop = scope.Container.Container.Resolve<IPvPGameLoop>();
             var transitionData = await loop.Process(scope.Lifetime, gameLoadData.Result);

@@ -2,7 +2,7 @@
 
 namespace Meta.Users;
 
-public interface IProjectionPayload 
+public interface IProjectionPayload
 {
     INetworkContext ToContext();
-} 
+}

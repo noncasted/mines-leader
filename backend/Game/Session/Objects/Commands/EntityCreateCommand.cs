@@ -2,14 +2,15 @@
 
 namespace Game.Session;
 
-public class EntityCreateCommand : ResponseCommand<SharedSessionEntity.CreateRequest, SharedSessionEntity.CreateResponse>
+public class
+    EntityCreateCommand : ResponseCommand<SharedSessionEntity.CreateRequest, SharedSessionEntity.CreateResponse>
 {
     public EntityCreateCommand(IEntityFactory entityFactory, ISessionUsers users)
     {
         _entityFactory = entityFactory;
         _users = users;
     }
-    
+
     private readonly IEntityFactory _entityFactory;
     private readonly ISessionUsers _users;
 

@@ -6,6 +6,5 @@ namespace GamePlay.Players
     [DisallowMultipleComponent]
     public class GamePlayerScope : LifetimeScope
     {
-        
     }
 }

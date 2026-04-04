@@ -52,15 +52,16 @@ namespace GamePlay.Cards
             IReadOnlyLifetime lifetime)
         {
             var childLifetime = lifetime.Child();
-            
-            pointerHandler.IsPressed.Advise(childLifetime, value =>
-            {
-                if (value == true)
-                    return;
 
-                childLifetime.Terminate();
-            });
-            
+            pointerHandler.IsPressed.Advise(childLifetime, value =>
+                {
+                    if (value == true)
+                        return;
+
+                    childLifetime.Terminate();
+                }
+            );
+
             return childLifetime;
         }
     }

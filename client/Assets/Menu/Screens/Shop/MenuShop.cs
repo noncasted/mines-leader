@@ -5,9 +5,8 @@ namespace Menu.Screens
 {
     public interface IMenuShop : IUIState
     {
-        
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuShop : MonoBehaviour, IMenuShop
     {

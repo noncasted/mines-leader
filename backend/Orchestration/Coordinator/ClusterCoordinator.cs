@@ -36,7 +36,7 @@ public class ClusterCoordinator : ILocalSetupCompleted
         await _clusterFeatures.SetAcceptingConnections(true);
         await _clusterFeatures.SetMatchmakingEnabled(true);
         await _clusterFeatures.SetSideEffectsEnabled(true);
-        
+
         _logger.LogInformation("[Coordinator] Cluster coordinator finished");
 
         await _messaging.PublishChannel(CoordinatorEvents.ReadyId, new CoordinatorEvents.ReadyPayload());

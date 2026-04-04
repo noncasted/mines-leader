@@ -8,7 +8,7 @@ namespace GamePlay.Cards
     {
         IDeckView View { get; }
     }
-    
+
     public class Deck : IScopeLoaded, IDeck
     {
         public Deck(IDeckView view, NetworkProperty<PlayerDeckState> state)
@@ -23,13 +23,14 @@ namespace GamePlay.Cards
         private readonly IDeckView _view;
 
         public IDeckView View => _view;
-        
+
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
             _state.Advise(lifetime, () =>
-            {
-                _view.UpdateAmount(_state.Value.Queue.Count);
-            });
+                {
+                    _view.UpdateAmount(_state.Value.Queue.Count);
+                }
+            );
         }
     }
 }

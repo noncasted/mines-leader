@@ -21,13 +21,13 @@ public class BotCardStrategies : IBotCardStrategies
     {
         var entries = new Dictionary<CardType, IBotCardStrategy>();
         Entries = entries;
-        
+
         foreach (var strategy in strategies)
         {
             foreach (var cardType in strategy.TargetCards)
                 entries.Add(cardType, strategy);
         }
     }
-    
+
     public IReadOnlyDictionary<CardType, IBotCardStrategy> Entries { get; }
 }

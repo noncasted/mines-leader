@@ -362,7 +362,8 @@ public class StateStorage : IStateStorage
     {
         using var watch = MetricWatch.Start(BackendMetrics.StateWriteDuration);
 
-        var groups = new Dictionary<(string TableName, bool HasExtension), List<(StateIdentity Identity, IStateValue Value)>>();
+        var groups =
+            new Dictionary<(string TableName, bool HasExtension), List<(StateIdentity Identity, IStateValue Value)>>();
 
         foreach (var (identity, value) in records)
         {

@@ -1,8 +1,7 @@
-using Global.UI;
+using System.Collections;
 using Internal;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GamePlay.UI
 {
@@ -49,7 +48,7 @@ namespace GamePlay.UI
             _canvasGroup.alpha = 0f;
         }
 
-        private System.Collections.IEnumerator FadeIn()
+        private IEnumerator FadeIn()
         {
             float elapsed = 0f;
             while (elapsed < _fadeInDuration)
@@ -58,10 +57,11 @@ namespace GamePlay.UI
                 _canvasGroup.alpha = Mathf.Clamp01(elapsed / _fadeInDuration);
                 yield return null;
             }
+
             _canvasGroup.alpha = 1f;
         }
 
-        private System.Collections.IEnumerator FadeOut()
+        private IEnumerator FadeOut()
         {
             float elapsed = 0f;
             while (elapsed < _fadeOutDuration)
@@ -70,6 +70,7 @@ namespace GamePlay.UI
                 _canvasGroup.alpha = Mathf.Clamp01(1f - (elapsed / _fadeOutDuration));
                 yield return null;
             }
+
             _canvasGroup.alpha = 0f;
         }
     }

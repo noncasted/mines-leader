@@ -40,7 +40,7 @@ namespace GamePlay.UI
             builder.RegisterComponent(this)
                 .As<IGameEndUI>();
         }
-        
+
         public async UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result)
         {
             switch (result.Type)
@@ -62,7 +62,7 @@ namespace GamePlay.UI
                 _rematchButton.gameObject.SetActive(false);
             else
                 _rematchButton.gameObject.SetActive(true);
-            
+
             _rating.Show(result.CurrentRating, result.RatingChange);
             gameObject.SetActive(true);
 

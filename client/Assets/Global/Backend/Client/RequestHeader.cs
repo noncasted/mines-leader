@@ -5,7 +5,7 @@
         string Type { get; }
         string Value { get; }
     }
-    
+
     public class RequestHeader : IRequestHeader
     {
         public RequestHeader(string type, string value)

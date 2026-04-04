@@ -8,7 +8,7 @@ namespace Tools
         {
             Assemblies = assemblies;
         }
- 
+
         public IReadOnlyList<IAssembly> Assemblies { get; }
     }
 }

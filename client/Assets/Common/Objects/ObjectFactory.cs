@@ -3,13 +3,12 @@ using UnityEngine;
 
 namespace Common.Objects
 {
-    public interface IObjectFactory<T>  where T : MonoBehaviour
+    public interface IObjectFactory<T> where T : MonoBehaviour
     {
         Transform Transform { get; }
-        
+
         T Create(T prefab, Vector2 position, float angle);
         T Create(T prefab);
-
     }
 
     public static class ObjectFactoryExtensions
@@ -19,12 +18,12 @@ namespace Common.Objects
             return factory.Create(prefab, position, 0f);
         }
     }
-    
+
     public abstract class ObjectFactory<T> : MonoBehaviour, ISceneService, IObjectFactory<T> where T : MonoBehaviour
     {
         private int _counter;
-        
-        public Transform Transform => transform;    
+
+        public Transform Transform => transform;
 
         public void Create(IScopeBuilder builder)
         {

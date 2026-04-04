@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Cluster.Discovery;
 using Common.Extensions;
@@ -43,7 +42,8 @@ public class MessagingDirectQueueStressTest
 
             handle.Progress.Log("Listening for messages...");
 
-            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage);
+            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage
+            );
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");

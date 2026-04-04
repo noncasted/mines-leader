@@ -28,7 +28,7 @@ namespace Global.Settings
 
         [SerializeField] private DesignButton _onButton;
         [SerializeField] private DesignButton _offButton;
-        
+
         private readonly ViewableProperty<SelectionGroupValue> _value = new();
 
         public IViewableProperty<SelectionGroupValue> Value => _value;
@@ -36,7 +36,7 @@ namespace Global.Settings
         private void OnEnable()
         {
             var lifetime = this.GetObjectLifetime();
-            
+
             _onButton.ListenClick(lifetime, () => Set(SelectionGroupValue.On));
             _offButton.ListenClick(lifetime, () => Set(SelectionGroupValue.Off));
         }

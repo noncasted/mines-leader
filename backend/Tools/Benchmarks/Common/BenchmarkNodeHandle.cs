@@ -1,4 +1,3 @@
-using System;
 using Cluster.Discovery;
 using Common.Extensions;
 using Common.Reactive;

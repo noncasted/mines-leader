@@ -17,7 +17,7 @@ public interface IUserDeck : IUserGrain
 
     [Transaction]
     Task<IReadOnlyList<CardType>> GetSelected();
-    
+
     [Transaction]
     Task<UserDeckState> GetState();
 }
@@ -29,7 +29,7 @@ public class UserDeckState : IProjectionPayload, IStateValue
     [Id(1)] public int SelectedIndex { get; set; }
 
     public int Version => 0;
-    
+
     public INetworkContext ToContext()
     {
         return new SharedBackendUser.DeckProjection()

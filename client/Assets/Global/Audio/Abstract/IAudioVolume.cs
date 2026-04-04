@@ -7,7 +7,7 @@ namespace Global.Audio
     {
         IReadOnlyDictionary<AudioLine, float> Values { get; }
         IViewableProperty<bool> IsMuted { get; }
-        
+
         void Mute();
         void Unmute();
         void SetVolume(AudioLine line, float volume);

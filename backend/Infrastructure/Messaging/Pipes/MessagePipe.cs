@@ -11,7 +11,8 @@ public interface IRuntimePipe : IGrainWithStringKey
 
 public class RuntimePipe : Grain, IRuntimePipe
 {
-    public RuntimePipe(ILogger<RuntimePipe> logger, IRuntimePipeConfig config) {
+    public RuntimePipe(ILogger<RuntimePipe> logger, IRuntimePipeConfig config)
+    {
         _logger = logger;
         _config = config;
     }
@@ -22,8 +23,10 @@ public class RuntimePipe : Grain, IRuntimePipe
     private IRuntimePipeObserver? _observer;
     private DateTime _setDate;
 
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken) {
-        if (_observer != null) {
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    {
+        if (_observer != null)
+        {
             var timeSinceLastUpdate = DateTime.UtcNow - _setDate;
             var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
 
@@ -34,14 +37,16 @@ public class RuntimePipe : Grain, IRuntimePipe
         return Task.CompletedTask;
     }
 
-    public Task BindObserver(IRuntimePipeObserver observer) {
+    public Task BindObserver(IRuntimePipeObserver observer)
+    {
         _logger.LogTrace("[Messaging] [RuntimePipe] Binding observer to pipe {PipeId}", this.GetPrimaryKeyString());
         _observer = observer;
         _setDate = DateTime.UtcNow;
         return Task.CompletedTask;
     }
 
-    public async Task<TResponse> Send<TResponse>(object message) {
+    public async Task<TResponse> Send<TResponse>(object message)
+    {
         BackendMetrics.PipeRequestSent.Add(1);
         using var watch = MetricWatch.Start(BackendMetrics.PipeDuration);
 
@@ -50,7 +55,8 @@ public class RuntimePipe : Grain, IRuntimePipe
             message.GetType().Name, typeof(TResponse).Name, this.GetPrimaryKeyString()
         );
 
-        if (_observer == null) {
+        if (_observer == null)
+        {
             _logger.LogError(
                 "[Messaging] [RuntimePipe] No observer bound for request-response message {MessageType} on pipe {PipeId}",
                 message.GetType().Name, this.GetPrimaryKeyString()
@@ -58,7 +64,8 @@ public class RuntimePipe : Grain, IRuntimePipe
             throw new InvalidOperationException($"No observer bound for pipe {this.GetPrimaryKeyString()}");
         }
 
-        try {
+        try
+        {
             var timeout = TimeSpan.FromSeconds(_config.Value.SendTimeoutSeconds);
             var response = await _observer!.Send<TResponse>(message).WaitAsync(timeout);
             _logger.LogTrace(
@@ -67,7 +74,8 @@ public class RuntimePipe : Grain, IRuntimePipe
             );
             return response;
         }
-        catch (TimeoutException ex) {
+        catch (TimeoutException ex)
+        {
             BackendMetrics.PipeTimeout.Add(1);
 
             _logger.LogError(ex,
@@ -76,7 +84,8 @@ public class RuntimePipe : Grain, IRuntimePipe
             );
             throw;
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             _logger.LogError(ex,
                 "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
                 message.GetType().Name, this.GetPrimaryKeyString()

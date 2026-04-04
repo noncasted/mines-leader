@@ -26,13 +26,15 @@ public class ConnectionOneTimeHandle : IDisposable
         if (message is not RequestMessageFromClient request)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {message.GetType().Name}, expected: {nameof(RequestMessageFromClient)}");
+                $"Invalid request type: {message.GetType().Name}, expected: {nameof(RequestMessageFromClient)}"
+            );
         }
 
         if (request.Context is not T context)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {request.Context.GetType().Name}, expected: {typeof(T).Name}");
+                $"Invalid request type: {request.Context.GetType().Name}, expected: {typeof(T).Name}"
+            );
         }
 
         _requestId = request.RequestId;
@@ -47,7 +49,7 @@ public class ConnectionOneTimeHandle : IDisposable
             Context = context,
             RequestId = _requestId
         };
-         
+
         await MemoryPackSerializer.SerializeAsync<IMessageFromServer>(_writeBuffer, response);
         var sendBuffer = new ReadOnlyMemory<byte>(_writeBuffer.GetBuffer(), 0, (int)_writeBuffer.Length);
 

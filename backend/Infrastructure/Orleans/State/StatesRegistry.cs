@@ -21,15 +21,15 @@ public class GrainStatesRegistry : IGrainStatesRegistry
     public GrainStatesRegistry(ICollection<GrainStateInfo> statesInfo)
     {
         var states = new Dictionary<Type, GrainStateInfo>(statesInfo.Count);
-        
+
         foreach (var stateInfo in statesInfo)
             states.Add(stateInfo.Type, stateInfo);
-        
+
         _states = states;
     }
 
-    private readonly Dictionary<Type, GrainStateInfo> _states; 
-    
+    private readonly Dictionary<Type, GrainStateInfo> _states;
+
     public GrainStateInfo Get<T>()
     {
         var type = typeof(T);

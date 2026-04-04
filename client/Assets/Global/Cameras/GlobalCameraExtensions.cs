@@ -33,15 +33,16 @@ namespace Global.Cameras
             builder
                 .WithName("Global_Camera")
                 .WithComponent<Camera>(camera =>
-                {
-                    camera.orthographic = true;
-                    camera.orthographicSize = 3.1f;
-                    camera.nearClipPlane = 0.3f;
-                    camera.farClipPlane = 1000f;
-                    camera.clearFlags = CameraClearFlags.SolidColor;
-                    camera.backgroundColor = Color.black;
-                    camera.useOcclusionCulling = true;
-                })
+                    {
+                        camera.orthographic = true;
+                        camera.orthographicSize = 3.1f;
+                        camera.nearClipPlane = 0.3f;
+                        camera.farClipPlane = 1000f;
+                        camera.clearFlags = CameraClearFlags.SolidColor;
+                        camera.backgroundColor = Color.black;
+                        camera.useOcclusionCulling = true;
+                    }
+                )
                 .WithComponent<GlobalCamera>();
         }
     }

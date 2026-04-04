@@ -25,7 +25,7 @@ namespace Global.Settings
                 VSync = VSync
             };
         }
-        
+
         public void CopyFrom(SettingsSave target)
         {
             MasterVolume = target.MasterVolume;

@@ -8,10 +8,12 @@ namespace Tests.Fixtures;
 /// Extends OrleansTestClusterFixture with side effects pipeline support.
 /// Provides pump/drain semantics for testing SE execution.
 /// </summary>
-public class SideEffectTestFixture : OrleansTestClusterFixture {
+public class SideEffectTestFixture : OrleansTestClusterFixture
+{
     public SideEffectTestPipeline Pipeline { get; private set; } = null!;
 
-    public override async ValueTask InitializeAsync() {
+    public override async ValueTask InitializeAsync()
+    {
         await base.InitializeAsync();
 
         // Build pipeline from silo's DI container

@@ -44,7 +44,9 @@ public class RuntimePipeObserver : IRuntimePipeObserver
             _logger.LogError("[Messaging] [RuntimePipe] No response handler bound to process message {MessageType}",
                 message.GetType().Name
             );
-            throw new InvalidOperationException("[Messaging] [RuntimePipe] No response handler bound to process message.");
+            throw new InvalidOperationException(
+                "[Messaging] [RuntimePipe] No response handler bound to process message."
+            );
         }
 
         try

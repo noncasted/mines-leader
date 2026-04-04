@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
-using MemoryPack;
 using Shared;
 
 namespace Common.Network
@@ -58,14 +57,15 @@ namespace Common.Network
 
             if (properties.Count != data.RawProperties.Count)
                 throw new InvalidOperationException(
-                    $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}");
+                    $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}"
+                );
 
             foreach (var rawProperty in data.RawProperties)
             {
                 var property = properties[rawProperty.PropertyId];
                 property.Update(rawProperty.Value, property.Version);
             }
-            
+
             return result;
         }
     }

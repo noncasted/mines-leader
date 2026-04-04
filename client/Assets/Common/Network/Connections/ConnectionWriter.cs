@@ -19,7 +19,7 @@ namespace Common.Network
     public class ConnectionWriter : IConnectionWriter
     {
         private IWebSocket _webSocket;
-        
+
         private readonly Dictionary<int, UniTaskCompletionSource<INetworkContext>> _pendingRequests = new();
         private readonly List<IMessageFromClient> _writeQueue = new();
 
@@ -30,7 +30,7 @@ namespace Common.Network
         {
             _webSocket = webSocket;
             _lifetime = lifetime.Child();
-            
+
             Loop(lifetime).Forget();
         }
 

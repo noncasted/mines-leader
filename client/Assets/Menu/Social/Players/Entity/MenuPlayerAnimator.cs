@@ -17,17 +17,17 @@ namespace Menu.Social
         {
         }
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuPlayerAnimator : SpriteAnimationRenderer
     {
         [SerializeField] private ForwardAnimationData _idle;
         [SerializeField] private ForwardAnimationData _run;
-        
+
         protected override void OnRegister(IEntityBuilder builder)
         {
             builder.Register<ForwardSpriteAnimation.Utils>();
-            
+
             builder.RegisterSpriteForwardAnimation<MenuPlayerIdle>(_idle);
             builder.RegisterSpriteForwardAnimation<MenuPlayerRun>(_run);
         }

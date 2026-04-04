@@ -9,9 +9,12 @@ namespace Tests.Game;
 /// <summary>
 /// Tests cell effect persistence — AddEffect/RemoveEffect on both TakenCell and FreeCell.
 /// </summary>
-public class CellEffectsTests {
-    private class TestEffect : ICellEffect {
-        public TestEffect(CellEffectType type) {
+public class CellEffectsTests
+{
+    private class TestEffect : ICellEffect
+    {
+        public TestEffect(CellEffectType type)
+        {
             Id = Guid.NewGuid();
             Type = type;
         }
@@ -21,12 +24,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void AddEffect_OnTakenCell_AppearsInEffectsList() {
+    public void AddEffect_OnTakenCell_AppearsInEffectsList()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -37,12 +42,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void AddEffect_OnFreeCell_AppearsInEffectsList() {
+    public void AddEffect_OnFreeCell_AppearsInEffectsList()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Fog);
@@ -53,12 +60,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_ByGuid_RemovesCorrectEffect() {
+    public void RemoveEffect_ByGuid_RemovesCorrectEffect()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -73,12 +82,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_WithUnknownGuid_NoOp() {
+    public void RemoveEffect_WithUnknownGuid_NoOp()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -91,12 +102,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void MultipleEffects_OnSameCell_AllTracked() {
+    public void MultipleEffects_OnSameCell_AllTracked()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -114,13 +127,15 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void EffectsOnTakenCell_LostOnToFree() {
+    public void EffectsOnTakenCell_LostOnToFree()
+    {
         // ToFree creates a new FreeCell — effects on old TakenCell are not carried over
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -135,13 +150,15 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void EffectsOnFreeCell_LostOnToTaken() {
+    public void EffectsOnFreeCell_LostOnToTaken()
+    {
         // ToTaken creates a new TakenCell — effects on old FreeCell are not carried over
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -156,12 +173,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_OnFreeCell_ByGuid() {
+    public void RemoveEffect_OnFreeCell_ByGuid()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -176,12 +195,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_OnFreeCell_WithUnknownGuid_NoOp() {
+    public void RemoveEffect_OnFreeCell_WithUnknownGuid_NoOp()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -193,12 +214,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void AddEffect_FiresEvent_OnTakenCell() {
+    public void AddEffect_FiresEvent_OnTakenCell()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, ICellEffect Effect)>();
 
@@ -214,12 +237,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_FiresEvent_OnTakenCell() {
+    public void RemoveEffect_FiresEvent_OnTakenCell()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, Guid EffectId)>();
 
@@ -235,13 +260,15 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void RemoveEffect_FiresEvent_EvenForUnknownGuid() {
+    public void RemoveEffect_FiresEvent_EvenForUnknownGuid()
+    {
         // RemoveEffect always fires the event, even if no effect was actually removed
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<Guid>();
 
@@ -256,12 +283,14 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void AddEffect_OnFreeCell_FiresEvent() {
+    public void AddEffect_OnFreeCell_FiresEvent()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var lifetime = new Lifetime();
         var fired = new List<ICellEffect>();
 
@@ -276,36 +305,42 @@ public class CellEffectsTests {
     }
 
     [Fact]
-    public void EmptyEffects_ByDefault() {
+    public void EmptyEffects_ByDefault()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
 
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
         taken.Effects.Should().BeEmpty();
     }
 
     [Fact]
-    public void EmptyEffects_OnFreeCell_ByDefault() {
+    public void EmptyEffects_OnFreeCell_ByDefault()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
 
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
         free.Effects.Should().BeEmpty();
     }
 
     [Fact]
-    public void RemoveAllEffects_LeavesEmptyList() {
+    public void RemoveAllEffects_LeavesEmptyList()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);

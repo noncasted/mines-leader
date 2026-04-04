@@ -8,7 +8,7 @@ namespace Common.Network
 
         void Add(INetworkObject networkObject);
     }
-    
+
     public class NetworkObjectsCollection : INetworkObjectsCollection
     {
         private readonly Dictionary<int, INetworkObject> _entries = new();

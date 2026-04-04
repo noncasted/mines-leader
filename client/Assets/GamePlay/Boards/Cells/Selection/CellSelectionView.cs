@@ -7,7 +7,7 @@ namespace GamePlay.Boards
         void Select();
         void Deselect();
     }
-    
+
     [DisallowMultipleComponent]
     public class CellSelectionView : MonoBehaviour, ICellSelectionView
     {

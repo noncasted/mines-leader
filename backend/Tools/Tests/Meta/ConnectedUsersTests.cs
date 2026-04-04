@@ -7,10 +7,12 @@ using Xunit;
 
 namespace Tests.Meta;
 
-public class ConnectedUsersTests {
+public class ConnectedUsersTests
+{
     private readonly ConnectedUsers _sut = new();
 
-    private static IUserSession CreateSession(Guid? userId = null, Lifetime? lifetime = null) {
+    private static IUserSession CreateSession(Guid? userId = null, Lifetime? lifetime = null)
+    {
         var session = Substitute.For<IUserSession>();
         session.UserId.Returns(userId ?? Guid.NewGuid());
         var lt = lifetime ?? new Lifetime();
@@ -19,7 +21,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Add_Session_MarksUserConnected() {
+    public void Add_Session_MarksUserConnected()
+    {
         var session = CreateSession();
 
         _sut.Add(session);
@@ -29,7 +32,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Remove_Session_MarksUserDisconnected() {
+    public void Remove_Session_MarksUserDisconnected()
+    {
         var session = CreateSession();
         _sut.Add(session);
 
@@ -40,12 +44,14 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void IsConnected_UnknownUser_ReturnsFalse() {
+    public void IsConnected_UnknownUser_ReturnsFalse()
+    {
         _sut.IsConnected(Guid.NewGuid()).Should().BeFalse();
     }
 
     [Fact]
-    public void Connected_Event_FiresOnAdd() {
+    public void Connected_Event_FiresOnAdd()
+    {
         var lifetime = new Lifetime();
         IUserSession? received = null;
         _sut.Connected.Advise(lifetime, session => received = session);
@@ -57,7 +63,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Remove_NonExistent_DoesNotThrow() {
+    public void Remove_NonExistent_DoesNotThrow()
+    {
         var session = CreateSession();
 
         var act = () => _sut.Remove(session);
@@ -66,7 +73,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Multiple_Sessions_IndependentTracking() {
+    public void Multiple_Sessions_IndependentTracking()
+    {
         var session1 = CreateSession();
         var session2 = CreateSession();
 
@@ -83,7 +91,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Lifetime_Termination_RemovesFromEntries() {
+    public void Lifetime_Termination_RemovesFromEntries()
+    {
         var lifetime = new Lifetime();
         var session = CreateSession(lifetime: lifetime);
 
@@ -97,7 +106,8 @@ public class ConnectedUsersTests {
     }
 
     [Fact]
-    public void Entries_ReturnsAllConnectedSessions() {
+    public void Entries_ReturnsAllConnectedSessions()
+    {
         var session1 = CreateSession();
         var session2 = CreateSession();
 

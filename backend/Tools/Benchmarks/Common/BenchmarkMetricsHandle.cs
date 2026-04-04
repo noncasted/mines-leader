@@ -46,10 +46,11 @@ public class BenchmarkMetricsHandle
             if (_count > 0)
             {
                 _records.Add(new BenchmarkRecord
-                {
-                    Count = _count,
-                    Time = DateTime.UtcNow - _startTime
-                });
+                    {
+                        Count = _count,
+                        Time = DateTime.UtcNow - _startTime
+                    }
+                );
                 _count = 0;
             }
 
@@ -92,10 +93,11 @@ public class BenchmarkMetricsHandle
                 var duration = _records[end - 1].Time - prevTime;
 
                 aggregated.Add(new BenchmarkRecord
-                {
-                    Count = count,
-                    Time = duration
-                });
+                    {
+                        Count = count,
+                        Time = duration
+                    }
+                );
             }
 
             var totalDuration = _records.Count > 0 ? _records[^1].Time : TimeSpan.Zero;

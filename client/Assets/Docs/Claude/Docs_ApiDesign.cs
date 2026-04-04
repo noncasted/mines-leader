@@ -10,9 +10,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Docs.Claude
 {
@@ -52,7 +52,10 @@ namespace Docs.Claude
             var itemIds = GetItemIds();
 
             // All these work with IReadOnlyList
-            foreach (var id in itemIds) { } // Iteration
+            foreach (var id in itemIds)
+            {
+            } // Iteration
+
             var first = itemIds[0]; // Indexing
             var count = itemIds.Count; // Count property
 
@@ -113,7 +116,7 @@ namespace Docs.Claude
                 // 3. Load into texture
                 if (!texture.LoadImage(imageData))
                 {
-                    UnityEngine.Object.Destroy(texture); // Full namespace (avoid conflict with object)
+                    Object.Destroy(texture); // Full namespace (avoid conflict with object)
                     return null;
                 }
 
@@ -122,7 +125,7 @@ namespace Docs.Claude
                     texture,
                     new Rect(0, 0, texture.width, texture.height),
                     Vector2.one * 0.5f, // Pivot at center
-                    100f                 // PixelsPerUnit
+                    100f // PixelsPerUnit
                 );
 
                 return sprite;
@@ -203,8 +206,7 @@ namespace Docs.Claude
         // Pattern: Wrapping callback-based API with UniTask
         public async UniTask<T> WrapCallbackAsync<T>(
             Func<Action<T>, Action, bool> callbackApi,
-            string description
-        )
+            string description)
         {
             var result = default(T);
             var completed = false;
@@ -243,15 +245,14 @@ namespace Docs.Claude
         // Pattern: Async with timeout
         public async UniTask<T> LoadWithTimeout<T>(
             Func<UniTask<T>> loader,
-            int timeoutMs = 5000
-        )
+            int timeoutMs = 5000)
         {
             try
             {
                 var loadTask = loader();
                 var timeoutTask = UniTask.Delay(timeoutMs);
 
-                var (_,completedTask) = await UniTask.WhenAny(loadTask, timeoutTask);
+                var (_, completedTask) = await UniTask.WhenAny(loadTask, timeoutTask);
 
                 if (completedTask == null) // timeout completed first
                 {
@@ -316,7 +317,7 @@ namespace Docs.Claude
 
                 if (!texture.LoadImage(data))
                 {
-                    UnityEngine.Object.Destroy(texture); // Cleanup on error
+                    Object.Destroy(texture); // Cleanup on error
                     return null;
                 }
 
@@ -330,11 +331,11 @@ namespace Docs.Claude
         }
 
         // RULE 5: Always use full UnityEngine.Object name
-        private static void CleanupResource(UnityEngine.Object resource)
+        private static void CleanupResource(Object resource)
         {
             if (resource != null)
             {
-                UnityEngine.Object.Destroy(resource); // ✅ Full name (avoids conflict with 'object')
+                Object.Destroy(resource); // ✅ Full name (avoids conflict with 'object')
                 // Object.Destroy(resource); // ❌ Wrong - conflicts with C# 'object' type
             }
         }
@@ -362,7 +363,12 @@ namespace Docs.Claude
         {
             public class FileBrowser
             {
-                public enum PickMode { Files, Folders, FilesAndFolders }
+                public enum PickMode
+                {
+                    Files,
+                    Folders,
+                    FilesAndFolders
+                }
 
                 public static bool ShowLoadDialog(
                     Action<string[]> onSuccess,

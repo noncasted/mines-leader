@@ -8,7 +8,7 @@ namespace GamePlay.Cards
     {
         T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour;
     }
-    
+
     [DisallowMultipleComponent]
     public class CardVfxFactory : MonoBehaviour, ICardVfxFactory, ISceneService
     {
@@ -20,13 +20,13 @@ namespace GamePlay.Cards
         {
             _viewInjector = viewInjector;
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
                 .As<ICardVfxFactory>();
         }
-        
+
         public T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour
         {
             if (prefab == null)
@@ -36,12 +36,12 @@ namespace GamePlay.Cards
             }
 
             _index++;
-            
+
             var instance = Instantiate(prefab, position, Quaternion.Euler(0, 0, angle), transform);
             instance.name = $"{prefab.name}_{_index}";
 
             _viewInjector.Inject(instance);
-            
+
             return instance;
         }
     }

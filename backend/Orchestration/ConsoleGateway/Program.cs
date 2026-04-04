@@ -1,5 +1,6 @@
 using BlazorBlueprint.Components;
 using Console;
+using Console.Pages.Home;
 using ConsoleGateway;
 using Orchestration;
 
@@ -26,6 +27,6 @@ app.AddBenchmarkEndpoints();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
-    .AddAdditionalAssemblies(typeof(global::Console.Pages.Home.Home).Assembly);
+    .AddAdditionalAssemblies(typeof(Home).Assembly);
 
 app.Run();

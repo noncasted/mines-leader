@@ -13,20 +13,21 @@ public class ExecutionQueue : IExecutionQueue
     public ExecutionQueue(ILogger<ExecutionQueue> logger)
     {
         _commandQueue = new ActionBlock<Action>(command =>
-        {
-            try
             {
-                command();
-            }
-            catch (Exception e)
+                try
+                {
+                    command();
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error executing command in session");
+                }
+            }, new ExecutionDataflowBlockOptions
             {
-                logger.LogError(e, "Error executing command in session");
+                MaxDegreeOfParallelism = 1,
+                EnsureOrdered = true
             }
-        }, new ExecutionDataflowBlockOptions
-        {
-            MaxDegreeOfParallelism = 1,
-            EnsureOrdered = true
-        });
+        );
     }
 
     private readonly ActionBlock<Action> _commandQueue;

@@ -9,10 +9,10 @@ public class UserHandle
         _orleans = orleans;
         _id = id;
     }
-    
+
     private readonly IOrleans _orleans;
     private readonly Guid _id;
-    
+
     public IUser Entity => _orleans.GetGrain<IUser>(_id);
     public IUserProgression Progression => _orleans.GetGrain<IUserProgression>(_id);
     public IUserRating Rating => _orleans.GetGrain<IUserRating>(_id);

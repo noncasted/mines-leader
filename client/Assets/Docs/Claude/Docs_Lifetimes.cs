@@ -7,6 +7,7 @@
 /// Read: .claude/docs/COMMON_LIFETIMES.md
 /// </summary>
 
+using System.Collections.Generic;
 using Internal;
 
 namespace Docs.Claude
@@ -301,7 +302,7 @@ namespace Docs.Claude
             var child2 = parent.Child();
             var grandchild = child1.Child();
 
-            var terminationOrder = new System.Collections.Generic.List<string>();
+            var terminationOrder = new List<string>();
 
             parent.Listen(() => terminationOrder.Add("parent"));
             child1.Listen(() => terminationOrder.Add("child1"));
@@ -371,6 +372,7 @@ namespace Docs.Claude
         // TIP 3: WRONG - lifetime with very long lifecycle
         // Keeps many subscribers in memory even after they're no longer needed
         private ILifetime _appLifetime = new Lifetime();
+
         public void Tip3_LifetimeScope_WRONG()
         {
             var subscriptionCount = 0;

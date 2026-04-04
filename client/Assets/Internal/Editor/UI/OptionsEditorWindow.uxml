@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="root" class="options-root">
         <ui:VisualElement name="header" class="options-header">
@@ -22,7 +23,8 @@
 
             <ui:Foldout text="Backend Options" name="backend-foldout" class="options-section">
                 <uie:EnumField label="Environment" name="backend-environment" binding-path="_backend._environment" />
-                <ui:TextField label="Production URL" name="backend-production-url" binding-path="_backend._productionApiUrl" />
+                <ui:TextField label="Production URL" name="backend-production-url"
+                              binding-path="_backend._productionApiUrl" />
                 <ui:TextField label="Local URL" name="backend-local-url" binding-path="_backend._localApiUrl" />
             </ui:Foldout>
 

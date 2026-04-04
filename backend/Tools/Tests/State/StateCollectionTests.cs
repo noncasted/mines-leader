@@ -1,7 +1,6 @@
 using Common.Reactive;
 using FluentAssertions;
 using Infrastructure;
-using Infrastructure.State;
 using Tests.Fixtures;
 using Tests.Grains;
 using Xunit;
@@ -15,9 +14,12 @@ namespace Tests.State;
 /// These tests verify the DB-backed load path and grain-state-to-collection consistency.
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
-public class StateCollectionTests(OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture) {
+public class StateCollectionTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task StateCollectionUtils_Load_ReturnsEntriesFromDatabase() {
+    public async Task StateCollectionUtils_Load_ReturnsEntriesFromDatabase()
+    {
         // Write entries via grains — they persist to DB
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();
@@ -43,7 +45,8 @@ public class StateCollectionTests(OrleansTestClusterFixture fixture) : Integrati
     }
 
     [Fact]
-    public async Task StateCollectionUtils_Load_ReflectsGrainUpdates() {
+    public async Task StateCollectionUtils_Load_ReflectsGrainUpdates()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ICollectionTestGrain>(id);
         await grain.SetName("initial");
@@ -69,7 +72,8 @@ public class StateCollectionTests(OrleansTestClusterFixture fixture) : Integrati
     }
 
     [Fact]
-    public async Task StateCollectionUtils_Load_EmptyDatabase_ReturnsEmpty() {
+    public async Task StateCollectionUtils_Load_EmptyDatabase_ReturnsEmpty()
+    {
         var utils = GetSiloService<StateCollectionUtils<Guid, CollectionTestState>>();
         var lifetime = new Lifetime();
 
@@ -83,18 +87,21 @@ public class StateCollectionTests(OrleansTestClusterFixture fixture) : Integrati
         loaded.Should().BeAssignableTo<IReadOnlyDictionary<Guid, CollectionTestState>>();
 
         // Iterating empty collection should not throw
-        foreach (var _ in loaded) {
+        foreach (var _ in loaded)
+        {
             throw new Exception("Should not iterate any entries");
         }
     }
 
     [Fact]
-    public async Task StateCollectionUtils_Load_MultipleGrains_AllPresent() {
+    public async Task StateCollectionUtils_Load_MultipleGrains_AllPresent()
+    {
         var utils = GetSiloService<StateCollectionUtils<Guid, CollectionTestState>>();
 
         // Write several entries
         var ids = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
-        foreach (var id in ids) {
+        foreach (var id in ids)
+        {
             var grain = GetGrain<ICollectionTestGrain>(id);
             await grain.SetName($"item-{id:N}");
         }
@@ -105,7 +112,8 @@ public class StateCollectionTests(OrleansTestClusterFixture fixture) : Integrati
 
         loaded.Count.Should().Be(5);
 
-        foreach (var id in ids) {
+        foreach (var id in ids)
+        {
             loaded.Should().ContainKey(id);
             loaded[id].Id.Should().Be(id);
             loaded[id].Name.Should().Be($"item-{id:N}");

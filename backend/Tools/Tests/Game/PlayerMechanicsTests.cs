@@ -7,15 +7,18 @@ using Xunit;
 
 namespace Tests.Game;
 
-public class HealthTests {
-    private static (Health health, ValueProperty<PlayerHealthState> state) Create() {
+public class HealthTests
+{
+    private static (Health health, ValueProperty<PlayerHealthState> state) Create()
+    {
         var state = new ValueProperty<PlayerHealthState>(0).ForTest();
         var health = new Health(state);
         return (health, state);
     }
 
     [Fact]
-    public void SetMax_SetsMaximumHp() {
+    public void SetMax_SetsMaximumHp()
+    {
         var (health, _) = Create();
 
         health.SetMax(100);
@@ -24,7 +27,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToMax() {
+    public void SetCurrent_ClampsToMax()
+    {
         var (health, _) = Create();
         health.SetMax(50);
 
@@ -34,7 +38,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToZero() {
+    public void SetCurrent_ClampsToZero()
+    {
         var (health, _) = Create();
         health.SetMax(50);
 
@@ -44,7 +49,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void SetCurrent_WithinRange_SetsExactValue() {
+    public void SetCurrent_WithinRange_SetsExactValue()
+    {
         var (health, _) = Create();
         health.SetMax(100);
 
@@ -54,7 +60,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void TakeDamage_ReducesCurrentHp() {
+    public void TakeDamage_ReducesCurrentHp()
+    {
         var (health, _) = Create();
         health.SetMax(100);
         health.SetCurrent(100);
@@ -65,7 +72,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void TakeDamage_BelowZero_ClampsToZero() {
+    public void TakeDamage_BelowZero_ClampsToZero()
+    {
         var (health, _) = Create();
         health.SetMax(100);
         health.SetCurrent(10);
@@ -76,7 +84,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void TakeDamage_NegativeAmount_Throws() {
+    public void TakeDamage_NegativeAmount_Throws()
+    {
         var (health, _) = Create();
         health.SetMax(100);
         health.SetCurrent(50);
@@ -87,7 +96,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void Heal_IncreasesCurrentHp() {
+    public void Heal_IncreasesCurrentHp()
+    {
         var (health, _) = Create();
         health.SetMax(100);
         health.SetCurrent(50);
@@ -98,7 +108,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void Heal_AboveMax_ClampsToMax() {
+    public void Heal_AboveMax_ClampsToMax()
+    {
         var (health, _) = Create();
         health.SetMax(100);
         health.SetCurrent(90);
@@ -109,7 +120,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void Heal_NegativeAmount_Throws() {
+    public void Heal_NegativeAmount_Throws()
+    {
         var (health, _) = Create();
 
         var act = () => health.Heal(-1);
@@ -118,7 +130,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void TakeDamage_ToZero_CurrentIsZero() {
+    public void TakeDamage_ToZero_CurrentIsZero()
+    {
         var (health, _) = Create();
         health.SetMax(50);
         health.SetCurrent(50);
@@ -129,7 +142,8 @@ public class HealthTests {
     }
 
     [Fact]
-    public void SyncState_ReflectsInValueProperty() {
+    public void SyncState_ReflectsInValueProperty()
+    {
         var (health, state) = Create();
         health.SetMax(80);
         health.SetCurrent(45);
@@ -139,15 +153,18 @@ public class HealthTests {
     }
 }
 
-public class ManaTests {
-    private static (Mana mana, ValueProperty<PlayerManaState> state) Create() {
+public class ManaTests
+{
+    private static (Mana mana, ValueProperty<PlayerManaState> state) Create()
+    {
         var state = new ValueProperty<PlayerManaState>(0).ForTest();
         var mana = new Mana(state);
         return (mana, state);
     }
 
     [Fact]
-    public void SetMax_SetsMaximumMana() {
+    public void SetMax_SetsMaximumMana()
+    {
         var (mana, _) = Create();
 
         mana.SetMax(10);
@@ -156,7 +173,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void SetMax_ClampsCurrent_WhenCurrentExceedsNewMax() {
+    public void SetMax_ClampsCurrent_WhenCurrentExceedsNewMax()
+    {
         var (mana, _) = Create();
         mana.SetMax(10);
         mana.Restore();
@@ -168,7 +186,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void Restore_SetsCurrentToMax() {
+    public void Restore_SetsCurrentToMax()
+    {
         var (mana, _) = Create();
         mana.SetMax(10);
         mana.Use(5);
@@ -179,7 +198,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void Use_ReducesCurrentMana() {
+    public void Use_ReducesCurrentMana()
+    {
         var (mana, _) = Create();
         mana.SetMax(10);
         mana.Restore();
@@ -190,7 +210,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void Use_MoreThanAvailable_ClampsToZero() {
+    public void Use_MoreThanAvailable_ClampsToZero()
+    {
         var (mana, _) = Create();
         mana.SetMax(5);
         mana.Restore();
@@ -201,7 +222,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void Use_NegativeAmount_Throws() {
+    public void Use_NegativeAmount_Throws()
+    {
         var (mana, _) = Create();
 
         var act = () => mana.Use(-1);
@@ -210,7 +232,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToMax() {
+    public void SetCurrent_ClampsToMax()
+    {
         var (mana, _) = Create();
         mana.SetMax(10);
 
@@ -220,7 +243,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToZero() {
+    public void SetCurrent_ClampsToZero()
+    {
         var (mana, _) = Create();
         mana.SetMax(10);
 
@@ -230,7 +254,8 @@ public class ManaTests {
     }
 
     [Fact]
-    public void SyncState_ReflectsInValueProperty() {
+    public void SyncState_ReflectsInValueProperty()
+    {
         var (mana, state) = Create();
         mana.SetMax(8);
         mana.Restore();
@@ -241,15 +266,18 @@ public class ManaTests {
     }
 }
 
-public class MovesTests {
-    private static (Moves moves, ValueProperty<PlayerMovesState> state) Create() {
+public class MovesTests
+{
+    private static (Moves moves, ValueProperty<PlayerMovesState> state) Create()
+    {
         var state = new ValueProperty<PlayerMovesState>(0).ForTest();
         var moves = new Moves(state);
         return (moves, state);
     }
 
     [Fact]
-    public void SetMax_SetsMaxMoves() {
+    public void SetMax_SetsMaxMoves()
+    {
         var (moves, _) = Create();
 
         moves.SetMax(5);
@@ -258,7 +286,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void Restore_ResetsLeftToMax() {
+    public void Restore_ResetsLeftToMax()
+    {
         var (moves, _) = Create();
         moves.SetMax(3);
 
@@ -268,7 +297,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void OnUsed_DecrementsByOne() {
+    public void OnUsed_DecrementsByOne()
+    {
         var (moves, _) = Create();
         moves.SetMax(3);
         moves.Restore();
@@ -279,7 +309,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void OnUsed_AtZero_Throws() {
+    public void OnUsed_AtZero_Throws()
+    {
         var (moves, _) = Create();
         moves.SetMax(1);
         moves.Restore();
@@ -291,7 +322,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void Lock_SetsLeftToZero() {
+    public void Lock_SetsLeftToZero()
+    {
         var (moves, state) = Create();
         moves.SetMax(5);
         moves.Restore();
@@ -303,7 +335,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void Restore_SetsIsAvailableTrue() {
+    public void Restore_SetsIsAvailableTrue()
+    {
         var (moves, state) = Create();
         moves.SetMax(3);
         moves.Lock();
@@ -314,7 +347,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToMax() {
+    public void SetCurrent_ClampsToMax()
+    {
         var (moves, _) = Create();
         moves.SetMax(5);
 
@@ -324,7 +358,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void SetCurrent_ClampsToZero() {
+    public void SetCurrent_ClampsToZero()
+    {
         var (moves, _) = Create();
         moves.SetMax(5);
 
@@ -334,7 +369,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void SetMax_ClampsLeftWhenExceeds() {
+    public void SetMax_ClampsLeftWhenExceeds()
+    {
         var (moves, _) = Create();
         moves.SetMax(10);
         moves.Restore();
@@ -345,7 +381,8 @@ public class MovesTests {
     }
 
     [Fact]
-    public void SyncState_ReflectsMaxInState() {
+    public void SyncState_ReflectsMaxInState()
+    {
         var (moves, state) = Create();
         moves.SetMax(7);
         moves.Restore();
@@ -355,9 +392,10 @@ public class MovesTests {
     }
 }
 
-public class DeckTests {
-    private static (Deck deck, ValueProperty<PlayerDeckState> state) Create(
-        IReadOnlyList<CardType>? selected = null) {
+public class DeckTests
+{
+    private static (Deck deck, ValueProperty<PlayerDeckState> state) Create(IReadOnlyList<CardType>? selected = null)
+    {
         var state = new ValueProperty<PlayerDeckState>(0).ForTest();
         state.Update(s => s.Queue = new List<CardType>());
         selected ??= new[] { CardType.Bloodhound, CardType.Trebuchet };
@@ -366,7 +404,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void Init_FillsDeckWithCards() {
+    public void Init_FillsDeckWithCards()
+    {
         var (deck, _) = Create();
 
         deck.Init(6);
@@ -375,7 +414,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void Init_CyclesThroughSelectedTypes() {
+    public void Init_CyclesThroughSelectedTypes()
+    {
         var selected = new[] { CardType.Bloodhound, CardType.Trebuchet };
         var (deck, state) = Create(selected);
 
@@ -392,7 +432,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void DrawCard_ReturnsCardAndRemovesFromDeck() {
+    public void DrawCard_ReturnsCardAndRemovesFromDeck()
+    {
         var (deck, _) = Create();
         deck.AddCard(CardType.Bloodhound);
         deck.AddCard(CardType.Trebuchet);
@@ -404,7 +445,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void DrawCard_FromEmptyDeck_Throws() {
+    public void DrawCard_FromEmptyDeck_Throws()
+    {
         var (deck, _) = Create();
 
         var act = () => deck.DrawCard();
@@ -413,7 +455,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void AddCard_IncreasesCount() {
+    public void AddCard_IncreasesCount()
+    {
         var (deck, _) = Create();
 
         deck.AddCard(CardType.Bloodhound);
@@ -423,7 +466,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void RemoveCard_DecreasesCount() {
+    public void RemoveCard_DecreasesCount()
+    {
         var (deck, _) = Create();
         deck.AddCard(CardType.Bloodhound);
         deck.AddCard(CardType.Trebuchet);
@@ -434,7 +478,8 @@ public class DeckTests {
     }
 
     [Fact]
-    public void Count_ReflectsCurrentSize() {
+    public void Count_ReflectsCurrentSize()
+    {
         var (deck, _) = Create();
 
         deck.Count.Should().Be(0);
@@ -445,15 +490,18 @@ public class DeckTests {
     }
 }
 
-public class HandTests {
-    private static (Hand hand, ValueProperty<PlayerHandState> state) Create() {
+public class HandTests
+{
+    private static (Hand hand, ValueProperty<PlayerHandState> state) Create()
+    {
         var state = new ValueProperty<PlayerHandState>(0).ForTest();
         var hand = new Hand(state);
         return (hand, state);
     }
 
     [Fact]
-    public void SetSize_SetsHandCapacity() {
+    public void SetSize_SetsHandCapacity()
+    {
         var (hand, _) = Create();
 
         hand.SetSize(5);
@@ -462,7 +510,8 @@ public class HandTests {
     }
 
     [Fact]
-    public void Add_ReturnsActiveCardWithIdAndType() {
+    public void Add_ReturnsActiveCardWithIdAndType()
+    {
         var (hand, _) = Create();
 
         var card = hand.Add(CardType.Bloodhound);
@@ -472,7 +521,8 @@ public class HandTests {
     }
 
     [Fact]
-    public void Add_AppearsInEntries() {
+    public void Add_AppearsInEntries()
+    {
         var (hand, _) = Create();
 
         var card = hand.Add(CardType.Trebuchet);
@@ -481,7 +531,8 @@ public class HandTests {
     }
 
     [Fact]
-    public void Remove_ById_RemovesCard() {
+    public void Remove_ById_RemovesCard()
+    {
         var (hand, _) = Create();
         var card1 = hand.Add(CardType.Bloodhound);
         var card2 = hand.Add(CardType.Trebuchet);
@@ -493,7 +544,8 @@ public class HandTests {
     }
 
     [Fact]
-    public void Remove_NonExistentId_DoesNothing() {
+    public void Remove_NonExistentId_DoesNothing()
+    {
         var (hand, _) = Create();
         hand.Add(CardType.Bloodhound);
 
@@ -503,21 +555,29 @@ public class HandTests {
     }
 
     [Fact]
-    public void Entries_ReturnsCurrentHand() {
+    public void Entries_ReturnsCurrentHand()
+    {
         var (hand, _) = Create();
         var card1 = hand.Add(CardType.Bloodhound);
         var card2 = hand.Add(CardType.Trebuchet);
         var card3 = hand.Add(CardType.ErosionDozer);
 
         hand.Entries.Should().HaveCount(3);
-        hand.Entries.Select(c => c.Type).Should().ContainInOrder(
-            CardType.Bloodhound, CardType.Trebuchet, CardType.ErosionDozer);
-        hand.Entries.Select(c => c.Id).Should().ContainInOrder(
-            card1.Id, card2.Id, card3.Id);
+        hand.Entries.Select(c => c.Type)
+            .Should()
+            .ContainInOrder(
+                CardType.Bloodhound, CardType.Trebuchet, CardType.ErosionDozer
+            );
+        hand.Entries.Select(c => c.Id)
+            .Should()
+            .ContainInOrder(
+                card1.Id, card2.Id, card3.Id
+            );
     }
 
     [Fact]
-    public void Add_MultipleCards_GeneratesUniqueIds() {
+    public void Add_MultipleCards_GeneratesUniqueIds()
+    {
         var (hand, _) = Create();
 
         var card1 = hand.Add(CardType.Bloodhound);
@@ -527,15 +587,18 @@ public class HandTests {
     }
 }
 
-public class StashTests {
-    private static (Stash stash, ValueProperty<PlayerStashState> state) Create() {
+public class StashTests
+{
+    private static (Stash stash, ValueProperty<PlayerStashState> state) Create()
+    {
         var state = new ValueProperty<PlayerStashState>(0).ForTest();
         var stash = new Stash(state);
         return (stash, state);
     }
 
     [Fact]
-    public void Add_IncreasesCount() {
+    public void Add_IncreasesCount()
+    {
         var (stash, _) = Create();
 
         stash.Add(CardType.Bloodhound);
@@ -544,7 +607,8 @@ public class StashTests {
     }
 
     [Fact]
-    public void Pick_ReturnsLastAdded_Lifo() {
+    public void Pick_ReturnsLastAdded_Lifo()
+    {
         var (stash, _) = Create();
         stash.Add(CardType.Bloodhound);
         stash.Add(CardType.Trebuchet);
@@ -556,7 +620,8 @@ public class StashTests {
     }
 
     [Fact]
-    public void Pick_FromEmptyStash_Throws() {
+    public void Pick_FromEmptyStash_Throws()
+    {
         var (stash, _) = Create();
 
         var act = () => stash.Pick();
@@ -565,7 +630,8 @@ public class StashTests {
     }
 
     [Fact]
-    public void Collect_ReturnsAllAndClears() {
+    public void Collect_ReturnsAllAndClears()
+    {
         var (stash, _) = Create();
         stash.Add(CardType.Bloodhound);
         stash.Add(CardType.Trebuchet);
@@ -581,7 +647,8 @@ public class StashTests {
     }
 
     [Fact]
-    public void Collect_FromEmptyStash_ReturnsEmpty() {
+    public void Collect_FromEmptyStash_ReturnsEmpty()
+    {
         var (stash, _) = Create();
 
         var collected = stash.Collect();
@@ -591,7 +658,8 @@ public class StashTests {
     }
 
     [Fact]
-    public void SyncState_CountReflectsInState() {
+    public void SyncState_CountReflectsInState()
+    {
         var (stash, state) = Create();
         stash.Add(CardType.Bloodhound);
         stash.Add(CardType.Trebuchet);
@@ -603,17 +671,21 @@ public class StashTests {
     }
 }
 
-public class RoundActionServiceTests {
-    private class TestAction : IRoundAction {
+public class RoundActionServiceTests
+{
+    private class TestAction : IRoundAction
+    {
         public int ExecuteCount { get; private set; }
 
-        public void Execute() {
+        public void Execute()
+        {
             ExecuteCount++;
         }
     }
 
     [Fact]
-    public void Schedule_WithDelay_ExecutesAfterNTicks() {
+    public void Schedule_WithDelay_ExecutesAfterNTicks()
+    {
         var service = new RoundActionService();
         var action = new TestAction();
 
@@ -628,7 +700,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Schedule_WithOneRound_ExecutesOnFirstTick() {
+    public void Schedule_WithOneRound_ExecutesOnFirstTick()
+    {
         var service = new RoundActionService();
         var action = new TestAction();
 
@@ -639,7 +712,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Schedule_WithZeroRounds_DoesNotSchedule() {
+    public void Schedule_WithZeroRounds_DoesNotSchedule()
+    {
         var service = new RoundActionService();
         var action = new TestAction();
 
@@ -650,7 +724,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Schedule_NegativeRounds_DoesNotSchedule() {
+    public void Schedule_NegativeRounds_DoesNotSchedule()
+    {
         var service = new RoundActionService();
         var action = new TestAction();
 
@@ -661,7 +736,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Tick_WithNoActions_DoesNotThrow() {
+    public void Tick_WithNoActions_DoesNotThrow()
+    {
         var service = new RoundActionService();
 
         var act = () => service.Tick();
@@ -680,7 +756,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Tick_MultipleActionsAtSameRound_AllExecute() {
+    public void Tick_MultipleActionsAtSameRound_AllExecute()
+    {
         var service = new RoundActionService();
         var action1 = new TestAction();
         var action2 = new TestAction();
@@ -698,7 +775,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void Action_RemovedAfterExecution() {
+    public void Action_RemovedAfterExecution()
+    {
         var service = new RoundActionService();
         var action = new TestAction();
 
@@ -710,7 +788,8 @@ public class RoundActionServiceTests {
     }
 
     [Fact]
-    public void MultipleActions_DifferentDelays_ExecuteAtCorrectTimes() {
+    public void MultipleActions_DifferentDelays_ExecuteAtCorrectTimes()
+    {
         var service = new RoundActionService();
         var early = new TestAction();
         var late = new TestAction();
@@ -730,15 +809,18 @@ public class RoundActionServiceTests {
     }
 }
 
-public class ModifiersTests {
-    private static (Modifiers modifiers, ValueProperty<PlayerModifiersState> state) Create() {
+public class ModifiersTests
+{
+    private static (Modifiers modifiers, ValueProperty<PlayerModifiersState> state) Create()
+    {
         var state = new ValueProperty<PlayerModifiersState>(0).ForTest();
         var modifiers = new Modifiers(state);
         return (modifiers, state);
     }
 
     [Fact]
-    public void InitialValues_AllZero() {
+    public void InitialValues_AllZero()
+    {
         var (modifiers, _) = Create();
 
         foreach (var type in PlayerModifierExtensions.All)
@@ -746,7 +828,8 @@ public class ModifiersTests {
     }
 
     [Fact]
-    public void Set_UpdatesValue() {
+    public void Set_UpdatesValue()
+    {
         var (modifiers, _) = Create();
 
         modifiers.Set(PlayerModifier.TrebuchetBoost, 5f);
@@ -755,7 +838,8 @@ public class ModifiersTests {
     }
 
     [Fact]
-    public void Get_ReturnsCurrentValue() {
+    public void Get_ReturnsCurrentValue()
+    {
         var (modifiers, _) = Create();
         modifiers.Set(PlayerModifier.TrebuchetBoost, 3.5f);
 
@@ -765,7 +849,8 @@ public class ModifiersTests {
     }
 
     [Fact]
-    public void Inc_IncrementsByOne() {
+    public void Inc_IncrementsByOne()
+    {
         var (modifiers, _) = Create();
 
         modifiers.Inc(PlayerModifier.TrebuchetBoost);
@@ -775,7 +860,8 @@ public class ModifiersTests {
     }
 
     [Fact]
-    public void Reset_SetsToZero() {
+    public void Reset_SetsToZero()
+    {
         var (modifiers, _) = Create();
         modifiers.Set(PlayerModifier.TrebuchetBoost, 10f);
 
@@ -785,7 +871,8 @@ public class ModifiersTests {
     }
 
     [Fact]
-    public void SyncState_ReflectsInValueProperty() {
+    public void SyncState_ReflectsInValueProperty()
+    {
         var (modifiers, state) = Create();
 
         modifiers.Set(PlayerModifier.TrebuchetBoost, 7f);
@@ -794,9 +881,11 @@ public class ModifiersTests {
     }
 }
 
-public class PlayerActionsTests {
+public class PlayerActionsTests
+{
     [Fact]
-    public void OnCellOpened_FiresCellOpenedDelegate() {
+    public void OnCellOpened_FiresCellOpenedDelegate()
+    {
         var actions = new PlayerActions();
         var lifetime = new Lifetime();
         var fired = false;
@@ -809,7 +898,8 @@ public class PlayerActionsTests {
     }
 
     [Fact]
-    public void OnCardUsed_FiresCardUsedDelegate() {
+    public void OnCardUsed_FiresCardUsedDelegate()
+    {
         var actions = new PlayerActions();
         var lifetime = new Lifetime();
         var fired = false;
@@ -822,7 +912,8 @@ public class PlayerActionsTests {
     }
 
     [Fact]
-    public void CellOpened_MultipleListeners_AllFired() {
+    public void CellOpened_MultipleListeners_AllFired()
+    {
         var actions = new PlayerActions();
         var lifetime = new Lifetime();
         var count = 0;
@@ -836,7 +927,8 @@ public class PlayerActionsTests {
     }
 
     [Fact]
-    public void CardUsed_AfterLifetimeTerminated_DoesNotFire() {
+    public void CardUsed_AfterLifetimeTerminated_DoesNotFire()
+    {
         var actions = new PlayerActions();
         var lifetime = new Lifetime();
         var fired = false;

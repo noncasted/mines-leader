@@ -13,7 +13,7 @@ namespace Common.Network
 
         UniTask Start(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
     }
-    
+
     public class NetworkSession : INetworkSession
     {
         public NetworkSession(
@@ -52,7 +52,7 @@ namespace Common.Network
             await _callbacks.InvokeSessionSetupCompleted(lifetime);
         }
     }
-    
+
     public static class SessionContextExtensions
     {
         public static int LocalIndex(this INetworkSession context)

@@ -11,7 +11,7 @@ namespace Internal
             LifetimeScope parent,
             IScopeEntityView view,
             Func<IEntityBuilder, UniTask> construct);
-        
+
         UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
             LifetimeScope parent,

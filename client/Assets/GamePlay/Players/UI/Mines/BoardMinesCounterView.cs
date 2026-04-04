@@ -37,7 +37,7 @@ namespace GamePlay.Players
                         _gameStarted = true;
                         return;
                     }
-                    
+
                     _text.text = (state.Mines - state.Flags).ToString();
                 }
             );

@@ -28,7 +28,7 @@ public class OpponentFlagErase : ICard
                 ActionData = null
             };
         }
-        
+
         var size = _config.Size;
         var pattern = PatternShapes.Rhombus(size);
 

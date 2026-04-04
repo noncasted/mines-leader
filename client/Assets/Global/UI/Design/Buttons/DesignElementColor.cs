@@ -67,7 +67,7 @@ namespace Global.UI
 
             if (_config == null)
                 return;
-            
+
             _image.color = _config.Idle;
         }
     }

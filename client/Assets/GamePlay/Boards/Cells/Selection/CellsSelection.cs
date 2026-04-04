@@ -13,7 +13,7 @@ namespace GamePlay.Boards
 
         void Start(IReadOnlyLifetime lifetime);
     }
-    
+
     public class CellsSelection : ICellsSelection, IUpdatable
     {
         public CellsSelection(IUpdater updater, IGameInput input, IGameContext gameContext)
@@ -50,7 +50,7 @@ namespace GamePlay.Boards
 
             if (target == _value.Value)
                 return;
-            
+
             _value.Set(target);
         }
 

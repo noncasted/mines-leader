@@ -13,7 +13,7 @@
             FullPathName = fullPathName;
             Raw = path;
         }
-        
+
         public string DirectoryName { get; }
         public string Name { get; }
         public string FullPathName { get; }

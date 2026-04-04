@@ -1,6 +1,5 @@
 using Common.Reactive;
 using FluentAssertions;
-using Infrastructure;
 using Infrastructure.State;
 using Tests.Fixtures;
 using Tests.Grains;
@@ -12,9 +11,12 @@ namespace Tests.State;
 /// Tests basic grain state read/write operations via the real Orleans TestCluster.
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
-public class StateReadWriteTests(OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture) {
+public class StateReadWriteTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task SimpleGrain_WriteAndRead_ReturnsSameValue() {
+    public async Task SimpleGrain_WriteAndRead_ReturnsSameValue()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ISimpleTestGrain>(id);
 
@@ -25,7 +27,8 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task SimpleGrain_WriteLabel_ReturnsSameLabel() {
+    public async Task SimpleGrain_WriteLabel_ReturnsSameLabel()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ISimpleTestGrain>(id);
 
@@ -36,7 +39,8 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task SimpleGrain_MultipleWrites_KeepsLatest() {
+    public async Task SimpleGrain_MultipleWrites_KeepsLatest()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ISimpleTestGrain>(id);
 
@@ -49,7 +53,8 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task SimpleGrain_DifferentGrains_IndependentState() {
+    public async Task SimpleGrain_DifferentGrains_IndependentState()
+    {
         var grain1 = GetGrain<ISimpleTestGrain>(Guid.NewGuid());
         var grain2 = GetGrain<ISimpleTestGrain>(Guid.NewGuid());
 
@@ -64,12 +69,14 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task StateStorage_WriteAndRead_RoundTripPreservesData() {
+    public async Task StateStorage_WriteAndRead_RoundTripPreservesData()
+    {
         var storage = GetSiloService<IStateStorage>();
         var id = Guid.NewGuid();
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
-        var identity = new StateIdentity {
+        var identity = new StateIdentity
+        {
             Key = id,
             Type = stateInfo.Name,
             TableName = stateInfo.TableName,
@@ -86,12 +93,14 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task StateStorage_Delete_RemovesEntry() {
+    public async Task StateStorage_Delete_RemovesEntry()
+    {
         var storage = GetSiloService<IStateStorage>();
         var id = Guid.NewGuid();
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
-        var identity = new StateIdentity {
+        var identity = new StateIdentity
+        {
             Key = id,
             Type = stateInfo.Name,
             TableName = stateInfo.TableName,
@@ -109,12 +118,14 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task StateStorage_ReadAll_ReturnsAllEntries() {
+    public async Task StateStorage_ReadAll_ReturnsAllEntries()
+    {
         var storage = GetSiloService<IStateStorage>();
 
         // Write multiple entries via grains so they land in the DB
         var ids = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
-        foreach (var id in ids) {
+        foreach (var id in ids)
+        {
             var grain = GetGrain<ICollectionTestGrain>(id);
             await grain.SetName($"item-{id:N}");
         }
@@ -123,7 +134,8 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
         var lifetime = new Lifetime();
         var results = new List<(Guid, CollectionTestState)>();
 
-        await foreach (var entry in storage.ReadAll<Guid, CollectionTestState>(lifetime)) {
+        await foreach (var entry in storage.ReadAll<Guid, CollectionTestState>(lifetime))
+        {
             results.Add(entry);
         }
 
@@ -131,32 +143,39 @@ public class StateReadWriteTests(OrleansTestClusterFixture fixture) : Integratio
 
         results.Count.Should().BeGreaterThanOrEqualTo(3);
 
-        foreach (var id in ids) {
+        foreach (var id in ids)
+        {
             results.Should().Contain(r => r.Item1 == id && r.Item2.Name == $"item-{id:N}");
         }
     }
 
     [Fact]
-    public async Task StateStorage_DeleteMultiple_RemovesAllSpecified() {
+    public async Task StateStorage_DeleteMultiple_RemovesAllSpecified()
+    {
         var storage = GetSiloService<IStateStorage>();
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
         var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
-        var identities = ids.Select(id => new StateIdentity {
-            Key = id,
-            Type = stateInfo.Name,
-            TableName = stateInfo.TableName,
-            Extension = null
-        }).ToList();
+        var identities = ids.Select(id => new StateIdentity
+                {
+                    Key = id,
+                    Type = stateInfo.Name,
+                    TableName = stateInfo.TableName,
+                    Extension = null
+                }
+            )
+            .ToList();
 
-        foreach (var identity in identities) {
+        foreach (var identity in identities)
+        {
             await storage.Write(identity, new SimpleTestState { Counter = 1 });
         }
 
         await storage.Delete(identities);
 
-        foreach (var identity in identities) {
+        foreach (var identity in identities)
+        {
             var read = await storage.Read<SimpleTestState>(identity);
             read.Counter.Should().Be(0);
         }

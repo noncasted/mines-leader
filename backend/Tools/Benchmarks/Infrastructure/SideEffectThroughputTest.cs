@@ -1,29 +1,34 @@
 using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
 using Infrastructure;
-using Infrastructure.State;
 
 namespace Benchmarks;
 
-public class SideEffectThroughputTest {
+public class SideEffectThroughputTest
+{
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload() {
+    public class StartPayload()
+    {
         [Id(0)]
         public int EffectCount { get; set; } = 1000;
     }
 
     [GenerateSerializer]
-    public class ThroughputSideEffect : ISideEffect {
+    public class ThroughputSideEffect : ISideEffect
+    {
         [Id(0)] public Guid BatchId { get; set; }
 
-        public Task Execute(IOrleans orleans) {
+        public Task Execute(IOrleans orleans)
+        {
             return Task.CompletedTask;
         }
     }
 
-    public class Root : BenchmarkRoot<StartPayload> {
-        public Root(ClusterTestUtils utils, ISideEffectsStorage storage, IDbSource dbSource) : base(utils) {
+    public class Root : BenchmarkRoot<StartPayload>
+    {
+        public Root(ClusterTestUtils utils, ISideEffectsStorage storage, IDbSource dbSource) : base(utils)
+        {
             _storage = storage;
             _dbSource = dbSource;
         }
@@ -35,14 +40,16 @@ public class SideEffectThroughputTest {
         public override string Title => "side-effect-throughput";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
+        {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var batchId = Guid.NewGuid();
             var total = payload.EffectCount;
             var batchIdStr = batchId.ToString();
 
-            for (var i = 0; i < total; i++) {
+            for (var i = 0; i < total; i++)
+            {
                 handle.Lifetime.Token.ThrowIfCancellationRequested();
                 await _storage.Write(new ThroughputSideEffect { BatchId = batchId });
             }
@@ -51,7 +58,8 @@ public class SideEffectThroughputTest {
 
             var lastProcessed = 0;
 
-            while (lastProcessed < total) {
+            while (lastProcessed < total)
+            {
                 handle.Lifetime.Token.ThrowIfCancellationRequested();
                 await Task.Delay(50, handle.Lifetime.Token);
 
@@ -69,7 +77,8 @@ public class SideEffectThroughputTest {
             handle.Progress.Log($"All {total} effects processed");
         }
 
-        private async Task<int> CountRemaining(string batchId, CancellationToken ct) {
+        private async Task<int> CountRemaining(string batchId, CancellationToken ct)
+        {
             await using var connection = await _dbSource.Value.OpenConnectionAsync(ct);
             await using var command = connection.CreateCommand();
             command.CommandText = @"

@@ -36,10 +36,10 @@ public class BoardRevealer : IBoardRevealer
             {
                 if (_board.Cells[target].Status != CellStatus.Taken)
                     continue;
-                
+
                 if (_board.Cells[target].ToTaken().HasMine == true)
                     continue;
-                
+
                 if (HasInvalidFreeCell(target) == true)
                     cleanupTargets.Add(target);
             }

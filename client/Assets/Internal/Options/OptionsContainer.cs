@@ -1,8 +1,10 @@
 using UnityEngine;
 using VContainer;
 
-namespace Internal {
-    public class OptionsContainer : ScriptableObject {
+namespace Internal
+{
+    public class OptionsContainer : ScriptableObject
+    {
         [SerializeField] private AssetsOptions _assets;
         [SerializeField] private DebugOptions _debug;
         [SerializeField] private VersionOptions _version;
@@ -15,7 +17,8 @@ namespace Internal {
         public BackendOptions BackendOptions => _backend;
         public PlatformOptions PlatformOptions => _platform;
 
-        public void Register(IContainerBuilder builder) {
+        public void Register(IContainerBuilder builder)
+        {
             builder.RegisterInstance(this);
             builder.RegisterInstance(AssetsOptions);
             builder.RegisterInstance(PlatformOptions);

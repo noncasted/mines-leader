@@ -18,7 +18,7 @@ public class MatchPayloads
             [Id(0)] public required GameMatchType Type { get; init; }
             [Id(1)] public required Guid BotId { get; init; }
         }
-        
+
         [GenerateSerializer]
         public class Response
         {

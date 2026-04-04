@@ -10,7 +10,7 @@ namespace Global.Inputs
         void Add(IUIConstraints uiConstraints);
         void Remove(IUIConstraints uiConstraints);
     }
-    
+
     public class InputConstraintsStorage : IInputConstraintsStorage
     {
         public InputConstraintsStorage()

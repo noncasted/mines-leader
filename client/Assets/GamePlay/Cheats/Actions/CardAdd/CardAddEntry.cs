@@ -13,9 +13,9 @@ namespace GamePlay.Cheats
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _name;
         [SerializeField] private DesignButton _button;
-        
+
         public IViewableDelegate Clicked => _button.Clicked;
-        
+
         public void Setup(ICardDefinition definition)
         {
             _icon.sprite = definition.Image;

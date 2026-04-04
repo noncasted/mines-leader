@@ -24,7 +24,7 @@ namespace Global.Systems
             PassDelta(delta);
         }
     }
-    
+
     public class FixedProgression : ProgressionBase, IFixedUpdatable
     {
         public FixedProgression(

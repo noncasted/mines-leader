@@ -16,7 +16,7 @@ namespace Global.Systems
         {
             _messageBroker.Publish(message);
         }
-        
+
         public static void Publish<T>()
         {
             _messageBroker.Publish(default(T));

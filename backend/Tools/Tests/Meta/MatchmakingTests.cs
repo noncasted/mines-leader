@@ -13,7 +13,8 @@ using Xunit;
 
 namespace Tests.Meta;
 
-public class MatchmakingTests {
+public class MatchmakingTests
+{
     private readonly IMatchFactory _matchFactory;
     private readonly ILobbyFactory _lobbyFactory;
     private readonly IConnectedUsers _users;
@@ -23,7 +24,8 @@ public class MatchmakingTests {
     private readonly ILogger<Matchmaking> _logger;
     private readonly Matchmaking _sut;
 
-    public MatchmakingTests() {
+    public MatchmakingTests()
+    {
         _matchFactory = Substitute.For<IMatchFactory>();
         _lobbyFactory = Substitute.For<ILobbyFactory>();
         _users = Substitute.For<IConnectedUsers>();
@@ -45,32 +47,38 @@ public class MatchmakingTests {
             _botConfig,
             _clusterFlags,
             _participantContext,
-            _logger);
+            _logger
+        );
     }
 
     [Fact]
-    public async Task CancelMatchSearch_NonExistentUser_DoesNotThrow() {
+    public async Task CancelMatchSearch_NonExistentUser_DoesNotThrow()
+    {
         var act = () => _sut.CancelMatchSearch(Guid.NewGuid());
 
         await act.Should().NotThrowAsync();
     }
 
     [Fact]
-    public async Task Create_CallsMatchFactory() {
+    public async Task Create_CallsMatchFactory()
+    {
         var userId = Guid.NewGuid();
         _matchFactory.Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>())
             .Returns(Task.CompletedTask);
 
         await _sut.Create(userId, GameMatchType.Single);
 
-        await _matchFactory.Received(1).Create(
-            Arg.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == userId),
-            GameMatchType.Single);
+        await _matchFactory.Received(1)
+            .Create(
+                Arg.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == userId),
+                GameMatchType.Single
+            );
         await _matchFactory.DidNotReceive().CreateWithBot(Arg.Any<Guid>(), Arg.Any<GameMatchType>());
     }
 
     [Fact]
-    public async Task CreateWithBot_CallsMatchFactory() {
+    public async Task CreateWithBot_CallsMatchFactory()
+    {
         var userId = Guid.NewGuid();
         _matchFactory.CreateWithBot(Arg.Any<Guid>(), Arg.Any<GameMatchType>())
             .Returns(Task.CompletedTask);
@@ -82,7 +90,8 @@ public class MatchmakingTests {
     }
 
     [Fact]
-    public async Task SearchLobby_CallsLobbyFactory() {
+    public async Task SearchLobby_CallsLobbyFactory()
+    {
         var userId = Guid.NewGuid();
         _lobbyFactory.GetOrCreate(Arg.Any<Guid>()).Returns(Task.CompletedTask);
 
@@ -92,7 +101,8 @@ public class MatchmakingTests {
     }
 
     [Fact]
-    public async Task SearchMatch_ThreadSafe_ConcurrentOperations() {
+    public async Task SearchMatch_ThreadSafe_ConcurrentOperations()
+    {
         var userIds = Enumerable.Range(0, 50).Select(_ => Guid.NewGuid()).ToList();
         var tasks = userIds.Select(id => _sut.SearchMatch(id, GameMatchType.Single)).ToList();
 
@@ -107,7 +117,8 @@ public class MatchmakingTests {
     }
 
     [Fact]
-    public async Task CancelMatchSearch_ThreadSafe_ConcurrentCancellations() {
+    public async Task CancelMatchSearch_ThreadSafe_ConcurrentCancellations()
+    {
         var userIds = Enumerable.Range(0, 20).Select(_ => Guid.NewGuid()).ToList();
 
         // Add all users
@@ -125,5 +136,4 @@ public class MatchmakingTests {
         // Verify no spontaneous match creation happened
         await _matchFactory.DidNotReceive().Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>());
     }
-
 }

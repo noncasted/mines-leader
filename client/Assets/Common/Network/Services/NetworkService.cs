@@ -47,7 +47,7 @@ namespace Common.Network
             _data = data;
             OnStarted(Lifetime);
         }
-        
+
         public virtual void OnStarted(IReadOnlyLifetime lifetime)
         {
         }

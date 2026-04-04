@@ -92,9 +92,9 @@ public class StateTest
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
-            
+
             return;
-            
+
             async Task Process()
             {
                 var grain = _orleans.GetGrain<IGrain>(Guid.NewGuid().ToString());

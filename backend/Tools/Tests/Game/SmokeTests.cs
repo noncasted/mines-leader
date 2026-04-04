@@ -11,24 +11,28 @@ namespace Tests.Game;
 /// Schedules a SmokeDisposeAction via IRoundActionService for cleanup after Duration rounds.
 /// SmokeDisposeAction removes the effect from all affected cells when executed.
 /// </summary>
-public class SmokeTests {
+public class SmokeTests
+{
     [Fact]
-    public void Use_AddsSmokeEffectToCells() {
+    public void Use_AddsSmokeEffectToCells()
+    {
         // Rhombus(3) = 3x3 cross pattern = 5 cells centered on target (2,2)
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         var result = new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -52,44 +56,52 @@ public class SmokeTests {
     }
 
     [Fact]
-    public void Use_SchedulesDispose() {
+    public void Use_SchedulesDispose()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
-        roundActionService.Received(1).Schedule(
-            Arg.Any<SmokeDisposeAction>(),
-            CardConfigs.Smoke.Duration);
+        roundActionService.Received(1)
+            .Schedule(
+                Arg.Any<SmokeDisposeAction>(),
+                CardConfigs.Smoke.Duration
+            );
     }
 
     [Fact]
-    public void Use_AffectsBothTakenAndFreeCells() {
+    public void Use_AffectsBothTakenAndFreeCells()
+    {
         // Mix of Taken and Free cells
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t _ _ _ t
-            t _ x _ t
-            t _ _ _ t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t _ _ _ t
+                                                t _ x _ t
+                                                t _ _ _ t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         // Both Free and Taken cells in range should have smoke
         var cellsWithSmoke = board.Cells.Values
@@ -110,27 +122,31 @@ public class SmokeTests {
     }
 
     [Fact]
-    public void Use_EmptyBoard_Fails() {
+    public void Use_EmptyBoard_Fails()
+    {
         var emptyBoard = new TestBoardBuilder(0).Build();
         var roundActionService = Substitute.For<IRoundActionService>();
 
         var result = new Smoke(emptyBoard,
             new CardUsePayload.Smoke { Position = new Position(0, 0) },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
 
     [Fact]
-    public void Use_ActionDataHasTargetPlayer() {
+    public void Use_ActionDataHasTargetPlayer()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
@@ -138,7 +154,8 @@ public class SmokeTests {
         var result = new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.Smoke;
         snapshot.Should().NotBeNull();
@@ -146,25 +163,29 @@ public class SmokeTests {
     }
 
     [Fact]
-    public void DisposeAction_RemovesEffects() {
+    public void DisposeAction_RemovesEffects()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = new RoundActionService();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         // Verify effects exist
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .Should().BeTrue();
+            .Should()
+            .BeTrue();
 
         // Tick Duration times to trigger dispose
         for (var i = 0; i < CardConfigs.Smoke.Duration; i++)
@@ -172,25 +193,29 @@ public class SmokeTests {
 
         // Effects should be removed
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .Should().BeFalse();
+            .Should()
+            .BeFalse();
     }
 
     [Fact]
-    public void Use_AllEffectsShareSameId() {
+    public void Use_AllEffectsShareSameId()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         var effectIds = board.Cells.Values
             .SelectMany(c => c.Effects)

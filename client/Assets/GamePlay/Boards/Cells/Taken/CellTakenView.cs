@@ -8,7 +8,7 @@ namespace GamePlay.Boards
     {
         [SerializeField] private GameObject _mine;
         [SerializeField] private GameObject _flag;
-        
+
         public void Enable(IReadOnlyLifetime lifetime, ICellTakenState state)
         {
             gameObject.SetActive(true);
@@ -16,7 +16,7 @@ namespace GamePlay.Boards
             state.IsFlagged.Advise(lifetime, isFlagged => _flag.SetActive(isFlagged));
             lifetime.Listen(() => gameObject.SetActive(false));
         }
-        
+
         public void OnExplosion()
         {
             gameObject.SetActive(false);

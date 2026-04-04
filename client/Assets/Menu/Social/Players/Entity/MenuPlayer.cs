@@ -31,10 +31,10 @@ namespace Menu.Social
         public Guid Id { get; }
         public IReadOnlyLifetime Lifetime => _entity.Lifetime;
         public IMenuPlayerChatView ChatView { get; }
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            Lifetime.Listen(() => _view.Destroy());    
+            Lifetime.Listen(() => _view.Destroy());
         }
     }
 }

@@ -7,14 +7,14 @@ namespace Global.UI
     {
         IReadOnlyDictionary<InputConstraints, bool> Input { get; }
     }
-    
+
     public class UIConstraints : IUIConstraints
     {
         public UIConstraints()
         {
             Input = new Dictionary<InputConstraints, bool>();
         }
-        
+
         public UIConstraints(InputConstraints input)
         {
             Input = new Dictionary<InputConstraints, bool>()
@@ -29,7 +29,7 @@ namespace Global.UI
         }
 
         public IReadOnlyDictionary<InputConstraints, bool> Input { get; }
-        
+
         public static UIConstraints Empty => new UIConstraints();
         public static UIConstraints Game => new UIConstraints(InputConstraints.Game);
     }

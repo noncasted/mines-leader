@@ -86,13 +86,14 @@ namespace Menu.Decks
                 var index = i;
 
                 indexButton.Clicked.Advise(lifetime, () =>
-                {
-                    foreach (var button in _indexButtons)
-                        button.Deactivate();
+                    {
+                        foreach (var button in _indexButtons)
+                            button.Deactivate();
 
-                    indexButton.Activate();
-                    UpdateDeck(index);
-                });
+                        indexButton.Activate();
+                        UpdateDeck(index);
+                    }
+                );
             }
 
             _indexButtons[_deckService.SelectedIndex.Value].Activate();

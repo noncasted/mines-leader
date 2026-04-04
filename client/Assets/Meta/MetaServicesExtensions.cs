@@ -50,7 +50,7 @@ namespace Meta
                 .As<IBackendProjection<CardConfigOptions>>()
                 .As<IBackendProjection>()
                 .As<ICardConfigs>();
-            
+
             return builder;
         }
     }

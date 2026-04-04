@@ -7,7 +7,10 @@ namespace Internal
 {
     public static class ScopeBuilderExtensions
     {
-        public static async UniTask FindOrLoadSceneWithServices(this IScopeBuilder builder, AssetReference scene, bool isMain = false)
+        public static async UniTask FindOrLoadSceneWithServices(
+            this IScopeBuilder builder,
+            AssetReference scene,
+            bool isMain = false)
         {
             var services = await builder.FindOrLoadScene<SceneServicesFactory>(scene, isMain);
             services.Create(builder);

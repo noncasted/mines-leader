@@ -5,14 +5,17 @@ using Xunit;
 
 namespace Tests.Game;
 
-public class CellStateTests {
+public class CellStateTests
+{
     [Fact]
-    public void TakenCell_ToFree_CreatesFreeCell() {
+    public void TakenCell_ToFree_CreatesFreeCell()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -22,12 +25,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void FreeCell_ToTaken_CreatesTakenCell() {
+    public void FreeCell_ToTaken_CreatesTakenCell()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -37,12 +42,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void TakenCell_ToTaken_ReturnsSelf() {
+    public void TakenCell_ToTaken_ReturnsSelf()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -52,12 +59,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void FreeCell_ToFree_ReturnsSelf() {
+    public void FreeCell_ToFree_ReturnsSelf()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t _ t
-            t t t
-            """);
+                                           t t t
+                                           t _ t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -67,12 +76,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void TakenCell_SetMine_SetsHasMine() {
+    public void TakenCell_SetMine_SetsHasMine()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -82,12 +93,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void TakenCell_SetFlag_SetsIsFlagged() {
+    public void TakenCell_SetFlag_SetsIsFlagged()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -97,12 +110,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void TakenCell_RemoveFlag_ClearsFlagged() {
+    public void TakenCell_RemoveFlag_ClearsFlagged()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -113,12 +128,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void TakenCell_DefaultState_NoMineNoFlag() {
+    public void TakenCell_DefaultState_NoMineNoFlag()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -128,12 +145,14 @@ public class CellStateTests {
     }
 
     [Fact]
-    public void ToFree_UpdatesBoardCellsDictionary() {
+    public void ToFree_UpdatesBoardCellsDictionary()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t
-            t t t
-            t t t
-            """);
+                                           t t t
+                                           t t t
+                                           t t t
+                                           """
+        );
         var pos = new Position(1, 1);
 
         var oldTaken = (ITakenCell)board.Cells[pos];

@@ -11,9 +11,13 @@ public class BotConnection : IConnection, IConnectionWriter, IConnectionReader
     public IConnectionWriter Writer => this;
 
     public IViewableDelegate<OneWayMessageFromClient> OneWay { get; } = new ViewableDelegate<OneWayMessageFromClient>();
-    public IViewableDelegate<RequestMessageFromClient> Requests { get; } = new ViewableDelegate<RequestMessageFromClient>();
-    public IViewableDelegate<ResponseMessageFromClient> Responses { get; } = new ViewableDelegate<ResponseMessageFromClient>();
-    
+
+    public IViewableDelegate<RequestMessageFromClient> Requests { get; } =
+        new ViewableDelegate<RequestMessageFromClient>();
+
+    public IViewableDelegate<ResponseMessageFromClient> Responses { get; } =
+        new ViewableDelegate<ResponseMessageFromClient>();
+
     public Task Run()
     {
         var completion = new TaskCompletionSource();
@@ -23,7 +27,7 @@ public class BotConnection : IConnection, IConnectionWriter, IConnectionReader
 
     public void ForceDisconnect()
     {
-        
+
     }
 
     public ValueTask WriteOneWay(INetworkContext context)

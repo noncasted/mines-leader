@@ -16,16 +16,17 @@ namespace GamePlay.Boards
             lifetime.Listen(() => gameObject.SetActive(false));
 
             state.MinesAround.Advise(lifetime, count =>
-            {
-                if (count == 0)
                 {
-                    _count.gameObject.SetActive(false);
-                    return;
-                }
+                    if (count == 0)
+                    {
+                        _count.gameObject.SetActive(false);
+                        return;
+                    }
 
-                _count.gameObject.SetActive(true);
-                _count.text = count.ToString();
-            });
+                    _count.gameObject.SetActive(true);
+                    _count.text = count.ToString();
+                }
+            );
         }
     }
 }

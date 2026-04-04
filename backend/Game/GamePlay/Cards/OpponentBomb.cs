@@ -28,7 +28,7 @@ public class OpponentBomb : ICard
                 ActionData = null
             };
         }
-        
+
         if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
         {
             return new CardUseResult

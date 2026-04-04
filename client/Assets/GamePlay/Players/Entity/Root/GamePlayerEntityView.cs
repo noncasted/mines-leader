@@ -13,7 +13,7 @@ namespace GamePlay.Players
         [SerializeField] private HandFactory _handFactory;
         [SerializeField] private StashFactory _stashFactory;
         [SerializeField] private AvatarFactory _avatarFactory;
-        
+
         public IDeckFactory DeckFactory => _deckFactory;
         public IBoardFactory BoardFactory => _boardFactory;
         public IHandFactory HandFactory => _handFactory;

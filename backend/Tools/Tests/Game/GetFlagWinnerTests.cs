@@ -11,10 +11,12 @@ namespace Tests.Game;
 /// Tests RoundPlayers.GetFlagWinner() — determines if a player has flagged all mines
 /// on their opponent's board.
 /// </summary>
-public class GetFlagWinnerTests {
+public class GetFlagWinnerTests
+{
     private static (IGameContext Context, Guid Player1Id, Guid Player2Id) CreateContext(
         IBoard board1,
-        IBoard board2) {
+        IBoard board2)
+    {
         var player1Id = Guid.NewGuid();
         var player2Id = Guid.NewGuid();
 
@@ -32,7 +34,8 @@ public class GetFlagWinnerTests {
         player2.User.Returns(user2);
         player2.Board.Returns(board2);
 
-        var boards = new Dictionary<IPlayer, IBoard> {
+        var boards = new Dictionary<IPlayer, IBoard>
+        {
             { player1, board1 },
             { player2, board2 }
         };
@@ -44,22 +47,25 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void AllMinesFlagged_ReturnsWinnerId() {
+    public void AllMinesFlagged_ReturnsWinnerId()
+    {
         // Player 1's board has all mines flagged — player 1 wins
         var (board1, _) = BoardParser.Parse("""
-            t t t t t
-            t f t t t
-            t t f t t
-            t t t f t
-            t t t t t
-            """);
+                                            t t t t t
+                                            t f t t t
+                                            t t f t t
+                                            t t t f t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -70,22 +76,25 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void SomeMinesUnflagged_ReturnsEmpty() {
+    public void SomeMinesUnflagged_ReturnsEmpty()
+    {
         // Both boards have unflagged mines
         var (board1, _) = BoardParser.Parse("""
-            t t t t t
-            t f t t t
-            t t m t t
-            t t t t t
-            t t t t t
-            """);
+                                            t t t t t
+                                            t f t t t
+                                            t t m t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -96,22 +105,25 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void NoMinesOnBoard_FirstPlayerWins() {
+    public void NoMinesOnBoard_FirstPlayerWins()
+    {
         // Board with no mines — allMinesFlagged stays true (vacuous truth)
         var (board1, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -122,18 +134,21 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void BothBoardsAllFlagged_FirstPlayerWins() {
+    public void BothBoardsAllFlagged_FirstPlayerWins()
+    {
         // Both boards have all mines flagged — first iterated player wins
         var (board1, _) = BoardParser.Parse("""
-            f t t
-            t t t
-            t t t
-            """);
+                                            f t t
+                                            t t t
+                                            t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            t t t
-            t f t
-            t t t
-            """);
+                                            t t t
+                                            t f t
+                                            t t t
+                                            """
+        );
 
         var (context, player1Id, player2Id) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -145,16 +160,18 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void EmptyBoard_NoCells_SkipsPlayer() {
+    public void EmptyBoard_NoCells_SkipsPlayer()
+    {
         // Board with 0 cells is skipped by the count check
         var emptyBoard = Substitute.For<IBoard>();
         emptyBoard.Cells.Returns(new Dictionary<Position, ICell>());
 
         var (board2, _) = BoardParser.Parse("""
-            m t t
-            t t t
-            t t t
-            """);
+                                            m t t
+                                            t t t
+                                            t t t
+                                            """
+        );
 
         var player1 = Substitute.For<IPlayer>();
         var user1 = Substitute.For<IUser>();
@@ -166,7 +183,8 @@ public class GetFlagWinnerTests {
         user2.Id.Returns(Guid.NewGuid());
         player2.User.Returns(user2);
 
-        var boards = new Dictionary<IPlayer, IBoard> {
+        var boards = new Dictionary<IPlayer, IBoard>
+        {
             { player1, emptyBoard },
             { player2, board2 }
         };
@@ -181,23 +199,26 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void UnflaggedMine_OpponentNoMines_OpponentWinsByVacuousTruth() {
+    public void UnflaggedMine_OpponentNoMines_OpponentWinsByVacuousTruth()
+    {
         // Board1 has unflagged mine at (0,0) — player1 does NOT win
         // Board2 has no mines — vacuous truth: "all mines flagged" is true, player2 wins
         var (board1, _) = BoardParser.Parse("""
-            m t t t t
-            t g t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t g t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, _, player2Id) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -210,22 +231,25 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void FreeCells_AreSkipped() {
+    public void FreeCells_AreSkipped()
+    {
         // GetFlagWinner skips Free cells — they can't have mines
         var (board1, _) = BoardParser.Parse("""
-            f t t t t
-            t _ t t t
-            t t _ t t
-            t t t t t
-            t t t t t
-            """);
+                                            f t t t t
+                                            t _ t t t
+                                            t t _ t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -236,17 +260,20 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void SingleMine_Unflagged_NoWinner() {
+    public void SingleMine_Unflagged_NoWinner()
+    {
         var (board1, _) = BoardParser.Parse("""
-            t t t
-            t m t
-            t t t
-            """);
+                                            t t t
+                                            t m t
+                                            t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t
-            t t t
-            t t t
-            """);
+                                            m t t
+                                            t t t
+                                            t t t
+                                            """
+        );
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -257,21 +284,24 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void ManyMines_AllFlagged_Winner() {
+    public void ManyMines_AllFlagged_Winner()
+    {
         var (board1, _) = BoardParser.Parse("""
-            f f f f f
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            f f f f f
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -282,21 +312,24 @@ public class GetFlagWinnerTests {
     }
 
     [Fact]
-    public void ManyMines_OneMissing_NoWinner() {
+    public void ManyMines_OneMissing_NoWinner()
+    {
         var (board1, _) = BoardParser.Parse("""
-            f f f f m
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            f f f f m
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
         var (board2, _) = BoardParser.Parse("""
-            m t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """
+        );
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);

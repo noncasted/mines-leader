@@ -13,7 +13,8 @@ public static class TaskExtensions
     public static void NoAwait(this Task? task)
     {
         task?.ContinueWith(_noAwaitContinuation,
-            TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
+            TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously
+        );
     }
 
     public static bool IsOperationCanceled(this Exception? exception)

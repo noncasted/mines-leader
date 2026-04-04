@@ -5,18 +5,21 @@ using Internal;
 using Shared;
 using UnityEngine;
 
-namespace GamePlay.Cards {
+namespace GamePlay.Cards
+{
     /// <summary>
     /// [GamePlay] [Card] [Smoke]
     /// Карта Smoke - создает временный эффект дыма на вражеской доске.
     /// Дым появляется в форме ромба и действует несколько раундов.
     /// </summary>
-    public class CardSmokeAction : ICardAction {
+    public class CardSmokeAction : ICardAction
+    {
         public CardSmokeAction(
             ICardContext context,
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
-            CardConfigOptions.Smoke config) {
+            CardConfigOptions.Smoke config)
+        {
             _context = context;
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
@@ -28,29 +31,36 @@ namespace GamePlay.Cards {
         private readonly ICardPointerHandler _pointerHandler;
         private readonly CardConfigOptions.Smoke _config;
 
-        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime) {
+        public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
+        {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
             var size = _config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult() {
+            return new CardActionResult()
+            {
                 IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.Smoke() {
+                Payload = new CardUsePayload.Smoke()
+                {
                     Position = result.Position.ToPosition()
                 }
             };
         }
 
-        public class Snapshot : ICardActionSync<CardActionSnapshot.Smoke> {
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Smoke payload) {
+        public class Snapshot : ICardActionSync<CardActionSnapshot.Smoke>
+        {
+            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Smoke payload)
+            {
                 return UniTask.CompletedTask;
             }
         }
 
-        public class Pattern : ICardDropPattern {
-            public Pattern(IBoard board, int size) {
+        public class Pattern : ICardDropPattern
+        {
+            public Pattern(IBoard board, int size)
+            {
                 _board = board;
                 _shape = PatternShapes.Rhombus(size);
             }
@@ -58,7 +68,8 @@ namespace GamePlay.Cards {
             private readonly IBoard _board;
             private readonly IPattenShape _shape;
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer) {
+            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            {
                 var selected = _shape.All(_board, pointer);
                 return selected;
             }

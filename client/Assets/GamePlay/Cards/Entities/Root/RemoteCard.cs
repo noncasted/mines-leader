@@ -1,5 +1,4 @@
 ﻿using System;
-using Common.Network;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
@@ -45,7 +44,7 @@ namespace GamePlay.Cards
         public ICardTransform Transform { get; }
         public IReadOnlyLifetime Lifetime { get; }
         public ICardRemoteDrop Drop => _drop;
-        
+
         public UniTask Use(IReadOnlyLifetime lifetime, ICardActionData data)
         {
             return _actionSync.Sync(lifetime, data);

@@ -8,7 +8,7 @@ namespace GamePlay.Players
     {
         UniTask Create(PlayerBuildContext context);
     }
-    
+
     [DisallowMultipleComponent]
     public class AvatarFactory : MonoBehaviour, IAvatarFactory
     {
@@ -25,7 +25,7 @@ namespace GamePlay.Players
             builder.RegisterComponent(_view.MovesView)
                 .As<IScopeLoaded>()
                 .AsSelfResolvable();
-            
+
             return UniTask.CompletedTask;
         }
     }

@@ -87,8 +87,8 @@ namespace GamePlay.Cards
 
         private IBoard SelectTargetBoard(CardType type, IGameContext gameContext)
         {
-            
-            
+
+
             return type switch
             {
                 CardType.Trebuchet => gameContext.Other.Board,

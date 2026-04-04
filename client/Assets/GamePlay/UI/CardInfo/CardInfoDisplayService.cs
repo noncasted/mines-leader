@@ -26,9 +26,10 @@ namespace GamePlay.UI
 
             // Subscribe to hand entries changes
             hand.Entries.View(lifetime, (_, card) =>
-            {
-                SubscribeToCard(lifetime, card);
-            });
+                {
+                    SubscribeToCard(lifetime, card);
+                }
+            );
         }
 
         private void SubscribeToCard(IReadOnlyLifetime lifetime, ICard card)
@@ -40,30 +41,33 @@ namespace GamePlay.UI
             card.Lifetime.Listen(() => cardLifetime.Terminate());
 
             localCard.PointerHandler.IsHovered.Advise(cardLifetime, isHovered =>
-            {
-                if (isHovered && !localCard.IsInSpawnAnimation.Value)
                 {
-                    _ui.DisplayCard(
-                        card.Definition.Name,
-                        card.Definition.Description);
+                    if (isHovered && !localCard.IsInSpawnAnimation.Value)
+                    {
+                        _ui.DisplayCard(
+                            card.Definition.Name,
+                            card.Definition.Description
+                        );
+                    }
+                    else if (localCard.IsInSpawnAnimation.Value)
+                    {
+                        _ui.HideImmediately();
+                    }
+                    else
+                    {
+                        _ui.Hide();
+                    }
                 }
-                else if (localCard.IsInSpawnAnimation.Value)
-                {
-                    _ui.HideImmediately();
-                }
-                else
-                {
-                    _ui.Hide();
-                }
-            });
+            );
 
             localCard.IsInSpawnAnimation.Advise(cardLifetime, isSpawning =>
-            {
-                if (isSpawning)
                 {
-                    _ui.HideImmediately();
+                    if (isSpawning)
+                    {
+                        _ui.HideImmediately();
+                    }
                 }
-            });
+            );
         }
     }
 }

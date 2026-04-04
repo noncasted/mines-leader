@@ -33,6 +33,7 @@ public class Bloodhound : ICard
                 ActionData = null
             };
         }
+
         foreach (var cell in selected)
             cell.ToFree();
 

@@ -19,12 +19,12 @@ namespace GamePlay.Cards
         {
             return shape.Select(board, center, cell => cell.IsTaken());
         }
-        
+
         public static IReadOnlyList<IBoardCell> SelectFree(this IPattenShape shape, IBoard board, Vector2Int center)
         {
             return shape.Select(board, center, cell => cell.IsFree());
         }
-        
+
         public static IReadOnlyList<IBoardCell> All(this IPattenShape shape, IBoard board, Vector2Int center)
         {
             return shape.Select(board, center, _ => true);

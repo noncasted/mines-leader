@@ -9,7 +9,7 @@ namespace GamePlay.Cards
         [SerializeField] private Sprite _odd;
 
         [SerializeField] private SpriteRenderer _renderer;
-        
+
         public void Construct(int index)
         {
             var isEven = index % 2 == 0;

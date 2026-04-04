@@ -1,6 +1,5 @@
 ﻿using Common.Network;
 using Game.Global;
-using Infrastructure;
 using Infrastructure.Startup;
 using Shared;
 
@@ -49,15 +48,17 @@ public class SessionConnectionMiddleware
 
         _logger.LogInformation("[Game] [Meta] User connected: {Connection} {UserId}",
             context.Connection.Id,
-            auth.UserId);
+            auth.UserId
+        );
 
         var completion = new TaskCompletionSource();
 
         session.ExecutionQueue.Enqueue(() =>
-        {
-            var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
-            user.Lifetime.Listen(() => completion.TrySetResult());
-        });
+            {
+                var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
+                user.Lifetime.Listen(() => completion.TrySetResult());
+            }
+        );
 
         var response = new SharedSessionAuth.Response()
         {
@@ -66,11 +67,12 @@ public class SessionConnectionMiddleware
 
         await handle.SendResponse(response);
         handle.Dispose();
-        
+
         await completion.Task;
 
         _logger.LogInformation("[Game] [Meta] User disconnected: {Connection} {UserId}",
             context.Connection.Id,
-            auth.UserId);
+            auth.UserId
+        );
     }
 }

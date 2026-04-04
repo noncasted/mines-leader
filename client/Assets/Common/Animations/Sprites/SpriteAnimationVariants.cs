@@ -10,7 +10,8 @@ namespace Common.Animations
             utils.Updater,
             utils.Renderer,
             data.Time,
-            new ForwardFrameProvider(data.Sprites))
+            new ForwardFrameProvider(data.Sprites)
+        )
         {
         }
 
@@ -33,7 +34,8 @@ namespace Common.Animations
             utils.Updater,
             utils.Renderer,
             options.Time,
-            new RotatableFrameProvider(utils.RotationProvider, options.Animations))
+            new RotatableFrameProvider(utils.RotationProvider, options.Animations)
+        )
         {
         }
 

@@ -1,5 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using Internal;
+﻿using Internal;
 
 namespace GamePlay.Cards
 {

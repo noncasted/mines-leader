@@ -10,9 +10,12 @@ namespace Tests.State;
 /// Tests custom transaction system: commit, rollback, concurrent access.
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
-public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture) {
+public class TransactionTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task Transaction_Increment_Success() {
+    public async Task Transaction_Increment_Success()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -23,7 +26,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_MultipleIncrements_AllApplied() {
+    public async Task Transaction_MultipleIncrements_AllApplied()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -35,7 +39,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_Rollback_ValueUnchanged() {
+    public async Task Transaction_Rollback_ValueUnchanged()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -44,10 +49,12 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
 
         // Attempt transaction that fails
         var transactions = GetSiloService<ITransactions>();
-        var result = await transactions.Run(async () => {
-            await grain.Increment();
-            throw new Exception("Intentional rollback");
-        });
+        var result = await transactions.Run(async () =>
+            {
+                await grain.Increment();
+                throw new Exception("Intentional rollback");
+            }
+        );
 
         result.IsSuccess.Should().BeFalse();
 
@@ -57,7 +64,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_Empty_Succeeds() {
+    public async Task Transaction_Empty_Succeeds()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -77,18 +85,21 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_MidChainFail_BothRolledBack() {
+    public async Task Transaction_MidChainFail_BothRolledBack()
+    {
         var idA = Guid.NewGuid();
         var idB = Guid.NewGuid();
         var grainA = GetGrain<ITxTestGrain>(idA);
         var grainB = GetGrain<ITxTestGrain>(idB);
 
         var transactions = GetSiloService<ITransactions>();
-        var result = await transactions.Run(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-            throw new Exception("Failure after both grains incremented");
-        });
+        var result = await transactions.Run(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+                throw new Exception("Failure after both grains incremented");
+            }
+        );
 
         result.IsSuccess.Should().BeFalse();
 
@@ -98,10 +109,12 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
         valueB.Should().Be(0);
 
         // Verify grains are usable after rollback
-        await RunTransaction(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-        });
+        await RunTransaction(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+            }
+        );
 
         var finalA = await grainA.Get();
         var finalB = await grainB.Get();
@@ -110,7 +123,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_Takeover_SecondTransactionSucceeds() {
+    public async Task Transaction_Takeover_SecondTransactionSucceeds()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -137,7 +151,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_StatePersistsAfterDeactivation() {
+    public async Task Transaction_StatePersistsAfterDeactivation()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -154,16 +169,19 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_ChainedThreeGrains_AllCommitted() {
+    public async Task Transaction_ChainedThreeGrains_AllCommitted()
+    {
         var grainA = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainB = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainC = GetGrain<ITxTestGrain>(Guid.NewGuid());
 
-        await RunTransaction(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-            await grainC.Increment();
-        });
+        await RunTransaction(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+                await grainC.Increment();
+            }
+        );
 
         var valueA = await grainA.Get();
         var valueB = await grainB.Get();
@@ -175,18 +193,21 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_ChainedThreeGrainsFail_AllRolledBack() {
+    public async Task Transaction_ChainedThreeGrainsFail_AllRolledBack()
+    {
         var grainA = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainB = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainC = GetGrain<ITxTestGrain>(Guid.NewGuid());
 
         var transactions = GetSiloService<ITransactions>();
-        var result = await transactions.Run(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-            await grainC.Increment();
-            throw new Exception("Fail after all three grains incremented");
-        });
+        var result = await transactions.Run(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+                await grainC.Increment();
+                throw new Exception("Fail after all three grains incremented");
+            }
+        );
 
         result.IsSuccess.Should().BeFalse();
 
@@ -200,7 +221,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_ConcurrentOnSameGrain_OneFailsOrBothSucceedSequentially() {
+    public async Task Transaction_ConcurrentOnSameGrain_OneFailsOrBothSucceedSequentially()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
@@ -222,25 +244,30 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_LargeBatch_TenGrainsAllCommitted() {
+    public async Task Transaction_LargeBatch_TenGrainsAllCommitted()
+    {
         var grains = Enumerable.Range(0, 10)
             .Select(_ => GetGrain<ITxTestGrain>(Guid.NewGuid()))
             .ToList();
 
         // Verify all grains start at zero
-        foreach (var grain in grains) {
+        foreach (var grain in grains)
+        {
             var initial = await grain.Get();
             initial.Should().Be(0);
         }
 
-        await RunTransaction(async () => {
-            foreach (var grain in grains)
-                await grain.Increment();
-        });
+        await RunTransaction(async () =>
+            {
+                foreach (var grain in grains)
+                    await grain.Increment();
+            }
+        );
 
         // Verify each grain individually was incremented exactly once
         var values = new List<int>();
-        foreach (var grain in grains) {
+        foreach (var grain in grains)
+        {
             var value = await grain.Get();
             value.Should().Be(1);
             values.Add(value);
@@ -252,18 +279,21 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_MidChainPartialFail_FirstTwoRolledBack() {
+    public async Task Transaction_MidChainPartialFail_FirstTwoRolledBack()
+    {
         var grainA = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainB = GetGrain<ITxTestGrain>(Guid.NewGuid());
         var grainC = GetGrain<ITxTestGrain>(Guid.NewGuid());
 
         var transactions = GetSiloService<ITransactions>();
-        var result = await transactions.Run(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-            // Fail before touching grainC
-            throw new Exception("Fail after two out of three grains");
-        });
+        var result = await transactions.Run(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+                // Fail before touching grainC
+                throw new Exception("Fail after two out of three grains");
+            }
+        );
 
         result.IsSuccess.Should().BeFalse();
 
@@ -277,11 +307,13 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
         valueC.Should().Be(0);
 
         // Verify all three grains remain usable
-        await RunTransaction(async () => {
-            await grainA.Increment();
-            await grainB.Increment();
-            await grainC.Increment();
-        });
+        await RunTransaction(async () =>
+            {
+                await grainA.Increment();
+                await grainB.Increment();
+                await grainC.Increment();
+            }
+        );
 
         (await grainA.Get()).Should().Be(1);
         (await grainB.Get()).Should().Be(1);
@@ -289,7 +321,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_ReturnValue_ReturnsResult() {
+    public async Task Transaction_ReturnValue_ReturnsResult()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxSideEffectGrain>(id);
 
@@ -303,7 +336,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_ReturnValue_MultipleIncrements() {
+    public async Task Transaction_ReturnValue_MultipleIncrements()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxSideEffectGrain>(id);
 
@@ -319,7 +353,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task TransactionBuilder_WithCallback_CallbackExecuted() {
+    public async Task TransactionBuilder_WithCallback_CallbackExecuted()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
         var callbackExecuted = false;
@@ -327,10 +362,12 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
         var transactions = GetSiloService<ITransactions>();
         var result = await transactions
             .CreateBuilder(() => grain.Increment())
-            .WithCallback(tx => {
-                callbackExecuted = true;
-                return Task.CompletedTask;
-            })
+            .WithCallback(tx =>
+                {
+                    callbackExecuted = true;
+                    return Task.CompletedTask;
+                }
+            )
             .Run();
 
         result.IsSuccess.Should().BeTrue();
@@ -341,7 +378,8 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task TransactionBuilder_MultipleCallbacks_AllExecuted() {
+    public async Task TransactionBuilder_MultipleCallbacks_AllExecuted()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
         var callbackCount = 0;
@@ -349,9 +387,24 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
         var transactions = GetSiloService<ITransactions>();
         var result = await transactions
             .CreateBuilder(() => grain.Increment())
-            .WithCallback(tx => { callbackCount++; return Task.CompletedTask; })
-            .WithCallback(tx => { callbackCount++; return Task.CompletedTask; })
-            .WithCallback(tx => { callbackCount++; return Task.CompletedTask; })
+            .WithCallback(tx =>
+                {
+                    callbackCount++;
+                    return Task.CompletedTask;
+                }
+            )
+            .WithCallback(tx =>
+                {
+                    callbackCount++;
+                    return Task.CompletedTask;
+                }
+            )
+            .WithCallback(tx =>
+                {
+                    callbackCount++;
+                    return Task.CompletedTask;
+                }
+            )
             .Run();
 
         result.IsSuccess.Should().BeTrue();
@@ -359,29 +412,35 @@ public class TransactionTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Transaction_SameGrainTwice_BothMutationsApplied() {
+    public async Task Transaction_SameGrainTwice_BothMutationsApplied()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
-        await RunTransaction(async () => {
-            await grain.Increment();
-            await grain.Increment();
-        });
+        await RunTransaction(async () =>
+            {
+                await grain.Increment();
+                await grain.Increment();
+            }
+        );
 
         var value = await grain.Get();
         value.Should().Be(2);
     }
 
     [Fact]
-    public async Task Transaction_RollbackError_ContainsException() {
+    public async Task Transaction_RollbackError_ContainsException()
+    {
         var id = Guid.NewGuid();
         var grain = GetGrain<ITxTestGrain>(id);
 
         var transactions = GetSiloService<ITransactions>();
-        var result = await transactions.Run(async () => {
-            await grain.Increment();
-            throw new InvalidOperationException("test-error-message");
-        });
+        var result = await transactions.Run(async () =>
+            {
+                await grain.Increment();
+                throw new InvalidOperationException("test-error-message");
+            }
+        );
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();

@@ -9,7 +9,7 @@ namespace Global.Publisher.Itch
     public class ItchSaves : ISaves, IScopeBaseSetup
     {
         private const string Key = "save";
-        
+
         private readonly Dictionary<string, string> _entries = new();
 
         public void OnBaseSetup(IReadOnlyLifetime lifetime)
@@ -18,7 +18,7 @@ namespace Global.Publisher.Itch
             {
                 var raw = PlayerPrefs.GetString(Key);
                 var rawEntries = JsonConvert.DeserializeObject<Dictionary<string, string>>(raw);
-                
+
                 foreach (var (key, rawEntry) in rawEntries)
                     _entries.Add(key, rawEntry);
             }
@@ -26,11 +26,11 @@ namespace Global.Publisher.Itch
 
         public T Get<T>() where T : class, new()
         {
-            var key = typeof(T).FullName!; 
-            
+            var key = typeof(T).FullName!;
+
             if (_entries.TryGetValue(key, out var rawEntry) == false)
                 return new T();
-            
+
             return JsonConvert.DeserializeObject<T>(rawEntry);
         }
 

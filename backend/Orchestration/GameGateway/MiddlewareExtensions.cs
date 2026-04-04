@@ -8,8 +8,9 @@ public static class MiddlewareExtensions
             .AllowAnyMethod()
             .AllowAnyHeader()
             .SetIsOriginAllowed(_ => true)
-            .AllowCredentials()); 
-        
+            .AllowCredentials()
+        );
+
         app.UseWebSockets();
         app.UseMiddleware<SessionConnectionMiddleware>();
         app.UseRouting();

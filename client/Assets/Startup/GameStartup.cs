@@ -29,13 +29,15 @@ namespace Startup
             var scopeLoader = internalScope.Get<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(internalScope);
-            var globalCamera = globalScope.Get<IGlobalCamera>();;
-            var loadingScreen = globalScope.Get<ILoadingScreen>();;
+            var globalCamera = globalScope.Get<IGlobalCamera>();
+            ;
+            var loadingScreen = globalScope.Get<ILoadingScreen>();
+            ;
             globalCamera.Enable();
             loadingScreen.Show();
 
             var metaScope = await scopeLoader.LoadMeta(globalScope);
-            
+
             await scopeLoader.LoadGameLoop(metaScope);
 
             await SceneManager.UnloadSceneAsync(startScene);

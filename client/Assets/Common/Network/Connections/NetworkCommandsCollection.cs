@@ -9,7 +9,7 @@ namespace Common.Network
         void Add(INetworkCommand command);
         INetworkCommand Get(INetworkContext context);
     }
-    
+
     public class NetworkCommandsCollection : INetworkCommandsCollection
     {
         private readonly Dictionary<Type, INetworkCommand> _commands = new();

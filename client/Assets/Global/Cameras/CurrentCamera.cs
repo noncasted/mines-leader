@@ -8,7 +8,7 @@ namespace Global.Cameras
 
         void SetCamera(Camera current);
     }
-    
+
     public class CurrentCamera : ICurrentCamera
     {
         private Camera _current;

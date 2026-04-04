@@ -44,7 +44,7 @@ namespace GamePlay.Cards
                 }
             };
         }
-        
+
         public class Snapshot : ICardActionSync<CardActionSnapshot.ErosionDozer>
         {
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ErosionDozer payload)

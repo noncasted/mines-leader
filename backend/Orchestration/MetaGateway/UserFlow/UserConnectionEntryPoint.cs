@@ -72,7 +72,9 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
             var channelId = new UserProjectionChannelId(user.UserId);
 
-            _logger.LogInformation("[User] [EntryPoint] Setting up messaging channel for user {ChannelId}", channelId.ToRaw());
+            _logger.LogInformation("[User] [EntryPoint] Setting up messaging channel for user {ChannelId}",
+                channelId.ToRaw()
+            );
 
             await _messaging.ListenChannel<IProjectionPayload>(user.Lifetime, channelId, payload =>
                 {

@@ -45,14 +45,13 @@ namespace Tools
         public void Write()
         {
             var newLine = Environment.NewLine;
-            
-            var json =
-                "{" +
-                $"{newLine}    \"name\": \"{Path.Name}\",{newLine}" +
-                $"    {ReferencesToString()},{newLine}" +
-                $"    {Defines.ToString()},{newLine}" +
-                $"    {Toggles.ToString()}" +
-                "}";
+
+            var json = "{" +
+                       $"{newLine}    \"name\": \"{Path.Name}\",{newLine}" +
+                       $"    {ReferencesToString()},{newLine}" +
+                       $"    {Defines.ToString()},{newLine}" +
+                       $"    {Toggles.ToString()}" +
+                       "}";
 
             File.WriteAllText(Path.Raw, json);
         }

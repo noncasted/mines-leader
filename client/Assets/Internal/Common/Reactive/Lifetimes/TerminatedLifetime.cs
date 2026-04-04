@@ -7,14 +7,14 @@ namespace Internal
     {
         public CancellationToken Token => CancellationToken.None;
         public bool IsTerminated => true;
-        
+
         public void Listen(Action callback)
         {
         }
 
         public void RemoveListener(Action callback)
         {
-            
+
         }
 
         public void RemoveTerminationListener(Action callback)

@@ -8,7 +8,7 @@ public interface IGameContext
     IReadOnlyList<IPlayer> Players { get; }
     IReadOnlyDictionary<IPlayer, IBoard> Boards { get; }
     IReadOnlyDictionary<IUser, IPlayer> UserToPlayer { get; }
-    
+
     IViewableDelegate GameStarted { get; }
 
     void AddPlayer(IPlayer player);
@@ -37,7 +37,7 @@ public class GameContext : IGameContext
 
     public void OnGameStarted()
     {
-        _gameStarted.Invoke();        
+        _gameStarted.Invoke();
     }
 }
 

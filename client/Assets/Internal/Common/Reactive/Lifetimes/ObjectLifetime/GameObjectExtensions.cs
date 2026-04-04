@@ -16,7 +16,7 @@ namespace Internal
             var current = instantiated.Length;
 
             var delta = required - current;
-            
+
             if (delta < 0)
             {
                 for (var i = 0; i < Mathf.Abs(delta); i++)

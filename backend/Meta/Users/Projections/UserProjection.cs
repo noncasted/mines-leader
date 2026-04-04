@@ -98,7 +98,7 @@ public class UserProjection : Grain, IUserProjection
             _logger.LogTrace("[User] [Projection] Failed to send cached. User {Id} is not connected",
                 this.GetPrimaryKey()
             );
-            
+
             return;
         }
 

@@ -53,14 +53,15 @@ namespace Common.Network
             while (_socket.State == WebSocketState.Open)
             {
                 using var stream = new MemoryStream();
-                
+
                 WebSocketReceiveResult result;
 
                 do
                 {
                     result = await _socket.ReceiveAsync(buffer, _cancellation);
                     stream.Write(buffer.Array, buffer.Offset, result.Count);
-                } while (result.EndOfMessage == false);
+                }
+                while (result.EndOfMessage == false);
 
                 stream.Seek(0, SeekOrigin.Begin);
 

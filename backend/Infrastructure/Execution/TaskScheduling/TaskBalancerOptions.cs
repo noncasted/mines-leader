@@ -1,6 +1,7 @@
 namespace Infrastructure.Execution;
 
-public class TaskBalancerOptions {
+public class TaskBalancerOptions
+{
     public int EmptyDelayMs { get; set; } = 500;
     public int NextDelayMs { get; set; } = 100;
     public int IterationScore { get; set; } = 1;
@@ -8,4 +9,6 @@ public class TaskBalancerOptions {
     public int ConcurrentTasks { get; set; } = 10;
 }
 
-public interface ITaskBalancerConfig : IAddressableState<TaskBalancerOptions> { }
+public interface ITaskBalancerConfig : IAddressableState<TaskBalancerOptions>
+{
+}

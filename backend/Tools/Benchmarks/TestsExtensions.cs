@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace Benchmarks;
 
 public static class TestsExtensions

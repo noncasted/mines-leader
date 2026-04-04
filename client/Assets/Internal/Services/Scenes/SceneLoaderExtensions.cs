@@ -9,7 +9,9 @@ namespace Internal
 {
     public static class SceneLoaderExtensions
     {
-        public static async UniTask<(ILoadedScene, T)> LoadTypedResult<T>(this ISceneLoader loader, AssetReference scene)
+        public static async UniTask<(ILoadedScene, T)> LoadTypedResult<T>(
+            this ISceneLoader loader,
+            AssetReference scene)
         {
             var result = await loader.Load(scene);
 
@@ -39,7 +41,10 @@ namespace Internal
             throw new NullReferenceException($"Searched {typeof(T)} is not found");
         }
 
-        public static async UniTask<T> FindOrLoadScene<T>(this IScopeBuilder utils, AssetReference scene, bool isMain = false)
+        public static async UniTask<T> FindOrLoadScene<T>(
+            this IScopeBuilder utils,
+            AssetReference scene,
+            bool isMain = false)
             where T : MonoBehaviour
         {
 #if UNITY_EDITOR

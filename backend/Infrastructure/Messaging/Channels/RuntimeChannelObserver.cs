@@ -7,7 +7,8 @@ public interface IRuntimeChannelObserver : IGrainObserver
 
 public class RuntimeChannelObserver : IRuntimeChannelObserver
 {
-    public RuntimeChannelObserver(Action<object> onMessage) {
+    public RuntimeChannelObserver(Action<object> onMessage)
+    {
         _onMessage = onMessage;
     }
 
@@ -15,7 +16,8 @@ public class RuntimeChannelObserver : IRuntimeChannelObserver
 
     public Guid Id { get; } = Guid.NewGuid();
 
-    public Task Send(object message) {
+    public Task Send(object message)
+    {
         _onMessage(message);
         return Task.CompletedTask;
     }

@@ -68,22 +68,23 @@ namespace Menu.Social
                 selectedAnimation.PlayLooped(_lifetime);
                 _currentAnimation = selectedAnimation;
             }
-            
+
             void Local()
             {
                 _rb.MovePosition(_rb.position + _input.MovementDirection * (_moveSpeed * delta));
-              
+
                 if (_input.MovementDirection.x > 0)
                     _renderer.flipX = false;
                 else if (_input.MovementDirection.x < 0)
                     _renderer.flipX = true;
-                
+
                 _state.Set(new MenuPlayerTransformState()
-                {
-                    Position = _rb.position,
-                    FlipX = _renderer.flipX,
-                    IsRunning = _input.MovementDirection != Vector2.zero
-                });
+                    {
+                        Position = _rb.position,
+                        FlipX = _renderer.flipX,
+                        IsRunning = _input.MovementDirection != Vector2.zero
+                    }
+                );
             }
 
             void Remote()

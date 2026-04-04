@@ -8,7 +8,12 @@ public class PostgresJsonbConverter<T> : JsonConverter<T> where T : class
     private static readonly byte[] JsonbMagic = { 0x01 }; // PostgreSQL jsonb format magic byte
 
 
-    public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override T ReadJson(
+        JsonReader reader,
+        Type objectType,
+        T existingValue,
+        bool hasExistingValue,
+        JsonSerializer serializer)
     {
         if (reader.TokenType == JsonToken.Null)
             return null!;
@@ -21,7 +26,8 @@ public class PostgresJsonbConverter<T> : JsonConverter<T> where T : class
             _ => JsonConvert.SerializeObject(reader.Value)
         };
 
-        return JsonConvert.DeserializeObject<T>(json, JsonUtils.Settings) ?? throw new InvalidOperationException("Failed to deserialize jsonb data");
+        return JsonConvert.DeserializeObject<T>(json, JsonUtils.Settings) ??
+               throw new InvalidOperationException("Failed to deserialize jsonb data");
     }
 
 

@@ -22,7 +22,9 @@ namespace Tools
             var sessionData = _mode switch
             {
                 GameMatchType.Single => await matchmaking.CreateGame(scope.Lifetime),
-                GameMatchType.LastManStanding => await matchmaking.SearchGame(scope.Lifetime, GameMatchType.LastManStanding),
+                GameMatchType.LastManStanding => await matchmaking.SearchGame(scope.Lifetime,
+                    GameMatchType.LastManStanding
+                ),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

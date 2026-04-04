@@ -32,7 +32,7 @@ namespace Common.Animations
 
             _completion.TrySetResult();
             _completion = null;
-            
+
             return false;
         }
 

@@ -62,7 +62,7 @@ public static class OrleansUtilsExtensions
 
         builder.Add<Transactions>()
             .As<ITransactions>();
-        
+
         builder.Add<OrleansUtils>()
             .As<IOrleans>();
 
@@ -107,7 +107,7 @@ public static class OrleansUtilsExtensions
 
             for (var i = 0; i < ids.Count; i++)
                 grains[i] = orleans.Grains.GetGrain<T>(ids[i]);
-            
+
             return grains;
         }
 

@@ -42,7 +42,7 @@ public class ServiceFactory : IServiceFactory
 
         return Task.CompletedTask;
     }
-    
+
     public IService GetOrCreate(SharedSessionService.GetRequest request)
     {
         if (_collection.Entries.TryGetValue(request.Key, out var existing))

@@ -8,7 +8,7 @@ namespace GamePlay.Players
         {
             builder.Register<GamePlayerFactory>()
                 .As<IScopeSetup>();
-            
+
             return builder;
         }
     }

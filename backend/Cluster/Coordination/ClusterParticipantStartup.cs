@@ -53,10 +53,12 @@ public class ClusterParticipantStartup : BackgroundService
         const string stageLocalSetup = "Local Setup";
         const string stageCoordinator = "Coordinator";
 
-        _context.SetStages(new[] {
-            stageOrleans, stageTaskBalancer, stageMessaging,
-            stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
-        });
+        _context.SetStages(new[]
+            {
+                stageOrleans, stageTaskBalancer, stageMessaging,
+                stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
+            }
+        );
 
         _logger.LogInformation("[Startup] {Service} start", serviceName);
 

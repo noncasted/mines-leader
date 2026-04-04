@@ -8,7 +8,8 @@ namespace Internal
     }
 
     public class ViewableDictionary<TKey, TSource, TView> :
-        Dictionary<TKey, TSource>, IViewableDictionary<TKey, TView>
+        Dictionary<TKey, TSource>,
+        IViewableDictionary<TKey, TView>
         where TSource : TView
     {
         private readonly EventSource<IReadOnlyLifetime, TKey, TView> _eventSource = new();
@@ -26,7 +27,7 @@ namespace Internal
                 else
                 {
                     _lifetimes[key].Terminate();
-                    
+
                     var lifetime = new Lifetime();
                     _lifetimes[key] = lifetime;
 
@@ -37,6 +38,7 @@ namespace Internal
                 OnModified();
             }
         }
+
         public new IEnumerable<TKey> Keys => base.Keys;
 
         public new IEnumerable<TView> Values

@@ -8,19 +8,19 @@ namespace Common.Network
         {
             AddEntityServices();
             AddEntityCommands();
-            
+
             AddConnectionServices();
-            
+
             AddUserServices();
             AddUserCommands();
-            
+
             return builder;
 
             void AddEntityServices()
             {
                 builder.Register<NetworkObjectsCollection>()
                     .As<INetworkObjectsCollection>();
-                
+
                 builder.Register<NetworkEntityCollection>()
                     .As<INetworkEntitiesCollection>();
 
@@ -29,7 +29,7 @@ namespace Common.Network
 
                 builder.Register<NetworkEntityFactory>()
                     .As<INetworkEntityFactory>();
-                
+
                 builder.Register<NetworkPropertiesCollector>()
                     .As<IScopeSetup>();
 
@@ -49,13 +49,13 @@ namespace Common.Network
             void AddConnectionServices()
             {
                 builder.AddNetworkConnection();
-                
+
                 builder.Register<SessionConnection>()
                     .As<ISessionConnection>();
 
                 builder.Register<NetworkSession>()
                     .As<INetworkSession>();
-                
+
                 builder.Register<NetworkSessionCallbacks>()
                     .As<INetworkSessionCallbacks>();
             }

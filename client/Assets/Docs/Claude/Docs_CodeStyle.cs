@@ -10,7 +10,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Internal;
 using UnityEngine;
 
 namespace Docs.Claude
@@ -20,7 +19,8 @@ namespace Docs.Claude
         // ==================== MEMBER ORGANIZATION ====================
 
         // Example: Correct member order - MANDATORY
-        public class Example_MemberOrganization {
+        public class Example_MemberOrganization
+        {
             // 1. Constructor FIRST
             public Example_MemberOrganization(ILogger<Example_MemberOrganization> logger)
             {
@@ -63,7 +63,8 @@ namespace Docs.Claude
         // ==================== FIELD NAMING ====================
 
         // Example: Correct field naming conventions
-        public class Example_FieldNaming {
+        public class Example_FieldNaming
+        {
             // ✅ CORRECT - clear, descriptive, leading underscore
 
             private readonly Dictionary<string, object> _delegates = new();
@@ -83,7 +84,8 @@ namespace Docs.Claude
         // ==================== METHOD LOGIC ORGANIZATION ====================
 
         // Example: Logical structure of method - 7 steps
-        public class Example_MethodLogic {
+        public class Example_MethodLogic
+        {
             private readonly Dictionary<string, object> _cache = new();
             private readonly ILogger<Example_MethodLogic> _logger = null;
 
@@ -121,7 +123,8 @@ namespace Docs.Claude
         // ==================== LOCAL FUNCTIONS ====================
 
         // Example: When to use local functions
-        public class Example_LocalFunctions {
+        public class Example_LocalFunctions
+        {
             private ILogger<Example_LocalFunctions> _logger = null;
 
             // ✅ CORRECT - local function with closure
@@ -158,7 +161,8 @@ namespace Docs.Claude
         // ==================== EXCEPTION HANDLING ====================
 
         // Example: Safe subscribe pattern
-        public class Example_ExceptionHandling {
+        public class Example_ExceptionHandling
+        {
             private ILogger<Example_ExceptionHandling> _logger = null;
 
             public async Task SubscribeWithFallback()
@@ -215,7 +219,8 @@ namespace Docs.Claude
         // ==================== LOGGING ====================
 
         // Example: Structured logging with tags
-        public class Example_Logging {
+        public class Example_Logging
+        {
             private ILogger<Example_Logging> _logger = null;
 
             public void LogMessage()
@@ -247,7 +252,8 @@ namespace Docs.Claude
         // ==================== USING .NoAwait() ====================
 
         // Example: Fire-and-forget with NoAwait
-        public class Example_NoAwait {
+        public class Example_NoAwait
+        {
             public void FireAndForget()
             {
                 // ✅ CORRECT - explicitly shows intent
@@ -270,7 +276,8 @@ namespace Docs.Claude
         // ==================== COLLECTION INITIALIZATION ====================
 
         // Example: Inline collection initialization
-        public class Example_CollectionInit {
+        public class Example_CollectionInit
+        {
             // ✅ CORRECT - clearly empty on declaration
             private readonly Dictionary<string, object> _cache = new();
             private readonly List<int> _items = new();
@@ -285,7 +292,8 @@ namespace Docs.Claude
         // ==================== COLLECTION MODIFICATION ====================
 
         // Example: Safe iteration with deferred removal
-        public class Example_IterationModification {
+        public class Example_IterationModification
+        {
             private List<int> _items = new();
 
             // ✅ CORRECT - collect IDs, remove after iteration
@@ -321,7 +329,8 @@ namespace Docs.Claude
         // ==================== DICTIONARY LOOKUP ====================
 
         // Example: TryGetValue pattern
-        public class Example_DictionaryLookup {
+        public class Example_DictionaryLookup
+        {
             private Dictionary<string, object> _cache = new();
 
             // ✅ CORRECT - single lookup
@@ -350,7 +359,8 @@ namespace Docs.Claude
         // ==================== GC.KeepAlive ====================
 
         // Example: GC.KeepAlive usage
-        public class Example_GCKeepAlive {
+        public class Example_GCKeepAlive
+        {
             private Dictionary<string, object> _observers = new();
 
             public void RegisterObserver(string key)
@@ -370,14 +380,18 @@ namespace Docs.Claude
         // ==================== BRACES PLACEMENT ====================
 
         // Example: Correct brace placement - MANDATORY
-        public class Example_BracesPlacement {
+        public class Example_BracesPlacement
+        {
             // ✅ CORRECT - opening brace on SAME line
-            public void Method1() {
+            public void Method1()
+            {
                 // ...
             }
 
-            public class InnerClass {
-                public void InnerMethod() {
+            public class InnerClass
+            {
+                public void InnerMethod()
+                {
                     // ...
                 }
             }
@@ -392,7 +406,8 @@ namespace Docs.Claude
         // ==================== COMPLETE SERVICE TEMPLATE ====================
 
         // Example: Full service class template
-        public class Example_ServiceTemplate {
+        public class Example_ServiceTemplate
+        {
             // 1. Constructor
             public Example_ServiceTemplate(ILogger<Example_ServiceTemplate> logger)
             {

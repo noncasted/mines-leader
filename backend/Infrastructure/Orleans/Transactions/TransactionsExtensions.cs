@@ -10,7 +10,6 @@ public class TransactionBuilder
 
 public static class TransactionsExtensions
 {
-
     extension(ITransactions transactions)
     {
         public Task<TransactionResult> Run(Func<Task> action)
@@ -35,7 +34,7 @@ public static class TransactionsExtensions
             };
 
             await transactions.Process(parameters);
-            
+
             if (result == null)
                 throw new NullReferenceException("Result is null");
 

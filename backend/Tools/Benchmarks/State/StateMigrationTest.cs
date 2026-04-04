@@ -1,4 +1,3 @@
-using Infrastructure;
 using Infrastructure.State;
 
 namespace Benchmarks;

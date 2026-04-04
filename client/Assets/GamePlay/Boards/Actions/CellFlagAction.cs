@@ -8,7 +8,7 @@ namespace GamePlay.Boards
     {
         void Start(IReadOnlyLifetime lifetime);
     }
-    
+
     public class CellFlagAction : ICellFlagAction
     {
         public CellFlagAction(IGameInput input, ICellsSelection selection, IGameContext gameContext)
@@ -33,7 +33,7 @@ namespace GamePlay.Boards
 
             if (own == null)
                 return;
-            
+
             if (own.Source.IsMine == false)
                 return;
 

@@ -27,12 +27,12 @@ namespace Global.Systems
 
         private float _timer;
         private bool _wasCanceled;
-        
+
         public async UniTask Run()
         {
             _lifetime.Listen(OnCanceled);
             _updater.Add(_lifetime, this);
-            
+
             await _completion.Task;
 
             _callback?.Invoke();
@@ -41,7 +41,7 @@ namespace Global.Systems
         public void OnUpdate(float delta)
         {
             _timer += delta;
-            
+
             if (_timer < _delay)
                 return;
 

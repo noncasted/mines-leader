@@ -7,11 +7,11 @@ namespace Internal
     {
         Type Type { get; }
     }
-    
+
     public interface IScopeEventListeners
     {
         void AddResolver(IEventResolver resolver);
-        
+
         void AddListener<T>(T listener) where T : class;
         void Register(IContainerBuilder builder);
     }

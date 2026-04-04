@@ -14,7 +14,7 @@ namespace GamePlay.Boards
 
             builder.Register<CellMultipleOpenAction>()
                 .As<ICellMultipleOpenAction>();
-            
+
             builder.Register<CellsSelection>()
                 .As<ICellsSelection>();
 

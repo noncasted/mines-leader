@@ -31,7 +31,7 @@ public class Smoke : ICard
                 ActionData = null
             };
         }
-        
+
         var size = _config.Size;
 
         var pattern = PatternShapes.Rhombus(size);
@@ -93,6 +93,6 @@ public class SmokeDisposeAction : IRoundAction
 public class SmokeEffect : ICellEffect
 {
     public required Guid Id { get; init; }
-    
+
     public CellEffectType Type => CellEffectType.Smoke;
 }

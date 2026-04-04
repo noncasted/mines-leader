@@ -13,7 +13,7 @@ namespace Global.UI
         public override Color Idle => _idle;
         public override Color Hovered => GetHover();
         public override Color Pressed => GetPressed();
-        
+
         public override float TransitionTime => _source.TransitionTime;
 
         private Color GetHover()
@@ -21,7 +21,7 @@ namespace Global.UI
             var color = _source.Idle - _source.Hovered;
             return _idle - color;
         }
-        
+
         private Color GetPressed()
         {
             var color = _source.Hovered - _source.Pressed;

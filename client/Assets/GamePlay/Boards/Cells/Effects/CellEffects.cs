@@ -10,9 +10,9 @@ namespace GamePlay.Boards.Effects
     public class CellEffects : MonoBehaviour
     {
         [SerializeField] private CellEffectsDictionary _effects;
-        
+
         private readonly Dictionary<Guid, ILifetime> _active = new();
-        
+
         public void AddEffect(Guid effectId, CellEffectType cellEffectType)
         {
             var lifetime = this.GetObjectLifetime().Child();
@@ -36,7 +36,7 @@ namespace GamePlay.Boards.Effects
                 lifetime.Terminate();
         }
     }
-    
+
     [Serializable]
     public class CellEffectsDictionary : SerializableDictionary<CellEffectType, CellEffect>
     {

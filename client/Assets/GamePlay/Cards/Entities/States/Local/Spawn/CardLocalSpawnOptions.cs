@@ -11,7 +11,7 @@ namespace GamePlay.Cards
         [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
         [SerializeField] [CurveRange] private AnimationCurve _heightCurve;
         [SerializeField] [CurveRange] private AnimationCurve _rotationCurve;
-        
+
         [SerializeField] private float _time;
         [SerializeField] private float _addHeight;
 

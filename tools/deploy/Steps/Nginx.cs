@@ -20,7 +20,7 @@ public static class Nginx
 
         await Command.Run("nginx", "-t");
         Console.WriteLine("[Deploy] Nginx configuration completed");
-        
+
         Console.WriteLine("[Deploy] Starting nginx...");
         await Command.Run("service", "nginx start");
     }

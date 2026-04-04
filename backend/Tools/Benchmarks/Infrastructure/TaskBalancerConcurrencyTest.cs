@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Benchmarks;
 
-public class TaskBalancerConcurrencyTest {
+public class TaskBalancerConcurrencyTest
+{
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload() : IConcurrentIterationTestPayload {
+    public class StartPayload() : IConcurrentIterationTestPayload
+    {
         [Id(0)]
         public int Iterations { get; set; } = 5000;
 
@@ -16,24 +18,29 @@ public class TaskBalancerConcurrencyTest {
         public int Concurrent { get; set; } = 4;
     }
 
-    public class Root : BenchmarkRoot<StartPayload> {
-        public Root(ClusterTestUtils utils) : base(utils) {
+    public class Root : BenchmarkRoot<StartPayload>
+    {
+        public Root(ClusterTestUtils utils) : base(utils)
+        {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-balancer-concurrency";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
+        {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
-            var config = new TestBalancerConfig(new TaskBalancerOptions {
-                EmptyDelayMs = 1,
-                NextDelayMs = 0,
-                ConcurrentTasks = 4
-            });
+            var config = new TestBalancerConfig(new TaskBalancerOptions
+                {
+                    EmptyDelayMs = 1,
+                    NextDelayMs = 0,
+                    ConcurrentTasks = 4
+                }
+            );
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
             balancer.Run(handle.Lifetime);
@@ -42,16 +49,20 @@ public class TaskBalancerConcurrencyTest {
 
             return;
 
-            async Task Process() {
+            async Task Process()
+            {
                 var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
                 queue.Enqueue(new TestPriorityTask(
-                    Guid.NewGuid().ToString(),
-                    TaskPriority.Medium,
-                    execute: () => {
-                        tcs.SetResult();
-                        return Task.CompletedTask;
-                    }));
+                        Guid.NewGuid().ToString(),
+                        TaskPriority.Medium,
+                        execute: () =>
+                        {
+                            tcs.SetResult();
+                            return Task.CompletedTask;
+                        }
+                    )
+                );
 
                 await tcs.Task;
                 handle.Metrics.Inc();

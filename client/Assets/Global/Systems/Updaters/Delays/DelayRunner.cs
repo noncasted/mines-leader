@@ -10,7 +10,7 @@ namespace Global.Systems
         {
             _updater = updater;
         }
-        
+
         private readonly IUpdater _updater;
 
         public UniTask RunDelay(float time)

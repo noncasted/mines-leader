@@ -8,7 +8,7 @@
         }
 
         private readonly SpriteAnimationVoidUpdatable _voidUpdatable;
-        
+
         private float _time;
 
         public void Start(float time)
@@ -29,7 +29,7 @@
 
         public void Dispose()
         {
-            
+
         }
     }
 }

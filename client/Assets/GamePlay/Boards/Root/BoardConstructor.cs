@@ -41,11 +41,12 @@ namespace GamePlay.Boards
                     var cell = PrefabUtility.InstantiatePrefab(_cellPrefab, transform) as CellView;
                     var position = new Vector3(
                         x * _cellSize + offset.x + x * _cellsOffset,
-                        y * _cellSize + offset.y + y * _cellsOffset);
+                        y * _cellSize + offset.y + y * _cellsOffset
+                    );
 
                     cell.transform.localPosition = position;
                     cell.name = $"Cell_{x}_{y}";
-                    
+
                     var boardPosition = new Vector2Int(x, y);
                     cell.ConstructFromBuild(boardPosition, _board);
 

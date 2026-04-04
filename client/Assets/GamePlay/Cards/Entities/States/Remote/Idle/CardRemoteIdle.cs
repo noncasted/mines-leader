@@ -7,7 +7,7 @@ namespace GamePlay.Cards
     {
         void Enter();
     }
-    
+
     public class CardRemoteIdle : ICardRemoteIdle
     {
         public CardRemoteIdle(
@@ -40,21 +40,22 @@ namespace GamePlay.Cards
             var positionHandle = _handEntryHandle.PositionHandle;
 
             _updater.RunUpdateAction(lifetime, delta =>
-            {
-                var rotation = positionHandle.SupposedRotation;
-                _transform.SetRotation(rotation);
+                {
+                    var rotation = positionHandle.SupposedRotation;
+                    _transform.SetRotation(rotation);
 
-                var rotationEvaluation = selectionCurve.StepForward(delta);
-                var force = _options.SelectionForce * rotationEvaluation;
-                _transform.SetHandForce(force);
+                    var rotationEvaluation = selectionCurve.StepForward(delta);
+                    var force = _options.SelectionForce * rotationEvaluation;
+                    _transform.SetHandForce(force);
 
-                var direction = new Angle(90 + rotation).ToVector2();
-                var move = direction * (_options.SelectionDistance * rotationEvaluation);
-                var position = positionHandle.SupposedPosition;
-                _transform.SetPosition(position + move);
+                    var direction = new Angle(90 + rotation).ToVector2();
+                    var move = direction * (_options.SelectionDistance * rotationEvaluation);
+                    var position = positionHandle.SupposedPosition;
+                    _transform.SetPosition(position + move);
 
-                _renderer.SetSortingOrder(positionHandle.SupposedRenderOrder);
-            });
+                    _renderer.SetSortingOrder(positionHandle.SupposedRenderOrder);
+                }
+            );
         }
     }
 }

@@ -32,7 +32,7 @@ public class UserFactory : IUserFactory
                 await handle.Entity.Initialize();
                 await handle.Deck.Initialize();
                 await handle.Auth.OnRegistered();
-                
+
                 return id;
             }
         );

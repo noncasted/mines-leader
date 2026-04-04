@@ -20,10 +20,10 @@ namespace Tools
             var internalScopeLoader = new InternalScopeLoader(internalConfig);
             _internalScope = internalScopeLoader.Load();
             var scopeLoader = _internalScope.Container.Container.Resolve<IServiceScopeLoader>();
-            
+
             var globalScope = await scopeLoader.LoadGlobal(_internalScope);
             var metaScope = await scopeLoader.LoadMeta(globalScope);
-            
+
             return metaScope;
         }
 

@@ -23,7 +23,8 @@ namespace Tools
                 var id = AssetDatabase.AssetPathToGUID(rawAssembly.AssetPath);
                 var references = new List<IAssembly>();
                 var fullPathName = rawAssembly.AssetPath
-                    .Replace("Assets/", "").Replace(".asmdef", "");
+                    .Replace("Assets/", "")
+                    .Replace(".asmdef", "");
                 var fileName = assemblyName.Split(".")[^1];
 
                 var path = new AssemblyPath(fileName, assemblyName, fullPathName, rawAssembly.AssetPath);
@@ -33,20 +34,23 @@ namespace Tools
                     rawAssembly.Namespaces,
                     rawAssembly.Usings,
                     Array.Empty<string>(),
-                    rawAssembly.IsOwned);
+                    rawAssembly.IsOwned
+                );
 
                 var toggles = new AssemblyToggles(
                     file.allowUnsafeCode,
                     file.overrideReferences,
                     file.autoReferenced,
-                    file.noEngineReferences);
+                    file.noEngineReferences
+                );
 
                 var defines = new AssemblyDefines(
                     file.includePlatforms,
                     file.excludePlatforms,
                     file.precompiledReferences,
                     file.defineConstraints,
-                    file.versionDefines);
+                    file.versionDefines
+                );
 
                 var assembly = new Assembly(id, path, references, details, toggles, defines);
                 assemblies.Add(assembly);
@@ -67,7 +71,8 @@ namespace Tools
                         var pathToUnknown = AssetDatabase.GUIDToAssetPath(reference.Id);
                         var unknownName = pathToUnknown.Split("/")[^1].Replace(".asmdef", "");
                         var fullPathName = reference.AssetPath
-                            .Replace("Assets/", "").Replace(".asmdef", "");
+                            .Replace("Assets/", "")
+                            .Replace(".asmdef", "");
 
                         var fileName = unknownName.Split(".")[^1];
                         var file = rawAssembly.File;
@@ -77,20 +82,23 @@ namespace Tools
                             Array.Empty<string>(),
                             Array.Empty<string>(),
                             Array.Empty<string>(),
-                            false);
+                            false
+                        );
 
                         var toggles = new AssemblyToggles(
                             file.allowUnsafeCode,
                             file.overrideReferences,
                             file.autoReferenced,
-                            file.noEngineReferences);
+                            file.noEngineReferences
+                        );
 
                         var defines = new AssemblyDefines(
                             file.includePlatforms,
                             file.excludePlatforms,
                             file.precompiledReferences,
                             file.defineConstraints,
-                            file.versionDefines);
+                            file.versionDefines
+                        );
 
                         referencedAssembly = new Assembly(
                             reference.Id,
@@ -98,7 +106,8 @@ namespace Tools
                             new List<IAssembly>(),
                             unknownDetails,
                             toggles,
-                            defines);
+                            defines
+                        );
 
                         idsToAssemblies.Add(reference.Id, referencedAssembly);
                         assemblies.Add(referencedAssembly);
@@ -136,7 +145,8 @@ namespace Tools
                         if (targetReference.Equals(source) == true)
                         {
                             throw new Exception(
-                                $"Cyclic dependency: {source.Path.Name} -> {targetReference.Path.Name}");
+                                $"Cyclic dependency: {source.Path.Name} -> {targetReference.Path.Name}"
+                            );
                         }
                     }
                 }
@@ -233,7 +243,8 @@ namespace Tools
                     usings,
                     GetReferences(asmdefPath),
                     isOwned,
-                    file);
+                    file
+                );
             }
 
             string GetNameSpace(string filePath)

@@ -45,7 +45,7 @@ namespace GamePlay.Services
                         nameof(moveRecord)
                     );
                 }
-                
+
                 Debug.Log($"[Snapshot] Handling record of type {typeof(T).Name}.");
 
                 return _handler.Handle(record);

@@ -20,7 +20,7 @@ public interface IUserAuth : IUserGrain
 
     [Transaction]
     Task OnRegistered();
-    
+
     [Transaction]
     Task<DateTime> GetDate();
 }

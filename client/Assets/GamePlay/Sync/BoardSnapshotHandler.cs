@@ -26,10 +26,10 @@ namespace GamePlay
                 resolver = new PlayerRecordResolver(player.Board);
                 _resolvers[record.BoardOwnerId] = resolver;
             }
-            
+
             foreach (var snapshotRecord in record.Records)
                 resolver.Resolve(snapshotRecord);
-            
+
             return UniTask.CompletedTask;
         }
 
@@ -148,7 +148,7 @@ namespace GamePlay
                 _board.Cells[vector].EnsureFree().OnMinesUpdated(record.Count);
             }
         }
-        
+
         public class Explosion
         {
             public Explosion(IBoard board)

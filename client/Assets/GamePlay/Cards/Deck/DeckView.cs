@@ -18,7 +18,7 @@ namespace GamePlay.Cards
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private readonly List<DeckCard> _cards = new();
-        
+
         public Vector2 PickPoint => transform.position + Vector3.up * _cardHeight * _cards.Count;
 
         public void UpdateAmount(int amount)

@@ -30,7 +30,7 @@ namespace Internal
                 lifetimedValue.Set(value);
             }
         }
-        
+
         public static IViewableDelegate<T> ToViewableDelegate<T>(
             this UnityEvent<T> source,
             IReadOnlyLifetime lifetime)

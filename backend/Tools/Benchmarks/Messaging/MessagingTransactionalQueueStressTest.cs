@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Cluster.Discovery;
 using Common.Extensions;
@@ -45,7 +44,8 @@ public class MessagingTransactionalQueueStressTest
 
             handle.Progress.Log("Listening for messages...");
 
-            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage);
+            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage
+            );
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");
@@ -100,17 +100,18 @@ public class MessagingTransactionalQueueStressTest
                     );
 
                     await _orleans.InTransaction(() =>
-                    {
-                        Messaging.PushTransactionalQueue(
-                            new DurableQueueId(TestName),
-                            new MessagePayload
-                            {
-                                Service = Environment.Tag.ToString()
-                            }
-                        );
+                        {
+                            Messaging.PushTransactionalQueue(
+                                new DurableQueueId(TestName),
+                                new MessagePayload
+                                {
+                                    Service = Environment.Tag.ToString()
+                                }
+                            );
 
-                        return Task.CompletedTask;
-                    });
+                            return Task.CompletedTask;
+                        }
+                    );
 
                     Logger.LogInformation("Successfully sent message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,

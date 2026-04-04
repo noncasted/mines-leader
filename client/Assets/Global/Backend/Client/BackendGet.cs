@@ -10,7 +10,7 @@ namespace Global.Backend
     {
         UniTask<string> Get(IReadOnlyLifetime lifetime, IGetRequest request);
     }
-    
+
     public class BackendGet : IBackendGet
     {
         public async UniTask<string> Get(IReadOnlyLifetime lifetime, IGetRequest request)
@@ -30,9 +30,8 @@ namespace Global.Backend
 
             return responseContent;
         }
-
     }
-    
+
     public static class BackendGetExtensions
     {
         public static async UniTask<T> Get<T>(

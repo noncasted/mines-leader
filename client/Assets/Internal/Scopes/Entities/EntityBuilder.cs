@@ -32,7 +32,7 @@ namespace Internal
 
         public IScopeEntityView View { get; }
     }
-    
+
     public static class EntityBuilderExtensions
     {
         public static T Get<T>(this IEntityScopeResult result)

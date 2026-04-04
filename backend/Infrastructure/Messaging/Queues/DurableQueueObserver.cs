@@ -7,7 +7,8 @@ public interface IDurableQueueObserver : IGrainObserver
 
 public class DurableQueueObserver : IDurableQueueObserver
 {
-    public DurableQueueObserver(Action<object> onMessage) {
+    public DurableQueueObserver(Action<object> onMessage)
+    {
         _onMessage = onMessage;
     }
 
@@ -15,7 +16,8 @@ public class DurableQueueObserver : IDurableQueueObserver
 
     public Guid Id { get; } = Guid.NewGuid();
 
-    public Task Send(object message) {
+    public Task Send(object message)
+    {
         _onMessage(message);
         return Task.CompletedTask;
     }

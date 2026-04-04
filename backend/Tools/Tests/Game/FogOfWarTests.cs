@@ -11,16 +11,19 @@ namespace Tests.Game;
 /// Taken cells are NOT affected (uses SelectFree).
 /// Schedules FogDisposeAction via IRoundActionService for cleanup after Duration rounds.
 /// </summary>
-public class FogOfWarTests {
+public class FogOfWarTests
+{
     [Fact]
-    public void Use_AddsFogToFreeCells() {
+    public void Use_AddsFogToFreeCells()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t _ _ _ t
-            t _ x _ t
-            t _ _ _ t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t _ _ _ t
+                                                t _ x _ t
+                                                t _ _ _ t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
@@ -28,7 +31,8 @@ public class FogOfWarTests {
         var result = new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -38,26 +42,29 @@ public class FogOfWarTests {
             .ToList();
 
         cellsWithFog.Should().NotBeEmpty();
-        cellsWithFog.Should().AllSatisfy(c =>
-            c.Status.Should().Be(CellStatus.Free, "Fog should only be added to Free cells"));
+        cellsWithFog.Should()
+            .AllSatisfy(c => c.Status.Should().Be(CellStatus.Free, "Fog should only be added to Free cells"));
     }
 
     [Fact]
-    public void Use_TakenCellsNotAffected() {
+    public void Use_TakenCellsNotAffected()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t _ t _ t
-            t t _ t t
-            t _ t _ t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t _ t _ t
+                                           t t _ t t
+                                           t _ t _ t
+                                           t t t t t
+                                           """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         // Taken cells should NOT have Fog
         var takenWithFog = board.Cells.Values
@@ -68,66 +75,77 @@ public class FogOfWarTests {
     }
 
     [Fact]
-    public void Use_NoFreeCellsInPattern_Fails() {
+    public void Use_NoFreeCellsInPattern_Fails()
+    {
         // All Taken — SelectFree returns empty
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         var result = new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = target },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
 
     [Fact]
-    public void Use_SchedulesDispose() {
+    public void Use_SchedulesDispose()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t _ _ t
-            t _ t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t _ _ t
+                                           t _ t t t
+                                           t t t t t
+                                           """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
-        roundActionService.Received(1).Schedule(
-            Arg.Any<FogDisposeAction>(),
-            CardConfigs.FogOfWar.Duration);
+        roundActionService.Received(1)
+            .Schedule(
+                Arg.Any<FogDisposeAction>(),
+                CardConfigs.FogOfWar.Duration
+            );
     }
 
     [Fact]
-    public void Use_EffectHasCorrectType() {
+    public void Use_EffectHasCorrectType()
+    {
         // FogOfWar uses Rhombus(4) = 4x4 diamond with 12 cells, but only Free cells get fog.
         // Free cells in the pattern centered at (2,2): (1,1), (2,2), (3,3)
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t _ t t t
-            t t _ t t
-            t _ t _ t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t _ t t t
+                                           t t _ t t
+                                           t _ t _ t
+                                           t t t t t
+                                           """
+        );
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         var cellsWithFog = board.Cells.Values
             .Where(c => c.Effects.Any(e => e.Type == CellEffectType.Fog))
@@ -135,8 +153,7 @@ public class FogOfWarTests {
 
         // Only Free cells within the Rhombus(4) pattern get fog
         cellsWithFog.Should().NotBeEmpty();
-        cellsWithFog.Should().AllSatisfy(c =>
-            c.Status.Should().Be(CellStatus.Free, "only Free cells receive fog"));
+        cellsWithFog.Should().AllSatisfy(c => c.Status.Should().Be(CellStatus.Free, "only Free cells receive fog"));
 
         // Verify the positions match expected Free cells in the rhombus
         var fogPositions = cellsWithFog.Select(c => c.Position).ToHashSet();
@@ -145,27 +162,31 @@ public class FogOfWarTests {
     }
 
     [Fact]
-    public void Use_EmptyBoard_Fails() {
+    public void Use_EmptyBoard_Fails()
+    {
         var emptyBoard = new TestBoardBuilder(0).Build();
         var roundActionService = Substitute.For<IRoundActionService>();
 
         var result = new FogOfWar(emptyBoard,
             new CardUsePayload.FogOfWar { Position = new Position(0, 0) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
 
     [Fact]
-    public void Use_ActionDataHasTargetPlayer() {
+    public void Use_ActionDataHasTargetPlayer()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t _ _ t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t _ _ t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
@@ -173,7 +194,8 @@ public class FogOfWarTests {
         var result = new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.FogOfWar;
         snapshot.Should().NotBeNull();
@@ -181,25 +203,29 @@ public class FogOfWarTests {
     }
 
     [Fact]
-    public void DisposeAction_RemovesFogEffects() {
+    public void DisposeAction_RemovesFogEffects()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t _ t t t
-            _ _ _ t t
-            t _ t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t _ t t t
+                                           _ _ _ t t
+                                           t _ t t t
+                                           t t t t t
+                                           """
+        );
 
         var roundActionService = new RoundActionService();
 
         new FogOfWar(board,
             new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
             CardConfigs.FogOfWar,
-            roundActionService).Use();
+            roundActionService
+        ).Use();
 
         // Verify effects exist
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Fog))
-            .Should().BeTrue();
+            .Should()
+            .BeTrue();
 
         // Tick Duration times
         for (var i = 0; i < CardConfigs.FogOfWar.Duration; i++)
@@ -207,6 +233,7 @@ public class FogOfWarTests {
 
         // Effects should be removed
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Fog))
-            .Should().BeFalse();
+            .Should()
+            .BeFalse();
     }
 }

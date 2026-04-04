@@ -56,7 +56,8 @@ public class StateStorageCache
             return query;
 
         var extensionClause = hasExtension ? "AND extension = @extension" : string.Empty;
-        query = $"SELECT key, value, version FROM {stateIdentity.TableName} WHERE type = @type AND key = ANY(@keys) {extensionClause}";
+        query =
+            $"SELECT key, value, version FROM {stateIdentity.TableName} WHERE type = @type AND key = ANY(@keys) {extensionClause}";
 
         cache[stateIdentity.Type] = query;
         return query;

@@ -7,26 +7,31 @@ using Xunit;
 
 namespace Tests.Execution;
 
-public class TaskBalancerTests {
+public class TaskBalancerTests
+{
     private readonly TaskQueue _queue;
     private readonly TaskBalancer _balancer;
 
-    public TaskBalancerTests() {
+    public TaskBalancerTests()
+    {
         var queueLogger = Substitute.For<ILogger<TaskQueue>>();
         var balancerLogger = Substitute.For<ILogger<TaskBalancer>>();
         _queue = new TaskQueue(queueLogger);
-        var config = CreateConfig(new TaskBalancerOptions {
-            EmptyDelayMs = 10,
-            NextDelayMs = 10,
-            IterationScore = 1,
-            ExceptionPenalty = 50,
-            ConcurrentTasks = 10
-        });
+        var config = CreateConfig(new TaskBalancerOptions
+            {
+                EmptyDelayMs = 10,
+                NextDelayMs = 10,
+                IterationScore = 1,
+                ExceptionPenalty = 50,
+                ConcurrentTasks = 10
+            }
+        );
         _balancer = new TaskBalancer(_queue, balancerLogger, config);
     }
 
     [Fact]
-    public async Task CriticalPriority_ExecutesBeforeLow() {
+    public async Task CriticalPriority_ExecutesBeforeLow()
+    {
         var executionOrder = new List<string>();
 
         var lowTask = new OrderTrackingTask("low", TaskPriority.Low, executionOrder);
@@ -35,13 +40,15 @@ public class TaskBalancerTests {
         _queue.Enqueue(lowTask);
         _queue.Enqueue(criticalTask);
 
-        var config = CreateConfig(new TaskBalancerOptions {
-            EmptyDelayMs = 10,
-            NextDelayMs = 10,
-            IterationScore = 1,
-            ExceptionPenalty = 50,
-            ConcurrentTasks = 1
-        });
+        var config = CreateConfig(new TaskBalancerOptions
+            {
+                EmptyDelayMs = 10,
+                NextDelayMs = 10,
+                IterationScore = 1,
+                ExceptionPenalty = 50,
+                ConcurrentTasks = 1
+            }
+        );
         var logger = Substitute.For<ILogger<TaskBalancer>>();
         var balancer = new TaskBalancer(_queue, logger, config);
 
@@ -57,7 +64,8 @@ public class TaskBalancerTests {
     }
 
     [Fact]
-    public async Task FailedTask_ReEnqueuedToQueue() {
+    public async Task FailedTask_ReEnqueuedToQueue()
+    {
         var task = new FakeTask("failing", delay: TimeSpan.Zero, priority: TaskPriority.Medium)
             .SetShouldFail(true);
 
@@ -70,23 +78,28 @@ public class TaskBalancerTests {
 
         lifetime.Terminate();
 
-        task.ExecuteCount.Should().BeGreaterThanOrEqualTo(2,
-            "failed task should be re-enqueued and retried");
+        task.ExecuteCount.Should()
+            .BeGreaterThanOrEqualTo(2,
+                "failed task should be re-enqueued and retried"
+            );
     }
 
     [Fact]
-    public async Task AgingMechanism_OlderTasksGetHigherScore() {
+    public async Task AgingMechanism_OlderTasksGetHigherScore()
+    {
         var executionOrder = new List<string>();
         var lowTask = new OrderTrackingTask("low-old", TaskPriority.Low, executionOrder);
         _queue.Enqueue(lowTask);
 
-        var config = CreateConfig(new TaskBalancerOptions {
-            EmptyDelayMs = 10,
-            NextDelayMs = 10,
-            IterationScore = 100,
-            ExceptionPenalty = 50,
-            ConcurrentTasks = 1
-        });
+        var config = CreateConfig(new TaskBalancerOptions
+            {
+                EmptyDelayMs = 10,
+                NextDelayMs = 10,
+                IterationScore = 100,
+                ExceptionPenalty = 50,
+                ConcurrentTasks = 1
+            }
+        );
         var logger = Substitute.For<ILogger<TaskBalancer>>();
         var balancer = new TaskBalancer(_queue, logger, config);
 
@@ -112,7 +125,8 @@ public class TaskBalancerTests {
     }
 
     [Fact]
-    public async Task MultipleTasks_AllExecutedExactlyOnce() {
+    public async Task MultipleTasks_AllExecutedExactlyOnce()
+    {
         var tasks = Enumerable.Range(0, 5)
             .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero, priority: TaskPriority.Medium))
             .ToList();
@@ -132,7 +146,8 @@ public class TaskBalancerTests {
     }
 
     [Fact]
-    public async Task LifetimeTermination_StopsProcessing() {
+    public async Task LifetimeTermination_StopsProcessing()
+    {
         var lifetime = new Lifetime();
         _balancer.Run(lifetime);
 
@@ -144,20 +159,25 @@ public class TaskBalancerTests {
 
         await Task.Delay(100);
 
-        task.ExecuteCount.Should().Be(0,
-            "tasks enqueued after lifetime termination should not execute");
+        task.ExecuteCount.Should()
+            .Be(0,
+                "tasks enqueued after lifetime termination should not execute"
+            );
     }
 
-    private static ITaskBalancerConfig CreateConfig(TaskBalancerOptions options) {
+    private static ITaskBalancerConfig CreateConfig(TaskBalancerOptions options)
+    {
         var config = Substitute.For<ITaskBalancerConfig>();
         config.Value.Returns(options);
         return config;
     }
 
-    private static async Task WaitUntil(Func<bool> condition, int timeoutMs) {
+    private static async Task WaitUntil(Func<bool> condition, int timeoutMs)
+    {
         var deadline = DateTime.UtcNow.AddMilliseconds(timeoutMs);
 
-        while (DateTime.UtcNow < deadline) {
+        while (DateTime.UtcNow < deadline)
+        {
             if (condition())
                 return;
 
@@ -168,8 +188,10 @@ public class TaskBalancerTests {
     }
 }
 
-public class OrderTrackingTask : IPriorityTask {
-    public OrderTrackingTask(string id, TaskPriority priority, List<string> executionOrder) {
+public class OrderTrackingTask : IPriorityTask
+{
+    public OrderTrackingTask(string id, TaskPriority priority, List<string> executionOrder)
+    {
         Id = id;
         Priority = priority;
         _executionOrder = executionOrder;
@@ -181,8 +203,10 @@ public class OrderTrackingTask : IPriorityTask {
     public TaskPriority Priority { get; }
     public TimeSpan Delay => TimeSpan.Zero;
 
-    public Task Execute() {
-        lock (_executionOrder) {
+    public Task Execute()
+    {
+        lock (_executionOrder)
+        {
             _executionOrder.Add(Id);
         }
 

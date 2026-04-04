@@ -8,10 +8,10 @@ namespace GamePlay.Cards
     {
         IHandPositions Positions { get; }
         IViewableList<ICard> Entries { get; }
-        
+
         void Add(ICard card);
     }
-    
+
     public class Hand : IHand
     {
         public Hand(IHandView view, NetworkProperty<PlayerHandState> state)

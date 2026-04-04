@@ -1,7 +1,7 @@
-@using global::Common.Extensions
-@using global::Common.Reactive
-@using global::Console
+@using Common.Extensions
+@using Common.Reactive
 @using Infrastructure.Startup
+@using UiComponent = Console.UiComponent
 @inherits UiComponent
 
 <button class="flex items-center gap-1.5 text-sm rounded-md px-2 py-1 hover:bg-muted transition-colors" @onclick="OnClick" title="@(_isInitialized ? "Server ready" : _currentStageName)">

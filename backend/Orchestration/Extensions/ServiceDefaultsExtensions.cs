@@ -77,10 +77,9 @@ public static class ServiceDefaultsExtensions
                             tracing.AddSource(source.Name);
 
                         tracing.AddSource(builder.Environment.ApplicationName)
-                            .AddAspNetCoreInstrumentation(options =>
-                                options.Filter = context =>
-                                    !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&
-                                    !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
+                            .AddAspNetCoreInstrumentation(options => options.Filter = context =>
+                                !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&
+                                !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
                             )
                             .AddHttpClientInstrumentation();
 

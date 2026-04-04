@@ -53,7 +53,7 @@ public class ErosionDozerStrategy : IBotCardStrategy
             Position = position,
             Type = cardType
         };
-        
+
         return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

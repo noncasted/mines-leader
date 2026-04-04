@@ -23,7 +23,7 @@ public class Moves : IMoves
     }
 
     private readonly ValueProperty<PlayerMovesState> _state;
-    
+
     private int _maxTurns;
 
     public int Left => _state.Value.Left;
@@ -32,61 +32,66 @@ public class Moves : IMoves
     public void SetCurrent(int value)
     {
         _state.Update(state =>
-        {
-            state.Left = value;
+            {
+                state.Left = value;
 
-            if (state.Left < 0)
-                state.Left = 0;
-            
-            if (state.Left > _maxTurns)
-                state.Left = _maxTurns;
-        });
+                if (state.Left < 0)
+                    state.Left = 0;
+
+                if (state.Left > _maxTurns)
+                    state.Left = _maxTurns;
+            }
+        );
     }
 
     public void SetMax(int value)
     {
         _maxTurns = value;
-        
-        _state.Update(state =>
-        {
-            state.Max = _maxTurns;
 
-            if (state.Left > _maxTurns)
-                state.Left = _maxTurns;
-            
-            if (state.Left < 0)
-                throw new InvalidOperationException("Turns cannot be less than zero.");
-        });
+        _state.Update(state =>
+            {
+                state.Max = _maxTurns;
+
+                if (state.Left > _maxTurns)
+                    state.Left = _maxTurns;
+
+                if (state.Left < 0)
+                    throw new InvalidOperationException("Turns cannot be less than zero.");
+            }
+        );
     }
 
     public void OnUsed()
     {
         _state.Update(state =>
-        {
-            state.Left -= 1;
-            state.Max = _maxTurns;
-            
-            if (state.Left < 0)
-                throw new InvalidOperationException("Turns cannot be less than zero.");
-        });
+            {
+                state.Left -= 1;
+                state.Max = _maxTurns;
+
+                if (state.Left < 0)
+                    throw new InvalidOperationException("Turns cannot be less than zero.");
+            }
+        );
     }
 
     public void Restore()
     {
         _state.Update(state =>
-        {
-            state.Left = _maxTurns;
-            state.Max = _maxTurns;
-            state.IsAvailable = true;
-        });
+            {
+                state.Left = _maxTurns;
+                state.Max = _maxTurns;
+                state.IsAvailable = true;
+            }
+        );
     }
 
     public void Lock()
     {
         _state.Update(state =>
-        {
-            state.Left = 0;
-            state.IsAvailable = false;
-        });
+            {
+                state.Left = 0;
+                state.IsAvailable = false;
+            }
+        );
     }
 }

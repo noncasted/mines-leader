@@ -10,7 +10,7 @@ namespace Menu.Social
     {
         void ShowMessage(string message);
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuPlayerChatView : MonoBehaviour, IEntityComponent, IMenuPlayerChatView
     {
@@ -18,13 +18,13 @@ namespace Menu.Social
         [SerializeField] private float _time;
 
         private int _index;
-        
+
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
                 .As<IMenuPlayerChatView>();
         }
-        
+
         public void ShowMessage(string message)
         {
             _text.text = message;
@@ -34,14 +34,15 @@ namespace Menu.Social
             _text.text = message;
 
             UniTask.Create(async () =>
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(_time));
-                
-                if (indexSave != _index)
-                    return;
-                
-                _text.text = string.Empty;
-            });
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(_time));
+
+                    if (indexSave != _index)
+                        return;
+
+                    _text.text = string.Empty;
+                }
+            );
         }
     }
 }

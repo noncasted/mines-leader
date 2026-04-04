@@ -11,7 +11,7 @@ namespace Global.UI
             InnerLifetime = new Lifetime(parent);
             Recovered = new ViewableDelegate();
         }
-        
+
         public IUIConstraints Constraints => new UIConstraints();
 
         public IReadOnlyLifetime InnerLifetime { get; }
@@ -27,7 +27,7 @@ namespace Global.UI
 
         public void OnStacked(IInternalUIStateHandle stackHead)
         {
- 
+
         }
 
         public void ClearStack()

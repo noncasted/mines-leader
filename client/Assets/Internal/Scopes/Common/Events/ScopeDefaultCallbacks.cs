@@ -31,7 +31,7 @@ namespace Internal
     {
         UniTask OnSetupCompletionAsync(IReadOnlyLifetime lifetime);
     }
-    
+
     public interface IScopeLoaded
     {
         void OnLoaded(IReadOnlyLifetime lifetime);
@@ -41,7 +41,7 @@ namespace Internal
     {
         UniTask OnLoadedAsync(IReadOnlyLifetime lifetime);
     }
-    
+
     public interface IScopeDispose
     {
         void OnDispose();

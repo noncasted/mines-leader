@@ -9,7 +9,7 @@ public class EntityDestroyCommand : Command<SharedSessionEntity.Destroy>
         _entities = entities;
         _users = users;
     }
-    
+
     private readonly ISessionEntities _entities;
     private readonly ISessionUsers _users;
 

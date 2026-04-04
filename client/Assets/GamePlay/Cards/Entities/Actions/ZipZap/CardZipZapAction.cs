@@ -67,7 +67,7 @@ namespace GamePlay.Cards
             private readonly IGameContext _context;
             private readonly ICardVfxFactory _vfxFactory;
             private readonly ZipZapOptions _options;
-            
+
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ZipZap payload)
             {
                 var targets = new List<IBoardCell>();

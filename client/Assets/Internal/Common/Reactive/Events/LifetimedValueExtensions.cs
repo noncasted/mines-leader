@@ -23,10 +23,11 @@ namespace Internal
             Action<T> listener) where T : class
         {
             property.Advise(lifetime, (_, value) =>
-            {
-                if (value != null)
-                    listener.Invoke(value);
-            });
+                {
+                    if (value != null)
+                        listener.Invoke(value);
+                }
+            );
 
             if (property.Value != null)
                 listener.Invoke(property.Value);
@@ -38,10 +39,11 @@ namespace Internal
             Action<IReadOnlyLifetime, T> listener) where T : class
         {
             property.Advise(lifetime, (valueLifetime, value) =>
-            {
-                if (value != null)
-                    listener.Invoke(valueLifetime, value);
-            });
+                {
+                    if (value != null)
+                        listener.Invoke(valueLifetime, value);
+                }
+            );
 
             if (property.Value != null)
                 listener.Invoke(property.ValueLifetime, property.Value);
@@ -151,7 +153,7 @@ namespace Internal
                 throw new Exception();
             }
         }
-        
+
         public static UniTask WaitTrue(this ILifetimedValue<bool> property, IReadOnlyLifetime lifetime)
         {
             if (property.Value == true)

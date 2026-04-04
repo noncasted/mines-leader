@@ -1,7 +1,8 @@
 using Internal;
 using UnityEngine;
 
-namespace GamePlay.Boards.Effects {
+namespace GamePlay.Boards.Effects
+{
     [DisallowMultipleComponent]
     public class FogCellEffect : CellEffect
     {

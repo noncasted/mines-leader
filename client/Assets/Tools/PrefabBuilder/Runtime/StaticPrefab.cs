@@ -2,12 +2,14 @@ using UnityEngine;
 
 namespace Tools
 {
-    public class StaticPrefab {
+    public class StaticPrefab
+    {
         private const string Prefix = "Generated/";
         private readonly string _path;
         private GameObject _cache;
 
-        public StaticPrefab(string path) {
+        public StaticPrefab(string path)
+        {
             _path = Prefix + path;
         }
 

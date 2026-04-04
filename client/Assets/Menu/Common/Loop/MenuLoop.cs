@@ -4,7 +4,6 @@ using Global.UI;
 using Internal;
 using Menu.Main;
 using Menu.Social;
-using Meta;
 using Shared;
 
 namespace Menu.Common
@@ -13,7 +12,7 @@ namespace Menu.Common
     {
         UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime);
     }
-    
+
     public class MenuLoop : IMenuLoop
     {
         public MenuLoop(
@@ -40,14 +39,14 @@ namespace Menu.Common
             var completion = new UniTaskCompletionSource<SharedMatchmaking.MatchResult>();
 
             await _socialLoop.Start(lifetime);
-            
+
             _loadingScreen.Hide();
             _globalCamera.Disable();
-            
+
             _play.MatchFound.Advise(lifetime, sessionData => completion.TrySetResult(sessionData));
 
             var result = await completion.Task;
-            
+
             return new GameLoadData()
             {
                 Result = result

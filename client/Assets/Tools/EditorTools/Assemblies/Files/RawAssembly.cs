@@ -23,7 +23,7 @@ namespace Tools
             IsOwned = isOwned;
             File = file;
         }
-        
+
         public string FilePath { get; }
         public string AssetPath { get; }
         public string Directory { get; }

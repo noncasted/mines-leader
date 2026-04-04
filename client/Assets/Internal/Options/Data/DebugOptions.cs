@@ -1,18 +1,22 @@
 using System;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     [Serializable]
-    public class DebugOptions {
+    public class DebugOptions
+    {
         [SerializeField] private bool _enableGizmos;
         [SerializeField] private bool _enableLogs;
 
-        public bool EnableGizmos {
+        public bool EnableGizmos
+        {
             get => _enableGizmos;
             set => _enableGizmos = value;
         }
 
-        public bool EnableLogs {
+        public bool EnableLogs
+        {
             get => _enableLogs;
             set => _enableLogs = value;
         }

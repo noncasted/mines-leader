@@ -16,10 +16,10 @@ public class TestParticipants
         foreach (var id in Entries)
         {
             var grain = Orleans.GetGrain<TGrain>(id);
-            var value  = await func(grain);
+            var value = await func(grain);
             result.Add(value);
         }
-        
+
         return result;
     }
 
@@ -32,11 +32,11 @@ public class TestParticipants
             await func(grain);
         }
     }
-    
+
     public static TestParticipants Create(IOrleans orlens, int count)
     {
         var entries = new Guid[count];
-        
+
         for (var i = 0; i < count; i++)
             entries[i] = Guid.NewGuid();
 

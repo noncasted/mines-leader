@@ -1,4 +1,3 @@
-
 namespace Benchmarks;
 
 public interface IConcurrentIterationTestPayload

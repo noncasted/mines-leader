@@ -10,7 +10,7 @@ namespace Global.UI
         [SerializeField] private Color _idle;
         [SerializeField] private Color _hovered;
         [SerializeField] private Color _pressed;
-        
+
         [SerializeField] [Min(0f)] private float _transitionTime;
 
         public override Color Idle => _idle;

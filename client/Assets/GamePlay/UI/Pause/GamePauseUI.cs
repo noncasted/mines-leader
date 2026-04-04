@@ -12,7 +12,7 @@ namespace GamePlay.UI
     {
         void Open();
     }
-    
+
     [DisallowMultipleComponent]
     public class GamePauseUI : MonoBehaviour, IScopeSetup, ISceneService, IGamePause
     {
@@ -34,14 +34,14 @@ namespace GamePlay.UI
             gameObject.SetActive(false);
             _pauseLeaveMenu.gameObject.SetActive(false);
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
                 .As<IGamePause>()
                 .As<IScopeSetup>();
         }
-        
+
         public void Open()
         {
             gameObject.SetActive(true);
@@ -58,7 +58,7 @@ namespace GamePlay.UI
         private async UniTask ProcessLeaveMenu(IReadOnlyLifetime lifetime)
         {
             var result = await _pauseLeaveMenu.Process(lifetime);
-            
+
             if (result == false)
                 return;
 

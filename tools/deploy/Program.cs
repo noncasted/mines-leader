@@ -1,7 +1,8 @@
-﻿using deploy;
+﻿using System.Collections;
+using deploy;
 
 Console.WriteLine("[Deploy] Environment variables:");
-foreach (System.Collections.DictionaryEntry entry in System.Environment.GetEnvironmentVariables())
+foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
     Console.WriteLine($"[Deploy]   {entry.Key}={entry.Value}");
 
 await Validation.Run();

@@ -7,14 +7,14 @@ namespace Internal
         IReadOnlyDictionary<TKey, TValue> Values { get; }
         IReadOnlyDictionary<TValue, TKey> Keys { get; }
     }
-    
+
     public class DoubleSideIntDictionary<TValue> : IDoubleSideDictionary<int, TValue>
     {
         public DoubleSideIntDictionary(IReadOnlyList<TValue> source)
         {
             var values = new Dictionary<int, TValue>();
             var keys = new Dictionary<TValue, int>();
-            
+
             for (var i = 0; i < source.Count; i++)
             {
                 var value = source[i];
@@ -26,7 +26,7 @@ namespace Internal
             Values = values;
             Keys = keys;
         }
-        
+
         public DoubleSideIntDictionary(IReadOnlyDictionary<int, TValue> source)
         {
             var keys = new Dictionary<TValue, int>();
@@ -38,7 +38,7 @@ namespace Internal
             Keys = keys;
         }
 
-        
+
         public IReadOnlyDictionary<int, TValue> Values { get; }
         public IReadOnlyDictionary<TValue, int> Keys { get; }
     }

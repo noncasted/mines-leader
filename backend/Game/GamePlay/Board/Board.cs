@@ -41,7 +41,7 @@ public class Board : IBoard
 
     public IBoardGenerator Generator { get; }
     public IBoardRevealer Revealer { get; }
-    public IBoardMinesScanner  MinesScanner { get; }
+    public IBoardMinesScanner MinesScanner { get; }
     public IBoardEvents Events { get; }
     public Position Size { get; }
     public IReadOnlyDictionary<Position, ICell> Cells => _cells;

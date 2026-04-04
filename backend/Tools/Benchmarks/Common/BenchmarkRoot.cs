@@ -27,7 +27,9 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
 
     BenchmarkResult? IClusterTest.LastResult { get; set; }
 
-    Task IClusterTest.Start(IOperationProgress progress, CancellationToken cancellationToken) => Start(progress, _payload, cancellationToken);
+    Task IClusterTest.Start(IOperationProgress progress, CancellationToken cancellationToken) =>
+        Start(progress, _payload, cancellationToken);
+
     public abstract string Group { get; }
     public abstract string Title { get; }
     public abstract string MetricName { get; }
@@ -38,7 +40,10 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
     public ClusterTestUtils Utils => _utils;
     public TestCleanup Cleanup => _utils.Cleanup;
 
-    public async Task Start(IOperationProgress progress, TPayload payload, CancellationToken cancellationToken = default)
+    public async Task Start(
+        IOperationProgress progress,
+        TPayload payload,
+        CancellationToken cancellationToken = default)
     {
         var lifetime = new Lifetime();
         cancellationToken.Register(() => lifetime.Terminate());

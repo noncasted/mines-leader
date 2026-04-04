@@ -11,7 +11,7 @@ namespace GamePlay.Cards
     {
         UniTask Create(PlayerBuildContext context);
     }
-    
+
     [DisallowMultipleComponent]
     public class StashFactory : MonoBehaviour, IStashFactory
     {
@@ -22,7 +22,7 @@ namespace GamePlay.Cards
             var builder = context.Builder;
 
             builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);
-            
+
             builder.RegisterComponent(_view)
                 .As<IStashView>();
 
@@ -30,7 +30,7 @@ namespace GamePlay.Cards
                 .As<IScopeLoaded>()
                 .As<IStash>()
                 .AsSelfResolvable();
-            
+
             return UniTask.CompletedTask;
         }
     }

@@ -9,12 +9,12 @@ namespace GamePlay.UI
     {
         void Show();
     }
-    
+
     [DisallowMultipleComponent]
     public class GameOverlayUI : MonoBehaviour, ISceneService, IScopeSetup, IGameOverlayUI
     {
         [SerializeField] private DesignButton _pauseButton;
-        
+
         private IGamePause _pause;
 
         [Inject]
@@ -22,7 +22,7 @@ namespace GamePlay.UI
         {
             _pause = pause;
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
