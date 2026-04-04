@@ -3,55 +3,99 @@
 Unit tests (no Orleans). Player stats, deck, hand, stash management.
 Use `ValueProperty<T>.ForTest()` for state without network sync.
 
-## Todo
+## Done
 
-### Health — `Game/GamePlay/Players/Health.cs`
-- [ ] SetMax sets maximum HP
-- [ ] SetCurrent clamps to [0, Max]
-- [ ] TakeDamage reduces current HP
-- [ ] TakeDamage below 0 — clamps to 0
-- [ ] Heal increases current HP
-- [ ] Heal above max — clamps to max
-- [ ] IsDead when current = 0
+### Health — `Game/PlayerMechanicsTests.cs` (12 tests)
+- [x] SetMax sets maximum HP
+- [x] SetCurrent clamps to [0, Max]
+- [x] SetCurrent above max clamped
+- [x] SetCurrent below 0 clamped
+- [x] TakeDamage reduces current HP
+- [x] TakeDamage below 0 clamps to 0
+- [x] TakeDamage negative throws
+- [x] Heal increases current HP
+- [x] Heal above max clamps to max
+- [x] Heal negative throws
+- [x] State sync on change
+- [x] Initial state
 
-### Mana — `Game/GamePlay/Players/Mana.cs`
-- [ ] SetMax sets maximum mana
-- [ ] Restore sets current = max
-- [ ] Use reduces current mana
-- [ ] Use more than available — fails or clamps
-- [ ] SetCurrent clamps to [0, Max]
+### Mana — `Game/PlayerMechanicsTests.cs` (9 tests)
+- [x] SetMax sets maximum mana
+- [x] SetMax clamps current if exceeds new max
+- [x] Restore sets current = max
+- [x] Use reduces current mana
+- [x] Use more than available — clamps
+- [x] Use negative throws
+- [x] SetCurrent clamps to [0, Max]
+- [x] State sync
+- [x] Initial state
 
-### Moves — `Game/GamePlay/Players/Moves.cs`
-- [ ] SetMax sets max moves per turn
-- [ ] Restore resets to max
-- [ ] OnUsed decrements by 1
-- [ ] OnUsed at 0 — throws
-- [ ] Lock sets to 0
-- [ ] After Lock, Restore brings back to max
+### Moves — `Game/PlayerMechanicsTests.cs` (10 tests)
+- [x] SetMax sets max moves per turn
+- [x] Restore resets to max
+- [x] OnUsed decrements by 1
+- [x] OnUsed at 0 — throws
+- [x] Lock sets to 0 and IsAvailable = false
+- [x] IsAvailable after restore
+- [x] SetCurrent clamps
+- [x] SetMax clamps left
+- [x] State sync
+- [x] Initial state
 
-### Deck — `Game/GamePlay/Players/Deck.cs`
-- [ ] Init fills deck with N cards cycling through selected types
-- [ ] DrawCard returns a card and removes from deck
-- [ ] DrawCard from empty deck — behavior
-- [ ] AddCard adds to deck
-- [ ] Count reflects current deck size
+### Deck — `Game/PlayerMechanicsTests.cs` (7 tests)
+- [x] Init fills deck with N cards cycling through selected types
+- [x] Init cycles through cards
+- [x] DrawCard returns a card and removes from deck
+- [x] DrawCard from empty deck — throws
+- [x] AddCard adds to deck
+- [x] RemoveCard removes from deck
+- [x] Count reflects current deck size
 
-### Hand — `Game/GamePlay/Players/Hand.cs`
-- [ ] SetSize sets hand capacity
-- [ ] Add returns ActiveCard with Id and Type
-- [ ] Remove by Id removes card
-- [ ] Entries returns current hand
+### Hand — `Game/PlayerMechanicsTests.cs` (7 tests)
+- [x] SetSize sets hand capacity
+- [x] Add returns ActiveCard with Id and Type
+- [x] Add appears in Entries
+- [x] Remove by Id removes card
+- [x] Remove non-existent — no error
+- [x] Entries count tracking
+- [x] Unique Ids per card
 
-### Stash — `Game/GamePlay/Players/Stash.cs`
-- [ ] Add puts card on top
-- [ ] Pick returns top card (LIFO)
-- [ ] Collect returns all and clears
-- [ ] Count reflects stash size
-- [ ] Pick from empty stash — behavior
+### Stash — `Game/PlayerMechanicsTests.cs` (6 tests)
+- [x] Add puts card on top
+- [x] Pick returns top card (LIFO)
+- [x] Pick from empty stash — throws
+- [x] Collect returns all and clears
+- [x] Collect empty — returns empty
+- [x] State sync
+
+### RoundActionService — `Game/PlayerMechanicsTests.cs` (8 tests)
+- [x] Schedule action with N rounds delay
+- [x] Tick decrements all scheduled action counters
+- [x] Action executes when RoundsLeft reaches 0
+- [x] Multiple actions at same round — all execute
+- [x] Schedule with 0/negative rounds — no-op
+- [x] No scheduled actions — Tick is no-op
+- [x] Entry removed after execution
+- [x] Different delays — correct ordering
+
+### Modifiers — `Game/PlayerMechanicsTests.cs` (6 tests)
+- [x] Initial modifier values all 0
+- [x] Set modifier updates value
+- [x] Get returns current value
+- [x] Inc increments by 1
+- [x] Reset sets to 0
+- [x] State sync
+
+### PlayerActions — `Game/PlayerMechanicsTests.cs` (4 tests)
+- [x] OnCellOpened fires CellOpened delegate
+- [x] OnCardUsed fires CardUsed delegate
+- [x] Multiple listeners all receive
+- [x] Terminated lifetime unsubscribes
 
 ## Todo — Round Mechanics
 
 ### TimeLimitedRound — turn timer and win conditions
+Requires complex game context mocking (IGameContext, IGameReadyAwaiter, ISnapshotSender).
 - [ ] Timer countdown decrements SecondsLeft per player
 - [ ] Time bonus on CellOpened action (+TimeGainPerAction)
 - [ ] Time bonus on CardUsed action (+TimeGainPerAction)
@@ -75,26 +119,8 @@ Use `ValueProperty<T>.ForTest()` for state without network sync.
 - [ ] Both deck and stash empty — draws nothing
 - [ ] Each card addition recorded in snapshot
 
-### RoundActionService — delayed actions
-- [ ] Schedule action with N rounds delay
-- [ ] Tick decrements all scheduled action counters
-- [ ] Action executes when RoundsLeft reaches 0
-- [ ] Multiple actions at same round — all execute
-- [ ] Schedule with 0 rounds — executes immediately on next Tick
-- [ ] No scheduled actions — Tick is no-op
-
-### PlayerActions — event tracking
-- [ ] OnCellOpened fires CellOpened delegate
-- [ ] OnCardUsed fires CardUsed delegate
-- [ ] Actions used for time bonus calculation in TimeLimitedRound
-
-### Modifiers — player modifier system
-- [ ] Initial modifier values all 0
-- [ ] Set modifier updates value and fires SyncState
-- [ ] Modifier values are floats (no bounds checking)
-- [ ] Modifier read returns current value
-
 ### MoveSnapshot — recording system
+Requires IGameContext and board event subscription mocking.
 - [ ] RecordCardUse prepends to record list (position 0)
 - [ ] RecordCardAdd appends to record list
 - [ ] RecordCardRemove appends to record list

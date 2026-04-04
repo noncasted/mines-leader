@@ -87,8 +87,8 @@ public class BoardGenerationTests {
             }
         }
 
-        allMinePositions.Count.Should().BeGreaterThanOrEqualTo(4,
-            "mines should appear in different positions across multiple runs");
+        allMinePositions.Count.Should().BeGreaterThanOrEqualTo(30,
+            "50 runs of 20 mines on 91 eligible cells should produce at least 30 distinct positions");
     }
 
     [Fact]

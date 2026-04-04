@@ -72,7 +72,7 @@ public class RuntimeChannelTests(OrleansTestClusterFixture fixture) : Integratio
 
         await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
         received.Should().HaveCount(10);
-        received.Should().BeEquivalentTo(Enumerable.Range(0, 10));
+        received.Should().Equal(Enumerable.Range(0, 10).ToList());
     }
 
     [Fact]
@@ -122,12 +122,102 @@ public class RuntimeChannelTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task Publish_NoSubscribers_DoesNotThrow() {
+    public async Task Publish_NoSubscribers_ChannelRemainsFunctional() {
         var channelId = new TestChannelId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
 
-        var act = () => messaging.PublishChannel(channelId, new TestMessage { Text = "void" });
+        // Publish to empty channel — should not throw
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "void" });
 
-        await act.Should().NotThrowAsync();
+        // Channel should still work: subscribe and publish a new message
+        var received = new TaskCompletionSource<TestMessage>();
+        await messaging.ListenChannel<TestMessage>(
+            new Lifetime(), channelId, msg => received.TrySetResult(msg));
+
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "after-empty", Sequence = 42 });
+
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        result.Text.Should().Be("after-empty");
+        result.Sequence.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task Publish_SubscriberAddedAfterPublish_DoesNotReceiveOldMessage() {
+        var channelId = new TestChannelId(Guid.NewGuid().ToString());
+        var messaging = GetSiloService<IMessaging>();
+
+        // Publish before anyone is listening
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "old" });
+
+        // Now subscribe
+        var received = new List<string>();
+        await messaging.ListenChannel<TestMessage>(
+            new Lifetime(), channelId, msg => { lock (received) received.Add(msg.Text); });
+
+        // Wait a bit to ensure no late delivery of the old message
+        await Task.Delay(200);
+        received.Should().BeEmpty();
+
+        // New message should arrive
+        var done = new TaskCompletionSource();
+        await messaging.ListenChannel<TestMessage>(
+            new Lifetime(), channelId, msg => { if (msg.Text == "new") done.TrySetResult(); });
+
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "new" });
+        await done.Task.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task Publish_ConcurrentRapidFire_AllDelivered() {
+        var channelId = new TestChannelId(Guid.NewGuid().ToString());
+        var received = new List<int>();
+        var allReceived = new TaskCompletionSource();
+        var messaging = GetSiloService<IMessaging>();
+        const int messageCount = 20;
+
+        await messaging.ListenChannel<TestMessage>(
+            new Lifetime(), channelId, msg => {
+                lock (received) {
+                    received.Add(msg.Sequence);
+                    if (received.Count >= messageCount)
+                        allReceived.TrySetResult();
+                }
+            });
+
+        // Fire all publishes concurrently
+        var tasks = Enumerable.Range(0, messageCount)
+            .Select(i => messaging.PublishChannel(channelId, new TestMessage { Sequence = i }))
+            .ToList();
+        await Task.WhenAll(tasks);
+
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        received.Should().HaveCount(messageCount);
+        received.Should().BeEquivalentTo(Enumerable.Range(0, messageCount));
+    }
+
+    [Fact]
+    public async Task Publish_PartialTermination_RemainingListenersStillReceive() {
+        var channelId = new TestChannelId(Guid.NewGuid().ToString());
+        var lifetime1 = new Lifetime();
+        var received1 = new List<string>();
+        var received2 = new List<string>();
+        var done2 = new TaskCompletionSource();
+        var messaging = GetSiloService<IMessaging>();
+
+        await messaging.ListenChannel<TestMessage>(
+            lifetime1, channelId, msg => { lock (received1) received1.Add(msg.Text); });
+        await messaging.ListenChannel<TestMessage>(
+            new Lifetime(), channelId, msg => {
+                lock (received2) { received2.Add(msg.Text); done2.TrySetResult(); }
+            });
+
+        // Terminate first listener
+        lifetime1.Terminate();
+
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "after-terminate" });
+        await done2.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        received1.Should().BeEmpty();
+        received2.Should().ContainSingle().Which.Should().Be("after-terminate");
     }
 }

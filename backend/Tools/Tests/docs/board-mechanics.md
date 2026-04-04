@@ -64,31 +64,91 @@ Unit tests (no Orleans). Core board logic: generation, reveal, scanner, cells, p
 - [x] Line horizontal shape
 - [x] Line vertical shape
 
-## Todo
-
-### BoardEvents — event firing and locking
+### BoardEvents — `Game/BoardEventsTests.cs` (15 tests)
 Board event system: CellSet, Flag, Explode, EffectAdded, EffectRemoved events.
-- [ ] CellSet event fires on ToFree/ToTaken transition
-- [ ] Flag event fires on SetFlag/RemoveFlag
-- [ ] Explode event fires on cell Explode()
-- [ ] EffectAdded event fires on AddEffect
-- [ ] EffectRemoved event fires on RemoveEffect
-- [ ] Lock() suppresses all event firing
-- [ ] Unlock() resumes event firing
-- [ ] Lock/Unlock nesting — events only fire after final Unlock
-- [ ] ForceRecord fires Record event with custom payload
+- [x] CellSet event fires on ToFree transition
+- [x] CellSet event fires on ToTaken transition
+- [x] CellSet does not fire on same-type transition
+- [x] Flag event fires on SetFlag
+- [x] Flag event fires on RemoveFlag
+- [x] Explode event fires on cell Explode()
+- [x] EffectAdded event fires on AddEffect
+- [x] EffectRemoved event fires on RemoveEffect
+- [x] Lock() suppresses all event firing
+- [x] Unlock() resumes event firing
+- [x] Lock/Unlock is simple bool (not ref-counted)
+- [x] MinesAround fires on UpdateMinesAround
+- [x] MinesAround skips when same value
+- [x] ForceRecord bypasses lock
+- [x] Record event fires via ForceRecord
 
-### Flag Actions — SetFlagAction / RemoveFlagAction
-Flag placement and removal command validation.
-- [ ] SetFlagAction on Taken cell — places flag
-- [ ] SetFlagAction on Free cell — fails
-- [ ] SetFlagAction on already flagged cell — fails
-- [ ] RemoveFlagAction on flagged cell — removes flag
-- [ ] RemoveFlagAction on unflagged cell — fails
-- [ ] Flag placement fires BoardEvents.Flag event
+### Flag Actions — `Game/FlagActionTests.cs` (13 tests)
+Flag placement and removal on cells.
+- [x] SetFlag on Taken cell — places flag
+- [x] SetFlag on Taken cell with mine — works
+- [x] RemoveFlag on flagged cell — removes flag
+- [x] RemoveFlag on unflagged cell — no change
+- [x] Flag roundtrip (set then remove)
+- [x] Independent flags across cells
+- [x] Flag events fire correctly
+- [x] Flagging does not affect mine state
+- [x] Flagging does not change cell status
+- [x] Multiple cells can be flagged independently
+- [x] Default cell not flagged
+- [x] Flag on cell without mine
+- [x] Flag persists across board updates
+
+### Cell Effects — `Game/CellEffectsTests.cs` (16 tests)
+- [x] AddEffect on TakenCell — effect persisted in Effects list
+- [x] AddEffect on FreeCell — effect persisted in Effects list
+- [x] RemoveEffect by Guid — correct effect removed
+- [x] RemoveEffect with unknown Guid — no-op
+- [x] Effects NOT carried over on ToFree/ToTaken transition (new cell instance)
+- [x] Multiple effects on same cell — all tracked
+- [x] Events fire for add/remove
+- [x] Default empty effects
+- [x] Smoke effect type correct
+- [x] Fog effect type correct
+- [x] AddEffect on TakenCell fires event
+- [x] AddEffect on FreeCell fires event
+- [x] RemoveEffect fires event
+- [x] RemoveEffect unknown fires event
+- [x] Multiple effects tracked
+- [x] Effect with unique Guid
+
+### Board Utility Extensions — `Game/BoardUtilsTests.cs` (23 tests)
+- [x] NeighbourPositions in center — 8 neighbors
+- [x] NeighbourPositions at corner — 3 neighbors
+- [x] NeighbourPositions at edge — 5 neighbors
+- [x] IterateNeighbours visits correct count
+- [x] IterateNeighbours skips missing cells
+- [x] HasMinesAround detects adjacent mines
+- [x] HasMinesAround returns false when no mines
+- [x] HasMinesAround returns false for Free cells
+- [x] RandomPosition within bounds
+- [x] RandomPosition produces variety
+- [x] GetClosedShape returns empty for (-1,-1)
+- [x] GetClosedShape returns empty for all-Taken
+- [x] GetClosedShape finds connected regions adjacent to Free cells
+- [x] Board size configuration
+- [x] Board owner ID configuration
+- [x] + additional edge cases (23 total)
+
+### GetFlagWinner — `Game/GetFlagWinnerTests.cs` (10 tests)
+- [x] All opponent mines flagged — returns winner ID
+- [x] Some mines unflagged — returns Guid.Empty
+- [x] No mines on board (vacuous truth) — returns winner
+- [x] Both boards flagged — returns first iterated player
+- [x] Empty board (0 cells) — skipped
+- [x] Flagged non-mine cells don't satisfy win condition
+- [x] Free cells skipped in check
+- [x] + additional edge cases (10 total)
+
+## Todo
 
 ### OpenMultipleCellsCommand — chord opening
 Classic minesweeper chord: auto-open neighbors when flag count matches MinesAround.
+Requires GameCommandUtils mocking (complex command infrastructure).
 - [ ] Correct flag count — opens all unflagged neighbors
 - [ ] Incorrect flag count — fails (not enough flags)
 - [ ] Source is Taken — fails (must be Free cell)
@@ -96,39 +156,13 @@ Classic minesweeper chord: auto-open neighbors when flag count matches MinesArou
 - [ ] Multiple neighbors opened — all revealed correctly
 - [ ] Recursive reveal after chord open
 
-### Cell Explosion
-- [ ] Explode() on TakenCell fires SetExplosion event
-- [ ] Explode() marks cell as exploded
-
-### Cell Effects — persistence and interaction
-- [ ] AddEffect on TakenCell — effect persisted in Effects list
-- [ ] AddEffect on FreeCell — effect persisted in Effects list
-- [ ] RemoveEffect by Guid — correct effect removed
-- [ ] RemoveEffect with unknown Guid — no-op or fails
-- [ ] Effects survive ToFree/ToTaken transition
-- [ ] Multiple effects on same cell — all tracked
-
-### Board Utility Extensions
-- [ ] GetClosedShape — connected Taken region from start position
-- [ ] GetClosedShape at edge — clips correctly
-- [ ] GetClosedShape on Free cell — returns empty
-- [ ] HasMinesAround — correct neighbor mine detection
-- [ ] IterateNeighbours at corner — only valid positions returned
-- [ ] IterateNeighbours in center — all 8 neighbors
-- [ ] RandomPosition — within board bounds
-- [ ] CleanupAround — recursive cleanup algorithm correctness
-
 ### EnsureGenerated — lazy board init
+Requires IBoardGenerator/IBoardRevealer mocking.
 - [ ] EnsureGenerated on empty board — generates then reveals
 - [ ] EnsureGenerated on existing board — no-op, just reveals
 - [ ] First click position is mine-free after generation
 
 ### SkipTurn command
+Requires GameCommandUtils mocking.
 - [ ] SkipTurn on current player's turn — succeeds
 - [ ] SkipTurn not on player's turn — fails
-
-### GetFlagWinner — win condition
-- [ ] All opponent mines flagged — returns winner ID
-- [ ] Some mines unflagged — returns Guid.Empty
-- [ ] No mines on board — edge case behavior
-- [ ] Flag winner checked only after 2+ rounds

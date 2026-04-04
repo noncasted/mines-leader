@@ -134,7 +134,8 @@ public class RevealTests {
 
     [Fact]
     public void Reveal_ClickOnMineAdjacentCell_NoExpansion() {
-        // Target cell has MinesAround > 0 — it opens but doesn't expand
+        // Target cell (2,2) is adjacent to mine at (2,1) — MinesAround=1
+        // No Free neighbor with MinesAround=0 exists, so no expansion
         var (board, target) = BoardParser.Parse("""
             t t t t t
             t t m t t
@@ -145,14 +146,14 @@ public class RevealTests {
 
         OpenCell(board, target);
 
-        // (2,2) has MinesAround=1 — opens to Free but reveal checks neighbors
-        // Neighbors of (2,2) that have a Free neighbor with MinesAround=0 will also open
-        // The mine at (2,1) blocks some expansion
-        var freeCount = board.Cells.Values.Count(c => c.Status == CellStatus.Free);
-        freeCount.Should().BeGreaterThan(0);
-
-        // Mine stays
-        board.Cells[new Position(2, 1)].Status.Should().Be(CellStatus.Taken);
+        // Only the clicked cell opens — mine blocks all expansion
+        BoardParser.AssertBoard(board, """
+            t t t t t
+            t t m t t
+            t t R t t
+            t t t t t
+            t t t t t
+            """);
     }
 
     [Fact]
@@ -182,7 +183,8 @@ public class RevealTests {
 
     [Fact]
     public void Reveal_DenseMineField_MinimalExpansion() {
-        // Many mines close together — very limited reveal
+        // Mines at all 4 corners and edges — center (2,2) has MinesAround=0
+        // but all 8 neighbors have MinesAround>0, so expansion stops at 1 ring
         var (board, target) = BoardParser.Parse("""
             m t m t m
             t t t t t
@@ -193,13 +195,14 @@ public class RevealTests {
 
         OpenCell(board, target);
 
-        // Center opens, but nearly every cell is adjacent to a mine
-        // Check that at least the target cell is Free
-        board.Cells[target].Status.Should().Be(CellStatus.Free);
-
-        // Mines untouched
-        board.Cells[new Position(0, 0)].Status.Should().Be(CellStatus.Taken);
-        board.Cells[new Position(2, 0)].Status.Should().Be(CellStatus.Taken);
+        // Center + all 8 immediate neighbors open; mines and outer ring stay Taken
+        BoardParser.AssertBoard(board, """
+            m t m t m
+            t R R R t
+            m R R R m
+            t R R R t
+            m t m t m
+            """);
     }
 
     [Fact]
@@ -281,8 +284,8 @@ public class RevealTests {
 
     [Fact]
     public void Reveal_DiagonalMines_BlockCompletely() {
-        // Diagonal mines form a dense barrier — target cell is adjacent to mine (3,2),
-        // so MinesAround > 0 everywhere near the click. Reveal barely expands.
+        // Diagonal mines at (5,0),(4,1),(3,2) — target (2,3) is adjacent to mine (3,2),
+        // so MinesAround>0. No Free cell with MinesAround=0 exists, only target opens.
         var (board, target) = BoardParser.Parse("""
             t t t t t m
             t t t t m t
@@ -294,13 +297,14 @@ public class RevealTests {
 
         OpenCell(board, target);
 
-        // Target (2,3) is adjacent to mine at (3,2) — MinesAround > 0
-        // No Free neighbor with MinesAround=0 exists around it
-        // Only the clicked cell itself opens
-        board.Cells[target].Status.Should().Be(CellStatus.Free);
-
-        // Rest stays Taken (very dense mine-adjacent zone)
-        var freeCount = board.Cells.Values.Count(c => c.Status == CellStatus.Free);
-        freeCount.Should().BeLessThanOrEqualTo(5);
+        // Only the clicked cell opens — mine adjacency blocks all expansion
+        BoardParser.AssertBoard(board, """
+            t t t t t m
+            t t t t m t
+            t t t m t t
+            t t R t t t
+            t t t t t t
+            t t t t t t
+            """);
     }
 }

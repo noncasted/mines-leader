@@ -40,13 +40,25 @@ public class PatternShapesTests {
     public void Rhombus4_EvenDiamond() {
         var shape = PatternShapes.Rhombus(4);
 
-        // Even input: size 4 -> 6, then trim to 4x4
         shape.Positions.Count.Should().Be(4);
         shape.Positions[0].Count.Should().Be(4);
 
+        // Rhombus(4): even → expand to 6, build 6x6 diamond, trim to 4x4
+        // Result: 2+4+4+2 = 12 cells
         var trueCount = CountTrue(shape);
-        trueCount.Should().BeGreaterThan(0);
-        trueCount.Should().BeLessThanOrEqualTo(16);
+        trueCount.Should().Be(12);
+
+        // Verify symmetry (same approach as Rhombus_Symmetric)
+        var size = shape.Positions.Count;
+        for (var y = 0; y < size; y++) {
+            for (var x = 0; x < size; x++) {
+                if (!shape.Positions[y][x]) continue;
+                shape.Positions[size - 1 - y][x].Should().BeTrue(
+                    $"vertical symmetry failed at ({y},{x})");
+                shape.Positions[y][size - 1 - x].Should().BeTrue(
+                    $"horizontal symmetry failed at ({y},{x})");
+            }
+        }
     }
 
     [Fact]
@@ -77,9 +89,15 @@ public class PatternShapesTests {
 
     [Fact]
     public void SelectTaken_FiltersOnlyTakenCells() {
-        var board = new TestBoardBuilder(7)
-            .WithFreeAt((3, 2), (3, 4))
-            .Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t
+            t t t t t t t
+            t t t _ t t t
+            t t t t t t t
+            t t t _ t t t
+            t t t t t t t
+            t t t t t t t
+            """);
 
         var shape = PatternShapes.Rhombus(3);
         var result = shape.SelectTaken(board, new Position(3, 3));
@@ -92,9 +110,15 @@ public class PatternShapesTests {
 
     [Fact]
     public void SelectFree_FiltersOnlyFreeCells() {
-        var board = new TestBoardBuilder(7)
-            .WithFreeAt((3, 2), (3, 4))
-            .Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t
+            t t t t t t t
+            t t t _ t t t
+            t t t t t t t
+            t t t _ t t t
+            t t t t t t t
+            t t t t t t t
+            """);
 
         var shape = PatternShapes.Rhombus(3);
         var result = shape.SelectFree(board, new Position(3, 3));
@@ -105,7 +129,16 @@ public class PatternShapesTests {
 
     [Fact]
     public void Select_ClipsAtTopLeftEdge() {
-        var board = new TestBoardBuilder(8).Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(0, 0));
@@ -119,7 +152,16 @@ public class PatternShapesTests {
 
     [Fact]
     public void Select_ClipsAtBottomRightEdge() {
-        var board = new TestBoardBuilder(8).Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(7, 7));
@@ -129,7 +171,18 @@ public class PatternShapesTests {
 
     [Fact]
     public void Select_CenterOfBoard_NoClipping() {
-        var board = new TestBoardBuilder(10).Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            t t t t t t t t t t
+            """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(5, 5));
@@ -139,7 +192,16 @@ public class PatternShapesTests {
 
     [Fact]
     public void Select_InvalidCenter_ReturnsEmpty() {
-        var board = new TestBoardBuilder(8).Build();
+        var (board, _) = BoardParser.Parse("""
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            t t t t t t t t
+            """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.Select(board, new Position(-1, -1), _ => true);

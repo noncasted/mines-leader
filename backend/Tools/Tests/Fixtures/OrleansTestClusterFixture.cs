@@ -77,9 +77,21 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
                 services.AddSingleton<IStateFactory, StateFactory>();
                 services.AddSingleton<IAttributeToFactoryMapper<StateAttribute>, StateAttributeMapper>();
 
-                // Migration steps
+                // Migration steps (V0→V1 chain targeting MigrationTestState_1)
                 services.AddSingleton<IStateMigrationStep, MigrationTestStep_V0>();
                 services.AddSingleton<IStateMigrationStep, MigrationTestStep_V1>();
+
+                // Migration steps (V0→V1→V2 chain targeting MigrationTestState_2)
+                services.AddSingleton<IStateMigrationStep, MigrationV2TestStep_V0>();
+                services.AddSingleton<IStateMigrationStep, MigrationV2TestStep_V1>();
+                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V2>();
+
+                // StateCollection utilities for tests
+                services.AddSingleton(typeof(StateCollectionUtils<,>));
+
+                // Mock StateCollections for domain grains
+                services.AddSingleton(Substitute.For<IUserCollection>());
+                services.AddSingleton(Substitute.For<IBotCollection>());
 
                 // Messaging
                 services.AddSingleton<IMessaging, Infrastructure.Messaging>();
@@ -200,6 +212,8 @@ public class OrleansTestClusterFixture : IAsyncLifetime {
         Add<TxTestState>(StatesLookup.TxTest);
         Add<MigrationTestState_0>(StatesLookup.StateMigrationTest);
         Add<MigrationTestState_1>(StatesLookup.StateMigrationTest);
+        Add<MigrationTestState_2>(StatesLookup.StateMigrationTest);
+        Add<CollectionTestState>(StatesLookup.CollectionTest);
 
         // Domain grains
         Add<UserState>(StatesLookup.User);

@@ -25,6 +25,7 @@
         <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Game\Game.csproj"/>
         <ProjectReference Include="..\..\Meta\Meta.csproj"/>
+        <ProjectReference Include="..\..\Orchestration\MetaGateway\MetaGateway.csproj"/>
     </ItemGroup>
 
 

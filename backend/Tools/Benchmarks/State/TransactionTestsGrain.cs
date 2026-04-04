@@ -24,6 +24,7 @@ public interface ITransactionTestGrain : IGrainWithGuidKey
     Task Deactivate();
 }
 
+[GrainType("bench-transaction-test")]
 public class TransactionTestGrain : Grain, ITransactionTestGrain
 {
     public TransactionTestGrain([State] State<TransactionTestState> state)

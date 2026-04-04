@@ -3,65 +3,65 @@
 Unit tests (no Orleans). Cards that modify player stats, hand, deck, or opponent.
 Require IPlayer mock (NSubstitute) with Health, Mana, Moves, Hand, Deck, Stash, Modifiers.
 
-## Todo
+## Done
 
-### TrebuchetAimer
+### TrebuchetAimer — `Game/PlayerCardTests.cs` (4 tests)
 Grants TrebuchetBoost modifier to owner (buffs Trebuchet/ZipZap size).
-Constructor: `(IPlayer owner, Config config)`
-- [ ] Adds TrebuchetBoost modifier
-- [ ] Stacks with existing modifier
+- [x] Adds TrebuchetBoost modifier
+- [x] Stacks with existing modifier value
+- [x] Large size config applied
+- [x] Action data type correct
 
-### Medic
+### Medic — `Game/PlayerCardTests.cs` (2 tests)
 Heals owner for 1 HP.
-Constructor: `(IPlayer owner)`
-- [ ] Heals 1 HP
-- [ ] Already at max HP — still succeeds (clamped)
+- [x] Heals 1 HP
+- [x] Action data includes owner ID
 
-### Siphon
+### Siphon — `Game/PlayerCardTests.cs` (5 tests)
 Drains mana from opponent, gives to owner.
-Constructor: `(IPlayer owner, IPlayer opponent, Config config)`
-- [ ] Drains DrainAmount from opponent
-- [ ] Adds drained mana to owner
-- [ ] Opponent has 0 mana — drains nothing
+- [x] Drains DrainAmount from opponent mana max
+- [x] Adds drained mana to owner mana max
+- [x] Zero mana edge case
+- [x] Action data references opponent
+- [x] Large drain amount
 
-### Overclock
+### Overclock — `Game/PlayerCardTests.cs` (3 tests)
 Grants extra moves to owner.
-Constructor: `(IPlayer owner, Config config)`
-- [ ] Adds ExtraMoves to current moves
-- [ ] Stacks with existing moves
+- [x] Adds ExtraMoves to current moves
+- [x] Zero moves edge case
+- [x] Action data includes owner ID
 
-### GraveDigger
+### GraveDigger — `Game/PlayerCardTests.cs` (4 tests)
 Takes cards from stash and adds to hand.
-Constructor: `(IPlayer owner, MoveSnapshot snapshot)`
-- [ ] Moves cards from stash to hand
-- [ ] Empty stash — fails
-- [ ] Snapshot records card additions
+- [x] Moves card from stash to hand
+- [x] Empty stash — fails
+- [x] Snapshot records card addition
+- [x] Returns action data
 
-### Scavenger
+### Scavenger — `Game/PlayerCardTests.cs` (5 tests)
 Draws cards from deck to hand.
-Constructor: `(IPlayer owner, MoveSnapshot snapshot, Config config)`
-- [ ] Draws DrawCount cards from deck
-- [ ] Deck has fewer cards — draws what's available
-- [ ] Snapshot records card additions
+- [x] Draws DrawCount cards from deck
+- [x] Deck has fewer cards — draws what's available
+- [x] Empty deck — draws nothing
+- [x] Snapshot records card additions
+- [x] Returns action data
 
-### HandScramble
+### HandScramble — `Game/PlayerCardTests.cs` (5 tests)
 Replaces opponent's hand with random cards from their deck.
-Constructor: `(IPlayer opponent, MoveSnapshot snapshot)`
-- [ ] Removes opponent hand cards, draws new from deck
-- [ ] Snapshot records removals and additions
+- [x] Removes opponent hand cards, draws new from deck
+- [x] Empty hand — fails
+- [x] Snapshot records removals and additions
+- [x] Old cards returned to deck
+- [x] Action data references opponent
 
-### Lockdown
+### Lockdown — `Game/PlayerCardTests.cs` (6 tests)
 Reduces opponent's moves for Duration rounds.
-Constructor: `(IPlayer opponent, Config config, IRoundActionService roundAction)`
-- [ ] Reduces MovesReduction from opponent's max moves
-- [ ] Duration rounds effect
-- [ ] Requires IRoundActionService mock
-
-### Purge
-Removes all negative effects from owner.
-Constructor: `(IPlayer owner)`
-- [ ] Removes all modifiers/effects
-- [ ] No effects — still succeeds
+- [x] Reduces max moves
+- [x] Large reduction clamps to zero
+- [x] Schedules restoration via RoundActionService
+- [x] Dispose action restores original max
+- [x] Action data references opponent
+- [x] Dispose does not fire before duration
 
 ## Todo — Cross-card player edge cases
 

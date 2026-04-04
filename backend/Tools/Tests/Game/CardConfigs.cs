@@ -25,4 +25,6 @@ public static class CardConfigs {
     public static CardConfigOptions.Sonar Sonar => All.Sonar_Normal;
     public static CardConfigOptions.MinefieldScout MinefieldScout => All.MinefieldScout_Normal;
     public static CardConfigOptions.ChainReaction ChainReaction => All.ChainReaction_Normal;
+    public static CardConfigOptions.FogOfWar FogOfWar => All.FogOfWar_Normal;
+    public static CardConfigOptions.Purge Purge => All.Purge_Normal;
 }

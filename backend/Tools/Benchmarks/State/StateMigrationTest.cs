@@ -89,6 +89,7 @@ public class StateMigrationTest
         Task Write(int value);
     }
 
+    [GrainType("bench-migration-v0")]
     public class MigrationGrainV0 : Grain, IMigrationGrainV0
     {
         public MigrationGrainV0([State] State<MigrationTestState_0> state)
@@ -109,6 +110,7 @@ public class StateMigrationTest
         Task<(int value, string label)> Read();
     }
 
+    [GrainType("bench-migration-v1")]
     public class MigrationGrainV1 : Grain, IMigrationGrainV1
     {
         public MigrationGrainV1([State] State<MigrationTestState_1> state)
