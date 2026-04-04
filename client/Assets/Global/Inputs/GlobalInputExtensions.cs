@@ -1,6 +1,7 @@
 ﻿using Internal;
 using Tools;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 namespace Global.Inputs
 {
@@ -23,13 +24,14 @@ namespace Global.Inputs
     }
     
     [PrefabDefinition]
-    public static class AudioListenerPrefab
+    public static class GlobalEventSystemPrefab
     {
         public static void Define(PrefabBuilder builder)
         {
             builder
                 .WithName("Global_Events")
-                .WithComponent<EventSystem>();
+                .WithComponent<EventSystem>()
+                .WithComponent<InputSystemUIInputModule>();
         }
     }
 

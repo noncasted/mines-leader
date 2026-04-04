@@ -57,5 +57,24 @@ namespace Global.Systems
         {
             return updater.CurveProgression(lifetime, curve.Animation, curve.Time, callback);
         }
+
+        public static UniTask CurveDeltaProgression(
+            this IUpdater updater,
+            IReadOnlyLifetime lifetime,
+            ICurveDefinition curve,
+            ProgressionLoop loop,
+            Action<float> callback)
+        {
+            var previousEvaluation = 0f;
+            return updater.Progression(lifetime, curve.Time, Callback, loop);
+
+            void Callback(float progress)
+            {
+                var evaluation = curve.Evaluate(progress);
+                var delta = evaluation - previousEvaluation;
+                previousEvaluation = evaluation;
+                callback?.Invoke(delta);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine.Events;
+﻿using System;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Internal
@@ -45,6 +46,14 @@ namespace Internal
             {
                 viewableDelegate.Invoke(value);
             }
+        }
+
+        public static void Advise<T>(
+            this UnityEvent<T> source,
+            IReadOnlyLifetime lifetime,
+            Action<T> action)
+        {
+            source.ToViewableDelegate(lifetime).Advise(lifetime, action);
         }
     }
 }

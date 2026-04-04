@@ -19,10 +19,13 @@ namespace Global.UI
             };
         }
 
+        private IUIState _stackHead;
+
         private readonly IInputConstraintsStorage _constraintsStorage;
         private readonly Dictionary<IUIState, IInternalUIStateHandle> _handles;
 
         public IUIState Base { get; }
+        public IUIState StackHead => _stackHead;
 
         public IUIStateHandle CreateChild(IUIState parent, IUIState state)
         {
@@ -40,6 +43,10 @@ namespace Global.UI
             var childHandle = new UIStateHandle(headHandle, state, _constraintsStorage);
             _handles[state] = childHandle;
             headHandle.OnStacked(childHandle);
+
+            var currentHead = _stackHead;
+            _stackHead = state;
+            childHandle.InnerLifetime.Listen(() => _stackHead = currentHead);
 
             return childHandle;
         }

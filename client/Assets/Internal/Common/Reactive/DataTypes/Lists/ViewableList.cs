@@ -42,6 +42,22 @@ namespace Internal
             return lifetime;
         }
 
+        public new IReadOnlyLifetime Insert(int index, TSource value)
+        {
+            if (_isDisposed == true)
+                return new TerminatedLifetime();
+
+            base.Insert(index, value);
+            var lifetime = new Lifetime();
+
+            _lifetimes.Add(value, lifetime);
+            _eventSource.Invoke(lifetime, value);
+
+            OnModified();
+
+            return lifetime;
+        }
+
         public new void Remove(TSource value)
         {
             if (_isDisposed == true)
@@ -94,6 +110,7 @@ namespace Internal
                 _lifetimes[entry].Terminate();
 
             _lifetimes.Clear();
+            base.Clear();
 
             OnModified();
         }

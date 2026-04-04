@@ -10,12 +10,14 @@ namespace Global.UI
             return stateMachine.CreateChild(parent, state).TryEnter();
         }
 
-        public static UniTask ProcessChild(
+        public static async UniTask ProcessChild(
             this IUIStateMachine stateMachine,
             IUIState parent,
             IUIState state)
         {
-            return stateMachine.CreateChild(parent, state).TryProcess();
+            var handle = stateMachine.CreateChild(parent, state);
+            await handle.TryProcess();
+            handle.Exit();
         }
 
         public static async UniTask ProcessChild(
@@ -59,6 +61,18 @@ namespace Global.UI
             var handle = stateMachine.CreateStackChild(parent, state);
             await action.Invoke(handle);
             handle.Exit();
+        }
+
+        public static async UniTask<T> ProcessStack<T>(
+            this IUIStateMachine stateMachine,
+            IUIState parent,
+            IUIState state,
+            Func<IUIStateHandle, UniTask<T>> action)
+        {
+            var handle = stateMachine.CreateStackChild(parent, state);
+            var result = await action.Invoke(handle);
+            handle.Exit();
+            return result;
         }
 
         public static UniTask Process(
