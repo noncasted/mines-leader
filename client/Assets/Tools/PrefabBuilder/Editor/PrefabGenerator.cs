@@ -27,8 +27,26 @@ namespace Tools
             if (definitionTypes.Count == 0) return;
 
             var generatedPrefabs = new List<(string asmdefName, string prefabName, string prefabPath)>();
+            var failedTypes = new List<Type>();
 
             foreach (var type in definitionTypes)
+            {
+                try
+                {
+                    var result = GeneratePrefab(type);
+                    if (result.HasValue)
+                    {
+                        generatedPrefabs.Add(result.Value);
+                    }
+                }
+                catch (Exception)
+                {
+                    failedTypes.Add(type);
+                }
+            }
+
+            // Retry failed prefabs — they may depend on prefabs generated in the first pass
+            foreach (var type in failedTypes)
             {
                 try
                 {
@@ -46,9 +64,30 @@ namespace Tools
 
             if (generatedPrefabs.Count > 0)
             {
+                CleanupStalePrefabs(generatedPrefabs);
                 PrefabsClassGenerator.Generate(generatedPrefabs);
                 AssetDatabase.Refresh();
                 Debug.Log($"[PrefabGenerator] Generated {generatedPrefabs.Count} prefab(s).");
+            }
+        }
+
+        private static void CleanupStalePrefabs(
+            List<(string asmdefName, string prefabName, string prefabPath)> generatedPrefabs)
+        {
+            var generatedNames = new HashSet<string>();
+            foreach (var (_, prefabName, _) in generatedPrefabs)
+            {
+                generatedNames.Add(prefabName + ".prefab");
+            }
+
+            var existingFiles = Directory.GetFiles(OutputFolder, "*.prefab");
+            foreach (var filePath in existingFiles)
+            {
+                var fileName = Path.GetFileName(filePath);
+                if (generatedNames.Contains(fileName)) continue;
+
+                AssetDatabase.DeleteAsset(OutputFolder + "/" + fileName);
+                Debug.Log($"[PrefabGenerator] Deleted stale prefab: {fileName}");
             }
         }
 
@@ -73,14 +112,25 @@ namespace Tools
             }
 
             var builder = new PrefabBuilder();
-            defineMethod.Invoke(null, new object[] { builder });
 
-            var prefabPath = $"{OutputFolder}/{builder.PrefabName}.prefab";
-            CheckManualModification(prefabPath);
+            try
+            {
+                defineMethod.Invoke(null, new object[] { builder });
 
-            builder.Build(prefabPath);
+                var prefabPath = $"{OutputFolder}/{builder.PrefabName}.prefab";
+                CheckManualModification(prefabPath);
 
-            return (string.Empty, builder.PrefabName, $"Generated/{builder.PrefabName}");
+                builder.Build(prefabPath);
+
+                return (string.Empty, builder.PrefabName, builder.PrefabName);
+            }
+            catch
+            {
+                // Clean up leaked GameObject if Build() was never called
+                if (builder.GameObject != null)
+                    UnityEngine.Object.DestroyImmediate(builder.GameObject);
+                throw;
+            }
         }
 
         private static void CheckManualModification(string prefabPath)

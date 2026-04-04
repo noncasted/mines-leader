@@ -159,7 +159,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97c4a5d24384cd0823ce9300f73ee28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 6748178745110342805, guid: 8c19eb2be7df1c94290667061338d069, type: 3}
   _cardHeight: 0.083333336
 --- !u!1 &2511165614214414684
 GameObject:
@@ -447,7 +446,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e86250090e7402dae1698d723abcf4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 3275298452812410065, guid: 0155f92d8e974954698bdcff110dc571, type: 3}
   _cardHeight: 0.083333336
 --- !u!1001 &6087895375703400703
 PrefabInstance:

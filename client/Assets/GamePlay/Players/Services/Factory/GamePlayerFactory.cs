@@ -5,6 +5,7 @@ using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
+using Tools;
 using VContainer.Unity;
 
 namespace GamePlay.Players
@@ -16,15 +17,13 @@ namespace GamePlay.Players
             IEntityScopeLoader entityScopeLoader,
             IGameContext gameContext,
             IObjectFactory<GamePlayerEntityView> objectFactory,
-            LifetimeScope parentScope,
-            GamePlayerFactoryOptions options)
+            LifetimeScope parentScope)
         {
             _entityFactory = entityFactory;
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
             _objectFactory = objectFactory;
             _parentScope = parentScope;
-            _options = options;
         }
 
         private readonly INetworkEntityFactory _entityFactory;
@@ -32,7 +31,6 @@ namespace GamePlay.Players
         private readonly IGameContext _gameContext;
         private readonly IObjectFactory<GamePlayerEntityView> _objectFactory;
         private readonly LifetimeScope _parentScope;
-        private readonly GamePlayerFactoryOptions _options;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -43,7 +41,9 @@ namespace GamePlay.Players
         {
             var payload = (PlayerCreatePayload)data.Payload;
 
-            var prefab = data.Owner.IsLocal == true ? _options.LocalPrefab : _options.RemotePrefab;
+            var prefab = data.Owner.IsLocal
+                ? Prefabs.PlayerLocalBase.As<GamePlayerEntityView>()
+                : Prefabs.PlayerRemoteBase.As<GamePlayerEntityView>();
             var view = _objectFactory.Create(prefab);
             var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
             var player = loadResult.Get<IGamePlayer>();
