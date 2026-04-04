@@ -17,7 +17,8 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 {
     public RuntimeChannelClient(
         IOrleans orleans,
-        ILogger<RuntimeChannelClient> logger) {
+        ILogger<RuntimeChannelClient> logger)
+    {
         _orleans = orleans;
         _logger = logger;
     }
@@ -28,12 +29,14 @@ public class RuntimeChannelClient : IRuntimeChannelClient
     private readonly ConcurrentDictionary<string, Listener> _listeners = new();
     private readonly SemaphoreSlim _createLock = new(1, 1);
 
-    public Task Start(IReadOnlyLifetime lifetime) {
+    public Task Start(IReadOnlyLifetime lifetime)
+    {
         ResubscribeLoop(lifetime).NoAwait();
         return Task.CompletedTask;
     }
 
-    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id) {
+    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id)
+    {
         var rawId = id.ToRaw();
 
         if (_listeners.TryGetValue(rawId, out var existing))
@@ -41,13 +44,15 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
         await _createLock.WaitAsync();
 
-        try {
+        try
+        {
             if (_listeners.TryGetValue(rawId, out existing))
                 return (ViewableDelegate<T>)existing.Delegate;
 
             var source = new ViewableDelegate<T>();
 
-            var observer = new RuntimeChannelObserver(message => {
+            var observer = new RuntimeChannelObserver(message =>
+                {
                     if (message is not T castedMessage)
                         throw new InvalidCastException($"Expected {typeof(T)}, but got {message.GetType()}");
 
@@ -57,7 +62,8 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
             var observerReference = _orleans.Client.CreateObjectReference<IRuntimeChannelObserver>(observer);
 
-            var listener = new Listener {
+            var listener = new Listener
+            {
                 Id = id,
                 ObserverSource = observer,
                 ObserverReference = observerReference,
@@ -72,27 +78,33 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
             return source;
         }
-        finally {
+        finally
+        {
             _createLock.Release();
         }
     }
 
-    public void RemoveConsumer(IRuntimeChannelId id) {
+    public void RemoveConsumer(IRuntimeChannelId id)
+    {
         var rawId = id.ToRaw();
         if (_listeners.TryRemove(rawId, out var listener))
             listener.Cleanup();
     }
 
-    public Task Publish(IRuntimeChannelId id, object message) {
+    public Task Publish(IRuntimeChannelId id, object message)
+    {
         return GetChannel(id).Publish(message);
     }
 
-    private IRuntimeChannel GetChannel(IRuntimeChannelId id) {
+    private IRuntimeChannel GetChannel(IRuntimeChannelId id)
+    {
         return _orleans.GetGrain<IRuntimeChannel>(id.ToRaw());
     }
 
-    private async Task ResubscribeLoop(IReadOnlyLifetime lifetime) {
-        while (lifetime.IsTerminated == false) {
+    private async Task ResubscribeLoop(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
             await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
             await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
         }
@@ -110,12 +122,15 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
         private int _consecutiveFailures;
 
-        public async Task Resubscribe() {
-            try {
+        public async Task Resubscribe()
+        {
+            try
+            {
                 await Channel.AddObserver(ObserverSource.Id, ObserverReference);
                 _consecutiveFailures = 0;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 _consecutiveFailures++;
 
                 if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
@@ -126,7 +141,8 @@ public class RuntimeChannelClient : IRuntimeChannelClient
             }
         }
 
-        public void Cleanup() {
+        public void Cleanup()
+        {
             Orleans.Client.DeleteObjectReference<IRuntimeChannelObserver>(ObserverReference);
             Channel.RemoveObserver(ObserverSource.Id).NoAwait();
         }

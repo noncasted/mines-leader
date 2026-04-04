@@ -22,7 +22,7 @@ namespace Global.Inputs
             return builder;
         }
     }
-    
+
     [PrefabDefinition]
     public static class GlobalEventSystemPrefab
     {
@@ -34,5 +34,4 @@ namespace Global.Inputs
                 .WithComponent<InputSystemUIInputModule>();
         }
     }
-
 }

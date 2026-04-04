@@ -45,7 +45,7 @@ namespace Menu.Social
         public async UniTask Create(IReadOnlyLifetime lifetime)
         {
             var view = _objectFactory.Create();
-            
+
             var payload = new MenuPlayerPayload()
             {
                 PlayerId = _user.Id,

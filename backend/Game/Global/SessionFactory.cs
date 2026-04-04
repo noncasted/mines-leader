@@ -90,7 +90,7 @@ public class SessionFactory : ISessionFactory
         };
 
         var services = new ServiceCollection();
-        
+
         PassDefaultDependencies(services);
 
         services.AddSessionServices(data);
@@ -170,7 +170,7 @@ public class SessionFactory : ISessionFactory
         var services = new ServiceCollection();
 
         PassDefaultDependencies(services);
-        
+
         services.AddSessionServices(data);
         services.AddCardServices();
         services.AddGameCommands();
@@ -227,7 +227,7 @@ public class SessionFactory : ISessionFactory
 
             await session.AllUsersConnected.WaitInvoke(session.Lifetime);
             var handle = provider.GetRequiredService<MatchHandle>();
-            
+
             Task.Run(() => handle.Process());
             Task.Run(() => botRunner.Run(bot));
 

@@ -47,7 +47,7 @@ namespace Internal
                 value += 360;
 
             if (value > 360)
-                value-= 360f * Mathf.Floor(value / 360f);
+                value -= 360f * Mathf.Floor(value / 360f);
 
             return new Angle(value);
         }

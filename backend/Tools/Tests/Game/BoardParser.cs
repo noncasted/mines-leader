@@ -1,6 +1,4 @@
 using Game.GamePlay;
-using Game.Session;
-using Microsoft.Extensions.Options;
 using Shared;
 
 namespace Tests.Game;
@@ -29,11 +27,13 @@ namespace Tests.Game;
 ///   F — Taken with Fog effect
 ///   * — skip (don't assert this cell)
 /// </summary>
-public static class BoardParser {
+public static class BoardParser
+{
     /// <summary>
     /// Parse a board string into an IBoard and extract the target position (x marker).
     /// </summary>
-    public static (IBoard Board, Position Target) Parse(string layout) {
+    public static (IBoard Board, Position Target) Parse(string layout)
+    {
         var rows = ParseRows(layout);
         var height = rows.Count;
         var width = rows.Max(r => r.Length);
@@ -43,18 +43,32 @@ public static class BoardParser {
         var flaggedCells = new HashSet<Position>();
         var target = new Position(-1, -1);
 
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < rows[y].Length; x++) {
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < rows[y].Length; x++)
+            {
                 var ch = rows[y][x];
                 var pos = new Position(x, y);
 
-                switch (ch) {
+                switch (ch)
+                {
                     case 't': break; // Taken, default
-                    case 'm': mines.Add(pos); break;
-                    case 'f': mines.Add(pos); flaggedCells.Add(pos); break;
-                    case 'g': flaggedCells.Add(pos); break;
-                    case '_': freeCells.Add(pos); break;
-                    case 'x': target = pos; break;
+                    case 'm':
+                        mines.Add(pos);
+                        break;
+                    case 'f':
+                        mines.Add(pos);
+                        flaggedCells.Add(pos);
+                        break;
+                    case 'g':
+                        flaggedCells.Add(pos);
+                        break;
+                    case '_':
+                        freeCells.Add(pos);
+                        break;
+                    case 'x':
+                        target = pos;
+                        break;
                     default: throw new ArgumentException($"Unknown initial char '{ch}' at ({x},{y})");
                 }
             }
@@ -76,18 +90,22 @@ public static class BoardParser {
     /// Assert the board matches the expected layout.
     /// Throws with a visual diff on mismatch.
     /// </summary>
-    public static void AssertBoard(IBoard board, string expectedLayout) {
+    public static void AssertBoard(IBoard board, string expectedLayout)
+    {
         var rows = ParseRows(expectedLayout);
         var errors = new List<string>();
 
-        for (var y = 0; y < rows.Count; y++) {
-            for (var x = 0; x < rows[y].Length; x++) {
+        for (var y = 0; y < rows.Count; y++)
+        {
+            for (var x = 0; x < rows[y].Length; x++)
+            {
                 var ch = rows[y][x];
                 var pos = new Position(x, y);
 
                 if (ch == '*') continue;
 
-                if (!board.Cells.TryGetValue(pos, out var cell)) {
+                if (!board.Cells.TryGetValue(pos, out var cell))
+                {
                     errors.Add($"({x},{y}): expected '{ch}' but cell does not exist");
                     continue;
                 }
@@ -98,20 +116,24 @@ public static class BoardParser {
             }
         }
 
-        if (errors.Count > 0) {
+        if (errors.Count > 0)
+        {
             var actual = Render(board, rows.Count, rows.Max(r => r.Length));
             throw new Exception(
                 $"Board mismatch ({errors.Count} cells differ):\n" +
                 $"\n  Expected:\n{Indent(expectedLayout)}\n" +
                 $"\n  Actual:\n{Indent(actual)}\n" +
-                $"\n  Errors:\n    {string.Join("\n    ", errors)}");
+                $"\n  Errors:\n    {string.Join("\n    ", errors)}"
+            );
         }
     }
 
-    private static string? AssertCell(ICell cell, char expected, Position pos) {
+    private static string? AssertCell(ICell cell, char expected, Position pos)
+    {
         var actual = CellToChar(cell);
 
-        return expected switch {
+        return expected switch
+        {
             't' => cell.Status != CellStatus.Taken || (cell is ITakenCell t1 && (t1.HasMine || t1.IsFlagged))
                 ? $"({pos.x},{pos.y}): expected 't' (Taken, clean) but got '{actual}'"
                 : null,
@@ -140,7 +162,8 @@ public static class BoardParser {
         };
     }
 
-    private static char CellToChar(ICell cell) {
+    private static char CellToChar(ICell cell)
+    {
         if (cell.Status == CellStatus.Free) return '_';
 
         var taken = (ITakenCell)cell;
@@ -155,12 +178,15 @@ public static class BoardParser {
     /// <summary>
     /// Render the current board state as a visual string.
     /// </summary>
-    public static string Render(IBoard board, int height, int width) {
+    public static string Render(IBoard board, int height, int width)
+    {
         var lines = new List<string>();
 
-        for (var y = 0; y < height; y++) {
+        for (var y = 0; y < height; y++)
+        {
             var chars = new List<char>();
-            for (var x = 0; x < width; x++) {
+            for (var x = 0; x < width; x++)
+            {
                 var pos = new Position(x, y);
                 chars.Add(board.Cells.TryGetValue(pos, out var cell) ? CellToChar(cell) : '?');
             }
@@ -171,18 +197,21 @@ public static class BoardParser {
         return string.Join('\n', lines);
     }
 
-    private static List<char[]> ParseRows(string layout) {
+    private static List<char[]> ParseRows(string layout)
+    {
         return layout
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Trim())
             .Where(line => line.Length > 0)
             .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 .Select(token => token[0])
-                .ToArray())
+                .ToArray()
+            )
             .ToList();
     }
 
-    private static string Indent(string text) {
+    private static string Indent(string text)
+    {
         var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         return string.Join('\n', lines.Select(l => "    " + l.Trim()));
     }

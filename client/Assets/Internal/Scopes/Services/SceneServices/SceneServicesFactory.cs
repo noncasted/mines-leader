@@ -12,7 +12,7 @@ namespace Internal
             {
                 if (service is not ISceneService sceneService)
                     continue;
-                
+
                 sceneService.Create(builder);
             }
         }
@@ -26,7 +26,7 @@ namespace Internal
 
             _services = newServices;
             return true;
-            
+
             bool HasChanged()
             {
                 if (_services.Length != newServices.Length)

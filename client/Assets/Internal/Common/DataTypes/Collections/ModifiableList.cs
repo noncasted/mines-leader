@@ -10,7 +10,7 @@ namespace Internal
         private readonly List<T> _remove = new(0);
 
         private bool _isIterated;
-        
+
         public void Add(T value)
         {
             if (_isIterated == true)
@@ -41,7 +41,7 @@ namespace Internal
 
             foreach (var remove in _remove)
                 _list.Remove(remove);
-            
+
             _add.Clear();
             _remove.Clear();
         }

@@ -9,7 +9,7 @@ namespace GamePlay.Players
         [SerializeField] private Sprite _inactive;
 
         [SerializeField] private SpriteRenderer _renderer;
-        
+
         public void Show()
         {
             _renderer.sprite = _active;

@@ -50,7 +50,7 @@ namespace Global.Settings
 
             if (_save.WasChanged == false)
                 _save.CopyFrom(_options.DefaultValues);
-            
+
             PushValues(_save);
         }
 

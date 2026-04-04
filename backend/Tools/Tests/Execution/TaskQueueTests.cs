@@ -6,34 +6,41 @@ using Xunit;
 
 namespace Tests.Execution;
 
-public class TaskQueueTests {
+public class TaskQueueTests
+{
     private readonly ITaskQueue _queue;
 
-    public TaskQueueTests() {
+    public TaskQueueTests()
+    {
         var logger = Substitute.For<ILogger<TaskQueue>>();
         _queue = new TaskQueue(logger);
     }
 
     [Fact]
-    public void Collect_EmptyQueue_ReturnsEmpty() {
+    public void Collect_EmptyQueue_ReturnsEmpty()
+    {
         var result = _queue.Collect();
 
         result.Should().BeEmpty();
     }
 
     [Fact]
-    public void Enqueue_NoDelay_AvailableImmediately() {
+    public void Enqueue_NoDelay_AvailableImmediately()
+    {
         var task = new FakeTask("t1", delay: TimeSpan.Zero);
 
         _queue.Enqueue(task);
         var result = _queue.Collect();
 
-        result.Should().ContainSingle()
-            .Which.Id.Should().Be("t1");
+        result.Should()
+            .ContainSingle()
+            .Which.Id.Should()
+            .Be("t1");
     }
 
     [Fact]
-    public void Enqueue_WithDelay_NotAvailableBeforeExpiry() {
+    public void Enqueue_WithDelay_NotAvailableBeforeExpiry()
+    {
         var task = new FakeTask("t1", delay: TimeSpan.FromMinutes(10));
 
         _queue.Enqueue(task);
@@ -43,7 +50,8 @@ public class TaskQueueTests {
     }
 
     [Fact]
-    public void Collect_RemovesReadyTasksFromQueue() {
+    public void Collect_RemovesReadyTasksFromQueue()
+    {
         var task = new FakeTask("t1", delay: TimeSpan.Zero);
 
         _queue.Enqueue(task);
@@ -54,7 +62,8 @@ public class TaskQueueTests {
     }
 
     [Fact]
-    public void Collect_LeavesDelayedTasksInQueue() {
+    public void Collect_LeavesDelayedTasksInQueue()
+    {
         var task = new FakeTask("delayed", delay: TimeSpan.FromMinutes(10));
 
         _queue.Enqueue(task);
@@ -67,12 +76,15 @@ public class TaskQueueTests {
         _queue.Enqueue(ready);
 
         var result = _queue.Collect();
-        result.Should().ContainSingle()
-            .Which.Id.Should().Be("ready");
+        result.Should()
+            .ContainSingle()
+            .Which.Id.Should()
+            .Be("ready");
     }
 
     [Fact]
-    public void Enqueue_SameId_DoesNotOverwrite() {
+    public void Enqueue_SameId_DoesNotOverwrite()
+    {
         // TryAdd is used internally — same ID is silently ignored
         var first = new FakeTask("t1", delay: TimeSpan.Zero, priority: TaskPriority.Low);
         var second = new FakeTask("t1", delay: TimeSpan.FromMinutes(10), priority: TaskPriority.Critical);
@@ -82,12 +94,15 @@ public class TaskQueueTests {
 
         // First enqueue wins (TryAdd), so the task is immediately available
         var result = _queue.Collect();
-        result.Should().ContainSingle()
-            .Which.Priority.Should().Be(TaskPriority.Low);
+        result.Should()
+            .ContainSingle()
+            .Which.Priority.Should()
+            .Be(TaskPriority.Low);
     }
 
     [Fact]
-    public void Collect_MultipleTasks_ReturnsOnlyReady() {
+    public void Collect_MultipleTasks_ReturnsOnlyReady()
+    {
         var ready1 = new FakeTask("r1", delay: TimeSpan.Zero);
         var ready2 = new FakeTask("r2", delay: TimeSpan.Zero);
         var delayed = new FakeTask("d1", delay: TimeSpan.FromMinutes(10));
@@ -103,7 +118,8 @@ public class TaskQueueTests {
     }
 
     [Fact]
-    public void ConcurrentEnqueue_AllTasksCollected() {
+    public void ConcurrentEnqueue_AllTasksCollected()
+    {
         const int taskCount = 100;
         var tasks = Enumerable.Range(0, taskCount)
             .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero))
@@ -116,35 +132,47 @@ public class TaskQueueTests {
     }
 
     [Fact]
-    public void ConcurrentEnqueueAndCollect_AllTasksEventuallyCollected() {
+    public void ConcurrentEnqueueAndCollect_AllTasksEventuallyCollected()
+    {
         const int iterations = 50;
         var exceptions = new List<Exception>();
         var collected = new List<IReadOnlyList<IPriorityTask>>();
 
-        var enqueueTask = Task.Run(() => {
-            for (var i = 0; i < iterations; i++) {
-                try {
-                    _queue.Enqueue(new FakeTask($"t{i}", delay: TimeSpan.Zero));
-                }
-                catch (Exception e) {
-                    lock (exceptions) exceptions.Add(e);
-                }
-            }
-        });
-
-        var collectTask = Task.Run(() => {
-            for (var i = 0; i < iterations; i++) {
-                try {
-                    var batch = _queue.Collect();
-                    if (batch.Count > 0) {
-                        lock (collected) collected.Add(batch);
+        var enqueueTask = Task.Run(() =>
+            {
+                for (var i = 0; i < iterations; i++)
+                {
+                    try
+                    {
+                        _queue.Enqueue(new FakeTask($"t{i}", delay: TimeSpan.Zero));
+                    }
+                    catch (Exception e)
+                    {
+                        lock (exceptions) exceptions.Add(e);
                     }
                 }
-                catch (Exception e) {
-                    lock (exceptions) exceptions.Add(e);
+            }
+        );
+
+        var collectTask = Task.Run(() =>
+            {
+                for (var i = 0; i < iterations; i++)
+                {
+                    try
+                    {
+                        var batch = _queue.Collect();
+                        if (batch.Count > 0)
+                        {
+                            lock (collected) collected.Add(batch);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        lock (exceptions) exceptions.Add(e);
+                    }
                 }
             }
-        });
+        );
 
         Task.WaitAll(enqueueTask, collectTask);
         exceptions.Should().BeEmpty();
@@ -156,12 +184,15 @@ public class TaskQueueTests {
 
         var totalCollected = collected.SelectMany(b => b).Select(t => t.Id).ToList();
         totalCollected.Should().OnlyHaveUniqueItems("each task should be collected exactly once");
-        totalCollected.Should().HaveCount(iterations,
-            "all enqueued tasks should eventually be collected");
+        totalCollected.Should()
+            .HaveCount(iterations,
+                "all enqueued tasks should eventually be collected"
+            );
     }
 
     [Fact]
-    public void Enqueue_AfterCollect_SameIdCanBeReAdded() {
+    public void Enqueue_AfterCollect_SameIdCanBeReAdded()
+    {
         var task = new FakeTask("t1", delay: TimeSpan.Zero);
 
         _queue.Enqueue(task);
@@ -171,13 +202,17 @@ public class TaskQueueTests {
         _queue.Enqueue(task);
         var result = _queue.Collect();
 
-        result.Should().ContainSingle()
-            .Which.Id.Should().Be("t1");
+        result.Should()
+            .ContainSingle()
+            .Which.Id.Should()
+            .Be("t1");
     }
 }
 
-public class FakeTask : IPriorityTask {
-    public FakeTask(string id, TimeSpan delay, TaskPriority priority = TaskPriority.Medium) {
+public class FakeTask : IPriorityTask
+{
+    public FakeTask(string id, TimeSpan delay, TaskPriority priority = TaskPriority.Medium)
+    {
         Id = id;
         Delay = delay;
         Priority = priority;
@@ -192,12 +227,14 @@ public class FakeTask : IPriorityTask {
 
     private bool _shouldFail;
 
-    public FakeTask SetShouldFail(bool shouldFail) {
+    public FakeTask SetShouldFail(bool shouldFail)
+    {
         _shouldFail = shouldFail;
         return this;
     }
 
-    public Task Execute() {
+    public Task Execute()
+    {
         Interlocked.Increment(ref _executeCount);
 
         if (_shouldFail)

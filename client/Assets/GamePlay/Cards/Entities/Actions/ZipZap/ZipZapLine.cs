@@ -31,10 +31,11 @@ namespace GamePlay.Cards
             _line.SetPosition(1, start.WorldPosition);
 
             await _updater.CurveProgression(lifetime, _curve, factor =>
-            {
-                var position = Vector3.Lerp(start.WorldPosition, end.WorldPosition, factor);
-                _line.SetPosition(1, position);
-            });
+                {
+                    var position = Vector3.Lerp(start.WorldPosition, end.WorldPosition, factor);
+                    _line.SetPosition(1, position);
+                }
+            );
 
             _line.enabled = true;
         }

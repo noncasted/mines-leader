@@ -6,7 +6,7 @@ namespace Global.Cameras
     {
         Vector3 ScreenToWorld(Vector3 screen);
     }
-    
+
     public class CameraUtils : ICameraUtils
     {
         public CameraUtils(ICurrentCamera camera)

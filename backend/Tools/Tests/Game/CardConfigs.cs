@@ -7,9 +7,11 @@ namespace Tests.Game;
 /// Cached card configs loaded from Orchestration/Coordinator/config.cards.json.
 /// Same values as production.
 /// </summary>
-public static class CardConfigs {
-    private static readonly Lazy<CardConfigOptions> _options = new(
-        () => ConfigLoader.Load<CardConfigOptions>("config.cards"));
+public static class CardConfigs
+{
+    private static readonly Lazy<CardConfigOptions> _options = new(() =>
+        ConfigLoader.Load<CardConfigOptions>("config.cards")
+    );
 
     public static CardConfigOptions All => _options.Value;
 

@@ -7,7 +7,7 @@ namespace Common.Network
     public class NetworkSessionCallbacks : INetworkSessionCallbacks
     {
         private readonly List<INetworkSessionSetupCompleted> _setupCompleted = new();
-        
+
         public void Register(INetworkSessionCallbackEntry callback)
         {
             switch (callback)

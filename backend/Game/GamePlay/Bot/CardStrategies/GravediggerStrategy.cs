@@ -40,12 +40,12 @@ public class GravediggerStrategy : IBotCardStrategy
     public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
-        
+
         var payload = new CardUsePayload.Gravedigger()
         {
             Type = cardType
         };
-        
+
         return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

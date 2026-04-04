@@ -1,10 +1,12 @@
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 
-namespace Internal {
-    public class OptionsEditorWindow : EditorWindow {
+namespace Internal
+{
+    public class OptionsEditorWindow : EditorWindow
+    {
         private readonly string _uXmlPath = "Assets/Internal/Editor/UI/OptionsEditorWindow.uxml";
         private readonly string _ussPath = "Assets/Internal/Editor/UI/OptionsEditorWindow.uss";
         private readonly string _settingsPath = "Assets/Internal/Options/InternalSettings.asset";
@@ -15,21 +17,25 @@ namespace Internal {
         private VisualElement _root;
 
         [MenuItem("Tools/Internal/Options Editor")]
-        public static void ShowWindow() {
+        public static void ShowWindow()
+        {
             var window = GetWindow<OptionsEditorWindow>();
             window.titleContent = new GUIContent("Options Editor");
             window.minSize = new Vector2(400, 500);
         }
 
-        public void CreateGUI() {
+        public void CreateGUI()
+        {
             LoadOrCreateSettings();
             SetupUI();
         }
 
-        private void LoadOrCreateSettings() {
+        private void LoadOrCreateSettings()
+        {
             _optionsContainer = AssetDatabase.LoadAssetAtPath<OptionsContainer>(_settingsPath);
 
-            if (_optionsContainer == null) {
+            if (_optionsContainer == null)
+            {
                 _optionsContainer = CreateInstance<OptionsContainer>();
                 AssetDatabase.CreateAsset(_optionsContainer, _settingsPath);
                 AssetDatabase.SaveAssets();
@@ -40,10 +46,12 @@ namespace Internal {
             _serializedSettings = new SerializedObject(_optionsContainer);
         }
 
-        private void SetupUI() {
+        private void SetupUI()
+        {
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(_uXmlPath);
 
-            if (visualTree == null) {
+            if (visualTree == null)
+            {
                 Debug.LogError("[Internal] [Options] Failed to load UXML at " + _uXmlPath);
                 UpdateStatus("Error: UXML not found", true);
                 return;
@@ -54,7 +62,8 @@ namespace Internal {
 
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(_ussPath);
 
-            if (styleSheet != null) {
+            if (styleSheet != null)
+            {
                 _root.styleSheets.Add(styleSheet);
             }
 
@@ -62,8 +71,10 @@ namespace Internal {
             SetupEventHandlers();
         }
 
-        private void SetupDataBinding() {
-            if (_serializedSettings == null) {
+        private void SetupDataBinding()
+        {
+            if (_serializedSettings == null)
+            {
                 Debug.LogError("[Internal] [Options] SerializedObject is null, cannot bind data");
                 UpdateStatus("Error: Settings not loaded", true);
                 return;
@@ -74,18 +85,22 @@ namespace Internal {
             UpdateStatus("Ready", false);
         }
 
-        private void SetupEventHandlers() {
+        private void SetupEventHandlers()
+        {
             var saveButton = _root.Q<Button>("save-button");
 
-            if (saveButton != null) {
+            if (saveButton != null)
+            {
                 saveButton.clicked += OnSaveClicked;
             }
 
             _root.TrackSerializedObjectValue(_serializedSettings, OnSettingsChanged);
         }
 
-        private void OnSaveClicked() {
-            if (_serializedSettings == null || _optionsContainer == null) {
+        private void OnSaveClicked()
+        {
+            if (_serializedSettings == null || _optionsContainer == null)
+            {
                 UpdateStatus("Error: Settings not loaded", true);
                 return;
             }
@@ -99,12 +114,15 @@ namespace Internal {
             Debug.Log("[Internal] [Options] Settings saved to " + _settingsPath);
         }
 
-        private void OnSettingsChanged(SerializedObject obj) {
+        private void OnSettingsChanged(SerializedObject obj)
+        {
             UpdateStatus("Modified (unsaved)", false);
         }
 
-        private void UpdateStatus(string message, bool isError) {
-            if (_statusLabel != null) {
+        private void UpdateStatus(string message, bool isError)
+        {
+            if (_statusLabel != null)
+            {
                 _statusLabel.text = message;
                 _statusLabel.style.color = isError
                     ? new Color(1f, 0.3f, 0.3f)
@@ -112,8 +130,10 @@ namespace Internal {
             }
         }
 
-        private void OnDestroy() {
-            if (_serializedSettings != null) {
+        private void OnDestroy()
+        {
+            if (_serializedSettings != null)
+            {
                 _serializedSettings.Dispose();
             }
         }

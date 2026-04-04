@@ -35,7 +35,7 @@ namespace Internal
         {
             if (_isInitialized == true)
                 return;
-            
+
             OnInitialize();
         }
 
@@ -44,12 +44,17 @@ namespace Internal
 #if UNITY_EDITOR
             _objects = AssetsExtensions.FindAssets<T>();
 #endif
-            
+
             ProcessObjects();
         }
-        
-        protected virtual void ProcessObjects() {}
-        protected virtual void OnInitialize() {}
+
+        protected virtual void ProcessObjects()
+        {
+        }
+
+        protected virtual void OnInitialize()
+        {
+        }
     }
 
     public static class ScriptableRegistryExtensions

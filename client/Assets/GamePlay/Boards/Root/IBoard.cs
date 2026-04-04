@@ -34,7 +34,7 @@ namespace GamePlay.Boards
             new(-1, 0),
             new(-1, 1),
         };
-        
+
         public static HashSet<Vector2Int> NeighbourPositions(this IBoard board, Vector2Int position)
         {
             var bounds = board.GetBoardBounds();
@@ -51,12 +51,15 @@ namespace GamePlay.Boards
                 new(position.x + 1, position.y - 1)
             };
 
-            neighbours.RemoveWhere(neighbour =>
-                neighbour.x < 0 || neighbour.x > bounds.x || neighbour.y < 0 || neighbour.y > bounds.y);
+            neighbours.RemoveWhere(neighbour => neighbour.x < 0 ||
+                                                neighbour.x > bounds.x ||
+                                                neighbour.y < 0 ||
+                                                neighbour.y > bounds.y
+            );
 
             return neighbours;
         }
-        
+
         public static void IterateNeighbours(this IBoard board, Vector2Int position, Action<Vector2Int> action)
         {
             var neighbours = board.NeighbourPositions(position);
@@ -122,13 +125,15 @@ namespace GamePlay.Boards
             var bounds = board.GetBoardBounds();
             return new Vector2Int(Random.Range(0, bounds.x), Random.Range(0, bounds.y));
         }
-        
+
         public static bool IsInside(this IBoard board, Vector2 position)
         {
             var bounds = board.GetBoardWorldBounds();
 
-            return position.x > bounds.Item1.x && position.x < bounds.Item2.x &&
-                   position.y > bounds.Item1.y && position.y < bounds.Item2.y;
+            return position.x > bounds.Item1.x &&
+                   position.x < bounds.Item2.x &&
+                   position.y > bounds.Item1.y &&
+                   position.y < bounds.Item2.y;
         }
 
         public static Vector2Int WorldToBoardPosition(this IBoard board, Vector2 position)
@@ -137,8 +142,10 @@ namespace GamePlay.Boards
 
             var local = position - bounds.Item1;
 
-            if (local.x < 0 || local.x > bounds.Item2.x - bounds.Item1.x ||
-                local.y < 0 || local.y > bounds.Item2.y - bounds.Item1.y)
+            if (local.x < 0 ||
+                local.x > bounds.Item2.x - bounds.Item1.x ||
+                local.y < 0 ||
+                local.y > bounds.Item2.y - bounds.Item1.y)
             {
                 return new Vector2Int(-1, -1);
             }
@@ -148,26 +155,26 @@ namespace GamePlay.Boards
 
             return new Vector2Int(x, y);
         }
-        
+
         public static IReadOnlyList<IBoardCell> GetClosedShape(this IBoard board, Vector2Int start)
         {
             if (start == new Vector2Int(-1, -1))
                 return Array.Empty<IBoardCell>();
-                
+
             var cells = board.Cells;
 
             var selected = new HashSet<Vector2Int>();
             var checkedCache = new HashSet<Vector2Int>();
-                
+
             Check(start);
-                
+
             var result = new List<IBoardCell>();
-                
+
             foreach (var position in selected)
             {
                 if (cells.TryGetValue(position, out var cell) == false)
                     throw new KeyNotFoundException();
-                    
+
                 result.Add(cell);
             }
 
@@ -177,23 +184,23 @@ namespace GamePlay.Boards
             {
                 if (cells.TryGetValue(position, out var cell) == false)
                     return false;
-                    
+
                 if (cell.State.Value.Status == CellStatus.Free)
                     return true;
-                    
+
                 if (checkedCache.Contains(position) == true)
                     return false;
-                    
+
                 checkedCache.Add(position);
 
                 foreach (var direction in Directions)
                 {
                     var next = position + direction;
-                        
+
                     if (Check(next) == true)
                         selected.Add(position);
                 }
-                    
+
                 return false;
             }
         }

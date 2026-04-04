@@ -69,7 +69,7 @@ public class BackendConnectionMiddleware
         );
 
         var completion = new TaskCompletionSource();
-        
+
         var userHandle = _orleans.CreateUserHandle(auth.UserId);
         var isExists = await _orleans.Transactions.Run(() => userHandle.Auth.IsExists());
 
@@ -85,7 +85,7 @@ public class BackendConnectionMiddleware
                     IsSuccess = false
                 }
             );
-            
+
             handle.Dispose();
             return;
         }
@@ -95,7 +95,7 @@ public class BackendConnectionMiddleware
                 IsSuccess = true
             }
         );
-            
+
         handle.Dispose();
         var lifetime = new Lifetime();
         var connection = new Common.Network.Connection(webSocket, lifetime, _logger);

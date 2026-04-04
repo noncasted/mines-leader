@@ -1,4 +1,5 @@
-﻿using Cluster.Configs;
+﻿using Benchmarks;
+using Cluster.Configs;
 using Cluster.Coordination;
 using Cluster.Discovery;
 using Cluster.State;
@@ -16,7 +17,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shared;
-using Benchmarks;
 
 namespace Orchestration;
 

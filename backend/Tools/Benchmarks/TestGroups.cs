@@ -1,6 +1,7 @@
 namespace Benchmarks;
 
-public class TestGroups {
+public class TestGroups
+{
     public const string Messaging = "Messaging";
     public const string State = "State";
     public const string Game = "Game";

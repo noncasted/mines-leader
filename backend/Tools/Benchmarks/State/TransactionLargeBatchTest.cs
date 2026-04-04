@@ -46,8 +46,7 @@ public class TransactionLargeBatchTest
             {
                 var ids = TestParticipants.Create(_orleans, grainCount);
 
-                var result = await _transactions.Run(() =>
-                    ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
+                var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
 
                 if (!result.IsSuccess)
                     throw new Exception($"Large batch transaction with {grainCount} grains failed");

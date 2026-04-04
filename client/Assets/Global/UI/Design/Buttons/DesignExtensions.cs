@@ -10,7 +10,7 @@ namespace Global.UI
         {
             return button.Clicked.WaitInvoke(handle.InnerLifetime);
         }
-        
+
         public static UniTask WaitClick(this IDesignButton button, IReadOnlyLifetime lifetime)
         {
             return button.Clicked.WaitInvoke(lifetime);
@@ -23,7 +23,7 @@ namespace Global.UI
         {
             button.Clicked.Advise(lifetime, callback);
         }
-        
+
         public static void ListenClick(
             this IDesignButton button,
             IUIStateHandle handle,

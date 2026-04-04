@@ -24,7 +24,7 @@ namespace Common.Network
         {
             Id = id;
         }
-        
+
         private readonly LifetimedValue<T> _lifetimedValue = new(new T());
 
         private bool _isDirty;

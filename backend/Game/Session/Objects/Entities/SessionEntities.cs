@@ -21,7 +21,7 @@ public class SessionEntities : ISessionEntities
     public void Add(IEntity entity)
     {
         _entries.Add(entity.Id, entity);
-        
+
         if (_byUser.TryGetValue(entity.Owner, out var byUser) == false)
         {
             byUser = new List<IEntity>();
@@ -30,12 +30,13 @@ public class SessionEntities : ISessionEntities
 
         var userEntities = ((List<IEntity>)byUser);
         userEntities.Add(entity);
-        
+
         entity.Lifetime.Listen(() =>
-        {
-            _entries.Remove(entity.Id);
-            userEntities.Remove(entity);
-        });
+            {
+                _entries.Remove(entity.Id);
+                userEntities.Remove(entity);
+            }
+        );
     }
 
     public int CountByUser(IUser user)

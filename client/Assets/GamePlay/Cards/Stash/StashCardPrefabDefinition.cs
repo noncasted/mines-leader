@@ -17,17 +17,20 @@ namespace GamePlay.Cards
                 .WithName("StashCard")
                 .WithComponent<StashCard>()
                 .WithComponent<SpriteRenderer>(sr =>
-                {
-                    sr.color = Color.white;
-                    sr.sortingLayerName = "Field";
-                    sr.sortingOrder = 0;
-                    spriteRenderer = sr;
-                });
+                    {
+                        sr.color = Color.white;
+                        sr.sortingLayerName = "Field";
+                        sr.sortingOrder = 0;
+                        spriteRenderer = sr;
+                    }
+                );
 
             builder.SetSerialized<StashCard>("_even",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0"));
+                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0")
+            );
             builder.SetSerialized<StashCard>("_odd",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1"));
+                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1")
+            );
             builder.SetSerialized<StashCard>("_renderer", spriteRenderer);
         }
     }

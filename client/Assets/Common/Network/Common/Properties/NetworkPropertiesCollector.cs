@@ -48,11 +48,12 @@ namespace Common.Network
                         continue;
 
                     contexts.Add(new SharedSessionObject.SetProperty()
-                    {
-                        ObjectId = networkObject.Id,
-                        PropertyId = id,
-                        Value = property.Collect()
-                    });
+                        {
+                            ObjectId = networkObject.Id,
+                            PropertyId = id,
+                            Value = property.Collect()
+                        }
+                    );
                 }
             }
 

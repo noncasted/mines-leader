@@ -7,14 +7,14 @@ namespace GamePlay.Boards
     {
         bool IsInside(Vector2 pointerPosition);
     }
-    
+
     [DisallowMultipleComponent]
     public class CellPointerHandler : MonoBehaviour, ICellPointerHandler
     {
         [SerializeField] private BoxCollider2D _collider;
-        
+
         private readonly ViewableProperty<bool> _isSelected = new();
-        
+
         public IViewableProperty<bool> IsSelected => _isSelected;
 
         private void OnMouseDown()
@@ -31,12 +31,14 @@ namespace GamePlay.Boards
         {
             var size = _collider.size;
             var position = (Vector2)transform.position;
-            
+
             var leftBottom = position - size / 2f;
             var rightTop = position + size / 2f;
-            
-            return leftBottom.x <= pointerPosition.x && pointerPosition.x <= rightTop.x &&
-                   leftBottom.y <= pointerPosition.y && pointerPosition.y <= rightTop.y;
+
+            return leftBottom.x <= pointerPosition.x &&
+                   pointerPosition.x <= rightTop.x &&
+                   leftBottom.y <= pointerPosition.y &&
+                   pointerPosition.y <= rightTop.y;
         }
     }
 }

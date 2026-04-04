@@ -46,16 +46,16 @@ namespace Tools
                 {
                     if (IsNamespaceValid() == false && IsSubReferenceValid() == false)
                         invalidReferences.Add(reference);
-                    
+
                     continue;
 
                     bool IsNamespaceValid()
                     {
-                        var name = reference.Path.Name; 
-                        
+                        var name = reference.Path.Name;
+
                         if (name.Contains("Unity") == true || name.Contains("Pathfinding") == true)
                             return true;
-                        
+
                         var checkNamespaces = assemblyToNamespaces[reference];
 
                         foreach (var checkNamespace in checkNamespaces)

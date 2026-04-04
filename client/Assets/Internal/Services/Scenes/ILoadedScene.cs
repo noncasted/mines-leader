@@ -6,7 +6,7 @@ namespace Internal
     public interface ILoadedScene
     {
         SceneInstance Instance { get; }
-        
+
         UniTask Unload();
     }
 }

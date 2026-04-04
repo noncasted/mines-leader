@@ -2,7 +2,6 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using Internal;
-using Meta;
 using Shared;
 using UnityEngine;
 
@@ -30,7 +29,7 @@ namespace GamePlay.Cards
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
-            
+
             var size = _config.Size;
             var pattern = new Pattern(_context.TargetBoard, size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);

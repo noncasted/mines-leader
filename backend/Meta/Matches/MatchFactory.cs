@@ -97,8 +97,10 @@ public class MatchFactory : IMatchFactory
         await _orleans.SendOneTimeProjection(participant, result);
     }
 
-    private Guid GetRandomBotId() {
-        if (_botCollection.Count == 0) {
+    private Guid GetRandomBotId()
+    {
+        if (_botCollection.Count == 0)
+        {
             _logger.LogWarning("[MatchFactory] No bots available, using Guid.Empty as fallback");
             return Guid.Empty;
         }

@@ -6,9 +6,8 @@ namespace Common.Network
 {
     public interface INetworkSessionCallbackEntry
     {
-        
     }
-    
+
     public interface INetworkSessionCallbacks
     {
         void Register(INetworkSessionCallbackEntry callback);
@@ -22,8 +21,8 @@ namespace Common.Network
             where TImplementation : class
             where TCallback : class, INetworkSessionCallbackEntry
         {
-            Action<INetworkSessionCallbacks, TImplementation> registerCallback =
-                (callbacks, target) => callbacks.Register(target as TCallback);
+            Action<INetworkSessionCallbacks, TImplementation> registerCallback = (callbacks, target) =>
+                callbacks.Register(target as TCallback);
 
             registration.Builder.Register<NetworkSessionCallbackRegister<TImplementation>>()
                 .WithParameter(registerCallback)

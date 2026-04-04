@@ -18,7 +18,7 @@ namespace GamePlay.Loop
     {
         private IGamePlayer _self;
         private IGamePlayer _other;
-        
+
         private readonly List<IGamePlayer> _all = new();
 
         public IGamePlayer Self => _self;

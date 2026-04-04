@@ -25,7 +25,7 @@ namespace Global.Audio
         {
             _saves = saves;
         }
-        
+
         public void Configure(AudioSource musicSource, AudioSource[] soundSources)
         {
             _musicSource = musicSource;

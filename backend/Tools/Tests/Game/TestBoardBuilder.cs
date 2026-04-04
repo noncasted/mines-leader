@@ -1,3 +1,4 @@
+using Common.Reactive;
 using Game.GamePlay;
 using Game.Session;
 using Microsoft.Extensions.Options;
@@ -113,7 +114,7 @@ public class TestBoardBuilder
         }
 
         // Start mines scanner to calculate MinesAround
-        var lifetime = new Common.Reactive.Lifetime();
+        var lifetime = new Lifetime();
         board.MinesScanner.Start(lifetime);
         board.OnUpdated();
 

@@ -2,7 +2,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -20,6 +19,7 @@ namespace GamePlay.Cards
         [SerializeField] private SortingGroup _sortingGroup;
 
         private SpriteRenderer[] _all;
+
         // Text components in order: [0] = card name, [1] = card description
         private TMP_Text[] _textComponents;
 

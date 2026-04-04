@@ -12,7 +12,7 @@ namespace Internal
         UniTask Initialize();
         UniTask Dispose();
     }
-    
+
     public static class ServiceLoadResultExtensions
     {
         public static T Get<T>(this ILoadedScope loadResult)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Global.Audio
 {
-    
     [Serializable]
     public class VolumeSave
     {

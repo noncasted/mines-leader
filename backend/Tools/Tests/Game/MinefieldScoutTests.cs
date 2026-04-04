@@ -11,51 +11,64 @@ namespace Tests.Game;
 /// Line(5) is 5x5 shape with only center row (horizontal) or center column (vertical) as true.
 /// Returns revealed positions in ActionData.
 /// </summary>
-public class MinefieldScoutTests {
+public class MinefieldScoutTests
+{
     [Fact]
-    public void Use_FlagsMinesInLine() {
+    public void Use_FlagsMinesInLine()
+    {
         // Mine at (2,3) and (4,3) — horizontal line from center (3,3) covers them
         var (board, target) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t t m x m t t
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t m x m t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Mines in the horizontal line should be flagged
-        board.Cells[new Position(2, 3)].Should().BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should().BeTrue("mine at (2,3) is in horizontal line range");
+        board.Cells[new Position(2, 3)]
+            .Should()
+            .BeAssignableTo<ITakenCell>()
+            .Which.IsFlagged.Should()
+            .BeTrue("mine at (2,3) is in horizontal line range");
 
-        board.Cells[new Position(4, 3)].Should().BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should().BeTrue("mine at (4,3) is in horizontal line range");
+        board.Cells[new Position(4, 3)]
+            .Should()
+            .BeAssignableTo<ITakenCell>()
+            .Which.IsFlagged.Should()
+            .BeTrue("mine at (4,3) is in horizontal line range");
     }
 
     [Fact]
-    public void Use_OpensNonMineCells() {
+    public void Use_OpensNonMineCells()
+    {
         // Line(4, horizontal) centered at (3,3): covers (1,3), (2,3), (3,3), (4,3)
         // All are Taken non-mine, so all should be opened and revealed
         var (board, target) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t t t x t t t
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t x t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -69,22 +82,25 @@ public class MinefieldScoutTests {
     }
 
     [Fact]
-    public void Use_ReturnsRevealedPositions() {
+    public void Use_ReturnsRevealedPositions()
+    {
         // Line(4, horizontal) at (3,3): covers (1,3), (2,3), (3,3), (4,3)
         // Mine at (2,3) gets flagged, others get opened — all 4 are in RevealedCells
         var (board, target) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t t m x t t t
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t m x t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -99,50 +115,58 @@ public class MinefieldScoutTests {
     }
 
     [Fact]
-    public void Use_NoCellsInRange_Fails() {
+    public void Use_NoCellsInRange_Fails()
+    {
         var emptyBoard = new TestBoardBuilder(0).Build();
 
         var result = new MinefieldScout(emptyBoard,
             new CardUsePayload.MinefieldScout { Position = new Position(0, 0) },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
 
     [Fact]
-    public void Use_AllFreeCells_Fails() {
+    public void Use_AllFreeCells_Fails()
+    {
         // All cells already Free — SelectTaken returns empty for both lines
         var (board, _) = BoardParser.Parse("""
-            _ _ _ _ _
-            _ _ _ _ _
-            _ _ _ _ _
-            _ _ _ _ _
-            _ _ _ _ _
-            """);
+                                           _ _ _ _ _
+                                           _ _ _ _ _
+                                           _ _ _ _ _
+                                           _ _ _ _ _
+                                           _ _ _ _ _
+                                           """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = new Position(2, 2) },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
 
     [Fact]
-    public void Use_ChoosesLongerLine() {
+    public void Use_ChoosesLongerLine()
+    {
         // Block horizontal line with Free cells, vertical should have more Taken
         var (board, target) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t _ _ x _ _ t
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t _ _ x _ _ t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -162,22 +186,25 @@ public class MinefieldScoutTests {
     }
 
     [Fact]
-    public void Use_MixOfMinesAndSafeCells() {
+    public void Use_MixOfMinesAndSafeCells()
+    {
         // Mine in horizontal line (chosen when equal to vertical)
         // Center (3,3), horizontal line covers (1,3)-(5,3)
         var (board, target) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t m t x t t t
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t m t x t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                t t t t t t t
+                                                """
+        );
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+            CardConfigs.MinefieldScout
+        ).Use();
 
         result.Result.HasError.Should().BeFalse();
 

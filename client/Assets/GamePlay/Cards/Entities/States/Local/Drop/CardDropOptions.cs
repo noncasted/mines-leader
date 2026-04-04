@@ -12,8 +12,10 @@ namespace GamePlay.Cards
         [SerializeField] private float _time;
 
         [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-        [SerializeField] [CurveRange(0, -1, 1, 1)] private AnimationCurve _xScaleCurve;
-        
+
+        [SerializeField] [CurveRange(0, -1, 1, 1)]
+        private AnimationCurve _xScaleCurve;
+
         public float MoveDistance => _moveDistance;
         public float Time => _time;
         public AnimationCurve MoveCurve => _moveCurve;

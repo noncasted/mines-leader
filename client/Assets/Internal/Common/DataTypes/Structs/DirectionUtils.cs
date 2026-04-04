@@ -10,7 +10,7 @@ namespace Internal
             var direction = (Vector2)(to.position - from.position).normalized;
             return Quaternion.Euler(0f, 0f, direction.ToAngle());
         }
-        
+
         public static float ToAngle(this Vector2 direction)
         {
             var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -105,7 +105,7 @@ namespace Internal
 
             return (sourceAngle + delta).ToAngle().ToVector2();
         }
-        
+
         public static Vector2 Random(float minDistance, float maxDistance)
         {
             var distance = UnityEngine.Random.Range(minDistance, maxDistance);

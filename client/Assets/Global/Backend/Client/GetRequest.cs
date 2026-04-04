@@ -7,7 +7,7 @@ namespace Global.Backend
         string Uri { get; }
         IReadOnlyList<IRequestHeader> Headers { get; }
     }
-    
+
     public class GetRequest : IGetRequest
     {
         public GetRequest(string url, IReadOnlyList<IRequestHeader> headers)

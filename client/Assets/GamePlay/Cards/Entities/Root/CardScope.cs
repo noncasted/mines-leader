@@ -6,6 +6,5 @@ namespace GamePlay.Cards
     [DisallowMultipleComponent]
     public class CardScope : LifetimeScope
     {
-        
     }
 }

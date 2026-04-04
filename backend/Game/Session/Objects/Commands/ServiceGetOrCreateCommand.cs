@@ -2,7 +2,8 @@
 
 namespace Game.Session;
 
-public class ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.GetRequest, SharedSessionService.GetResponse>
+public class
+    ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.GetRequest, SharedSessionService.GetResponse>
 {
     public ServiceGetOrCreateCommand(IServiceFactory serviceFactory)
     {
@@ -10,8 +11,8 @@ public class ServiceGetOrCreateCommand : ResponseCommand<SharedSessionService.Ge
     }
 
     private readonly IServiceFactory _serviceFactory;
-    
-    protected override SharedSessionService.GetResponse Execute( IUser user, SharedSessionService.GetRequest request)
+
+    protected override SharedSessionService.GetResponse Execute(IUser user, SharedSessionService.GetRequest request)
     {
         var service = _serviceFactory.GetOrCreate(request);
 

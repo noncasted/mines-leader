@@ -1,6 +1,4 @@
 ﻿using Internal;
-using Meta;
-using Shared;
 
 namespace GamePlay.Cards
 {

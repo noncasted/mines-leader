@@ -15,7 +15,7 @@ namespace Internal
             {
                 if (target is not MonoScript script)
                     continue;
-                
+
                 var path = AssetDatabase.GetAssetPath(target);
                 var newObject = ScriptableObject.CreateInstance(script.GetClass());
                 var name = path.Split("/")[^1].Replace(".cs", string.Empty);

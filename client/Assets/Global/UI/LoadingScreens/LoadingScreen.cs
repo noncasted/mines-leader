@@ -19,7 +19,7 @@ namespace Global.UI
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Curve _curve;
         [SerializeField] private LoadingScreenAnimation _animation;
-        
+
         private IUpdater _updater;
         private CurveInstance _curveInstance;
         private Direction2 _direction;
@@ -50,7 +50,7 @@ namespace Global.UI
         public void OnUpdate(float delta)
         {
             _animation.UpdateAnimation(delta);
-            
+
             var alpha = _direction switch
             {
                 Direction2.Forward => _curveInstance.StepForward(delta),

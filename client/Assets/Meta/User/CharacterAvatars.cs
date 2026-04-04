@@ -11,7 +11,7 @@ namespace Meta
     public class CharacterAvatars : EnvAsset
     {
         [SerializeField] private CharacterAvatarsDictionary _value;
-        
+
         public IReadOnlyDictionary<CharacterType, Sprite> Value => _value;
     }
 

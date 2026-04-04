@@ -4,6 +4,6 @@ namespace Global.Publisher
 {
     public interface IJsErrorCallback
     {
-        event Action<string> Exception; 
+        event Action<string> Exception;
     }
 }

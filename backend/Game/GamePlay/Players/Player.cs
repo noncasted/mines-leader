@@ -22,7 +22,7 @@ public class Player : IPlayer
         IEntity entity,
         Board board,
         Health health,
-        Mana mana, 
+        Mana mana,
         Modifiers modifiers,
         Deck deck,
         Moves moves,

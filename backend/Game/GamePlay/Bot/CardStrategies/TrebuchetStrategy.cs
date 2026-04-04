@@ -35,7 +35,7 @@ public class TrebuchetStrategy : IBotCardStrategy
 
         // Проверяем есть ли вообще закрытые клетки у противника
         var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
-        
+
         if (opponentTakenCount == 0)
             return 0f;
 
@@ -61,13 +61,13 @@ public class TrebuchetStrategy : IBotCardStrategy
             return false;
 
         var bot = _context.Bot;
-        
+
         var payload = new CardUsePayload.Trebuchet
         {
             Position = position,
             Type = cardType
         };
-        
+
         return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

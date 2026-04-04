@@ -33,7 +33,7 @@ namespace Global.UI
             _targetColor = color;
             _currentTransitionTime = 0f;
         }
-        
+
         private void Update()
         {
             var progress = _currentTransitionTime / _config.TransitionTime;
@@ -44,7 +44,7 @@ namespace Global.UI
 
             _currentTransitionTime += Time.deltaTime;
         }
-        
+
         private void OnValidate()
         {
             if (_text == null)

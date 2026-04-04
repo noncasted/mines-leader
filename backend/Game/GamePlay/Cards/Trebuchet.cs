@@ -31,7 +31,7 @@ public class Trebuchet : ICard
                 ActionData = null
             };
         }
-        
+
         var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
 

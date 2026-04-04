@@ -10,7 +10,7 @@ namespace Meta
 
         void Init(Guid id);
     }
-    
+
     public class User : IUser
     {
         private Guid _id;

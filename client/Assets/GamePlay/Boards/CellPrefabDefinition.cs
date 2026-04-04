@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
 using GamePlay.Boards.Effects;
 using TMPro;
 using Tools;
@@ -34,188 +36,214 @@ namespace GamePlay.Boards
 
             // PointerHandler
             builder.WithChildObject("PointerHandler", pointer =>
-            {
-                pointer.WithComponent<CellPointerHandler>(c => pointerHandler = c);
-                pointer.WithComponent<BoxCollider2D>(bc =>
                 {
-                    bc.size = new Vector2(1f, 1f);
-                });
-                pointer.SetSerialized<CellPointerHandler>("_collider",
-                    pointer.GameObject.GetComponent<BoxCollider2D>());
-            });
+                    pointer.WithComponent<CellPointerHandler>(c => pointerHandler = c);
+                    pointer.WithComponent<BoxCollider2D>(bc =>
+                        {
+                            bc.size = new Vector2(1f, 1f);
+                        }
+                    );
+                    pointer.SetSerialized<CellPointerHandler>("_collider",
+                        pointer.GameObject.GetComponent<BoxCollider2D>()
+                    );
+                }
+            );
 
             // Free (inactive)
             builder.WithChildObject("Free", false, free =>
-            {
-                free.WithComponent<CellFreeView>(c => freeView = c);
-
-                free.WithChildObject("Sprite", sprite =>
                 {
-                    sprite.WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = LoadSprite(CellSpritePath, "Cell_Free");
-                        sr.color = Color.white;
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 0;
-                    });
-                });
+                    free.WithComponent<CellFreeView>(c => freeView = c);
 
-                TMP_Text counterText = null;
+                    free.WithChildObject("Sprite", sprite =>
+                        {
+                            sprite.WithComponent<SpriteRenderer>(sr =>
+                                {
+                                    sr.sprite = LoadSprite(CellSpritePath, "Cell_Free");
+                                    sr.color = Color.white;
+                                    sr.sortingLayerName = "Field";
+                                    sr.sortingOrder = 0;
+                                }
+                            );
+                        }
+                    );
 
-                free.WithChildObject("Counter", counter =>
-                {
-                    counter.WithComponent<TextMeshPro>(tmp =>
-                    {
-                        tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontBitach);
-                        tmp.text = "1";
-                        tmp.color = new Color(0.730f, 0.766f, 0.513f, 1f);
-                        tmp.fontSize = 8f;
-                        tmp.enableAutoSizing = true;
-                        tmp.fontSizeMin = 0f;
-                        tmp.fontSizeMax = 8f;
-                        tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
-                        tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
-                        tmp.textWrappingMode = TextWrappingModes.Normal;
-                        tmp.isOrthographic = false;
-                        counterText = tmp;
-                    });
+                    TMP_Text counterText = null;
 
-                    var rt = counter.GameObject.GetComponent<RectTransform>();
-                    if (rt != null)
-                    {
-                        rt.anchoredPosition = Vector2.zero;
-                        rt.sizeDelta = new Vector2(1f, 1f);
-                    }
+                    free.WithChildObject("Counter", counter =>
+                        {
+                            counter.WithComponent<TextMeshPro>(tmp =>
+                                {
+                                    tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontBitach);
+                                    tmp.text = "1";
+                                    tmp.color = new Color(0.730f, 0.766f, 0.513f, 1f);
+                                    tmp.fontSize = 8f;
+                                    tmp.enableAutoSizing = true;
+                                    tmp.fontSizeMin = 0f;
+                                    tmp.fontSizeMax = 8f;
+                                    tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                                    tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
+                                    tmp.textWrappingMode = TextWrappingModes.Normal;
+                                    tmp.isOrthographic = false;
+                                    counterText = tmp;
+                                }
+                            );
 
-                    var mr = counter.GameObject.GetComponent<MeshRenderer>();
-                    if (mr != null)
-                    {
-                        mr.sortingLayerName = "Field";
-                        mr.sortingOrder = 2;
-                    }
-                });
+                            var rt = counter.GameObject.GetComponent<RectTransform>();
+                            if (rt != null)
+                            {
+                                rt.anchoredPosition = Vector2.zero;
+                                rt.sizeDelta = new Vector2(1f, 1f);
+                            }
 
-                free.SetSerialized<CellFreeView>("_count", counterText);
-            });
+                            var mr = counter.GameObject.GetComponent<MeshRenderer>();
+                            if (mr != null)
+                            {
+                                mr.sortingLayerName = "Field";
+                                mr.sortingOrder = 2;
+                            }
+                        }
+                    );
+
+                    free.SetSerialized<CellFreeView>("_count", counterText);
+                }
+            );
 
             // Taken
             GameObject mineGo = null;
             GameObject flagGo = null;
 
             builder.WithChildObject("Taken", taken =>
-            {
-                taken.WithComponent<CellTakenView>(c => takenView = c);
-
-                taken.WithChildObject("Sprite", sprite =>
                 {
-                    sprite.WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = LoadSprite(CellSpritePath, "Cell_Taken");
-                        sr.color = Color.white;
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 0;
-                    });
-                });
+                    taken.WithComponent<CellTakenView>(c => takenView = c);
 
-                taken.WithChildObject("Flag", false, flag =>
-                {
-                    flagGo = flag.GameObject;
-
-                    flag.WithChildObject("Sprite", flagSprite =>
-                    {
-                        flagSprite.WithComponent<SpriteRenderer>(sr =>
+                    taken.WithChildObject("Sprite", sprite =>
                         {
-                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(FlagSpritePath);
-                            sr.color = Color.white;
-                            sr.sortingLayerName = "Field";
-                            sr.sortingOrder = 1;
-                        });
-                    });
-                });
-            });
+                            sprite.WithComponent<SpriteRenderer>(sr =>
+                                {
+                                    sr.sprite = LoadSprite(CellSpritePath, "Cell_Taken");
+                                    sr.color = Color.white;
+                                    sr.sortingLayerName = "Field";
+                                    sr.sortingOrder = 0;
+                                }
+                            );
+                        }
+                    );
+
+                    taken.WithChildObject("Flag", false, flag =>
+                        {
+                            flagGo = flag.GameObject;
+
+                            flag.WithChildObject("Sprite", flagSprite =>
+                                {
+                                    flagSprite.WithComponent<SpriteRenderer>(sr =>
+                                        {
+                                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(FlagSpritePath);
+                                            sr.color = Color.white;
+                                            sr.sortingLayerName = "Field";
+                                            sr.sortingOrder = 1;
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            );
 
             // Mine (inactive)
             builder.WithChildObject("Mine", false, mine =>
-            {
-                mineGo = mine.GameObject;
-
-                mine.WithChildObject("Sprite", mineSprite =>
                 {
-                    mineSprite.WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(BlowupSpritePath);
-                        sr.color = Color.white;
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 1;
-                    });
-                });
-            });
+                    mineGo = mine.GameObject;
+
+                    mine.WithChildObject("Sprite", mineSprite =>
+                        {
+                            mineSprite.WithComponent<SpriteRenderer>(sr =>
+                                {
+                                    sr.sprite = PrefabBuilder.LoadAsset<Sprite>(BlowupSpritePath);
+                                    sr.color = Color.white;
+                                    sr.sortingLayerName = "Field";
+                                    sr.sortingOrder = 1;
+                                }
+                            );
+                        }
+                    );
+                }
+            );
 
             // Selection (inactive)
             builder.WithChildObject("Selection", false, selection =>
-            {
-                selection.WithComponent<CellSelectionView>(c => selectionView = c);
-                selection.WithComponent<SpriteRenderer>(sr =>
                 {
-                    sr.sprite = PrefabBuilder.LoadAsset<Sprite>(HighlightSpritePath);
-                    sr.color = new Color(1f, 1f, 1f, 0.373f);
-                    sr.sortingLayerName = "Field";
-                    sr.sortingOrder = 1;
-                });
-            });
+                    selection.WithComponent<CellSelectionView>(c => selectionView = c);
+                    selection.WithComponent<SpriteRenderer>(sr =>
+                        {
+                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(HighlightSpritePath);
+                            sr.color = new Color(1f, 1f, 1f, 0.373f);
+                            sr.sortingLayerName = "Field";
+                            sr.sortingOrder = 1;
+                        }
+                    );
+                }
+            );
 
             // Effects
             SmokeCellEffect smokeEffect = null;
             FogCellEffect fogEffect = null;
 
             builder.WithChildObject("Effects", effectsObj =>
-            {
-                effectsObj.WithComponent<CellEffects>(c => effects = c);
-
-                effectsObj.WithChildObject("Smoke", false, smoke =>
                 {
-                    smoke.WithScale(1.56f, 1.56f, 1f);
-                    smoke.WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(EmptySpritePath);
-                        sr.color = new Color(0.877f, 0.877f, 0.877f, 1f);
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 5;
-                    });
-                    smoke.WithComponent<SmokeCellEffect>(c => smokeEffect = c);
-                });
+                    effectsObj.WithComponent<CellEffects>(c => effects = c);
 
-                effectsObj.WithChildObject("Fog", false, fog =>
-                {
-                    fog.WithScale(1.56f, 1.56f, 1f);
-                    fog.WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(EmptySpritePath);
-                        sr.color = new Color(0.877f, 0.877f, 0.877f, 1f);
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 5;
-                    });
-                    fog.WithComponent<FogCellEffect>(c => fogEffect = c);
-                });
-            });
+                    effectsObj.WithChildObject("Smoke", false, smoke =>
+                        {
+                            smoke.WithScale(1.56f, 1.56f, 1f);
+                            smoke.WithComponent<SpriteRenderer>(sr =>
+                                {
+                                    sr.sprite = PrefabBuilder.LoadAsset<Sprite>(EmptySpritePath);
+                                    sr.color = new Color(0.877f, 0.877f, 0.877f, 1f);
+                                    sr.sortingLayerName = "Field";
+                                    sr.sortingOrder = 5;
+                                }
+                            );
+                            smoke.WithComponent<SmokeCellEffect>(c => smokeEffect = c);
+                        }
+                    );
+
+                    effectsObj.WithChildObject("Fog", false, fog =>
+                        {
+                            fog.WithScale(1.56f, 1.56f, 1f);
+                            fog.WithComponent<SpriteRenderer>(sr =>
+                                {
+                                    sr.sprite = PrefabBuilder.LoadAsset<Sprite>(EmptySpritePath);
+                                    sr.color = new Color(0.877f, 0.877f, 0.877f, 1f);
+                                    sr.sortingLayerName = "Field";
+                                    sr.sortingOrder = 5;
+                                }
+                            );
+                            fog.WithComponent<FogCellEffect>(c => fogEffect = c);
+                        }
+                    );
+                }
+            );
 
             // Animations
             SpriteRenderer animationRenderer = null;
 
             builder.WithChildObject("Animations", animations =>
-            {
-                animations.WithComponent<SpriteRenderer>(sr =>
                 {
-                    sr.sprite = null;
-                    sr.color = Color.white;
-                    sr.sortingLayerName = "Field";
-                    sr.sortingOrder = 4;
-                    animationRenderer = sr;
-                });
-                animations.WithComponent<CellAnimator>(c => animator = c);
+                    animations.WithComponent<SpriteRenderer>(sr =>
+                        {
+                            sr.sprite = null;
+                            sr.color = Color.white;
+                            sr.sortingLayerName = "Field";
+                            sr.sortingOrder = 4;
+                            animationRenderer = sr;
+                        }
+                    );
+                    animations.WithComponent<CellAnimator>(c => animator = c);
 
-                animations.SetSerialized<CellAnimator>("_renderer", animationRenderer);
-            });
+                    animations.SetSerialized<CellAnimator>("_renderer", animationRenderer);
+                }
+            );
 
             // CellView cross-references (CellView is on root)
             builder.SetSerialized<CellView>("_pointerHandler", pointerHandler);
@@ -255,6 +283,7 @@ namespace GamePlay.Boards
                 {
                     mineSprites.GetArrayElementAtIndex(i).objectReferenceValue = sprites[i];
                 }
+
                 mineTime.floatValue = 0.2f;
             }
 
@@ -268,6 +297,7 @@ namespace GamePlay.Boards
                 {
                     zipSprites.GetArrayElementAtIndex(i).objectReferenceValue = sprites[i];
                 }
+
                 zipTime.floatValue = 0.8f;
             }
 
@@ -314,13 +344,14 @@ namespace GamePlay.Boards
         private static Sprite[] LoadAllSprites(string assetPath, int count = -1)
         {
             var allAssets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
-            var sprites = new System.Collections.Generic.List<Sprite>();
+            var sprites = new List<Sprite>();
             foreach (var asset in allAssets)
             {
                 if (asset is Sprite sprite)
                     sprites.Add(sprite);
             }
-            sprites.Sort((a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
+
+            sprites.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
             if (count > 0 && count < sprites.Count)
                 sprites.RemoveRange(count, sprites.Count - count);
             return sprites.ToArray();

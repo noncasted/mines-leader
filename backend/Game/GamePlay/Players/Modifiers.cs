@@ -15,11 +15,11 @@ public class Modifiers : IModifiers
     public Modifiers(ValueProperty<PlayerModifiersState> state)
     {
         _state = state;
-        
+
         foreach (var type in PlayerModifierExtensions.All)
             _values[type] = 0f;
     }
-    
+
     private readonly ValueProperty<PlayerModifiersState> _state;
     private readonly Dictionary<PlayerModifier, float> _values = new();
 
@@ -30,7 +30,7 @@ public class Modifiers : IModifiers
         _values[type] = value;
         SyncState();
     }
-    
+
     public void SyncState()
     {
         _state.Set(new PlayerModifiersState { Values = new Dictionary<PlayerModifier, float>(_values) });

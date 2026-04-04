@@ -1,12 +1,15 @@
 using System;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     [Serializable]
-    public class AssetsOptions {
+    public class AssetsOptions
+    {
         [SerializeField] private bool _useAddressables;
 
-        public bool UseAddressables {
+        public bool UseAddressables
+        {
             get => _useAddressables;
             set => _useAddressables = value;
         }

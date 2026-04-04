@@ -11,11 +11,11 @@ namespace Common.Network
         Guid BackendId { get; }
         IReadOnlyDictionary<int, INetworkEntity> Entities { get; }
         IReadOnlyLifetime Lifetime { get; }
-        
+
         void AddEntity(INetworkEntity entity);
         void DisposeRemote();
     }
-    
+
     public class NetworkUser : INetworkUser
     {
         public NetworkUser(
@@ -32,7 +32,7 @@ namespace Common.Network
 
         private readonly ILifetime _lifetime;
         private readonly Dictionary<int, INetworkEntity> _entities = new();
-        
+
         public int Index { get; }
         public bool IsLocal { get; }
         public Guid BackendId { get; }

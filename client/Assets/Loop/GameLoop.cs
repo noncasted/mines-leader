@@ -2,7 +2,6 @@
 using GamePlay.Loop;
 using Internal;
 using Menu.Common;
-using Meta;
 using Shared;
 
 namespace Loop
@@ -50,15 +49,16 @@ namespace Loop
                     case GameEndTransition.Rematch rematch:
                     {
                         Game(new GameLoadData()
-                            {
-                                Result = new SharedMatchmaking.MatchResult()
                                 {
-                                    ServerUrl = rematch.NewSession.ServerUrl,
-                                    SessionId = rematch.NewSession.SessionId,
-                                    Type = loadData.Result.Type
+                                    Result = new SharedMatchmaking.MatchResult()
+                                    {
+                                        ServerUrl = rematch.NewSession.ServerUrl,
+                                        SessionId = rematch.NewSession.SessionId,
+                                        Type = loadData.Result.Type
+                                    }
                                 }
-                            }
-                        ).Forget();
+                            )
+                            .Forget();
 
                         break;
                     }

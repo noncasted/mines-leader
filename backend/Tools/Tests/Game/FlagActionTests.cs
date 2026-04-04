@@ -1,3 +1,4 @@
+using Common.Reactive;
 using FluentAssertions;
 using Game.GamePlay;
 using Shared;
@@ -13,16 +14,19 @@ namespace Tests.Game;
 /// - RemoveFlag on unflagged cell => Failed
 /// - RemoveFlag on Free cell => Failed
 /// </summary>
-public class FlagActionTests {
+public class FlagActionTests
+{
     [Fact]
-    public void SetFlag_OnTakenCell_PlacesFlag() {
+    public void SetFlag_OnTakenCell_PlacesFlag()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var taken = (ITakenCell)board.Cells[target];
         taken.SetFlag();
@@ -31,14 +35,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void SetFlag_OnTakenCellWithMine_PlacesFlag() {
+    public void SetFlag_OnTakenCellWithMine_PlacesFlag()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         // Place mine manually since 'x' is just Taken
         var taken = (ITakenCell)board.Cells[target];
@@ -50,16 +56,18 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void SetFlag_OnAlreadyFlaggedCell_IsIdempotent() {
+    public void SetFlag_OnAlreadyFlaggedCell_IsIdempotent()
+    {
         // At cell level, SetFlag is idempotent — calling twice keeps IsFlagged=true
         // (SetFlagAction command would return Failed, but this test covers cell-level behavior)
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t g t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t g t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -71,14 +79,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void RemoveFlag_OnFlaggedCell_RemovesFlag() {
+    public void RemoveFlag_OnFlaggedCell_RemovesFlag()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t g t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t g t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -90,15 +100,17 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void RemoveFlag_OnUnflaggedCell_StaysFalse() {
+    public void RemoveFlag_OnUnflaggedCell_StaysFalse()
+    {
         // RemoveFlagAction checks IsFlagged==false and returns Failed
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var taken = (ITakenCell)board.Cells[target];
         taken.IsFlagged.Should().BeFalse();
@@ -109,14 +121,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void SetFlag_ThenRemoveFlag_Roundtrip() {
+    public void SetFlag_ThenRemoveFlag_Roundtrip()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var taken = (ITakenCell)board.Cells[target];
 
@@ -128,14 +142,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void SetFlag_OnMultipleCells_IndependentState() {
+    public void SetFlag_OnMultipleCells_IndependentState()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var taken1 = (ITakenCell)board.Cells[new Position(1, 1)];
         var taken2 = (ITakenCell)board.Cells[new Position(2, 2)];
@@ -150,15 +166,17 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void SetFlag_FiresBoardEvent() {
+    public void SetFlag_FiresBoardEvent()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
-        var lifetime = new Common.Reactive.Lifetime();
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
+        var lifetime = new Lifetime();
         var flagEvents = new List<(ICell Cell, bool IsFlagged)>();
 
         board.Events.Flag.Advise(lifetime, (cell, flagged) => flagEvents.Add((cell, flagged)));
@@ -171,15 +189,17 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void RemoveFlag_FiresBoardEvent() {
+    public void RemoveFlag_FiresBoardEvent()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t g t t
-            t t t t t
-            t t t t t
-            """);
-        var lifetime = new Common.Reactive.Lifetime();
+                                           t t t t t
+                                           t t t t t
+                                           t t g t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
+        var lifetime = new Lifetime();
         var flagEvents = new List<(ICell Cell, bool IsFlagged)>();
 
         board.Events.Flag.Advise(lifetime, (cell, flagged) => flagEvents.Add((cell, flagged)));
@@ -192,14 +212,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void Flag_DoesNotAffectMineState() {
+    public void Flag_DoesNotAffectMineState()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t m t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t m t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -213,14 +235,16 @@ public class FlagActionTests {
     }
 
     [Fact]
-    public void Flag_DoesNotAffectCellStatus() {
+    public void Flag_DoesNotAffectCellStatus()
+    {
         var (board, target) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t x t t
-            t t t t t
-            t t t t t
-            """);
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """
+        );
 
         var taken = (ITakenCell)board.Cells[target];
         taken.Status.Should().Be(CellStatus.Taken);

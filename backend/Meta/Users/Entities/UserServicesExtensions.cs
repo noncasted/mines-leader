@@ -10,7 +10,7 @@ public static class UserServicesExtensions
     {
         builder.Add<UserFactory>()
             .As<IUserFactory>();
-        
+
         builder.AddStateCollection<UserCollection, Guid, UserState>()
             .As<IUserCollection>();
 

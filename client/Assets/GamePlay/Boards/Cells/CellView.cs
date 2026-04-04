@@ -69,7 +69,7 @@ namespace GamePlay.Boards
             if (_state.Value is not CellFreeState)
             {
                 Effects.Clear();
-                
+
                 var free = new CellFreeState(_boardPosition, _freeView);
                 _state.Set(free);
                 free.Construct(_state.ValueLifetime);
@@ -84,12 +84,12 @@ namespace GamePlay.Boards
                 throw new Exception("Cell is not taken, cannot explode.");
 
             state.View.OnExplosion();
-            
+
             EnsureFree();
 
             return _animator.PlayExplosion(this.GetObjectLifetime(), type);
         }
-        
+
         public override string ToString()
         {
             return name;

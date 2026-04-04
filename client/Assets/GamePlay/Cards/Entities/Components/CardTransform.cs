@@ -9,18 +9,18 @@ namespace GamePlay.Cards
         Vector2 Scale { get; }
         float HandForce { get; }
         float Rotation { get; }
-        
+
         void SetPosition(Vector2 position);
         void SetScale(Vector2 scale);
         void SetRotation(float angle);
         void SetHandForce(float force);
     }
-    
+
     [DisallowMultipleComponent]
     public class CardTransform : MonoBehaviour, ICardTransform, IEntityComponent
     {
         private float _handForce;
-        
+
         public Vector2 Position => transform.position;
         public Vector2 Scale => transform.localScale;
 
@@ -32,7 +32,7 @@ namespace GamePlay.Cards
             builder.RegisterComponent(this)
                 .As<ICardTransform>();
         }
-        
+
         public void SetPosition(Vector2 position)
         {
             transform.position = position;

@@ -48,7 +48,7 @@ public class OpponentBombStrategy : IBotCardStrategy
             return false;
 
         var bot = _context.Bot;
-        
+
         var payload = new CardUsePayload.OpponentBomb
         {
             Position = position,
@@ -56,28 +56,28 @@ public class OpponentBombStrategy : IBotCardStrategy
         };
 
         return _commandUtils.UseCard(bot, cardId, payload);
-        
+
         Position GetPosition()
         {
             var board = _context.Bot.Board;
-        
+
             foreach (var (checkPosition, cell) in board.Cells)
             {
                 if (cell.IsTaken() == true)
                     continue;
-            
+
                 if (cell.AsFree().MinesAround == 0)
                     continue;
 
                 var neighbours = board.NeighbourPositions(checkPosition);
-                
+
                 foreach (var neighbour in neighbours)
                 {
                     if (board.Cells[neighbour].IsTaken() == false)
                         continue;
 
                     var takenCell = board.Cells[neighbour].AsTaken();
-                    
+
                     if (takenCell.IsFlagged == true)
                         continue;
 
@@ -85,7 +85,7 @@ public class OpponentBombStrategy : IBotCardStrategy
                         return checkPosition;
                 }
             }
-            
+
             return new Position(-1, -1);
         }
     }

@@ -25,11 +25,13 @@ public class SonarStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
         var unflaggedMines = bot.Board.Cells.Values
-            .Count(c => {
-                if (c.Status != CellStatus.Taken) return false;
-                var taken = c.AsTaken();
-                return taken.HasMine && !taken.IsFlagged;
-            });
+            .Count(c =>
+                {
+                    if (c.Status != CellStatus.Taken) return false;
+                    var taken = c.AsTaken();
+                    return taken.HasMine && !taken.IsFlagged;
+                }
+            );
 
         if (unflaggedMines >= 5)
             return 8f;

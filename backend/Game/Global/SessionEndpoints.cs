@@ -87,7 +87,7 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
                 }
             );
         }
-        
+
         Task<MatchPayloads.Lobby.Response> GetOrCreateLobby(MatchPayloads.Lobby.Request request)
         {
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session request received",

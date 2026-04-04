@@ -85,7 +85,9 @@ namespace Menu.Main
             var completion = new UniTaskCompletionSource<(bool, GameMatchType)>();
 
             _button.ListenClick(_selectionLifetime, () => completion.TrySetResult((false, GameMatchType.Single)));
-            _timeLimited.ListenClick(_selectionLifetime, () => completion.TrySetResult((true, GameMatchType.TimeLimited)));
+            _timeLimited.ListenClick(_selectionLifetime,
+                () => completion.TrySetResult((true, GameMatchType.TimeLimited))
+            );
             _lastManStanding.ListenClick(_selectionLifetime,
                 () => completion.TrySetResult((true, GameMatchType.LastManStanding))
             );

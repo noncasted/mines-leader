@@ -37,13 +37,13 @@ public class Deck : IDeck
         {
             var type = _selected[index];
             cards.Add(type);
-            
+
             index++;
-            
+
             if (index >= _selected.Count)
                 index = 0;
         }
-        
+
         cards.Shuffle();
 
         foreach (var card in cards)

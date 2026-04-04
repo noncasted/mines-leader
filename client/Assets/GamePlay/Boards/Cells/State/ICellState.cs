@@ -10,14 +10,14 @@ namespace GamePlay.Boards
     public interface ICellFreeState : ICellState
     {
         IViewableProperty<int> MinesAround { get; }
-        
+
         void OnMinesUpdated(int minesAround);
     }
 
     public interface ICellTakenState : ICellState
     {
         IViewableProperty<bool> IsFlagged { get; }
-        
+
         void Flag();
         void UnFlag();
         void Open();

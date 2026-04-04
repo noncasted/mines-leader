@@ -8,7 +8,7 @@ namespace Global.Backend
         string Body { get; }
         IReadOnlyList<IRequestHeader> Headers { get; }
     }
-    
+
     public class PostRequest : IPostRequest
     {
         public PostRequest(string url, string body, IReadOnlyList<IRequestHeader> headers)

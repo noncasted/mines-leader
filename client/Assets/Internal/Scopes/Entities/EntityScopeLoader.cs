@@ -23,7 +23,7 @@ namespace Internal
             var builder = CreateBuilder(parentLifetime, view);
 
             await construct.Invoke(builder);
-            
+
             view.CreateViews(builder);
 
             BuildContainer(builder, parent);

@@ -38,8 +38,8 @@ public class TrebuchetAimerStrategy : IBotCardStrategy
         var stashCards = bot.Stash.Collect();
 
         var hasTrebuchet = handCards.Any(c => c.Type == CardType.Trebuchet || c.Type == CardType.Trebuchet_Max) ||
-                          stashCards.Contains(CardType.Trebuchet) ||
-                          stashCards.Contains(CardType.Trebuchet_Max);
+                           stashCards.Contains(CardType.Trebuchet) ||
+                           stashCards.Contains(CardType.Trebuchet_Max);
 
         if (!hasTrebuchet)
             return 0f;
@@ -61,12 +61,12 @@ public class TrebuchetAimerStrategy : IBotCardStrategy
     public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
-        
+
         var payload = new CardUsePayload.TrebuchetAimer()
         {
             Type = cardType
         };
-        
+
         return _commandUtils.UseCard(bot, cardId, payload);
     }
 }

@@ -11,13 +11,13 @@ namespace GamePlay.Boards
     {
         UniTask Create(PlayerBuildContext context);
     }
-    
+
     [DisallowMultipleComponent]
     public class BoardFactory : MonoBehaviour, IBoardFactory
     {
         [SerializeField] private Board _prefab;
         [SerializeField] private Transform _parent;
-        
+
         public UniTask Create(PlayerBuildContext context)
         {
             var board = Instantiate(_prefab, _parent);

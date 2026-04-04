@@ -9,7 +9,7 @@ namespace Menu.Social
 
         void Add(IMenuPlayer player);
     }
-    
+
     public class MenuPlayersCollection : IMenuPlayersCollection
     {
         private readonly Dictionary<Guid, IMenuPlayer> _entries = new();

@@ -9,7 +9,7 @@ namespace GamePlay.Players
         bool IsLocal { get; }
         CharacterType SelectedCharacter { get; }
     }
-    
+
     public class GamePlayerInfo : IGamePlayerInfo
     {
         public GamePlayerInfo(Guid id, bool isLocal, CharacterType selectedCharacter)

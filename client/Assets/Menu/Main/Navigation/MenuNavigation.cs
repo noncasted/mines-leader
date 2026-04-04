@@ -9,9 +9,8 @@ namespace Menu.Main
 {
     public interface IMenuNavigation
     {
-        
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuNavigation : MonoBehaviour, IMenuNavigation, ISceneService, IScopeSetup
     {

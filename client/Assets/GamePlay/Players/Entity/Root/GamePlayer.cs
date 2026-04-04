@@ -15,10 +15,10 @@ namespace GamePlay.Players
         IDeck Deck { get; }
         IStash Stash { get; }
         IPlayerMoves Moves { get; }
-        IHand Hand { get; } 
+        IHand Hand { get; }
         IBoard Board { get; }
     }
-    
+
     public class GamePlayer : IGamePlayer
     {
         public GamePlayer(
@@ -33,7 +33,7 @@ namespace GamePlay.Players
             IStash stash)
         {
             Mana = mana;
-            
+
             Scope = scope;
             Hand = hand;
             Board = board;

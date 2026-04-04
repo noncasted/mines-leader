@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Tools;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tools
 {
@@ -128,7 +128,7 @@ namespace Tools
             {
                 // Clean up leaked GameObject if Build() was never called
                 if (builder.GameObject != null)
-                    UnityEngine.Object.DestroyImmediate(builder.GameObject);
+                    Object.DestroyImmediate(builder.GameObject);
                 throw;
             }
         }

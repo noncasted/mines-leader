@@ -3,13 +3,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Execution;
 
-public interface ITaskQueue {
+public interface ITaskQueue
+{
     void Enqueue(IPriorityTask task);
     IReadOnlyList<IPriorityTask> Collect();
 }
 
-public class TaskQueue : ITaskQueue {
-    public TaskQueue(ILogger<TaskQueue> logger) {
+public class TaskQueue : ITaskQueue
+{
+    public TaskQueue(ILogger<TaskQueue> logger)
+    {
         _logger = logger;
     }
 
@@ -17,30 +20,40 @@ public class TaskQueue : ITaskQueue {
     private readonly ILogger<TaskQueue> _logger;
     private readonly Dictionary<string, Entry> _queue = new();
 
-    public void Enqueue(IPriorityTask task) {
-        try {
+    public void Enqueue(IPriorityTask task)
+    {
+        try
+        {
             _lock.Wait();
 
-            try {
-                _queue.TryAdd(task.Id, new Entry {
-                    Task = task,
-                    ScheduleDate = DateTime.UtcNow + task.Delay
-                });
+            try
+            {
+                _queue.TryAdd(task.Id, new Entry
+                    {
+                        Task = task,
+                        ScheduleDate = DateTime.UtcNow + task.Delay
+                    }
+                );
             }
-            finally {
+            finally
+            {
                 _lock.Release();
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             _logger.LogError(e, "[TaskQueue] Failed to enqueue task {TaskId}", task.Id);
         }
     }
 
-    public IReadOnlyList<IPriorityTask> Collect() {
-        try {
+    public IReadOnlyList<IPriorityTask> Collect()
+    {
+        try
+        {
             _lock.Wait();
 
-            try {
+            try
+            {
                 var tasks = new List<IPriorityTask>(_queue.Count);
 
                 var sb = new StringBuilder();
@@ -48,8 +61,10 @@ public class TaskQueue : ITaskQueue {
 
                 var now = DateTime.UtcNow;
 
-                foreach (var (_, entry) in _queue) {
-                    if (now < entry.ScheduleDate) {
+                foreach (var (_, entry) in _queue)
+                {
+                    if (now < entry.ScheduleDate)
+                    {
                         sb.AppendLine(
                             $"    Skipping task {entry.Task.Id}, wait for {(entry.ScheduleDate - now).TotalSeconds:F1}s"
                         );
@@ -68,17 +83,20 @@ public class TaskQueue : ITaskQueue {
 
                 return tasks;
             }
-            finally {
+            finally
+            {
                 _lock.Release();
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             _logger.LogError(e, "[TaskQueue] Failed to collect tasks");
             return Array.Empty<IPriorityTask>();
         }
     }
 
-    private class Entry {
+    private class Entry
+    {
         public required IPriorityTask Task { get; init; }
         public required DateTime ScheduleDate { get; init; }
     }

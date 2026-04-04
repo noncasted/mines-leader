@@ -9,7 +9,7 @@ public static class GameContextServiceExtensions
     public static IServiceCollection AddGameContext(this IServiceCollection services)
     {
         services.Add<IGameContext, GameContext>();
-        
+
         services.Add<RoundActionService>()
             .As<IRoundActionService>();
 

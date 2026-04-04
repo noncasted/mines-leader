@@ -34,10 +34,10 @@ public class Service : IService
 
         foreach (var (_, property) in _properties)
             property.Construct(propertyUpdateSender, Id);
-        
+
         OnStarted(lifetime);
     }
-    
+
     public void BindProperty(IObjectProperty property)
     {
         if (_properties.ContainsKey(property.Id))

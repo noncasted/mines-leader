@@ -32,8 +32,10 @@ namespace Global.Systems
     }
 
     [PrefabDefinition]
-    public static class GlobalUpdaterPrefab {
-        public static void Define(PrefabBuilder builder) {
+    public static class GlobalUpdaterPrefab
+    {
+        public static void Define(PrefabBuilder builder)
+        {
             builder
                 .WithName("GlobalUpdater")
                 .WithComponent<Updater>();

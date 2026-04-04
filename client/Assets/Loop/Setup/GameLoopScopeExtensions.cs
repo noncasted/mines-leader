@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
-using Tools;
 using Tools.SceneBuilder;
 
 namespace Loop
@@ -13,8 +12,9 @@ namespace Loop
                 parent,
                 Scenes.GameLoopServices.Value,
                 Construct,
-                false);
-            
+                false
+            );
+
             var scope = await loader.Load(options);
             await scope.Initialize();
 
@@ -34,7 +34,7 @@ namespace Loop
 
                 builder.Register<GamePlayLoader>()
                     .As<IGamePlayLoader>();
-                
+
                 return UniTask.CompletedTask;
             }
         }

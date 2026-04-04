@@ -96,7 +96,7 @@ public class ZipZap : ICard
                 Targets = targets.Select(t => t.Position).ToList()
             }
         };
-        
+
         ITakenCell? SelectTarget(Position center)
         {
             var searchPositions = searchShape.SelectTaken(_target, center);

@@ -9,8 +9,10 @@ namespace Tests.State;
 /// Tests ViewableProperty subscription behavior through AddressableState:
 /// View vs Advise semantics, lifetime-based cleanup, subscriber notifications.
 /// </summary>
-public class AddressableStateTests {
-    public class TestConfig {
+public class AddressableStateTests
+{
+    public class TestConfig
+    {
         public string Label { get; set; } = string.Empty;
         public int MaxRetries { get; set; }
 
@@ -18,7 +20,8 @@ public class AddressableStateTests {
     }
 
     [Fact]
-    public async Task TestAddressableState_SetValue_NotifiesSubscribers() {
+    public async Task TestAddressableState_SetValue_NotifiesSubscribers()
+    {
         var state = new TestAddressableState<TestConfig>();
 
         var lifetime = new Lifetime();
@@ -41,7 +44,8 @@ public class AddressableStateTests {
     }
 
     [Fact]
-    public async Task TestAddressableState_SubscriberTerminated_NoMoreNotifications() {
+    public async Task TestAddressableState_SubscriberTerminated_NoMoreNotifications()
+    {
         var state = new TestAddressableState<TestConfig>();
 
         var lifetime = new Lifetime();
@@ -62,7 +66,8 @@ public class AddressableStateTests {
     }
 
     [Fact]
-    public async Task TestAddressableState_ViewVsAdvise_ViewFiresImmediately() {
+    public async Task TestAddressableState_ViewVsAdvise_ViewFiresImmediately()
+    {
         var state = new TestAddressableState<TestConfig>(new TestConfig { Label = "initial" });
 
         var lifetime = new Lifetime();

@@ -3,7 +3,6 @@ using FluentAssertions;
 using Game.GamePlay;
 using Game.Session;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -15,7 +14,8 @@ namespace Tests.Game;
 /// - EnsureGenerated (lazy board initialization)
 /// - SkipTurn (round lifetime termination)
 /// </summary>
-public class BoardCommandTests {
+public class BoardCommandTests
+{
     // ──────────────────────────────────────────────────────────────────────
     //  Chord Opening (OpenMultipleCells logic)
     //
@@ -28,7 +28,8 @@ public class BoardCommandTests {
     /// at the board level (no GameCommandUtils dependency).
     /// Returns (openedCells, explodedMines) counts.
     /// </summary>
-    private static (int opened, int exploded) ChordOpen(IBoard board, Position position) {
+    private static (int opened, int exploded) ChordOpen(IBoard board, Position position)
+    {
         var targetCell = board.Cells[position];
 
         if (targetCell.Status != CellStatus.Free)
@@ -40,21 +41,23 @@ public class BoardCommandTests {
         var takenNeighbours = new List<ITakenCell>();
         var flaggedNeighbours = new List<ITakenCell>();
 
-        board.IterateNeighbours(position, neighbour => {
-            var neighbourCell = board.Cells[neighbour];
+        board.IterateNeighbours(position, neighbour =>
+            {
+                var neighbourCell = board.Cells[neighbour];
 
-            if (neighbourCell.Status != CellStatus.Taken)
-                return;
+                if (neighbourCell.Status != CellStatus.Taken)
+                    return;
 
-            var takenNeighbourCell = neighbourCell.AsTaken();
-            takenNeighbours.Add(takenNeighbourCell);
+                var takenNeighbourCell = neighbourCell.AsTaken();
+                takenNeighbours.Add(takenNeighbourCell);
 
-            if (takenNeighbourCell.IsFlagged == false)
-                return;
+                if (takenNeighbourCell.IsFlagged == false)
+                    return;
 
-            flaggedNeighbours.Add(takenNeighbourCell);
-            placedFlags++;
-        });
+                flaggedNeighbours.Add(takenNeighbourCell);
+                placedFlags++;
+            }
+        );
 
         if (around != placedFlags)
             return (0, 0); // no-op: flag count mismatch
@@ -62,11 +65,13 @@ public class BoardCommandTests {
         var openedCells = new List<ITakenCell>();
         var exploded = 0;
 
-        foreach (var neighbour in takenNeighbours) {
+        foreach (var neighbour in takenNeighbours)
+        {
             if (flaggedNeighbours.Contains(neighbour) == true)
                 continue;
 
-            if (neighbour.HasMine == true) {
+            if (neighbour.HasMine == true)
+            {
                 neighbour.Explode();
                 exploded++;
             }
@@ -85,16 +90,18 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void Chord_CorrectFlagCount_OpensUnflaggedNeighbors() {
+    public void Chord_CorrectFlagCount_OpensUnflaggedNeighbors()
+    {
         // Layout: center cell (2,2) is Free with 1 mine around at (1,1).
         // Flag placed on (1,1). Chord should open all other Taken neighbors.
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t f t t t
-            t t _ t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t f t t t
+                                           t t _ t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
 
@@ -109,14 +116,19 @@ public class BoardCommandTests {
         exploded.Should().Be(0, "no unflagged mines");
 
         // All Taken neighbors of (2,2) except the flagged (1,1) should now be Free
-        var unflaggedNeighbors = new[] {
+        var unflaggedNeighbors = new[]
+        {
             new Position(1, 2), new Position(2, 1), new Position(3, 1),
             new Position(3, 2), new Position(1, 3), new Position(2, 3), new Position(3, 3)
         };
 
-        foreach (var pos in unflaggedNeighbors) {
-            board.Cells[pos].Status.Should().Be(CellStatus.Free,
-                $"cell at ({pos.x},{pos.y}) should be opened by chord");
+        foreach (var pos in unflaggedNeighbors)
+        {
+            board.Cells[pos]
+                .Status.Should()
+                .Be(CellStatus.Free,
+                    $"cell at ({pos.x},{pos.y}) should be opened by chord"
+                );
         }
 
         // Flagged mine stays Taken
@@ -124,16 +136,18 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void Chord_IncorrectFlagCount_NoAutoOpen() {
+    public void Chord_IncorrectFlagCount_NoAutoOpen()
+    {
         // Center (2,2) is Free with 2 mines around, but only 1 flag placed.
         // Chord should do nothing.
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t f m t t
-            t t _ t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t f m t t
+                                           t t _ t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
 
@@ -152,18 +166,20 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void Chord_UnflaggedNeighborHasMine_Explodes() {
+    public void Chord_UnflaggedNeighborHasMine_Explodes()
+    {
         // Center (2,2) is Free with MinesAround=2. Two mines: (1,1) and (3,1).
         // Flag (1,1) correctly, but ALSO flag a non-mine (3,3) — total flags = 2.
         // This makes placedFlags == MinesAround, so chord opens unflagged neighbors.
         // (3,1) has a mine and is unflagged — it explodes.
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t f t m t
-            t t _ t t
-            t t t g t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t f t m t
+                                           t t _ t t
+                                           t t t g t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
 
@@ -176,20 +192,25 @@ public class BoardCommandTests {
         exploded.Should().Be(1, "unflagged mine at (3,1) should explode");
 
         // (3,1) was a mine but got opened (exploded + ToFree)
-        board.Cells[new Position(3, 1)].Status.Should().Be(CellStatus.Free,
-            "exploded mine converts to Free after chord");
+        board.Cells[new Position(3, 1)]
+            .Status.Should()
+            .Be(CellStatus.Free,
+                "exploded mine converts to Free after chord"
+            );
     }
 
     [Fact]
-    public void Chord_SourceCellIsTaken_Fails() {
+    public void Chord_SourceCellIsTaken_Fails()
+    {
         // Target cell is Taken — chord returns failure
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t m t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t m t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
         board.Cells[target].Status.Should().Be(CellStatus.Taken);
@@ -200,16 +221,18 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void Chord_ZeroMinesAround_ZeroFlags_OpensAllNeighbors() {
+    public void Chord_ZeroMinesAround_ZeroFlags_OpensAllNeighbors()
+    {
         // Center (2,2) is Free with MinesAround=0, no flags needed.
         // Chord with 0==0 should open all Taken neighbors.
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t _ t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t _ t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
         var center = board.Cells[target].AsFree();
@@ -222,18 +245,20 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void Chord_AllNeighborsFlagged_NoOpens() {
+    public void Chord_AllNeighborsFlagged_NoOpens()
+    {
         // Center (2,2) is Free with MinesAround=1, mine at (1,1).
         // All non-mine neighbors are already Free. Only (1,1) is Taken+flagged.
         // Chord: flaggedNeighbours contains (1,1), takenNeighbours contains (1,1).
         // No unflagged Taken neighbors => opened = 0.
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t f _ _ t
-            t _ _ _ t
-            t _ _ _ t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t f _ _ t
+                                           t _ _ _ t
+                                           t _ _ _ t
+                                           t t t t t
+                                           """
+        );
 
         var target = new Position(2, 2);
         board.Cells[target].Status.Should().Be(CellStatus.Free);
@@ -252,15 +277,17 @@ public class BoardCommandTests {
     // ──────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public void EnsureGenerated_NonEmptyBoard_NoOp() {
+    public void EnsureGenerated_NonEmptyBoard_NoOp()
+    {
         // Board built via BoardParser already has cells
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t m t t t
-            t t t t t
-            t t t m t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t m t t t
+                                           t t t t t
+                                           t t t m t
+                                           t t t t t
+                                           """
+        );
 
         var cellCountBefore = board.Cells.Count;
         cellCountBefore.Should().Be(25);
@@ -272,7 +299,8 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void EnsureGenerated_EmptyBoard_GeneratesAndReveals() {
+    public void EnsureGenerated_EmptyBoard_GeneratesAndReveals()
+    {
         // Create an empty board (no cells yet) via Board constructor directly
         var options = Options.Create(new BoardOptions { Size = 8, Mines = 10 });
         var state = new ValueProperty<BoardState>(0).ForTest();
@@ -291,8 +319,12 @@ public class BoardCommandTests {
         board.Cells.Count.Should().Be(64, "8x8 board generated");
 
         // Start position and its neighbors are mine-free (Generate guarantees this)
-        board.Cells[start].AsTaken().HasMine.Should().BeFalse(
-            "start position is always mine-free after generation");
+        board.Cells[start]
+            .AsTaken()
+            .HasMine.Should()
+            .BeFalse(
+                "start position is always mine-free after generation"
+            );
 
         // Mine count should be correct
         var mineCount = board.Cells.Values
@@ -302,7 +334,8 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void EnsureGenerated_CalledTwice_SecondCallIsNoOp() {
+    public void EnsureGenerated_CalledTwice_SecondCallIsNoOp()
+    {
         var options = Options.Create(new BoardOptions { Size = 6, Mines = 5 });
         var state = new ValueProperty<BoardState>(0).ForTest();
         var board = new Board(state, Guid.NewGuid(), options);
@@ -323,9 +356,13 @@ public class BoardCommandTests {
         board.EnsureGenerated(new Position(0, 0));
 
         // Board state unchanged
-        foreach (var (pos, status) in cellsBefore) {
-            board.Cells[pos].Status.Should().Be(status,
-                $"cell at ({pos.x},{pos.y}) should not change on second EnsureGenerated");
+        foreach (var (pos, status) in cellsBefore)
+        {
+            board.Cells[pos]
+                .Status.Should()
+                .Be(status,
+                    $"cell at ({pos.x},{pos.y}) should not change on second EnsureGenerated"
+                );
         }
     }
 
@@ -337,7 +374,8 @@ public class BoardCommandTests {
     // ──────────────────────────────────────────────────────────────────────
 
     [Fact]
-    public void SkipTurn_TerminatesRoundLifetime() {
+    public void SkipTurn_TerminatesRoundLifetime()
+    {
         // SkipTurn calls _roundForcedLifetime.Terminate()
         // Test that a child lifetime terminates when its parent is terminated,
         // which is the mechanism SkipTurn relies on.
@@ -354,7 +392,8 @@ public class BoardCommandTests {
     }
 
     [Fact]
-    public void SkipTurn_ListenCallbackFires_OnTermination() {
+    public void SkipTurn_ListenCallbackFires_OnTermination()
+    {
         // SkipTurn terminates a lifetime — any Listen() callbacks should fire.
         var lifetime = new Lifetime();
         var callbackFired = false;

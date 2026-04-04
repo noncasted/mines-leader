@@ -9,7 +9,7 @@ namespace GamePlay.Cards
     {
         Vector2 PickPoint { get; }
     }
-    
+
     public class Stash : IScopeLoaded, IStash
     {
         public Stash(IStashView view, NetworkProperty<PlayerStashState> state)
@@ -26,9 +26,10 @@ namespace GamePlay.Cards
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
             _state.Advise(lifetime, () =>
-            {
-                _view.UpdateAmount(_state.Value.Count);
-            });
+                {
+                    _view.UpdateAmount(_state.Value.Count);
+                }
+            );
         }
     }
 }

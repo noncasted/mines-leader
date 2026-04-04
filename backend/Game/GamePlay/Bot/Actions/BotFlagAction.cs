@@ -61,7 +61,7 @@ public class BotFlagAction : IBotFlagAction
                 continue;
 
             var neighbourPositions = board.NeighbourPositions(position);
-            
+
             var neighbours = neighbourPositions
                 .Where(p => board.Cells[p].Status == CellStatus.Taken)
                 .Select(p => board.Cells[p].AsTaken())
@@ -74,10 +74,10 @@ public class BotFlagAction : IBotFlagAction
             {
                 if (takenCell.IsFlagged == true)
                     continue;
-                
+
                 if (takenCell.HasMine == false)
                     continue;
-                
+
                 target = takenCell.Position;
                 return true;
             }

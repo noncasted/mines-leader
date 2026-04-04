@@ -3,7 +3,6 @@ using Common.Network;
 using GamePlay.Players;
 using Internal;
 using Shared;
-using UnityEngine;
 
 namespace GamePlay.Loop
 {
@@ -39,7 +38,7 @@ namespace GamePlay.Loop
                 {
                     if (state.CurrentPlayer == Guid.Empty)
                         return;
-                    
+
                     var player = _gameContext.GetPlayer(state.CurrentPlayer);
                     _player.Set(player);
                     _roundTime.Set(state.SecondsLeft[player.Id]);

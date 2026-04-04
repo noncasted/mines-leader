@@ -14,7 +14,7 @@ namespace Internal
         private readonly SceneInstance _instance;
 
         public SceneInstance Instance => _instance;
-        
+
         public UniTask Unload()
         {
             return Addressables.UnloadSceneAsync(_instance).ToUniTask();

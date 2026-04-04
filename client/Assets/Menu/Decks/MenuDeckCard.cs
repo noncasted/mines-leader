@@ -17,23 +17,23 @@ namespace Menu.Decks
         [SerializeField] private CardSelectionHighlight _selectionHighlight;
 
         private readonly ViewableDelegate _changed = new();
-        
+
         private MenuDeckPoolCard _currentCard;
 
         public ICardDefinition CurrentDefinition => _currentCard.CardDefinition;
         public IViewableDelegate Changed => _changed;
         public MenuDeckPoolCard CurrentCard => _currentCard;
-        
+
         public void OnCardDropped(MenuDeckPoolCard droppedCard)
         {
             _currentCard?.ReturnToSpot();
             _currentCard = droppedCard;
             UpdateDisplay(_currentCard.CardDefinition);
             _selectionHighlight.OnDeselected();
-            
+
             _changed.Invoke();
         }
-        
+
         public void OnForceMove(MenuDeckPoolCard droppedCard)
         {
             _currentCard?.ReturnToSpot();
@@ -49,7 +49,7 @@ namespace Menu.Decks
             _description.text = definition.Description;
             _manaCost.text = _currentCard.Config.ManaCost.ToString();
         }
-        
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (eventData.pointerDrag != null && eventData.pointerDrag.GetComponent<MenuDeckPoolCard>() != null)

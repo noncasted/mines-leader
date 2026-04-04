@@ -14,7 +14,7 @@ public class TransactionContext
 
     [Id(2)]
     public ConcurrentDictionary<Guid, ISideEffect> SideEffects { get; } = new();
-    
+
     [Id(20)]
     public string? ExceptionMessage { get; set; }
 }

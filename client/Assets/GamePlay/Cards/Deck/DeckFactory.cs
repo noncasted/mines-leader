@@ -11,7 +11,7 @@ namespace GamePlay.Cards
     {
         UniTask Create(PlayerBuildContext context);
     }
-    
+
     [DisallowMultipleComponent]
     public class DeckFactory : MonoBehaviour, IDeckFactory
     {
@@ -22,14 +22,14 @@ namespace GamePlay.Cards
             var builder = context.Builder;
 
             builder.RegisterProperty<PlayerDeckState>(PlayerStateIds.Deck);
-            
+
             builder.RegisterComponent(_view)
                 .As<IDeckView>();
 
             builder.Register<Deck>()
                 .As<IDeck>()
                 .As<IScopeLoaded>();
-            
+
             return UniTask.CompletedTask;
         }
     }

@@ -30,7 +30,9 @@ namespace Tools
 
             Directory.CreateDirectory(Path.GetDirectoryName(linkXmlFilePath) ??
                                       throw new InvalidOperationException(
-                                          $"No directory in file name {linkXmlFilePath}"));
+                                          $"No directory in file name {linkXmlFilePath}"
+                                      )
+            );
 
             var assembliesToPreserve = Enumerable.Empty<string>()
                 .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
@@ -44,7 +46,9 @@ namespace Tools
                 .Concat("<linker>")
                 .Concat(string.Empty)
                 .Concat(assembliesToPreserve.Select(assemblyName =>
-                    $"    <assembly fullname=\"{assemblyName}\" preserve=\"all\" />"))
+                        $"    <assembly fullname=\"{assemblyName}\" preserve=\"all\" />"
+                    )
+                )
                 .Concat(string.Empty)
                 .Concat("</linker>")
                 .Aggregate(new StringBuilder(), (builder, line) => builder.AppendLine(line));
@@ -70,11 +74,11 @@ namespace Tools
             all.AddRange(asmdefs);
             all.AddRange(dlss);
 
-            return all.Where(t =>
-                t.Contains("Editor") == false &&
-                t.Contains("Test") == false &&
-                t.Contains("Tests") == false &&
-                t.Contains("Demo") == false);
+            return all.Where(t => t.Contains("Editor") == false &&
+                                  t.Contains("Test") == false &&
+                                  t.Contains("Tests") == false &&
+                                  t.Contains("Demo") == false
+            );
         }
     }
 

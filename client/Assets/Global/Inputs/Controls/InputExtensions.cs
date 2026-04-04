@@ -11,15 +11,16 @@ namespace Global.Inputs
             where T : struct
         {
             var property = new ViewableProperty<T>();
-            
+
             action.performed += OnChanged;
             action.canceled += OnChanged;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnChanged;
-                action.canceled -= OnChanged;
-            });
+                {
+                    action.performed -= OnChanged;
+                    action.canceled -= OnChanged;
+                }
+            );
 
             return property;
 
@@ -28,19 +29,20 @@ namespace Global.Inputs
                 property.Set(value.ReadValue<T>());
             }
         }
-        
+
         public static IViewableProperty<bool> ToFlag(this InputAction action, IReadOnlyLifetime lifetime)
         {
             var property = new ViewableProperty<bool>();
-            
+
             action.performed += OnPerformed;
             action.canceled += OnCanceled;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnPerformed;
-                action.canceled -= OnCanceled;
-            });
+                {
+                    action.performed -= OnPerformed;
+                    action.canceled -= OnCanceled;
+                }
+            );
 
             return property;
 
@@ -64,10 +66,11 @@ namespace Global.Inputs
             action.canceled += OnChanged;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnChanged;
-                action.canceled -= OnChanged;
-            });
+                {
+                    action.performed -= OnChanged;
+                    action.canceled -= OnChanged;
+                }
+            );
 
             return;
 
@@ -86,10 +89,11 @@ namespace Global.Inputs
             action.canceled += OnChanged;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnChanged;
-                action.canceled -= OnChanged;
-            });
+                {
+                    action.performed -= OnChanged;
+                    action.canceled -= OnChanged;
+                }
+            );
 
             return;
 
@@ -108,10 +112,11 @@ namespace Global.Inputs
             action.canceled += OnCanceled;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnPerformed;
-                action.canceled -= OnCanceled;
-            });
+                {
+                    action.performed -= OnPerformed;
+                    action.canceled -= OnCanceled;
+                }
+            );
 
             return;
 
@@ -135,10 +140,11 @@ namespace Global.Inputs
             action.canceled += OnCanceled;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= OnPerformed;
-                action.canceled -= OnCanceled;
-            });
+                {
+                    action.performed -= OnPerformed;
+                    action.canceled -= OnCanceled;
+                }
+            );
 
             return;
 
@@ -163,10 +169,11 @@ namespace Global.Inputs
             action.canceled += canceled;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= performed;
-                action.canceled -= canceled;
-            });
+                {
+                    action.performed -= performed;
+                    action.canceled -= canceled;
+                }
+            );
         }
 
         public static void Listen(
@@ -178,10 +185,11 @@ namespace Global.Inputs
             action.canceled += performed;
 
             lifetime.Listen(() =>
-            {
-                action.performed -= performed;
-                action.canceled -= performed;
-            });
+                {
+                    action.performed -= performed;
+                    action.canceled -= performed;
+                }
+            );
         }
 
         public static void ListenPerformed(
@@ -191,7 +199,11 @@ namespace Global.Inputs
         {
             action.performed += performed;
 
-            lifetime.Listen(() => { action.performed -= performed; });
+            lifetime.Listen(() =>
+                {
+                    action.performed -= performed;
+                }
+            );
         }
 
         public static void ListenPerformed(
@@ -201,7 +213,11 @@ namespace Global.Inputs
         {
             action.performed += OnPerformed;
 
-            lifetime.Listen(() => { action.performed -= OnPerformed; });
+            lifetime.Listen(() =>
+                {
+                    action.performed -= OnPerformed;
+                }
+            );
 
             return;
 
@@ -216,10 +232,11 @@ namespace Global.Inputs
             var completion = new UniTaskCompletionSource();
             action.performed += OnPerformed;
             lifetime.Listen(() =>
-            {
-                action.performed += OnPerformed;
-                completion.TrySetCanceled();
-            });
+                {
+                    action.performed += OnPerformed;
+                    completion.TrySetCanceled();
+                }
+            );
 
             return completion.Task;
 

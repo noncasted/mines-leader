@@ -36,7 +36,8 @@ public abstract class BenchmarkNode<TPayload> : ICoordinatorSetupCompleted
         await Messaging.ListenChannel<ClusterTestNodeMessages.Terminate>(
             lifetime,
             new ClusterTestNodeMessages.NodeChannelId(Environment.Tag, Name),
-            OnTerminate);
+            OnTerminate
+        );
     }
 
     private async Task<ClusterTestNodeMessages.StartResponse> OnStartRequest(

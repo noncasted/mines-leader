@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Infrastructure;
 using Infrastructure.State;
 using Tests.Fixtures;
 using Tests.Grains;
@@ -11,9 +10,12 @@ namespace Tests.State;
 /// Tests state version migration: write V0, read V1/V2, verify migration applies.
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
-public class StateMigrationTests(OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture) {
+public class StateMigrationTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task StateMigration_WriteV0ReadV1_MigratesCorrectly() {
+    public async Task StateMigration_WriteV0ReadV1_MigratesCorrectly()
+    {
         var key = Guid.NewGuid().ToString();
         const int writtenValue = 42;
         const string expectedLabel = "migrated-42";
@@ -29,7 +31,8 @@ public class StateMigrationTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task StateMigration_WriteV0ReadV2_MigratesSequentially() {
+    public async Task StateMigration_WriteV0ReadV2_MigratesSequentially()
+    {
         var key = Guid.NewGuid().ToString();
         const int writtenValue = 7;
 
@@ -45,7 +48,8 @@ public class StateMigrationTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public async Task StateMigration_NoData_ReturnsDefaultState() {
+    public async Task StateMigration_NoData_ReturnsDefaultState()
+    {
         var key = Guid.NewGuid().ToString();
 
         var v1Grain = GetGrain<IMigrationGrainV1>(key);
@@ -56,7 +60,8 @@ public class StateMigrationTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public void StateMigration_GetLatestVersion_ReturnsHighestVersion() {
+    public void StateMigration_GetLatestVersion_ReturnsHighestVersion()
+    {
         var migrations = GetSiloService<IStateMigrations>();
 
         var latestV1 = migrations.GetLatestVersion<MigrationTestState_1>();
@@ -67,7 +72,8 @@ public class StateMigrationTests(OrleansTestClusterFixture fixture) : Integratio
     }
 
     [Fact]
-    public void StateMigration_NoMigrations_ReturnsZero() {
+    public void StateMigration_NoMigrations_ReturnsZero()
+    {
         var migrations = GetSiloService<IStateMigrations>();
 
         var latest = migrations.GetLatestVersion<SimpleTestState>();

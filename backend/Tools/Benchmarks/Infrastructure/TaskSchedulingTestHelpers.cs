@@ -3,14 +3,16 @@ using Infrastructure.Execution;
 
 namespace Benchmarks;
 
-public class TestPriorityTask : IPriorityTask {
+public class TestPriorityTask : IPriorityTask
+{
     public TestPriorityTask(
         string id,
         TaskPriority priority,
         TimeSpan delay = default,
         List<string>? log = null,
         int failCount = 0,
-        Func<Task>? execute = null) {
+        Func<Task>? execute = null)
+    {
         Id = id;
         Priority = priority;
         Delay = delay;
@@ -27,10 +29,12 @@ public class TestPriorityTask : IPriorityTask {
     public TaskPriority Priority { get; }
     public TimeSpan Delay { get; }
 
-    public async Task Execute() {
+    public async Task Execute()
+    {
         _log?.Add(Id);
 
-        if (_failCount > 0) {
+        if (_failCount > 0)
+        {
             _failCount--;
             throw new Exception($"TestPriorityTask {Id} intentional failure");
         }
@@ -40,8 +44,10 @@ public class TestPriorityTask : IPriorityTask {
     }
 }
 
-public class TestBalancerConfig : ITaskBalancerConfig {
-    public TestBalancerConfig(TaskBalancerOptions options) {
+public class TestBalancerConfig : ITaskBalancerConfig
+{
+    public TestBalancerConfig(TaskBalancerOptions options)
+    {
         Value = options;
     }
 
@@ -56,6 +62,5 @@ public class TestBalancerConfig : ITaskBalancerConfig {
     public void View(IReadOnlyLifetime lifetime, Action<IReadOnlyLifetime, TaskBalancerOptions> handler) =>
         throw new NotImplementedException();
 
-    public void Dispose() =>
-        throw new NotImplementedException();
+    public void Dispose() => throw new NotImplementedException();
 }

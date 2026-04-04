@@ -1,6 +1,7 @@
 namespace Benchmarks;
 
-public class BenchmarkResult {
+public class BenchmarkResult
+{
     public Guid Id { get; set; } = Guid.NewGuid();
     public string BenchmarkName { get; set; } = string.Empty;
     public string Group { get; set; } = string.Empty;

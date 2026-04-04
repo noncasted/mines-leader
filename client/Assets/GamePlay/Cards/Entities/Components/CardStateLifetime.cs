@@ -6,7 +6,7 @@ namespace GamePlay.Cards
     {
         ILifetime OccupyLifetime();
     }
-    
+
     public class CardStateLifetime : ICardStateLifetime
     {
         public CardStateLifetime(ICard card)

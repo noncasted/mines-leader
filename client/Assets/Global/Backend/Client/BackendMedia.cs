@@ -11,7 +11,7 @@ namespace Global.Backend
         UniTask<AudioClip> GetAudio(IReadOnlyLifetime lifetime, IGetRequest request, AudioType audioType);
         UniTask<Texture2D> GetImage(IReadOnlyLifetime lifetime, IGetRequest request);
     }
-    
+
     public class BackendMedia : IBackendMedia
     {
         public async UniTask<AudioClip> GetAudio(IReadOnlyLifetime lifetime, IGetRequest request, AudioType audioType)

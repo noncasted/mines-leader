@@ -8,7 +8,7 @@ namespace GamePlay.Boards
         Vector2Int Size { get; }
         float CellSize { get; }
     }
-    
+
     [Serializable]
     public class BoardConstructionData : IBoardConstructionData
     {

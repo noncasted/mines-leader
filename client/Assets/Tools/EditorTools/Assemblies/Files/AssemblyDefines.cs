@@ -10,8 +10,7 @@ namespace Tools
             List<string> excludePlatforms,
             List<string> precompiledReferences,
             List<string> defineConstraints,
-            List<VersionDefinesObject> versionDefines
-        )
+            List<VersionDefinesObject> versionDefines)
         {
             IncludePlatforms = includePlatforms;
             ExcludePlatforms = excludePlatforms;
@@ -69,13 +68,12 @@ namespace Tools
 
             foreach (var version in list)
             {
-                var value =
-                    "{" +
-                    $"    \"name\": {version.name}," +
-                    $"    \"expression\": {version.expression}," +
-                    $"    \"define\": {version.define}" +
-                    "}";
-                
+                var value = "{" +
+                            $"    \"name\": {version.name}," +
+                            $"    \"expression\": {version.expression}," +
+                            $"    \"define\": {version.define}" +
+                            "}";
+
                 values.Add(value);
             }
 

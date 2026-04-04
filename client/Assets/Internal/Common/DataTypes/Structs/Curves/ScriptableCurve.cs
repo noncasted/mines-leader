@@ -12,10 +12,10 @@ namespace Internal
 
         public float Time => _time;
         public AnimationCurve Animation => _curve;
-        
+
         public CurveInstance CreateInstance()
         {
-            return new CurveInstance(this);    
+            return new CurveInstance(this);
         }
     }
 }

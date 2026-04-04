@@ -13,7 +13,7 @@ namespace Global.Backend
         UniTask<T> Post<T>(IReadOnlyLifetime lifetime, IPostRequest request);
         UniTask Post(IReadOnlyLifetime lifetime, IPostRequest request);
     }
-    
+
     public class BackendPost : IBackendPost
     {
         public async UniTask<T> Post<T>(IReadOnlyLifetime lifetime, IPostRequest request)
@@ -62,7 +62,7 @@ namespace Global.Backend
                 throw new Exception("POST request failed");
         }
     }
-    
+
     public static class BackendPostExtensions
     {
         public static UniTask<TResponse> PostJson<TResponse, TRequest>(

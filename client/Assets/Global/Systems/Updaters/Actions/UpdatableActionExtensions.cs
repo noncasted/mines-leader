@@ -20,7 +20,7 @@ namespace Global.Systems
         public static UniTask RunUpdateAction(
             this IUpdater updater,
             IReadOnlyLifetime lifetime,
-            Func<bool> predicate, 
+            Func<bool> predicate,
             Action<float> callback)
         {
             var action = new UpdatableAction(lifetime, updater, callback, predicate);
@@ -35,7 +35,7 @@ namespace Global.Systems
             var action = new UpdatableAction(lifetime, updater, callback, () => true);
             return action.Process();
         }
-        
+
         public static UniTask RunUpdateAction(
             this IUpdater updater,
             IReadOnlyLifetime lifetime,
@@ -44,10 +44,9 @@ namespace Global.Systems
         {
             var startTime = Time.time;
             var endTime = startTime + time;
-            
+
             var action = new UpdatableAction(lifetime, updater, callback, () => Time.time < endTime);
             return action.Process();
         }
-
     }
 }

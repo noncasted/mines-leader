@@ -7,7 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Cluster.Discovery;
 
-public interface IServiceDiscovery {
+public interface IServiceDiscovery
+{
     IServiceOverview Self { get; }
     IReadOnlyDictionary<Guid, IServiceOverview> Entries { get; }
 
@@ -15,11 +16,13 @@ public interface IServiceDiscovery {
     Task Push();
 }
 
-public class ServiceDiscovery : IServiceDiscovery {
+public class ServiceDiscovery : IServiceDiscovery
+{
     public ServiceDiscovery(
         IMessaging messaging,
         IServiceEnvironment environment,
-        ILogger<ServiceDiscovery> logger) {
+        ILogger<ServiceDiscovery> logger)
+    {
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
@@ -38,77 +41,107 @@ public class ServiceDiscovery : IServiceDiscovery {
     public IServiceOverview Self => _self;
     public IReadOnlyDictionary<Guid, IServiceOverview> Entries => _entries;
 
-    public async Task Start(IReadOnlyLifetime lifetime) {
-        try {
+    public async Task Start(IReadOnlyLifetime lifetime)
+    {
+        try
+        {
             UpdateLoop(lifetime).NoAwait();
             await _messaging.ListenChannel<IServiceOverview>(lifetime, _channelId, Update);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             _logger.LogError(e, "[ServiceDiscovery] Start failed");
         }
     }
 
-    public async Task Push() {
-        try {
+    public async Task Push()
+    {
+        try
+        {
             _self = CreateOverview();
             await _messaging.PublishChannel(_channelId, _self);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             _logger.LogError(e, "[ServiceDiscovery] Push failed");
         }
     }
 
-    private async Task UpdateLoop(IReadOnlyLifetime lifetime) {
-        while (lifetime.IsTerminated == false) {
-            try {
+    private async Task UpdateLoop(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
+            try
+            {
                 await Push();
                 await Task.Delay(TimeSpan.FromSeconds(10));
-            } catch (OperationCanceledException) {
+            }
+            catch (OperationCanceledException)
+            {
                 break;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 _logger.LogError(e, "[ServiceDiscovery] UpdateLoop iteration failed");
                 await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
     }
 
-    private void Update(IServiceOverview overview) {
-        try {
+    private void Update(IServiceOverview overview)
+    {
+        try
+        {
             _entries[overview.Id] = overview;
 
-            foreach (var (id, service) in _entries) {
-                if (DateTime.UtcNow - service.UpdateTime > TimeSpan.FromSeconds(30)) {
+            foreach (var (id, service) in _entries)
+            {
+                if (DateTime.UtcNow - service.UpdateTime > TimeSpan.FromSeconds(30))
+                {
                     if (_entries.TryRemove(id, out _))
-                        _logger.LogInformation("[ServiceDiscovery] Removed stale entry {Id} (tag={Tag})", id, service.Tag);
+                        _logger.LogInformation("[ServiceDiscovery] Removed stale entry {Id} (tag={Tag})", id,
+                            service.Tag
+                        );
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             _logger.LogError(e, "[ServiceDiscovery] Update failed");
         }
     }
 
-    private IServiceOverview CreateOverview() {
-        return _environment.Tag switch {
-            ServiceTag.Game => new GameServerOverview {
+    private IServiceOverview CreateOverview()
+    {
+        return _environment.Tag switch
+        {
+            ServiceTag.Game => new GameServerOverview
+            {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Game,
                 UpdateTime = DateTime.UtcNow,
                 Url = GetGameServerUrl(),
             },
-            ServiceTag.Meta => new ServiceOverview {
+            ServiceTag.Meta => new ServiceOverview
+            {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Meta,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Silo => new ServiceOverview {
+            ServiceTag.Silo => new ServiceOverview
+            {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Silo,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Console => new ServiceOverview {
+            ServiceTag.Console => new ServiceOverview
+            {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Console,
                 UpdateTime = DateTime.UtcNow,
             },
-            ServiceTag.Coordinator => new ServiceOverview {
+            ServiceTag.Coordinator => new ServiceOverview
+            {
                 Id = _environment.ServiceId,
                 Tag = ServiceTag.Coordinator,
                 UpdateTime = DateTime.UtcNow,
@@ -116,10 +149,12 @@ public class ServiceDiscovery : IServiceDiscovery {
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        string GetGameServerUrl() {
+        string GetGameServerUrl()
+        {
             var url = Environment.GetEnvironmentVariable("GAME_SERVER_URL");
 
-            if (string.IsNullOrWhiteSpace(url)) {
+            if (string.IsNullOrWhiteSpace(url))
+            {
                 _logger.LogWarning("[ServiceDiscovery] GAME_SERVER_URL not set, falling back to localhost:5268");
                 return "http://localhost:5268";
             }
@@ -129,15 +164,18 @@ public class ServiceDiscovery : IServiceDiscovery {
     }
 }
 
-public static class ServiceDiscoveryExtensions {
-    public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder) {
+public static class ServiceDiscoveryExtensions
+{
+    public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder)
+    {
         builder.Add<ServiceDiscovery>()
             .As<IServiceDiscovery>();
 
         return builder;
     }
 
-    public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery) {
+    public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery)
+    {
         var servers = serviceDiscovery.Entries.Values
             .Where(t => t.Tag == ServiceTag.Game)
             .OfType<GameServerOverview>()

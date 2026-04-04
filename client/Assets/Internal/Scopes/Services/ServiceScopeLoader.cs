@@ -30,9 +30,9 @@ namespace Internal
             var containerObject = new GameObject("ScopeLifetime");
             var container = containerObject.AddComponent<LifetimeScope>();
             builder.Binder.MoveToModules(container);
-            
+
             await options.ConstructCallback.Invoke(builder);
-            
+
             BuildContainer();
 
             var eventLoop = container.Container.Resolve<IEventLoop>();
@@ -42,7 +42,8 @@ namespace Internal
                 container,
                 builder.ScopeLifetime,
                 eventLoop,
-                sceneLoader.Results);
+                sceneLoader.Results
+            );
 
             return loadResult;
 
@@ -51,7 +52,7 @@ namespace Internal
                 var binder = new ServiceScopeBinder(servicesScene.Instance);
                 var lifetime = options.Parent.Lifetime.Child();
                 var services = new ServiceCollection();
-                
+
                 return new ScopeBuilder(
                     services,
                     _assets,
@@ -60,9 +61,10 @@ namespace Internal
                     lifetime,
                     options.Parent,
                     new ScopeEventListeners(),
-                    options.IsMock);
+                    options.IsMock
+                );
             }
-            
+
             void BuildContainer()
             {
                 using (LifetimeScope.EnqueueParent(options.Parent.Container))

@@ -23,7 +23,7 @@ namespace GamePlay.Cards
             _configs = configs;
             _definition = definition;
         }
-        
+
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)

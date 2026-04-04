@@ -10,7 +10,7 @@ namespace Meta
         string Description { get; }
         Sprite Image { get; }
     }
-    
+
     public class CardDefinition : ICardDefinition
     {
         public CardDefinition(CardType type, string name, string description, Sprite image)

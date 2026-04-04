@@ -26,7 +26,7 @@ namespace GamePlay.Cards
 
             if (_input.World.y < -3)
                 return false;
-            
+
             return true;
         }
     }

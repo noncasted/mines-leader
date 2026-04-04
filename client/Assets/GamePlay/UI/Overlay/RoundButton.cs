@@ -37,7 +37,7 @@ namespace GamePlay.UI
         {
             _round.Player.Advise(lifetime, Update);
             _round.RoundTime.View(lifetime, time => _timeText.text = ((int)time).ToString());
-            
+
             _button.ListenClick(lifetime, () => _round.TrySkip());
 
             void Update()

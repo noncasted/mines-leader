@@ -22,7 +22,7 @@ namespace Internal
                 callback.Invoke(listener);
         }
     }
-    
+
     public class AsyncEventCollectionBase<T> : IEventCollection<T>, IEventResolver where T : class
     {
         private readonly List<T> _listeners = new();

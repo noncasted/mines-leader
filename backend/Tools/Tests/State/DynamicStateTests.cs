@@ -11,23 +11,27 @@ namespace Tests.State;
 /// Unit tests for DynamicState — ViewableProperty + channel publish on SetValue.
 /// Uses mocked IMessaging to avoid full Orleans cluster.
 /// </summary>
-public class DynamicStateTests {
+public class DynamicStateTests
+{
     [GenerateSerializer]
-    public class TestDynamicValue {
+    public class TestDynamicValue
+    {
         [Id(0)] public string Name { get; set; } = string.Empty;
         [Id(1)] public int Counter { get; set; }
 
         public override string ToString() => $"Name={Name}, Counter={Counter}";
     }
 
-    private static DynamicState<TestDynamicValue> CreateDynamicState(IMessaging? messaging = null) {
+    private static DynamicState<TestDynamicValue> CreateDynamicState(IMessaging? messaging = null)
+    {
         messaging ??= Substitute.For<IMessaging>();
         var logger = Substitute.For<ILogger<DynamicState<TestDynamicValue>>>();
         return new DynamicState<TestDynamicValue>(messaging, logger, new TestDynamicValue());
     }
 
     [Fact]
-    public void DynamicState_InitialValue_IsDefault() {
+    public void DynamicState_InitialValue_IsDefault()
+    {
         var state = CreateDynamicState();
 
         state.Value.Should().NotBeNull();
@@ -36,7 +40,8 @@ public class DynamicStateTests {
     }
 
     [Fact]
-    public async Task DynamicState_SetValue_UpdatesViewableProperty() {
+    public async Task DynamicState_SetValue_UpdatesViewableProperty()
+    {
         var messaging = Substitute.For<IMessaging>();
         var state = CreateDynamicState(messaging);
 
@@ -49,21 +54,24 @@ public class DynamicStateTests {
     }
 
     [Fact]
-    public async Task DynamicState_SetValue_PublishesToRuntimeChannel() {
+    public async Task DynamicState_SetValue_PublishesToRuntimeChannel()
+    {
         var messaging = Substitute.For<IMessaging>();
         var state = CreateDynamicState(messaging);
 
         var newValue = new TestDynamicValue { Name = "published", Counter = 7 };
         await state.SetValue(newValue);
 
-        await messaging.RuntimeChannel.Received(1).Publish(
-            Arg.Is<IRuntimeChannelId>(id => id.ToRaw().Contains("TestDynamicValue")),
-            Arg.Is<TestDynamicValue>(v => v.Name == "published" && v.Counter == 7)
-        );
+        await messaging.RuntimeChannel.Received(1)
+            .Publish(
+                Arg.Is<IRuntimeChannelId>(id => id.ToRaw().Contains("TestDynamicValue")),
+                Arg.Is<TestDynamicValue>(v => v.Name == "published" && v.Counter == 7)
+            );
     }
 
     [Fact]
-    public async Task DynamicState_SetValue_SubscriberReceivesUpdate() {
+    public async Task DynamicState_SetValue_SubscriberReceivesUpdate()
+    {
         var messaging = Substitute.For<IMessaging>();
         var state = CreateDynamicState(messaging);
 
@@ -88,25 +96,29 @@ public class DynamicStateTests {
     }
 
     [Fact]
-    public async Task DynamicState_MultipleSetValues_AllPublished() {
+    public async Task DynamicState_MultipleSetValues_AllPublished()
+    {
         var messaging = Substitute.For<IMessaging>();
         var state = CreateDynamicState(messaging);
 
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++)
+        {
             await state.SetValue(new TestDynamicValue { Name = $"v{i}", Counter = i });
         }
 
         state.Value.Name.Should().Be("v4");
         state.Value.Counter.Should().Be(4);
 
-        await messaging.RuntimeChannel.Received(5).Publish(
-            Arg.Any<IRuntimeChannelId>(),
-            Arg.Any<TestDynamicValue>()
-        );
+        await messaging.RuntimeChannel.Received(5)
+            .Publish(
+                Arg.Any<IRuntimeChannelId>(),
+                Arg.Any<TestDynamicValue>()
+            );
     }
 
     [Fact]
-    public async Task DynamicState_SetValue_PublishFailure_DoesNotThrow() {
+    public async Task DynamicState_SetValue_PublishFailure_DoesNotThrow()
+    {
         var messaging = Substitute.For<IMessaging>();
         messaging.RuntimeChannel.Publish(Arg.Any<IRuntimeChannelId>(), Arg.Any<object>())
             .Returns(Task.FromException(new Exception("Channel down")));

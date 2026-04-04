@@ -17,7 +17,7 @@ namespace Global.Backend
 
             builder.Register<BackendClient>()
                 .As<IBackendClient>();
-            
+
 
             return builder;
         }

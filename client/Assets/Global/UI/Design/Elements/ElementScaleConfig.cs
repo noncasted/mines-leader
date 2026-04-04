@@ -11,7 +11,7 @@ namespace Global.UI
         [SerializeField] private float _hovered;
         [SerializeField] private float _pressed;
         [SerializeField] private Curve _curve;
-        
+
         public float Hovered => _hovered;
         public float Pressed => _pressed;
         public Curve Curve => _curve;

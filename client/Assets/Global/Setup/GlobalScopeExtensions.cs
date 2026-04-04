@@ -8,7 +8,6 @@ using Global.Settings;
 using Global.Systems;
 using Global.UI;
 using Internal;
-using Tools;
 using Tools.SceneBuilder;
 
 namespace Global.Setup
@@ -21,8 +20,9 @@ namespace Global.Setup
                 parent,
                 Scenes.GlobalServices.Value,
                 Construct,
-                false);
-            
+                false
+            );
+
             var scope = await loader.Load(options);
             await scope.Initialize();
 

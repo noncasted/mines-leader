@@ -10,13 +10,13 @@ public static class GameGlobalExtensions
     {
         app.Add<SessionsCollection>()
             .As<ISessionsCollection>();
-        
+
         app.Add<SessionFactory>()
             .As<ISessionFactory>();
-        
+
         app.Add<SessionSearch>()
             .As<ISessionSearch>();
-        
+
         app.Add<SessionEndpoints>()
             .As<ICoordinatorSetupCompleted>();
 

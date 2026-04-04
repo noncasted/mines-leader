@@ -10,8 +10,10 @@ namespace Tests.Fixtures;
 /// Provides per-test lifecycle management, cleanup, and helper methods.
 /// </summary>
 public abstract class IntegrationTestBase<TFixture> : IAsyncLifetime
-    where TFixture : OrleansTestClusterFixture {
-    protected IntegrationTestBase(TFixture fixture) {
+    where TFixture : OrleansTestClusterFixture
+{
+    protected IntegrationTestBase(TFixture fixture)
+    {
         Fixture = fixture;
     }
 
@@ -31,11 +33,13 @@ public abstract class IntegrationTestBase<TFixture> : IAsyncLifetime
 
     // --- Per-test lifecycle ---
 
-    public virtual async ValueTask InitializeAsync() {
+    public virtual async ValueTask InitializeAsync()
+    {
         await Database.ResetDatabaseAsync();
     }
 
-    public virtual ValueTask DisposeAsync() {
+    public virtual ValueTask DisposeAsync()
+    {
         return ValueTask.CompletedTask;
     }
 
@@ -44,7 +48,8 @@ public abstract class IntegrationTestBase<TFixture> : IAsyncLifetime
     /// <summary>
     /// Run an action inside the project's custom transaction system.
     /// </summary>
-    protected async Task RunTransaction(Func<Task> action) {
+    protected async Task RunTransaction(Func<Task> action)
+    {
         var transactions = GetSiloService<ITransactions>();
         var result = await transactions.Run(action);
         if (!result.IsSuccess)
@@ -54,25 +59,29 @@ public abstract class IntegrationTestBase<TFixture> : IAsyncLifetime
     /// <summary>
     /// Get a grain reference from the test cluster.
     /// </summary>
-    protected T GetGrain<T>(Guid key) where T : IGrainWithGuidKey {
+    protected T GetGrain<T>(Guid key) where T : IGrainWithGuidKey
+    {
         return GrainFactory.GetGrain<T>(key);
     }
 
-    protected T GetGrain<T>(string key) where T : IGrainWithStringKey {
+    protected T GetGrain<T>(string key) where T : IGrainWithStringKey
+    {
         return GrainFactory.GetGrain<T>(key);
     }
 
     /// <summary>
     /// Resolve a service from the first silo's DI container.
     /// </summary>
-    protected T GetSiloService<T>() where T : notnull {
+    protected T GetSiloService<T>() where T : notnull
+    {
         return Cluster.Silos[0].ServiceProvider.GetRequiredService<T>();
     }
 
     /// <summary>
     /// Settle and drain all side effects (requires SideEffectTestFixture).
     /// </summary>
-    protected async Task<DrainResult> DrainSideEffectsAsync() {
+    protected async Task<DrainResult> DrainSideEffectsAsync()
+    {
         if (Pipeline == null)
             throw new InvalidOperationException("Pipeline not available. Use SideEffectTestFixture.");
         return await Pipeline.SettleAndDrainAsync();

@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Benchmarks;
 
-public class TaskQueueDeduplicationTest {
+public class TaskQueueDeduplicationTest
+{
     [GenerateSerializer]
     [method: SetsRequiredMembers]
-    public class StartPayload() : IConcurrentIterationTestPayload {
+    public class StartPayload() : IConcurrentIterationTestPayload
+    {
         [Id(0)]
         public int Iterations { get; set; } = 500000;
 
@@ -16,15 +18,18 @@ public class TaskQueueDeduplicationTest {
         public int Concurrent { get; set; } = 1;
     }
 
-    public class Root : BenchmarkRoot<StartPayload> {
-        public Root(ClusterTestUtils utils) : base(utils) {
+    public class Root : BenchmarkRoot<StartPayload>
+    {
+        public Root(ClusterTestUtils utils) : base(utils)
+        {
         }
 
         public override string Group => TestGroups.Infrastructure;
         public override string Title => "task-queue-deduplication";
         public override string MetricName => "ops/s";
 
-        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload) {
+        protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
+        {
             handle.Progress.SetStatus(OperationStatus.InProgress);
 
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
@@ -33,7 +38,8 @@ public class TaskQueueDeduplicationTest {
 
             return;
 
-            async Task Process() {
+            async Task Process()
+            {
                 queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.Low));
                 queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.High));
                 queue.Enqueue(new TestPriorityTask("same-id", TaskPriority.Critical));

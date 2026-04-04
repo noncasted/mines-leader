@@ -10,7 +10,7 @@ namespace Menu.Social
     {
         UniTask Start(IReadOnlyLifetime lifetime);
     }
-    
+
     public class MenuSocialLoop : IMenuSocialLoop
     {
         private readonly IUser _user;

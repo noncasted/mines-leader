@@ -88,7 +88,7 @@ namespace Common.Network
 
             // Pin the byte array and get pointer for JS interop
             var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            
+
             try
             {
                 var ptr = handle.AddrOfPinnedObject();

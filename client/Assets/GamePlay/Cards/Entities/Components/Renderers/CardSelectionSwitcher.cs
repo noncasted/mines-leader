@@ -21,7 +21,7 @@ namespace GamePlay.Cards
         {
             builder.RegisterComponent(this)
                 .As<IScopeSetup>();
-            
+
             _selectionHighlight.SetActive(false);
         }
 

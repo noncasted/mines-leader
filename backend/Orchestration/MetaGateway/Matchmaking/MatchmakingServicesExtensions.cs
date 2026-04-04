@@ -16,7 +16,7 @@ public static class MatchmakingServicesExtensions
         builder.AddUserCommand<MatchmakingCommands.SearchMatch>();
         builder.AddUserCommand<MatchmakingCommands.CancelSearch>();
         builder.AddUserCommand<MatchmakingCommands.Create>();
-        
+
         return builder;
     }
 }

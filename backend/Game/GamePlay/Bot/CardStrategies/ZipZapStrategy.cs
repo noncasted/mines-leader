@@ -62,24 +62,24 @@ public class ZipZapStrategy : IBotCardStrategy
         Position GetPosition()
         {
             var board = _context.Bot.Board;
-        
+
             foreach (var (checkPosition, cell) in board.Cells)
             {
                 if (cell.IsTaken() == true)
                     continue;
-            
+
                 if (cell.AsFree().MinesAround == 0)
                     continue;
 
                 var neighbours = board.NeighbourPositions(checkPosition);
-                
+
                 foreach (var neighbour in neighbours)
                 {
                     if (board.Cells[neighbour].IsTaken() == false)
                         continue;
 
                     var takenCell = board.Cells[neighbour].AsTaken();
-                    
+
                     if (takenCell.IsFlagged == true)
                         continue;
 
@@ -87,7 +87,7 @@ public class ZipZapStrategy : IBotCardStrategy
                         return checkPosition;
                 }
             }
-            
+
             return new Position(-1, -1);
         }
     }

@@ -41,10 +41,11 @@ namespace Menu.Social
             _playersCollection.Entries[_user.Id].ChatView.ShowMessage(message);
 
             Events.Send(new MenuChatMessagePayload()
-            {
-                PlayerId = _user.Id,
-                Message = message
-            });
+                {
+                    PlayerId = _user.Id,
+                    Message = message
+                }
+            );
         }
 
         private void OnMessageReceived(MenuChatMessagePayload payload)

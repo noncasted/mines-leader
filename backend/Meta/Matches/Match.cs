@@ -31,7 +31,7 @@ public class MatchState : IStateValue
     [Id(6)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
 
     public int Version => 0;
-    
+
     public MatchOverview CreateOverview(Guid matchId)
     {
         return new MatchOverview
@@ -68,10 +68,12 @@ public class Match : Grain, IMatch
     public async Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
         var deckResults = await Task.WhenAll(participants.Select(async p =>
-        {
-            var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
-            return (UserId: p, Cards: cards);
-        }));
+                {
+                    var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
+                    return (UserId: p, Cards: cards);
+                }
+            )
+        );
 
         await _state.Write(state =>
             {
@@ -96,12 +98,12 @@ public class Match : Grain, IMatch
         );
 
         var loserId = state.Participants.First(p => p != winnerId);
-        
+
         var winner = _orleans.CreateUserHandle(winnerId);
         var loser = _orleans.CreateUserHandle(loserId);
 
         var overview = state.CreateOverview(this.GetPrimaryKey());
-        
+
         var winRecord = new UserProgressionRecords.Win
         {
             Date = endDate,

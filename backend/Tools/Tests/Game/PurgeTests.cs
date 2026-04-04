@@ -12,8 +12,10 @@ namespace Tests.Game;
 /// Iterates every cell, copies effects list, removes each by ID.
 /// Always succeeds (no-op if no effects present).
 /// </summary>
-public class PurgeTests {
-    private static IPlayer MockOwner(IBoard board) {
+public class PurgeTests
+{
+    private static IPlayer MockOwner(IBoard board)
+    {
         var player = Substitute.For<IPlayer>();
         var user = Substitute.For<IUser>();
         var userId = Guid.NewGuid();
@@ -24,14 +26,16 @@ public class PurgeTests {
     }
 
     [Fact]
-    public void Use_RemovesAllEffects() {
+    public void Use_RemovesAllEffects()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         // Manually add effects to some cells
         var smokeEffect = new SmokeEffect { Id = Guid.NewGuid() };
@@ -48,18 +52,21 @@ public class PurgeTests {
         // All effects should be removed
         board.Cells.Values
             .SelectMany(c => c.Effects)
-            .Should().BeEmpty("Purge should remove all effects from all cells");
+            .Should()
+            .BeEmpty("Purge should remove all effects from all cells");
     }
 
     [Fact]
-    public void Use_NoEffects_Succeeds() {
+    public void Use_NoEffects_Succeeds()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var owner = MockOwner(board);
 
@@ -69,14 +76,16 @@ public class PurgeTests {
     }
 
     [Fact]
-    public void Use_MixedEffectTypes_AllRemoved() {
+    public void Use_MixedEffectTypes_AllRemoved()
+    {
         var (board, _) = BoardParser.Parse("""
-            _ _ t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           _ _ t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         // Add Smoke to Taken cell, Fog to Free cell
         var smokeEffect1 = new SmokeEffect { Id = Guid.NewGuid() };
@@ -94,18 +103,21 @@ public class PurgeTests {
 
         board.Cells.Values
             .SelectMany(c => c.Effects)
-            .Should().BeEmpty();
+            .Should()
+            .BeEmpty();
     }
 
     [Fact]
-    public void Use_MultipleSmokeEffectsOnSameCell_AllRemoved() {
+    public void Use_MultipleSmokeEffectsOnSameCell_AllRemoved()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         // Two separate effects on same cell
         var effect1 = new SmokeEffect { Id = Guid.NewGuid() };
@@ -121,14 +133,16 @@ public class PurgeTests {
     }
 
     [Fact]
-    public void Use_ActionDataHasTargetPlayer() {
+    public void Use_ActionDataHasTargetPlayer()
+    {
         var (board, _) = BoardParser.Parse("""
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            t t t t t
-            """);
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           t t t t t
+                                           """
+        );
 
         var owner = MockOwner(board);
 
@@ -140,28 +154,32 @@ public class PurgeTests {
     }
 
     [Fact]
-    public void Use_AfterSmokeAndFog_BoardClean() {
+    public void Use_AfterSmokeAndFog_BoardClean()
+    {
         // Simulate Smoke and FogOfWar were played, then Purge clears everything
         var (board, _) = BoardParser.Parse("""
-            t t t t t t t
-            t t t t t t t
-            t t t t t t t
-            t t t _ _ t t
-            t t t _ t t t
-            t t t t t t t
-            t t t t t t t
-            """);
+                                           t t t t t t t
+                                           t t t t t t t
+                                           t t t t t t t
+                                           t t t _ _ t t
+                                           t t t _ t t t
+                                           t t t t t t t
+                                           t t t t t t t
+                                           """
+        );
 
         var smokeId = Guid.NewGuid();
         var fogId = Guid.NewGuid();
 
         // Add smoke to multiple cells
-        foreach (var pos in new[] { new Position(1, 1), new Position(2, 1), new Position(1, 2) }) {
+        foreach (var pos in new[] { new Position(1, 1), new Position(2, 1), new Position(1, 2) })
+        {
             board.Cells[pos].AddEffect(new SmokeEffect { Id = smokeId });
         }
 
         // Add fog to free cells
-        foreach (var pos in new[] { new Position(3, 3), new Position(4, 3) }) {
+        foreach (var pos in new[] { new Position(3, 3), new Position(4, 3) })
+        {
             board.Cells[pos].AddEffect(new FogEffect { Id = fogId });
         }
 

@@ -7,7 +7,7 @@ namespace Internal
         Forward,
         Backward,
     }
-    
+
     public enum Direction4
     {
         Up,
@@ -15,7 +15,7 @@ namespace Internal
         Down,
         Left
     }
-    
+
     public enum Direction8
     {
         Up,
@@ -45,7 +45,7 @@ namespace Internal
 
             return Direction4.Down;
         }
-        
+
         public static Direction8 ToDirection8(this Vector2 vector)
         {
             if (vector.x > 0)

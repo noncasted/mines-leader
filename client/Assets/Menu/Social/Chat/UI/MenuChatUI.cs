@@ -9,12 +9,12 @@ namespace Menu.Social
         bool IsSelected { get; }
         IViewableDelegate<string> MessageSend { get; }
     }
-    
+
     [DisallowMultipleComponent]
     public class MenuChatUI : MonoBehaviour, IMenuChatUI, ISceneService
     {
         [SerializeField] private TMP_InputField _input;
-        
+
         private readonly ViewableDelegate<string> _messageSend = new();
 
         private bool _isSelected;
@@ -27,7 +27,7 @@ namespace Menu.Social
             builder.RegisterComponent(this)
                 .As<IMenuChatUI>();
         }
-        
+
         private void OnEnable()
         {
             var lifetime = this.GetObjectLifetime();
@@ -43,7 +43,7 @@ namespace Menu.Social
 
             _input.text = string.Empty;
             _isSelected = false;
-            
+
             _messageSend.Invoke(message);
         }
     }

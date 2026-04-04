@@ -18,7 +18,7 @@ namespace GamePlay.Cards
         [SerializeField] private Color _availableDescriptionColor;
         [SerializeField] private Color _lockedNameColor;
         [SerializeField] private Color _lockedDescriptionColor;
-        
+
         private ICardContext _context;
 
         [Inject]
@@ -26,7 +26,7 @@ namespace GamePlay.Cards
         {
             _context = context;
         }
-        
+
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -36,20 +36,21 @@ namespace GamePlay.Cards
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _context.IsAvailable.View(lifetime, isAvailable =>
-            {
-                if (isAvailable)
                 {
-                    _renderer.SetAllColor(_availableSpriteColor);
-                    _renderer.SetNameTextColor(_availableNameColor);
-                    _renderer.SetDescriptionTextColor(_availableDescriptionColor);
+                    if (isAvailable)
+                    {
+                        _renderer.SetAllColor(_availableSpriteColor);
+                        _renderer.SetNameTextColor(_availableNameColor);
+                        _renderer.SetDescriptionTextColor(_availableDescriptionColor);
+                    }
+                    else
+                    {
+                        _renderer.SetAllColor(_lockedSpriteColor);
+                        _renderer.SetNameTextColor(_lockedNameColor);
+                        _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
+                    }
                 }
-                else
-                {
-                    _renderer.SetAllColor(_lockedSpriteColor);
-                    _renderer.SetNameTextColor(_lockedNameColor);
-                    _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
-                }
-            });
+            );
         }
     }
 }

@@ -10,9 +10,11 @@ namespace Tests.State;
 /// Tests side effect registration, execution, and pipeline drain.
 /// </summary>
 [Collection(nameof(SideEffectIntegrationCollection))]
-public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBase<SideEffectTestFixture>(fixture) {
+public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBase<SideEffectTestFixture>(fixture)
+{
     [Fact]
-    public async Task SideEffect_RegisterAndDrain_ExecutesTargetGrain() {
+    public async Task SideEffect_RegisterAndDrain_ExecutesTargetGrain()
+    {
         var sourceId = Guid.NewGuid();
         var targetId = Guid.NewGuid();
 
@@ -31,11 +33,13 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_MultipleDrain_AllExecuted() {
+    public async Task SideEffect_MultipleDrain_AllExecuted()
+    {
         var targetId = Guid.NewGuid();
 
         // Register 3 side effects targeting the same grain
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++)
+        {
             var sourceGrain = GetGrain<ISideEffectTestGrain>(Guid.NewGuid());
             await sourceGrain.RegisterSideEffect(targetId);
         }
@@ -51,7 +55,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_Transactional_ExecutesInsideTransaction() {
+    public async Task SideEffect_Transactional_ExecutesInsideTransaction()
+    {
         var targetId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
 
@@ -66,7 +71,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_Transactional_MultipleDrain_AllExecuted() {
+    public async Task SideEffect_Transactional_MultipleDrain_AllExecuted()
+    {
         // Use separate targets to verify each transactional effect commits independently
         var targetIds = Enumerable.Range(0, 3).Select(_ => Guid.NewGuid()).ToList();
         var storage = GetSiloService<ISideEffectsStorage>();
@@ -78,15 +84,18 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
         result.AssertDrainedSuccessfully();
 
         // Verify each target was incremented exactly once (atomic per-effect)
-        foreach (var targetId in targetIds) {
+        foreach (var targetId in targetIds)
+        {
             var targetGrain = GetGrain<ITxTestGrain>(targetId);
             var value = await targetGrain.Get();
-            value.Should().Be(1, $"target {targetId} should be incremented exactly once by its transactional side effect");
+            value.Should()
+                .Be(1, $"target {targetId} should be incremented exactly once by its transactional side effect");
         }
     }
 
     [Fact]
-    public async Task SideEffect_FailAndRetry_EventuallySucceeds() {
+    public async Task SideEffect_FailAndRetry_EventuallySucceeds()
+    {
         FailingTestSideEffect.ResetAttempts();
         var targetId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
@@ -127,7 +136,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_MaxRetriesExceeded_Dropped() {
+    public async Task SideEffect_MaxRetriesExceeded_Dropped()
+    {
         var trackingId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
         var config = GetSiloService<ISideEffectsConfig>();
@@ -136,7 +146,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
         await storage.Write(new AlwaysFailingSideEffect { TrackingId = trackingId });
 
         // Pump + force-expire retry for each attempt
-        for (var i = 0; i < maxRetries + 1; i++) {
+        for (var i = 0; i < maxRetries + 1; i++)
+        {
             await Pipeline!.PumpOnceAsync();
             await ForceExpireRetryQueue();
         }
@@ -147,7 +158,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_RequeueStuck_RecoversCrashedEntries() {
+    public async Task SideEffect_RequeueStuck_RecoversCrashedEntries()
+    {
         var targetId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
 
@@ -174,7 +186,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_WorkerExceptionIsolation_OneFailureDoesNotCrashOthers() {
+    public async Task SideEffect_WorkerExceptionIsolation_OneFailureDoesNotCrashOthers()
+    {
         var goodTargetId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
 
@@ -194,7 +207,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_EmptyQueue_DrainReturnsQuiet() {
+    public async Task SideEffect_EmptyQueue_DrainReturnsQuiet()
+    {
         // No side effects registered — drain should return quietly
         var result = await Pipeline!.DrainUntilQuietAsync();
         result.ReachedQuiescence.Should().BeTrue();
@@ -202,7 +216,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_RegisteredViaAddToTransaction_ExecutedAfterCommit() {
+    public async Task SideEffect_RegisteredViaAddToTransaction_ExecutedAfterCommit()
+    {
         var sourceId = Guid.NewGuid();
         var targetId = Guid.NewGuid();
 
@@ -225,7 +240,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_MultipleSideEffectsInSingleTransaction_AllExecuted() {
+    public async Task SideEffect_MultipleSideEffectsInSingleTransaction_AllExecuted()
+    {
         var sourceId = Guid.NewGuid();
         var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
 
@@ -236,7 +252,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
         var result = await DrainSideEffectsAsync();
         result.AssertDrainedSuccessfully();
 
-        foreach (var targetId in targetIds) {
+        foreach (var targetId in targetIds)
+        {
             var targetGrain = GetGrain<ITxTestGrain>(targetId);
             var value = await targetGrain.Get();
             value.Should().Be(1);
@@ -244,7 +261,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_TransactionRollback_SideEffectNotEnqueued() {
+    public async Task SideEffect_TransactionRollback_SideEffectNotEnqueued()
+    {
         var sourceId = Guid.NewGuid();
         var targetId = Guid.NewGuid();
 
@@ -252,10 +270,12 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
 
         // Transaction that registers a side effect then fails
         var transactions = GetSiloService<ITransactions>();
-        var txResult = await transactions.Run(async () => {
-            await grain.IncrementAndRegisterSideEffect(targetId);
-            throw new Exception("Intentional failure after side effect registration");
-        });
+        var txResult = await transactions.Run(async () =>
+            {
+                await grain.IncrementAndRegisterSideEffect(targetId);
+                throw new Exception("Intentional failure after side effect registration");
+            }
+        );
 
         txResult.IsSuccess.Should().BeFalse();
 
@@ -270,7 +290,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_TransactionalFails_RetryAndEventualSuccess() {
+    public async Task SideEffect_TransactionalFails_RetryAndEventualSuccess()
+    {
         FailingTestSideEffect.ResetAttempts();
         var targetId = Guid.NewGuid();
         var storage = GetSiloService<ISideEffectsStorage>();
@@ -294,7 +315,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
-    public async Task SideEffect_BatchFromDifferentSources_AllProcessed() {
+    public async Task SideEffect_BatchFromDifferentSources_AllProcessed()
+    {
         // Use separate targets per effect type to verify each type executes correctly
         var targetNonTx1 = Guid.NewGuid();
         var targetTx = Guid.NewGuid();
@@ -323,7 +345,8 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     /// Force-expire all entries in retry queue by setting retry_after to past.
     /// Then call RequeueReady to move them back to main queue.
     /// </summary>
-    private async Task ForceExpireRetryQueue() {
+    private async Task ForceExpireRetryQueue()
+    {
         await using var connection = await Database.DataSource.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
         command.CommandText = "UPDATE side_effects_retry_queue SET retry_after = now() - interval '1 second'";

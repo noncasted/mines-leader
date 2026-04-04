@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
-using MemoryPack;
 using Shared;
 
 namespace Common.Network
@@ -50,11 +49,12 @@ namespace Common.Network
             foreach (var (id, property) in entity.Properties)
             {
                 properties.Add(new SharedSessionObject.PropertyUpdate()
-                {
-                    ObjectId = entity.Id,
-                    PropertyId = id,
-                    Value = property.Collect()
-                });
+                    {
+                        ObjectId = entity.Id,
+                        PropertyId = id,
+                        Value = property.Collect()
+                    }
+                );
             }
 
             var request = new SharedSessionEntity.CreateRequest()

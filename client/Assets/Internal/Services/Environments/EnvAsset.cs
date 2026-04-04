@@ -12,10 +12,12 @@ namespace Internal
         public void SetId(int id)
         {
             _assetId = id;
-            
+
             OnReload();
         }
-        
-        protected virtual void OnReload() {}
+
+        protected virtual void OnReload()
+        {
+        }
     }
 }

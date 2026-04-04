@@ -10,6 +10,6 @@ namespace Menu.Common
                 .As<IMenuLoop>();
 
             return builder;
-        } 
+        }
     }
 }

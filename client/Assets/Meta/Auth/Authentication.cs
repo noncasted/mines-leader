@@ -36,7 +36,7 @@ namespace Meta
             var pathHash = Application.dataPath.GetHashCode();
             PlayerPrefs.SetString($"userId:{pathHash}", response.Id.ToString());
 #endif
-      
+
             PlayerPrefs.SetString("userId", response.Id.ToString());
 
             return response.Id;

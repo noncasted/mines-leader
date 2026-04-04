@@ -21,7 +21,7 @@ namespace Internal
 
             return registration;
         }
-        
+
         public static IRegistration Register<TInterface, TImplementation>(
             this IBuilder builder,
             VContainer.Lifetime lifetime = VContainer.Lifetime.Singleton)
@@ -71,7 +71,7 @@ namespace Internal
             registration.Registration.As<T>();
             return registration;
         }
-        
+
         public static IRegistration As(this IRegistration registration, Type type)
         {
             registration.Registration.As(type);
@@ -95,7 +95,7 @@ namespace Internal
             registration.ServiceCollection.AddSelfResolvable(registration.Registration);
             return registration;
         }
-        
+
         public static void Inject<T>(this IBuilder builder, T component)
         {
             builder.Services.Inject(component);
@@ -111,14 +111,14 @@ namespace Internal
             var asset = builder.GetAsset<T>();
             return builder.RegisterInstance(asset);
         }
-        
+
         public static IRegistration WithAsset<T>(this IRegistration registration) where T : EnvAsset
         {
             var asset = registration.Builder.GetAsset<T>();
             registration.WithParameter(asset);
             return registration;
         }
-        
+
         public static IRegistration WithScopeLifetime(this IRegistration registration)
         {
             registration.Registration.WithParameter(registration.Builder.Lifetime);
@@ -133,6 +133,5 @@ namespace Internal
             registration.WithParameter(asset.Objects);
             return registration;
         }
-
     }
 }

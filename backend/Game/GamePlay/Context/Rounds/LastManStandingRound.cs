@@ -104,7 +104,7 @@ public class LastManStandingRound : Service, IGameRound
             if (roundsCount >= 2)
             {
                 var flagWinner = _players.GetFlagWinner();
-                
+
                 if (flagWinner != Guid.Empty)
                     return true;
             }

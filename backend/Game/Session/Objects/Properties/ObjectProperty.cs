@@ -20,7 +20,7 @@ public class ObjectProperty : IObjectProperty
 
     private byte[] _rawValue;
     private int _objectId;
-    private int _version;  
+    private int _version;
     private IPropertyUpdateSender? _updateSender;
 
     public int Id { get; }

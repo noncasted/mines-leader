@@ -12,14 +12,14 @@ public static class SharedExtensions
             .AddSharedBackend()
             .AddSharedGame()
             .AddSharedSession();
-        
+
         var entityPayloads = new UnionBuilder<IEntityPayload>();
 
         entityPayloads
             .Add<MenuPlayerPayload>()
             .Add<CardCreatePayload>()
             .Add<PlayerCreatePayload>();
-        
+
         builder.Build();
         entityPayloads.Build();
     */

@@ -46,7 +46,10 @@ namespace GamePlay.Cards
             return builder;
         }
 
-        public static void AddCardAction(this IEntityBuilder builder, CardConfigOptions configs, ICardDefinition definition)
+        public static void AddCardAction(
+            this IEntityBuilder builder,
+            CardConfigOptions configs,
+            ICardDefinition definition)
         {
             var type = definition.Type;
 
@@ -165,7 +168,8 @@ namespace GamePlay.Cards
                 CardType.Smoke_Max => Sync<CardSmokeAction.Snapshot, CardActionSnapshot.Smoke>(),
                 CardType.Medic => Sync<CardMedicAction.Snapshot, CardActionSnapshot.Medic>(),
                 CardType.MinefieldScout => Sync<CardMinefieldScoutAction.Snapshot, CardActionSnapshot.MinefieldScout>(),
-                CardType.MinefieldScout_Max => Sync<CardMinefieldScoutAction.Snapshot, CardActionSnapshot.MinefieldScout>(),
+                CardType.MinefieldScout_Max =>
+                    Sync<CardMinefieldScoutAction.Snapshot, CardActionSnapshot.MinefieldScout>(),
                 CardType.Siphon => Sync<CardSiphonAction.Snapshot, CardActionSnapshot.Siphon>(),
                 CardType.ChainReaction => Sync<CardChainReactionAction.Snapshot, CardActionSnapshot.ChainReaction>(),
                 CardType.Overclock => Sync<CardOverclockAction.Snapshot, CardActionSnapshot.Overclock>(),

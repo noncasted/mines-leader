@@ -11,21 +11,21 @@ namespace Internal
             Action<Action> subscribe,
             Action<Action> unsubscribe)
         {
-            var completion =  new UniTaskCompletionSource();
+            var completion = new UniTaskCompletionSource();
 
             subscribe(Listener);
             lifetime.Listen(() => completion.TrySetCanceled());
-            
+
             await completion.Task;
 
             unsubscribe(Listener);
-            
+
             void Listener()
             {
                 completion.TrySetResult();
             }
         }
-        
+
         public static void Listen<T>(this UnityEvent<T> source, IReadOnlyLifetime lifetime, UnityAction<T> listener)
         {
             source.AddListener(listener);
@@ -38,7 +38,7 @@ namespace Internal
             source.AddListener(Listener);
 
             lifetime.Listen(() => source.RemoveListener(Listener));
-            
+
             void Listener(T value)
             {
                 listener.Invoke();

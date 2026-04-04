@@ -11,7 +11,7 @@ namespace GamePlay.Cards
     {
         UniTask Create(PlayerBuildContext context);
     }
-    
+
     [DisallowMultipleComponent]
     public class HandFactory : MonoBehaviour, IHandFactory
     {
@@ -20,7 +20,7 @@ namespace GamePlay.Cards
         public UniTask Create(PlayerBuildContext context)
         {
             var builder = context.Builder;
-    
+
             builder.RegisterComponent(_view)
                 .As<IHandView>();
 
@@ -28,11 +28,11 @@ namespace GamePlay.Cards
                 .As<IHand>();
 
             builder.RegisterProperty<PlayerHandState>(PlayerStateIds.Hand);
-            
+
             builder.RegisterComponent(_view.Positions)
                 .As<IScopeSetup>()
                 .AsSelfResolvable();
-            
+
             return UniTask.CompletedTask;
         }
     }

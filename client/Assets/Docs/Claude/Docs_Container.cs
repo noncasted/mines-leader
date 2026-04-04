@@ -32,7 +32,8 @@ namespace Docs.Claude
             IScopeLoaded,
             IScopeLoadedAsync,
             IScopeDispose,
-            IScopeDisposeAsync {
+            IScopeDisposeAsync
+        {
             private int _initOrder = 0;
 
             // 1. BaseSetup - earliest sync phase
@@ -129,7 +130,8 @@ namespace Docs.Claude
         // Example: MonoBehaviour service pattern (MANDATORY)
         public class Example_MonoBehaviourService : MonoBehaviour,
             ISceneService,
-            IScopeSetup {
+            IScopeSetup
+        {
             private ILogger<Example_MonoBehaviourService> _logger;
 
             // Called by DI container when scope is created
@@ -228,7 +230,8 @@ namespace Docs.Claude
         // Pattern: Scope lifecycle with async operations
         public class Pattern_AsyncLifecycle :
             IScopeSetupAsync,
-            IScopeDisposeAsync {
+            IScopeDisposeAsync
+        {
             public async UniTask OnSetupAsync(IReadOnlyLifetime lifetime)
             {
                 // Async resource loading
@@ -247,7 +250,8 @@ namespace Docs.Claude
 
         // Pattern: Service dependencies with lifetime
         public class Pattern_DependencyWithLifetime :
-            IScopeSetup {
+            IScopeSetup
+        {
             public void OnSetup(IReadOnlyLifetime lifetime)
             {
                 // Lifetime valid for this scope
@@ -256,7 +260,8 @@ namespace Docs.Claude
         }
 
         // Pattern: Event loop phases
-        public class Pattern_EventLoopPhases {
+        public class Pattern_EventLoopPhases
+        {
             // EventLoop calls these in order:
             // 1. RunConstructSync/RunConstruct (during scope create)
             //    - OnBaseSetup()
@@ -300,7 +305,8 @@ namespace Docs.Claude
         // RULE 2: Scope lifetime valid during scope lifecycle
         public class Rule2_LifetimeValidity :
             IScopeSetup,
-            IScopeDispose {
+            IScopeDispose
+        {
             public void OnSetup(IReadOnlyLifetime lifetime)
             {
                 // ✅ Correct - lifetime valid here
@@ -320,7 +326,8 @@ namespace Docs.Claude
         public class Rule3_InitializationOrder :
             IScopeBaseSetup,
             IScopeSetup,
-            IScopeSetupCompletion {
+            IScopeSetupCompletion
+        {
             private bool _baseSetupDone = false;
             private bool _setupDone = false;
 
@@ -346,7 +353,8 @@ namespace Docs.Claude
         }
 
         // RULE 4: Use IViewInjector for MonoBehaviour injection
-        public class Rule4_ViewInjector {
+        public class Rule4_ViewInjector
+        {
             // ✅ Correct - let container inject dependencies
             public class ViewWithDependencies : MonoBehaviour
             {
@@ -386,7 +394,8 @@ namespace Docs.Claude
         // ==================== EVENT LOOP EXAMPLE ====================
 
         // Example: How EventLoop coordinates initialization
-        public class Example_EventLoopFlow {
+        public class Example_EventLoopFlow
+        {
             // Pseudo-code of EventLoop.RunConstruct:
             //
             // 1. Invoke all IScopeBaseSetup.OnBaseSetup()

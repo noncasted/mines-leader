@@ -76,7 +76,7 @@ public class BotRunner : IBotRunner
                 _cellAction.TryExecute();
                 await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);
             }
-            
+
             for (var i = 0; i < configValue.FlagsPerRound; i++)
             {
                 if (_flagAction.TryExecute() == false)

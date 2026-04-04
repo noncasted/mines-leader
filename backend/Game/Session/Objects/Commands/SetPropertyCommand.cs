@@ -9,7 +9,7 @@ public class SetPropertyCommand : Command<SharedSessionObject.SetProperty>
         _objects = objects;
         _users = users;
     }
-    
+
     private readonly ISessionObjects _objects;
     private readonly ISessionUsers _users;
 
@@ -24,7 +24,7 @@ public class SetPropertyCommand : Command<SharedSessionObject.SetProperty>
             ObjectId = context.ObjectId,
             PropertyId = context.PropertyId,
             Value = context.Value,
-            Version = property.Version 
+            Version = property.Version
         };
 
         _users.SendAllExceptSelf(user, updatedContext);

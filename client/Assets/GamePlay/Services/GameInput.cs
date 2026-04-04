@@ -12,16 +12,16 @@ namespace GamePlay.Services
         IViewableProperty<bool> Flag { get; }
         IViewableProperty<bool> Open { get; }
         IViewableDelegate Cheats { get; }
-        
+
         Vector2 World { get; }
         Vector2 Screen { get; }
     }
-    
+
     public class GameInput : IGameInput, IScopeSetup, IUpdatable
     {
         public GameInput(
             IUpdater updater,
-            ICameraUtils cameraUtils, 
+            ICameraUtils cameraUtils,
             IGlobalControls localUser)
         {
             _updater = updater;
@@ -32,11 +32,11 @@ namespace GamePlay.Services
         private readonly ViewableProperty<bool> _flag = new();
         private readonly ViewableProperty<bool> _open = new();
         private readonly ViewableDelegate _cheats = new();
-        
+
         private readonly IUpdater _updater;
         private readonly ICameraUtils _cameraUtils;
         private readonly IGlobalControls _localUser;
-        
+
         private Vector2 _world;
         private Vector2 _screen;
 
@@ -47,13 +47,13 @@ namespace GamePlay.Services
 
         public Vector2 World => _world;
         public Vector2 Screen => _screen;
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _updater.Add(lifetime, this);
-            
+
             var controls = _localUser.Controls.GamePlay;
-            
+
             controls.Flag.AttachFlag(lifetime, _flag);
             controls.Open.AttachFlag(lifetime, _open);
             controls.Cheats.ListenPerformed(lifetime, _ => _cheats.Invoke());

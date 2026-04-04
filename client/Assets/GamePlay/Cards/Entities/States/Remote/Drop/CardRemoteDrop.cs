@@ -35,17 +35,18 @@ namespace GamePlay.Cards
             var timer = 0f;
 
             await _updater.RunUpdateAction(lifetime, _options.Time, delta =>
-            {
-                timer += delta;
-                var progress = Mathf.Clamp01(timer / _options.Time);
+                {
+                    timer += delta;
+                    var progress = Mathf.Clamp01(timer / _options.Time);
 
-                var xScale = _options.XScaleCurve.Evaluate(progress);
-                var moveFactor = _options.MoveCurve.Evaluate(progress);
-                var position = Vector2.Lerp(startPosition, targetPosition, moveFactor);
+                    var xScale = _options.XScaleCurve.Evaluate(progress);
+                    var moveFactor = _options.MoveCurve.Evaluate(progress);
+                    var position = Vector2.Lerp(startPosition, targetPosition, moveFactor);
 
-                _transform.SetScale(new Vector2(xScale, 1f));
-                _transform.SetPosition(position);
-            });
+                    _transform.SetScale(new Vector2(xScale, 1f));
+                    _transform.SetPosition(position);
+                }
+            );
         }
     }
 }

@@ -11,9 +11,12 @@ namespace Tests.Messaging;
 /// RuntimePipe is in-memory (no side effects needed).
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
-public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture) {
+public class RuntimePipeTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task Send_WithHandler_ReturnsResponse() {
+    public async Task Send_WithHandler_ReturnsResponse()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
@@ -30,7 +33,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_MultipleRequests_EachGetsCorrectResponse() {
+    public async Task Send_MultipleRequests_EachGetsCorrectResponse()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
@@ -51,7 +55,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_NoHandler_ThrowsException() {
+    public async Task Send_NoHandler_ThrowsException()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
 
@@ -61,7 +66,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_HandlerThrows_PropagatesException() {
+    public async Task Send_HandlerThrows_PropagatesException()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
@@ -78,14 +84,16 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_AsyncHandler_AwaitsCorrectly() {
+    public async Task Send_AsyncHandler_AwaitsCorrectly()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
         await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
             lifetime, pipeId,
-            async req => {
+            async req =>
+            {
                 await Task.Delay(50);
                 return new TestResponse { Answer = $"delayed-{req.Question}" };
             }
@@ -98,7 +106,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_HandlerTerminated_ThrowsException() {
+    public async Task Send_HandlerTerminated_ThrowsException()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
@@ -119,7 +128,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_ReplaceHandler_NewHandlerResponds() {
+    public async Task Send_ReplaceHandler_NewHandlerResponds()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime1 = new Lifetime();
@@ -148,14 +158,16 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_ConcurrentRequests_AllGetCorrectResponses() {
+    public async Task Send_ConcurrentRequests_AllGetCorrectResponses()
+    {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
         await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
             lifetime, pipeId,
-            async req => {
+            async req =>
+            {
                 await Task.Delay(10); // small delay to allow interleaving
                 return new TestResponse { Answer = $"reply-{req.Question}" };
             }
@@ -174,7 +186,8 @@ public class RuntimePipeTests(OrleansTestClusterFixture fixture) : IntegrationTe
     }
 
     [Fact]
-    public async Task Send_DifferentPipes_Isolated() {
+    public async Task Send_DifferentPipes_Isolated()
+    {
         var pipeA = new TestPipeId(Guid.NewGuid().ToString());
         var pipeB = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();

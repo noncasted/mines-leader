@@ -16,7 +16,7 @@ namespace GamePlay.Cheats
         [SerializeField] private DesignButton _maxButton;
         [SerializeField] private DesignButton _addButton;
         [SerializeField] private DesignButton _removeButton;
-        
+
         private INetworkConnection _connection;
 
         [Inject]
@@ -24,7 +24,7 @@ namespace GamePlay.Cheats
         {
             _connection = connection;
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -39,7 +39,7 @@ namespace GamePlay.Cheats
             _removeButton.ListenClick(lifetime, () => Send(-1));
 
             return;
-            
+
             void Send(int change)
             {
                 _connection.Request(new GameCheatContexts.ChangeHealth()

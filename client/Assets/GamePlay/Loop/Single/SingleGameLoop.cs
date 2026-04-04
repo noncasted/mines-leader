@@ -27,7 +27,9 @@ namespace GamePlay.Loop
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
-            IGameState gameState, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
+            IGameState gameState,
+            IGlobalCamera globalCamera,
+            ILoadingScreen loadingScreen)
         {
             _user = user;
             _session = session;

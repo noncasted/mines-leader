@@ -22,6 +22,7 @@
             Events = events;
             Parent = parent;
         }
+
         public IServiceCollection Services { get; }
         public IAssetEnvironment Assets { get; }
         public ISceneLoader SceneLoader { get; }
@@ -32,7 +33,7 @@
         public ILoadedScope Parent { get; }
         public ILifetime ScopeLifetime { get; }
         public bool IsMock { get; }
-        
+
         public ServiceCollection ServicesInternal { get; }
     }
 }

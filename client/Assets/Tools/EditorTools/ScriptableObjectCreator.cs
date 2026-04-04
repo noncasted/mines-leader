@@ -13,13 +13,13 @@ namespace Tools
     public class ScriptableObjectCreator : OdinMenuEditorWindow
     {
         static readonly HashSet<Type> _targetsTypes = AssemblyUtilities.GetTypes(AssemblyTypeFlags.CustomTypes)
-            .Where(t =>
-                t.IsClass &&
-                typeof(ScriptableObject).IsAssignableFrom(t) &&
-                !typeof(EditorWindow).IsAssignableFrom(t) &&
-                !typeof(Editor).IsAssignableFrom(t))
+            .Where(t => t.IsClass &&
+                        typeof(ScriptableObject).IsAssignableFrom(t) &&
+                        !typeof(EditorWindow).IsAssignableFrom(t) &&
+                        !typeof(Editor).IsAssignableFrom(t)
+            )
             .ToHashSet();
-        
+
         private ScriptableObject previewObject;
         private string targetFolder;
         private Vector2 scroll;
@@ -37,7 +37,7 @@ namespace Tools
         private static void ShowDialog()
         {
             var path = "Assets";
-            
+
             if (Selection.activeObject != null && AssetDatabase.Contains(Selection.activeObject) == true)
             {
                 path = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -68,7 +68,7 @@ namespace Tools
 
             tree.SortMenuItemsByName();
             tree.Selection.SelectionConfirmed += x => CreateAsset();
-            
+
             tree.Selection.SelectionChanged += e =>
             {
                 if (previewObject && !AssetDatabase.Contains(previewObject))
@@ -82,7 +82,7 @@ namespace Tools
                 }
 
                 var t = SelectedType;
-                
+
                 if (t != null && !t.IsAbstract)
                 {
                     previewObject = CreateInstance(t);
@@ -144,7 +144,7 @@ namespace Tools
             destination = AssetDatabase.GenerateUniqueAssetPath(destination);
             AssetDatabase.CreateAsset(previewObject, destination);
             AssetDatabase.Refresh();
-            
+
             Selection.activeObject = previewObject;
             //EditorApplication.delayCall += Close;
         }
@@ -155,7 +155,7 @@ namespace Tools
             {
                 if (type != SelectedType)
                     continue;
-                
+
                 var attribute = type.GetCustomAttributes(typeof(CreateAssetMenuAttribute), true)
                     .FirstOrDefault() as CreateAssetMenuAttribute;
 
@@ -164,7 +164,7 @@ namespace Tools
 
                 return attribute.fileName;
             }
-            
+
             return MenuTree.Selection.First().Name.ToLower();
         }
     }

@@ -20,7 +20,7 @@ public class MatchmakingCommands
             return _matchmaking.SearchLobby(session.UserId).FromResult();
         }
     }
-    
+
     public class SearchMatch : UserCommand<SharedMatchmaking.SearchMatch>
     {
         public SearchMatch(IMatchmaking matchmaking)

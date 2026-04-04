@@ -7,7 +7,7 @@ namespace Global.UI
         public abstract Color Idle { get; }
         public abstract Color Hovered { get; }
         public abstract Color Pressed { get; }
-        
+
         public abstract float TransitionTime { get; }
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Meta.Bots;
 
-
 public interface IBotCollection : IStateCollection<Guid, BotState>
 {
 }

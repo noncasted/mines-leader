@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Tools
 {
@@ -61,17 +62,18 @@ namespace Tools
             return this;
         }
 
-        public static T LoadAsset<T>(string path) where T : UnityEngine.Object
+        public static T LoadAsset<T>(string path) where T : Object
         {
             var asset = AssetDatabase.LoadAssetAtPath<T>(path);
             if (asset == null)
             {
                 Debug.LogWarning($"[PrefabBuilder] Asset not found at '{path}'");
             }
+
             return asset;
         }
 
-        public static T LoadSubAsset<T>(string path, string subAssetName) where T : UnityEngine.Object
+        public static T LoadSubAsset<T>(string path, string subAssetName) where T : Object
         {
             var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
             foreach (var asset in allAssets)
@@ -79,6 +81,7 @@ namespace Tools
                 if (asset is T typed && asset.name == subAssetName)
                     return typed;
             }
+
             Debug.LogWarning($"[PrefabBuilder] Sub-asset '{subAssetName}' not found at '{path}'");
             return null;
         }
@@ -116,9 +119,9 @@ namespace Tools
             var child = new GameObject(name);
             child.transform.SetParent(_gameObject.transform, false);
             var component = child.AddComponent<T>();
-            
+
             configure?.Invoke(component);
-            
+
             return component;
         }
 
@@ -184,7 +187,7 @@ namespace Tools
             ApplyAllSerializedProperties();
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(_gameObject, outputPath);
-            UnityEngine.Object.DestroyImmediate(_gameObject);
+            Object.DestroyImmediate(_gameObject);
             return prefab;
         }
 
@@ -261,7 +264,7 @@ namespace Tools
                     if (value is Vector3 v3) property.vector3Value = v3;
                     break;
                 case SerializedPropertyType.ObjectReference:
-                    if (value is UnityEngine.Object obj) property.objectReferenceValue = obj;
+                    if (value is Object obj) property.objectReferenceValue = obj;
                     break;
                 case SerializedPropertyType.Enum:
                     property.enumValueIndex = Convert.ToInt32(value);
@@ -280,8 +283,10 @@ namespace Tools
                         {
                             SetPropertyValue(property.GetArrayElementAtIndex(i), arr.GetValue(i));
                         }
+
                         break;
                     }
+
                     Debug.LogWarning(
                         $"[PrefabBuilder] Unsupported property type: {property.propertyType} for '{property.name}'"
                     );

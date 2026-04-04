@@ -10,7 +10,7 @@ namespace Common.Animations
             Sprites = sprites;
             Time = time;
         }
-        
+
         public IReadOnlyList<Sprite> Sprites { get; }
         public float Time { get; }
     }

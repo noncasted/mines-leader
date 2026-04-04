@@ -12,7 +12,8 @@ public interface IDurableQueue : IGrainWithStringKey
 
 public class DurableQueue : Grain, IDurableQueue
 {
-    public DurableQueue(ILogger<DurableQueue> logger, IDurableQueueConfig config) {
+    public DurableQueue(ILogger<DurableQueue> logger, IDurableQueueConfig config)
+    {
         _logger = logger;
         _config = config;
     }
@@ -22,17 +23,22 @@ public class DurableQueue : Grain, IDurableQueue
 
     private readonly Dictionary<Guid, ObserverData> _observers = new();
 
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken) {
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    {
         var delay = MessagingGrainExtensions.GetKeepAliveDelay(
-            _observers.Values, d => d.UpdateDate, _config.Value.ObserverKeepAliveMinutes);
+            _observers.Values, d => d.UpdateDate, _config.Value.ObserverKeepAliveMinutes
+        );
         if (delay != null)
             DelayDeactivation(delay.Value);
         return Task.CompletedTask;
     }
 
-    public Task AddObserver(Guid id, IDurableQueueObserver observer) {
-        if (_observers.TryGetValue(id, out var data) == false) {
-            data = new ObserverData {
+    public Task AddObserver(Guid id, IDurableQueueObserver observer)
+    {
+        if (_observers.TryGetValue(id, out var data) == false)
+        {
+            data = new ObserverData
+            {
                 Observer = observer,
                 UpdateDate = DateTime.UtcNow,
                 Id = id
@@ -47,22 +53,27 @@ public class DurableQueue : Grain, IDurableQueue
         return Task.CompletedTask;
     }
 
-    public Task RemoveObserver(Guid id) {
+    public Task RemoveObserver(Guid id)
+    {
         _observers.Remove(id);
         return Task.CompletedTask;
     }
 
-    public async Task Push(object message) {
+    public async Task Push(object message)
+    {
         BackendMetrics.DurableQueuePushed.Add(1);
         BackendMetrics.DurableQueueObserverCount.Record(_observers.Count);
 
         List<Guid>? toRemove = null;
 
-        foreach (var data in _observers.Values) {
-            try {
+        foreach (var data in _observers.Values)
+        {
+            try
+            {
                 await data.Observer.Send(message);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 toRemove ??= new List<Guid>();
                 toRemove.Add(data.Id);
                 BackendMetrics.DurableQueueDeliveryFailure.Add(1);
@@ -74,7 +85,8 @@ public class DurableQueue : Grain, IDurableQueue
             }
         }
 
-        if (toRemove != null) {
+        if (toRemove != null)
+        {
             foreach (var id in toRemove)
                 _observers.Remove(id);
         }

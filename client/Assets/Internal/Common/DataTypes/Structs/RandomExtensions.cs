@@ -13,7 +13,7 @@ namespace Internal
         {
             return Random.Range(-1f, 1f);
         }
-        
+
         public static float RandomOne()
         {
             return Random.Range(0f, 1f);

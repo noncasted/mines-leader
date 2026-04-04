@@ -10,15 +10,15 @@ namespace Global.Cameras
         void Enable();
         void Disable();
     }
-    
+
     [DisallowMultipleComponent]
     public class GlobalCamera : MonoBehaviour, IGlobalCamera, IScopeBaseSetup
     {
         private ICurrentCamera _currentCamera;
-        
+
         public Camera Camera { get; private set; }
-        
-        [Inject] 
+
+        [Inject]
         private void Construct(ICurrentCamera currentCamera)
         {
             _currentCamera = currentCamera;
