@@ -72,7 +72,62 @@ namespace Internal
                 listener?.Invoke();
             }
         }
-        
+
+        public static void AdviseFalse(
+            this ILifetimedValue<bool> property,
+            IReadOnlyLifetime lifetime,
+            Action listener)
+        {
+            property.Advise(lifetime, (_, value) => OnChange(value));
+
+            void OnChange(bool value)
+            {
+                if (value == true)
+                    return;
+
+                listener?.Invoke();
+            }
+        }
+
+        public static void AdviseTrue(
+            this ILifetimedValue<bool> property,
+            IReadOnlyLifetime lifetime,
+            Action<IReadOnlyLifetime> listener)
+        {
+            property.Advise(lifetime, OnChange);
+
+            void OnChange(IReadOnlyLifetime valueLifetime, bool value)
+            {
+                if (value == false)
+                    return;
+
+                listener?.Invoke(valueLifetime);
+            }
+        }
+
+        public static void ViewTrue(
+            this ILifetimedValue<bool> property,
+            IReadOnlyLifetime lifetime,
+            Action<IReadOnlyLifetime> listener)
+        {
+            ILifetime trueLifetime = null;
+            property.View(lifetime, (_, value) => OnChange(value));
+
+            return;
+
+            void OnChange(bool value)
+            {
+                if (value == false)
+                {
+                    trueLifetime?.Terminate();
+                    return;
+                }
+
+                trueLifetime = lifetime.Child();
+                listener?.Invoke(trueLifetime);
+            }
+        }
+
         public static UniTask WaitFalse(this ILifetimedValue<bool> property, IReadOnlyLifetime lifetime)
         {
             if (property.Value == false)

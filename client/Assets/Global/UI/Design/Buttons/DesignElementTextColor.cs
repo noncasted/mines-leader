@@ -49,8 +49,9 @@ namespace Global.UI
         {
             if (_text == null)
                 _text = GetComponent<TMP_Text>();
-            
-            _text.color = _config.Idle;
+
+            if (_text != null && _config != null)
+                _text.color = _config.Idle;
         }
     }
 }

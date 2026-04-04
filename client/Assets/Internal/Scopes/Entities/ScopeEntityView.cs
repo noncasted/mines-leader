@@ -37,6 +37,7 @@ namespace Internal
             if (_scope == null)
                 _scope = GetComponent<LifetimeScope>();
 
+            _autoDetected ??= new();
             _autoDetected.Clear();
             var components = GetComponentsInChildren<IEntityComponent>(true);
 

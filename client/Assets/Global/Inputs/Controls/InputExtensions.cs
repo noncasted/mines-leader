@@ -77,6 +77,55 @@ namespace Global.Inputs
             }
         }
 
+        public static void AttachAction<T>(
+            this InputAction action,
+            IReadOnlyLifetime lifetime,
+            Action<T> callback) where T : struct
+        {
+            action.performed += OnChanged;
+            action.canceled += OnChanged;
+
+            lifetime.Listen(() =>
+            {
+                action.performed -= OnChanged;
+                action.canceled -= OnChanged;
+            });
+
+            return;
+
+            void OnChanged(InputAction.CallbackContext value)
+            {
+                callback(value.ReadValue<T>());
+            }
+        }
+
+        public static void AttachFlagAction(
+            this InputAction action,
+            IReadOnlyLifetime lifetime,
+            Action<bool> callback)
+        {
+            action.performed += OnPerformed;
+            action.canceled += OnCanceled;
+
+            lifetime.Listen(() =>
+            {
+                action.performed -= OnPerformed;
+                action.canceled -= OnCanceled;
+            });
+
+            return;
+
+            void OnPerformed(InputAction.CallbackContext value)
+            {
+                callback(true);
+            }
+
+            void OnCanceled(InputAction.CallbackContext value)
+            {
+                callback(false);
+            }
+        }
+
         public static void AttachFlag(
             this InputAction action,
             IReadOnlyLifetime lifetime,
