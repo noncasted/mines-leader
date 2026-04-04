@@ -44,6 +44,39 @@ public class SimpleTestGrain : Grain, ISimpleTestGrain {
     }
 }
 
+// --- Collection test state ---
+
+[GenerateSerializer]
+public class CollectionTestState : IStateValue {
+    [Id(0)] public Guid Id { get; set; }
+    [Id(1)] public string Name { get; set; } = string.Empty;
+    public int Version => 0;
+}
+
+public interface ICollectionTestGrain : IGrainWithGuidKey {
+    Task SetName(string name);
+    Task<string> GetName();
+}
+
+public class CollectionTestGrain : Grain, ICollectionTestGrain {
+    public CollectionTestGrain([State] State<CollectionTestState> state) {
+        _state = state;
+    }
+
+    private readonly State<CollectionTestState> _state;
+
+    public async Task SetName(string name) {
+        await _state.Write(s => {
+            s.Id = this.GetGrainId().GetGuidKey();
+            s.Name = name;
+        });
+    }
+
+    public async Task<string> GetName() {
+        return await _state.Read(s => s.Name);
+    }
+}
+
 // --- Transaction test grain ---
 
 [GenerateSerializer]
@@ -122,12 +155,13 @@ public class FailingTestSideEffect : ISideEffect {
     [Id(1)] public int FailCount { get; set; }
 
     // Static counter shared across executions (keyed by TargetGrainId to avoid cross-test interference)
-    private static readonly Dictionary<Guid, int> Attempts = new();
+    internal static readonly object AttemptsLock = new();
+    internal static readonly Dictionary<Guid, int> AttemptsDict = new();
 
     public async Task Execute(IOrleans orleans) {
-        lock (Attempts) {
-            Attempts.TryGetValue(TargetGrainId, out var count);
-            Attempts[TargetGrainId] = count + 1;
+        lock (AttemptsLock) {
+            AttemptsDict.TryGetValue(TargetGrainId, out var count);
+            AttemptsDict[TargetGrainId] = count + 1;
             if (count < FailCount)
                 throw new Exception($"Intentional failure {count + 1}/{FailCount}");
         }
@@ -139,11 +173,30 @@ public class FailingTestSideEffect : ISideEffect {
     }
 
     public static void ResetAttempts() {
-        lock (Attempts) { Attempts.Clear(); }
+        lock (AttemptsLock) { AttemptsDict.Clear(); }
     }
 
     public static int GetAttemptCount(Guid targetId) {
-        lock (Attempts) { return Attempts.GetValueOrDefault(targetId); }
+        lock (AttemptsLock) { return AttemptsDict.GetValueOrDefault(targetId); }
+    }
+}
+
+// Transactional side effect that fails N times before succeeding (uses shared FailingTestSideEffect counter)
+[GenerateSerializer]
+public class FailingTransactionalTestSideEffect : ITransactionalSideEffect {
+    [Id(0)] public Guid TargetGrainId { get; set; }
+    [Id(1)] public int FailCount { get; set; }
+
+    public async Task Execute(IOrleans orleans) {
+        lock (FailingTestSideEffect.AttemptsLock) {
+            FailingTestSideEffect.AttemptsDict.TryGetValue(TargetGrainId, out var count);
+            FailingTestSideEffect.AttemptsDict[TargetGrainId] = count + 1;
+            if (count < FailCount)
+                throw new Exception($"Intentional transactional failure {count + 1}/{FailCount}");
+        }
+
+        var grain = orleans.GetGrain<ITxTestGrain>(TargetGrainId);
+        await grain.Increment();
     }
 }
 
@@ -174,5 +227,49 @@ public class SideEffectTestGrain : Grain, ISideEffectTestGrain {
 
     public async Task RegisterSideEffect(Guid targetId) {
         await _sideEffectsStorage.Write(new TestSideEffect { TargetGrainId = targetId });
+    }
+}
+
+// --- Grain that registers side effects within a transaction via AddToTransaction ---
+
+public interface ITxSideEffectGrain : IGrainWithGuidKey {
+    [Transaction]
+    Task IncrementAndRegisterSideEffect(Guid sideEffectTargetId);
+
+    [Transaction]
+    Task RegisterMultipleSideEffects(IReadOnlyList<Guid> targetIds);
+
+    [Transaction]
+    Task<int> IncrementAndReturn();
+
+    Task<int> Get();
+}
+
+[Reentrant]
+public class TxSideEffectGrain : Grain, ITxSideEffectGrain {
+    public TxSideEffectGrain([State] State<TxTestState> state) {
+        _state = state;
+    }
+
+    private readonly State<TxTestState> _state;
+
+    public async Task IncrementAndRegisterSideEffect(Guid sideEffectTargetId) {
+        await _state.Write(s => s.Value += 1);
+        new TestSideEffect { TargetGrainId = sideEffectTargetId }.AddToTransaction();
+    }
+
+    public async Task RegisterMultipleSideEffects(IReadOnlyList<Guid> targetIds) {
+        await _state.Write(s => s.Value += 1);
+        foreach (var targetId in targetIds)
+            new TestSideEffect { TargetGrainId = targetId }.AddToTransaction();
+    }
+
+    public async Task<int> IncrementAndReturn() {
+        var state = await _state.Update(s => s.Value += 1);
+        return state.Value;
+    }
+
+    public async Task<int> Get() {
+        return await _state.Read(s => s.Value);
     }
 }

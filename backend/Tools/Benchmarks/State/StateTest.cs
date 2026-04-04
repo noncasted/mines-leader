@@ -48,6 +48,7 @@ public class StateTest
         Task Test();
     }
 
+    [GrainType("bench-state-test")]
     public class TestGrain : Grain, IGrain
     {
         public TestGrain([State] State<TestState> testState)

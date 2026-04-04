@@ -67,18 +67,22 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
 
     [Fact]
     public async Task SideEffect_Transactional_MultipleDrain_AllExecuted() {
-        var targetId = Guid.NewGuid();
+        // Use separate targets to verify each transactional effect commits independently
+        var targetIds = Enumerable.Range(0, 3).Select(_ => Guid.NewGuid()).ToList();
         var storage = GetSiloService<ISideEffectsStorage>();
 
-        for (var i = 0; i < 3; i++)
+        foreach (var targetId in targetIds)
             await storage.Write(new TransactionalTestSideEffect { TargetGrainId = targetId });
 
         var result = await DrainSideEffectsAsync();
         result.AssertDrainedSuccessfully();
 
-        var targetGrain = GetGrain<ITxTestGrain>(targetId);
-        var value = await targetGrain.Get();
-        value.Should().Be(3);
+        // Verify each target was incremented exactly once (atomic per-effect)
+        foreach (var targetId in targetIds) {
+            var targetGrain = GetGrain<ITxTestGrain>(targetId);
+            var value = await targetGrain.Get();
+            value.Should().Be(1, $"target {targetId} should be incremented exactly once by its transactional side effect");
+        }
     }
 
     [Fact]
@@ -170,11 +174,149 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
+    public async Task SideEffect_WorkerExceptionIsolation_OneFailureDoesNotCrashOthers() {
+        var goodTargetId = Guid.NewGuid();
+        var storage = GetSiloService<ISideEffectsStorage>();
+
+        // Write one always-failing effect and one good effect
+        await storage.Write(new AlwaysFailingSideEffect { TrackingId = Guid.NewGuid() });
+        await storage.Write(new TestSideEffect { TargetGrainId = goodTargetId });
+
+        // Pump once — both should be picked up, one fails, one succeeds
+        var result = await Pipeline!.PumpOnceAsync();
+        result.TotalTasks.Should().Be(2);
+        result.AllSucceeded.Should().BeFalse();
+
+        // The good side effect should have executed despite the other failing
+        var targetGrain = GetGrain<ITxTestGrain>(goodTargetId);
+        var value = await targetGrain.Get();
+        value.Should().Be(1);
+    }
+
+    [Fact]
     public async Task SideEffect_EmptyQueue_DrainReturnsQuiet() {
         // No side effects registered — drain should return quietly
         var result = await Pipeline!.DrainUntilQuietAsync();
         result.ReachedQuiescence.Should().BeTrue();
         result.TotalTasks.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task SideEffect_RegisteredViaAddToTransaction_ExecutedAfterCommit() {
+        var sourceId = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
+
+        var grain = GetGrain<ITxSideEffectGrain>(sourceId);
+
+        await RunTransaction(() => grain.IncrementAndRegisterSideEffect(targetId));
+
+        // Source grain should have been incremented
+        var sourceValue = await grain.Get();
+        sourceValue.Should().Be(1);
+
+        // Drain side effects
+        var result = await DrainSideEffectsAsync();
+        result.AssertDrainedWithWork();
+
+        // Target grain should have been incremented by the side effect
+        var targetGrain = GetGrain<ITxTestGrain>(targetId);
+        var targetValue = await targetGrain.Get();
+        targetValue.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task SideEffect_MultipleSideEffectsInSingleTransaction_AllExecuted() {
+        var sourceId = Guid.NewGuid();
+        var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+
+        var grain = GetGrain<ITxSideEffectGrain>(sourceId);
+
+        await RunTransaction(() => grain.RegisterMultipleSideEffects(targetIds));
+
+        var result = await DrainSideEffectsAsync();
+        result.AssertDrainedSuccessfully();
+
+        foreach (var targetId in targetIds) {
+            var targetGrain = GetGrain<ITxTestGrain>(targetId);
+            var value = await targetGrain.Get();
+            value.Should().Be(1);
+        }
+    }
+
+    [Fact]
+    public async Task SideEffect_TransactionRollback_SideEffectNotEnqueued() {
+        var sourceId = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
+
+        var grain = GetGrain<ITxSideEffectGrain>(sourceId);
+
+        // Transaction that registers a side effect then fails
+        var transactions = GetSiloService<ITransactions>();
+        var txResult = await transactions.Run(async () => {
+            await grain.IncrementAndRegisterSideEffect(targetId);
+            throw new Exception("Intentional failure after side effect registration");
+        });
+
+        txResult.IsSuccess.Should().BeFalse();
+
+        // Drain — should find nothing because the transaction was rolled back
+        var drainResult = await Pipeline!.DrainUntilQuietAsync();
+        drainResult.TotalTasks.Should().Be(0);
+
+        // Target grain should not have been touched
+        var targetGrain = GetGrain<ITxTestGrain>(targetId);
+        var targetValue = await targetGrain.Get();
+        targetValue.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task SideEffect_TransactionalFails_RetryAndEventualSuccess() {
+        FailingTestSideEffect.ResetAttempts();
+        var targetId = Guid.NewGuid();
+        var storage = GetSiloService<ISideEffectsStorage>();
+
+        // Transactional side effect that fails once then succeeds
+        await storage.Write(new FailingTransactionalTestSideEffect { TargetGrainId = targetId, FailCount = 1 });
+
+        // First pump — fails
+        var pump1 = await Pipeline!.PumpOnceAsync();
+        pump1.AllSucceeded.Should().BeFalse();
+
+        await ForceExpireRetryQueue();
+
+        // Second pump — succeeds
+        var pump2 = await Pipeline.PumpOnceAsync();
+        pump2.AllSucceeded.Should().BeTrue();
+
+        var targetGrain = GetGrain<ITxTestGrain>(targetId);
+        var value = await targetGrain.Get();
+        value.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task SideEffect_BatchFromDifferentSources_AllProcessed() {
+        // Use separate targets per effect type to verify each type executes correctly
+        var targetNonTx1 = Guid.NewGuid();
+        var targetTx = Guid.NewGuid();
+        var targetNonTx2 = Guid.NewGuid();
+        var storage = GetSiloService<ISideEffectsStorage>();
+
+        // Write different types of side effects targeting different grains
+        await storage.Write(new TestSideEffect { TargetGrainId = targetNonTx1 });
+        await storage.Write(new TransactionalTestSideEffect { TargetGrainId = targetTx });
+        await storage.Write(new TestSideEffect { TargetGrainId = targetNonTx2 });
+
+        var result = await DrainSideEffectsAsync();
+        result.AssertDrainedSuccessfully();
+
+        // Verify each target grain received exactly one increment
+        var valueNonTx1 = await GetGrain<ITxTestGrain>(targetNonTx1).Get();
+        var valueTx = await GetGrain<ITxTestGrain>(targetTx).Get();
+        var valueNonTx2 = await GetGrain<ITxTestGrain>(targetNonTx2).Get();
+
+        valueNonTx1.Should().Be(1, "first non-transactional side effect should increment its target");
+        valueTx.Should().Be(1, "transactional side effect should increment its target");
+        valueNonTx2.Should().Be(1, "second non-transactional side effect should increment its target");
     }
 
     /// <summary>

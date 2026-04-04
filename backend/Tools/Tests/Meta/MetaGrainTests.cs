@@ -424,7 +424,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.OnComplete(user1));
         MatchState? state = null;
         await RunTransaction(async () => { state = await match.GetState(); });
-        state!.RatingChanges[user1].Should().Be(25);
+        state!.RatingChanges.Should().HaveCount(2);
+        state.RatingChanges.Should().ContainKey(user1);
+        state.RatingChanges.Should().ContainKey(user2);
+        state.RatingChanges[user1].Should().Be(25);
         state.RatingChanges[user2].Should().Be(-15);
     }
 

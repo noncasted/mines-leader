@@ -124,4 +124,89 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         result.Text.Should().Be("tx-msg");
         result.Sequence.Should().Be(99);
     }
+
+    [Fact]
+    public async Task PushTransactional_TransactionRollback_NotDelivered() {
+        var queueId = new TestQueueId(Guid.NewGuid().ToString());
+        var received = new List<TestMessage>();
+        var messaging = GetSiloService<IMessaging>();
+
+        await messaging.ListenDurableQueue<TestMessage>(
+            new Lifetime(), queueId, msg => { lock (received) received.Add(msg); });
+
+        var transactions = GetSiloService<ITransactions>();
+        var result = await transactions.Run(() => {
+            messaging.PushTransactionalQueue(queueId, new TestMessage { Text = "should-not-arrive" });
+            throw new Exception("Intentional rollback");
+            return Task.CompletedTask;
+        });
+
+        result.IsSuccess.Should().BeFalse();
+
+        // Drain — should find nothing because transaction rolled back
+        var drain = await Pipeline!.DrainUntilQuietAsync();
+        drain.TotalTasks.Should().Be(0);
+
+        await Task.Delay(200);
+        received.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PushTransactional_MultipleMessagesInTransaction_AllDelivered() {
+        var queueId = new TestQueueId(Guid.NewGuid().ToString());
+        var received = new List<TestMessage>();
+        var allReceived = new TaskCompletionSource();
+        var messaging = GetSiloService<IMessaging>();
+
+        await messaging.ListenDurableQueue<TestMessage>(
+            new Lifetime(), queueId, msg => {
+                lock (received) {
+                    received.Add(msg);
+                    if (received.Count >= 3)
+                        allReceived.TrySetResult();
+                }
+            });
+
+        await RunTransaction(() => {
+            messaging.PushTransactionalQueue(queueId, new TestMessage { Text = "tx-0", Sequence = 0 });
+            messaging.PushTransactionalQueue(queueId, new TestMessage { Text = "tx-1", Sequence = 1 });
+            messaging.PushTransactionalQueue(queueId, new TestMessage { Text = "tx-2", Sequence = 2 });
+            return Task.CompletedTask;
+        });
+
+        await DrainSideEffectsAsync();
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        received.Should().HaveCount(3);
+        received.Select(m => m.Sequence).Should().BeEquivalentTo([0, 1, 2]);
+    }
+
+    [Fact]
+    public async Task PushDirect_NoListeners_DoesNotBufferMessages() {
+        var queueId = new TestQueueId(Guid.NewGuid().ToString());
+        var messaging = GetSiloService<IMessaging>();
+
+        // Push to a queue nobody is listening to
+        await messaging.PushDirectQueue(queueId, new TestMessage { Text = "old" });
+        await DrainSideEffectsAsync();
+
+        // Subscribe after the push — should NOT receive the old message
+        var received = new List<TestMessage>();
+        await messaging.ListenDurableQueue<TestMessage>(
+            new Lifetime(), queueId, msg => { lock (received) received.Add(msg); });
+
+        await Task.Delay(200);
+        received.Should().BeEmpty("messages pushed with no listeners should not be buffered");
+
+        // Verify queue is still functional — new message should arrive
+        var done = new TaskCompletionSource<TestMessage>();
+        await messaging.ListenDurableQueue<TestMessage>(
+            new Lifetime(), queueId, msg => done.TrySetResult(msg));
+
+        await messaging.PushDirectQueue(queueId, new TestMessage { Text = "new", Sequence = 1 });
+        await DrainSideEffectsAsync();
+
+        var result = await done.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        result.Text.Should().Be("new");
+    }
 }

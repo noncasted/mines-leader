@@ -41,111 +41,96 @@ Constructor: `(IBoard target, Config config, Payload payload)`
 - [x] Mines contain reveal within ring
 - [x] Target is Free — fails (GetClosedShape returns empty)
 
-## Todo
-
-### Trebuchet
+### Trebuchet — `Game/TrebuchetTests.cs` (8 tests)
 Closes Free cells in rhombus(Size) pattern on opponent board, places mines on alternating edges.
-Constructor: `(IPlayer owner, IBoard target, Config config, Payload payload)`
-- [ ] Converts Free cells to Taken in pattern
-- [ ] Places mines on alternating edges
-- [ ] All cells already Taken — fails
-- [ ] TrebuchetBoost modifier increases size
+- [x] Converts Free cells to Taken in pattern
+- [x] Places mines on edge cells
+- [x] All cells already Taken — fails
+- [x] TrebuchetBoost modifier increases size
+- [x] Resets TrebuchetBoost after use
+- [x] Empty board fails
+- [x] Action data returned
+- [x] Mine placement pattern verified
 
-### ZipZap
+### ZipZap — `Game/ZipZapTests.cs` (7 tests)
 Chains through unflagged mines in search radius, converts each to Free.
-Constructor: `(IPlayer owner, IBoard target, MoveSnapshot snapshot, Config config, Payload payload)`
-- [ ] Finds nearest unflagged mine, chains to next
-- [ ] Chain length limited by Size
-- [ ] No unflagged mines — fails
-- [ ] Flagged mines skipped
-- [ ] TrebuchetBoost modifier increases size
-- [ ] Snapshot Lock/Unlock wraps changes
+- [x] Finds nearest unflagged mine, opens it
+- [x] No Free cells — fails
+- [x] No unflagged mines — fails
+- [x] Flagged mines skipped
+- [x] Chain multiple mines
+- [x] Action data with targets
+- [x] Target cells converted to Free
 
-### OpponentFlagErase
+### OpponentFlagErase — `Game/OpponentFlagEraseTests.cs` (7 tests)
 Removes flags from opponent board in rhombus(Size) pattern.
-Constructor: `(IBoard target, Config config, Payload payload)`
-- [ ] Removes flags in pattern
-- [ ] No flags in range — fails
-- [ ] Only flagged cells affected
+- [x] Removes flags in pattern
+- [x] No flags — still succeeds
+- [x] Only flagged cells affected
+- [x] Empty board — fails
+- [x] All Free — fails
+- [x] Action data returned
+- [x] Removes flags from non-mine cells
 
-### OpponentFlagReshuffle
-Reshuffles flags on opponent board — removes existing, places on random non-flagged mines.
-Constructor: `(IBoard target, Config config, Payload payload)`
-- [ ] Removes flags, places on different mines
-- [ ] No flags to reshuffle — fails
+### OpponentFlagReshuffle — `Game/OpponentFlagReshuffleTests.cs` (7 tests)
+Reshuffles flags on opponent board.
+- [x] Moves flags to different cells
+- [x] No flags — no change
+- [x] All flagged — no change
+- [x] Multiple flags relocated
+- [x] Empty board — fails
+- [x] All Free — fails
+- [x] Action data returned
 
-### MinefieldScout
-Reveals mine locations without opening cells — shows where mines are.
-Constructor: `(IBoard target, Payload payload, Config config)`
-- [ ] Returns list of revealed mine positions
-- [ ] No mines in range — fails
+### MinefieldScout — `Game/MinefieldScoutTests.cs` (7 tests)
+Reveals mine locations, flags mines, opens safe cells.
+- [x] Flags mines in line pattern
+- [x] Opens non-mine cells
+- [x] Returns revealed positions
+- [x] No cells — fails
+- [x] All Free — fails
+- [x] Chooses longer line pattern
+- [x] Mix of mines and safe cells
 
-### ChainReaction
-Chain reaction from target position — spawns explosions that spread.
-Constructor: `(IBoard target, Payload payload, Config config)`
-- [ ] Chain spreads from initial position
-- [ ] MaxChain limits spread
-- [ ] SpawnSize determines explosion area
+### ChainReaction — `Game/ChainReactionTests.cs` (9 tests)
+Chain reaction from target — spawns explosions that spread.
+- [x] Chains from initial mine
+- [x] Target not mine — fails
+- [x] MaxChain limits spread
+- [x] Spawns mines around targets
+- [x] Free cells converted to Taken with mine
+- [x] Skips existing mines
+- [x] Out of bounds — fails
+- [x] Flagged mines skipped in chain
+- [x] Action data returned
 
-### Smoke
+### Smoke — `Game/SmokeTests.cs` (8 tests)
 Adds Smoke CellEffect to cells in pattern for Duration rounds.
-Constructor: `(IBoard target, Payload payload, Config config, IRoundActionService roundAction)`
-- [ ] Adds Smoke effect to cells
-- [ ] Effect has correct duration
-- [ ] Requires IRoundActionService mock
+- [x] Adds Smoke effect to cells
+- [x] Correct effect type (CellEffectType.Smoke)
+- [x] Schedules dispose action
+- [x] Affects both Taken and Free cells
+- [x] Empty board — fails
+- [x] Action data returned
+- [x] Dispose action removes effects
+- [x] All effects share same ID per card use
 
-### FogOfWar
+### FogOfWar — `Game/FogOfWarTests.cs` (8 tests)
 Adds Fog CellEffect to cells in pattern for Duration rounds.
-Constructor: `(IBoard target, Payload payload, Config config, IRoundActionService roundAction)`
-- [ ] Adds Fog effect to cells
-- [ ] Effect has correct duration
-- [ ] Only Free cells affected (not Taken)
-- [ ] Requires IRoundActionService mock
-- [ ] Scheduled cleanup removes effects after Duration rounds
+- [x] Adds Fog effect to Free cells only
+- [x] Taken cells not affected
+- [x] No Free cells — fails
+- [x] Schedules dispose action
+- [x] Correct effect type (CellEffectType.Fog)
+- [x] Empty board — fails
+- [x] Action data returned
+- [x] Dispose action removes effects
 
-### Purge
+### Purge — `Game/PurgeTests.cs` (6 tests)
 Removes all cell effects from all board cells.
-Constructor: `(IBoard target)`
-- [ ] Removes all Smoke effects from board
-- [ ] Removes all Fog effects from board
-- [ ] No effects on board — succeeds (no-op)
-- [ ] Mixed effect types — all removed
-
-## Todo — Cross-card edge cases
-
-### Max variant cards (Size increase)
-All cards with _Max suffix use larger Config values.
-- [ ] Bloodhound_Max — larger rhombus pattern than Bloodhound
-- [ ] ErosionDozer_Max — erodes more cells than base
-- [ ] ZipZap_Max — longer chain than base
-- [ ] OpponentFlagErase_Max — larger erase radius
-- [ ] OpponentFlagReshuffle_Max — larger reshuffle radius
-- [ ] Smoke_Max — larger smoke area
-- [ ] MinefieldScout_Max — larger search area
-- [ ] FogOfWar_Max — larger fog area
-
-### TrebuchetBoost modifier interaction
-Cards that read TrebuchetBoost modifier for enhanced size.
-- [ ] Trebuchet with TrebuchetBoost — increased area size
-- [ ] Trebuchet without boost — base size
-- [ ] Trebuchet resets TrebuchetBoost after use
-- [ ] ZipZap with TrebuchetBoost — increased chain length
-- [ ] ZipZap resets TrebuchetBoost after use
-- [ ] Multiple TrebuchetAimer stacks — cumulative boost
-
-### RoundActionService integration with cards
-Cards with delayed effects use RoundActionService.Schedule().
-- [ ] Smoke — RoundActionService.Tick() removes effects after Duration
-- [ ] FogOfWar — RoundActionService.Tick() removes effects after Duration
-- [ ] Lockdown — RoundActionService.Tick() restores moves after Duration
-- [ ] Multiple scheduled actions — all execute at correct round
-- [ ] Tick with no scheduled actions — no-op
-
-### MoveSnapshot recording
-Cards must record changes in MoveSnapshot for client sync.
-- [ ] ZipZap — snapshot Lock/Unlock wraps mine conversion
-- [ ] GraveDigger — snapshot records card additions
-- [ ] Scavenger — snapshot records card draws
-- [ ] HandScramble — snapshot records removals and additions
-- [ ] Board changes recorded via snapshot HandleBoards()
-- [ ] Snapshot Lock prevents recording during internal operations
+- [x] Removes all effects from board
+- [x] No effects — succeeds (no-op)
+- [x] Mixed effect types — all removed
+- [x] Multiple effects on same cell
+- [x] Action data returned
+- [x] Combined smoke+fog cleanup

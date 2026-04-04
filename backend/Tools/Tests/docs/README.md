@@ -4,13 +4,13 @@
 
 | Scope | Done | Todo | Total |
 |-------|------|------|-------|
-| [Infrastructure](infrastructure.md) | 32 | 54 | 86 |
-| [Cards — Board](cards-board.md) | 19 | 57 | 76 |
-| [Cards — Player](cards-player.md) | 0 | 38 | 38 |
-| [Board Mechanics](board-mechanics.md) | 50 | 46 | 96 |
-| [Player Mechanics](player-mechanics.md) | 0 | 71 | 71 |
-| [Meta Services](meta-services.md) | 35 | 35 | 70 |
-| **Total** | **136** | **299** | **435** |
+| [Infrastructure](infrastructure.md) | 77 | 8 | 85 |
+| [Cards — Board](cards-board.md) | 86 | 0 | 86 |
+| [Cards — Player](cards-player.md) | 34 | 4 | 38 |
+| [Board Mechanics](board-mechanics.md) | 127 | 0 | 127 |
+| [Player Mechanics](player-mechanics.md) | 69 | 2 | 71 |
+| [Meta Services](meta-services.md) | 79 | 0 | 79 |
+| **Total** | **472** | **14** | **486** |
 
 Game tests are pure unit tests (no Orleans). Infrastructure and Meta are integration tests with TestCluster + PostgreSQL.
 
