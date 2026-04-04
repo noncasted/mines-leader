@@ -358,12 +358,6 @@ namespace BuildReportTool.Window.Screen
 					zoomInChanged = true;
 				}
 			}
-			else
-			{
-				// no thumbnail currently shown. ensure the controls that
-				// need to be reset to initial state are reset
-				BRT_BuildReportWindow.ResetThumbnailControls();
-			}
 
 			if (!zoomInChanged && !Event.current.alt &&
 			    !BRT_BuildReportWindow.MouseMovedNow && !BRT_BuildReportWindow.LastMouseMoved)

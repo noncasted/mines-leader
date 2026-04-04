@@ -1,3 +1,16 @@
+Version 3.13.5
+- FIX: Fix for compatibility with upcoming breaking changes by Unity 6.5 (Application.consoleLogPath).
+- FIX: Fixed 'Reveal in File Browser' for Linux.
+- FIX: Changed thumbnail zoom to press Ctrl instead of hold, to fix wrong zoom state
+  of tooltip thumbnails in certain situations.
+
+
+Version 3.13.4
+- FIX: Error message (in Console) when trying to open a build report file that's empty is now described better.
+- FIX: If Report Generation failed, the build report file is no longer saved.
+- FIX: Fixed wrong calculation of Total Build Size value when building with IL2CPP.
+
+
 Version 3.13.3
 - NEW: Included an additional recorded project setting
   (PlayerSettings.GetIl2CppStacktraceInformation).

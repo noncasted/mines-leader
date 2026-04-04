@@ -1276,12 +1276,6 @@ namespace BuildReportTool.Window.Screen
 					zoomInChanged = true;
 				}
 			}
-			else
-			{
-				// no thumbnail currently shown. ensure the controls that
-				// need to be reset to initial state are reset
-				BRT_BuildReportWindow.ResetThumbnailControls();
-			}
 
 			if (!zoomInChanged && !Event.current.alt &&
 			    !BRT_BuildReportWindow.MouseMovedNow && !BRT_BuildReportWindow.LastMouseMoved)
@@ -1325,7 +1319,7 @@ namespace BuildReportTool.Window.Screen
 			if (shouldShowThumbnailTooltipNow)
 			{
 				GUILayout.Label(
-					"Hold Ctrl to zoom-in on the thumbnail. Press Alt to show/hide alpha transparency.",
+					"Press Ctrl to toggle zoom-in/out on the thumbnail. Press Alt to show/hide alpha transparency.",
 					statusBarLabelStyle,
 					BRT_BuildReportWindow.LayoutNone);
 			}

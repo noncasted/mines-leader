@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 8162
   packageName: Build Report Tool
-  packageVersion: 3.13.3
+  packageVersion: 3.13.5
   assetPath: Assets/Plugins/BuildReport/Scripts/Editor/Window/Screen/BRT_AssetListScreen.cs
-  uploadId: 803770
+  uploadId: 861544
