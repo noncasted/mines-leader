@@ -8,6 +8,8 @@ using Global.Settings;
 using Global.Systems;
 using Global.UI;
 using Internal;
+using Tools;
+using Tools.SceneBuilder;
 
 namespace Global.Setup
 {
@@ -17,7 +19,7 @@ namespace Global.Setup
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GlobalServicesScene>(),
+                Scenes.GlobalServices.Value,
                 Construct,
                 false);
             

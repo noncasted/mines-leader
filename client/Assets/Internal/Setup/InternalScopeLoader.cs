@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Tools;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -15,7 +16,7 @@ namespace Internal
 
         public ILoadedScope Load()
         {
-            var container = Object.Instantiate(_config.Scope);
+            var container = Object.Instantiate(Prefabs.InternalScope.As<InternalScope>());
             container.name = "Internal_Scope";
 
             Object.DontDestroyOnLoad(container);

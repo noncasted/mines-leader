@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using Tools;
+using Tools.SceneBuilder;
 
 namespace Meta
 {
@@ -9,7 +11,7 @@ namespace Meta
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<MetaServicesScene>(),
+                Scenes.MetaServices.Value,
                 Construct,
                 false);
             

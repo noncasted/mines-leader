@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using Common.Network;
 using Cysharp.Threading.Tasks;
-using GamePlay.Cheats;
 using GamePlay.UI;
 using Internal;
 using Shared;
+using Tools;
+using Tools.SceneBuilder;
 using VContainer;
 
 namespace GamePlay.Loop
@@ -18,7 +19,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GameServicesScene>(),
+                Scenes.GameServices.Value,
                 builder => Construct(builder, sessionData),
                 false
             );
@@ -36,7 +37,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GameServicesScene>(),
+                Scenes.GameServices.Value,
                 builder => Construct(builder, sessionData),
                 true
             );
@@ -88,11 +89,11 @@ namespace GamePlay.Loop
         private static UniTask AddScene(this IScopeBuilder builder)
         {
             return UniTask.WhenAll(
-                builder.FindOrLoadSceneWithServices<GameFieldScene>(),
-                builder.FindOrLoadSceneWithServices<GameOverlayScene>(),
-                builder.FindOrLoadSceneWithServices<GamePauseScene>(),
-                builder.FindOrLoadSceneWithServices<GameEndScene>(),
-                builder.FindOrLoadSceneWithServices<GameCheatsScene>()
+                builder.FindOrLoadSceneWithServices(Scenes.GameField.Value),
+                builder.FindOrLoadSceneWithServices(Scenes.GameOverlay.Value),
+                builder.FindOrLoadSceneWithServices(Scenes.GamePause.Value),
+                builder.FindOrLoadSceneWithServices(Scenes.GameEnd.Value),
+                builder.FindOrLoadSceneWithServices(Scenes.GameCheats.Value)
             );
         }
     }

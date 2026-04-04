@@ -6,14 +6,14 @@ namespace Internal
 {
     public class SceneLoader : ISceneLoader
     {
-        public async UniTask<ILoadedScene> Load(SceneData sceneAsset, bool isMain = false)
+        public async UniTask<ILoadedScene> Load(AssetReference scene, bool isMain = false)
         {
-            var scene = await Addressables.LoadSceneAsync(sceneAsset.Value, LoadSceneMode.Additive).ToUniTask();
+            var result = await Addressables.LoadSceneAsync(scene, LoadSceneMode.Additive).ToUniTask();
 
             if (isMain == true)
-                SceneManager.SetActiveScene(scene.Scene);
+                SceneManager.SetActiveScene(result.Scene);
 
-            return new LoadedScene(scene);
+            return new LoadedScene(result);
         }
     }
 }

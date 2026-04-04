@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using Tools;
+using Tools.SceneBuilder;
 
 namespace Loop
 {
@@ -9,7 +11,7 @@ namespace Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                loader.Assets.GetAsset<GameLoopServicesScene>(),
+                Scenes.GameLoopServices.Value,
                 Construct,
                 false);
             

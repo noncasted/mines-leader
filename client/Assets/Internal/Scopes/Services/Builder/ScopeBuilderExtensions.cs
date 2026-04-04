@@ -1,23 +1,14 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using Object = UnityEngine.Object;
 
 namespace Internal
 {
     public static class ScopeBuilderExtensions
     {
-        public static UniTask<TComponent> FindOrLoadScene<TScene, TComponent>(this IScopeBuilder builder)
-            where TScene : SceneData
-            where TComponent : MonoBehaviour
+        public static async UniTask FindOrLoadSceneWithServices(this IScopeBuilder builder, AssetReference scene, bool isMain = false)
         {
-            var scene = builder.GetAsset<TScene>();
-            return builder.FindOrLoadScene<TComponent>(scene);
-        }
-
-        public static async UniTask FindOrLoadSceneWithServices<TScene>(this IScopeBuilder builder, bool isMain = false)
-            where TScene : SceneData
-        {
-            var scene = builder.GetAsset<TScene>();
             var services = await builder.FindOrLoadScene<SceneServicesFactory>(scene, isMain);
             services.Create(builder);
         }
