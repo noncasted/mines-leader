@@ -303,7 +303,7 @@
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">/home/noncasted/.local/share/mise/installs/dotnet/9.0.305/sdk/9.0.305/MSBuild.dll</s:String>
 	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114126</s:Int64>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=21874996_002D212c_002D4f6a_002Db862_002D175dc51c5351/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Project Location="/projects/mines-leader/backend/Tests" Presentation="&amp;lt;Tests&amp;gt;" /&gt;
+  &lt;Project Location="/projects/mines-leader/backend/Tools/Tests" Presentation="&amp;lt;Tools&amp;gt;\&amp;lt;Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	</wpf:ResourceDictionary>
