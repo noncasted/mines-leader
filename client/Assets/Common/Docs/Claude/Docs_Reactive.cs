@@ -66,7 +66,7 @@ namespace Docs.Claude
                     changedCount++;
                     // weaponLifetime valid until next Set()
                 }
-            );
+          );
 
             currentWeapon.Set("bow"); // changedCount == 1, old lifetime terminated, new created
             currentWeapon.Set("staff"); // changedCount == 2
@@ -97,7 +97,7 @@ namespace Docs.Claude
                     // Called immediately with current value (80)
                     updateCount++;
                 }
-            );
+          );
             // updateCount == 1 after View() called
 
             health.Set(70); // updateCount == 2
@@ -121,7 +121,7 @@ namespace Docs.Claude
                     // Item lifetime valid until enemy removed
                     enemyLifetime.Listen(() => cleanupCount++);
                 }
-            );
+          );
 
             var enemy1 = new MockEnemy();
             enemies.Add(enemy1); // setupCount == 1
@@ -149,7 +149,7 @@ namespace Docs.Claude
                     setupCount++;
                     // sessionLifetime valid until key removed
                 }
-            );
+          );
 
             sessions.Add("user1", new MockSession()); // setupCount == 1
             sessions.Add("user2", new MockSession()); // setupCount == 2
@@ -174,7 +174,7 @@ namespace Docs.Claude
                 {
                     adviseCallCount++; // Called only on Set()
                 }
-            );
+          );
             // adviseCallCount still 0 - no immediate callback
 
             var viewCallCount = 0;
@@ -182,7 +182,7 @@ namespace Docs.Claude
                 {
                     viewCallCount++; // Called immediately + on Set()
                 }
-            );
+          );
             // viewCallCount == 1 - immediate callback with current value (100)
 
             health.Set(90);
@@ -203,7 +203,7 @@ namespace Docs.Claude
                     uiUpdateCount++; // UI updated with current and future values
                     // In real code: healthBar.SetValue(value)
                 }
-            );
+          );
 
             healthProperty.Set(90); // uiUpdateCount == 2 (immediate + 1 update)
             healthProperty.Set(50); // uiUpdateCount == 3
@@ -225,7 +225,7 @@ namespace Docs.Claude
 
                     // When enemy removed from list, this subscription auto-cleaned
                 }
-            );
+          );
 
             var enemy1 = new MockEnemy();
             enemies.Add(enemy1);
@@ -261,7 +261,7 @@ namespace Docs.Claude
                         // Show offline UI
                     }
                 }
-            );
+          );
 
             isConnected.Set(true); // onlineCount == 1, offlineCount == 1 (immediate)
             isConnected.Set(false); // onlineCount == 1, offlineCount == 2
@@ -398,7 +398,7 @@ namespace Docs.Claude
                 {
                     itemLifetime.Listen(() => lifetimeCleanedCount++);
                 }
-            );
+          );
 
             items.Add("item1"); // lifetimeCleanedCount == 0
             items.Add("item2"); // lifetimeCleanedCount == 0
@@ -424,7 +424,7 @@ namespace Docs.Claude
                     valueLifetime.Listen(() => valueLifetimeTerminatedCount++);
                     // Each value has its own lifetime
                 }
-            );
+          );
 
             currentValue.Set("second"); // Previous value lifetime terminated
             // valueLifetimeTerminatedCount == 1
