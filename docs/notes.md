@@ -1,0 +1,2 @@
+- Search: \n\s*\);
+- Replace: );
