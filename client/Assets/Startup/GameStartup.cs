@@ -26,12 +26,12 @@ namespace Startup
             var startScene = gameObject.scene;
 
             var internalScope = internalScopeLoader.Load();
-            var scopeLoader = internalScope.Get<IServiceScopeLoader>();
+            var scopeLoader = internalScope.Resolve<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(internalScope);
-            var globalCamera = globalScope.Get<IGlobalCamera>();
+            var globalCamera = globalScope.Resolve<IGlobalCamera>();
             ;
-            var loadingScreen = globalScope.Get<ILoadingScreen>();
+            var loadingScreen = globalScope.Resolve<ILoadingScreen>();
             ;
             globalCamera.Enable();
             loadingScreen.Show();
