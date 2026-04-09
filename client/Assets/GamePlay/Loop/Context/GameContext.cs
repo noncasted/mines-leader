@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GamePlay.Players;
+using Internal;
 
 namespace GamePlay.Loop
 {
@@ -10,6 +11,7 @@ namespace GamePlay.Loop
         IGamePlayer Self { get; }
         IGamePlayer Other { get; }
         IReadOnlyList<IGamePlayer> All { get; }
+        IViewableDelegate Updated { get; }
 
         void AddPlayer(IGamePlayer player);
     }
@@ -20,10 +22,12 @@ namespace GamePlay.Loop
         private IGamePlayer _other;
 
         private readonly List<IGamePlayer> _all = new();
+        private readonly ViewableDelegate _updated = new();
 
         public IGamePlayer Self => _self;
         public IGamePlayer Other => _other;
         public IReadOnlyList<IGamePlayer> All => _all;
+        public IViewableDelegate Updated => _updated;
 
         public void AddPlayer(IGamePlayer player)
         {
@@ -33,6 +37,7 @@ namespace GamePlay.Loop
                 _other = player;
 
             _all.Add(player);
+            _updated.Invoke();
         }
     }
 
