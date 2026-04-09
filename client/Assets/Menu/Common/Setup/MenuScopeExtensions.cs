@@ -17,7 +17,7 @@ namespace Menu.Common
                 Scenes.MenuServices.Value,
                 Construct,
                 false
-            );
+          );
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -45,7 +45,7 @@ namespace Menu.Common
                 Scenes.MenuServices.Value,
                 Construct,
                 true
-            );
+          );
 
             var scope = await loader.Load(options);
             await scope.Initialize();

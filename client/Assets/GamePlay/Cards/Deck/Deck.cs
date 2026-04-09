@@ -29,8 +29,7 @@ namespace GamePlay.Cards
             _state.Advise(lifetime, () =>
                 {
                     _view.UpdateAmount(_state.Value.Queue.Count);
-                }
-            );
+                });
         }
     }
 }

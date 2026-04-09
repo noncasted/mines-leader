@@ -36,8 +36,7 @@ namespace GamePlay.Players
                     _current.Set(state.Left);
                     _max.Set(state.Max);
                     _isTurn.Set(state.IsAvailable);
-                }
-            );
+                });
         }
     }
 

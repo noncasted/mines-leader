@@ -42,8 +42,7 @@ namespace GamePlay.Loop
                     var player = _gameContext.GetPlayer(state.CurrentPlayer);
                     _player.Set(player);
                     _roundTime.Set(state.SecondsLeft[player.Id]);
-                }
-            );
+                });
         }
 
         public void TrySkip()

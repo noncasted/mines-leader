@@ -32,8 +32,7 @@ namespace GamePlay.Cheats
             _connection.Request(new GameCheatContexts.ChangeMaxMana()
                 {
                     Value = _maxMana
-                }
-            );
+                });
         }
     }
 }

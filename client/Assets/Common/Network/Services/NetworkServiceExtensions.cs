@@ -117,7 +117,7 @@ namespace Common.Network
                     _properties,
                     events,
                     lifetime
-                );
+              );
 
                 _service.Start(data);
                 _objectsCollection.Add(_service);

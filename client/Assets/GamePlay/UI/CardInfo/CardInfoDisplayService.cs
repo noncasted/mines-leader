@@ -28,8 +28,7 @@ namespace GamePlay.UI
             hand.Entries.View(lifetime, (_, card) =>
                 {
                     SubscribeToCard(lifetime, card);
-                }
-            );
+                });
         }
 
         private void SubscribeToCard(IReadOnlyLifetime lifetime, ICard card)
@@ -46,8 +45,7 @@ namespace GamePlay.UI
                     {
                         _ui.DisplayCard(
                             card.Definition.Name,
-                            card.Definition.Description
-                        );
+                            card.Definition.Description);
                     }
                     else if (localCard.IsInSpawnAnimation.Value)
                     {
@@ -57,8 +55,7 @@ namespace GamePlay.UI
                     {
                         _ui.Hide();
                     }
-                }
-            );
+                });
 
             localCard.IsInSpawnAnimation.Advise(cardLifetime, isSpawning =>
                 {
@@ -66,8 +63,7 @@ namespace GamePlay.UI
                     {
                         _ui.HideImmediately();
                     }
-                }
-            );
+                });
         }
     }
 }

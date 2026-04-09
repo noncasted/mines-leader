@@ -79,8 +79,7 @@ namespace GamePlay.Cards
 
                         return selectionCurve.StepBack(delta);
                     }
-                }
-            );
+                });
 
             _pointerHandler.IsPressed.AdviseTrue(lifetime, () =>
                 {
@@ -88,8 +87,7 @@ namespace GamePlay.Cards
                         return;
 
                     _drag.Enter(this).Forget();
-                }
-            );
+                });
         }
     }
 }

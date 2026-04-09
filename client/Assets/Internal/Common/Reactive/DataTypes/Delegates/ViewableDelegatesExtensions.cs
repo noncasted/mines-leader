@@ -13,12 +13,12 @@ namespace Internal
                 {
                     completion.TrySetException(new OperationCanceledException());
                 }
-            );
+          );
             viewableDelegate.Advise(lifetime, () =>
                 {
                     completion.TrySetResult();
                 }
-            );
+          );
 
             return completion.Task;
         }
@@ -34,7 +34,7 @@ namespace Internal
                 {
                     completion.TrySetResult(value);
                 }
-            );
+          );
 
             return completion.Task;
         }

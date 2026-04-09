@@ -36,7 +36,7 @@ namespace Common.Network
 
             Debug.Log(
                 $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}"
-            );
+          );
 
             if (response.IsSuccess == false)
             {

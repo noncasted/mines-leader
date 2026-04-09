@@ -27,7 +27,7 @@ namespace Internal
                     if (value != null)
                         listener.Invoke(value);
                 }
-            );
+          );
 
             if (property.Value != null)
                 listener.Invoke(property.Value);
@@ -43,7 +43,7 @@ namespace Internal
                     if (value != null)
                         listener.Invoke(valueLifetime, value);
                 }
-            );
+          );
 
             if (property.Value != null)
                 listener.Invoke(property.ValueLifetime, property.Value);

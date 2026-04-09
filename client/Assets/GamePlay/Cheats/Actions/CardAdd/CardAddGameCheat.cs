@@ -41,8 +41,7 @@ namespace GamePlay.Cheats
                         {
                             Type = definition.Type
                         }
-                    )
-                );
+                    ));
             }
         }
     }

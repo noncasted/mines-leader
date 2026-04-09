@@ -60,7 +60,7 @@ namespace Common.Network
                     ObjectId = _object.Id,
                     Value = MemoryPackSerializer.Serialize(rawPayload)
                 }
-            );
+          );
         }
     }
 
@@ -81,7 +81,7 @@ namespace Common.Network
 
                         source.Invoke(castedPayload);
                     }
-                );
+              );
             }
 
             return events.Entries[type] as ViewableDelegate<T>;

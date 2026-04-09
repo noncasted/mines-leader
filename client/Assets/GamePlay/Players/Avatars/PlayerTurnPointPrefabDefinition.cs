@@ -26,10 +26,10 @@ namespace GamePlay.Players
 
             builder.SetSerialized<AvatarTurnPointView>("_active",
                 PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active")
-            );
+          );
             builder.SetSerialized<AvatarTurnPointView>("_inactive",
                 PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive")
-            );
+          );
             builder.SetSerialized<AvatarTurnPointView>("_renderer", spriteRenderer);
         }
     }

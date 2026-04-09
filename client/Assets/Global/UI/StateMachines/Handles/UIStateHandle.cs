@@ -22,7 +22,7 @@ namespace Global.UI
                     else
                         constraintsStorage.Remove(State.Constraints);
                 }
-            );
+          );
 
             _innerLifetime.Listen(() =>
                 {
@@ -31,7 +31,7 @@ namespace Global.UI
 
                     Completion.TrySetResult();
                 }
-            );
+          );
         }
 
         private readonly IInternalUIStateHandle _parent;
@@ -57,7 +57,7 @@ namespace Global.UI
 
                     _isVisible.Set(true);
                 }
-            );
+          );
         }
 
         public void OnChild()

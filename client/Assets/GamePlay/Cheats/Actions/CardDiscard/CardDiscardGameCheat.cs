@@ -43,10 +43,8 @@ namespace GamePlay.Cheats
                             {
                                 CardId = card.Id
                             }
-                        )
-                    );
-                }
-            );
+                        ));
+                });
         }
     }
 }

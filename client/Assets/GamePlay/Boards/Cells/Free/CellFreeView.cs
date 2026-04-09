@@ -25,8 +25,7 @@ namespace GamePlay.Boards
 
                     _count.gameObject.SetActive(true);
                     _count.text = count.ToString();
-                }
-            );
+                });
         }
     }
 }

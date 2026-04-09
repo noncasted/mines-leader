@@ -36,8 +36,7 @@ namespace GamePlay.Players
                     Debug.Log($"[Player] {_player.Id} health updated: {state.Current}/{state.Max}");
                     _current.Set(state.Current);
                     _max.Set(state.Max);
-                }
-            );
+                });
         }
     }
 }

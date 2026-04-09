@@ -65,8 +65,7 @@ namespace GamePlay.Cards
                     var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
                     _transform.SetPosition(position);
                     _transform.SetRotation(rotation);
-                }
-            );
+                });
 
             _localCard.SetSpawning(false);
             _idle.Enter();

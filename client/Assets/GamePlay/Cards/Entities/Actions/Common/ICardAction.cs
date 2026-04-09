@@ -56,8 +56,7 @@ namespace GamePlay.Cards
                 if (data is not TData typedPayload)
                 {
                     throw new InvalidCastException(
-                        $"Payload type {data.GetType()} does not match expected type {typeof(TData)}."
-                    );
+                        $"Payload type {data.GetType()} does not match expected type {typeof(TData)}.");
                 }
 
                 return _implementation.Sync(lifetime, typedPayload);

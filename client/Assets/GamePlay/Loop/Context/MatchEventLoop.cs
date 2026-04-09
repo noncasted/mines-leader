@@ -62,8 +62,7 @@ namespace GamePlay.Loop
                         default:
                             throw new ArgumentOutOfRangeException(nameof(state), state, null);
                     }
-                }
-            );
+                });
         }
 
         private void OnWaitingForPlayers(IReadOnlyLifetime lifetime)

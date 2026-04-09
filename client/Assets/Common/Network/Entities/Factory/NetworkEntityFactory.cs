@@ -54,7 +54,7 @@ namespace Common.Network
                         PropertyId = id,
                         Value = property.Collect()
                     }
-                );
+              );
             }
 
             var request = new SharedSessionEntity.CreateRequest()

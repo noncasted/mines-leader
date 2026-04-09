@@ -45,7 +45,7 @@ namespace Menu.Social
                     PlayerId = _user.Id,
                     Message = message
                 }
-            );
+          );
         }
 
         private void OnMessageReceived(MenuChatMessagePayload payload)

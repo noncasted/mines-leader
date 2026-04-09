@@ -65,7 +65,7 @@ namespace Global.UI.Prefabs
                                 Gradient = CreateBackgroundGradient()
                             };
                         }
-                    );
+                  );
 
                     var bgRt = bg.GameObject.GetComponent<RectTransform>();
                     bgRt.anchorMin = Vector2.zero;
@@ -74,7 +74,7 @@ namespace Global.UI.Prefabs
                     bgRt.sizeDelta = Vector2.zero;
                     bgRt.pivot = new Vector2(0.5f, 0.5f);
                 }
-            );
+          );
 
             builder.WithChildObject("Animation", anim =>
                 {
@@ -87,7 +87,7 @@ namespace Global.UI.Prefabs
                             img.raycastTarget = true;
                             animImage = img;
                         }
-                    );
+                  );
 
                     anim.WithComponent<LoadingScreenAnimation>(lsa => animation = lsa);
 
@@ -107,9 +107,9 @@ namespace Global.UI.Prefabs
                             PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_4"),
                             PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_5")
                         }
-                    );
+                  );
                 }
-            );
+          );
 
             builder.SetSerialized<LoadingScreen>("_group", canvasGroup);
             builder.SetSerialized<LoadingScreen>("_curve._time", 1f);
@@ -117,7 +117,7 @@ namespace Global.UI.Prefabs
                     new Keyframe(0f, 0f, 0f, 0f),
                     new Keyframe(1f, 1f, 2f, 2f)
                 )
-            );
+          );
             builder.SetSerialized<LoadingScreen>("_animation", animation);
         }
 
@@ -135,7 +135,7 @@ namespace Global.UI.Prefabs
                     new GradientAlphaKey(1f, 0f),
                     new GradientAlphaKey(1f, 1f)
                 }
-            );
+          );
             return gradient;
         }
     }

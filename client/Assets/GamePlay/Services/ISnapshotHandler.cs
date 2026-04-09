@@ -42,8 +42,7 @@ namespace GamePlay.Services
                 {
                     throw new ArgumentException(
                         $"[Snapshot] Expected record of type {typeof(T).Name}, but got {moveRecord.GetType().Name}.",
-                        nameof(moveRecord)
-                    );
+                        nameof(moveRecord));
                 }
 
                 Debug.Log($"[Snapshot] Handling record of type {typeof(T).Name}.");

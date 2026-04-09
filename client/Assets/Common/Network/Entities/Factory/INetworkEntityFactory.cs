@@ -58,7 +58,7 @@ namespace Common.Network
             if (properties.Count != data.RawProperties.Count)
                 throw new InvalidOperationException(
                     $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}"
-                );
+              );
 
             foreach (var rawProperty in data.RawProperties)
             {

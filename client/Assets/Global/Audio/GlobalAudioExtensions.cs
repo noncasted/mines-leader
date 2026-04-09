@@ -49,7 +49,7 @@ namespace Global.Audio
                     {
                         player.Configure(musicSource, soundSources.ToArray());
                     }
-                );
+              );
         }
     }
 

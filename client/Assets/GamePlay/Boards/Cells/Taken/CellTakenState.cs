@@ -34,8 +34,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.SetFlag()
                 {
                     Position = _cell.BoardPosition.ToPosition()
-                }
-            );
+                });
         }
 
         public void UnFlag()
@@ -43,8 +42,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.RemoveFlag()
                 {
                     Position = _cell.BoardPosition.ToPosition()
-                }
-            );
+                });
         }
 
         public void Open()
@@ -52,8 +50,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.Open()
                 {
                     Position = _cell.BoardPosition.ToPosition()
-                }
-            );
+                });
         }
 
         public void Explode(CellExplosionType type)

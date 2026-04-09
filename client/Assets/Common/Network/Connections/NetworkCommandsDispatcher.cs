@@ -41,7 +41,7 @@ namespace Common.Network
                         Debug.LogException(e);
                     }
                 }
-            );
+          );
 
             reader.Request.Advise(lifetime, request =>
                 {
@@ -58,14 +58,14 @@ namespace Common.Network
                         Debug.LogException(e);
                     }
                 }
-            );
+          );
 
             reader.Response.Advise(lifetime, response =>
                 {
                     var context = response.Context;
                     writer.OnRequestHandled(context, response.RequestId);
                 }
-            );
+          );
         }
     }
 }

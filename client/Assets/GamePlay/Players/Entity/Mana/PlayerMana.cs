@@ -33,8 +33,7 @@ namespace GamePlay.Players
                 {
                     _current.Set(state.Current);
                     _max.Set(state.Max);
-                }
-            );
+                });
         }
     }
 }

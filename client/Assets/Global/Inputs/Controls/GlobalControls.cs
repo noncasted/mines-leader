@@ -27,7 +27,7 @@ namespace Global.Inputs
                     _controls.Disable();
                     _controls.Dispose();
                 }
-            );
+          );
         }
     }
 }

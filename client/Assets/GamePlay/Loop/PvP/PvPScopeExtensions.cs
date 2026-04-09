@@ -20,8 +20,7 @@ namespace GamePlay.Loop
                 parent,
                 Scenes.GameServices.Value,
                 builder => Construct(builder, sessionData),
-                false
-            );
+                false);
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -38,8 +37,7 @@ namespace GamePlay.Loop
                 parent,
                 Scenes.GameServices.Value,
                 builder => Construct(builder, sessionData),
-                true
-            );
+                true);
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -90,8 +88,7 @@ namespace GamePlay.Loop
                 builder.FindOrLoadSceneWithServices(Scenes.GameOverlay.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GamePause.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GameEnd.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameCheats.Value)
-            );
+                builder.FindOrLoadSceneWithServices(Scenes.GameCheats.Value));
         }
     }
 }

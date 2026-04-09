@@ -20,7 +20,7 @@ namespace Global.Inputs
                     action.performed -= OnChanged;
                     action.canceled -= OnChanged;
                 }
-            );
+          );
 
             return property;
 
@@ -42,7 +42,7 @@ namespace Global.Inputs
                     action.performed -= OnPerformed;
                     action.canceled -= OnCanceled;
                 }
-            );
+          );
 
             return property;
 
@@ -70,7 +70,7 @@ namespace Global.Inputs
                     action.performed -= OnChanged;
                     action.canceled -= OnChanged;
                 }
-            );
+          );
 
             return;
 
@@ -93,7 +93,7 @@ namespace Global.Inputs
                     action.performed -= OnChanged;
                     action.canceled -= OnChanged;
                 }
-            );
+          );
 
             return;
 
@@ -116,7 +116,7 @@ namespace Global.Inputs
                     action.performed -= OnPerformed;
                     action.canceled -= OnCanceled;
                 }
-            );
+          );
 
             return;
 
@@ -144,7 +144,7 @@ namespace Global.Inputs
                     action.performed -= OnPerformed;
                     action.canceled -= OnCanceled;
                 }
-            );
+          );
 
             return;
 
@@ -173,7 +173,7 @@ namespace Global.Inputs
                     action.performed -= performed;
                     action.canceled -= canceled;
                 }
-            );
+          );
         }
 
         public static void Listen(
@@ -189,7 +189,7 @@ namespace Global.Inputs
                     action.performed -= performed;
                     action.canceled -= performed;
                 }
-            );
+          );
         }
 
         public static void ListenPerformed(
@@ -203,7 +203,7 @@ namespace Global.Inputs
                 {
                     action.performed -= performed;
                 }
-            );
+          );
         }
 
         public static void ListenPerformed(
@@ -217,7 +217,7 @@ namespace Global.Inputs
                 {
                     action.performed -= OnPerformed;
                 }
-            );
+          );
 
             return;
 
@@ -236,7 +236,7 @@ namespace Global.Inputs
                     action.performed += OnPerformed;
                     completion.TrySetCanceled();
                 }
-            );
+          );
 
             return completion.Task;
 

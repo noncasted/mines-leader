@@ -87,10 +87,10 @@ namespace Menu.Main
             _button.ListenClick(_selectionLifetime, () => completion.TrySetResult((false, GameMatchType.Single)));
             _timeLimited.ListenClick(_selectionLifetime,
                 () => completion.TrySetResult((true, GameMatchType.TimeLimited))
-            );
+          );
             _lastManStanding.ListenClick(_selectionLifetime,
                 () => completion.TrySetResult((true, GameMatchType.LastManStanding))
-            );
+          );
 
             _modeSelection.SetActive(true);
 
@@ -99,7 +99,7 @@ namespace Menu.Main
                     _modeSelection.SetActive(false);
                     completion.TrySetCanceled();
                 }
-            );
+          );
 
             var (confirmed, type) = await completion.Task;
 

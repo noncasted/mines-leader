@@ -50,23 +50,17 @@ namespace GamePlay.Cards.Options.Prefabs
 
                     view.SetSerialized<CardAvailabilityView>("_renderer", cardRenderer);
                     view.SetSerialized<CardAvailabilityView>("_availableSpriteColor",
-                        new Color(1f, 1f, 1f, 1f)
-                    );
+                        new Color(1f, 1f, 1f, 1f));
                     view.SetSerialized<CardAvailabilityView>("_lockedSpriteColor",
-                        new Color(0.594f, 0.594f, 0.594f, 1f)
-                    );
+                        new Color(0.594f, 0.594f, 0.594f, 1f));
                     view.SetSerialized<CardAvailabilityView>("_availableNameColor",
-                        new Color(0.929f, 0.808f, 0.678f, 1f)
-                    );
+                        new Color(0.929f, 0.808f, 0.678f, 1f));
                     view.SetSerialized<CardAvailabilityView>("_availableDescriptionColor",
-                        new Color(0.518f, 0.263f, 0.169f, 1f)
-                    );
+                        new Color(0.518f, 0.263f, 0.169f, 1f));
                     view.SetSerialized<CardAvailabilityView>("_lockedNameColor",
-                        new Color(0.435f, 0.341f, 0.275f, 1f)
-                    );
+                        new Color(0.435f, 0.341f, 0.275f, 1f));
                     view.SetSerialized<CardAvailabilityView>("_lockedDescriptionColor",
-                        new Color(0.227f, 0.090f, 0.051f, 1f)
-                    );
+                        new Color(0.227f, 0.090f, 0.051f, 1f));
 
                     view.WithChildObject("Body", body =>
                         {
@@ -76,8 +70,7 @@ namespace GamePlay.Cards.Options.Prefabs
                                     sr.color = Color.white;
                                     sr.sortingLayerName = "UI";
                                     sr.sortingOrder = 0;
-                                }
-                            );
+                                });
                             body.WithComponent<CardDataView>();
 
                             body.WithChildObject("Image", image =>
@@ -89,16 +82,13 @@ namespace GamePlay.Cards.Options.Prefabs
                                     image.WithComponent<SpriteRenderer>(sr =>
                                         {
                                             sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
-                                                "Assets/Resources/Cards/Trebuchet.psd"
-                                            );
+                                                "Assets/Resources/Cards/Trebuchet.psd");
                                             sr.color = Color.white;
                                             sr.sortingLayerName = "UI";
                                             sr.sortingOrder = -1;
                                             imageRenderer = sr;
-                                        }
-                                    );
-                                }
-                            );
+                                        });
+                                });
 
                             body.WithChildObject("SelectionHighlight", selection =>
                                 {
@@ -108,14 +98,11 @@ namespace GamePlay.Cards.Options.Prefabs
                                             sr.color = Color.white;
                                             sr.sortingLayerName = "UI";
                                             sr.sortingOrder = -2;
-                                        }
-                                    );
+                                        });
                                     selection.WithComponent<CardSelectionSwitcher>();
                                     selection.SetSerialized<CardSelectionSwitcher>(
-                                        "_selectionHighlight", selection.GameObject
-                                    );
-                                }
-                            );
+                                        "_selectionHighlight", selection.GameObject);
+                                });
 
                             ConfigureTextChild(body, "Name", -0.0006f, -0.2495f,
                                 2.6702f, 0.5008f, FontIthaca,
@@ -123,8 +110,7 @@ namespace GamePlay.Cards.Options.Prefabs
                                 6.1f, 3f, 72f, 0f,
                                 HorizontalAlignmentOptions.Center,
                                 VerticalAlignmentOptions.Middle,
-                                tmp => nameText = tmp
-                            );
+                                tmp => nameText = tmp);
 
                             ConfigureTextChild(body, "Description", -0.0006f, -1.2063f,
                                 2.6702f, 1.2534f, FontIthaca,
@@ -132,8 +118,7 @@ namespace GamePlay.Cards.Options.Prefabs
                                 3.6f, 0f, 5f, -8f,
                                 HorizontalAlignmentOptions.Center,
                                 VerticalAlignmentOptions.Top,
-                                tmp => descriptionText = tmp
-                            );
+                                tmp => descriptionText = tmp);
 
                             ConfigureTextChild(body, "ManaCost", 1.0804f, 1.5215f,
                                 0.6249f, 0.6249f, FontBitach,
@@ -141,28 +126,23 @@ namespace GamePlay.Cards.Options.Prefabs
                                 5.95f, 3f, 72f, 0f,
                                 HorizontalAlignmentOptions.Center,
                                 VerticalAlignmentOptions.Middle,
-                                tmp => manaCostText = tmp
-                            );
+                                tmp => manaCostText = tmp);
 
                             body.SetSerialized<CardDataView>("_name", nameText);
                             body.SetSerialized<CardDataView>("_description", descriptionText);
                             body.SetSerialized<CardDataView>("_manaCost", manaCostText);
                             body.SetSerialized<CardDataView>("_image", imageRenderer);
-                        }
-                    );
+                        });
 
                     view.WithChildObject("PointerHandler", pointer =>
                         {
                             pointer.WithComponent<BoxCollider2D>(bc =>
                                 {
                                     bc.size = new Vector2(3f, 4f);
-                                }
-                            );
+                                });
                             pointer.WithComponent<CardPointerHandler>();
-                        }
-                    );
-                }
-            );
+                        });
+                });
         }
 
         private static void ConfigureTextChild(
@@ -199,8 +179,7 @@ namespace GamePlay.Cards.Options.Prefabs
                             tmp.sortingLayerID = SortingLayer.NameToID("UI");
                             tmp.sortingOrder = 1;
                             capture(tmp);
-                        }
-                    );
+                        });
 
                     var rt = text.GameObject.GetComponent<RectTransform>();
                     if (rt != null)
@@ -215,8 +194,7 @@ namespace GamePlay.Cards.Options.Prefabs
                         meshRenderer.sortingLayerName = "UI";
                         meshRenderer.sortingOrder = 1;
                     }
-                }
-            );
+                });
         }
     }
 
@@ -254,16 +232,15 @@ namespace GamePlay.Cards.Options.Prefabs
                             body.WithComponent<SpriteRenderer>(sr =>
                                 {
                                     sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
-                                        "Assets/GamePlay/Boards/Artwork/Alliance/discard_cards.psd"
-                                    );
+                                        "Assets/GamePlay/Boards/Artwork/Alliance/discard_cards.psd");
                                     sr.color = new Color(0.751f, 0.751f, 0.751f, 1f);
                                     sr.flipY = true;
                                 }
-                            );
+                          );
                         }
-                    );
+                  );
                 }
-            );
+          );
         }
     }
 }

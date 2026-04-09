@@ -59,8 +59,7 @@ namespace GamePlay.Cards
                         return;
 
                     childLifetime.Terminate();
-                }
-            );
+                });
 
             return childLifetime;
         }
