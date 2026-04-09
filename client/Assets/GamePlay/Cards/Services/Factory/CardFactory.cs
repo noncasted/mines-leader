@@ -1,5 +1,4 @@
 ﻿using System;
-using Common.Objects;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
@@ -14,25 +13,25 @@ namespace GamePlay.Cards
     {
         public CardFactory(
             IEntityScopeLoader entityScopeLoader,
+            ICardViewFactory cardViewFactory,
             IGameContext gameContext,
             ICardConfigs configs,
             ICardsRegistry registry,
-            IObjectFactory<CardScopeEntity> objectFactory,
             LifetimeScope parentScope)
         {
             _entityScopeLoader = entityScopeLoader;
+            _cardViewFactory = cardViewFactory;
             _gameContext = gameContext;
             _configs = configs;
             _registry = registry;
-            _objectFactory = objectFactory;
             _parentScope = parentScope;
         }
 
         private readonly IEntityScopeLoader _entityScopeLoader;
+        private readonly ICardViewFactory _cardViewFactory;
         private readonly IGameContext _gameContext;
         private readonly ICardConfigs _configs;
         private readonly ICardsRegistry _registry;
-        private readonly IObjectFactory<CardScopeEntity> _objectFactory;
         private readonly LifetimeScope _parentScope;
 
         public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
@@ -44,7 +43,7 @@ namespace GamePlay.Cards
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _gameContext.Self.Deck.View.PickPoint : _gameContext.Other.Deck.View.PickPoint;
 
-            var view = _objectFactory.Create(prefab, spawnPoint);
+            var view = _cardViewFactory.Create(prefab, spawnPoint);
             var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
 
             if (isLocal == true)
@@ -77,7 +76,7 @@ namespace GamePlay.Cards
                     builder.RegisterInstance(_gameContext.Self.Hand);
 
                     builder.Register<HandEntryHandle>()
-                        .As<IHandEntryHandle>();
+                           .As<IHandEntryHandle>();
 
                     builder.AddCardActionSync(definition);
                     builder.AddCardAction(_configs.Value, definition);
@@ -98,8 +97,8 @@ namespace GamePlay.Cards
                     builder.RegisterInstance(gamePlayer.Hand);
 
                     builder.Register<HandEntryHandle>()
-                        .WithParameter(gamePlayer.Hand)
-                        .As<IHandEntryHandle>();
+                           .WithParameter(gamePlayer.Hand)
+                           .As<IHandEntryHandle>();
 
                     builder.RegisterInstance(definition);
                 }
