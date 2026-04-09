@@ -21,6 +21,11 @@ Wrong: `_hp`, `_ab`. Correct: `_health`, `_abilities`.
 - Initialize inline: `private List<Item> _items = new();`
 - Lookup: `TryGetValue` not `ContainsKey + []` (single lookup)
 
+## Never Null-Check [SerializeField] Fields (CRITICAL)
+Wrong: `if (_label != null) _label.text = "X";` — silently hides broken prefab.
+Correct: `_label.text = "X";` — crash immediately if field not assigned in Inspector.
+Rule: serialized fields MUST be assigned. Null guard hides misconfiguration. Let NullRef crash loudly.
+
 ## Exception Handling: Graceful
 Catch → log with `[ClassName]` prefix → don't rethrow. App must survive.
 
