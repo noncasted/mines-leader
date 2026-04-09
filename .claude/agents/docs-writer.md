@@ -27,7 +27,7 @@ Format: `## N. Short description` + What happened + Root cause + Lesson + Rule l
 ### 5. COMMON_MISTAKES.md (`rules/COMMON_MISTAKES.md`)
 When: new critical/recurring pattern from CLAUDE_MISTAKES.md
 
-### 6. Code Examples (`client/Assets/Docs/Claude/`)
+### 6. Code Examples (`client/Assets/Common/Docs/Claude/`)
 When: new pattern needs example, existing example outdated
 
 ### 7. Decision Trees (`docs/DECISION_TREES.md`)

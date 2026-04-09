@@ -27,14 +27,14 @@ public class MyService : MonoBehaviour, ISceneService, IScopeSetup {
 ## Full Code Examples
 
 Complete examples with all DI container scenarios:
-→ [Assets/Docs/Claude/Docs_Container.cs](../../client/Assets/Docs/Claude/Docs_Container.cs)
+→ [Assets/Common/Docs/Claude/Docs_Container.cs](../../client/Assets/Common/Docs/Claude/Docs_Container.cs)
 
 Specific examples:
-- [ISceneService pattern](../../client/Assets/Docs/Claude/Docs_Container.cs#L112)
-- [MonoBehaviour service](../../client/Assets/Docs/Claude/Docs_Container.cs#L129)
-- [Scope builder usage](../../client/Assets/Docs/Claude/Docs_Container.cs#L211)
-- [IViewInjector pattern](../../client/Assets/Docs/Claude/Docs_Container.cs#L164)
-- [Scope lifecycle phases](../../client/Assets/Docs/Claude/Docs_Container.cs#L24)
+- [ISceneService pattern](../../client/Assets/Common/Docs/Claude/Docs_Container.cs#L112)
+- [MonoBehaviour service](../../client/Assets/Common/Docs/Claude/Docs_Container.cs#L129)
+- [Scope builder usage](../../client/Assets/Common/Docs/Claude/Docs_Container.cs#L211)
+- [IViewInjector pattern](../../client/Assets/Common/Docs/Claude/Docs_Container.cs#L164)
+- [Scope lifecycle phases](../../client/Assets/Common/Docs/Claude/Docs_Container.cs#L24)
 
 ## Scope Lifecycle
 

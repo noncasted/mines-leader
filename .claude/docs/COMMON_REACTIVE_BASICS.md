@@ -48,12 +48,12 @@ _onChat.Advise(lifetime, msg => { });
 ## Full Code Examples
 
 Complete examples with all EventSource variants:
-→ [Assets/Docs/Claude/Docs_Reactive.cs](../../client/Assets/Docs/Claude/Docs_Reactive.cs)
+→ [Assets/Common/Docs/Claude/Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
 
 Specific examples:
-- [EventSource basic](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L24)
-- [EventSource with parameters](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L39)
-- [ViewableDelegate](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L39)
+- [EventSource basic](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L24)
+- [EventSource with parameters](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L39)
+- [ViewableDelegate](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L39)
 
 ## Common Pattern: Publisher Service
 
