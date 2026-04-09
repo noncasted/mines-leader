@@ -16,8 +16,6 @@ namespace GamePlay.Boards
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }
 
-        IViewableDelegate Updated { get; }
-
         void Setup(INetworkEntity entity);
     }
 

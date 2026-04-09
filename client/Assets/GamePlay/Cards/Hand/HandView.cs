@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using Common.Network;
+using Internal;
+using Shared;
+using UnityEngine;
 
 namespace GamePlay.Cards
 {
@@ -8,10 +11,23 @@ namespace GamePlay.Cards
     }
 
     [DisallowMultipleComponent]
-    public class HandView : MonoBehaviour, IHandView
+    public class HandView : MonoBehaviour, IHandView, IEntityComponent
     {
         [SerializeField] private HandPositions _positions;
 
         public HandPositions Positions => _positions;
+
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                   .As<IHandView>();
+
+            builder.Register<Hand>()
+                   .As<IHand>();
+
+            builder.RegisterComponent(_positions)
+                   .As<IScopeSetup>()
+                   .AsSelfResolvable();
+        }
     }
 }

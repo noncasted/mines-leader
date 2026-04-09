@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Common.Animations
 {
     [InlineEditor]
-    public class ForwardAnimationAsset : EnvAsset
+    public class ForwardAnimationAsset : ScriptableObject
     {
         [SerializeField] private Sprite[] _sprites;
         [SerializeField] private float _time = 0.8f;

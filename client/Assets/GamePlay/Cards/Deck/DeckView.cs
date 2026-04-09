@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using Common.Network;
 using Global.Constants;
+using Internal;
+using Shared;
 using Tools;
 using UnityEngine;
 
@@ -13,7 +16,7 @@ namespace GamePlay.Cards
     }
 
     [DisallowMultipleComponent]
-    public class DeckView : MonoBehaviour, IDeckView
+    public class DeckView : MonoBehaviour, IDeckView, IEntityComponent
     {
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
@@ -21,6 +24,16 @@ namespace GamePlay.Cards
 
         public Vector2 PickPoint => transform.position + Vector3.up * _cardHeight * _cards.Count;
 
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                   .As<IDeckView>();
+
+            builder.Register<Deck>()
+                   .As<IDeck>()
+                   .As<IScopeLoaded>();
+        }
+        
         public void UpdateAmount(int amount)
         {
             var delta = amount - _cards.Count;

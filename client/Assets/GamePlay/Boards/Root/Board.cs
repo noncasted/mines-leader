@@ -9,12 +9,11 @@ using VContainer;
 namespace GamePlay.Boards
 {
     [DisallowMultipleComponent]
-    public class Board : MonoBehaviour, IBoard, IScopeSetup
+    public class Board : MonoBehaviour, IBoard, IScopeSetup, IEntityComponent
     {
         [SerializeField] private CellView[] _cells;
         [SerializeField] private BoardConstructionData _constructionData;
 
-        private readonly ViewableDelegate _updated = new();
         private readonly Dictionary<Vector2Int, IBoardCell> _cellsDictionary = new();
 
         private INetworkEntity _entity;
@@ -26,7 +25,6 @@ namespace GamePlay.Boards
         public IViewableProperty<BoardState> State => _state;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
         public bool IsMine => _entity.Owner.IsLocal;
-        public IViewableDelegate Updated => _updated;
 
         [Inject]
         private void Construct(
@@ -41,16 +39,19 @@ namespace GamePlay.Boards
             _entity = entity;
         }
 
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                   .As<IBoard>()
+                   .As<IScopeSetup>();
+        }
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _cellsDictionary.Clear();
-            var rawCells = new Dictionary<Vector2Int, CellView>();
 
             foreach (var cell in _cells)
-            {
                 _cellsDictionary.Add(cell.BoardPosition, cell);
-                rawCells.Add(cell.BoardPosition, cell);
-            }
         }
 
         public void Setup(INetworkEntity entity)
