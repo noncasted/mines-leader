@@ -126,7 +126,7 @@ namespace Docs.Claude
                     new Rect(0, 0, texture.width, texture.height),
                     Vector2.one * 0.5f, // Pivot at center
                     100f // PixelsPerUnit
-                );
+              );
 
                 return sprite;
             }
@@ -177,7 +177,7 @@ namespace Docs.Claude
                 pickMode: SimpleFileBrowser.FileBrowser.PickMode.Files,
                 allowMultiSelection: true,
                 title: title
-            );
+          );
 
             // If dialog failed to open - return empty
             if (!dialogResult)
@@ -222,7 +222,7 @@ namespace Docs.Claude
                 {
                     cancelled = true;
                 }
-            );
+          );
 
             if (!dialogResult)
             {
