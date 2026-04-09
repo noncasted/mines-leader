@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4a78524aab449a80c31d1634db585a, type: 3}
+  m_Name: Cell_Flag_Remove
+  m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
+  _sprites:
+  - {fileID: -659834257369693481, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -1333520257, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: 567854872, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -1965555217, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -132337296, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: 527086896, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: 1221615050, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -817948313, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -722410962, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  _time: 0.15
