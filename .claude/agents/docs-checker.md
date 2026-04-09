@@ -53,7 +53,7 @@ Multiple docs reference "key files" sections:
 
 ### 7. Code Examples Freshness
 
-Check `client/Assets/Docs/Claude/*.cs` examples:
+Check `client/Assets/Common/Docs/Claude/*.cs` examples:
 - If patterns they demonstrate have changed — report stale examples
 
 ### 8. CLAUDE.md Keyword Table

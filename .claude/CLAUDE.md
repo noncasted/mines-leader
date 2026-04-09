@@ -81,4 +81,4 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - `docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
 - `docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
 - `docs/CODE_EXAMPLES.md` — index of runnable code examples
-- `client/Assets/Docs/Claude/*.cs` — runnable code examples for all patterns
+- `client/Assets/Common/Docs/Claude/*.cs` — runnable code examples for all patterns

@@ -49,12 +49,12 @@ stats.AddLifetimed(scopeLifetime, "buff", 1);
 ## Full Code Examples
 
 Complete examples with ViewableList and ViewableDictionary:
-→ [Assets/Docs/Claude/Docs_Reactive.cs](../../client/Assets/Docs/Claude/Docs_Reactive.cs)
+→ [Assets/Common/Docs/Claude/Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
 
 Specific examples:
-- [ViewableList](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L106)
-- [ViewableDictionary](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L141)
-- [Item-scoped subscriptions](../../client/Assets/Docs/Claude/Docs_Reactive.cs#L220)
+- [ViewableList](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L106)
+- [ViewableDictionary](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L141)
+- [Item-scoped subscriptions](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L220)
 
 ## Key Rules
 

@@ -1,6 +1,6 @@
 # Report Skill
 
-When the user runs `/report`, generate a report entry for the latest or given merged/open PR and append it to `Assets/Docs/Reports/report_ivan_stage_2`.
+When the user runs `/report`, generate a report entry for the latest or given merged/open PR and append it to `Assets/Common/Docs/Reports/report_ivan_stage_2`.
 Report Should be written in russian
 ## Rules
 
@@ -32,7 +32,7 @@ PR: [URL to pull request]
    - Read 2-4 key source .cs files from the diff to understand the actual work done (skip .meta, .prefab, .unity, .asset)
 
 4. Read the existing report file:
-   - Read `Assets/Docs/Reports/report_ivan_stage_2`
+   - Read `Assets/Common/Docs/Reports/report_ivan_stage_2`
    - If the file does not exist, start with empty content
 
 5. Generate the report entry:
