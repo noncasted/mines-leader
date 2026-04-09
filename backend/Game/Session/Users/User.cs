@@ -8,6 +8,7 @@ public interface IUser
 {
     Guid Id { get; }
     int Index { get; }
+    bool IsBot { get; }
     ILifetime Lifetime { get; }
     IConnection Connection { get; }
     ICommandDispatcher Dispatcher { get; }
@@ -17,6 +18,7 @@ public class User : IUser
 {
     public required Guid Id { get; init; }
     public required int Index { get; init; }
+    public required bool IsBot { get; init; }
     public required ILifetime Lifetime { get; init; }
     public required IConnection Connection { get; init; }
     public required ICommandDispatcher Dispatcher { get; init; }

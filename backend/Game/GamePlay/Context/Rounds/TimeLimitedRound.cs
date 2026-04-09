@@ -88,6 +88,11 @@ public class TimeLimitedRound : Service, IGameRound
 
         _snapshotSender.Send(snapshot);
 
+        var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
+
+        if (botPlayer != null)
+            _currentPlayer.Set(botPlayer);
+
         var roundsCount = 0;
 
         while (IsGameOver() == false)

@@ -32,6 +32,16 @@ public class ChangeManaCheat(GameCommandUtils utils) : GameCommand<GameCheatCont
     }
 }
 
+public class ChangeMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxMana>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMana request)
+    {
+        context.Player.Mana.SetMax(request.Value);
+        context.Player.Mana.Restore();
+        return EmptyResponse.Ok;
+    }
+}
+
 public class ChangeHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeHealth>(utils)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeHealth request)

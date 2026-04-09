@@ -22,6 +22,7 @@ public static class GameCommandsExtensions
         services.AddSingleton<IResponseCommand, CardAddCheat>();
         services.AddSingleton<IResponseCommand, CardDiscardCheat>();
         services.AddSingleton<IResponseCommand, ChangeManaCheat>();
+        services.AddSingleton<IResponseCommand, ChangeMaxManaCheat>();
         services.AddSingleton<IResponseCommand, ChangeHealthCheat>();
         services.AddSingleton<IResponseCommand, ChangeMovesCheat>();
         services.AddSingleton<IResponseCommand, EndMatchCheat>();
