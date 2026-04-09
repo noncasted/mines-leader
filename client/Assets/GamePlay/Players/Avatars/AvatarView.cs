@@ -7,7 +7,7 @@ using VContainer;
 namespace GamePlay.Players
 {
     [DisallowMultipleComponent]
-    public class AvatarView : MonoBehaviour, IScopeSetup
+    public class AvatarView : MonoBehaviour, IScopeSetup, IEntityComponent
     {
         [SerializeField] private SpriteRenderer _avatarSprite;
         [SerializeField] private TMP_Text _healthText;
@@ -18,8 +18,6 @@ namespace GamePlay.Players
         private IPlayerHealth _health;
         private CharacterAvatars _avatars;
         private IGamePlayerInfo _info;
-
-        public AvatarMovesView MovesView => _movesView;
 
         [Inject]
         private void Construct(
@@ -34,6 +32,18 @@ namespace GamePlay.Players
             _mana = mana;
         }
 
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                   .As<IScopeSetup>()
+                   .AsSelfResolvable();
+
+            builder
+                .RegisterComponent(_movesView)
+                .As<IScopeLoaded>()
+                .AsSelfResolvable();
+        }
+        
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _health.Current.View(lifetime, value => _healthText.text = value.ToString());

@@ -13,6 +13,12 @@ namespace GamePlay.Boards.Effects
 
         private readonly Dictionary<Guid, ILifetime> _active = new();
 
+        private void Awake()
+        {
+            foreach (var (_, effect) in _effects)
+                effect.gameObject.SetActive(false);
+        }
+
         public void AddEffect(Guid effectId, CellEffectType cellEffectType)
         {
             var lifetime = this.GetObjectLifetime().Child();

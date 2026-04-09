@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5492644457699925894
+--- !u!1 &2386086996007939697
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,10 +8,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2388555471701312945}
-  - component: {fileID: 7201663795306025991}
-  - component: {fileID: 6377024428038259805}
-  - component: {fileID: 5022669274801262149}
+  - component: {fileID: 6858353550230166090}
+  - component: {fileID: 5259485063165695556}
+  - component: {fileID: 4236681504581397048}
+  - component: {fileID: 7501543324298264772}
   m_Layer: 0
   m_Name: ManaPoint
   m_TagString: Untagged
@@ -19,13 +19,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &2388555471701312945
+--- !u!224 &6858353550230166090
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5492644457699925894}
+  m_GameObject: {fileID: 2386086996007939697}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -38,21 +38,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &7201663795306025991
+--- !u!222 &5259485063165695556
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5492644457699925894}
+  m_GameObject: {fileID: 2386086996007939697}
   m_CullTransparentMesh: 1
---- !u!114 &6377024428038259805
+--- !u!114 &4236681504581397048
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5492644457699925894}
+  m_GameObject: {fileID: 2386086996007939697}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -76,13 +76,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5022669274801262149
+--- !u!114 &7501543324298264772
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5492644457699925894}
+  m_GameObject: {fileID: 2386086996007939697}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8e168c3c53b4a8f8d5bea2488e67392, type: 3}
@@ -90,4 +90,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.PlayerManaPointView
   _empty: {fileID: -6150627382027310280, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
   _full: {fileID: 6815430782993304288, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
-  _image: {fileID: 6377024428038259805}
+  _image: {fileID: 4236681504581397048}

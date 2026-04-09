@@ -24,11 +24,6 @@ namespace GamePlay.Players
                 .As<IPlayerModifiers>()
                 .As<IScopeLoaded>();
 
-            builder.RegisterProperty<PlayerManaState>(PlayerStateIds.Mana);
-            builder.RegisterProperty<PlayerHealthState>(PlayerStateIds.Health);
-            builder.RegisterProperty<PlayerMovesState>(PlayerStateIds.Moves);
-            builder.RegisterProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
-
             return builder;
         }
 

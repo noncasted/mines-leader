@@ -27,6 +27,9 @@ namespace Common.Animations
 
         private IUpdatableSpriteAnimation _current;
         private IReadOnlyLifetime _lifetime;
+        
+        public bool IsPlaying => _current != null;
+        public IUpdatableSpriteAnimation Current => _current;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {

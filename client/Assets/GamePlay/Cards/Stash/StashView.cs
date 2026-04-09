@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using Common.Network;
 using Global.Constants;
+using Internal;
+using Shared;
 using Tools;
 using UnityEngine;
 
@@ -13,7 +16,7 @@ namespace GamePlay.Cards
     }
 
     [DisallowMultipleComponent]
-    public class StashView : MonoBehaviour, IStashView
+    public class StashView : MonoBehaviour, IStashView, IEntityComponent
     {
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
@@ -21,6 +24,17 @@ namespace GamePlay.Cards
 
         public Vector2 PickPoint => transform.position + Vector3.up * _cardHeight * _cards.Count;
 
+        public void Register(IEntityBuilder builder)
+        {
+            builder.RegisterComponent(this)
+                   .As<IStashView>();
+
+            builder.Register<Stash>()
+                   .As<IScopeLoaded>()
+                   .As<IStash>()
+                   .AsSelfResolvable();
+        }
+        
         public void UpdateAmount(int amount)
         {
             var delta = amount - _cards.Count;

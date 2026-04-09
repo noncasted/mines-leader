@@ -886,4 +886,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spaceBetweenPoints: 0.584
-  _pointPrefab: {fileID: 3396335714327499334, guid: e75ccea525fae004ba02b54a0e51411d, type: 3}

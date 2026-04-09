@@ -20,7 +20,7 @@ namespace GamePlay.Boards
         [SerializeField] private Board _board;
         [SerializeField] private CellSelectionView _selection;
 
-        [SerializeField] private CellAnimator _animator;
+        [SerializeField] private CellAnimator _cellAnimator;
         [SerializeField] private CellEffects _effects;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
@@ -44,7 +44,8 @@ namespace GamePlay.Boards
         public void Setup(IUpdater updater, INetworkConnection connection)
         {
             _connection = connection;
-            _animator.Construct(updater);
+            _cellAnimator.Construct(updater);
+            _takenView.FlagAnimator.Construct(updater);
             var taken = new CellTakenState(this, _takenView, _connection);
             _state.Set(taken);
             taken.Construct(_state.ValueLifetime);
@@ -69,7 +70,8 @@ namespace GamePlay.Boards
             if (_state.Value is not CellFreeState)
             {
                 Effects.Clear();
-
+                
+                _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);
                 _state.Set(free);
                 free.Construct(_state.ValueLifetime);
@@ -87,7 +89,7 @@ namespace GamePlay.Boards
 
             EnsureFree();
 
-            return _animator.PlayExplosion(this.GetObjectLifetime(), type);
+            return _cellAnimator.PlayExplosion(this.GetObjectLifetime(), type);
         }
 
         public override string ToString()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Common.Animations;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
@@ -9,27 +9,31 @@ using VContainer.Internal;
 namespace GamePlay.Boards
 {
     [DisallowMultipleComponent]
-    public class CellAnimator : SpriteAnimationRenderer
+    public class CellAnimator : MonoBehaviour, ISpriteAnimationRenderer
     {
-        [SerializeField] private ForwardAnimationData _mineExplosionData;
-        [SerializeField] private ForwardAnimationData _zipZapExplosionData;
+        [SerializeField] private SpriteRenderer _renderer;
+
+        [SerializeField] private ForwardAnimationAsset _mineExplosionData;
+        [SerializeField] private ForwardAnimationAsset _zipZapExplosionData;
+        [SerializeField] private ForwardAnimationAsset _cellOpenData;
 
         private ForwardSpriteAnimation _mineExplosion;
         private ForwardSpriteAnimation _zipZapExplosion;
+        private ForwardSpriteAnimation _cellOpen;
 
         public void Construct(IUpdater updater)
         {
             _mineExplosion = Create(_mineExplosionData);
             _zipZapExplosion = Create(_zipZapExplosionData);
+            _cellOpen = Create(_cellOpenData);
 
             return;
 
-            ForwardSpriteAnimation Create(ForwardAnimationData data)
+            ForwardSpriteAnimation Create(ForwardAnimationAsset data)
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
-                    new SpriteAnimationData(data.Sprites, data.Time)
-                );
+                    new SpriteAnimationData(data.Sprites, data.Time));
             }
         }
 
@@ -48,6 +52,29 @@ namespace GamePlay.Boards
             anim.OnSetup(animationLifetime);
             await anim.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
+
+            gameObject.SetActive(false);
+        }
+
+        public void SetSprite(Sprite sprite)
+        {
+            _renderer.sprite = sprite;
+        }
+
+        public async UniTask PlayOpen(IReadOnlyLifetime lifetime)
+        {
+            if (_zipZapExplosion.IsPlaying == true || _mineExplosion.IsPlaying == true)
+                return;
+
+            gameObject.SetActive(true);
+
+            var animationLifetime = lifetime.Child();
+            _cellOpen.OnSetup(animationLifetime);
+            await _cellOpen.PlayAsync(animationLifetime);
+            animationLifetime.Terminate();
+
+            if (_zipZapExplosion.IsPlaying == true || _mineExplosion.IsPlaying == true)
+                return;
 
             gameObject.SetActive(false);
         }

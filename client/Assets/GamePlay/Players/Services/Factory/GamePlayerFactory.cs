@@ -1,11 +1,9 @@
 ﻿using Common.Network;
-using Common.Objects;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
-using Tools;
 using VContainer.Unity;
 
 namespace GamePlay.Players
@@ -16,21 +14,24 @@ namespace GamePlay.Players
             INetworkEntityFactory entityFactory,
             IEntityScopeLoader entityScopeLoader,
             IGameContext gameContext,
-            IObjectFactory<GamePlayerEntityView> objectFactory,
-            LifetimeScope parentScope)
+            LifetimeScope parentScope,
+            LocalPlayerView local,
+            RemotePlayerView remote)
         {
             _entityFactory = entityFactory;
             _entityScopeLoader = entityScopeLoader;
             _gameContext = gameContext;
-            _objectFactory = objectFactory;
             _parentScope = parentScope;
+            _local = local;
+            _remote = remote;
         }
 
         private readonly INetworkEntityFactory _entityFactory;
         private readonly IEntityScopeLoader _entityScopeLoader;
         private readonly IGameContext _gameContext;
-        private readonly IObjectFactory<GamePlayerEntityView> _objectFactory;
         private readonly LifetimeScope _parentScope;
+        private readonly LocalPlayerView _local;
+        private readonly RemotePlayerView _remote;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -41,10 +42,7 @@ namespace GamePlay.Players
         {
             var payload = (PlayerCreatePayload)data.Payload;
 
-            var prefab = data.Owner.IsLocal
-                ? Prefabs.PlayerLocalBase.As<GamePlayerEntityView>()
-                : Prefabs.PlayerRemoteBase.As<GamePlayerEntityView>();
-            var view = _objectFactory.Create(prefab);
+            ScopeEntityView view = data.Owner.IsLocal ? _local : _remote;
             var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
             var player = loadResult.Get<IGamePlayer>();
 
@@ -60,21 +58,23 @@ namespace GamePlay.Players
 
             return loadResult.Get<INetworkEntity>();
 
-            async UniTask Build(IEntityBuilder builder)
+
+            void Build(IEntityBuilder builder)
             {
                 builder.AddRemoteEntity(data);
-
-                var buildContext = new PlayerBuildContext(_gameContext, builder);
-
-                await view.BoardFactory.Create(buildContext);
-                await view.DeckFactory.Create(buildContext);
-                await view.HandFactory.Create(buildContext);
-                await view.StashFactory.Create(buildContext);
-                await view.AvatarFactory.Create(buildContext);
 
                 builder
                     .AddPlayerComponents()
                     .AddPlayerRoot(data.Owner, payload.SelectedCharacter);
+
+                builder.RegisterProperty<BoardState>(PlayerStateIds.Board);
+                builder.RegisterProperty<PlayerManaState>(PlayerStateIds.Mana);
+                builder.RegisterProperty<PlayerHealthState>(PlayerStateIds.Health);
+                builder.RegisterProperty<PlayerMovesState>(PlayerStateIds.Moves);
+                builder.RegisterProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
+                builder.RegisterProperty<PlayerHandState>(PlayerStateIds.Hand);
+                builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);
+                builder.RegisterProperty<PlayerDeckState>(PlayerStateIds.Deck);
             }
         }
     }

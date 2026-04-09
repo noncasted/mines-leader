@@ -29,7 +29,7 @@ namespace GamePlay.Loop
             return scope;
         }
 
-        public static async UniTask<ILoadedScope> ProcessPvPMock(
+        public static async UniTask<ILoadedScope> LoadPvPMock(
             this IServiceScopeLoader loader,
             ILoadedScope parent,
             SharedMatchmaking.MatchResult sessionData)
@@ -43,9 +43,7 @@ namespace GamePlay.Loop
 
             var scope = await loader.Load(options);
             await scope.Initialize();
-
-            var loop = scope.Container.Container.Resolve<IPvPGameLoop>();
-            await loop.Process(scope.Lifetime, sessionData);
+            
             return scope;
         }
 
