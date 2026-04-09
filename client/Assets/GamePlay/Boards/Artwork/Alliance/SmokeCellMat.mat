@@ -44,8 +44,8 @@ Material:
     - _VoronoiScale: 1.5
     m_Colors:
     - _Color: {r: 0.29999998, g: 0.29999998, b: 0.29999998, a: 0.7}
-    - _ColorDark: {r: 0.3732724, g: 0.0020024967, b: 0.4245283, a: 1}
-    - _ColorLight: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
+    - _ColorDark: {r: 0.68821794, g: 0.32484868, b: 0.6886792, a: 1}
+    - _ColorLight: {r: 0.12800284, g: 0.4764151, b: 0.017977914, a: 1}
     - _ScrollSpeed: {r: 0.3, g: 0.2, b: 0, a: 0}
     - _ScrollSpeed1: {r: 0.4, g: 0.25, b: 0, a: 0}
     - _ScrollSpeed2: {r: -0.3, g: 0.35, b: 0, a: 0}

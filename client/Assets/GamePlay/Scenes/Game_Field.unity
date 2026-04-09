@@ -402,7 +402,7 @@ MonoBehaviour:
   - {fileID: 12336632}
   - {fileID: 7196743513040026431}
   - {fileID: 7493125132205067199}
-  - {fileID: 1446816882}
+  - {fileID: 1446816884}
   - {fileID: 1277771727}
 --- !u!114 &549143449
 MonoBehaviour:
@@ -546,6 +546,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3190086730383307348, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190086730383307348, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190086730383307348, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3278644329677994958, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
       propertyPath: m_Name
       value: Board_Local
@@ -587,6 +599,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad411aad028c4943967e8606ef865f20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &694874236 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3484249488465897922, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
+  m_PrefabInstance: {fileID: 694874233}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5909d56594db7139c911b05dd823ba8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Players.PlayerActiveStatusView
 --- !u!1001 &1006014970
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -668,6 +691,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad411aad028c4943967e8606ef865f20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1006014973 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9112408119880451184, guid: 644a9c7cf0d4987488f58f744386d3ba, type: 3}
+  m_PrefabInstance: {fileID: 1006014970}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5909d56594db7139c911b05dd823ba8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Players.PlayerActiveStatusView
 --- !u!1 &1277771726
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,7 +801,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1446816883}
-  - component: {fileID: 1446816882}
+  - component: {fileID: 1446816884}
   m_Layer: 0
   m_Name: Cards
   m_TagString: Untagged
@@ -775,18 +809,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1446816882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1446816881}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5fcfdb61d9941d1a083ab6290da3658, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1446816883
 Transform:
   m_ObjectHideFlags: 0
@@ -802,6 +824,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1446816884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446816881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07ef964001a9bfed6aa67c8224ecb44a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardViewFactory
 --- !u!4 &2103405195 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4564455104611498215, guid: 7a961df5950e7163bbea0b862bb84b41, type: 3}
@@ -1441,6 +1475,7 @@ MonoBehaviour:
   _register: []
   _autoDetected:
   - {fileID: 694874235}
+  - {fileID: 694874236}
   - {fileID: 2037651883587205042}
   - {fileID: 8997535054545068514}
   - {fileID: 4116797973838878368}
@@ -1493,6 +1528,7 @@ MonoBehaviour:
   _register: []
   _autoDetected:
   - {fileID: 1006014972}
+  - {fileID: 1006014973}
   - {fileID: 8009956935472102602}
   - {fileID: 4708571773940103435}
   - {fileID: 7353017088677326093}
