@@ -179,6 +179,7 @@ namespace Docs.Claude
                 while (lt.IsTerminated == false)
                 {
                     itemsProcessed++;
+
                     // Simulate work
                     if (itemsProcessed >= 3)
                         break;
@@ -429,6 +430,7 @@ namespace Docs.Claude
                 while (lt.IsTerminated == false)
                 {
                     resourceAccessed++;
+
                     if (resourceAccessed >= 5)
                         break;
                 }

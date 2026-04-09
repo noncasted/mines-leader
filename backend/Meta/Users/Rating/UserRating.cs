@@ -62,8 +62,7 @@ public class UserRating : UserGrain, IUserRating
         _logger.LogInformation("[User] [Rating] User {Id} received rating {Amount} from {RecordType}",
             this.GetPrimaryKey(),
             record.GetRating(),
-            record.GetType().FullName
-        );
+            record.GetType().FullName);
 
         var state = await _state.Update(state => state.AddRecord(record));
         await this.SendCachedProjection(state);

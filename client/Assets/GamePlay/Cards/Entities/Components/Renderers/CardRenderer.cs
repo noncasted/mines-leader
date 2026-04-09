@@ -29,7 +29,7 @@ namespace GamePlay.Cards
             _textComponents = GetComponentsInChildren<TMP_Text>();
 
             builder.RegisterComponent(this)
-                .As<ICardRenderer>();
+                   .As<ICardRenderer>();
         }
 
         public void SetSortingOrder(int order)

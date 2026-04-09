@@ -2,6 +2,7 @@
 using GamePlay.Boards;
 using GamePlay.Services;
 using GamePlay.UI;
+using GamePlay.UI.CardInfo;
 using Global.Cameras;
 using Global.UI;
 using Internal;

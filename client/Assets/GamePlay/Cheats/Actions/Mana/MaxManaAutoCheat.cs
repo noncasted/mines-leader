@@ -1,7 +1,7 @@
-using Common.Network;
 using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -24,15 +24,15 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMatchStarted>();
+                   .As<IMatchStarted>();
         }
 
         public void OnMatchStarted(IReadOnlyLifetime lifetime, IGamePlayer localPlayer)
         {
             _connection.Request(new GameCheatContexts.ChangeMaxMana()
-                {
-                    Value = _maxMana
-                });
+            {
+                Value = _maxMana
+            });
         }
     }
 }

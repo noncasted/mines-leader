@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkEntityFactory
     {
@@ -34,9 +34,9 @@ namespace Common.Network
         public static IEntityBuilder AddLocalEntity(this IEntityBuilder builder, INetworkEntityFactory factory)
         {
             builder.Register<NetworkEntity>()
-                .WithParameter(factory.LocalUser)
-                .WithParameter(factory.Ids.GetEntityId())
-                .As<INetworkEntity>();
+                   .WithParameter(factory.LocalUser)
+                   .WithParameter(factory.Ids.GetEntityId())
+                   .As<INetworkEntity>();
 
             return builder;
         }
@@ -44,9 +44,9 @@ namespace Common.Network
         public static IEntityBuilder AddRemoteEntity(this IEntityBuilder builder, RemoteEntityData data)
         {
             builder.Register<NetworkEntity>()
-                .WithParameter(data.Owner)
-                .WithParameter(data.Id)
-                .As<INetworkEntity>();
+                   .WithParameter(data.Owner)
+                   .WithParameter(data.Id)
+                   .As<INetworkEntity>();
 
             return builder;
         }
@@ -57,8 +57,7 @@ namespace Common.Network
 
             if (properties.Count != data.RawProperties.Count)
                 throw new InvalidOperationException(
-                    $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}"
-              );
+                    $"Properties count mismatch local: {properties.Count} != remote: {data.RawProperties.Count}");
 
             foreach (var rawProperty in data.RawProperties)
             {

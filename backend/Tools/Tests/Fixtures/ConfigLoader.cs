@@ -34,6 +34,7 @@ public static class ConfigLoader
         while (current != null)
         {
             var candidate = Path.Combine(current.FullName, "backend", "Orchestration", "Coordinator");
+
             if (Directory.Exists(candidate))
                 return candidate;
 
@@ -41,16 +42,13 @@ public static class ConfigLoader
         }
 
         // Fallback: try relative from working directory
-        var fallback = Path.GetFullPath(
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Orchestration", "Coordinator")
-        );
+        var fallback = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
+            "Orchestration", "Coordinator"));
 
         if (Directory.Exists(fallback))
             return fallback;
 
-        throw new DirectoryNotFoundException(
-            "Could not find Orchestration/Coordinator config directory. " +
-            $"Searched from: {AppContext.BaseDirectory}"
-        );
+        throw new DirectoryNotFoundException("Could not find Orchestration/Coordinator config directory. " +
+                                             $"Searched from: {AppContext.BaseDirectory}");
     }
 }

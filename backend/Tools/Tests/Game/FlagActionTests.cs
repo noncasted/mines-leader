@@ -25,8 +25,7 @@ public class FlagActionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var taken = (ITakenCell)board.Cells[target];
         taken.SetFlag();
@@ -43,8 +42,7 @@ public class FlagActionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         // Place mine manually since 'x' is just Taken
         var taken = (ITakenCell)board.Cells[target];
@@ -66,8 +64,7 @@ public class FlagActionTests
                                            t t g t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -87,8 +84,7 @@ public class FlagActionTests
                                            t t g t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -109,8 +105,7 @@ public class FlagActionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var taken = (ITakenCell)board.Cells[target];
         taken.IsFlagged.Should().BeFalse();
@@ -129,8 +124,7 @@ public class FlagActionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var taken = (ITakenCell)board.Cells[target];
 
@@ -150,8 +144,7 @@ public class FlagActionTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var taken1 = (ITakenCell)board.Cells[new Position(1, 1)];
         var taken2 = (ITakenCell)board.Cells[new Position(2, 2)];
@@ -174,8 +167,7 @@ public class FlagActionTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var flagEvents = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -197,8 +189,7 @@ public class FlagActionTests
                                            t t g t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var flagEvents = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -220,8 +211,7 @@ public class FlagActionTests
                                            t t m t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(2, 2);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -243,8 +233,7 @@ public class FlagActionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var taken = (ITakenCell)board.Cells[target];
         taken.Status.Should().Be(CellStatus.Taken);

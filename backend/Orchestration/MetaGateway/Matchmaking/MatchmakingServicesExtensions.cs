@@ -9,8 +9,8 @@ public static class MatchmakingServicesExtensions
     public static IHostApplicationBuilder AddMatchmakingServices(this IHostApplicationBuilder builder)
     {
         builder.Services.Add<Matchmaking>()
-            .As<ICoordinatorSetupCompleted>()
-            .As<IMatchmaking>();
+               .As<ICoordinatorSetupCompleted>()
+               .As<IMatchmaking>();
 
         builder.AddUserCommand<MatchmakingCommands.SearchLobby>();
         builder.AddUserCommand<MatchmakingCommands.SearchMatch>();

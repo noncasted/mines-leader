@@ -26,8 +26,8 @@ namespace GamePlay.UI
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IGameOverlayUI>()
-                .As<IScopeSetup>();
+                   .As<IGameOverlayUI>()
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)

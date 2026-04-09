@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     public interface ISpriteAnimationData
     {

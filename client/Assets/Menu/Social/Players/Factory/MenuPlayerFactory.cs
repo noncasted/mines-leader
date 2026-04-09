@@ -1,7 +1,7 @@
-﻿using Common.Network;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
+using Network;
 using Shared;
 using VContainer.Unity;
 
@@ -63,13 +63,13 @@ namespace Menu.Social
             void Build(IEntityBuilder builder)
             {
                 builder.Register<MenuPlayer>()
-                    .WithParameter(payload.PlayerId)
-                    .As<IScopeSetup>()
-                    .As<IMenuPlayer>();
+                       .WithParameter(payload.PlayerId)
+                       .As<IScopeSetup>()
+                       .As<IMenuPlayer>();
 
                 builder.Register<MenuPlayerInput>()
-                    .As<IMenuPlayerInput>()
-                    .As<IScopeSetup>();
+                       .As<IMenuPlayerInput>()
+                       .As<IScopeSetup>();
 
                 builder.AddLocalEntity(_entityFactory);
                 builder.RegisterProperty<MenuPlayerTransformState>();
@@ -93,13 +93,13 @@ namespace Menu.Social
             void Build(IEntityBuilder builder)
             {
                 builder.Register<MenuPlayer>()
-                    .WithParameter(payload.PlayerId)
-                    .As<IScopeSetup>()
-                    .As<IMenuPlayer>();
+                       .WithParameter(payload.PlayerId)
+                       .As<IScopeSetup>()
+                       .As<IMenuPlayer>();
 
                 builder.Register<MenuPlayerInput>()
-                    .As<IMenuPlayerInput>()
-                    .As<IScopeSetup>();
+                       .As<IMenuPlayerInput>()
+                       .As<IScopeSetup>();
 
                 builder.AddRemoteEntity(data);
                 builder.RegisterProperty<MenuPlayerTransformState>();

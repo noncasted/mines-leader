@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Boards
@@ -32,25 +32,25 @@ namespace GamePlay.Boards
         public void Flag()
         {
             _connection.Request(new SharedGameAction.SetFlag()
-                {
-                    Position = _cell.BoardPosition.ToPosition()
-                });
+            {
+                Position = _cell.BoardPosition.ToPosition()
+            });
         }
 
         public void UnFlag()
         {
             _connection.Request(new SharedGameAction.RemoveFlag()
-                {
-                    Position = _cell.BoardPosition.ToPosition()
-                });
+            {
+                Position = _cell.BoardPosition.ToPosition()
+            });
         }
 
         public void Open()
         {
             _connection.Request(new SharedGameAction.Open()
-                {
-                    Position = _cell.BoardPosition.ToPosition()
-                });
+            {
+                Position = _cell.BoardPosition.ToPosition()
+            });
         }
 
         public void Explode(CellExplosionType type)

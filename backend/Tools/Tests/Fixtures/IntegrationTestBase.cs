@@ -52,6 +52,7 @@ public abstract class IntegrationTestBase<TFixture> : IAsyncLifetime
     {
         var transactions = GetSiloService<ITransactions>();
         var result = await transactions.Run(action);
+
         if (!result.IsSuccess)
             throw new Exception($"Transaction failed: {result}");
     }

@@ -21,8 +21,8 @@ public class BoardRevealer : IBoardRevealer
         _board.OnUpdated();
 
         var initialTargets = _board.NeighbourPositions(position)
-            .Where(t => _board.Cells[t].Status != CellStatus.Free)
-            .ToList();
+                                   .Where(t => _board.Cells[t].Status != CellStatus.Free)
+                                   .ToList();
 
         Check(initialTargets);
 

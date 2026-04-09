@@ -1,9 +1,9 @@
-﻿using Common.Network;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Global.Systems;
 using Internal;
 using Meta;
+using Network;
 using Shared;
 using UnityEngine;
 
@@ -59,11 +59,10 @@ namespace GamePlay.Cards
             var positionHandle = _handEntryHandle.PositionHandle;
             var useLifetime = lifetime.Child();
 
-            _moves.IsTurn.Advise(lifetime, isTurn =>
-                {
-                    if (isTurn == false)
-                        useLifetime.Terminate();
-                });
+            _moves.IsTurn.Advise(lifetime, isTurn => {
+                if (isTurn == false)
+                    useLifetime.Terminate();
+            });
 
             _updater.RunUpdateAction(useLifetime, _ => MoveTowards(startPosition)).Forget();
 
@@ -72,11 +71,12 @@ namespace GamePlay.Cards
             if (useResult.IsSuccess == true)
             {
                 useResult.Payload.Type = _definition.Type;
+
                 var requestResult = await _connection.Request(new SharedGameAction.CardUse()
-                    {
-                        CardId = _card.Id,
-                        Payload = useResult.Payload
-                    });
+                {
+                    CardId = _card.Id,
+                    Payload = useResult.Payload
+                });
 
                 if (requestResult.HasError == false)
                 {
@@ -86,8 +86,7 @@ namespace GamePlay.Cards
 
             useLifetime.Terminate();
 
-            await _updater.RunUpdateAction(lifetime, () =>
-                {
+            await _updater.RunUpdateAction(lifetime, () => {
                     var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
                     return distance > 0.1f;
                 },

@@ -41,11 +41,10 @@ namespace GamePlay.Cards
             _handles.Add(handle);
             _cardToHandle.Add(card, handle);
 
-            lifetime.Listen(() =>
-                {
-                    _handles.Remove(handle);
-                    _cardToHandle.Remove(card);
-                });
+            lifetime.Listen(() => {
+                _handles.Remove(handle);
+                _cardToHandle.Remove(card);
+            });
         }
 
         public ICardPositionHandle GetPositionHandle(ICard card)

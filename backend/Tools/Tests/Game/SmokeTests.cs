@@ -23,23 +23,21 @@ public class SmokeTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         var result = new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Rhombus(3) cross: (2,1), (1,2), (2,2), (3,2), (2,3)
         var cellsWithSmoke = board.Cells.Values
-            .Where(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .ToList();
+                                  .Where(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
+                                  .ToList();
 
         cellsWithSmoke.Should().HaveCount(5, "Rhombus(3) is a cross pattern with 5 cells");
 
@@ -64,22 +62,18 @@ public class SmokeTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         roundActionService.Received(1)
-            .Schedule(
-                Arg.Any<SmokeDisposeAction>(),
-                CardConfigs.Smoke.Duration
-            );
+                          .Schedule(Arg.Any<SmokeDisposeAction>(),
+                              CardConfigs.Smoke.Duration);
     }
 
     [Fact]
@@ -92,21 +86,19 @@ public class SmokeTests
                                                 t _ x _ t
                                                 t _ _ _ t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         // Both Free and Taken cells in range should have smoke
         var cellsWithSmoke = board.Cells.Values
-            .Where(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .ToList();
+                                  .Where(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
+                                  .ToList();
 
         cellsWithSmoke.Should().HaveCount(5, "Rhombus(3) cross pattern = 5 cells");
 
@@ -130,8 +122,7 @@ public class SmokeTests
         var result = new Smoke(emptyBoard,
             new CardUsePayload.Smoke { Position = new Position(0, 0) },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -145,8 +136,7 @@ public class SmokeTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
@@ -154,8 +144,7 @@ public class SmokeTests
         var result = new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.Smoke;
         snapshot.Should().NotBeNull();
@@ -171,21 +160,19 @@ public class SmokeTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var roundActionService = new RoundActionService();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         // Verify effects exist
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .Should()
-            .BeTrue();
+             .Should()
+             .BeTrue();
 
         // Tick Duration times to trigger dispose
         for (var i = 0; i < CardConfigs.Smoke.Duration; i++)
@@ -193,8 +180,8 @@ public class SmokeTests
 
         // Effects should be removed
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
-            .Should()
-            .BeFalse();
+             .Should()
+             .BeFalse();
     }
 
     [Fact]
@@ -206,23 +193,21 @@ public class SmokeTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
         new Smoke(board,
             new CardUsePayload.Smoke { Position = target },
             CardConfigs.Smoke,
-            roundActionService
-        ).Use();
+            roundActionService).Use();
 
         var effectIds = board.Cells.Values
-            .SelectMany(c => c.Effects)
-            .Where(e => e.Type == CellEffectType.Smoke)
-            .Select(e => e.Id)
-            .Distinct()
-            .ToList();
+                             .SelectMany(c => c.Effects)
+                             .Where(e => e.Type == CellEffectType.Smoke)
+                             .Select(e => e.Id)
+                             .Distinct()
+                             .ToList();
 
         effectIds.Should().HaveCount(1, "all smoke effects from one card should share the same ID");
     }

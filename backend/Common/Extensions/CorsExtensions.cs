@@ -7,25 +7,21 @@ public static class CorsExtensions
 {
     public static void ConfigureCors(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("cors", policy =>
-                    {
-                        // var url = GetUrl();
+        builder.Services.AddCors(options => {
+            options.AddPolicy("cors", policy => {
+                // var url = GetUrl();
 
-                        policy
-                            .AllowAnyOrigin()
-                            // .SetIsOriginAllowed(origin =>
-                            // {
-                            //     var uri = new Uri(origin);
-                            //     return uri.Host == "localhost" || uri.Host == "127.0.0.1";
-                            // })
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    }
-                );
-            }
-        );
+                policy
+                    .AllowAnyOrigin()
+                    // .SetIsOriginAllowed(origin =>
+                    // {
+                    //     var uri = new Uri(origin);
+                    //     return uri.Host == "localhost" || uri.Host == "127.0.0.1";
+                    // })
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
 
         return;
 

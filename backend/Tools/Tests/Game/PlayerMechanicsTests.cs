@@ -424,6 +424,7 @@ public class DeckTests
         // Cards are shuffled, so just verify count and types present
         deck.Count.Should().Be(4);
         var drawn = new List<CardType>();
+
         for (var i = 0; i < 4; i++)
             drawn.Add(deck.DrawCard());
 
@@ -563,16 +564,14 @@ public class HandTests
         var card3 = hand.Add(CardType.ErosionDozer);
 
         hand.Entries.Should().HaveCount(3);
+
         hand.Entries.Select(c => c.Type)
             .Should()
-            .ContainInOrder(
-                CardType.Bloodhound, CardType.Trebuchet, CardType.ErosionDozer
-            );
+            .ContainInOrder(CardType.Bloodhound, CardType.Trebuchet, CardType.ErosionDozer);
+
         hand.Entries.Select(c => c.Id)
             .Should()
-            .ContainInOrder(
-                card1.Id, card2.Id, card3.Id
-            );
+            .ContainInOrder(card1.Id, card2.Id, card3.Id);
     }
 
     [Fact]

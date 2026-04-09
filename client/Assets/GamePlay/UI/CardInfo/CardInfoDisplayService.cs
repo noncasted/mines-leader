@@ -2,7 +2,7 @@ using GamePlay.Cards;
 using GamePlay.Loop;
 using Internal;
 
-namespace GamePlay.UI
+namespace GamePlay.UI.CardInfo
 {
     public interface ICardInfoDisplayService
     {
@@ -25,10 +25,9 @@ namespace GamePlay.UI
             var hand = _gameContext.Self.Hand;
 
             // Subscribe to hand entries changes
-            hand.Entries.View(lifetime, (_, card) =>
-                {
-                    SubscribeToCard(lifetime, card);
-                });
+            hand.Entries.View(lifetime, (_, card) => {
+                SubscribeToCard(lifetime, card);
+            });
         }
 
         private void SubscribeToCard(IReadOnlyLifetime lifetime, ICard card)
@@ -39,31 +38,29 @@ namespace GamePlay.UI
             var cardLifetime = lifetime.Child();
             card.Lifetime.Listen(() => cardLifetime.Terminate());
 
-            localCard.PointerHandler.IsHovered.Advise(cardLifetime, isHovered =>
+            localCard.PointerHandler.IsHovered.Advise(cardLifetime, isHovered => {
+                if (isHovered && !localCard.IsInSpawnAnimation.Value)
                 {
-                    if (isHovered && !localCard.IsInSpawnAnimation.Value)
-                    {
-                        _ui.DisplayCard(
-                            card.Definition.Name,
-                            card.Definition.Description);
-                    }
-                    else if (localCard.IsInSpawnAnimation.Value)
-                    {
-                        _ui.HideImmediately();
-                    }
-                    else
-                    {
-                        _ui.Hide();
-                    }
-                });
+                    _ui.DisplayCard(
+                        card.Definition.Name,
+                        card.Definition.Description);
+                }
+                else if (localCard.IsInSpawnAnimation.Value)
+                {
+                    _ui.HideImmediately();
+                }
+                else
+                {
+                    _ui.Hide();
+                }
+            });
 
-            localCard.IsInSpawnAnimation.Advise(cardLifetime, isSpawning =>
+            localCard.IsInSpawnAnimation.Advise(cardLifetime, isSpawning => {
+                if (isSpawning)
                 {
-                    if (isSpawning)
-                    {
-                        _ui.HideImmediately();
-                    }
-                });
+                    _ui.HideImmediately();
+                }
+            });
         }
     }
 }

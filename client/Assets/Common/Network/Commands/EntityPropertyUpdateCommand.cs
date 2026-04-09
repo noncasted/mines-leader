@@ -2,7 +2,7 @@
 using Shared;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     public class EntityPropertyUpdateCommand : OneWayCommand<SharedSessionObject.PropertyUpdate>
     {
@@ -28,8 +28,7 @@ namespace Common.Network
                 Debug.LogWarning("[Network] Received out-of-date property update for object ID: " +
                                  context.ObjectId +
                                  ", property ID: " +
-                                 context.PropertyId
-              );
+                                 context.PropertyId);
                 return;
             }
 

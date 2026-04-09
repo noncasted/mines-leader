@@ -98,16 +98,16 @@ public static class MessagingExtensions
     public static IHostApplicationBuilder AddMessaging(this IHostApplicationBuilder builder)
     {
         builder.Add<Messaging>()
-            .As<IMessaging>();
+               .As<IMessaging>();
 
         builder.Add<DurableQueueClient>()
-            .As<IDurableQueueClient>();
+               .As<IDurableQueueClient>();
 
         builder.Add<RuntimePipeClient>()
-            .As<IRuntimePipeClient>();
+               .As<IRuntimePipeClient>();
 
         builder.Add<RuntimeChannelClient>()
-            .As<IRuntimeChannelClient>();
+               .As<IRuntimeChannelClient>();
 
         return builder;
     }

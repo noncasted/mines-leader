@@ -18,8 +18,7 @@ public static class Certificates
         Console.WriteLine("[Deploy] Trusting certificate on Linux...");
 
         await Command.Run("openssl",
-            $"pkcs12 -in {Options.PfxPath} -clcerts -nokeys -out {CertCrtPath} -passin pass:{Options.PfxPassword} -legacy"
-        );
+            $"pkcs12 -in {Options.PfxPath} -clcerts -nokeys -out {CertCrtPath} -passin pass:{Options.PfxPassword} -legacy");
         await Command.Run("update-ca-certificates", "");
 
         Console.WriteLine("[Deploy] Certificates setup completed");

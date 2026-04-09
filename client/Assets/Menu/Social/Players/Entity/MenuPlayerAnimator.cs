@@ -1,4 +1,4 @@
-﻿using Common.Animations;
+﻿using Animations;
 using Internal;
 using UnityEngine;
 

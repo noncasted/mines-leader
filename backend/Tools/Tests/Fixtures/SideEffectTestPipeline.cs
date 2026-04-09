@@ -59,9 +59,9 @@ public class SideEffectTestPipeline
             if (entry.Effect is ITransactionalSideEffect)
             {
                 var result = await _transactions
-                    .CreateBuilder(() => entry.Effect.Execute(_orleans))
-                    .WithCallback(tx => _storage.CompleteProcessing(tx, entry.Id))
-                    .Run();
+                                   .CreateBuilder(() => entry.Effect.Execute(_orleans))
+                                   .WithCallback(tx => _storage.CompleteProcessing(tx, entry.Id))
+                                   .Run();
 
                 if (!result.IsSuccess)
                     throw new Exception("Transactional side effect failed");
@@ -79,12 +79,11 @@ public class SideEffectTestPipeline
         {
             sw.Stop();
             var options = _config.Value;
-            await _storage.FailProcessing(
-                entry.Id,
+
+            await _storage.FailProcessing(entry.Id,
                 entry.RetryCount,
                 options.MaxRetryCount,
-                options.IncrementalRetryDelay
-            );
+                options.IncrementalRetryDelay);
             return new BatchExecutionInfo(entry.Id, false, sw.Elapsed, ex.Message);
         }
     }
@@ -96,10 +95,12 @@ public class SideEffectTestPipeline
     {
         // Adaptive settle: poll until queue has something or timeout
         var settleStart = DateTime.UtcNow;
+
         while ((DateTime.UtcNow - settleStart).TotalMilliseconds < settleTimeoutMs)
         {
             await _storage.RequeueReady();
             var peek = await _storage.Read(1);
+
             if (peek.Count > 0)
             {
                 // Put it back (we just want to peek)
@@ -128,6 +129,7 @@ public class SideEffectTestPipeline
         while (iterations < maxIterations)
         {
             var result = await PumpOnceAsync();
+
             if (result.IsEmpty)
                 break;
 
@@ -190,6 +192,7 @@ public static class DrainResultExtensions
     {
         if (!result.ReachedQuiescence)
             throw new Exception("Drain did not reach quiescence");
+
         if (!result.AllSucceeded)
             throw new Exception($"Drain had failures: {FormatTrace(result)}");
     }
@@ -197,6 +200,7 @@ public static class DrainResultExtensions
     public static void AssertDrainedWithWork(this DrainResult result)
     {
         result.AssertDrainedSuccessfully();
+
         if (result.TotalTasks == 0)
             throw new Exception("Drain completed but no work was executed");
     }

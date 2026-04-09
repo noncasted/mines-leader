@@ -19,23 +19,21 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
         var takenNeighbours = new List<ITakenCell>();
         var flaggedNeighbours = new List<ITakenCell>();
 
-        board.IterateNeighbours(request.Position, neighbour =>
-            {
-                var neighbourCell = board.Cells[neighbour];
+        board.IterateNeighbours(request.Position, neighbour => {
+            var neighbourCell = board.Cells[neighbour];
 
-                if (neighbourCell.Status != CellStatus.Taken)
-                    return;
+            if (neighbourCell.Status != CellStatus.Taken)
+                return;
 
-                var takenNeighbourCell = neighbourCell.AsTaken();
-                takenNeighbours.Add(takenNeighbourCell);
+            var takenNeighbourCell = neighbourCell.AsTaken();
+            takenNeighbours.Add(takenNeighbourCell);
 
-                if (takenNeighbourCell.IsFlagged == false)
-                    return;
+            if (takenNeighbourCell.IsFlagged == false)
+                return;
 
-                flaggedNeighbours.Add(takenNeighbourCell);
-                placedFlags++;
-            }
-        );
+            flaggedNeighbours.Add(takenNeighbourCell);
+            placedFlags++;
+        });
 
         if (around != placedFlags)
             return EmptyResponse.Ok;

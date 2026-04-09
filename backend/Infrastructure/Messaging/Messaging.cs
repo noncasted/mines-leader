@@ -29,10 +29,8 @@ public class Messaging : IMessaging
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
-        return Task.WhenAll(
-            DurableQueue.Start(lifetime),
+        return Task.WhenAll(DurableQueue.Start(lifetime),
             RuntimePipe.Start(lifetime),
-            RuntimeChannel.Start(lifetime)
-        );
+            RuntimeChannel.Start(lifetime));
     }
 }

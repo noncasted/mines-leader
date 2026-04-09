@@ -51,19 +51,17 @@ public class RuntimePipeClient : IRuntimePipeClient
     {
         var observer = await CreateObserver(lifetime, id);
 
-        observer.BindResponseHandler(async message =>
-            {
-                if (message is not TRequest castedMessage)
-                    throw new InvalidCastException($"Expected {typeof(TRequest)}, but got {message.GetType()}");
+        observer.BindResponseHandler(async message => {
+            if (message is not TRequest castedMessage)
+                throw new InvalidCastException($"Expected {typeof(TRequest)}, but got {message.GetType()}");
 
-                var response = await listener(castedMessage);
+            var response = await listener(castedMessage);
 
-                if (response is null)
-                    throw new InvalidCastException($"Expected {typeof(TResponse)}, but got null");
+            if (response is null)
+                throw new InvalidCastException($"Expected {typeof(TResponse)}, but got null");
 
-                return response;
-            }
-        );
+            return response;
+        });
     }
 
     private async Task<RuntimePipeObserver> CreateObserver(IReadOnlyLifetime lifetime, IRuntimePipeId id)
@@ -153,8 +151,7 @@ public class RuntimePipeClient : IRuntimePipeClient
                 if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
                     Logger.LogError(e,
                         "[Messaging] [RuntimePipe] Failed to rebind observer (attempt {Count}) to pipe {PipeId}",
-                        _consecutiveFailures, Id.ToRaw()
-                    );
+                        _consecutiveFailures, Id.ToRaw());
             }
         }
     }

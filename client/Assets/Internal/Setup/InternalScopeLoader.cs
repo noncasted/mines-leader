@@ -46,7 +46,7 @@ namespace Internal
                     .AddScopeLoaders();
 
                 containerBuilder.RegisterInstance(assets)
-                    .As<IAssetEnvironment>();
+                                .As<IAssetEnvironment>();
 
                 _config.AssetsStorage.Options.Register(containerBuilder);
             }

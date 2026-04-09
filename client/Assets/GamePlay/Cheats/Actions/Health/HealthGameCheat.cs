@@ -1,8 +1,8 @@
-﻿using Common.Network;
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using GamePlay.Players;
 using Global.UI;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -28,7 +28,7 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMatchStarted>();
+                   .As<IMatchStarted>();
         }
 
         public void OnMatchStarted(IReadOnlyLifetime lifetime, IGamePlayer localPlayer)
@@ -43,9 +43,9 @@ namespace GamePlay.Cheats
             void Send(int change)
             {
                 _connection.Request(new GameCheatContexts.ChangeHealth()
-                    {
-                        Value = change
-                    });
+                {
+                    Value = change
+                });
             }
         }
     }

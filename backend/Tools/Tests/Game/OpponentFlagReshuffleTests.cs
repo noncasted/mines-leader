@@ -21,33 +21,30 @@ public class OpponentFlagReshuffleTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // The original flagged cell at (2,1) should no longer be flagged
         board.Cells[new Position(2, 1)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeFalse();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeFalse();
 
         // Exactly one flag should exist in the pattern area (moved to another cell)
         var takenCells = board.Cells.Values
-            .Where(c => c.Status == CellStatus.Taken)
-            .Cast<ITakenCell>()
-            .ToList();
+                              .Where(c => c.Status == CellStatus.Taken)
+                              .Cast<ITakenCell>()
+                              .ToList();
 
         takenCells.Count(c => c.IsFlagged)
-            .Should()
-            .Be(1,
-                "one flag was moved, total count stays the same"
-            );
+                  .Should()
+                  .Be(1,
+                      "one flag was moved, total count stays the same");
     }
 
     [Fact]
@@ -60,22 +57,20 @@ public class OpponentFlagReshuffleTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // No flags anywhere
         board.Cells.Values
-            .Where(c => c.Status == CellStatus.Taken)
-            .Cast<ITakenCell>()
-            .Count(c => c.IsFlagged)
-            .Should()
-            .Be(0);
+             .Where(c => c.Status == CellStatus.Taken)
+             .Cast<ITakenCell>()
+             .Count(c => c.IsFlagged)
+             .Should()
+             .Be(0);
     }
 
     [Fact]
@@ -88,21 +83,19 @@ public class OpponentFlagReshuffleTests
                                                 f f x f f
                                                 f f f f f
                                                 f f f f f
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Flags stay where they were
         board.Cells[new Position(1, 1)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeTrue();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeTrue();
     }
 
     [Fact]
@@ -116,37 +109,35 @@ public class OpponentFlagReshuffleTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Original positions should be unflagged
         board.Cells[new Position(3, 1)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeFalse();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeFalse();
+
         board.Cells[new Position(2, 2)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeFalse();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeFalse();
 
         // Total flag count in range should be preserved
         var inRangeCells = board.Cells.Values
-            .Where(c => c.Status == CellStatus.Taken)
-            .Cast<ITakenCell>();
+                                .Where(c => c.Status == CellStatus.Taken)
+                                .Cast<ITakenCell>();
 
         inRangeCells.Count(c => c.IsFlagged)
-            .Should()
-            .Be(2,
-                "number of flags should be preserved after reshuffle"
-            );
+                    .Should()
+                    .Be(2,
+                        "number of flags should be preserved after reshuffle");
     }
 
     [Fact]
@@ -155,8 +146,7 @@ public class OpponentFlagReshuffleTests
         var emptyBoard = new TestBoardBuilder(0).Build();
 
         var result = new OpponentFlagReshuffle(emptyBoard, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(0, 0) }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(0, 0) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -170,12 +160,10 @@ public class OpponentFlagReshuffleTests
                                            _ _ _ _ _
                                            _ _ _ _ _
                                            _ _ _ _ _
-                                           """
-        );
+                                           """);
 
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -189,13 +177,12 @@ public class OpponentFlagReshuffleTests
                                                 t t f t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var ownerId = board.OwnerId;
+
         var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagReshuffle;
         snapshot.Should().NotBeNull();

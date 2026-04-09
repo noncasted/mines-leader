@@ -12,22 +12,20 @@ public class ExecutionQueue : IExecutionQueue
 {
     public ExecutionQueue(ILogger<ExecutionQueue> logger)
     {
-        _commandQueue = new ActionBlock<Action>(command =>
+        _commandQueue = new ActionBlock<Action>(command => {
+            try
             {
-                try
-                {
-                    command();
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, "Error executing command in session");
-                }
-            }, new ExecutionDataflowBlockOptions
-            {
-                MaxDegreeOfParallelism = 1,
-                EnsureOrdered = true
+                command();
             }
-        );
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error executing command in session");
+            }
+        }, new ExecutionDataflowBlockOptions
+        {
+            MaxDegreeOfParallelism = 1,
+            EnsureOrdered = true
+        });
     }
 
     private readonly ActionBlock<Action> _commandQueue;

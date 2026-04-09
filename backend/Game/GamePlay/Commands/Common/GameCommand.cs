@@ -38,8 +38,7 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
         catch (Exception e)
         {
             Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
-                request.GetType().Name, player.User.Id
-            );
+                request.GetType().Name, player.User.Id);
             return EmptyResponse.Fail("An error occurred while processing the command.");
         }
         finally

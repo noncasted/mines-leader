@@ -27,9 +27,9 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<LocalUpdate>()
-                .Add<RemoteUpdate>()
-                .Add<RemoteDisconnect>();
+                   .Add<LocalUpdate>()
+                   .Add<RemoteUpdate>()
+                   .Add<RemoteDisconnect>();
         }
     }
 }

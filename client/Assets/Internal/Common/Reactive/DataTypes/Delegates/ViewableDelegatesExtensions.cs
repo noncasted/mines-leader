@@ -9,16 +9,13 @@ namespace Internal
         {
             var completion = new UniTaskCompletionSource();
 
-            lifetime.Listen(() =>
-                {
-                    completion.TrySetException(new OperationCanceledException());
-                }
-          );
-            viewableDelegate.Advise(lifetime, () =>
-                {
-                    completion.TrySetResult();
-                }
-          );
+            lifetime.Listen(() => {
+                completion.TrySetException(new OperationCanceledException());
+            });
+
+            viewableDelegate.Advise(lifetime, () => {
+                completion.TrySetResult();
+            });
 
             return completion.Task;
         }
@@ -30,11 +27,10 @@ namespace Internal
             var completion = new UniTaskCompletionSource<T>();
 
             lifetime.Listen(() => completion.TrySetException(new OperationCanceledException()));
-            viewableDelegate.Advise(lifetime, value =>
-                {
-                    completion.TrySetResult(value);
-                }
-          );
+
+            viewableDelegate.Advise(lifetime, value => {
+                completion.TrySetResult(value);
+            });
 
             return completion.Task;
         }

@@ -79,12 +79,10 @@ public class CollectionTestGrain : Grain, ICollectionTestGrain
 
     public async Task SetName(string name)
     {
-        await _state.Write(s =>
-            {
-                s.Id = this.GetGrainId().GetGuidKey();
-                s.Name = name;
-            }
-        );
+        await _state.Write(s => {
+            s.Id = this.GetGrainId().GetGuidKey();
+            s.Name = name;
+        });
     }
 
     public async Task<string> GetName()
@@ -158,6 +156,7 @@ public class TestSideEffect : ISideEffect
     {
         var grain = orleans.GetGrain<ITxTestGrain>(TargetGrainId);
         var result = await orleans.Transactions.Run(() => grain.Increment());
+
         if (!result.IsSuccess)
             throw new Exception("Side effect transaction failed");
     }
@@ -193,12 +192,14 @@ public class FailingTestSideEffect : ISideEffect
         {
             AttemptsDict.TryGetValue(TargetGrainId, out var count);
             AttemptsDict[TargetGrainId] = count + 1;
+
             if (count < FailCount)
                 throw new Exception($"Intentional failure {count + 1}/{FailCount}");
         }
 
         var grain = orleans.GetGrain<ITxTestGrain>(TargetGrainId);
         var result = await orleans.Transactions.Run(() => grain.Increment());
+
         if (!result.IsSuccess)
             throw new Exception("Side effect transaction failed");
     }
@@ -233,6 +234,7 @@ public class FailingTransactionalTestSideEffect : ITransactionalSideEffect
         {
             FailingTestSideEffect.AttemptsDict.TryGetValue(TargetGrainId, out var count);
             FailingTestSideEffect.AttemptsDict[TargetGrainId] = count + 1;
+
             if (count < FailCount)
                 throw new Exception($"Intentional transactional failure {count + 1}/{FailCount}");
         }
@@ -313,6 +315,7 @@ public class TxSideEffectGrain : Grain, ITxSideEffectGrain
     public async Task RegisterMultipleSideEffects(IReadOnlyList<Guid> targetIds)
     {
         await _state.Write(s => s.Value += 1);
+
         foreach (var targetId in targetIds)
             new TestSideEffect { TargetGrainId = targetId }.AddToTransaction();
     }

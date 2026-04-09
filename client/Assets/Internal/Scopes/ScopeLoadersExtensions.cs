@@ -7,10 +7,10 @@ namespace Internal
         public static IInternalScopeBuilder AddScopeLoaders(this IInternalScopeBuilder builder)
         {
             builder.Container.Register<ServiceScopeLoader>(VContainer.Lifetime.Singleton)
-                .As<IServiceScopeLoader>();
+                   .As<IServiceScopeLoader>();
 
             builder.Container.Register<EntityScopeLoader>(VContainer.Lifetime.Singleton)
-                .As<IEntityScopeLoader>();
+                   .As<IEntityScopeLoader>();
 
             return builder;
         }

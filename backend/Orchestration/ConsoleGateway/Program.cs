@@ -26,7 +26,7 @@ app.MapStaticAssets();
 app.AddBenchmarkEndpoints();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddAdditionalAssemblies(typeof(Home).Assembly);
+   .AddInteractiveServerRenderMode()
+   .AddAdditionalAssemblies(typeof(Home).Assembly);
 
 app.Run();

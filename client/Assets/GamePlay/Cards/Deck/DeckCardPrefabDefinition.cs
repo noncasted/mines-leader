@@ -15,18 +15,18 @@ namespace GamePlay.Cards
 
             builder
                 .WithName("DeckCard")
-                .WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.color = Color.white;
-                        sr.sortingLayerName = "Field";
-                        sr.sortingOrder = 3;
-                        spriteRenderer = sr;
-                    }
-                )
+                .WithComponent<SpriteRenderer>(sr => {
+                            sr.color = Color.white;
+                            sr.sortingLayerName = "Field";
+                            sr.sortingOrder = 3;
+                            spriteRenderer = sr;
+                        }
+                    )
                 .WithComponent<DeckCard>();
 
             builder.SetSerialized<DeckCard>("_even",
                 PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_0"));
+
             builder.SetSerialized<DeckCard>("_odd",
                 PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_1"));
             builder.SetSerialized<DeckCard>("_renderer", spriteRenderer);

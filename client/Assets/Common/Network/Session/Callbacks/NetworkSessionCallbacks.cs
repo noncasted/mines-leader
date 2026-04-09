@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public class NetworkSessionCallbacks : INetworkSessionCallbacks
     {

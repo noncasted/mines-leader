@@ -23,24 +23,22 @@ namespace GamePlay.Players
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _text.text = "?";
 
-            _board.State.Advise(lifetime, state =>
+            _board.State.Advise(lifetime, state => {
+                if (_gameStarted == false)
                 {
-                    if (_gameStarted == false)
-                    {
-                        _gameStarted = true;
-                        return;
-                    }
-
-                    _text.text = (state.Mines - state.Flags).ToString();
+                    _gameStarted = true;
+                    return;
                 }
-          );
+
+                _text.text = (state.Mines - state.Flags).ToString();
+            });
         }
     }
 }

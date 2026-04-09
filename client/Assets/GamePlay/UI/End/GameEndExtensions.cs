@@ -1,6 +1,5 @@
-﻿using Common.Network;
-using GamePlay.Loop;
-using Internal;
+﻿using Internal;
+using Network;
 
 namespace GamePlay.UI
 {
@@ -9,10 +8,10 @@ namespace GamePlay.UI
         public static IScopeBuilder AddGameEndServices(this IScopeBuilder builder)
         {
             builder.Register<GameEnd>()
-                .As<IGameEnd>();
+                   .As<IGameEnd>();
 
             builder.Register<RematchAwaiter>()
-                .As<IRematchAwaiter>();
+                   .As<IRematchAwaiter>();
 
             builder.RegisterCommand<RematchCommands.Failure>();
             builder.RegisterCommand<RematchCommands.Success>();

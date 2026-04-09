@@ -10,10 +10,11 @@ public class PatternShapesTests
     private static int CountTrue(IPattenShape shape)
     {
         var count = 0;
+
         for (var y = 0; y < shape.Positions.Count; y++)
-        for (var x = 0; x < shape.Positions[y].Count; x++)
-            if (shape.Positions[y][x])
-                count++;
+            for (var x = 0; x < shape.Positions[y].Count; x++)
+                if (shape.Positions[y][x])
+                    count++;
         return count;
     }
 
@@ -55,21 +56,21 @@ public class PatternShapesTests
 
         // Verify symmetry (same approach as Rhombus_Symmetric)
         var size = shape.Positions.Count;
+
         for (var y = 0; y < size; y++)
         {
             for (var x = 0; x < size; x++)
             {
-                if (!shape.Positions[y][x]) continue;
+                if (!shape.Positions[y][x])
+                    continue;
+
                 shape.Positions[size - 1 - y][x]
-                    .Should()
-                    .BeTrue(
-                        $"vertical symmetry failed at ({y},{x})"
-                    );
+                     .Should()
+                     .BeTrue($"vertical symmetry failed at ({y},{x})");
+
                 shape.Positions[y][size - 1 - x]
-                    .Should()
-                    .BeTrue(
-                        $"horizontal symmetry failed at ({y},{x})"
-                    );
+                     .Should()
+                     .BeTrue($"horizontal symmetry failed at ({y},{x})");
             }
         }
     }
@@ -94,18 +95,16 @@ public class PatternShapesTests
         {
             for (var x = 0; x < size; x++)
             {
-                if (!shape.Positions[y][x]) continue;
+                if (!shape.Positions[y][x])
+                    continue;
 
                 shape.Positions[size - 1 - y][x]
-                    .Should()
-                    .BeTrue(
-                        $"vertical symmetry failed at ({y},{x}) vs ({size - 1 - y},{x})"
-                    );
+                     .Should()
+                     .BeTrue($"vertical symmetry failed at ({y},{x}) vs ({size - 1 - y},{x})");
+
                 shape.Positions[y][size - 1 - x]
-                    .Should()
-                    .BeTrue(
-                        $"horizontal symmetry failed at ({y},{x}) vs ({y},{size - 1 - x})"
-                    );
+                     .Should()
+                     .BeTrue($"horizontal symmetry failed at ({y},{x}) vs ({y},{size - 1 - x})");
             }
         }
     }
@@ -121,8 +120,7 @@ public class PatternShapesTests
                                            t t t _ t t t
                                            t t t t t t t
                                            t t t t t t t
-                                           """
-        );
+                                           """);
 
         var shape = PatternShapes.Rhombus(3);
         var result = shape.SelectTaken(board, new Position(3, 3));
@@ -144,8 +142,7 @@ public class PatternShapesTests
                                            t t t _ t t t
                                            t t t t t t t
                                            t t t t t t t
-                                           """
-        );
+                                           """);
 
         var shape = PatternShapes.Rhombus(3);
         var result = shape.SelectFree(board, new Position(3, 3));
@@ -166,20 +163,18 @@ public class PatternShapesTests
                                            t t t t t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(0, 0));
 
         result.Count.Should().BeLessThan(13);
+
         result.Should()
-            .AllSatisfy(cell =>
-                {
-                    cell.Position.x.Should().BeGreaterThanOrEqualTo(0);
-                    cell.Position.y.Should().BeGreaterThanOrEqualTo(0);
-                }
-            );
+              .AllSatisfy(cell => {
+                  cell.Position.x.Should().BeGreaterThanOrEqualTo(0);
+                  cell.Position.y.Should().BeGreaterThanOrEqualTo(0);
+              });
     }
 
     [Fact]
@@ -194,8 +189,7 @@ public class PatternShapesTests
                                            t t t t t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(7, 7));
@@ -217,8 +211,7 @@ public class PatternShapesTests
                                            t t t t t t t t t t
                                            t t t t t t t t t t
                                            t t t t t t t t t t
-                                           """
-        );
+                                           """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.SelectAll(board, new Position(5, 5));
@@ -238,8 +231,7 @@ public class PatternShapesTests
                                            t t t t t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
         var shape = PatternShapes.Rhombus(5);
 
         var result = shape.Select(board, new Position(-1, -1), _ => true);
@@ -265,7 +257,9 @@ public class PatternShapesTests
         // Other rows should be all false
         for (var y = 0; y < 5; y++)
         {
-            if (y == 2) continue;
+            if (y == 2)
+                continue;
+
             for (var x = 0; x < 5; x++)
             {
                 shape.Positions[y][x].Should().BeFalse($"row {y} column {x} should be false");
@@ -293,7 +287,8 @@ public class PatternShapesTests
         {
             for (var x = 0; x < 5; x++)
             {
-                if (x == 2) continue;
+                if (x == 2)
+                    continue;
                 shape.Positions[y][x].Should().BeFalse($"row {y} column {x} should be false");
             }
         }

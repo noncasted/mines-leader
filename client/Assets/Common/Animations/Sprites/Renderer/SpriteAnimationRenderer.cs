@@ -1,7 +1,7 @@
 ﻿using Internal;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     [DisallowMultipleComponent]
     public class SpriteAnimationRenderer : MonoBehaviour, IEntityComponent, ISpriteAnimationRenderer
@@ -11,7 +11,7 @@ namespace Common.Animations
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<ISpriteAnimationRenderer>();
+                   .As<ISpriteAnimationRenderer>();
 
             OnRegister(builder);
         }

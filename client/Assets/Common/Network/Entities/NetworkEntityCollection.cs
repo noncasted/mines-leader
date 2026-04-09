@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkEntitiesCollection
     {

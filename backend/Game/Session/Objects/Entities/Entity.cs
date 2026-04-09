@@ -49,11 +49,10 @@ public class Entity : IEntity
         foreach (var (_, property) in Properties)
         {
             properties.Add(new SharedSessionObject.PropertyUpdate()
-                {
-                    PropertyId = property.Id,
-                    Value = property.RawValue
-                }
-            );
+            {
+                PropertyId = property.Id,
+                Value = property.RawValue
+            });
         }
 
         var updatedContext = new SharedSessionEntity.CreatedOverview()

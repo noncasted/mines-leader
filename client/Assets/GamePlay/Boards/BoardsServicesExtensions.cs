@@ -7,16 +7,16 @@ namespace GamePlay.Boards
         public static IScopeBuilder AddBoardServices(this IScopeBuilder builder)
         {
             builder.Register<CellFlagAction>()
-                .As<ICellFlagAction>();
+                   .As<ICellFlagAction>();
 
             builder.Register<CellOpenAction>()
-                .As<ICellOpenAction>();
+                   .As<ICellOpenAction>();
 
             builder.Register<CellMultipleOpenAction>()
-                .As<ICellMultipleOpenAction>();
+                   .As<ICellMultipleOpenAction>();
 
             builder.Register<CellsSelection>()
-                .As<ICellsSelection>();
+                   .As<ICellsSelection>();
 
             return builder;
         }

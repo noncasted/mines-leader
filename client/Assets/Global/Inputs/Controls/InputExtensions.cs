@@ -15,12 +15,10 @@ namespace Global.Inputs
             action.performed += OnChanged;
             action.canceled += OnChanged;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnChanged;
-                    action.canceled -= OnChanged;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnChanged;
+                action.canceled -= OnChanged;
+            });
 
             return property;
 
@@ -37,12 +35,10 @@ namespace Global.Inputs
             action.performed += OnPerformed;
             action.canceled += OnCanceled;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnPerformed;
-                    action.canceled -= OnCanceled;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnPerformed;
+                action.canceled -= OnCanceled;
+            });
 
             return property;
 
@@ -65,12 +61,10 @@ namespace Global.Inputs
             action.performed += OnChanged;
             action.canceled += OnChanged;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnChanged;
-                    action.canceled -= OnChanged;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnChanged;
+                action.canceled -= OnChanged;
+            });
 
             return;
 
@@ -88,12 +82,10 @@ namespace Global.Inputs
             action.performed += OnChanged;
             action.canceled += OnChanged;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnChanged;
-                    action.canceled -= OnChanged;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnChanged;
+                action.canceled -= OnChanged;
+            });
 
             return;
 
@@ -111,12 +103,10 @@ namespace Global.Inputs
             action.performed += OnPerformed;
             action.canceled += OnCanceled;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnPerformed;
-                    action.canceled -= OnCanceled;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnPerformed;
+                action.canceled -= OnCanceled;
+            });
 
             return;
 
@@ -139,12 +129,10 @@ namespace Global.Inputs
             action.performed += OnPerformed;
             action.canceled += OnCanceled;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnPerformed;
-                    action.canceled -= OnCanceled;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnPerformed;
+                action.canceled -= OnCanceled;
+            });
 
             return;
 
@@ -168,12 +156,10 @@ namespace Global.Inputs
             action.performed += performed;
             action.canceled += canceled;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= performed;
-                    action.canceled -= canceled;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= performed;
+                action.canceled -= canceled;
+            });
         }
 
         public static void Listen(
@@ -184,12 +170,10 @@ namespace Global.Inputs
             action.performed += performed;
             action.canceled += performed;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= performed;
-                    action.canceled -= performed;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= performed;
+                action.canceled -= performed;
+            });
         }
 
         public static void ListenPerformed(
@@ -199,11 +183,9 @@ namespace Global.Inputs
         {
             action.performed += performed;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= performed;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= performed;
+            });
         }
 
         public static void ListenPerformed(
@@ -213,11 +195,9 @@ namespace Global.Inputs
         {
             action.performed += OnPerformed;
 
-            lifetime.Listen(() =>
-                {
-                    action.performed -= OnPerformed;
-                }
-          );
+            lifetime.Listen(() => {
+                action.performed -= OnPerformed;
+            });
 
             return;
 
@@ -231,12 +211,11 @@ namespace Global.Inputs
         {
             var completion = new UniTaskCompletionSource();
             action.performed += OnPerformed;
-            lifetime.Listen(() =>
-                {
-                    action.performed += OnPerformed;
-                    completion.TrySetCanceled();
-                }
-          );
+
+            lifetime.Listen(() => {
+                action.performed += OnPerformed;
+                completion.TrySetCanceled();
+            });
 
             return completion.Task;
 

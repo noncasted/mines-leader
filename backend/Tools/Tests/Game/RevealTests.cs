@@ -23,6 +23,7 @@ public class RevealTests
     private static void OpenCell(IBoard board, Position pos)
     {
         var cell = board.Cells[pos];
+
         if (cell.Status == CellStatus.Taken)
             ((ITakenCell)cell).ToFree();
 
@@ -40,8 +41,7 @@ public class RevealTests
                                                 t t t x t t
                                                 t t t t t t
                                                 t t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -53,8 +53,7 @@ public class RevealTests
                                        R R R R R R
                                        R R R R R R
                                        R R R R R R
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -67,8 +66,7 @@ public class RevealTests
                                                 t t t x t t
                                                 t t t t t t
                                                 t t t t t m
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -81,8 +79,7 @@ public class RevealTests
                                        R R R R R R
                                        R R R R R R
                                        R R R R R m
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -96,8 +93,7 @@ public class RevealTests
                                                 t m t t t m t
                                                 t m m m m m t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -110,8 +106,7 @@ public class RevealTests
                                        t m R R R m t
                                        t m m m m m t
                                        t t t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -126,8 +121,7 @@ public class RevealTests
                                                 m t t t t m
                                                 t t t t t t
                                                 m t t t t m
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -141,8 +135,7 @@ public class RevealTests
                                        m R R R R m
                                        t R R R R t
                                        m R R R R m
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -156,8 +149,7 @@ public class RevealTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -168,8 +160,7 @@ public class RevealTests
                                        t t R t t
                                        t t t t t
                                        t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -182,8 +173,7 @@ public class RevealTests
                                                 t t t t t t
                                                 t t t t m t
                                                 t t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -196,8 +186,7 @@ public class RevealTests
                                        R R R R R R
                                        R R R R m t
                                        R R R R t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -211,8 +200,7 @@ public class RevealTests
                                                 m t x t m
                                                 t t t t t
                                                 m t m t m
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -223,8 +211,7 @@ public class RevealTests
                                        m R R R m
                                        t R R R t
                                        m t m t m
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -239,8 +226,7 @@ public class RevealTests
                                                 t t t m t t t
                                                 t t t m t t t
                                                 t t t m t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -253,8 +239,7 @@ public class RevealTests
                                        R R R m t t t
                                        R R R m t t t
                                        R R R m t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -267,8 +252,7 @@ public class RevealTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t g
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -282,8 +266,7 @@ public class RevealTests
                                        R R R R R
                                        R R R R R
                                        R R R R R
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -296,8 +279,7 @@ public class RevealTests
                                                 t t t x t t
                                                 t t t t t t
                                                 t t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -309,8 +291,7 @@ public class RevealTests
                                        R R R R R R
                                        R R R R R R
                                        R R R R R R
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -325,8 +306,7 @@ public class RevealTests
                                                 t t x t t t
                                                 t t t t t t
                                                 t t t t t t
-                                                """
-        );
+                                                """);
 
         OpenCell(board, target);
 
@@ -338,7 +318,6 @@ public class RevealTests
                                        t t R t t t
                                        t t t t t t
                                        t t t t t t
-                                       """
-        );
+                                       """);
     }
 }

@@ -5,7 +5,7 @@ using Internal;
 using MemoryPack;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public interface IConnectionWriter
     {

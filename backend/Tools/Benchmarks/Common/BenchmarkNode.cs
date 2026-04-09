@@ -30,14 +30,11 @@ public abstract class BenchmarkNode<TPayload> : ICoordinatorSetupCompleted
             .AddPipeRequestHandler<ClusterTestNodeMessages.StartRequest, ClusterTestNodeMessages.StartResponse>(
                 lifetime,
                 new ClusterTestNodeMessages.NodePipeId(Environment.Tag, Name),
-                OnStartRequest
-            );
+                OnStartRequest);
 
-        await Messaging.ListenChannel<ClusterTestNodeMessages.Terminate>(
-            lifetime,
+        await Messaging.ListenChannel<ClusterTestNodeMessages.Terminate>(lifetime,
             new ClusterTestNodeMessages.NodeChannelId(Environment.Tag, Name),
-            OnTerminate
-        );
+            OnTerminate);
     }
 
     private async Task<ClusterTestNodeMessages.StartResponse> OnStartRequest(
@@ -67,7 +64,7 @@ public static class ClusterTestNodeExtensions
         where TNode : class
     {
         builder.Add<TNode>()
-            .As<ICoordinatorSetupCompleted>();
+               .As<ICoordinatorSetupCompleted>();
 
         return builder;
     }

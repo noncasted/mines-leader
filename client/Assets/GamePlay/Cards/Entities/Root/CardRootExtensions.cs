@@ -7,9 +7,9 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardLocalRoot(this IEntityBuilder builder)
         {
             builder.Register<LocalCard>()
-                .WithParameter(builder.ScopeLifetime)
-                .As<ILocalCard>()
-                .As<ICard>();
+                   .WithParameter(builder.ScopeLifetime)
+                   .As<ILocalCard>()
+                   .As<ICard>();
 
             return builder;
         }
@@ -17,9 +17,9 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardRemoteRoot(this IEntityBuilder builder)
         {
             builder.Register<RemoteCard>()
-                .WithParameter(builder.ScopeLifetime)
-                .As<IRemoteCard>()
-                .As<ICard>();
+                   .WithParameter(builder.ScopeLifetime)
+                   .As<IRemoteCard>()
+                   .As<ICard>();
 
             return builder;
         }

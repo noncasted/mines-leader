@@ -6,16 +6,13 @@
         {
             var completion = new TaskCompletionSource();
 
-            lifetime.Listen(() =>
-                {
-                    completion.TrySetException(new OperationCanceledException());
-                }
-            );
-            viewableDelegate.Advise(lifetime, () =>
-                {
-                    completion.TrySetResult();
-                }
-            );
+            lifetime.Listen(() => {
+                completion.TrySetException(new OperationCanceledException());
+            });
+
+            viewableDelegate.Advise(lifetime, () => {
+                completion.TrySetResult();
+            });
 
             return completion.Task;
         }
@@ -27,11 +24,10 @@
             var completion = new TaskCompletionSource<T>();
 
             lifetime.Listen(() => completion.TrySetException(new OperationCanceledException()));
-            viewableDelegate.Advise(lifetime, value =>
-                {
-                    completion.TrySetResult(value);
-                }
-            );
+
+            viewableDelegate.Advise(lifetime, value => {
+                completion.TrySetResult(value);
+            });
 
             return completion.Task;
         }

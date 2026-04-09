@@ -15,11 +15,10 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         var grain = GetGrain<IUser>(id);
         await RunTransaction(() => grain.Initialize());
         UserState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Id.Should().Be(id);
     }
 
@@ -30,11 +29,10 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         var grain = GetGrain<IUser>(id);
         await RunTransaction(() => grain.Initialize());
         UserState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Name.Should().BeEmpty();
     }
 
@@ -46,11 +44,10 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         await RunTransaction(() => grain.Initialize());
         await RunTransaction(() => grain.SetName("TestPlayer"));
         UserState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Name.Should().Be("TestPlayer");
     }
 
@@ -63,11 +60,10 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         await RunTransaction(() => grain.SetName("First"));
         await RunTransaction(() => grain.SetName("Second"));
         UserState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Name.Should().Be("Second");
     }
 
@@ -81,16 +77,14 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         var grain2 = GetGrain<IUser>(id);
         UserState? state1 = null;
         UserState? state2 = null;
-        await RunTransaction(async () =>
-            {
-                state1 = await grain.GetState();
-            }
-        );
-        await RunTransaction(async () =>
-            {
-                state2 = await grain2.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state1 = await grain.GetState();
+        });
+
+        await RunTransaction(async () => {
+            state2 = await grain2.GetState();
+        });
         state1!.Id.Should().Be(id);
         state2!.Id.Should().Be(id);
         state1.Name.Should().Be("ConsistencyTest");
@@ -103,11 +97,10 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         var id = Guid.NewGuid();
         var grain = GetGrain<IUser>(id);
         UserState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Id.Should().Be(Guid.Empty);
         state.Name.Should().BeEmpty();
     }

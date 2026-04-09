@@ -171,11 +171,9 @@ public class TaskBalancer : ITaskBalancer
 
             try
             {
-                _logger.LogTrace(
-                    "[TaskBalancer] Executing task, free handles: {Count}, taskId: {TaskId}",
+                _logger.LogTrace("[TaskBalancer] Executing task, free handles: {Count}, taskId: {TaskId}",
                     executionLock.CurrentCount,
-                    entry.Task.Id
-                );
+                    entry.Task.Id);
 
                 await entry.Task.Execute();
                 success = true;
@@ -186,12 +184,10 @@ public class TaskBalancer : ITaskBalancer
                 entry.AddScore(-_config.Value.ExceptionPenalty);
                 _queue.Enqueue(entry.Task);
 
-                _logger.LogError(
-                    e,
+                _logger.LogError(e,
                     "[TaskBalancer] Task execution failed in {Time}, taskId: {TaskId}",
                     stopwatch.Elapsed,
-                    entry.Task.Id
-                );
+                    entry.Task.Id);
             }
             finally
             {
@@ -208,11 +204,9 @@ public class TaskBalancer : ITaskBalancer
             {
                 stopwatch.Stop();
 
-                _logger.LogTrace(
-                    "[TaskBalancer] Task execution completed in {Time}, taskId: {TaskId}",
+                _logger.LogTrace("[TaskBalancer] Task execution completed in {Time}, taskId: {TaskId}",
                     stopwatch.Elapsed,
-                    entry.Task.Id
-                );
+                    entry.Task.Id);
             }
         }
     }

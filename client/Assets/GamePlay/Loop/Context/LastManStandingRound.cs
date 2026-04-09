@@ -1,6 +1,6 @@
-using Common.Network;
 using GamePlay.Players;
 using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Loop
@@ -33,12 +33,11 @@ namespace GamePlay.Loop
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _state.Advise(lifetime, state =>
-                {
-                    var player = _gameContext.GetPlayer(state.CurrentPlayer);
-                    _player.Set(player);
-                    _roundTime.Set(state.SecondsLeft);
-                });
+            _state.Advise(lifetime, state => {
+                var player = _gameContext.GetPlayer(state.CurrentPlayer);
+                _player.Set(player);
+                _roundTime.Set(state.SecondsLeft);
+            });
         }
 
         public void TrySkip()

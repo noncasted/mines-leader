@@ -1,5 +1,7 @@
-Shader "Custom/SmokeCell" {
-    Properties {
+Shader "Custom/SmokeCell"
+{
+    Properties
+    {
         [MainTexture] _MainTex ("Sprite Texture", 2D) = "white" {}
         _ColorDark ("Smoke Dark", Color) = (0.3, 0.3, 0.33, 1.0)
         _ColorLight ("Smoke Light", Color) = (0.55, 0.55, 0.58, 1.0)
@@ -11,8 +13,10 @@ Shader "Custom/SmokeCell" {
         _PixelSize ("Pixel Size", Float) = 12.0
     }
 
-    SubShader {
-        Tags {
+    SubShader
+    {
+        Tags
+        {
             "RenderPipeline" = "UniversalPipeline"
             "Queue" = "Transparent"
             "RenderType" = "Transparent"
@@ -22,7 +26,8 @@ Shader "Custom/SmokeCell" {
         ZWrite Off
         Cull Off
 
-        Pass {
+        Pass
+        {
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -44,26 +49,30 @@ Shader "Custom/SmokeCell" {
                 float4 _MainTex_ST;
             CBUFFER_END
 
-            struct Attributes {
+            struct Attributes
+            {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
                 float4 color : COLOR;
             };
 
-            struct Varyings {
+            struct Varyings
+            {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float2 worldPos : TEXCOORD1;
                 float4 color : COLOR;
             };
 
-            float2 hash2(float2 p) {
+            float2 hash2(float2 p)
+            {
                 p = float2(dot(p, float2(127.1, 311.7)),
                            dot(p, float2(269.5, 183.3)));
                 return frac(sin(p) * 43758.5453);
             }
 
-            float gnoise(float2 p) {
+            float gnoise(float2 p)
+            {
                 float2 i = floor(p);
                 float2 f = frac(p);
                 float2 u = f * f * (3.0 - 2.0 * f);
@@ -77,7 +86,8 @@ Shader "Custom/SmokeCell" {
             }
 
             // Multi-octave noise for soft smoke texture
-            float smokeNoise(float2 p, float t) {
+            float smokeNoise(float2 p, float t)
+            {
                 // Organic wandering - faster and wider
                 float2 drift1 = float2(sin(t * 0.7) * 0.8, cos(t * 0.5) * 0.6);
                 float2 drift2 = float2(cos(t * 0.4) * 1.0, sin(t * 0.6) * 0.8);
@@ -90,7 +100,8 @@ Shader "Custom/SmokeCell" {
                 return n;
             }
 
-            Varyings vert(Attributes input) {
+            Varyings vert(Attributes input)
+            {
                 Varyings output;
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv;
@@ -100,7 +111,8 @@ Shader "Custom/SmokeCell" {
                 return output;
             }
 
-            half4 frag(Varyings input) : SV_Target {
+            half4 frag(Varyings input) : SV_Target
+            {
                 // Pixelate world position - snap to pixel center
                 float2 wp = (floor(input.worldPos * _PixelSize) + 0.5) / _PixelSize;
                 float t = _Time.y * _Speed;
@@ -129,8 +141,8 @@ Shader "Custom/SmokeCell" {
 
                 // Low-frequency waves = wide lobes, randomized per cell
                 float wave = sin(angle * 1.5 + waveT * 1.2 + phase) * 0.5
-                           + sin(angle * 2.0 - waveT * 0.8 + phase * 1.7) * 0.3
-                           + sin(angle * 3.0 + waveT * 1.5 + phase * 0.6) * 0.2;
+                    + sin(angle * 2.0 - waveT * 0.8 + phase * 1.7) * 0.3
+                    + sin(angle * 3.0 + waveT * 1.5 + phase * 0.6) * 0.2;
                 wave *= _EdgeNoiseStrength;
 
                 // Small grain scatter

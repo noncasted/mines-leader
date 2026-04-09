@@ -95,9 +95,9 @@ public class ChainReaction : ICard
         ITakenCell? SelectMine(Position center)
         {
             return searchShape.SelectTaken(_target, center)
-                .Where(x => x.HasMine && x.IsFlagged == false && targets.Contains(x) == false)
-                .OrderBy(x => x.Position.DistanceTo(center))
-                .FirstOrDefault();
+                              .Where(x => x.HasMine && x.IsFlagged == false && targets.Contains(x) == false)
+                              .OrderBy(x => x.Position.DistanceTo(center))
+                              .FirstOrDefault();
         }
     }
 }

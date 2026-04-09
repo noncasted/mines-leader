@@ -40,7 +40,7 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         try
         {
             Target = _grains.GetGrain(context.Request.GetInterfaceType(), context.TargetId.Key)
-                .AsReference<IGrainTransactionHandler>();
+                            .AsReference<IGrainTransactionHandler>();
 
             await context.Invoke();
         }
@@ -177,6 +177,7 @@ public abstract class TransactionRequest : TransactionRequestBase
         try
         {
             var resultTask = InvokeInner();
+
             if (resultTask.IsCompleted)
             {
                 resultTask.GetAwaiter().GetResult();
@@ -220,6 +221,7 @@ public abstract class TransactionRequest<TResult> : TransactionRequestBase
         try
         {
             var resultTask = InvokeInner();
+
             if (resultTask.IsCompleted)
             {
                 return new ValueTask<Response>(Response.FromResult(resultTask.Result));
@@ -263,6 +265,7 @@ public abstract class TransactionTaskRequest<TResult> : TransactionRequestBase
         {
             var resultTask = InvokeInner();
             var status = resultTask.Status;
+
             if (resultTask.IsCompleted)
             {
                 return new ValueTask<Response>(Response.FromResult(resultTask.GetAwaiter().GetResult()));
@@ -307,6 +310,7 @@ public abstract class TransactionTaskRequest : TransactionRequestBase
             var target = this.GetTarget();
             var resultTask = InvokeInner();
             var status = resultTask.Status;
+
             if (resultTask.IsCompleted)
             {
                 resultTask.GetAwaiter().GetResult();

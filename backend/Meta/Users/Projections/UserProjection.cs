@@ -75,8 +75,7 @@ public class UserProjection : Grain, IUserProjection
         if (state.IsConnected == false)
         {
             _logger.LogTrace("[User] [Projection] Failed to force notify. User {Id} is not connected",
-                this.GetPrimaryKey()
-            );
+                this.GetPrimaryKey());
             return;
         }
 
@@ -88,16 +87,14 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Sending cached {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey()
-        );
+            this.GetPrimaryKey());
 
         var state = await _state.Update(state => state.Values[payload.GetType().Name] = payload);
 
         if (state.IsConnected == false)
         {
             _logger.LogTrace("[User] [Projection] Failed to send cached. User {Id} is not connected",
-                this.GetPrimaryKey()
-            );
+                this.GetPrimaryKey());
 
             return;
         }
@@ -109,8 +106,7 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Saving cached {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey()
-        );
+            this.GetPrimaryKey());
 
         return _state.Write(state => state.Values[payload.GetType().Name] = payload);
     }
@@ -119,16 +115,14 @@ public class UserProjection : Grain, IUserProjection
     {
         _logger.LogInformation("[User] [Projection] Sending one time {Type} to {Id}",
             payload.GetType().Name,
-            this.GetPrimaryKey()
-        );
+            this.GetPrimaryKey());
 
         var state = await _state.ReadValue();
 
         if (state.IsConnected == false)
         {
             _logger.LogTrace("[User] [Projection] Failed to send one time. User {Id} is not connected",
-                this.GetPrimaryKey()
-            );
+                this.GetPrimaryKey());
 
             return;
         }

@@ -10,34 +10,34 @@ public static class ConfigsExtensions
     public static IHostApplicationBuilder AddConfigs(this IHostApplicationBuilder builder)
     {
         builder.AddAddressableState<CardConfigsState>()
-            .As<ICardConfigs>();
+               .As<ICardConfigs>();
 
         builder.AddAddressableState<BotConfigState>()
-            .As<IBotConfig>();
+               .As<IBotConfig>();
 
         builder.AddAddressableState<GameModeConfigState>()
-            .As<IGameModeConfig>();
+               .As<IGameModeConfig>();
 
         builder.AddAddressableState<RatingConfigState>()
-            .As<IRatingConfig>();
+               .As<IRatingConfig>();
 
         builder.AddAddressableState<SideEffectsConfigState>()
-            .As<ISideEffectsConfig>();
+               .As<ISideEffectsConfig>();
 
         builder.AddAddressableState<DurableQueueConfigState>()
-            .As<IDurableQueueConfig>();
+               .As<IDurableQueueConfig>();
 
         builder.AddAddressableState<TaskBalancerConfigState>()
-            .As<ITaskBalancerConfig>();
+               .As<ITaskBalancerConfig>();
 
         builder.AddAddressableState<RuntimePipeConfigState>()
-            .As<IRuntimePipeConfig>();
+               .As<IRuntimePipeConfig>();
 
         builder.AddAddressableState<RuntimeChannelConfigState>()
-            .As<IRuntimeChannelConfig>();
+               .As<IRuntimeChannelConfig>();
 
         builder.AddAddressableState<TransactionConfigState>()
-            .As<ITransactionConfig>();
+               .As<ITransactionConfig>();
 
         return builder;
     }

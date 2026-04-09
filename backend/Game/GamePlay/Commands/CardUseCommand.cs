@@ -16,8 +16,7 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
             return EmptyResponse.Fail($"Card {request.CardId} not found in hand");
 
         Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
-            context.Player.User.Id, handCard.Type
-        );
+            context.Player.User.Id, handCard.Type);
 
         var card = Utils.CardFactory.Create(player, context.Snapshot, request.Payload);
 

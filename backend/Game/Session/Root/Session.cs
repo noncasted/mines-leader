@@ -113,28 +113,23 @@ public class Session : ISession
         var connectionTask = user.Connection.Run();
 
         user.Send(new SharedSessionPlayer.LocalUpdate()
-            {
-                Index = user.Index
-            }
-        );
+        {
+            Index = user.Index
+        });
 
-        _users.IterateOthers(user, other =>
+        _users.IterateOthers(user, other => {
+            user.Send(new SharedSessionPlayer.RemoteUpdate()
             {
-                user.Send(new SharedSessionPlayer.RemoteUpdate()
-                    {
-                        Index = other.Index,
-                        BackendId = other.Id
-                    }
-                );
+                Index = other.Index,
+                BackendId = other.Id
+            });
 
-                other.Send(new SharedSessionPlayer.RemoteUpdate()
-                    {
-                        Index = user.Index,
-                        BackendId = user.Id
-                    }
-                );
-            }
-        );
+            other.Send(new SharedSessionPlayer.RemoteUpdate()
+            {
+                Index = user.Index,
+                BackendId = user.Id
+            });
+        });
 
         foreach (var (_, entity) in _entities.Entries)
             user.Send(entity.CreateOverview());
@@ -150,10 +145,9 @@ public class Session : ISession
                 continue;
 
             targetUser.Send(new SharedSessionPlayer.RemoteDisconnect()
-                {
-                    Index = user.Index
-                }
-            );
+            {
+                Index = user.Index
+            });
         }
 
         ExecutionQueue.Enqueue(user.Lifetime.Terminate);

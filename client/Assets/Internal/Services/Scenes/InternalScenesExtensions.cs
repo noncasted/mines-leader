@@ -7,7 +7,7 @@ namespace Internal
         public static IInternalScopeBuilder AddScenes(this IInternalScopeBuilder builder)
         {
             builder.Container.Register<SceneLoader>(VContainer.Lifetime.Singleton)
-                .As<ISceneLoader>();
+                   .As<ISceneLoader>();
 
             return builder;
         }

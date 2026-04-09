@@ -30,8 +30,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -48,8 +47,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Fog);
@@ -66,8 +64,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -88,8 +85,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -108,8 +104,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -134,8 +129,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -157,8 +151,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -179,8 +172,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);
@@ -201,8 +193,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
 
         var effect = new TestEffect(CellEffectType.Smoke);
@@ -220,8 +211,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, ICellEffect Effect)>();
 
@@ -243,8 +233,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, Guid EffectId)>();
 
@@ -267,8 +256,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<Guid>();
 
@@ -289,8 +277,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICellEffect>();
 
@@ -311,8 +298,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
 
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
         taken.Effects.Should().BeEmpty();
@@ -325,8 +311,7 @@ public class CellEffectsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
 
         var free = (IFreeCell)board.Cells[new Position(1, 1)];
         free.Effects.Should().BeEmpty();
@@ -339,8 +324,7 @@ public class CellEffectsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var taken = (ITakenCell)board.Cells[new Position(1, 1)];
 
         var effect1 = new TestEffect(CellEffectType.Smoke);

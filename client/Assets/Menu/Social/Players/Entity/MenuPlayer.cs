@@ -1,6 +1,6 @@
 ﻿using System;
-using Common.Network;
 using Internal;
+using Network;
 
 namespace Menu.Social
 {

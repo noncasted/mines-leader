@@ -20,8 +20,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(2, 2));
 
         neighbours.Should().HaveCount(8);
@@ -44,8 +43,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(0, 0));
 
         neighbours.Should().HaveCount(3);
@@ -63,8 +61,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(4, 0));
 
         neighbours.Should().HaveCount(3);
@@ -82,8 +79,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(0, 4));
 
         neighbours.Should().HaveCount(3);
@@ -101,8 +97,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(4, 4));
 
         neighbours.Should().HaveCount(3);
@@ -120,8 +115,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var neighbours = board.NeighbourPositions(new Position(2, 0)); // top edge
 
         neighbours.Should().HaveCount(5);
@@ -141,8 +135,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var visited = new List<Position>();
 
         board.IterateNeighbours(new Position(2, 2), pos => visited.Add(pos));
@@ -159,8 +152,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
         var visited = new List<Position>();
 
         board.IterateNeighbours(new Position(0, 0), pos => visited.Add(pos));
@@ -177,8 +169,7 @@ public class BoardUtilsTests
                                            t t m t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         board.HasMinesAround(new Position(1, 1)).Should().BeTrue();
         board.HasMinesAround(new Position(2, 1)).Should().BeTrue();
@@ -194,8 +185,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // (3,3) is far from (0,0) — no mines around
         board.HasMinesAround(new Position(3, 3)).Should().BeFalse();
@@ -211,8 +201,7 @@ public class BoardUtilsTests
                                            t t m t t
                                            t t m t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // (2,2) has a mine at (2,3) adjacent to it
         board.HasMinesAround(new Position(2, 2)).Should().BeTrue();
@@ -227,8 +216,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         board.HasMinesAround(new Position(2, 2)).Should().BeFalse();
     }
@@ -244,8 +232,7 @@ public class BoardUtilsTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // (1,1) adjacent to (2,2) which is Free — should return false
         board.HasMinesAround(new Position(1, 1)).Should().BeFalse();
@@ -263,8 +250,7 @@ public class BoardUtilsTests
                                            t t t t t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
 
         for (var i = 0; i < 100; i++)
         {
@@ -288,8 +274,7 @@ public class BoardUtilsTests
                                            t t t t t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
         var positions = new HashSet<Position>();
 
         for (var i = 0; i < 200; i++)
@@ -307,8 +292,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var result = board.GetClosedShape(new Position(-1, -1));
 
@@ -326,8 +310,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var result = board.GetClosedShape(new Position(2, 2));
 
@@ -344,8 +327,7 @@ public class BoardUtilsTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // (1,1) is Taken and adjacent to Free cells at (0,0), (1,0), (0,1)
         var result = board.GetClosedShape(new Position(1, 1));
@@ -364,8 +346,7 @@ public class BoardUtilsTests
                                            _ t t t _
                                            _ _ _ _ _
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // Inner Taken cells at (1,1), (2,1), (3,1), (1,2), (2,2), (3,2)
         var result = board.GetClosedShape(new Position(2, 2));
@@ -389,8 +370,7 @@ public class BoardUtilsTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // Starting from Free cell — GetClosedShape returns true early for Free,
         // doesn't add to selected
@@ -410,8 +390,7 @@ public class BoardUtilsTests
                                            t t t t t t t
                                            t t t t t t t
                                            t t t t t t t
-                                           """
-        );
+                                           """);
 
         board.Size.Should().Be(new Position(7, 7));
         board.Cells.Count.Should().Be(49);
@@ -421,9 +400,10 @@ public class BoardUtilsTests
     public void Board_OwnerId_IsSet()
     {
         var ownerId = Guid.NewGuid();
+
         var board = new TestBoardBuilder(3)
-            .WithOwner(ownerId)
-            .Build();
+                    .WithOwner(ownerId)
+                    .Build();
 
         board.OwnerId.Should().Be(ownerId);
     }

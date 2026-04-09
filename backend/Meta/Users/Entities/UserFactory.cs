@@ -23,18 +23,16 @@ public class UserFactory : IUserFactory
 
     public Task<Guid> Create(UserCreateOptions options)
     {
-        return _orleans.Transactions.Run(async () =>
-            {
-                var id = Guid.NewGuid();
+        return _orleans.Transactions.Run(async () => {
+            var id = Guid.NewGuid();
 
-                var handle = _orleans.CreateUserHandle(id);
+            var handle = _orleans.CreateUserHandle(id);
 
-                await handle.Entity.Initialize();
-                await handle.Deck.Initialize();
-                await handle.Auth.OnRegistered();
+            await handle.Entity.Initialize();
+            await handle.Deck.Initialize();
+            await handle.Auth.OnRegistered();
 
-                return id;
-            }
-        );
+            return id;
+        });
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Common.Animations
+namespace Animations
 {
     public interface IAnimation
     {

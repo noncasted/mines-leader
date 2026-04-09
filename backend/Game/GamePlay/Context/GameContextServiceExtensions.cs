@@ -11,17 +11,17 @@ public static class GameContextServiceExtensions
         services.Add<IGameContext, GameContext>();
 
         services.Add<RoundActionService>()
-            .As<IRoundActionService>();
+                .As<IRoundActionService>();
 
         services.Add<RematchAwaiter>()
-            .As<IRematchAwaiter>();
+                .As<IRematchAwaiter>();
 
         services.Add<GameFlow>()
-            .As<IService>()
-            .As<IGameFlow>();
+                .As<IService>()
+                .As<IGameFlow>();
 
         services.Add<SnapshotSender>()
-            .As<ISnapshotSender>();
+                .As<ISnapshotSender>();
 
         return services;
     }

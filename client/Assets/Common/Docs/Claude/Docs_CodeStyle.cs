@@ -423,6 +423,7 @@ namespace Docs.Claude
             public void Execute(string key)
             {
                 _operationCount++;
+
                 if (_state.TryGetValue(key, out var value))
                 {
                     ProcessValue(value);

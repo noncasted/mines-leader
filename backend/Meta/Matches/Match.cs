@@ -67,35 +67,29 @@ public class Match : Grain, IMatch
 
     public async Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
-        var deckResults = await Task.WhenAll(participants.Select(async p =>
-                {
-                    var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
-                    return (UserId: p, Cards: cards);
-                }
-            )
-        );
+        var deckResults = await Task.WhenAll(participants.Select(async p => {
+            var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
+            return (UserId: p, Cards: cards);
+        }));
 
-        await _state.Write(state =>
-            {
-                state.Type = type;
-                state.StartDate = DateTime.UtcNow;
-                state.Participants = participants;
-                foreach (var (userId, cards) in deckResults)
-                    state.ParticipantDecks[userId] = cards;
-            }
-        );
+        await _state.Write(state => {
+            state.Type = type;
+            state.StartDate = DateTime.UtcNow;
+            state.Participants = participants;
+
+            foreach (var (userId, cards) in deckResults)
+                state.ParticipantDecks[userId] = cards;
+        });
     }
 
     public async Task OnComplete(Guid winnerId)
     {
         var endDate = DateTime.UtcNow;
 
-        var state = await _state.Update(state =>
-            {
-                state.Winner = winnerId;
-                state.Time = endDate - state.StartDate;
-            }
-        );
+        var state = await _state.Update(state => {
+            state.Winner = winnerId;
+            state.Time = endDate - state.StartDate;
+        });
 
         var loserId = state.Participants.First(p => p != winnerId);
 
@@ -130,21 +124,17 @@ public class Match : Grain, IMatch
             Rating = ratingOptions.LossRating
         };
 
-        await _state.Write(state =>
-            {
-                state.RatingChanges[winnerId] = winRatingRecord.GetRating();
-                state.RatingChanges[loserId] = lossRatingRecord.GetRating();
-            }
-        );
+        await _state.Write(state => {
+            state.RatingChanges[winnerId] = winRatingRecord.GetRating();
+            state.RatingChanges[loserId] = lossRatingRecord.GetRating();
+        });
 
-        await Task.WhenAll(
-            winner.MatchHistory.Add(overview),
+        await Task.WhenAll(winner.MatchHistory.Add(overview),
             winner.Progression.AddRecord(winRecord),
             winner.Rating.AddRecord(winRatingRecord),
             loser.MatchHistory.Add(overview),
             loser.Progression.AddRecord(lossRecord),
-            loser.Rating.AddRecord(lossRatingRecord)
-        );
+            loser.Rating.AddRecord(lossRatingRecord));
     }
 
     public Task<MatchState> GetState()

@@ -42,26 +42,25 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _projection.Listen(lifetime, data =>
-                {
-                    foreach (var (index, entry) in data.Entries)
-                    {
-                        var configuration = GetOrCreateConfiguration(index);
-                        var cards = new List<ICardDefinition>();
-
-                        foreach (var cardType in entry.Cards)
+            _projection.Listen(lifetime, data => {
+                        foreach (var (index, entry) in data.Entries)
                         {
-                            var definition = _cardsRegistry.Entries[cardType];
-                            cards.Add(definition);
+                            var configuration = GetOrCreateConfiguration(index);
+                            var cards = new List<ICardDefinition>();
+
+                            foreach (var cardType in entry.Cards)
+                            {
+                                var definition = _cardsRegistry.Entries[cardType];
+                                cards.Add(definition);
+                            }
+
+                            configuration.Update(cards);
                         }
 
-                        configuration.Update(cards);
+                        _selectedIndex.Set(data.SelectedIndex);
+                        _updated.Invoke();
                     }
-
-                    _selectedIndex.Set(data.SelectedIndex);
-                    _updated.Invoke();
-                }
-          );
+                );
         }
 
         public UniTask SendUpdate()
@@ -72,13 +71,13 @@ namespace Meta
                 {
                     SelectedIndex = _selectedIndex.Value,
                     Entries = _configurations.ToDictionary(
-                        x => x.Key,
-                        x => new SharedBackendUser.DeckProjection.Entry()
-                        {
-                            DeckIndex = x.Key,
-                            Cards = x.Value.Cards.Select(x => x.Type).ToList()
-                        }
-                    )
+                            x => x.Key,
+                            x => new SharedBackendUser.DeckProjection.Entry()
+                            {
+                                DeckIndex = x.Key,
+                                Cards = x.Value.Cards.Select(x => x.Type).ToList()
+                            }
+                        )
                 }
             };
 

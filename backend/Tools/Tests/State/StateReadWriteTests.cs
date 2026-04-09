@@ -75,6 +75,7 @@ public class StateReadWriteTests
         var id = Guid.NewGuid();
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
+
         var identity = new StateIdentity
         {
             Key = id,
@@ -99,6 +100,7 @@ public class StateReadWriteTests
         var id = Guid.NewGuid();
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
+
         var identity = new StateIdentity
         {
             Key = id,
@@ -124,6 +126,7 @@ public class StateReadWriteTests
 
         // Write multiple entries via grains so they land in the DB
         var ids = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+
         foreach (var id in ids)
         {
             var grain = GetGrain<ICollectionTestGrain>(id);
@@ -158,14 +161,13 @@ public class StateReadWriteTests
         var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
         var identities = ids.Select(id => new StateIdentity
-                {
-                    Key = id,
-                    Type = stateInfo.Name,
-                    TableName = stateInfo.TableName,
-                    Extension = null
-                }
-            )
-            .ToList();
+                            {
+                                Key = id,
+                                Type = stateInfo.Name,
+                                TableName = stateInfo.TableName,
+                                Extension = null
+                            })
+                            .ToList();
 
         foreach (var identity in identities)
         {

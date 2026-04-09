@@ -8,24 +8,24 @@ namespace Global.Systems
         public static IScopeBuilder AddSystemUtils(this IScopeBuilder builder)
         {
             builder.Register<ApplicationProxy>()
-                .As<IScreen>()
-                .As<IApplicationFlow>();
+                   .As<IScreen>()
+                   .As<IApplicationFlow>();
 
             var broker = new MessageBroker();
             Msg.Inject(broker);
 
             builder.RegisterInstance(broker)
-                .As<IMessageBroker>();
+                   .As<IMessageBroker>();
 
             var updaterPrefab = Prefabs.GlobalUpdater.As<Updater>();
             var updater = builder.Instantiate(updaterPrefab);
 
             builder.RegisterComponent(updater)
-                .As<IUpdater>()
-                .AsSelfResolvable();
+                   .As<IUpdater>()
+                   .AsSelfResolvable();
 
             builder.Register<DelayRunner>()
-                .As<IDelayRunner>();
+                   .As<IDelayRunner>();
 
             return builder;
         }

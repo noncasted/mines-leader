@@ -20,8 +20,7 @@ namespace Global.Setup
                 parent,
                 Scenes.GlobalServices.Value,
                 Construct,
-                false
-          );
+                false);
 
             var scope = await loader.Load(options);
             await scope.Initialize();

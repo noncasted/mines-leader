@@ -1,10 +1,11 @@
-﻿using Common.Network;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using GamePlay.Loop;
 using Internal;
 using Meta;
+using Network;
 using Shared;
 
-namespace GamePlay.Loop
+namespace GamePlay.UI
 {
     public class RematchCommands
     {
@@ -66,9 +67,9 @@ namespace GamePlay.Loop
         public void OnSuccess(RematchContexts.Success data)
         {
             _completion.TrySetResult(new GameEndTransition.Rematch()
-                {
-                    NewSession = new SessionData(data.ServerUrl, data.SessionId)
-                });
+            {
+                NewSession = new SessionData(data.ServerUrl, data.SessionId)
+            });
         }
     }
 }

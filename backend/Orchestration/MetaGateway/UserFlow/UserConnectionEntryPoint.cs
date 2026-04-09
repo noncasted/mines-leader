@@ -60,54 +60,43 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             _logger.LogInformation("[User] [EntryPoint] Calling OnConnected for user {UserId}", user.UserId);
             await _orleans.InTransaction(projection.OnConnected);
 
-            user.Lifetime.Listen(() =>
-                {
-                    _logger.LogInformation("[User] [EntryPoint] User {UserId} disconnecting, calling OnDisconnected",
-                        user.UserId
-                    );
+            user.Lifetime.Listen(() => {
+                _logger.LogInformation("[User] [EntryPoint] User {UserId} disconnecting, calling OnDisconnected",
+                    user.UserId);
 
-                    _orleans.InTransaction(projection.OnDisconnected).NoAwait();
-                }
-            );
+                _orleans.InTransaction(projection.OnDisconnected).NoAwait();
+            });
 
             var channelId = new UserProjectionChannelId(user.UserId);
 
             _logger.LogInformation("[User] [EntryPoint] Setting up messaging channel for user {ChannelId}",
-                channelId.ToRaw()
-            );
+                channelId.ToRaw());
 
-            await _messaging.ListenChannel<IProjectionPayload>(user.Lifetime, channelId, payload =>
+            await _messaging.ListenChannel<IProjectionPayload>(user.Lifetime, channelId, payload => {
+                _logger.LogInformation("[User] [EntryPoint] Sending {PayloadType} to user {UserId}",
+                    payload.GetType().Name,
+                    user.UserId);
+
+                var context = payload.ToContext();
+
+                user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
                 {
-                    _logger.LogInformation("[User] [EntryPoint] Sending {PayloadType} to user {UserId}",
-                        payload.GetType().Name,
-                        user.UserId
-                    );
-
-                    var context = payload.ToContext();
-
-                    user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
-                        {
-                            Context = context
-                        }
-                    );
-                }
-            );
+                    Context = context
+                });
+            });
 
             _logger.LogInformation("[User] [EntryPoint] Forcing initial notify for user {UserId}", user.UserId);
             await _orleans.InTransaction(projection.ForceNotify);
 
             _cardConfigs.View(user.Lifetime, value => user.Connection.Writer.WriteOneWay(new SharedBackendProjection()
-                    {
-                        Context = value
-                    }
-                )
-            );
+            {
+                Context = value
+            }));
 
             await user.Connection.Writer.WriteOneWay(new SharedConnectionCompleted());
 
             _logger.LogInformation("[User] [EntryPoint] User {UserId} projection setup completed successfully",
-                user.UserId
-            );
+                user.UserId);
         }
         catch (Exception ex)
         {

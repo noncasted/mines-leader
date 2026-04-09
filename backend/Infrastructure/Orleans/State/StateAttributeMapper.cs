@@ -16,8 +16,7 @@ public class StateAttributeMapper : IAttributeToFactoryMapper<StateAttribute>
             throw new ArgumentException(
                 $"Parameter '{parameter.Name}' on the constructor for '{parameter.Member.DeclaringType}' has an unsupported type, '{parameterType}'. " +
                 $"It must be an instance of generic type '{typeof(State<>)}' because it has an associated [State] attribute.",
-                parameter.Name
-            );
+                parameter.Name);
         }
 
         var genericCreate = _createMethodInfo.MakeGenericMethod(parameterType.GetGenericArguments());

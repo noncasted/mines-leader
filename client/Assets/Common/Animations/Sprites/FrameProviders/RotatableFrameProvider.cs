@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     public class RotatableFrameProvider : IFrameProvider
     {

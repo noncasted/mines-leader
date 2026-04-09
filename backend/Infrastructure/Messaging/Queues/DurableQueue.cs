@@ -25,9 +25,9 @@ public class DurableQueue : Grain, IDurableQueue
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
-        var delay = MessagingGrainExtensions.GetKeepAliveDelay(
-            _observers.Values, d => d.UpdateDate, _config.Value.ObserverKeepAliveMinutes
-        );
+        var delay = MessagingGrainExtensions.GetKeepAliveDelay(_observers.Values, d => d.UpdateDate,
+            _config.Value.ObserverKeepAliveMinutes);
+
         if (delay != null)
             DelayDeactivation(delay.Value);
         return Task.CompletedTask;
@@ -80,8 +80,7 @@ public class DurableQueue : Grain, IDurableQueue
 
                 _logger.LogError(e,
                     "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",
-                    this.GetPrimaryKeyString()
-                );
+                    this.GetPrimaryKeyString());
             }
         }
 

@@ -31,9 +31,9 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<SetProperty>()
-                .Add<PropertyUpdate>()
-                .Add<Event>();
+                   .Add<SetProperty>()
+                   .Add<PropertyUpdate>()
+                   .Add<Event>();
         }
     }
 }

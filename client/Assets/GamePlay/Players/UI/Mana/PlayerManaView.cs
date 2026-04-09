@@ -22,25 +22,24 @@ namespace GamePlay.Players
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeLoaded>();
+                   .As<IScopeLoaded>();
         }
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _mana.Current.View(lifetime, current =>
-                {
-                    var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(),
-                        _mana.Max.Value);
-                    points = points.Reverse().ToList();
+            _mana.Current.View(lifetime, current => {
+                var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(),
+                    _mana.Max.Value);
+                points = points.Reverse().ToList();
 
-                    for (int i = 0; i < points.Count; i++)
-                    {
-                        if (i < current)
-                            points[i].SetFull();
-                        else
-                            points[i].SetEmpty();
-                    }
-                });
+                for (int i = 0; i < points.Count; i++)
+                {
+                    if (i < current)
+                        points[i].SetFull();
+                    else
+                        points[i].SetEmpty();
+                }
+            });
         }
     }
 }

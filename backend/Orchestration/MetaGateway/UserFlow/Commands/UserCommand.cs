@@ -20,8 +20,7 @@ public abstract class UserCommand<TRequest> : IUserCommand
     {
         if (context is not TRequest request)
             throw new ArgumentException(
-                $"Invalid request type: {context.GetType().Name}, expected: {typeof(TRequest).Name}"
-            );
+                $"Invalid request type: {context.GetType().Name}, expected: {typeof(TRequest).Name}");
 
         return Execute(session, request);
     }

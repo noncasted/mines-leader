@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using Common.Network;
 using Global.Constants;
 using Internal;
-using Shared;
 using Tools;
 using UnityEngine;
 
@@ -33,7 +31,7 @@ namespace GamePlay.Cards
                    .As<IDeck>()
                    .As<IScopeLoaded>();
         }
-        
+
         public void UpdateAmount(int amount)
         {
             var delta = amount - _cards.Count;

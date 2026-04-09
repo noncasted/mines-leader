@@ -56,16 +56,15 @@ public class GetFlagWinnerTests
                                             t t f t t
                                             t t t f t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -85,16 +84,15 @@ public class GetFlagWinnerTests
                                             t t m t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -114,16 +112,15 @@ public class GetFlagWinnerTests
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -141,14 +138,13 @@ public class GetFlagWinnerTests
                                             f t t
                                             t t t
                                             t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             t t t
                                             t f t
                                             t t t
-                                            """
-        );
+                                            """);
 
         var (context, player1Id, player2Id) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -170,8 +166,7 @@ public class GetFlagWinnerTests
                                             m t t
                                             t t t
                                             t t t
-                                            """
-        );
+                                            """);
 
         var player1 = Substitute.For<IPlayer>();
         var user1 = Substitute.For<IUser>();
@@ -209,16 +204,15 @@ public class GetFlagWinnerTests
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, _, player2Id) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -240,16 +234,15 @@ public class GetFlagWinnerTests
                                             t t _ t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -266,14 +259,13 @@ public class GetFlagWinnerTests
                                             t t t
                                             t m t
                                             t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t
                                             t t t
                                             t t t
-                                            """
-        );
+                                            """);
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -292,16 +284,15 @@ public class GetFlagWinnerTests
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
@@ -320,16 +311,15 @@ public class GetFlagWinnerTests
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
+
         var (board2, _) = BoardParser.Parse("""
                                             m t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
                                             t t t t t
-                                            """
-        );
+                                            """);
 
         var (context, _, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);

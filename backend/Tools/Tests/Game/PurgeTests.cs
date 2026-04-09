@@ -34,8 +34,7 @@ public class PurgeTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // Manually add effects to some cells
         var smokeEffect = new SmokeEffect { Id = Guid.NewGuid() };
@@ -51,9 +50,9 @@ public class PurgeTests
 
         // All effects should be removed
         board.Cells.Values
-            .SelectMany(c => c.Effects)
-            .Should()
-            .BeEmpty("Purge should remove all effects from all cells");
+             .SelectMany(c => c.Effects)
+             .Should()
+             .BeEmpty("Purge should remove all effects from all cells");
     }
 
     [Fact]
@@ -65,8 +64,7 @@ public class PurgeTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var owner = MockOwner(board);
 
@@ -84,8 +82,7 @@ public class PurgeTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // Add Smoke to Taken cell, Fog to Free cell
         var smokeEffect1 = new SmokeEffect { Id = Guid.NewGuid() };
@@ -102,9 +99,9 @@ public class PurgeTests
         result.Result.HasError.Should().BeFalse();
 
         board.Cells.Values
-            .SelectMany(c => c.Effects)
-            .Should()
-            .BeEmpty();
+             .SelectMany(c => c.Effects)
+             .Should()
+             .BeEmpty();
     }
 
     [Fact]
@@ -116,8 +113,7 @@ public class PurgeTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         // Two separate effects on same cell
         var effect1 = new SmokeEffect { Id = Guid.NewGuid() };
@@ -141,8 +137,7 @@ public class PurgeTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var owner = MockOwner(board);
 
@@ -165,8 +160,7 @@ public class PurgeTests
                                            t t t _ t t t
                                            t t t t t t t
                                            t t t t t t t
-                                           """
-        );
+                                           """);
 
         var smokeId = Guid.NewGuid();
         var fogId = Guid.NewGuid();

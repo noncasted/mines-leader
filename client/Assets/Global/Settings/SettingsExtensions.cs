@@ -1,4 +1,5 @@
 ﻿using Internal;
+using Tools;
 
 namespace Global.Settings
 {
@@ -6,13 +7,13 @@ namespace Global.Settings
     {
         public static IScopeBuilder AddSettings(this IScopeBuilder builder)
         {
-            var view = builder.Instantiate(Tools.Prefabs.Settings.As<SettingsView>());
+            var view = builder.Instantiate(Prefabs.Settings.As<SettingsView>());
 
             builder.Register<Settings>()
-                .WithAsset<SettingsOptions>()
-                .WithParameter<ISettingsView>(view)
-                .As<ISettings>()
-                .As<IScopeSetupAsync>();
+                   .WithAsset<SettingsOptions>()
+                   .WithParameter<ISettingsView>(view)
+                   .As<ISettings>()
+                   .As<IScopeSetupAsync>();
 
             return builder;
         }

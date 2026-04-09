@@ -17,15 +17,15 @@ public class TaskBalancerTests
         var queueLogger = Substitute.For<ILogger<TaskQueue>>();
         var balancerLogger = Substitute.For<ILogger<TaskBalancer>>();
         _queue = new TaskQueue(queueLogger);
+
         var config = CreateConfig(new TaskBalancerOptions
-            {
-                EmptyDelayMs = 10,
-                NextDelayMs = 10,
-                IterationScore = 1,
-                ExceptionPenalty = 50,
-                ConcurrentTasks = 10
-            }
-        );
+        {
+            EmptyDelayMs = 10,
+            NextDelayMs = 10,
+            IterationScore = 1,
+            ExceptionPenalty = 50,
+            ConcurrentTasks = 10
+        });
         _balancer = new TaskBalancer(_queue, balancerLogger, config);
     }
 
@@ -41,14 +41,13 @@ public class TaskBalancerTests
         _queue.Enqueue(criticalTask);
 
         var config = CreateConfig(new TaskBalancerOptions
-            {
-                EmptyDelayMs = 10,
-                NextDelayMs = 10,
-                IterationScore = 1,
-                ExceptionPenalty = 50,
-                ConcurrentTasks = 1
-            }
-        );
+        {
+            EmptyDelayMs = 10,
+            NextDelayMs = 10,
+            IterationScore = 1,
+            ExceptionPenalty = 50,
+            ConcurrentTasks = 1
+        });
         var logger = Substitute.For<ILogger<TaskBalancer>>();
         var balancer = new TaskBalancer(_queue, logger, config);
 
@@ -80,8 +79,7 @@ public class TaskBalancerTests
 
         task.ExecuteCount.Should()
             .BeGreaterThanOrEqualTo(2,
-                "failed task should be re-enqueued and retried"
-            );
+                "failed task should be re-enqueued and retried");
     }
 
     [Fact]
@@ -92,14 +90,13 @@ public class TaskBalancerTests
         _queue.Enqueue(lowTask);
 
         var config = CreateConfig(new TaskBalancerOptions
-            {
-                EmptyDelayMs = 10,
-                NextDelayMs = 10,
-                IterationScore = 100,
-                ExceptionPenalty = 50,
-                ConcurrentTasks = 1
-            }
-        );
+        {
+            EmptyDelayMs = 10,
+            NextDelayMs = 10,
+            IterationScore = 100,
+            ExceptionPenalty = 50,
+            ConcurrentTasks = 1
+        });
         var logger = Substitute.For<ILogger<TaskBalancer>>();
         var balancer = new TaskBalancer(_queue, logger, config);
 
@@ -128,8 +125,8 @@ public class TaskBalancerTests
     public async Task MultipleTasks_AllExecutedExactlyOnce()
     {
         var tasks = Enumerable.Range(0, 5)
-            .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero, priority: TaskPriority.Medium))
-            .ToList();
+                              .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero, priority: TaskPriority.Medium))
+                              .ToList();
 
         foreach (var task in tasks)
             _queue.Enqueue(task);
@@ -161,8 +158,7 @@ public class TaskBalancerTests
 
         task.ExecuteCount.Should()
             .Be(0,
-                "tasks enqueued after lifetime termination should not execute"
-            );
+                "tasks enqueued after lifetime termination should not execute");
     }
 
     private static ITaskBalancerConfig CreateConfig(TaskBalancerOptions options)

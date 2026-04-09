@@ -2,7 +2,7 @@
 using Internal;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkCommandsDispatcher
     {
@@ -27,45 +27,39 @@ namespace Common.Network
             var reader = _connection.Reader;
             var writer = _connection.Writer;
 
-            reader.OneWay.Advise(lifetime, response =>
+            reader.OneWay.Advise(lifetime, response => {
+                var context = response.Context;
+                var commands = _commands.Get(context);
+
+                try
                 {
-                    var context = response.Context;
-                    var commands = _commands.Get(context);
-
-                    try
-                    {
-                        commands.Execute(lifetime, context);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogException(e);
-                    }
+                    commands.Execute(lifetime, context);
                 }
-          );
-
-            reader.Request.Advise(lifetime, request =>
+                catch (Exception e)
                 {
-                    var context = request.Context;
-                    var commands = _commands.Get(context);
-
-                    try
-                    {
-                        var response = commands.Execute(lifetime, context);
-                        writer.WriteResponse(response, request.RequestId);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogException(e);
-                    }
+                    Debug.LogException(e);
                 }
-          );
+            });
 
-            reader.Response.Advise(lifetime, response =>
+            reader.Request.Advise(lifetime, request => {
+                var context = request.Context;
+                var commands = _commands.Get(context);
+
+                try
                 {
-                    var context = response.Context;
-                    writer.OnRequestHandled(context, response.RequestId);
+                    var response = commands.Execute(lifetime, context);
+                    writer.WriteResponse(response, request.RequestId);
                 }
-          );
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            });
+
+            reader.Response.Advise(lifetime, response => {
+                var context = response.Context;
+                writer.OnRequestHandled(context, response.RequestId);
+            });
         }
     }
 }

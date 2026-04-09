@@ -47,22 +47,18 @@ public class RuntimeChannelSendStressTest
 
             handle.Progress.Log("Setting up channel listeners...");
 
-            await Messaging.ListenChannel<MessagePayload>(
-                handle.Lifetime,
+            await Messaging.ListenChannel<MessagePayload>(handle.Lifetime,
                 new RuntimeChannelId(TestName),
-                OnMessage
-            );
+                OnMessage);
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test nodes...");
 
-            await Task.WhenAll(
-                handle.StartNode(ServiceTag.Game, TestName, payload),
+            await Task.WhenAll(handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
                 handle.StartNode(ServiceTag.Coordinator, TestName, payload),
                 handle.StartNode(ServiceTag.Silo, TestName, payload),
-                handle.StartNode(ServiceTag.Console, TestName, payload)
-            );
+                handle.StartNode(ServiceTag.Console, TestName, payload));
 
             await completion.Task;
 
@@ -96,37 +92,30 @@ public class RuntimeChannelSendStressTest
             {
                 try
                 {
-                    Logger.LogInformation(
-                        "Publishing message {MessageIndex}/{TotalMessages} from {Service}",
+                    Logger.LogInformation("Publishing message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,
                         payload.MessageCount,
-                        Environment.Tag.ToString()
-                    );
+                        Environment.Tag.ToString());
 
-                    await Messaging.PublishChannel(
-                        new RuntimeChannelId(TestName),
+                    await Messaging.PublishChannel(new RuntimeChannelId(TestName),
                         new MessagePayload
                         {
                             Service = Environment.Tag.ToString(),
                             MessageIndex = i + 1
-                        }
-                    );
+                        });
 
                     Logger.LogInformation(
                         "Successfully published message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,
                         payload.MessageCount,
-                        Environment.Tag.ToString()
-                    );
+                        Environment.Tag.ToString());
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(
-                        e,
+                    Logger.LogError(e,
                         "Failed to publish message {MessageIndex}/{TotalMessages}",
                         i + 1,
-                        payload.MessageCount
-                    );
+                        payload.MessageCount);
                 }
             }
         }

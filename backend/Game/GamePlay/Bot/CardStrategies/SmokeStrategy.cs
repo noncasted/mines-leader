@@ -30,6 +30,7 @@ public class SmokeStrategy : IBotCardStrategy
 
         // Проверяем есть ли клетки у противника
         var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+
         if (opponentTakenCount == 0)
             return 0f;
 

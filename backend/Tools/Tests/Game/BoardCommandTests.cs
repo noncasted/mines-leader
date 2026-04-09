@@ -41,23 +41,21 @@ public class BoardCommandTests
         var takenNeighbours = new List<ITakenCell>();
         var flaggedNeighbours = new List<ITakenCell>();
 
-        board.IterateNeighbours(position, neighbour =>
-            {
-                var neighbourCell = board.Cells[neighbour];
+        board.IterateNeighbours(position, neighbour => {
+            var neighbourCell = board.Cells[neighbour];
 
-                if (neighbourCell.Status != CellStatus.Taken)
-                    return;
+            if (neighbourCell.Status != CellStatus.Taken)
+                return;
 
-                var takenNeighbourCell = neighbourCell.AsTaken();
-                takenNeighbours.Add(takenNeighbourCell);
+            var takenNeighbourCell = neighbourCell.AsTaken();
+            takenNeighbours.Add(takenNeighbourCell);
 
-                if (takenNeighbourCell.IsFlagged == false)
-                    return;
+            if (takenNeighbourCell.IsFlagged == false)
+                return;
 
-                flaggedNeighbours.Add(takenNeighbourCell);
-                placedFlags++;
-            }
-        );
+            flaggedNeighbours.Add(takenNeighbourCell);
+            placedFlags++;
+        });
 
         if (around != placedFlags)
             return (0, 0); // no-op: flag count mismatch
@@ -100,8 +98,7 @@ public class BoardCommandTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
 
@@ -125,10 +122,9 @@ public class BoardCommandTests
         foreach (var pos in unflaggedNeighbors)
         {
             board.Cells[pos]
-                .Status.Should()
-                .Be(CellStatus.Free,
-                    $"cell at ({pos.x},{pos.y}) should be opened by chord"
-                );
+                 .Status.Should()
+                 .Be(CellStatus.Free,
+                     $"cell at ({pos.x},{pos.y}) should be opened by chord");
         }
 
         // Flagged mine stays Taken
@@ -146,8 +142,7 @@ public class BoardCommandTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
 
@@ -178,8 +173,7 @@ public class BoardCommandTests
                                            t t _ t t
                                            t t t g t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
 
@@ -193,10 +187,9 @@ public class BoardCommandTests
 
         // (3,1) was a mine but got opened (exploded + ToFree)
         board.Cells[new Position(3, 1)]
-            .Status.Should()
-            .Be(CellStatus.Free,
-                "exploded mine converts to Free after chord"
-            );
+             .Status.Should()
+             .Be(CellStatus.Free,
+                 "exploded mine converts to Free after chord");
     }
 
     [Fact]
@@ -209,8 +202,7 @@ public class BoardCommandTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
         board.Cells[target].Status.Should().Be(CellStatus.Taken);
@@ -231,8 +223,7 @@ public class BoardCommandTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
         var center = board.Cells[target].AsFree();
@@ -257,8 +248,7 @@ public class BoardCommandTests
                                            t _ _ _ t
                                            t _ _ _ t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var target = new Position(2, 2);
         board.Cells[target].Status.Should().Be(CellStatus.Free);
@@ -286,8 +276,7 @@ public class BoardCommandTests
                                            t t t t t
                                            t t t m t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var cellCountBefore = board.Cells.Count;
         cellCountBefore.Should().Be(25);
@@ -320,16 +309,14 @@ public class BoardCommandTests
 
         // Start position and its neighbors are mine-free (Generate guarantees this)
         board.Cells[start]
-            .AsTaken()
-            .HasMine.Should()
-            .BeFalse(
-                "start position is always mine-free after generation"
-            );
+             .AsTaken()
+             .HasMine.Should()
+             .BeFalse("start position is always mine-free after generation");
 
         // Mine count should be correct
         var mineCount = board.Cells.Values
-            .Where(c => c.Status == CellStatus.Taken)
-            .Count(c => c.AsTaken().HasMine);
+                             .Where(c => c.Status == CellStatus.Taken)
+                             .Count(c => c.AsTaken().HasMine);
         mineCount.Should().Be(10);
     }
 
@@ -347,10 +334,8 @@ public class BoardCommandTests
         board.EnsureGenerated(start);
 
         // Snapshot the board state after first generation
-        var cellsBefore = board.Cells.ToDictionary(
-            kvp => kvp.Key,
-            kvp => kvp.Value.Status
-        );
+        var cellsBefore = board.Cells.ToDictionary(kvp => kvp.Key,
+            kvp => kvp.Value.Status);
 
         // Second call — should be no-op since Cells.Count > 0
         board.EnsureGenerated(new Position(0, 0));
@@ -359,10 +344,9 @@ public class BoardCommandTests
         foreach (var (pos, status) in cellsBefore)
         {
             board.Cells[pos]
-                .Status.Should()
-                .Be(status,
-                    $"cell at ({pos.x},{pos.y}) should not change on second EnsureGenerated"
-                );
+                 .Status.Should()
+                 .Be(status,
+                     $"cell at ({pos.x},{pos.y}) should not change on second EnsureGenerated");
         }
     }
 

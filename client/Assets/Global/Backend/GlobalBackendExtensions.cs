@@ -7,16 +7,16 @@ namespace Global.Backend
         public static IScopeBuilder AddBackend(this IScopeBuilder builder)
         {
             builder.Register<BackendGet>()
-                .As<IBackendGet>();
+                   .As<IBackendGet>();
 
             builder.Register<BackendMedia>()
-                .As<IBackendMedia>();
+                   .As<IBackendMedia>();
 
             builder.Register<BackendPost>()
-                .As<IBackendPost>();
+                   .As<IBackendPost>();
 
             builder.Register<BackendClient>()
-                .As<IBackendClient>();
+                   .As<IBackendClient>();
 
 
             return builder;

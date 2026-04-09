@@ -30,7 +30,7 @@ namespace GamePlay.UI
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)

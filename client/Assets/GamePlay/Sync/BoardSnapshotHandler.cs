@@ -177,6 +177,7 @@ namespace GamePlay
             public void Execute(BoardSnapshotRecord.EffectAdded record)
             {
                 var vector = record.Position.ToVector();
+
                 if (_board.Cells[vector] is CellView cellView)
                 {
                     cellView.Effects.AddEffect(record.EffectId, record.Type);
@@ -196,6 +197,7 @@ namespace GamePlay
             public void Execute(BoardSnapshotRecord.EffectRemoved record)
             {
                 var vector = record.Position.ToVector();
+
                 if (_board.Cells[vector] is CellView cellView)
                 {
                     cellView.Effects.RemoveEffect(record.EffectId);

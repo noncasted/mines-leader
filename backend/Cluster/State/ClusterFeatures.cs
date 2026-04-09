@@ -22,37 +22,37 @@ public class ClusterFeatures(AddressableStateUtils utils)
     public Task SetAcceptingConnections(bool accepting)
     {
         var current = Value;
+
         return SetValue(new ClusterFeaturesState
-            {
-                AcceptingConnections = accepting,
-                MatchmakingEnabled = current.MatchmakingEnabled,
-                SideEffectsEnabled = current.SideEffectsEnabled
-            }
-        );
+        {
+            AcceptingConnections = accepting,
+            MatchmakingEnabled = current.MatchmakingEnabled,
+            SideEffectsEnabled = current.SideEffectsEnabled
+        });
     }
 
     public Task SetMatchmakingEnabled(bool enabled)
     {
         var current = Value;
+
         return SetValue(new ClusterFeaturesState
-            {
-                AcceptingConnections = current.AcceptingConnections,
-                MatchmakingEnabled = enabled,
-                SideEffectsEnabled = current.SideEffectsEnabled
-            }
-        );
+        {
+            AcceptingConnections = current.AcceptingConnections,
+            MatchmakingEnabled = enabled,
+            SideEffectsEnabled = current.SideEffectsEnabled
+        });
     }
 
     public Task SetSideEffectsEnabled(bool enabled)
     {
         var current = Value;
+
         return SetValue(new ClusterFeaturesState
-            {
-                AcceptingConnections = current.AcceptingConnections,
-                MatchmakingEnabled = current.MatchmakingEnabled,
-                SideEffectsEnabled = enabled
-            }
-        );
+        {
+            AcceptingConnections = current.AcceptingConnections,
+            MatchmakingEnabled = current.MatchmakingEnabled,
+            SideEffectsEnabled = enabled
+        });
     }
 }
 
@@ -74,7 +74,7 @@ public static class ClusterFeaturesExtensions
     public static IHostApplicationBuilder AddClusterFeatures(this IHostApplicationBuilder builder)
     {
         builder.AddAddressableState<ClusterFeatures>()
-            .As<IClusterFeatures>();
+               .As<IClusterFeatures>();
 
         builder.Services.AddSingleton<IClusterFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
 

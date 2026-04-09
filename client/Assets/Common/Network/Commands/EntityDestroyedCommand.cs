@@ -2,7 +2,7 @@
 using Shared;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     public class EntityDestroyedCommand : OneWayCommand<SharedSessionEntity.DestroyUpdate>
     {

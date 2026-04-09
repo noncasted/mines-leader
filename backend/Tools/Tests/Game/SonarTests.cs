@@ -27,12 +27,10 @@ public class SonarTests
                                                 t t m t t t t t t t
                                                 t t t t t t t t t t
                                                 t t t t m t t t m t
-                                                """
-        );
+                                                """);
 
         var result = new Sonar(board, CardConfigs.Sonar,
-            new CardUsePayload.Sonar { Position = target }
-        ).Use();
+            new CardUsePayload.Sonar { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -48,8 +46,7 @@ public class SonarTests
                                        t t m t t t t t t t
                                        t t t t t t t t t t
                                        t t t t m t t t m t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -62,12 +59,10 @@ public class SonarTests
                                                 t m x m t
                                                 t t m t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new Sonar(board, CardConfigs.Sonar,
-            new CardUsePayload.Sonar { Position = target }
-        ).Use();
+            new CardUsePayload.Sonar { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -77,8 +72,7 @@ public class SonarTests
                                        t f t f t
                                        t t f t t
                                        t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -90,12 +84,10 @@ public class SonarTests
                                                 t t x t t
                                                 t t m t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new Sonar(board, CardConfigs.Sonar,
-            new CardUsePayload.Sonar { Position = target }
-        ).Use();
+            new CardUsePayload.Sonar { Position = target }).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.Sonar;
         snapshot!.FlaggedCells.Should().HaveCount(1);
@@ -116,12 +108,10 @@ public class SonarTests
                                                 t t t t t t t t t
                                                 t t t t t t t t t
                                                 m t t t t t t t m
-                                                """
-        );
+                                                """);
 
         var result = new Sonar(board, CardConfigs.Sonar,
-            new CardUsePayload.Sonar { Position = target }
-        ).Use();
+            new CardUsePayload.Sonar { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -135,12 +125,10 @@ public class SonarTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new Sonar(board, CardConfigs.Sonar,
-            new CardUsePayload.Sonar { Position = target }
-        ).Use();
+            new CardUsePayload.Sonar { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }

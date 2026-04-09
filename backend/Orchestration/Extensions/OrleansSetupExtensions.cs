@@ -14,35 +14,29 @@ public static class OrleansSetupExtensions
     {
         public IHostApplicationBuilder AddOrleansClient()
         {
-            builder.UseOrleansClient(clientBuilder =>
+            builder.UseOrleansClient(clientBuilder => {
+                var postgresConnectionString =
+                    clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)!;
+
+                clientBuilder.Configure<ClientMessagingOptions>(options => {
+                    options.ResponseTimeout = ReplyTimeoutSeconds;
+                    options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
+                });
+
+                if (builder.Environment.IsDevelopment() == true)
                 {
-                    var postgresConnectionString =
-                        clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)!;
-
-                    clientBuilder.Configure<ClientMessagingOptions>(options =>
-                        {
-                            options.ResponseTimeout = ReplyTimeoutSeconds;
-                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
-                        }
-                    );
-
-                    if (builder.Environment.IsDevelopment() == true)
-                    {
-                        clientBuilder.UseLocalhostClustering();
-                    }
-                    else
-                    {
-                        clientBuilder.UseAdoNetClustering(options =>
-                            {
-                                options.Invariant = "Npgsql";
-                                options.ConnectionString = postgresConnectionString;
-                            }
-                        );
-                    }
-
-                    clientBuilder.UseConnectionRetryFilter((_, _) => Task.FromResult(true));
+                    clientBuilder.UseLocalhostClustering();
                 }
-            );
+                else
+                {
+                    clientBuilder.UseAdoNetClustering(options => {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = postgresConnectionString;
+                    });
+                }
+
+                clientBuilder.UseConnectionRetryFilter((_, _) => Task.FromResult(true));
+            });
 
             return builder;
         }
@@ -51,36 +45,30 @@ public static class OrleansSetupExtensions
         {
             var configuration = builder.Configuration;
 
-            builder.UseOrleans(siloBuilder =>
+            builder.UseOrleans(siloBuilder => {
+                var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
+
+                siloBuilder.Configure<SiloMessagingOptions>(options => {
+                    options.ResponseTimeout = ReplyTimeoutSeconds;
+                    options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
+                });
+
+                if (builder.Environment.IsDevelopment() == true)
                 {
-                    var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
-
-                    siloBuilder.Configure<SiloMessagingOptions>(options =>
-                        {
-                            options.ResponseTimeout = ReplyTimeoutSeconds;
-                            options.ResponseTimeoutWithDebugger = ReplyTimeoutSeconds * 10;
-                        }
-                    );
-
-                    if (builder.Environment.IsDevelopment() == true)
-                    {
-                        siloBuilder.UseLocalhostClustering();
-                    }
-                    else
-                    {
-                        siloBuilder.UseAdoNetClustering(options =>
-                            {
-                                options.Invariant = "Npgsql";
-                                options.ConnectionString = npgsqlConnectionString;
-                            }
-                        );
-                    }
-
-                    siloBuilder.AddActivityPropagation();
-
-                    siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();
+                    siloBuilder.UseLocalhostClustering();
                 }
-            );
+                else
+                {
+                    siloBuilder.UseAdoNetClustering(options => {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = npgsqlConnectionString;
+                    });
+                }
+
+                siloBuilder.AddActivityPropagation();
+
+                siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();
+            });
 
             return builder;
         }

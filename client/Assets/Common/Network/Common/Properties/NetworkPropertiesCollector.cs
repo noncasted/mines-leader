@@ -3,7 +3,7 @@ using Global.Systems;
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public class NetworkPropertiesCollector : IUpdatable, IScopeSetup
     {
@@ -48,12 +48,11 @@ namespace Common.Network
                         continue;
 
                     contexts.Add(new SharedSessionObject.SetProperty()
-                        {
-                            ObjectId = networkObject.Id,
-                            PropertyId = id,
-                            Value = property.Collect()
-                        }
-                 );
+                    {
+                        ObjectId = networkObject.Id,
+                        PropertyId = id,
+                        Value = property.Collect()
+                    });
                 }
             }
 

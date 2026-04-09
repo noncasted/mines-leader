@@ -21,7 +21,7 @@ namespace GamePlay.Cards
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<ICardPointerHandler>();
+                   .As<ICardPointerHandler>();
         }
 
         private void OnMouseEnter()
@@ -53,13 +53,12 @@ namespace GamePlay.Cards
         {
             var childLifetime = lifetime.Child();
 
-            pointerHandler.IsPressed.Advise(childLifetime, value =>
-                {
-                    if (value == true)
-                        return;
+            pointerHandler.IsPressed.Advise(childLifetime, value => {
+                if (value == true)
+                    return;
 
-                    childLifetime.Terminate();
-                });
+                childLifetime.Terminate();
+            });
 
             return childLifetime;
         }

@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using Loop.Loaders;
 using Tools.SceneBuilder;
 
-namespace Loop
+namespace Loop.Setup
 {
     public static class GameLoopScopeExtensions
     {
@@ -12,8 +13,7 @@ namespace Loop
                 parent,
                 Scenes.GameLoopServices.Value,
                 Construct,
-                false
-          );
+                false);
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -23,17 +23,17 @@ namespace Loop
             UniTask Construct(IScopeBuilder builder)
             {
                 builder.Register<GameLoop>()
-                    .As<IScopeLoaded>();
+                       .As<IScopeLoaded>();
 
                 builder.Register<GameLoopScopeLoader>()
-                    .WithParameter(parent)
-                    .As<IGameLoopScopeLoader>();
+                       .WithParameter(parent)
+                       .As<IGameLoopScopeLoader>();
 
                 builder.Register<MenuLoader>()
-                    .As<IMenuLoader>();
+                       .As<IMenuLoader>();
 
                 builder.Register<GamePlayLoader>()
-                    .As<IGamePlayLoader>();
+                       .As<IGamePlayLoader>();
 
                 return UniTask.CompletedTask;
             }

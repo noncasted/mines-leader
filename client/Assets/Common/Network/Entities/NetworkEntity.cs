@@ -3,7 +3,7 @@ using System.Linq;
 using Internal;
 using VContainer.Internal;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkEntity : INetworkObject
     {

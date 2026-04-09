@@ -25,7 +25,7 @@ namespace Menu.Social
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMenuChatUI>();
+                   .As<IMenuChatUI>();
         }
 
         private void OnEnable()

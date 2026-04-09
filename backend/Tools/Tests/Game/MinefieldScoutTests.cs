@@ -25,28 +25,26 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Mines in the horizontal line should be flagged
         board.Cells[new Position(2, 3)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeTrue("mine at (2,3) is in horizontal line range");
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeTrue("mine at (2,3) is in horizontal line range");
 
         board.Cells[new Position(4, 3)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeTrue("mine at (4,3) is in horizontal line range");
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeTrue("mine at (4,3) is in horizontal line range");
     }
 
     [Fact]
@@ -62,13 +60,11 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -94,13 +90,11 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -121,8 +115,7 @@ public class MinefieldScoutTests
 
         var result = new MinefieldScout(emptyBoard,
             new CardUsePayload.MinefieldScout { Position = new Position(0, 0) },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -137,13 +130,11 @@ public class MinefieldScoutTests
                                            _ _ _ _ _
                                            _ _ _ _ _
                                            _ _ _ _ _
-                                           """
-        );
+                                           """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = new Position(2, 2) },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -160,13 +151,11 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -198,13 +187,11 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new MinefieldScout(board,
             new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout
-        ).Use();
+            CardConfigs.MinefieldScout).Use();
 
         result.Result.HasError.Should().BeFalse();
 

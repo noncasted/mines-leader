@@ -61,12 +61,11 @@ namespace Docs.Claude
             var currentWeapon = new LifetimedValue<string>("sword");
 
             var changedCount = 0;
-            currentWeapon.Advise(lifetime, (weaponLifetime, weapon) =>
-                {
-                    changedCount++;
-                    // weaponLifetime valid until next Set()
-                }
-          );
+
+            currentWeapon.Advise(lifetime, (weaponLifetime, weapon) => {
+                changedCount++;
+                // weaponLifetime valid until next Set()
+            });
 
             currentWeapon.Set("bow"); // changedCount == 1, old lifetime terminated, new created
             currentWeapon.Set("staff"); // changedCount == 2
@@ -92,12 +91,11 @@ namespace Docs.Claude
 
             // View - immediate + future
             updateCount = 0;
-            health.View(lifetime, value =>
-                {
-                    // Called immediately with current value (80)
-                    updateCount++;
-                }
-          );
+
+            health.View(lifetime, value => {
+                // Called immediately with current value (80)
+                updateCount++;
+            });
             // updateCount == 1 after View() called
 
             health.Set(70); // updateCount == 2
@@ -114,14 +112,12 @@ namespace Docs.Claude
             var cleanupCount = 0;
 
             // View: notified on future additions + iterate existing
-            enemies.View(lifetime, (enemyLifetime, enemy) =>
-                {
-                    setupCount++;
+            enemies.View(lifetime, (enemyLifetime, enemy) => {
+                setupCount++;
 
-                    // Item lifetime valid until enemy removed
-                    enemyLifetime.Listen(() => cleanupCount++);
-                }
-          );
+                // Item lifetime valid until enemy removed
+                enemyLifetime.Listen(() => cleanupCount++);
+            });
 
             var enemy1 = new MockEnemy();
             enemies.Add(enemy1); // setupCount == 1
@@ -144,12 +140,10 @@ namespace Docs.Claude
 
             var setupCount = 0;
 
-            sessions.View(lifetime, (sessionLifetime, key, session) =>
-                {
-                    setupCount++;
-                    // sessionLifetime valid until key removed
-                }
-          );
+            sessions.View(lifetime, (sessionLifetime, key, session) => {
+                setupCount++;
+                // sessionLifetime valid until key removed
+            });
 
             sessions.Add("user1", new MockSession()); // setupCount == 1
             sessions.Add("user2", new MockSession()); // setupCount == 2
@@ -170,19 +164,17 @@ namespace Docs.Claude
             var health = new ViewableProperty<int>(100);
 
             var adviseCallCount = 0;
-            health.Advise(lifetime, (_, value) =>
-                {
-                    adviseCallCount++; // Called only on Set()
-                }
-          );
+
+            health.Advise(lifetime, (_, value) => {
+                adviseCallCount++; // Called only on Set()
+            });
             // adviseCallCount still 0 - no immediate callback
 
             var viewCallCount = 0;
-            health.View(lifetime, value =>
-                {
-                    viewCallCount++; // Called immediately + on Set()
-                }
-          );
+
+            health.View(lifetime, value => {
+                viewCallCount++; // Called immediately + on Set()
+            });
             // viewCallCount == 1 - immediate callback with current value (100)
 
             health.Set(90);
@@ -198,12 +190,11 @@ namespace Docs.Claude
             var healthProperty = new ViewableProperty<int>(100);
 
             var uiUpdateCount = 0;
-            healthProperty.View(lifetime, value =>
-                {
-                    uiUpdateCount++; // UI updated with current and future values
-                    // In real code: healthBar.SetValue(value)
-                }
-          );
+
+            healthProperty.View(lifetime, value => {
+                uiUpdateCount++; // UI updated with current and future values
+                // In real code: healthBar.SetValue(value)
+            });
 
             healthProperty.Set(90); // uiUpdateCount == 2 (immediate + 1 update)
             healthProperty.Set(50); // uiUpdateCount == 3
@@ -218,14 +209,12 @@ namespace Docs.Claude
 
             var deathCount = 0;
 
-            enemies.View(lifetime, (enemyLifetime, enemy) =>
-                {
-                    // Subscribe to enemy death with enemy lifetime
-                    enemy.OnDeath.Advise(enemyLifetime, () => deathCount++);
+            enemies.View(lifetime, (enemyLifetime, enemy) => {
+                // Subscribe to enemy death with enemy lifetime
+                enemy.OnDeath.Advise(enemyLifetime, () => deathCount++);
 
-                    // When enemy removed from list, this subscription auto-cleaned
-                }
-          );
+                // When enemy removed from list, this subscription auto-cleaned
+            });
 
             var enemy1 = new MockEnemy();
             enemies.Add(enemy1);
@@ -248,20 +237,18 @@ namespace Docs.Claude
             var onlineCount = 0;
             var offlineCount = 0;
 
-            isConnected.View(lifetime, connected =>
+            isConnected.View(lifetime, connected => {
+                if (connected)
                 {
-                    if (connected)
-                    {
-                        onlineCount++;
-                        // Show online UI
-                    }
-                    else
-                    {
-                        offlineCount++;
-                        // Show offline UI
-                    }
+                    onlineCount++;
+                    // Show online UI
                 }
-          );
+                else
+                {
+                    offlineCount++;
+                    // Show offline UI
+                }
+            });
 
             isConnected.Set(true); // onlineCount == 1, offlineCount == 1 (immediate)
             isConnected.Set(false); // onlineCount == 1, offlineCount == 2
@@ -328,6 +315,7 @@ namespace Docs.Claude
             list.Add(3);
 
             var sum = 0;
+
             foreach (var item in list)
             {
                 sum += item;
@@ -394,11 +382,9 @@ namespace Docs.Claude
 
             var lifetimeCleanedCount = 0;
 
-            items.View(lifetime, (itemLifetime, item) =>
-                {
-                    itemLifetime.Listen(() => lifetimeCleanedCount++);
-                }
-          );
+            items.View(lifetime, (itemLifetime, item) => {
+                itemLifetime.Listen(() => lifetimeCleanedCount++);
+            });
 
             items.Add("item1"); // lifetimeCleanedCount == 0
             items.Add("item2"); // lifetimeCleanedCount == 0
@@ -419,12 +405,10 @@ namespace Docs.Claude
 
             var valueLifetimeTerminatedCount = 0;
 
-            currentValue.Advise(lifetime, (valueLifetime, value) =>
-                {
-                    valueLifetime.Listen(() => valueLifetimeTerminatedCount++);
-                    // Each value has its own lifetime
-                }
-          );
+            currentValue.Advise(lifetime, (valueLifetime, value) => {
+                valueLifetime.Listen(() => valueLifetimeTerminatedCount++);
+                // Each value has its own lifetime
+            });
 
             currentValue.Set("second"); // Previous value lifetime terminated
             // valueLifetimeTerminatedCount == 1

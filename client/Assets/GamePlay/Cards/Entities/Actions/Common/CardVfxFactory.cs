@@ -24,7 +24,7 @@ namespace GamePlay.Cards
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<ICardVfxFactory>();
+                   .As<ICardVfxFactory>();
         }
 
         public T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour

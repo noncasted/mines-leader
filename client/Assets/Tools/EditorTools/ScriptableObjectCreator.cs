@@ -13,12 +13,14 @@ namespace Tools
     public class ScriptableObjectCreator : OdinMenuEditorWindow
     {
         static readonly HashSet<Type> _targetsTypes = AssemblyUtilities.GetTypes(AssemblyTypeFlags.CustomTypes)
-            .Where(t => t.IsClass &&
-                        typeof(ScriptableObject).IsAssignableFrom(t) &&
-                        !typeof(EditorWindow).IsAssignableFrom(t) &&
-                        !typeof(Editor).IsAssignableFrom(t)
-            )
-            .ToHashSet();
+                                                                       .Where(t => t.IsClass &&
+                                                                               typeof(ScriptableObject)
+                                                                                   .IsAssignableFrom(t) &&
+                                                                               !typeof(EditorWindow)
+                                                                                   .IsAssignableFrom(t) &&
+                                                                               !typeof(Editor).IsAssignableFrom(t)
+                                                                           )
+                                                                       .ToHashSet();
 
         private ScriptableObject previewObject;
         private string targetFolder;
@@ -42,6 +44,7 @@ namespace Tools
             {
                 path = AssetDatabase.GetAssetPath(Selection.activeObject);
                 Debug.Log(path);
+
                 if (Directory.Exists(path) == false)
                     path = Path.GetDirectoryName(path);
             }
@@ -69,8 +72,7 @@ namespace Tools
             tree.SortMenuItemsByName();
             tree.Selection.SelectionConfirmed += x => CreateAsset();
 
-            tree.Selection.SelectionChanged += e =>
-            {
+            tree.Selection.SelectionChanged += e => {
                 if (previewObject && !AssetDatabase.Contains(previewObject))
                 {
                     DestroyImmediate(previewObject);
@@ -105,7 +107,7 @@ namespace Tools
         private string GetMenuPathForType(Type t)
         {
             var attribute = t.GetCustomAttributes(typeof(CreateAssetMenuAttribute), true)
-                .FirstOrDefault() as CreateAssetMenuAttribute;
+                             .FirstOrDefault() as CreateAssetMenuAttribute;
 
             if (attribute == null || attribute.menuName.IsNullOrWhitespace())
                 return "Other/" + t.Name.Split('`').First().SplitPascalCase();
@@ -157,7 +159,7 @@ namespace Tools
                     continue;
 
                 var attribute = type.GetCustomAttributes(typeof(CreateAssetMenuAttribute), true)
-                    .FirstOrDefault() as CreateAssetMenuAttribute;
+                                    .FirstOrDefault() as CreateAssetMenuAttribute;
 
                 if (attribute == null || attribute.menuName.IsNullOrWhitespace())
                     break;

@@ -26,12 +26,10 @@ public class BloodhoundTests
                                                 t t m t t t t t t t
                                                 t t t t t t t t t t
                                                 t t t t m t t t m t
-                                                """
-        );
+                                                """);
 
         new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }
-        ).Use();
+            new CardUsePayload.Bloodhound { Position = target }).Use();
 
         // Reveal flood-fills entire safe region bounded by mines t x
         BoardParser.AssertBoard(board, """
@@ -45,8 +43,7 @@ public class BloodhoundTests
                                        t t m R R R t t t t
                                        t t t R R R t t t t
                                        t t t t m t t t m t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -61,12 +58,10 @@ public class BloodhoundTests
                                                 t m t t t m t
                                                 t t m m m t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }
-        ).Use();
+            new CardUsePayload.Bloodhound { Position = target }).Use();
 
         // Cross opens (3,2),(2,3),(3,3),(4,3),(3,4) — reveal can't escape mine ring
         BoardParser.AssertBoard(board, """
@@ -77,8 +72,7 @@ public class BloodhoundTests
                                        t m R R R m t
                                        t t m m m t t
                                        t t t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -91,13 +85,11 @@ public class BloodhoundTests
                                                 t _ _ _ t
                                                 t t _ t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         // x position (2,2) is Free already — remap to the center
         var result = new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }).Use();
 
         // SelectTaken returns nothing — all cross positions are Free
         result.Result.HasError.Should().BeTrue();
@@ -113,12 +105,10 @@ public class BloodhoundTests
                                                 t t t t m t
                                                 t t t t t t
                                                 t t t t t t
-                                                """
-        );
+                                                """);
 
         new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }
-        ).Use();
+            new CardUsePayload.Bloodhound { Position = target }).Use();
 
         // Reveal expands from (0,0), stops at mine borders
         // (5,3) is diagonal to mine at (4,3) — MinesAround > 0, no zero-neighbor, stays Taken
@@ -129,22 +119,21 @@ public class BloodhoundTests
                                        R R R R m t
                                        R R R R R R
                                        R R R R R R
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
     public void Use_ActionDataHasTargetPlayer()
     {
         var ownerId = Guid.NewGuid();
+
         var board = new TestBoardBuilder(5)
-            .WithOwner(ownerId)
-            .WithMinesAt((0, 0))
-            .Build();
+                    .WithOwner(ownerId)
+                    .WithMinesAt((0, 0))
+                    .Build();
 
         var result = new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.Bloodhound;
         snapshot.Should().NotBeNull();

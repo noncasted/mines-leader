@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     /// <summary>
     /// WebSocket implementation for WebGL platform using JavaScript interop.
@@ -64,6 +64,7 @@ namespace Common.Network
             Debug.Log($"[Network] [JsWebSocket] Connecting: id={_handlerId}");
 
             var result = JsWebSocketConnect(_handlerId);
+
             if (result != 0)
             {
                 throw new Exception($"Failed to connect WebSocket: error={result}");

@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public class NetworkEntityFactory : INetworkEntityFactory
     {
@@ -49,12 +49,11 @@ namespace Common.Network
             foreach (var (id, property) in entity.Properties)
             {
                 properties.Add(new SharedSessionObject.PropertyUpdate()
-                    {
-                        ObjectId = entity.Id,
-                        PropertyId = id,
-                        Value = property.Collect()
-                    }
-              );
+                {
+                    ObjectId = entity.Id,
+                    PropertyId = id,
+                    Value = property.Collect()
+                });
             }
 
             var request = new SharedSessionEntity.CreateRequest()

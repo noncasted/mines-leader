@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
+using Loop.Loaders;
 using Menu.Common;
 using Shared;
 
@@ -49,15 +50,15 @@ namespace Loop
                     case GameEndTransition.Rematch rematch:
                     {
                         Game(new GameLoadData()
-                                {
-                                    Result = new SharedMatchmaking.MatchResult()
                                     {
-                                        ServerUrl = rematch.NewSession.ServerUrl,
-                                        SessionId = rematch.NewSession.SessionId,
-                                        Type = loadData.Result.Type
+                                        Result = new SharedMatchmaking.MatchResult()
+                                        {
+                                            ServerUrl = rematch.NewSession.ServerUrl,
+                                            SessionId = rematch.NewSession.SessionId,
+                                            Type = loadData.Result.Type
+                                        }
                                     }
-                                }
-                            )
+                                )
                             .Forget();
 
                         break;

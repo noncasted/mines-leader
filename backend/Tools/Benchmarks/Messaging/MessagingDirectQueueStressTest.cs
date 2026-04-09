@@ -42,19 +42,17 @@ public class MessagingDirectQueueStressTest
 
             handle.Progress.Log("Listening for messages...");
 
-            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName), OnMessage
-            );
+            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName),
+                OnMessage);
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");
 
-            await Task.WhenAll(
-                handle.StartNode(ServiceTag.Game, TestName, payload),
+            await Task.WhenAll(handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
                 handle.StartNode(ServiceTag.Coordinator, TestName, payload),
                 handle.StartNode(ServiceTag.Silo, TestName, payload),
-                handle.StartNode(ServiceTag.Console, TestName, payload)
-            );
+                handle.StartNode(ServiceTag.Console, TestName, payload));
 
             await completion.Task;
 
@@ -94,8 +92,7 @@ public class MessagingDirectQueueStressTest
                 {
                     Logger.LogError(e, "Failed to send message {MessageIndex}/{TotalMessages}",
                         i + 1,
-                        payload.MessageCount
-                    );
+                        payload.MessageCount);
                 }
             }
         }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     public interface IFrameProvider
     {

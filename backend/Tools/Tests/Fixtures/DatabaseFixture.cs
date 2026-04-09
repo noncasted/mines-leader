@@ -23,15 +23,16 @@ public class DatabaseFixture : IAsyncDisposable
     public async Task InitializeAsync()
     {
         await ContainerLock.WaitAsync();
+
         try
         {
             if (_sharedContainer == null)
             {
                 _sharedContainer = new PostgreSqlBuilder()
-                    .WithImage("postgres:17")
-                    .WithUsername("test")
-                    .WithPassword("test")
-                    .Build();
+                                   .WithImage("postgres:17")
+                                   .WithUsername("test")
+                                   .WithPassword("test")
+                                   .Build();
 
                 await _sharedContainer.StartAsync();
             }
@@ -69,6 +70,7 @@ public class DatabaseFixture : IAsyncDisposable
 
         // Create state tables from StatesLookup — matching production schema (StatesSetup.cs)
         var createdTables = new HashSet<string>();
+
         foreach (var info in StatesLookup.All)
         {
             if (!createdTables.Add(info.TableName))
@@ -87,6 +89,7 @@ public class DatabaseFixture : IAsyncDisposable
             };
 
             await using var cmd = connection.CreateCommand();
+
             cmd.CommandText = $"""
                                CREATE TABLE {info.TableName} (
                                    key {keyDef},
@@ -102,6 +105,7 @@ public class DatabaseFixture : IAsyncDisposable
 
         // Create side effects tables
         await using var seCmd = connection.CreateCommand();
+
         seCmd.CommandText = """
                             CREATE TABLE IF NOT EXISTS side_effects_queue (
                                 id uuid PRIMARY KEY,
@@ -136,6 +140,7 @@ public class DatabaseFixture : IAsyncDisposable
     {
         await using var connection = await DataSource.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
+
         command.CommandText = """
                               DO $$
                               DECLARE
@@ -172,6 +177,7 @@ public class DatabaseFixture : IAsyncDisposable
     {
         await using var connection = await DataSource.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
+
         command.CommandText = """
                               SELECT (SELECT count(*) FROM side_effects_queue) +
                                      (SELECT count(*) FROM side_effects_processing) +
@@ -188,9 +194,11 @@ public class DatabaseFixture : IAsyncDisposable
             await DataSource.DisposeAsync();
 
         await ContainerLock.WaitAsync();
+
         try
         {
             _refCount--;
+
             if (_refCount <= 0 && _sharedContainer != null)
             {
                 await _sharedContainer.DisposeAsync();

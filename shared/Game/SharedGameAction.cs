@@ -44,12 +44,12 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<Open>()
-                .Add<OpenMultiple>()
-                .Add<SetFlag>()
-                .Add<RemoveFlag>()
-                .Add<CardUse>()
-                .Add<SkipTurn>();
+                   .Add<Open>()
+                   .Add<OpenMultiple>()
+                   .Add<SetFlag>()
+                   .Add<RemoveFlag>()
+                   .Add<CardUse>()
+                   .Add<SkipTurn>();
         }
     }
 }

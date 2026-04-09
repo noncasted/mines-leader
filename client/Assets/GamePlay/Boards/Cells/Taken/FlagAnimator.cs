@@ -1,4 +1,4 @@
-using Common.Animations;
+using Animations;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;

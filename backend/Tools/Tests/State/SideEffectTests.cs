@@ -88,8 +88,9 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
         {
             var targetGrain = GetGrain<ITxTestGrain>(targetId);
             var value = await targetGrain.Get();
+
             value.Should()
-                .Be(1, $"target {targetId} should be incremented exactly once by its transactional side effect");
+                 .Be(1, $"target {targetId} should be incremented exactly once by its transactional side effect");
         }
     }
 
@@ -270,12 +271,11 @@ public class SideEffectTests(SideEffectTestFixture fixture) : IntegrationTestBas
 
         // Transaction that registers a side effect then fails
         var transactions = GetSiloService<ITransactions>();
-        var txResult = await transactions.Run(async () =>
-            {
-                await grain.IncrementAndRegisterSideEffect(targetId);
-                throw new Exception("Intentional failure after side effect registration");
-            }
-        );
+
+        var txResult = await transactions.Run(async () => {
+            await grain.IncrementAndRegisterSideEffect(targetId);
+            throw new Exception("Intentional failure after side effect registration");
+        });
 
         txResult.IsSuccess.Should().BeFalse();
 

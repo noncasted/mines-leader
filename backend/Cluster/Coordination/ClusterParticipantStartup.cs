@@ -54,11 +54,10 @@ public class ClusterParticipantStartup : BackgroundService
         const string stageCoordinator = "Coordinator";
 
         _context.SetStages(new[]
-            {
-                stageOrleans, stageTaskBalancer, stageMessaging,
-                stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
-            }
-        );
+        {
+            stageOrleans, stageTaskBalancer, stageMessaging,
+            stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
+        });
 
         _logger.LogInformation("[Startup] {Service} start", serviceName);
 
@@ -83,11 +82,9 @@ public class ClusterParticipantStartup : BackgroundService
 
         await _messaging.Start(lifetime);
 
-        await _messaging.ListenChannel<CoordinatorEvents.ReadyPayload>(
-            startupLifetime,
+        await _messaging.ListenChannel<CoordinatorEvents.ReadyPayload>(startupLifetime,
             CoordinatorEvents.ReadyId,
-            _ => coordinatorCompletion.TrySetResult()
-        );
+            _ => coordinatorCompletion.TrySetResult());
 
         _logger.LogInformation("[Startup] {Service} messaging started", serviceName);
 
@@ -150,22 +147,21 @@ public class ClusterParticipantStartup : BackgroundService
             bool AllServicesFound()
             {
                 var foundServices = _discovery.Entries.Values
-                    .Select(entry => entry.Tag)
-                    .Distinct()
-                    .ToHashSet();
+                                              .Select(entry => entry.Tag)
+                                              .Distinct()
+                                              .ToHashSet();
 
                 var servicesToAwait = requiredServices
-                    .Where(tag => foundServices.Contains(tag) == false)
-                    .Select(tag => tag.ToString())
-                    .ToList();
+                                      .Where(tag => foundServices.Contains(tag) == false)
+                                      .Select(tag => tag.ToString())
+                                      .ToList();
 
                 if (servicesToAwait.Count == 0)
                     return true;
 
                 _logger.LogWarning("[Startup] {Service} waiting for services: {RequiredServices}",
                     serviceName,
-                    string.Join(", ", servicesToAwait)
-                );
+                    string.Join(", ", servicesToAwait));
 
                 return false;
             }

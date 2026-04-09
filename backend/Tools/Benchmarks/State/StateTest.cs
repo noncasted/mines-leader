@@ -65,6 +65,7 @@ public class StateTest
 
             _testState.Value.Inc += 1;
             _testState.Value.Grain = grain2;
+
             _testState.Value.A0 = new TestStateA()
             {
                 A1 = _testState.Value.Inc + 122,

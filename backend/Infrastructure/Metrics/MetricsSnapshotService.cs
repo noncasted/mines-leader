@@ -165,8 +165,11 @@ public class MetricsSnapshotService : IHostedService, IDisposable
                 _count++;
                 _sum += value;
 
-                if (value < _min) _min = value;
-                if (value > _max) _max = value;
+                if (value < _min)
+                    _min = value;
+
+                if (value > _max)
+                    _max = value;
             }
         }
 

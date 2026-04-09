@@ -33,9 +33,9 @@ public class StateSerializer : IStateSerializer
         };
 
         _settings.Converters.Add(new GrainIdConverter());
+
         _settings.Converters.Add(
-            new GrainReferenceJsonConverter(serviceProvider.GetRequiredService<GrainReferenceActivator>())
-        );
+            new GrainReferenceJsonConverter(serviceProvider.GetRequiredService<GrainReferenceActivator>()));
     }
 
     private readonly JsonSerializerSettings _settings;
@@ -128,10 +128,11 @@ public class GrainReferenceJsonConverter : JsonConverter
         var split = raw.Split(':', count: 3);
 
         if (split.Length != 3)
-            throw new JsonSerializationException($"[GrainReferenceJsonConverter] Invalid GrainReference format: '{raw}'"
-            );
+            throw new JsonSerializationException(
+                $"[GrainReferenceJsonConverter] Invalid GrainReference format: '{raw}'");
 
         var encodedInterface = split[0];
+
         var interfaceType = string.IsNullOrWhiteSpace(encodedInterface)
             ? default
             : GrainInterfaceType.Create(encodedInterface);

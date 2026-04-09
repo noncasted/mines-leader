@@ -38,7 +38,7 @@ namespace GamePlay.UI
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IGameEndUI>();
+                   .As<IGameEndUI>();
         }
 
         public async UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result)

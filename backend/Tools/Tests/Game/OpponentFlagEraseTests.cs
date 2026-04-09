@@ -21,12 +21,10 @@ public class OpponentFlagEraseTests
                                                 t f x f t
                                                 t t f t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -37,8 +35,7 @@ public class OpponentFlagEraseTests
                                        t m t m t
                                        t t m t t
                                        t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -51,12 +48,10 @@ public class OpponentFlagEraseTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
     }
@@ -73,34 +68,33 @@ public class OpponentFlagEraseTests
                                                 t t m t m t t
                                                 t t t f t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         // Unflagged mines stay as mines, flagged mines become unflagged mines
         // Cells at (3,1), (1,3), (5,3), (3,5) were flagged — now unflagged
         board.Cells[new Position(3, 1)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeFalse();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeFalse();
+
         board.Cells[new Position(1, 3)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.IsFlagged.Should()
-            .BeFalse();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.IsFlagged.Should()
+             .BeFalse();
 
         // Unflagged mines stay unflagged with mines
         board.Cells[new Position(2, 2)]
-            .Should()
-            .BeAssignableTo<ITakenCell>()
-            .Which.HasMine.Should()
-            .BeTrue();
+             .Should()
+             .BeAssignableTo<ITakenCell>()
+             .Which.HasMine.Should()
+             .BeTrue();
     }
 
     [Fact]
@@ -109,8 +103,7 @@ public class OpponentFlagEraseTests
         var emptyBoard = new TestBoardBuilder(0).Build();
 
         var result = new OpponentFlagErase(emptyBoard, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(0, 0) }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = new Position(0, 0) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -125,12 +118,10 @@ public class OpponentFlagEraseTests
                                            _ _ _ _ _
                                            _ _ _ _ _
                                            _ _ _ _ _
-                                           """
-        );
+                                           """);
 
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -144,13 +135,12 @@ public class OpponentFlagEraseTests
                                                 t t f t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var ownerId = board.OwnerId;
+
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }).Use();
 
         var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagErase;
         snapshot.Should().NotBeNull();
@@ -167,12 +157,10 @@ public class OpponentFlagEraseTests
                                                 t g x g t
                                                 t t g t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }
-        ).Use();
+            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -183,7 +171,6 @@ public class OpponentFlagEraseTests
                                        t t t t t
                                        t t t t t
                                        t t t t t
-                                       """
-        );
+                                       """);
     }
 }

@@ -46,25 +46,25 @@ public static class OrleansUtilsExtensions
     public static IHostApplicationBuilder AddOrleansUtils(this IHostApplicationBuilder builder)
     {
         builder.Add<StateFactory>()
-            .As<IStateFactory>();
+               .As<IStateFactory>();
 
         builder.Add<StateAttributeMapper>()
-            .As<IAttributeToFactoryMapper<StateAttribute>>();
+               .As<IAttributeToFactoryMapper<StateAttribute>>();
 
         builder.Add<StateMigrations>()
-            .As<IStateMigrations>();
+               .As<IStateMigrations>();
 
         builder.Add<StateStorage>()
-            .As<IStateStorage>();
+               .As<IStateStorage>();
 
         builder.Add<StateSerializer>()
-            .As<IStateSerializer>();
+               .As<IStateSerializer>();
 
         builder.Add<Transactions>()
-            .As<ITransactions>();
+               .As<ITransactions>();
 
         builder.Add<OrleansUtils>()
-            .As<IOrleans>();
+               .As<IOrleans>();
 
         return builder;
     }

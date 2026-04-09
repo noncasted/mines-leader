@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Internal;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     [InlineEditor]
     public class ForwardAnimationAsset : ScriptableObject

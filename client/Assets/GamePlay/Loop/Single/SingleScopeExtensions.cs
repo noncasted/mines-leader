@@ -54,7 +54,7 @@ namespace GamePlay.Loop
             builder.AddDefaultGamePlayServices();
 
             builder.Register<SingleGameLoop>()
-                .As<ISingleGameLoop>();
+                   .As<ISingleGameLoop>();
 
             return UniTask.WhenAll(builder.AddScene());
         }

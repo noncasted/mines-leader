@@ -1,6 +1,6 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
 using Menu.Social;
+using Network;
 using Shared;
 
 namespace Tools.MemoryPackTools

@@ -1,7 +1,7 @@
 using System;
-using Common.Network;
 using GamePlay.Players;
 using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Loop
@@ -34,15 +34,14 @@ namespace GamePlay.Loop
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _state.Advise(lifetime, state =>
-                {
-                    if (state.CurrentPlayer == Guid.Empty)
-                        return;
+            _state.Advise(lifetime, state => {
+                if (state.CurrentPlayer == Guid.Empty)
+                    return;
 
-                    var player = _gameContext.GetPlayer(state.CurrentPlayer);
-                    _player.Set(player);
-                    _roundTime.Set(state.SecondsLeft[player.Id]);
-                });
+                var player = _gameContext.GetPlayer(state.CurrentPlayer);
+                _player.Set(player);
+                _roundTime.Set(state.SecondsLeft[player.Id]);
+            });
         }
 
         public void TrySkip()

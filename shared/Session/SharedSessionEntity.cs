@@ -43,11 +43,11 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<CreateRequest>()
-                .Add<CreateResponse>()
-                .Add<CreatedOverview>()
-                .Add<Destroy>()
-                .Add<DestroyUpdate>();
+                   .Add<CreateRequest>()
+                   .Add<CreateResponse>()
+                   .Add<CreatedOverview>()
+                   .Add<Destroy>()
+                   .Add<DestroyUpdate>();
         }
     }
 }

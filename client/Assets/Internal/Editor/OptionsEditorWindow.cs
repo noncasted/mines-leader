@@ -124,6 +124,7 @@ namespace Internal
             if (_statusLabel != null)
             {
                 _statusLabel.text = message;
+
                 _statusLabel.style.color = isError
                     ? new Color(1f, 0.3f, 0.3f)
                     : new Color(0.7f, 0.7f, 0.7f);

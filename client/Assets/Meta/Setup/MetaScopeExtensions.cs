@@ -9,11 +9,11 @@ namespace Meta
         public static async UniTask<ILoadedScope> LoadMeta(this IServiceScopeLoader loader, ILoadedScope parent)
         {
             var options = new ScopeLoadOptions(
-                parent,
-                Scenes.MetaServices.Value,
-                Construct,
-                false
-          );
+                    parent,
+                    Scenes.MetaServices.Value,
+                    Construct,
+                    false
+                );
 
             var scope = await loader.Load(options);
             await scope.Initialize();

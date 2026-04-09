@@ -48,28 +48,26 @@ public class DurableQueueDeliveryTest
             var receivedCount = 0;
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            await Messaging.ListenDurableQueue<TestMessage>(handle.Lifetime, queueId, message =>
-                {
-                    var count = Interlocked.Increment(ref receivedCount);
-                    handle.Metrics.Inc();
-                    handle.Progress.SetProgress((float)count / totalMessages);
+            await Messaging.ListenDurableQueue<TestMessage>(handle.Lifetime, queueId, message => {
+                var count = Interlocked.Increment(ref receivedCount);
+                handle.Metrics.Inc();
+                handle.Progress.SetProgress((float)count / totalMessages);
 
-                    if (count >= totalMessages)
-                        completion.TrySetResult();
-                }
-            );
+                if (count >= totalMessages)
+                    completion.TrySetResult();
+            });
 
             handle.Progress.Log("Listener ready, sending messages...");
 
             for (var i = 0; i < totalMessages; i++)
             {
                 handle.CancellationToken.ThrowIfCancellationRequested();
+
                 await Messaging.PushDirectQueue(queueId, new TestMessage
-                    {
-                        Id = Guid.NewGuid(),
-                        Value = $"msg-{i}"
-                    }
-                );
+                {
+                    Id = Guid.NewGuid(),
+                    Value = $"msg-{i}"
+                });
             }
 
             handle.Progress.Log($"Sent {totalMessages} messages, waiting for delivery...");

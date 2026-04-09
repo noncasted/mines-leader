@@ -30,7 +30,7 @@ namespace GamePlay.Cards
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<ICardTransform>();
+                   .As<ICardTransform>();
         }
 
         public void SetPosition(Vector2 position)

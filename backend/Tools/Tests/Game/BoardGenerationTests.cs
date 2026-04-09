@@ -61,11 +61,9 @@ public class BoardGenerationTests
         foreach (var neighbour in neighbours)
         {
             board.Cells[neighbour]
-                .ToTaken()
-                .HasMine.Should()
-                .BeFalse(
-                    $"neighbour {neighbour} of start should not have a mine"
-                );
+                 .ToTaken()
+                 .HasMine.Should()
+                 .BeFalse($"neighbour {neighbour} of start should not have a mine");
         }
     }
 
@@ -83,11 +81,9 @@ public class BoardGenerationTests
         foreach (var neighbour in neighbours)
         {
             board.Cells[neighbour]
-                .ToTaken()
-                .HasMine.Should()
-                .BeFalse(
-                    $"neighbour {neighbour} of corner start should not have a mine"
-                );
+                 .ToTaken()
+                 .HasMine.Should()
+                 .BeFalse($"neighbour {neighbour} of corner start should not have a mine");
         }
     }
 
@@ -99,6 +95,7 @@ public class BoardGenerationTests
         for (var i = 0; i < 50; i++)
         {
             var board = CreateAndGenerate(size: 10, mines: 20, start: new Position(5, 5));
+
             foreach (var cell in board.Cells.Values)
             {
                 if (cell.ToTaken().HasMine)
@@ -107,9 +104,8 @@ public class BoardGenerationTests
         }
 
         allMinePositions.Count.Should()
-            .BeGreaterThanOrEqualTo(30,
-                "50 runs of 20 mines on 91 eligible cells should produce at least 30 distinct positions"
-            );
+                        .BeGreaterThanOrEqualTo(30,
+                            "50 runs of 20 mines on 91 eligible cells should produce at least 30 distinct positions");
     }
 
     [Fact]
@@ -126,6 +122,7 @@ public class BoardGenerationTests
         foreach (var dir in BoardPositionsExtensions.Directions)
         {
             var neighbour = start + dir;
+
             if (neighbour.x >= 0 && neighbour.x < size && neighbour.y >= 0 && neighbour.y < size)
                 safeZone.Add(neighbour);
         }
@@ -143,11 +140,9 @@ public class BoardGenerationTests
         foreach (var safePos in safeZone)
         {
             boardWithMaxMines.Cells[safePos]
-                .ToTaken()
-                .HasMine.Should()
-                .BeFalse(
-                    $"safe zone cell {safePos} should not have a mine"
-                );
+                             .ToTaken()
+                             .HasMine.Should()
+                             .BeFalse($"safe zone cell {safePos} should not have a mine");
         }
 
         // All non-safe cells should have mines
@@ -155,11 +150,10 @@ public class BoardGenerationTests
         {
             if (safeZone.Contains(cell.Position))
                 continue;
+
             cell.ToTaken()
                 .HasMine.Should()
-                .BeTrue(
-                    $"non-safe cell {cell.Position} should have a mine when all slots are filled"
-                );
+                .BeTrue($"non-safe cell {cell.Position} should have a mine when all slots are filled");
         }
     }
 }

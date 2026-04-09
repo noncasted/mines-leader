@@ -61,12 +61,12 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<ProfileProjection>()
-                .Add<ProgressionProjection>()
-                .Add<UpdateDeckRequest>()
-                .Add<DeckProjection>()
-                .Add<Match>()
-                .Add<RatingProjection>();
+                   .Add<ProfileProjection>()
+                   .Add<ProgressionProjection>()
+                   .Add<UpdateDeckRequest>()
+                   .Add<DeckProjection>()
+                   .Add<Match>()
+                   .Add<RatingProjection>();
         }
     }
 }

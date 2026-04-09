@@ -1,8 +1,8 @@
 ﻿using System;
-using Common.Network;
 using Internal;
 using MemoryPack;
 using Meta;
+using Network;
 using UnityEngine;
 
 namespace Menu.Social
@@ -41,11 +41,10 @@ namespace Menu.Social
             _playersCollection.Entries[_user.Id].ChatView.ShowMessage(message);
 
             Events.Send(new MenuChatMessagePayload()
-                {
-                    PlayerId = _user.Id,
-                    Message = message
-                }
-          );
+            {
+                PlayerId = _user.Id,
+                Message = message
+            });
         }
 
         private void OnMessageReceived(MenuChatMessagePayload payload)

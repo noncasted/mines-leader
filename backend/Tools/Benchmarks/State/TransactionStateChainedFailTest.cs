@@ -47,12 +47,10 @@ public class TransactionStateChainedFailTest
                 var ids = TestParticipants.Create(_orleans, chainLength);
                 var initialState = await ids.Get<int, ITransactionTestGrain>(grain => grain.Get());
 
-                var failResult = await _transactions.Run(async () =>
-                    {
-                        await ids.Run<ITransactionTestGrain>(grain => grain.Increment());
-                        throw new Exception("Intentional rollback");
-                    }
-                );
+                var failResult = await _transactions.Run(async () => {
+                    await ids.Run<ITransactionTestGrain>(grain => grain.Increment());
+                    throw new Exception("Intentional rollback");
+                });
 
                 if (failResult.IsSuccess)
                     throw new Exception("Transaction should have failed but succeeded");

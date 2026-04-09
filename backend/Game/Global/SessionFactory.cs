@@ -70,8 +70,7 @@ public class SessionFactory : ISessionFactory
             lifetime.Listen(provider.Dispose);
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created", session.Id,
-                createOptions
-            );
+                createOptions);
         }
     }
 
@@ -100,7 +99,7 @@ public class SessionFactory : ISessionFactory
         services.AddPlayerServices();
 
         services.Add<GameReadyAwaiter>()
-            .As<IGameReadyAwaiter>();
+                .As<IGameReadyAwaiter>();
 
         services.Add<RoundPlayers>();
 
@@ -110,13 +109,13 @@ public class SessionFactory : ISessionFactory
                 break;
             case GameMatchType.TimeLimited:
                 services.Add<TimeLimitedRound>()
-                    .As<IService>()
-                    .As<IGameRound>();
+                        .As<IService>()
+                        .As<IGameRound>();
                 break;
             case GameMatchType.LastManStanding:
                 services.Add<LastManStandingRound>()
-                    .As<IService>()
-                    .As<IGameRound>();
+                        .As<IService>()
+                        .As<IGameRound>();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -148,8 +147,7 @@ public class SessionFactory : ISessionFactory
             handle.Process().NoAwait();
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
-                session.Id, createOptions
-            );
+                session.Id, createOptions);
         }
     }
 
@@ -179,7 +177,7 @@ public class SessionFactory : ISessionFactory
         services.AddBotServices();
 
         services.Add<BotGameReadyAwaiter>()
-            .As<IGameReadyAwaiter>();
+                .As<IGameReadyAwaiter>();
 
         services.Add<RoundPlayers>();
 
@@ -189,13 +187,13 @@ public class SessionFactory : ISessionFactory
                 break;
             case GameMatchType.TimeLimited:
                 services.Add<TimeLimitedRound>()
-                    .As<IService>()
-                    .As<IGameRound>();
+                        .As<IService>()
+                        .As<IGameRound>();
                 break;
             case GameMatchType.LastManStanding:
                 services.Add<LastManStandingRound>()
-                    .As<IService>()
-                    .As<IGameRound>();
+                        .As<IService>()
+                        .As<IGameRound>();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -232,8 +230,7 @@ public class SessionFactory : ISessionFactory
             Task.Run(() => botRunner.Run(bot));
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
-                session.Id, createOptions
-            );
+                session.Id, createOptions);
         }
     }
 

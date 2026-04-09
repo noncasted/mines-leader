@@ -1,8 +1,8 @@
-using Common.Network;
 using GamePlay.Loop;
 using GamePlay.Players;
 using GamePlay.Services;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 
@@ -68,9 +68,9 @@ namespace GamePlay.Boards
                 return;
 
             _connection.Request(new SharedGameAction.OpenMultiple()
-                {
-                    Position = cell.BoardPosition.ToPosition()
-                });
+            {
+                Position = cell.BoardPosition.ToPosition()
+            });
         }
     }
 }

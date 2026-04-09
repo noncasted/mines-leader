@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Common.Network;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 using Random = UnityEngine.Random;

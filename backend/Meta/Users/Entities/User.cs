@@ -51,11 +51,9 @@ public class User : UserGrain, IUser
 
     public async Task Initialize()
     {
-        var state = await _state.Update(state =>
-            {
-                state.Id = this.GetPrimaryKey();
-            }
-        );
+        var state = await _state.Update(state => {
+            state.Id = this.GetPrimaryKey();
+        });
 
         _logger.LogInformation("[User] Created user {Id} with name {Name}", state.Id, state.Name);
 
@@ -65,11 +63,9 @@ public class User : UserGrain, IUser
 
     public async Task SetName(string name)
     {
-        var state = await _state.Update(state =>
-            {
-                state.Name = name;
-            }
-        );
+        var state = await _state.Update(state => {
+            state.Name = name;
+        });
 
         _logger.LogInformation("[User] User {Id} changed name to {name}", state.Id, state.Name);
 

@@ -17,7 +17,7 @@ public static class StateCollectionExtensions
         builder.Services.AddSingleton(typeof(IStateCollection<,>), typeof(StateCollection<,>));
 
         return builder.Add<T>()
-            .As<ILocalSetupCompleted>();
+                      .As<ILocalSetupCompleted>();
 
     }
 }

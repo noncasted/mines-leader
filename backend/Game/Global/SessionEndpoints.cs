@@ -34,78 +34,65 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
     {
         _messaging.AddPipeRequestHandler<
             MatchPayloads.Match.Request,
-            MatchPayloads.Match.Response>(
-            lifetime,
+            MatchPayloads.Match.Response>(lifetime,
             new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Match.Request)),
-            CreateMatch
-        );
+            CreateMatch);
 
         _messaging.AddPipeRequestHandler<
             MatchPayloads.Match.RequestWithBot,
-            MatchPayloads.Match.Response>(
-            lifetime,
+            MatchPayloads.Match.Response>(lifetime,
             new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Match.RequestWithBot)),
-            CreateMatchWithBot
-        );
+            CreateMatchWithBot);
 
         _messaging.AddPipeRequestHandler<
             MatchPayloads.Lobby.Request,
-            MatchPayloads.Lobby.Response>(
-            lifetime,
+            MatchPayloads.Lobby.Response>(lifetime,
             new MessagePipeServiceRequestId(_serviceDiscovery.Self, typeof(MatchPayloads.Lobby.Request)),
-            GetOrCreateLobby
-        );
+            GetOrCreateLobby);
 
         return Task.CompletedTask;
 
         Task<MatchPayloads.Match.Response> CreateMatch(MatchPayloads.Match.Request request)
         {
             var id = _sessionFactory.CreateMatch(new MatchCreateOptions
-                {
-                    Type = request.Type,
-                }
-            );
+            {
+                Type = request.Type,
+            });
 
             return Task.FromResult(new MatchPayloads.Match.Response
-                {
-                    SessionId = id
-                }
-            );
+            {
+                SessionId = id
+            });
         }
 
         Task<MatchPayloads.Match.Response> CreateMatchWithBot(MatchPayloads.Match.RequestWithBot request)
         {
             var id = _sessionFactory.CreateMatchWithBot(request.BotId, new MatchCreateOptions
-                {
-                    Type = request.Type,
-                }
-            );
+            {
+                Type = request.Type,
+            });
 
             return Task.FromResult(new MatchPayloads.Match.Response
-                {
-                    SessionId = id
-                }
-            );
+            {
+                SessionId = id
+            });
         }
 
         Task<MatchPayloads.Lobby.Response> GetOrCreateLobby(MatchPayloads.Lobby.Request request)
         {
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session request received",
-                request.UserId
-            );
+                request.UserId);
 
             var id = _sessionSearch.GetOrCreateLobby();
 
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session returning session {SessionID}",
                 request.UserId,
-                id
-            );
+                id);
 
             return Task.FromResult(new MatchPayloads.Lobby.Response
-                {
-                    SessionId = id
-                }
-            );
+            {
+                SessionId = id
+            });
         }
 
     }

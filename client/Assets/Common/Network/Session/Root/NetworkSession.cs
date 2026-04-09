@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkSession
     {

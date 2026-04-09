@@ -29,17 +29,15 @@ namespace Menu.Social
             _controls.Enable();
             lifetime.Listen(_controls.Disable);
 
-            _controls.Menu.Movement.Listen(lifetime, value =>
+            _controls.Menu.Movement.Listen(lifetime, value => {
+                if (_chatUI.IsSelected)
                 {
-                    if (_chatUI.IsSelected)
-                    {
-                        _movementDirection = Vector2.zero;
-                        return;
-                    }
-
-                    _movementDirection = value.ReadValue<Vector2>();
+                    _movementDirection = Vector2.zero;
+                    return;
                 }
-          );
+
+                _movementDirection = value.ReadValue<Vector2>();
+            });
         }
     }
 }

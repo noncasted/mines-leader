@@ -76,10 +76,9 @@ public class Mana : IMana
     private void SyncState()
     {
         _state.Set(new PlayerManaState()
-            {
-                Current = _current.Value,
-                Max = _max
-            }
-        );
+        {
+            Current = _current.Value,
+            Max = _max
+        });
     }
 }

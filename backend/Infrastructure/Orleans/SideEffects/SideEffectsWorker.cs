@@ -100,9 +100,10 @@ public class SideEffectsWorker : IHostedService
             if (entry.Effect is ITransactionalSideEffect)
             {
                 var result = await _transactions
-                    .CreateBuilder(() => entry.Effect.Execute(_orleans))
-                    .WithCallback(npgsqlTransaction => _storage.CompleteProcessing(npgsqlTransaction, entry.Id))
-                    .Run();
+                                   .CreateBuilder(() => entry.Effect.Execute(_orleans))
+                                   .WithCallback(npgsqlTransaction =>
+                                       _storage.CompleteProcessing(npgsqlTransaction, entry.Id))
+                                   .Run();
 
                 if (!result.IsSuccess)
                     throw new Exception("[SideEffects] Transactional side effect failed.");
@@ -121,8 +122,7 @@ public class SideEffectsWorker : IHostedService
 
             _logger.LogError(e,
                 "[SideEffects] Effect {Id} failed (attempt {RetryCount}/{MaxRetry})",
-                entry.Id, entry.RetryCount + 1, options.MaxRetryCount
-            );
+                entry.Id, entry.RetryCount + 1, options.MaxRetryCount);
 
             if (entry.RetryCount > 0)
                 BackendMetrics.SideEffectRetry.Add(1);
@@ -131,12 +131,10 @@ public class SideEffectsWorker : IHostedService
 
             try
             {
-                await _storage.FailProcessing(
-                    entry.Id,
+                await _storage.FailProcessing(entry.Id,
                     entry.RetryCount,
                     options.MaxRetryCount,
-                    options.IncrementalRetryDelay
-                );
+                    options.IncrementalRetryDelay);
             }
             catch (Exception failEx)
             {

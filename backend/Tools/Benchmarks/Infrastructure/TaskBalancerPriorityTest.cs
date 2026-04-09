@@ -35,13 +35,12 @@ public class TaskBalancerPriorityTest
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
             var config = new TestBalancerConfig(new TaskBalancerOptions
-                {
-                    EmptyDelayMs = 1,
-                    NextDelayMs = 0,
-                    ConcurrentTasks = 4,
-                    IterationScore = 0
-                }
-            );
+            {
+                EmptyDelayMs = 1,
+                NextDelayMs = 0,
+                ConcurrentTasks = 4,
+                IterationScore = 0
+            });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
             balancer.Run(handle.Lifetime);
@@ -58,16 +57,12 @@ public class TaskBalancerPriorityTest
                 var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 var priority = priorities[Interlocked.Increment(ref priorityIndex) % priorities.Length];
 
-                queue.Enqueue(new TestPriorityTask(
-                        Guid.NewGuid().ToString(),
-                        priority,
-                        execute: () =>
-                        {
-                            tcs.SetResult();
-                            return Task.CompletedTask;
-                        }
-                    )
-                );
+                queue.Enqueue(new TestPriorityTask(Guid.NewGuid().ToString(),
+                    priority,
+                    execute: () => {
+                        tcs.SetResult();
+                        return Task.CompletedTask;
+                    }));
 
                 await tcs.Task;
                 handle.Metrics.Inc();

@@ -22,12 +22,10 @@ namespace Global.Inputs
         {
             _controls.Enable();
 
-            lifetime.Listen(() =>
-                {
-                    _controls.Disable();
-                    _controls.Dispose();
-                }
-          );
+            lifetime.Listen(() => {
+                _controls.Disable();
+                _controls.Dispose();
+            });
         }
     }
 }

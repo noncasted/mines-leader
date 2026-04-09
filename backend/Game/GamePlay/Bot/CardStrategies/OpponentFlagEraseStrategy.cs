@@ -36,8 +36,8 @@ public class OpponentFlagEraseStrategy : IBotCardStrategy
         if (!_boardUtils.HasFlaggedCells(opponent: true))
             return 0f;
 
-        var flaggedCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken && c.AsTaken().IsFlagged
-        );
+        var flaggedCount =
+            opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken && c.AsTaken().IsFlagged);
 
         // Чем больше флагов у противника, тем выше полезность
         if (flaggedCount > 10)

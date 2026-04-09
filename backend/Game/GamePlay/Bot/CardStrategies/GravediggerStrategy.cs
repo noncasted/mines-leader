@@ -30,6 +30,7 @@ public class GravediggerStrategy : IBotCardStrategy
 
         // Полезна только если в стэше есть карты
         var stashCount = bot.Stash.Count;
+
         if (stashCount == 0)
             return 0f;
 

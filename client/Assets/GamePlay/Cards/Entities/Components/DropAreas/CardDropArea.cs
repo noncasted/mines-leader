@@ -54,8 +54,7 @@ namespace GamePlay.Cards
             await _updater.RunUpdateAction(
                 stateLifetime,
                 () => selectionLifetime.IsTerminated == false,
-                _ =>
-                {
+                _ => {
                     var board = GetSelectedBoard();
 
                     if (board == null || _context.TargetBoard != board)

@@ -2,7 +2,7 @@
 using Internal;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     public static class SpriteAnimationExtensions
     {
@@ -11,6 +11,7 @@ namespace Common.Animations
             RotatableAnimationAsset asset) where T : RotatableSpriteAnimation
         {
             var time = asset.Up.length;
+
             var animations = new Dictionary<FiveAnimationDirection, ISpriteAnimationData>
             {
                 { FiveAnimationDirection.Up, asset.Up.CreateSpriteAnimationData() },
@@ -23,8 +24,8 @@ namespace Common.Animations
             var options = new RotatableSpriteAnimation.Options(time, animations);
 
             builder.Register<T>()
-                .As<IScopeSetup>()
-                .WithParameter(options);
+                   .As<IScopeSetup>()
+                   .WithParameter(options);
         }
 
         public static void RegisterSpriteForwardAnimation<T>(this IEntityBuilder builder, ForwardAnimationAsset asset)
@@ -33,8 +34,8 @@ namespace Common.Animations
             var data = new SpriteAnimationData(asset.Sprites, asset.Time);
 
             builder.Register<T>()
-                .As<IScopeSetup>()
-                .WithParameter<ISpriteAnimationData>(data);
+                   .As<IScopeSetup>()
+                   .WithParameter<ISpriteAnimationData>(data);
         }
 
         public static void RegisterSpriteForwardAnimation<T>(this IEntityBuilder builder, ForwardAnimationData data)
@@ -43,8 +44,8 @@ namespace Common.Animations
             var animationData = new SpriteAnimationData(data.Sprites, data.Time);
 
             builder.Register<T>()
-                .As<IScopeSetup>()
-                .WithParameter<ISpriteAnimationData>(animationData);
+                   .As<IScopeSetup>()
+                   .WithParameter<ISpriteAnimationData>(animationData);
         }
 
         public static ISpriteAnimationData CreateSpriteAnimationData(this AnimationClip animation)

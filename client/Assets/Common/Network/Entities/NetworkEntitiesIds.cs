@@ -1,4 +1,4 @@
-﻿namespace Common.Network
+﻿namespace Network
 {
     public interface INetworkEntityIds
     {

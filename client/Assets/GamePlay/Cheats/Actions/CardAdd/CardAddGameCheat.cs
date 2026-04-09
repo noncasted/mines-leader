@@ -1,6 +1,6 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
 using Meta;
+using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -26,7 +26,7 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
 
         }
 
