@@ -70,8 +70,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.OpenMultiple()
                 {
                     Position = cell.BoardPosition.ToPosition()
-                }
-            );
+                });
         }
     }
 }

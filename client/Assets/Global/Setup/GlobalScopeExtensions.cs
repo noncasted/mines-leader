@@ -21,7 +21,7 @@ namespace Global.Setup
                 Scenes.GlobalServices.Value,
                 Construct,
                 false
-            );
+          );
 
             var scope = await loader.Load(options);
             await scope.Initialize();

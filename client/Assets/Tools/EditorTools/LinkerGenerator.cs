@@ -32,7 +32,7 @@ namespace Tools
                                       throw new InvalidOperationException(
                                           $"No directory in file name {linkXmlFilePath}"
                                       )
-            );
+          );
 
             var assembliesToPreserve = Enumerable.Empty<string>()
                 .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
@@ -78,7 +78,7 @@ namespace Tools
                                   t.Contains("Test") == false &&
                                   t.Contains("Tests") == false &&
                                   t.Contains("Demo") == false
-            );
+          );
         }
     }
 

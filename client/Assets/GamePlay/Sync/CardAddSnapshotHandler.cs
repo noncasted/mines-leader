@@ -31,8 +31,7 @@ namespace GamePlay
             var isLocal = player == _gameContext.Self;
 
             Debug.Log(
-                $"Handling card add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}"
-            );
+                $"Handling card add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}");
             _cardFactory.Create(_lifetime, isLocal, record.CardId, record.Type).Forget();
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f));
         }

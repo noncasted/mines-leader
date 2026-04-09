@@ -49,8 +49,7 @@ namespace GamePlay.Cards
                         _renderer.SetNameTextColor(_lockedNameColor);
                         _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
                     }
-                }
-            );
+                });
         }
     }
 }

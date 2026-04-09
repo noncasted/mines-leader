@@ -68,8 +68,7 @@ namespace GamePlay.Loop
             _completion.TrySetResult(new GameEndTransition.Rematch()
                 {
                     NewSession = new SessionData(data.ServerUrl, data.SessionId)
-                }
-            );
+                });
         }
     }
 }

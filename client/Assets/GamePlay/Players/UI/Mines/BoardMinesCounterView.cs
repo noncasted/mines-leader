@@ -40,7 +40,7 @@ namespace GamePlay.Players
 
                     _text.text = (state.Mines - state.Flags).ToString();
                 }
-            );
+          );
         }
     }
 }

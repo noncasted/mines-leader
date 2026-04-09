@@ -98,7 +98,7 @@ namespace Tools
             {
                 Debug.LogError(
                     $"[PrefabGenerator] {type.Name} has [PrefabDefinition] but no public static Define(PrefabBuilder) method."
-                );
+              );
                 return null;
             }
 
@@ -107,7 +107,7 @@ namespace Tools
             {
                 Debug.LogError(
                     $"[PrefabGenerator] {type.Name}.Define() must accept exactly one PrefabBuilder parameter."
-                );
+              );
                 return null;
             }
 
@@ -147,7 +147,7 @@ namespace Tools
             {
                 Debug.LogWarning(
                     $"[PrefabGenerator] '{prefabPath}' appears to have been modified manually. It will be overwritten."
-                );
+              );
             }
         }
 

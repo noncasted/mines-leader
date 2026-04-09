@@ -61,7 +61,7 @@ namespace GamePlay.Cards
                     _transform.SetPosition(position);
                     _transform.SetRotation(rotation);
                 }
-            );
+          );
 
             _idle.Enter();
         }

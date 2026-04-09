@@ -45,8 +45,7 @@ namespace GamePlay.Cards
 
                     _transform.SetScale(new Vector2(xScale, 1f));
                     _transform.SetPosition(position);
-                }
-            );
+                });
         }
     }
 }

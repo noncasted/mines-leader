@@ -43,30 +43,24 @@ namespace GamePlay.Cheats
                     _connection.Request(new GameCheatContexts.ChangeMoves()
                         {
                             Value = 100000
-                        }
-                    );
-                }
-            );
+                        });
+                });
 
             _winButton.ListenClick(lifetime, () =>
                 {
                     _connection.Request(new GameCheatContexts.EndMatch()
                         {
                             Winner = _gameContext.Self.Id
-                        }
-                    );
-                }
-            );
+                        });
+                });
 
             _loseButton.ListenClick(lifetime, () =>
                 {
                     _connection.Request(new GameCheatContexts.EndMatch()
                         {
                             Winner = _gameContext.Other.Id
-                        }
-                    );
-                }
-            );
+                        });
+                });
         }
     }
 }

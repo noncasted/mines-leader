@@ -39,7 +39,7 @@ namespace Menu.Social
 
                     _movementDirection = value.ReadValue<Vector2>();
                 }
-            );
+          );
         }
     }
 }

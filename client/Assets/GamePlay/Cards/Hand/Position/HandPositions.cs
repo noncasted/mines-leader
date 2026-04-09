@@ -45,8 +45,7 @@ namespace GamePlay.Cards
                 {
                     _handles.Remove(handle);
                     _cardToHandle.Remove(card);
-                }
-            );
+                });
         }
 
         public ICardPositionHandle GetPositionHandle(ICard card)

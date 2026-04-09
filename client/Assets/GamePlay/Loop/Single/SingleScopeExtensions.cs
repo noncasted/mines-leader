@@ -17,8 +17,7 @@ namespace GamePlay.Loop
                 parent,
                 Scenes.GameServices.Value,
                 Construct,
-                false
-            );
+                false);
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -39,8 +38,7 @@ namespace GamePlay.Loop
                 parent,
                 Scenes.GameServices.Value,
                 Construct,
-                true
-            );
+                true);
 
             var scope = await loader.Load(options);
             await scope.Initialize();

@@ -84,7 +84,7 @@ namespace Menu.Social
                         FlipX = _renderer.flipX,
                         IsRunning = _input.MovementDirection != Vector2.zero
                     }
-                );
+              );
             }
 
             void Remote()

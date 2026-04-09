@@ -132,7 +132,7 @@ namespace Tools
             {
                 Debug.LogError(
                     $"[PrefabBuilder] Component {typeof(T).Name} not found on '{_gameObject.name}'. Add it with WithComponent first."
-                );
+              );
                 return this;
             }
 
@@ -227,7 +227,7 @@ namespace Tools
                     {
                         Debug.LogWarning(
                             $"[PrefabBuilder] Property '{fieldName}' not found on {component.GetType().Name}"
-                        );
+                      );
                         continue;
                     }
 
@@ -289,7 +289,7 @@ namespace Tools
 
                     Debug.LogWarning(
                         $"[PrefabBuilder] Unsupported property type: {property.propertyType} for '{property.name}'"
-                    );
+                  );
                     break;
             }
         }

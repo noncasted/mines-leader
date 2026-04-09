@@ -13,7 +13,7 @@ namespace Meta
                 Scenes.MetaServices.Value,
                 Construct,
                 false
-            );
+          );
 
             var scope = await loader.Load(options);
             await scope.Initialize();

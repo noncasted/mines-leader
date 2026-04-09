@@ -52,8 +52,7 @@ namespace GamePlay.Boards
             neighbours.RemoveWhere(neighbour => neighbour.x < 0 ||
                                                 neighbour.x > bounds.x ||
                                                 neighbour.y < 0 ||
-                                                neighbour.y > bounds.y
-            );
+                                                neighbour.y > bounds.y);
 
             return neighbours;
         }

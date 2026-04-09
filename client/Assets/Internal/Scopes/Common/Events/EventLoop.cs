@@ -52,34 +52,34 @@ namespace Internal
                 {
                     l.OnBaseSetup(lifetime);
                 }
-            );
+          );
             await InvokeAsync(_baseSetupAsync, l =>
                 {
                     return l.OnBaseSetupAsync(lifetime);
                 }
-            );
+          );
 
             Invoke(_setup, l =>
                 {
                     l.OnSetup(lifetime);
                 }
-            );
+          );
             await InvokeAsync(_setupAsync, l =>
                 {
                     return l.OnSetupAsync(lifetime);
                 }
-            );
+          );
 
             Invoke(_setupCompletion, l =>
                 {
                     l.OnSetupCompletion(lifetime);
                 }
-            );
+          );
             await InvokeAsync(_setupCompletionAsync, l =>
                 {
                     return l.OnSetupCompletionAsync(lifetime);
                 }
-            );
+          );
         }
 
         public async UniTask RunLoaded(IReadOnlyLifetime lifetime)
@@ -88,12 +88,12 @@ namespace Internal
                 {
                     l.OnLoaded(lifetime);
                 }
-            );
+          );
             await InvokeAsync(_loadedAsync, l =>
                 {
                     return l.OnLoadedAsync(lifetime);
                 }
-            );
+          );
         }
 
         public async UniTask RunDispose()
@@ -102,12 +102,12 @@ namespace Internal
                 {
                     l.OnDispose();
                 }
-            );
+          );
             await InvokeAsync(_disposeAsync, l =>
                 {
                     return l.OnDisposeAsync();
                 }
-            );
+          );
         }
 
         private void Invoke<T>(IReadOnlyList<T> listeners, Action<T> invoker)

@@ -42,7 +42,7 @@ namespace Menu.Social
 
                     _text.text = string.Empty;
                 }
-            );
+          );
         }
     }
 }

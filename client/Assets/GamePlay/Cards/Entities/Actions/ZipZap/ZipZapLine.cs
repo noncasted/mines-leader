@@ -34,8 +34,7 @@ namespace GamePlay.Cards
                 {
                     var position = Vector3.Lerp(start.WorldPosition, end.WorldPosition, factor);
                     _line.SetPosition(1, position);
-                }
-            );
+                });
 
             _line.enabled = true;
         }

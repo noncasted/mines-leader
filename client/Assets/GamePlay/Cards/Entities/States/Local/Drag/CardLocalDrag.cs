@@ -63,8 +63,7 @@ namespace GamePlay.Cards
                 {
                     if (isTurn == false)
                         useLifetime.Terminate();
-                }
-            );
+                });
 
             _updater.RunUpdateAction(useLifetime, _ => MoveTowards(startPosition)).Forget();
 
@@ -77,8 +76,7 @@ namespace GamePlay.Cards
                     {
                         CardId = _card.Id,
                         Payload = useResult.Payload
-                    }
-                );
+                    });
 
                 if (requestResult.HasError == false)
                 {
@@ -93,8 +91,7 @@ namespace GamePlay.Cards
                     var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
                     return distance > 0.1f;
                 },
-                _ => MoveTowards(positionHandle.SupposedPosition)
-            );
+                _ => MoveTowards(positionHandle.SupposedPosition));
 
             idle.Enter();
             return;

@@ -53,7 +53,7 @@ namespace Common.Network
                             PropertyId = id,
                             Value = property.Collect()
                         }
-                    );
+                 );
                 }
             }
 

@@ -46,7 +46,7 @@ namespace Menu.Social
                         sg.sortingLayerName = "Default";
                         sg.sortingOrder = 5;
                     }
-                );
+              );
 
             builder.WithChildObject("View", view =>
                 {
@@ -59,7 +59,7 @@ namespace Menu.Social
                             sr.sortingOrder = 1;
                             viewRenderer = sr;
                         }
-                    );
+                  );
                     view.WithComponent<MenuPlayerAnimator>();
 
                     view.SetSerialized<SpriteAnimationRenderer>("_renderer", viewRenderer);
@@ -91,7 +91,7 @@ namespace Menu.Social
 
                     so.ApplyModifiedPropertiesWithoutUndo();
                 }
-            );
+          );
 
             TMP_Text chatText = null;
 
@@ -111,7 +111,7 @@ namespace Menu.Social
                             tmp.textWrappingMode = TextWrappingModes.Normal;
                             chatText = tmp;
                         }
-                    );
+                  );
 
                     chat.WithComponent<MenuPlayerChatView>();
 
@@ -125,7 +125,7 @@ namespace Menu.Social
                     chat.SetSerialized<MenuPlayerChatView>("_text", chatText);
                     chat.SetSerialized<MenuPlayerChatView>("_time", 15f);
                 }
-            );
+          );
 
             builder.SetSerialized<MenuPlayerMovement>("_rb", rb);
             builder.SetSerialized<MenuPlayerMovement>("_moveSpeed", 300f);

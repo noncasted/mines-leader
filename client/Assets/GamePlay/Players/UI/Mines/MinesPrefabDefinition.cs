@@ -36,8 +36,7 @@ namespace GamePlay.Players
                             img.sprite = PrefabBuilder.LoadAsset<Sprite>(PlateSprite);
                             img.color = Color.white;
                             img.raycastTarget = true;
-                        }
-                    );
+                        });
 
                     var plateRt = plate.GameObject.GetComponent<RectTransform>();
                     plateRt.anchoredPosition = Vector2.zero;
@@ -45,8 +44,7 @@ namespace GamePlay.Players
                     plateRt.anchorMin = new Vector2(0.5f, 0.5f);
                     plateRt.anchorMax = new Vector2(0.5f, 0.5f);
                     plateRt.pivot = new Vector2(0.5f, 0.5f);
-                }
-            );
+                });
 
             builder.WithChildObject("Count", count =>
                 {
@@ -64,8 +62,7 @@ namespace GamePlay.Players
                             tmp.textWrappingMode = TextWrappingModes.Normal;
                             tmp.raycastTarget = true;
                             countText = tmp;
-                        }
-                    );
+                        });
 
                     var countRt = count.GameObject.GetComponent<RectTransform>();
                     countRt.anchoredPosition = new Vector2(0.67f, -0.09f);
@@ -73,8 +70,7 @@ namespace GamePlay.Players
                     countRt.anchorMin = new Vector2(0.5f, 0.5f);
                     countRt.anchorMax = new Vector2(0.5f, 0.5f);
                     countRt.pivot = new Vector2(0.5f, 0.5f);
-                }
-            );
+                });
 
             builder.SetSerialized<BoardMinesCounterView>("_text", countText);
         }

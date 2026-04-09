@@ -84,8 +84,7 @@ namespace GamePlay.Cards
                     }
 
                     selected = dropData;
-                }
-            );
+                });
 
             DeselectAll();
 

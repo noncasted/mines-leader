@@ -61,7 +61,7 @@ namespace Meta
                     _selectedIndex.Set(data.SelectedIndex);
                     _updated.Invoke();
                 }
-            );
+          );
         }
 
         public UniTask SendUpdate()

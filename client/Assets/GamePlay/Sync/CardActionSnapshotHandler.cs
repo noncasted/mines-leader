@@ -27,8 +27,7 @@ namespace GamePlay
             var player = _gameContext.GetPlayer(record.PlayerId);
 
             Debug.Log(
-                $"Handling card action snapshot for player {record.PlayerId}, card {record.CardId}, data {record.Data}"
-            );
+                $"Handling card action snapshot for player {record.PlayerId}, card {record.CardId}, data {record.Data}");
             var card = player.Hand.Entries.First(t => t.Id == record.CardId)!;
 
             await card.Use(_lifetime, record.Data);

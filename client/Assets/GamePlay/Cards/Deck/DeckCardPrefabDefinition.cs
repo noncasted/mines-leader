@@ -26,11 +26,9 @@ namespace GamePlay.Cards
                 .WithComponent<DeckCard>();
 
             builder.SetSerialized<DeckCard>("_even",
-                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_0")
-            );
+                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_0"));
             builder.SetSerialized<DeckCard>("_odd",
-                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_1")
-            );
+                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_1"));
             builder.SetSerialized<DeckCard>("_renderer", spriteRenderer);
         }
     }

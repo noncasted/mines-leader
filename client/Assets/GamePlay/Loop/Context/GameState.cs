@@ -55,10 +55,8 @@ namespace GamePlay.Loop
                     _completion.TrySetResult(new MatchCompletedData()
                         {
                             Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
-                        }
-                    );
-                }
-            );
+                        });
+                });
         }
 
         public void Set(GameStateType type)
@@ -78,8 +76,7 @@ namespace GamePlay.Loop
             _completion.TrySetResult(new MatchCompletedData()
                 {
                     Type = MatchResultType.Leave
-                }
-            );
+                });
         }
     }
 }

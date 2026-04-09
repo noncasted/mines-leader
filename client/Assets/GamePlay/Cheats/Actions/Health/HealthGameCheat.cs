@@ -45,8 +45,7 @@ namespace GamePlay.Cheats
                 _connection.Request(new GameCheatContexts.ChangeHealth()
                     {
                         Value = change
-                    }
-                );
+                    });
             }
         }
     }

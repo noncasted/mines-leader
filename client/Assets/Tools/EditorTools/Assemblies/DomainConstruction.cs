@@ -35,14 +35,14 @@ namespace Tools
                     rawAssembly.Usings,
                     Array.Empty<string>(),
                     rawAssembly.IsOwned
-                );
+              );
 
                 var toggles = new AssemblyToggles(
                     file.allowUnsafeCode,
                     file.overrideReferences,
                     file.autoReferenced,
                     file.noEngineReferences
-                );
+              );
 
                 var defines = new AssemblyDefines(
                     file.includePlatforms,
@@ -50,7 +50,7 @@ namespace Tools
                     file.precompiledReferences,
                     file.defineConstraints,
                     file.versionDefines
-                );
+              );
 
                 var assembly = new Assembly(id, path, references, details, toggles, defines);
                 assemblies.Add(assembly);
@@ -83,14 +83,14 @@ namespace Tools
                             Array.Empty<string>(),
                             Array.Empty<string>(),
                             false
-                        );
+                      );
 
                         var toggles = new AssemblyToggles(
                             file.allowUnsafeCode,
                             file.overrideReferences,
                             file.autoReferenced,
                             file.noEngineReferences
-                        );
+                      );
 
                         var defines = new AssemblyDefines(
                             file.includePlatforms,
@@ -98,7 +98,7 @@ namespace Tools
                             file.precompiledReferences,
                             file.defineConstraints,
                             file.versionDefines
-                        );
+                      );
 
                         referencedAssembly = new Assembly(
                             reference.Id,
@@ -107,7 +107,7 @@ namespace Tools
                             unknownDetails,
                             toggles,
                             defines
-                        );
+                      );
 
                         idsToAssemblies.Add(reference.Id, referencedAssembly);
                         assemblies.Add(referencedAssembly);
@@ -146,7 +146,7 @@ namespace Tools
                         {
                             throw new Exception(
                                 $"Cyclic dependency: {source.Path.Name} -> {targetReference.Path.Name}"
-                            );
+                          );
                         }
                     }
                 }
@@ -244,7 +244,7 @@ namespace Tools
                     GetReferences(asmdefPath),
                     isOwned,
                     file
-                );
+              );
             }
 
             string GetNameSpace(string filePath)

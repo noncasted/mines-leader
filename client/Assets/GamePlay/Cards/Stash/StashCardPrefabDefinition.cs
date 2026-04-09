@@ -22,15 +22,12 @@ namespace GamePlay.Cards
                         sr.sortingLayerName = "Field";
                         sr.sortingOrder = 0;
                         spriteRenderer = sr;
-                    }
-                );
+                    });
 
             builder.SetSerialized<StashCard>("_even",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0")
-            );
+                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0"));
             builder.SetSerialized<StashCard>("_odd",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1")
-            );
+                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1"));
             builder.SetSerialized<StashCard>("_renderer", spriteRenderer);
         }
     }

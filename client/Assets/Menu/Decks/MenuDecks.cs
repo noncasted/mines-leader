@@ -93,7 +93,7 @@ namespace Menu.Decks
                         indexButton.Activate();
                         UpdateDeck(index);
                     }
-                );
+              );
             }
 
             _indexButtons[_deckService.SelectedIndex.Value].Activate();

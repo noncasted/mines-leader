@@ -30,8 +30,7 @@ namespace GamePlay.Players
                 {
                     foreach (var (type, value) in state.Values)
                         _values[type] = value;
-                }
-            );
+                });
         }
     }
 }

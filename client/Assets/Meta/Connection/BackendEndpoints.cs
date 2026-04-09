@@ -13,7 +13,7 @@ namespace Meta
             return backend.Post<SharedBackendUserSignUp.Response, SharedBackendUserSignUp.Request>(
                 SharedBackendUserSignUp.Endpoint,
                 new SharedBackendUserSignUp.Request()
-            );
+          );
         }
 
         public static UniTask<SharedBackendUserLogin.Response> LogIn(this IMetaBackend backend, Guid id)
@@ -24,7 +24,7 @@ namespace Meta
                 {
                     Id = id
                 }
-            );
+          );
         }
 
         public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type)
@@ -33,7 +33,7 @@ namespace Meta
                 {
                     Type = type
                 }
-            );
+          );
         }
 
         public static UniTask CancelSearch(this IMetaBackend backend)
@@ -52,7 +52,7 @@ namespace Meta
                 {
                     Type = type
                 }
-            );
+          );
         }
 
         public static UniTask SearchLobby(this IMetaBackend backend)
