@@ -154,10 +154,7 @@ public class ServiceDiscovery : IServiceDiscovery
             var url = Environment.GetEnvironmentVariable("GAME_SERVER_URL");
 
             if (string.IsNullOrWhiteSpace(url))
-            {
-                _logger.LogWarning("[ServiceDiscovery] GAME_SERVER_URL not set, falling back to localhost:5268");
                 return "http://localhost:5268";
-            }
 
             return url;
         }

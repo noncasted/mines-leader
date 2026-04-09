@@ -20,6 +20,9 @@ public class BotCellAction : IBotCellAction
 
     public bool TryExecute()
     {
+        if (_context.Bot.Moves.Left <= 0)
+            return false;
+
         var board = _context.Bot.Board;
 
         if (board.Cells.Count == 0)

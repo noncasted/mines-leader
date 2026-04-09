@@ -53,6 +53,7 @@ namespace Shared
                 .Add<CardAdd>()
                 .Add<CardRemove>()
                 .Add<ChangeMana>()
+                .Add<ChangeMaxMana>()
                 .Add<ChangeHealth>()
                 .Add<ChangeMoves>()
                 .Add<EndMatch>();

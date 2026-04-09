@@ -44,6 +44,7 @@ public class UserFactory : IUserFactory
         {
             Id = userId,
             Index = index,
+            IsBot = false,
             Lifetime = userLifetime,
             Dispatcher = dispatcher,
             Connection = connection
@@ -73,6 +74,7 @@ public class UserFactory : IUserFactory
         {
             Id = userId,
             Index = index,
+            IsBot = true,
             Lifetime = userLifetime,
             Dispatcher = dispatcher,
             Connection = connection
