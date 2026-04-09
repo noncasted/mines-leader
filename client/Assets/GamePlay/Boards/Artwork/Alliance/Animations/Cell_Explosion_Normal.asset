@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4a78524aab449a80c31d1634db585a, type: 3}
+  m_Name: Cell_Explosion_Normal
+  m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
+  _sprites:
+  - {fileID: 871651515, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -838271488, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -1710102008, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -123560057, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -1082079170, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -1596493559, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: 760491675, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: 1554932832, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  _time: 0.6
