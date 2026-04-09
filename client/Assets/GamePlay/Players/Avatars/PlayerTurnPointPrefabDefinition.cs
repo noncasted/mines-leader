@@ -15,21 +15,19 @@ namespace GamePlay.Players
 
             builder
                 .WithName("PlayerTurnPoint")
-                .WithComponent<SpriteRenderer>(sr =>
-                    {
-                        sr.sprite = PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive");
-                        sr.color = Color.white;
-                        spriteRenderer = sr;
-                    }
-                )
+                .WithComponent<SpriteRenderer>(sr => {
+                            sr.sprite = PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive");
+                            sr.color = Color.white;
+                            spriteRenderer = sr;
+                        }
+                    )
                 .WithComponent<AvatarTurnPointView>();
 
             builder.SetSerialized<AvatarTurnPointView>("_active",
-                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active")
-          );
+                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active"));
+
             builder.SetSerialized<AvatarTurnPointView>("_inactive",
-                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive")
-          );
+                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive"));
             builder.SetSerialized<AvatarTurnPointView>("_renderer", spriteRenderer);
         }
     }

@@ -100,6 +100,7 @@ public class StateCollectionTests
 
         // Write several entries
         var ids = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
+
         foreach (var id in ids)
         {
             var grain = GetGrain<ICollectionTestGrain>(id);

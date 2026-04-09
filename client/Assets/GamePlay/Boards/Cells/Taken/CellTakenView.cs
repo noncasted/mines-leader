@@ -27,7 +27,7 @@ namespace GamePlay.Boards
                 previous = isFlagged;
                 animationLifetime.Terminate();
                 animationLifetime = lifetime.Child();
-                
+
                 if (isFlagged == true)
                     Appear(animationLifetime).NoAwait();
                 else

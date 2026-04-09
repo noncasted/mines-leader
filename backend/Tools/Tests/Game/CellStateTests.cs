@@ -14,8 +14,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -31,8 +30,7 @@ public class CellStateTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -48,8 +46,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -65,8 +62,7 @@ public class CellStateTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var free = (IFreeCell)board.Cells[pos];
@@ -82,8 +78,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -99,8 +94,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -116,8 +110,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -134,8 +127,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var taken = (ITakenCell)board.Cells[pos];
@@ -151,8 +143,7 @@ public class CellStateTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var pos = new Position(1, 1);
 
         var oldTaken = (ITakenCell)board.Cells[pos];

@@ -22,12 +22,10 @@ namespace Internal
             IReadOnlyLifetime lifetime,
             Action<T> listener) where T : class
         {
-            property.Advise(lifetime, (_, value) =>
-                {
-                    if (value != null)
-                        listener.Invoke(value);
-                }
-          );
+            property.Advise(lifetime, (_, value) => {
+                if (value != null)
+                    listener.Invoke(value);
+            });
 
             if (property.Value != null)
                 listener.Invoke(property.Value);
@@ -38,12 +36,10 @@ namespace Internal
             IReadOnlyLifetime lifetime,
             Action<IReadOnlyLifetime, T> listener) where T : class
         {
-            property.Advise(lifetime, (valueLifetime, value) =>
-                {
-                    if (value != null)
-                        listener.Invoke(valueLifetime, value);
-                }
-          );
+            property.Advise(lifetime, (valueLifetime, value) => {
+                if (value != null)
+                    listener.Invoke(valueLifetime, value);
+            });
 
             if (property.Value != null)
                 listener.Invoke(property.ValueLifetime, property.Value);

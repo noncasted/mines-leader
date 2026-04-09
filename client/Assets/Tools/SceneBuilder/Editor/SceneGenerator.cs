@@ -31,16 +31,20 @@ namespace Tools.SceneBuilder
         public static void Generate()
         {
             var folders = new List<string>();
+
             foreach (var folder in SearchFolders)
             {
                 if (AssetDatabase.IsValidFolder(folder))
                     folders.Add(folder);
             }
 
-            if (folders.Count == 0) return;
+            if (folders.Count == 0)
+                return;
 
             var guids = AssetDatabase.FindAssets("t:SceneAsset", folders.ToArray());
-            if (guids.Length == 0) return;
+
+            if (guids.Length == 0)
+                return;
 
             var scenes = new List<(string sceneName, string sceneGuid)>();
 

@@ -23,12 +23,10 @@
                 IReadOnlyLifetime lifetime,
                 Action<T> listener)
             {
-                property.Advise(lifetime, (_, value) =>
-                    {
-                        if (value != null)
-                            listener.Invoke(value);
-                    }
-                );
+                property.Advise(lifetime, (_, value) => {
+                    if (value != null)
+                        listener.Invoke(value);
+                });
 
                 if (property.Value != null)
                     listener.Invoke(property.Value);
@@ -38,12 +36,10 @@
                 IReadOnlyLifetime lifetime,
                 Action<IReadOnlyLifetime, T> listener)
             {
-                property.Advise(lifetime, (valueLifetime, value) =>
-                    {
-                        if (value != null)
-                            listener.Invoke(valueLifetime, value);
-                    }
-                );
+                property.Advise(lifetime, (valueLifetime, value) => {
+                    if (value != null)
+                        listener.Invoke(valueLifetime, value);
+                });
 
                 if (property.Value != null)
                     listener.Invoke(property.ValueLifetime, property.Value);

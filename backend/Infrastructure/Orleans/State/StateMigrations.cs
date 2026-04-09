@@ -77,8 +77,7 @@ public class StateMigrations : IStateMigrations
         if (value is not T resultValue)
         {
             throw new Exception(
-                $"Incorrect result type after migration {type.FullName}. Result type: {value.GetType().FullName}."
-            );
+                $"Incorrect result type after migration {type.FullName}. Result type: {value.GetType().FullName}.");
         }
 
         return resultValue;

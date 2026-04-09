@@ -48,17 +48,14 @@ public class SessionConnectionMiddleware
 
         _logger.LogInformation("[Game] [Meta] User connected: {Connection} {UserId}",
             context.Connection.Id,
-            auth.UserId
-        );
+            auth.UserId);
 
         var completion = new TaskCompletionSource();
 
-        session.ExecutionQueue.Enqueue(() =>
-            {
-                var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
-                user.Lifetime.Listen(() => completion.TrySetResult());
-            }
-        );
+        session.ExecutionQueue.Enqueue(() => {
+            var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
+            user.Lifetime.Listen(() => completion.TrySetResult());
+        });
 
         var response = new SharedSessionAuth.Response()
         {
@@ -72,7 +69,6 @@ public class SessionConnectionMiddleware
 
         _logger.LogInformation("[Game] [Meta] User disconnected: {Connection} {UserId}",
             context.Connection.Id,
-            auth.UserId
-        );
+            auth.UserId);
     }
 }

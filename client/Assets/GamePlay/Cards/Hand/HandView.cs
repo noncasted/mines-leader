@@ -1,6 +1,4 @@
-﻿using Common.Network;
-using Internal;
-using Shared;
+﻿using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards

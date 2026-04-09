@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkConnection
     {
@@ -70,15 +70,15 @@ namespace Common.Network
         public static IScopeBuilder AddNetworkConnection(this IScopeBuilder builder)
         {
             builder.Register<NetworkConnection>()
-                .As<INetworkConnection>()
-                .AsSelf();
+                   .As<INetworkConnection>()
+                   .AsSelf();
 
             builder.Register<NetworkCommandsCollection>()
-                .AsSelfResolvable()
-                .As<INetworkCommandsCollection>();
+                   .AsSelfResolvable()
+                   .As<INetworkCommandsCollection>();
 
             builder.Register<NetworkCommandsDispatcher>()
-                .As<INetworkCommandsDispatcher>();
+                   .As<INetworkCommandsDispatcher>();
 
             return builder;
         }

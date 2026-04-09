@@ -82,8 +82,8 @@ public static class DynamicStateExtensions
         where T : class, new()
     {
         builder.Services.Add<DynamicState<T>>()
-            .As<IDynamicState<T>>()
-            .As<ILocalSetupCompleted>();
+               .As<IDynamicState<T>>()
+               .As<ILocalSetupCompleted>();
 
         return builder;
     }

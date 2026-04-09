@@ -27,8 +27,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -49,8 +48,7 @@ public class BoardEventsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -70,8 +68,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -90,8 +87,7 @@ public class BoardEventsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -110,8 +106,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -132,8 +127,7 @@ public class BoardEventsTests
                                            t t t
                                            t g t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, bool IsFlagged)>();
 
@@ -153,8 +147,7 @@ public class BoardEventsTests
                                            t t t
                                            t m t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -174,8 +167,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, ICellEffect Effect)>();
 
@@ -197,8 +189,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, Guid EffectId)>();
 
@@ -221,8 +212,7 @@ public class BoardEventsTests
                                            m t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
 
         var cellSetFired = 0;
@@ -265,8 +255,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -291,8 +280,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<ICell>();
 
@@ -316,8 +304,7 @@ public class BoardEventsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, int Count)>();
 
@@ -337,8 +324,7 @@ public class BoardEventsTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = new List<(ICell Cell, int Count)>();
 
@@ -358,8 +344,7 @@ public class BoardEventsTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
         var lifetime = new Lifetime();
         var fired = 0;
 

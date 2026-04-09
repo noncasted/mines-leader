@@ -42,8 +42,7 @@ namespace Internal
                 container,
                 builder.ScopeLifetime,
                 eventLoop,
-                sceneLoader.Results
-          );
+                sceneLoader.Results);
 
             return loadResult;
 
@@ -61,8 +60,7 @@ namespace Internal
                     lifetime,
                     options.Parent,
                     new ScopeEventListeners(),
-                    options.IsMock
-              );
+                    options.IsMock);
             }
 
             void BuildContainer()

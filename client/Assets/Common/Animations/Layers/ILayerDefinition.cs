@@ -1,4 +1,4 @@
-﻿namespace Common.Animations
+﻿namespace Animations
 {
     public interface ILayerDefinition
     {

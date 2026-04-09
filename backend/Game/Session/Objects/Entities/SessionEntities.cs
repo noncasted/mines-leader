@@ -31,12 +31,10 @@ public class SessionEntities : ISessionEntities
         var userEntities = ((List<IEntity>)byUser);
         userEntities.Add(entity);
 
-        entity.Lifetime.Listen(() =>
-            {
-                _entries.Remove(entity.Id);
-                userEntities.Remove(entity);
-            }
-        );
+        entity.Lifetime.Listen(() => {
+            _entries.Remove(entity.Id);
+            userEntities.Remove(entity);
+        });
     }
 
     public int CountByUser(IUser user)

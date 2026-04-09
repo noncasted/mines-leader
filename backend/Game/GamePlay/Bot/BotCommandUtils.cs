@@ -54,21 +54,19 @@ public class BotCommandUtils : IBotCommandUtils
     {
         var wasUsed = false;
 
-        WithSnapshot(snapshot =>
-            {
-                var card = _cardFactory.Create(bot, snapshot, payload);
-                var use = card.Use();
-                wasUsed = use.Result.HasError == false;
+        WithSnapshot(snapshot => {
+            var card = _cardFactory.Create(bot, snapshot, payload);
+            var use = card.Use();
+            wasUsed = use.Result.HasError == false;
 
-                if (wasUsed == false)
-                    return;
+            if (wasUsed == false)
+                return;
 
-                snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData!);
+            snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData!);
 
-                foreach (var (_, board) in _gameContext.Boards)
-                    board.OnUpdated();
-            }
-        );
+            foreach (var (_, board) in _gameContext.Boards)
+                board.OnUpdated();
+        });
 
         return wasUsed;
     }

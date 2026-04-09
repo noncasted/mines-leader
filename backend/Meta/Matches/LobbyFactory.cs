@@ -46,8 +46,7 @@ public class LobbyFactory : ILobbyFactory
 
         _logger.LogInformation("{UserId} [Lobby] [Meta] Requesting lobby from server {ServerURL}",
             userId,
-            targetServer.Url.ServerUrlToWebSocket()
-        );
+            targetServer.Url.ServerUrlToWebSocket());
 
         var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
         var response = await _messaging.SendPipe<MatchPayloads.Lobby.Response>(pipeId, request);
@@ -63,13 +62,11 @@ public class LobbyFactory : ILobbyFactory
         _logger.LogInformation("{UserId} [Lobby] [Meta] Received lobby {SessionID} on server {ServerURL}",
             userId,
             response.SessionId,
-            serverUrl
-        );
+            serverUrl);
 
         await _orleans.SendOneTimeProjection(userId, result);
 
         _logger.LogInformation("{UserId} [Lobby] [Meta] Sent lobby search result projection",
-            userId
-        );
+            userId);
     }
 }

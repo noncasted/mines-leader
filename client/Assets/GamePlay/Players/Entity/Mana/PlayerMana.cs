@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Players
@@ -29,11 +29,10 @@ namespace GamePlay.Players
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _state.View(lifetime, state =>
-                {
-                    _current.Set(state.Current);
-                    _max.Set(state.Max);
-                });
+            _state.View(lifetime, state => {
+                _current.Set(state.Current);
+                _max.Set(state.Max);
+            });
         }
     }
 }

@@ -21,10 +21,8 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            req => Task.FromResult(new TestResponse { Answer = $"reply-to-{req.Question}" })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = $"reply-to-{req.Question}" }));
 
         var response = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "hello" });
 
@@ -39,10 +37,8 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            req => Task.FromResult(new TestResponse { Answer = req.Question.ToUpper() })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = req.Question.ToUpper() }));
 
         var r1 = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "one" });
         var r2 = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "two" });
@@ -72,10 +68,8 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            _ => throw new InvalidOperationException("handler-error")
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            _ => throw new InvalidOperationException("handler-error"));
 
         var act = () => messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "boom" });
 
@@ -90,14 +84,11 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            async req =>
-            {
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            async req => {
                 await Task.Delay(50);
                 return new TestResponse { Answer = $"delayed-{req.Question}" };
-            }
-        );
+            });
 
         var response = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "wait" });
 
@@ -112,10 +103,8 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            req => Task.FromResult(new TestResponse { Answer = "ok" })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = "ok" }));
 
         // Terminate the handler
         lifetime.Terminate();
@@ -134,10 +123,8 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime1 = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime1, pipeId,
-            req => Task.FromResult(new TestResponse { Answer = "v1" })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime1, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = "v1" }));
 
         var r1 = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "x" });
         r1.Answer.Should().Be("v1");
@@ -146,10 +133,8 @@ public class RuntimePipeTests
         lifetime1.Terminate();
         var lifetime2 = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime2, pipeId,
-            req => Task.FromResult(new TestResponse { Answer = "v2" })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime2, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = "v2" }));
 
         var r2 = await messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "x" });
         r2.Answer.Should().Be("v2");
@@ -164,18 +149,16 @@ public class RuntimePipeTests
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetime, pipeId,
-            async req =>
-            {
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            async req => {
                 await Task.Delay(10); // small delay to allow interleaving
                 return new TestResponse { Answer = $"reply-{req.Question}" };
-            }
-        );
+            });
 
         var tasks = Enumerable.Range(0, 5)
-            .Select(i => messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = $"q{i}" }))
-            .ToList();
+                              .Select(i => messaging.SendPipe<TestResponse>(pipeId,
+                                  new TestRequest { Question = $"q{i}" }))
+                              .ToList();
 
         var responses = await Task.WhenAll(tasks);
 
@@ -194,14 +177,11 @@ public class RuntimePipeTests
         var lifetimeA = new Lifetime();
         var lifetimeB = new Lifetime();
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetimeA, pipeA,
-            req => Task.FromResult(new TestResponse { Answer = "from-A" })
-        );
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(
-            lifetimeB, pipeB,
-            req => Task.FromResult(new TestResponse { Answer = "from-B" })
-        );
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetimeA, pipeA,
+            req => Task.FromResult(new TestResponse { Answer = "from-A" }));
+
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetimeB, pipeB,
+            req => Task.FromResult(new TestResponse { Answer = "from-B" }));
 
         var rA = await messaging.SendPipe<TestResponse>(pipeA, new TestRequest { Question = "x" });
         var rB = await messaging.SendPipe<TestResponse>(pipeB, new TestRequest { Question = "x" });

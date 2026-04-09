@@ -1,4 +1,5 @@
 ﻿using System;
+using GamePlay.Cards.Drop;
 using Internal;
 using Meta;
 using Shared;
@@ -10,21 +11,21 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardLocalStates(this IEntityBuilder builder)
         {
             builder.Register<CardLocalDrop>()
-                .WithAsset<CardDropOptions>()
-                .As<ICardLocalDrop>();
+                   .WithAsset<CardDropOptions>()
+                   .As<ICardLocalDrop>();
 
             builder.Register<CardLocalIdle>()
-                .WithAsset<CardIdleOptions>()
-                .As<ICardLocalIdle>();
+                   .WithAsset<CardIdleOptions>()
+                   .As<ICardLocalIdle>();
 
             builder.Register<CardLocalDrag>()
-                .WithAsset<CardDragOptions>()
-                .As<ICardLocalDrag>();
+                   .WithAsset<CardDragOptions>()
+                   .As<ICardLocalDrag>();
 
             builder.Register<CardLocalSpawn>()
-                .WithAsset<CardLocalSpawnOptions>()
-                .WithParameter(builder.Lifetime)
-                .As<ICardLocalSpawn>();
+                   .WithAsset<CardLocalSpawnOptions>()
+                   .WithParameter(builder.Lifetime)
+                   .As<ICardLocalSpawn>();
 
             return builder;
         }
@@ -32,16 +33,16 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardRemoteStates(this IEntityBuilder builder)
         {
             builder.Register<CardRemoteDrop>()
-                .WithAsset<CardDropOptions>()
-                .As<ICardRemoteDrop>();
+                   .WithAsset<CardDropOptions>()
+                   .As<ICardRemoteDrop>();
 
             builder.Register<CardRemoteIdle>()
-                .WithAsset<CardRemoteIdleOptions>()
-                .As<ICardRemoteIdle>();
+                   .WithAsset<CardRemoteIdleOptions>()
+                   .As<ICardRemoteIdle>();
 
             builder.Register<CardRemoteSpawn>()
-                .WithAsset<CardRemoteSpawnOptions>()
-                .As<ICardRemoteSpawn>();
+                   .WithAsset<CardRemoteSpawnOptions>()
+                   .As<ICardRemoteSpawn>();
 
             return builder;
         }
@@ -131,7 +132,7 @@ namespace GamePlay.Cards
             IRegistration Register<T, TConfig>(TConfig config)
             {
                 return builder.Register<T>()
-                    .WithParameter(config);
+                              .WithParameter(config);
             }
         }
 

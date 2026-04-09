@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkObject
     {

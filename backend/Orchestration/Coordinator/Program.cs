@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.SetupCoordinator();
 
 builder.Services.Add<ClusterCoordinator>()
-    .As<ILocalSetupCompleted>();
+       .As<ILocalSetupCompleted>();
 
 var app = builder.Build();
 

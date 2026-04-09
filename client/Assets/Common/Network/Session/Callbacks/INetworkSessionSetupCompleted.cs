@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkSessionSetupCompleted : INetworkSessionCallbackEntry
     {

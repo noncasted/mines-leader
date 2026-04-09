@@ -28,16 +28,13 @@ public static class BackendMetrics
 
     // --- Transactions ---
     public static readonly Counter<long> TransactionTotal = Meter.CreateCounter<long>("backend.transactions.total",
-        description: "Total transactions processed"
-    );
+        description: "Total transactions processed");
 
     public static readonly Counter<long> TransactionSuccess = Meter.CreateCounter<long>("backend.transactions.success",
-        description: "Successful transactions"
-    );
+        description: "Successful transactions");
 
     public static readonly Counter<long> TransactionFailure = Meter.CreateCounter<long>("backend.transactions.failure",
-        description: "Failed transactions"
-    );
+        description: "Failed transactions");
 
     public static readonly Counter<long> TransactionRollback =
         Meter.CreateCounter<long>("backend.transactions.rollback", description: "Transaction rollbacks");
@@ -46,21 +43,17 @@ public static class BackendMetrics
         Meter.CreateHistogram<double>("backend.transactions.duration", "ms", "Transaction duration");
 
     public static readonly Histogram<int> TransactionParticipantCount = Meter.CreateHistogram<int>(
-        "backend.transactions.participant_count", description: "Participants per transaction"
-    );
+        "backend.transactions.participant_count", description: "Participants per transaction");
 
     // --- State ---
     public static readonly Counter<long> StateReadTotal = Meter.CreateCounter<long>("backend.state.read.total",
-        description: "State read operations"
-    );
+        description: "State read operations");
 
     public static readonly Counter<long> StateWriteTotal = Meter.CreateCounter<long>("backend.state.write.total",
-        description: "State write operations"
-    );
+        description: "State write operations");
 
     public static readonly Counter<long> StateDeleteTotal = Meter.CreateCounter<long>("backend.state.delete.total",
-        description: "State delete operations"
-    );
+        description: "State delete operations");
 
     public static readonly Histogram<double> StateReadDuration =
         Meter.CreateHistogram<double>("backend.state.read.duration", "ms", "State read duration");
@@ -79,48 +72,39 @@ public static class BackendMetrics
         Meter.CreateCounter<long>("backend.side_effects.processed", description: "Side effects processed");
 
     public static readonly Counter<long> SideEffectRetry = Meter.CreateCounter<long>("backend.side_effects.retry",
-        description: "Side effects retried"
-    );
+        description: "Side effects retried");
 
     public static readonly Counter<long> SideEffectFailed = Meter.CreateCounter<long>("backend.side_effects.failed",
-        description: "Side effects failed"
-    );
+        description: "Side effects failed");
 
     public static readonly Histogram<double> SideEffectDuration =
         Meter.CreateHistogram<double>("backend.side_effects.duration", "ms", "Side effect execution duration");
 
     public static readonly UpDownCounter<int> SideEffectInProgress = Meter.CreateUpDownCounter<int>(
-        "backend.side_effects.in_progress", description: "Side effects currently executing"
-    );
+        "backend.side_effects.in_progress", description: "Side effects currently executing");
 
     public static readonly Histogram<int> SideEffectQueueDepth =
         Meter.CreateHistogram<int>("backend.side_effects.queue_depth", description: "Side effects found per scan");
 
     // --- Task Balancer ---
     public static readonly Counter<long> TaskExecuted = Meter.CreateCounter<long>("backend.tasks.executed",
-        description: "Tasks executed"
-    );
+        description: "Tasks executed");
 
     public static readonly Counter<long> TaskSuccess = Meter.CreateCounter<long>("backend.tasks.success",
-        description: "Tasks succeeded"
-    );
+        description: "Tasks succeeded");
 
     public static readonly Counter<long> TaskFailure = Meter.CreateCounter<long>("backend.tasks.failure",
-        description: "Tasks failed"
-    );
+        description: "Tasks failed");
 
     public static readonly Histogram<double> TaskDuration = Meter.CreateHistogram<double>("backend.tasks.duration",
-        "ms", "Task execution duration"
-    );
+        "ms", "Task execution duration");
 
     public static readonly Histogram<int> TaskQueueDepth = Meter.CreateHistogram<int>("backend.tasks.queue_depth",
-        description: "Tasks in scheduler queue"
-    );
+        description: "Tasks in scheduler queue");
 
     // --- Messaging: Durable Queue ---
     public static readonly Counter<long> DurableQueuePushed = Meter.CreateCounter<long>("backend.durable_queue.pushed",
-        description: "Messages pushed to durable queue"
-    );
+        description: "Messages pushed to durable queue");
 
     public static readonly Histogram<int> DurableQueueObserverCount =
         Meter.CreateHistogram<int>("backend.durable_queue.observer_count", description: "Observers at push time");
@@ -130,8 +114,7 @@ public static class BackendMetrics
 
     // --- Messaging: Runtime Channel ---
     public static readonly Counter<long> ChannelPublished = Meter.CreateCounter<long>("backend.channel.published",
-        description: "Messages published to channel"
-    );
+        description: "Messages published to channel");
 
     public static readonly Histogram<int> ChannelObserverCount =
         Meter.CreateHistogram<int>("backend.channel.observer_count", description: "Observers at publish time");
@@ -141,14 +124,11 @@ public static class BackendMetrics
 
     // --- Messaging: Runtime Pipe ---
     public static readonly Counter<long> PipeRequestSent = Meter.CreateCounter<long>("backend.pipe.sent",
-        description: "Pipe requests sent"
-    );
+        description: "Pipe requests sent");
 
     public static readonly Counter<long> PipeTimeout = Meter.CreateCounter<long>("backend.pipe.timeout",
-        description: "Pipe request timeouts"
-    );
+        description: "Pipe request timeouts");
 
     public static readonly Histogram<double> PipeDuration = Meter.CreateHistogram<double>("backend.pipe.duration", "ms",
-        "Pipe request-response duration"
-    );
+        "Pipe request-response duration");
 }

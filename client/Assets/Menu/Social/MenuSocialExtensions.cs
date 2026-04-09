@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 
 namespace Menu.Social
 {
@@ -8,16 +8,16 @@ namespace Menu.Social
         public static IScopeBuilder AddMenuSocial(this IScopeBuilder builder)
         {
             builder.Register<MenuPlayersCollection>()
-                .As<IMenuPlayersCollection>();
+                   .As<IMenuPlayersCollection>();
 
             builder.Register<MenuSocialLoop>()
-                .As<IMenuSocialLoop>();
+                   .As<IMenuSocialLoop>();
 
             builder.AddNetworkService<MenuChat>("menu-chat");
 
             builder.Register<MenuPlayerFactory>()
-                .As<IMenuPlayerFactory>()
-                .As<IScopeSetup>();
+                   .As<IMenuPlayerFactory>()
+                   .As<IScopeSetup>();
 
             return builder;
         }

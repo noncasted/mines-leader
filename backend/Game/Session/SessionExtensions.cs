@@ -14,14 +14,14 @@ public static class SessionExtensions
         services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();
 
         services.AddSingleton(data);
+
         services.AddSingleton<ISessionData>(new SessionData
-            {
-                Id = data.Id,
-                Lifetime = data.Lifetime,
-                ExpectedUsers = data.ExpectedUsers,
-                Type = data.Type
-            }
-        );
+        {
+            Id = data.Id,
+            Lifetime = data.Lifetime,
+            ExpectedUsers = data.ExpectedUsers,
+            Type = data.Type
+        });
 
         services.AddSingleton<ICommandsCollection, CommandsCollection>();
         services.AddSingleton<IExecutionQueue, ExecutionQueue>();

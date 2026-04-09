@@ -10,8 +10,7 @@ namespace Tests.Game;
 public static class CardConfigs
 {
     private static readonly Lazy<CardConfigOptions> _options = new(() =>
-        ConfigLoader.Load<CardConfigOptions>("config.cards")
-    );
+        ConfigLoader.Load<CardConfigOptions>("config.cards"));
 
     public static CardConfigOptions All => _options.Value;
 

@@ -12,11 +12,10 @@ public class ServiceLoopTests
     {
         var p1 = new FakeOrleansStarted();
         var p2 = new FakeOrleansStarted();
-        var loop = new ServiceLoop(
-            new IOrleansStarted[] { p1, p2 },
+
+        var loop = new ServiceLoop(new IOrleansStarted[] { p1, p2 },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>()
-        );
+            Array.Empty<ICoordinatorSetupCompleted>());
 
         var lifetime = new Lifetime();
         await loop.OnOrleansStarted(lifetime);
@@ -30,11 +29,10 @@ public class ServiceLoopTests
     {
         var p1 = new FakeLocalSetup();
         var p2 = new FakeLocalSetup();
-        var loop = new ServiceLoop(
-            Array.Empty<IOrleansStarted>(),
+
+        var loop = new ServiceLoop(Array.Empty<IOrleansStarted>(),
             new ILocalSetupCompleted[] { p1, p2 },
-            Array.Empty<ICoordinatorSetupCompleted>()
-        );
+            Array.Empty<ICoordinatorSetupCompleted>());
 
         var lifetime = new Lifetime();
         await loop.OnLocalSetupCompleted(lifetime);
@@ -48,11 +46,10 @@ public class ServiceLoopTests
     {
         var p1 = new FakeCoordinatorSetup();
         var p2 = new FakeCoordinatorSetup();
-        var loop = new ServiceLoop(
-            Array.Empty<IOrleansStarted>(),
+
+        var loop = new ServiceLoop(Array.Empty<IOrleansStarted>(),
             Array.Empty<ILocalSetupCompleted>(),
-            new ICoordinatorSetupCompleted[] { p1, p2 }
-        );
+            new ICoordinatorSetupCompleted[] { p1, p2 });
 
         var lifetime = new Lifetime();
         await loop.OnCoordinatorSetupCompleted(lifetime);
@@ -65,11 +62,10 @@ public class ServiceLoopTests
     public async Task OnOrleansStarted_PassesLifetimeToParticipants()
     {
         var participant = new FakeOrleansStarted();
-        var loop = new ServiceLoop(
-            new IOrleansStarted[] { participant },
+
+        var loop = new ServiceLoop(new IOrleansStarted[] { participant },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>()
-        );
+            Array.Empty<ICoordinatorSetupCompleted>());
 
         var lifetime = new Lifetime();
         await loop.OnOrleansStarted(lifetime);
@@ -84,11 +80,10 @@ public class ServiceLoopTests
         // other handlers still execute
         var failing = new FailingOrleansStarted();
         var successful = new FakeOrleansStarted();
-        var loop = new ServiceLoop(
-            new IOrleansStarted[] { failing, successful },
+
+        var loop = new ServiceLoop(new IOrleansStarted[] { failing, successful },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>()
-        );
+            Array.Empty<ICoordinatorSetupCompleted>());
 
         var lifetime = new Lifetime();
         var act = () => loop.OnOrleansStarted(lifetime);
@@ -105,11 +100,10 @@ public class ServiceLoopTests
         var orleans = new FakeOrleansStarted();
         var local = new FakeLocalSetup();
         var coordinator = new FakeCoordinatorSetup();
-        var loop = new ServiceLoop(
-            new IOrleansStarted[] { orleans },
+
+        var loop = new ServiceLoop(new IOrleansStarted[] { orleans },
             new ILocalSetupCompleted[] { local },
-            new ICoordinatorSetupCompleted[] { coordinator }
-        );
+            new ICoordinatorSetupCompleted[] { coordinator });
 
         var lifetime = new Lifetime();
 

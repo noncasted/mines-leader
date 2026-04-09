@@ -1,6 +1,6 @@
 ﻿using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public static class NetworkEntitiesExtensions
     {
@@ -10,10 +10,10 @@ namespace Common.Network
                 id = typeof(T).FullName!.GetHashCode();
 
             builder.Register<NetworkProperty<T>>()
-                .WithParameter(id)
-                .As<INetworkProperty<T>>()
-                .As<INetworkProperty>()
-                .AsSelfResolvable();
+                   .WithParameter(id)
+                   .As<INetworkProperty<T>>()
+                   .As<INetworkProperty>()
+                   .AsSelfResolvable();
 
             return builder;
         }

@@ -9,7 +9,7 @@ public static class BenchmarkEndpoints
     public static IEndpointRouteBuilder AddBenchmarkEndpoints(this IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/api/benchmarks")
-            .AddEndpointFilter<ClusterReadyFilter>();
+                           .AddEndpointFilter<ClusterReadyFilter>();
 
         group.MapGet("/", ListAll);
         group.MapGet("/group/{group}", ListByGroup);
@@ -46,9 +46,9 @@ public static class BenchmarkEndpoints
         [FromServices] BenchmarkRunner runner)
     {
         return tests
-            .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
-            .Select(t => ToInfo(t, runner))
-            .ToList();
+               .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
+               .Select(t => ToInfo(t, runner))
+               .ToList();
     }
 
     private static IResult RunSingle(
@@ -57,17 +57,18 @@ public static class BenchmarkEndpoints
         [FromServices] BenchmarkRunner runner)
     {
         var test = tests.FirstOrDefault(t => t.Title == title);
+
         if (test == null)
             return Results.NotFound($"Benchmark '{title}' not found");
 
         runner.Start(test);
+
         return Results.Ok(new BenchmarkRunResultDto
-            {
-                Title = test.Title,
-                Success = true,
-                MetricName = test.MetricName
-            }
-        );
+        {
+            Title = test.Title,
+            Success = true,
+            MetricName = test.MetricName
+        });
     }
 
     private static IResult CancelSingle(
@@ -75,6 +76,7 @@ public static class BenchmarkEndpoints
         [FromServices] BenchmarkRunner runner)
     {
         var cancelled = runner.Cancel(title);
+
         if (!cancelled)
             return Results.NotFound($"Benchmark '{title}' is not running");
 
@@ -87,20 +89,21 @@ public static class BenchmarkEndpoints
         [FromServices] BenchmarkRunner runner)
     {
         var groupTests = tests
-            .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+                         .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
+                         .ToList();
 
         var results = new List<BenchmarkRunResultDto>();
+
         foreach (var test in groupTests)
         {
             runner.Start(test);
+
             results.Add(new BenchmarkRunResultDto
-                {
-                    Title = test.Title,
-                    Success = true,
-                    MetricName = test.MetricName
-                }
-            );
+            {
+                Title = test.Title,
+                Success = true,
+                MetricName = test.MetricName
+            });
         }
 
         return results;
@@ -121,20 +124,21 @@ public static class BenchmarkEndpoints
         [FromServices] BenchmarkStorage storage)
     {
         var groupTests = tests
-            .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+                         .Where(t => string.Equals(t.Group, group, StringComparison.OrdinalIgnoreCase))
+                         .ToList();
 
         var results = new List<BenchmarkHistoryGroupDto>();
+
         foreach (var test in groupTests)
         {
             var states = await storage.GetAll(test.Title);
+
             results.Add(new BenchmarkHistoryGroupDto
-                {
-                    Title = test.Title,
-                    MetricName = test.MetricName,
-                    Entries = states.Select(ToHistoryEntry).ToList()
-                }
-            );
+            {
+                Title = test.Title,
+                MetricName = test.MetricName,
+                Entries = states.Select(ToHistoryEntry).ToList()
+            });
         }
 
         return results;
@@ -157,6 +161,7 @@ public static class BenchmarkEndpoints
     private static BenchmarkHistoryEntryDto ToHistoryEntry(BenchmarkState state)
     {
         var totalCount = state.Records.Sum(r => r.Count);
+
         var metricValue = state.Duration.TotalSeconds > 0
             ? totalCount / state.Duration.TotalSeconds
             : 0;
@@ -170,12 +175,11 @@ public static class BenchmarkEndpoints
             MetricValue = metricValue,
             TotalOperations = totalCount,
             Samples = state.Records.Select(r => new BenchmarkSampleDto
-                    {
-                        Count = r.Count,
-                        TimeMs = (long)r.Time.TotalMilliseconds
-                    }
-                )
-                .ToList()
+                           {
+                               Count = r.Count,
+                               TimeMs = (long)r.Time.TotalMilliseconds
+                           })
+                           .ToList()
         };
     }
 }

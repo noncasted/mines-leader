@@ -52,7 +52,8 @@ public static class BoardParser
 
                 switch (ch)
                 {
-                    case 't': break; // Taken, default
+                    case 't':
+                        break; // Taken, default
                     case 'm':
                         mines.Add(pos);
                         break;
@@ -69,7 +70,8 @@ public static class BoardParser
                     case 'x':
                         target = pos;
                         break;
-                    default: throw new ArgumentException($"Unknown initial char '{ch}' at ({x},{y})");
+                    default:
+                        throw new ArgumentException($"Unknown initial char '{ch}' at ({x},{y})");
                 }
             }
         }
@@ -78,8 +80,10 @@ public static class BoardParser
 
         if (mines.Count > 0)
             builder.WithMinesAt(mines.Select(p => (p.x, p.y)).ToArray());
+
         if (freeCells.Count > 0)
             builder.WithFreeAt(freeCells.Select(p => (p.x, p.y)).ToArray());
+
         if (flaggedCells.Count > 0)
             builder.WithFlagAt(flaggedCells.Select(p => (p.x, p.y)).ToArray());
 
@@ -102,7 +106,8 @@ public static class BoardParser
                 var ch = rows[y][x];
                 var pos = new Position(x, y);
 
-                if (ch == '*') continue;
+                if (ch == '*')
+                    continue;
 
                 if (!board.Cells.TryGetValue(pos, out var cell))
                 {
@@ -111,6 +116,7 @@ public static class BoardParser
                 }
 
                 var error = AssertCell(cell, ch, pos);
+
                 if (error != null)
                     errors.Add(error);
             }
@@ -119,12 +125,11 @@ public static class BoardParser
         if (errors.Count > 0)
         {
             var actual = Render(board, rows.Count, rows.Max(r => r.Length));
-            throw new Exception(
-                $"Board mismatch ({errors.Count} cells differ):\n" +
-                $"\n  Expected:\n{Indent(expectedLayout)}\n" +
-                $"\n  Actual:\n{Indent(actual)}\n" +
-                $"\n  Errors:\n    {string.Join("\n    ", errors)}"
-            );
+
+            throw new Exception($"Board mismatch ({errors.Count} cells differ):\n" +
+                                $"\n  Expected:\n{Indent(expectedLayout)}\n" +
+                                $"\n  Actual:\n{Indent(actual)}\n" +
+                                $"\n  Errors:\n    {string.Join("\n    ", errors)}");
         }
     }
 
@@ -164,13 +169,19 @@ public static class BoardParser
 
     private static char CellToChar(ICell cell)
     {
-        if (cell.Status == CellStatus.Free) return '_';
+        if (cell.Status == CellStatus.Free)
+            return '_';
 
         var taken = (ITakenCell)cell;
 
-        if (taken.IsFlagged && taken.HasMine) return 'f';
-        if (taken.IsFlagged) return 'g';
-        if (taken.HasMine) return 'm';
+        if (taken.IsFlagged && taken.HasMine)
+            return 'f';
+
+        if (taken.IsFlagged)
+            return 'g';
+
+        if (taken.HasMine)
+            return 'm';
 
         return 't';
     }
@@ -185,6 +196,7 @@ public static class BoardParser
         for (var y = 0; y < height; y++)
         {
             var chars = new List<char>();
+
             for (var x = 0; x < width; x++)
             {
                 var pos = new Position(x, y);
@@ -200,14 +212,13 @@ public static class BoardParser
     private static List<char[]> ParseRows(string layout)
     {
         return layout
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(line => line.Trim())
-            .Where(line => line.Length > 0)
-            .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Select(token => token[0])
-                .ToArray()
-            )
-            .ToList();
+               .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+               .Select(line => line.Trim())
+               .Where(line => line.Length > 0)
+               .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                   .Select(token => token[0])
+                                   .ToArray())
+               .ToList();
     }
 
     private static string Indent(string text)

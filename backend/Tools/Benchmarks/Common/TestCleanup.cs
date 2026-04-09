@@ -22,13 +22,12 @@ public class TestCleanup
         var stateInfo = _stateStorage.Registry.Get<TState>();
 
         _identities.Add(new StateIdentity
-            {
-                Key = key,
-                Type = stateInfo.Name,
-                TableName = stateInfo.TableName,
-                Extension = null
-            }
-        );
+        {
+            Key = key,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        });
     }
 
     public void Track<TState>(string key) where TState : IStateValue, new()
@@ -36,13 +35,12 @@ public class TestCleanup
         var stateInfo = _stateStorage.Registry.Get<TState>();
 
         _identities.Add(new StateIdentity
-            {
-                Key = key,
-                Type = stateInfo.Name,
-                TableName = stateInfo.TableName,
-                Extension = null
-            }
-        );
+        {
+            Key = key,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        });
     }
 
     public void Track(StateIdentity identity)

@@ -26,15 +26,13 @@ public class ConnectionOneTimeHandle : IDisposable
         if (message is not RequestMessageFromClient request)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {message.GetType().Name}, expected: {nameof(RequestMessageFromClient)}"
-            );
+                $"Invalid request type: {message.GetType().Name}, expected: {nameof(RequestMessageFromClient)}");
         }
 
         if (request.Context is not T context)
         {
             throw new InvalidOperationException(
-                $"Invalid request type: {request.Context.GetType().Name}, expected: {typeof(T).Name}"
-            );
+                $"Invalid request type: {request.Context.GetType().Name}, expected: {typeof(T).Name}");
         }
 
         _requestId = request.RequestId;

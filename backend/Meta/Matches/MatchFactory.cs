@@ -52,8 +52,7 @@ public class MatchFactory : IMatchFactory
         var response = await _messaging.SendPipe<MatchPayloads.Match.Response>(pipeId, request);
 
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL}",
-            match.GetPrimaryKey(), targetServer.Url
-        );
+            match.GetPrimaryKey(), targetServer.Url);
 
         var result = new MatchSearchResultUpdate
         {
@@ -84,8 +83,7 @@ public class MatchFactory : IMatchFactory
         var response = await _messaging.SendPipe<MatchPayloads.Match.Response>(pipeId, request);
 
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL} with bot {BotID}",
-            match.GetPrimaryKey(), targetServer.Url, botId
-        );
+            match.GetPrimaryKey(), targetServer.Url, botId);
 
         var result = new MatchSearchResultUpdate
         {

@@ -4,7 +4,7 @@ using Internal;
 using MemoryPack;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     [MemoryPackable(GenerateType.NoGenerate)]
     public partial interface IEventPayload
@@ -56,11 +56,10 @@ namespace Common.Network
         public void Send(IEventPayload rawPayload)
         {
             _connection.OneWay(new SharedSessionObject.Event()
-                {
-                    ObjectId = _object.Id,
-                    Value = MemoryPackSerializer.Serialize(rawPayload)
-                }
-          );
+            {
+                ObjectId = _object.Id,
+                Value = MemoryPackSerializer.Serialize(rawPayload)
+            });
         }
     }
 
@@ -74,14 +73,12 @@ namespace Common.Network
             {
                 var source = new ViewableDelegate<T>();
 
-                events.AddSource(type, source, payload =>
-                    {
-                        if (payload is not T castedPayload)
-                            throw new InvalidCastException();
+                events.AddSource(type, source, payload => {
+                    if (payload is not T castedPayload)
+                        throw new InvalidCastException();
 
-                        source.Invoke(castedPayload);
-                    }
-              );
+                    source.Invoke(castedPayload);
+                });
             }
 
             return events.Entries[type] as ViewableDelegate<T>;

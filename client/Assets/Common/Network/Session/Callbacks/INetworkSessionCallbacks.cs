@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkSessionCallbackEntry
     {
@@ -25,8 +25,8 @@ namespace Common.Network
                 callbacks.Register(target as TCallback);
 
             registration.Builder.Register<NetworkSessionCallbackRegister<TImplementation>>()
-                .WithParameter(registerCallback)
-                .AsSelfResolvable();
+                        .WithParameter(registerCallback)
+                        .AsSelfResolvable();
 
             return registration;
         }

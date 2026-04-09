@@ -1,9 +1,9 @@
 ﻿using System;
-using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards.Effects;
 using Global.Systems;
 using Internal;
+using Network;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -70,7 +70,7 @@ namespace GamePlay.Boards
             if (_state.Value is not CellFreeState)
             {
                 Effects.Clear();
-                
+
                 _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);
                 _state.Set(free);

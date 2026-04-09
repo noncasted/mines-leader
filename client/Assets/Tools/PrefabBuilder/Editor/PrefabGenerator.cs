@@ -24,7 +24,9 @@ namespace Tools
             EnsureFolder(OutputFolder);
 
             var definitionTypes = TypeCache.GetTypesWithAttribute<PrefabDefinitionAttribute>();
-            if (definitionTypes.Count == 0) return;
+
+            if (definitionTypes.Count == 0)
+                return;
 
             var generatedPrefabs = new List<(string asmdefName, string prefabName, string prefabPath)>();
             var failedTypes = new List<Type>();
@@ -34,6 +36,7 @@ namespace Tools
                 try
                 {
                     var result = GeneratePrefab(type);
+
                     if (result.HasValue)
                     {
                         generatedPrefabs.Add(result.Value);
@@ -51,6 +54,7 @@ namespace Tools
                 try
                 {
                     var result = GeneratePrefab(type);
+
                     if (result.HasValue)
                     {
                         generatedPrefabs.Add(result.Value);
@@ -75,16 +79,20 @@ namespace Tools
             List<(string asmdefName, string prefabName, string prefabPath)> generatedPrefabs)
         {
             var generatedNames = new HashSet<string>();
+
             foreach (var (_, prefabName, _) in generatedPrefabs)
             {
                 generatedNames.Add(prefabName + ".prefab");
             }
 
             var existingFiles = Directory.GetFiles(OutputFolder, "*.prefab");
+
             foreach (var filePath in existingFiles)
             {
                 var fileName = Path.GetFileName(filePath);
-                if (generatedNames.Contains(fileName)) continue;
+
+                if (generatedNames.Contains(fileName))
+                    continue;
 
                 AssetDatabase.DeleteAsset(OutputFolder + "/" + fileName);
                 Debug.Log($"[PrefabGenerator] Deleted stale prefab: {fileName}");
@@ -94,20 +102,20 @@ namespace Tools
         private static (string asmdefName, string prefabName, string prefabPath)? GeneratePrefab(Type type)
         {
             var defineMethod = type.GetMethod("Define", BindingFlags.Public | BindingFlags.Static);
+
             if (defineMethod == null)
             {
                 Debug.LogError(
-                    $"[PrefabGenerator] {type.Name} has [PrefabDefinition] but no public static Define(PrefabBuilder) method."
-              );
+                    $"[PrefabGenerator] {type.Name} has [PrefabDefinition] but no public static Define(PrefabBuilder) method.");
                 return null;
             }
 
             var parameters = defineMethod.GetParameters();
+
             if (parameters.Length != 1 || parameters[0].ParameterType != typeof(PrefabBuilder))
             {
                 Debug.LogError(
-                    $"[PrefabGenerator] {type.Name}.Define() must accept exactly one PrefabBuilder parameter."
-              );
+                    $"[PrefabGenerator] {type.Name}.Define() must accept exactly one PrefabBuilder parameter.");
                 return null;
             }
 
@@ -135,10 +143,13 @@ namespace Tools
 
         private static void CheckManualModification(string prefabPath)
         {
-            if (!File.Exists(prefabPath)) return;
+            if (!File.Exists(prefabPath))
+                return;
 
             var metaPath = prefabPath + ".meta";
-            if (!File.Exists(metaPath)) return;
+
+            if (!File.Exists(metaPath))
+                return;
 
             var prefabTime = File.GetLastWriteTimeUtc(prefabPath);
             var metaTime = File.GetLastWriteTimeUtc(metaPath);
@@ -146,20 +157,22 @@ namespace Tools
             if (prefabTime > metaTime.AddSeconds(5))
             {
                 Debug.LogWarning(
-                    $"[PrefabGenerator] '{prefabPath}' appears to have been modified manually. It will be overwritten."
-              );
+                    $"[PrefabGenerator] '{prefabPath}' appears to have been modified manually. It will be overwritten.");
             }
         }
 
         private static void EnsureFolder(string folderPath)
         {
-            if (AssetDatabase.IsValidFolder(folderPath)) return;
+            if (AssetDatabase.IsValidFolder(folderPath))
+                return;
 
             var parts = folderPath.Split('/');
             var current = parts[0];
+
             for (var i = 1; i < parts.Length; i++)
             {
                 var next = current + "/" + parts[i];
+
                 if (!AssetDatabase.IsValidFolder(next))
                 {
                     AssetDatabase.CreateFolder(current, parts[i]);

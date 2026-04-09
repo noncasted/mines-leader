@@ -25,16 +25,14 @@ public class ChainReactionTests
                                                 t t t t t t t
                                                 t t t t t t t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var minesBefore = board.Cells.Values
-            .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
+                               .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(3, 3) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -44,16 +42,16 @@ public class ChainReactionTests
 
         // Verify total mine count increased on the board
         var minesAfter = board.Cells.Values
-            .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
+                              .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
         minesAfter.Should().BeGreaterThan(minesBefore, "chain reaction should spawn new mines");
 
         // Verify at least one spawned mine is within SpawnSize distance from a chain target
         // Targets are (3,3) and (3,1) — SpawnSize=3, Rhombus(3) has halfSize=1
         var chainTargets = new[] { new Position(3, 3), new Position(3, 1) };
+
         actionData.SpawnedMines.Should()
-            .Contain(pos => chainTargets.Any(t => pos.DistanceTo(t) <= CardConfigs.ChainReaction.SpawnSize),
-                "spawned mines should be near chain targets"
-            );
+                  .Contain(pos => chainTargets.Any(t => pos.DistanceTo(t) <= CardConfigs.ChainReaction.SpawnSize),
+                      "spawned mines should be near chain targets");
     }
 
     [Fact]
@@ -65,13 +63,11 @@ public class ChainReactionTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = target },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -91,16 +87,14 @@ public class ChainReactionTests
                                            t t t t t t t t t t
                                            t t t t t t t t t t
                                            t t t t t t t t t t
-                                           """
-        );
+                                           """);
 
         var minesBefore = board.Cells.Values
-            .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
+                               .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(0, 0) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -111,18 +105,17 @@ public class ChainReactionTests
         // MaxChain=3 limits chain targets. Each target spawns mines in Rhombus(SpawnSize=2).
         // With 5 mines on board but MaxChain=3, not all 5 should be chained.
         var minesAfter = board.Cells.Values
-            .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
+                              .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
         minesAfter.Should().BeGreaterThan(minesBefore, "chain should spawn new mines");
 
         // Spawned mines should be bounded by MaxChain * rhombus area
         var maxSpawnPerTarget = PatternShapes.Rhombus(CardConfigs.ChainReaction.SpawnSize)
-            .Positions.SelectMany(r => r)
-            .Count(v => v);
+                                             .Positions.SelectMany(r => r)
+                                             .Count(v => v);
+
         actionData.SpawnedMines.Count.Should()
-            .BeLessThanOrEqualTo(
-                CardConfigs.ChainReaction.MaxChain * maxSpawnPerTarget,
-                "spawned mines limited by MaxChain targets"
-            );
+                  .BeLessThanOrEqualTo(CardConfigs.ChainReaction.MaxChain * maxSpawnPerTarget,
+                      "spawned mines limited by MaxChain targets");
     }
 
     [Fact]
@@ -139,13 +132,11 @@ public class ChainReactionTests
                                            t t t t t t t t t t
                                            t t t t t t t t t t
                                            t t t t t t t t t t
-                                           """
-        );
+                                           """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(5, 5) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -157,11 +148,12 @@ public class ChainReactionTests
         foreach (var pos in actionData.SpawnedMines)
         {
             board.Cells[pos].Status.Should().Be(CellStatus.Taken);
+
             board.Cells[pos]
-                .Should()
-                .BeAssignableTo<ITakenCell>()
-                .Which.HasMine.Should()
-                .BeTrue($"spawned mine at {pos} should have mine");
+                 .Should()
+                 .BeAssignableTo<ITakenCell>()
+                 .Which.HasMine.Should()
+                 .BeTrue($"spawned mine at {pos} should have mine");
         }
     }
 
@@ -178,13 +170,11 @@ public class ChainReactionTests
                                            t t t _ t t t t
                                            t t t t t t t t
                                            t t t t t t t t
-                                           """
-        );
+                                           """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(3, 4) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -208,13 +198,11 @@ public class ChainReactionTests
                                            t m m m t
                                            t m m m t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(2, 2) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -228,12 +216,12 @@ public class ChainReactionTests
             new(1, 2), new(3, 2),
             new(1, 3), new(2, 3), new(3, 3)
         };
+
         foreach (var pos in actionData!.SpawnedMines)
         {
             existingMines.Should()
-                .NotContain(pos,
-                    $"position {pos} already had a mine and should be skipped"
-                );
+                         .NotContain(pos,
+                             $"position {pos} already had a mine and should be skipped");
         }
     }
 
@@ -246,13 +234,11 @@ public class ChainReactionTests
                                            t t t t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(99, 99) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -269,13 +255,11 @@ public class ChainReactionTests
                                            t t t m t t t
                                            t t t t t t t
                                            t t t t t t t
-                                           """
-        );
+                                           """);
 
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(3, 4) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -293,15 +277,14 @@ public class ChainReactionTests
 
         // Spawned mines should only be around the initial target (3,4), not the flagged mine
         actionData!.SpawnedMines.Should().NotBeEmpty("initial mine should still spawn");
+
         foreach (var pos in actionData.SpawnedMines)
         {
             // Verify spawned mines are near (3,4), not near the flagged (3,2)
             pos.DistanceTo(new Position(3, 4))
-                .Should()
-                .BeLessThanOrEqualTo(
-                    CardConfigs.ChainReaction.SpawnSize,
-                    $"spawned mine at {pos} should be near initial target (3,4), not near flagged mine (3,2)"
-                );
+               .Should()
+               .BeLessThanOrEqualTo(CardConfigs.ChainReaction.SpawnSize,
+                   $"spawned mine at {pos} should be near initial target (3,4), not near flagged mine (3,2)");
         }
     }
 
@@ -314,14 +297,13 @@ public class ChainReactionTests
                                            t t m t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var ownerId = board.OwnerId;
+
         var result = new ChainReaction(board,
             new CardUsePayload.ChainReaction { Position = new Position(2, 2) },
-            CardConfigs.ChainReaction
-        ).Use();
+            CardConfigs.ChainReaction).Use();
 
         var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
         actionData.Should().NotBeNull();

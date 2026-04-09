@@ -35,14 +35,13 @@ public class TaskBalancerExceptionPenaltyTest
             var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
 
             var config = new TestBalancerConfig(new TaskBalancerOptions
-                {
-                    EmptyDelayMs = 1,
-                    NextDelayMs = 0,
-                    ConcurrentTasks = 4,
-                    IterationScore = 0,
-                    ExceptionPenalty = 1
-                }
-            );
+            {
+                EmptyDelayMs = 1,
+                NextDelayMs = 0,
+                ConcurrentTasks = 4,
+                IterationScore = 0,
+                ExceptionPenalty = 1
+            });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
             balancer.Run(handle.Lifetime);
@@ -56,17 +55,13 @@ public class TaskBalancerExceptionPenaltyTest
                 var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
                 // Task fails once, then succeeds on retry
-                queue.Enqueue(new TestPriorityTask(
-                        Guid.NewGuid().ToString(),
-                        TaskPriority.Medium,
-                        failCount: 1,
-                        execute: () =>
-                        {
-                            tcs.TrySetResult();
-                            return Task.CompletedTask;
-                        }
-                    )
-                );
+                queue.Enqueue(new TestPriorityTask(Guid.NewGuid().ToString(),
+                    TaskPriority.Medium,
+                    failCount: 1,
+                    execute: () => {
+                        tcs.TrySetResult();
+                        return Task.CompletedTask;
+                    }));
 
                 await tcs.Task;
                 handle.Metrics.Inc();

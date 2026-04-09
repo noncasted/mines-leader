@@ -3,7 +3,7 @@ using Global.Systems;
 using Internal;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     public class SpriteAnimation : IAnimation, IUpdatable, IScopeSetup
     {
@@ -27,7 +27,7 @@ namespace Common.Animations
 
         private IUpdatableSpriteAnimation _current;
         private IReadOnlyLifetime _lifetime;
-        
+
         public bool IsPlaying => _current != null;
         public IUpdatableSpriteAnimation Current => _current;
 

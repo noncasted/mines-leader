@@ -1,7 +1,7 @@
-﻿using Common.Network;
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using Global.UI;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -30,37 +30,34 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _restoreMovesButton.ListenClick(lifetime, () =>
-                {
-                    if (_round.IsTurnAllowed == false)
-                        return;
+            _restoreMovesButton.ListenClick(lifetime, () => {
+                if (_round.IsTurnAllowed == false)
+                    return;
 
-                    _connection.Request(new GameCheatContexts.ChangeMoves()
-                        {
-                            Value = 100000
-                        });
-                });
-
-            _winButton.ListenClick(lifetime, () =>
+                _connection.Request(new GameCheatContexts.ChangeMoves()
                 {
-                    _connection.Request(new GameCheatContexts.EndMatch()
-                        {
-                            Winner = _gameContext.Self.Id
-                        });
+                    Value = 100000
                 });
+            });
 
-            _loseButton.ListenClick(lifetime, () =>
+            _winButton.ListenClick(lifetime, () => {
+                _connection.Request(new GameCheatContexts.EndMatch()
                 {
-                    _connection.Request(new GameCheatContexts.EndMatch()
-                        {
-                            Winner = _gameContext.Other.Id
-                        });
+                    Winner = _gameContext.Self.Id
                 });
+            });
+
+            _loseButton.ListenClick(lifetime, () => {
+                _connection.Request(new GameCheatContexts.EndMatch()
+                {
+                    Winner = _gameContext.Other.Id
+                });
+            });
         }
     }
 }

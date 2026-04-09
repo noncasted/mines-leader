@@ -19,9 +19,9 @@ var meta = builder.AddProject<MetaGateway>("meta");
 var console = builder.AddProject<ConsoleGateway>("console");
 
 var game = builder.AddProject<GameGateway>("game")
-    .WithEnvironment(options =>
-        options.EnvironmentVariables["GAME_SERVER_URL"] = Environment.GetEnvironmentVariable("GAME_SERVER_URL")!
-    );
+                  .WithEnvironment(options =>
+                      options.EnvironmentVariables["GAME_SERVER_URL"] =
+                          Environment.GetEnvironmentVariable("GAME_SERVER_URL")!);
 
 SetupDB();
 
@@ -32,40 +32,38 @@ console.WaitFor(silo);
 
 SetDashboardToken();
 
-builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) =>
+builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) => {
+    for (var attempt = 1; attempt <= 5; attempt++)
     {
-        for (var attempt = 1; attempt <= 5; attempt++)
+        try
         {
-            try
-            {
-                var localSection = builder.Configuration.GetSection("Local");
-                var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
-                var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
+            var localSection = builder.Configuration.GetSection("Local");
+            var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
+            var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
 
-                if (requiresDrop == true)
-                    await StatesDrop.Run(configuration);
+            if (requiresDrop == true)
+                await StatesDrop.Run(configuration);
 
-                await StatesSetup.Run(configuration);
-                await SideEffectsSetup.Run(configuration);
-                await BenchmarkSetup.Run(configuration);
+            await StatesSetup.Run(configuration);
+            await SideEffectsSetup.Run(configuration);
+            await BenchmarkSetup.Run(configuration);
 
-                if (requiresCleanup == true)
-                    await StatesCleanup.Run(configuration);
+            if (requiresCleanup == true)
+                await StatesCleanup.Run(configuration);
 
-                return;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Aspire] Setup attempt {attempt}/5 failed: {ex.Message}");
-
-                if (attempt < 5)
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-            }
+            return;
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Aspire] Setup attempt {attempt}/5 failed: {ex.Message}");
 
-        Console.WriteLine("[Aspire] Setup failed after 5 attempts");
+            if (attempt < 5)
+                await Task.Delay(TimeSpan.FromSeconds(5));
+        }
     }
-);
+
+    Console.WriteLine("[Aspire] Setup failed after 5 attempts");
+});
 
 builder.Build().Run();
 
@@ -83,20 +81,17 @@ void SetupDB()
     };
 
     configuration.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["postgres"] = dbConnection,
-            ["ConnectionStrings__postgres"] = dbConnection
-        }
-    );
+    {
+        ["postgres"] = dbConnection,
+        ["ConnectionStrings__postgres"] = dbConnection
+    });
 
     foreach (var resource in projectResources)
     {
-        resource.WithEnvironment(context =>
-            {
-                context.EnvironmentVariables["postgres"] = dbConnection;
-                context.EnvironmentVariables["ConnectionStrings__postgres"] = dbConnection;
-            }
-        );
+        resource.WithEnvironment(context => {
+            context.EnvironmentVariables["postgres"] = dbConnection;
+            context.EnvironmentVariables["ConnectionStrings__postgres"] = dbConnection;
+        });
     }
 }
 
@@ -108,10 +103,9 @@ void SetDashboardToken()
         return;
 
     configuration.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["AppHost:BrowserToken"] = token,
-        }
-    );
+    {
+        ["AppHost:BrowserToken"] = token,
+    });
 }
 
 Task<string> GetOrCreateDb()
@@ -127,10 +121,10 @@ Task<string> GetOrCreateDb()
     var localDb = configuration.GetConnectionString("db")!;
 
     var parts = localDb
-        .Split(';', StringSplitOptions.RemoveEmptyEntries)
-        .Select(p => p.Split('=', 2))
-        .Where(p => p.Length == 2)
-        .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Split('=', 2))
+                .Where(p => p.Length == 2)
+                .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
 
     var host = parts["Server"];
     var port = int.Parse(parts["Port"]);
@@ -139,25 +133,25 @@ Task<string> GetOrCreateDb()
     var password = parts["Password"];
 
     var postgres = builder
-        .AddContainer("postgres", "postgres", "17.6")
-        .WithHttpEndpoint(port: port, targetPort: 5432, name: "tcp", isProxied: false)
-        .WithVolume("mines-leader-postgres-data", "/var/lib/postgresql/data")
-        .WithEnvironment("POSTGRES_PASSWORD", password)
-        .WithEnvironment("POSTGRES_DB", database)
-        .WithEnvironment("POSTGRES_USER", user)
-        .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
-        .WithLifetime(ContainerLifetime.Persistent);
+                   .AddContainer("postgres", "postgres", "17.6")
+                   .WithHttpEndpoint(port: port, targetPort: 5432, name: "tcp", isProxied: false)
+                   .WithVolume("mines-leader-postgres-data", "/var/lib/postgresql/data")
+                   .WithEnvironment("POSTGRES_PASSWORD", password)
+                   .WithEnvironment("POSTGRES_DB", database)
+                   .WithEnvironment("POSTGRES_USER", user)
+                   .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
+                   .WithLifetime(ContainerLifetime.Persistent);
 
     var pgbouncerPort = port + 1;
     var pgbouncerConfigPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/pgbouncer.ini");
     var pgbouncerUserlistPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/userlist.txt");
 
     builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
-        .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port", isProxied: false)
-        .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
-        .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
-        .WaitFor(postgres)
-        .WithLifetime(ContainerLifetime.Persistent);
+           .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port", isProxied: false)
+           .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
+           .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
+           .WaitFor(postgres)
+           .WithLifetime(ContainerLifetime.Persistent);
 
     var result = $"Host={host};Port={pgbouncerPort};Database={database};Username={user};Password={password}";
     Console.WriteLine($"[AppHost] [DB] Create db string from options: {result} (via PgBouncer:{pgbouncerPort})");

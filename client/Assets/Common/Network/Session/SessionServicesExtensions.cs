@@ -1,6 +1,6 @@
 ﻿using Internal;
 
-namespace Common.Network
+namespace Network
 {
     public static class SessionServicesExtensions
     {
@@ -19,22 +19,22 @@ namespace Common.Network
             void AddEntityServices()
             {
                 builder.Register<NetworkObjectsCollection>()
-                    .As<INetworkObjectsCollection>();
+                       .As<INetworkObjectsCollection>();
 
                 builder.Register<NetworkEntityCollection>()
-                    .As<INetworkEntitiesCollection>();
+                       .As<INetworkEntitiesCollection>();
 
                 builder.Register<NetworkEntitiesIds>()
-                    .As<INetworkEntityIds>();
+                       .As<INetworkEntityIds>();
 
                 builder.Register<NetworkEntityFactory>()
-                    .As<INetworkEntityFactory>();
+                       .As<INetworkEntityFactory>();
 
                 builder.Register<NetworkPropertiesCollector>()
-                    .As<IScopeSetup>();
+                       .As<IScopeSetup>();
 
                 builder.Register<NetworkEntityDestroyer>()
-                    .As<INetworkEntityDestroyer>();
+                       .As<INetworkEntityDestroyer>();
             }
 
             void AddEntityCommands()
@@ -51,19 +51,19 @@ namespace Common.Network
                 builder.AddNetworkConnection();
 
                 builder.Register<SessionConnection>()
-                    .As<ISessionConnection>();
+                       .As<ISessionConnection>();
 
                 builder.Register<NetworkSession>()
-                    .As<INetworkSession>();
+                       .As<INetworkSession>();
 
                 builder.Register<NetworkSessionCallbacks>()
-                    .As<INetworkSessionCallbacks>();
+                       .As<INetworkSessionCallbacks>();
             }
 
             void AddUserServices()
             {
                 builder.Register<NetworkUsersCollection>()
-                    .As<INetworkUsersCollection>();
+                       .As<INetworkUsersCollection>();
             }
 
             void AddUserCommands()

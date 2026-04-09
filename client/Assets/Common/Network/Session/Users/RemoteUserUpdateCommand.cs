@@ -1,7 +1,7 @@
 ﻿using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public class RemoteUserUpdateCommand : OneWayCommand<SharedSessionPlayer.RemoteUpdate>
     {

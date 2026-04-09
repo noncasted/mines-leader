@@ -37,10 +37,10 @@ public static class ProjectsSetupExtensions
 
             // Project services
             builder.Add<ClusterConfigsSetup>()
-                .As<ICoordinatorSetupCompleted>();
+                   .As<ICoordinatorSetupCompleted>();
 
             builder.Add<ClusterBotsSetup>()
-                .As<ICoordinatorSetupCompleted>();
+                   .As<ICoordinatorSetupCompleted>();
 
             return builder;
         }
@@ -83,8 +83,8 @@ public static class ProjectsSetupExtensions
                 .AddGlobalSessions();
 
             builder.Services
-                .AddOpenApi()
-                .AddCors();
+                   .AddOpenApi()
+                   .AddCors();
 
             return builder;
         }
@@ -101,7 +101,7 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Silo);
 
             builder.Add<SideEffectsWorker>()
-                .As<IHostedService>();
+                   .As<IHostedService>();
 
             return builder;
         }
@@ -122,10 +122,14 @@ public static class ProjectsSetupExtensions
 
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
+
             foreach (var type in testsAssembly.GetTypes())
             {
-                if (type.IsAbstract || type.IsInterface) continue;
-                if (!typeof(IClusterTest).IsAssignableFrom(type)) continue;
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
+
+                if (!typeof(IClusterTest).IsAssignableFrom(type))
+                    continue;
 
                 builder.Services.AddSingleton(type);
                 builder.Services.AddSingleton(typeof(IClusterTest), sp => sp.GetRequiredService(type));
@@ -142,7 +146,7 @@ public static class ProjectsSetupExtensions
             builder.Services.AddHostedService<ClusterParticipantStartup>();
 
             builder.Add<ClusterParticipantContext>()
-                .As<IClusterParticipantContext>();
+                   .As<IClusterParticipantContext>();
 
             builder
                 .AddEnvironment(serviceTag)
@@ -162,7 +166,7 @@ public static class ProjectsSetupExtensions
             builder.AddBotServices();
 
             builder.Add<DbSource>()
-                .As<IDbSource>();
+                   .As<IDbSource>();
 
             builder.Services.AddHostedService<MetricsSnapshotService>();
 
@@ -202,7 +206,7 @@ public static class ProjectsSetupExtensions
             var registry = new GrainStatesRegistry(states);
 
             builder.Add(registry)
-                .As<IGrainStatesRegistry>();
+                   .As<IGrainStatesRegistry>();
 
             return builder;
 
@@ -223,7 +227,7 @@ public static class ProjectsSetupExtensions
         private IHostApplicationBuilder AddSideEffects()
         {
             builder.Add<SideEffectsStorage>()
-                .As<ISideEffectsStorage>();
+                   .As<ISideEffectsStorage>();
 
             return builder;
         }
@@ -253,8 +257,8 @@ public static class ProjectsSetupExtensions
         private IHostApplicationBuilder AddBlazorComponents()
         {
             builder.Services
-                .AddRazorComponents()
-                .AddInteractiveServerComponents();
+                   .AddRazorComponents()
+                   .AddInteractiveServerComponents();
 
             return builder;
         }
@@ -267,19 +271,24 @@ public static class ProjectsSetupExtensions
 
             // Auto-discover all BenchmarkNode<> subclasses in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
+
             foreach (var type in testsAssembly.GetTypes())
             {
-                if (type.IsAbstract || type.IsInterface) continue;
-                if (!IsTestNodeType(type)) continue;
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
+
+                if (!IsTestNodeType(type))
+                    continue;
 
                 builder.Services.AddSingleton(type);
                 builder.Services.AddSingleton(typeof(ICoordinatorSetupCompleted), sp => sp.GetRequiredService(type));
             }
 
             builder.Add<StateMigrationTest.MigrationTestStep_V0>()
-                .As<IStateMigrationStep>();
+                   .As<IStateMigrationStep>();
+
             builder.Add<StateMigrationTest.MigrationTestStep_V1>()
-                .As<IStateMigrationStep>();
+                   .As<IStateMigrationStep>();
 
             return builder;
         }
@@ -287,6 +296,7 @@ public static class ProjectsSetupExtensions
         private static bool IsTestNodeType(Type type)
         {
             var current = type.BaseType;
+
             while (current != null)
             {
                 if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(BenchmarkNode<>))

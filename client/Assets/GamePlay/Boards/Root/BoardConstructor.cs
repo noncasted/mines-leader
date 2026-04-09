@@ -39,6 +39,7 @@ namespace GamePlay.Boards
                 {
 #if UNITY_EDITOR
                     var cell = PrefabUtility.InstantiatePrefab(_cellPrefab, transform) as CellView;
+
                     var position = new Vector3(
                         x * _cellSize + offset.x + x * _cellsOffset,
                         y * _cellSize + offset.y + y * _cellsOffset);

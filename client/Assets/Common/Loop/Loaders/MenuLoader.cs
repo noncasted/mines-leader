@@ -4,7 +4,7 @@ using Global.UI;
 using Menu.Common;
 using VContainer;
 
-namespace Loop
+namespace Loop.Loaders
 {
     public interface IMenuLoader
     {

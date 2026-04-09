@@ -64,6 +64,7 @@ public class MigrationTestStep_V1 : IStateMigrationStep
     public IStateValue Migrate(IStateValue value)
     {
         var v0 = (MigrationTestState_0)value;
+
         return new MigrationTestState_1
         {
             Value = v0.Value,
@@ -98,6 +99,7 @@ public class MigrationTestStep_V2 : IStateMigrationStep
     public IStateValue Migrate(IStateValue value)
     {
         var v1 = (MigrationTestState_1)value;
+
         return new MigrationTestState_2
         {
             Value = v1.Value,
@@ -153,6 +155,7 @@ public class MigrationV2TestStep_V1 : IStateMigrationStep
     public IStateValue Migrate(IStateValue value)
     {
         var v0 = (MigrationTestState_0)value;
+
         return new MigrationTestState_1
         {
             Value = v0.Value,

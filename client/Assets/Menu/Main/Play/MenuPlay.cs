@@ -50,7 +50,7 @@ namespace Menu.Main
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMenuPlay>();
+                   .As<IMenuPlay>();
         }
 
         private void OnEnable()
@@ -85,21 +85,19 @@ namespace Menu.Main
             var completion = new UniTaskCompletionSource<(bool, GameMatchType)>();
 
             _button.ListenClick(_selectionLifetime, () => completion.TrySetResult((false, GameMatchType.Single)));
+
             _timeLimited.ListenClick(_selectionLifetime,
-                () => completion.TrySetResult((true, GameMatchType.TimeLimited))
-          );
+                () => completion.TrySetResult((true, GameMatchType.TimeLimited)));
+
             _lastManStanding.ListenClick(_selectionLifetime,
-                () => completion.TrySetResult((true, GameMatchType.LastManStanding))
-          );
+                () => completion.TrySetResult((true, GameMatchType.LastManStanding)));
 
             _modeSelection.SetActive(true);
 
-            _selectionLifetime.Listen(() =>
-                {
-                    _modeSelection.SetActive(false);
-                    completion.TrySetCanceled();
-                }
-          );
+            _selectionLifetime.Listen(() => {
+                _modeSelection.SetActive(false);
+                completion.TrySetCanceled();
+            });
 
             var (confirmed, type) = await completion.Task;
 
@@ -124,14 +122,13 @@ namespace Menu.Main
             _buttonText.text = "cancel";
             _time = 0;
 
-            _updater.RunUpdateAction(_searchLifetime, delta =>
-                    {
-                        _time += delta;
-                        var timeSpan = TimeSpan.FromSeconds(_time);
-                        _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
-                    }
-                )
-                .Forget();
+            _updater.RunUpdateAction(_searchLifetime, delta => {
+                                _time += delta;
+                                var timeSpan = TimeSpan.FromSeconds(_time);
+                                _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
+                            }
+                        )
+                    .Forget();
 
             var sessionData = await _matchmaking.SearchGame(_searchLifetime, type);
             _gameFound.Invoke(sessionData);

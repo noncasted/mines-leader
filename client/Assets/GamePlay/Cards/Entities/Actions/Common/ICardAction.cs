@@ -33,11 +33,11 @@ namespace GamePlay.Cards
             where TData : ICardActionData
         {
             builder.Register<Resolver<TImplementation, TData>>()
-                .As<ICardActionSync>()
-                .AsSelfResolvable();
+                   .As<ICardActionSync>()
+                   .AsSelfResolvable();
 
             return builder.Register<TImplementation>()
-                .As<ICardActionSync<TData>>();
+                          .As<ICardActionSync<TData>>();
         }
 
         public class Resolver<TImplementation, TData> : ICardActionSync

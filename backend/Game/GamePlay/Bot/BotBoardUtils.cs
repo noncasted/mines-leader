@@ -26,11 +26,12 @@ public class BotBoardUtils
     public Position FindRandomClosedCell()
     {
         var board = _context.Bot.Board;
+
         var closedCells = board.Cells
-            .Where(kvp => kvp.Value.Status == CellStatus.Taken)
-            .Where(kvp => !kvp.Value.AsTaken().IsFlagged)
-            .Select(kvp => kvp.Key)
-            .ToList();
+                               .Where(kvp => kvp.Value.Status == CellStatus.Taken)
+                               .Where(kvp => !kvp.Value.AsTaken().IsFlagged)
+                               .Select(kvp => kvp.Key)
+                               .ToList();
 
         if (closedCells.Count == 0)
             return new Position(-1, -1);
@@ -42,10 +43,11 @@ public class BotBoardUtils
     public Position FindRandomTakenPosition(bool opponent = false)
     {
         var board = opponent ? _context.Opponent.Board : _context.Bot.Board;
+
         var takenCells = board.Cells
-            .Where(kvp => kvp.Value.Status == CellStatus.Taken)
-            .Select(kvp => kvp.Key)
-            .ToList();
+                              .Where(kvp => kvp.Value.Status == CellStatus.Taken)
+                              .Select(kvp => kvp.Key)
+                              .ToList();
 
         if (takenCells.Count == 0)
             return new Position(-1, -1);
@@ -57,12 +59,13 @@ public class BotBoardUtils
     public Position FindClosestUnflaggedMine()
     {
         var board = _context.Bot.Board;
+
         var unflaggedMines = board.Cells
-            .Where(kvp => kvp.Value.Status == CellStatus.Taken)
-            .Where(kvp => !kvp.Value.AsTaken().IsFlagged)
-            .Where(kvp => kvp.Value.AsTaken().HasMine)
-            .Select(kvp => kvp.Key)
-            .ToList();
+                                  .Where(kvp => kvp.Value.Status == CellStatus.Taken)
+                                  .Where(kvp => !kvp.Value.AsTaken().IsFlagged)
+                                  .Where(kvp => kvp.Value.AsTaken().HasMine)
+                                  .Select(kvp => kvp.Key)
+                                  .ToList();
 
         if (unflaggedMines.Count == 0)
             return new Position(-1, -1);
@@ -73,11 +76,12 @@ public class BotBoardUtils
     public Position FindRandomFlaggedPosition(bool opponent = false)
     {
         var board = opponent ? _context.Opponent.Board : _context.Bot.Board;
+
         var flaggedCells = board.Cells
-            .Where(kvp => kvp.Value.Status == CellStatus.Taken)
-            .Where(kvp => kvp.Value.AsTaken().IsFlagged)
-            .Select(kvp => kvp.Key)
-            .ToList();
+                                .Where(kvp => kvp.Value.Status == CellStatus.Taken)
+                                .Where(kvp => kvp.Value.AsTaken().IsFlagged)
+                                .Select(kvp => kvp.Key)
+                                .ToList();
 
         if (flaggedCells.Count == 0)
             return new Position(-1, -1);
@@ -89,10 +93,11 @@ public class BotBoardUtils
     public Position FindRandomFreePosition(bool opponent = false)
     {
         var board = opponent ? _context.Opponent.Board : _context.Bot.Board;
+
         var freeCells = board.Cells
-            .Where(kvp => kvp.Value.Status == CellStatus.Free)
-            .Select(kvp => kvp.Key)
-            .ToList();
+                             .Where(kvp => kvp.Value.Status == CellStatus.Free)
+                             .Select(kvp => kvp.Key)
+                             .ToList();
 
         if (freeCells.Count == 0)
             return new Position(-1, -1);

@@ -118,7 +118,7 @@ namespace Docs.Claude
             {
                 // Register this component as service
                 builder.RegisterComponent(this)
-                    .As<IMyGameService>();
+                       .As<IMyGameService>();
 
                 // Register other dependencies
                 // builder.RegisterSingleton<ILogger, ConsoleLogger>();
@@ -129,8 +129,8 @@ namespace Docs.Claude
 
         // Example: MonoBehaviour service pattern (MANDATORY)
         public class Example_MonoBehaviourService : MonoBehaviour,
-            ISceneService,
-            IScopeSetup
+                                                    ISceneService,
+                                                    IScopeSetup
         {
             private ILogger<Example_MonoBehaviourService> _logger;
 
@@ -145,7 +145,7 @@ namespace Docs.Claude
             public void Create(IScopeBuilder builder)
             {
                 builder.RegisterComponent(this)
-                    .As<IMyGameService>();
+                       .As<IMyGameService>();
             }
 
             // IScopeSetup - initialize when scope is set up
@@ -215,7 +215,7 @@ namespace Docs.Claude
             {
                 // Register component
                 builder.RegisterComponent(target)
-                    .As<ISceneService>();
+                       .As<ISceneService>();
 
                 // Connect to scope lifecycle events:
                 // - If implements IScopeBaseSetup → OnBaseSetup() called
@@ -289,7 +289,7 @@ namespace Docs.Claude
             public void Create(IScopeBuilder builder)
             {
                 builder.RegisterComponent(this)
-                    .As<IMyGameService>();
+                       .As<IMyGameService>();
             }
         }
 
@@ -340,7 +340,8 @@ namespace Docs.Claude
             public void OnSetup(IReadOnlyLifetime lifetime)
             {
                 // ✅ _baseSetupDone is guaranteed to be true
-                if (!_baseSetupDone) throw new InvalidOperationException();
+                if (!_baseSetupDone)
+                    throw new InvalidOperationException();
 
                 _setupDone = true;
             }
@@ -348,7 +349,8 @@ namespace Docs.Claude
             public void OnSetupCompletion(IReadOnlyLifetime lifetime)
             {
                 // ✅ Both BaseSetup and Setup are guaranteed to be done
-                if (!_setupDone) throw new InvalidOperationException();
+                if (!_setupDone)
+                    throw new InvalidOperationException();
             }
         }
 

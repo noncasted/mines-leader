@@ -22,7 +22,7 @@ namespace Menu.Social
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMenuPlayerChatView>();
+                   .As<IMenuPlayerChatView>();
         }
 
         public void ShowMessage(string message)
@@ -33,16 +33,14 @@ namespace Menu.Social
 
             _text.text = message;
 
-            UniTask.Create(async () =>
-                {
-                    await UniTask.Delay(TimeSpan.FromSeconds(_time));
+            UniTask.Create(async () => {
+                await UniTask.Delay(TimeSpan.FromSeconds(_time));
 
-                    if (indexSave != _index)
-                        return;
+                if (indexSave != _index)
+                    return;
 
-                    _text.text = string.Empty;
-                }
-          );
+                _text.text = string.Empty;
+            });
         }
     }
 }

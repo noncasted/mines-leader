@@ -62,8 +62,7 @@ public class UserProgression : UserGrain, IUserProgression
         _logger.LogInformation("[User] [Progression] User {Id} received experience {Amount} from {RecordType}",
             this.GetPrimaryKey(),
             record.GetExperience(),
-            record.GetType().FullName
-        );
+            record.GetType().FullName);
 
         var state = await _state.Update(state => state.AddRecord(record));
         await this.SendCachedProjection(state);

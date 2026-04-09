@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Common.Animations
+namespace Animations
 {
     [InlineEditor]
     [CreateAssetMenu(fileName = "AnimationData", menuName = "Common/Animator/Animation")]

@@ -1,7 +1,7 @@
-﻿using Common.Network;
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
+using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -25,7 +25,7 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMatchStarted>();
+                   .As<IMatchStarted>();
         }
 
 
@@ -33,18 +33,17 @@ namespace GamePlay.Cheats
         {
             var hand = localPlayer.Hand;
 
-            hand.Entries.View(lifetime, (cardLifetime, card) =>
-                {
-                    var view = Instantiate(_prefab, _root);
-                    view.Setup(card.Definition);
-                    cardLifetime.Listen(() => Destroy(view.gameObject));
+            hand.Entries.View(lifetime, (cardLifetime, card) => {
+                var view = Instantiate(_prefab, _root);
+                view.Setup(card.Definition);
+                cardLifetime.Listen(() => Destroy(view.gameObject));
 
-                    view.Clicked.Advise(lifetime, () => _connection.Request(new GameCheatContexts.CardRemove()
-                            {
-                                CardId = card.Id
-                            }
-                        ));
-                });
+                view.Clicked.Advise(lifetime, () => _connection.Request(new GameCheatContexts.CardRemove()
+                        {
+                            CardId = card.Id
+                        }
+                    ));
+            });
         }
     }
 }

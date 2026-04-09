@@ -20,8 +20,8 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<Request>()
-                .Add<Response>();
+                   .Add<Request>()
+                   .Add<Response>();
         }
     }
 }

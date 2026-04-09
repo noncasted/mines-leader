@@ -18,7 +18,7 @@ namespace Menu.Services
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMenuMoveArea>();
+                   .As<IMenuMoveArea>();
         }
     }
 }

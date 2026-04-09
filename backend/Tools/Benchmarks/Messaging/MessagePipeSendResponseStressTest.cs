@@ -60,22 +60,18 @@ public class MessagePipeSendResponseStressTest
 
             handle.Progress.Log("Setting up request-response handler...");
 
-            await Messaging.AddPipeRequestHandler<RequestPayload, ResponsePayload>(
-                handle.Lifetime,
+            await Messaging.AddPipeRequestHandler<RequestPayload, ResponsePayload>(handle.Lifetime,
                 new RuntimePipeId(TestName),
-                OnRequest
-            );
+                OnRequest);
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test nodes...");
 
-            await Task.WhenAll(
-                handle.StartNode(ServiceTag.Game, TestName, payload),
+            await Task.WhenAll(handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
                 handle.StartNode(ServiceTag.Coordinator, TestName, payload),
                 handle.StartNode(ServiceTag.Silo, TestName, payload),
-                handle.StartNode(ServiceTag.Console, TestName, payload)
-            );
+                handle.StartNode(ServiceTag.Console, TestName, payload));
 
             await completion.Task;
 
@@ -128,33 +124,27 @@ public class MessagePipeSendResponseStressTest
                         "Sending request-response message {MessageIndex}/{TotalMessages} from {Service}",
                         i + 1,
                         payload.MessageCount,
-                        Environment.Tag.ToString()
-                    );
+                        Environment.Tag.ToString());
 
-                    var response = await Messaging.SendPipe<ResponsePayload>(
-                        new RuntimePipeId(TestName),
+                    var response = await Messaging.SendPipe<ResponsePayload>(new RuntimePipeId(TestName),
                         new RequestPayload
                         {
                             Service = Environment.Tag.ToString(),
                             MessageIndex = i + 1
-                        }
-                    );
+                        });
 
                     Logger.LogInformation(
                         "Successfully received response for message {MessageIndex}/{TotalMessages}: {ResponseMessage}",
                         i + 1,
                         payload.MessageCount,
-                        response.Message
-                    );
+                        response.Message);
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(
-                        e,
+                    Logger.LogError(e,
                         "Failed to send request-response message {MessageIndex}/{TotalMessages}",
                         i + 1,
-                        payload.MessageCount
-                    );
+                        payload.MessageCount);
                 }
             }
         }

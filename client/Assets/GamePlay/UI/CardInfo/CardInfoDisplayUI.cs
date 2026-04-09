@@ -3,7 +3,7 @@ using Internal;
 using TMPro;
 using UnityEngine;
 
-namespace GamePlay.UI
+namespace GamePlay.UI.CardInfo
 {
     [DisallowMultipleComponent]
     public class CardInfoDisplayUI : MonoBehaviour, ISceneService
@@ -51,6 +51,7 @@ namespace GamePlay.UI
         private IEnumerator FadeIn()
         {
             float elapsed = 0f;
+
             while (elapsed < _fadeInDuration)
             {
                 elapsed += Time.deltaTime;
@@ -64,6 +65,7 @@ namespace GamePlay.UI
         private IEnumerator FadeOut()
         {
             float elapsed = 0f;
+
             while (elapsed < _fadeOutDuration)
             {
                 elapsed += Time.deltaTime;

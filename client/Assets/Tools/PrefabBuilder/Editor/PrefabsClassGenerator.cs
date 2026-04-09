@@ -31,10 +31,13 @@ namespace Tools
             sb.AppendLine("}");
 
             var newContent = sb.ToString();
+
             if (File.Exists(OutputPath))
             {
                 var existingContent = File.ReadAllText(OutputPath);
-                if (existingContent == newContent) return;
+
+                if (existingContent == newContent)
+                    return;
             }
 
             File.WriteAllText(OutputPath, newContent);
@@ -44,6 +47,7 @@ namespace Tools
         private static string SanitizeIdentifier(string name)
         {
             var sb = new StringBuilder(name.Length);
+
             foreach (var c in name)
             {
                 if (char.IsLetterOrDigit(c))

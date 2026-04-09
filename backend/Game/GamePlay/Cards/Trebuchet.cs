@@ -47,8 +47,9 @@ public class Trebuchet : ICard
         }
 
         var minesTargets = new List<ICell>();
+
         var cellsByY = Enumerable.GroupBy<ICell, int>(selected, cell => cell.Position.y)
-            .OrderByDescending(group => group.Key);
+                                 .OrderByDescending(group => group.Key);
 
         foreach (var group in cellsByY)
         {

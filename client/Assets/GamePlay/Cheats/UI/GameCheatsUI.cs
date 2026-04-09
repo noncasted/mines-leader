@@ -19,7 +19,7 @@ namespace GamePlay.Cheats
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
 
             gameObject.SetActive(false);
         }

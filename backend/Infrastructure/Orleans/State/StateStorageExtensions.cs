@@ -51,14 +51,13 @@ public static class StateStorageExtensions
             var stateInfo = storage.Registry.Get<T>();
 
             var identities = keys.Select(key => new StateIdentity
-                    {
-                        Key = key,
-                        Type = stateInfo.Name,
-                        TableName = stateInfo.TableName,
-                        Extension = null
-                    }
-                )
-                .ToList();
+                                 {
+                                     Key = key,
+                                     Type = stateInfo.Name,
+                                     TableName = stateInfo.TableName,
+                                     Extension = null
+                                 })
+                                 .ToList();
 
             return storage.Delete(identities);
         }

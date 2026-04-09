@@ -65,8 +65,7 @@ public class BackendConnectionMiddleware
 
         _logger.LogInformation("[Backend] [Meta] User connected: {Connection} {UserId}",
             context.Connection.Id,
-            auth
-        );
+            auth);
 
         var completion = new TaskCompletionSource();
 
@@ -77,24 +76,21 @@ public class BackendConnectionMiddleware
         {
             _logger.LogWarning("[Backend] [Meta] User connection failed - user does not exist: {Connection} {UserId}",
                 context.Connection.Id,
-                auth.UserId
-            );
+                auth.UserId);
 
             await handle.SendResponse(new SharedBackendSocketAuth.Response()
-                {
-                    IsSuccess = false
-                }
-            );
+            {
+                IsSuccess = false
+            });
 
             handle.Dispose();
             return;
         }
 
         await handle.SendResponse(new SharedBackendSocketAuth.Response()
-            {
-                IsSuccess = true
-            }
-        );
+        {
+            IsSuccess = true
+        });
 
         handle.Dispose();
         var lifetime = new Lifetime();
@@ -118,8 +114,7 @@ public class BackendConnectionMiddleware
         {
             _logger.LogError(e, "[Game] [Meta] Error during user connection handling: {Connection} {UserId}",
                 context.Connection.Id,
-                auth.UserId
-            );
+                auth.UserId);
         }
         finally
         {
@@ -128,8 +123,7 @@ public class BackendConnectionMiddleware
 
             _logger.LogInformation("[Game] [Meta] User disconnected: {Connection} {UserId}",
                 context.Connection.Id,
-                auth.UserId
-            );
+                auth.UserId);
         }
     }
 }
@@ -139,11 +133,10 @@ public static class BackendMiddlewareExtensions
     public static IApplicationBuilder AddBackendMiddleware(this IApplicationBuilder app)
     {
         app.UseCors(x => x
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .SetIsOriginAllowed(_ => true)
-            .AllowCredentials()
-        );
+                         .AllowAnyMethod()
+                         .AllowAnyHeader()
+                         .SetIsOriginAllowed(_ => true)
+                         .AllowCredentials());
 
         app.UseWebSockets();
         app.UseMiddleware<BackendConnectionMiddleware>();

@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Loop
+namespace Loop.Loaders
 {
     public interface IGameLoopScopeLoader
     {

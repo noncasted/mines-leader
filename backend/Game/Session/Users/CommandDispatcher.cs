@@ -30,24 +30,20 @@ public class CommandDispatcher : ICommandDispatcher
 
         void HandleOneWay(OneWayMessageFromClient oneWay)
         {
-            _executionQueue.Enqueue(() =>
-                {
-                    var type = oneWay.Context.GetType();
-                    var command = _commands.OneWay[type];
-                    command.Execute(user, oneWay.Context);
-                }
-            );
+            _executionQueue.Enqueue(() => {
+                var type = oneWay.Context.GetType();
+                var command = _commands.OneWay[type];
+                command.Execute(user, oneWay.Context);
+            });
         }
 
         void HandleRequest(RequestMessageFromClient request)
         {
-            _executionQueue.Enqueue(() =>
-                {
-                    var type = request.Context.GetType();
-                    var result = _commands.Responsible[type].Execute(user, request.Context);
-                    writer.WriteResponse(result, request.RequestId);
-                }
-            );
+            _executionQueue.Enqueue(() => {
+                var type = request.Context.GetType();
+                var result = _commands.Responsible[type].Execute(user, request.Context);
+                writer.WriteResponse(result, request.RequestId);
+            });
         }
 
         void HandleResponse(ResponseMessageFromClient response)

@@ -42,8 +42,8 @@ namespace GamePlay.Services
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IGameCamera>()
-                .As<IScopeSetup>();
+                   .As<IGameCamera>()
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
@@ -55,13 +55,12 @@ namespace GamePlay.Services
         {
             var start = _camera.orthographicSize;
 
-            _updater.Progression(this.GetObjectLifetime(), time, progress =>
-                    {
-                        var newSize = Mathf.Lerp(start, size, progress);
-                        _camera.orthographicSize = newSize;
-                    }
-                )
-                .Forget();
+            _updater.Progression(this.GetObjectLifetime(), time, progress => {
+                                var newSize = Mathf.Lerp(start, size, progress);
+                                _camera.orthographicSize = newSize;
+                            }
+                        )
+                    .Forget();
         }
 
         public void Enable()

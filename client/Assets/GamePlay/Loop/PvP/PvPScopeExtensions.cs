@@ -1,11 +1,10 @@
 using System;
-using Common.Network;
 using Cysharp.Threading.Tasks;
 using GamePlay.UI;
 using Internal;
+using Network;
 using Shared;
 using Tools.SceneBuilder;
-using VContainer;
 
 namespace GamePlay.Loop
 {
@@ -41,7 +40,7 @@ namespace GamePlay.Loop
 
             var scope = await loader.Load(options);
             await scope.Initialize();
-            
+
             return scope;
         }
 
@@ -53,26 +52,26 @@ namespace GamePlay.Loop
             builder.Register<GameServicesInitializer>();
 
             builder.Register<PvPGameLoop>()
-                .As<IPvPGameLoop>();
+                   .As<IPvPGameLoop>();
 
             builder.AddNetworkService<GameState>("game-flow")
-                .WithProperty<GameFlowState>(1)
-                .Registration.As<IGameState>();
+                   .WithProperty<GameFlowState>(1)
+                   .Registration.As<IGameState>();
 
             builder.Register<MatchEventLoop>()
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
 
             switch (sessionData.Type)
             {
                 case GameMatchType.TimeLimited:
                     builder.AddNetworkService<TimeLimitedGameRound>("game-round")
-                        .WithProperty<TimeLimitedRoundState>(1)
-                        .Registration.As<IGameRound>();
+                           .WithProperty<TimeLimitedRoundState>(1)
+                           .Registration.As<IGameRound>();
                     break;
                 case GameMatchType.LastManStanding:
                     builder.AddNetworkService<LastManStandingRound>("game-round")
-                        .WithProperty<LastManStandingRoundState>(1)
-                        .Registration.As<IGameRound>();
+                           .WithProperty<LastManStandingRoundState>(1)
+                           .Registration.As<IGameRound>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

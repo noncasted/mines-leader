@@ -66,6 +66,7 @@ namespace Tools
             for (var i = 0; i < references.Count; i++)
             {
                 value += $"{Environment.NewLine}        \"GUID:{references[i].Id}\"";
+
                 if (i != references.Count - 1)
                     value += ",";
             }

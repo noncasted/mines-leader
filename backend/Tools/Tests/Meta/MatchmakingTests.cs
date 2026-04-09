@@ -40,15 +40,13 @@ public class MatchmakingTests
         var isInitialized = new ViewableProperty<bool>(false);
         _participantContext.IsInitialized.Returns(isInitialized);
 
-        _sut = new Matchmaking(
-            _matchFactory,
+        _sut = new Matchmaking(_matchFactory,
             _lobbyFactory,
             _users,
             _botConfig,
             _clusterFlags,
             _participantContext,
-            _logger
-        );
+            _logger);
     }
 
     [Fact]
@@ -63,16 +61,15 @@ public class MatchmakingTests
     public async Task Create_CallsMatchFactory()
     {
         var userId = Guid.NewGuid();
+
         _matchFactory.Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>())
-            .Returns(Task.CompletedTask);
+                     .Returns(Task.CompletedTask);
 
         await _sut.Create(userId, GameMatchType.Single);
 
         await _matchFactory.Received(1)
-            .Create(
-                Arg.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == userId),
-                GameMatchType.Single
-            );
+                           .Create(Arg.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == userId),
+                               GameMatchType.Single);
         await _matchFactory.DidNotReceive().CreateWithBot(Arg.Any<Guid>(), Arg.Any<GameMatchType>());
     }
 
@@ -80,8 +77,9 @@ public class MatchmakingTests
     public async Task CreateWithBot_CallsMatchFactory()
     {
         var userId = Guid.NewGuid();
+
         _matchFactory.CreateWithBot(Arg.Any<Guid>(), Arg.Any<GameMatchType>())
-            .Returns(Task.CompletedTask);
+                     .Returns(Task.CompletedTask);
 
         await _sut.CreateWithBot(userId, GameMatchType.TimeLimited);
 

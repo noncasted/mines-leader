@@ -48,66 +48,51 @@ namespace Internal
         {
             await UniTask.SwitchToMainThread();
 
-            Invoke(_baseSetup, l =>
-                {
-                    l.OnBaseSetup(lifetime);
-                }
-          );
-            await InvokeAsync(_baseSetupAsync, l =>
-                {
-                    return l.OnBaseSetupAsync(lifetime);
-                }
-          );
+            Invoke(_baseSetup, l => {
+                l.OnBaseSetup(lifetime);
+            });
 
-            Invoke(_setup, l =>
-                {
-                    l.OnSetup(lifetime);
-                }
-          );
-            await InvokeAsync(_setupAsync, l =>
-                {
-                    return l.OnSetupAsync(lifetime);
-                }
-          );
+            await InvokeAsync(_baseSetupAsync, l => {
+                return l.OnBaseSetupAsync(lifetime);
+            });
 
-            Invoke(_setupCompletion, l =>
-                {
-                    l.OnSetupCompletion(lifetime);
-                }
-          );
-            await InvokeAsync(_setupCompletionAsync, l =>
-                {
-                    return l.OnSetupCompletionAsync(lifetime);
-                }
-          );
+            Invoke(_setup, l => {
+                l.OnSetup(lifetime);
+            });
+
+            await InvokeAsync(_setupAsync, l => {
+                return l.OnSetupAsync(lifetime);
+            });
+
+            Invoke(_setupCompletion, l => {
+                l.OnSetupCompletion(lifetime);
+            });
+
+            await InvokeAsync(_setupCompletionAsync, l => {
+                return l.OnSetupCompletionAsync(lifetime);
+            });
         }
 
         public async UniTask RunLoaded(IReadOnlyLifetime lifetime)
         {
-            Invoke(_loaded, l =>
-                {
-                    l.OnLoaded(lifetime);
-                }
-          );
-            await InvokeAsync(_loadedAsync, l =>
-                {
-                    return l.OnLoadedAsync(lifetime);
-                }
-          );
+            Invoke(_loaded, l => {
+                l.OnLoaded(lifetime);
+            });
+
+            await InvokeAsync(_loadedAsync, l => {
+                return l.OnLoadedAsync(lifetime);
+            });
         }
 
         public async UniTask RunDispose()
         {
-            Invoke(_dispose, l =>
-                {
-                    l.OnDispose();
-                }
-          );
-            await InvokeAsync(_disposeAsync, l =>
-                {
-                    return l.OnDisposeAsync();
-                }
-          );
+            Invoke(_dispose, l => {
+                l.OnDispose();
+            });
+
+            await InvokeAsync(_disposeAsync, l => {
+                return l.OnDisposeAsync();
+            });
         }
 
         private void Invoke<T>(IReadOnlyList<T> listeners, Action<T> invoker)

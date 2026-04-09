@@ -46,23 +46,22 @@ namespace GamePlay.Loop
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _state.Value.View(lifetime, (stateLifetime, state) =>
+            _state.Value.View(lifetime, (stateLifetime, state) => {
+                switch (state)
                 {
-                    switch (state)
-                    {
-                        case GameStateType.WaitingFoPlayers:
-                            OnWaitingForPlayers(stateLifetime);
-                            break;
-                        case GameStateType.Active:
-                            OnMatchStarted(stateLifetime, _context.Self);
-                            break;
-                        case GameStateType.Completed:
-                            OnMatchCompleted(stateLifetime, _state.CompletedData.Value);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(state), state, null);
-                    }
-                });
+                    case GameStateType.WaitingFoPlayers:
+                        OnWaitingForPlayers(stateLifetime);
+                        break;
+                    case GameStateType.Active:
+                        OnMatchStarted(stateLifetime, _context.Self);
+                        break;
+                    case GameStateType.Completed:
+                        OnMatchCompleted(stateLifetime, _state.CompletedData.Value);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(state), state, null);
+                }
+            });
         }
 
         private void OnWaitingForPlayers(IReadOnlyLifetime lifetime)

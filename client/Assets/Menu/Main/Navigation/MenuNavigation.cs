@@ -33,8 +33,8 @@ namespace Menu.Main
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IMenuNavigation>()
-                .As<IScopeSetup>();
+                   .As<IMenuNavigation>()
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)

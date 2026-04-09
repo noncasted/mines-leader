@@ -148,12 +148,11 @@ public class SideEffectsStorage : ISideEffectsStorage
             {
                 // If deserialization fails, the entry stays in processing and will be failed later.
                 entries.Add(new SideEffectEntry
-                    {
-                        Id = id,
-                        Effect = new DeadLetterSideEffect(),
-                        RetryCount = retryCount
-                    }
-                );
+                {
+                    Id = id,
+                    Effect = new DeadLetterSideEffect(),
+                    RetryCount = retryCount
+                });
             }
         }
 
@@ -199,6 +198,7 @@ public class SideEffectsStorage : ISideEffectsStorage
 
         await using var insertCommand = conn.CreateCommand();
         insertCommand.Transaction = tx;
+
         insertCommand.CommandText = @"
             INSERT INTO side_effects_retry_queue (id, payload, retry_count, created_at, retry_after)
             SELECT id, payload, @newRetryCount, created_at, @retryAfter
@@ -223,6 +223,7 @@ public class SideEffectsStorage : ISideEffectsStorage
     {
         await using var connection = await _dbSource.Value.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
+
         command.CommandText = @"
             WITH stuck AS (
                 DELETE FROM side_effects_processing
@@ -239,6 +240,7 @@ public class SideEffectsStorage : ISideEffectsStorage
     {
         await using var connection = await _dbSource.Value.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
+
         command.CommandText = @"
             WITH ready AS (
                 DELETE FROM side_effects_retry_queue

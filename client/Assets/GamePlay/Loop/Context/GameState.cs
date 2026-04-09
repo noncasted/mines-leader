@@ -1,7 +1,7 @@
 ﻿using System;
-using Common.Network;
 using Cysharp.Threading.Tasks;
 using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Loop
@@ -45,18 +45,17 @@ namespace GamePlay.Loop
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _state.Advise(lifetime, state =>
+            _state.Advise(lifetime, state => {
+                if (state.Winner == Guid.Empty)
+                    return;
+
+                var player = _context.GetPlayer(state.Winner);
+
+                _completion.TrySetResult(new MatchCompletedData()
                 {
-                    if (state.Winner == Guid.Empty)
-                        return;
-
-                    var player = _context.GetPlayer(state.Winner);
-
-                    _completion.TrySetResult(new MatchCompletedData()
-                        {
-                            Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
-                        });
+                    Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
                 });
+            });
         }
 
         public void Set(GameStateType type)
@@ -74,9 +73,9 @@ namespace GamePlay.Loop
         public void OnLeave()
         {
             _completion.TrySetResult(new MatchCompletedData()
-                {
-                    Type = MatchResultType.Leave
-                });
+            {
+                Type = MatchResultType.Leave
+            });
         }
     }
 }

@@ -69,8 +69,7 @@ public class Transactions : ITransactions
         {
             _logger.LogError(e,
                 "[Transaction] [Error] In action exception occured during transaction {TransactionId}",
-                context.Id
-            );
+                context.Id);
 
             await Rollback(context);
             BackendMetrics.TransactionTotal.Add(1);
@@ -93,8 +92,7 @@ public class Transactions : ITransactions
         {
             _logger.LogError(e,
                 "[Transaction] [Error] Failed to collect commit result during transaction {TransactionId}",
-                context.Id
-            );
+                context.Id);
 
             await Rollback(context);
             BackendMetrics.TransactionTotal.Add(1);
@@ -134,8 +132,7 @@ public class Transactions : ITransactions
             {
                 _logger.LogError(e,
                     "[Transaction] [Error] Failed to record changes during transaction {TransactionId}",
-                    context.Id
-                );
+                    context.Id);
 
                 await transaction.RollbackAsync();
                 throw;
@@ -145,8 +142,7 @@ public class Transactions : ITransactions
         {
             _logger.LogError(e,
                 "[Transaction] [Error] Failed to commit to db during transaction {TransactionId}",
-                context.Id
-            );
+                context.Id);
 
             await Rollback(context);
             BackendMetrics.TransactionTotal.Add(1);
@@ -191,11 +187,10 @@ public class Transactions : ITransactions
                 foreach (var state in result.States)
                 {
                     grainStates.Add(new GrainStateRecord
-                        {
-                            Id = participantId,
-                            Value = state
-                        }
-                    );
+                    {
+                        Id = participantId,
+                        Value = state
+                    });
                 }
 
                 return new TransactionCommitResult

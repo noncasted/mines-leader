@@ -36,20 +36,16 @@ public class TransactionTestGrain : Grain, ITransactionTestGrain
 
     public Task Increment()
     {
-        return _state.Write(s =>
-            {
-                s.Value += 1;
-            }
-        );
+        return _state.Write(s => {
+            s.Value += 1;
+        });
     }
 
     public async Task IncrementWithDelay(int delayMs)
     {
-        await _state.Write(s =>
-            {
-                s.Value += 1;
-            }
-        );
+        await _state.Write(s => {
+            s.Value += 1;
+        });
         await Task.Delay(delayMs);
     }
 

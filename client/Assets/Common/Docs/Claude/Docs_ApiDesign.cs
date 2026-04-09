@@ -104,6 +104,7 @@ namespace Docs.Claude
                 // 1. Validate extension
                 var extension = Path.GetExtension(path).ToLowerInvariant();
                 var validExtensions = new[] { ".png", ".jpg", ".jpeg" };
+
                 if (Array.IndexOf(validExtensions, extension) < 0)
                 {
                     return null; // Unsupported format
@@ -122,11 +123,11 @@ namespace Docs.Claude
 
                 // 4. Create sprite from texture
                 var sprite = Sprite.Create(
-                    texture,
-                    new Rect(0, 0, texture.width, texture.height),
-                    Vector2.one * 0.5f, // Pivot at center
-                    100f // PixelsPerUnit
-              );
+                        texture,
+                        new Rect(0, 0, texture.width, texture.height),
+                        Vector2.one * 0.5f, // Pivot at center
+                        100f // PixelsPerUnit
+                    );
 
                 return sprite;
             }
@@ -146,6 +147,7 @@ namespace Docs.Claude
             foreach (var path in paths)
             {
                 var sprite = LoadSpriteFromPath(path);
+
                 if (sprite != null)
                 {
                     loadedSprites.Add(sprite); // Only add successful loads
@@ -166,18 +168,15 @@ namespace Docs.Claude
 
             // FileBrowser uses callbacks, not returns
             var dialogResult = SimpleFileBrowser.FileBrowser.ShowLoadDialog(
-                onSuccess: paths =>
-                {
+                onSuccess: paths => {
                     selectedPaths.AddRange(paths); // Callback populates list
                 },
-                onCancel: () =>
-                {
+                onCancel: () => {
                     cancelled = true; // Flag for cancellation
                 },
                 pickMode: SimpleFileBrowser.FileBrowser.PickMode.Files,
                 allowMultiSelection: true,
-                title: title
-          );
+                title: title);
 
             // If dialog failed to open - return empty
             if (!dialogResult)
@@ -213,16 +212,13 @@ namespace Docs.Claude
             var cancelled = false;
 
             var dialogResult = callbackApi(
-                value =>
-                {
+                value => {
                     result = value;
                     completed = true;
                 },
-                () =>
-                {
+                () => {
                     cancelled = true;
-                }
-          );
+                });
 
             if (!dialogResult)
             {

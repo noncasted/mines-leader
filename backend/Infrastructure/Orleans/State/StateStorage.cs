@@ -88,8 +88,7 @@ public class StateStorage : IStateStorage
         catch (Exception e)
         {
             _logger.LogError(e, "[StateStorage] Failed to read {Type} key={Key} type={StateType}",
-                typeof(T).Name, stateIdentity.Key, stateIdentity.Type
-            );
+                typeof(T).Name, stateIdentity.Key, stateIdentity.Type);
 
             throw;
         }
@@ -132,8 +131,7 @@ public class StateStorage : IStateStorage
         catch (Exception e)
         {
             _logger.LogError(e, "[StateStorage] Failed to read raw key={Key} type={StateType}",
-                stateIdentity.Key, stateIdentity.Type
-            );
+                stateIdentity.Key, stateIdentity.Type);
 
             throw;
         }
@@ -229,8 +227,7 @@ public class StateStorage : IStateStorage
         catch (Exception e)
         {
             _logger.LogError(e, "[StateStorage] Failed to batch read {Type} count={Count}",
-                typeof(TValue).Name, identities.Count
-            );
+                typeof(TValue).Name, identities.Count);
 
             throw;
         }
@@ -264,18 +261,16 @@ public class StateStorage : IStateStorage
         try
         {
             await Write(transaction, new Dictionary<StateIdentity, IStateValue>
-                {
-                    { identity, value }
-                }
-            );
+            {
+                { identity, value }
+            });
 
             await transaction.CommitAsync();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[StateStorage] Failed to write {Type} key={Key} type={StateType}",
-                value.GetType().Name, identity.Key, identity.Type
-            );
+                value.GetType().Name, identity.Key, identity.Type);
             await transaction.RollbackAsync();
 
             throw;
@@ -425,8 +420,7 @@ public class StateStorage : IStateStorage
             catch (Exception e)
             {
                 _logger.LogError(e, "[StateStorage] Failed to batch write {Count} records to {Table}",
-                    entries.Count, tableName
-                );
+                    entries.Count, tableName);
 
                 throw;
             }

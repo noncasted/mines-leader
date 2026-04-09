@@ -128,6 +128,7 @@ namespace GamePlay.Cards
             for (var y = 0; y < length; y++)
             {
                 grid[y] = new bool[length];
+
                 for (var x = 0; x < length; x++)
                 {
                     grid[y][x] = horizontal ? y == center : x == center;

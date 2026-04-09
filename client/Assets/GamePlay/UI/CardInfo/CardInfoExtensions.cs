@@ -1,13 +1,13 @@
 using Internal;
 
-namespace GamePlay.UI
+namespace GamePlay.UI.CardInfo
 {
     public static class CardInfoExtensions
     {
         public static IScopeBuilder AddCardInfoService(this IScopeBuilder builder)
         {
             builder.Register<CardInfoDisplayService>()
-                .As<ICardInfoDisplayService>();
+                   .As<ICardInfoDisplayService>();
 
             return builder;
         }

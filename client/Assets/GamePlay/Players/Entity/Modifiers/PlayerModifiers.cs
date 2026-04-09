@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Players
@@ -26,11 +26,10 @@ namespace GamePlay.Players
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _state.Advise(lifetime, state =>
-                {
-                    foreach (var (type, value) in state.Values)
-                        _values[type] = value;
-                });
+            _state.Advise(lifetime, state => {
+                foreach (var (type, value) in state.Values)
+                    _values[type] = value;
+            });
         }
     }
 }

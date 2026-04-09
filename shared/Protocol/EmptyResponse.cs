@@ -34,6 +34,7 @@ namespace Shared
             catch (Exception e)
             {
                 throw;
+
                 return new EmptyResponse
                 {
                     HasError = true,

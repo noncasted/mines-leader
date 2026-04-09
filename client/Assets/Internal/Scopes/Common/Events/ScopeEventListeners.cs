@@ -32,7 +32,7 @@ namespace Internal
             foreach (var (type, resolver) in EventResolvers)
             {
                 builder.RegisterInstance(resolver)
-                    .As(type);
+                       .As(type);
             }
         }
     }

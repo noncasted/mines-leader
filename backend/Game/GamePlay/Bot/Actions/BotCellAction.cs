@@ -29,15 +29,13 @@ public class BotCellAction : IBotCellAction
         {
             var randomPosition = _context.Bot.Board.RandomPosition();
 
-            _commandUtils.WithSnapshot(() =>
-                {
-                    _context.Bot.Moves.OnUsed();
-                    board.Generator.Generate(randomPosition);
-                    board.Cells[randomPosition].ToFree();
-                    board.Revealer.Reveal(randomPosition);
-                    board.OnUpdated();
-                }
-            );
+            _commandUtils.WithSnapshot(() => {
+                _context.Bot.Moves.OnUsed();
+                board.Generator.Generate(randomPosition);
+                board.Cells[randomPosition].ToFree();
+                board.Revealer.Reveal(randomPosition);
+                board.OnUpdated();
+            });
 
             return true;
         }
@@ -45,16 +43,14 @@ public class BotCellAction : IBotCellAction
         if (TryGetFirstTargetCell(out var target) == false)
             return false;
 
-        _commandUtils.WithSnapshot(() =>
-            {
-                var taken = board.Cells[target].AsTaken();
+        _commandUtils.WithSnapshot(() => {
+            var taken = board.Cells[target].AsTaken();
 
-                _context.Bot.Moves.OnUsed();
-                taken.ToFree();
-                board.Revealer.Reveal(target);
-                board.OnUpdated();
-            }
-        );
+            _context.Bot.Moves.OnUsed();
+            taken.ToFree();
+            board.Revealer.Reveal(target);
+            board.OnUpdated();
+        });
 
         return true;
     }
@@ -74,19 +70,19 @@ public class BotCellAction : IBotCellAction
                 continue;
 
             var flagsAround = board
-                .NeighbourPositions(position)
-                .Where(p => board.Cells[p].Status == CellStatus.Taken)
-                .Select(p => board.Cells[p].AsTaken())
-                .Count(t => t.IsFlagged == true);
+                              .NeighbourPositions(position)
+                              .Where(p => board.Cells[p].Status == CellStatus.Taken)
+                              .Select(p => board.Cells[p].AsTaken())
+                              .Count(t => t.IsFlagged == true);
 
             if (flagsAround == 0)
                 continue;
 
             var notFlaggedNeighbours = board
-                .NeighbourPositions(position)
-                .Where(p => board.Cells[p].Status == CellStatus.Taken)
-                .Where(p => board.Cells[p].AsTaken().IsFlagged == false)
-                .ToList();
+                                       .NeighbourPositions(position)
+                                       .Where(p => board.Cells[p].Status == CellStatus.Taken)
+                                       .Where(p => board.Cells[p].AsTaken().IsFlagged == false)
+                                       .ToList();
 
             foreach (var neighbourPosition in notFlaggedNeighbours)
             {

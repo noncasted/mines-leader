@@ -8,9 +8,9 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<Request>()
-                .Add<Failure>()
-                .Add<Success>();
+                   .Add<Request>()
+                   .Add<Failure>()
+                   .Add<Success>();
         }
 
         [MemoryPackable]

@@ -7,7 +7,7 @@ namespace Menu.Common
         public static IScopeBuilder AddMenuLoop(this IScopeBuilder builder)
         {
             builder.Register<MenuLoop>()
-                .As<IMenuLoop>();
+                   .As<IMenuLoop>();
 
             return builder;
         }

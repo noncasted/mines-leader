@@ -22,26 +22,24 @@ public class BotFactory : IBotFactory
 
     public Task<Guid> Create(string name)
     {
-        return _orleans.Transactions.Run(async () =>
-            {
-                var id = Guid.NewGuid();
-                var handle = _orleans.CreateUserHandle(id);
+        return _orleans.Transactions.Run(async () => {
+            var id = Guid.NewGuid();
+            var handle = _orleans.CreateUserHandle(id);
 
-                await handle.Entity.Initialize();
-                await handle.Entity.SetName(name);
-                await handle.Deck.Initialize();
-                await handle.Auth.OnRegistered();
+            await handle.Entity.Initialize();
+            await handle.Entity.SetName(name);
+            await handle.Deck.Initialize();
+            await handle.Auth.OnRegistered();
 
-                var cards = new List<CardType>(DeckOptions.BotPool).Shuffle();
-                var selectedCards = cards.Take(DeckOptions.DeckSize).ToList();
-                await handle.Deck.Update(0, selectedCards);
+            var cards = new List<CardType>(DeckOptions.BotPool).Shuffle();
+            var selectedCards = cards.Take(DeckOptions.DeckSize).ToList();
+            await handle.Deck.Update(0, selectedCards);
 
-                var bot = _orleans.GetGrain<IBot>(id);
-                await bot.Initialize();
-                await bot.OnUpdated();
+            var bot = _orleans.GetGrain<IBot>(id);
+            await bot.Initialize();
+            await bot.OnUpdated();
 
-                return id;
-            }
-        );
+            return id;
+        });
     }
 }

@@ -53,19 +53,18 @@ namespace GamePlay.Cards
 
             var lifetime = _stateLifetime.OccupyLifetime();
 
-            await _updater.RunUpdateAction(lifetime, _options.Time, delta =>
-                {
-                    var moveFactor = moveCurve.StepForward(delta);
-                    var heightFactor = heightCurve.StepForward(delta);
-                    var rotationFactor = rotationCurve.StepForward(delta);
+            await _updater.RunUpdateAction(lifetime, _options.Time, delta => {
+                var moveFactor = moveCurve.StepForward(delta);
+                var heightFactor = heightCurve.StepForward(delta);
+                var rotationFactor = rotationCurve.StepForward(delta);
 
-                    var position = Vector2.Lerp(startPosition, positionHandle.SupposedPosition, moveFactor);
-                    position.y += heightFactor * _options.AddHeight;
+                var position = Vector2.Lerp(startPosition, positionHandle.SupposedPosition, moveFactor);
+                position.y += heightFactor * _options.AddHeight;
 
-                    var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
-                    _transform.SetPosition(position);
-                    _transform.SetRotation(rotation);
-                });
+                var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
+                _transform.SetPosition(position);
+                _transform.SetRotation(rotation);
+            });
 
             _localCard.SetSpawning(false);
             _idle.Enter();

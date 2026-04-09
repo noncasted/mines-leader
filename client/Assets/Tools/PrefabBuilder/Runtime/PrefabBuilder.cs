@@ -38,6 +38,7 @@ namespace Tools
         public PrefabBuilder WithRectTransform(Action<RectTransform> configure = null)
         {
             var rt = _gameObject.GetComponent<RectTransform>();
+
             if (rt == null)
                 rt = _gameObject.AddComponent<RectTransform>();
             configure?.Invoke(rt);
@@ -65,6 +66,7 @@ namespace Tools
         public static T LoadAsset<T>(string path) where T : Object
         {
             var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+
             if (asset == null)
             {
                 Debug.LogWarning($"[PrefabBuilder] Asset not found at '{path}'");
@@ -76,6 +78,7 @@ namespace Tools
         public static T LoadSubAsset<T>(string path, string subAssetName) where T : Object
         {
             var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+
             foreach (var asset in allAssets)
             {
                 if (asset is T typed && asset.name == subAssetName)
@@ -128,11 +131,11 @@ namespace Tools
         public PrefabBuilder SetSerialized<T>(string fieldName, object value) where T : Component
         {
             var target = _gameObject.GetComponent<T>();
+
             if (target == null)
             {
                 Debug.LogError(
-                    $"[PrefabBuilder] Component {typeof(T).Name} not found on '{_gameObject.name}'. Add it with WithComponent first."
-              );
+                    $"[PrefabBuilder] Component {typeof(T).Name} not found on '{_gameObject.name}'. Add it with WithComponent first.");
                 return this;
             }
 
@@ -170,6 +173,7 @@ namespace Tools
         public GameObject WithPrefabChild(string assetPath, string name = null)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
             if (prefab == null)
             {
                 Debug.LogError($"[PrefabBuilder] Prefab not found at '{assetPath}'");
@@ -177,7 +181,9 @@ namespace Tools
             }
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-            if (name != null) instance.name = name;
+
+            if (name != null)
+                instance.name = name;
             instance.transform.SetParent(_gameObject.transform, false);
             return instance;
         }
@@ -194,6 +200,7 @@ namespace Tools
         private void ApplyAllSerializedProperties()
         {
             ApplySerializedProperties();
+
             foreach (var child in _children)
             {
                 child.ApplyAllSerializedProperties();
@@ -202,10 +209,12 @@ namespace Tools
 
         private void ApplySerializedProperties()
         {
-            if (_serializedActions.Count == 0) return;
+            if (_serializedActions.Count == 0)
+                return;
 
             // Group actions by target component
             var grouped = new Dictionary<Component, List<(string fieldName, object value)>>();
+
             foreach (var action in _serializedActions)
             {
                 if (!grouped.TryGetValue(action.Target, out var list))
@@ -220,14 +229,15 @@ namespace Tools
             foreach (var (component, actions) in grouped)
             {
                 var so = new SerializedObject(component);
+
                 foreach (var (fieldName, value) in actions)
                 {
                     var property = so.FindProperty(fieldName);
+
                     if (property == null)
                     {
                         Debug.LogWarning(
-                            $"[PrefabBuilder] Property '{fieldName}' not found on {component.GetType().Name}"
-                      );
+                            $"[PrefabBuilder] Property '{fieldName}' not found on {component.GetType().Name}");
                         continue;
                     }
 
@@ -255,30 +265,37 @@ namespace Tools
                     property.boolValue = Convert.ToBoolean(value);
                     break;
                 case SerializedPropertyType.Color:
-                    if (value is Color color) property.colorValue = color;
+                    if (value is Color color)
+                        property.colorValue = color;
                     break;
                 case SerializedPropertyType.Vector2:
-                    if (value is Vector2 v2) property.vector2Value = v2;
+                    if (value is Vector2 v2)
+                        property.vector2Value = v2;
                     break;
                 case SerializedPropertyType.Vector3:
-                    if (value is Vector3 v3) property.vector3Value = v3;
+                    if (value is Vector3 v3)
+                        property.vector3Value = v3;
                     break;
                 case SerializedPropertyType.ObjectReference:
-                    if (value is Object obj) property.objectReferenceValue = obj;
+                    if (value is Object obj)
+                        property.objectReferenceValue = obj;
                     break;
                 case SerializedPropertyType.Enum:
                     property.enumValueIndex = Convert.ToInt32(value);
                     break;
                 case SerializedPropertyType.AnimationCurve:
-                    if (value is AnimationCurve curve) property.animationCurveValue = curve;
+                    if (value is AnimationCurve curve)
+                        property.animationCurveValue = curve;
                     break;
                 case SerializedPropertyType.Vector4:
-                    if (value is Vector4 v4) property.vector4Value = v4;
+                    if (value is Vector4 v4)
+                        property.vector4Value = v4;
                     break;
                 default:
                     if (property.isArray && value is Array arr)
                     {
                         property.arraySize = arr.Length;
+
                         for (int i = 0; i < arr.Length; i++)
                         {
                             SetPropertyValue(property.GetArrayElementAtIndex(i), arr.GetValue(i));
@@ -288,8 +305,7 @@ namespace Tools
                     }
 
                     Debug.LogWarning(
-                        $"[PrefabBuilder] Unsupported property type: {property.propertyType} for '{property.name}'"
-                  );
+                        $"[PrefabBuilder] Unsupported property type: {property.propertyType} for '{property.name}'");
                     break;
             }
         }

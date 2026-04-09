@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 using Shared;
 
 namespace Meta
@@ -9,36 +9,37 @@ namespace Meta
         public static IScopeBuilder AddMetaServices(this IScopeBuilder builder)
         {
             builder.Register<MetaLoop>()
-                .As<IScopeBaseSetupAsync>();
+                   .As<IScopeBaseSetupAsync>();
 
             builder.Register<DeckService>()
-                .WithScopeLifetime()
-                .As<IDeckService>()
-                .As<IScopeSetup>();
+                   .WithScopeLifetime()
+                   .As<IDeckService>()
+                   .As<IScopeSetup>();
 
             builder.Register<MetaBackend>()
-                .WithScopeLifetime()
-                .As<IMetaBackend>();
+                   .WithScopeLifetime()
+                   .As<IMetaBackend>();
 
             builder.Register<Matchmaking>()
-                .As<IMatchmaking>();
+                   .As<IMatchmaking>();
 
             builder.Register<User>()
-                .As<IUser>();
+                   .As<IUser>();
 
             builder.RegisterAsset<CharacterAvatars>();
 
             builder.Register<Authentication>()
-                .As<IAuthentication>();
+                   .As<IAuthentication>();
 
             builder.Register<CardsRegistry>()
-                .As<ICardsRegistry>();
+                   .As<ICardsRegistry>();
 
             builder.AddNetworkConnection();
 
             builder.RegisterCommand<BackendProjectionHub>();
+
             builder.RegisterCommand<ConnectionCompletedCommand>()
-                .As<IMetaConnectionAwaiter>();
+                   .As<IMetaConnectionAwaiter>();
 
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
@@ -47,9 +48,9 @@ namespace Meta
                 .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
 
             builder.Register<CardConfigs>()
-                .As<IBackendProjection<CardConfigOptions>>()
-                .As<IBackendProjection>()
-                .As<ICardConfigs>();
+                   .As<IBackendProjection<CardConfigOptions>>()
+                   .As<IBackendProjection>()
+                   .As<ICardConfigs>();
 
             return builder;
         }

@@ -18,14 +18,13 @@ namespace GamePlay.Players
 
             builder
                 .WithName("ManaPoint")
-                .WithComponent<Image>(img =>
-                    {
-                        img.sprite = spriteFull;
-                        img.color = Color.white;
-                        img.raycastTarget = true;
-                        image = img;
-                    }
-                )
+                .WithComponent<Image>(img => {
+                            img.sprite = spriteFull;
+                            img.color = Color.white;
+                            img.raycastTarget = true;
+                            image = img;
+                        }
+                    )
                 .WithComponent<PlayerManaPointView>();
 
             builder.SetSerialized<PlayerManaPointView>("_empty", spriteEmpty);

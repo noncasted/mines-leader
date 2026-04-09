@@ -10,14 +10,14 @@ namespace Global.Inputs
         public static IScopeBuilder AddInput(this IScopeBuilder builder)
         {
             builder.Register<InputConstraintsStorage>()
-                .As<IInputConstraintsStorage>();
+                   .As<IInputConstraintsStorage>();
 
             var eventSystemPrefab = Prefabs.GlobalEvents.As<EventSystem>();
             builder.Instantiate(eventSystemPrefab);
 
             builder.Register<GlobalControls>()
-                .As<IGlobalControls>()
-                .As<IScopeSetup>();
+                   .As<IGlobalControls>()
+                   .As<IScopeSetup>();
 
             return builder;
         }

@@ -32,14 +32,12 @@ public class BotFlagAction : IBotFlagAction
         if (TryGetMineToFlag(out var target) == false)
             return false;
 
-        _commandUtils.WithSnapshot(() =>
-            {
-                var taken = board.Cells[target].AsTaken();
+        _commandUtils.WithSnapshot(() => {
+            var taken = board.Cells[target].AsTaken();
 
-                taken.SetFlag();
-                board.OnUpdated();
-            }
-        );
+            taken.SetFlag();
+            board.OnUpdated();
+        });
 
         return true;
     }
@@ -63,9 +61,9 @@ public class BotFlagAction : IBotFlagAction
             var neighbourPositions = board.NeighbourPositions(position);
 
             var neighbours = neighbourPositions
-                .Where(p => board.Cells[p].Status == CellStatus.Taken)
-                .Select(p => board.Cells[p].AsTaken())
-                .ToList();
+                             .Where(p => board.Cells[p].Status == CellStatus.Taken)
+                             .Select(p => board.Cells[p].AsTaken())
+                             .ToList();
 
             if (neighbours.Count == 0)
                 continue;

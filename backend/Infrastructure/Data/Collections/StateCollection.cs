@@ -58,8 +58,7 @@ public class StateCollectionUtils<TKey, TValue>
         if (!typeof(TValue).IsAssignableFrom(grainStateType))
         {
             _logger.LogError("[StateCollectionUtils] Type mismatch: {GrainType} is not assignable to {Expected}",
-                grainStateType, typeof(TValue)
-            );
+                grainStateType, typeof(TValue));
             return new Dictionary<TKey, TValue>();
         }
 
@@ -75,8 +74,7 @@ public class StateCollectionUtils<TKey, TValue>
         catch (Exception e)
         {
             _logger.LogError(e, "[StateCollectionUtils] Failed to load {Type}, loaded {Count} entries before failure",
-                typeof(TValue).Name, dictionary.Count
-            );
+                typeof(TValue).Name, dictionary.Count);
         }
 
         return dictionary;
@@ -87,17 +85,15 @@ public class StateCollectionUtils<TKey, TValue>
         try
         {
             return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-                {
-                    Key = key,
-                    Value = value
-                }
-            );
+            {
+                Key = key,
+                Value = value
+            });
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[StateCollectionUtils] Failed to push update for {Type} key {Key}",
-                typeof(TValue).Name, key
-            );
+                typeof(TValue).Name, key);
             return Task.CompletedTask;
         }
     }
@@ -107,17 +103,15 @@ public class StateCollectionUtils<TKey, TValue>
         try
         {
             _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-                {
-                    Key = key,
-                    Value = value
-                }
-            );
+            {
+                Key = key,
+                Value = value
+            });
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[StateCollectionUtils] Failed to push transactional update for {Type} key {Key}",
-                typeof(TValue).Name, key
-            );
+                typeof(TValue).Name, key);
         }
 
         return Task.CompletedTask;
@@ -125,11 +119,9 @@ public class StateCollectionUtils<TKey, TValue>
 
     public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue> onUpdate)
     {
-        return _messaging.ListenDurableQueue<StateCollectionUpdate<TKey, TValue>>(
-            lifetime,
+        return _messaging.ListenDurableQueue<StateCollectionUpdate<TKey, TValue>>(lifetime,
             _queueId,
-            update => onUpdate(update.Key, update.Value)
-        );
+            update => onUpdate(update.Key, update.Value));
     }
 }
 
@@ -161,12 +153,10 @@ public class StateCollection<TKey, TValue> :
             foreach (var (key, value) in existing)
                 this[key] = value;
 
-            await _utils.ListenUpdates(lifetime, (key, value) =>
-                {
-                    this[key] = value;
-                    _updated.Invoke();
-                }
-            );
+            await _utils.ListenUpdates(lifetime, (key, value) => {
+                this[key] = value;
+                _updated.Invoke();
+            });
 
             _logger.LogInformation("[StateCollection] Loaded {Count} entries for {Type}", Count, typeof(TValue).Name);
         }

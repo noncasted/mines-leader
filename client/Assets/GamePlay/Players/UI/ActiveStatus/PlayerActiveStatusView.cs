@@ -1,10 +1,9 @@
 using GamePlay.Loop;
-using GamePlay.Players;
 using Internal;
 using UnityEngine;
 using VContainer;
 
-namespace GamePlay.Players
+namespace GamePlay.Players.ActiveStatus
 {
     [DisallowMultipleComponent]
     public class PlayerActiveStatusView : MonoBehaviour, IEntityComponent, IScopeLoaded
@@ -26,13 +25,12 @@ namespace GamePlay.Players
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeLoaded>();
+                   .As<IScopeLoaded>();
         }
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _round.Player.View(lifetime, player =>
-            {
+            _round.Player.View(lifetime, player => {
                 bool isActive = player != null && player.Info.Id == _playerInfo.Id;
                 _frame.color = isActive ? _activeColor : _inactiveColor;
             });

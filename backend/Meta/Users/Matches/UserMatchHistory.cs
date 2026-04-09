@@ -32,10 +32,8 @@ public class UserMatchHistory : UserGrain, IUserMatchHistory
 
     public Task Add(MatchOverview match)
     {
-        return Task.WhenAll(
-            _state.Write(state => state.Matches.Add(match)),
-            this.SendCachedProjection(match)
-        );
+        return Task.WhenAll(_state.Write(state => state.Matches.Add(match)),
+            this.SendCachedProjection(match));
     }
 
     public Task<IReadOnlyList<MatchOverview>> GetBlock(int count)

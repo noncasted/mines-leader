@@ -3,7 +3,7 @@ using Global.Cameras;
 using Global.Setup;
 using Global.UI;
 using Internal;
-using Loop;
+using Loop.Setup;
 using Meta;
 using UnityEngine;
 using UnityEngine.SceneManagement;

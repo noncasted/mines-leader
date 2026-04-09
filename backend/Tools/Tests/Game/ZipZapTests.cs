@@ -20,6 +20,7 @@ public class ZipZapTests
     {
         var player = Substitute.For<IPlayer>();
         var modifiers = Substitute.For<IModifiers>();
+
         var values = new Dictionary<PlayerModifier, float>
         {
             { PlayerModifier.TrebuchetBoost, trebuchetBoost }
@@ -42,14 +43,13 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -67,14 +67,13 @@ public class ZipZapTests
                                                 t m x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -92,14 +91,13 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -117,14 +115,13 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -142,14 +139,13 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -172,15 +168,14 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var ownerId = board.OwnerId;
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -202,25 +197,24 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 t t t t t t t t
                                                 t t t t t t t t
-                                                """
-        );
+                                                """);
 
         var owner = MockOwner();
         var snapshot = new MoveSnapshot();
+
         var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }
-        ).Use();
+            new CardUsePayload.ZipZap { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
         var actionData = result.ActionData as CardActionSnapshot.ZipZap;
+
         foreach (var pos in actionData!.Targets)
         {
             board.Cells[pos]
-                .Status.Should()
-                .Be(CellStatus.Free,
-                    $"target mine at {pos} should be converted to Free"
-                );
+                 .Status.Should()
+                 .Be(CellStatus.Free,
+                     $"target mine at {pos} should be converted to Free");
         }
     }
 }

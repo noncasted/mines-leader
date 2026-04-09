@@ -17,7 +17,7 @@ namespace GamePlay.Cards
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<ICardView>();
+                   .As<ICardView>();
         }
 
         public void Destroy()

@@ -112,12 +112,10 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             {
                 _logger.LogWarning(
                     "[Transaction] [Join] Timeout waiting for lock. TransactionId={TransactionId} BlockedBy={BlockedBy}",
-                    transactionId, _currentTransactionId
-                );
+                    transactionId, _currentTransactionId);
 
                 throw new Exception(
-                    $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
-                );
+                    $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'.");
             }
 
             // The transaction has been inactive for >30s — treat it as stuck.
@@ -128,8 +126,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
             _logger.LogWarning(
                 "[Transaction] [Takeover] Forcing takeover of stuck transaction. StuckTransactionId={StuckId} AgeSeconds={AgeSeconds} IncomingTransactionId={TransactionId}",
-                _currentTransactionId, stuckAge, transactionId
-            );
+                _currentTransactionId, stuckAge, transactionId);
 
             if (_lock.CurrentCount == 0)
                 _lock.Release();
@@ -152,9 +149,9 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         if (_currentTransactionId != Guid.Empty && _currentTransactionId != transactionId)
         {
             _lock.Release();
+
             throw new Exception(
-                $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
-            );
+                $"Handler failed to join transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'.");
         }
 
         _currentTransactionId = transactionId;
@@ -176,12 +173,10 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         {
             _logger.LogError(
                 "[Transaction] [CollectResult] Transaction ID mismatch. Expected={TransactionId} Current={CurrentId}",
-                transactionId, _currentTransactionId
-            );
+                transactionId, _currentTransactionId);
 
             throw new Exception(
-                $"Handler failed to complete transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'."
-            );
+                $"Handler failed to complete transaction id '{transactionId}'. Current transaction in progress '{_currentTransactionId}'.");
         }
 
         var states = new List<IStateValue>();
@@ -190,10 +185,9 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             states.Add(state.GetState());
 
         return Task.FromResult(new TransactionHandlerResult
-            {
-                States = states,
-            }
-        );
+        {
+            States = states,
+        });
     }
 
     // Called by Transactions.Process() after the DB write succeeds.
@@ -206,8 +200,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         {
             _logger.LogWarning(
                 "[Transaction] [OnSuccess] Skipped — grain was taken over. ExpectedId={TransactionId} CurrentId={CurrentId}",
-                transactionId, _currentTransactionId
-            );
+                transactionId, _currentTransactionId);
 
             return Task.CompletedTask;
         }

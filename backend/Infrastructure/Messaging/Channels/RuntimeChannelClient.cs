@@ -51,14 +51,12 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
             var source = new ViewableDelegate<T>();
 
-            var observer = new RuntimeChannelObserver(message =>
-                {
-                    if (message is not T castedMessage)
-                        throw new InvalidCastException($"Expected {typeof(T)}, but got {message.GetType()}");
+            var observer = new RuntimeChannelObserver(message => {
+                if (message is not T castedMessage)
+                    throw new InvalidCastException($"Expected {typeof(T)}, but got {message.GetType()}");
 
-                    source.Invoke(castedMessage);
-                }
-            );
+                source.Invoke(castedMessage);
+            });
 
             var observerReference = _orleans.Client.CreateObjectReference<IRuntimeChannelObserver>(observer);
 
@@ -87,6 +85,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
     public void RemoveConsumer(IRuntimeChannelId id)
     {
         var rawId = id.ToRaw();
+
         if (_listeners.TryRemove(rawId, out var listener))
             listener.Cleanup();
     }
@@ -136,8 +135,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
                 if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
                     Logger.LogError(e,
                         "[Messaging] [Channel] Failed to rebind observer (attempt {Count}) to channel {ChannelId}",
-                        _consecutiveFailures, Id.ToRaw()
-                    );
+                        _consecutiveFailures, Id.ToRaw());
             }
         }
 

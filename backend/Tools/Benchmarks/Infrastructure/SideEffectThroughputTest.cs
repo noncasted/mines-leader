@@ -81,6 +81,7 @@ public class SideEffectThroughputTest
         {
             await using var connection = await _dbSource.Value.OpenConnectionAsync(ct);
             await using var command = connection.CreateCommand();
+
             command.CommandText = @"
                 SELECT
                     (SELECT count(*) FROM side_effects_queue WHERE payload->>'BatchId' = @bid) +

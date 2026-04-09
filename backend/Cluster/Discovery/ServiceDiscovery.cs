@@ -100,8 +100,7 @@ public class ServiceDiscovery : IServiceDiscovery
                 {
                     if (_entries.TryRemove(id, out _))
                         _logger.LogInformation("[ServiceDiscovery] Removed stale entry {Id} (tag={Tag})", id,
-                            service.Tag
-                        );
+                            service.Tag);
                 }
             }
         }
@@ -166,7 +165,7 @@ public static class ServiceDiscoveryExtensions
     public static IHostApplicationBuilder AddServiceDiscovery(this IHostApplicationBuilder builder)
     {
         builder.Add<ServiceDiscovery>()
-            .As<IServiceDiscovery>();
+               .As<IServiceDiscovery>();
 
         return builder;
     }
@@ -174,9 +173,9 @@ public static class ServiceDiscoveryExtensions
     public static GameServerOverview RandomServer(this IServiceDiscovery serviceDiscovery)
     {
         var servers = serviceDiscovery.Entries.Values
-            .Where(t => t.Tag == ServiceTag.Game)
-            .OfType<GameServerOverview>()
-            .ToList();
+                                      .Where(t => t.Tag == ServiceTag.Game)
+                                      .OfType<GameServerOverview>()
+                                      .ToList();
 
         if (servers.Count == 0)
             throw new InvalidOperationException("No game servers available");

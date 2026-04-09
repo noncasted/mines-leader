@@ -1,8 +1,8 @@
-﻿using Common.Animations;
-using Common.Network;
+﻿using Animations;
 using Global.Systems;
 using Internal;
 using MemoryPack;
+using Network;
 using UnityEngine;
 using VContainer;
 
@@ -44,7 +44,7 @@ namespace Menu.Social
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
@@ -79,12 +79,11 @@ namespace Menu.Social
                     _renderer.flipX = true;
 
                 _state.Set(new MenuPlayerTransformState()
-                    {
-                        Position = _rb.position,
-                        FlipX = _renderer.flipX,
-                        IsRunning = _input.MovementDirection != Vector2.zero
-                    }
-              );
+                {
+                    Position = _rb.position,
+                    FlipX = _renderer.flipX,
+                    IsRunning = _input.MovementDirection != Vector2.zero
+                });
             }
 
             void Remote()

@@ -1,11 +1,10 @@
-﻿using Common.Network;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
+using Network;
 using Shared;
 using UnityEngine;
-using VContainer;
 
 namespace Tools
 {
@@ -23,7 +22,7 @@ namespace Tools
 
             var sessionData = await matchmaking.CreateGameWithBot(scope.Lifetime, _mode);
             var gameScope = await scopeLoaderFactory.LoadPvPMock(scope, sessionData);
-            
+
             var context = gameScope.Resolve<IGameContext>();
             var connection = gameScope.Resolve<INetworkConnection>();
             var loop = gameScope.Resolve<IPvPGameLoop>();

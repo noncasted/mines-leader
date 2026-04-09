@@ -32,18 +32,17 @@ namespace GamePlay
 
             await card.Use(_lifetime, record.Data);
 
-            UniTask.Create(async () =>
-                    {
-                        if (card is ILocalCard localCard)
-                            await localCard.Drop.Enter(card.Lifetime);
-                        else if (card is IRemoteCard remoteCard)
-                            await remoteCard.Drop.Enter(card.Lifetime);
+            UniTask.Create(async () => {
+                               if (card is ILocalCard localCard)
+                                   await localCard.Drop.Enter(card.Lifetime);
+                               else if (card is IRemoteCard remoteCard)
+                                   await remoteCard.Drop.Enter(card.Lifetime);
 
-                        await card.Destroy();
+                               await card.Destroy();
 
-                    }
-                )
-                .Forget();
+                           }
+                       )
+                   .Forget();
         }
     }
 }

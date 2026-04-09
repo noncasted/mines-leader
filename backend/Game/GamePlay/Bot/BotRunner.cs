@@ -40,23 +40,19 @@ public class BotRunner : IBotRunner
 
     public async Task Run(IUser user)
     {
-        _context.GameStarted.Advise(user.Lifetime, () =>
-            {
-                var bot = _context.Players.First(t => t.User.Id == user.Id);
-                var opponent = _context.GetOpponent(bot);
+        _context.GameStarted.Advise(user.Lifetime, () => {
+            var bot = _context.Players.First(t => t.User.Id == user.Id);
+            var opponent = _context.GetOpponent(bot);
 
-                _botContext.Construct(bot, opponent);
-            }
-        );
+            _botContext.Construct(bot, opponent);
+        });
 
-        _round.CurrentPlayer.ViewNotNull(user.Lifetime, (roundLifetime, player) =>
-            {
-                if (player.User.Id != user.Id)
-                    return;
+        _round.CurrentPlayer.ViewNotNull(user.Lifetime, (roundLifetime, player) => {
+            if (player.User.Id != user.Id)
+                return;
 
-                Task.Run(() => OnBotTurn(roundLifetime));
-            }
-        );
+            Task.Run(() => OnBotTurn(roundLifetime));
+        });
     }
 
     private async Task OnBotTurn(IReadOnlyLifetime lifetime)

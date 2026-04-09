@@ -34,8 +34,8 @@ public static class Nginx
         foreach (var (from, to) in Options.Ports)
         {
             var config = template
-                .Replace("{from}", from.ToString())
-                .Replace("{to}", to.ToString());
+                         .Replace("{from}", from.ToString())
+                         .Replace("{to}", to.ToString());
 
             configs.Add(config);
         }

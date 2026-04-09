@@ -2,7 +2,7 @@
 using Internal;
 using MemoryPack;
 
-namespace Common.Network
+namespace Network
 {
     public interface INetworkProperty
     {

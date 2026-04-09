@@ -18,8 +18,7 @@ public class MinesScannerTests
                                            t m t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
 
         var freeCell = (IFreeCell)board.Cells[new Position(1, 1)];
         freeCell.MinesAround.Should().Be(1);
@@ -32,8 +31,7 @@ public class MinesScannerTests
                                            t t t
                                            t _ t
                                            t t t
-                                           """
-        );
+                                           """);
 
         var freeCell = (IFreeCell)board.Cells[new Position(1, 1)];
         freeCell.MinesAround.Should().Be(0);
@@ -46,8 +44,7 @@ public class MinesScannerTests
                                            m t t
                                            t _ t
                                            t t m
-                                           """
-        );
+                                           """);
 
         var freeCell = (IFreeCell)board.Cells[new Position(1, 1)];
         freeCell.MinesAround.Should().Be(2);
@@ -60,8 +57,7 @@ public class MinesScannerTests
                                            m m m
                                            m _ m
                                            m m m
-                                           """
-        );
+                                           """);
 
         var freeCell = (IFreeCell)board.Cells[new Position(1, 1)];
         freeCell.MinesAround.Should().Be(8);
@@ -75,8 +71,7 @@ public class MinesScannerTests
                                            t m t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
 
         // Convert cell at (1,1) to Free after build
         board.Cells[new Position(1, 1)].ToTaken().ToFree();
@@ -94,25 +89,21 @@ public class MinesScannerTests
                                            m m m
                                            m t m
                                            m m m
-                                           """
-        );
+                                           """);
 
         // All cells should remain Taken — no crash
         foreach (var (_, cell) in board.Cells)
         {
             cell.Status.Should().Be(CellStatus.Taken);
+
             cell.Should()
-                .BeAssignableTo<ITakenCell>(
-                    "all cells are Taken, none should have been converted to Free"
-                );
+                .BeAssignableTo<ITakenCell>("all cells are Taken, none should have been converted to Free");
         }
 
         // No cell should be IFreeCell (MinesScanner only computes MinesAround for Free cells)
         board.Cells.Values.OfType<IFreeCell>()
-            .Should()
-            .BeEmpty(
-                "scanner skips Taken cells — no Free cells should exist"
-            );
+             .Should()
+             .BeEmpty("scanner skips Taken cells — no Free cells should exist");
     }
 
     [Fact]
@@ -124,8 +115,7 @@ public class MinesScannerTests
                                            t t _ t t
                                            t t t t t
                                            t t t t t
-                                           """
-        );
+                                           """);
 
         var freeCell = (IFreeCell)board.Cells[new Position(2, 2)];
         freeCell.MinesAround.Should().Be(1);

@@ -30,28 +30,27 @@ namespace Tools
 
             Directory.CreateDirectory(Path.GetDirectoryName(linkXmlFilePath) ??
                                       throw new InvalidOperationException(
-                                          $"No directory in file name {linkXmlFilePath}"
-                                      )
-          );
+                                              $"No directory in file name {linkXmlFilePath}"
+                                          ));
 
             var assembliesToPreserve = Enumerable.Empty<string>()
-                .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
-                .Distinct()
-                .OrderBy(s => s)
-                .ToList();
+                                                 .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
+                                                 .Distinct()
+                                                 .OrderBy(s => s)
+                                                 .ToList();
 
             assembliesToPreserve.Add("Shared");
 
             var content = Enumerable.Empty<string>()
-                .Concat("<linker>")
-                .Concat(string.Empty)
-                .Concat(assembliesToPreserve.Select(assemblyName =>
-                        $"    <assembly fullname=\"{assemblyName}\" preserve=\"all\" />"
-                    )
-                )
-                .Concat(string.Empty)
-                .Concat("</linker>")
-                .Aggregate(new StringBuilder(), (builder, line) => builder.AppendLine(line));
+                                    .Concat("<linker>")
+                                    .Concat(string.Empty)
+                                    .Concat(assembliesToPreserve.Select(assemblyName =>
+                                                $"    <assembly fullname=\"{assemblyName}\" preserve=\"all\" />"
+                                            )
+                                        )
+                                    .Concat(string.Empty)
+                                    .Concat("</linker>")
+                                    .Aggregate(new StringBuilder(), (builder, line) => builder.AppendLine(line));
 
             using var fileStream = File.Open(linkXmlFilePath, FileMode.Create);
             using var streamWriter = new StreamWriter(fileStream);
@@ -62,12 +61,12 @@ namespace Tools
         private static IEnumerable<string> GetDllAssemblyNames(string assetsDir)
         {
             var asmdefs = Directory.EnumerateFiles(assetsDir, "*.asmdef", SearchOption.AllDirectories)
-                .Distinct()
-                .Select(Path.GetFileNameWithoutExtension);
+                                   .Distinct()
+                                   .Select(Path.GetFileNameWithoutExtension);
 
             var dlss = Directory.EnumerateFiles(assetsDir, "*.dll", SearchOption.AllDirectories)
-                .Distinct()
-                .Select(Path.GetFileNameWithoutExtension);
+                                .Distinct()
+                                .Select(Path.GetFileNameWithoutExtension);
 
             var all = new List<string>();
 
@@ -77,8 +76,7 @@ namespace Tools
             return all.Where(t => t.Contains("Editor") == false &&
                                   t.Contains("Test") == false &&
                                   t.Contains("Tests") == false &&
-                                  t.Contains("Demo") == false
-          );
+                                  t.Contains("Demo") == false);
         }
     }
 

@@ -18,11 +18,10 @@ public class UserRatingTests
         var grain = GetGrain<IUserRating>(id);
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Win { Date = DateTime.UtcNow, Rating = 25 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(25);
     }
 
@@ -33,11 +32,10 @@ public class UserRatingTests
         var grain = GetGrain<IUserRating>(id);
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Loss { Date = DateTime.UtcNow, Rating = 15 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(-15);
     }
 
@@ -49,11 +47,10 @@ public class UserRatingTests
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Win { Date = DateTime.UtcNow, Rating = 25 }));
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Loss { Date = DateTime.UtcNow, Rating = 15 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(10);
     }
 
@@ -62,16 +59,15 @@ public class UserRatingTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserRating>(id);
+
         for (var i = 0; i < 3; i++)
-            await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Win { Date = DateTime.UtcNow, Rating = 25 }
-                )
-            );
+            await RunTransaction(() =>
+                grain.AddRecord(new UserRatingRecords.Win { Date = DateTime.UtcNow, Rating = 25 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(75);
     }
 
@@ -81,11 +77,10 @@ public class UserRatingTests
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserRating>(id);
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(0);
     }
 
@@ -94,14 +89,14 @@ public class UserRatingTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserRating>(id);
-        await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Loss { Date = DateTime.UtcNow, Rating = 100 })
-        );
+
+        await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Loss
+            { Date = DateTime.UtcNow, Rating = 100 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(-100);
     }
 
@@ -113,11 +108,10 @@ public class UserRatingTests
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Win { Date = DateTime.UtcNow, Rating = 25 }));
         var grain2 = GetGrain<IUserRating>(id);
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain2.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain2.GetTotal();
+        });
         total.Should().Be(25);
     }
 }
@@ -131,16 +125,14 @@ public class UserProgressionTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserProgression>(id);
+
         await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-                { Date = DateTime.UtcNow, Experience = 100 }
-            )
-        );
+            { Date = DateTime.UtcNow, Experience = 100 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(100);
     }
 
@@ -149,16 +141,14 @@ public class UserProgressionTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserProgression>(id);
+
         await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-                { Date = DateTime.UtcNow, Experience = 30 }
-            )
-        );
+            { Date = DateTime.UtcNow, Experience = 30 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(30);
     }
 
@@ -167,20 +157,17 @@ public class UserProgressionTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserProgression>(id);
+
         await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-                { Date = DateTime.UtcNow, Experience = 100 }
-            )
-        );
+            { Date = DateTime.UtcNow, Experience = 100 }));
+
         await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-                { Date = DateTime.UtcNow, Experience = 30 }
-            )
-        );
+            { Date = DateTime.UtcNow, Experience = 30 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(130);
     }
 
@@ -190,11 +177,10 @@ public class UserProgressionTests
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserProgression>(id);
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(0);
     }
 
@@ -203,22 +189,19 @@ public class UserProgressionTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserProgression>(id);
+
         for (var i = 0; i < 3; i++)
             await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-                    { Date = DateTime.UtcNow, Experience = 100 }
-                )
-            );
+                { Date = DateTime.UtcNow, Experience = 100 }));
+
         for (var i = 0; i < 2; i++)
             await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-                    { Date = DateTime.UtcNow, Experience = 30 }
-                )
-            );
+                { Date = DateTime.UtcNow, Experience = 30 }));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await grain.GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await grain.GetTotal();
+        });
         total.Should().Be(360);
     }
 }
@@ -232,11 +215,10 @@ public class UserAuthTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserAuth>(id);
         var exists = false;
-        await RunTransaction(async () =>
-            {
-                exists = await grain.IsExists();
-            }
-        );
+
+        await RunTransaction(async () => {
+            exists = await grain.IsExists();
+        });
         exists.Should().BeFalse();
     }
 
@@ -247,11 +229,10 @@ public class UserAuthTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var grain = GetGrain<IUserAuth>(id);
         await RunTransaction(() => grain.OnRegistered());
         var exists = false;
-        await RunTransaction(async () =>
-            {
-                exists = await grain.IsExists();
-            }
-        );
+
+        await RunTransaction(async () => {
+            exists = await grain.IsExists();
+        });
         exists.Should().BeTrue();
     }
 
@@ -263,11 +244,10 @@ public class UserAuthTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var before = DateTime.UtcNow;
         await RunTransaction(() => grain.OnRegistered());
         var date = DateTime.MinValue;
-        await RunTransaction(async () =>
-            {
-                date = await grain.GetDate();
-            }
-        );
+
+        await RunTransaction(async () => {
+            date = await grain.GetDate();
+        });
         date.Should().BeOnOrAfter(before);
     }
 
@@ -279,11 +259,10 @@ public class UserAuthTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         await RunTransaction(() => grain.OnRegistered());
         await RunTransaction(() => grain.OnRegistered());
         var exists = false;
-        await RunTransaction(async () =>
-            {
-                exists = await grain.IsExists();
-            }
-        );
+
+        await RunTransaction(async () => {
+            exists = await grain.IsExists();
+        });
         exists.Should().BeTrue();
     }
 }
@@ -298,12 +277,12 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
         UserDeckState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Entries.Should().HaveCount(DeckOptions.MaxDecks);
+
         foreach (var entry in state.Entries.Values)
             entry.Cards.Should().BeEquivalentTo(DeckOptions.BaseDeck);
     }
@@ -315,11 +294,10 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
         IReadOnlyList<CardType>? selected = null;
-        await RunTransaction(async () =>
-            {
-                selected = await grain.GetSelected();
-            }
-        );
+
+        await RunTransaction(async () => {
+            selected = await grain.GetSelected();
+        });
         selected.Should().BeEquivalentTo(DeckOptions.BaseDeck);
     }
 
@@ -329,6 +307,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
         var customCards = new List<CardType>
         {
             CardType.Bloodhound, CardType.Bloodhound, CardType.Smoke, CardType.Smoke, CardType.OpponentBomb,
@@ -336,11 +315,10 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         };
         await RunTransaction(() => grain.Update(1, customCards));
         UserDeckState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Entries[1].Cards.Should().BeEquivalentTo(customCards);
     }
 
@@ -350,18 +328,20 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
+
         var decks = new Dictionary<int, IReadOnlyList<CardType>>
             { [0] = customCards, [1] = customCards, [2] = customCards };
         await RunTransaction(() => grain.Update(decks, 2));
         UserDeckState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.SelectedIndex.Should().Be(2);
+
         foreach (var entry in state.Entries.Values)
             entry.Cards.Should().BeEquivalentTo(customCards);
     }
@@ -372,17 +352,17 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
         await RunTransaction(() => grain.Update(1, customCards));
         var decks = new Dictionary<int, IReadOnlyList<CardType>>();
         await RunTransaction(() => grain.Update(decks, 1));
         IReadOnlyList<CardType>? selected = null;
-        await RunTransaction(async () =>
-            {
-                selected = await grain.GetSelected();
-            }
-        );
+
+        await RunTransaction(async () => {
+            selected = await grain.GetSelected();
+        });
         selected.Should().BeEquivalentTo(customCards);
     }
 
@@ -392,16 +372,16 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
         await RunTransaction(() => grain.Update(0, customCards));
         await RunTransaction(() => grain.Initialize());
         UserDeckState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await grain.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await grain.GetState();
+        });
         state!.Entries[0].Cards.Should().BeEquivalentTo(DeckOptions.BaseDeck);
     }
 }
@@ -418,11 +398,10 @@ public class UserMatchHistoryTests
         var overview = CreateOverview(id, Guid.NewGuid());
         await RunTransaction(() => grain.Add(overview));
         IReadOnlyList<MatchOverview>? block = null;
-        await RunTransaction(async () =>
-            {
-                block = await grain.GetBlock(10);
-            }
-        );
+
+        await RunTransaction(async () => {
+            block = await grain.GetBlock(10);
+        });
         block.Should().HaveCount(1);
     }
 
@@ -431,14 +410,14 @@ public class UserMatchHistoryTests
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserMatchHistory>(id);
+
         for (var i = 0; i < 5; i++)
             await RunTransaction(() => grain.Add(CreateOverview(id, Guid.NewGuid())));
         IReadOnlyList<MatchOverview>? block = null;
-        await RunTransaction(async () =>
-            {
-                block = await grain.GetBlock(3);
-            }
-        );
+
+        await RunTransaction(async () => {
+            block = await grain.GetBlock(3);
+        });
         block.Should().HaveCount(3);
     }
 
@@ -450,11 +429,10 @@ public class UserMatchHistoryTests
         await RunTransaction(() => grain.Add(CreateOverview(id, Guid.NewGuid())));
         await RunTransaction(() => grain.Add(CreateOverview(id, Guid.NewGuid())));
         IReadOnlyList<MatchOverview>? block = null;
-        await RunTransaction(async () =>
-            {
-                block = await grain.GetBlock(100);
-            }
-        );
+
+        await RunTransaction(async () => {
+            block = await grain.GetBlock(100);
+        });
         block.Should().HaveCount(2);
     }
 
@@ -464,11 +442,10 @@ public class UserMatchHistoryTests
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserMatchHistory>(id);
         IReadOnlyList<MatchOverview>? block = null;
-        await RunTransaction(async () =>
-            {
-                block = await grain.GetBlock(10);
-            }
-        );
+
+        await RunTransaction(async () => {
+            block = await grain.GetBlock(10);
+        });
         block.Should().BeEmpty();
     }
 
@@ -506,11 +483,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         MatchState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await match.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await match.GetState();
+        });
         state!.Type.Should().Be(GameMatchType.Single);
         state.Participants.Should().BeEquivalentTo(new[] { user1, user2 });
     }
@@ -523,11 +499,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         MatchState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await match.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await match.GetState();
+        });
         state!.ParticipantDecks.Should().ContainKey(user1);
         state.ParticipantDecks.Should().ContainKey(user2);
         state.ParticipantDecks[user1].Should().BeEquivalentTo(DeckOptions.BaseDeck);
@@ -543,11 +518,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         MatchState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await match.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await match.GetState();
+        });
         state!.Winner.Should().Be(user1);
         state.Time.Should().BeGreaterThan(TimeSpan.Zero);
     }
@@ -561,11 +535,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await GetGrain<IUserProgression>(user1).GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await GetGrain<IUserProgression>(user1).GetTotal();
+        });
         total.Should().Be(100);
     }
 
@@ -578,11 +551,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await GetGrain<IUserProgression>(user2).GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await GetGrain<IUserProgression>(user2).GetTotal();
+        });
         total.Should().Be(30);
     }
 
@@ -595,11 +567,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await GetGrain<IUserRating>(user1).GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await GetGrain<IUserRating>(user1).GetTotal();
+        });
         total.Should().Be(25);
     }
 
@@ -612,11 +583,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         var total = 0;
-        await RunTransaction(async () =>
-            {
-                total = await GetGrain<IUserRating>(user2).GetTotal();
-            }
-        );
+
+        await RunTransaction(async () => {
+            total = await GetGrain<IUserRating>(user2).GetTotal();
+        });
         total.Should().Be(-15);
     }
 
@@ -629,11 +599,10 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
         await RunTransaction(() => match.OnComplete(user1));
         MatchState? state = null;
-        await RunTransaction(async () =>
-            {
-                state = await match.GetState();
-            }
-        );
+
+        await RunTransaction(async () => {
+            state = await match.GetState();
+        });
         state!.RatingChanges.Should().HaveCount(2);
         state.RatingChanges.Should().ContainKey(user1);
         state.RatingChanges.Should().ContainKey(user2);
@@ -651,16 +620,14 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         await RunTransaction(() => match.OnComplete(user1));
         IReadOnlyList<MatchOverview>? history1 = null;
         IReadOnlyList<MatchOverview>? history2 = null;
-        await RunTransaction(async () =>
-            {
-                history1 = await GetGrain<IUserMatchHistory>(user1).GetBlock(10);
-            }
-        );
-        await RunTransaction(async () =>
-            {
-                history2 = await GetGrain<IUserMatchHistory>(user2).GetBlock(10);
-            }
-        );
+
+        await RunTransaction(async () => {
+            history1 = await GetGrain<IUserMatchHistory>(user1).GetBlock(10);
+        });
+
+        await RunTransaction(async () => {
+            history2 = await GetGrain<IUserMatchHistory>(user2).GetBlock(10);
+        });
         history1.Should().HaveCount(1);
         history2.Should().HaveCount(1);
     }

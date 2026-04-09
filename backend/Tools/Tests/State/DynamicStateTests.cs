@@ -63,10 +63,8 @@ public class DynamicStateTests
         await state.SetValue(newValue);
 
         await messaging.RuntimeChannel.Received(1)
-            .Publish(
-                Arg.Is<IRuntimeChannelId>(id => id.ToRaw().Contains("TestDynamicValue")),
-                Arg.Is<TestDynamicValue>(v => v.Name == "published" && v.Counter == 7)
-            );
+                       .Publish(Arg.Is<IRuntimeChannelId>(id => id.ToRaw().Contains("TestDynamicValue")),
+                           Arg.Is<TestDynamicValue>(v => v.Name == "published" && v.Counter == 7));
     }
 
     [Fact]
@@ -110,18 +108,17 @@ public class DynamicStateTests
         state.Value.Counter.Should().Be(4);
 
         await messaging.RuntimeChannel.Received(5)
-            .Publish(
-                Arg.Any<IRuntimeChannelId>(),
-                Arg.Any<TestDynamicValue>()
-            );
+                       .Publish(Arg.Any<IRuntimeChannelId>(),
+                           Arg.Any<TestDynamicValue>());
     }
 
     [Fact]
     public async Task DynamicState_SetValue_PublishFailure_DoesNotThrow()
     {
         var messaging = Substitute.For<IMessaging>();
+
         messaging.RuntimeChannel.Publish(Arg.Any<IRuntimeChannelId>(), Arg.Any<object>())
-            .Returns(Task.FromException(new Exception("Channel down")));
+                 .Returns(Task.FromException(new Exception("Channel down")));
 
         var state = CreateDynamicState(messaging);
 

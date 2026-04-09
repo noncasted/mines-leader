@@ -9,10 +9,10 @@ public static class UserServicesExtensions
     public static IHostApplicationBuilder AddUserServices(this IHostApplicationBuilder builder)
     {
         builder.Add<UserFactory>()
-            .As<IUserFactory>();
+               .As<IUserFactory>();
 
         builder.AddStateCollection<UserCollection, Guid, UserState>()
-            .As<IUserCollection>();
+               .As<IUserCollection>();
 
         return builder;
     }

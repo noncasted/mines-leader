@@ -30,26 +30,25 @@ namespace GamePlay.Cards
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _context.IsAvailable.View(lifetime, isAvailable =>
+            _context.IsAvailable.View(lifetime, isAvailable => {
+                if (isAvailable)
                 {
-                    if (isAvailable)
-                    {
-                        _renderer.SetAllColor(_availableSpriteColor);
-                        _renderer.SetNameTextColor(_availableNameColor);
-                        _renderer.SetDescriptionTextColor(_availableDescriptionColor);
-                    }
-                    else
-                    {
-                        _renderer.SetAllColor(_lockedSpriteColor);
-                        _renderer.SetNameTextColor(_lockedNameColor);
-                        _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
-                    }
-                });
+                    _renderer.SetAllColor(_availableSpriteColor);
+                    _renderer.SetNameTextColor(_availableNameColor);
+                    _renderer.SetDescriptionTextColor(_availableDescriptionColor);
+                }
+                else
+                {
+                    _renderer.SetAllColor(_lockedSpriteColor);
+                    _renderer.SetNameTextColor(_lockedNameColor);
+                    _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
+                }
+            });
         }
     }
 }

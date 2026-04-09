@@ -9,10 +9,10 @@ public static class BotServicesExtensions
     public static IHostApplicationBuilder AddBotServices(this IHostApplicationBuilder builder)
     {
         builder.AddStateCollection<BotCollection, Guid, BotState>()
-            .As<IBotCollection>();
+               .As<IBotCollection>();
 
         builder.Add<BotFactory>()
-            .As<IBotFactory>();
+               .As<IBotFactory>();
 
         return builder;
     }

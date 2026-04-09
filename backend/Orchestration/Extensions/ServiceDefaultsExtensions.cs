@@ -30,12 +30,10 @@ public static class ServiceDefaultsExtensions
 
         services.AddServiceDiscovery();
 
-        services.ConfigureHttpClientDefaults(http =>
-            {
-                http.AddStandardResilienceHandler();
-                http.AddServiceDiscovery();
-            }
-        );
+        services.ConfigureHttpClientDefaults(http => {
+            http.AddStandardResilienceHandler();
+            http.AddServiceDiscovery();
+        });
 
         return builder;
     }
@@ -44,50 +42,41 @@ public static class ServiceDefaultsExtensions
     {
         private void ConfigureOpenTelemetry()
         {
-            builder.Logging.AddOpenTelemetry(logging =>
-                {
-                    logging.IncludeFormattedMessage = true;
-                    logging.IncludeScopes = true;
-                }
-            );
+            builder.Logging.AddOpenTelemetry(logging => {
+                logging.IncludeFormattedMessage = true;
+                logging.IncludeScopes = true;
+            });
 
             builder.Services.AddOpenTelemetry()
-                .ConfigureResource(resourceBuilder =>
-                    {
-                        var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
+                   .ConfigureResource(resourceBuilder => {
+                       var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
 
-                        if (serviceName == null)
-                            return;
+                       if (serviceName == null)
+                           return;
 
-                        resourceBuilder.AddService(serviceName);
-                    }
-                )
-                .WithMetrics(metrics =>
-                    {
-                        metrics.AddAspNetCoreInstrumentation()
-                            .AddHttpClientInstrumentation()
-                            .AddRuntimeInstrumentation()
-                            .AddMeter("Microsoft.Orleans")
-                            .AddMeter("Backend");
-                    }
-                )
-                .WithTracing(tracing =>
-                    {
-                        foreach (var source in TraceExtensions.AllSources)
-                            tracing.AddSource(source.Name);
+                       resourceBuilder.AddService(serviceName);
+                   })
+                   .WithMetrics(metrics => {
+                       metrics.AddAspNetCoreInstrumentation()
+                              .AddHttpClientInstrumentation()
+                              .AddRuntimeInstrumentation()
+                              .AddMeter("Microsoft.Orleans")
+                              .AddMeter("Backend");
+                   })
+                   .WithTracing(tracing => {
+                       foreach (var source in TraceExtensions.AllSources)
+                           tracing.AddSource(source.Name);
 
-                        tracing.AddSource(builder.Environment.ApplicationName)
-                            .AddAspNetCoreInstrumentation(options => options.Filter = context =>
-                                !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&
-                                !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
-                            )
-                            .AddHttpClientInstrumentation();
+                       tracing.AddSource(builder.Environment.ApplicationName)
+                              .AddAspNetCoreInstrumentation(options => options.Filter = context =>
+                                  !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&
+                                  !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                              .AddHttpClientInstrumentation();
 
-                        tracing.AddAspNetCoreInstrumentation()
-                            .AddHttpClientInstrumentation();
-                    }
-                )
-                .WithLogging();
+                       tracing.AddAspNetCoreInstrumentation()
+                              .AddHttpClientInstrumentation();
+                   })
+                   .WithLogging();
 
             builder.AddOpenTelemetryExporters();
         }
@@ -113,7 +102,7 @@ public static class ServiceDefaultsExtensions
         private void AddDefaultHealthChecks()
         {
             builder.Services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+                   .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
         }
     }
 
@@ -124,10 +113,9 @@ public static class ServiceDefaultsExtensions
             app.MapHealthChecks(HealthEndpointPath);
 
             app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-                {
-                    Predicate = r => r.Tags.Contains("live")
-                }
-            );
+            {
+                Predicate = r => r.Tags.Contains("live")
+            });
         }
     }
 }

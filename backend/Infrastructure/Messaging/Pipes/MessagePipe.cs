@@ -52,15 +52,13 @@ public class RuntimePipe : Grain, IRuntimePipe
 
         _logger.LogTrace(
             "[Messaging] [RuntimePipe] Sending request-response message {MessageType} expecting {ResponseType} to pipe {PipeId}",
-            message.GetType().Name, typeof(TResponse).Name, this.GetPrimaryKeyString()
-        );
+            message.GetType().Name, typeof(TResponse).Name, this.GetPrimaryKeyString());
 
         if (_observer == null)
         {
             _logger.LogError(
                 "[Messaging] [RuntimePipe] No observer bound for request-response message {MessageType} on pipe {PipeId}",
-                message.GetType().Name, this.GetPrimaryKeyString()
-            );
+                message.GetType().Name, this.GetPrimaryKeyString());
             throw new InvalidOperationException($"No observer bound for pipe {this.GetPrimaryKeyString()}");
         }
 
@@ -68,10 +66,10 @@ public class RuntimePipe : Grain, IRuntimePipe
         {
             var timeout = TimeSpan.FromSeconds(_config.Value.SendTimeoutSeconds);
             var response = await _observer!.Send<TResponse>(message).WaitAsync(timeout);
+
             _logger.LogTrace(
                 "[Messaging] [RuntimePipe] Successfully received response {ResponseType} for message {MessageType} on pipe {PipeId}",
-                typeof(TResponse).Name, message.GetType().Name, this.GetPrimaryKeyString()
-            );
+                typeof(TResponse).Name, message.GetType().Name, this.GetPrimaryKeyString());
             return response;
         }
         catch (TimeoutException ex)
@@ -80,16 +78,14 @@ public class RuntimePipe : Grain, IRuntimePipe
 
             _logger.LogError(ex,
                 "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
-                message.GetType().Name, this.GetPrimaryKeyString()
-            );
+                message.GetType().Name, this.GetPrimaryKeyString());
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
                 "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
-                message.GetType().Name, this.GetPrimaryKeyString()
-            );
+                message.GetType().Name, this.GetPrimaryKeyString());
             throw;
         }
     }

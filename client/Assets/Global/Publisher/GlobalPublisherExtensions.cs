@@ -35,24 +35,24 @@ namespace Global.Publisher
             var callbacks = builder.Instantiate(options.ItchCallbacksPrefab);
 
             builder.RegisterInstance(callbacks)
-                .As<IJsErrorCallback>();
+                   .As<IJsErrorCallback>();
 
             builder.Register<ItchSaves>()
-                .As<ISaves>()
-                .AsEventListener<IScopeBaseSetup>();
+                   .As<ISaves>()
+                   .AsEventListener<IScopeBaseSetup>();
 
             builder.Register<ItchLanguageProvider>()
-                .As<ISystemLanguageProvider>();
+                   .As<ISystemLanguageProvider>();
 
             if (platformOptions.IsEditor == true)
             {
                 builder.Register<ItchLanguageDebugAPI>()
-                    .As<IItchLanguageAPI>();
+                       .As<IItchLanguageAPI>();
             }
             else
             {
                 builder.Register<ItchLanguageExternAPI>()
-                    .As<IItchLanguageAPI>();
+                       .As<IItchLanguageAPI>();
             }
         }
     }

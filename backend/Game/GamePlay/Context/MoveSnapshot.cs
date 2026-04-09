@@ -37,22 +37,20 @@ public class MoveSnapshot
     public void RecordCardAdd(Guid playerId, Guid cardId, CardType type)
     {
         _records.Add(new PlayerSnapshotRecord.CardAdd()
-            {
-                PlayerId = playerId,
-                CardId = cardId,
-                Type = type
-            }
-        );
+        {
+            PlayerId = playerId,
+            CardId = cardId,
+            Type = type
+        });
     }
 
     public void RecordCardRemove(Guid playerId, Guid cardId)
     {
         _records.Add(new PlayerSnapshotRecord.CardRemove()
-            {
-                PlayerId = playerId,
-                CardId = cardId
-            }
-        );
+        {
+            PlayerId = playerId,
+            CardId = cardId
+        });
     }
 
 

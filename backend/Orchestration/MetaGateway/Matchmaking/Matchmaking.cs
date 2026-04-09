@@ -152,11 +152,9 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
                     {
                         if (_users.IsConnected(entry.UserId) == true)
                         {
-                            _logger.LogInformation(
-                                "[Matchmaking] {UserID} waited {WaitTime}s, applying bot match",
+                            _logger.LogInformation("[Matchmaking] {UserID} waited {WaitTime}s, applying bot match",
                                 entry.UserId,
-                                (int)waitTimeSeconds
-                            );
+                                (int)waitTimeSeconds);
                             botMatches.Add(entry.UserId);
                             toRemove.Add(i);
                         }
@@ -195,11 +193,9 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
                     queue.RemoveAt(0);
                     queue.RemoveAt(0);
 
-                    _logger.LogInformation(
-                        "[Matchmaking] {First} and {Second} are matched",
+                    _logger.LogInformation("[Matchmaking] {First} and {Second} are matched",
                         first.UserId,
-                        second.UserId
-                    );
+                        second.UserId);
 
                     matchesCreated.Add((new[] { first.UserId, second.UserId }, type));
                     hasMatched = true;

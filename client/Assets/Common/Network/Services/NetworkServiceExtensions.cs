@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public static class NetworkServiceExtensions
     {
@@ -45,9 +45,9 @@ namespace Common.Network
             public void Setup<T>() where T : NetworkService
             {
                 _builder.Register<NetworkServiceResolver<T>>()
-                    .WithParameter<IReadOnlyDictionary<int, INetworkProperty>>(_properties)
-                    .WithParameter(_key)
-                    .AsSessionCallback<NetworkServiceResolver<T>, INetworkSessionSetupCompleted>();
+                        .WithParameter<IReadOnlyDictionary<int, INetworkProperty>>(_properties)
+                        .WithParameter(_key)
+                        .AsSessionCallback<NetworkServiceResolver<T>, INetworkSessionSetupCompleted>();
             }
 
             public NetworkServiceBuilder WithProperty<T>(int propertyId = 0) where T : class, new()
@@ -116,8 +116,7 @@ namespace Common.Network
                     _key,
                     _properties,
                     events,
-                    lifetime
-              );
+                    lifetime);
 
                 _service.Start(data);
                 _objectsCollection.Add(_service);

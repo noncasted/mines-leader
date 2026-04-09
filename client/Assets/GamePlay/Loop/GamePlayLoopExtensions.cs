@@ -1,10 +1,10 @@
-﻿using Common.Network;
-using GamePlay.Boards;
+﻿using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
 using GamePlay.Services;
-using GamePlay.UI;
+using GamePlay.UI.CardInfo;
 using Internal;
+using Network;
 
 namespace GamePlay.Loop
 {
@@ -22,7 +22,7 @@ namespace GamePlay.Loop
                 .AddSnapshotSync();
 
             builder.Register<GameContext>()
-                .As<IGameContext>();
+                   .As<IGameContext>();
 
             return builder;
         }

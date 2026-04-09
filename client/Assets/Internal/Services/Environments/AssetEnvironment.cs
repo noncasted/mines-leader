@@ -66,7 +66,7 @@ namespace Internal
             }
 
             builder.RegisterInstance(dictionary)
-                .As<IEnvDictionary<TKey, TValue>>();
+                   .As<IEnvDictionary<TKey, TValue>>();
 
             return builder;
         }

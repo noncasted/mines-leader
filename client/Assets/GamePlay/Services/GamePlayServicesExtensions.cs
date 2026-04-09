@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 
 namespace GamePlay.Services
 {
@@ -8,12 +8,12 @@ namespace GamePlay.Services
         public static IScopeBuilder AddGamePlayServices(this IScopeBuilder builder)
         {
             builder.Register<GameInput>()
-                .As<IGameInput>()
-                .As<IScopeSetup>();
+                   .As<IGameInput>()
+                   .As<IScopeSetup>();
 
             builder.RegisterCommand<SnapshotReceiver>()
-                .As<ISnapshotReceiver>()
-                .As<IScopeSetup>();
+                   .As<ISnapshotReceiver>()
+                   .As<IScopeSetup>();
 
             return builder;
         }

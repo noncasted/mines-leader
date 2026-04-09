@@ -35,8 +35,7 @@ public class OpponentBombTests
                                                 t t m t t t t t t t
                                                 t t t t t t t t t t
                                                 t t t t m t t t m t
-                                                """
-        );
+                                                """);
 
         var opponent = MockOpponent();
         new OpponentBomb(opponent, board, new CardUsePayload.OpponentBomb { Position = target }).Use();
@@ -53,8 +52,7 @@ public class OpponentBombTests
                                        t t m R R R t t t t
                                        t t t R R R t t t t
                                        t t t t m t t t m t
-                                       """
-        );
+                                       """);
 
         opponent.Health.DidNotReceive().TakeDamage(Arg.Any<int>());
     }
@@ -68,14 +66,13 @@ public class OpponentBombTests
                                                 t t m t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         // Target the mine cell
         var opponent = MockOpponent();
+
         new OpponentBomb(opponent, board,
-            new CardUsePayload.OpponentBomb { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.OpponentBomb { Position = new Position(2, 2) }).Use();
 
         opponent.Health.Received(1).TakeDamage(1);
 
@@ -95,8 +92,7 @@ public class OpponentBombTests
                                                 t m t t t m t
                                                 t m m m m m t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var opponent = MockOpponent();
         new OpponentBomb(opponent, board, new CardUsePayload.OpponentBomb { Position = target }).Use();
@@ -110,8 +106,7 @@ public class OpponentBombTests
                                        t m R R R m t
                                        t m m m m m t
                                        t t t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -121,12 +116,10 @@ public class OpponentBombTests
                                            _ _ _
                                            _ _ _
                                            _ _ _
-                                           """
-        );
+                                           """);
 
         var result = new OpponentBomb(MockOpponent(), board,
-            new CardUsePayload.OpponentBomb { Position = new Position(1, 1) }
-        ).Use();
+            new CardUsePayload.OpponentBomb { Position = new Position(1, 1) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -138,12 +131,10 @@ public class OpponentBombTests
                                            t t t
                                            t t t
                                            t t t
-                                           """
-        );
+                                           """);
 
         var result = new OpponentBomb(MockOpponent(), board,
-            new CardUsePayload.OpponentBomb { Position = new Position(99, 99) }
-        ).Use();
+            new CardUsePayload.OpponentBomb { Position = new Position(99, 99) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }

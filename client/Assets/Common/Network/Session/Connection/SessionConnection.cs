@@ -4,7 +4,7 @@ using Internal;
 using Shared;
 using UnityEngine;
 
-namespace Common.Network
+namespace Network
 {
     public interface ISessionConnection
     {
@@ -35,8 +35,7 @@ namespace Common.Network
             var response = await _connection.Request<SharedSessionAuth.Response>(auth);
 
             Debug.Log(
-                $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}"
-          );
+                $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}");
 
             if (response.IsSuccess == false)
             {

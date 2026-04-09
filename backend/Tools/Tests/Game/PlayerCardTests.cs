@@ -36,11 +36,11 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var config = new CardConfigOptions.TrebuchetAimer { Size = 1 };
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
-            {
-                { PlayerModifier.TrebuchetBoost, 0f }
-            }
-        );
+        {
+            { PlayerModifier.TrebuchetBoost, 0f }
+        });
 
         var result = new TrebuchetAimer(owner, config).Use();
 
@@ -53,11 +53,11 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var config = new CardConfigOptions.TrebuchetAimer { Size = 1 };
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
-            {
-                { PlayerModifier.TrebuchetBoost, 2f }
-            }
-        );
+        {
+            { PlayerModifier.TrebuchetBoost, 2f }
+        });
 
         var result = new TrebuchetAimer(owner, config).Use();
 
@@ -70,11 +70,11 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var config = new CardConfigOptions.TrebuchetAimer { Size = 5 };
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
-            {
-                { PlayerModifier.TrebuchetBoost, 0f }
-            }
-        );
+        {
+            { PlayerModifier.TrebuchetBoost, 0f }
+        });
 
         var result = new TrebuchetAimer(owner, config).Use();
 
@@ -86,11 +86,11 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var config = new CardConfigOptions.TrebuchetAimer { Size = 1 };
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
-            {
-                { PlayerModifier.TrebuchetBoost, 0f }
-            }
-        );
+        {
+            { PlayerModifier.TrebuchetBoost, 0f }
+        });
 
         var result = new TrebuchetAimer(owner, config).Use();
 
@@ -328,11 +328,10 @@ public class ScavengerTests : PlayerCardTestsBase
         var config = new CardConfigOptions.Scavenger();
         owner.Deck.Count.Returns(5, 4);
         owner.Deck.DrawCard().Returns(CardType.Bloodhound, CardType.Trebuchet);
+
         owner.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet }
-            );
+             .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
+                 new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet });
 
         var result = new Scavenger(owner, snapshot, config).Use();
 
@@ -350,10 +349,9 @@ public class ScavengerTests : PlayerCardTestsBase
         // Deck has 1 card, config wants 2
         owner.Deck.Count.Returns(1, 0);
         owner.Deck.DrawCard().Returns(CardType.Bloodhound);
+
         owner.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound }
-            );
+             .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound });
 
         var result = new Scavenger(owner, snapshot, config).Use();
 
@@ -386,11 +384,10 @@ public class ScavengerTests : PlayerCardTestsBase
         var cardId2 = Guid.NewGuid();
         owner.Deck.Count.Returns(5, 4);
         owner.Deck.DrawCard().Returns(CardType.Bloodhound, CardType.Trebuchet);
+
         owner.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = cardId1, Type = CardType.Bloodhound },
-                new ActiveCard { Id = cardId2, Type = CardType.Trebuchet }
-            );
+             .Returns(new ActiveCard { Id = cardId1, Type = CardType.Bloodhound },
+                 new ActiveCard { Id = cardId2, Type = CardType.Trebuchet });
 
         new Scavenger(owner, snapshot, config).Use();
 
@@ -409,11 +406,10 @@ public class ScavengerTests : PlayerCardTestsBase
         var config = new CardConfigOptions.Scavenger();
         owner.Deck.Count.Returns(5, 4);
         owner.Deck.DrawCard().Returns(CardType.Bloodhound, CardType.Trebuchet);
+
         owner.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet }
-            );
+             .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
+                 new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet });
 
         var result = new Scavenger(owner, snapshot, config).Use();
 
@@ -436,11 +432,10 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Entries.Returns(new List<ActiveCard> { card1, card2 });
         opponent.Deck.Count.Returns(2, 1);
         opponent.Deck.DrawCard().Returns(CardType.Smoke, CardType.Medic);
+
         opponent.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke },
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Medic }
-            );
+                .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke },
+                    new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Medic });
 
         var result = new HandScramble(opponent, snapshot).Use();
 
@@ -479,10 +474,9 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Deck.Count.Returns(1);
         opponent.Deck.DrawCard().Returns(CardType.Smoke);
         var newCardId = Guid.NewGuid();
+
         opponent.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = newCardId, Type = CardType.Smoke }
-            );
+                .Returns(new ActiveCard { Id = newCardId, Type = CardType.Smoke });
 
         new HandScramble(opponent, snapshot).Use();
 
@@ -506,10 +500,9 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Entries.Returns(new List<ActiveCard> { card1 });
         opponent.Deck.Count.Returns(1);
         opponent.Deck.DrawCard().Returns(CardType.Smoke);
+
         opponent.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke }
-            );
+                .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke });
 
         new HandScramble(opponent, snapshot).Use();
 
@@ -527,10 +520,9 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Entries.Returns(new List<ActiveCard> { card1 });
         opponent.Deck.Count.Returns(1);
         opponent.Deck.DrawCard().Returns(CardType.Smoke);
+
         opponent.Hand.Add(Arg.Any<CardType>())
-            .Returns(
-                new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke }
-            );
+                .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke });
 
         var result = new HandScramble(opponent, snapshot).Use();
 
@@ -579,9 +571,7 @@ public class LockdownTests : PlayerCardTestsBase
         new Lockdown(opponent, config, roundActionService).Use();
 
         roundActionService.Received(1)
-            .Schedule(
-                Arg.Any<LockdownDisposeAction>(), config.Duration
-            );
+                          .Schedule(Arg.Any<LockdownDisposeAction>(), config.Duration);
     }
 
     [Fact]

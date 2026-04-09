@@ -60,6 +60,7 @@ public class BenchmarkRunner
     public bool Cancel(string title)
     {
         BenchmarkRunInfo? info;
+
         lock (_lock)
         {
             if (!_all.TryGetValue(title, out info))
@@ -75,6 +76,7 @@ public class BenchmarkRunner
     public void CancelAll()
     {
         List<BenchmarkRunInfo> all;
+
         lock (_lock)
         {
             all = _all.Values.ToList();

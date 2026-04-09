@@ -2,6 +2,7 @@
 using deploy;
 
 Console.WriteLine("[Deploy] Environment variables:");
+
 foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
     Console.WriteLine($"[Deploy]   {entry.Key}={entry.Value}");
 

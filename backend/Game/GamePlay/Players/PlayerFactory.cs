@@ -45,12 +45,11 @@ public class PlayerFactory : IPlayerFactory
         var stashProperty = entityBuilder.AddProperty<PlayerStashState>(PlayerStateIds.Stash);
 
         entityBuilder.WithPayload(new PlayerCreatePayload()
-            {
-                Name = $"User_{user.Index}",
-                Id = user.Id,
-                SelectedCharacter = CharacterType.BIBA
-            }
-        );
+        {
+            Name = $"User_{user.Index}",
+            Id = user.Id,
+            SelectedCharacter = CharacterType.BIBA
+        });
 
         var entity = entityBuilder.Build();
 
@@ -64,8 +63,7 @@ public class PlayerFactory : IPlayerFactory
         var stash = new Stash(stashProperty);
         var actions = new PlayerActions();
 
-        var player = new Player(
-            entity: entity,
+        var player = new Player(entity: entity,
             board: board,
             health: health,
             mana: mana,
@@ -74,8 +72,7 @@ public class PlayerFactory : IPlayerFactory
             moves: moves,
             hand: hand,
             stash: stash,
-            playerActions: actions
-        );
+            playerActions: actions);
 
         deckProperty.Update(state => state.Queue = new List<CardType>());
 

@@ -33,9 +33,9 @@ public class TaskQueueTests
         var result = _queue.Collect();
 
         result.Should()
-            .ContainSingle()
-            .Which.Id.Should()
-            .Be("t1");
+              .ContainSingle()
+              .Which.Id.Should()
+              .Be("t1");
     }
 
     [Fact]
@@ -76,10 +76,11 @@ public class TaskQueueTests
         _queue.Enqueue(ready);
 
         var result = _queue.Collect();
+
         result.Should()
-            .ContainSingle()
-            .Which.Id.Should()
-            .Be("ready");
+              .ContainSingle()
+              .Which.Id.Should()
+              .Be("ready");
     }
 
     [Fact]
@@ -94,10 +95,11 @@ public class TaskQueueTests
 
         // First enqueue wins (TryAdd), so the task is immediately available
         var result = _queue.Collect();
+
         result.Should()
-            .ContainSingle()
-            .Which.Priority.Should()
-            .Be(TaskPriority.Low);
+              .ContainSingle()
+              .Which.Priority.Should()
+              .Be(TaskPriority.Low);
     }
 
     [Fact]
@@ -121,9 +123,10 @@ public class TaskQueueTests
     public void ConcurrentEnqueue_AllTasksCollected()
     {
         const int taskCount = 100;
+
         var tasks = Enumerable.Range(0, taskCount)
-            .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero))
-            .ToList();
+                              .Select(i => new FakeTask($"t{i}", delay: TimeSpan.Zero))
+                              .ToList();
 
         Parallel.ForEach(tasks, task => _queue.Enqueue(task));
 
@@ -138,56 +141,57 @@ public class TaskQueueTests
         var exceptions = new List<Exception>();
         var collected = new List<IReadOnlyList<IPriorityTask>>();
 
-        var enqueueTask = Task.Run(() =>
+        var enqueueTask = Task.Run(() => {
+            for (var i = 0; i < iterations; i++)
             {
-                for (var i = 0; i < iterations; i++)
+                try
                 {
-                    try
-                    {
-                        _queue.Enqueue(new FakeTask($"t{i}", delay: TimeSpan.Zero));
-                    }
-                    catch (Exception e)
-                    {
-                        lock (exceptions) exceptions.Add(e);
-                    }
+                    _queue.Enqueue(new FakeTask($"t{i}", delay: TimeSpan.Zero));
+                }
+                catch (Exception e)
+                {
+                    lock (exceptions)
+                        exceptions.Add(e);
                 }
             }
-        );
+        });
 
-        var collectTask = Task.Run(() =>
+        var collectTask = Task.Run(() => {
+            for (var i = 0; i < iterations; i++)
             {
-                for (var i = 0; i < iterations; i++)
+                try
                 {
-                    try
+                    var batch = _queue.Collect();
+
+                    if (batch.Count > 0)
                     {
-                        var batch = _queue.Collect();
-                        if (batch.Count > 0)
-                        {
-                            lock (collected) collected.Add(batch);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        lock (exceptions) exceptions.Add(e);
+                        lock (collected)
+                            collected.Add(batch);
                     }
                 }
+                catch (Exception e)
+                {
+                    lock (exceptions)
+                        exceptions.Add(e);
+                }
             }
-        );
+        });
 
         Task.WaitAll(enqueueTask, collectTask);
         exceptions.Should().BeEmpty();
 
         // Drain any remaining tasks after concurrent phase
         var remaining = _queue.Collect();
+
         if (remaining.Count > 0)
             collected.Add(remaining);
 
         var totalCollected = collected.SelectMany(b => b).Select(t => t.Id).ToList();
         totalCollected.Should().OnlyHaveUniqueItems("each task should be collected exactly once");
+
         totalCollected.Should()
-            .HaveCount(iterations,
-                "all enqueued tasks should eventually be collected"
-            );
+                      .HaveCount(iterations,
+                          "all enqueued tasks should eventually be collected");
     }
 
     [Fact]
@@ -203,9 +207,9 @@ public class TaskQueueTests
         var result = _queue.Collect();
 
         result.Should()
-            .ContainSingle()
-            .Which.Id.Should()
-            .Be("t1");
+              .ContainSingle()
+              .Which.Id.Should()
+              .Be("t1");
     }
 }
 

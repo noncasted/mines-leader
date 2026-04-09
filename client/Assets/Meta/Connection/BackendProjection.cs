@@ -77,8 +77,8 @@ namespace Meta
             where T : class, INetworkContext
         {
             builder.Register<BackendProjection<T>>()
-                .As<IBackendProjection<T>>()
-                .As<IBackendProjection>();
+                   .As<IBackendProjection<T>>()
+                   .As<IBackendProjection>();
 
             return builder;
         }

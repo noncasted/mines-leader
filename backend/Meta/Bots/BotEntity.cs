@@ -39,11 +39,9 @@ public class Bot : Grain, IBot
 
     public async Task Initialize()
     {
-        var state = await _state.Update(state =>
-            {
-                state.Id = this.GetPrimaryKey();
-            }
-        );
+        var state = await _state.Update(state => {
+            state.Id = this.GetPrimaryKey();
+        });
 
         _logger.LogInformation("[Bot] Created bot {Id}", state.Id);
     }

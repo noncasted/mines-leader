@@ -2,16 +2,16 @@
 using Global.Systems;
 using VContainer.Internal;
 
-namespace Common.Animations
+namespace Animations
 {
     public class ForwardSpriteAnimation : SpriteAnimation
     {
         public ForwardSpriteAnimation(Utils utils, ISpriteAnimationData data) : base(
-            utils.Updater,
-            utils.Renderer,
-            data.Time,
-            new ForwardFrameProvider(data.Sprites)
-        )
+                utils.Updater,
+                utils.Renderer,
+                data.Time,
+                new ForwardFrameProvider(data.Sprites)
+            )
         {
         }
 
@@ -31,11 +31,11 @@ namespace Common.Animations
     public class RotatableSpriteAnimation : SpriteAnimation
     {
         public RotatableSpriteAnimation(Utils utils, Options options) : base(
-            utils.Updater,
-            utils.Renderer,
-            options.Time,
-            new RotatableFrameProvider(utils.RotationProvider, options.Animations)
-        )
+                utils.Updater,
+                utils.Renderer,
+                options.Time,
+                new RotatableFrameProvider(utils.RotationProvider, options.Animations)
+            )
         {
         }
 

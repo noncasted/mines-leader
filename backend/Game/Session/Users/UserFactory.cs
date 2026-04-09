@@ -65,6 +65,7 @@ public class UserFactory : IUserFactory
         connectionLifetime.Listen(() => _executionQueue.Enqueue(userLifetime.Terminate));
 
         var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
+
         var connection = new BotConnection
         {
             Lifetime = parentLifetime

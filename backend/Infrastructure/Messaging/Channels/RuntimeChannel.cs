@@ -48,9 +48,9 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
-        var delay = MessagingGrainExtensions.GetKeepAliveDelay(
-            _observers.Values, d => d.UpdateDate, _config.Value.ObserverKeepAliveMinutes
-        );
+        var delay = MessagingGrainExtensions.GetKeepAliveDelay(_observers.Values, d => d.UpdateDate,
+            _config.Value.ObserverKeepAliveMinutes);
+
         if (delay != null)
             DelayDeactivation(delay.Value);
         return Task.CompletedTask;
@@ -109,8 +109,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
                 _logger.LogError(e,
                     "[Messaging] [Channel] Delivering message from {ChannelName} to observer failed",
-                    this.GetPrimaryKeyString()
-                );
+                    this.GetPrimaryKeyString());
             }
         }
     }

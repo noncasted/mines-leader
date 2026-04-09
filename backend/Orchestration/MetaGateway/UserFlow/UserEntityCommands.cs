@@ -28,19 +28,17 @@ public static class UserEntityCommands
             IUserSession session,
             SharedBackendUser.UpdateDeckRequest request)
         {
-            return _orleans.InTransaction(() =>
-                    {
-                        var deck = _orleans.GetGrain<IUserDeck>(session.UserId);
+            return _orleans.InTransaction(() => {
+                               var deck = _orleans.GetGrain<IUserDeck>(session.UserId);
 
-                        var update = new Dictionary<int, IReadOnlyList<CardType>>();
+                               var update = new Dictionary<int, IReadOnlyList<CardType>>();
 
-                        foreach (var (index, entry) in request.Projection.Entries)
-                            update[index] = entry.Cards;
+                               foreach (var (index, entry) in request.Projection.Entries)
+                                   update[index] = entry.Cards;
 
-                        return deck.Update(update, request.Projection.SelectedIndex);
-                    }
-                )
-                .FromResult();
+                               return deck.Update(update, request.Projection.SelectedIndex);
+                           })
+                           .FromResult();
         }
     }
 }

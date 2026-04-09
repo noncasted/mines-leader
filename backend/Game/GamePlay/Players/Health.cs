@@ -79,10 +79,9 @@ public class Health : IHealth
     private void SyncState()
     {
         _state.Set(new PlayerHealthState
-            {
-                Current = _current.Value,
-                Max = _max
-            }
-        );
+        {
+            Current = _current.Value,
+            Max = _max
+        });
     }
 }

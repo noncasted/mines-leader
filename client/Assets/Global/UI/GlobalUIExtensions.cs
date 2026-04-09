@@ -1,4 +1,5 @@
 ﻿using Internal;
+using Tools;
 
 namespace Global.UI
 {
@@ -7,16 +8,16 @@ namespace Global.UI
         public static void AddUI(this IScopeBuilder builder)
         {
             builder.Register<UIStateMachine>()
-                .WithScopeLifetime()
-                .As<IUIStateMachine>();
+                   .WithScopeLifetime()
+                   .As<IUIStateMachine>();
 
-            var loadingScreen = builder.Instantiate(Tools.Prefabs.LoadingScreen.As<LoadingScreen>());
+            var loadingScreen = builder.Instantiate(Prefabs.LoadingScreen.As<LoadingScreen>());
 
             builder.Inject(loadingScreen);
 
             builder.RegisterInstance(loadingScreen)
-                .As<ILoadingScreen>()
-                .As<IScopeSetup>();
+                   .As<ILoadingScreen>()
+                   .As<IScopeSetup>();
         }
     }
 }

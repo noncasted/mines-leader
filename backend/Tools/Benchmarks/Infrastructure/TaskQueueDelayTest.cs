@@ -40,10 +40,9 @@ public class TaskQueueDelayTest
             {
                 var queue = new TaskQueue(NullLogger<TaskQueue>.Instance);
                 queue.Enqueue(new TestPriorityTask($"immediate-{Guid.NewGuid()}", TaskPriority.Medium));
+
                 queue.Enqueue(new TestPriorityTask($"delayed-{Guid.NewGuid()}", TaskPriority.Medium,
-                        TimeSpan.FromSeconds(60)
-                    )
-                );
+                    TimeSpan.FromSeconds(60)));
                 queue.Collect();
                 handle.Metrics.Inc();
                 await Task.CompletedTask;

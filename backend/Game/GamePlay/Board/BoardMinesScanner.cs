@@ -42,12 +42,10 @@ public class BoardMinesScanner : IBoardMinesScanner
             freeState.UpdateMinesAround(target[cell.Position]);
         }
 
-        _state.Update(state =>
-            {
-                state.Mines = GetTotalMines();
-                state.Flags = GetTotalFlags();
-            }
-        );
+        _state.Update(state => {
+            state.Mines = GetTotalMines();
+            state.Flags = GetTotalFlags();
+        });
 
         return;
 

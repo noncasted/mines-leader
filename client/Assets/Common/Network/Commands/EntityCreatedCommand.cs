@@ -2,7 +2,7 @@
 using Internal;
 using Shared;
 
-namespace Common.Network
+namespace Network
 {
     public class EntityCreatedCommand : OneWayCommand<SharedSessionEntity.CreatedOverview>
     {

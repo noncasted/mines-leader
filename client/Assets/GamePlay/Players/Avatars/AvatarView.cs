@@ -43,7 +43,7 @@ namespace GamePlay.Players
                 .As<IScopeLoaded>()
                 .AsSelfResolvable();
         }
-        
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _health.Current.View(lifetime, value => _healthText.text = value.ToString());

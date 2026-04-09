@@ -38,8 +38,8 @@ namespace GamePlay.UI
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                .As<IGamePause>()
-                .As<IScopeSetup>();
+                   .As<IGamePause>()
+                   .As<IScopeSetup>();
         }
 
         public void Open()

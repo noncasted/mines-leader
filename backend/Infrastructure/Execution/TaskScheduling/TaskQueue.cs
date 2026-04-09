@@ -29,11 +29,10 @@ public class TaskQueue : ITaskQueue
             try
             {
                 _queue.TryAdd(task.Id, new Entry
-                    {
-                        Task = task,
-                        ScheduleDate = DateTime.UtcNow + task.Delay
-                    }
-                );
+                {
+                    Task = task,
+                    ScheduleDate = DateTime.UtcNow + task.Delay
+                });
             }
             finally
             {
@@ -66,8 +65,7 @@ public class TaskQueue : ITaskQueue
                     if (now < entry.ScheduleDate)
                     {
                         sb.AppendLine(
-                            $"    Skipping task {entry.Task.Id}, wait for {(entry.ScheduleDate - now).TotalSeconds:F1}s"
-                        );
+                            $"    Skipping task {entry.Task.Id}, wait for {(entry.ScheduleDate - now).TotalSeconds:F1}s");
 
                         continue;
                     }

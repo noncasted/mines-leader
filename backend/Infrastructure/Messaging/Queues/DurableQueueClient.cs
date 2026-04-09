@@ -55,14 +55,12 @@ public class DurableQueueClient : IDurableQueueClient
 
             var source = new ViewableDelegate<T>();
 
-            var observer = new DurableQueueObserver(message =>
-                {
-                    if (message is not T castedMessage)
-                        throw new InvalidCastException();
+            var observer = new DurableQueueObserver(message => {
+                if (message is not T castedMessage)
+                    throw new InvalidCastException();
 
-                    source.Invoke(castedMessage);
-                }
-            );
+                source.Invoke(castedMessage);
+            });
 
             var observerReference = _orleans.Client.CreateObjectReference<IDurableQueueObserver>(observer);
 
@@ -91,6 +89,7 @@ public class DurableQueueClient : IDurableQueueClient
     public void RemoveConsumer(IDurableQueueId id)
     {
         var rawId = id.ToRaw();
+
         if (_listeners.TryRemove(rawId, out var listener))
             listener.Cleanup();
     }
@@ -112,11 +111,10 @@ public class DurableQueueClient : IDurableQueueClient
     public Task PushDirect(IDurableQueueId id, object message)
     {
         return _sideEffectsStorage.Write(new DurableQueueSideEffect()
-            {
-                QueueName = id.ToRaw(),
-                Message = message
-            }
-        );
+        {
+            QueueName = id.ToRaw(),
+            Message = message
+        });
     }
 
     private IDurableQueue GetQueue(IDurableQueueId id)
@@ -160,8 +158,7 @@ public class DurableQueueClient : IDurableQueueClient
                 if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
                     Logger.LogError(e,
                         "[Messaging] [DurableQueue] Failed to rebind observer (attempt {Count}) to queue {QueueId}",
-                        _consecutiveFailures, Id.ToRaw()
-                    );
+                        _consecutiveFailures, Id.ToRaw());
             }
         }
 

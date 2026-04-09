@@ -50,13 +50,13 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<CardAdd>()
-                .Add<CardRemove>()
-                .Add<ChangeMana>()
-                .Add<ChangeMaxMana>()
-                .Add<ChangeHealth>()
-                .Add<ChangeMoves>()
-                .Add<EndMatch>();
+                   .Add<CardAdd>()
+                   .Add<CardRemove>()
+                   .Add<ChangeMana>()
+                   .Add<ChangeMaxMana>()
+                   .Add<ChangeHealth>()
+                   .Add<ChangeMoves>()
+                   .Add<EndMatch>();
         }
     }
 }

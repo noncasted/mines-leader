@@ -63,8 +63,9 @@ public class BotCardAction : IBotCardAction
         var cardStrategy = _botCardStrategies.Entries[selectedCardType];
 
         var cardUsed = cardStrategy.Execute(selectedCardId, selectedCardType);
-        _logger.LogInformation("[Game] [Bot] Used card {CardType} with result: {UseResult} ", selectedCardType, cardUsed
-        );
+
+        _logger.LogInformation("[Game] [Bot] Used card {CardType} with result: {UseResult} ", selectedCardType,
+            cardUsed);
 
         if (cardUsed == false)
             return false;

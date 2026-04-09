@@ -30,9 +30,9 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<GetRequest>()
-                .Add<GetResponse>()
-                .Add<Overview>();
+                   .Add<GetRequest>()
+                   .Add<GetResponse>()
+                   .Add<Overview>();
         }
     }
 }

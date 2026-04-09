@@ -42,12 +42,10 @@ public class UserAuth : UserGrain, IUserAuth
 
     public async Task OnRegistered()
     {
-        await _state.Update(state =>
-            {
-                state.IsExists = true;
-                state.RegisteredAt = DateTime.UtcNow;
-            }
-        );
+        await _state.Update(state => {
+            state.IsExists = true;
+            state.RegisteredAt = DateTime.UtcNow;
+        });
 
         _logger.LogInformation("[User] [Auth] User {UserId} registered", this.GetPrimaryKey());
     }

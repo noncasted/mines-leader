@@ -53,13 +53,13 @@ namespace Shared
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
-                .Add<SearchLobby>()
-                .Add<SearchMatch>()
-                .Add<Create>()
-                .Add<CreateWithBot>()
-                .Add<CancelSearch>()
-                .Add<MatchResult>()
-                .Add<LobbyResult>();
+                   .Add<SearchLobby>()
+                   .Add<SearchMatch>()
+                   .Add<Create>()
+                   .Add<CreateWithBot>()
+                   .Add<CancelSearch>()
+                   .Add<MatchResult>()
+                   .Add<LobbyResult>();
         }
     }
 }

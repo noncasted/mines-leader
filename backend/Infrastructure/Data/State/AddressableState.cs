@@ -172,6 +172,6 @@ public static class AddressableStateExtensions
         builder.Services.AddSingleton<AddressableStateUtils>();
 
         return builder.Add<T>()
-            .As<IOrleansStarted>();
+                      .As<IOrleansStarted>();
     }
 }

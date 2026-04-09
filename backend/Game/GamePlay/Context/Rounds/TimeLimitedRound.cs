@@ -67,16 +67,14 @@ public class TimeLimitedRound : Service, IGameRound
 
         var players = _gameContext.Players;
 
-        _state.Update(state =>
-            {
-                var playersSecondsLeft = new Dictionary<Guid, long>();
+        _state.Update(state => {
+            var playersSecondsLeft = new Dictionary<Guid, long>();
 
-                foreach (var player in players)
-                    playersSecondsLeft.Add(player.User.Id, ModeOptions.RoundTime);
+            foreach (var player in players)
+                playersSecondsLeft.Add(player.User.Id, ModeOptions.RoundTime);
 
-                state.SecondsLeft = playersSecondsLeft;
-            }
-        );
+            state.SecondsLeft = playersSecondsLeft;
+        });
 
         var snapshot = new MoveSnapshot();
 
@@ -244,25 +242,21 @@ public class TimeLimitedRound : Service, IGameRound
     {
         foreach (var player in _gameContext.Players)
         {
-            player.Health.Current.Advise(lifetime, health =>
-                {
-                    if (health > 0)
-                        return;
+            player.Health.Current.Advise(lifetime, health => {
+                if (health > 0)
+                    return;
 
-                    _roundForcedLifetime?.Terminate();
-                }
-            );
+                _roundForcedLifetime?.Terminate();
+            });
 
-            player.User.Lifetime.Listen(() =>
-                {
-                    SkipTurn();
+            player.User.Lifetime.Listen(() => {
+                SkipTurn();
 
-                    if (lifetime.IsTerminated == true || _roundForcedLifetime == null)
-                        return;
+                if (lifetime.IsTerminated == true || _roundForcedLifetime == null)
+                    return;
 
-                    _roundForcedLifetime.Terminate();
-                }
-            );
+                _roundForcedLifetime.Terminate();
+            });
         }
     }
 }

@@ -7,8 +7,7 @@ public static class Options
 
     public static readonly string PfxPassword = Environment.GetEnvironmentVariable("PFX_PASSWORD") ??
                                                 throw new InvalidOperationException(
-                                                    "PFX_PASSWORD environment variable is required"
-                                                );
+                                                    "PFX_PASSWORD environment variable is required");
 
     public static readonly Dictionary<int, int> Ports = new()
     {

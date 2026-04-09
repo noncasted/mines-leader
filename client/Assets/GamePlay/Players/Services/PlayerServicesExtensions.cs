@@ -7,7 +7,7 @@ namespace GamePlay.Players
         public static IScopeBuilder AddPlayerServices(this IScopeBuilder builder)
         {
             builder.Register<GamePlayerFactory>()
-                .As<IScopeSetup>();
+                   .As<IScopeSetup>();
 
             return builder;
         }

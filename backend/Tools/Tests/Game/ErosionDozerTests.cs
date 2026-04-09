@@ -27,12 +27,10 @@ public class ErosionDozerTests
                                                 t t m t t t t t t t
                                                 t t t t t t t t t t
                                                 t t t t m t t t m t
-                                                """
-        );
+                                                """);
 
         var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }
-        ).Use();
+            new CardUsePayload.ErosionDozer { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -48,8 +46,7 @@ public class ErosionDozerTests
                                        t t m R R R t t t t
                                        t t t R R R t t t t
                                        t t t t m t t t m t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -62,12 +59,10 @@ public class ErosionDozerTests
                                                 t t x t t
                                                 t t t t t
                                                 t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }
-        ).Use();
+            new CardUsePayload.ErosionDozer { Position = target }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -84,12 +79,10 @@ public class ErosionDozerTests
                                                 t m t t t m t
                                                 t m m m m m t
                                                 t t t t t t t
-                                                """
-        );
+                                                """);
 
         var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }
-        ).Use();
+            new CardUsePayload.ErosionDozer { Position = target }).Use();
 
         result.Result.HasError.Should().BeFalse();
 
@@ -102,8 +95,7 @@ public class ErosionDozerTests
                                        t m R R R m t
                                        t m m m m m t
                                        t t t t t t t
-                                       """
-        );
+                                       """);
     }
 
     [Fact]
@@ -116,12 +108,10 @@ public class ErosionDozerTests
                                            t t _ t t
                                            t t t t t
                                            t m t t t
-                                           """
-        );
+                                           """);
 
         var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = new Position(2, 2) }
-        ).Use();
+            new CardUsePayload.ErosionDozer { Position = new Position(2, 2) }).Use();
 
         result.Result.HasError.Should().BeTrue();
     }

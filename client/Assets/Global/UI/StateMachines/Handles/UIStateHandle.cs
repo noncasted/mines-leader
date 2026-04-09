@@ -15,23 +15,19 @@ namespace Global.UI
             _innerLifetime = parent.InnerLifetime.Child();
             _outerLifetime = _innerLifetime.Child();
 
-            _isVisible.View(_innerLifetime, isVisible =>
-                {
-                    if (isVisible == true)
-                        constraintsStorage.Add(State.Constraints);
-                    else
-                        constraintsStorage.Remove(State.Constraints);
-                }
-          );
+            _isVisible.View(_innerLifetime, isVisible => {
+                if (isVisible == true)
+                    constraintsStorage.Add(State.Constraints);
+                else
+                    constraintsStorage.Remove(State.Constraints);
+            });
 
-            _innerLifetime.Listen(() =>
-                {
-                    if (_isVisible.Value == true)
-                        constraintsStorage.Remove(State.Constraints);
+            _innerLifetime.Listen(() => {
+                if (_isVisible.Value == true)
+                    constraintsStorage.Remove(State.Constraints);
 
-                    Completion.TrySetResult();
-                }
-          );
+                Completion.TrySetResult();
+            });
         }
 
         private readonly IInternalUIStateHandle _parent;
@@ -50,14 +46,12 @@ namespace Global.UI
         {
             _isVisible.Set(false);
 
-            stackHead.InnerLifetime.Listen(() =>
-                {
-                    if (_innerLifetime.IsTerminated == true)
-                        return;
+            stackHead.InnerLifetime.Listen(() => {
+                if (_innerLifetime.IsTerminated == true)
+                    return;
 
-                    _isVisible.Set(true);
-                }
-          );
+                _isVisible.Set(true);
+            });
         }
 
         public void OnChild()

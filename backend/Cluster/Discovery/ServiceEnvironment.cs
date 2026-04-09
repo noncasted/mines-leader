@@ -22,11 +22,10 @@ public static class EnvironmentExtensions
     public static IHostApplicationBuilder AddEnvironment(this IHostApplicationBuilder builder, ServiceTag tag)
     {
         builder.Add<IServiceEnvironment>(new ServiceEnvironment
-            {
-                IsDevelopment = builder.Environment.IsDevelopment(),
-                Tag = tag
-            }
-        );
+        {
+            IsDevelopment = builder.Environment.IsDevelopment(),
+            Tag = tag
+        });
 
         return builder;
     }

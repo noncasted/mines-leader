@@ -45,10 +45,9 @@ public class MatchHandle
             }
 
             var sessionId = _sessionFactory.CreateMatch(new MatchCreateOptions
-                {
-                    Type = _createOptions.Type
-                }
-            );
+            {
+                Type = _createOptions.Type
+            });
 
             var serviceOverview = _serviceDiscovery.Self as GameServerOverview;
 

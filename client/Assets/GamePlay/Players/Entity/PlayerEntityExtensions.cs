@@ -1,5 +1,5 @@
-﻿using Common.Network;
-using Internal;
+﻿using Internal;
+using Network;
 using Shared;
 
 namespace GamePlay.Players
@@ -9,20 +9,20 @@ namespace GamePlay.Players
         public static IEntityBuilder AddPlayerComponents(this IEntityBuilder builder)
         {
             builder.Register<PlayerMana>()
-                .As<IPlayerMana>()
-                .As<IScopeLoaded>();
+                   .As<IPlayerMana>()
+                   .As<IScopeLoaded>();
 
             builder.Register<PlayerHealth>()
-                .As<IPlayerHealth>()
-                .As<IScopeLoaded>();
+                   .As<IPlayerHealth>()
+                   .As<IScopeLoaded>();
 
             builder.Register<PlayerMoves>()
-                .As<IPlayerMoves>()
-                .As<IScopeLoaded>();
+                   .As<IPlayerMoves>()
+                   .As<IScopeLoaded>();
 
             builder.Register<PlayerModifiers>()
-                .As<IPlayerModifiers>()
-                .As<IScopeLoaded>();
+                   .As<IPlayerModifiers>()
+                   .As<IScopeLoaded>();
 
             return builder;
         }
@@ -33,11 +33,11 @@ namespace GamePlay.Players
             CharacterType character)
         {
             builder.RegisterInstance(new GamePlayerInfo(owner.BackendId, owner.IsLocal, character))
-                .As<IGamePlayerInfo>();
+                   .As<IGamePlayerInfo>();
 
             builder.Register<GamePlayer>()
-                .WithParameter(builder.Scope)
-                .As<IGamePlayer>();
+                   .WithParameter(builder.Scope)
+                   .As<IGamePlayer>();
 
             return builder;
         }

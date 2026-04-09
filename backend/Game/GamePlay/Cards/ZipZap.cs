@@ -105,8 +105,8 @@ public class ZipZap : ICard
             var unique = hasFlags.Where(x => targets.Contains(x) == false);
 
             var ordered = unique
-                .OrderBy(x => x.Position.DistanceTo(center))
-                .ToList();
+                          .OrderBy(x => x.Position.DistanceTo(center))
+                          .ToList();
 
             if (ordered.Count == 0)
                 return null;

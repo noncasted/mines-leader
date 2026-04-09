@@ -1,6 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 
-namespace Common.Animations
+namespace Animations
 {
     public class SpriteAnimationAsyncUpdatable : IUpdatableSpriteAnimation
     {
