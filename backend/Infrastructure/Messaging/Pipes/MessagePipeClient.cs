@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Common.Extensions;
 using Common.Reactive;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
@@ -21,13 +22,16 @@ public class RuntimePipeClient : IRuntimePipeClient
 {
     public RuntimePipeClient(
         IOrleans orleans,
+        IServiceProvider services,
         ILogger<RuntimePipeClient> logger)
     {
         _orleans = orleans;
+        _config = new Lazy<IRuntimePipeConfig>(() => services.GetRequiredService<IRuntimePipeConfig>());
         _logger = logger;
     }
 
     private readonly IOrleans _orleans;
+    private readonly Lazy<IRuntimePipeConfig> _config;
     private readonly ILogger<RuntimePipeClient> _logger;
 
     private readonly ConcurrentDictionary<Guid, Listener> _listeners = new();
@@ -38,11 +42,42 @@ public class RuntimePipeClient : IRuntimePipeClient
         return Task.CompletedTask;
     }
 
-    public Task<TResponse> Send<TResponse>(IRuntimePipeId id, object message)
+    public async Task<TResponse> Send<TResponse>(IRuntimePipeId id, object message)
     {
         var pipe = GetPipe(id);
-        return pipe.Send<TResponse>(message);
+        var options = _config.Value.Value;
+
+        Exception? lastException = null;
+
+        for (var attempt = 0; attempt <= options.SendRetryCount; attempt++)
+        {
+            try
+            {
+                return await pipe.Send<TResponse>(message);
+            }
+            catch (Exception e) when (IsTransient(e))
+            {
+                lastException = e;
+
+                if (attempt < options.SendRetryCount)
+                {
+                    BackendMetrics.PipeRetry.Add(1);
+                    var delay = options.SendRetryBaseDelayMs * (1 << attempt);
+
+                    _logger.LogWarning(e,
+                        "[Messaging] [Pipe] Send to {PipeId} failed (attempt {Attempt}/{Max}), retrying in {Delay}ms",
+                        id.ToRaw(), attempt + 1, options.SendRetryCount + 1, delay);
+
+                    await Task.Delay(delay);
+                }
+            }
+        }
+
+        throw lastException!;
     }
+
+    private static bool IsTransient(Exception e) =>
+        e is not (InvalidCastException or ArgumentException or NotSupportedException);
 
     public async Task AddHandler<TRequest, TResponse>(
         IReadOnlyLifetime lifetime,
@@ -116,14 +151,27 @@ public class RuntimePipeClient : IRuntimePipeClient
     {
         while (lifetime.IsTerminated == false)
         {
-            if (_listeners.Count == 0)
+            if (_listeners.IsEmpty)
             {
                 await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
                 continue;
             }
 
-            await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
-            await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
+            foreach (var listener in _listeners.Values)
+            {
+                try
+                {
+                    await listener.Resubscribe();
+                    listener.Interval.RecordSuccess();
+                }
+                catch
+                {
+                    listener.Interval.RecordFailure();
+                }
+            }
+
+            var delay = _listeners.Values.Min(l => l.Interval.GetNextDelay());
+            await Task.Delay(delay, lifetime.Token);
         }
     }
 
@@ -134,6 +182,11 @@ public class RuntimePipeClient : IRuntimePipeClient
         public required IRuntimePipeObserver Observer { get; init; }
         public required IRuntimePipe Pipe { get; init; }
         public required ILogger Logger { get; init; }
+
+        public AdaptiveInterval Interval { get; } = new(
+            minInterval: TimeSpan.FromSeconds(10),
+            maxInterval: TimeSpan.FromSeconds(60),
+            failureBaseInterval: TimeSpan.FromSeconds(1));
 
         private int _consecutiveFailures;
 

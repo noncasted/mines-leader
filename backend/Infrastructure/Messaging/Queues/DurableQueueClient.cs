@@ -102,7 +102,8 @@ public class DurableQueueClient : IDurableQueueClient
         var sideEffect = new DurableQueueSideEffect()
         {
             QueueName = id.ToRaw(),
-            Message = message
+            Message = message,
+            CorrelationId = TransactionContextProvider.Current?.Id ?? Guid.NewGuid()
         };
 
         sideEffect.AddToTransaction();
@@ -113,7 +114,8 @@ public class DurableQueueClient : IDurableQueueClient
         return _sideEffectsStorage.Write(new DurableQueueSideEffect()
         {
             QueueName = id.ToRaw(),
-            Message = message
+            Message = message,
+            CorrelationId = Guid.NewGuid()
         });
     }
 
@@ -127,8 +129,24 @@ public class DurableQueueClient : IDurableQueueClient
     {
         while (lifetime.IsTerminated == false)
         {
-            await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
-            await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
+            foreach (var listener in _listeners.Values)
+            {
+                try
+                {
+                    await listener.Resubscribe();
+                    listener.Interval.RecordSuccess();
+                }
+                catch
+                {
+                    listener.Interval.RecordFailure();
+                }
+            }
+
+            var delay = _listeners.IsEmpty
+                ? TimeSpan.FromSeconds(10)
+                : _listeners.Values.Min(l => l.Interval.GetNextDelay());
+
+            await Task.Delay(delay, lifetime.Token);
         }
     }
 
@@ -141,6 +159,11 @@ public class DurableQueueClient : IDurableQueueClient
         public required ILogger Logger { get; init; }
         public required object Delegate { get; init; }
         public required IOrleans Orleans { get; init; }
+
+        public AdaptiveInterval Interval { get; } = new(
+            minInterval: TimeSpan.FromSeconds(10),
+            maxInterval: TimeSpan.FromSeconds(60),
+            failureBaseInterval: TimeSpan.FromSeconds(1));
 
         private int _consecutiveFailures;
 

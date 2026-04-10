@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -61,8 +62,21 @@ public class DurableQueue : Grain, IDurableQueue
 
     public async Task Push(object message)
     {
+        using var activity = TraceExtensions.MessagingDurableQueue.StartActivity("DurableQueue.Push");
+        activity?.SetTag("message.type", message.GetType().Name);
+        activity?.SetTag("observer.count", _observers.Count);
+
         BackendMetrics.DurableQueuePushed.Add(1);
         BackendMetrics.DurableQueueObserverCount.Record(_observers.Count);
+
+        if (_observers.Count == 0)
+        {
+            BackendMetrics.DurableQueueNoSubscribers.Add(1);
+            _logger.LogWarning("[Messaging] [DurableQueue] No active subscribers for queue '{QueueName}'",
+                this.GetPrimaryKeyString());
+            throw new InvalidOperationException(
+                $"No active subscribers for durable queue '{this.GetPrimaryKeyString()}'. Message left in processing for requeue.");
+        }
 
         List<Guid>? toRemove = null;
 
@@ -88,6 +102,13 @@ public class DurableQueue : Grain, IDurableQueue
         {
             foreach (var id in toRemove)
                 _observers.Remove(id);
+
+            if (_observers.Count == 0)
+            {
+                BackendMetrics.DurableQueueNoSubscribers.Add(1);
+                _logger.LogWarning("[Messaging] [DurableQueue] All subscribers removed after delivery failure on queue '{QueueName}'",
+                    this.GetPrimaryKeyString());
+            }
         }
     }
 

@@ -88,9 +88,10 @@ public static class MessagingExtensions
         public async Task ListenChannel<T>(
             IReadOnlyLifetime lifetime,
             IRuntimeChannelId id,
-            Action<T> listener)
+            Action<T> listener,
+            Action? onGapDetected = null)
         {
-            var consumer = await messaging.RuntimeChannel.GetOrCreateConsumer<T>(id);
+            var consumer = await messaging.RuntimeChannel.GetOrCreateConsumer<T>(id, onGapDetected);
             consumer.Advise(lifetime, listener);
         }
     }

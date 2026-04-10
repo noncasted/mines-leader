@@ -9,7 +9,7 @@ public interface IRuntimeChannelClient
 {
     Task Start(IReadOnlyLifetime lifetime);
 
-    Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id);
+    Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id, Action? onGapDetected = null);
     Task Publish(IRuntimeChannelId id, object message);
 }
 
@@ -35,7 +35,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
         return Task.CompletedTask;
     }
 
-    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id)
+    public async Task<IViewableDelegate<T>> GetOrCreateConsumer<T>(IRuntimeChannelId id, Action? onGapDetected = null)
     {
         var rawId = id.ToRaw();
 
@@ -68,7 +68,8 @@ public class RuntimeChannelClient : IRuntimeChannelClient
                 Channel = GetChannel(id),
                 Logger = _logger,
                 Delegate = source,
-                Orleans = _orleans
+                Orleans = _orleans,
+                OnGapDetected = onGapDetected
             };
 
             _listeners[rawId] = listener;
@@ -104,8 +105,24 @@ public class RuntimeChannelClient : IRuntimeChannelClient
     {
         while (lifetime.IsTerminated == false)
         {
-            await Task.WhenAll(_listeners.Select(t => t.Value.Resubscribe()));
-            await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
+            foreach (var listener in _listeners.Values)
+            {
+                try
+                {
+                    await listener.Resubscribe();
+                    listener.Interval.RecordSuccess();
+                }
+                catch
+                {
+                    listener.Interval.RecordFailure();
+                }
+            }
+
+            var delay = _listeners.IsEmpty
+                ? TimeSpan.FromSeconds(10)
+                : _listeners.Values.Min(l => l.Interval.GetNextDelay());
+
+            await Task.Delay(delay, lifetime.Token);
         }
     }
 
@@ -118,6 +135,12 @@ public class RuntimeChannelClient : IRuntimeChannelClient
         public required ILogger Logger { get; init; }
         public required object Delegate { get; init; }
         public required IOrleans Orleans { get; init; }
+        public Action? OnGapDetected { get; set; }
+
+        public AdaptiveInterval Interval { get; } = new(
+            minInterval: TimeSpan.FromSeconds(10),
+            maxInterval: TimeSpan.FromSeconds(60),
+            failureBaseInterval: TimeSpan.FromSeconds(1));
 
         private int _consecutiveFailures;
 
@@ -127,6 +150,23 @@ public class RuntimeChannelClient : IRuntimeChannelClient
             {
                 await Channel.AddObserver(ObserverSource.Id, ObserverReference);
                 _consecutiveFailures = 0;
+
+                if (ObserverSource.LastSeenSequence > 0)
+                {
+                    var catchUp = await Channel.CatchUp(ObserverSource.LastSeenSequence);
+
+                    if (catchUp.GapDetected)
+                    {
+                        Logger.LogWarning(
+                            "[Messaging] [Channel] Gap detected on {ChannelId}, last seen seq {LastSeq}, replaying {Count} messages",
+                            Id.ToRaw(), ObserverSource.LastSeenSequence, catchUp.Messages.Count);
+
+                        OnGapDetected?.Invoke();
+                    }
+
+                    foreach (var msg in catchUp.Messages)
+                        await ObserverSource.Send(msg);
+                }
             }
             catch (Exception e)
             {

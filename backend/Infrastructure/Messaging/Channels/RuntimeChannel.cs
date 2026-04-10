@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
@@ -25,6 +26,21 @@ public class RuntimeChannelId : IRuntimeChannelId
     }
 }
 
+[GenerateSerializer]
+public class SequencedMessage
+{
+    [Id(0)] public long Sequence { get; set; }
+    [Id(1)] public object Payload { get; set; } = null!;
+}
+
+[GenerateSerializer]
+public class CatchUpResult
+{
+    [Id(0)] public IReadOnlyList<SequencedMessage> Messages { get; set; } = Array.Empty<SequencedMessage>();
+    [Id(1)] public bool GapDetected { get; set; }
+    [Id(2)] public long CurrentSequence { get; set; }
+}
+
 public interface IRuntimeChannel : IGrainWithStringKey
 {
     Task AddObserver(Guid id, IRuntimeChannelObserver observer);
@@ -32,6 +48,9 @@ public interface IRuntimeChannel : IGrainWithStringKey
 
     [AlwaysInterleave]
     Task Publish(object message);
+
+    [AlwaysInterleave]
+    Task<CatchUpResult> CatchUp(long lastSeenSequence);
 }
 
 public class RuntimeChannel : Grain, IRuntimeChannel
@@ -45,6 +64,17 @@ public class RuntimeChannel : Grain, IRuntimeChannel
     private readonly ILogger<RuntimeChannel> _logger;
     private readonly IRuntimeChannelConfig _config;
     private readonly ConcurrentDictionary<Guid, ObserverData> _observers = new();
+
+    private long _sequenceNumber;
+    private SequencedMessage?[] _buffer = null!;
+    private int _bufferSize;
+
+    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        _bufferSize = _config.Value.CatchUpBufferSize;
+        _buffer = new SequencedMessage?[_bufferSize];
+        return Task.CompletedTask;
+    }
 
     public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
@@ -84,8 +114,16 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
     public async Task Publish(object message)
     {
+        using var activity = TraceExtensions.MessagingRuntimeChannel.StartActivity("RuntimeChannel.Publish");
+        activity?.SetTag("message.type", message.GetType().Name);
+        activity?.SetTag("observer.count", _observers.Count);
+
         BackendMetrics.ChannelPublished.Add(1);
         BackendMetrics.ChannelObserverCount.Record(_observers.Count);
+
+        _sequenceNumber++;
+        var sequenced = new SequencedMessage { Sequence = _sequenceNumber, Payload = message };
+        _buffer[_sequenceNumber % _bufferSize] = sequenced;
 
         var toRemove = new ConcurrentBag<Guid>();
 
@@ -100,7 +138,21 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         {
             try
             {
-                await data.Observer.Send(message);
+                var timeout = TimeSpan.FromSeconds(_config.Value.DeliveryTimeoutSeconds);
+                var deliveryTask = data.Observer.Send(sequenced);
+
+                if (await Task.WhenAny(deliveryTask, Task.Delay(timeout)) != deliveryTask)
+                {
+                    toRemove.Add(data.Id);
+                    BackendMetrics.ChannelDeliveryTimeout.Add(1);
+
+                    _logger.LogWarning(
+                        "[Messaging] [Channel] Delivery timeout on {ChannelName}",
+                        this.GetPrimaryKeyString());
+                    return;
+                }
+
+                await deliveryTask;
             }
             catch (Exception e)
             {
@@ -112,6 +164,54 @@ public class RuntimeChannel : Grain, IRuntimeChannel
                     this.GetPrimaryKeyString());
             }
         }
+    }
+
+    public Task<CatchUpResult> CatchUp(long lastSeenSequence)
+    {
+        if (lastSeenSequence >= _sequenceNumber)
+        {
+            return Task.FromResult(new CatchUpResult
+            {
+                CurrentSequence = _sequenceNumber
+            });
+        }
+
+        var oldestInBuffer = _sequenceNumber - _bufferSize + 1;
+        if (oldestInBuffer < 1) oldestInBuffer = 1;
+
+        var gapDetected = lastSeenSequence < oldestInBuffer - 1;
+        var startSequence = Math.Max(lastSeenSequence + 1, oldestInBuffer);
+
+        var messages = new List<SequencedMessage>();
+
+        for (var seq = startSequence; seq <= _sequenceNumber; seq++)
+        {
+            var entry = _buffer[seq % _bufferSize];
+            if (entry != null && entry.Sequence == seq)
+                messages.Add(entry);
+        }
+
+        if (messages.Count > 0)
+        {
+            BackendMetrics.ChannelCatchUpExecuted.Add(1);
+            BackendMetrics.ChannelCatchUpMessages.Record(messages.Count);
+        }
+
+        if (gapDetected)
+        {
+            BackendMetrics.ChannelGapDetected.Add(1);
+
+            _logger.LogWarning(
+                "[Messaging] [Channel] Gap detected on {ChannelName}: requested seq {RequestedSeq}, oldest available {OldestSeq}",
+                this.GetPrimaryKeyString(), lastSeenSequence, oldestInBuffer);
+        }
+
+        return Task.FromResult(new CatchUpResult
+        {
+            Messages = messages,
+            GapDetected = gapDetected,
+            CurrentSequence = _sequenceNumber
+        });
     }
 
     public class ObserverData
