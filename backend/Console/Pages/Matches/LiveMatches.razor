@@ -1,0 +1,131 @@
+@page "/matches"
+@using Cluster.Monitoring
+@using global::Common.Extensions
+@using global::Common.Reactive
+@using global::Infrastructure
+@using Console.Common
+@using Meta.Users
+@inherits UiComponent
+
+<PageTitle>Live Matches</PageTitle>
+<PageHeader Title="Live Matches"/>
+
+<div class="container mx-auto max-w-6xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center gap-3">
+        <div class="rounded-md bg-green-500/15 p-2">
+            <LucideIcon Name="gamepad-2" Size="20" class="text-green-400"/>
+        </div>
+        <div>
+            <span class="text-2xl font-bold">@_data.Matches.Count</span>
+            <span class="text-sm text-muted-foreground ml-2">active sessions</span>
+        </div>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Game Mode</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Player 1</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Player 2</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Started</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var match in _data.Matches)
+            {
+                <tr class="border-b last:border-b-0 hover:bg-muted/30">
+                    <td class="px-4 py-2.5">
+                        <button class="font-mono text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                title="Click to copy ID"
+                                @onclick="@(() => CopyToClipboard(match.Id.ToString()))">
+                            @(match.Id.ToString()[..8])&hellip;
+                        </button>
+                    </td>
+                    <td class="px-4 py-2.5 text-xs">
+                        @if (!string.IsNullOrEmpty(match.GameMode))
+                        {
+                            <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-medium">@match.GameMode</span>
+                        }
+                        else
+                        {
+                            <span class="bg-muted px-1.5 py-0.5 rounded text-xs font-medium text-muted-foreground">@match.Type</span>
+                        }
+                    </td>
+                    <td class="px-4 py-2.5 text-xs">
+                        @if (match.Player1Id != Guid.Empty)
+                        {
+                            <a href="@string.Format(ConsoleConstants.Pages.UserDashboard, match.Player1Id)"
+                               class="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 px-2 py-1 rounded hover:bg-blue-500/20 transition-colors font-medium">
+                                <LucideIcon Name="user" Size="12"/>
+                                @ResolveName(match.Player1Id)
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted-foreground">--</span>
+                        }
+                    </td>
+                    <td class="px-4 py-2.5 text-xs">
+                        @if (match.Player2Id != Guid.Empty)
+                        {
+                            <a href="@string.Format(ConsoleConstants.Pages.UserDashboard, match.Player2Id)"
+                               class="inline-flex items-center gap-1 bg-orange-500/10 text-orange-400 px-2 py-1 rounded hover:bg-orange-500/20 transition-colors font-medium">
+                                <LucideIcon Name="user" Size="12"/>
+                                @ResolveName(match.Player2Id)
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted-foreground">--</span>
+                        }
+                    </td>
+                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.CreatedAt.ToString("HH:mm:ss")</td>
+                </tr>
+            }
+            @if (_data.Matches.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-muted-foreground">No active sessions</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    [Inject] public IDynamicState<LiveMatchesData> LiveData { get; set; } = null!;
+    [Inject] public IUserCollection UserCollection { get; set; } = null!;
+    [Inject] public IJSRuntime JS { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
+
+    private LiveMatchesData _data = new();
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        LiveData.View(lifetime, data => {
+            _data = data;
+            InvokeAsync(StateHasChanged).NoAwait();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private string ResolveName(Guid userId)
+    {
+        if (userId == Guid.Empty) return "--";
+        if (UserCollection.TryGetValue(userId, out var user))
+            return user.Name;
+        return userId.ToString()[..8] + "...";
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        ToastService.Success("Copied to clipboard", "Done");
+    }
+}

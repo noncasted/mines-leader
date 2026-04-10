@@ -131,6 +131,7 @@
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
     private CardConfigOptions _cardsValue = new();
     private BotConfigOptions _botValue = new();
@@ -160,12 +161,13 @@
         }
     }
 
-    private void Save()
+    private async Task Save()
     {
         CardConfigs.SetValue(_cardsValue);
         BotConfig.SetValue(_botValue);
         GameModeConfig.SetValue(_gameModeValue);
         RatingConfig.SetValue(_ratingValue);
+        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating)");
         ToastService.Success("Configs saved", "Saved");
     }
 

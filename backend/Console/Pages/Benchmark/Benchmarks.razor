@@ -51,11 +51,12 @@
     @foreach (var group in ClusterTests.GroupBy(t => t.Group))
     {
         var groupTests = group.ToList();
+        var hasSubgroups = groupTests.Any(t => !string.IsNullOrEmpty(t.Subgroup));
         <div class="flex flex-col">
             <div class="flex items-center justify-between pb-2 border-b border-border">
                 <button class="flex items-center gap-2 text-left transition-colors hover:text-foreground/80"
-                        @onclick="@(() => _groupOpen[group.Key] = !_groupOpen[group.Key])">
-                    <LucideIcon Name="@(_groupOpen[group.Key] ? "chevron-down" : "chevron-right")" Size="14" class="text-muted-foreground shrink-0" />
+                        @onclick="@(() => ToggleGroup(group.Key))">
+                    <LucideIcon Name="@(IsGroupOpen(group.Key) ? "chevron-down" : "chevron-right")" Size="14" class="text-muted-foreground shrink-0" />
                     <span class="font-semibold text-sm">@group.Key</span>
                 </button>
                 @if (IsGroupRunning(groupTests))
@@ -73,14 +74,59 @@
                     </BbButton>
                 }
             </div>
-            @if (_groupOpen[group.Key])
+            @if (IsGroupOpen(group.Key))
             {
-                <div class="flex flex-col divide-y divide-border/60">
-                    @foreach (var test in groupTests)
-                    {
-                        <BenchmarkEntry @ref="_entries[test]" Test="test" Runner="Runner" StatusChanged="OnStatusChanged" />
-                    }
-                </div>
+                @if (hasSubgroups)
+                {
+                    <div class="flex flex-col gap-3 pt-2">
+                        @foreach (var subgroup in groupTests.GroupBy(t => t.Subgroup).OrderBy(s => s.Key))
+                        {
+                            var subTests = subgroup.ToList();
+                            var subKey = $"{group.Key}/{subgroup.Key}";
+                            <div class="flex flex-col pl-4">
+                                <div class="flex items-center justify-between pb-1.5 border-b border-border/40">
+                                    <button class="flex items-center gap-2 text-left transition-colors hover:text-foreground/80"
+                                            @onclick="@(() => ToggleGroup(subKey))">
+                                        <LucideIcon Name="@(IsGroupOpen(subKey) ? "chevron-down" : "chevron-right")" Size="12" class="text-muted-foreground shrink-0" />
+                                        <span class="font-medium text-xs text-muted-foreground">@subgroup.Key</span>
+                                    </button>
+                                    @if (IsGroupRunning(subTests))
+                                    {
+                                        <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive"
+                                                  @onclick="@(() => CancelGroup(subTests))">
+                                            Cancel
+                                        </BbButton>
+                                    }
+                                    else
+                                    {
+                                        <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Outline"
+                                                  @onclick="@(() => RunGroup(subTests))">
+                                            Run
+                                        </BbButton>
+                                    }
+                                </div>
+                                @if (IsGroupOpen(subKey))
+                                {
+                                    <div class="flex flex-col divide-y divide-border/60">
+                                        @foreach (var test in subTests)
+                                        {
+                                            <BenchmarkEntry @ref="_entries[test]" Test="test" Runner="Runner" StatusChanged="OnStatusChanged" />
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col divide-y divide-border/60">
+                        @foreach (var test in groupTests)
+                        {
+                            <BenchmarkEntry @ref="_entries[test]" Test="test" Runner="Runner" StatusChanged="OnStatusChanged" />
+                        }
+                    </div>
+                }
             }
         </div>
     }
@@ -114,13 +160,31 @@
         {
             _entries.TryAdd(test, null);
             _groupOpen.TryAdd(test.Group, false);
+
+            if (!string.IsNullOrEmpty(test.Subgroup))
+                _groupOpen.TryAdd($"{test.Group}/{test.Subgroup}", false);
         }
 
         // Open groups that have running benchmarks
         foreach (var info in Runner.GetRunning())
+        {
             _groupOpen[info.Test.Group] = true;
 
+            if (!string.IsNullOrEmpty(info.Test.Subgroup))
+                _groupOpen[$"{info.Test.Group}/{info.Test.Subgroup}"] = true;
+        }
+
         RecalculateCounts();
+    }
+
+    private void ToggleGroup(string key)
+    {
+        _groupOpen[key] = !_groupOpen.GetValueOrDefault(key);
+    }
+
+    private bool IsGroupOpen(string key)
+    {
+        return _groupOpen.GetValueOrDefault(key);
     }
 
     private void RecalculateCounts()
@@ -167,6 +231,9 @@
 
     private async Task RunAll()
     {
+        Runner.CancelAll();
+        RecalculateCounts();
+
         foreach (var key in _groupOpen.Keys)
             _groupOpen[key] = true;
         StateHasChanged();
@@ -184,6 +251,10 @@
         if (tests.Count > 0)
         {
             _groupOpen[tests[0].Group] = true;
+
+            foreach (var test in tests.Where(t => !string.IsNullOrEmpty(t.Subgroup)))
+                _groupOpen[$"{test.Group}/{test.Subgroup}"] = true;
+
             StateHasChanged();
             await Task.Yield();
         }

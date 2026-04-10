@@ -14,5 +14,14 @@ public static class ConsoleConstants
         public const string Match = "/match/{0}";
         public const string InfrastructureOptions = "/infrastructure-options";
         public const string Features = "/features";
+        public const string SideEffects = "/side-effects";
+        public const string StateExplorer = "/debug/state";
+        public const string LiveMatches = "/matches";
+        public const string Matchmaking = "/matchmaking";
+        public const string MatchHistory = "/match-history";
+        public const string CardAnalytics = "/analytics/cards";
+        public const string DebugPanel = "/debug";
+        public const string AuditLog = "/audit";
+        public const string Discovery = "/discovery";
     }
 }

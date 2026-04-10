@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.SetupConsole();
 builder.AddCommonConsoleComponents();
 builder.Services.AddBlazorBlueprintComponents();
+builder.Services.AddSingleton<IAuditLogStorage, AuditLogStorage>();
 
 var app = builder.Build();
 
