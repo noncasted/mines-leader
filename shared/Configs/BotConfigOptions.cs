@@ -1,5 +1,9 @@
+using Common;
+
 namespace Shared
 {
+    [SharedGrainState(Table = "configs", State = "bot_config", Key = GrainKeyType.String,
+        Lookup = "BotConfig")]
     public class BotConfigOptions
     {
         public float MatchmakingApplyThreshold { get; set; } = 20f;
