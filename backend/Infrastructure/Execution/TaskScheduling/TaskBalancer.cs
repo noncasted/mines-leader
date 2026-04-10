@@ -165,6 +165,10 @@ public class TaskBalancer : ITaskBalancer
 
         async Task Execute(TaskEntry entry)
         {
+            using var activity = TraceExtensions.TaskBalancer.StartActivity("TaskBalancer.Execute");
+            activity?.SetTag("task.priority", entry.Task.Priority.ToString());
+            activity?.SetTag("task.score", entry.Score);
+
             using var watch = MetricWatch.Start(BackendMetrics.TaskDuration);
             var stopwatch = Stopwatch.StartNew();
             var success = false;
@@ -181,6 +185,7 @@ public class TaskBalancer : ITaskBalancer
             catch (Exception e)
             {
                 stopwatch.Stop();
+                activity?.SetStatus(ActivityStatusCode.Error, e.Message);
                 entry.AddScore(-_config.Value.ExceptionPenalty);
                 _queue.Enqueue(entry.Task);
 

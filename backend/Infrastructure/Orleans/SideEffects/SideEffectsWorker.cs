@@ -39,6 +39,8 @@ public class SideEffectsWorker : IHostedService
     private readonly ILogger<SideEffectsWorker> _logger;
 
     private int _inProgress;
+    private readonly CancellationTokenSource _shutdownCts = new();
+    private DateTime _lastStuckCheck = DateTime.MinValue;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -60,6 +62,9 @@ public class SideEffectsWorker : IHostedService
                 continue;
             }
 
+            if (_shutdownCts.IsCancellationRequested)
+                break;
+
             var foundWork = false;
 
             try
@@ -67,17 +72,31 @@ public class SideEffectsWorker : IHostedService
                 var options = _config.Value;
                 var freeSlots = options.ConcurrentExecutions - _inProgress;
 
-                if (freeSlots < 0)
+                if (freeSlots <= 0)
+                {
+                    await Task.Delay(_config.Value.EmptyScanDelay, lifetime.Token);
                     continue;
+                }
 
                 await _storage.RequeueReady();
+
+                if ((DateTime.UtcNow - _lastStuckCheck).TotalSeconds >= options.StuckCheckIntervalSeconds)
+                {
+                    await _storage.RequeueStuckOlderThan(TimeSpan.FromMinutes(options.StuckThresholdMinutes));
+                    _lastStuckCheck = DateTime.UtcNow;
+                }
 
                 var entries = await _storage.Read(freeSlots);
                 foundWork = entries.Count > 0;
                 BackendMetrics.SideEffectQueueDepth.Record(entries.Count);
 
                 foreach (var entry in entries)
+                {
+                    if (_shutdownCts.IsCancellationRequested)
+                        break;
+
                     ExecuteEntry(entry, lifetime).NoAwait();
+                }
             }
             catch (Exception e)
             {
@@ -91,6 +110,12 @@ public class SideEffectsWorker : IHostedService
 
     private async Task ExecuteEntry(SideEffectEntry entry, IReadOnlyLifetime lifetime)
     {
+        using var activity = TraceExtensions.SideEffects.StartActivity("SideEffect.Execute");
+        activity?.SetTag("side_effect.retry_count", entry.RetryCount);
+
+        if (entry.Effect is ICorrelatedSideEffect correlated)
+            activity?.SetTag("side_effect.correlation_id", correlated.CorrelationId);
+
         Interlocked.Increment(ref _inProgress);
         BackendMetrics.SideEffectInProgress.Add(1);
         using var watch = MetricWatch.Start(BackendMetrics.SideEffectDuration);
@@ -134,7 +159,8 @@ public class SideEffectsWorker : IHostedService
                 await _storage.FailProcessing(entry.Id,
                     entry.RetryCount,
                     options.MaxRetryCount,
-                    options.IncrementalRetryDelay);
+                    options.IncrementalRetryDelay,
+                    e.Message);
             }
             catch (Exception failEx)
             {
@@ -148,8 +174,16 @@ public class SideEffectsWorker : IHostedService
         }
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        _shutdownCts.Cancel();
+
+        while (Volatile.Read(ref _inProgress) > 0 && !cancellationToken.IsCancellationRequested)
+            await Task.Delay(50, CancellationToken.None);
+
+        if (Volatile.Read(ref _inProgress) > 0)
+            _logger.LogWarning("[SideEffects] Shutdown timeout exceeded, {InProgress} effects still in progress", _inProgress);
+
+        _shutdownCts.Dispose();
     }
 }

@@ -1,3 +1,4 @@
+using Common;
 using Common.Extensions;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,23 @@ public class SideEffectEntry
     public required Guid Id { get; init; }
     public required ISideEffect Effect { get; init; }
     public required int RetryCount { get; init; }
+}
+
+public class SideEffectsStats
+{
+    public int QueueCount { get; init; }
+    public int ProcessingCount { get; init; }
+    public int RetryCount { get; init; }
+    public int DeadLetterCount { get; init; }
+}
+
+public class RetryQueueEntry
+{
+    public required Guid Id { get; init; }
+    public required string TypeName { get; init; }
+    public required int RetryCount { get; init; }
+    public required DateTime RetryAfter { get; init; }
+    public required DateTime CreatedAt { get; init; }
 }
 
 public interface ISideEffectsStorage
@@ -29,14 +47,30 @@ public interface ISideEffectsStorage
     // Delete from side_effects_processing standalone (for simple ISideEffect)
     Task CompleteProcessing(Guid id);
 
-    // Move from side_effects_processing → side_effects_retry_queue (or delete if max retries exceeded)
-    Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds);
+    // Move from side_effects_processing → side_effects_retry_queue (or dead letter if max retries exceeded)
+    Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds,
+        string? errorMessage = null);
 
     // Move entries from side_effects_retry_queue → side_effects_queue where retry_after <= now
     Task RequeueReady();
 
     // At startup: move everything from side_effects_processing back to side_effects_queue
     Task RequeueStuck();
+
+    // Periodically: move entries stuck in processing longer than `age` back to queue
+    Task RequeueStuckOlderThan(TimeSpan age);
+
+    // Monitor: get counts for all three tables
+    Task<SideEffectsStats> GetStats();
+
+    // Monitor: get entries from retry queue for display
+    Task<IReadOnlyList<RetryQueueEntry>> GetRetryEntries(int limit);
+
+    // Monitor: drop a single entry from retry queue
+    Task DropRetryEntry(Guid id);
+
+    // Monitor: move a single entry from retry queue back to main queue
+    Task RequeueRetryEntry(Guid id);
 }
 
 public class SideEffectsStorage : ISideEffectsStorage
@@ -177,15 +211,38 @@ public class SideEffectsStorage : ISideEffectsStorage
         await command.ExecuteNonQueryAsync();
     }
 
-    public async Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds)
+    public async Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds,
+        string? errorMessage = null)
     {
         if (retryCount >= maxRetryCount)
         {
             await using var connection = await _dbSource.Value.OpenConnectionAsync();
-            await using var command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM side_effects_processing WHERE id = @id";
-            command.Parameters.AddWithValue("id", id);
-            await command.ExecuteNonQueryAsync();
+            await using var deadLetterTx = await connection.BeginTransactionAsync();
+
+            await using var insertCmd = connection.CreateCommand();
+            insertCmd.Transaction = deadLetterTx;
+            insertCmd.CommandText = $@"
+                INSERT INTO {DbLookup.SE_DeadLetter} (id, payload, retry_count, created_at, failed_at, error_message)
+                SELECT id, payload, retry_count, created_at, now(), @errorMessage
+                FROM side_effects_processing
+                WHERE id = @id
+                ON CONFLICT (id) DO NOTHING
+            ";
+            insertCmd.Parameters.AddWithValue("id", id);
+            insertCmd.Parameters.AddWithValue("errorMessage", (object?)errorMessage ?? DBNull.Value);
+            await insertCmd.ExecuteNonQueryAsync();
+
+            await using var deleteCmd = connection.CreateCommand();
+            deleteCmd.Transaction = deadLetterTx;
+            deleteCmd.CommandText = "DELETE FROM side_effects_processing WHERE id = @id";
+            deleteCmd.Parameters.AddWithValue("id", id);
+            await deleteCmd.ExecuteNonQueryAsync();
+
+            await deadLetterTx.CommitAsync();
+
+            BackendMetrics.SideEffectDeadLetter.Add(1);
+            _logger.LogError("[SideEffects] Effect {Id} moved to dead letter after {RetryCount} retries: {Error}",
+                id, retryCount, errorMessage);
             return;
         }
 
@@ -236,6 +293,28 @@ public class SideEffectsStorage : ISideEffectsStorage
         await command.ExecuteNonQueryAsync();
     }
 
+    public async Task RequeueStuckOlderThan(TimeSpan age)
+    {
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var command = connection.CreateCommand();
+
+        command.CommandText = @"
+            WITH stuck AS (
+                DELETE FROM side_effects_processing
+                WHERE processing_started_at < @cutoff
+                RETURNING id, payload, retry_count, created_at
+            )
+            INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
+            SELECT id, payload, retry_count, created_at FROM stuck
+            ON CONFLICT (id) DO NOTHING
+        ";
+        command.Parameters.AddWithValue("cutoff", DateTime.UtcNow - age);
+
+        var moved = await command.ExecuteNonQueryAsync();
+        if (moved > 0)
+            _logger.LogWarning("[SideEffectsStorage] Requeued {Count} stuck entries older than {Age}", moved, age);
+    }
+
     public async Task RequeueReady()
     {
         await using var connection = await _dbSource.Value.OpenConnectionAsync();
@@ -252,6 +331,151 @@ public class SideEffectsStorage : ISideEffectsStorage
             ON CONFLICT (id) DO NOTHING
         ";
         await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<SideEffectsStats> GetStats()
+    {
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var command = connection.CreateCommand();
+
+            command.CommandText = $@"
+                SELECT
+                    (SELECT COUNT(*)::int FROM side_effects_queue) AS queue_count,
+                    (SELECT COUNT(*)::int FROM side_effects_processing) AS processing_count,
+                    (SELECT COUNT(*)::int FROM side_effects_retry_queue) AS retry_count,
+                    (SELECT COUNT(*)::int FROM {DbLookup.SE_DeadLetter}) AS dead_letter_count
+            ";
+
+            await using var reader = await command.ExecuteReaderAsync();
+            await reader.ReadAsync();
+
+            return new SideEffectsStats
+            {
+                QueueCount = reader.GetInt32(0),
+                ProcessingCount = reader.GetInt32(1),
+                RetryCount = reader.GetInt32(2),
+                DeadLetterCount = reader.GetInt32(3)
+            };
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[SideEffectsStorage] Failed to get stats");
+            return new SideEffectsStats();
+        }
+    }
+
+    public async Task<IReadOnlyList<RetryQueueEntry>> GetRetryEntries(int limit)
+    {
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var command = connection.CreateCommand();
+
+            command.CommandText = @"
+                SELECT id, payload::text, retry_count, retry_after, created_at
+                FROM side_effects_retry_queue
+                ORDER BY retry_after
+                LIMIT @limit
+            ";
+            command.Parameters.AddWithValue("limit", limit);
+
+            var entries = new List<RetryQueueEntry>();
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var payloadJson = reader.GetString(1);
+                var typeName = ExtractTypeName(payloadJson);
+
+                entries.Add(new RetryQueueEntry
+                {
+                    Id = reader.GetGuid(0),
+                    TypeName = typeName,
+                    RetryCount = reader.GetInt32(2),
+                    RetryAfter = reader.GetDateTime(3),
+                    CreatedAt = reader.GetDateTime(4)
+                });
+            }
+
+            return entries;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[SideEffectsStorage] Failed to get retry entries");
+            return Array.Empty<RetryQueueEntry>();
+        }
+    }
+
+    public async Task DropRetryEntry(Guid id)
+    {
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM side_effects_retry_queue WHERE id = @id";
+            command.Parameters.AddWithValue("id", id);
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[SideEffectsStorage] Failed to drop retry entry {Id}", id);
+        }
+    }
+
+    public async Task RequeueRetryEntry(Guid id)
+    {
+        try
+        {
+            await using var connection = await _dbSource.Value.OpenConnectionAsync();
+            await using var tx = await connection.BeginTransactionAsync();
+
+            await using var insertCommand = connection.CreateCommand();
+            insertCommand.Transaction = tx;
+            insertCommand.CommandText = @"
+                INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
+                SELECT id, payload, retry_count, created_at
+                FROM side_effects_retry_queue
+                WHERE id = @id
+                ON CONFLICT (id) DO NOTHING
+            ";
+            insertCommand.Parameters.AddWithValue("id", id);
+            await insertCommand.ExecuteNonQueryAsync();
+
+            await using var deleteCommand = connection.CreateCommand();
+            deleteCommand.Transaction = tx;
+            deleteCommand.CommandText = "DELETE FROM side_effects_retry_queue WHERE id = @id";
+            deleteCommand.Parameters.AddWithValue("id", id);
+            await deleteCommand.ExecuteNonQueryAsync();
+
+            await tx.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[SideEffectsStorage] Failed to requeue retry entry {Id}", id);
+        }
+    }
+
+    private static string ExtractTypeName(string payloadJson)
+    {
+        try
+        {
+            var typeStart = payloadJson.IndexOf("\"$type\"", StringComparison.Ordinal);
+            if (typeStart < 0) return "Unknown";
+
+            var valueStart = payloadJson.IndexOf('"', typeStart + 7) + 1;
+            var valueEnd = payloadJson.IndexOf('"', valueStart);
+            if (valueStart <= 0 || valueEnd < 0) return "Unknown";
+
+            var fullType = payloadJson[valueStart..valueEnd];
+            var lastDot = fullType.LastIndexOf('.');
+            return lastDot >= 0 ? fullType[(lastDot + 1)..] : fullType;
+        }
+        catch
+        {
+            return "Unknown";
+        }
     }
 }
 

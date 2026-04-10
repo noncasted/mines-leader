@@ -12,6 +12,7 @@ public class GrainStateInfo
 
 public interface IGrainStatesRegistry
 {
+    IReadOnlyCollection<GrainStateInfo> All { get; }
     GrainStateInfo Get<T>();
     GrainStateInfo Get(Type type);
 }
@@ -29,6 +30,8 @@ public class GrainStatesRegistry : IGrainStatesRegistry
     }
 
     private readonly Dictionary<Type, GrainStateInfo> _states;
+
+    public IReadOnlyCollection<GrainStateInfo> All => _states.Values;
 
     public GrainStateInfo Get<T>()
     {
