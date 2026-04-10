@@ -42,15 +42,10 @@
 
 ---
 
-## 4. Конфигурируемые таймауты транзакций
+## ~~4. Конфигурируемые таймауты транзакций~~ ✓ DONE
 
-**Что:** Таймауты в `GrainTransactionHandler` захардкожены — `3s` на ожидание семафора и `30s` grace period
-для force takeover. Вынести в `TransactionOptions` через `IOptions<T>`.
-
-**Зачем:** Для production нужна возможность тюнинга без перекомпиляции.
-Side effects уже имеют `SideEffectsOptions` — транзакции должны быть аналогичны.
-
-**Затрагивает:** `GrainTransactionHandler.cs`, регистрация сервисов
+Реализовано: `TransactionOptions` с `LockWaitSeconds` и `StuckGraceSeconds`,
+хранится в Postgres через `AddressableState<TransactionOptions>`, читается динамически в `GrainTransactionHandler`.
 
 ---
 

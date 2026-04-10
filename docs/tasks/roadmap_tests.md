@@ -85,21 +85,14 @@
 
 ## Ещё не реализовано
 
-### Следующий приоритет — Side effects retry и transactional side effects
+### ~~Side effects retry и transactional side effects~~ ✓ DONE
 
----
-
-#### Side effects: retry при ошибке
-
-Side effect бросает исключение на первом вызове → worker перекладывает в retry queue →
-при повторе эффект выполняется успешно. Проверить: количество попыток, задержку, итоговый результат.
-
----
-
-#### ITransactionalSideEffect: откат при ошибке эффекта
-
-`ITransactionalSideEffect.Execute()` бросает исключение → вся транзакция откатывается.
-Стейты всех грейнов-участников не изменились.
+Реализовано в `SideEffectTests.cs` — 14 тестов:
+- `FailAndRetry_EventuallySucceeds` — retry при ошибке
+- `MaxRetriesExceeded_Dropped` — удаление после max retries
+- `TransactionalFails_RetryAndEventualSuccess` — транзакционный retry
+- `TransactionRollback_SideEffectNotEnqueued` — откат не ставит в очередь
+- И ещё 10 тестов (batch, isolation, crash recovery и др.)
 
 ---
 

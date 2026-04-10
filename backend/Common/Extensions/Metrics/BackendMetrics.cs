@@ -39,6 +39,9 @@ public static class BackendMetrics
     public static readonly Counter<long> TransactionRollback =
         Meter.CreateCounter<long>("backend.transactions.rollback", description: "Transaction rollbacks");
 
+    public static readonly Counter<long> TransactionRollbackFailure =
+        Meter.CreateCounter<long>("backend.transactions.rollback_failure", description: "Failed transaction rollbacks");
+
     public static readonly Histogram<double> TransactionDuration =
         Meter.CreateHistogram<double>("backend.transactions.duration", "ms", "Transaction duration");
 
@@ -77,6 +80,9 @@ public static class BackendMetrics
     public static readonly Counter<long> SideEffectFailed = Meter.CreateCounter<long>("backend.side_effects.failed",
         description: "Side effects failed");
 
+    public static readonly Counter<long> SideEffectDeadLetter = Meter.CreateCounter<long>("backend.side_effects.dead_letter",
+        description: "Side effects moved to dead letter queue");
+
     public static readonly Histogram<double> SideEffectDuration =
         Meter.CreateHistogram<double>("backend.side_effects.duration", "ms", "Side effect execution duration");
 
@@ -112,6 +118,9 @@ public static class BackendMetrics
     public static readonly Counter<long> DurableQueueDeliveryFailure =
         Meter.CreateCounter<long>("backend.durable_queue.delivery_failure", description: "Failed deliveries");
 
+    public static readonly Counter<long> DurableQueueNoSubscribers =
+        Meter.CreateCounter<long>("backend.durable_queue.no_subscribers", description: "Push with no active subscribers");
+
     // --- Messaging: Runtime Channel ---
     public static readonly Counter<long> ChannelPublished = Meter.CreateCounter<long>("backend.channel.published",
         description: "Messages published to channel");
@@ -122,12 +131,27 @@ public static class BackendMetrics
     public static readonly Counter<long> ChannelDeliveryFailure =
         Meter.CreateCounter<long>("backend.channel.delivery_failure", description: "Failed deliveries");
 
+    public static readonly Counter<long> ChannelDeliveryTimeout =
+        Meter.CreateCounter<long>("backend.channel.delivery_timeout", description: "Observer delivery timeouts");
+
+    public static readonly Counter<long> ChannelCatchUpExecuted =
+        Meter.CreateCounter<long>("backend.channel.catchup_executed", description: "Catch-up operations executed");
+
+    public static readonly Histogram<int> ChannelCatchUpMessages =
+        Meter.CreateHistogram<int>("backend.channel.catchup_messages", description: "Messages delivered per catch-up");
+
+    public static readonly Counter<long> ChannelGapDetected =
+        Meter.CreateCounter<long>("backend.channel.gap_detected", description: "Gaps detected during catch-up");
+
     // --- Messaging: Runtime Pipe ---
     public static readonly Counter<long> PipeRequestSent = Meter.CreateCounter<long>("backend.pipe.sent",
         description: "Pipe requests sent");
 
     public static readonly Counter<long> PipeTimeout = Meter.CreateCounter<long>("backend.pipe.timeout",
         description: "Pipe request timeouts");
+
+    public static readonly Counter<long> PipeRetry = Meter.CreateCounter<long>("backend.pipe.retry",
+        description: "Pipe send retries");
 
     public static readonly Histogram<double> PipeDuration = Meter.CreateHistogram<double>("backend.pipe.duration", "ms",
         "Pipe request-response duration");
