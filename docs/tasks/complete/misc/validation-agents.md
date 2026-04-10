@@ -7,4 +7,4 @@ State checker
 Monobehavior checker
 Lifetimes inspector
 Docs writer
-Blazor inspector
+Blazor inspector[validation-agents.md](validation-agents.md)
