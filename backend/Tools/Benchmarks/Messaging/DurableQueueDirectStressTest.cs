@@ -31,7 +31,8 @@ public class MessagingDirectQueueStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "Messaging direct queue";
+        public override string Subgroup => TestGroups.Subgroups.DurableQueue;
+        public override string Title => "Direct push throughput";
         public override string MetricName => "msg/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)

@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure.State;
 
 namespace Benchmarks;
@@ -7,6 +8,7 @@ public class StateMigrationTest
     // --- State versions ---
 
     [GenerateSerializer]
+    [GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest", Key = GrainKeyType.String)]
     public class MigrationTestState_0 : IStateValue
     {
         [Id(0)]
@@ -16,6 +18,7 @@ public class StateMigrationTest
     }
 
     [GenerateSerializer]
+    [GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest", Key = GrainKeyType.String)]
     public class MigrationTestState_1 : IStateValue
     {
         [Id(0)]

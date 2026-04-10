@@ -29,6 +29,42 @@ public class BenchmarkStorage
         return results;
     }
 
+    public async Task<BenchmarkState?> GetById(Guid id)
+    {
+        var lifetime = new Lifetime();
+        BenchmarkState? found = null;
+
+        await foreach (var (key, state) in _stateStorage.ReadAll<Guid, BenchmarkState>(lifetime))
+        {
+            if (key == id)
+            {
+                found = state;
+                break;
+            }
+        }
+
+        lifetime.Terminate();
+        return found;
+    }
+
+    public async Task<BenchmarkState?> GetBaseline(string benchmarkName)
+    {
+        var lifetime = new Lifetime();
+        BenchmarkState? baseline = null;
+
+        await foreach (var (_, state) in _stateStorage.ReadAll<Guid, BenchmarkState>(lifetime))
+        {
+            if (state.Name == benchmarkName && state.IsBaseline)
+            {
+                if (baseline == null || state.Date > baseline.Date)
+                    baseline = state;
+            }
+        }
+
+        lifetime.Terminate();
+        return baseline;
+    }
+
     public Task Write(BenchmarkState state)
     {
         var info = _stateStorage.Registry.Get<BenchmarkState>();

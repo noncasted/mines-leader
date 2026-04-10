@@ -31,6 +31,7 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
         Start(progress, _payload, cancellationToken);
 
     public abstract string Group { get; }
+    public virtual string Subgroup => "";
     public abstract string Title { get; }
     public abstract string MetricName { get; }
 
@@ -90,9 +91,7 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
         if (state.Duration == TimeSpan.Zero)
             state.Duration = stopwatch.Elapsed;
 
-        var metricValue = state.Duration.TotalSeconds > 0
-            ? state.Records.Sum(r => r.Count) / state.Duration.TotalSeconds
-            : stopwatch.ElapsedMilliseconds;
+        var metricValue = state.CalculateMetricValue();
 
         var result = new BenchmarkResult
         {
@@ -112,6 +111,21 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
         {
             try
             {
+                var baseline = await _utils.BenchmarkStorage.GetBaseline(Title);
+
+                if (baseline != null)
+                {
+                    var baselineMetric = baseline.CalculateMetricValue();
+
+                    var comparison = BenchmarkComparison.Compare(metricValue, baselineMetric, MetricDirection.HigherIsBetter);
+                    state.BaselineMetricValue = comparison.BaselineMetricValue;
+                    state.RegressionPercent = comparison.RegressionPercent;
+                    state.IsRegression = comparison.IsRegression;
+
+                    if (comparison.IsRegression)
+                        Logger.LogWarning("[BenchmarkRunner] Regression detected for {Title}: {Percent:F1}% vs baseline", Title, comparison.RegressionPercent);
+                }
+
                 await _utils.BenchmarkStorage.Write(state);
             }
             catch (Exception e)

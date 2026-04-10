@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure.State;
 
 namespace Benchmarks;
@@ -112,6 +113,7 @@ public class BenchmarkMetricsHandle
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_benchmark", State = "benchmark", Lookup = "Benchmark", Key = GrainKeyType.Guid)]
 public class BenchmarkState : IStateValue
 {
     [Id(0)] public Guid Id { get; set; }
@@ -120,7 +122,14 @@ public class BenchmarkState : IStateValue
     [Id(3)] public TimeSpan Duration { get; set; }
     [Id(4)] public List<BenchmarkRecord> Records { get; set; } = [];
     [Id(5)] public bool Success { get; set; }
+    [Id(6)] public bool IsBaseline { get; set; }
+    [Id(7)] public double BaselineMetricValue { get; set; }
+    [Id(8)] public double RegressionPercent { get; set; }
+    [Id(9)] public bool IsRegression { get; set; }
     public int Version => 0;
+
+    public double CalculateMetricValue() =>
+        Duration.TotalSeconds > 0 ? Records.Sum(r => r.Count) / Duration.TotalSeconds : 0;
 }
 
 [GenerateSerializer]

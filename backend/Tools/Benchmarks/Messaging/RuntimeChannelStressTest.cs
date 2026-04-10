@@ -33,7 +33,8 @@ public class RuntimeChannelStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "RuntimeChannel direct (one-way broadcast)";
+        public override string Subgroup => TestGroups.Subgroups.RuntimeChannel;
+        public override string Title => "Broadcast throughput";
         public override string MetricName => "msg/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
@@ -89,11 +90,6 @@ public class RuntimeChannelStressTest
             {
                 try
                 {
-                    Logger.LogInformation("Publishing message {MessageIndex}/{TotalMessages} from {Service}",
-                        i + 1,
-                        payload.MessageCount,
-                        Environment.Tag.ToString());
-
                     await Messaging.PublishChannel(new RuntimeChannelId(TestName),
                         new MessagePayload
                         {
@@ -102,9 +98,7 @@ public class RuntimeChannelStressTest
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, "Failed to publish message {MessageIndex}/{TotalMessages}",
-                        i + 1,
-                        payload.MessageCount);
+                    Logger.LogError(e, "Failed to publish message {Index}/{Total}", i + 1, payload.MessageCount);
                 }
             }
         }

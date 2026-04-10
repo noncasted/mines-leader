@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Common;
 using Common.Extensions;
 using Infrastructure;
 using Infrastructure.State;
@@ -19,6 +20,7 @@ public class StateTest
     }
 
     [GenerateSerializer]
+    [GrainState(Table = "state_test_default_state", State = "state_test", Lookup = "StateTestTest", Key = GrainKeyType.String)]
     public class TestState : IStateValue
     {
         [Id(0)]

@@ -49,7 +49,8 @@ public class MessagePipeSendResponseStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "Messaging pipe send with response (request-response)";
+        public override string Subgroup => TestGroups.Subgroups.RuntimePipe;
+        public override string Title => "Request-response throughput";
         public override string MetricName => "msg/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
@@ -120,31 +121,16 @@ public class MessagePipeSendResponseStressTest
             {
                 try
                 {
-                    Logger.LogInformation(
-                        "Sending request-response message {MessageIndex}/{TotalMessages} from {Service}",
-                        i + 1,
-                        payload.MessageCount,
-                        Environment.Tag.ToString());
-
-                    var response = await Messaging.SendPipe<ResponsePayload>(new RuntimePipeId(TestName),
+                    await Messaging.SendPipe<ResponsePayload>(new RuntimePipeId(TestName),
                         new RequestPayload
                         {
                             Service = Environment.Tag.ToString(),
                             MessageIndex = i + 1
                         });
-
-                    Logger.LogInformation(
-                        "Successfully received response for message {MessageIndex}/{TotalMessages}: {ResponseMessage}",
-                        i + 1,
-                        payload.MessageCount,
-                        response.Message);
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,
-                        "Failed to send request-response message {MessageIndex}/{TotalMessages}",
-                        i + 1,
-                        payload.MessageCount);
+                    Logger.LogError(e, "Failed to send request {Index}/{Total}", i + 1, payload.MessageCount);
                 }
             }
         }

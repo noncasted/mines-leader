@@ -132,7 +132,7 @@ public class BenchmarkRunner
                 continue;
             }
 
-            _ = RunBenchmark(info);
+            await RunBenchmark(info);
         }
     }
 
@@ -140,7 +140,7 @@ public class BenchmarkRunner
     {
         try
         {
-            await info.Test.Start(info.Progress, info.Cts.Token);
+            await info.Test.Start(info.Progress, info.Cts.Token).WaitAsync(info.Cts.Token);
         }
         catch (OperationCanceledException) when (info.Cts.IsCancellationRequested)
         {
