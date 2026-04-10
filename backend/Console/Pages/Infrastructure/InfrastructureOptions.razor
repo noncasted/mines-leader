@@ -34,6 +34,7 @@
     [Inject] public ITaskBalancerConfig TaskBalancerConfig { get; set; } = null!;
     [Inject] public ITransactionConfig TransactionConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
     private SideEffectsOptions _sideEffectsValue = new();
     private DurableQueueOptions _durableQueueValue = new();
@@ -64,12 +65,13 @@
         }
     }
 
-    private void Save()
+    private async Task Save()
     {
         SideEffectsConfig.SetValue(_sideEffectsValue);
         DurableQueueConfig.SetValue(_durableQueueValue);
         TaskBalancerConfig.SetValue(_taskBalancerValue);
         TransactionConfig.SetValue(_transactionValue);
+        await AuditLog.Write("InfrastructureOptionsSaved", "Infrastructure options updated");
         ToastService.Success("Infrastructure options saved", "Saved");
     }
 

@@ -1,0 +1,99 @@
+@page "/matchmaking"
+@using Cluster.Monitoring
+@using global::Common.Extensions
+@using global::Common.Reactive
+@using global::Infrastructure
+@inherits UiComponent
+
+<PageTitle>Matchmaking</PageTitle>
+<PageHeader Title="Matchmaking Dashboard"/>
+
+<div class="container mx-auto max-w-4xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-lg border bg-card p-5 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+                <div class="rounded-md bg-blue-500/15 p-1.5">
+                    <LucideIcon Name="users" Size="14" class="text-blue-400"/>
+                </div>
+                <span class="text-sm font-medium text-muted-foreground">Total in Queue</span>
+            </div>
+            <span class="text-3xl font-bold">@_data.TotalInQueue</span>
+        </div>
+
+        <div class="rounded-lg border bg-card p-5 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+                <div class="rounded-md bg-orange-500/15 p-1.5">
+                    <LucideIcon Name="clock" Size="14" class="text-orange-400"/>
+                </div>
+                <span class="text-sm font-medium text-muted-foreground">Longest Wait</span>
+            </div>
+            <span class="text-3xl font-bold">@FormatWait(_data.Queues.Count > 0 ? _data.Queues.Max(q => q.OldestWaitSeconds) : null)</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Queues by Type</h2>
+
+        <div class="rounded-lg border">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="border-b bg-muted/50">
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Game Type</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Players</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Oldest Wait</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var queue in _data.Queues)
+                {
+                    <tr class="border-b last:border-b-0 hover:bg-muted/30">
+                        <td class="px-4 py-2.5 font-medium text-xs">@queue.Type</td>
+                        <td class="px-4 py-2.5 text-xs">
+                            @if (queue.Count > 0)
+                            {
+                                <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@queue.Count</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted-foreground">0</span>
+                            }
+                        </td>
+                        <td class="px-4 py-2.5 text-xs text-muted-foreground">@FormatWait(queue.OldestWaitSeconds)</td>
+                    </tr>
+                }
+                @if (_data.Queues.Count == 0)
+                {
+                    <tr>
+                        <td colspan="3" class="px-4 py-8 text-center text-muted-foreground">No queue data</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Inject] public IDynamicState<MatchmakingLiveData> LiveData { get; set; } = null!;
+
+    private MatchmakingLiveData _data = new();
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        LiveData.View(lifetime, data => {
+            _data = data;
+            InvokeAsync(StateHasChanged).NoAwait();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private static string FormatWait(double? seconds)
+    {
+        if (seconds == null || seconds <= 0) return "--";
+        if (seconds < 60) return $"{seconds:F0}s";
+        return $"{seconds / 60:F1}m";
+    }
+}

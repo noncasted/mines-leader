@@ -47,6 +47,7 @@
 @code {
     [Inject] public IClusterFeatures ClusterFeatures { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
     private ClusterFeaturesState _state = new();
     private bool _isSaving;
@@ -62,17 +63,18 @@
         return Task.CompletedTask;
     }
 
-    private Task ToggleAcceptingConnections() => Toggle(v => ClusterFeatures.SetAcceptingConnections(v), !_state.AcceptingConnections);
-    private Task ToggleMatchmakingEnabled() => Toggle(v => ClusterFeatures.SetMatchmakingEnabled(v), !_state.MatchmakingEnabled);
-    private Task ToggleSideEffectsEnabled() => Toggle(v => ClusterFeatures.SetSideEffectsEnabled(v), !_state.SideEffectsEnabled);
+    private Task ToggleAcceptingConnections() => Toggle("AcceptingConnections", v => ClusterFeatures.SetAcceptingConnections(v), !_state.AcceptingConnections);
+    private Task ToggleMatchmakingEnabled() => Toggle("Matchmaking", v => ClusterFeatures.SetMatchmakingEnabled(v), !_state.MatchmakingEnabled);
+    private Task ToggleSideEffectsEnabled() => Toggle("SideEffects", v => ClusterFeatures.SetSideEffectsEnabled(v), !_state.SideEffectsEnabled);
 
-    private async Task Toggle(Func<bool, Task> setter, bool newValue)
+    private async Task Toggle(string name, Func<bool, Task> setter, bool newValue)
     {
         _isSaving = true;
 
         try
         {
             await setter(newValue);
+            await AuditLog.Write("FeatureToggled", $"{name} set to {newValue}");
             ToastService.Success("Feature updated", "Saved");
         }
         catch (Exception ex)

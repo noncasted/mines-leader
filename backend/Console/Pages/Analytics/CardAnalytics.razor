@@ -1,0 +1,95 @@
+@page "/analytics/cards"
+@using Meta.Matches
+
+<PageTitle>Card Analytics</PageTitle>
+<PageHeader Title="Card Balance Analytics"/>
+
+@if (_isLoading)
+{
+    <div class="flex items-center justify-center py-16">
+        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center justify-between">
+        <span class="text-sm text-muted-foreground">@_entries.Count card types tracked</span>
+        <BbButton Variant="ButtonVariant.Outline" @onclick="Refresh">
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2"/>
+            Refresh
+        </BbButton>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Card</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">In Decks</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Wins</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Losses</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Win Rate</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var entry in _entries)
+            {
+                <tr class="border-b last:border-b-0 hover:bg-muted/30">
+                    <td class="px-4 py-2.5 font-medium text-xs">@entry.CardType</td>
+                    <td class="px-4 py-2.5 text-xs">@entry.TimesInDeck</td>
+                    <td class="px-4 py-2.5 text-xs">
+                        <span class="text-green-600 dark:text-green-400">@entry.Wins</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-xs">
+                        <span class="text-muted-foreground">@entry.Losses</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-xs">
+                        @{
+                            var rate = entry.WinRate;
+                            var color = rate >= 55 ? "text-green-600 dark:text-green-400"
+                                      : rate <= 45 ? "text-red-600 dark:text-red-400"
+                                      : "text-muted-foreground";
+                        }
+                        <span class="font-medium @color">@rate.ToString("F1")%</span>
+                    </td>
+                </tr>
+            }
+            @if (_entries.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-muted-foreground">No match data available</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    [Inject] public ICardAnalyticsStorage Analytics { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
+
+    private IReadOnlyList<CardAnalyticsEntry> _entries = [];
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+        _isLoading = false;
+    }
+
+    private async Task Refresh()
+    {
+        try
+        {
+            _entries = await Analytics.GetAnalytics();
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[CardAnalytics] {ex.Message}", "Error");
+        }
+    }
+}

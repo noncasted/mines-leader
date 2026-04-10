@@ -1,0 +1,125 @@
+@page "/discovery"
+@using Cluster.Discovery
+@using global::Common.Extensions
+@using global::Common.Reactive
+@inherits UiComponent
+
+<PageTitle>Discovery</PageTitle>
+<PageHeader Title="Discovery"/>
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center gap-3">
+        <div class="rounded-md bg-green-500/15 p-2">
+            <LucideIcon Name="radar" Size="20" class="text-green-400"/>
+        </div>
+        <div>
+            <span class="text-2xl font-bold">@_services.Count</span>
+            <span class="text-sm text-muted-foreground ml-2">services</span>
+        </div>
+    </div>
+
+    @if (_services.Count == 0)
+    {
+        <div class="rounded-lg border p-8 text-center text-muted-foreground">
+            No services discovered
+        </div>
+        return;
+    }
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @foreach (var service in _services)
+        {
+            var status = GetStatus(service);
+
+            <div class="rounded-lg border p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-md @(StatusBg(status)) p-2">
+                        <LucideIcon Name="@TagIcon(service.Tag)" Size="18" class="@(StatusText(status))"/>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold">@service.Tag</span>
+                        <span class="font-mono text-xs text-muted-foreground">@(service.Id.ToString()[..8])&hellip;</span>
+                    </div>
+                    <div class="ml-auto">
+                        <div class="w-2 h-2 rounded-full @(StatusDot(status))"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Last heartbeat</span>
+                    <span>@FormatAge(service.UpdateTime)</span>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@code {
+    [Inject] public IServiceDiscovery ServiceDiscovery { get; set; } = null!;
+
+    private IReadOnlyList<IServiceOverview> _services = [];
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        RefreshLoop(lifetime).NoAwait();
+        return Task.CompletedTask;
+    }
+
+    private async Task RefreshLoop(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
+            _services = ServiceDiscovery.Entries.Values.OrderBy(s => s.Tag).ThenBy(s => s.Id).ToList();
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(5000, lifetime.Token);
+        }
+    }
+
+    private static string GetStatus(IServiceOverview service)
+    {
+        var age = DateTime.UtcNow - service.UpdateTime;
+        if (age < TimeSpan.FromSeconds(20)) return "healthy";
+        if (age < TimeSpan.FromSeconds(60)) return "warning";
+        return "stale";
+    }
+
+    private static string FormatAge(DateTime updateTime)
+    {
+        var age = DateTime.UtcNow - updateTime;
+        if (age.TotalSeconds < 5) return "just now";
+        if (age.TotalSeconds < 60) return $"{(int)age.TotalSeconds}s ago";
+        if (age.TotalMinutes < 60) return $"{(int)age.TotalMinutes}m ago";
+        return $"{(int)age.TotalHours}h ago";
+    }
+
+    private static string TagIcon(ServiceTag tag) => tag switch {
+        ServiceTag.Coordinator => "crown",
+        ServiceTag.Meta => "users",
+        ServiceTag.Game => "gamepad-2",
+        ServiceTag.Silo => "database",
+        ServiceTag.Console => "monitor",
+        _ => "circle"
+    };
+
+    private static string StatusBg(string status) => status switch {
+        "healthy" => "bg-green-500/15",
+        "warning" => "bg-amber-500/15",
+        "stale" => "bg-red-500/15",
+        _ => "bg-muted"
+    };
+
+    private static string StatusText(string status) => status switch {
+        "healthy" => "text-green-400",
+        "warning" => "text-amber-400",
+        "stale" => "text-red-400",
+        _ => "text-muted-foreground"
+    };
+
+    private static string StatusDot(string status) => status switch {
+        "healthy" => "bg-green-400",
+        "warning" => "bg-amber-400",
+        "stale" => "bg-red-400",
+        _ => "bg-muted-foreground"
+    };
+}

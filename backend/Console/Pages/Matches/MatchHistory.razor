@@ -1,0 +1,138 @@
+@page "/match-history"
+@using Meta.Matches
+@using Meta.Users
+
+<PageTitle>Match History</PageTitle>
+<PageHeader Title="Match History"/>
+
+@if (_isLoading)
+{
+    <div class="flex items-center justify-center py-16">
+        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center gap-4">
+        <span class="text-sm text-muted-foreground">@_totalCount matches total</span>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Date</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Type</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Winner</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Duration</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Players</th>
+                <th class="h-10 px-4 w-10"></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var match in _entries)
+            {
+                <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
+                    @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.Match, match.Id)))">
+                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="px-4 py-2.5 text-xs">
+                        <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@match.Type</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-xs font-medium">@ResolveName(match.Winner)</td>
+                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Duration.ToString(@"mm\:ss")</td>
+                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.ParticipantCount</td>
+                    <td class="px-4 py-2.5">
+                        <LucideIcon Name="chevron-right" Size="14" class="text-muted-foreground"/>
+                    </td>
+                </tr>
+            }
+            @if (_entries.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">No matches found</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_totalPages > 1)
+    {
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Page @(_page + 1) / @_totalPages</span>
+            <div class="flex items-center gap-1">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                          Disabled="@(_page == 0)"
+                          @onclick="PrevPage">
+                    <LucideIcon Name="chevron-left" Size="14"/>
+                </BbButton>
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                          Disabled="@(_page >= _totalPages - 1)"
+                          @onclick="NextPage">
+                    <LucideIcon Name="chevron-right" Size="14"/>
+                </BbButton>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Inject] public IMatchHistoryStorage MatchHistoryStorage { get; set; } = null!;
+    [Inject] public IUserCollection UserCollection { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
+
+    private const int PageSize = 20;
+
+    private IReadOnlyList<MatchHistoryEntry> _entries = [];
+    private int _totalCount;
+    private int _page;
+    private int _totalPages;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+        _isLoading = false;
+    }
+
+    private async Task LoadPage()
+    {
+        try
+        {
+            var result = await MatchHistoryStorage.GetPage(_page * PageSize, PageSize);
+            _entries = result.Entries;
+            _totalCount = result.TotalCount;
+            _totalPages = _totalCount == 0 ? 1 : (_totalCount + PageSize - 1) / PageSize;
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[MatchHistory] {ex.Message}", "Error");
+        }
+    }
+
+    private async Task PrevPage()
+    {
+        if (_page <= 0) return;
+        _page--;
+        await LoadPage();
+    }
+
+    private async Task NextPage()
+    {
+        if (_page >= _totalPages - 1) return;
+        _page++;
+        await LoadPage();
+    }
+
+    private string ResolveName(Guid userId)
+    {
+        if (userId == Guid.Empty) return "--";
+        if (UserCollection.TryGetValue(userId, out var user))
+            return user.Name;
+        return userId.ToString()[..8] + "...";
+    }
+}
