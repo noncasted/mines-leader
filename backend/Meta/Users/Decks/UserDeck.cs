@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Common;
+using Infrastructure;
 using Infrastructure.State;
 using Shared;
 
@@ -23,6 +24,7 @@ public interface IUserDeck : IUserGrain
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_projection", State = "user_deck", Lookup = "UserDeck", Key = GrainKeyType.Guid)]
 public class UserDeckState : IProjectionPayload, IStateValue
 {
     [Id(0)] public Dictionary<int, Entry> Entries { get; } = new();
