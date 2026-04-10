@@ -129,6 +129,15 @@ public class DatabaseFixture : IAsyncDisposable
                                 created_at timestamptz NOT NULL,
                                 retry_after timestamptz NOT NULL
                             );
+
+                            CREATE TABLE IF NOT EXISTS side_effects_dead_letter (
+                                id uuid PRIMARY KEY,
+                                payload jsonb NOT NULL,
+                                retry_count integer NOT NULL DEFAULT 0,
+                                created_at timestamptz NOT NULL,
+                                failed_at timestamptz NOT NULL DEFAULT now(),
+                                error_message text
+                            );
                             """;
         await seCmd.ExecuteNonQueryAsync();
     }

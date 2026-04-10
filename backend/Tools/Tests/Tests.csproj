@@ -26,6 +26,7 @@
         <ProjectReference Include="..\..\Game\Game.csproj"/>
         <ProjectReference Include="..\..\Meta\Meta.csproj"/>
         <ProjectReference Include="..\..\Orchestration\MetaGateway\MetaGateway.csproj"/>
+        <ProjectReference Include="..\Generators\Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 
