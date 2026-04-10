@@ -1,5 +1,8 @@
+using Common;
+
 namespace Infrastructure.Execution;
 
+[GrainState(Table = "configs", State = "task_balancer_config", Lookup = "TaskBalancerConfig", Key = GrainKeyType.String)]
 public class TaskBalancerOptions
 {
     public int EmptyDelayMs { get; set; } = 500;

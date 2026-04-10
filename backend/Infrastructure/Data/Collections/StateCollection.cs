@@ -25,6 +25,7 @@ public class StateCollectionUpdate<TKey, TValue>
 {
     [Id(0)] public required TKey Key { get; init; }
     [Id(1)] public required TValue Value { get; init; }
+    [Id(2)] public DateTime UpdatedAt { get; init; }
 }
 
 public class StateCollectionUtils<TKey, TValue>
@@ -82,46 +83,31 @@ public class StateCollectionUtils<TKey, TValue>
 
     public Task PushUpdate(TKey key, TValue value)
     {
-        try
+        return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
         {
-            return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-            {
-                Key = key,
-                Value = value
-            });
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[StateCollectionUtils] Failed to push update for {Type} key {Key}",
-                typeof(TValue).Name, key);
-            return Task.CompletedTask;
-        }
+            Key = key,
+            Value = value,
+            UpdatedAt = DateTime.UtcNow
+        });
     }
 
     public Task PushTransactionalUpdate(TKey key, TValue value)
     {
-        try
+        _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
         {
-            _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
-            {
-                Key = key,
-                Value = value
-            });
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[StateCollectionUtils] Failed to push transactional update for {Type} key {Key}",
-                typeof(TValue).Name, key);
-        }
+            Key = key,
+            Value = value,
+            UpdatedAt = DateTime.UtcNow
+        });
 
         return Task.CompletedTask;
     }
 
-    public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue> onUpdate)
+    public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue, DateTime> onUpdate)
     {
         return _messaging.ListenDurableQueue<StateCollectionUpdate<TKey, TValue>>(lifetime,
             _queueId,
-            update => onUpdate(update.Key, update.Value));
+            update => onUpdate(update.Key, update.Value, update.UpdatedAt));
     }
 }
 
@@ -141,6 +127,7 @@ public class StateCollection<TKey, TValue> :
     private readonly StateCollectionUtils<TKey, TValue> _utils;
     private readonly ILogger<StateCollection<TKey, TValue>> _logger;
     private readonly ViewableDelegate _updated = new();
+    private readonly Dictionary<TKey, DateTime> _lastUpdated = new();
 
     public IViewableDelegate Updated => _updated;
 
@@ -153,8 +140,12 @@ public class StateCollection<TKey, TValue> :
             foreach (var (key, value) in existing)
                 this[key] = value;
 
-            await _utils.ListenUpdates(lifetime, (key, value) => {
+            await _utils.ListenUpdates(lifetime, (key, value, updatedAt) => {
+                if (_lastUpdated.TryGetValue(key, out var last) && updatedAt <= last)
+                    return;
+
                 this[key] = value;
+                _lastUpdated[key] = updatedAt;
                 _updated.Invoke();
             });
 
@@ -169,6 +160,7 @@ public class StateCollection<TKey, TValue> :
     public Task OnUpdated(TKey key, TValue value)
     {
         this[key] = value;
+        _lastUpdated[key] = DateTime.UtcNow;
         return _utils.PushUpdate(key, value);
     }
 

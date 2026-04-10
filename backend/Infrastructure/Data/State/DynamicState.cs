@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Common.Reactive;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -52,7 +53,7 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
         try
         {
             Set(value);
-            _logger.LogInformation("[DynamicState] Set {Type} : {Value}", typeof(T).Name, value.ToString());
+            _logger.LogDebug("[DynamicState] Set {Type}", typeof(T).Name);
             await _messaging.PublishChannel(new DynamicStateChannelId<T>(), value);
         }
         catch (Exception e)
@@ -72,7 +73,7 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
     private void OnUpdate(T value)
     {
         Set(value);
-        _logger.LogInformation("[DynamicState] Received {Type} : {Value}", typeof(T).Name, value.ToString());
+        _logger.LogDebug("[DynamicState] Received {Type}", typeof(T).Name);
     }
 }
 
@@ -81,6 +82,8 @@ public static class DynamicStateExtensions
     public static IHostApplicationBuilder AddDynamicState<T>(this IHostApplicationBuilder builder)
         where T : class, new()
     {
+        builder.Services.AddSingleton(new T());
+
         builder.Services.Add<DynamicState<T>>()
                .As<IDynamicState<T>>()
                .As<ILocalSetupCompleted>();
