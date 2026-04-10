@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Common;
 using MemoryPack;
 using Newtonsoft.Json;
 
@@ -34,6 +35,7 @@ namespace Shared
     }
 
     [MemoryPackable]
+    [SharedGrainState(Table = "configs", State = "card_config", Key = GrainKeyType.String, Lookup = "CardConfig")]
     public partial class CardConfigOptions : INetworkContext
     {
         public Bloodhound BloodHound_Normal { get; set; } = new();
