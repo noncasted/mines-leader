@@ -10,6 +10,7 @@ public interface ISession
     SessionType Type { get; }
     IReadOnlyLifetime Lifetime { get; }
     IUserFactory UserFactory { get; }
+    ISessionUsers Users { get; }
     IExecutionQueue ExecutionQueue { get; }
     IViewableDelegate AllUsersConnected { get; }
 
@@ -59,6 +60,7 @@ public class Session : ISession
     public IReadOnlyLifetime Lifetime => _data.Lifetime;
 
     public IUserFactory UserFactory { get; }
+    public ISessionUsers Users => _users;
     public IExecutionQueue ExecutionQueue { get; }
     public IViewableDelegate AllUsersConnected => _allUsersConnected;
 
@@ -95,8 +97,16 @@ public class Session : ISession
 
         async Task AwaitUsersLeave()
         {
+            var timeout = TimeSpan.FromMinutes(2);
+            var started = DateTime.UtcNow;
+
             while (_users.Count != 0)
+            {
+                if (DateTime.UtcNow - started > timeout)
+                    break;
+
                 await Task.Delay(TimeSpan.FromSeconds(10));
+            }
         }
     }
 

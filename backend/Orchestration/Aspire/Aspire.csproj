@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\shared.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\..\Common\Common.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\Extensions\Extensions.csproj" IsAspireProjectResource="false"/>

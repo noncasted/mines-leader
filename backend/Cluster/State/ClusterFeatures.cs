@@ -57,6 +57,7 @@ public class ClusterFeatures(AddressableStateUtils utils)
 }
 
 [GenerateSerializer]
+[GrainState(Table = "configs", State = "cluster_features", Lookup = "ClusterFeatures", Key = GrainKeyType.String)]
 public class ClusterFeaturesState
 {
     [Id(0)]

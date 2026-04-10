@@ -9,6 +9,7 @@ var app = builder.Build();
 
 app.AddMiddleware();
 app.MapDefaultEndpoints();
+app.AddSessionEndpoints();
 
 app.UseCors("cors");
 

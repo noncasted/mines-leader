@@ -1,4 +1,5 @@
 ﻿using Cluster.Configs;
+using Cluster.Monitoring;
 using Common;
 using Common.Extensions;
 using Common.Reactive;
@@ -29,6 +30,20 @@ public interface IMatchmaking
     Task CancelMatchSearch(Guid userId);
     Task Create(Guid userId, GameMatchType type);
     Task CreateWithBot(Guid userId, GameMatchType type);
+    MatchmakingStatsDto GetStats();
+}
+
+public record MatchmakingStatsDto
+{
+    public int TotalInQueue { get; init; }
+    public IReadOnlyList<MatchmakingQueueStatsDto> Queues { get; init; } = [];
+}
+
+public record MatchmakingQueueStatsDto
+{
+    public required string Type { get; init; }
+    public required int Count { get; init; }
+    public double? OldestWaitSeconds { get; init; }
 }
 
 public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
@@ -40,6 +55,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         IBotConfig botConfig,
         IClusterFlags clusterFlags,
         IClusterParticipantContext participantContext,
+        IDynamicState<MatchmakingLiveData> liveData,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
@@ -48,6 +64,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         _botConfig = botConfig;
         _clusterFlags = clusterFlags;
         _participantContext = participantContext;
+        _liveData = liveData;
         _logger = logger;
 
         foreach (var type in Enum.GetValues<GameMatchType>())
@@ -60,6 +77,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly IBotConfig _botConfig;
     private readonly IClusterFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
+    private readonly IDynamicState<MatchmakingLiveData> _liveData;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
@@ -89,6 +107,8 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         _searchQueue[type].Add(new SearchQueueEntry(userId, DateTime.UtcNow));
 
         _lock.Release();
+
+        PushLiveData();
     }
 
     public async Task CancelMatchSearch(Guid userId)
@@ -101,6 +121,8 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
             queue.RemoveAll(e => e.UserId == userId);
 
         _lock.Release();
+
+        PushLiveData();
     }
 
     public Task Create(Guid userId, GameMatchType type)
@@ -115,6 +137,41 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         _logger.LogInformation("[Matchmaking] {UserID} is creating a match with bot", userId);
 
         return _matchFactory.CreateWithBot(userId, type);
+    }
+
+    public MatchmakingStatsDto GetStats()
+    {
+        _lock.Wait();
+
+        try
+        {
+            var now = DateTime.UtcNow;
+            var queues = new List<MatchmakingQueueStatsDto>();
+
+            foreach (var (type, queue) in _searchQueue)
+            {
+                double? oldestWait = null;
+                if (queue.Count > 0)
+                    oldestWait = (now - queue[0].JoinedAt).TotalSeconds;
+
+                queues.Add(new MatchmakingQueueStatsDto
+                {
+                    Type = type.ToString(),
+                    Count = queue.Count,
+                    OldestWaitSeconds = oldestWait
+                });
+            }
+
+            return new MatchmakingStatsDto
+            {
+                TotalInQueue = queues.Sum(q => q.Count),
+                Queues = queues
+            };
+        }
+        finally
+        {
+            _lock.Release();
+        }
     }
 
     private async Task Loop(IReadOnlyLifetime lifetime)
@@ -217,10 +274,26 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
             foreach (var (userId, type) in botMatchesCreated)
                 _matchFactory.CreateWithBot(userId, type).NoAwait();
 
-            if (hasMatched == false)
+            if (hasMatched)
+                PushLiveData();
+            else
                 await Task.Delay(100, lifetime.Token);
         }
 
         _logger.LogInformation("[Matchmaking] matchmaking loop terminated");
+    }
+
+    private void PushLiveData()
+    {
+        var stats = GetStats();
+
+        _liveData.SetValue(new MatchmakingLiveData {
+            TotalInQueue = stats.TotalInQueue,
+            Queues = stats.Queues.Select(q => new MatchmakingQueueLiveData {
+                Type = q.Type,
+                Count = q.Count,
+                OldestWaitSeconds = q.OldestWaitSeconds
+            }).ToList()
+        }).NoAwait();
     }
 }
