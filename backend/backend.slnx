@@ -12,6 +12,7 @@
         <Project Path="../shared/shared.csproj" />
         <Project Path="../tools/deploy/deploy.csproj" />
         <Project Path="Tools/Benchmarks/Benchmarks.csproj" />
+        <Project Path="Tools/Generators/Generators.csproj" />
         <Project Path="Tools/Tests/Tests.csproj" />
     </Folder>
     <Project Path="Cluster/Cluster.csproj" />

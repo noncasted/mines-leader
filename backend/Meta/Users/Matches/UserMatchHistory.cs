@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Common;
+using Infrastructure;
 using Infrastructure.State;
 using Meta.Matches;
 
@@ -14,6 +15,7 @@ public interface IUserMatchHistory : IUserGrain
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_match_history", State = "user_match_history", Lookup = "UserMatchHistory", Key = GrainKeyType.Guid)]
 public class UserMatchHistoryState : IStateValue
 {
     [Id(0)] public List<MatchOverview> Matches { get; } = new();

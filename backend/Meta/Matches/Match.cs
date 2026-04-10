@@ -1,4 +1,5 @@
 ﻿using Cluster.Configs;
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Meta.Users;
@@ -20,6 +21,7 @@ public interface IMatch : IGrainWithGuidKey
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_match_entity", State = "match_entity", Lookup = "Match", Key = GrainKeyType.Guid)]
 public class MatchState : IStateValue
 {
     [Id(0)] public GameMatchType Type { get; set; }

@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,7 @@ public interface IUserRating : IUserGrain
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_rating", State = "user_rating", Lookup = "UserRating", Key = GrainKeyType.Guid)]
 public class UserRatingState : IProjectionPayload, IStateValue
 {
     [Id(0)] public List<IUserRatingRecord> Records { get; } = new();

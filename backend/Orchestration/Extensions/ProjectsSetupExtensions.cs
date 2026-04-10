@@ -2,6 +2,7 @@
 using Cluster.Configs;
 using Cluster.Coordination;
 using Cluster.Discovery;
+using Cluster.Monitoring;
 using Cluster.State;
 using Common;
 using Common.Extensions;
@@ -103,6 +104,9 @@ public static class ProjectsSetupExtensions
             builder.Add<SideEffectsWorker>()
                    .As<IHostedService>();
 
+            builder.Services.Add<SideEffectsMonitorService>()
+                   .As<ILocalSetupCompleted>();
+
             return builder;
         }
 
@@ -118,7 +122,13 @@ public static class ProjectsSetupExtensions
                 .AddBase(ServiceTag.Console)
                 .AddBlazorComponents();
 
-            // Project services
+            // HTTP clients for cross-gateway monitoring
+            builder.Services.AddHttpClient("game", c => c.BaseAddress = new Uri("http://game"));
+            builder.Services.AddHttpClient("meta", c => c.BaseAddress = new Uri("http://meta"));
+
+            // Console-only services
+            builder.Services.AddSingleton<IMatchHistoryStorage, MatchHistoryStorage>();
+            builder.Services.AddSingleton<ICardAnalyticsStorage, CardAnalyticsStorage>();
 
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
@@ -161,6 +171,7 @@ public static class ProjectsSetupExtensions
                 .AddConfigs()
                 .AddSideEffects()
                 .AddStates()
+                .AddMonitoring()
                 .AddUserServices();
 
             builder.AddBotServices();
@@ -173,55 +184,12 @@ public static class ProjectsSetupExtensions
             return builder;
         }
 
-        private IHostApplicationBuilder AddStates()
-        {
+        private IHostApplicationBuilder AddStates() {
             var states = new List<GrainStateInfo>();
-
-            Add<StateTest.TestState>(StatesLookup.StateTestTest);
-            Add<StateMigrationTest.MigrationTestState_0>(StatesLookup.StateMigrationTest);
-            Add<StateMigrationTest.MigrationTestState_1>(StatesLookup.StateMigrationTest);
-            Add<TransactionTestState>(StatesLookup.TransactionTest);
-            Add<UserState>(StatesLookup.User);
-            Add<UserAuthState>(StatesLookup.UserAuth);
-            Add<UserProgressionState>(StatesLookup.UserProgression);
-            Add<UserProjectionState>(StatesLookup.UserProjection);
-            Add<UserMatchHistoryState>(StatesLookup.UserMatchHistory);
-            Add<UserDeckState>(StatesLookup.UserDeck);
-            Add<MatchState>(StatesLookup.Match);
-            Add<BotState>(StatesLookup.Bot);
-            Add<BotConfigOptions>(StatesLookup.BotConfig);
-            Add<CardConfigOptions>(StatesLookup.CardConfig);
-            Add<GameModeOptions>(StatesLookup.GameModeConfig);
-            Add<RatingOptions>(StatesLookup.RatingConfig);
-            Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
-            Add<DurableQueueOptions>(StatesLookup.DurableQueueConfig);
-            Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
-            Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
-            Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
-            Add<TransactionOptions>(StatesLookup.TransactionConfig);
-            Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
-            Add<UserRatingState>(StatesLookup.UserRating);
-            Add<BenchmarkState>(StatesLookup.Benchmark);
-
+            GeneratedStatesRegistration.AddAllStates(states);
             var registry = new GrainStatesRegistry(states);
-
-            builder.Add(registry)
-                   .As<IGrainStatesRegistry>();
-
+            builder.Add(registry).As<IGrainStatesRegistry>();
             return builder;
-
-            void Add<T>(StatesLookup.Info lookupInfo)
-            {
-                var info = new GrainStateInfo
-                {
-                    TableName = lookupInfo.TableName,
-                    KeyType = lookupInfo.KeyType,
-                    Type = typeof(T),
-                    Name = lookupInfo.StateName
-                };
-
-                states.Add(info);
-            }
         }
 
         private IHostApplicationBuilder AddSideEffects()

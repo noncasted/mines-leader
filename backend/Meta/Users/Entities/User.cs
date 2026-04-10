@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Common;
+using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Shared;
@@ -18,6 +19,7 @@ public interface IUser : IUserGrain
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_entity", State = "user_entity", Lookup = "User", Key = GrainKeyType.Guid)]
 public class UserState : IProjectionPayload, IStateValue
 {
     [Id(0)] public Guid Id { get; set; }

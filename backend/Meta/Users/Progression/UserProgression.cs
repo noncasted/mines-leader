@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using Common;
+using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Shared;
@@ -22,6 +23,7 @@ public interface IUserProgression : IUserGrain
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_progression", State = "user_progression", Lookup = "UserProgression", Key = GrainKeyType.Guid)]
 public class UserProgressionState : IProjectionPayload, IStateValue
 {
     [Id(0)] public List<IUserProgressionRecord> Records { get; } = new();

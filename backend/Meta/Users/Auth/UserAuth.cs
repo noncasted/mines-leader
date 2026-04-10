@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Meta.Users;
 
 [GenerateSerializer]
+[GrainState(Table = "state_user_auth", State = "user_auth", Lookup = "UserAuth", Key = GrainKeyType.Guid)]
 public class UserAuthState : IStateValue
 {
     [Id(0)] public bool IsExists { get; set; }
