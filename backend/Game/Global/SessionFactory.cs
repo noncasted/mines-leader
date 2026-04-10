@@ -69,8 +69,7 @@ public class SessionFactory : ISessionFactory
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
 
-            _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created", session.Id,
-                createOptions);
+            _logger.LogInformation("[Matchmaking] Lobby {ID} created", session.Id);
         }
     }
 
@@ -136,7 +135,7 @@ public class SessionFactory : ISessionFactory
             var session = provider.GetRequiredService<ISession>();
             var serviceFactory = provider.GetRequiredService<IServiceFactory>();
 
-            _collection.Add(session);
+            _collection.Add(session, createOptions.Type);
 
             await serviceFactory.OnSessionCreated(lifetime);
             session.Run().NoAwait();
@@ -209,7 +208,7 @@ public class SessionFactory : ISessionFactory
         var userFactory = provider.GetRequiredService<IUserFactory>();
         var botRunner = provider.GetRequiredService<IBotRunner>();
 
-        _collection.Add(session);
+        _collection.Add(session, createOptions.Type);
 
         RunSession().NoAwait();
 

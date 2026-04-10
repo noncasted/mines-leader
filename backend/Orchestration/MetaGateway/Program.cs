@@ -17,6 +17,7 @@ var app = builder.Build();
 app.AddIdentityEndpoints();
 app.AddBackendMiddleware();
 
+app.AddMonitorEndpoints();
 app.MapDefaultEndpoints();
 app.UseCors("cors");
 

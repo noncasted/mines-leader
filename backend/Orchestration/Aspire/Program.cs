@@ -1,9 +1,13 @@
 ﻿using Aspire;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Projects;
 using Silo = Projects.Silo;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(30));
 
 var configuration = builder.Configuration;
 configuration.AddJsonFile("appsettings.local.json", true);
