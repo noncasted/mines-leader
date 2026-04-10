@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Orleans.Concurrency;
@@ -7,6 +8,7 @@ namespace Tests.Grains;
 // --- Simple state test grain ---
 
 [GenerateSerializer]
+[GrainState(Table = "state_simple_test", State = "simple_test", Lookup = "SimpleTest", Key = GrainKeyType.Guid)]
 public class SimpleTestState : IStateValue
 {
     [Id(0)] public int Counter { get; set; }
@@ -55,6 +57,7 @@ public class SimpleTestGrain : Grain, ISimpleTestGrain
 // --- Collection test state ---
 
 [GenerateSerializer]
+[GrainState(Table = "state_test_collection", State = "collection_test", Lookup = "CollectionTest", Key = GrainKeyType.Guid)]
 public class CollectionTestState : IStateValue
 {
     [Id(0)] public Guid Id { get; set; }
@@ -94,6 +97,7 @@ public class CollectionTestGrain : Grain, ICollectionTestGrain
 // --- Transaction test grain ---
 
 [GenerateSerializer]
+[GrainState(Table = "state_tx_test", State = "tx_test", Lookup = "TxTest", Key = GrainKeyType.Guid)]
 public class TxTestState : IStateValue
 {
     [Id(0)] public int Value { get; set; }

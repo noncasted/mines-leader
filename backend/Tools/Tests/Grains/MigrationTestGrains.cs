@@ -1,3 +1,4 @@
+using Common;
 using Infrastructure.State;
 
 namespace Tests.Grains;
@@ -5,6 +6,7 @@ namespace Tests.Grains;
 // --- State versions ---
 
 [GenerateSerializer]
+[GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest", Key = GrainKeyType.String)]
 public class MigrationTestState_0 : IStateValue
 {
     [Id(0)] public int Value { get; set; }
@@ -12,6 +14,7 @@ public class MigrationTestState_0 : IStateValue
 }
 
 [GenerateSerializer]
+[GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest", Key = GrainKeyType.String)]
 public class MigrationTestState_1 : IStateValue
 {
     [Id(0)] public int Value { get; set; }
@@ -76,6 +79,7 @@ public class MigrationTestStep_V1 : IStateMigrationStep
 // --- V2 state ---
 
 [GenerateSerializer]
+[GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest", Key = GrainKeyType.String)]
 public class MigrationTestState_2 : IStateValue
 {
     [Id(0)] public int Value { get; set; }

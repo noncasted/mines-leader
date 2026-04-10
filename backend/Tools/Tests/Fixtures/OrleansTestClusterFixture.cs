@@ -211,51 +211,9 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         return mock;
     }
 
-    private static GrainStatesRegistry BuildStatesRegistry()
-    {
+    private static GrainStatesRegistry BuildStatesRegistry() {
         var states = new List<GrainStateInfo>();
-
-        void Add<T>(StatesLookup.Info info)
-        {
-            states.Add(new GrainStateInfo
-            {
-                TableName = info.TableName,
-                KeyType = info.KeyType,
-                Type = typeof(T),
-                Name = info.StateName
-            });
-        }
-
-        // Test grains
-        Add<SimpleTestState>(StatesLookup.SimpleTest);
-        Add<TxTestState>(StatesLookup.TxTest);
-        Add<MigrationTestState_0>(StatesLookup.StateMigrationTest);
-        Add<MigrationTestState_1>(StatesLookup.StateMigrationTest);
-        Add<MigrationTestState_2>(StatesLookup.StateMigrationTest);
-        Add<CollectionTestState>(StatesLookup.CollectionTest);
-
-        // Domain grains
-        Add<UserState>(StatesLookup.User);
-        Add<UserAuthState>(StatesLookup.UserAuth);
-        Add<UserProgressionState>(StatesLookup.UserProgression);
-        Add<UserProjectionState>(StatesLookup.UserProjection);
-        Add<UserMatchHistoryState>(StatesLookup.UserMatchHistory);
-        Add<UserDeckState>(StatesLookup.UserDeck);
-        Add<UserRatingState>(StatesLookup.UserRating);
-        Add<MatchState>(StatesLookup.Match);
-        Add<BotState>(StatesLookup.Bot);
-        Add<BotConfigOptions>(StatesLookup.BotConfig);
-        Add<CardConfigOptions>(StatesLookup.CardConfig);
-        Add<GameModeOptions>(StatesLookup.GameModeConfig);
-        Add<RatingOptions>(StatesLookup.RatingConfig);
-        Add<SideEffectsOptions>(StatesLookup.SideEffectsConfig);
-        Add<DurableQueueOptions>(StatesLookup.DurableQueueConfig);
-        Add<TaskBalancerOptions>(StatesLookup.TaskBalancerConfig);
-        Add<RuntimePipeOptions>(StatesLookup.RuntimePipeConfig);
-        Add<RuntimeChannelOptions>(StatesLookup.RuntimeChannelConfig);
-        Add<TransactionOptions>(StatesLookup.TransactionConfig);
-        Add<ClusterFeaturesState>(StatesLookup.ClusterFeatures);
-
+        GeneratedStatesRegistration.AddAllStates(states);
         return new GrainStatesRegistry(states);
     }
 

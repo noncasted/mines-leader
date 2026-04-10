@@ -1,7 +1,9 @@
 using Cluster.Configs;
+using Cluster.Monitoring;
 using Common;
 using Common.Reactive;
 using FluentAssertions;
+using Infrastructure;
 using Infrastructure.Startup;
 using Meta.Matches;
 using MetaGateway.Matchmaking;
@@ -40,12 +42,15 @@ public class MatchmakingTests
         var isInitialized = new ViewableProperty<bool>(false);
         _participantContext.IsInitialized.Returns(isInitialized);
 
+        var liveData = Substitute.For<IDynamicState<MatchmakingLiveData>>();
+
         _sut = new Matchmaking(_matchFactory,
             _lobbyFactory,
             _users,
             _botConfig,
             _clusterFlags,
             _participantContext,
+            liveData,
             _logger);
     }
 
