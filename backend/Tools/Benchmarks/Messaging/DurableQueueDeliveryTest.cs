@@ -36,7 +36,8 @@ public class DurableQueueDeliveryTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "durable-queue-delivery";
+        public override string Subgroup => TestGroups.Subgroups.DurableQueue;
+        public override string Title => "Delivery throughput";
         public override string MetricName => "msg/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)

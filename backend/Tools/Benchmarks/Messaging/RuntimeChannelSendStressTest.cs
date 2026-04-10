@@ -7,14 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;
 
-public class MessagingTransactionalQueueStressTest
+public class RuntimeChannelSendStressTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
     public class StartPayload()
     {
         [Id(0)]
-        public required int MessageCount { get; init; } = 2000;
+        public required int MessageCount { get; init; } = 75000;
     }
 
     [GenerateSerializer]
@@ -22,9 +22,12 @@ public class MessagingTransactionalQueueStressTest
     {
         [Id(0)]
         public required string Service { get; init; }
+
+        [Id(1)]
+        public required int MessageIndex { get; init; }
     }
 
-    public static string TestName => "messaging-queue-transactional-stress-test";
+    public static string TestName => "runtime-channel-send-stress-test";
 
     public class Root : BenchmarkRoot<StartPayload>
     {
@@ -33,7 +36,8 @@ public class MessagingTransactionalQueueStressTest
         }
 
         public override string Group => TestGroups.Messaging;
-        public override string Title => "Messaging transactional queue";
+        public override string Subgroup => TestGroups.Subgroups.RuntimeChannel;
+        public override string Title => "Distributed send throughput";
         public override string MetricName => "msg/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
@@ -42,13 +46,14 @@ public class MessagingTransactionalQueueStressTest
             var totalMessages = payload.MessageCount * 5;
             var receivedCount = 0;
 
-            handle.Progress.Log("Listening for messages...");
+            handle.Progress.Log("Setting up channel listeners...");
 
-            await Messaging.ListenDurableQueue<MessagePayload>(handle.Lifetime, new DurableQueueId(TestName),
+            await Messaging.ListenChannel<MessagePayload>(handle.Lifetime,
+                new RuntimeChannelId(TestName),
                 OnMessage);
 
             handle.Progress.SetStatus(OperationStatus.InProgress);
-            handle.Progress.Log("Starting test node...");
+            handle.Progress.Log("Starting test nodes...");
 
             await Task.WhenAll(handle.StartNode(ServiceTag.Game, TestName, payload),
                 handle.StartNode(ServiceTag.Meta, TestName, payload),
@@ -69,19 +74,16 @@ public class MessagingTransactionalQueueStressTest
                 handle.Progress.Log($"Received {count}/{totalMessages} messages");
 
                 if (count >= totalMessages)
-                    completion.SetResult();
+                    completion.TrySetResult();
             }
         }
     }
 
     public class Node : BenchmarkNode<StartPayload>
     {
-        public Node(IOrleans orleans, ClusterTestUtils utils) : base(utils)
+        public Node(ClusterTestUtils utils) : base(utils)
         {
-            _orleans = orleans;
         }
-
-        private readonly IOrleans _orleans;
 
         protected override string Name => TestName;
 
@@ -91,31 +93,16 @@ public class MessagingTransactionalQueueStressTest
             {
                 try
                 {
-                    Logger.LogInformation("Sending message {MessageIndex}/{TotalMessages} from {Service}",
-                        i + 1,
-                        payload.MessageCount,
-                        Environment.Tag.ToString());
-
-                    await _orleans.InTransaction(() => {
-                        Messaging.PushTransactionalQueue(new DurableQueueId(TestName),
-                            new MessagePayload
-                            {
-                                Service = Environment.Tag.ToString()
-                            });
-
-                        return Task.CompletedTask;
-                    });
-
-                    Logger.LogInformation("Successfully sent message {MessageIndex}/{TotalMessages} from {Service}",
-                        i + 1,
-                        payload.MessageCount,
-                        Environment.Tag.ToString());
+                    await Messaging.PublishChannel(new RuntimeChannelId(TestName),
+                        new MessagePayload
+                        {
+                            Service = Environment.Tag.ToString(),
+                            MessageIndex = i + 1
+                        });
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, "Failed to send message {MessageIndex}/{TotalMessages}",
-                        i + 1,
-                        payload.MessageCount);
+                    Logger.LogError(e, "Failed to publish message {Index}/{Total}", i + 1, payload.MessageCount);
                 }
             }
         }

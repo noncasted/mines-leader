@@ -97,6 +97,12 @@ Tests task scheduling infrastructure, reactive primitives, DB connection pool, a
 - **What it measures**: SideEffectsWorker retry cycle. Side effect fails on first attempt, waits for retry delay + re-execution. Measures full fail-requeue-execute cycle.
 - **Distributed**: No
 
+### side-effect-dead-letter-throughput
+- **File**: `backend/Benchmarks/Infrastructure/SideEffectDeadLetterThroughputTest.cs`
+- **Payload**: EffectCount=500
+- **What it measures**: Dead letter path throughput. Enqueues always-failing side effects, measures rate of retry exhaustion → dead letter table insertion. Tracks via DB query on batch ID.
+- **Distributed**: No
+
 ---
 
 ## TODO

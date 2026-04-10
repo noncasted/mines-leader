@@ -5,6 +5,7 @@ namespace Benchmarks;
 public interface IClusterTest
 {
     string Group { get; }
+    string Subgroup { get; }
     string Title { get; }
     string MetricName { get; }
     object Payload { get; set; }

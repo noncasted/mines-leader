@@ -1,9 +1,11 @@
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 
 namespace Benchmarks;
 
 [GenerateSerializer]
+[GrainState(Table = "state_test_transactional_state", State = "transaction_test", Lookup = "TransactionTest", Key = GrainKeyType.Guid)]
 public class TransactionTestState : IStateValue
 {
     [Id(0)]
