@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -47,6 +48,10 @@ public class RuntimePipe : Grain, IRuntimePipe
 
     public async Task<TResponse> Send<TResponse>(object message)
     {
+        using var activity = TraceExtensions.MessagingRuntimePipe.StartActivity("RuntimePipe.Send");
+        activity?.SetTag("message.type", message.GetType().Name);
+        activity?.SetTag("pipe.timeout", _config.Value.SendTimeoutSeconds);
+
         BackendMetrics.PipeRequestSent.Add(1);
         using var watch = MetricWatch.Start(BackendMetrics.PipeDuration);
 
@@ -74,6 +79,7 @@ public class RuntimePipe : Grain, IRuntimePipe
         }
         catch (TimeoutException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Pipe send timed out");
             BackendMetrics.PipeTimeout.Add(1);
 
             _logger.LogError(ex,
@@ -83,6 +89,7 @@ public class RuntimePipe : Grain, IRuntimePipe
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             _logger.LogError(ex,
                 "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
                 message.GetType().Name, this.GetPrimaryKeyString());

@@ -15,10 +15,22 @@ public class RuntimeChannelObserver : IRuntimeChannelObserver
     private readonly Action<object> _onMessage;
 
     public Guid Id { get; } = Guid.NewGuid();
+    public long LastSeenSequence { get; private set; }
 
     public Task Send(object message)
     {
-        _onMessage(message);
+        if (message is SequencedMessage sequenced)
+        {
+            if (sequenced.Sequence > LastSeenSequence)
+                LastSeenSequence = sequenced.Sequence;
+
+            _onMessage(sequenced.Payload);
+        }
+        else
+        {
+            _onMessage(message);
+        }
+
         return Task.CompletedTask;
     }
 }

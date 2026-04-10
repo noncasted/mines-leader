@@ -42,8 +42,7 @@ public class ConnectionReader : IConnectionReader
 
             try
             {
-                receiveResult = await _webSocket.ReceiveAsync(buffer,
-                    lifetime.Token);
+                receiveResult = await _webSocket.ReceiveAsync(buffer, lifetime.Token);
             }
             catch (WebSocketException)
             {
