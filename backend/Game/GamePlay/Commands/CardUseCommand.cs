@@ -33,7 +33,23 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
 
         var config = configs.Value.All[handCard.Type];
         player.Stash.Add(handCard.Type);
-        player.Mana.Use(config.ManaCost);
+
+        var manaCost = config.ManaCost;
+        var nextDiscount = (int)player.Modifiers.Get(PlayerModifier.NextCardDiscount);
+        var allDiscount = (int)player.Modifiers.Get(PlayerModifier.AllCardsDiscount);
+        var penalty = (int)player.Modifiers.Get(PlayerModifier.ManaCostPenalty);
+
+        if (nextDiscount > 0) {
+            manaCost -= nextDiscount;
+            player.Modifiers.Reset(PlayerModifier.NextCardDiscount);
+        }
+
+        manaCost -= allDiscount;
+        manaCost += penalty;
+
+        if (manaCost < 0) manaCost = 0;
+
+        player.Mana.Use(manaCost);
         player.Moves.OnUsed();
         context.Player.Actions.OnCardUsed();
 

@@ -7,6 +7,13 @@ namespace Shared
     public enum PlayerModifier
     {
         TrebuchetBoost = 0,
+        AdditionalMana = 1,
+        AdditionalMoves = 2,
+        AdditionalHealth = 3,
+        NextCardDiscount = 4,
+        AllCardsDiscount = 5,
+        ManaCostPenalty = 6,
+        Shield = 7,
     }
 
     public static class PlayerModifierExtensions

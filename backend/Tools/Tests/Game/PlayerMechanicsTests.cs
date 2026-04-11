@@ -2,6 +2,7 @@ using Common.Reactive;
 using FluentAssertions;
 using Game.GamePlay;
 using Game.Session;
+using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -158,7 +159,7 @@ public class ManaTests
     private static (Mana mana, ValueProperty<PlayerManaState> state) Create()
     {
         var state = new ValueProperty<PlayerManaState>(0).ForTest();
-        var mana = new Mana(state);
+        var mana = new Mana(state, Substitute.For<IModifiers>());
         return (mana, state);
     }
 

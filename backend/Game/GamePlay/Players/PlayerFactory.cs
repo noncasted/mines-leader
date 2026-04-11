@@ -55,8 +55,8 @@ public class PlayerFactory : IPlayerFactory
 
         var board = new Board(boardProperty, entity.Owner.Id, _boardOptions);
         var health = new Health(healthProperty);
-        var mana = new Mana(manaProperty);
         var modifiers = new Modifiers(modifiersProperty);
+        var mana = new Mana(manaProperty, modifiers);
         var deck = new Deck(deckProperty, selectedDeck);
         var moves = new Moves(movesProperty);
         var hand = new Hand(handProperty);
