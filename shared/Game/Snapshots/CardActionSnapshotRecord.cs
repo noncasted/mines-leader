@@ -26,6 +26,37 @@ namespace Shared
     [MemoryPackUnion(21, typeof(CardActionSnapshot.Lockdown))]
     [MemoryPackUnion(23, typeof(CardActionSnapshot.Sonar))]
     [MemoryPackUnion(24, typeof(CardActionSnapshot.Purge))]
+    [MemoryPackUnion(25, typeof(CardActionSnapshot.Adrenaline))]
+    [MemoryPackUnion(26, typeof(CardActionSnapshot.ManaSurge))]
+    [MemoryPackUnion(27, typeof(CardActionSnapshot.BloodPact))]
+    [MemoryPackUnion(28, typeof(CardActionSnapshot.CoinToss))]
+    [MemoryPackUnion(29, typeof(CardActionSnapshot.ManaFountain))]
+    [MemoryPackUnion(30, typeof(CardActionSnapshot.Focus))]
+    [MemoryPackUnion(31, typeof(CardActionSnapshot.Shield))]
+    [MemoryPackUnion(32, typeof(CardActionSnapshot.PowerSurge))]
+    [MemoryPackUnion(33, typeof(CardActionSnapshot.Embargo))]
+    [MemoryPackUnion(34, typeof(CardActionSnapshot.Recycler))]
+    [MemoryPackUnion(35, typeof(CardActionSnapshot.MysticDraw))]
+    [MemoryPackUnion(36, typeof(CardActionSnapshot.DoubleOrNothing))]
+    [MemoryPackUnion(37, typeof(CardActionSnapshot.GamblersRuin))]
+    [MemoryPackUnion(38, typeof(CardActionSnapshot.Excavator))]
+    [MemoryPackUnion(39, typeof(CardActionSnapshot.ThermalVision))]
+    [MemoryPackUnion(40, typeof(CardActionSnapshot.ChaosDiamond))]
+    [MemoryPackUnion(41, typeof(CardActionSnapshot.ChaosScout))]
+    [MemoryPackUnion(42, typeof(CardActionSnapshot.MineCluster))]
+    [MemoryPackUnion(43, typeof(CardActionSnapshot.CarpetBomb))]
+    [MemoryPackUnion(44, typeof(CardActionSnapshot.FortuneBlast))]
+    [MemoryPackUnion(45, typeof(CardActionSnapshot.ChaosFog))]
+    [MemoryPackUnion(46, typeof(CardActionSnapshot.Frost))]
+    [MemoryPackUnion(47, typeof(CardActionSnapshot.Blackout))]
+    [MemoryPackUnion(48, typeof(CardActionSnapshot.FortuneCookie))]
+    [MemoryPackUnion(49, typeof(CardActionSnapshot.Salvage))]
+    [MemoryPackUnion(50, typeof(CardActionSnapshot.CardThief))]
+    [MemoryPackUnion(51, typeof(CardActionSnapshot.SabotageDeck))]
+    [MemoryPackUnion(52, typeof(CardActionSnapshot.Dud))]
+    [MemoryPackUnion(53, typeof(CardActionSnapshot.SoulLink))]
+    [MemoryPackUnion(54, typeof(CardActionSnapshot.MirrorMatch))]
+    [MemoryPackUnion(55, typeof(CardActionSnapshot.DimensionRift))]
     public partial interface ICardActionData
     {
         Guid TargetPlayer { get; set; }
@@ -159,6 +190,209 @@ namespace Shared
 
         [MemoryPackable]
         public partial class Purge : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+        [MemoryPackable]
+        public partial class ManaSurge : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Adrenaline : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class BloodPact : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class CoinToss : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public bool IsHeads { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ManaFountain : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public int RolledAmount { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Focus : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Shield : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class PowerSurge : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Embargo : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Recycler : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MysticDraw : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public bool IsHeads { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class DoubleOrNothing : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public bool IsHeads { get; set; }
+            public int ResultMana { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class GamblersRuin : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public bool IsHeads { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Excavator : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ThermalVision : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> HighlightedMines { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ChaosDiamond : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public int ActualSize { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ChaosScout : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public int ActualLength { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MineCluster : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class CarpetBomb : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class FortuneBlast : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public int ActualSize { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ChaosFog : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public int ActualSize { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Frost : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> FrozenCells { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Blackout : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> AffectedCells { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class FortuneCookie : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position> RevealedMines { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Salvage : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<CardType> PeekedCards { get; set; }
+            public int ChosenIndex { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class CardThief : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public CardType StolenCard { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class SabotageDeck : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class Dud : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class SoulLink : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MirrorMatch : ICardActionData
+        {
+            public Guid TargetPlayer { get; set; }
+            public CardType CopiedCard { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class DimensionRift : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
         }

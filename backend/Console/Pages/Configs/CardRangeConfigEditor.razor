@@ -1,0 +1,85 @@
+@using Shared
+<div class="rounded-lg border bg-card p-3 flex flex-col gap-2">
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-medium flex-1 truncate" title="@Name">@BaseName</span>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 flex-1">
+            <LucideIcon Name="minimize-2" Size="11" class="text-muted-foreground shrink-0" />
+            <input type="number" @bind="MinValue"
+                   class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm"
+                   placeholder="Min" />
+        </div>
+        <div class="flex items-center gap-1.5 flex-1">
+            <LucideIcon Name="maximize-2" Size="11" class="text-muted-foreground shrink-0" />
+            <input type="number" @bind="MaxValue"
+                   class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm"
+                   placeholder="Max" />
+        </div>
+        <div class="flex items-center gap-1.5 flex-1">
+            <LucideIcon Name="droplets" Size="11" class="text-blue-400 shrink-0" />
+            <input type="number" @bind="Value.ManaCost"
+                   class="h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ICardConfig Value { get; set; } = null!;
+    [Parameter, EditorRequired] public CardType Type { get; set; }
+
+    private int MinValue
+    {
+        get => Value switch
+        {
+            CardConfigOptions.ChaosDiamond c => c.MinSize,
+            CardConfigOptions.ChaosScout c => c.MinLength,
+            CardConfigOptions.FortuneBlast c => c.MinSize,
+            CardConfigOptions.ChaosFog c => c.MinSize,
+            CardConfigOptions.FortuneCookie c => c.MinMines,
+            CardConfigOptions.ManaFountain c => c.MinMana,
+            _ => 0
+        };
+        set
+        {
+            switch (Value)
+            {
+                case CardConfigOptions.ChaosDiamond c: c.MinSize = value; break;
+                case CardConfigOptions.ChaosScout c: c.MinLength = value; break;
+                case CardConfigOptions.FortuneBlast c: c.MinSize = value; break;
+                case CardConfigOptions.ChaosFog c: c.MinSize = value; break;
+                case CardConfigOptions.FortuneCookie c: c.MinMines = value; break;
+                case CardConfigOptions.ManaFountain c: c.MinMana = value; break;
+            }
+        }
+    }
+
+    private int MaxValue
+    {
+        get => Value switch
+        {
+            CardConfigOptions.ChaosDiamond c => c.MaxSize,
+            CardConfigOptions.ChaosScout c => c.MaxLength,
+            CardConfigOptions.FortuneBlast c => c.MaxSize,
+            CardConfigOptions.ChaosFog c => c.MaxSize,
+            CardConfigOptions.FortuneCookie c => c.MaxMines,
+            CardConfigOptions.ManaFountain c => c.MaxMana,
+            _ => 0
+        };
+        set
+        {
+            switch (Value)
+            {
+                case CardConfigOptions.ChaosDiamond c: c.MaxSize = value; break;
+                case CardConfigOptions.ChaosScout c: c.MaxLength = value; break;
+                case CardConfigOptions.FortuneBlast c: c.MaxSize = value; break;
+                case CardConfigOptions.ChaosFog c: c.MaxSize = value; break;
+                case CardConfigOptions.FortuneCookie c: c.MaxMines = value; break;
+                case CardConfigOptions.ManaFountain c: c.MaxMana = value; break;
+            }
+        }
+    }
+
+    private string Name => Type.ToString();
+    private string BaseName => Name.Replace("_Max", "");
+}

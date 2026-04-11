@@ -10,6 +10,9 @@ public static class GameContextServiceExtensions
     {
         services.Add<IGameContext, GameContext>();
 
+        services.Add<GameRandom>()
+                .As<IGameRandom>();
+
         services.Add<RoundActionService>()
                 .As<IRoundActionService>();
 

@@ -7,16 +7,22 @@ public class OpponentFlagReshuffle : ICard
     public OpponentFlagReshuffle(
         IBoard target,
         CardConfigOptions.OpponentFlagReshuffle config,
-        CardUsePayload.OpponentFlagReshuffle payload)
+        CardUsePayload.OpponentFlagReshuffle payload,
+        IPlayer owner,
+        IGameRandom gameRandom)
     {
         _target = target;
         _config = config;
         _payload = payload;
+        _owner = owner;
+        _gameRandom = gameRandom;
     }
 
     private readonly IBoard _target;
     private readonly CardConfigOptions.OpponentFlagReshuffle _config;
     private readonly CardUsePayload.OpponentFlagReshuffle _payload;
+    private readonly IPlayer _owner;
+    private readonly IGameRandom _gameRandom;
 
     public CardUseResult Use()
     {
@@ -49,7 +55,7 @@ public class OpponentFlagReshuffle : ICard
         while (flagged.Count != 0 && notFlagged.Count != 0)
         {
             var firstFlagged = flagged.First();
-            var randomNotFlaggedIndex = Random.Shared.Next(0, notFlagged.Count);
+            var randomNotFlaggedIndex = _gameRandom.Index(_owner, notFlagged.Count);
             var randomNotFlagged = notFlagged[randomNotFlaggedIndex];
 
             firstFlagged.RemoveFlag();

@@ -18,12 +18,14 @@ public interface IMana
 
 public class Mana : IMana
 {
-    public Mana(ValueProperty<PlayerManaState> state)
+    public Mana(ValueProperty<PlayerManaState> state, IModifiers modifiers)
     {
         _state = state;
+        _modifiers = modifiers;
     }
 
     private readonly ValueProperty<PlayerManaState> _state;
+    private readonly IModifiers _modifiers;
     private readonly ViewableProperty<int> _current = new(0);
 
     private int _max;
@@ -31,10 +33,12 @@ public class Mana : IMana
     public int Current => _current.Value;
     public int Max => _max;
 
+    private int EffectiveMax => _max + (int)_modifiers.Get(PlayerModifier.AdditionalMana);
+
     public void SetCurrent(int value)
     {
-        if (value > _max)
-            value = _max;
+        if (value > EffectiveMax)
+            value = EffectiveMax;
 
         if (value < 0)
             value = 0;

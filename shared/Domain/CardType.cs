@@ -57,6 +57,73 @@ namespace Shared
         Sonar = 2400,
 
         Purge = 2500,
+
+        Adrenaline = 2600,
+
+        ManaSurge = 2700,
+
+        BloodPact = 2800,
+
+        CoinToss = 2900,
+
+        ManaFountain = 3000,
+
+        Focus = 3100,
+
+        Shield = 3200,
+
+        PowerSurge = 3300,
+
+        Embargo = 3400,
+
+        Recycler = 3500,
+
+        MysticDraw = 3600,
+
+        DoubleOrNothing = 3700,
+
+        GamblersRuin = 3800,
+
+        Excavator = 3900,
+        Excavator_Max = 3910,
+
+        ThermalVision = 4000,
+        ThermalVision_Max = 4010,
+
+        ChaosDiamond = 4100,
+
+        ChaosScout = 4200,
+
+        MineCluster = 4300,
+        MineCluster_Max = 4310,
+
+        CarpetBomb = 4400,
+        CarpetBomb_Max = 4410,
+
+        FortuneBlast = 4500,
+
+        ChaosFog = 4600,
+
+        Frost = 4700,
+        Frost_Max = 4710,
+
+        Blackout = 4800,
+        Blackout_Max = 4810,
+
+        FortuneCookie = 4900,
+
+        Salvage = 5000,
+
+        CardThief = 5100,
+
+        SabotageDeck = 5200,
+        Dud = 5210,
+
+        SoulLink = 5300,
+
+        MirrorMatch = 5400,
+
+        DimensionRift = 5500,
     }
 
     public enum CardTarget

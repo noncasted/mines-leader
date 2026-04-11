@@ -28,4 +28,16 @@ public static class CardConfigs
     public static CardConfigOptions.ChainReaction ChainReaction => All.ChainReaction_Normal;
     public static CardConfigOptions.FogOfWar FogOfWar => All.FogOfWar_Normal;
     public static CardConfigOptions.Purge Purge => All.Purge_Normal;
+    public static CardConfigOptions.Adrenaline Adrenaline => All.Adrenaline_Normal;
+    public static CardConfigOptions.ManaSurge ManaSurge => All.ManaSurge_Normal;
+    public static CardConfigOptions.BloodPact BloodPact => All.BloodPact_Normal;
+    public static CardConfigOptions.CoinToss CoinToss => All.CoinToss_Normal;
+    public static CardConfigOptions.ManaFountain ManaFountain => All.ManaFountain_Normal;
+    public static CardConfigOptions.Focus Focus => All.Focus_Normal;
+    public static CardConfigOptions.Shield Shield => All.Shield_Normal;
+    public static CardConfigOptions.PowerSurge PowerSurge => All.PowerSurge_Normal;
+    public static CardConfigOptions.Embargo Embargo => All.Embargo_Normal;
+    public static CardConfigOptions.Excavator Excavator => All.Excavator_Normal;
+    public static CardConfigOptions.MineCluster MineCluster => All.MineCluster_Normal;
+    public static CardConfigOptions.Frost Frost => All.Frost_Normal;
 }

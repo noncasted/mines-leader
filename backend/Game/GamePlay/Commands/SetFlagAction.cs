@@ -12,6 +12,9 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
         if (targetCell.Status == CellStatus.Free)
             return EmptyResponse.Failed;
 
+        if (targetCell.Effects.Any(e => e.Type == CellEffectType.Frost))
+            return EmptyResponse.Fail("Cell is frozen");
+
         var taken = targetCell.ToTaken();
 
         if (taken.IsFlagged == true)

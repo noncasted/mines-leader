@@ -13,9 +13,17 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
         if (targetCell.Status == CellStatus.Free)
             return EmptyResponse.Failed;
 
+        if (targetCell.Effects.Any(e => e.Type == CellEffectType.Frost))
+            return EmptyResponse.Fail("Cell is frozen");
+
         if (targetCell.ToTaken().HasMine == true)
         {
-            context.Player.Health.TakeDamage(1);
+            var shield = (int)context.Player.Modifiers.Get(PlayerModifier.Shield);
+            if (shield > 0) {
+                context.Player.Modifiers.Set(PlayerModifier.Shield, shield - 1);
+            } else {
+                context.Player.Health.TakeDamage(1);
+            }
             targetCell.ToTaken().Explode();
         }
 

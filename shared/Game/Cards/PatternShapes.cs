@@ -12,6 +12,7 @@ namespace Shared
     {
         public static RhombusShape Rhombus(int size) => new(size);
         public static LineShape Line(int length, bool horizontal) => new(length, horizontal);
+        public static CrossShape Cross(int size) => new(size);
     }
 
     public class RhombusShape : IPattenShape
@@ -78,6 +79,29 @@ namespace Shared
                 for (var x = 0; x < length; x++)
                 {
                     grid[y][x] = horizontal ? y == center : x == center;
+                }
+            }
+
+            Positions = grid;
+        }
+
+        public IReadOnlyList<IReadOnlyList<bool>> Positions { get; }
+    }
+
+    public class CrossShape : IPattenShape
+    {
+        public CrossShape(int size)
+        {
+            var grid = new bool[size][];
+            var center = size / 2;
+
+            for (var y = 0; y < size; y++)
+            {
+                grid[y] = new bool[size];
+
+                for (var x = 0; x < size; x++)
+                {
+                    grid[y][x] = x == center || y == center;
                 }
             }
 
