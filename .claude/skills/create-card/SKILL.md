@@ -1,28 +1,86 @@
 ---
 name: create-card
-description: Create a new card for the competitive minesweeper game. Use this skill whenever the user asks to add, create, or implement a new card, card type, or card mechanic. Also use when the user mentions a card name from docs/obsidian/game/cards.md or card-ideas.md and wants it implemented. Covers all three codebases — shared models, backend mechanics + bot strategy, console config editor, and client-side action + sync.
+description: Create a new card for the competitive minesweeper game. Use this skill whenever the user asks to add, create, or implement a new card, card type, or card mechanic. Also use when the user mentions a card name from docs/obsidian/game/cards/ and wants it implemented. Covers all three codebases — shared models, backend mechanics + bot strategy, console config editor, and client-side action + sync.
 ---
 
 # Create Card Skill
 
 This skill guides you through adding a new card to the game across all three codebases. A card touches ~15 files across shared/, backend/, and client/ — missing any one of them causes silent failures, so follow the checklist carefully.
 
-## Step 0: Get the Card Description
+## Game Balance Context
 
-If the user gave only a card name (no description), look it up in:
-- `/docs/obsidian/game/cards.md` — existing card reference
-- `/docs/obsidian/game/card-ideas.md` — proposed cards
+These parameters are critical for card design decisions:
+- **Board:** 16x16, 40 mines
+- **HP:** 3 (max 1 damage per single action)
+- **Moves:** 5 per turn
+- **Mana:** starts at 1, grows +1/turn
+- **Deck:** 10 cards, hand up to 5, discard recycles
+
+## Card Documentation Structure
+
+```
+docs/obsidian/game/cards/
+  implemented/  — cards already in the game (reference for existing mechanics)
+  queue/        — cards approved and ready for implementation (PASS status)
+  ideas/        — cards in concept stage (need further design)
+  fail/         — 80+ rejected cards
+    fail_reasons.md  — MANDATORY validation checklist for any new card
+    cards_fail_*.md  — rejected cards grouped by category with detailed reasons
+```
+
+Each folder contains `*_all.md` (summary table) and per-category files:
+`*_scout.md`, `*_hand.md`, `*_improve.md`, `*_cross.md`, `*_resources.md`
+
+## Step 0: Get the Card Description and Validate
+
+### 0.1 Find the card
+
+If the user gave only a card name (no description), look it up in order:
+1. `docs/obsidian/game/cards/queue/cards_queue_all.md` — approved cards ready for implementation
+2. `docs/obsidian/game/cards/ideas/cards_ideas_all.md` — cards in concept stage
+3. `docs/obsidian/game/cards/implemented/cards_implemented_all.md` — check for duplicates
+4. `docs/obsidian/game/cards/fail/cards_fail_all.md` — check if already rejected (STOP if found)
+
+If the card is from `fail/` — inform the user it was previously rejected and show the reason.
+
+### 0.2 Validate against fail reasons (MANDATORY)
+
+Read `docs/obsidian/game/cards/fail/fail_reasons.md` and run the **critical checklist**. If ANY answer is "yes" — STOP and report to the user. Do NOT proceed to implementation.
+
+**Critical checks (any "yes" = reject):**
+- Does the card move mines or change MinesAround?
+- Does it close already-opened cells?
+- Does it delete cells or change board topology?
+- Can it deal >1 damage in a single action (instant kill at 3 HP)?
+- Does it reveal all mines or auto-flag everything?
+- Is there NO counterplay for the opponent?
+- Is the effect invisible (no visual feedback)?
+- Does it require real-time actions or actions during opponent's turn?
+- Does it allow infinite repetition or self-copying?
+- Does it reward stepping on mines?
+
+**Warning checks (need justification):**
+- Does implementation require a new complex system?
+- Is there already a card with a similar effect?
+- Does it destroy player progress?
+- Can the effect be explained in one sentence?
+- Is the outcome pure RNG with no player agency?
+
+### 0.3 Determine card properties
 
 From the description, determine these properties:
 - **Name** (PascalCase identifier, e.g. `Lockdown`)
+- **Mana cost** (remember: mana starts at 1, grows +1/turn — expensive cards are late-game only)
 - **CardTarget**: `OwnBoard`, `OpponentBoard`, `Self`, or `Opponent`
+- **Category**: Scout, Hand, Improve, Cross-board, or Resources (matches folder structure)
 - **Has Max variant?** (most area-effect cards do, simple cards don't)
 - **Has board position?** (board-targeting cards need `IBoardCardUsePayload`)
 - **Has duration/temporal effect?** (needs `IRoundActionService`)
 - **Config properties** beyond ManaCost (Size, Duration, custom fields)
 - **Snapshot data** beyond TargetPlayer (revealed cells, spawned mines, etc.)
+- **Has RNG?** (if yes — what does the player control? pure RNG is a warning sign)
 
-Present your analysis to the user and confirm before proceeding.
+Present your analysis to the user, including the fail_reasons validation result, and confirm before proceeding.
 
 ## Step 1: Choose IDs
 
