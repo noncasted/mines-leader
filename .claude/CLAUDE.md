@@ -21,6 +21,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | which pattern to use, decision | docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |
 | game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking | docs/GAMEPLAY.md |
+| new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
 | IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/COMMON_ORLEANS.md |
 | trigger keywords, documentation finder, reading order | docs/TRIGGERS.md |
 | code examples, Docs_*.cs, working examples | docs/CODE_EXAMPLES.md |

@@ -125,6 +125,16 @@ public class CardUseResult {
 
 `ActionData` — data passed to client snapshot handlers to play visual effects.
 
+### Card Design Documentation
+
+Card ideas, statuses, and validation rules are in `docs/obsidian/game/cards/`:
+- `implemented/` — cards currently in the game (26 cards)
+- `queue/` — approved for implementation (30 cards)
+- `ideas/` — in concept stage (12 cards)
+- `fail/` — rejected cards (80+) with `fail_reasons.md` — **mandatory validation checklist for new card ideas**
+
+When designing a new card, always validate against `fail/fail_reasons.md` first.
+
 ### CardType Enum (all values in `shared/Domain/`)
 
 | Card | Effect |
