@@ -1,10 +1,10 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
-public interface ICard
+public interface ICard<in TPayload> where TPayload : ICardUsePayload
 {
-    CardUseResult Use();
+    CardUseResult Use(IPlayer invoker, TPayload payload);
 }
 
 public class CardUseResult

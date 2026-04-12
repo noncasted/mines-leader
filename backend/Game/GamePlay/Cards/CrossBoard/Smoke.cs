@@ -1,47 +1,37 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class Smoke : ICard
-{
-    public Smoke(
-        IBoard target,
-        CardUsePayload.Smoke payload,
-        CardConfigOptions.Smoke config,
-        IRoundActionService roundActionService)
-    {
-        _target = target;
-        _payload = payload;
-        _config = config;
+public class Smoke : ICard<CardUsePayload.Smoke> {
+    public Smoke(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext) {
+        _configs = configs;
         _roundActionService = roundActionService;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardUsePayload.Smoke _payload;
-    private readonly CardConfigOptions.Smoke _config;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        if (_target.Cells.Count == 0)
-        {
-            return new CardUseResult
-            {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Smoke payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        if (board.Cells.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }
 
-        var size = _config.Size;
+        var config = _configs.Value.Smoke_Normal;
+        var pattern = PatternShapes.Rhombus(config.Size);
+        var selected = pattern.SelectAll(board, payload.Position);
 
-        var pattern = PatternShapes.Rhombus(size);
-
-        var selected = pattern.SelectAll(_target, _payload.Position);
-
-        if (selected.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (selected.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No cells in the pattern"),
                 ActionData = null
             };
@@ -50,23 +40,19 @@ public class Smoke : ICard
         var effectId = Guid.NewGuid();
         var affectedCells = new List<ICell>();
 
-        foreach (var cell in selected)
-        {
+        foreach (var cell in selected) {
             var effect = new SmokeEffect { Id = effectId };
             cell.AddEffect(effect);
             affectedCells.Add(cell);
         }
 
-        var duration = _config.Duration;
         var disposeAction = new SmokeDisposeAction(effectId, affectedCells);
-        _roundActionService.Schedule(disposeAction, duration);
+        _roundActionService.Schedule(disposeAction, config.Duration);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Smoke()
-            {
-                TargetPlayer = _target.OwnerId
+            ActionData = new CardActionSnapshot.Smoke() {
+                TargetPlayer = board.OwnerId
             }
         };
     }

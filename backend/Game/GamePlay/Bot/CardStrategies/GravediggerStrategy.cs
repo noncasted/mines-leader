@@ -10,16 +10,13 @@ public class GravediggerStrategy : IBotCardStrategy
 {
     public GravediggerStrategy(
         IBotContext context,
-        ICardFactory cardFactory,
         IBotCommandUtils commandUtils)
     {
         _context = context;
-        _cardFactory = cardFactory;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly ICardFactory _cardFactory;
     private readonly IBotCommandUtils _commandUtils;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Gravedigger];

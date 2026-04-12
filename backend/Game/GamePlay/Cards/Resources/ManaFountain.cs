@@ -1,54 +1,42 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Rolls a random amount within a configured range and grants that much temporary mana this turn.
 /// </summary>
-public class ManaFountain : ICard {
-    public ManaFountain(IPlayer owner, CardConfigOptions.ManaFountain config, IRoundActionService roundActionService, IGameRandom gameRandom) {
-        _owner = owner;
-        _config = config;
+public class ManaFountain : ICard<CardUsePayload.ManaFountain> {
+    public ManaFountain(ICardConfigs configs, IRoundActionService roundActionService, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor) {
+        _configs = configs;
         _roundActionService = roundActionService;
         _gameRandom = gameRandom;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly CardConfigOptions.ManaFountain _config;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
     private readonly IGameRandom _gameRandom;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use() {
-        var rolled = _gameRandom.Range(_owner, _config.MinMana, _config.MaxMana);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ManaFountain payload) {
+        var config = _configs.Value.ManaFountain_Normal;
+        var rolled = _gameRandom.Range(invoker, config.MinMana, config.MaxMana);
 
-        _owner.Modifiers.Set(PlayerModifier.AdditionalMana,
-            _owner.Modifiers.Get(PlayerModifier.AdditionalMana) + rolled);
-        _owner.Mana.SetCurrent(_owner.Mana.Current + rolled);
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.ManaFountain() {
+            TargetPlayer = invoker.User.Id,
+            RolledAmount = rolled
+        });
 
-        var disposeAction = new ManaFountainDisposeAction(_owner, rolled);
-        _roundActionService.Schedule(disposeAction, 1);
+        invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, rolled);
+        invoker.Mana.SetCurrent(invoker.Mana.Current + rolled);
+
+        _roundActionService.Schedule(
+            new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, rolled), 1);
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ManaFountain() {
-                TargetPlayer = _owner.User.Id,
-                RolledAmount = rolled
-            }
+            ActionData = null
         };
-    }
-}
-
-public class ManaFountainDisposeAction : IRoundAction {
-    public ManaFountainDisposeAction(IPlayer owner, int gain) {
-        _owner = owner;
-        _gain = gain;
-    }
-
-    private readonly IPlayer _owner;
-    private readonly int _gain;
-
-    public void Execute() {
-        var current = _owner.Modifiers.Get(PlayerModifier.AdditionalMana);
-        _owner.Modifiers.Set(PlayerModifier.AdditionalMana, Math.Max(0, current - _gain));
     }
 }

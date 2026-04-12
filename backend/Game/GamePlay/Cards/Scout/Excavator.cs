@@ -1,24 +1,24 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Targets a cross-shaped area: flags mines and reveals safe cells within the pattern.
 /// </summary>
-public class Excavator : ICard {
-    public Excavator(IBoard target, CardConfigOptions.Excavator config, CardUsePayload.Excavator payload) {
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class Excavator : ICard<CardUsePayload.Excavator> {
+    public Excavator(ICardConfigs configs) {
+        _configs = configs;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.Excavator _config;
-    private readonly CardUsePayload.Excavator _payload;
+    private readonly ICardConfigs _configs;
 
-    public CardUseResult Use() {
-        var pattern = PatternShapes.Cross(_config.Size);
-        var selected = pattern.SelectTaken(_target, _payload.Position);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Excavator payload) {
+        var board = invoker.Board;
+        board.EnsureGenerated(payload.Position);
+
+        var pattern = PatternShapes.Cross(_configs.Value.Excavator_Normal.Size);
+        var selected = pattern.SelectTaken(board, payload.Position);
 
         if (selected.Count == 0) {
             return new CardUseResult {
@@ -32,14 +32,14 @@ public class Excavator : ICard {
                 cell.SetFlag();
             } else {
                 cell.ToFree();
-                _target.Revealer.Reveal(cell.Position);
+                board.Revealer.Reveal(cell.Position);
             }
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Excavator() {
-                TargetPlayer = _target.OwnerId
+                TargetPlayer = board.OwnerId
             }
         };
     }

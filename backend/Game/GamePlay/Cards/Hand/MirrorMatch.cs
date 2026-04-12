@@ -5,26 +5,18 @@ namespace Game.GamePlay;
 /// <summary>
 /// Copies the last card played by the opponent and applies its effect for the owner.
 /// </summary>
-public class MirrorMatch : ICard
+public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
 {
-    public MirrorMatch(
-        IPlayer owner,
-        IPlayer opponent,
-        ICardFactory cardFactory,
-        MoveSnapshot snapshot)
+    public MirrorMatch(IGameContext gameContext, IMoveSnapshotAccessor snapshotAccessor)
     {
-        _owner = owner;
-        _opponent = opponent;
-        _cardFactory = cardFactory;
-        _snapshot = snapshot;
+        _gameContext = gameContext;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IPlayer _opponent;
-    private readonly ICardFactory _cardFactory;
-    private readonly MoveSnapshot _snapshot;
+    private readonly IGameContext _gameContext;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.MirrorMatch payload)
     {
         // TODO: Full implementation requires LastUsedCard tracking on IPlayer.
         return new CardUseResult
@@ -32,7 +24,7 @@ public class MirrorMatch : ICard
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.MirrorMatch()
             {
-                TargetPlayer = _owner.User.Id,
+                TargetPlayer = invoker.User.Id,
                 CopiedCard = CardType.MirrorMatch
             }
         };

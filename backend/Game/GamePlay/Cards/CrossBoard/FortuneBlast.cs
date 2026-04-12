@@ -1,29 +1,31 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Plants mines in a diamond area of random size on free cells of the opponent's field.
 /// </summary>
-public class FortuneBlast : ICard {
-    public FortuneBlast(IPlayer owner, IBoard target, CardConfigOptions.FortuneBlast config, CardUsePayload.FortuneBlast payload, IGameRandom gameRandom) {
-        _owner = owner;
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class FortuneBlast : ICard<CardUsePayload.FortuneBlast> {
+    public FortuneBlast(ICardConfigs configs, IGameContext gameContext, IGameRandom gameRandom) {
+        _configs = configs;
+        _gameContext = gameContext;
         _gameRandom = gameRandom;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.FortuneBlast _config;
-    private readonly CardUsePayload.FortuneBlast _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use() {
-        var actualSize = _gameRandom.Range(_owner, _config.MinSize, _config.MaxSize);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneBlast payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        var config = _configs.Value.FortuneBlast_Normal;
+        var actualSize = _gameRandom.Range(invoker, config.MinSize, config.MaxSize);
         var pattern = PatternShapes.Rhombus(actualSize);
-        var selected = pattern.SelectFree(_target, _payload.Position);
+        var selected = pattern.SelectFree(board, payload.Position);
 
         if (selected.Count == 0) {
             return new CardUseResult {
@@ -41,7 +43,7 @@ public class FortuneBlast : ICard {
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.FortuneBlast() {
-                TargetPlayer = _target.OwnerId,
+                TargetPlayer = board.OwnerId,
                 ActualSize = actualSize
             }
         };

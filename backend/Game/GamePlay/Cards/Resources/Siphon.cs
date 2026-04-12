@@ -1,31 +1,36 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class Siphon : ICard
+/// <summary>
+/// Permanently drains max mana from the opponent and transfers it to the invoker.
+/// </summary>
+public class Siphon : ICard<CardUsePayload.Siphon>
 {
-    public Siphon(IPlayer owner, IPlayer opponent, CardConfigOptions.Siphon config)
+    public Siphon(ICardConfigs configs, IGameContext gameContext)
     {
-        _owner = owner;
-        _opponent = opponent;
-        _config = config;
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IPlayer _opponent;
-    private readonly CardConfigOptions.Siphon _config;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Siphon payload)
     {
-        _opponent.Mana.SetMax(_opponent.Mana.Max - _config.DrainAmount);
-        _owner.Mana.SetMax(_owner.Mana.Max + _config.DrainAmount);
+        var config = _configs.Value.Siphon_Normal;
+        var opponent = _gameContext.GetOpponent(invoker);
+
+        opponent.Mana.SetMax(opponent.Mana.Max - config.DrainAmount);
+        invoker.Mana.SetMax(invoker.Mana.Max + config.DrainAmount);
 
         return new CardUseResult
         {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Siphon()
             {
-                TargetPlayer = _opponent.User.Id
+                TargetPlayer = opponent.User.Id
             }
         };
     }

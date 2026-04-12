@@ -2,72 +2,56 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class OpponentBomb : ICard
-{
-    public OpponentBomb(
-        IPlayer opponent,
-        IBoard target,
-        CardUsePayload.OpponentBomb payload)
-    {
-        _opponent = opponent;
-        _target = target;
-        _payload = payload;
+public class OpponentBomb : ICard<CardUsePayload.OpponentBomb> {
+    public OpponentBomb(IGameContext gameContext) {
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _opponent;
-    private readonly IBoard _target;
-    private readonly CardUsePayload.OpponentBomb _payload;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        if (_target.Cells.Count == 0)
-        {
-            return new CardUseResult
-            {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.OpponentBomb payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        if (board.Cells.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }
 
-        if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
-        {
-            return new CardUseResult
-            {
-                Result = EmptyResponse.Fail($"No cell at position {_payload.Position}"),
+        if (board.Cells.TryGetValue(payload.Position, out var cell) == false) {
+            return new CardUseResult {
+                Result = EmptyResponse.Fail($"No cell at position {payload.Position}"),
                 ActionData = null
             };
         }
 
-        if (cell.IsTaken() == false)
-        {
-            return new CardUseResult
-            {
-                Result = EmptyResponse.Fail($"Cell at position {_payload.Position} is not taken"),
+        if (cell.IsTaken() == false) {
+            return new CardUseResult {
+                Result = EmptyResponse.Fail($"Cell at position {payload.Position} is not taken"),
                 ActionData = null
             };
         }
 
         var taken = cell.ToTaken();
 
-        if (taken.HasMine == true)
-        {
+        if (taken.HasMine == true) {
             taken.Explode();
-            _opponent.Health.TakeDamage(1);
+            opponent.Health.TakeDamage(1);
         }
-        else
-        {
+        else {
             taken.ToFree();
         }
 
-        _target.OnUpdated();
-        _target.Revealer.Reveal(cell.Position);
+        board.OnUpdated();
+        board.Revealer.Reveal(cell.Position);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.OpponentBomb()
-            {
-                TargetPlayer = _target.OwnerId
+            ActionData = new CardActionSnapshot.OpponentBomb() {
+                TargetPlayer = board.OwnerId
             }
         };
     }

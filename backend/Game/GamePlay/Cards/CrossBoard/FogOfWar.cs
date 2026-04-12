@@ -1,44 +1,37 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class FogOfWar : ICard
-{
-    public FogOfWar(
-        IBoard target,
-        CardUsePayload.FogOfWar payload,
-        CardConfigOptions.FogOfWar config,
-        IRoundActionService roundActionService)
-    {
-        _target = target;
-        _payload = payload;
-        _config = config;
+public class FogOfWar : ICard<CardUsePayload.FogOfWar> {
+    public FogOfWar(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext) {
+        _configs = configs;
         _roundActionService = roundActionService;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardUsePayload.FogOfWar _payload;
-    private readonly CardConfigOptions.FogOfWar _config;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        if (_target.Cells.Count == 0)
-        {
-            return new CardUseResult
-            {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.FogOfWar payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        if (board.Cells.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }
 
-        var pattern = PatternShapes.Rhombus(_config.Size);
-        var selected = pattern.SelectFree(_target, _payload.Position);
+        var config = _configs.Value.FogOfWar_Normal;
+        var pattern = PatternShapes.Rhombus(config.Size);
+        var selected = pattern.SelectFree(board, payload.Position);
 
-        if (selected.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (selected.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No free cells in the pattern"),
                 ActionData = null
             };
@@ -47,22 +40,19 @@ public class FogOfWar : ICard
         var effectId = Guid.NewGuid();
         var affectedCells = new List<ICell>();
 
-        foreach (var cell in selected)
-        {
+        foreach (var cell in selected) {
             var effect = new FogEffect { Id = effectId };
             cell.AddEffect(effect);
             affectedCells.Add(cell);
         }
 
         var disposeAction = new FogDisposeAction(effectId, affectedCells);
-        _roundActionService.Schedule(disposeAction, _config.Duration);
+        _roundActionService.Schedule(disposeAction, config.Duration);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.FogOfWar()
-            {
-                TargetPlayer = _target.OwnerId
+            ActionData = new CardActionSnapshot.FogOfWar() {
+                TargetPlayer = board.OwnerId
             }
         };
     }

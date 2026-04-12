@@ -15,16 +15,19 @@ public class BotCommandUtils : IBotCommandUtils
     public BotCommandUtils(
         ISnapshotSender snapshotSender,
         IGameContext gameContext,
-        ICardFactory cardFactory)
+        IServiceProvider serviceProvider,
+        MoveSnapshotAccessor snapshotAccessor)
     {
         _snapshotSender = snapshotSender;
         _gameContext = gameContext;
-        _cardFactory = cardFactory;
+        _serviceProvider = serviceProvider;
+        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ISnapshotSender _snapshotSender;
     private readonly IGameContext _gameContext;
-    private readonly ICardFactory _cardFactory;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly MoveSnapshotAccessor _snapshotAccessor;
 
     public void WithSnapshot(Action action)
     {
@@ -55,14 +58,16 @@ public class BotCommandUtils : IBotCommandUtils
         var wasUsed = false;
 
         WithSnapshot(snapshot => {
-            var card = _cardFactory.Create(bot, snapshot, payload);
-            var use = card.Use();
+            _snapshotAccessor.Set(snapshot, cardId);
+
+            var use = _serviceProvider.Use(bot, payload);
             wasUsed = use.Result.HasError == false;
 
             if (wasUsed == false)
                 return;
 
-            snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData!);
+            if (use.ActionData != null)
+                snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData);
 
             foreach (var (_, board) in _gameContext.Boards)
                 board.OnUpdated();

@@ -1,53 +1,40 @@
-﻿using Shared;
+using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class ZipZap : ICard
-{
-    public ZipZap(
-        IPlayer owner,
-        IBoard target,
-        MoveSnapshot snapshot,
-        CardConfigOptions.ZipZap config,
-        CardUsePayload.ZipZap payload)
-    {
-        _owner = owner;
-        _target = target;
-        _snapshot = snapshot;
-        _config = config;
-        _payload = payload;
+public class ZipZap : ICard<CardUsePayload.ZipZap> {
+    public ZipZap(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor) {
+        _configs = configs;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _target;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.ZipZap _config;
-    private readonly CardUsePayload.ZipZap _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use()
-    {
-        var size = _config.Size + (int)_owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ZipZap payload) {
+        var board = invoker.Board;
+        board.EnsureGenerated(payload.Position);
+
+        var config = _configs.Value.ZipZap_Normal;
+        var size = config.Size + (int)invoker.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
         var pattern = PatternShapes.Rhombus(size);
-        var searchShape = PatternShapes.Rhombus(_config.SearchRadius);
+        var searchShape = PatternShapes.Rhombus(config.SearchRadius);
 
-        var selected = pattern.SelectFree(_target, _payload.Position);
+        var selected = pattern.SelectFree(board, payload.Position);
 
-        if (selected.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (selected.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No taken cells in the pattern"),
                 ActionData = null
             };
         }
 
         var targets = new List<ITakenCell>();
-        var current = SelectTarget(_payload.Position);
+        var current = SelectTarget(payload.Position);
 
-        if (current == null)
-        {
-            return new CardUseResult
-            {
+        if (current == null) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No target found in the pattern"),
                 ActionData = null
             };
@@ -55,8 +42,7 @@ public class ZipZap : ICard
 
         targets.Add(current);
 
-        for (var i = 1; i < size; i++)
-        {
+        for (var i = 1; i < size; i++) {
             current = SelectTarget(current.Position);
 
             if (current == null)
@@ -65,41 +51,37 @@ public class ZipZap : ICard
             targets.Add(current);
         }
 
-        if (targets.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (targets.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No targets found in the pattern"),
                 ActionData = null
             };
         }
 
-        _snapshot.Lock();
+        var snapshot = _snapshotAccessor.Snapshot;
+        snapshot.Lock();
 
         foreach (var target in targets)
             target.ToFree();
 
-        _snapshot.Unlock();
-        _target.OnUpdated();
+        snapshot.Unlock();
+        board.OnUpdated();
 
         foreach (var target in targets)
-            _target.Revealer.Reveal(target.Position);
+            board.Revealer.Reveal(target.Position);
 
-        _target.OnUpdated();
+        board.OnUpdated();
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ZipZap()
-            {
-                TargetPlayer = _target.OwnerId,
+            ActionData = new CardActionSnapshot.ZipZap() {
+                TargetPlayer = board.OwnerId,
                 Targets = targets.Select(t => t.Position).ToList()
             }
         };
 
-        ITakenCell? SelectTarget(Position center)
-        {
-            var searchPositions = searchShape.SelectTaken(_target, center);
+        ITakenCell? SelectTarget(Position center) {
+            var searchPositions = searchShape.SelectTaken(board, center);
             var hasMine = searchPositions.Where(x => x.HasMine == true);
             var hasFlags = hasMine.Where(x => x.IsFlagged == false);
             var unique = hasFlags.Where(x => targets.Contains(x) == false);

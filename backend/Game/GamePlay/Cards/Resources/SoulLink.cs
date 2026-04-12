@@ -1,41 +1,39 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
-/// Links the owner and opponent so that mine damage dealt to the owner is mirrored to the opponent for a set duration.
+/// Links the invoker and opponent so that mine damage dealt to the invoker is mirrored to the opponent for a set duration.
 /// </summary>
-public class SoulLink : ICard
+public class SoulLink : ICard<CardUsePayload.SoulLink>
 {
-    public SoulLink(
-        IPlayer owner,
-        IPlayer opponent,
-        CardConfigOptions.SoulLink config,
-        IRoundActionService roundActionService)
+    public SoulLink(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext)
     {
-        _owner = owner;
-        _opponent = opponent;
-        _config = config;
+        _configs = configs;
         _roundActionService = roundActionService;
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IPlayer _opponent;
-    private readonly CardConfigOptions.SoulLink _config;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.SoulLink payload)
     {
+        var config = _configs.Value.SoulLink_Normal;
+        var opponent = _gameContext.GetOpponent(invoker);
+
         // TODO: Full damage interception requires OpenCellCommand integration.
         // Schedules removal of the link after the configured duration.
-        _roundActionService.Schedule(new SoulLinkDisposeAction(), _config.Duration);
+        _roundActionService.Schedule(new SoulLinkDisposeAction(), config.Duration);
 
         return new CardUseResult
         {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.SoulLink()
             {
-                TargetPlayer = _opponent.User.Id
+                TargetPlayer = opponent.User.Id
             }
         };
     }

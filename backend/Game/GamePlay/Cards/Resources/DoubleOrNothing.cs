@@ -5,37 +5,47 @@ namespace Game.GamePlay;
 /// <summary>
 /// Flips a coin: heads doubles current mana, tails sets mana to zero.
 /// </summary>
-public class DoubleOrNothing : ICard {
-    public DoubleOrNothing(IPlayer owner, IGameRandom gameRandom) {
-        _owner = owner;
+public class DoubleOrNothing : ICard<CardUsePayload.DoubleOrNothing> {
+    public DoubleOrNothing(IGameRandom gameRandom, IRoundActionService roundActionService, IMoveSnapshotAccessor snapshotAccessor) {
         _gameRandom = gameRandom;
+        _roundActionService = roundActionService;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
     private readonly IGameRandom _gameRandom;
+    private readonly IRoundActionService _roundActionService;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use() {
-        var isHeads = _gameRandom.FlipCoin(_owner);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.DoubleOrNothing payload) {
+        var isHeads = _gameRandom.FlipCoin(invoker);
         int resultMana;
 
         if (isHeads) {
-            resultMana = _owner.Mana.Current * 2;
-            var bonus = _owner.Mana.Current;
-            _owner.Modifiers.Set(PlayerModifier.AdditionalMana,
-                _owner.Modifiers.Get(PlayerModifier.AdditionalMana) + bonus);
-            _owner.Mana.SetCurrent(resultMana);
+            resultMana = invoker.Mana.Current * 2;
         } else {
             resultMana = 0;
-            _owner.Mana.SetCurrent(0);
+        }
+
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.DoubleOrNothing() {
+            TargetPlayer = invoker.User.Id,
+            IsHeads = isHeads,
+            ResultMana = resultMana
+        });
+
+        if (isHeads) {
+            var bonus = invoker.Mana.Current;
+            invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, bonus);
+            invoker.Mana.SetCurrent(resultMana);
+
+            _roundActionService.Schedule(
+                new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, bonus), 1);
+        } else {
+            invoker.Mana.SetCurrent(0);
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.DoubleOrNothing() {
-                TargetPlayer = _owner.User.Id,
-                IsHeads = isHeads,
-                ResultMana = resultMana
-            }
+            ActionData = null
         };
     }
 }

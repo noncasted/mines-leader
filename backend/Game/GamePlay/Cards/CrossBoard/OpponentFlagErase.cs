@@ -1,43 +1,35 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class OpponentFlagErase : ICard
-{
-    public OpponentFlagErase(
-        IBoard target,
-        CardConfigOptions.OpponentFlagErase config,
-        CardUsePayload.OpponentFlagErase payload)
-    {
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase> {
+    public OpponentFlagErase(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.OpponentFlagErase _config;
-    private readonly CardUsePayload.OpponentFlagErase _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        if (_target.Cells.Count == 0)
-        {
-            return new CardUseResult
-            {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.OpponentFlagErase payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        if (board.Cells.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
         }
 
-        var size = _config.Size;
-        var pattern = PatternShapes.Rhombus(size);
+        var config = _configs.Value.OpponentFlagErase_Normal;
+        var pattern = PatternShapes.Rhombus(config.Size);
+        var selected = pattern.SelectTaken(board, payload.Position);
 
-        var selected = pattern.SelectTaken(_target, _payload.Position);
-
-        if (selected.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (selected.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No free cells in the pattern"),
                 ActionData = null
             };
@@ -48,12 +40,10 @@ public class OpponentFlagErase : ICard
         foreach (var cell in flagged)
             cell.RemoveFlag();
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.OpponentFlagErase()
-            {
-                TargetPlayer = _target.OwnerId
+            ActionData = new CardActionSnapshot.OpponentFlagErase() {
+                TargetPlayer = board.OwnerId
             }
         };
     }

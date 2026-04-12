@@ -1,52 +1,54 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Flips a coin: heads draws cards from the deck, tails returns random cards from hand back to the deck.
 /// </summary>
-public class MysticDraw : ICard {
-    public MysticDraw(IPlayer owner, MoveSnapshot snapshot, CardConfigOptions.MysticDraw config, IGameRandom gameRandom) {
-        _owner = owner;
-        _snapshot = snapshot;
-        _config = config;
+public class MysticDraw : ICard<CardUsePayload.MysticDraw> {
+    public MysticDraw(ICardConfigs configs, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor) {
+        _configs = configs;
         _gameRandom = gameRandom;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.MysticDraw _config;
+    private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use() {
-        var isHeads = _gameRandom.FlipCoin(_owner);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.MysticDraw payload) {
+        var config = _configs.Value.MysticDraw_Normal;
+        var isHeads = _gameRandom.FlipCoin(invoker);
+
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.MysticDraw() {
+            TargetPlayer = invoker.User.Id,
+            IsHeads = isHeads
+        });
 
         if (isHeads) {
-            for (var i = 0; i < _config.WinDraw; i++) {
-                if (_owner.Deck.Count == 0)
+            for (var i = 0; i < config.WinDraw; i++) {
+                if (invoker.Deck.Count == 0)
                     break;
 
-                var card = _owner.Deck.DrawCard();
-                var activeCard = _owner.Hand.Add(card);
-                _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+                var card = invoker.Deck.DrawCard();
+                var activeCard = invoker.Hand.Add(card);
+                _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
             }
         } else {
-            var toReturn = Math.Min(_config.LoseReturn, _owner.Hand.Entries.Count);
+            var toReturn = Math.Min(config.LoseReturn, invoker.Hand.Entries.Count);
             for (var i = 0; i < toReturn; i++) {
-                var index = _gameRandom.Index(_owner, _owner.Hand.Entries.Count);
-                var entry = _owner.Hand.Entries[index];
-                _owner.Hand.Remove(entry.Id);
-                _owner.Deck.AddCard(entry.Type);
-                _snapshot.RecordCardRemove(_owner.User.Id, entry.Id);
+                var index = _gameRandom.Index(invoker, invoker.Hand.Entries.Count);
+                var entry = invoker.Hand.Entries[index];
+                invoker.Hand.Remove(entry.Id);
+                invoker.Deck.AddCard(entry.Type);
+                _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
             }
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.MysticDraw() {
-                TargetPlayer = _owner.User.Id,
-                IsHeads = isHeads
-            }
+            ActionData = null
         };
     }
 }

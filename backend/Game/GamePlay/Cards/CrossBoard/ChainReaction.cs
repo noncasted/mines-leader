@@ -1,50 +1,43 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class ChainReaction : ICard
-{
-    public ChainReaction(
-        IBoard target,
-        CardUsePayload.ChainReaction payload,
-        CardConfigOptions.ChainReaction config)
-    {
-        _target = target;
-        _payload = payload;
-        _config = config;
+public class ChainReaction : ICard<CardUsePayload.ChainReaction> {
+    public ChainReaction(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardUsePayload.ChainReaction _payload;
-    private readonly CardConfigOptions.ChainReaction _config;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        if (_target.Cells.TryGetValue(_payload.Position, out var cell) == false)
-        {
-            return new CardUseResult
-            {
-                Result = EmptyResponse.Fail($"No cell at position {_payload.Position}"),
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChainReaction payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        if (board.Cells.TryGetValue(payload.Position, out var cell) == false) {
+            return new CardUseResult {
+                Result = EmptyResponse.Fail($"No cell at position {payload.Position}"),
                 ActionData = null
             };
         }
 
-        if (cell.IsTaken() == false || cell.AsTaken().HasMine == false)
-        {
-            return new CardUseResult
-            {
+        if (cell.IsTaken() == false || cell.AsTaken().HasMine == false) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("Target cell has no mine"),
                 ActionData = null
             };
         }
 
-        var searchShape = PatternShapes.Rhombus(_config.SearchRadius);
-        var spawnShape = PatternShapes.Rhombus(_config.SpawnSize);
+        var config = _configs.Value.ChainReaction_Normal;
+        var searchShape = PatternShapes.Rhombus(config.SearchRadius);
+        var spawnShape = PatternShapes.Rhombus(config.SpawnSize);
 
         var targets = new List<ITakenCell> { cell.AsTaken() };
 
-        for (var i = 1; i < _config.MaxChain; i++)
-        {
+        for (var i = 1; i < config.MaxChain; i++) {
             var next = SelectMine(targets[^1].Position);
 
             if (next == null)
@@ -55,14 +48,11 @@ public class ChainReaction : ICard
 
         var spawnedMines = new List<Position>();
 
-        foreach (var mine in targets)
-        {
-            var candidates = spawnShape.SelectAll(_target, mine.Position);
+        foreach (var mine in targets) {
+            var candidates = spawnShape.SelectAll(board, mine.Position);
 
-            foreach (var candidate in candidates)
-            {
-                switch (candidate.Status)
-                {
+            foreach (var candidate in candidates) {
+                switch (candidate.Status) {
                     case CellStatus.Free:
                         candidate.ToTaken().SetMine();
                         spawnedMines.Add(candidate.Position);
@@ -80,21 +70,19 @@ public class ChainReaction : ICard
             }
         }
 
-        _target.OnUpdated();
+        board.OnUpdated();
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ChainReaction
-            {
-                TargetPlayer = _target.OwnerId,
+            ActionData = new CardActionSnapshot.ChainReaction {
+                TargetPlayer = board.OwnerId,
                 SpawnedMines = spawnedMines
             }
         };
 
         ITakenCell? SelectMine(Position center)
         {
-            return searchShape.SelectTaken(_target, center)
+            return searchShape.SelectTaken(board, center)
                               .Where(x => x.HasMine && x.IsFlagged == false && targets.Contains(x) == false)
                               .OrderBy(x => x.Position.DistanceTo(center))
                               .FirstOrDefault();

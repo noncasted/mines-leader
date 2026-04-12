@@ -1,25 +1,20 @@
-﻿using Shared;
+using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class TrebuchetAimer : ICard
-{
-    public TrebuchetAimer(IPlayer owner, CardConfigOptions.TrebuchetAimer config)
-    {
-        _owner = owner;
-        _config = config;
+public class TrebuchetAimer : ICard<CardUsePayload.TrebuchetAimer> {
+    public TrebuchetAimer(ICardConfigs configs) {
+        _configs = configs;
     }
 
-    private readonly IPlayer _owner;
-    private readonly CardConfigOptions.TrebuchetAimer _config;
+    private readonly ICardConfigs _configs;
 
-    public CardUseResult Use()
-    {
-        var newValue = _owner.Modifiers.Values[PlayerModifier.TrebuchetBoost] + _config.Size;
-        _owner.Modifiers.Set(PlayerModifier.TrebuchetBoost, newValue);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.TrebuchetAimer payload) {
+        var config = _configs.Value.TrebuchetAimer_Normal;
+        invoker.Modifiers.Inc(PlayerModifier.TrebuchetBoost, config.Size);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.TrebuchetAimer()
         };
