@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -6,8 +7,17 @@ using Xunit;
 
 namespace Tests.Game;
 
-public class MineClusterTests
+public class MineClusterTests : PlayerCardTestsBase
 {
+    private CardUseResult Use(IBoard board, CardUsePayload.MineCluster payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new MineCluster(MockConfigs(), gameContext).Use(invoker, payload);
+    }
+
     [Fact]
     public void Use_PlacesMinesOnFreeCellsInCross()
     {
@@ -21,8 +31,7 @@ public class MineClusterTests
                                                 t t t t t
                                                 """);
 
-        var result = new MineCluster(Substitute.For<IPlayer>(), board, CardConfigs.MineCluster,
-            new CardUsePayload.MineCluster { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.MineCluster { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -47,8 +56,7 @@ public class MineClusterTests
                                                 t t t t t
                                                 """);
 
-        var result = new MineCluster(Substitute.For<IPlayer>(), board, CardConfigs.MineCluster,
-            new CardUsePayload.MineCluster { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.MineCluster { Position = target });
 
         result.Result.HasError.Should().BeTrue();
         result.ActionData.Should().BeNull();
@@ -63,8 +71,7 @@ public class MineClusterTests
             .WithFreeAt((2, 1), (1, 2), (2, 2), (3, 2), (2, 3))
             .Build();
 
-        var result = new MineCluster(Substitute.For<IPlayer>(), board, CardConfigs.MineCluster,
-            new CardUsePayload.MineCluster { Position = new Position(2, 2) }).Use();
+        var result = Use(board, new CardUsePayload.MineCluster { Position = new Position(2, 2) });
 
         var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.MineCluster>().Subject;
         actionData.TargetPlayer.Should().Be(ownerId);

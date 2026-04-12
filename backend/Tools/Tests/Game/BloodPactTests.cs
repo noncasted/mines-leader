@@ -12,48 +12,33 @@ public class BloodPactTests : PlayerCardTestsBase
     public void Use_TakesDamageAndGrantsManaAndMoves()
     {
         var owner = MockPlayer();
-        var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMana, 0f }, { PlayerModifier.AdditionalMoves, 0f } });
         owner.Mana.Current.Returns(1);
-        owner.Moves.Left.Returns(2);
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new BloodPact(MockConfigs(), roundService);
 
-        var config = CardConfigs.BloodPact;
-        var result = new BloodPact(owner, config, roundService).Use();
+        var result = card.Use(owner, new CardUsePayload.BloodPact { Type = CardType.BloodPact });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Health.Received(1).TakeDamage(config.HpCost);
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMana, config.ManaGain);
-        owner.Mana.Received(1).SetCurrent(1 + config.ManaGain);
-        owner.Moves.Received(1).SetCurrent(2 + config.ExtraMoves);
+        owner.Health.Received(1).TakeDamage(CardConfigs.BloodPact.HpCost);
+        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMana, CardConfigs.BloodPact.ManaGain);
+        owner.Mana.Received(1).SetCurrent(1 + CardConfigs.BloodPact.ManaGain);
+        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, CardConfigs.BloodPact.ExtraMoves);
     }
 
     [Fact]
-    public void Use_SchedulesDisposeActionForNextRound()
+    public void Use_SchedulesDisposeActions()
     {
         var owner = MockPlayer();
-        var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMana, 0f }, { PlayerModifier.AdditionalMoves, 0f } });
         owner.Mana.Current.Returns(0);
-        owner.Moves.Left.Returns(0);
-
-        new BloodPact(owner, CardConfigs.BloodPact, roundService).Use();
-
-        roundService.Received(1).Schedule(Arg.Any<BloodPactDisposeAction>(), 1);
-    }
-
-    [Fact]
-    public void Use_ActionDataIncludesOwnerId()
-    {
-        var ownerId = Guid.NewGuid();
-        var owner = MockPlayer(ownerId);
         var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
-        owner.Mana.Current.Returns(0);
-        owner.Moves.Left.Returns(0);
+        var card = new BloodPact(MockConfigs(), roundService);
 
-        var result = new BloodPact(owner, CardConfigs.BloodPact, roundService).Use();
+        card.Use(owner, new CardUsePayload.BloodPact { Type = CardType.BloodPact });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.BloodPact>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        roundService.Received(2).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 }

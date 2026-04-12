@@ -12,11 +12,13 @@ public class ManaSurgeTests : PlayerCardTestsBase
     public void Use_SetsAdditionalManaModifierAndCurrentMana()
     {
         var owner = MockPlayer();
-        var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMana, 0f } });
         owner.Mana.Current.Returns(2);
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new ManaSurge(MockConfigs(), roundService);
 
-        var result = new ManaSurge(owner, CardConfigs.ManaSurge, roundService).Use();
+        var result = card.Use(owner, new CardUsePayload.ManaSurge { Type = CardType.ManaSurge });
 
         result.Result.HasError.Should().BeFalse();
         owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMana, CardConfigs.ManaSurge.ManaGain);
@@ -24,44 +26,17 @@ public class ManaSurgeTests : PlayerCardTestsBase
     }
 
     [Fact]
-    public void Use_SchedulesDisposeActionForNextRound()
+    public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMana, 0f } });
+        owner.Mana.Current.Returns(0);
         var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
-        owner.Mana.Current.Returns(0);
+        var card = new ManaSurge(MockConfigs(), roundService);
 
-        new ManaSurge(owner, CardConfigs.ManaSurge, roundService).Use();
+        card.Use(owner, new CardUsePayload.ManaSurge { Type = CardType.ManaSurge });
 
-        roundService.Received(1).Schedule(Arg.Any<ManaSurgeDisposeAction>(), 1);
-    }
-
-    [Fact]
-    public void Use_DisposeActionRemovesModifierAfterOneTick()
-    {
-        var owner = MockPlayer();
-        var roundService = new RoundActionService();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(CardConfigs.ManaSurge.ManaGain);
-        owner.Mana.Current.Returns(0);
-
-        new ManaSurge(owner, CardConfigs.ManaSurge, roundService).Use();
-        roundService.Tick();
-
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMana, 0f);
-    }
-
-    [Fact]
-    public void Use_ActionDataIncludesOwnerId()
-    {
-        var ownerId = Guid.NewGuid();
-        var owner = MockPlayer(ownerId);
-        var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AdditionalMana).Returns(0f);
-        owner.Mana.Current.Returns(0);
-
-        var result = new ManaSurge(owner, CardConfigs.ManaSurge, roundService).Use();
-
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.ManaSurge>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 }

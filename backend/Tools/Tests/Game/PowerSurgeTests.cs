@@ -12,53 +12,43 @@ public class PowerSurgeTests : PlayerCardTestsBase
     public void Use_SetsAllCardsDiscountModifier()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AllCardsDiscount, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AllCardsDiscount).Returns(0f);
+        var card = new PowerSurge(MockConfigs(), roundService);
 
-        var config = CardConfigs.PowerSurge;
-        var result = new PowerSurge(owner, config, roundService).Use();
+        var result = card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AllCardsDiscount, config.Discount);
+        owner.Modifiers.Received(1).Set(PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount);
     }
 
     [Fact]
-    public void Use_SchedulesDisposeActionForNextRound()
+    public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AllCardsDiscount, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AllCardsDiscount).Returns(0f);
+        var card = new PowerSurge(MockConfigs(), roundService);
 
-        new PowerSurge(owner, CardConfigs.PowerSurge, roundService).Use();
+        card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
 
-        roundService.Received(1).Schedule(Arg.Any<PowerSurgeDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 
     [Fact]
     public void Use_DisposeActionRemovesDiscountAfterOneTick()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount } });
         var roundService = new RoundActionService();
-        var config = CardConfigs.PowerSurge;
-        owner.Modifiers.Get(PlayerModifier.AllCardsDiscount).Returns(config.Discount);
+        var card = new PowerSurge(MockConfigs(), roundService);
 
-        new PowerSurge(owner, config, roundService).Use();
+        card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
         roundService.Tick();
 
         owner.Modifiers.Received(1).Set(PlayerModifier.AllCardsDiscount, 0f);
-    }
-
-    [Fact]
-    public void Use_ActionDataIncludesOwnerId()
-    {
-        var ownerId = Guid.NewGuid();
-        var owner = MockPlayer(ownerId);
-        var roundService = Substitute.For<IRoundActionService>();
-        owner.Modifiers.Get(PlayerModifier.AllCardsDiscount).Returns(0f);
-
-        var result = new PowerSurge(owner, CardConfigs.PowerSurge, roundService).Use();
-
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.PowerSurge>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
     }
 }

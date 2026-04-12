@@ -13,7 +13,7 @@ public class ShieldTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
 
-        var result = new Shield(owner).Use();
+        var result = new Shield().Use(owner, new CardUsePayload.Shield());
 
         result.Result.HasError.Should().BeFalse();
         owner.Modifiers.Received(1).Inc(PlayerModifier.Shield);
@@ -25,7 +25,7 @@ public class ShieldTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
 
-        var result = new Shield(owner).Use();
+        var result = new Shield().Use(owner, new CardUsePayload.Shield());
 
         var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Shield>().Subject;
         actionData.TargetPlayer.Should().Be(ownerId);

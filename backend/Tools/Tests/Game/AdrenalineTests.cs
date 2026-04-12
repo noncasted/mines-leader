@@ -9,26 +9,32 @@ namespace Tests.Game;
 public class AdrenalineTests : PlayerCardTestsBase
 {
     [Fact]
-    public void Use_AddsExtraMovesToCurrent()
+    public void Use_SetsAdditionalMovesModifier()
     {
         var owner = MockPlayer();
-        owner.Moves.Left.Returns(2);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new Adrenaline(MockConfigs(), roundService);
 
-        var result = new Adrenaline(owner, CardConfigs.Adrenaline).Use();
+        var result = card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Moves.Received(1).SetCurrent(2 + CardConfigs.Adrenaline.ExtraMoves);
+        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, CardConfigs.Adrenaline.ExtraMoves);
     }
 
     [Fact]
-    public void Use_ZeroMovesLeft_StillAddsExtraMoves()
+    public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
-        owner.Moves.Left.Returns(0);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new Adrenaline(MockConfigs(), roundService);
 
-        new Adrenaline(owner, CardConfigs.Adrenaline).Use();
+        card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
-        owner.Moves.Received(1).SetCurrent(CardConfigs.Adrenaline.ExtraMoves);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 
     [Fact]
@@ -36,9 +42,11 @@ public class AdrenalineTests : PlayerCardTestsBase
     {
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
-        owner.Moves.Left.Returns(1);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
+        var card = new Adrenaline(MockConfigs(), Substitute.For<IRoundActionService>());
 
-        var result = new Adrenaline(owner, CardConfigs.Adrenaline).Use();
+        var result = card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
         var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Adrenaline>().Subject;
         actionData.TargetPlayer.Should().Be(ownerId);

@@ -1,5 +1,7 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
+using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -10,8 +12,15 @@ namespace Tests.Game;
 /// opens closest Size cells, then Reveal flood-fills from each.
 /// Requires at least one Free cell adjacent to target for GetClosedShape to find a border.
 /// </summary>
-public class ErosionDozerTests
+public class ErosionDozerTests : PlayerCardTestsBase
 {
+    private static IPlayer MockInvoker(IBoard board)
+    {
+        var player = MockPlayer();
+        player.Board.Returns(board);
+        return player;
+    }
+
     [Fact]
     public void Use_ErodesFromFreeBorder()
     {
@@ -29,8 +38,9 @@ public class ErosionDozerTests
                                                 t t t t m t t t m t
                                                 """);
 
-        var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ErosionDozer(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.ErosionDozer { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -61,8 +71,9 @@ public class ErosionDozerTests
                                                 t t t t t
                                                 """);
 
-        var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ErosionDozer(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.ErosionDozer { Position = target });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -81,8 +92,9 @@ public class ErosionDozerTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ErosionDozer(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.ErosionDozer { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -110,8 +122,9 @@ public class ErosionDozerTests
                                            t m t t t
                                            """);
 
-        var result = new ErosionDozer(board, CardConfigs.ErosionDozer,
-            new CardUsePayload.ErosionDozer { Position = new Position(2, 2) }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ErosionDozer(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.ErosionDozer { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeTrue();
     }

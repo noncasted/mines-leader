@@ -12,12 +12,19 @@ namespace Tests.Game;
 /// - Taken + no mine: convert to Free, then Reveal flood-fills safe area
 /// - Free: fail
 /// </summary>
-public class OpponentBombTests
+public class OpponentBombTests : PlayerCardTestsBase
 {
-    private static IPlayer MockOpponent()
+    private CardUseResult Use(IPlayer opponent, IBoard board, CardUsePayload.OpponentBomb payload)
     {
-        var player = Substitute.For<IPlayer>();
-        player.Health.Returns(Substitute.For<IHealth>());
+        var invoker = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new OpponentBomb(gameContext).Use(invoker, payload);
+    }
+
+    private IPlayer MockOpponent()
+    {
+        var player = MockPlayer();
         return player;
     }
 
@@ -38,7 +45,7 @@ public class OpponentBombTests
                                                 """);
 
         var opponent = MockOpponent();
-        new OpponentBomb(opponent, board, new CardUsePayload.OpponentBomb { Position = target }).Use();
+        Use(opponent, board, new CardUsePayload.OpponentBomb { Position = target });
 
         // No mine at target — opens to Free, then flood-fill reveals connected safe area
         BoardParser.AssertBoard(board, """
@@ -68,11 +75,8 @@ public class OpponentBombTests
                                                 t t t t t
                                                 """);
 
-        // Target the mine cell
         var opponent = MockOpponent();
-
-        new OpponentBomb(opponent, board,
-            new CardUsePayload.OpponentBomb { Position = new Position(2, 2) }).Use();
+        Use(opponent, board, new CardUsePayload.OpponentBomb { Position = new Position(2, 2) });
 
         opponent.Health.Received(1).TakeDamage(1);
 
@@ -95,7 +99,7 @@ public class OpponentBombTests
                                                 """);
 
         var opponent = MockOpponent();
-        new OpponentBomb(opponent, board, new CardUsePayload.OpponentBomb { Position = target }).Use();
+        Use(opponent, board, new CardUsePayload.OpponentBomb { Position = target });
 
         // Reveal cannot escape mine ring
         BoardParser.AssertBoard(board, """
@@ -118,8 +122,8 @@ public class OpponentBombTests
                                            _ _ _
                                            """);
 
-        var result = new OpponentBomb(MockOpponent(), board,
-            new CardUsePayload.OpponentBomb { Position = new Position(1, 1) }).Use();
+        var opponent = MockOpponent();
+        var result = Use(opponent, board, new CardUsePayload.OpponentBomb { Position = new Position(1, 1) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -133,8 +137,8 @@ public class OpponentBombTests
                                            t t t
                                            """);
 
-        var result = new OpponentBomb(MockOpponent(), board,
-            new CardUsePayload.OpponentBomb { Position = new Position(99, 99) }).Use();
+        var opponent = MockOpponent();
+        var result = Use(opponent, board, new CardUsePayload.OpponentBomb { Position = new Position(99, 99) });
 
         result.Result.HasError.Should().BeTrue();
     }

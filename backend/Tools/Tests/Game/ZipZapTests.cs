@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -14,19 +15,17 @@ namespace Tests.Game;
 ///
 /// Board needs: Free cells in Rhombus(3) AND Taken unflagged mines within Rhombus(4).
 /// </summary>
-public class ZipZapTests
+public class ZipZapTests : PlayerCardTestsBase
 {
-    private static IPlayer MockOwner(float trebuchetBoost = 0f)
+    private static IPlayer MockInvoker(IBoard board, float trebuchetBoost = 0f)
     {
-        var player = Substitute.For<IPlayer>();
-        var modifiers = Substitute.For<IModifiers>();
-
+        var player = MockPlayer();
+        player.Board.Returns(board);
         var values = new Dictionary<PlayerModifier, float>
         {
             { PlayerModifier.TrebuchetBoost, trebuchetBoost }
         };
-        modifiers.Values.Returns(values);
-        player.Modifiers.Returns(modifiers);
+        player.Modifiers.Values.Returns(values);
         return player;
     }
 
@@ -45,11 +44,9 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -69,11 +66,9 @@ public class ZipZapTests
                                                 t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -93,11 +88,9 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -117,11 +110,9 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -141,11 +132,9 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -171,11 +160,9 @@ public class ZipZapTests
                                                 """);
 
         var ownerId = board.OwnerId;
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -199,11 +186,9 @@ public class ZipZapTests
                                                 t t t t t t t t
                                                 """);
 
-        var owner = MockOwner();
-        var snapshot = new MoveSnapshot();
-
-        var result = new ZipZap(owner, board, snapshot, CardConfigs.ZipZap,
-            new CardUsePayload.ZipZap { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new ZipZap(MockConfigs(), MockSnapshotAccessor());
+        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
