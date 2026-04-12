@@ -46,8 +46,8 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         {
             var oldProjection = _orleans.GetGrain<IUserProjection>(user.UserId);
             await _orleans.InTransaction(oldProjection.OnDisconnected);
-            existingUser.Connection.ForceDisconnect();
             _users.Remove(existingUser);
+            existingUser.Connection.ForceDisconnect();
         }
 
         _users.Add(user);
@@ -63,10 +63,16 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             await _orleans.InTransaction(projection.OnConnected);
 
             user.Lifetime.Listen(() => {
-                _logger.LogInformation("[User] [EntryPoint] User {UserId} disconnecting, calling OnDisconnected",
-                    user.UserId);
+                // Guard: only call OnDisconnected if this session is still the active one.
+                // On reconnect, the old session is removed from _users before ForceDisconnect
+                // triggers this listener — prevents duplicate OnDisconnected racing with OnConnected.
+                if (_users.Entries.TryGetValue(user.UserId, out var current) && current == user)
+                {
+                    _logger.LogInformation("[User] [EntryPoint] User {UserId} disconnecting, calling OnDisconnected",
+                        user.UserId);
 
-                _orleans.InTransaction(projection.OnDisconnected).NoAwait();
+                    _orleans.InTransaction(projection.OnDisconnected).NoAwait();
+                }
             });
 
             var channelId = new UserProjectionChannelId(user.UserId);
