@@ -19,11 +19,16 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
         if (targetCell.ToTaken().HasMine == true)
         {
             var shield = (int)context.Player.Modifiers.Get(PlayerModifier.Shield);
-            if (shield > 0) {
+
+            if (shield > 0)
+            {
                 context.Player.Modifiers.Set(PlayerModifier.Shield, shield - 1);
-            } else {
+            }
+            else
+            {
                 context.Player.Health.TakeDamage(1);
             }
+
             targetCell.ToTaken().Explode();
         }
 

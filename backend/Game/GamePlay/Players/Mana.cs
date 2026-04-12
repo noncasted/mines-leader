@@ -30,15 +30,15 @@ public class Mana : IMana
 
     private int _max;
 
-    public int Current => _current.Value;
-    public int Max => _max;
+    private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMana);
 
-    private int EffectiveMax => _max + (int)_modifiers.Get(PlayerModifier.AdditionalMana);
+    public int Current => _current.Value;
+    public int Max => _max + Bonus;
 
     public void SetCurrent(int value)
     {
-        if (value > EffectiveMax)
-            value = EffectiveMax;
+        if (value > Max)
+            value = Max;
 
         if (value < 0)
             value = 0;
@@ -82,7 +82,7 @@ public class Mana : IMana
         _state.Set(new PlayerManaState()
         {
             Current = _current.Value,
-            Max = _max
+            Max = Max
         });
     }
 }

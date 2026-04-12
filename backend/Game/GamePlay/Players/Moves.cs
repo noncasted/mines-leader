@@ -1,4 +1,4 @@
-﻿using Game.Session;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -13,75 +13,90 @@ public interface IMoves
     void OnUsed();
     void Restore();
     void Lock();
+    void Refresh();
 }
 
 public class Moves : IMoves
 {
-    public Moves(ValueProperty<PlayerMovesState> state)
+    public Moves(ValueProperty<PlayerMovesState> state, IModifiers modifiers)
     {
         _state = state;
+        _modifiers = modifiers;
     }
 
     private readonly ValueProperty<PlayerMovesState> _state;
+    private readonly IModifiers _modifiers;
 
     private int _maxTurns;
+    private int _rawLeft;
+    private bool _isAvailable;
 
-    public int Left => _state.Value.Left;
-    public int Max => _maxTurns;
+    private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMoves);
+
+    public int Left => _rawLeft + Bonus;
+    public int Max => _maxTurns + Bonus;
 
     public void SetCurrent(int value)
     {
-        _state.Update(state => {
-            state.Left = value;
+        if (value < 0)
+            value = 0;
 
-            if (state.Left < 0)
-                state.Left = 0;
+        if (value > Max)
+            value = Max;
 
-            if (state.Left > _maxTurns)
-                state.Left = _maxTurns;
-        });
+        _rawLeft = value - Bonus;
+        SyncState();
     }
 
     public void SetMax(int value)
     {
         _maxTurns = value;
 
-        _state.Update(state => {
-            state.Max = _maxTurns;
+        if (_rawLeft > _maxTurns)
+            _rawLeft = _maxTurns;
 
-            if (state.Left > _maxTurns)
-                state.Left = _maxTurns;
+        if (Left < 0)
+            throw new InvalidOperationException("Turns cannot be less than zero.");
 
-            if (state.Left < 0)
-                throw new InvalidOperationException("Turns cannot be less than zero.");
-        });
+        SyncState();
     }
 
     public void OnUsed()
     {
-        _state.Update(state => {
-            state.Left -= 1;
-            state.Max = _maxTurns;
+        _rawLeft -= 1;
 
-            if (state.Left < 0)
-                throw new InvalidOperationException("Turns cannot be less than zero.");
-        });
+        if (Left < 0)
+            throw new InvalidOperationException("Turns cannot be less than zero.");
+
+        SyncState();
     }
 
     public void Restore()
     {
-        _state.Update(state => {
-            state.Left = _maxTurns;
-            state.Max = _maxTurns;
-            state.IsAvailable = true;
-        });
+        _rawLeft = _maxTurns;
+        _isAvailable = true;
+        SyncState();
     }
 
     public void Lock()
     {
-        _state.Update(state => {
-            state.Left = 0;
-            state.IsAvailable = false;
+        _rawLeft = 0;
+        _isAvailable = false;
+        SyncState();
+    }
+
+    public void Refresh()
+    {
+        SyncState();
+    }
+
+    private void SyncState()
+    {
+        _state.Set(new PlayerMovesState
+        {
+            Left = Left,
+            Max = Max,
+            IsAvailable = _isAvailable
         });
     }
 }

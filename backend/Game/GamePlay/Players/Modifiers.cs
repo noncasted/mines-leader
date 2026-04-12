@@ -51,6 +51,16 @@ public static class PlayerModifiersExtensions
             modifiers.Set(type, modifiers.Values[type] + 1);
         }
 
+        public void Inc(PlayerModifier type, float amount)
+        {
+            modifiers.Set(type, modifiers.Values[type] + amount);
+        }
+
+        public void Dec(PlayerModifier type, float amount)
+        {
+            modifiers.Set(type, modifiers.Values[type] - amount);
+        }
+
         public void Reset(PlayerModifier type)
         {
             modifiers.Set(type, 0f);
