@@ -1,4 +1,4 @@
-﻿using Common.Reactive;
+using Common.Reactive;
 using Game.Session;
 using Shared;
 
@@ -17,23 +17,27 @@ public interface IHealth
 
 public class Health : IHealth
 {
-    public Health(ValueProperty<PlayerHealthState> state)
+    public Health(ValueProperty<PlayerHealthState> state, IModifiers modifiers)
     {
         _state = state;
+        _modifiers = modifiers;
     }
 
     private readonly ValueProperty<PlayerHealthState> _state;
+    private readonly IModifiers _modifiers;
     private readonly ViewableProperty<int> _current = new(0);
 
     private int _max;
 
+    private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalHealth);
+
     public IViewableProperty<int> Current => _current;
-    public int Max => _max;
+    public int Max => _max + Bonus;
 
     public void SetCurrent(int value)
     {
-        if (value > _max)
-            value = _max;
+        if (value > Max)
+            value = Max;
 
         if (value < 0)
             value = 0;
@@ -69,8 +73,8 @@ public class Health : IHealth
 
         var newHealth = _current.Value + amount;
 
-        if (newHealth > _max)
-            newHealth = _max;
+        if (newHealth > Max)
+            newHealth = Max;
 
         _current.Set(newHealth);
         SyncState();
@@ -81,7 +85,7 @@ public class Health : IHealth
         _state.Set(new PlayerHealthState
         {
             Current = _current.Value,
-            Max = _max
+            Max = Max
         });
     }
 }
