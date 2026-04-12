@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4a78524aab449a80c31d1634db585a, type: 3}
+  m_Name: Dice_Roll
+  m_EditorClassIdentifier: Common.Animations::Animations.ForwardAnimationAsset
+  _sprites:
+  - {fileID: 7418051423852768995, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -7282947372275951665, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -2528376509402637381, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -4637517610296845186, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -4160654855434545290, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: 8787646673708315861, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -8554630714642597626, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -4854629389659146786, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -5224698849980780950, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -4605256225419516828, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: 2665620143571712217, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: 738695456461958276, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: 4998095112462633073, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -1052371619512656515, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -6607619437045211558, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: -1312436596723792376, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  - {fileID: 6833780192820182965, guid: 7f9e7b34734ede265926d56d84c25177, type: 3}
+  _time: 0.8
