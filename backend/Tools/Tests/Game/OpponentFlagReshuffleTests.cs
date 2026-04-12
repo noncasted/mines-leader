@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -11,10 +12,18 @@ namespace Tests.Game;
 /// within the rhombus pattern. One-to-one swap: removes flag from first flagged,
 /// adds flag to random unflagged. Continues until one list is exhausted.
 /// </summary>
-public class OpponentFlagReshuffleTests
+public class OpponentFlagReshuffleTests : PlayerCardTestsBase
 {
-    private static readonly IPlayer Owner = Substitute.For<IPlayer>();
     private static readonly IGameRandom GameRandom = Substitute.For<IGameRandom>();
+
+    private CardUseResult Use(IBoard board, CardUsePayload.OpponentFlagReshuffle payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new OpponentFlagReshuffle(MockConfigs(), gameContext, GameRandom).Use(invoker, payload);
+    }
 
     [Fact]
     public void Use_MovesFlags()
@@ -27,8 +36,7 @@ public class OpponentFlagReshuffleTests
                                                 t t t t t
                                                 """);
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -63,8 +71,7 @@ public class OpponentFlagReshuffleTests
                                                 t t t t t
                                                 """);
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -89,8 +96,7 @@ public class OpponentFlagReshuffleTests
                                                 f f f f f
                                                 """);
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -115,8 +121,7 @@ public class OpponentFlagReshuffleTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = target }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -149,8 +154,7 @@ public class OpponentFlagReshuffleTests
     {
         var emptyBoard = new TestBoardBuilder(0).Build();
 
-        var result = new OpponentFlagReshuffle(emptyBoard, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(0, 0) }, Owner, GameRandom).Use();
+        var result = Use(emptyBoard, new CardUsePayload.OpponentFlagReshuffle { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -166,8 +170,7 @@ public class OpponentFlagReshuffleTests
                                            _ _ _ _ _
                                            """);
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -185,8 +188,7 @@ public class OpponentFlagReshuffleTests
 
         var ownerId = board.OwnerId;
 
-        var result = new OpponentFlagReshuffle(board, CardConfigs.OpponentFlagReshuffle,
-            new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) }, Owner, GameRandom).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) });
 
         var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagReshuffle;
         snapshot.Should().NotBeNull();

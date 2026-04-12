@@ -12,25 +12,28 @@ public class FocusTests : PlayerCardTestsBase
     public void Use_SetsNextCardDiscountModifier()
     {
         var owner = MockPlayer();
-        owner.Modifiers.Get(PlayerModifier.NextCardDiscount).Returns(0f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.NextCardDiscount, 0f } });
+        var card = new Focus(MockConfigs(), Substitute.For<IRoundActionService>());
 
-        var config = CardConfigs.Focus;
-        var result = new Focus(owner, config).Use();
+        var result = card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.NextCardDiscount, config.Discount);
+        owner.Modifiers.Received(1).Set(PlayerModifier.NextCardDiscount, CardConfigs.Focus.Discount);
     }
 
     [Fact]
-    public void Use_StacksWithExistingDiscount()
+    public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
-        owner.Modifiers.Get(PlayerModifier.NextCardDiscount).Returns(2f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.NextCardDiscount, 0f } });
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new Focus(MockConfigs(), roundService);
 
-        var config = CardConfigs.Focus;
-        new Focus(owner, config).Use();
+        card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
-        owner.Modifiers.Received(1).Set(PlayerModifier.NextCardDiscount, 2f + config.Discount);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 
     [Fact]
@@ -38,9 +41,11 @@ public class FocusTests : PlayerCardTestsBase
     {
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
-        owner.Modifiers.Get(PlayerModifier.NextCardDiscount).Returns(0f);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.NextCardDiscount, 0f } });
+        var card = new Focus(MockConfigs(), Substitute.For<IRoundActionService>());
 
-        var result = new Focus(owner, CardConfigs.Focus).Use();
+        var result = card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
         var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Focus>().Subject;
         actionData.TargetPlayer.Should().Be(ownerId);

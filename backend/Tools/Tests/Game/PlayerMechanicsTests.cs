@@ -13,7 +13,8 @@ public class HealthTests
     private static (Health health, ValueProperty<PlayerHealthState> state) Create()
     {
         var state = new ValueProperty<PlayerHealthState>(0).ForTest();
-        var health = new Health(state);
+        var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
+        var health = new Health(state, modifiers);
         return (health, state);
     }
 
@@ -272,7 +273,8 @@ public class MovesTests
     private static (Moves moves, ValueProperty<PlayerMovesState> state) Create()
     {
         var state = new ValueProperty<PlayerMovesState>(0).ForTest();
-        var moves = new Moves(state);
+        var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
+        var moves = new Moves(state, modifiers);
         return (moves, state);
     }
 

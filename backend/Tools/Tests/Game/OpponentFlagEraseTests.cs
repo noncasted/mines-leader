@@ -1,5 +1,7 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
+using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -10,8 +12,17 @@ namespace Tests.Game;
 /// Iterates all Taken cells in range, removes flag from any that are flagged.
 /// Succeeds even if no flags found (returns Ok after selecting Taken cells).
 /// </summary>
-public class OpponentFlagEraseTests
+public class OpponentFlagEraseTests : PlayerCardTestsBase
 {
+    private CardUseResult Use(IBoard board, CardUsePayload.OpponentFlagErase payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new OpponentFlagErase(MockConfigs(), gameContext).Use(invoker, payload);
+    }
+
     [Fact]
     public void Use_RemovesFlagsInPattern()
     {
@@ -23,8 +34,7 @@ public class OpponentFlagEraseTests
                                                 t t t t t
                                                 """);
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -50,8 +60,7 @@ public class OpponentFlagEraseTests
                                                 t t t t t
                                                 """);
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = target });
 
         result.Result.HasError.Should().BeFalse();
     }
@@ -70,8 +79,7 @@ public class OpponentFlagEraseTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -102,8 +110,7 @@ public class OpponentFlagEraseTests
     {
         var emptyBoard = new TestBoardBuilder(0).Build();
 
-        var result = new OpponentFlagErase(emptyBoard, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(0, 0) }).Use();
+        var result = Use(emptyBoard, new CardUsePayload.OpponentFlagErase { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -120,8 +127,7 @@ public class OpponentFlagEraseTests
                                            _ _ _ _ _
                                            """);
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -139,8 +145,7 @@ public class OpponentFlagEraseTests
 
         var ownerId = board.OwnerId;
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
 
         var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagErase;
         snapshot.Should().NotBeNull();
@@ -159,8 +164,7 @@ public class OpponentFlagEraseTests
                                                 t t t t t
                                                 """);
 
-        var result = new OpponentFlagErase(board, CardConfigs.OpponentFlagErase,
-            new CardUsePayload.OpponentFlagErase { Position = target }).Use();
+        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 

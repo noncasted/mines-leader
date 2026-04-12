@@ -9,62 +9,51 @@ namespace Tests.Game;
 public class CoinTossTests : PlayerCardTestsBase
 {
     [Fact]
-    public void Use_Heads_AddsWinMoves()
+    public void Use_Heads_SetsAdditionalMovesModifier()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(true);
-        owner.Moves.Left.Returns(1);
+        var roundService = Substitute.For<IRoundActionService>();
+        var card = new CoinToss(MockConfigs(), gameRandom, roundService, MockSnapshotAccessor());
 
-        var config = CardConfigs.CoinToss;
-        var result = new CoinToss(owner, config, gameRandom).Use();
+        var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Moves.Received(1).SetCurrent(1 + config.WinMoves);
+        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, CardConfigs.CoinToss.WinMoves);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 
     [Fact]
     public void Use_Tails_RemovesLoseMoves()
     {
         var owner = MockPlayer();
+        owner.Moves.Left.Returns(3);
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(false);
-        owner.Moves.Left.Returns(3);
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(), MockSnapshotAccessor());
 
-        var config = CardConfigs.CoinToss;
-        var result = new CoinToss(owner, config, gameRandom).Use();
+        var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Moves.Received(1).SetCurrent(3 - config.LoseMoves);
+        owner.Moves.Received(1).SetCurrent(3 - CardConfigs.CoinToss.LoseMoves);
     }
 
     [Fact]
-    public void Use_Tails_MovesClampedToZero()
+    public void Use_RecordsSnapshotWithIsHeads()
     {
         var owner = MockPlayer();
-        var gameRandom = Substitute.For<IGameRandom>();
-        gameRandom.FlipCoin(owner).Returns(false);
-        owner.Moves.Left.Returns(0);
-
-        var config = CardConfigs.CoinToss;
-        new CoinToss(owner, config, gameRandom).Use();
-
-        owner.Moves.Received(1).SetCurrent(0);
-    }
-
-    [Fact]
-    public void Use_ActionDataIncludesIsHeads()
-    {
-        var ownerId = Guid.NewGuid();
-        var owner = MockPlayer(ownerId);
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(true);
-        owner.Moves.Left.Returns(1);
+        var snapshot = new MoveSnapshot();
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(), MockSnapshotAccessor(snapshot));
 
-        var result = new CoinToss(owner, CardConfigs.CoinToss, gameRandom).Use();
+        card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.CoinToss>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
-        actionData.IsHeads.Should().BeTrue();
+        snapshot.Collect().Records.Should().ContainSingle(r => r is PlayerSnapshotRecord.CardUse);
     }
 }

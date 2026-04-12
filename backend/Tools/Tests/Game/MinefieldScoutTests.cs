@@ -1,5 +1,7 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
+using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -11,8 +13,15 @@ namespace Tests.Game;
 /// Line(5) is 5x5 shape with only center row (horizontal) or center column (vertical) as true.
 /// Returns revealed positions in ActionData.
 /// </summary>
-public class MinefieldScoutTests
+public class MinefieldScoutTests : PlayerCardTestsBase
 {
+    private static IPlayer MockInvoker(IBoard board)
+    {
+        var player = MockPlayer();
+        player.Board.Returns(board);
+        return player;
+    }
+
     [Fact]
     public void Use_FlagsMinesInLine()
     {
@@ -27,9 +36,9 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -62,9 +71,9 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -92,9 +101,9 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -113,9 +122,9 @@ public class MinefieldScoutTests
     {
         var emptyBoard = new TestBoardBuilder(0).Build();
 
-        var result = new MinefieldScout(emptyBoard,
-            new CardUsePayload.MinefieldScout { Position = new Position(0, 0) },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(emptyBoard);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -132,9 +141,9 @@ public class MinefieldScoutTests
                                            _ _ _ _ _
                                            """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = new Position(2, 2) },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -153,9 +162,9 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -189,9 +198,9 @@ public class MinefieldScoutTests
                                                 t t t t t t t
                                                 """);
 
-        var result = new MinefieldScout(board,
-            new CardUsePayload.MinefieldScout { Position = target },
-            CardConfigs.MinefieldScout).Use();
+        var invoker = MockInvoker(board);
+        var card = new MinefieldScout(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 

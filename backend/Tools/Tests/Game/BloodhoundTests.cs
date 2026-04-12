@@ -1,17 +1,20 @@
 using FluentAssertions;
 using Game.GamePlay;
+using NSubstitute;
 using Shared;
 using Xunit;
 
 namespace Tests.Game;
 
-/// <summary>
-/// Bloodhound (Size=3 from config): opens Taken cells in a rhombus(3) cross pattern,
-/// then Reveal flood-fills all safe connected cells.
-/// Reveal rules: opens cells with MinesAround=0 recursively, stops at mine-adjacent border.
-/// </summary>
-public class BloodhoundTests
+public class BloodhoundTests : PlayerCardTestsBase
 {
+    private static IPlayer MockInvoker(IBoard board)
+    {
+        var player = MockPlayer();
+        player.Board.Returns(board);
+        return player;
+    }
+
     [Fact]
     public void Use_OpensTargetAreaAndFloodFills()
     {
@@ -27,11 +30,10 @@ public class BloodhoundTests
                                                 t t t t t t t t t t
                                                 t t t t m t t t m t
                                                 """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        card.Use(invoker, new CardUsePayload.Bloodhound { Position = target });
 
-        new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }).Use();
-
-        // Reveal flood-fills entire safe region bounded by mines t x
         BoardParser.AssertBoard(board, """
                                        t t t t t m t t t t
                                        t t m R R R R t t t
@@ -49,7 +51,6 @@ public class BloodhoundTests
     [Fact]
     public void Use_MinesDenselyPacked_LimitsReveal()
     {
-        // Mines tightly surround target — reveal stays small
         var (board, target) = BoardParser.Parse("""
                                                 t t t t t t t
                                                 t t m m m t t
@@ -59,11 +60,10 @@ public class BloodhoundTests
                                                 t t m m m t t
                                                 t t t t t t t
                                                 """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        card.Use(invoker, new CardUsePayload.Bloodhound { Position = target });
 
-        new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }).Use();
-
-        // Cross opens (3,2),(2,3),(3,3),(4,3),(3,4) — reveal can't escape mine ring
         BoardParser.AssertBoard(board, """
                                        t t t t t t t
                                        t t m m m t t
@@ -78,20 +78,17 @@ public class BloodhoundTests
     [Fact]
     public void Use_AllTakenAlreadyFreeInCross_Fails()
     {
-        // All cells in rhombus(3) cross are already Free
-        var (board, target) = BoardParser.Parse("""
-                                                t t t t t
-                                                t t _ t t
-                                                t _ _ _ t
-                                                t t _ t t
-                                                t t t t t
-                                                """);
+        var (board, _) = BoardParser.Parse("""
+                                            t t t t t
+                                            t t _ t t
+                                            t _ _ _ t
+                                            t t _ t t
+                                            t t t t t
+                                            """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
 
-        // x position (2,2) is Free already — remap to the center
-        var result = new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }).Use();
-
-        // SelectTaken returns nothing — all cross positions are Free
         result.Result.HasError.Should().BeTrue();
     }
 
@@ -106,12 +103,10 @@ public class BloodhoundTests
                                                 t t t t t t
                                                 t t t t t t
                                                 """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        card.Use(invoker, new CardUsePayload.Bloodhound { Position = target });
 
-        new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = target }).Use();
-
-        // Reveal expands from (0,0), stops at mine borders
-        // (5,3) is diagonal to mine at (4,3) — MinesAround > 0, no zero-neighbor, stays Taken
         BoardParser.AssertBoard(board, """
                                        R R R R R R
                                        R R R R R R
@@ -126,14 +121,10 @@ public class BloodhoundTests
     public void Use_ActionDataHasTargetPlayer()
     {
         var ownerId = Guid.NewGuid();
-
-        var board = new TestBoardBuilder(5)
-                    .WithOwner(ownerId)
-                    .WithMinesAt((0, 0))
-                    .Build();
-
-        var result = new Bloodhound(board, CardConfigs.Bloodhound,
-            new CardUsePayload.Bloodhound { Position = new Position(2, 2) }).Use();
+        var board = new TestBoardBuilder(5).WithOwner(ownerId).WithMinesAt((0, 0)).Build();
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
 
         var snapshot = result.ActionData as CardActionSnapshot.Bloodhound;
         snapshot.Should().NotBeNull();

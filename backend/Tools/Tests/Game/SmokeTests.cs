@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -11,8 +12,17 @@ namespace Tests.Game;
 /// Schedules a SmokeDisposeAction via IRoundActionService for cleanup after Duration rounds.
 /// SmokeDisposeAction removes the effect from all affected cells when executed.
 /// </summary>
-public class SmokeTests
+public class SmokeTests : PlayerCardTestsBase
 {
+    private CardUseResult Use(IBoard board, CardUsePayload.Smoke payload, IRoundActionService roundActionService)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new Smoke(MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
+    }
+
     [Fact]
     public void Use_AddsSmokeEffectToCells()
     {
@@ -27,10 +37,7 @@ public class SmokeTests
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var result = new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        var result = Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         result.Result.HasError.Should().BeFalse();
 
@@ -66,10 +73,7 @@ public class SmokeTests
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         roundActionService.Received(1)
                           .Schedule(Arg.Any<SmokeDisposeAction>(),
@@ -90,10 +94,7 @@ public class SmokeTests
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         // Both Free and Taken cells in range should have smoke
         var cellsWithSmoke = board.Cells.Values
@@ -119,10 +120,7 @@ public class SmokeTests
         var emptyBoard = new TestBoardBuilder(0).Build();
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var result = new Smoke(emptyBoard,
-            new CardUsePayload.Smoke { Position = new Position(0, 0) },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        var result = Use(emptyBoard, new CardUsePayload.Smoke { Position = new Position(0, 0) }, roundActionService);
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -141,10 +139,7 @@ public class SmokeTests
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var result = new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        var result = Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         var snapshot = result.ActionData as CardActionSnapshot.Smoke;
         snapshot.Should().NotBeNull();
@@ -164,10 +159,7 @@ public class SmokeTests
 
         var roundActionService = new RoundActionService();
 
-        new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         // Verify effects exist
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))
@@ -197,10 +189,7 @@ public class SmokeTests
 
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        new Smoke(board,
-            new CardUsePayload.Smoke { Position = target },
-            CardConfigs.Smoke,
-            roundActionService).Use();
+        Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         var effectIds = board.Cells.Values
                              .SelectMany(c => c.Effects)

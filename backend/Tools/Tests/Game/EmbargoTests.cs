@@ -11,53 +11,33 @@ public class EmbargoTests : PlayerCardTestsBase
     [Fact]
     public void Use_SetsManaCostPenaltyOnOpponent()
     {
+        var owner = MockPlayer();
         var opponent = MockPlayer();
+        opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.ManaCostPenalty, 0f } });
+        var gameContext = MockGameContext(owner, opponent);
         var roundService = Substitute.For<IRoundActionService>();
-        opponent.Modifiers.Get(PlayerModifier.ManaCostPenalty).Returns(0f);
+        var card = new Embargo(MockConfigs(), roundService, gameContext);
 
-        var config = CardConfigs.Embargo;
-        var result = new Embargo(opponent, config, roundService).Use();
+        var result = card.Use(owner, new CardUsePayload.Embargo { Type = CardType.Embargo });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Modifiers.Received(1).Set(PlayerModifier.ManaCostPenalty, config.CostIncrease);
+        opponent.Modifiers.Received(1).Set(PlayerModifier.ManaCostPenalty, CardConfigs.Embargo.CostIncrease);
     }
 
     [Fact]
-    public void Use_StacksWithExistingPenalty()
+    public void Use_SchedulesDisposeAction()
     {
+        var owner = MockPlayer();
         var opponent = MockPlayer();
+        opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.ManaCostPenalty, 0f } });
+        var gameContext = MockGameContext(owner, opponent);
         var roundService = Substitute.For<IRoundActionService>();
-        opponent.Modifiers.Get(PlayerModifier.ManaCostPenalty).Returns(1f);
+        var card = new Embargo(MockConfigs(), roundService, gameContext);
 
-        var config = CardConfigs.Embargo;
-        new Embargo(opponent, config, roundService).Use();
+        card.Use(owner, new CardUsePayload.Embargo { Type = CardType.Embargo });
 
-        opponent.Modifiers.Received(1).Set(PlayerModifier.ManaCostPenalty, 1f + config.CostIncrease);
-    }
-
-    [Fact]
-    public void Use_SchedulesDisposeActionForNextRound()
-    {
-        var opponent = MockPlayer();
-        var roundService = Substitute.For<IRoundActionService>();
-        opponent.Modifiers.Get(PlayerModifier.ManaCostPenalty).Returns(0f);
-
-        new Embargo(opponent, CardConfigs.Embargo, roundService).Use();
-
-        roundService.Received(1).Schedule(Arg.Any<EmbargoDisposeAction>(), 1);
-    }
-
-    [Fact]
-    public void Use_ActionDataReferencesOpponent()
-    {
-        var opponentId = Guid.NewGuid();
-        var opponent = MockPlayer(opponentId);
-        var roundService = Substitute.For<IRoundActionService>();
-        opponent.Modifiers.Get(PlayerModifier.ManaCostPenalty).Returns(0f);
-
-        var result = new Embargo(opponent, CardConfigs.Embargo, roundService).Use();
-
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Embargo>().Subject;
-        actionData.TargetPlayer.Should().Be(opponentId);
+        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 }

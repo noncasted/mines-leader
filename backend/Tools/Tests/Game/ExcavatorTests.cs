@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -6,8 +7,15 @@ using Xunit;
 
 namespace Tests.Game;
 
-public class ExcavatorTests
+public class ExcavatorTests : PlayerCardTestsBase
 {
+    private static IPlayer MockInvoker(IBoard board)
+    {
+        var player = MockPlayer();
+        player.Board.Returns(board);
+        return player;
+    }
+
     [Fact]
     public void Use_FlagsMinesAndRevealsSafeCellsInCross()
     {
@@ -20,8 +28,9 @@ public class ExcavatorTests
                                                 t t t t t
                                                 """);
 
-        var result = new Excavator(board, CardConfigs.Excavator,
-            new CardUsePayload.Excavator { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new Excavator(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Excavator { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -46,8 +55,9 @@ public class ExcavatorTests
                                                 t t t t t
                                                 """);
 
-        var result = new Excavator(board, CardConfigs.Excavator,
-            new CardUsePayload.Excavator { Position = target }).Use();
+        var invoker = MockInvoker(board);
+        var card = new Excavator(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Excavator { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -73,8 +83,9 @@ public class ExcavatorTests
                                            _ _ _ _ _
                                            """);
 
-        var result = new Excavator(board, CardConfigs.Excavator,
-            new CardUsePayload.Excavator { Position = new Position(2, 2) }).Use();
+        var invoker = MockInvoker(board);
+        var card = new Excavator(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Excavator { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -83,17 +94,11 @@ public class ExcavatorTests
     public void Use_ActionDataIncludesBoardOwnerId()
     {
         var ownerId = Guid.NewGuid();
-        var (board, target) = BoardParser.Parse("""
-                                                t t t
-                                                t x t
-                                                t t t
-                                                """);
-
-        // Override owner via builder
         var builtBoard = new TestBoardBuilder(3).WithOwner(ownerId).Build();
 
-        var result = new Excavator(builtBoard, CardConfigs.Excavator,
-            new CardUsePayload.Excavator { Position = new Position(1, 1) }).Use();
+        var invoker = MockInvoker(builtBoard);
+        var card = new Excavator(MockConfigs());
+        var result = card.Use(invoker, new CardUsePayload.Excavator { Position = new Position(1, 1) });
 
         var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Excavator>().Subject;
         actionData.TargetPlayer.Should().Be(ownerId);

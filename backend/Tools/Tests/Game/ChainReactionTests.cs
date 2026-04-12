@@ -1,5 +1,7 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
+using NSubstitute;
 using Shared;
 using Xunit;
 
@@ -11,8 +13,17 @@ namespace Tests.Game;
 /// Free cells become Taken+mine, Taken cells without mines get mines added.
 /// Cells that already have mines are skipped.
 /// </summary>
-public class ChainReactionTests
+public class ChainReactionTests : PlayerCardTestsBase
 {
+    private CardUseResult Use(IBoard board, CardUsePayload.ChainReaction payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new ChainReaction(MockConfigs(), gameContext).Use(invoker, payload);
+    }
+
     [Fact]
     public void Use_ChainsFromInitialMine()
     {
@@ -30,9 +41,7 @@ public class ChainReactionTests
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(3, 3) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 3) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -65,9 +74,7 @@ public class ChainReactionTests
                                                 t t t t t
                                                 """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = target },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = target });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -92,9 +99,7 @@ public class ChainReactionTests
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(0, 0) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -134,9 +139,7 @@ public class ChainReactionTests
                                            t t t t t t t t t t
                                            """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(5, 5) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(5, 5) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -172,9 +175,7 @@ public class ChainReactionTests
                                            t t t t t t t t
                                            """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(3, 4) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -200,9 +201,7 @@ public class ChainReactionTests
                                            t t t t t
                                            """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(2, 2) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -236,9 +235,7 @@ public class ChainReactionTests
                                            t t t t t
                                            """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(99, 99) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(99, 99) });
 
         result.Result.HasError.Should().BeTrue();
     }
@@ -257,9 +254,7 @@ public class ChainReactionTests
                                            t t t t t t t
                                            """);
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(3, 4) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -301,9 +296,7 @@ public class ChainReactionTests
 
         var ownerId = board.OwnerId;
 
-        var result = new ChainReaction(board,
-            new CardUsePayload.ChainReaction { Position = new Position(2, 2) },
-            CardConfigs.ChainReaction).Use();
+        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
 
         var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
         actionData.Should().NotBeNull();
