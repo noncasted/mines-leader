@@ -3,7 +3,6 @@ namespace Tools.SceneBuilder
 {
     public static class Scenes
     {
-        public static readonly StaticScene GameCheats = new("0070934dd04b367409ad1814192012ad");
         public static readonly StaticScene GameEnd = new("e0fdfc16c2402b84b95cf19dfb3c0dee");
         public static readonly StaticScene GameField = new("4b636264c7ac7224aa40de5dc5ec86f3");
         public static readonly StaticScene GameLoopServices = new("76a5a435461b3bc44991fe8c8cde3571");
