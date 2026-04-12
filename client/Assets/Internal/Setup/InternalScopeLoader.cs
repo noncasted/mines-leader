@@ -48,7 +48,7 @@ namespace Internal
                 containerBuilder.RegisterInstance(assets)
                                 .As<IAssetEnvironment>();
 
-                _config.AssetsStorage.Options.Register(containerBuilder);
+                OptionsContainer.Load().Register(containerBuilder);
             }
         }
     }

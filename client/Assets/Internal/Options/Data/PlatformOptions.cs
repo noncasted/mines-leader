@@ -6,9 +6,12 @@ namespace Internal
     [Serializable]
     public class PlatformOptions
     {
-        [SerializeField] private PlatformType _platform;
+        [SerializeField] private PlatformType _platform = PlatformType.Website;
 
-        public PlatformType PlatformType => _platform;
+        public PlatformType PlatformType {
+            get => _platform;
+            set => _platform = value;
+        }
         public bool IsMobile => Application.isMobilePlatform;
 
         public bool IsEditor

@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 using Tools;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GamePlay.Players
 {
@@ -14,29 +13,22 @@ namespace GamePlay.Players
         {
             var spriteEmpty = PrefabBuilder.LoadSubAsset<Sprite>(SpritePath, "mana_points_1");
             var spriteFull = PrefabBuilder.LoadSubAsset<Sprite>(SpritePath, "mana_points_0");
-            Image image = null;
+            SpriteRenderer spriteRenderer = null;
 
             builder
                 .WithName("ManaPoint")
-                .WithComponent<Image>(img => {
-                            img.sprite = spriteFull;
-                            img.color = Color.white;
-                            img.raycastTarget = true;
-                            image = img;
-                        }
-                    )
+                .WithComponent<SpriteRenderer>(sr => {
+                    sr.sprite = spriteFull;
+                    sr.color = Color.white;
+                    sr.sortingLayerName = "UI";
+                    sr.sortingOrder = 1;
+                    spriteRenderer = sr;
+                })
                 .WithComponent<PlayerManaPointView>();
 
             builder.SetSerialized<PlayerManaPointView>("_empty", spriteEmpty);
             builder.SetSerialized<PlayerManaPointView>("_full", spriteFull);
-            builder.SetSerialized<PlayerManaPointView>("_image", image);
-
-            var rt = builder.GameObject.GetComponent<RectTransform>();
-            rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta = new Vector2(1f, 1f);
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
+            builder.SetSerialized<PlayerManaPointView>("_renderer", spriteRenderer);
         }
     }
 }

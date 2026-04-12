@@ -28,8 +28,6 @@ namespace Internal
         public IAssetEnvironment Assets { get; }
         public IScopeEventListeners Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
-        public OptionsContainer Options => Assets.Options;
-
         public IScopeEntityView View { get; }
     }
 

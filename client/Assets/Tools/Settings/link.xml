@@ -2,7 +2,8 @@
 
     <assembly fullname="ADF-RBG.Mulligan" preserve="all" />
     <assembly fullname="BuildReportTool" preserve="all" />
-    <assembly fullname="Common" preserve="all" />
+    <assembly fullname="Common.Animations" preserve="all" />
+    <assembly fullname="Common.Network" preserve="all" />
     <assembly fullname="Docs" preserve="all" />
     <assembly fullname="ForceFour" preserve="all" />
     <assembly fullname="GamePlay" preserve="all" />
@@ -27,6 +28,7 @@
     <assembly fullname="Tools.MemoryPack" preserve="all" />
     <assembly fullname="Tools.PrefabBuilder" preserve="all" />
     <assembly fullname="Tools.Scene" preserve="all" />
+    <assembly fullname="Tools.SceneBuilder" preserve="all" />
     <assembly fullname="UniClipboard" preserve="all" />
     <assembly fullname="UniTask" preserve="all" />
     <assembly fullname="UniTask.Addressables" preserve="all" />

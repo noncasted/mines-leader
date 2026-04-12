@@ -7,8 +7,6 @@ namespace Internal
 {
     public interface IAssetEnvironment
     {
-        OptionsContainer Options { get; }
-
         T GetAsset<T>() where T : ScriptableObject;
         IReadOnlyList<T> GetAssets<T>() where T : ScriptableObject;
     }
@@ -21,8 +19,6 @@ namespace Internal
         }
 
         private readonly IAssetsStorage _assetsStorage;
-
-        public OptionsContainer Options => _assetsStorage.Options;
 
         public T GetAsset<T>() where T : ScriptableObject
         {

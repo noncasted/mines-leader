@@ -190,223 +190,223 @@
       "type": "Adrenaline",
       "name": "Adrenaline",
       "description": "Grants +1 extra action this turn.",
-      "icon": "Cards/Adrenaline"
+      "icon": "Cards/New/Adrenaline"
     },
     {
       "type": "ManaSurge",
       "name": "Mana Surge",
       "description": "Grants +3 temporary mana this turn. Temporary mana does not carry over.",
-      "icon": "Cards/ManaSurge"
+      "icon": "Cards/New/ManaSurge"
     },
     {
       "type": "BloodPact",
       "name": "Blood Pact",
       "description": "Sacrifice 1 HP to gain +3 temporary mana and +2 extra actions this turn.",
-      "icon": "Cards/BloodPact"
+      "icon": "Cards/New/BloodPact"
     },
     {
       "type": "CoinToss",
       "name": "Coin Toss",
       "description": "Flip a coin: heads grants +2 actions, tails costs 1 action.",
-      "icon": "Cards/CoinToss"
+      "icon": "Cards/New/CoinToss"
     },
     {
       "type": "ManaFountain",
       "name": "Mana Fountain",
       "description": "Roll a d5: gain 1-5 temporary mana this turn.",
-      "icon": "Cards/ManaFountain"
+      "icon": "Cards/New/ManaFountain"
     },
     {
       "type": "Focus",
       "name": "Focus",
       "description": "Your next card costs 1 less mana (minimum 0).",
-      "icon": "Cards/Focus"
+      "icon": "Cards/New/Focus"
     },
     {
       "type": "Shield",
       "name": "Shield",
       "description": "Absorbs the next mine hit, preventing 1 HP damage.",
-      "icon": "Cards/Shield"
+      "icon": "Cards/New/Shield"
     },
     {
       "type": "PowerSurge",
       "name": "Power Surge",
       "description": "All cards cost 1 less mana this turn (minimum 1).",
-      "icon": "Cards/PowerSurge"
+      "icon": "Cards/New/PowerSurge"
     },
     {
       "type": "Embargo",
       "name": "Embargo",
       "description": "All opponent's cards cost 1 more mana for their next turn.",
-      "icon": "Cards/Embargo"
+      "icon": "Cards/New/Embargo"
     },
     {
       "type": "Recycler",
       "name": "Recycler",
       "description": "Discard 1 card from your hand, then draw 2 cards from your deck.",
-      "icon": "Cards/Recycler"
+      "icon": "Cards/New/Recycler"
     },
     {
       "type": "MysticDraw",
       "name": "Mystic Draw",
       "description": "Flip a coin: heads draws 2 cards, tails returns 2 random cards to deck.",
-      "icon": "Cards/MysticDraw"
+      "icon": "Cards/New/MysticDraw"
     },
     {
       "type": "DoubleOrNothing",
       "name": "Double or Nothing",
       "description": "Flip a coin: heads doubles your current mana, tails sets it to 0.",
-      "icon": "Cards/DoubleOrNothing"
+      "icon": "Cards/New/DoubleOrNothing"
     },
     {
       "type": "GamblersRuin",
       "name": "Gambler's Ruin",
       "description": "Flip a coin: heads gives +3 cards and +2 mana, tails discards 2 random cards.",
-      "icon": "Cards/GamblersRuin"
+      "icon": "Cards/New/GamblersRuin"
     },
     {
       "type": "Excavator",
       "name": "Excavator",
       "description": "Clears a cross-shaped area: flags mines and reveals safe cells.",
-      "icon": "Cards/Excavator"
+      "icon": "Cards/New/Excavator"
     },
     {
       "type": "Excavator_Max",
       "name": "Excavator Max",
       "description": "Enhanced excavator with a larger cross-shaped area.",
-      "icon": "Cards/Excavator_Max"
+      "icon": "Cards/New/Excavator_Max"
     },
     {
       "type": "ThermalVision",
       "name": "Thermal Vision",
       "description": "Temporarily highlights all mines in a diamond area this turn without flagging.",
-      "icon": "Cards/ThermalVision"
+      "icon": "Cards/New/ThermalVision"
     },
     {
       "type": "ThermalVision_Max",
       "name": "Thermal Vision Max",
       "description": "Enhanced thermal vision with a larger detection area.",
-      "icon": "Cards/ThermalVision_Max"
+      "icon": "Cards/New/ThermalVision_Max"
     },
     {
       "type": "ChaosDiamond",
       "name": "Chaos Diamond",
       "description": "Random Bloodhound: clears a diamond of random size (2-5), flagging mines and revealing safe cells.",
-      "icon": "Cards/ChaosDiamond"
+      "icon": "Cards/New/ChaosDiamond"
     },
     {
       "type": "ChaosScout",
       "name": "Chaos Scout",
       "description": "Random scout line of length 3-7, flagging mines and revealing safe cells.",
-      "icon": "Cards/ChaosScout"
+      "icon": "Cards/New/ChaosScout"
     },
     {
       "type": "MineCluster",
       "name": "Mine Cluster",
       "description": "Plants mines in a cross pattern on the opponent's field.",
-      "icon": "Cards/MineCluster"
+      "icon": "Cards/New/MineCluster"
     },
     {
       "type": "MineCluster_Max",
       "name": "Mine Cluster Max",
       "description": "Enhanced mine cluster with a larger cross pattern.",
-      "icon": "Cards/MineCluster_Max"
+      "icon": "Cards/New/MineCluster_Max"
     },
     {
       "type": "CarpetBomb",
       "name": "Carpet Bomb",
       "description": "Plants mines in a line of 5 on the opponent's field.",
-      "icon": "Cards/CarpetBomb"
+      "icon": "Cards/New/CarpetBomb"
     },
     {
       "type": "CarpetBomb_Max",
       "name": "Carpet Bomb Max",
       "description": "Enhanced carpet bomb with a longer mine line.",
-      "icon": "Cards/CarpetBomb_Max"
+      "icon": "Cards/New/CarpetBomb_Max"
     },
     {
       "type": "FortuneBlast",
       "name": "Fortune Blast",
       "description": "Random trebuchet: plants mines in a diamond of random size (1-4) on the opponent's field.",
-      "icon": "Cards/FortuneBlast"
+      "icon": "Cards/New/FortuneBlast"
     },
     {
       "type": "ChaosFog",
       "name": "Chaos Fog",
       "description": "Random smoke: covers opponent's field with fog in a diamond of random size (1-4) for 3 rounds.",
-      "icon": "Cards/ChaosFog"
+      "icon": "Cards/New/ChaosFog"
     },
     {
       "type": "Frost",
       "name": "Frost",
       "description": "Freezes the opponent, preventing them from opening cells for 1 round.",
-      "icon": "Cards/Frost"
+      "icon": "Cards/New/Frost"
     },
     {
       "type": "Frost_Max",
       "name": "Frost Max",
       "description": "Enhanced frost that freezes the opponent for 2 rounds.",
-      "icon": "Cards/Frost_Max"
+      "icon": "Cards/New/Frost_Max"
     },
     {
       "type": "Blackout",
       "name": "Blackout",
       "description": "Covers the opponent's entire board with fog for 1 round.",
-      "icon": "Cards/Blackout"
+      "icon": "Cards/New/Blackout"
     },
     {
       "type": "Blackout_Max",
       "name": "Blackout Max",
       "description": "Enhanced blackout that covers the opponent's board with fog for 2 rounds.",
-      "icon": "Cards/Blackout_Max"
+      "icon": "Cards/New/Blackout_Max"
     },
     {
       "type": "FortuneCookie",
       "name": "Fortune Cookie",
       "description": "Draw a random card from the deck.",
-      "icon": "Cards/FortuneCookie"
+      "icon": "Cards/New/FortuneCookie"
     },
     {
       "type": "Salvage",
       "name": "Salvage",
       "description": "Recover a previously used card from the discard pile.",
-      "icon": "Cards/Salvage"
+      "icon": "Cards/New/Salvage"
     },
     {
       "type": "CardThief",
       "name": "Card Thief",
       "description": "Steal a random card from the opponent's hand.",
-      "icon": "Cards/CardThief"
+      "icon": "Cards/New/CardThief"
     },
     {
       "type": "SabotageDeck",
       "name": "Sabotage Deck",
       "description": "Insert a dud card into the opponent's deck.",
-      "icon": "Cards/SabotageDeck"
+      "icon": "Cards/New/SabotageDeck"
     },
     {
       "type": "Dud",
       "name": "Dud",
       "description": "A useless card that does nothing when played.",
-      "icon": "Cards/Dud"
+      "icon": "Cards/New/Dud"
     },
     {
       "type": "SoulLink",
       "name": "Soul Link",
       "description": "Link with the opponent: any damage they take, you also receive.",
-      "icon": "Cards/SoulLink"
+      "icon": "Cards/New/SoulLink"
     },
     {
       "type": "MirrorMatch",
       "name": "Mirror Match",
       "description": "Copy the last card the opponent played.",
-      "icon": "Cards/MirrorMatch"
+      "icon": "Cards/New/MirrorMatch"
     },
     {
       "type": "DimensionRift",
       "name": "Dimension Rift",
       "description": "Shuffle the positions of all open cells on the opponent's board.",
-      "icon": "Cards/DimensionRift"
+      "icon": "Cards/New/DimensionRift"
     }
   ]
 }

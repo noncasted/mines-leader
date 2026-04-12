@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Internal;
 using Tools;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace GamePlay.Players
     public class PlayerManaView : MonoBehaviour, IEntityComponent, IScopeLoaded
     {
         [SerializeField] private Transform _root;
+        [SerializeField] private float _spacing = 0.25f;
 
         private IPlayerMana _mana;
 
@@ -32,14 +34,22 @@ namespace GamePlay.Players
                     _mana.Max.Value);
                 points = points.Reverse().ToList();
 
-                for (int i = 0; i < points.Count; i++)
-                {
+                LayoutPoints(points);
+
+                for (int i = 0; i < points.Count; i++) {
                     if (i < current)
                         points[i].SetFull();
                     else
                         points[i].SetEmpty();
                 }
             });
+        }
+
+        private void LayoutPoints(IReadOnlyList<PlayerManaPointView> points)
+        {
+            for (int i = 0; i < points.Count; i++) {
+                points[i].transform.localPosition = new Vector3(-i * _spacing, 0f, 0f);
+            }
         }
     }
 }
