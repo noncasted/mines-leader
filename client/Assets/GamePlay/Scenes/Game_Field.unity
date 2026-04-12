@@ -334,7 +334,7 @@ Transform:
   m_GameObject: {fileID: 148890438}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.11, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -450,6 +450,7 @@ MonoBehaviour:
   - {fileID: 7493125132205067199}
   - {fileID: 1446816884}
   - {fileID: 1277771727}
+  - {fileID: 1395970153}
 --- !u!114 &549143449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -901,6 +902,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 742430971654735293, guid: f8a69e38be3710261b990263f9645e59, type: 3}
   m_PrefabInstance: {fileID: 1395970150}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1395970153 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4174393552499275220, guid: f8a69e38be3710261b990263f9645e59, type: 3}
+  m_PrefabInstance: {fileID: 1395970150}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0b811b850a00d6808b96abb0979f056, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardRandomAnimator
 --- !u!1 &1446816881
 GameObject:
   m_ObjectHideFlags: 0

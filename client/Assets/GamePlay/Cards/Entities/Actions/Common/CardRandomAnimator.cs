@@ -36,7 +36,7 @@ namespace GamePlay.Cards
             _diceAnimation = CreateAnimation(_dice);
 
             gameObject.SetActive(false);
-            
+
             return;
 
             ForwardSpriteAnimation CreateAnimation(ForwardAnimationAsset data)
@@ -46,7 +46,7 @@ namespace GamePlay.Cards
                     new SpriteAnimationData(data.Sprites, data.Time));
             }
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
