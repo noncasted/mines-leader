@@ -9,6 +9,7 @@ public static class SessionExtensions
     public static void AddSessionServices(this IServiceCollection services, SessionContainerData data)
     {
         services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Information));
+        services.AddSingleton<ISessionLogger, SessionFileLogger>();
         services.AddSingleton<ISession, Session>();
 
         services.AddSingleton<IPropertyUpdateSender, PropertyUpdateSender>();

@@ -23,6 +23,8 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
         taken.SetFlag();
         board.OnUpdated();
 
+        Utils.SessionLogger.LogFlagSet(context.Player.User.Id, request.Position);
+
         return EmptyResponse.Ok;
     }
 }

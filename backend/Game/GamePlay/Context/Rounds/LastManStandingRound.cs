@@ -15,7 +15,8 @@ public class LastManStandingRound : Service, IGameRound
         IRoundActionService roundActionService,
         RoundPlayers players,
         IGameModeConfig modeOptions,
-        ILogger<TimeLimitedRound> logger) : base("game-round")
+        ILogger<TimeLimitedRound> logger,
+        ISessionLogger sessionLogger) : base("game-round")
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
@@ -24,6 +25,7 @@ public class LastManStandingRound : Service, IGameRound
         _players = players;
         _modeOptions = modeOptions;
         _logger = logger;
+        _sessionLogger = sessionLogger;
 
         BindProperty(_state);
     }
@@ -36,6 +38,7 @@ public class LastManStandingRound : Service, IGameRound
     private readonly IRoundActionService _roundActionService;
     private readonly IGameModeConfig _modeOptions;
     private readonly ILogger<TimeLimitedRound> _logger;
+    private readonly ISessionLogger _sessionLogger;
 
     private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
 
@@ -76,6 +79,7 @@ public class LastManStandingRound : Service, IGameRound
         foreach (var player in players)
             player.Board.MinesScanner.Start(lifetime);
 
+        snapshot.RecordGameStarted();
         _snapshotSender.Send(snapshot);
 
         var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
@@ -87,9 +91,12 @@ public class LastManStandingRound : Service, IGameRound
 
         while (IsGameOver() == false)
         {
-            await ProcessRound(lifetime, players.First(t => t != _currentPlayer.Value));
-            _state.Update(state => state.CurrentRound++);
+            var nextPlayer = players.First(t => t != _currentPlayer.Value);
             roundsCount++;
+            _sessionLogger.LogRoundStart(nextPlayer.User.Id, roundsCount);
+            await ProcessRound(lifetime, nextPlayer);
+            _state.Update(state => state.CurrentRound++);
+            _sessionLogger.LogRoundEnd(nextPlayer.User.Id, roundsCount);
         }
 
         var winner = GetWinner();
@@ -143,6 +150,7 @@ public class LastManStandingRound : Service, IGameRound
 
     public void SkipTurn()
     {
+        _sessionLogger.LogTurnSkipped(_currentPlayer.Value?.User.Id ?? Guid.Empty);
         _roundForcedLifetime!.Terminate();
     }
 

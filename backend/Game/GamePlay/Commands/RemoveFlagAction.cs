@@ -23,6 +23,8 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
         taken.RemoveFlag();
         board.OnUpdated();
 
+        Utils.SessionLogger.LogFlagRemoved(context.Player.User.Id, request.Position);
+
         return EmptyResponse.Ok;
     }
 }

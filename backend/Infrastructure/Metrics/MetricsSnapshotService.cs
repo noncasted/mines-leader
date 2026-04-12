@@ -90,35 +90,14 @@ public class MetricsSnapshotService : IHostedService, IDisposable
         snapshot.Record(value);
     }
 
-    private static string? FindProjectRoot()
-    {
-        var dir = AppContext.BaseDirectory;
-
-        for (var i = 0; i < 10; i++)
-        {
-            dir = Path.GetDirectoryName(dir);
-
-            if (dir == null)
-                return null;
-
-            if (Directory.Exists(Path.Combine(dir, ".git")))
-                return dir;
-        }
-
-        return null;
-    }
-
     private void WriteSnapshot(object? state)
     {
         try
         {
-            var root = FindProjectRoot();
+            var dir = TelemetryPaths.GetTelemetryDir("metrics");
 
-            if (root == null)
+            if (dir == null)
                 return;
-
-            var dir = Path.Combine(root, ".telemetry");
-            Directory.CreateDirectory(dir);
 
             var metrics = new Dictionary<string, object>();
 
