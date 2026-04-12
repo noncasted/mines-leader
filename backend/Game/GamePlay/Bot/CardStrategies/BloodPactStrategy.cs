@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class BloodPactStrategy : IBotCardStrategy {
-    public BloodPactStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class BloodPactStrategy : IBotCardStrategy
+{
+    public BloodPactStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class BloodPactStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.BloodPact];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
 
         if (bot.Health.Current.Value <= 1)
@@ -25,7 +28,8 @@ public class BloodPactStrategy : IBotCardStrategy {
         return 4f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var payload = new CardUsePayload.BloodPact { Type = cardType };
         return _commandUtils.UseCard(_context.Bot, cardId, payload);
     }

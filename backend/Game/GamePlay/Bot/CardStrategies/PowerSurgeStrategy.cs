@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class PowerSurgeStrategy : IBotCardStrategy {
-    public PowerSurgeStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class PowerSurgeStrategy : IBotCardStrategy
+{
+    public PowerSurgeStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class PowerSurgeStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.PowerSurge];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
         var handSize = bot.Hand.Entries.Count;
 
@@ -23,7 +26,8 @@ public class PowerSurgeStrategy : IBotCardStrategy {
         return 2f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var payload = new CardUsePayload.PowerSurge { Type = cardType };
         return _commandUtils.UseCard(_context.Bot, cardId, payload);
     }

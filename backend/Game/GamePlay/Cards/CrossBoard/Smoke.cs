@@ -3,8 +3,10 @@ using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class Smoke : ICard<CardUsePayload.Smoke> {
-    public Smoke(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext) {
+public class Smoke : ICard<CardUsePayload.Smoke>
+{
+    public Smoke(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext)
+    {
         _configs = configs;
         _roundActionService = roundActionService;
         _gameContext = gameContext;
@@ -14,13 +16,16 @@ public class Smoke : ICard<CardUsePayload.Smoke> {
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Smoke payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Smoke payload)
+    {
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
 
-        if (board.Cells.Count == 0) {
-            return new CardUseResult {
+        if (board.Cells.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
@@ -30,8 +35,10 @@ public class Smoke : ICard<CardUsePayload.Smoke> {
         var pattern = PatternShapes.Rhombus(config.Size);
         var selected = pattern.SelectAll(board, payload.Position);
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No cells in the pattern"),
                 ActionData = null
             };
@@ -40,7 +47,8 @@ public class Smoke : ICard<CardUsePayload.Smoke> {
         var effectId = Guid.NewGuid();
         var affectedCells = new List<ICell>();
 
-        foreach (var cell in selected) {
+        foreach (var cell in selected)
+        {
             var effect = new SmokeEffect { Id = effectId };
             cell.AddEffect(effect);
             affectedCells.Add(cell);
@@ -49,9 +57,11 @@ public class Smoke : ICard<CardUsePayload.Smoke> {
         var disposeAction = new SmokeDisposeAction(effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Smoke() {
+            ActionData = new CardActionSnapshot.Smoke()
+            {
                 TargetPlayer = board.OwnerId
             }
         };

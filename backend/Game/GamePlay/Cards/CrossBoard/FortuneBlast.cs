@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Plants mines in a diamond area of random size on free cells of the opponent's field.
 /// </summary>
-public class FortuneBlast : ICard<CardUsePayload.FortuneBlast> {
-    public FortuneBlast(ICardConfigs configs, IGameContext gameContext, IGameRandom gameRandom) {
+public class FortuneBlast : ICard<CardUsePayload.FortuneBlast>
+{
+    public FortuneBlast(ICardConfigs configs, IGameContext gameContext, IGameRandom gameRandom)
+    {
         _configs = configs;
         _gameContext = gameContext;
         _gameRandom = gameRandom;
@@ -17,7 +19,8 @@ public class FortuneBlast : ICard<CardUsePayload.FortuneBlast> {
     private readonly IGameContext _gameContext;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneBlast payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneBlast payload)
+    {
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -27,8 +30,10 @@ public class FortuneBlast : ICard<CardUsePayload.FortuneBlast> {
         var pattern = PatternShapes.Rhombus(actualSize);
         var selected = pattern.SelectFree(board, payload.Position);
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No free cells in the pattern"),
                 ActionData = null
             };
@@ -40,9 +45,11 @@ public class FortuneBlast : ICard<CardUsePayload.FortuneBlast> {
         foreach (var cell in selected)
             cell.ToTaken().SetMine();
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.FortuneBlast() {
+            ActionData = new CardActionSnapshot.FortuneBlast()
+            {
                 TargetPlayer = board.OwnerId,
                 ActualSize = actualSize
             }

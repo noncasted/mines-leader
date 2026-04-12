@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class EmbargoStrategy : IBotCardStrategy {
-    public EmbargoStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class EmbargoStrategy : IBotCardStrategy
+{
+    public EmbargoStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class EmbargoStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Embargo];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var opponent = _context.Opponent;
         var opponentHand = opponent.Hand.Entries.Count;
 
@@ -23,7 +26,8 @@ public class EmbargoStrategy : IBotCardStrategy {
         return 3f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var payload = new CardUsePayload.Embargo { Type = cardType };
         return _commandUtils.UseCard(_context.Bot, cardId, payload);
     }

@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class ManaFountainStrategy : IBotCardStrategy {
-    public ManaFountainStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class ManaFountainStrategy : IBotCardStrategy
+{
+    public ManaFountainStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class ManaFountainStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.ManaFountain];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
 
         if (bot.Mana.Current <= 2)
@@ -22,7 +25,8 @@ public class ManaFountainStrategy : IBotCardStrategy {
         return 4f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var payload = new CardUsePayload.ManaFountain { Type = cardType };
         return _commandUtils.UseCard(_context.Bot, cardId, payload);
     }

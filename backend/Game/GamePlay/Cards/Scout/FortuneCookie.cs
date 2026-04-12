@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Reveals a random number of hidden mines on the owner's field as temporary highlights without flagging them.
 /// </summary>
-public class FortuneCookie : ICard<CardUsePayload.FortuneCookie> {
-    public FortuneCookie(ICardConfigs configs, IGameRandom gameRandom) {
+public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
+{
+    public FortuneCookie(ICardConfigs configs, IGameRandom gameRandom)
+    {
         _configs = configs;
         _gameRandom = gameRandom;
     }
@@ -15,17 +17,20 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie> {
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneCookie payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneCookie payload)
+    {
         var board = invoker.Board;
 
         var mineCells = board.Cells.Values
-            .Where(c => c.Status == CellStatus.Taken)
-            .Select(c => c.ToTaken())
-            .Where(c => c.HasMine)
-            .ToList();
+                             .Where(c => c.Status == CellStatus.Taken)
+                             .Select(c => c.ToTaken())
+                             .Where(c => c.HasMine)
+                             .ToList();
 
-        if (mineCells.Count == 0) {
-            return new CardUseResult {
+        if (mineCells.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No hidden mines on board"),
                 ActionData = null
             };
@@ -37,15 +42,18 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie> {
 
         var revealed = new List<Position>(count);
 
-        for (var i = 0; i < count; i++) {
+        for (var i = 0; i < count; i++)
+        {
             var index = _gameRandom.Index(invoker, mineCells.Count);
             revealed.Add(mineCells[index].Position);
             mineCells.RemoveAt(index);
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.FortuneCookie() {
+            ActionData = new CardActionSnapshot.FortuneCookie()
+            {
                 TargetPlayer = invoker.User.Id,
                 RevealedMines = revealed
             }

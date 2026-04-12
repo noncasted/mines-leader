@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class CoinTossStrategy : IBotCardStrategy {
-    public CoinTossStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class CoinTossStrategy : IBotCardStrategy
+{
+    public CoinTossStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class CoinTossStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.CoinToss];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
 
         if (bot.Moves.Left >= 3)
@@ -25,7 +28,8 @@ public class CoinTossStrategy : IBotCardStrategy {
         return 4f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var payload = new CardUsePayload.CoinToss { Type = cardType };
         return _commandUtils.UseCard(_context.Bot, cardId, payload);
     }

@@ -1,10 +1,12 @@
-using Shared;
+﻿using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class Trebuchet : ICard<CardUsePayload.Trebuchet> {
-    public Trebuchet(ICardConfigs configs, IGameContext gameContext) {
+public class Trebuchet : ICard<CardUsePayload.Trebuchet>
+{
+    public Trebuchet(ICardConfigs configs, IGameContext gameContext)
+    {
         _configs = configs;
         _gameContext = gameContext;
     }
@@ -12,13 +14,16 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet> {
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Trebuchet payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Trebuchet payload)
+    {
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
 
-        if (board.Cells.Count == 0) {
-            return new CardUseResult {
+        if (board.Cells.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
@@ -30,8 +35,10 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet> {
 
         var selected = pattern.SelectFree(board, payload.Position);
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No free cells in the pattern"),
                 ActionData = null
             };
@@ -42,11 +49,14 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet> {
         var cellsByY = Enumerable.GroupBy<ICell, int>(selected, cell => cell.Position.y)
                                  .OrderByDescending(group => group.Key);
 
-        foreach (var group in cellsByY) {
-            if (group.Count() == 1) {
+        foreach (var group in cellsByY)
+        {
+            if (group.Count() == 1)
+            {
                 minesTargets.Add(group.First());
             }
-            else {
+            else
+            {
                 minesTargets.Add(group.First());
                 minesTargets.Add(group.Last());
             }
@@ -60,9 +70,11 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet> {
 
         invoker.Modifiers.Reset(PlayerModifier.TrebuchetBoost);
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Trebuchet() {
+            ActionData = new CardActionSnapshot.Trebuchet()
+            {
                 TargetPlayer = board.OwnerId
             }
         };

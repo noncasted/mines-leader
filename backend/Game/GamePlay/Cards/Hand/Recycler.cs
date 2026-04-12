@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Discards a chosen card from hand to the stash, then draws cards from the deck.
 /// </summary>
-public class Recycler : ICard<CardUsePayload.Recycler> {
-    public Recycler(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor) {
+public class Recycler : ICard<CardUsePayload.Recycler>
+{
+    public Recycler(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
+    {
         _configs = configs;
         _snapshotAccessor = snapshotAccessor;
     }
@@ -15,17 +17,21 @@ public class Recycler : ICard<CardUsePayload.Recycler> {
     private readonly ICardConfigs _configs;
     private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Recycler payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Recycler payload)
+    {
         var config = _configs.Value.Recycler_Normal;
 
         var discardCard = invoker.Hand.Entries.FirstOrDefault(c => c.Id == payload.DiscardCardId);
-        if (discardCard != null) {
+
+        if (discardCard != null)
+        {
             invoker.Hand.Remove(discardCard.Id);
             invoker.Stash.Add(discardCard.Type);
             _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, discardCard.Id);
         }
 
-        for (var i = 0; i < config.DrawCount; i++) {
+        for (var i = 0; i < config.DrawCount; i++)
+        {
             if (invoker.Deck.Count == 0)
                 break;
 
@@ -34,9 +40,11 @@ public class Recycler : ICard<CardUsePayload.Recycler> {
             _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Recycler() {
+            ActionData = new CardActionSnapshot.Recycler()
+            {
                 TargetPlayer = invoker.User.Id
             }
         };

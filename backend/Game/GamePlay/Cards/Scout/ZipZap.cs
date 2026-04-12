@@ -1,10 +1,12 @@
-using Shared;
+﻿using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class ZipZap : ICard<CardUsePayload.ZipZap> {
-    public ZipZap(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor) {
+public class ZipZap : ICard<CardUsePayload.ZipZap>
+{
+    public ZipZap(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
+    {
         _configs = configs;
         _snapshotAccessor = snapshotAccessor;
     }
@@ -12,7 +14,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
     private readonly ICardConfigs _configs;
     private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ZipZap payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ZipZap payload)
+    {
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -23,8 +26,10 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
 
         var selected = pattern.SelectFree(board, payload.Position);
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No taken cells in the pattern"),
                 ActionData = null
             };
@@ -33,8 +38,10 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
         var targets = new List<ITakenCell>();
         var current = SelectTarget(payload.Position);
 
-        if (current == null) {
-            return new CardUseResult {
+        if (current == null)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No target found in the pattern"),
                 ActionData = null
             };
@@ -42,7 +49,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
 
         targets.Add(current);
 
-        for (var i = 1; i < size; i++) {
+        for (var i = 1; i < size; i++)
+        {
             current = SelectTarget(current.Position);
 
             if (current == null)
@@ -51,8 +59,10 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
             targets.Add(current);
         }
 
-        if (targets.Count == 0) {
-            return new CardUseResult {
+        if (targets.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No targets found in the pattern"),
                 ActionData = null
             };
@@ -72,15 +82,18 @@ public class ZipZap : ICard<CardUsePayload.ZipZap> {
 
         board.OnUpdated();
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ZipZap() {
+            ActionData = new CardActionSnapshot.ZipZap()
+            {
                 TargetPlayer = board.OwnerId,
                 Targets = targets.Select(t => t.Position).ToList()
             }
         };
 
-        ITakenCell? SelectTarget(Position center) {
+        ITakenCell? SelectTarget(Position center)
+        {
             var searchPositions = searchShape.SelectTaken(board, center);
             var hasMine = searchPositions.Where(x => x.HasMine == true);
             var hasFlags = hasMine.Where(x => x.IsFlagged == false);
