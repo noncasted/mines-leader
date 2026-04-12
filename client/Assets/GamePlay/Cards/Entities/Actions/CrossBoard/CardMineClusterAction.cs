@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using Internal;
 using Shared;
+using UnityEngine;
 
 namespace GamePlay.Cards
 {
@@ -9,21 +12,37 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardMineClusterAction : ICardAction
     {
-        public CardMineClusterAction(ICardDropDetector dropDetector)
+        public CardMineClusterAction(
+            ICardContext context,
+            ICardDropArea dropArea,
+            ICardPointerHandler pointerHandler,
+            CardConfigOptions.MineCluster config)
         {
-            _dropDetector = dropDetector;
+            _context = context;
+            _dropArea = dropArea;
+            _pointerHandler = pointerHandler;
+            _config = config;
         }
 
-        private readonly ICardDropDetector _dropDetector;
+        private readonly ICardContext _context;
+        private readonly ICardDropArea _dropArea;
+        private readonly ICardPointerHandler _pointerHandler;
+        private readonly CardConfigOptions.MineCluster _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
-            var isDropped = await _dropDetector.Wait(lifetime);
+            var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
+
+            var pattern = new Pattern(_context.TargetBoard, _config.Size);
+            var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
             return new CardActionResult()
             {
-                IsSuccess = isDropped,
+                IsSuccess = result.IsSuccess,
                 Payload = new CardUsePayload.MineCluster()
+                {
+                    Position = result.Position.ToPosition()
+                }
             };
         }
 
@@ -32,6 +51,23 @@ namespace GamePlay.Cards
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MineCluster payload)
             {
                 return UniTask.CompletedTask;
+            }
+        }
+
+        public class Pattern : ICardDropPattern
+        {
+            public Pattern(IBoard board, int size)
+            {
+                _board = board;
+                _shape = PatternShapes.Cross(size);
+            }
+
+            private readonly IBoard _board;
+            private readonly IPattenShape _shape;
+
+            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            {
+                return _shape.All(_board, pointer);
             }
         }
     }

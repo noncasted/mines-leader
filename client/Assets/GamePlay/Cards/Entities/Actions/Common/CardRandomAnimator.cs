@@ -15,7 +15,7 @@ namespace GamePlay.Cards
     }
 
     [DisallowMultipleComponent]
-    public class CardRandomAnimator : MonoBehaviour, ICardRandomAnimator, ISceneService, ISpriteAnimationRenderer
+    public class CardRandomAnimator : MonoBehaviour, ISceneService, ICardRandomAnimator, ISpriteAnimationRenderer
     {
         [SerializeField] private SpriteRenderer _renderer;
 
@@ -50,7 +50,8 @@ namespace GamePlay.Cards
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                   .As<ICardRandomAnimator>();
+                   .As<ICardRandomAnimator>()
+                   .AsSelfResolvable();
         }
 
         public async UniTask PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads)
