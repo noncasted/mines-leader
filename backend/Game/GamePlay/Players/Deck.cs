@@ -10,7 +10,9 @@ public interface IDeck
 
     void Init(int size);
     void AddCard(CardType card);
+    void InsertTop(CardType card);
     void RemoveCard(CardType card);
+    CardType Peek(int index);
     CardType DrawCard();
     void Shuffle();
 }
@@ -55,9 +57,19 @@ public class Deck : IDeck
         _state.Update(state => state.Queue.Add(card));
     }
 
+    public void InsertTop(CardType card)
+    {
+        _state.Update(state => state.Queue.Insert(0, card));
+    }
+
     public void RemoveCard(CardType card)
     {
         _state.Update(state => state.Queue.Remove(card));
+    }
+
+    public CardType Peek(int index)
+    {
+        return _state.Value.Queue[index];
     }
 
     public CardType DrawCard()

@@ -54,7 +54,7 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs, MoveSn
         player.Stash.Add(handCard.Type);
         player.Mana.Use(manaCost);
         player.Moves.OnUsed();
-        context.Player.Actions.OnCardUsed();
+        context.Player.Actions.OnCardUsed(handCard.Type, request.Payload);
 
         Utils.SessionLogger.LogCardUsed(player.User.Id, handCard.Type, manaCost, use.Result.HasError == false);
 

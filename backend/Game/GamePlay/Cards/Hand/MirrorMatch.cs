@@ -7,25 +7,40 @@ namespace Game.GamePlay;
 /// </summary>
 public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
 {
-    public MirrorMatch(IGameContext gameContext, IMoveSnapshotAccessor snapshotAccessor)
+    public MirrorMatch(IGameContext gameContext, IServiceProvider serviceProvider)
     {
         _gameContext = gameContext;
-        _snapshotAccessor = snapshotAccessor;
+        _serviceProvider = serviceProvider;
     }
 
     private readonly IGameContext _gameContext;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
+    private readonly IServiceProvider _serviceProvider;
 
     public CardUseResult Use(IPlayer invoker, CardUsePayload.MirrorMatch payload)
     {
-        // TODO: Full implementation requires LastUsedCard tracking on IPlayer.
+        var opponent = _gameContext.GetOpponent(invoker);
+        var lastCard = opponent.Actions.LastUsedCardType;
+        var lastPayload = opponent.Actions.LastUsedPayload;
+
+        if (lastCard == null || lastPayload == null)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("Opponent has not used any card yet"),
+                ActionData = null
+            };
+        }
+
+        var copiedType = lastCard.Value;
+        var copiedUse = _serviceProvider.Use(invoker, lastPayload);
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
+            Result = copiedUse.Result,
             ActionData = new CardActionSnapshot.MirrorMatch()
             {
                 TargetPlayer = invoker.User.Id,
-                CopiedCard = CardType.MirrorMatch
+                CopiedCard = copiedType
             }
         };
     }

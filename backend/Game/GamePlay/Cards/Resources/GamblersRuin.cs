@@ -58,15 +58,20 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin>
         }
         else
         {
-            var toDiscard = Math.Min(config.LoseDiscard, invoker.Hand.Entries.Count);
+            var candidates = invoker.Hand.Entries
+                .Where(c => c.Id != _snapshotAccessor.CardId)
+                .ToList();
+
+            var toDiscard = Math.Min(config.LoseDiscard, candidates.Count);
 
             for (var i = 0; i < toDiscard; i++)
             {
-                var index = _gameRandom.Index(invoker, invoker.Hand.Entries.Count);
-                var entry = invoker.Hand.Entries[index];
+                var index = _gameRandom.Index(invoker, candidates.Count);
+                var entry = candidates[index];
                 invoker.Hand.Remove(entry.Id);
                 invoker.Stash.Add(entry.Type);
                 _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
+                candidates.RemoveAt(index);
             }
         }
 

@@ -907,9 +907,10 @@ public class PlayerActionsTests
         var fired = false;
 
         actions.CardUsed.Advise(lifetime, () => fired = true);
-        actions.OnCardUsed();
+        actions.OnCardUsed(CardType.Focus, new CardUsePayload.Focus());
 
         fired.Should().BeTrue();
+        actions.LastUsedCardType.Should().Be(CardType.Focus);
         lifetime.Terminate();
     }
 
@@ -937,7 +938,7 @@ public class PlayerActionsTests
 
         actions.CardUsed.Advise(lifetime, () => fired = true);
         lifetime.Terminate();
-        actions.OnCardUsed();
+        actions.OnCardUsed(CardType.Focus, new CardUsePayload.Focus());
 
         fired.Should().BeFalse();
     }

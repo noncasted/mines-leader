@@ -14,6 +14,7 @@ namespace Shared
         AllCardsDiscount = 5,
         ManaCostPenalty = 6,
         Shield = 7,
+        SoulLink = 8,
     }
 
     public static class PlayerModifierExtensions

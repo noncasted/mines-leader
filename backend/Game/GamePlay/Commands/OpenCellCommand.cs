@@ -31,6 +31,14 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
             else
             {
                 context.Player.Health.TakeDamage(1);
+
+                var soulLink = (int)context.Player.Modifiers.Get(PlayerModifier.SoulLink);
+
+                if (soulLink > 0)
+                {
+                    var opponent = Utils.GameContext.GetOpponent(context.Player);
+                    opponent.Health.TakeDamage(1);
+                }
             }
 
             targetCell.ToTaken().Explode();
