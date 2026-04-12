@@ -42,10 +42,9 @@ public class Connection : IConnection
         _writer.Run(_lifetime).NoAwait();
         await _reader.Run(_lifetime);
 
-        if (_lifetime.IsTerminated == true)
-            return;
+        if (_lifetime.IsTerminated == false)
+            _lifetime.Terminate();
 
-        _lifetime.Terminate();
         OnDisconnected();
     }
 

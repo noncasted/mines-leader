@@ -44,6 +44,8 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     {
         if (_users.Entries.TryGetValue(user.UserId, out var existingUser))
         {
+            var oldProjection = _orleans.GetGrain<IUserProjection>(user.UserId);
+            await _orleans.InTransaction(oldProjection.OnDisconnected);
             existingUser.Connection.ForceDisconnect();
             _users.Remove(existingUser);
         }

@@ -48,6 +48,10 @@ public class ConnectionReader : IConnectionReader
             {
                 break;
             }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
 
             if (_webSocket.CloseStatus != null)
                 break;
