@@ -29,7 +29,6 @@
         public IServiceScopeBinder Binder { get; }
         public IScopeEventListeners Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
-        public OptionsContainer Options => Assets.Options;
         public ILoadedScope Parent { get; }
         public ILifetime ScopeLifetime { get; }
         public bool IsMock { get; }

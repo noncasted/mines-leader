@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1854545392655021217
+--- !u!1 &2044132628418216021
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7339347380553089434}
-  - component: {fileID: 6995906671518018482}
+  - component: {fileID: 258661460717397867}
+  - component: {fileID: 1020457476750850259}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -17,29 +17,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7339347380553089434
+--- !u!4 &258661460717397867
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1854545392655021217}
+  m_GameObject: {fileID: 2044132628418216021}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7796914111223000805}
+  m_Father: {fileID: 3551168101687727890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6995906671518018482
+--- !u!212 &1020457476750850259
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1854545392655021217}
+  m_GameObject: {fileID: 2044132628418216021}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -91,7 +91,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &4214859512937108885
+--- !u!1 &6960611067478155683
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -99,8 +99,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7796914111223000805}
-  - component: {fileID: 5484130272937351430}
+  - component: {fileID: 3551168101687727890}
+  - component: {fileID: 3402445107744519054}
   m_Layer: 0
   m_Name: View
   m_TagString: Untagged
@@ -108,35 +108,35 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7796914111223000805
+--- !u!4 &3551168101687727890
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4214859512937108885}
+  m_GameObject: {fileID: 6960611067478155683}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7339347380553089434}
-  m_Father: {fileID: 1486474731071870887}
+  - {fileID: 258661460717397867}
+  m_Father: {fileID: 3836740694244709563}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5484130272937351430
+--- !u!114 &3402445107744519054
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4214859512937108885}
+  m_GameObject: {fileID: 6960611067478155683}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e61ba7d8d5d54a639f61d3c983706c3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardTransform
---- !u!1 &4539755574426261923
+--- !u!1 &9188026542210334805
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,12 +144,12 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1486474731071870887}
-  - component: {fileID: 6125973515239818422}
-  - component: {fileID: 1425591166634431853}
-  - component: {fileID: 2397564442044603138}
-  - component: {fileID: 7534310024308382221}
-  - component: {fileID: 9024066773159779653}
+  - component: {fileID: 3836740694244709563}
+  - component: {fileID: 7995289050473752412}
+  - component: {fileID: 7139555914075174478}
+  - component: {fileID: 8684210252792482145}
+  - component: {fileID: 2956779761656508925}
+  - component: {fileID: 5308119794131597993}
   m_Layer: 0
   m_Name: Card_Remote
   m_TagString: Untagged
@@ -157,29 +157,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1486474731071870887
+--- !u!4 &3836740694244709563
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7796914111223000805}
+  - {fileID: 3551168101687727890}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6125973515239818422
+--- !u!114 &7995289050473752412
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 585b7dac4e644a3dbd6376cdc4278903, type: 3}
@@ -189,60 +189,60 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
---- !u!114 &1425591166634431853
+--- !u!114 &7139555914075174478
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3eec27d7f4614c7a9d3bab5f2135e9b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardScopeEntity
-  _scope: {fileID: 6125973515239818422}
+  _scope: {fileID: 7995289050473752412}
   _register: []
   _autoDetected:
-  - {fileID: 7534310024308382221}
-  - {fileID: 9024066773159779653}
-  - {fileID: 5484130272937351430}
---- !u!210 &2397564442044603138
+  - {fileID: 2956779761656508925}
+  - {fileID: 5308119794131597993}
+  - {fileID: 3402445107744519054}
+--- !u!210 &8684210252792482145
 SortingGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   m_Enabled: 1
   m_SortingLayerID: -542684873
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
---- !u!114 &7534310024308382221
+--- !u!114 &2956779761656508925
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 332efffd6e5e4eb0a5f31bd1521f8bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardRenderer
-  _sortingGroup: {fileID: 2397564442044603138}
---- !u!114 &9024066773159779653
+  _sortingGroup: {fileID: 8684210252792482145}
+--- !u!114 &5308119794131597993
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4539755574426261923}
+  m_GameObject: {fileID: 9188026542210334805}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 507a576612274384a6ddd4920dc1308b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardView
-  _scope: {fileID: 6125973515239818422}
+  _scope: {fileID: 7995289050473752412}

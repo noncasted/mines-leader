@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 namespace GamePlay.Players
 {
@@ -8,16 +7,16 @@ namespace GamePlay.Players
     {
         [SerializeField] private Sprite _empty;
         [SerializeField] private Sprite _full;
-        [SerializeField] private Image _image;
+        [SerializeField] private SpriteRenderer _renderer;
 
         public void SetEmpty()
         {
-            _image.sprite = _empty;
+            _renderer.sprite = _empty;
         }
 
         public void SetFull()
         {
-            _image.sprite = _full;
+            _renderer.sprite = _full;
         }
     }
 }

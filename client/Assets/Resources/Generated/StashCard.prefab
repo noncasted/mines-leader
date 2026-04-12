@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6921543197081668788
+--- !u!1 &6262149399507720864
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,9 +8,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5785952069481203436}
-  - component: {fileID: 7951029279337151698}
-  - component: {fileID: 6880902050310473872}
+  - component: {fileID: 3204820864981787663}
+  - component: {fileID: 1492272696808674347}
+  - component: {fileID: 3700391743979731799}
   m_Layer: 0
   m_Name: StashCard
   m_TagString: Untagged
@@ -18,13 +18,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5785952069481203436
+--- !u!4 &3204820864981787663
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6921543197081668788}
+  m_GameObject: {fileID: 6262149399507720864}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,13 +33,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7951029279337151698
+--- !u!114 &1492272696808674347
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6921543197081668788}
+  m_GameObject: {fileID: 6262149399507720864}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b77615687fef42b895edab337d70201c, type: 3}
@@ -47,15 +47,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.StashCard
   _even: {fileID: 3255645079980510714, guid: b31ba14c26136cf44bdd3d29f48facc8, type: 3}
   _odd: {fileID: -1897782339396264358, guid: b31ba14c26136cf44bdd3d29f48facc8, type: 3}
-  _renderer: {fileID: 6880902050310473872}
---- !u!212 &6880902050310473872
+  _renderer: {fileID: 3700391743979731799}
+--- !u!212 &3700391743979731799
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6921543197081668788}
+  m_GameObject: {fileID: 6262149399507720864}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0

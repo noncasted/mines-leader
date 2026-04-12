@@ -8,7 +8,7 @@ namespace Global.Publisher
     {
         public static IScopeBuilder AddPublisher(this IScopeBuilder builder)
         {
-            var platformOptions = builder.Options.PlatformOptions;
+            var platformOptions = OptionsContainer.Load().PlatformOptions;
 
             switch (platformOptions.PlatformType)
             {
@@ -29,7 +29,7 @@ namespace Global.Publisher
 
         private static void AddItchIO(IScopeBuilder builder)
         {
-            var platformOptions = builder.Options.PlatformOptions;
+            var platformOptions = OptionsContainer.Load().PlatformOptions;
             var options = builder.GetAsset<GlobalPublisherOptions>();
 
             var callbacks = builder.Instantiate(options.ItchCallbacksPrefab);

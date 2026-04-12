@@ -1,0 +1,20 @@
+{
+    "_assets": {
+        "_useAddressables": false
+    },
+    "_debug": {
+        "_enableGizmos": false,
+        "_enableLogs": false
+    },
+    "_version": {
+        "_value": "1.0.0"
+    },
+    "_backend": {
+        "_environment": 0,
+        "_productionApiUrl": "https://gateway.minesleader.xyz",
+        "_localApiUrl": "http://localhost:5003"
+    },
+    "_platform": {
+        "_platform": 110
+    }
+}
