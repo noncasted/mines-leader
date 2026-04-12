@@ -17,17 +17,20 @@ public class BotCardAction : IBotCardAction
         ICardConfigs cardConfigs,
         IBotContext botContext,
         IBotCardStrategies botCardStrategies,
+        IBotCommandUtils commandUtils,
         ILogger<BotCardAction> logger)
     {
         _cardConfigs = cardConfigs;
         _botContext = botContext;
         _botCardStrategies = botCardStrategies;
+        _commandUtils = commandUtils;
         _logger = logger;
     }
 
     private readonly ICardConfigs _cardConfigs;
     private readonly IBotContext _botContext;
     private readonly IBotCardStrategies _botCardStrategies;
+    private readonly IBotCommandUtils _commandUtils;
     private readonly ILogger<BotCardAction> _logger;
 
     public bool TryExecute(IReadOnlyLifetime lifetime)
@@ -74,7 +77,7 @@ public class BotCardAction : IBotCardAction
         bot.Stash.Add(selectedCardType);
         bot.Moves.OnUsed();
         bot.Mana.Use(_cardConfigs.Value.All[selectedCardType].ManaCost);
-        bot.Actions.OnCardUsed();
+        bot.Actions.OnCardUsed(selectedCardType, _commandUtils.LastUsedPayload!);
 
         return true;
     }

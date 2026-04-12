@@ -34,22 +34,15 @@ public class Salvage : ICard<CardUsePayload.Salvage>
 
         for (var i = 0; i < peekCount; i++)
         {
-            peeked.Add(invoker.Deck.DrawCard());
+            peeked.Add(invoker.Deck.Peek(i));
         }
 
         var chosenIndex = Math.Clamp(payload.ChosenIndex, 0, peeked.Count - 1);
 
         var chosenCard = peeked[chosenIndex];
+        invoker.Deck.RemoveCard(chosenCard);
         var activeCard = invoker.Hand.Add(chosenCard);
         _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
-
-        for (var i = 0; i < peeked.Count; i++)
-        {
-            if (i == chosenIndex)
-                continue;
-
-            invoker.Deck.AddCard(peeked[i]);
-        }
 
         return new CardUseResult
         {

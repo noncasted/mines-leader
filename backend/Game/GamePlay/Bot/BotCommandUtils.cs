@@ -5,6 +5,7 @@ namespace Game.GamePlay;
 
 public interface IBotCommandUtils
 {
+    ICardUsePayload? LastUsedPayload { get; }
     void WithSnapshot(Action action);
     void WithSnapshot(Action<MoveSnapshot> action);
     bool UseCard(IPlayer bot, Guid cardId, ICardUsePayload payload);
@@ -28,6 +29,8 @@ public class BotCommandUtils : IBotCommandUtils
     private readonly IGameContext _gameContext;
     private readonly IServiceProvider _serviceProvider;
     private readonly MoveSnapshotAccessor _snapshotAccessor;
+
+    public ICardUsePayload? LastUsedPayload { get; private set; }
 
     public void WithSnapshot(Action action)
     {
@@ -55,6 +58,7 @@ public class BotCommandUtils : IBotCommandUtils
 
     public bool UseCard(IPlayer bot, Guid cardId, ICardUsePayload payload)
     {
+        LastUsedPayload = payload;
         var wasUsed = false;
 
         WithSnapshot(snapshot => {

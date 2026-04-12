@@ -23,6 +23,16 @@ public class Recycler : ICard<CardUsePayload.Recycler>
 
         var discardCard = invoker.Hand.Entries.FirstOrDefault(c => c.Id == payload.DiscardCardId);
 
+        if (discardCard == null)
+        {
+            var candidates = invoker.Hand.Entries
+                .Where(c => c.Id != _snapshotAccessor.CardId)
+                .ToList();
+
+            if (candidates.Count > 0)
+                discardCard = candidates[^1];
+        }
+
         if (discardCard != null)
         {
             invoker.Hand.Remove(discardCard.Id);

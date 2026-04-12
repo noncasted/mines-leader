@@ -24,9 +24,10 @@ public class SoulLink : ICard<CardUsePayload.SoulLink>
         var config = _configs.Value.SoulLink_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        // TODO: Full damage interception requires OpenCellCommand integration.
-        // Schedules removal of the link after the configured duration.
-        _roundActionService.Schedule(new SoulLinkDisposeAction(), config.Duration);
+        invoker.Modifiers.Inc(PlayerModifier.SoulLink, 1);
+
+        _roundActionService.Schedule(
+            new SoulLinkDisposeAction(invoker, opponent), config.Duration);
 
         return new CardUseResult
         {
@@ -41,8 +42,17 @@ public class SoulLink : ICard<CardUsePayload.SoulLink>
 
 public class SoulLinkDisposeAction : IRoundAction
 {
+    public SoulLinkDisposeAction(IPlayer invoker, IPlayer opponent)
+    {
+        _invoker = invoker;
+        _opponent = opponent;
+    }
+
+    private readonly IPlayer _invoker;
+    private readonly IPlayer _opponent;
+
     public void Execute()
     {
-        // TODO: Remove soul link state when damage interception is implemented.
+        _invoker.Modifiers.Dec(PlayerModifier.SoulLink, 1);
     }
 }
