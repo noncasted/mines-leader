@@ -97,16 +97,8 @@ public class Session : ISession
 
         async Task AwaitUsersLeave()
         {
-            var timeout = TimeSpan.FromMinutes(2);
-            var started = DateTime.UtcNow;
-
             while (_users.Count != 0)
-            {
-                if (DateTime.UtcNow - started > timeout)
-                    break;
-
                 await Task.Delay(TimeSpan.FromSeconds(10));
-            }
         }
     }
 
