@@ -15,7 +15,8 @@ public class TimeLimitedRound : Service, IGameRound
         IRoundActionService roundActionService,
         RoundPlayers players,
         IGameModeConfig modeOptions,
-        ILogger<TimeLimitedRound> logger) : base("game-round")
+        ILogger<TimeLimitedRound> logger,
+        ISessionLogger sessionLogger) : base("game-round")
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
@@ -24,6 +25,7 @@ public class TimeLimitedRound : Service, IGameRound
         _players = players;
         _modeOptions = modeOptions;
         _logger = logger;
+        _sessionLogger = sessionLogger;
 
         BindProperty(_state);
     }
@@ -32,6 +34,7 @@ public class TimeLimitedRound : Service, IGameRound
     private readonly RoundPlayers _players;
     private readonly IGameModeConfig _modeOptions;
     private readonly ILogger<TimeLimitedRound> _logger;
+    private readonly ISessionLogger _sessionLogger;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
@@ -84,6 +87,7 @@ public class TimeLimitedRound : Service, IGameRound
         foreach (var player in players)
             player.Board.MinesScanner.Start(lifetime);
 
+        snapshot.RecordGameStarted();
         _snapshotSender.Send(snapshot);
 
         var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
@@ -95,11 +99,15 @@ public class TimeLimitedRound : Service, IGameRound
 
         while (IsGameOver() == false)
         {
-            await ProcessRound(lifetime, players.First(t => t != _currentPlayer.Value));
+            var nextPlayer = players.First(t => t != _currentPlayer.Value);
             roundsCount++;
+            _sessionLogger.LogRoundStart(nextPlayer.User.Id, roundsCount);
+            await ProcessRound(lifetime, nextPlayer);
+            _sessionLogger.LogRoundEnd(nextPlayer.User.Id, roundsCount);
         }
 
         var winner = GetWinner();
+        _sessionLogger.LogGameOver(winner, GetWinReason());
 
         return winner;
 
@@ -155,10 +163,37 @@ public class TimeLimitedRound : Service, IGameRound
 
             return Guid.Empty;
         }
+
+        string GetWinReason()
+        {
+            foreach (var player in players)
+            {
+                if (player.Health.Current.Value <= 0)
+                    return $"Player {player.User.Id} health reached 0";
+            }
+
+            foreach (var (user, _) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return $"Player {user.Id} disconnected";
+            }
+
+            foreach (var (id, timeLeft) in _state.Value.SecondsLeft)
+            {
+                if (timeLeft <= 0)
+                    return $"Player {id} ran out of time";
+            }
+
+            if (_players.GetFlagWinner() != Guid.Empty)
+                return "All opponent mines flagged";
+
+            return "Unknown";
+        }
     }
 
     public void SkipTurn()
     {
+        _sessionLogger.LogTurnSkipped(_currentPlayer.Value?.User.Id ?? Guid.Empty);
         _roundForcedLifetime!.Terminate();
     }
 

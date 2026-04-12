@@ -18,6 +18,24 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs, MoveSn
         Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
             context.Player.User.Id, handCard.Type);
 
+        var config = configs.Value.All[handCard.Type];
+        var manaCost = config.ManaCost;
+        var nextDiscount = (int)player.Modifiers.Get(PlayerModifier.NextCardDiscount);
+        var allDiscount = (int)player.Modifiers.Get(PlayerModifier.AllCardsDiscount);
+        var penalty = (int)player.Modifiers.Get(PlayerModifier.ManaCostPenalty);
+
+        if (nextDiscount > 0)
+        {
+            manaCost -= nextDiscount;
+            player.Modifiers.Reset(PlayerModifier.NextCardDiscount);
+        }
+
+        manaCost -= allDiscount;
+        manaCost += penalty;
+
+        if (manaCost < 0)
+            manaCost = 0;
+
         snapshotAccessor.Set(context.Snapshot, request.CardId);
 
         var use = Utils.ServiceProvider.Use(player, request.Payload);
@@ -33,27 +51,12 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs, MoveSn
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();
 
-        var config = configs.Value.All[handCard.Type];
         player.Stash.Add(handCard.Type);
-
-        var manaCost = config.ManaCost;
-        var nextDiscount = (int)player.Modifiers.Get(PlayerModifier.NextCardDiscount);
-        var allDiscount = (int)player.Modifiers.Get(PlayerModifier.AllCardsDiscount);
-        var penalty = (int)player.Modifiers.Get(PlayerModifier.ManaCostPenalty);
-
-        if (nextDiscount > 0) {
-            manaCost -= nextDiscount;
-            player.Modifiers.Reset(PlayerModifier.NextCardDiscount);
-        }
-
-        manaCost -= allDiscount;
-        manaCost += penalty;
-
-        if (manaCost < 0) manaCost = 0;
-
         player.Mana.Use(manaCost);
         player.Moves.OnUsed();
         context.Player.Actions.OnCardUsed();
+
+        Utils.SessionLogger.LogCardUsed(player.User.Id, handCard.Type, manaCost, use.Result.HasError == false);
 
         return use.Result;
     }

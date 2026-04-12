@@ -20,7 +20,8 @@ public class GameFlow : Service, IGameFlow
         ISessionData sessionData,
         IGameRound gameRound,
         MatchCreateOptions matchOptions,
-        IRematchAwaiter rematchAwaiter) : base("game-flow")
+        IRematchAwaiter rematchAwaiter,
+        ISessionLogger sessionLogger) : base("game-flow")
     {
         _orleans = orleans;
         _context = context;
@@ -30,6 +31,7 @@ public class GameFlow : Service, IGameFlow
         _gameRound = gameRound;
         _matchOptions = matchOptions;
         _rematchAwaiter = rematchAwaiter;
+        _sessionLogger = sessionLogger;
         BindProperty(_state);
     }
 
@@ -41,12 +43,16 @@ public class GameFlow : Service, IGameFlow
     private readonly IGameRound _gameRound;
     private readonly MatchCreateOptions _matchOptions;
     private readonly IRematchAwaiter _rematchAwaiter;
+    private readonly ISessionLogger _sessionLogger;
     private readonly ValueProperty<GameFlowState> _state = new(1);
 
     public async Task<MatchTransitionResult> Process()
     {
         var match = _orleans.GetGrain<IMatch>(_sessionData.Id);
-        await _orleans.InTransaction(() => match.Setup(_matchOptions.Type, _users.Select(t => t.Id).ToList()));
+        var playerIds = _users.Select(t => t.Id).ToList();
+
+        _sessionLogger.LogSessionCreated(_sessionData.Type, _sessionData.Id);
+        await _orleans.InTransaction(() => match.Setup(_matchOptions.Type, playerIds));
 
         foreach (var user in _users)
         {
@@ -54,6 +60,7 @@ public class GameFlow : Service, IGameFlow
             _context.AddPlayer(player);
         }
 
+        _sessionLogger.LogGameStarted(playerIds);
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
         _state.Update(state => state.Winner = winner);
@@ -63,7 +70,10 @@ public class GameFlow : Service, IGameFlow
         var shouldRematch = await _rematchAwaiter.ShouldRematch(_sessionData.Lifetime, TimeSpan.FromSeconds(30));
 
         if (shouldRematch == true)
+        {
+            _sessionLogger.Log("[Game] Rematch requested");
             return MatchTransitionResult.Rematch;
+        }
 
         return MatchTransitionResult.End;
     }

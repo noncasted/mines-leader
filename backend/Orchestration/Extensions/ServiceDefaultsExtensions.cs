@@ -1,4 +1,5 @@
 using Common.Extensions;
+using Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,11 @@ public static class ServiceDefaultsExtensions
     {
         private void ConfigureOpenTelemetry()
         {
+            var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME")
+                             ?? builder.Environment.ApplicationName.ToLowerInvariant();
+            builder.Logging.SetMinimumLevel(LogLevel.Trace);
+            builder.Logging.AddProvider(new FileLoggerProvider(serviceName));
+
             builder.Logging.AddOpenTelemetry(logging => {
                 logging.IncludeFormattedMessage = true;
                 logging.IncludeScopes = true;

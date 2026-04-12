@@ -18,7 +18,8 @@ public class BotRunner : IBotRunner
         IGameContext context,
         IBotCellAction cellAction,
         IBotCardAction cardAction,
-        IBotFlagAction flagAction)
+        IBotFlagAction flagAction,
+        ISessionLogger sessionLogger)
     {
         _config = config;
         _round = round;
@@ -27,12 +28,14 @@ public class BotRunner : IBotRunner
         _cellAction = cellAction;
         _cardAction = cardAction;
         _flagAction = flagAction;
+        _sessionLogger = sessionLogger;
     }
 
     private readonly IBotConfig _config;
     private readonly IGameRound _round;
     private readonly IGameContext _context;
     private readonly IBotContext _botContext;
+    private readonly ISessionLogger _sessionLogger;
 
     private readonly IBotCellAction _cellAction;
     private readonly IBotCardAction _cardAction;
@@ -63,25 +66,36 @@ public class BotRunner : IBotRunner
 
         try
         {
+            _sessionLogger.LogBotTurnStart(bot.User.Id);
+
             // Пауза перед ходом - бот "думает"
             await Task.Delay(delay, lifetime.Token);
 
             if (_botContext.Bot.Board.Cells.Count == 0)
             {
+                _sessionLogger.LogBotAction("Init", "Board empty, opening first cell");
                 await Task.Delay(TimeSpan.FromSeconds(2f), lifetime.Token);
                 _cellAction.TryExecute();
                 await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);
             }
+
+            var flagsPlaced = 0;
 
             for (var i = 0; i < configValue.FlagsPerRound; i++)
             {
                 if (_flagAction.TryExecute() == false)
                     break;
 
+                flagsPlaced++;
                 await Task.Delay(delay, lifetime.Token);
             }
 
+            if (flagsPlaced > 0)
+                _sessionLogger.LogBotAction("Flags", $"Placed {flagsPlaced} flags");
+
             await Task.Delay(delay, lifetime.Token);
+
+            var cellsOpened = 0;
 
             for (var i = 0; i < configValue.CellsOpenPerRound; i++)
             {
@@ -91,10 +105,16 @@ public class BotRunner : IBotRunner
                 if (_cellAction.TryExecute() == false)
                     break;
 
+                cellsOpened++;
                 await Task.Delay(delay, lifetime.Token);
             }
 
+            if (cellsOpened > 0)
+                _sessionLogger.LogBotAction("Cells", $"Opened {cellsOpened} cells");
+
             await Task.Delay(delay, lifetime.Token);
+
+            var cardsUsed = 0;
 
             for (var i = 0; i < configValue.CardsUsePerRound; i++)
             {
@@ -106,20 +126,21 @@ public class BotRunner : IBotRunner
                 if (usedCard == false)
                     continue;
 
+                cardsUsed++;
                 await Task.Delay(delay, lifetime.Token);
             }
 
+            if (cardsUsed > 0)
+                _sessionLogger.LogBotAction("Cards", $"Used {cardsUsed} cards");
+
             await Task.Delay(delay, lifetime.Token);
 
+            _sessionLogger.LogBotAction("EndTurn", $"Flags={flagsPlaced} Cells={cellsOpened} Cards={cardsUsed}");
             _round.SkipTurn();
         }
         catch (OperationCanceledException)
         {
             // Ход отменен (пользователь отключился)
-        }
-        catch (Exception e)
-        {
-            throw;
         }
     }
 }
