@@ -92,6 +92,8 @@ namespace Shared
     {
         public CrossShape(int size)
         {
+            size = 2 * size - 1;
+
             var grid = new bool[size][];
             var center = size / 2;
 
