@@ -21,9 +21,14 @@ namespace GamePlay.Boards.Effects
 
         public void AddEffect(Guid effectId, CellEffectType cellEffectType)
         {
+            if (_effects.TryGetValue(cellEffectType, out var effect) == false)
+            {
+                Debug.LogWarning($"[CellEffects] Missing effect prefab for {cellEffectType}");
+                return;
+            }
+
             var lifetime = this.GetObjectLifetime().Child();
             _active[effectId] = lifetime;
-            var effect = _effects[cellEffectType];
             effect.Activate(lifetime);
         }
 

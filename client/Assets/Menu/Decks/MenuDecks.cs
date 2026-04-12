@@ -6,6 +6,7 @@ using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 
 namespace Menu.Decks
@@ -117,11 +118,13 @@ namespace Menu.Decks
 
             RecalculateMana();
             UpdateDeck(_deckService.SelectedIndex.Value);
+            ResizePoolRoot();
         }
 
         public async UniTask OnEntered(IUIStateHandle handle)
         {
             handle.AttachGameObject(gameObject);
+            ResizePoolRoot();
             await _backButton.WaitClick(handle);
             _deckService.SendUpdate().Forget();
         }
@@ -155,6 +158,18 @@ namespace Menu.Decks
             selected.Update(cards);
 
             RecalculateMana();
+        }
+
+        private void ResizePoolRoot()
+        {
+            if (_poolRoot.childCount == 0)
+                return;
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_poolRoot);
+
+            var lastChild = (RectTransform)_poolRoot.GetChild(_poolRoot.childCount - 1);
+            var height = Mathf.Abs(lastChild.anchoredPosition.y) + lastChild.sizeDelta.y * 2;
+            _poolRoot.sizeDelta = new Vector2(_poolRoot.sizeDelta.x, height);
         }
 
         private void RecalculateMana()
