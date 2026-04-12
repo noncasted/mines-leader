@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GamePlay.Cheats;
 using GamePlay.UI;
 using Internal;
 using Network;
@@ -77,6 +78,9 @@ namespace GamePlay.Loop
                     throw new ArgumentOutOfRangeException();
             }
 
+            builder.Register<GameCheatsService>()
+                   .As<IScopeSetup>();
+
             return builder.AddScene();
         }
 
@@ -86,8 +90,7 @@ namespace GamePlay.Loop
                 builder.FindOrLoadSceneWithServices(Scenes.GameField.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GameOverlay.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GamePause.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameEnd.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameCheats.Value));
+                builder.FindOrLoadSceneWithServices(Scenes.GameEnd.Value));
         }
     }
 }
