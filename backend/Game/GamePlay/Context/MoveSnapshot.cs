@@ -53,6 +53,11 @@ public class MoveSnapshot
         });
     }
 
+    public void RecordGameStarted()
+    {
+        _records.Add(new GameStartedRecord());
+    }
+
 
     public void HandleBoards(IReadOnlyLifetime lifetime, IGameContext gameContext)
     {

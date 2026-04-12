@@ -12,14 +12,17 @@ namespace GamePlay.Loop
         IGamePlayer Other { get; }
         IReadOnlyList<IGamePlayer> All { get; }
         IViewableDelegate Updated { get; }
+        bool IsGameStarted { get; }
 
         void AddPlayer(IGamePlayer player);
+        void SetGameStarted();
     }
 
     public class GameContext : IGameContext
     {
         private IGamePlayer _self;
         private IGamePlayer _other;
+        private bool _isGameStarted;
 
         private readonly List<IGamePlayer> _all = new();
         private readonly ViewableDelegate _updated = new();
@@ -28,6 +31,7 @@ namespace GamePlay.Loop
         public IGamePlayer Other => _other;
         public IReadOnlyList<IGamePlayer> All => _all;
         public IViewableDelegate Updated => _updated;
+        public bool IsGameStarted => _isGameStarted;
 
         public void AddPlayer(IGamePlayer player)
         {
@@ -38,6 +42,11 @@ namespace GamePlay.Loop
 
             _all.Add(player);
             _updated.Invoke();
+        }
+
+        public void SetGameStarted()
+        {
+            _isGameStarted = true;
         }
     }
 

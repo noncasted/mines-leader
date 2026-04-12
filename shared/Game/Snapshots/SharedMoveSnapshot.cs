@@ -23,10 +23,16 @@ namespace Shared
     }
 
     [MemoryPackable]
+    public partial class GameStartedRecord : IMoveSnapshotRecord
+    {
+    }
+
+    [MemoryPackable]
     [MemoryPackUnion(0, typeof(SharedBoardSnapshot))]
     [MemoryPackUnion(1, typeof(PlayerSnapshotRecord.CardUse))]
     [MemoryPackUnion(2, typeof(PlayerSnapshotRecord.CardAdd))]
     [MemoryPackUnion(3, typeof(PlayerSnapshotRecord.CardRemove))]
+    [MemoryPackUnion(4, typeof(GameStartedRecord))]
     public partial interface IMoveSnapshotRecord
     {
     }
