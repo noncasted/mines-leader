@@ -74,6 +74,7 @@ public class BotCardAction : IBotCardAction
         bot.Stash.Add(selectedCardType);
         bot.Moves.OnUsed();
         bot.Mana.Use(_cardConfigs.Value.All[selectedCardType].ManaCost);
+        bot.Actions.OnCardUsed();
 
         return true;
     }

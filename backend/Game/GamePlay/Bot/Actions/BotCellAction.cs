@@ -35,6 +35,7 @@ public class BotCellAction : IBotCellAction
                 board.Cells[randomPosition].ToFree();
                 board.Revealer.Reveal(randomPosition);
                 board.OnUpdated();
+                _context.Bot.Actions.OnCellOpened();
             });
 
             return true;
@@ -50,6 +51,7 @@ public class BotCellAction : IBotCellAction
             taken.ToFree();
             board.Revealer.Reveal(target);
             board.OnUpdated();
+            _context.Bot.Actions.OnCellOpened();
         });
 
         return true;
