@@ -29,20 +29,26 @@ namespace GamePlay.Players
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
-            _mana.Current.View(lifetime, current => {
-                var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(),
-                    _mana.Max.Value);
-                points = points.Reverse().ToList();
+            _mana.Current.View(lifetime, _ => Recalculate());
+            _mana.Max.View(lifetime, _ => Recalculate());
+        }
 
-                LayoutPoints(points);
+        private void Recalculate()
+        {
+            var current = _mana.Current.Value;
+            var max = _mana.Max.Value;
 
-                for (int i = 0; i < points.Count; i++) {
-                    if (i < current)
-                        points[i].SetFull();
-                    else
-                        points[i].SetEmpty();
-                }
-            });
+            var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(), max);
+            points = points.Reverse().ToList();
+
+            LayoutPoints(points);
+
+            for (int i = 0; i < points.Count; i++) {
+                if (i < current)
+                    points[i].SetFull();
+                else
+                    points[i].SetEmpty();
+            }
         }
 
         private void LayoutPoints(IReadOnlyList<PlayerManaPointView> points)
