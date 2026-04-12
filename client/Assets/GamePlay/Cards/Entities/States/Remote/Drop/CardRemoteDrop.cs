@@ -30,7 +30,7 @@ namespace GamePlay.Cards.Drop
         {
             var startPosition = _transform.Position;
             var direction = (_transform.Rotation + 90f).ToAngle().ToVector2();
-            var targetPosition = startPosition + direction * _options.MoveDistance * -1f;
+            var targetPosition = startPosition + direction * _options.MoveDistance;
 
             var timer = 0f;
 
