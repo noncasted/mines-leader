@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Animations
 {
     [InlineEditor]
+    [CreateAssetMenu(fileName = "AnimatorLayer", menuName = "Common/Animator/ForwardAnimation")]
     public class ForwardAnimationAsset : ScriptableObject
     {
         [SerializeField] private Sprite[] _sprites;

@@ -29,9 +29,16 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ChaosFog>
         {
+            public Snapshot(ICardRandomAnimator randomAnimator)
+            {
+                _randomAnimator = randomAnimator;
+            }
+
+            private readonly ICardRandomAnimator _randomAnimator;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosFog payload)
             {
-                return UniTask.CompletedTask;
+                return _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
             }
         }
     }

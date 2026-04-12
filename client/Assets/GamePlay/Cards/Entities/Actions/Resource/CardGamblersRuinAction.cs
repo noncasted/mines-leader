@@ -29,9 +29,16 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.GamblersRuin>
         {
+            public Snapshot(ICardRandomAnimator randomAnimator)
+            {
+                _randomAnimator = randomAnimator;
+            }
+
+            private readonly ICardRandomAnimator _randomAnimator;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.GamblersRuin payload)
             {
-                return UniTask.CompletedTask;
+                return _randomAnimator.PlayCoinFlip(lifetime, payload.IsHeads);
             }
         }
     }
