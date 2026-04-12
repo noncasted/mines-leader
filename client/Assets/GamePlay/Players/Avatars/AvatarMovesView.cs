@@ -49,13 +49,13 @@ namespace GamePlay.Players
                 {
                     if (_points.Count > max)
                     {
-                        var delta = max - _points.Count;
+                        var delta = _points.Count - max;
 
                         for (var i = 0; i < delta; i++)
                         {
-                            var point = _points[_points.Count - i - 1];
+                            var point = _points[_points.Count - 1];
                             Destroy(point.gameObject);
-                            _points.Remove(point);
+                            _points.RemoveAt(_points.Count - 1);
                         }
                     }
                     else if (_points.Count < max)
