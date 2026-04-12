@@ -36,8 +36,9 @@ public class ChangeMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatC
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMana request)
     {
-        context.Player.Mana.SetMax(request.Value);
-        context.Player.Mana.Restore();
+        var mana = context.Player.Mana;
+        mana.SetMax(mana.Max + request.Value);
+        mana.Restore();
         return EmptyResponse.Ok;
     }
 }
@@ -52,12 +53,91 @@ public class ChangeHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatCo
     }
 }
 
+public class ChangeMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxHealth>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxHealth request)
+    {
+        var health = context.Player.Health;
+        health.SetMax(health.Max + request.Value);
+        health.SetCurrent(health.Max);
+        return EmptyResponse.Ok;
+    }
+}
+
 public class ChangeMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMoves>(utils)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMoves request)
     {
         var current = context.Player.Moves.Left;
         context.Player.Moves.SetCurrent(current + request.Value);
+        return EmptyResponse.Ok;
+    }
+}
+
+public class ChangeMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxMoves>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMoves request)
+    {
+        var moves = context.Player.Moves;
+        moves.SetMax(moves.Max + request.Value);
+        moves.Restore();
+        return EmptyResponse.Ok;
+    }
+}
+
+public class SetMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxMana>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxMana request)
+    {
+        context.Player.Mana.SetMax(request.Value);
+        context.Player.Mana.Restore();
+        return EmptyResponse.Ok;
+    }
+}
+
+public class SetMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxHealth>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxHealth request)
+    {
+        context.Player.Health.SetMax(request.Value);
+        context.Player.Health.SetCurrent(request.Value);
+        return EmptyResponse.Ok;
+    }
+}
+
+public class SetMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxMoves>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxMoves request)
+    {
+        context.Player.Moves.SetMax(request.Value);
+        context.Player.Moves.Restore();
+        return EmptyResponse.Ok;
+    }
+}
+
+public class RestoreManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreMana>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreMana request)
+    {
+        context.Player.Mana.Restore();
+        return EmptyResponse.Ok;
+    }
+}
+
+public class RestoreHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreHealth>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreHealth request)
+    {
+        context.Player.Health.SetCurrent(context.Player.Health.Max);
+        return EmptyResponse.Ok;
+    }
+}
+
+public class RestoreMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreMoves>(utils)
+{
+    protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreMoves request)
+    {
+        context.Player.Moves.Restore();
         return EmptyResponse.Ok;
     }
 }

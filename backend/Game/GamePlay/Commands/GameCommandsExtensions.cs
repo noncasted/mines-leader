@@ -24,7 +24,15 @@ public static class GameCommandsExtensions
         services.AddSingleton<IResponseCommand, ChangeManaCheat>();
         services.AddSingleton<IResponseCommand, ChangeMaxManaCheat>();
         services.AddSingleton<IResponseCommand, ChangeHealthCheat>();
+        services.AddSingleton<IResponseCommand, ChangeMaxHealthCheat>();
         services.AddSingleton<IResponseCommand, ChangeMovesCheat>();
+        services.AddSingleton<IResponseCommand, ChangeMaxMovesCheat>();
+        services.AddSingleton<IResponseCommand, SetMaxManaCheat>();
+        services.AddSingleton<IResponseCommand, SetMaxHealthCheat>();
+        services.AddSingleton<IResponseCommand, SetMaxMovesCheat>();
+        services.AddSingleton<IResponseCommand, RestoreManaCheat>();
+        services.AddSingleton<IResponseCommand, RestoreHealthCheat>();
+        services.AddSingleton<IResponseCommand, RestoreMovesCheat>();
         services.AddSingleton<IResponseCommand, EndMatchCheat>();
 
         return services;
