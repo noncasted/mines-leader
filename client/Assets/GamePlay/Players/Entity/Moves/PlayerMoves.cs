@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using GamePlay.Loop;
+using Internal;
 using Network;
 using Shared;
 
@@ -41,9 +42,9 @@ namespace GamePlay.Players
 
     public static class PlayerTurnsExtensions
     {
-        public static bool IsAvailable(this IPlayerMoves moves)
+        public static bool IsAvailable(this IPlayerMoves moves, IGameContext gameContext)
         {
-            return moves.IsTurn.Value == true && moves.Current.Value > 0;
+            return gameContext.IsGameStarted && moves.IsTurn.Value == true && moves.Current.Value > 0;
         }
     }
 }

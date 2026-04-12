@@ -53,7 +53,7 @@ namespace GamePlay.Boards
 
             _lastClickTime = 0f;
 
-            if (_gameContext.Self.Moves.IsAvailable() == false)
+            if (_gameContext.Self.Moves.IsAvailable(_gameContext) == false)
                 return;
 
             var cell = _selection.Selected.Value;

@@ -26,6 +26,7 @@ namespace GamePlay.Cards
             ICardDefinition definition,
             ICardConfig config)
         {
+            _gameContext = gameContext;
             _mana = mana;
             _gameRound = gameRound;
             _moves = moves;
@@ -42,6 +43,7 @@ namespace GamePlay.Cards
             };
         }
 
+        private readonly IGameContext _gameContext;
         private readonly IPlayerMana _mana;
         private readonly IGameRound _gameRound;
         private readonly IPlayerMoves _moves;
@@ -76,7 +78,7 @@ namespace GamePlay.Cards
                 return;
             }
 
-            if (_moves.IsAvailable() == false)
+            if (_moves.IsAvailable(_gameContext) == false)
             {
                 _isAvailable.Set(false);
                 return;

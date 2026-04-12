@@ -12,6 +12,7 @@ namespace GamePlay
             builder.AddSnapshotHandler<CardAddSnapshotHandler, PlayerSnapshotRecord.CardAdd>();
             builder.AddSnapshotHandler<CardRemoveSnapshotHandler, PlayerSnapshotRecord.CardRemove>();
             builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.CardUse>();
+            builder.AddSnapshotHandler<GameStartedSnapshotHandler, GameStartedRecord>();
 
             return builder;
         }
