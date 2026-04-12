@@ -5,23 +5,16 @@ namespace Game.GamePlay;
 /// <summary>
 /// Useless card injected by SabotageDeck. Always fails when played and cannot produce any effect.
 /// </summary>
-public class Dud : ICard
+public class Dud : ICard<CardUsePayload.Dud>
 {
-    public Dud(IPlayer owner)
-    {
-        _owner = owner;
-    }
-
-    private readonly IPlayer _owner;
-
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Dud payload)
     {
         return new CardUseResult
         {
             Result = EmptyResponse.Fail("Dud card cannot be used"),
             ActionData = new CardActionSnapshot.Dud()
             {
-                TargetPlayer = _owner.User.Id
+                TargetPlayer = invoker.User.Id
             }
         };
     }

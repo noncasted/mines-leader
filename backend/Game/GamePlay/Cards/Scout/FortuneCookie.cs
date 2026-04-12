@@ -1,64 +1,52 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Reveals a random number of hidden mines on the owner's field as temporary highlights without flagging them.
 /// </summary>
-public class FortuneCookie : ICard
-{
-    public FortuneCookie(
-        IPlayer owner,
-        IBoard board,
-        CardConfigOptions.FortuneCookie config,
-        IGameRandom gameRandom)
-    {
-        _owner = owner;
-        _board = board;
-        _config = config;
+public class FortuneCookie : ICard<CardUsePayload.FortuneCookie> {
+    public FortuneCookie(ICardConfigs configs, IGameRandom gameRandom) {
+        _configs = configs;
         _gameRandom = gameRandom;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _board;
-    private readonly CardConfigOptions.FortuneCookie _config;
+    private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use()
-    {
-        var mineCells = _board.Cells.Values
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneCookie payload) {
+        var board = invoker.Board;
+
+        var mineCells = board.Cells.Values
             .Where(c => c.Status == CellStatus.Taken)
             .Select(c => c.ToTaken())
             .Where(c => c.HasMine)
             .ToList();
 
-        if (mineCells.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (mineCells.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No hidden mines on board"),
                 ActionData = null
             };
         }
 
-        var count = _gameRandom.Range(_owner, _config.MinMines, _config.MaxMines);
+        var config = _configs.Value.FortuneCookie_Normal;
+        var count = _gameRandom.Range(invoker, config.MinMines, config.MaxMines);
         count = Math.Min(count, mineCells.Count);
 
         var revealed = new List<Position>(count);
 
-        for (var i = 0; i < count; i++)
-        {
-            var index = _gameRandom.Index(_owner, mineCells.Count);
+        for (var i = 0; i < count; i++) {
+            var index = _gameRandom.Index(invoker, mineCells.Count);
             revealed.Add(mineCells[index].Position);
             mineCells.RemoveAt(index);
         }
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.FortuneCookie()
-            {
-                TargetPlayer = _owner.User.Id,
+            ActionData = new CardActionSnapshot.FortuneCookie() {
+                TargetPlayer = invoker.User.Id,
                 RevealedMines = revealed
             }
         };

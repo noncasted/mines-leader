@@ -1,29 +1,28 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Clears a diamond area of random size, flagging mines and revealing safe cells within the pattern.
 /// </summary>
-public class ChaosDiamond : ICard {
-    public ChaosDiamond(IBoard target, CardConfigOptions.ChaosDiamond config, CardUsePayload.ChaosDiamond payload, IPlayer owner, IGameRandom gameRandom) {
-        _target = target;
-        _config = config;
-        _payload = payload;
-        _owner = owner;
+public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond> {
+    public ChaosDiamond(ICardConfigs configs, IGameRandom gameRandom) {
+        _configs = configs;
         _gameRandom = gameRandom;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.ChaosDiamond _config;
-    private readonly CardUsePayload.ChaosDiamond _payload;
-    private readonly IPlayer _owner;
+    private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use() {
-        var actualSize = _gameRandom.Range(_owner, _config.MinSize, _config.MaxSize);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChaosDiamond payload) {
+        var board = invoker.Board;
+        board.EnsureGenerated(payload.Position);
+
+        var config = _configs.Value.ChaosDiamond_Normal;
+        var actualSize = _gameRandom.Range(invoker, config.MinSize, config.MaxSize);
         var pattern = PatternShapes.Rhombus(actualSize);
-        var selected = pattern.SelectTaken(_target, _payload.Position);
+        var selected = pattern.SelectTaken(board, payload.Position);
 
         if (selected.Count == 0) {
             return new CardUseResult {
@@ -37,14 +36,14 @@ public class ChaosDiamond : ICard {
                 cell.SetFlag();
             } else {
                 cell.ToFree();
-                _target.Revealer.Reveal(cell.Position);
+                board.Revealer.Reveal(cell.Position);
             }
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.ChaosDiamond() {
-                TargetPlayer = _target.OwnerId,
+                TargetPlayer = board.OwnerId,
                 ActualSize = actualSize
             }
         };

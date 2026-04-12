@@ -11,18 +11,15 @@ public class OpponentFlagEraseStrategy : IBotCardStrategy
 {
     public OpponentFlagEraseStrategy(
         IBotContext context,
-        ICardFactory cardFactory,
         BotBoardUtils boardUtils,
         IBotCommandUtils commandUtils)
     {
         _context = context;
-        _cardFactory = cardFactory;
         _boardUtils = boardUtils;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly ICardFactory _cardFactory;
     private readonly BotBoardUtils _boardUtils;
     private readonly IBotCommandUtils _commandUtils;
 

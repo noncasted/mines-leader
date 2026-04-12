@@ -1,36 +1,28 @@
-﻿using Shared;
+using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class ErosionDozer : ICard
-{
-    public ErosionDozer(
-        IBoard target,
-        CardConfigOptions.ErosionDozer config,
-        CardUsePayload.ErosionDozer payload)
-    {
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class ErosionDozer : ICard<CardUsePayload.ErosionDozer> {
+    public ErosionDozer(ICardConfigs configs) {
+        _configs = configs;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.ErosionDozer _config;
-    private readonly CardUsePayload.ErosionDozer _payload;
+    private readonly ICardConfigs _configs;
 
-    public CardUseResult Use()
-    {
-        var size = _config.Size;
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ErosionDozer payload) {
+        var board = invoker.Board;
+        board.EnsureGenerated(payload.Position);
 
-        var selected = _target.GetClosedShape(_payload.Position);
-        var ordered = selected.OrderBy(t => t.Position.DistanceTo(_payload.Position));
+        var size = _configs.Value.ErosionDozer_Normal.Size;
+
+        var selected = board.GetClosedShape(payload.Position);
+        var ordered = selected.OrderBy(t => t.Position.DistanceTo(payload.Position));
 
         var limited = ordered.Take(size).ToList();
 
-        if (limited.Count == 0)
-        {
-            return new CardUseResult
-            {
+        if (limited.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No taken cells in the pattern"),
                 ActionData = null
             };
@@ -40,14 +32,12 @@ public class ErosionDozer : ICard
             cell.ToFree();
 
         foreach (var cell in limited)
-            _target.Revealer.Reveal(cell.Position);
+            board.Revealer.Reveal(cell.Position);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ErosionDozer()
-            {
-                TargetPlayer = _target.OwnerId
+            ActionData = new CardActionSnapshot.ErosionDozer() {
+                TargetPlayer = board.OwnerId
             }
         };
     }

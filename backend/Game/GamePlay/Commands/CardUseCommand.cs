@@ -1,10 +1,10 @@
-﻿using Cluster.Configs;
+using Cluster.Configs;
 using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.GamePlay;
 
-public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
+public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs, MoveSnapshotAccessor snapshotAccessor)
     : GameCommand<SharedGameAction.CardUse>(utils)
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
@@ -18,15 +18,17 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs)
         Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
             context.Player.User.Id, handCard.Type);
 
-        var card = Utils.CardFactory.Create(player, context.Snapshot, request.Payload);
+        snapshotAccessor.Set(context.Snapshot, request.CardId);
 
-        var use = card.Use();
+        var use = Utils.ServiceProvider.Use(player, request.Payload);
 
         if (use.Result.HasError == true)
             return use.Result;
 
         player.Hand.Remove(request.CardId);
-        context.Snapshot.RecordCardUse(player.User.Id, request.CardId, use.ActionData!);
+
+        if (use.ActionData != null)
+            context.Snapshot.RecordCardUse(player.User.Id, request.CardId, use.ActionData);
 
         foreach (var (_, board) in Utils.GameContext.Boards)
             board.OnUpdated();

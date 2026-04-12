@@ -1,41 +1,32 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Swaps a diamond area between the owner's and opponent's fields, transferring all cell states.
 /// </summary>
-public class DimensionRift : ICard
-{
-    public DimensionRift(
-        IPlayer owner,
-        IBoard ownerBoard,
-        IBoard opponentBoard,
-        CardConfigOptions.DimensionRift config,
-        CardUsePayload.DimensionRift payload)
-    {
-        _owner = owner;
-        _ownerBoard = ownerBoard;
-        _opponentBoard = opponentBoard;
-        _config = config;
-        _payload = payload;
+public class DimensionRift : ICard<CardUsePayload.DimensionRift> {
+    public DimensionRift(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _ownerBoard;
-    private readonly IBoard _opponentBoard;
-    private readonly CardConfigOptions.DimensionRift _config;
-    private readonly CardUsePayload.DimensionRift _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.DimensionRift payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var opponentBoard = opponent.Board;
+        var ownerBoard = invoker.Board;
+        opponentBoard.EnsureGenerated(payload.Position);
+        ownerBoard.EnsureGenerated(payload.Position);
+
         // TODO: Full implementation requires complete cell state swap logic.
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.DimensionRift()
-            {
-                TargetPlayer = _opponentBoard.OwnerId
+            ActionData = new CardActionSnapshot.DimensionRift() {
+                TargetPlayer = opponentBoard.OwnerId
             }
         };
     }

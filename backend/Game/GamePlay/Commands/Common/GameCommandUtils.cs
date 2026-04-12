@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Game.GamePlay;
 
@@ -7,20 +7,20 @@ public class GameCommandUtils
     public GameCommandUtils(
         IGameContext gameContext,
         IGameRound gameRound,
-        ICardFactory cardFactory,
+        IServiceProvider serviceProvider,
         ISnapshotSender snapshotSender,
         ILogger<GameCommandUtils> logger)
     {
         GameContext = gameContext;
         GameRound = gameRound;
-        CardFactory = cardFactory;
+        ServiceProvider = serviceProvider;
         SnapshotSender = snapshotSender;
         Logger = logger;
     }
 
     public IGameContext GameContext { get; }
     public IGameRound GameRound { get; }
-    public ICardFactory CardFactory { get; }
+    public IServiceProvider ServiceProvider { get; }
     public ISnapshotSender SnapshotSender { get; }
     public ILogger Logger { get; }
 }

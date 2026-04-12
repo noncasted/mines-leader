@@ -1,44 +1,43 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Discards a chosen card from hand to the stash, then draws cards from the deck.
 /// </summary>
-public class Recycler : ICard {
-    public Recycler(IPlayer owner, MoveSnapshot snapshot, CardConfigOptions.Recycler config, CardUsePayload.Recycler payload) {
-        _owner = owner;
-        _snapshot = snapshot;
-        _config = config;
-        _payload = payload;
+public class Recycler : ICard<CardUsePayload.Recycler> {
+    public Recycler(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor) {
+        _configs = configs;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.Recycler _config;
-    private readonly CardUsePayload.Recycler _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use() {
-        var discardCard = _owner.Hand.Entries.FirstOrDefault(c => c.Id == _payload.DiscardCardId);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Recycler payload) {
+        var config = _configs.Value.Recycler_Normal;
+
+        var discardCard = invoker.Hand.Entries.FirstOrDefault(c => c.Id == payload.DiscardCardId);
         if (discardCard != null) {
-            _owner.Hand.Remove(discardCard.Id);
-            _owner.Stash.Add(discardCard.Type);
-            _snapshot.RecordCardRemove(_owner.User.Id, discardCard.Id);
+            invoker.Hand.Remove(discardCard.Id);
+            invoker.Stash.Add(discardCard.Type);
+            _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, discardCard.Id);
         }
 
-        for (var i = 0; i < _config.DrawCount; i++) {
-            if (_owner.Deck.Count == 0)
+        for (var i = 0; i < config.DrawCount; i++) {
+            if (invoker.Deck.Count == 0)
                 break;
 
-            var card = _owner.Deck.DrawCard();
-            var activeCard = _owner.Hand.Add(card);
-            _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+            var card = invoker.Deck.DrawCard();
+            var activeCard = invoker.Hand.Add(card);
+            _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Recycler() {
-                TargetPlayer = _owner.User.Id
+                TargetPlayer = invoker.User.Id
             }
         };
     }

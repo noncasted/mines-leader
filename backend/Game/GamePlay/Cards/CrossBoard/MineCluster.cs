@@ -1,26 +1,28 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Plants mines in a cross-shaped pattern on free cells of the opponent's field.
 /// </summary>
-public class MineCluster : ICard {
-    public MineCluster(IPlayer owner, IBoard target, CardConfigOptions.MineCluster config, CardUsePayload.MineCluster payload) {
-        _owner = owner;
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class MineCluster : ICard<CardUsePayload.MineCluster> {
+    public MineCluster(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.MineCluster _config;
-    private readonly CardUsePayload.MineCluster _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use() {
-        var pattern = PatternShapes.Cross(_config.Size);
-        var selected = pattern.SelectFree(_target, _payload.Position);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.MineCluster payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
+
+        var config = _configs.Value.MineCluster_Normal;
+        var pattern = PatternShapes.Cross(config.Size);
+        var selected = pattern.SelectFree(board, payload.Position);
 
         if (selected.Count == 0) {
             return new CardUseResult {
@@ -38,7 +40,7 @@ public class MineCluster : ICard {
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.MineCluster() {
-                TargetPlayer = _target.OwnerId
+                TargetPlayer = board.OwnerId
             }
         };
     }

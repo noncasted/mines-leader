@@ -1,38 +1,33 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Freezes cells in a diamond area on the opponent's field, preventing them from being opened or flagged.
 /// </summary>
-public class Frost : ICard
-{
-    public Frost(
-        IBoard target,
-        CardConfigOptions.Frost config,
-        CardUsePayload.Frost payload,
-        IRoundActionService roundActionService)
-    {
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class Frost : ICard<CardUsePayload.Frost> {
+    public Frost(ICardConfigs configs, IRoundActionService roundActionService, IGameContext gameContext) {
+        _configs = configs;
         _roundActionService = roundActionService;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.Frost _config;
-    private readonly CardUsePayload.Frost _payload;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use()
-    {
-        var pattern = PatternShapes.Rhombus(_config.Size);
-        var selected = pattern.SelectAll(_target, _payload.Position);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Frost payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
 
-        if (selected.Count == 0)
-        {
-            return new CardUseResult
-            {
+        var config = _configs.Value.Frost_Normal;
+        var pattern = PatternShapes.Rhombus(config.Size);
+        var selected = pattern.SelectAll(board, payload.Position);
+
+        if (selected.Count == 0) {
+            return new CardUseResult {
                 Result = EmptyResponse.Fail("No cells in the pattern"),
                 ActionData = null
             };
@@ -42,22 +37,19 @@ public class Frost : ICard
         var affectedCells = new List<ICell>();
         var frozenPositions = new List<Position>();
 
-        foreach (var cell in selected)
-        {
+        foreach (var cell in selected) {
             var effect = new FrostEffect { Id = effectId };
             cell.AddEffect(effect);
             affectedCells.Add(cell);
             frozenPositions.Add(cell.Position);
         }
 
-        _roundActionService.Schedule(new FrostDisposeAction(effectId, affectedCells), _config.Duration);
+        _roundActionService.Schedule(new FrostDisposeAction(effectId, affectedCells), config.Duration);
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Frost()
-            {
-                TargetPlayer = _target.OwnerId,
+            ActionData = new CardActionSnapshot.Frost() {
+                TargetPlayer = board.OwnerId,
                 FrozenCells = frozenPositions
             }
         };

@@ -1,77 +1,63 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Flips a coin: heads draws cards and grants temporary mana, tails discards random cards from hand.
 /// </summary>
-public class GamblersRuin : ICard {
-    public GamblersRuin(IPlayer owner, MoveSnapshot snapshot, CardConfigOptions.GamblersRuin config, IRoundActionService roundActionService, IGameRandom gameRandom) {
-        _owner = owner;
-        _snapshot = snapshot;
-        _config = config;
+public class GamblersRuin : ICard<CardUsePayload.GamblersRuin> {
+    public GamblersRuin(ICardConfigs configs, IRoundActionService roundActionService, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor) {
+        _configs = configs;
         _roundActionService = roundActionService;
         _gameRandom = gameRandom;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.GamblersRuin _config;
+    private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
     private readonly IGameRandom _gameRandom;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use() {
-        var isHeads = _gameRandom.FlipCoin(_owner);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.GamblersRuin payload) {
+        var config = _configs.Value.GamblersRuin_Normal;
+        var isHeads = _gameRandom.FlipCoin(invoker);
+
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.GamblersRuin() {
+            TargetPlayer = invoker.User.Id,
+            IsHeads = isHeads
+        });
 
         if (isHeads) {
-            for (var i = 0; i < _config.WinDraw; i++) {
-                if (_owner.Deck.Count == 0)
+            for (var i = 0; i < config.WinDraw; i++) {
+                if (invoker.Deck.Count == 0)
                     break;
 
-                var card = _owner.Deck.DrawCard();
-                var activeCard = _owner.Hand.Add(card);
-                _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+                var card = invoker.Deck.DrawCard();
+                var activeCard = invoker.Hand.Add(card);
+                _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
             }
 
-            var manaGain = _config.WinMana;
-            _owner.Modifiers.Set(PlayerModifier.AdditionalMana,
-                _owner.Modifiers.Get(PlayerModifier.AdditionalMana) + manaGain);
-            _owner.Mana.SetCurrent(_owner.Mana.Current + manaGain);
+            var manaGain = config.WinMana;
+            invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, manaGain);
+            invoker.Mana.SetCurrent(invoker.Mana.Current + manaGain);
 
-            var disposeAction = new GamblersRuinDisposeAction(_owner, manaGain);
-            _roundActionService.Schedule(disposeAction, 1);
+            _roundActionService.Schedule(
+                new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, manaGain), 1);
         } else {
-            var toDiscard = Math.Min(_config.LoseDiscard, _owner.Hand.Entries.Count);
+            var toDiscard = Math.Min(config.LoseDiscard, invoker.Hand.Entries.Count);
             for (var i = 0; i < toDiscard; i++) {
-                var index = _gameRandom.Index(_owner, _owner.Hand.Entries.Count);
-                var entry = _owner.Hand.Entries[index];
-                _owner.Hand.Remove(entry.Id);
-                _owner.Stash.Add(entry.Type);
-                _snapshot.RecordCardRemove(_owner.User.Id, entry.Id);
+                var index = _gameRandom.Index(invoker, invoker.Hand.Entries.Count);
+                var entry = invoker.Hand.Entries[index];
+                invoker.Hand.Remove(entry.Id);
+                invoker.Stash.Add(entry.Type);
+                _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
             }
         }
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.GamblersRuin() {
-                TargetPlayer = _owner.User.Id,
-                IsHeads = isHeads
-            }
+            ActionData = null
         };
-    }
-}
-
-public class GamblersRuinDisposeAction : IRoundAction {
-    public GamblersRuinDisposeAction(IPlayer owner, int manaGain) {
-        _owner = owner;
-        _manaGain = manaGain;
-    }
-
-    private readonly IPlayer _owner;
-    private readonly int _manaGain;
-
-    public void Execute() {
-        var current = _owner.Modifiers.Get(PlayerModifier.AdditionalMana);
-        _owner.Modifiers.Set(PlayerModifier.AdditionalMana, Math.Max(0, current - _manaGain));
     }
 }

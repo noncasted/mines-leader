@@ -1,23 +1,19 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
-public class GraveDigger : ICard
+public class GraveDigger : ICard<CardUsePayload.Gravedigger>
 {
-    public GraveDigger(
-        IPlayer owner,
-        MoveSnapshot snapshot)
+    public GraveDigger(IMoveSnapshotAccessor snapshotAccessor)
     {
-        _owner = owner;
-        _snapshot = snapshot;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Gravedigger payload)
     {
-        if (_owner.Stash.Count == 0)
+        if (invoker.Stash.Count == 0)
         {
             return new CardUseResult
             {
@@ -26,17 +22,17 @@ public class GraveDigger : ICard
             };
         }
 
-        var card = _owner.Stash.Pick();
+        var card = invoker.Stash.Pick();
 
-        var activeCard = _owner.Hand.Add(card);
-        _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+        var activeCard = invoker.Hand.Add(card);
+        _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
 
         return new CardUseResult
         {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Gravedigger()
             {
-                TargetPlayer = _owner.User.Id
+                TargetPlayer = invoker.User.Id
             }
         };
     }

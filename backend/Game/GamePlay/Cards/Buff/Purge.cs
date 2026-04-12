@@ -2,31 +2,19 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class Purge : ICard
-{
-    public Purge(IPlayer owner)
-    {
-        _owner = owner;
-    }
-
-    private readonly IPlayer _owner;
-
-    public CardUseResult Use()
-    {
-        foreach (var cell in _owner.Board.Cells.Values)
-        {
+public class Purge : ICard<CardUsePayload.Purge> {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Purge payload) {
+        foreach (var cell in invoker.Board.Cells.Values) {
             var effects = cell.Effects.ToList();
 
             foreach (var effect in effects)
                 cell.RemoveEffect(effect.Id);
         }
 
-        return new CardUseResult
-        {
+        return new CardUseResult {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Purge
-            {
-                TargetPlayer = _owner.User.Id
+            ActionData = new CardActionSnapshot.Purge {
+                TargetPlayer = invoker.User.Id
             }
         };
     }

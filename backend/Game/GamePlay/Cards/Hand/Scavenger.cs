@@ -1,32 +1,31 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class Scavenger : ICard
+public class Scavenger : ICard<CardUsePayload.Scavenger>
 {
-    public Scavenger(IPlayer owner, MoveSnapshot snapshot, CardConfigOptions.Scavenger config)
+    public Scavenger(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
     {
-        _owner = owner;
-        _snapshot = snapshot;
-        _config = config;
+        _configs = configs;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.Scavenger _config;
+    private readonly ICardConfigs _configs;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Scavenger payload)
     {
-        var drawCount = _config.DrawCount;
+        var drawCount = _configs.Value.Scavenger_Normal.DrawCount;
 
         for (var i = 0; i < drawCount; i++)
         {
-            if (_owner.Deck.Count == 0)
+            if (invoker.Deck.Count == 0)
                 break;
 
-            var card = _owner.Deck.DrawCard();
-            var activeCard = _owner.Hand.Add(card);
-            _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+            var card = invoker.Deck.DrawCard();
+            var activeCard = invoker.Hand.Add(card);
+            _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
         }
 
         return new CardUseResult
@@ -34,7 +33,7 @@ public class Scavenger : ICard
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Scavenger()
             {
-                TargetPlayer = _owner.User.Id
+                TargetPlayer = invoker.User.Id
             }
         };
     }

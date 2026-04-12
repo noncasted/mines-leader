@@ -1,29 +1,31 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Plants mines along the longest available line on free cells of the opponent's field.
 /// </summary>
-public class CarpetBomb : ICard {
-    public CarpetBomb(IPlayer owner, IBoard target, CardConfigOptions.CarpetBomb config, CardUsePayload.CarpetBomb payload) {
-        _owner = owner;
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class CarpetBomb : ICard<CardUsePayload.CarpetBomb> {
+    public CarpetBomb(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IPlayer _owner;
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.CarpetBomb _config;
-    private readonly CardUsePayload.CarpetBomb _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use() {
-        var horizontalPattern = PatternShapes.Line(_config.Length, horizontal: true);
-        var verticalPattern = PatternShapes.Line(_config.Length, horizontal: false);
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.CarpetBomb payload) {
+        var opponent = _gameContext.GetOpponent(invoker);
+        var board = opponent.Board;
+        board.EnsureGenerated(payload.Position);
 
-        var horizontalCells = horizontalPattern.SelectFree(_target, _payload.Position);
-        var verticalCells = verticalPattern.SelectFree(_target, _payload.Position);
+        var config = _configs.Value.CarpetBomb_Normal;
+        var horizontalPattern = PatternShapes.Line(config.Length, horizontal: true);
+        var verticalPattern = PatternShapes.Line(config.Length, horizontal: false);
+
+        var horizontalCells = horizontalPattern.SelectFree(board, payload.Position);
+        var verticalCells = verticalPattern.SelectFree(board, payload.Position);
 
         var selected = horizontalCells.Count >= verticalCells.Count ? horizontalCells : verticalCells;
 
@@ -43,7 +45,7 @@ public class CarpetBomb : ICard {
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.CarpetBomb() {
-                TargetPlayer = _target.OwnerId
+                TargetPlayer = board.OwnerId
             }
         };
     }

@@ -1,32 +1,25 @@
 using Shared;
+using Cluster.Configs;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Peeks the top cards from the deck; the player keeps one chosen card and the rest return to the deck.
 /// </summary>
-public class Salvage : ICard
+public class Salvage : ICard<CardUsePayload.Salvage>
 {
-    public Salvage(
-        IPlayer owner,
-        MoveSnapshot snapshot,
-        CardConfigOptions.Salvage config,
-        CardUsePayload.Salvage payload)
+    public Salvage(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
     {
-        _owner = owner;
-        _snapshot = snapshot;
-        _config = config;
-        _payload = payload;
+        _configs = configs;
+        _snapshotAccessor = snapshotAccessor;
     }
 
-    private readonly IPlayer _owner;
-    private readonly MoveSnapshot _snapshot;
-    private readonly CardConfigOptions.Salvage _config;
-    private readonly CardUsePayload.Salvage _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use()
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.Salvage payload)
     {
-        if (_owner.Deck.Count == 0)
+        if (invoker.Deck.Count == 0)
         {
             return new CardUseResult
             {
@@ -35,26 +28,27 @@ public class Salvage : ICard
             };
         }
 
-        var peekCount = Math.Min(_config.PeekCount, _owner.Deck.Count);
+        var config = _configs.Value.Salvage_Normal;
+        var peekCount = Math.Min(config.PeekCount, invoker.Deck.Count);
         var peeked = new List<CardType>(peekCount);
 
         for (var i = 0; i < peekCount; i++)
         {
-            peeked.Add(_owner.Deck.DrawCard());
+            peeked.Add(invoker.Deck.DrawCard());
         }
 
-        var chosenIndex = Math.Clamp(_payload.ChosenIndex, 0, peeked.Count - 1);
+        var chosenIndex = Math.Clamp(payload.ChosenIndex, 0, peeked.Count - 1);
 
         var chosenCard = peeked[chosenIndex];
-        var activeCard = _owner.Hand.Add(chosenCard);
-        _snapshot.RecordCardAdd(_owner.User.Id, activeCard.Id, activeCard.Type);
+        var activeCard = invoker.Hand.Add(chosenCard);
+        _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
 
         for (var i = 0; i < peeked.Count; i++)
         {
             if (i == chosenIndex)
                 continue;
 
-            _owner.Deck.AddCard(peeked[i]);
+            invoker.Deck.AddCard(peeked[i]);
         }
 
         return new CardUseResult
@@ -62,7 +56,7 @@ public class Salvage : ICard
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Salvage()
             {
-                TargetPlayer = _owner.User.Id,
+                TargetPlayer = invoker.User.Id,
                 PeekedCards = peeked,
                 ChosenIndex = chosenIndex
             }
