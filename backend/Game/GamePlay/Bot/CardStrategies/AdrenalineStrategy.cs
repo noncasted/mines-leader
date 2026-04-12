@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class AdrenalineStrategy : IBotCardStrategy {
-    public AdrenalineStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class AdrenalineStrategy : IBotCardStrategy
+{
+    public AdrenalineStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class AdrenalineStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Adrenaline];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
         var movesLeft = bot.Moves.Left;
 
@@ -26,10 +29,12 @@ public class AdrenalineStrategy : IBotCardStrategy {
         return 4f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var bot = _context.Bot;
 
-        var payload = new CardUsePayload.Adrenaline {
+        var payload = new CardUsePayload.Adrenaline
+        {
             Type = cardType
         };
 

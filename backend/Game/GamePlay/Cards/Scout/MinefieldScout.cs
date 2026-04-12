@@ -3,19 +3,24 @@ using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class MinefieldScout : ICard<CardUsePayload.MinefieldScout> {
-    public MinefieldScout(ICardConfigs configs) {
+public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
+{
+    public MinefieldScout(ICardConfigs configs)
+    {
         _configs = configs;
     }
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.MinefieldScout payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.MinefieldScout payload)
+    {
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
-        if (board.Cells.Count == 0) {
-            return new CardUseResult {
+        if (board.Cells.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("TargetId board has no cells"),
                 ActionData = null
             };
@@ -30,8 +35,10 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout> {
 
         var selected = horizontalCells.Count >= verticalCells.Count ? horizontalCells : verticalCells;
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No cells in the line pattern"),
                 ActionData = null
             };
@@ -39,10 +46,14 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout> {
 
         var revealed = new List<Position>();
 
-        foreach (var cell in selected) {
-            if (cell.HasMine) {
+        foreach (var cell in selected)
+        {
+            if (cell.HasMine)
+            {
                 cell.SetFlag();
-            } else {
+            }
+            else
+            {
                 cell.ToFree();
                 board.Revealer.Reveal(cell.Position);
             }
@@ -50,9 +61,11 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout> {
             revealed.Add(cell.Position);
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.MinefieldScout() {
+            ActionData = new CardActionSnapshot.MinefieldScout()
+            {
                 TargetPlayer = board.OwnerId,
                 RevealedCells = revealed
             }

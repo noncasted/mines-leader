@@ -53,7 +53,6 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
         try
         {
             Set(value);
-            _logger.LogDebug("[DynamicState] Set {Type}", typeof(T).Name);
             await _messaging.PublishChannel(new DynamicStateChannelId<T>(), value);
         }
         catch (Exception e)
@@ -73,7 +72,6 @@ public class DynamicState<T> : ViewableProperty<T>, ILocalSetupCompleted, IDynam
     private void OnUpdate(T value)
     {
         Set(value);
-        _logger.LogDebug("[DynamicState] Received {Type}", typeof(T).Name);
     }
 }
 

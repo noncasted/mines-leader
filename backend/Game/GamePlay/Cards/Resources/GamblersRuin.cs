@@ -6,8 +6,14 @@ namespace Game.GamePlay;
 /// <summary>
 /// Flips a coin: heads draws cards and grants temporary mana, tails discards random cards from hand.
 /// </summary>
-public class GamblersRuin : ICard<CardUsePayload.GamblersRuin> {
-    public GamblersRuin(ICardConfigs configs, IRoundActionService roundActionService, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor) {
+public class GamblersRuin : ICard<CardUsePayload.GamblersRuin>
+{
+    public GamblersRuin(
+        ICardConfigs configs,
+        IRoundActionService roundActionService,
+        IGameRandom gameRandom,
+        IMoveSnapshotAccessor snapshotAccessor)
+    {
         _configs = configs;
         _roundActionService = roundActionService;
         _gameRandom = gameRandom;
@@ -19,17 +25,22 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin> {
     private readonly IGameRandom _gameRandom;
     private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.GamblersRuin payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.GamblersRuin payload)
+    {
         var config = _configs.Value.GamblersRuin_Normal;
         var isHeads = _gameRandom.FlipCoin(invoker);
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.GamblersRuin() {
-            TargetPlayer = invoker.User.Id,
-            IsHeads = isHeads
-        });
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+            new CardActionSnapshot.GamblersRuin()
+            {
+                TargetPlayer = invoker.User.Id,
+                IsHeads = isHeads
+            });
 
-        if (isHeads) {
-            for (var i = 0; i < config.WinDraw; i++) {
+        if (isHeads)
+        {
+            for (var i = 0; i < config.WinDraw; i++)
+            {
                 if (invoker.Deck.Count == 0)
                     break;
 
@@ -42,11 +53,15 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin> {
             invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, manaGain);
             invoker.Mana.SetCurrent(invoker.Mana.Current + manaGain);
 
-            _roundActionService.Schedule(
-                new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, manaGain), 1);
-        } else {
+            _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, manaGain),
+                1);
+        }
+        else
+        {
             var toDiscard = Math.Min(config.LoseDiscard, invoker.Hand.Entries.Count);
-            for (var i = 0; i < toDiscard; i++) {
+
+            for (var i = 0; i < toDiscard; i++)
+            {
                 var index = _gameRandom.Index(invoker, invoker.Hand.Entries.Count);
                 var entry = invoker.Hand.Entries[index];
                 invoker.Hand.Remove(entry.Id);
@@ -55,7 +70,8 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin> {
             }
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
             ActionData = null
         };

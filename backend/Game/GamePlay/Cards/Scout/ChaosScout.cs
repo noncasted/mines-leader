@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Clears a line of random length in the longest available direction, flagging mines and revealing safe cells.
 /// </summary>
-public class ChaosScout : ICard<CardUsePayload.ChaosScout> {
-    public ChaosScout(ICardConfigs configs, IGameRandom gameRandom) {
+public class ChaosScout : ICard<CardUsePayload.ChaosScout>
+{
+    public ChaosScout(ICardConfigs configs, IGameRandom gameRandom)
+    {
         _configs = configs;
         _gameRandom = gameRandom;
     }
@@ -15,7 +17,8 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout> {
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChaosScout payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChaosScout payload)
+    {
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -30,25 +33,33 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout> {
 
         var selected = horizontalCells.Count >= verticalCells.Count ? horizontalCells : verticalCells;
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No cells in the line pattern"),
                 ActionData = null
             };
         }
 
-        foreach (var cell in selected) {
-            if (cell.HasMine) {
+        foreach (var cell in selected)
+        {
+            if (cell.HasMine)
+            {
                 cell.SetFlag();
-            } else {
+            }
+            else
+            {
                 cell.ToFree();
                 board.Revealer.Reveal(cell.Position);
             }
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ChaosScout() {
+            ActionData = new CardActionSnapshot.ChaosScout()
+            {
                 TargetPlayer = board.OwnerId,
                 ActualLength = actualLength
             }

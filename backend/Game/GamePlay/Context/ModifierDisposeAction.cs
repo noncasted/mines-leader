@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class ModifierDisposeAction : IRoundAction {
-    public ModifierDisposeAction(IPlayer player, PlayerModifier type, float amount) {
+public class ModifierDisposeAction : IRoundAction
+{
+    public ModifierDisposeAction(IPlayer player, PlayerModifier type, float amount)
+    {
         _player = player;
         _type = type;
         _amount = amount;
@@ -13,7 +15,8 @@ public class ModifierDisposeAction : IRoundAction {
     private readonly PlayerModifier _type;
     private readonly float _amount;
 
-    public void Execute() {
+    public void Execute()
+    {
         _player.Modifiers.Dec(_type, _amount);
     }
 }

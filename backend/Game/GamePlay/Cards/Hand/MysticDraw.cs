@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Flips a coin: heads draws cards from the deck, tails returns random cards from hand back to the deck.
 /// </summary>
-public class MysticDraw : ICard<CardUsePayload.MysticDraw> {
-    public MysticDraw(ICardConfigs configs, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor) {
+public class MysticDraw : ICard<CardUsePayload.MysticDraw>
+{
+    public MysticDraw(ICardConfigs configs, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor)
+    {
         _configs = configs;
         _gameRandom = gameRandom;
         _snapshotAccessor = snapshotAccessor;
@@ -17,17 +19,22 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw> {
     private readonly IGameRandom _gameRandom;
     private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.MysticDraw payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.MysticDraw payload)
+    {
         var config = _configs.Value.MysticDraw_Normal;
         var isHeads = _gameRandom.FlipCoin(invoker);
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId, new CardActionSnapshot.MysticDraw() {
-            TargetPlayer = invoker.User.Id,
-            IsHeads = isHeads
-        });
+        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+            new CardActionSnapshot.MysticDraw()
+            {
+                TargetPlayer = invoker.User.Id,
+                IsHeads = isHeads
+            });
 
-        if (isHeads) {
-            for (var i = 0; i < config.WinDraw; i++) {
+        if (isHeads)
+        {
+            for (var i = 0; i < config.WinDraw; i++)
+            {
                 if (invoker.Deck.Count == 0)
                     break;
 
@@ -35,9 +42,13 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw> {
                 var activeCard = invoker.Hand.Add(card);
                 _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
             }
-        } else {
+        }
+        else
+        {
             var toReturn = Math.Min(config.LoseReturn, invoker.Hand.Entries.Count);
-            for (var i = 0; i < toReturn; i++) {
+
+            for (var i = 0; i < toReturn; i++)
+            {
                 var index = _gameRandom.Index(invoker, invoker.Hand.Entries.Count);
                 var entry = invoker.Hand.Entries[index];
                 invoker.Hand.Remove(entry.Id);
@@ -46,7 +57,8 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw> {
             }
         }
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
             ActionData = null
         };

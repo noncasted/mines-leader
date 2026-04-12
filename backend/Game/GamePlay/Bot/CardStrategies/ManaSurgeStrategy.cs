@@ -2,8 +2,10 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class ManaSurgeStrategy : IBotCardStrategy {
-    public ManaSurgeStrategy(IBotContext context, IBotCommandUtils commandUtils) {
+public class ManaSurgeStrategy : IBotCardStrategy
+{
+    public ManaSurgeStrategy(IBotContext context, IBotCommandUtils commandUtils)
+    {
         _context = context;
         _commandUtils = commandUtils;
     }
@@ -13,7 +15,8 @@ public class ManaSurgeStrategy : IBotCardStrategy {
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.ManaSurge];
 
-    public float Evaluate(CardType type) {
+    public float Evaluate(CardType type)
+    {
         var bot = _context.Bot;
         var mana = bot.Mana.Current;
 
@@ -23,10 +26,12 @@ public class ManaSurgeStrategy : IBotCardStrategy {
         return 4f;
     }
 
-    public bool Execute(Guid cardId, CardType cardType) {
+    public bool Execute(Guid cardId, CardType cardType)
+    {
         var bot = _context.Bot;
 
-        var payload = new CardUsePayload.ManaSurge {
+        var payload = new CardUsePayload.ManaSurge
+        {
             Type = cardType
         };
 

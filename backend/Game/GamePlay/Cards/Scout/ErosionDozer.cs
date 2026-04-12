@@ -1,16 +1,19 @@
-using Shared;
+﻿using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
 
-public class ErosionDozer : ICard<CardUsePayload.ErosionDozer> {
-    public ErosionDozer(ICardConfigs configs) {
+public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
+{
+    public ErosionDozer(ICardConfigs configs)
+    {
         _configs = configs;
     }
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ErosionDozer payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.ErosionDozer payload)
+    {
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -21,8 +24,10 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer> {
 
         var limited = ordered.Take(size).ToList();
 
-        if (limited.Count == 0) {
-            return new CardUseResult {
+        if (limited.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No taken cells in the pattern"),
                 ActionData = null
             };
@@ -34,9 +39,11 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer> {
         foreach (var cell in limited)
             board.Revealer.Reveal(cell.Position);
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ErosionDozer() {
+            ActionData = new CardActionSnapshot.ErosionDozer()
+            {
                 TargetPlayer = board.OwnerId
             }
         };

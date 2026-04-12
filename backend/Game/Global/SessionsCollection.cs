@@ -57,13 +57,15 @@ public class SessionsCollection : ISessionsCollection
 
     private void PushLiveData()
     {
-        _liveData.SetValue(new LiveMatchesData {
+        _liveData.SetValue(new LiveMatchesData
+        {
             Matches = _entries.Values.Select(s => {
                 var users = s.Users.ToList();
                 var player1 = users.ElementAtOrDefault(0);
                 var player2 = users.ElementAtOrDefault(1);
 
-                return new LiveMatchEntry {
+                return new LiveMatchEntry
+                {
                     Id = s.Id,
                     Type = s.Type.ToString(),
                     GameMode = _gameModes.GetValueOrDefault(s.Id)?.ToString() ?? string.Empty,

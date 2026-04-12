@@ -6,8 +6,10 @@ namespace Game.GamePlay;
 /// <summary>
 /// Plants mines along the longest available line on free cells of the opponent's field.
 /// </summary>
-public class CarpetBomb : ICard<CardUsePayload.CarpetBomb> {
-    public CarpetBomb(ICardConfigs configs, IGameContext gameContext) {
+public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
+{
+    public CarpetBomb(ICardConfigs configs, IGameContext gameContext)
+    {
         _configs = configs;
         _gameContext = gameContext;
     }
@@ -15,7 +17,8 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb> {
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.CarpetBomb payload) {
+    public CardUseResult Use(IPlayer invoker, CardUsePayload.CarpetBomb payload)
+    {
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -29,8 +32,10 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb> {
 
         var selected = horizontalCells.Count >= verticalCells.Count ? horizontalCells : verticalCells;
 
-        if (selected.Count == 0) {
-            return new CardUseResult {
+        if (selected.Count == 0)
+        {
+            return new CardUseResult
+            {
                 Result = EmptyResponse.Fail("No free cells in the line pattern"),
                 ActionData = null
             };
@@ -42,9 +47,11 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb> {
         foreach (var cell in selected)
             cell.ToTaken().SetMine();
 
-        return new CardUseResult {
+        return new CardUseResult
+        {
             Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.CarpetBomb() {
+            ActionData = new CardActionSnapshot.CarpetBomb()
+            {
                 TargetPlayer = board.OwnerId
             }
         };
