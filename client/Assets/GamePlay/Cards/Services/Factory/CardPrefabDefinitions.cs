@@ -198,6 +198,9 @@ namespace GamePlay.Cards
     [PrefabDefinition]
     public static class CardRemotePrefab
     {
+        private const string RemoteFontIthaca = "Assets/Common/Artwork/Ithaca-LVB75.asset";
+        private const string RemoteCardSprite = "Assets/GamePlay/Cards/Artwork/Alliance/card.psd";
+
         public static void Define(PrefabBuilder builder)
         {
             SortingGroup sortingGroup = null;
@@ -208,8 +211,8 @@ namespace GamePlay.Cards
                 .WithComponent<CardScope>(c => cardScope = c)
                 .WithComponent<CardScopeEntity>()
                 .WithComponent<SortingGroup>(sg => {
-                            sg.sortingLayerName = "Cards";
-                            sg.sortingOrder = 0;
+                            sg.sortingLayerName = "UI";
+                            sg.sortingOrder = 10;
                             sortingGroup = sg;
                         }
                     )
@@ -219,17 +222,127 @@ namespace GamePlay.Cards
             builder.SetSerialized<CardRenderer>("_sortingGroup", sortingGroup);
             builder.SetSerialized<CardView>("_scope", cardScope);
 
+            SpriteRenderer imageRenderer = null;
+            TMP_Text nameText = null;
+            TMP_Text descriptionText = null;
+            GameObject backGo = null;
+            GameObject frontGo = null;
+
             builder.WithChildObject("View", view => {
                 view.WithComponent<CardTransform>();
 
-                view.WithChildObject("Body", body => {
-                    body.WithComponent<SpriteRenderer>(sr => {
+                view.WithChildObject("Front", front => {
+                    frontGo = front.GameObject;
+                    front.GameObject.SetActive(false);
+
+                    front.WithComponent<SpriteRenderer>(sr => {
+                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(RemoteCardSprite);
+                        sr.color = Color.white;
+                        sr.sortingLayerName = "UI";
+                        sr.sortingOrder = 0;
+                    });
+
+                    front.WithChildObject("Image", image => {
+                        image
+                            .WithPosition(0f, 0.958f, 0f)
+                            .WithScale(8.3333f, 8.3333f, 1f);
+
+                        image.WithComponent<SpriteRenderer>(sr => {
+                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
+                                "Assets/Resources/Cards/Trebuchet.psd");
+                            sr.color = Color.white;
+                            sr.sortingLayerName = "UI";
+                            sr.sortingOrder = -1;
+                            imageRenderer = sr;
+                        });
+                    });
+
+                    front.WithChildObject("Name", text => {
+                        text.WithComponent<TextMeshPro>(tmp => {
+                            tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
+                            tmp.color = new Color(0.929f, 0.808f, 0.678f, 1f);
+                            tmp.fontSize = 6.1f;
+                            tmp.enableAutoSizing = true;
+                            tmp.fontSizeMin = 3f;
+                            tmp.fontSizeMax = 72f;
+                            tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                            tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
+                            tmp.textWrappingMode = TextWrappingModes.Normal;
+                            tmp.sortingLayerID = SortingLayer.NameToID("UI");
+                            tmp.sortingOrder = 1;
+                            nameText = tmp;
+                        });
+
+                        var rt = text.GameObject.GetComponent<RectTransform>();
+
+                        if (rt != null)
+                        {
+                            rt.anchoredPosition = new Vector2(-0.0006f, -0.2495f);
+                            rt.sizeDelta = new Vector2(2.6702f, 0.5008f);
+                        }
+
+                        var meshRenderer = text.GameObject.GetComponent<MeshRenderer>();
+
+                        if (meshRenderer != null)
+                        {
+                            meshRenderer.sortingLayerName = "UI";
+                            meshRenderer.sortingOrder = 1;
+                        }
+                    });
+
+                    front.WithChildObject("Description", text => {
+                        text.WithComponent<TextMeshPro>(tmp => {
+                            tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
+                            tmp.color = new Color(0.518f, 0.263f, 0.169f, 1f);
+                            tmp.fontSize = 3.6f;
+                            tmp.enableAutoSizing = true;
+                            tmp.fontSizeMin = 0f;
+                            tmp.fontSizeMax = 5f;
+                            tmp.lineSpacingAdjustment = -8f;
+                            tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                            tmp.verticalAlignment = VerticalAlignmentOptions.Top;
+                            tmp.textWrappingMode = TextWrappingModes.Normal;
+                            tmp.sortingLayerID = SortingLayer.NameToID("UI");
+                            tmp.sortingOrder = 1;
+                            descriptionText = tmp;
+                        });
+
+                        var rt = text.GameObject.GetComponent<RectTransform>();
+
+                        if (rt != null)
+                        {
+                            rt.anchoredPosition = new Vector2(-0.0006f, -1.2063f);
+                            rt.sizeDelta = new Vector2(2.6702f, 1.2534f);
+                        }
+
+                        var meshRenderer = text.GameObject.GetComponent<MeshRenderer>();
+
+                        if (meshRenderer != null)
+                        {
+                            meshRenderer.sortingLayerName = "UI";
+                            meshRenderer.sortingOrder = 1;
+                        }
+                    });
+                });
+
+                view.WithChildObject("Back", back => {
+                    backGo = back.GameObject;
+
+                    back.WithComponent<SpriteRenderer>(sr => {
                         sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
                             "Assets/GamePlay/Boards/Artwork/Alliance/discard_cards.psd");
                         sr.color = new Color(0.751f, 0.751f, 0.751f, 1f);
                         sr.flipY = true;
                     });
                 });
+
+                view.WithComponent<CardRevealView>();
+
+                view.SetSerialized<CardRevealView>("_back", backGo);
+                view.SetSerialized<CardRevealView>("_front", frontGo);
+                view.SetSerialized<CardRevealView>("_image", imageRenderer);
+                view.SetSerialized<CardRevealView>("_name", nameText);
+                view.SetSerialized<CardRevealView>("_description", descriptionText);
             });
         }
     }
