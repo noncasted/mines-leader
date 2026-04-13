@@ -58,6 +58,45 @@ namespace Shared
             public int Rating { get; set; }
         }
 
+        [MemoryPackable]
+        public partial class CardsProjection : INetworkContext
+        {
+            public List<CardType> OwnedCards { get; set; } = new();
+        }
+
+        [MemoryPackable]
+        public partial class LootProjection : INetworkContext
+        {
+            public int AwardedCount { get; set; }
+            public List<LootEntry> Boxes { get; set; } = new();
+
+            [MemoryPackable]
+            public partial class LootEntry
+            {
+                public Guid Id { get; set; }
+            }
+        }
+
+        [MemoryPackable]
+        public partial class LootOpenRequest : INetworkContext
+        {
+            public Guid LootBoxId { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class LootOpenResponse : INetworkContext
+        {
+            public Guid LootBoxId { get; set; }
+            public List<CardType> Choices { get; set; } = new();
+        }
+
+        [MemoryPackable]
+        public partial class LootChooseRequest : INetworkContext
+        {
+            public Guid LootBoxId { get; set; }
+            public CardType ChosenCard { get; set; }
+        }
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
@@ -66,7 +105,12 @@ namespace Shared
                    .Add<UpdateDeckRequest>()
                    .Add<DeckProjection>()
                    .Add<Match>()
-                   .Add<RatingProjection>();
+                   .Add<RatingProjection>()
+                   .Add<CardsProjection>()
+                   .Add<LootProjection>()
+                   .Add<LootOpenRequest>()
+                   .Add<LootOpenResponse>()
+                   .Add<LootChooseRequest>();
         }
     }
 }
