@@ -9,14 +9,31 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(30));
 
+Console.WriteLine("[Aspire] ===== AppHost starting =====");
+Console.WriteLine($"[Aspire] SSL_CERT_DIR          = {Environment.GetEnvironmentVariable("SSL_CERT_DIR") ?? "(not set)"}");
+Console.WriteLine($"[Aspire] Kestrel cert path      = {Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path") ?? "(not set)"}");
+Console.WriteLine($"[Aspire] Kestrel cert password  = {(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password") != null ? "***" : "(not set)")}");
+Console.WriteLine($"[Aspire] ASPIRE_TOKEN           = {(Environment.GetEnvironmentVariable("ASPIRE_TOKEN") != null ? "***" : "(not set)")}");
+Console.WriteLine($"[Aspire] GAME_SERVER_URL        = {Environment.GetEnvironmentVariable("GAME_SERVER_URL") ?? "(not set)"}");
+Console.WriteLine($"[Aspire] DB_CONNECTION_STRING   = {(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") != null ? "***" : "(not set)")}");
+
 var configuration = builder.Configuration;
 configuration.AddJsonFile("appsettings.local.json", true);
 
+Console.WriteLine("[Aspire] Configuration loaded");
+
 if (configuration.GetSection("Local").GetSection("KillPrevious").Get<bool>())
+{
+    Console.WriteLine("[Aspire] KillPrevious=true, running ProcessCleanup...");
     ProcessCleanup.Run();
+    Console.WriteLine("[Aspire] ProcessCleanup done");
+}
 
+Console.WriteLine("[Aspire] Setting up database...");
 var dbConnection = await GetOrCreateDb();
+Console.WriteLine("[Aspire] Database ready");
 
+Console.WriteLine("[Aspire] Registering projects...");
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder.AddProject<MetaGateway>("meta");
@@ -27,16 +44,23 @@ var game = builder.AddProject<GameGateway>("game")
                       options.EnvironmentVariables["GAME_SERVER_URL"] =
                           Environment.GetEnvironmentVariable("GAME_SERVER_URL")!);
 
+Console.WriteLine("[Aspire] Projects registered: silo, coordinator, meta, console, game");
+
 SetupDB();
+Console.WriteLine("[Aspire] DB environment injected into all projects");
 
 coordinator.WaitFor(silo);
 meta.WaitFor(silo);
 game.WaitFor(silo);
 console.WaitFor(silo);
 
+Console.WriteLine("[Aspire] WaitFor(silo) set for: coordinator, meta, game, console");
+
 SetDashboardToken();
 
 builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) => {
+    Console.WriteLine("[Aspire] AfterResourcesCreated — starting post-setup...");
+
     for (var attempt = 1; attempt <= 5; attempt++)
     {
         try
@@ -45,16 +69,35 @@ builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) => {
             var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
             var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
 
-            if (requiresDrop == true)
-                await StatesDrop.Run(configuration);
+            Console.WriteLine($"[Aspire] Setup attempt {attempt}/5 (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
 
+            if (requiresDrop == true)
+            {
+                Console.WriteLine("[Aspire] Running StatesDrop...");
+                await StatesDrop.Run(configuration);
+                Console.WriteLine("[Aspire] StatesDrop done");
+            }
+
+            Console.WriteLine("[Aspire] Running StatesSetup...");
             await StatesSetup.Run(configuration);
+            Console.WriteLine("[Aspire] StatesSetup done");
+
+            Console.WriteLine("[Aspire] Running SideEffectsSetup...");
             await SideEffectsSetup.Run(configuration);
+            Console.WriteLine("[Aspire] SideEffectsSetup done");
+
+            Console.WriteLine("[Aspire] Running BenchmarkSetup...");
             await BenchmarkSetup.Run(configuration);
+            Console.WriteLine("[Aspire] BenchmarkSetup done");
 
             if (requiresCleanup == true)
+            {
+                Console.WriteLine("[Aspire] Running StatesCleanup...");
                 await StatesCleanup.Run(configuration);
+                Console.WriteLine("[Aspire] StatesCleanup done");
+            }
 
+            Console.WriteLine("[Aspire] Post-setup completed successfully");
             return;
         }
         catch (Exception ex)
@@ -104,12 +147,17 @@ void SetDashboardToken()
     var token = Environment.GetEnvironmentVariable("ASPIRE_TOKEN");
 
     if (token == null)
+    {
+        Console.WriteLine("[Aspire] ASPIRE_TOKEN not set, dashboard token skipped");
         return;
+    }
 
     configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {
         ["AppHost:BrowserToken"] = token,
     });
+
+    Console.WriteLine("[Aspire] Dashboard token configured");
 }
 
 Task<string> GetOrCreateDb()
