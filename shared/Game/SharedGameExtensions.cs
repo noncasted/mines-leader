@@ -10,6 +10,7 @@
             GameCheatContexts.Register(builder);
 
             builder.Add<CardConfigOptions>();
+            builder.Add<LootProgressionOptions>();
             builder.Add<MatchActionContexts.PlayerReady>();
 
             return builder;
