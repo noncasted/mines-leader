@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Tools.DI;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,58 +13,66 @@ namespace Tools
     {
         private const string OutputFolder = "Assets/Resources/Generated";
 
-        [InitializeOnLoadMethod]
-        private static void OnEditorReload()
-        {
-            Generate();
-        }
-
         [MenuItem("Tools/GeneratePrefabs")]
         public static void Generate()
         {
             EnsureFolder(OutputFolder);
 
             var definitionTypes = TypeCache.GetTypesWithAttribute<PrefabDefinitionAttribute>();
+            if (definitionTypes.Count == 0) return;
 
-            if (definitionTypes.Count == 0)
-                return;
-
-            var generatedPrefabs = new List<(string asmdefName, string prefabName, string prefabPath)>();
-            var failedTypes = new List<Type>();
-
+            // Sort: base prefabs (void Define(PrefabBuilder)) first, derived (any that returns PrefabBuilder) second
+            var baseTypes = new List<Type>();
+            var derivedTypes = new List<Type>();
             foreach (var type in definitionTypes)
             {
-                try
-                {
-                    var result = GeneratePrefab(type);
-
-                    if (result.HasValue)
-                    {
-                        generatedPrefabs.Add(result.Value);
-                    }
-                }
-                catch (Exception)
-                {
-                    failedTypes.Add(type);
-                }
+                var defineMethod = type.GetMethod("Define", BindingFlags.Public | BindingFlags.Static);
+                if (defineMethod == null) continue;
+                var parameters = defineMethod.GetParameters();
+                var returnsVoid = defineMethod.ReturnType == typeof(void);
+                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder) && returnsVoid)
+                    baseTypes.Add(type);
+                else
+                    derivedTypes.Add(type);
             }
 
-            // Retry failed prefabs — they may depend on prefabs generated in the first pass
-            foreach (var type in failedTypes)
+            var generatedPrefabs = new List<(string asmdefName, string prefabName, string prefabPath)>();
+            var hasErrors = false;
+
+            foreach (var type in baseTypes)
             {
                 try
                 {
                     var result = GeneratePrefab(type);
-
                     if (result.HasValue)
-                    {
                         generatedPrefabs.Add(result.Value);
-                    }
                 }
                 catch (Exception ex)
                 {
+                    hasErrors = true;
+                    Debug.LogError($"[PrefabGenerator] Failed to generate base prefab from {type.Name}: {ex}");
+                }
+            }
+
+            foreach (var type in derivedTypes)
+            {
+                try
+                {
+                    var result = GeneratePrefab(type);
+                    if (result.HasValue)
+                        generatedPrefabs.Add(result.Value);
+                }
+                catch (Exception ex)
+                {
+                    hasErrors = true;
                     Debug.LogError($"[PrefabGenerator] Failed to generate prefab from {type.Name}: {ex}");
                 }
+            }
+
+            if (hasErrors)
+            {
+                Debug.LogError("[PrefabGenerator] Skipping Prefabs.cs update due to errors above.");
+                return;
             }
 
             if (generatedPrefabs.Count > 0)
@@ -78,101 +87,123 @@ namespace Tools
         private static void CleanupStalePrefabs(
             List<(string asmdefName, string prefabName, string prefabPath)> generatedPrefabs)
         {
-            var generatedNames = new HashSet<string>();
-
+            var generatedPaths = new HashSet<string>();
             foreach (var (_, prefabName, _) in generatedPrefabs)
             {
-                generatedNames.Add(prefabName + ".prefab");
+                generatedPaths.Add(Path.GetFullPath(OutputFolder + "/" + prefabName + ".prefab"));
             }
 
-            var existingFiles = Directory.GetFiles(OutputFolder, "*.prefab");
-
+            var existingFiles = Directory.GetFiles(OutputFolder, "*.prefab", SearchOption.AllDirectories);
             foreach (var filePath in existingFiles)
             {
-                var fileName = Path.GetFileName(filePath);
+                var fullPath = Path.GetFullPath(filePath);
+                if (generatedPaths.Contains(fullPath)) continue;
 
-                if (generatedNames.Contains(fileName))
-                    continue;
-
-                AssetDatabase.DeleteAsset(OutputFolder + "/" + fileName);
-                Debug.Log($"[PrefabGenerator] Deleted stale prefab: {fileName}");
+                var assetPath = filePath.Replace('\\', '/');
+                AssetDatabase.DeleteAsset(assetPath);
+                Debug.Log($"[PrefabGenerator] Deleted stale prefab: {assetPath}");
             }
         }
 
         private static (string asmdefName, string prefabName, string prefabPath)? GeneratePrefab(Type type)
         {
             var defineMethod = type.GetMethod("Define", BindingFlags.Public | BindingFlags.Static);
-
             if (defineMethod == null)
             {
                 Debug.LogError(
-                    $"[PrefabGenerator] {type.Name} has [PrefabDefinition] but no public static Define(PrefabBuilder) method.");
+                        $"[PrefabGenerator] {type.Name} has [PrefabDefinition] but no public static Define() method."
+                    );
                 return null;
             }
 
             var parameters = defineMethod.GetParameters();
+            var returnsBuilder = defineMethod.ReturnType == typeof(PrefabBuilder);
 
-            if (parameters.Length != 1 || parameters[0].ParameterType != typeof(PrefabBuilder))
+            // Support two signatures:
+            //   void Define(PrefabBuilder builder)  -- base prefabs (builder created by generator)
+            //   PrefabBuilder Define()              -- derived prefabs (builder created by Define itself, e.g. via FromPrefab)
+            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder))
             {
-                Debug.LogError(
-                    $"[PrefabGenerator] {type.Name}.Define() must accept exactly one PrefabBuilder parameter.");
-                return null;
+                return GenerateWithProvidedBuilder(type, defineMethod);
             }
 
+            if (parameters.Length == 0 && returnsBuilder)
+            {
+                return GenerateWithReturnedBuilder(type, defineMethod);
+            }
+
+            Debug.LogError(
+                    $"[PrefabGenerator] {type.Name}.Define() must be either void Define(PrefabBuilder) or PrefabBuilder Define()."
+                );
+            return null;
+        }
+
+        private static (string asmdefName, string prefabName, string prefabPath)? GenerateWithProvidedBuilder(
+            Type type,
+            MethodInfo defineMethod)
+        {
             var builder = new PrefabBuilder();
 
             try
             {
                 defineMethod.Invoke(null, new object[] { builder });
 
-                var prefabPath = $"{OutputFolder}/{builder.PrefabName}.prefab";
-                CheckManualModification(prefabPath);
-
+                var prefabName = builder.PrefabName;
+                var prefabPath = $"{OutputFolder}/{prefabName}.prefab";
+                EnsureFolder(Path.GetDirectoryName(prefabPath).Replace('\\', '/'));
                 builder.Build(prefabPath);
+                AssetDatabase.ImportAsset(prefabPath);
 
-                return (string.Empty, builder.PrefabName, builder.PrefabName);
+                return (string.Empty, prefabName, prefabName);
             }
             catch
             {
-                // Clean up leaked GameObject if Build() was never called
                 if (builder.GameObject != null)
                     Object.DestroyImmediate(builder.GameObject);
                 throw;
             }
         }
 
-        private static void CheckManualModification(string prefabPath)
+        private static (string asmdefName, string prefabName, string prefabPath)? GenerateWithReturnedBuilder(
+            Type type,
+            MethodInfo defineMethod)
         {
-            if (!File.Exists(prefabPath))
-                return;
+            PrefabBuilder builder = null;
 
-            var metaPath = prefabPath + ".meta";
-
-            if (!File.Exists(metaPath))
-                return;
-
-            var prefabTime = File.GetLastWriteTimeUtc(prefabPath);
-            var metaTime = File.GetLastWriteTimeUtc(metaPath);
-
-            if (prefabTime > metaTime.AddSeconds(5))
+            try
             {
-                Debug.LogWarning(
-                    $"[PrefabGenerator] '{prefabPath}' appears to have been modified manually. It will be overwritten.");
+                builder = (PrefabBuilder)defineMethod.Invoke(null, null);
+                if (builder == null)
+                {
+                    Debug.LogError($"[PrefabGenerator] {type.Name}.Define() returned null.");
+                    return null;
+                }
+
+                var prefabName = builder.PrefabName;
+                var prefabPath = $"{OutputFolder}/{prefabName}.prefab";
+                EnsureFolder(Path.GetDirectoryName(prefabPath).Replace('\\', '/'));
+
+                builder.Build(prefabPath);
+
+                return (string.Empty, prefabName, prefabName);
+            }
+            catch
+            {
+                if (builder?.GameObject != null)
+                    Object.DestroyImmediate(builder.GameObject);
+                throw;
             }
         }
 
         private static void EnsureFolder(string folderPath)
         {
-            if (AssetDatabase.IsValidFolder(folderPath))
-                return;
+            if (AssetDatabase.IsValidFolder(folderPath)) return;
 
             var parts = folderPath.Split('/');
             var current = parts[0];
-
             for (var i = 1; i < parts.Length; i++)
             {
                 var next = current + "/" + parts[i];
-
                 if (!AssetDatabase.IsValidFolder(next))
                 {
                     AssetDatabase.CreateFolder(current, parts[i]);
