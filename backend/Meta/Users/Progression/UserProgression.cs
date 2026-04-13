@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
@@ -20,10 +20,17 @@ public interface IUserProgression : IUserGrain
 
     [Transaction]
     Task<int> GetTotal();
+
+    [Transaction]
+    Task AdjustProgression(int delta);
+
+    [Transaction]
+    Task SetProgression(int value);
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_progression", State = "user_progression", Lookup = "UserProgression", Key = GrainKeyType.Guid)]
+[GrainState(Table = "state_user_progression", State = "user_progression", Lookup = "UserProgression",
+    Key = GrainKeyType.Guid)]
 public class UserProgressionState : IProjectionPayload, IStateValue
 {
     [Id(0)] public List<IUserProgressionRecord> Records { get; } = new();
@@ -68,10 +75,40 @@ public class UserProgression : UserGrain, IUserProgression
 
         var state = await _state.Update(state => state.AddRecord(record));
         await this.SendCachedProjection(state);
+
+        RegisterLootSideEffect();
     }
 
     public Task<int> GetTotal()
     {
         return _state.Read(state => state.CalculateTotal());
+    }
+
+    public async Task AdjustProgression(int delta)
+    {
+        var record = new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
+        var state = await _state.Update(s => s.AddRecord(record));
+        await this.SendCachedProjection(state);
+
+        RegisterLootSideEffect();
+    }
+
+    public async Task SetProgression(int value)
+    {
+        var state = await _state.Update(s => {
+            s.Records.Clear();
+            s.AddRecord(new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
+        });
+        await this.SendCachedProjection(state);
+
+        RegisterLootSideEffect();
+    }
+
+    private void RegisterLootSideEffect()
+    {
+        new LootProgressionSideEffect
+        {
+            UserId = this.GetPrimaryKey()
+        }.AddToTransaction();
     }
 }

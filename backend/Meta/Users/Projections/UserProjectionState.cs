@@ -4,7 +4,8 @@ using Infrastructure.State;
 namespace Meta.Users;
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_projection", State = "user_projection", Lookup = "UserProjection", Key = GrainKeyType.Guid)]
+[GrainState(Table = "state_user_projection", State = "user_projection", Lookup = "UserProjection",
+    Key = GrainKeyType.Guid)]
 public class UserProjectionState : IStateValue
 {
     [Id(0)]

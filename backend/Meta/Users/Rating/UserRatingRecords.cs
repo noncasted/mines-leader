@@ -25,4 +25,16 @@ public class UserRatingRecords
 
         public int GetRating() => -Rating;
     }
+
+    [GenerateSerializer]
+    public class AdminAdjust : IUserRatingRecord
+    {
+        [Id(0)]
+        public required DateTime Date { get; init; }
+
+        [Id(1)]
+        public required int Value { get; init; }
+
+        public int GetRating() => Value;
+    }
 }
