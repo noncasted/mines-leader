@@ -13,12 +13,14 @@ public static class Application
 
         Console.WriteLine("[Deploy] Starting Aspire...");
 
-        var aspire = "aspire run > /var/log/aspire.log 2>&1";
+        var aspire = "aspire run --configuration Release > /var/log/aspire.log 2>&1";
         var runCommand = $"-c \"cd {aspireProjectPath} && {aspire}\"";
 
         var environment = new Dictionary<string, string>
         {
+            ["ASPNETCORE_Kestrel__Certificates__Default__Path"] = Options.PfxPath,
             ["ASPNETCORE_Kestrel__Certificates__Default__Password"] = Options.PfxPassword,
+            ["SSL_CERT_DIR"] = "/etc/ssl/certs",
         };
 
         var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
