@@ -3,6 +3,7 @@ using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Execution;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Cluster.Configs;
 
@@ -19,6 +20,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         IRuntimePipeConfig runtimePipe,
         IRuntimeChannelConfig runtimeChannel,
         ITransactionConfig transactionConfig,
+        ILootProgressionConfig lootProgression,
         ILogger<ClusterConfigsSetup> logger)
     {
         _cards = cards;
@@ -31,6 +33,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _runtimePipe = runtimePipe;
         _runtimeChannel = runtimeChannel;
         _transactionConfig = transactionConfig;
+        _lootProgression = lootProgression;
         _logger = logger;
     }
 
@@ -44,24 +47,31 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly IRuntimePipeConfig _runtimePipe;
     private readonly IRuntimeChannelConfig _runtimeChannel;
     private readonly ITransactionConfig _transactionConfig;
+    private readonly ILootProgressionConfig _lootProgression;
     private readonly ILogger<ClusterConfigsSetup> _logger;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await InitializeConfig("config.cards", _cards);
-        await InitializeConfig("config.bot", _bots);
-        await InitializeConfig("config.gameMode", _gameMode);
-        await InitializeConfig("config.rating", _rating);
-        await InitializeConfig("config.sideEffects", _sideEffects);
-        await InitializeConfig("config.durableQueue", _durableQueue);
-        await InitializeConfig("config.taskBalancer", _taskBalancer);
-        await InitializeConfig("config.runtimePipe", _runtimePipe);
-        await InitializeConfig("config.runtimeChannel", _runtimeChannel);
-        await InitializeConfig("config.transaction", _transactionConfig);
+        await InitConfig("config.cards", _cards);
+        await InitConfig("config.bot", _bots);
+        await InitConfig("config.gameMode", _gameMode);
+        await InitConfig("config.rating", _rating);
+        await InitConfig("config.sideEffects", _sideEffects);
+        await InitConfig("config.durableQueue", _durableQueue);
+        await InitConfig("config.taskBalancer", _taskBalancer);
+        await InitConfig("config.runtimePipe", _runtimePipe);
+        await InitConfig("config.runtimeChannel", _runtimeChannel);
+        await InitConfig("config.transaction", _transactionConfig);
+        await InitConfigWithDefault("config.lootProgression", _lootProgression, LootProgressionOptions.CreateDefault());
 
         return;
 
-        async Task InitializeConfig<T>(string jsonPath, IAddressableState<T> storage) where T : class, new()
+        Task InitConfig<T>(string jsonPath, IAddressableState<T> storage) where T : class, new()
+        {
+            return InitConfigWithDefault(jsonPath, storage, new T());
+        }
+
+        async Task InitConfigWithDefault<T>(string jsonPath, IAddressableState<T> storage, T defaultValue) where T : class, new()
         {
             try
             {
@@ -72,7 +82,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
 
                 if (File.Exists(configPath) == false)
                 {
-                    await storage.SetValue(new T());
+                    await storage.SetValue(defaultValue);
                     return;
                 }
 

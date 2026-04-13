@@ -33,6 +33,7 @@ public class ConnectedUsers : IConnectedUsers
     public void Add(IUserSession session)
     {
         _entries.Add(session.UserId, session);
+
         session.Lifetime.Listen(() => {
             _entries.Remove(session.UserId);
             PushLiveData();
@@ -55,9 +56,11 @@ public class ConnectedUsers : IConnectedUsers
 
     private void PushLiveData()
     {
-        _liveData.SetValue(new ConnectedUsersLiveData {
+        _liveData.SetValue(new ConnectedUsersLiveData
+        {
             Count = _entries.Count,
-            Users = _entries.Keys.Select(id => new ConnectedUserEntry {
+            Users = _entries.Keys.Select(id => new ConnectedUserEntry
+            {
                 UserId = id
             }).ToList()
         }).NoAwait();

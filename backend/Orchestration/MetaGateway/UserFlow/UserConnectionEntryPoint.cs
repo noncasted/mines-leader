@@ -22,12 +22,14 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         IOrleans orleans,
         IMessaging messaging,
         ICardConfigs cardConfigs,
+        ILootProgressionConfig lootProgressionConfig,
         ILogger<UserConnectionEntryPoint> logger)
     {
         _users = users;
         _orleans = orleans;
         _messaging = messaging;
         _cardConfigs = cardConfigs;
+        _lootProgressionConfig = lootProgressionConfig;
         _logger = logger;
         _commandsDispatcher = commandsDispatcher;
     }
@@ -38,6 +40,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
+    private readonly ILootProgressionConfig _lootProgressionConfig;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
     public async Task OnConnected(IUserSession user)
@@ -100,6 +103,12 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             {
                 Context = value
             }));
+
+            _lootProgressionConfig.View(user.Lifetime, value => user.Connection.Writer.WriteOneWay(
+                new SharedBackendProjection()
+                {
+                    Context = value
+                }));
 
             await user.Connection.Writer.WriteOneWay(new SharedConnectionCompleted());
 

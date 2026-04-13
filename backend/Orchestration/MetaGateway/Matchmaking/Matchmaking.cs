@@ -151,6 +151,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
             foreach (var (type, queue) in _searchQueue)
             {
                 double? oldestWait = null;
+
                 if (queue.Count > 0)
                     oldestWait = (now - queue[0].JoinedAt).TotalSeconds;
 
@@ -287,9 +288,11 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     {
         var stats = GetStats();
 
-        _liveData.SetValue(new MatchmakingLiveData {
+        _liveData.SetValue(new MatchmakingLiveData
+        {
             TotalInQueue = stats.TotalInQueue,
-            Queues = stats.Queues.Select(q => new MatchmakingQueueLiveData {
+            Queues = stats.Queues.Select(q => new MatchmakingQueueLiveData
+            {
                 Type = q.Type,
                 Count = q.Count,
                 OldestWaitSeconds = q.OldestWaitSeconds
