@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -25,10 +27,10 @@ namespace GamePlay.Cards
                 .WithComponent<DeckCard>();
 
             builder.SetSerialized<DeckCard>("_even",
-                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_0"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_0"));
 
             builder.SetSerialized<DeckCard>("_odd",
-                PrefabBuilder.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_1"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(DeckSpritePath, "DeckCard_1"));
             builder.SetSerialized<DeckCard>("_renderer", spriteRenderer);
         }
     }

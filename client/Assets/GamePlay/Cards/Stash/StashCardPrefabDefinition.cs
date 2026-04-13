@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -24,10 +26,10 @@ namespace GamePlay.Cards
                 });
 
             builder.SetSerialized<StashCard>("_even",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_0"));
 
             builder.SetSerialized<StashCard>("_odd",
-                PrefabBuilder.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(StashSpritePath, "discard_cards_1"));
             builder.SetSerialized<StashCard>("_renderer", spriteRenderer);
         }
     }

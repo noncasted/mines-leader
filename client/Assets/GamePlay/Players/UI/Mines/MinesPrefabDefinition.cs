@@ -1,6 +1,9 @@
 #if UNITY_EDITOR
 using TMPro;
 using Tools;
+using Tools.DI;
+using Tools.Objects;
+using Tools.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,7 +33,7 @@ namespace GamePlay.Players
 
             builder.WithChildObject("Plate", plate => {
                 plate.WithComponent<Image>(img => {
-                    img.sprite = PrefabBuilder.LoadAsset<Sprite>(PlateSprite);
+                    img.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(PlateSprite);
                     img.color = Color.white;
                     img.raycastTarget = true;
                 });
@@ -45,7 +48,7 @@ namespace GamePlay.Players
 
             builder.WithChildObject("Count", count => {
                 count.WithComponent<TextMeshProUGUI>(tmp => {
-                    tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontBitach);
+                    tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontBitach);
                     tmp.text = "1";
                     tmp.color = new Color(1f, 0.989f, 0.406f, 1f);
                     tmp.fontSize = 0.95f;

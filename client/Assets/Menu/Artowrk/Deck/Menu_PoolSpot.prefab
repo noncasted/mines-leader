@@ -241,6 +241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8361097126872089125}
   - component: {fileID: 8712272010001478798}
+  - component: {fileID: 5083686570186695703}
   m_Layer: 5
   m_Name: Menu_PoolSpot
   m_TagString: Untagged
@@ -283,6 +284,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _card: {fileID: 6253198364308157262}
   _transform: {fileID: 8361097126872089125}
+  _canvasGroup: {fileID: 5083686570186695703}
+--- !u!225 &5083686570186695703
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6373264332970362775}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6397843252301046374
 GameObject:
   m_ObjectHideFlags: 0

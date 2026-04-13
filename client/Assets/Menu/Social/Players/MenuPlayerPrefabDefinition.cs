@@ -2,6 +2,8 @@
 using Animations;
 using TMPro;
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -47,7 +49,7 @@ namespace Menu.Social
                 view.WithScale(50f, 50f, 1f);
 
                 view.WithComponent<SpriteRenderer>(sr => {
-                    sr.sprite = PrefabBuilder.LoadAsset<Sprite>(CharacterPsd);
+                    sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(CharacterPsd);
                     sr.color = Color.white;
                     sr.sortingOrder = 1;
                     viewRenderer = sr;
@@ -56,12 +58,12 @@ namespace Menu.Social
 
                 view.SetSerialized<SpriteAnimationRenderer>("_renderer", viewRenderer);
 
-                var idle0 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_1");
-                var idle1 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_2");
-                var run0 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_0");
-                var run1 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_1");
-                var run2 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_2");
-                var run3 = PrefabBuilder.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_3");
+                var idle0 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_1");
+                var idle1 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_2");
+                var run0 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_0");
+                var run1 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_1");
+                var run2 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_2");
+                var run3 = AssetsBuilderExtensions.LoadSubAsset<Sprite>(CharacterPsd, "main_menu_character_3");
 
                 var so = new SerializedObject(view.GameObject.GetComponent<MenuPlayerAnimator>());
 
@@ -88,7 +90,7 @@ namespace Menu.Social
 
             builder.WithChildObject("ChatView", chat => {
                 chat.WithComponent<TextMeshPro>(tmp => {
-                    tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontBitach);
+                    tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontBitach);
                     tmp.text = "";
                     tmp.color = Color.white;
                     tmp.fontSize = 200f;

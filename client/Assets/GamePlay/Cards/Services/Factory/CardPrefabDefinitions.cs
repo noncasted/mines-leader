@@ -2,6 +2,8 @@
 using System;
 using TMPro;
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -68,7 +70,7 @@ namespace GamePlay.Cards
 
                 view.WithChildObject("Body", body => {
                     body.WithComponent<SpriteRenderer>(sr => {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(CardSprite);
+                        sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(CardSprite);
                         sr.color = Color.white;
                         sr.sortingLayerName = "UI";
                         sr.sortingOrder = 0;
@@ -81,7 +83,7 @@ namespace GamePlay.Cards
                             .WithScale(8.3333f, 8.3333f, 1f);
 
                         image.WithComponent<SpriteRenderer>(sr => {
-                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
+                            sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(
                                 "Assets/Resources/Cards/Trebuchet.psd");
                             sr.color = Color.white;
                             sr.sortingLayerName = "UI";
@@ -92,7 +94,7 @@ namespace GamePlay.Cards
 
                     body.WithChildObject("SelectionHighlight", selection => {
                         selection.WithComponent<SpriteRenderer>(sr => {
-                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(OutlineSprite);
+                            sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(OutlineSprite);
                             sr.color = Color.white;
                             sr.sortingLayerName = "UI";
                             sr.sortingOrder = -2;
@@ -161,7 +163,7 @@ namespace GamePlay.Cards
         {
             parent.WithChildObject(name, text => {
                 text.WithComponent<TextMeshPro>(tmp => {
-                    tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(fontPath);
+                    tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(fontPath);
                     tmp.color = color;
                     tmp.fontSize = fontSize;
                     tmp.enableAutoSizing = true;
@@ -231,12 +233,11 @@ namespace GamePlay.Cards
             builder.WithChildObject("View", view => {
                 view.WithComponent<CardTransform>();
 
-                view.WithChildObject("Front", front => {
+                view.WithChildObject("Front", false, front => {
                     frontGo = front.GameObject;
-                    front.GameObject.SetActive(false);
 
                     front.WithComponent<SpriteRenderer>(sr => {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(RemoteCardSprite);
+                        sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(RemoteCardSprite);
                         sr.color = Color.white;
                         sr.sortingLayerName = "UI";
                         sr.sortingOrder = 0;
@@ -248,7 +249,7 @@ namespace GamePlay.Cards
                             .WithScale(8.3333f, 8.3333f, 1f);
 
                         image.WithComponent<SpriteRenderer>(sr => {
-                            sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
+                            sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(
                                 "Assets/Resources/Cards/Trebuchet.psd");
                             sr.color = Color.white;
                             sr.sortingLayerName = "UI";
@@ -259,7 +260,7 @@ namespace GamePlay.Cards
 
                     front.WithChildObject("Name", text => {
                         text.WithComponent<TextMeshPro>(tmp => {
-                            tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
+                            tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
                             tmp.color = new Color(0.929f, 0.808f, 0.678f, 1f);
                             tmp.fontSize = 6.1f;
                             tmp.enableAutoSizing = true;
@@ -292,7 +293,7 @@ namespace GamePlay.Cards
 
                     front.WithChildObject("Description", text => {
                         text.WithComponent<TextMeshPro>(tmp => {
-                            tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
+                            tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(RemoteFontIthaca);
                             tmp.color = new Color(0.518f, 0.263f, 0.169f, 1f);
                             tmp.fontSize = 3.6f;
                             tmp.enableAutoSizing = true;
@@ -329,7 +330,7 @@ namespace GamePlay.Cards
                     backGo = back.GameObject;
 
                     back.WithComponent<SpriteRenderer>(sr => {
-                        sr.sprite = PrefabBuilder.LoadAsset<Sprite>(
+                        sr.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(
                             "Assets/GamePlay/Boards/Artwork/Alliance/discard_cards.psd");
                         sr.color = new Color(0.751f, 0.751f, 0.751f, 1f);
                         sr.flipY = true;

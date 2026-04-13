@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 using MPUIKIT;
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -74,7 +76,7 @@ namespace Global.UI
                 Image animImage = null;
 
                 anim.WithComponent<Image>(img => {
-                    img.sprite = PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_0");
+                    img.sprite = AssetsBuilderExtensions.LoadSubAsset<Sprite>(LoadingPsd, "loading_0");
                     img.color = Color.white;
                     img.raycastTarget = true;
                     animImage = img;
@@ -94,10 +96,10 @@ namespace Global.UI
 
                 anim.SetSerialized<LoadingScreenAnimation>("_sequence", new[]
                 {
-                    PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_2"),
-                    PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_3"),
-                    PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_4"),
-                    PrefabBuilder.LoadSubAsset<Sprite>(LoadingPsd, "loading_5")
+                    AssetsBuilderExtensions.LoadSubAsset<Sprite>(LoadingPsd, "loading_2"),
+                    AssetsBuilderExtensions.LoadSubAsset<Sprite>(LoadingPsd, "loading_3"),
+                    AssetsBuilderExtensions.LoadSubAsset<Sprite>(LoadingPsd, "loading_4"),
+                    AssetsBuilderExtensions.LoadSubAsset<Sprite>(LoadingPsd, "loading_5")
                 });
             });
 

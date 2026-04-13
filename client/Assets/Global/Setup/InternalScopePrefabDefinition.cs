@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using Internal;
 using Tools;
+using Tools.Objects;
 
 namespace Global.Setup
 {
