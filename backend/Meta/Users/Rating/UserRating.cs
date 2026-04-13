@@ -20,6 +20,12 @@ public interface IUserRating : IUserGrain
 
     [Transaction]
     Task<int> GetTotal();
+
+    [Transaction]
+    Task AdjustRating(int delta);
+
+    [Transaction]
+    Task SetRating(int value);
 }
 
 [GenerateSerializer]
@@ -73,5 +79,21 @@ public class UserRating : UserGrain, IUserRating
     public async Task<int> GetTotal()
     {
         return await _state.Read(s => s.CalculateTotal());
+    }
+
+    public async Task AdjustRating(int delta)
+    {
+        var record = new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
+        var state = await _state.Update(s => s.AddRecord(record));
+        await this.SendCachedProjection(state);
+    }
+
+    public async Task SetRating(int value)
+    {
+        var state = await _state.Update(s => {
+            s.Records.Clear();
+            s.AddRecord(new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
+        });
+        await this.SendCachedProjection(state);
     }
 }

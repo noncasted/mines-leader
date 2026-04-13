@@ -18,6 +18,8 @@ public class UserHandle
     public IUserRating Rating => _orleans.GetGrain<IUserRating>(_id);
     public IUserMatchHistory MatchHistory => _orleans.GetGrain<IUserMatchHistory>(_id);
     public IUserDeck Deck => _orleans.GetGrain<IUserDeck>(_id);
+    public IUserCards Cards => _orleans.GetGrain<IUserCards>(_id);
+    public IUserLoot Loot => _orleans.GetGrain<IUserLoot>(_id);
     public IUserAuth Auth => _orleans.GetGrain<IUserAuth>(_id);
 }
 

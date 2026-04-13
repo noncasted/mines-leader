@@ -30,6 +30,8 @@ public class UserFactory : IUserFactory
 
             await handle.Entity.Initialize();
             await handle.Deck.Initialize();
+            await handle.Cards.Initialize();
+            await handle.Loot.Initialize();
             await handle.Auth.OnRegistered();
 
             return id;

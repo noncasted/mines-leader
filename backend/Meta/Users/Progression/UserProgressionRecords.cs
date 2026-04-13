@@ -25,4 +25,16 @@ public class UserProgressionRecords
 
         public int GetExperience() => Experience;
     }
+
+    [GenerateSerializer]
+    public class AdminAdjust : IUserProgressionRecord
+    {
+        [Id(0)]
+        public required DateTime Date { get; init; }
+
+        [Id(1)]
+        public required int Value { get; init; }
+
+        public int GetExperience() => Value;
+    }
 }
