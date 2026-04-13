@@ -1,30 +1,16 @@
 #if UNITY_EDITOR
-using System;
 using Global.UI;
 using MPUIKIT;
 using TMPro;
 using Tools;
-using UnityEditor;
+using Tools.DI;
+using Tools.Objects;
+using Tools.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Global.Settings
 {
-    // ResponsiveContainer is in a predefined assembly (no asmdef) — access via reflection
-    internal static class ResponsiveContainerHelper
-    {
-        private static Type _type;
-
-        public static Component Add(GameObject go)
-        {
-            // Ensure RectTransform exists (ResponsiveContainer requires it)
-            if (go.GetComponent<RectTransform>() == null)
-                go.AddComponent<RectTransform>();
-
-            _type ??= Type.GetType("Exoa.Responsive.ResponsiveContainer, Assembly-CSharp-firstpass");
-            return _type != null ? go.AddComponent(_type) : null;
-        }
-    }
 
     [PrefabDefinition]
     public static class SettingsSliderPrefab
@@ -44,7 +30,7 @@ namespace Global.Settings
 
             builder.WithChildObject("Header", header => {
                 header.WithComponent<TextMeshProUGUI>(tmp => {
-                    tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
+                    tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
                     tmp.text = "Music";
                     tmp.color = Color.white;
                     tmp.fontSize = 8f;
@@ -201,7 +187,7 @@ namespace Global.Settings
 
             builder.WithChildObject("Plate", plate => {
                 plate.WithComponent<Image>(img => {
-                    img.sprite = PrefabBuilder.LoadAsset<Sprite>(PlateSprite);
+                    img.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(PlateSprite);
                     img.type = Image.Type.Sliced;
                     img.color = Color.white;
                     img.raycastTarget = true;
@@ -214,98 +200,83 @@ namespace Global.Settings
                 plateRt.sizeDelta = new Vector2(200f, 200f);
                 plateRt.pivot = new Vector2(0.5f, 0.5f);
 
+                // Main vertical layout for entire plate
+                plate.WithResponsiveContainer(rc => {
+                    rc.AsVertical()
+                      .WithVerticalGroupAndExpand()
+                      .WithHorizontalFitInContainer()
+                      .WithSpacing(5f)
+                      .WithMargins(top: 5, bottom: 5, left: 15, right: 15);
+                });
+
                 // Header
                 plate.WithChildObject("Header", header => {
-                    header.WithComponent<TextMeshProUGUI>(tmp => {
-                        tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
-                        tmp.text = "Settings";
-                        tmp.color = new Color(0.388f, 0.392f, 0.498f, 1f);
-                        tmp.fontSize = 10f;
-                        tmp.enableAutoSizing = true;
-                        tmp.fontSizeMin = 1f;
-                        tmp.fontSizeMax = 10f;
-                        tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
-                        tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
-                        tmp.textWrappingMode = TextWrappingModes.Normal;
+                    header.WithComponent<CanvasRenderer>()
+                          .WithComponent<TextMeshProUGUI>(tmp => {
+                              tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
+                              tmp.text = "Settings";
+                              tmp.color = new Color(0.388f, 0.392f, 0.498f, 1f);
+                              tmp.fontSize = 10f;
+                              tmp.enableAutoSizing = true;
+                              tmp.fontSizeMin = 1f;
+                              tmp.fontSizeMax = 10f;
+                              tmp.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                              tmp.verticalAlignment = VerticalAlignmentOptions.Middle;
+                              tmp.textWrappingMode = TextWrappingModes.Normal;
+                          })
+                          .WithRectTransform(rt => {
+                              rt.sizeDelta = new Vector2(170f, 21f);
+                          });
+                });
+
+                // Volumes container with sliders (Master, Music, SFX)
+                plate.WithChildObject("Volumes", volumes => {
+                    volumes.WithRectTransform(rt => {
+                        rt.sizeDelta = new Vector2(170f, 40f);
                     });
 
-                    var headerRt = header.GameObject.GetComponent<RectTransform>();
-                    headerRt.anchorMin = new Vector2(0f, 1f);
-                    headerRt.anchorMax = new Vector2(1f, 1f);
-                    headerRt.anchoredPosition = new Vector2(0f, -4.6f);
-                    headerRt.sizeDelta = new Vector2(0f, 20.9f);
-                    headerRt.pivot = new Vector2(0.5f, 1f);
-                });
-
-                // Volumes container with 3 sliders (Master, Music, SFX)
-                plate.WithChildObject("Volumes", volumes => {
-                    var rc = ResponsiveContainerHelper.Add(volumes.GameObject);
-
-                    if (rc != null)
-                    {
-                        var so = new SerializedObject(rc);
-                        so.FindProperty("axis").enumValueIndex = 1; // Vertical
-                        so.FindProperty("hBehaviour").enumValueIndex = 1; // FitContentInContainer
-
-                        so.FindProperty("vBehaviour")
-                          .enumValueIndex = 6; // GroupContentInContainerAndExpand
-                        so.FindProperty("spacing").floatValue = 5f;
-                        so.ApplyModifiedPropertiesWithoutUndo();
-                    }
-
-                    var volumesRt = volumes.GameObject.GetComponent<RectTransform>();
-                    volumesRt.anchorMin = new Vector2(0f, 0.5f);
-                    volumesRt.anchorMax = new Vector2(1f, 0.5f);
-                    volumesRt.anchoredPosition = new Vector2(0f, 42.2f);
-                    volumesRt.sizeDelta = new Vector2(-30f, 40f);
-                    volumesRt.pivot = new Vector2(0.5f, 0.5f);
+                    volumes.WithResponsiveContainer(rc => {
+                        rc.AsVertical()
+                          .WithVerticalGroupAndExpand()
+                          .WithHorizontalFitInContainer()
+                          .WithSpacing(5f);
+                    });
 
                     var masterGo = volumes.WithPrefabChild(SliderPrefabPath, "Master");
-
                     if (masterGo != null)
-                    {
                         masterSlider = masterGo.GetComponentInChildren<Slider>();
-                    }
 
                     var musicGo = volumes.WithPrefabChild(SliderPrefabPath, "Music");
-
                     if (musicGo != null)
-                    {
                         musicSlider = musicGo.GetComponentInChildren<Slider>();
-                    }
 
                     var sfxGo = volumes.WithPrefabChild(SliderPrefabPath, "SFX");
-
                     if (sfxGo != null)
-                    {
                         sfxSlider = sfxGo.GetComponentInChildren<Slider>();
-                    }
                 });
 
-                // Shake slider (direct child of Plate, not in Volumes)
-                var shakeGo = plate.WithPrefabChild(SliderPrefabPath, "Shake");
+                // Shake slider
+                plate.WithChildObject("ShakeContainer", shakeContainer => {
+                    shakeContainer.WithRectTransform(rt => {
+                        rt.sizeDelta = new Vector2(170f, 10f);
+                    });
 
-                if (shakeGo != null)
-                {
-                    shakeSlider = shakeGo.GetComponentInChildren<Slider>();
-                }
+                    var shakeGo = shakeContainer.WithPrefabChild(SliderPrefabPath, "Shake");
+                    if (shakeGo != null)
+                        shakeSlider = shakeGo.GetComponentInChildren<Slider>();
+                });
 
                 // Vsync group
                 plate.WithChildObject("Vsync", vsync => {
-                    vsync.WithRectTransform();
+                    vsync.WithRectTransform(rt => {
+                        rt.sizeDelta = new Vector2(170f, 10f);
+                    });
                     vsync.WithComponent<DesignGroupSelection>(dgs => vsyncSelection = dgs);
-
-                    var vsyncRt = vsync.GameObject.GetComponent<RectTransform>();
-                    vsyncRt.anchorMin = new Vector2(0f, 0.75f);
-                    vsyncRt.anchorMax = new Vector2(0f, 0.75f);
-                    vsyncRt.anchoredPosition = new Vector2(15f, -82.8f);
-                    vsyncRt.sizeDelta = new Vector2(170f, 10f);
-                    vsyncRt.pivot = new Vector2(0f, 1f);
 
                     // Vsync Header
                     vsync.WithChildObject("Header", vsyncHeader => {
                         vsyncHeader.WithComponent<TextMeshProUGUI>(tmp => {
-                            tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(
+                            tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(
                                 FontDreiFraktur);
                             tmp.text = "Vsync\n";
                             tmp.color = Color.white;
@@ -335,27 +306,19 @@ namespace Global.Settings
                     DesignButton offButton = null;
 
                     vsync.WithChildObject("Bottom", vsyncBottom => {
-                        var vsyncRc = ResponsiveContainerHelper.Add(vsyncBottom.GameObject);
+                        vsyncBottom.WithRectTransform(rt => {
+                            rt.anchorMin = new Vector2(0f, 0f);
+                            rt.anchorMax = new Vector2(1f, 0f);
+                            rt.anchoredPosition = new Vector2(20f, 0f);
+                            rt.sizeDelta = new Vector2(-40f, 10f);
+                            rt.pivot = new Vector2(0.5f, 0f);
+                        });
 
-                        if (vsyncRc != null)
-                        {
-                            var so = new SerializedObject(vsyncRc);
-                            so.FindProperty("axis").enumValueIndex = 0; // Horizontal
-
-                            so.FindProperty("hBehaviour")
-                              .enumValueIndex = 1; // FitContentInContainer
-
-                            so.FindProperty("vBehaviour")
-                              .enumValueIndex = 1; // FitContentInContainer
-                            so.ApplyModifiedPropertiesWithoutUndo();
-                        }
-
-                        var bottomRt = vsyncBottom.GameObject.GetComponent<RectTransform>();
-                        bottomRt.anchorMin = new Vector2(0f, 0f);
-                        bottomRt.anchorMax = new Vector2(1f, 0f);
-                        bottomRt.anchoredPosition = new Vector2(20f, 0f);
-                        bottomRt.sizeDelta = new Vector2(-40f, 10f);
-                        bottomRt.pivot = new Vector2(0.5f, 0f);
+                        vsyncBottom.WithResponsiveContainer(rc => {
+                            rc.AsHorizontal()
+                              .WithHorizontalFitInContainer()
+                              .WithVerticalFitInContainer();
+                        });
 
                         CreateSelectionButton(vsyncBottom, "On", "on",
                             out onPlate, out onButton, out onText);
@@ -383,29 +346,22 @@ namespace Global.Settings
 
                 // Bottom buttons (Cancel, Apply)
                 plate.WithChildObject("Bottom", bottom => {
-                    var bottomRc = ResponsiveContainerHelper.Add(bottom.GameObject);
+                    bottom.WithRectTransform(rt => {
+                        rt.sizeDelta = new Vector2(170f, 21f);
+                    });
 
-                    if (bottomRc != null)
-                    {
-                        var so = new SerializedObject(bottomRc);
-                        so.FindProperty("axis").enumValueIndex = 0; // Horizontal
-                        so.FindProperty("hBehaviour").enumValueIndex = 1; // FitContentInContainer
-                        so.FindProperty("vBehaviour").enumValueIndex = 1; // FitContentInContainer
-                        so.ApplyModifiedPropertiesWithoutUndo();
-                    }
-
-                    var bottomRt = bottom.GameObject.GetComponent<RectTransform>();
-                    bottomRt.anchorMin = new Vector2(0f, 0f);
-                    bottomRt.anchorMax = new Vector2(1f, 0f);
-                    bottomRt.anchoredPosition = new Vector2(0.1f, 1f);
-                    bottomRt.sizeDelta = new Vector2(-3.8f, 21f);
-                    bottomRt.pivot = new Vector2(0.5f, 0f);
+                    bottom.WithResponsiveContainer(rc => {
+                        rc.AsHorizontal()
+                          .WithHorizontalFitInContainer()
+                          .WithVerticalFitInContainer()
+                          .WithSpacing(4f);
+                    });
 
                     CreateActionButton(bottom, "Cancel", "cancel",
-                        new Vector2(98.1f, 21f), out cancelDesignButton);
+                        new Vector2(83f, 21f), out cancelDesignButton);
 
                     CreateActionButton(bottom, "Apply", "apply",
-                        new Vector2(98.1f, 21f), out applyDesignButton);
+                        new Vector2(83f, 21f), out applyDesignButton);
                 });
             });
 
@@ -434,7 +390,7 @@ namespace Global.Settings
                 DesignElement designElement = null;
 
                 btn.WithComponent<Image>(img => {
-                    img.sprite = PrefabBuilder.LoadAsset<Sprite>(ButtonSprite);
+                    img.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(ButtonSprite);
                     img.type = Image.Type.Sliced;
                     img.color = Color.white;
                     img.raycastTarget = true;
@@ -459,7 +415,7 @@ namespace Global.Settings
 
                 btn.WithChildObject("Text", textChild => {
                     textChild.WithComponent<TextMeshProUGUI>(tmp => {
-                        tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
+                        tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
                         tmp.text = text;
                         tmp.color = new Color(0.730f, 0.729f, 0.755f, 1f);
                         tmp.fontSize = 5.9f;
@@ -486,7 +442,7 @@ namespace Global.Settings
                     textChild.SetSerialized<DesignElementTextColor>("_text", capturedText);
 
                     textChild.SetSerialized<DesignElementTextColor>("_config",
-                        PrefabBuilder.LoadAsset<BaseElementConfig>(TextConfigAsset));
+                        AssetsBuilderExtensions.LoadAsset<BaseElementConfig>(TextConfigAsset));
                 });
 
                 btn.SetSerialized<DesignButton>("_element", designElement);
@@ -511,7 +467,7 @@ namespace Global.Settings
                 DesignElement designElement = null;
 
                 btn.WithComponent<Image>(img => {
-                    img.sprite = PrefabBuilder.LoadAsset<Sprite>(ButtonSprite);
+                    img.sprite = AssetsBuilderExtensions.LoadAsset<Sprite>(ButtonSprite);
                     img.type = Image.Type.Sliced;
                     img.color = Color.white;
                     img.raycastTarget = true;
@@ -535,7 +491,7 @@ namespace Global.Settings
 
                 btn.WithChildObject("Text", textChild => {
                     textChild.WithComponent<TextMeshProUGUI>(tmp => {
-                        tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
+                        tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontDreiFraktur);
                         tmp.text = text;
                         tmp.color = new Color(0.730f, 0.729f, 0.755f, 1f);
                         tmp.fontSize = 10f;
@@ -562,7 +518,7 @@ namespace Global.Settings
                         textChild.GameObject.GetComponent<TMP_Text>());
 
                     textChild.SetSerialized<DesignElementTextColor>("_config",
-                        PrefabBuilder.LoadAsset<BaseElementConfig>(TextConfigAsset));
+                        AssetsBuilderExtensions.LoadAsset<BaseElementConfig>(TextConfigAsset));
                 });
 
                 btn.SetSerialized<DesignButton>("_element", designElement);

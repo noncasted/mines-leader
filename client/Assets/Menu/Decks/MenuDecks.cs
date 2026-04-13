@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
@@ -38,6 +39,7 @@ namespace Menu.Decks
         private ICardsRegistry _cardsRegistry;
         private IViewInjector _viewInjector;
         private ICardConfigs _configs;
+        private IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -46,12 +48,14 @@ namespace Menu.Decks
             IDeckService deckService,
             ICardsRegistry cardsRegistry,
             IViewInjector viewInjector,
-            ICardConfigs configs)
+            ICardConfigs configs,
+            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection)
         {
             _configs = configs;
             _viewInjector = viewInjector;
             _cardsRegistry = cardsRegistry;
             _deckService = deckService;
+            _cardsProjection = cardsProjection;
         }
 
         public void Create(IScopeBuilder builder)
@@ -118,6 +122,26 @@ namespace Menu.Decks
 
             RecalculateMana();
             UpdateDeck(_deckService.SelectedIndex.Value);
+            ResizePoolRoot();
+
+            _cardsProjection.Listen(lifetime, OnCardsUpdated);
+        }
+
+        private void OnCardsUpdated(SharedBackendUser.CardsProjection projection)
+        {
+            var ownedSet = new HashSet<CardType>(projection.OwnedCards);
+
+            foreach (var (type, spot) in _typeToPoolSpot)
+                spot.SetOwned(ownedSet.Contains(type));
+
+            // Sort: owned first, then unowned
+            var sorted = _typeToPoolSpot.Values
+                .OrderByDescending(s => s.IsOwned)
+                .ToList();
+
+            for (var i = 0; i < sorted.Count; i++)
+                sorted[i].transform.SetSiblingIndex(i);
+
             ResizePoolRoot();
         }
 

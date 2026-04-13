@@ -1,5 +1,6 @@
 ﻿using Internal;
 using Tools;
+using Tools.Objects;
 using UnityEngine;
 
 namespace Global.Cameras

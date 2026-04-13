@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 
 namespace GamePlay.Players
@@ -16,7 +18,7 @@ namespace GamePlay.Players
             builder
                 .WithName("PlayerTurnPoint")
                 .WithComponent<SpriteRenderer>(sr => {
-                            sr.sprite = PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive");
+                            sr.sprite = AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive");
                             sr.color = Color.white;
                             spriteRenderer = sr;
                         }
@@ -24,10 +26,10 @@ namespace GamePlay.Players
                 .WithComponent<AvatarTurnPointView>();
 
             builder.SetSerialized<AvatarTurnPointView>("_active",
-                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active"));
 
             builder.SetSerialized<AvatarTurnPointView>("_inactive",
-                PrefabBuilder.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive"));
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive"));
             builder.SetSerialized<AvatarTurnPointView>("_renderer", spriteRenderer);
         }
     }

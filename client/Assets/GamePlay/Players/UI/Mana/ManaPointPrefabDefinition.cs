@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using Tools;
+using Tools.DI;
+using Tools.Objects;
 using UnityEngine;
 
 namespace GamePlay.Players
@@ -11,8 +13,8 @@ namespace GamePlay.Players
 
         public static void Define(PrefabBuilder builder)
         {
-            var spriteEmpty = PrefabBuilder.LoadSubAsset<Sprite>(SpritePath, "mana_points_1");
-            var spriteFull = PrefabBuilder.LoadSubAsset<Sprite>(SpritePath, "mana_points_0");
+            var spriteEmpty = AssetsBuilderExtensions.LoadSubAsset<Sprite>(SpritePath, "mana_points_1");
+            var spriteFull = AssetsBuilderExtensions.LoadSubAsset<Sprite>(SpritePath, "mana_points_0");
             SpriteRenderer spriteRenderer = null;
 
             builder
