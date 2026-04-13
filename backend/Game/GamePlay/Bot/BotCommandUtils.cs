@@ -37,6 +37,7 @@ public class BotCommandUtils : IBotCommandUtils
         var lifetime = new Lifetime();
         var snapshot = new MoveSnapshot();
         snapshot.HandleBoards(lifetime, _gameContext);
+        snapshot.HandlePlayers(lifetime, _gameContext);
 
         action();
 
@@ -49,6 +50,7 @@ public class BotCommandUtils : IBotCommandUtils
         var lifetime = new Lifetime();
         var snapshot = new MoveSnapshot();
         snapshot.HandleBoards(lifetime, _gameContext);
+        snapshot.HandlePlayers(lifetime, _gameContext);
 
         action(snapshot);
 

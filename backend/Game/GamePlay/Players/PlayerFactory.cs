@@ -36,10 +36,7 @@ public class PlayerFactory : IPlayerFactory
         var entityBuilder = _entityFactory.Create(user);
 
         var boardProperty = entityBuilder.AddProperty<BoardState>(PlayerStateIds.Board);
-        var healthProperty = entityBuilder.AddProperty<PlayerHealthState>(PlayerStateIds.Health);
-        var manaProperty = entityBuilder.AddProperty<PlayerManaState>(PlayerStateIds.Mana);
         var modifiersProperty = entityBuilder.AddProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
-        var movesProperty = entityBuilder.AddProperty<PlayerMovesState>(PlayerStateIds.Moves);
         var deckProperty = entityBuilder.AddProperty<PlayerDeckState>(PlayerStateIds.Deck);
         var handProperty = entityBuilder.AddProperty<PlayerHandState>(PlayerStateIds.Hand);
         var stashProperty = entityBuilder.AddProperty<PlayerStashState>(PlayerStateIds.Stash);
@@ -55,10 +52,10 @@ public class PlayerFactory : IPlayerFactory
 
         var board = new Board(boardProperty, entity.Owner.Id, _boardOptions);
         var modifiers = new Modifiers(modifiersProperty);
-        var health = new Health(healthProperty, modifiers);
-        var mana = new Mana(manaProperty, modifiers);
+        var health = new Health(modifiers);
+        var mana = new Mana(modifiers);
         var deck = new Deck(deckProperty, selectedDeck);
-        var moves = new Moves(movesProperty, modifiers);
+        var moves = new Moves(modifiers);
         var hand = new Hand(handProperty);
         var stash = new Stash(stashProperty);
         var actions = new PlayerActions();

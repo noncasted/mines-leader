@@ -59,6 +59,45 @@ public class MoveSnapshot
     }
 
 
+    public void HandlePlayers(IReadOnlyLifetime lifetime, IGameContext gameContext)
+    {
+        foreach (var player in gameContext.Players)
+        {
+            var playerId = player.User.Id;
+            var mana = player.Mana;
+            var health = player.Health;
+            var moves = player.Moves;
+
+            mana.Updated.Advise(lifetime, () => {
+                _records.Add(new PlayerSnapshotRecord.ManaUpdate
+                {
+                    PlayerId = playerId,
+                    Current = mana.Current,
+                    Max = mana.Max
+                });
+            });
+
+            health.Updated.Advise(lifetime, () => {
+                _records.Add(new PlayerSnapshotRecord.HealthUpdate
+                {
+                    PlayerId = playerId,
+                    Current = health.Current.Value,
+                    Max = health.Max
+                });
+            });
+
+            moves.Updated.Advise(lifetime, () => {
+                _records.Add(new PlayerSnapshotRecord.MovesUpdate
+                {
+                    PlayerId = playerId,
+                    Left = moves.Left,
+                    Max = moves.Max,
+                    IsAvailable = moves.IsAvailable
+                });
+            });
+        }
+    }
+
     public void HandleBoards(IReadOnlyLifetime lifetime, IGameContext gameContext)
     {
         foreach (var (_, board) in gameContext.Boards)

@@ -33,6 +33,9 @@ namespace Shared
     [MemoryPackUnion(2, typeof(PlayerSnapshotRecord.CardAdd))]
     [MemoryPackUnion(3, typeof(PlayerSnapshotRecord.CardRemove))]
     [MemoryPackUnion(4, typeof(GameStartedRecord))]
+    [MemoryPackUnion(5, typeof(PlayerSnapshotRecord.ManaUpdate))]
+    [MemoryPackUnion(6, typeof(PlayerSnapshotRecord.HealthUpdate))]
+    [MemoryPackUnion(7, typeof(PlayerSnapshotRecord.MovesUpdate))]
     public partial interface IMoveSnapshotRecord
     {
     }

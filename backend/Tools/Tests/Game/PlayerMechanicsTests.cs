@@ -10,18 +10,16 @@ namespace Tests.Game;
 
 public class HealthTests
 {
-    private static (Health health, ValueProperty<PlayerHealthState> state) Create()
+    private static Health Create()
     {
-        var state = new ValueProperty<PlayerHealthState>(0).ForTest();
         var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
-        var health = new Health(state, modifiers);
-        return (health, state);
+        return new Health(modifiers);
     }
 
     [Fact]
     public void SetMax_SetsMaximumHp()
     {
-        var (health, _) = Create();
+        var health = Create();
 
         health.SetMax(100);
 
@@ -31,7 +29,7 @@ public class HealthTests
     [Fact]
     public void SetCurrent_ClampsToMax()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(50);
 
         health.SetCurrent(999);
@@ -42,7 +40,7 @@ public class HealthTests
     [Fact]
     public void SetCurrent_ClampsToZero()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(50);
 
         health.SetCurrent(-10);
@@ -53,7 +51,7 @@ public class HealthTests
     [Fact]
     public void SetCurrent_WithinRange_SetsExactValue()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
 
         health.SetCurrent(42);
@@ -64,7 +62,7 @@ public class HealthTests
     [Fact]
     public void TakeDamage_ReducesCurrentHp()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
         health.SetCurrent(100);
 
@@ -76,7 +74,7 @@ public class HealthTests
     [Fact]
     public void TakeDamage_BelowZero_ClampsToZero()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
         health.SetCurrent(10);
 
@@ -88,7 +86,7 @@ public class HealthTests
     [Fact]
     public void TakeDamage_NegativeAmount_Throws()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
         health.SetCurrent(50);
 
@@ -100,7 +98,7 @@ public class HealthTests
     [Fact]
     public void Heal_IncreasesCurrentHp()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
         health.SetCurrent(50);
 
@@ -112,7 +110,7 @@ public class HealthTests
     [Fact]
     public void Heal_AboveMax_ClampsToMax()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(100);
         health.SetCurrent(90);
 
@@ -124,7 +122,7 @@ public class HealthTests
     [Fact]
     public void Heal_NegativeAmount_Throws()
     {
-        var (health, _) = Create();
+        var health = Create();
 
         var act = () => health.Heal(-1);
 
@@ -134,7 +132,7 @@ public class HealthTests
     [Fact]
     public void TakeDamage_ToZero_CurrentIsZero()
     {
-        var (health, _) = Create();
+        var health = Create();
         health.SetMax(50);
         health.SetCurrent(50);
 
@@ -144,30 +142,34 @@ public class HealthTests
     }
 
     [Fact]
-    public void SyncState_ReflectsInValueProperty()
+    public void Updated_FiresOnStateChange()
     {
-        var (health, state) = Create();
+        var health = Create();
+        var lifetime = new Lifetime();
+        var fireCount = 0;
+
+        health.Updated.Advise(lifetime, () => fireCount++);
         health.SetMax(80);
         health.SetCurrent(45);
 
-        state.Value.Max.Should().Be(80);
-        state.Value.Current.Should().Be(45);
+        fireCount.Should().Be(2);
+        health.Max.Should().Be(80);
+        health.Current.Value.Should().Be(45);
+        lifetime.Terminate();
     }
 }
 
 public class ManaTests
 {
-    private static (Mana mana, ValueProperty<PlayerManaState> state) Create()
+    private static Mana Create()
     {
-        var state = new ValueProperty<PlayerManaState>(0).ForTest();
-        var mana = new Mana(state, Substitute.For<IModifiers>());
-        return (mana, state);
+        return new Mana(Substitute.For<IModifiers>());
     }
 
     [Fact]
     public void SetMax_SetsMaximumMana()
     {
-        var (mana, _) = Create();
+        var mana = Create();
 
         mana.SetMax(10);
 
@@ -177,7 +179,7 @@ public class ManaTests
     [Fact]
     public void SetMax_ClampsCurrent_WhenCurrentExceedsNewMax()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(10);
         mana.Restore();
         mana.Current.Should().Be(10);
@@ -190,7 +192,7 @@ public class ManaTests
     [Fact]
     public void Restore_SetsCurrentToMax()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(10);
         mana.Use(5);
 
@@ -202,7 +204,7 @@ public class ManaTests
     [Fact]
     public void Use_ReducesCurrentMana()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(10);
         mana.Restore();
 
@@ -214,7 +216,7 @@ public class ManaTests
     [Fact]
     public void Use_MoreThanAvailable_ClampsToZero()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(5);
         mana.Restore();
 
@@ -226,7 +228,7 @@ public class ManaTests
     [Fact]
     public void Use_NegativeAmount_Throws()
     {
-        var (mana, _) = Create();
+        var mana = Create();
 
         var act = () => mana.Use(-1);
 
@@ -236,7 +238,7 @@ public class ManaTests
     [Fact]
     public void SetCurrent_ClampsToMax()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(10);
 
         mana.SetCurrent(50);
@@ -247,7 +249,7 @@ public class ManaTests
     [Fact]
     public void SetCurrent_ClampsToZero()
     {
-        var (mana, _) = Create();
+        var mana = Create();
         mana.SetMax(10);
 
         mana.SetCurrent(-5);
@@ -256,32 +258,36 @@ public class ManaTests
     }
 
     [Fact]
-    public void SyncState_ReflectsInValueProperty()
+    public void Updated_FiresOnStateChange()
     {
-        var (mana, state) = Create();
+        var mana = Create();
+        var lifetime = new Lifetime();
+        var fireCount = 0;
+
+        mana.Updated.Advise(lifetime, () => fireCount++);
         mana.SetMax(8);
         mana.Restore();
         mana.Use(3);
 
-        state.Value.Max.Should().Be(8);
-        state.Value.Current.Should().Be(5);
+        fireCount.Should().Be(3);
+        mana.Max.Should().Be(8);
+        mana.Current.Should().Be(5);
+        lifetime.Terminate();
     }
 }
 
 public class MovesTests
 {
-    private static (Moves moves, ValueProperty<PlayerMovesState> state) Create()
+    private static Moves Create()
     {
-        var state = new ValueProperty<PlayerMovesState>(0).ForTest();
         var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
-        var moves = new Moves(state, modifiers);
-        return (moves, state);
+        return new Moves(modifiers);
     }
 
     [Fact]
     public void SetMax_SetsMaxMoves()
     {
-        var (moves, _) = Create();
+        var moves = Create();
 
         moves.SetMax(5);
 
@@ -291,7 +297,7 @@ public class MovesTests
     [Fact]
     public void Restore_ResetsLeftToMax()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(3);
 
         moves.Restore();
@@ -302,7 +308,7 @@ public class MovesTests
     [Fact]
     public void OnUsed_DecrementsByOne()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(3);
         moves.Restore();
 
@@ -314,7 +320,7 @@ public class MovesTests
     [Fact]
     public void OnUsed_AtZero_Throws()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(1);
         moves.Restore();
         moves.OnUsed();
@@ -327,32 +333,32 @@ public class MovesTests
     [Fact]
     public void Lock_SetsLeftToZero()
     {
-        var (moves, state) = Create();
+        var moves = Create();
         moves.SetMax(5);
         moves.Restore();
 
         moves.Lock();
 
         moves.Left.Should().Be(0);
-        state.Value.IsAvailable.Should().BeFalse();
+        moves.IsAvailable.Should().BeFalse();
     }
 
     [Fact]
     public void Restore_SetsIsAvailableTrue()
     {
-        var (moves, state) = Create();
+        var moves = Create();
         moves.SetMax(3);
         moves.Lock();
 
         moves.Restore();
 
-        state.Value.IsAvailable.Should().BeTrue();
+        moves.IsAvailable.Should().BeTrue();
     }
 
     [Fact]
     public void SetCurrent_ClampsToMax()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(5);
 
         moves.SetCurrent(100);
@@ -363,7 +369,7 @@ public class MovesTests
     [Fact]
     public void SetCurrent_ClampsToZero()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(5);
 
         moves.SetCurrent(-10);
@@ -374,7 +380,7 @@ public class MovesTests
     [Fact]
     public void SetMax_ClampsLeftWhenExceeds()
     {
-        var (moves, _) = Create();
+        var moves = Create();
         moves.SetMax(10);
         moves.Restore();
 
@@ -384,14 +390,20 @@ public class MovesTests
     }
 
     [Fact]
-    public void SyncState_ReflectsMaxInState()
+    public void Updated_FiresOnStateChange()
     {
-        var (moves, state) = Create();
+        var moves = Create();
+        var lifetime = new Lifetime();
+        var fireCount = 0;
+
+        moves.Updated.Advise(lifetime, () => fireCount++);
         moves.SetMax(7);
         moves.Restore();
 
-        state.Value.Max.Should().Be(7);
-        state.Value.Left.Should().Be(7);
+        fireCount.Should().Be(2);
+        moves.Max.Should().Be(7);
+        moves.Left.Should().Be(7);
+        lifetime.Terminate();
     }
 }
 

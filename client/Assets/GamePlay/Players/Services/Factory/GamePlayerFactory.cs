@@ -68,9 +68,6 @@ namespace GamePlay.Players
                     .AddPlayerRoot(data.Owner, payload.SelectedCharacter);
 
                 builder.RegisterProperty<BoardState>(PlayerStateIds.Board);
-                builder.RegisterProperty<PlayerManaState>(PlayerStateIds.Mana);
-                builder.RegisterProperty<PlayerHealthState>(PlayerStateIds.Health);
-                builder.RegisterProperty<PlayerMovesState>(PlayerStateIds.Moves);
                 builder.RegisterProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
                 builder.RegisterProperty<PlayerHandState>(PlayerStateIds.Hand);
                 builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);

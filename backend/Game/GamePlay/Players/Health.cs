@@ -1,5 +1,4 @@
 using Common.Reactive;
-using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -9,6 +8,8 @@ public interface IHealth
     IViewableProperty<int> Current { get; }
     int Max { get; }
 
+    IViewableDelegate Updated { get; }
+
     void SetCurrent(int value);
     void SetMax(int value);
     void TakeDamage(int damage);
@@ -17,13 +18,11 @@ public interface IHealth
 
 public class Health : IHealth
 {
-    public Health(ValueProperty<PlayerHealthState> state, IModifiers modifiers)
+    public Health(IModifiers modifiers)
     {
-        _state = state;
         _modifiers = modifiers;
     }
 
-    private readonly ValueProperty<PlayerHealthState> _state;
     private readonly IModifiers _modifiers;
     private readonly ViewableProperty<int> _current = new(0);
 
@@ -31,6 +30,9 @@ public class Health : IHealth
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalHealth);
 
+    private readonly ViewableDelegate _updated = new();
+
+    public IViewableDelegate Updated => _updated;
     public IViewableProperty<int> Current => _current;
     public int Max => _max + Bonus;
 
@@ -43,13 +45,13 @@ public class Health : IHealth
             value = 0;
 
         _current.Set(value);
-        SyncState();
+        _updated.Invoke();
     }
 
     public void SetMax(int value)
     {
         _max = value;
-        SyncState();
+        _updated.Invoke();
     }
 
     public void TakeDamage(int damage)
@@ -63,7 +65,7 @@ public class Health : IHealth
             newHealth = 0;
 
         _current.Set(newHealth);
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Heal(int amount)
@@ -77,15 +79,6 @@ public class Health : IHealth
             newHealth = Max;
 
         _current.Set(newHealth);
-        SyncState();
-    }
-
-    private void SyncState()
-    {
-        _state.Set(new PlayerHealthState
-        {
-            Current = _current.Value,
-            Max = Max
-        });
+        _updated.Invoke();
     }
 }
