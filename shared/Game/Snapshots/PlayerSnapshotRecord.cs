@@ -27,5 +27,30 @@ namespace Shared
             public Guid PlayerId { get; set; }
             public Guid CardId { get; set; }
         }
+
+        [MemoryPackable]
+        public partial class ManaUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Current { get; set; }
+            public int Max { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class HealthUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Current { get; set; }
+            public int Max { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MovesUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Left { get; set; }
+            public int Max { get; set; }
+            public bool IsAvailable { get; set; }
+        }
     }
 }

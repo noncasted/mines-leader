@@ -53,15 +53,6 @@ public class LastManStandingRound : Service, IGameRound
         foreach (var player in _gameContext.Players)
         {
             player.Hand.SetSize(ModeOptions.HandSize);
-
-            player.Health.SetMax(ModeOptions.PlayerHealth);
-            player.Health.SetCurrent(ModeOptions.PlayerHealth);
-
-            player.Mana.SetMax(ModeOptions.PlayerStartMana);
-            player.Mana.Restore();
-
-            player.Moves.SetMax(ModeOptions.PlayerMoves);
-
             player.Deck.Init(ModeOptions.DeckSize);
         }
 
@@ -71,7 +62,20 @@ public class LastManStandingRound : Service, IGameRound
 
         var players = _gameContext.Players;
 
+        var snapshotLifetime = new Lifetime();
         var snapshot = new MoveSnapshot();
+        snapshot.HandlePlayers(snapshotLifetime, _gameContext);
+
+        foreach (var player in _gameContext.Players)
+        {
+            player.Health.SetMax(ModeOptions.PlayerHealth);
+            player.Health.SetCurrent(ModeOptions.PlayerHealth);
+
+            player.Mana.SetMax(ModeOptions.PlayerStartMana);
+            player.Mana.Restore();
+
+            player.Moves.SetMax(ModeOptions.PlayerMoves);
+        }
 
         foreach (var player in players)
             _players.RestoreCards(player, snapshot);
@@ -81,6 +85,7 @@ public class LastManStandingRound : Service, IGameRound
 
         snapshot.RecordGameStarted();
         _snapshotSender.Send(snapshot);
+        snapshotLifetime.Terminate();
 
         var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
 
@@ -161,7 +166,17 @@ public class LastManStandingRound : Service, IGameRound
 
         _state.Update(state => state.CurrentPlayer = player.User.Id);
 
-        player.Moves.Restore();
+        {
+            var startLifetime = new Lifetime();
+            var startSnapshot = new MoveSnapshot();
+            startSnapshot.HandlePlayers(startLifetime, _gameContext);
+
+            player.Moves.Restore();
+
+            _snapshotSender.Send(startSnapshot);
+            startLifetime.Terminate();
+        }
+
         _currentPlayer.Set(player);
 
         try
@@ -177,16 +192,22 @@ public class LastManStandingRound : Service, IGameRound
             _logger.LogError(e, "Error in round timer");
         }
 
+        {
+            var endLifetime = new Lifetime();
+            var endSnapshot = new MoveSnapshot();
+            endSnapshot.HandlePlayers(endLifetime, _gameContext);
 
-        player.Mana.SetMax(player.Mana.Max + 1);
-        player.Mana.Restore();
+            player.Mana.SetMax(player.Mana.Max + 1);
+            player.Mana.Restore();
 
-        var snapshot = new MoveSnapshot();
-        _players.RestoreCards(player, snapshot);
-        _snapshotSender.Send(snapshot);
+            _players.RestoreCards(player, endSnapshot);
 
-        _roundActionService.Tick();
-        player.Moves.Lock();
+            _roundActionService.Tick();
+            player.Moves.Lock();
+
+            _snapshotSender.Send(endSnapshot);
+            endLifetime.Terminate();
+        }
 
         roundForcedLifetime.Terminate();
 

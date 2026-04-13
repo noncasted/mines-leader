@@ -6,5 +6,6 @@ namespace Shared
         Frost = 200,
         Blackout = 300,
         Fog = 400,
+        MineHighlight = 500,
     }
 }

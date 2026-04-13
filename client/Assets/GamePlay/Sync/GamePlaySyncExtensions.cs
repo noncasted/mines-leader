@@ -13,6 +13,9 @@ namespace GamePlay
             builder.AddSnapshotHandler<CardRemoveSnapshotHandler, PlayerSnapshotRecord.CardRemove>();
             builder.AddSnapshotHandler<CardActionSnapshotHandler, PlayerSnapshotRecord.CardUse>();
             builder.AddSnapshotHandler<GameStartedSnapshotHandler, GameStartedRecord>();
+            builder.AddSnapshotHandler<PlayerManaSnapshotHandler, PlayerSnapshotRecord.ManaUpdate>();
+            builder.AddSnapshotHandler<PlayerHealthSnapshotHandler, PlayerSnapshotRecord.HealthUpdate>();
+            builder.AddSnapshotHandler<PlayerMovesSnapshotHandler, PlayerSnapshotRecord.MovesUpdate>();
 
             return builder;
         }

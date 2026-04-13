@@ -9,16 +9,13 @@ namespace GamePlay.Players
         public static IEntityBuilder AddPlayerComponents(this IEntityBuilder builder)
         {
             builder.Register<PlayerMana>()
-                   .As<IPlayerMana>()
-                   .As<IScopeLoaded>();
+                   .As<IPlayerMana>();
 
             builder.Register<PlayerHealth>()
-                   .As<IPlayerHealth>()
-                   .As<IScopeLoaded>();
+                   .As<IPlayerHealth>();
 
             builder.Register<PlayerMoves>()
-                   .As<IPlayerMoves>()
-                   .As<IScopeLoaded>();
+                   .As<IPlayerMoves>();
 
             builder.Register<PlayerModifiers>()
                    .As<IPlayerModifiers>()

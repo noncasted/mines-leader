@@ -1,5 +1,4 @@
 ﻿using Common.Reactive;
-using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -8,6 +7,8 @@ public interface IMana
 {
     int Current { get; }
     int Max { get; }
+
+    IViewableDelegate Updated { get; }
 
     void SetCurrent(int value);
     void SetMax(int value);
@@ -18,13 +19,11 @@ public interface IMana
 
 public class Mana : IMana
 {
-    public Mana(ValueProperty<PlayerManaState> state, IModifiers modifiers)
+    public Mana(IModifiers modifiers)
     {
-        _state = state;
         _modifiers = modifiers;
     }
 
-    private readonly ValueProperty<PlayerManaState> _state;
     private readonly IModifiers _modifiers;
     private readonly ViewableProperty<int> _current = new(0);
 
@@ -32,6 +31,9 @@ public class Mana : IMana
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMana);
 
+    private readonly ViewableDelegate _updated = new();
+
+    public IViewableDelegate Updated => _updated;
     public int Current => _current.Value;
     public int Max => _max + Bonus;
 
@@ -44,7 +46,7 @@ public class Mana : IMana
             value = 0;
 
         _current.Set(value);
-        SyncState();
+        _updated.Invoke();
     }
 
     public void SetMax(int value)
@@ -54,7 +56,7 @@ public class Mana : IMana
         if (_current.Value > _max)
             _current.Set(_max);
 
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Use(int amount)
@@ -68,21 +70,12 @@ public class Mana : IMana
             newMana = 0;
 
         _current.Set(newMana);
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Restore()
     {
         _current.Set(_max);
-        SyncState();
-    }
-
-    private void SyncState()
-    {
-        _state.Set(new PlayerManaState()
-        {
-            Current = _current.Value,
-            Max = Max
-        });
+        _updated.Invoke();
     }
 }

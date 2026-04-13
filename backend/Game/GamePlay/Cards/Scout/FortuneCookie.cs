@@ -8,14 +8,16 @@ namespace Game.GamePlay;
 /// </summary>
 public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
 {
-    public FortuneCookie(ICardConfigs configs, IGameRandom gameRandom)
+    public FortuneCookie(ICardConfigs configs, IGameRandom gameRandom, IRoundActionService roundActionService)
     {
         _configs = configs;
         _gameRandom = gameRandom;
+        _roundActionService = roundActionService;
     }
 
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
+    private readonly IRoundActionService _roundActionService;
 
     public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneCookie payload)
     {
@@ -40,14 +42,22 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
         var count = _gameRandom.Range(invoker, config.MinMines, config.MaxMines);
         count = Math.Min(count, mineCells.Count);
 
+        var effectId = Guid.NewGuid();
         var revealed = new List<Position>(count);
+        var affectedCells = new List<ICell>();
 
         for (var i = 0; i < count; i++)
         {
             var index = _gameRandom.Index(invoker, mineCells.Count);
-            revealed.Add(mineCells[index].Position);
+            var cell = mineCells[index];
+            revealed.Add(cell.Position);
+            cell.AddEffect(new MineHighlightEffect { Id = effectId });
+            affectedCells.Add(cell);
             mineCells.RemoveAt(index);
         }
+
+        if (affectedCells.Count > 0)
+            _roundActionService.Schedule(new MineHighlightDisposeAction(effectId, affectedCells), 1);
 
         return new CardUseResult
         {

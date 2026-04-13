@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
+using GamePlay.UI.ActionLog;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -13,14 +14,17 @@ namespace GamePlay
     {
         public CardActionSnapshotHandler(
             IReadOnlyLifetime lifetime,
-            IGameContext gameContext)
+            IGameContext gameContext,
+            IGameActionLog actionLog)
         {
             _lifetime = lifetime;
             _gameContext = gameContext;
+            _actionLog = actionLog;
         }
 
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
+        private readonly IGameActionLog _actionLog;
 
         public async UniTask Handle(PlayerSnapshotRecord.CardUse record)
         {
@@ -29,6 +33,8 @@ namespace GamePlay
             Debug.Log(
                 $"Handling card action snapshot for player {record.PlayerId}, card {record.CardId}, data {record.Data}");
             var card = player.Hand.Entries.First(t => t.Id == record.CardId)!;
+
+            _actionLog.LogCardAction(record.PlayerId, card.Type);
 
             await card.Use(_lifetime, record.Data);
 

@@ -1,6 +1,4 @@
 ﻿using Internal;
-using Network;
-using Shared;
 
 namespace GamePlay.Players
 {
@@ -8,31 +6,22 @@ namespace GamePlay.Players
     {
         IViewableProperty<int> Current { get; }
         IViewableProperty<int> Max { get; }
+
+        void Set(int current, int max);
     }
 
-    public class PlayerMana : IPlayerMana, IScopeLoaded
+    public class PlayerMana : IPlayerMana
     {
-        public PlayerMana(NetworkProperty<PlayerManaState> state)
-        {
-            _state = state;
-        }
-
-        private readonly NetworkProperty<PlayerManaState> _state;
-
         private readonly ViewableProperty<int> _current = new();
         private readonly ViewableProperty<int> _max = new();
-
-        private float _regenerationTimer;
 
         public IViewableProperty<int> Current => _current;
         public IViewableProperty<int> Max => _max;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void Set(int current, int max)
         {
-            _state.View(lifetime, state => {
-                _current.Set(state.Current);
-                _max.Set(state.Max);
-            });
+            _current.Set(current);
+            _max.Set(max);
         }
     }
 }

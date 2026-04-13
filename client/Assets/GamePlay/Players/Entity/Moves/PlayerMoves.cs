@@ -1,7 +1,5 @@
 ﻿using GamePlay.Loop;
 using Internal;
-using Network;
-using Shared;
 
 namespace GamePlay.Players
 {
@@ -10,17 +8,12 @@ namespace GamePlay.Players
         IViewableProperty<bool> IsTurn { get; }
         IViewableProperty<int> Current { get; }
         IViewableProperty<int> Max { get; }
+
+        void Set(int left, int max, bool isAvailable);
     }
 
-    public class PlayerMoves : IPlayerMoves, IScopeLoaded
+    public class PlayerMoves : IPlayerMoves
     {
-        public PlayerMoves(NetworkProperty<PlayerMovesState> state)
-        {
-            _state = state;
-        }
-
-        private readonly NetworkProperty<PlayerMovesState> _state;
-
         private readonly ViewableProperty<bool> _isTurn = new(false);
         private readonly ViewableProperty<int> _current = new();
         private readonly ViewableProperty<int> _max = new();
@@ -30,13 +23,11 @@ namespace GamePlay.Players
         public IViewableProperty<int> Current => _current;
         public IViewableProperty<int> Max => _max;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void Set(int left, int max, bool isAvailable)
         {
-            _state.View(lifetime, state => {
-                _current.Set(state.Left);
-                _max.Set(state.Max);
-                _isTurn.Set(state.IsAvailable);
-            });
+            _current.Set(left);
+            _max.Set(max);
+            _isTurn.Set(isAvailable);
         }
     }
 

@@ -31,7 +31,55 @@ namespace GamePlay.Services
         protected override void Execute(IReadOnlyLifetime lifetime, SharedMoveSnapshot context)
         {
             foreach (var record in context.Records)
+            {
+                if (record is SharedBoardSnapshot boardSnapshot)
+                {
+                    ProcessBoardSnapshot(boardSnapshot);
+                    continue;
+                }
+
                 _queue.Enqueue(record);
+            }
+        }
+
+        private void ProcessBoardSnapshot(SharedBoardSnapshot boardSnapshot)
+        {
+            List<IBoardSnapshotRecord> queued = null;
+
+            foreach (var record in boardSnapshot.Records)
+            {
+                if (record is BoardSnapshotRecord.Flag)
+                {
+                    HandleBoardRecordImmediately(boardSnapshot.BoardOwnerId, record);
+                    continue;
+                }
+
+                queued ??= new List<IBoardSnapshotRecord>();
+                queued.Add(record);
+            }
+
+            if (queued != null)
+            {
+                _queue.Enqueue(new SharedBoardSnapshot
+                {
+                    BoardOwnerId = boardSnapshot.BoardOwnerId,
+                    Records = queued
+                });
+            }
+        }
+
+        private void HandleBoardRecordImmediately(Guid boardOwnerId, IBoardSnapshotRecord record)
+        {
+            if (_handlers.TryGetValue(typeof(SharedBoardSnapshot), out var handler) == false)
+                return;
+
+            var snapshot = new SharedBoardSnapshot
+            {
+                BoardOwnerId = boardOwnerId,
+                Records = new List<IBoardSnapshotRecord> { record }
+            };
+
+            handler.Invoke(snapshot);
         }
 
         private async UniTask Loop(IReadOnlyLifetime lifetime)

@@ -1,4 +1,4 @@
-using Game.Session;
+using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -7,6 +7,9 @@ public interface IMoves
 {
     int Left { get; }
     int Max { get; }
+    bool IsAvailable { get; }
+
+    IViewableDelegate Updated { get; }
 
     void SetCurrent(int value);
     void SetMax(int value);
@@ -18,13 +21,11 @@ public interface IMoves
 
 public class Moves : IMoves
 {
-    public Moves(ValueProperty<PlayerMovesState> state, IModifiers modifiers)
+    public Moves(IModifiers modifiers)
     {
-        _state = state;
         _modifiers = modifiers;
     }
 
-    private readonly ValueProperty<PlayerMovesState> _state;
     private readonly IModifiers _modifiers;
 
     private int _maxTurns;
@@ -33,8 +34,12 @@ public class Moves : IMoves
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMoves);
 
+    private readonly ViewableDelegate _updated = new();
+
+    public IViewableDelegate Updated => _updated;
     public int Left => _rawLeft + Bonus;
     public int Max => _maxTurns + Bonus;
+    public bool IsAvailable => _isAvailable;
 
     public void SetCurrent(int value)
     {
@@ -45,7 +50,7 @@ public class Moves : IMoves
             value = Max;
 
         _rawLeft = value - Bonus;
-        SyncState();
+        _updated.Invoke();
     }
 
     public void SetMax(int value)
@@ -58,7 +63,7 @@ public class Moves : IMoves
         if (Left < 0)
             throw new InvalidOperationException("Turns cannot be less than zero.");
 
-        SyncState();
+        _updated.Invoke();
     }
 
     public void OnUsed()
@@ -68,35 +73,25 @@ public class Moves : IMoves
         if (Left < 0)
             throw new InvalidOperationException("Turns cannot be less than zero.");
 
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Restore()
     {
         _rawLeft = _maxTurns;
         _isAvailable = true;
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Lock()
     {
         _rawLeft = 0;
         _isAvailable = false;
-        SyncState();
+        _updated.Invoke();
     }
 
     public void Refresh()
     {
-        SyncState();
-    }
-
-    private void SyncState()
-    {
-        _state.Set(new PlayerMovesState
-        {
-            Left = Left,
-            Max = Max,
-            IsAvailable = _isAvailable
-        });
+        _updated.Invoke();
     }
 }

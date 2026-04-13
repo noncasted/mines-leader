@@ -2,6 +2,7 @@
 using GamePlay.Cards;
 using GamePlay.Players;
 using GamePlay.Services;
+using GamePlay.UI.ActionLog;
 using GamePlay.UI.CardInfo;
 using Internal;
 using Network;
@@ -18,6 +19,7 @@ namespace GamePlay.Loop
                 .AddBoardServices()
                 .AddCardServices()
                 .AddCardInfoService()
+                .AddActionLogService()
                 .AddSessionServices()
                 .AddSnapshotSync();
 

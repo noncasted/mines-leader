@@ -1,7 +1,4 @@
 ﻿using Internal;
-using Network;
-using Shared;
-using UnityEngine;
 
 namespace GamePlay.Players
 {
@@ -9,33 +6,22 @@ namespace GamePlay.Players
     {
         IViewableProperty<int> Current { get; }
         IViewableProperty<int> Max { get; }
+
+        void Set(int current, int max);
     }
 
-    public class PlayerHealth : IPlayerHealth, IScopeLoaded
+    public class PlayerHealth : IPlayerHealth
     {
-        public PlayerHealth(IGamePlayerInfo player, NetworkProperty<PlayerHealthState> state)
-        {
-            _player = player;
-            _state = state;
-            state.Set(new PlayerHealthState());
-        }
-
-        private readonly IGamePlayerInfo _player;
-        private readonly NetworkProperty<PlayerHealthState> _state;
-
         private readonly ViewableProperty<int> _current = new();
         private readonly ViewableProperty<int> _max = new();
 
         public IViewableProperty<int> Current => _current;
         public IViewableProperty<int> Max => _max;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void Set(int current, int max)
         {
-            _state.View(lifetime, state => {
-                Debug.Log($"[Player] {_player.Id} health updated: {state.Current}/{state.Max}");
-                _current.Set(state.Current);
-                _max.Set(state.Max);
-            });
+            _current.Set(current);
+            _max.Set(max);
         }
     }
 }
