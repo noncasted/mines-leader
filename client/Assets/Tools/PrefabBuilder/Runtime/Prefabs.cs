@@ -5,6 +5,8 @@ namespace Tools
 {
     public static class Prefabs
     {
+        public static readonly StaticPrefab ActionLogPanel = new("ActionLogPanel");
+        public static readonly StaticPrefab ActionLogTile = new("ActionLogTile");
         public static readonly StaticPrefab CardLocal = new("Card_Local");
         public static readonly StaticPrefab CardRemote = new("Card_Remote");
         public static readonly StaticPrefab DeckCard = new("DeckCard");

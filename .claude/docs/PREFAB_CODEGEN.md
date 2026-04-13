@@ -1,87 +1,346 @@
-# Prefab Code Generation
+# PrefabBuilder System
 
-## Overview
+Система программного создания Unity-префабов через fluent API. Работает только в Editor (`#if UNITY_EDITOR`).
 
-Prefabs in this project can be defined entirely in C# code using `PrefabBuilder`. This eliminates manual prefab editing in Unity Editor and makes prefab structure version-controllable, reviewable, and reproducible.
+## Архитектура
 
-Generated prefabs are saved to `Assets/Resources/Generated/` and accessible at runtime via the `Prefabs` static class (auto-generated).
-
-## How It Works
-
-1. A class marked with `[PrefabDefinition]` defines prefab structure in a static `Define(PrefabBuilder)` method
-2. `PrefabGenerator` (editor-only) finds all `[PrefabDefinition]` classes on domain reload and via `Tools/GeneratePrefabs` menu
-3. Each definition creates a temporary GameObject hierarchy, configures components, and saves as `.prefab`
-4. `PrefabsClassGenerator` auto-generates `Prefabs.cs` with lazy-loaded `StaticPrefab` properties
-5. Stale prefabs (files in `Generated/` not matching any current definition) are automatically deleted
-
-## PrefabBuilder API
-
-### Core
-
-```csharp
-builder.WithName("MyPrefab")                          // set prefab name (required)
-builder.WithComponent<T>(Action<T> configure)          // add component + configure
-builder.WithComponent<T>(out T component)              // add component + get reference
-builder.WithChild("Name")                              // create child GO, returns GameObject
-builder.WithChild<T>("Name")                           // create child GO with component T
-builder.WithChildObject("Name", Action<PrefabBuilder>) // nested builder for deep hierarchies
-builder.SetSerialized<T>("_fieldName", value)          // set private serialized field via SerializedObject
-builder.Build("path.prefab")                           // save as prefab asset
+```
+Assets/Tools/PrefabBuilder/
+  Runtime/
+    PrefabBuilder.cs                          -- ядро билдера (data class)
+    StaticPrefab.cs                           -- lazy-загрузка префабов
+    Prefabs.cs                                -- авто-генерируемый реестр
+    PrefabDefinitionAttribute.cs              -- маркер [PrefabDefinition]
+    PrefabsExtensions.cs                      -- As<T>()
+    AssetsBuilderExtensions.cs                -- FromPrefab, LoadAsset, LoadSubAsset
+    DI/
+      InjectGeneratedAttribute.cs             -- [InjectGenerated] для авто-инъекции
+      PrefabBuilderContainer.cs               -- DI контейнер для cross-references
+      SerializationBuilderExtensions.cs       -- SetSerialized, Build, serialization
+    Objects/
+      ObjectComponentsBuilderExtensions.cs    -- WithComponent, Register, GetComponent
+      ObjectHierarchyBuilderExtensions.cs     -- WithChild, WithChildObject, WithName, WithActive, WithPrefabChild
+      TransformBuilderExtensions.cs           -- WithPosition, WithScale, WithRotation
+    UI/
+      RectTransformBuilderExtensions.cs       -- WithRectTransform, StretchFull, anchors, sizing
+      MpImageBuilderExtensions.cs             -- WithMPImage, WithRoundedRect, WithCircle, WithOutline
+      TextBuilderExtensions.cs                -- AddLabel (TextMeshPro)
+      InputFieldBuilderExtensions.cs          -- WithNodeInputField (visual-only input)
+      ResponsiveContainerBuilderExtensions.cs -- WithResponsiveContainer, layout
+  Editor/
+    PrefabGenerator.cs                        -- сканирует [PrefabDefinition], генерирует
+    PrefabsClassGenerator.cs                  -- генерирует Prefabs.cs
 ```
 
-### Transform
+### Required usings
 
 ```csharp
-builder.WithPosition(x, y, z)    // set localPosition
-builder.WithScale(x, y, z)       // set localScale
-builder.WithRotation(x, y, z)    // set localEulerAngles
+using Tools;            // PrefabBuilder, AssetsBuilderExtensions, Prefabs
+using Tools.Objects;    // WithComponent, WithChild, WithChildObject, WithName, WithPosition...
+using Tools.DI;         // SetSerialized, Build, InjectGenerated, PrefabBuilderContainer
+using Tools.UI;         // WithRectTransform, WithMPImage, AddLabel, WithResponsiveContainer
 ```
 
-### Utilities
+---
+
+## PrefabBuilder (Core API)
+
+### Создание
 
 ```csharp
-builder.GameObject                              // access underlying GameObject for cross-references
-PrefabBuilder.LoadAsset<T>("Assets/path.ext")   // load asset by path (editor-only)
+// Новый пустой билдер
+var builder = new PrefabBuilder();
+
+// Из существующего GameObject (поле builder.GameObject)
+var builder = PrefabBuilder.FromGameObject(existingGo);
+var builder = PrefabBuilder.FromGameObject(existingGo, container);
+
+// Из существующего префаба (копирует)
+var builder = AssetsBuilderExtensions.FromPrefab("Assets/Path/To.prefab");
 ```
 
-### SetSerialized Supported Types
+### Fluent-методы (все возвращают PrefabBuilder)
+
+```csharp
+builder
+    .WithName("MyPrefab")                      // установить имя (обязательно)
+    .WithPosition(x, y, z)                     // localPosition
+    .WithScale(x, y, z)                        // localScale
+    .WithRotation(x, y, z)                     // localEulerAngles
+    .WithActive(true)                          // SetActive
+    .WithRectTransform(rt => rt.StretchFull()) // добавить/настроить RectTransform
+    .WithComponent<T>()                        // добавить компонент
+    .WithComponent<T>(c => c.Setup())          // добавить + настроить
+    .WithComponent<T>(out var component)       // добавить + захватить ссылку
+    .WithComponent<T>("key")                   // добавить + зарегистрировать в DI с ключом
+    .SetSerialized<T>("_fieldName", value)     // установить serialized поле
+    .Register(value)                           // зарегистрировать в DI (по runtime типу)
+    .Register(value, "key")                    // зарегистрировать с ключом
+    .Register<T>(value, "key")                 // зарегистрировать по явному типу
+```
+
+### Создание дочерних объектов
+
+```csharp
+// Простой child
+builder.WithChild("Name");                     // -> GameObject
+builder.WithChild<T>("Name");                  // -> T component
+builder.WithChild<T>("Name", c => c.Setup());  // -> T component + настройка
+
+// Составной child с вложенным билдером
+builder.WithChildObject("Name", child => {
+    child
+        .WithRectTransform(rt => rt.StretchFull())
+        .WithComponent<CanvasRenderer>()
+        .WithMPImage(Color.white);
+});
+
+// Перегрузки WithChildObject:
+WithChildObject(name, configure)
+WithChildObject(name, active, configure)
+WithChildObject(name, parent, configure)              // parent = Transform
+WithChildObject(name, parent, active, configure)
+
+// Безымянный child
+builder.WithChild(child => { ... });
+
+// Деактивировать текущий объект
+builder.Disable();
+
+// Вложить существующий префаб
+builder.WithPrefabChild("Assets/Path/To.prefab", "OptionalName");
+```
+
+### Загрузка ассетов
+
+```csharp
+var asset = AssetsBuilderExtensions.LoadAsset<T>("Assets/Path/To.asset");
+var sub = AssetsBuilderExtensions.LoadSubAsset<T>("Assets/Path/To.asset", "SubAssetName");
+```
+
+### Сборка
+
+```csharp
+GameObject prefab = builder.Build("Assets/Resources/Generated/MyPrefab.prefab");
+// ResolveAll() DI -> ApplySerializedProperties -> SaveAsPrefabAsset -> DestroyImmediate
+```
+
+---
+
+## DI-система (InjectGenerated)
+
+Ключевой паттерн для связывания UI-элементов с [SerializeField] полями без string-based SetSerialized:
+
+### Атрибут [InjectGenerated]
+
+```csharp
+public class MyView : MonoBehaviour {
+    [SerializeField, InjectGenerated] private SpriteRenderer _renderer;
+    [SerializeField, InjectGenerated("label")] private TMP_Text _label;
+}
+```
+
+### Регистрация в PrefabDefinition
+
+```csharp
+// Option 1: WithComponent с ключом (preferred для компонентов)
+builder.WithComponent<Button>("submitBtn");    // добавляет + регистрирует с ключом
+
+// Option 2: явная регистрация (для out params, загруженных ассетов)
+builder.Register(spriteRenderer);              // по runtime типу, пустой ключ
+builder.Register<TMP_Text>(label, "label");    // по явному типу + ключ
+```
+
+### Как работает
+
+1. `WithComponent<T>()` автоматически вызывает `Container.AddTarget(component)` -- компонент становится кандидатом для инъекции
+2. `Register()` регистрирует значения по типу + ключу в контейнере
+3. `Build()` вызывает `Container.ResolveAll()` -- обходит все target-поля с `[InjectGenerated]`, резолвит из реестра
+4. Если зависимость не найдена -- `InvalidOperationException` с диагностикой
+
+### Правила
+
+- `[InjectGenerated]` без ключа резолвит с ПУСТОЙ строкой ключа
+- `[InjectGenerated("myKey")]` резолвит с ключом `"myKey"`
+- Ключ в WithComponent/Register ДОЛЖЕН совпадать с ключом в InjectGenerated
+- Register(value) регистрирует по runtime типу + все базовые типы (до MonoBehaviour)
+
+---
+
+## Extension-методы UI
+
+### RectTransform (namespace Tools.UI)
+
+Все возвращают `RectTransform` для чейнинга:
+
+```csharp
+// Stretch
+rt.StretchFull()              // заполнить родителя целиком
+rt.StretchHorizontal()        // растянуть по X
+rt.StretchVertical()          // растянуть по Y
+
+// Anchor к краю
+rt.WithAnchorTop()            // прижать к верху
+rt.AnchorBottom()             // прижать к низу
+rt.AnchorLeft()               // прижать к левому краю
+rt.AnchorRight()              // прижать к правому краю
+rt.AnchorTopLeft()            // точечный якорь в верхнем левом углу
+
+// Размеры
+rt.WithWidth(100)
+rt.WithHeight(50)
+rt.WithSize(100, 50)
+rt.WithSize(new Vector2(100, 50))
+
+// Отступы (от stretch)
+rt.WithPadding(4)             // uniform
+rt.WithPadding(8, 4)          // horizontal, vertical
+
+// Позиция
+rt.WithPosition(x, y)
+
+// Pivot
+rt.WithPivot(x, y)
+rt.TopPivot()                 // (0.5, 1)
+rt.BottomPivot()              // (0.5, 0)
+rt.CenterPivot()              // (0.5, 0.5)
+```
+
+### MPImage (namespace Tools.UI)
+
+```csharp
+// Базовый (авто-добавляет CanvasRenderer)
+builder.WithMPImage(color)
+builder.WithMPImage(color, out MPImage image)
+builder.WithMPImage(configure)
+builder.WithCornerRadius(12f)
+builder.WithCornerRadius(new Vector4(top, right, bottom, left))
+
+// Скругленный прямоугольник
+builder.WithRoundedRect(color, cornerRadius)
+builder.WithRoundedRect(color, Vector4 cornerRadius)
+builder.WithRoundedRect(color, cornerRadius, out MPImage image)
+
+// Круг
+builder.WithCircle(color)
+builder.WithCircle(color, out MPImage image)
+
+// Обводка (заливка + рамка)
+builder.WithOutline(fillColor, outlineColor, outlineWidth)
+
+// Stroke (пустая фигура)
+builder.WithStroke(strokeColor, strokeWidth)
+
+// MPImage на дочернем объекте
+builder.WithMPImageChild("Name", color, child => { ... })
+builder.WithMPImageChild("Name", active, color, child => { ... })
+builder.WithRoundedRectChild("Name", color, cornerRadius, child => { ... })
+```
+
+### TextMeshPro (namespace Tools.UI)
+
+```csharp
+builder.AddLabel("Label Name", "text")
+builder.AddLabel("Label Name", "text", tmp => tmp.fontSize = 18)
+builder.AddLabel("Label Name", "text", rt => rt.StretchFull())
+builder.AddLabel("Label Name", "text", out TextMeshProUGUI label, rt => ...)
+builder.AddLabel("Label Name", rt => ..., tmp => ...)
+```
+
+Дефолты для AddLabel:
+- Color: (0.2, 0.2, 0.2, 1)
+- FontSize: 14
+- Alignment: Center
+- OverflowMode: Ellipsis
+- RaycastTarget: false
+
+### ResponsiveContainer (namespace Tools.UI)
+
+```csharp
+builder.WithResponsiveContainer(rc => {
+    rc.AsVertical()                              // или AsHorizontal()
+      .WithHorizontalFitInContainer()            // FitToContent, Spread, Group
+      .WithVerticalFitToContent()                // FitInContainer, Spread, Group, GroupAndExpand
+      .WithHorizontalAlign(HAlignType.Center)
+      .WithVerticalAlign(VAlignType.Top)
+      .WithSpacing(4f)
+      .WithMargins(top: 8, bottom: 8)
+      .WithRefreshOnChange();
+});
+
+builder.WithResponsiveChild("Name", rc => rc.AsVertical(), child => { ... });
+builder.ExcludeFromLayout();
+builder.ResizeResponsive(recursive: true);
+builder.RecalculateResponsiveContainers();
+```
+
+---
+
+## Определение префабов
+
+### Атрибут [PrefabDefinition]
+
+Два варианта сигнатуры `Define()`:
+
+```csharp
+// Вариант 1: Generator создает builder, передает его
+[PrefabDefinition]
+public static class MyPrefab {
+    public static void Define(PrefabBuilder builder) {
+        builder.WithName("MyPrefab")
+            .WithComponent<MyComponent>();
+    }
+}
+
+// Вариант 2: Метод сам создает и возвращает builder (для derived префабов)
+[PrefabDefinition]
+public static class MyDerivedPrefab {
+    public static PrefabBuilder Define() {
+        var builder = AssetsBuilderExtensions.FromPrefab("Assets/Resources/Generated/Base.prefab");
+        builder.WithName("MyDerived");
+        return builder;
+    }
+}
+```
+
+### Генерация
+
+Menu: `Tools > GeneratePrefabs`
+
+- Сканирует все `[PrefabDefinition]` классы через reflection
+- Сортирует: base (void Define(PB)) первые, derived (PB Define()) вторые
+- Сохраняет в `Assets/Resources/Generated/{Name}.prefab`
+- Генерирует `Prefabs.cs` с StaticPrefab для каждого
+- Удаляет stale-префабы из Generated/
+
+### Использование в рантайме
+
+```csharp
+var prefab = Prefabs.CardLocal;                          // StaticPrefab (lazy)
+var go = Prefabs.CardLocal.Value;                        // GameObject
+var entity = Prefabs.CardLocal.As<CardScopeEntity>();    // типизированный компонент
+
+// Implicit conversion
+GameObject go = Prefabs.CardLocal;
+```
+
+---
+
+## SetSerialized: поддерживаемые типы
 
 - `string`, `int`, `float`, `bool`
-- `Color`, `Vector2`, `Vector3`
+- `Color`, `Vector2`, `Vector3`, `Vector4`
 - `Enum` (as int index)
-- `ObjectReference` (any UnityEngine.Object: Component, GameObject, Sprite, Material, TMP_FontAsset, etc.)
+- `ObjectReference` (any UnityEngine.Object)
+- `AnimationCurve`
+- `Array` (рекурсивная сериализация элементов)
 
-## Converting a Prefab to Code
+---
 
-### Step 1: Analyze the original prefab via Unity MCP
-
-Use MCP tools to inspect the prefab hierarchy and component properties:
-
-```
-manage_prefabs(action="get_hierarchy", prefab_path="Assets/.../MyPrefab.prefab")
-manage_prefabs(action="open_prefab_stage", prefab_path="...")
-find_gameobjects(search_term="ObjectName", search_method="by_name")
-ReadMcpResourceTool(uri="mcpforunity://scene/gameobject/{id}/components")
-manage_prefabs(action="close_prefab_stage")
-```
-
-Key data to collect for each object:
-- **Transform**: localPosition, localScale, localEulerAngles
-- **SpriteRenderer**: sprite path, color, sortingLayerName, sortingOrder, flipX/flipY
-- **TextMeshPro**: font path, color, fontSize, enableAutoSizing, fontSizeMin/Max, alignment, lineSpacingAdjustment
-- **RectTransform**: anchoredPosition, sizeDelta
-- **Custom components**: all serialized field values and cross-references
-- **Colliders**: size, offset
-- **SortingGroup**: sortingLayerName, sortingOrder
-
-### Step 2: Create the `[PrefabDefinition]` class
-
-Place it near the related code (e.g., card prefab definitions near card code).
-
-Pattern for cross-references between components:
+## Паттерн: Cross-references через closures
 
 ```csharp
-// Capture references via closures (not out params — those can't be used in lambdas)
+// Capture references via closures (not out params -- those can't be used in lambdas)
 SortingGroup sortingGroup = null;
 
 builder.WithComponent<SortingGroup>(sg => {
@@ -92,14 +351,14 @@ builder.WithComponent<CardRenderer>();
 builder.SetSerialized<CardRenderer>("_sortingGroup", sortingGroup);
 ```
 
-Pattern for child-to-parent references:
+Паттерн для child-to-parent:
 
 ```csharp
 TextMeshPro nameText = null;
 
 body.WithChildObject("Name", name => {
     name.WithComponent<TextMeshPro>(tmp => {
-        tmp.font = PrefabBuilder.LoadAsset<TMP_FontAsset>("Assets/.../Font.asset");
+        tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>("Assets/.../Font.asset");
         nameText = tmp;  // capture for parent
     });
 });
@@ -108,40 +367,38 @@ body.WithChildObject("Name", name => {
 body.SetSerialized<CardDataView>("_name", nameText);
 ```
 
-### Step 3: Verify
+---
 
-1. Trigger recompilation or run `Tools/GeneratePrefabs`
-2. Check Unity console for errors
-3. Compare generated prefab hierarchy with original via MCP `get_hierarchy`
-4. Compare component properties via MCP component resources
+## TMP_InputField (CRITICAL)
 
-## Existing Definitions
+PrefabBuilder **CANNOT** create working `TMP_InputField`. Cross-references (`textViewport`, `textComponent`) are lost during prefab serialization.
 
-| Definition | File | Prefab |
-|---|---|---|
-| `CardBasePrefab` | `GamePlay/Cards/Options/Prefabs/CardPrefabDefinitions.cs` | Card_Base |
-| `CardLocalPrefab` | same | Card_Local |
-| `CardRemotePrefab` | same | Card_Remote |
-| `AudioPlayerPrefab` | `Global/Audio/GlobalAudioExtensions.cs` | Global_Audio_Player |
-| `AudioListenerPrefab` | `Global/Audio/GlobalAudioExtensions.cs` | Global_Audio_Listener |
-| `GlobalCameraPrefab` | `Global/Cameras/GlobalCameraExtensions.cs` | Global_Camera |
-| `GlobalUpdaterPrefab` | `Global/Systems/GlobalSystemExtensions.cs` | GlobalUpdater |
-| `GlobalEventSystemPrefab` | `Global/Inputs/GlobalInputExtensions.cs` | Global_Events |
+### Solution: Two-Phase Pattern
 
-## Runtime Usage
-
+**Phase 1 -- PrefabDefinition (visual only):**
 ```csharp
-// Access via static Prefabs class
-var go = Prefabs.CardLocal.Value;                          // GameObject
-var entity = Prefabs.CardLocal.As<CardScopeEntity>();      // typed component
+builder.WithNodeInputField("InputName", out var inputRect, out var inputText);
+builder.Register<RectTransform>(inputRect, "inputRect");
+builder.Register<TMP_Text>(inputText, "inputText");
 ```
+
+**Phase 2 -- Runtime assembly:**
+```csharp
+// Disable GO -> add TMP_InputField -> set references -> re-enable
+[SerializeField, InjectGenerated("inputRect")] private RectTransform _inputRect;
+[SerializeField, InjectGenerated("inputText")] private TMP_Text _inputText;
+private TMP_InputField _inputField; // runtime only, not serialized
+```
+
+---
 
 ## Gotchas
 
-- `ScopeEntityView.OnValidate()` fires during `AddComponent` — fields must handle null (fixed with `??= new()`)
-- TextMeshPro auto-adds RectTransform — don't add it manually, configure it after adding TMP
+- `ScopeEntityView.OnValidate()` fires during `AddComponent` -- fields must handle null
+- TextMeshPro auto-adds RectTransform -- don't add it manually, configure it after adding TMP
 - `SetSerialized` uses serialized field names (underscore-prefixed private fields), not property names
-- Lambdas inside `WithChildObject`/`WithComponent` execute synchronously — captured variables are available after the call
-- `out` params can't be used inside lambdas — use closure capture instead
-- `[PrefabDefinition]` classes MUST be wrapped in `#if UNITY_EDITOR` / `#endif` — PrefabBuilder is editor-only and won't compile in builds
-- Renaming `WithName()` creates a new prefab file — the old one is auto-deleted by stale cleanup on next generation
+- Lambdas inside `WithChildObject`/`WithComponent` execute synchronously -- captured variables are available after the call
+- `out` params can't be used inside lambdas -- use closure capture instead
+- `[PrefabDefinition]` classes should be wrapped in `#if UNITY_EDITOR` / `#endif` -- PrefabBuilder is editor-only
+- Renaming `WithName()` creates a new prefab file -- the old one is auto-deleted by stale cleanup
+- Prefer `[InjectGenerated]` + `Register()` over `SetSerialized` -- compile-time safe vs string-based

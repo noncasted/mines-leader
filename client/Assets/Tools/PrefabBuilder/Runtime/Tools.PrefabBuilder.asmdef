@@ -1,13 +1,17 @@
 {
     "name": "Tools.PrefabBuilder",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "MPUIKit",
+        "ResponsiveUI",
+        "Unity.TextMeshPro"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
