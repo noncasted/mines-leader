@@ -60,6 +60,21 @@ namespace Meta
             return backend.ExecuteCommand(new SharedMatchmaking.SearchLobby());
         }
 
+        public static UniTask<SharedBackendUser.LootOpenResponse> OpenLootBox(this IMetaBackend backend, Guid lootBoxId)
+        {
+            return backend.Connection.Writer.WriteRequest<SharedBackendUser.LootOpenResponse>(
+                new SharedBackendUser.LootOpenRequest { LootBoxId = lootBoxId });
+        }
+
+        public static UniTask ChooseLootReward(this IMetaBackend backend, Guid lootBoxId, CardType chosenCard)
+        {
+            return backend.ExecuteCommand(new SharedBackendUser.LootChooseRequest
+            {
+                LootBoxId = lootBoxId,
+                ChosenCard = chosenCard
+            });
+        }
+
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)
             where TRequest : INetworkContext
         {
