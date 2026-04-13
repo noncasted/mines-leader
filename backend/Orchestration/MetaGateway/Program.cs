@@ -10,7 +10,8 @@ builder
     .SetupMetaGateway()
     .AddMatchmakingServices()
     .AddUserFlow()
-    .AddUserCommands();
+    .AddUserCommands()
+    .AddLootCommands();
 
 var app = builder.Build();
 

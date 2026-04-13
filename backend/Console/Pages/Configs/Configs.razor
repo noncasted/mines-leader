@@ -28,6 +28,8 @@
 
     <RatingConfigEditor Value="_ratingValue" />
 
+    <LootProgressionConfigEditor Value="_lootProgressionValue" />
+
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
             <div class="rounded-md bg-violet-500/15 p-1.5">
@@ -168,6 +170,7 @@
     [Inject] public IBotConfig BotConfig { get; set; } = null!;
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
+    [Inject] public ILootProgressionConfig LootProgressionConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
     [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
@@ -175,6 +178,7 @@
     private BotConfigOptions _botValue = new();
     private GameModeOptions _gameModeValue = new();
     private RatingOptions _ratingValue = new();
+    private LootProgressionOptions _lootProgressionValue = new();
     private bool _isUpdatingJson;
 
     private static readonly CardType[] _scoutCards = [
@@ -255,6 +259,7 @@
         ReloadField(BotConfig.Value, ref _botValue);
         ReloadField(GameModeConfig.Value, ref _gameModeValue);
         ReloadField(RatingConfig.Value, ref _ratingValue);
+        ReloadField(LootProgressionConfig.Value, ref _lootProgressionValue);
         InvokeAsync(StateHasChanged);
 
         return;
@@ -272,7 +277,8 @@
         BotConfig.SetValue(_botValue);
         GameModeConfig.SetValue(_gameModeValue);
         RatingConfig.SetValue(_ratingValue);
-        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating)");
+        LootProgressionConfig.SetValue(_lootProgressionValue);
+        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression)");
         ToastService.Success("Configs saved", "Saved");
     }
 
@@ -288,6 +294,7 @@
             await SaveConfig("config.bot", _botValue);
             await SaveConfig("config.gameMode", _gameModeValue);
             await SaveConfig("config.rating", _ratingValue);
+            await SaveConfig("config.lootProgression", _lootProgressionValue);
 
             ToastService.Success("Configs saved to JSON", "Saved");
         }

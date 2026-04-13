@@ -39,6 +39,9 @@ public static class ConfigsExtensions
         builder.AddAddressableState<TransactionConfigState>()
                .As<ITransactionConfig>();
 
+        builder.AddAddressableState<LootProgressionConfigState>()
+               .As<ILootProgressionConfig>();
+
         return builder;
     }
 }

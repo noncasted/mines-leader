@@ -1,6 +1,7 @@
 @page "/users/{Id}"
 @using global::Infrastructure
 @using global::Infrastructure.State
+@using global::Shared
 @using Meta.Matches
 @using Meta.Users
 
@@ -34,8 +35,14 @@
         <div class="rounded-lg border bg-card p-6">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex flex-col gap-2">
-                    <h1 class="text-2xl font-bold">@_user.Name</h1>
-                    <p class="text-xs text-muted-foreground font-mono">@_user.Id</p>
+                    <h1 class="text-2xl font-bold cursor-pointer hover:text-primary transition-colors select-none"
+                        title="Click to copy" @onclick="@(() => CopyToClipboard(_user.Name))">
+                        @_user.Name
+                    </h1>
+                    <p class="text-xs text-muted-foreground font-mono cursor-pointer hover:text-foreground transition-colors select-none"
+                       title="Click to copy" @onclick="@(() => CopyToClipboard(_user.Id.ToString()))">
+                        @_user.Id
+                    </p>
                     <p class="text-xs text-muted-foreground">
                         Registered: @(_registeredAt.HasValue ? _registeredAt.Value.ToString("yyyy-MM-dd HH:mm") + " UTC" : "—")
                     </p>
@@ -53,6 +60,80 @@
             </div>
         </div>
 
+        @* Rating Management *@
+        <div class="flex flex-col gap-3">
+            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Rating Management</h2>
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <p class="text-sm text-muted-foreground">Current: <span class="font-bold text-foreground">@_rating</span></p>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs text-muted-foreground w-16 shrink-0">Adjust by</span>
+                    <input type="number" @bind="_ratingDelta"
+                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="AdjustRating">Apply</BbButton>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs text-muted-foreground w-16 shrink-0">Set to</span>
+                    <input type="number" @bind="_ratingTarget"
+                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="SetRating">Set</BbButton>
+                </div>
+            </div>
+        </div>
+
+        @* Progression Management *@
+        <div class="flex flex-col gap-3">
+            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Progression Management</h2>
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <p class="text-sm text-muted-foreground">Current: <span class="font-bold text-foreground">@_xp</span> XP</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs text-muted-foreground w-16 shrink-0">Adjust by</span>
+                    <input type="number" @bind="_progressionDelta"
+                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="AdjustProgression">Apply</BbButton>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs text-muted-foreground w-16 shrink-0">Set to</span>
+                    <input type="number" @bind="_progressionTarget"
+                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="SetProgression">Set</BbButton>
+                </div>
+            </div>
+        </div>
+
+        @* Cards *@
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-2 border-b pb-2 cursor-pointer select-none"
+                 @onclick="@(() => _cardsExpanded = !_cardsExpanded)">
+                <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Cards (@_ownedCards.Count / @CardTypeExtensions.All.Count)
+                </h2>
+                <LucideIcon Name="@(_cardsExpanded ? "chevron-up" : "chevron-down")" Size="14" class="text-muted-foreground ml-auto"/>
+            </div>
+            @if (_cardsExpanded)
+            {
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach (var card in CardTypeExtensions.All)
+                    {
+                        var owned = _ownedCards.Contains(card);
+                        <div class="@(owned ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-muted text-muted-foreground") border rounded px-2 py-1 flex items-center gap-1.5">
+                            <span class="text-xs">@card.ToString().Replace("_", " ")</span>
+                            @if (!owned)
+                            {
+                                <button class="text-xs font-bold leading-none hover:text-foreground transition-colors"
+                                        disabled="@_isSaving"
+                                        @onclick="@(() => AddCard(card))">+</button>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @* Decks *@
         <div class="flex flex-col gap-3">
             <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Decks</h2>
             @if (_deckState == null || _deckState.Entries.Count == 0)
@@ -85,6 +166,7 @@
             }
         </div>
 
+        @* Match History *@
         <div class="flex flex-col gap-3">
             <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
                 Match History
@@ -113,13 +195,11 @@
                             <td class="px-4 py-2.5">
                                 @if (match.Winner == _userId)
                                 {
-                                    <span
-                                        class="text-xs bg-green-500/10 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded font-medium">Win</span>
+                                    <span class="text-xs bg-green-500/10 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded font-medium">Win</span>
                                 }
                                 else
                                 {
-                                    <span
-                                        class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">Loss</span>
+                                    <span class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">Loss</span>
                                 }
                             </td>
                             <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Time.ToString(@"mm\:ss")</td>
@@ -145,8 +225,7 @@
                                   @onclick="MatchPrevPage">
                             <LucideIcon Name="chevron-left" Size="14"/>
                         </BbButton>
-                        <span
-                            class="text-xs text-muted-foreground px-2">@(_matchCurrentPage + 1) / @_matchTotalPages</span>
+                        <span class="text-xs text-muted-foreground px-2">@(_matchCurrentPage + 1) / @_matchTotalPages</span>
                         <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
                                   Disabled="@(_matchCurrentPage >= _matchTotalPages - 1)"
                                   @onclick="MatchNextPage">
@@ -168,6 +247,7 @@
     [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
 
     private const int MatchPageSize = 10;
 
@@ -182,6 +262,14 @@
     private int _matchCurrentPage;
     private int _matchTotalPages;
     private bool _isLoading = true;
+    private bool _isSaving;
+
+    private int _ratingDelta;
+    private int _ratingTarget;
+    private int _progressionDelta;
+    private int _progressionTarget;
+    private HashSet<CardType> _ownedCards = new();
+    private bool _cardsExpanded;
 
     protected override async Task OnInitializedAsync()
     {
@@ -225,12 +313,151 @@
                 _deckState = await handle.Deck.GetState();
                 _allMatches = (await handle.MatchHistory.GetBlock(100)).Reverse().ToList();
                 _registeredAt = await handle.Auth.GetDate();
+                var cards = await handle.Cards.GetAll();
+                _ownedCards = new HashSet<CardType>(cards);
             }
         );
+
+        _ratingTarget = _rating;
+        _progressionTarget = _xp;
 
         _matchTotalPages = _allMatches.Count == 0 ? 1 : (_allMatches.Count + MatchPageSize - 1) / MatchPageSize;
         _matchCurrentPage = 0;
         _matchPageItems = _allMatches.Take(MatchPageSize).ToList();
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            ToastService.Success("Copied to clipboard", "Copied");
+        }
+        catch
+        {
+            ToastService.Error("Failed to copy", "Error");
+        }
+    }
+
+    private async Task AdjustRating()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            var handle = Orleans.CreateUserHandle(_userId);
+            await Orleans.InTransaction(async () =>
+            {
+                await handle.Rating.AdjustRating(_ratingDelta);
+                _rating = await handle.Rating.GetTotal();
+            });
+            _ratingTarget = _rating;
+            ToastService.Success($"Rating adjusted by {_ratingDelta:+#;-#;0}", "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task SetRating()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            var handle = Orleans.CreateUserHandle(_userId);
+            await Orleans.InTransaction(async () =>
+            {
+                await handle.Rating.SetRating(_ratingTarget);
+                _rating = await handle.Rating.GetTotal();
+            });
+            _ratingTarget = _rating;
+            ToastService.Success($"Rating set to {_rating}", "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task AdjustProgression()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            var handle = Orleans.CreateUserHandle(_userId);
+            await Orleans.InTransaction(async () =>
+            {
+                await handle.Progression.AdjustProgression(_progressionDelta);
+                _xp = await handle.Progression.GetTotal();
+            });
+            _progressionTarget = _xp;
+            ToastService.Success($"Progression adjusted by {_progressionDelta:+#;-#;0}", "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task SetProgression()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            var handle = Orleans.CreateUserHandle(_userId);
+            await Orleans.InTransaction(async () =>
+            {
+                await handle.Progression.SetProgression(_progressionTarget);
+                _xp = await handle.Progression.GetTotal();
+            });
+            _progressionTarget = _xp;
+            ToastService.Success($"Progression set to {_xp}", "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task AddCard(CardType card)
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            var handle = Orleans.CreateUserHandle(_userId);
+            await Orleans.InTransaction(() => handle.Cards.AddCard(card));
+            _ownedCards.Add(card);
+            ToastService.Success($"Card {card} added", "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"Error: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
     }
 
     private void MatchPrevPage()
