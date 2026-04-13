@@ -43,7 +43,10 @@ namespace Meta
 
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
+                .RegisterBackendProjection<SharedBackendUser.ProgressionProjection>()
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
+                .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
+                .RegisterBackendProjection<SharedBackendUser.LootProjection>()
                 .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
                 .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
 
@@ -51,6 +54,11 @@ namespace Meta
                    .As<IBackendProjection<CardConfigOptions>>()
                    .As<IBackendProjection>()
                    .As<ICardConfigs>();
+
+            builder.Register<LootProgressionConfigs>()
+                   .As<IBackendProjection<LootProgressionOptions>>()
+                   .As<IBackendProjection>()
+                   .As<ILootProgressionConfigs>();
 
             return builder;
         }
