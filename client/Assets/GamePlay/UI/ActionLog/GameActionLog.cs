@@ -11,6 +11,7 @@ namespace GamePlay.UI.ActionLog
     {
         ViewableList<GameActionLogEntry> Entries { get; }
         void LogCardAction(Guid playerId, CardType cardType);
+        void LogResourceChange(Guid playerId, GameActionLogEntryType type, string resourceName, int oldValue, int newValue);
     }
 
     public class GameActionLog : IGameActionLog
@@ -42,11 +43,39 @@ namespace GamePlay.UI.ActionLog
             {
                 Type = isLocal ? GameActionLogEntryType.CardPlayedSelf : GameActionLogEntryType.CardPlayedOpponent,
                 PlayerName = isLocal ? "You" : "Opponent",
+                Message = definition.Name,
                 CardType = cardType,
                 CardName = definition.Name,
                 CardDescription = definition.Description,
             };
 
+            AddEntry(entry);
+        }
+
+        public void LogResourceChange(Guid playerId, GameActionLogEntryType type, string resourceName, int oldValue, int newValue)
+        {
+            if (oldValue == newValue)
+                return;
+
+            if (!_gameContext.IsGameStarted)
+                return;
+
+            var isLocal = playerId == _gameContext.Self.Id;
+            var delta = newValue - oldValue;
+            var sign = delta > 0 ? "+" : "";
+
+            var entry = new GameActionLogEntry
+            {
+                Type = type,
+                PlayerName = isLocal ? "You" : "Opponent",
+                Message = $"{resourceName}: {sign}{delta} ({newValue})",
+            };
+
+            AddEntry(entry);
+        }
+
+        private void AddEntry(GameActionLogEntry entry)
+        {
             if (Entries.Count >= MaxEntries)
                 Entries.RemoveAt(0);
 

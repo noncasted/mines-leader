@@ -71,6 +71,9 @@ namespace GamePlay.UI.ActionLog
 
         private void OnTileHoverEnter(GameActionLogTileUI tile)
         {
+            if (tile.Entry.CardName == null)
+                return;
+
             _tooltipCardName.text = tile.Entry.CardName;
             _tooltipCardDescription.text = tile.Entry.CardDescription;
             _tooltipGroup.alpha = 1f;

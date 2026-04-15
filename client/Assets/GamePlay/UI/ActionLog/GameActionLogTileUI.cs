@@ -12,8 +12,11 @@ namespace GamePlay.UI.ActionLog
         [SerializeField] private MPImage _background;
         [SerializeField] private TMP_Text _messageText;
 
-        private static readonly Color SelfColor = new(0.18f, 0.35f, 0.58f, 0.9f);
-        private static readonly Color OpponentColor = new(0.58f, 0.22f, 0.18f, 0.9f);
+        private static readonly Color CardSelfColor = new(0.18f, 0.35f, 0.58f, 0.9f);
+        private static readonly Color CardOpponentColor = new(0.58f, 0.22f, 0.18f, 0.9f);
+        private static readonly Color ManaColor = new(0.28f, 0.22f, 0.58f, 0.9f);
+        private static readonly Color HealthColor = new(0.18f, 0.48f, 0.28f, 0.9f);
+        private static readonly Color MovesColor = new(0.55f, 0.42f, 0.18f, 0.9f);
 
         private GameActionLogEntry _entry;
         private Action<GameActionLogTileUI> _onHoverEnter;
@@ -31,8 +34,8 @@ namespace GamePlay.UI.ActionLog
             _onHoverEnter = onHoverEnter;
             _onHoverExit = onHoverExit;
 
-            _messageText.text = $"{entry.PlayerName}: {entry.CardName}";
-            _background.color = entry.Type == GameActionLogEntryType.CardPlayedSelf ? SelfColor : OpponentColor;
+            _messageText.text = $"{entry.PlayerName}: {entry.Message}";
+            _background.color = GetColor(entry.Type);
         }
 
         public void SetOpacity(float alpha)
@@ -48,6 +51,19 @@ namespace GamePlay.UI.ActionLog
         public void OnPointerExit(PointerEventData eventData)
         {
             _onHoverExit?.Invoke(this);
+        }
+
+        private static Color GetColor(GameActionLogEntryType type)
+        {
+            return type switch
+            {
+                GameActionLogEntryType.CardPlayedSelf => CardSelfColor,
+                GameActionLogEntryType.CardPlayedOpponent => CardOpponentColor,
+                GameActionLogEntryType.ManaChanged => ManaColor,
+                GameActionLogEntryType.HealthChanged => HealthColor,
+                GameActionLogEntryType.MaxMovesChanged => MovesColor,
+                _ => CardSelfColor,
+            };
         }
     }
 }
