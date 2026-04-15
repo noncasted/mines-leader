@@ -8,20 +8,23 @@ This is an enhanced version of `/task` that maintains a living workspace through
 
 ## Workspace Structure
 
-Each task gets its own folder under `docs/tasks/`:
+Active tasks live under `docs/tasks/current/`, completed tasks move to `docs/tasks/complete/`.
 
 ```
-docs/tasks/<task_name>/
-  <task_name>_info.md        — initial brief (what to do)
-  <task_name>_in_progress.md — notes during implementation
-  <task_name>_result.md      — final result summary
+docs/tasks/
+  current/<task_name>/
+    <task_name>_info.md              — initial brief (what to do)
+    <task_name>_progress.md       — notes during implementation
+    <task_name>_result.md            — final result summary
+  complete/<task_name>/
+    <task_name>.md        — condensed summary (created by /workflow-complete)
 ```
 
 `<task_name>` — lowercase, underscores, from the short task name (e.g. `bot_card_strategies`).
 
 ---
 
-## Phase 1 — Create Brief (`_info.md`)
+## Phase 1 — Create Brief (`<task_name>_info.md`)
 
 Follow the same research process as `/task`:
 
@@ -80,9 +83,9 @@ Rules:
 - Verify it is covered by a concrete step
 - If something is NOT covered — add it now
 
-### Step 6 — Write `_info.md`
+### Step 6 — Write `<task_name>_info.md`
 
-Save the brief to `docs/tasks/<task_name>/<task_name>_info.md` using this format:
+Save the brief to `docs/tasks/current/<task_name>/<task_name>_info.md` using this format:
 
 ```markdown
 ## Задача: [short name in Russian]
@@ -116,7 +119,7 @@ Save the brief to `docs/tasks/<task_name>/<task_name>_info.md` using this format
 [Specific gotchas. Omit section if no risks.]
 ```
 
-### Step 7 — Initialize `_in_progress.md`
+### Step 7 — Initialize `<task_name>_progress.md`
 
 Create the file with this template:
 
@@ -129,7 +132,7 @@ Create the file with this template:
 <!-- Сюда записываются находки, решения и полезная информация по ходу реализации -->
 ```
 
-### Step 8 — Initialize `_result.md`
+### Step 8 — Initialize `<task_name>_result.md`
 
 Create the file with this template:
 
@@ -147,14 +150,14 @@ Output the brief to the user and ask: **"Начинаем реализацию?"
 
 ## Phase 2 — During Implementation
 
-While working on the task, **actively maintain `_in_progress.md`**:
+While working on the task, **actively maintain `<task_name>_progress.md`**:
 
 ### What to write there
 
 - Важные находки при исследовании кода (неочевидные зависимости, edge cases)
 - Принятые решения и почему (если был выбор из нескольких вариантов)
 - Обнаруженные проблемы и как они были решены
-- Изменения в плане относительно `_info.md` (если план скорректирован)
+- Изменения в плане относительно `<task_name>_info.md` (если план скорректирован)
 - Список реально измененных/созданных файлов
 
 ### When to update
@@ -175,9 +178,9 @@ While working on the task, **actively maintain `_in_progress.md`**:
 
 ---
 
-## Phase 3 — Completion (`_result.md`)
+## Phase 3 — Completion (`<task_name>_result.md`)
 
-When the task is complete, write `_result.md`:
+When the task is complete, write `<task_name>_result.md`:
 
 ```markdown
 ## [Task name] — Результат
@@ -194,7 +197,7 @@ When the task is complete, write `_result.md`:
 | `path/to/File.cs` | [краткое описание изменения] |
 
 ### Отличия от плана
-[Что было сделано иначе, чем описано в _info.md. Omit if plan was followed exactly.]
+[Что было сделано иначе, чем описано в <task_name>_info.md. Omit if plan was followed exactly.]
 
 ### Нерешенные вопросы
 [Что осталось сделать или требует внимания. Omit if everything is done.]
@@ -208,6 +211,8 @@ When the task is complete, write `_result.md`:
 - Prose labels — Russian
 - Steps must name real files found via search, never guessed paths
 - Do not lose user requirements during transformation
-- `_in_progress.md` обновляется по ходу работы, а не только в конце
-- `_result.md` заполняется только когда задача завершена
-- При повторном вызове `/workflow` на ту же задачу — продолжить работу в существующей папке, не создавать новую
+- `<task_name>_progress.md` обновляется по ходу работы, а не только в конце
+- `<task_name>_result.md` заполняется только когда задача завершена
+- При повторном вызове `/workflow` на ту же задачу — продолжить работу в существующей папке в `docs/tasks/current/`, не создавать новую
+- Все рабочие файлы (`<task_name>_info.md`, `<task_name>_progress.md`, `<task_name>_result.md`) создаются в `docs/tasks/current/<task_name>/`
+- Перемещение в `docs/tasks/complete/` выполняет только `/workflow-complete`
