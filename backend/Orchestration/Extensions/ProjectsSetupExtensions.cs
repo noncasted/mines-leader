@@ -178,6 +178,9 @@ public static class ProjectsSetupExtensions
             builder.Add<DbSource>()
                    .As<IDbSource>();
 
+            builder.Add<StateStorageReader>()
+                   .As<IStateStorageReader>();
+
             builder.Services.AddHostedService<MetricsSnapshotService>();
 
             return builder;
