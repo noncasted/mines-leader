@@ -6,12 +6,16 @@ namespace GamePlay.UI.ActionLog
     {
         CardPlayedSelf,
         CardPlayedOpponent,
+        ManaChanged,
+        HealthChanged,
+        MaxMovesChanged,
     }
 
     public class GameActionLogEntry
     {
         public GameActionLogEntryType Type { get; set; }
         public string PlayerName { get; set; }
+        public string Message { get; set; }
         public CardType CardType { get; set; }
         public string CardName { get; set; }
         public string CardDescription { get; set; }

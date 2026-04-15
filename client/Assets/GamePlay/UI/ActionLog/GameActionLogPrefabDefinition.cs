@@ -147,7 +147,8 @@ namespace GamePlay.UI.ActionLog
                                 tmp.font = AssetsBuilderExtensions.LoadAsset<TMP_FontAsset>(FontPath);
                                 tmp.text = "action name";
                                 tmp.color = new Color(0.93f, 0.81f, 0.68f, 1f);
-                                tmp.fontSize = 36f;
+                                tmp.fontSize = 32f;
+                                tmp.fontSizeMin = 18f;
                                 tmp.fontSizeMax = 32f;
                                 tmp.fontStyle = FontStyles.Bold;
                                 tmp.enableAutoSizing = true;
@@ -168,6 +169,7 @@ namespace GamePlay.UI.ActionLog
                                 tmp.text = "Card description goes here.";
                                 tmp.color = new Color(0.8f, 0.8f, 0.8f, 1f);
                                 tmp.fontSize = 32f;
+                                tmp.fontSizeMin = 18f;
                                 tmp.fontSizeMax = 32f;
                                 tmp.enableAutoSizing = true;
                                 tmp.horizontalAlignment = HorizontalAlignmentOptions.Left;

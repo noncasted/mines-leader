@@ -40,29 +40,31 @@ namespace GamePlay
 
             if (card is IRemoteCard rc)
             {
-                var cardTransform = card.Transform;
-                var startPos = cardTransform.Position;
-                var direction = (cardTransform.Rotation + 90f).ToAngle().ToVector2() * -1f;
-                var endPos = startPos + direction * 5f;
+                UniTask.Create(async () => {
+                    var cardTransform = card.Transform;
+                    var startPos = cardTransform.Position;
+                    var direction = (cardTransform.Rotation + 90f).ToAngle().ToVector2() * -1f;
+                    var endPos = startPos + direction * 5f;
 
-                rc.PrepareForDrop();
-                rc.Reveal();
+                    rc.PrepareForDrop();
+                    rc.Reveal();
 
-                var timer = 0f;
-                var duration = 0.4f;
+                    var timer = 0f;
+                    var duration = 0.4f;
 
-                while (timer < duration)
-                {
-                    timer += Time.deltaTime;
-                    var t = Mathf.Clamp01(timer / duration);
-                    cardTransform.SetPosition(Vector2.Lerp(startPos, endPos, t));
-                    var xScale = Mathf.Cos(t * Mathf.PI * 2f);
-                    cardTransform.SetScale(new Vector2(xScale, 1f));
-                    await UniTask.Yield();
-                }
+                    while (timer < duration)
+                    {
+                        timer += Time.deltaTime;
+                        var t = Mathf.Clamp01(timer / duration);
+                        cardTransform.SetPosition(Vector2.Lerp(startPos, endPos, t));
+                        var xScale = Mathf.Cos(t * Mathf.PI * 2f);
+                        cardTransform.SetScale(new Vector2(xScale, 1f));
+                        await UniTask.Yield();
+                    }
 
-                await UniTask.Delay(1000);
-                await card.Destroy();
+                    await UniTask.Delay(1000);
+                    await card.Destroy();
+                }).Forget();
             }
             else
             {
