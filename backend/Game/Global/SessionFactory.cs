@@ -100,6 +100,9 @@ public class SessionFactory : ISessionFactory
         services.Add<GameReadyAwaiter>()
                 .As<IGameReadyAwaiter>();
 
+        services.Add<PlayersReadyAwaiter>()
+                .As<IPlayersReadyAwaiter>();
+
         services.Add<RoundPlayers>();
 
         switch (createOptions.Type)
@@ -177,6 +180,9 @@ public class SessionFactory : ISessionFactory
 
         services.Add<BotGameReadyAwaiter>()
                 .As<IGameReadyAwaiter>();
+
+        services.Add<BotPlayersReadyAwaiter>()
+                .As<IPlayersReadyAwaiter>();
 
         services.Add<RoundPlayers>();
 

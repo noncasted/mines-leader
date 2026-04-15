@@ -11,6 +11,7 @@ public class LastManStandingRound : Service, IGameRound
     public LastManStandingRound(
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
+        IPlayersReadyAwaiter playersReadyAwaiter,
         ISnapshotSender snapshotSender,
         IRoundActionService roundActionService,
         RoundPlayers players,
@@ -20,6 +21,7 @@ public class LastManStandingRound : Service, IGameRound
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
+        _playersReadyAwaiter = playersReadyAwaiter;
         _snapshotSender = snapshotSender;
         _roundActionService = roundActionService;
         _players = players;
@@ -34,6 +36,7 @@ public class LastManStandingRound : Service, IGameRound
     private readonly RoundPlayers _players;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
+    private readonly IPlayersReadyAwaiter _playersReadyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IRoundActionService _roundActionService;
     private readonly IGameModeConfig _modeOptions;
@@ -86,6 +89,13 @@ public class LastManStandingRound : Service, IGameRound
         snapshot.RecordGameStarted();
         _snapshotSender.Send(snapshot);
         snapshotLifetime.Terminate();
+
+        var playersReadyLifetime = lifetime.Child();
+
+        foreach (var player in players)
+            player.User.Lifetime.Listen(() => playersReadyLifetime.Terminate());
+
+        await _playersReadyAwaiter.Await(playersReadyLifetime);
 
         var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
 
@@ -197,8 +207,13 @@ public class LastManStandingRound : Service, IGameRound
             var endSnapshot = new MoveSnapshot();
             endSnapshot.HandlePlayers(endLifetime, _gameContext);
 
-            player.Mana.SetMax(player.Mana.Max + 1);
+            if (player.Mana.Max < ModeOptions.MaxManaCap)
+            {
+                player.Mana.SetMax(player.Mana.Max + 1);
+            }
+
             player.Mana.Restore();
+            _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.Max);
 
             _players.RestoreCards(player, endSnapshot);
 

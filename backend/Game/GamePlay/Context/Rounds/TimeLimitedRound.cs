@@ -11,6 +11,7 @@ public class TimeLimitedRound : Service, IGameRound
     public TimeLimitedRound(
         IGameContext gameContext,
         IGameReadyAwaiter readyAwaiter,
+        IPlayersReadyAwaiter playersReadyAwaiter,
         ISnapshotSender snapshotSender,
         IRoundActionService roundActionService,
         RoundPlayers players,
@@ -20,6 +21,7 @@ public class TimeLimitedRound : Service, IGameRound
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
+        _playersReadyAwaiter = playersReadyAwaiter;
         _snapshotSender = snapshotSender;
         _roundActionService = roundActionService;
         _players = players;
@@ -37,6 +39,7 @@ public class TimeLimitedRound : Service, IGameRound
     private readonly ISessionLogger _sessionLogger;
     private readonly IGameContext _gameContext;
     private readonly IGameReadyAwaiter _readyAwaiter;
+    private readonly IPlayersReadyAwaiter _playersReadyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
     private readonly IRoundActionService _roundActionService;
 
@@ -94,6 +97,13 @@ public class TimeLimitedRound : Service, IGameRound
         snapshot.RecordGameStarted();
         _snapshotSender.Send(snapshot);
         snapshotLifetime.Terminate();
+
+        var playersReadyLifetime = lifetime.Child();
+
+        foreach (var player in players)
+            player.User.Lifetime.Listen(() => playersReadyLifetime.Terminate());
+
+        await _playersReadyAwaiter.Await(playersReadyLifetime);
 
         var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
 
@@ -229,7 +239,7 @@ public class TimeLimitedRound : Service, IGameRound
 
         try
         {
-            await Task.WhenAny(TimerCountdown());
+            await Task.WhenAny(TimerCountdown(), TurnsCountdown());
         }
         catch (TaskCanceledException)
         {
@@ -245,8 +255,13 @@ public class TimeLimitedRound : Service, IGameRound
             var endSnapshot = new MoveSnapshot();
             endSnapshot.HandlePlayers(endLifetime, _gameContext);
 
-            player.Mana.SetMax(player.Mana.Max + 1);
+            if (player.Mana.Max < ModeOptions.MaxManaCap)
+            {
+                player.Mana.SetMax(player.Mana.Max + 1);
+            }
+
             player.Mana.Restore();
+            _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.Max);
 
             _players.RestoreCards(player, endSnapshot);
 
@@ -279,6 +294,14 @@ public class TimeLimitedRound : Service, IGameRound
 
                 await Task.Delay(timeSpan, roundForcedLifetime.Token);
             }
+        }
+
+        async Task TurnsCountdown()
+        {
+            var timeSpan = TimeSpan.FromSeconds(0.2);
+
+            while (player.Moves.Left > 0 && roundForcedLifetime.IsTerminated == false)
+                await Task.Delay(timeSpan, roundForcedLifetime.Token);
         }
 
         void AddTimeForAction()

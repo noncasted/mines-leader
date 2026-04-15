@@ -1,5 +1,4 @@
 using Cluster.Configs;
-using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.GamePlay;
@@ -14,9 +13,6 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs, MoveSn
 
         if (handCard == null)
             return EmptyResponse.Fail($"Card {request.CardId} not found in hand");
-
-        Utils.Logger.LogInformation("[Game] [Command] Player {PlayerId} is using card {CardType}",
-            context.Player.User.Id, handCard.Type);
 
         var config = configs.Value.All[handCard.Type];
         var manaCost = config.ManaCost;

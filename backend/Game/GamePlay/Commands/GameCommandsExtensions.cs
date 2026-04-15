@@ -15,6 +15,7 @@ public static class GameCommandsExtensions
         services.AddSingleton<IResponseCommand, SkipTurn>();
 
         services.AddSingleton<ICommand, PlayerReadyCommand>();
+        services.AddSingleton<ICommand, PlayerLoadedCommand>();
         services.AddSingleton<ICommand, RematchRequestCommand>();
 
         services.AddSingleton<GameCommandUtils>();
