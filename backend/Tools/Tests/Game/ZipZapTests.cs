@@ -21,6 +21,7 @@ public class ZipZapTests : PlayerCardTestsBase
     {
         var player = MockPlayer();
         player.Board.Returns(board);
+
         var values = new Dictionary<PlayerModifier, float>
         {
             { PlayerModifier.TrebuchetBoost, trebuchetBoost }

@@ -35,6 +35,7 @@ public class SonarTests : PlayerCardTestsBase
         var result = card.Use(invoker, new CardUsePayload.Sonar { Position = target });
 
         result.Result.HasError.Should().BeFalse();
+
         BoardParser.AssertBoard(board, """
                                        t t t t t m t t t t
                                        t t m t t t t t t t

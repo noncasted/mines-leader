@@ -11,6 +11,7 @@ public class TrebuchetTests : PlayerCardTestsBase
     private static IPlayer MockOwner(float trebuchetBoost = 0f)
     {
         var player = MockPlayer();
+
         var values = new Dictionary<PlayerModifier, float>
             { { PlayerModifier.TrebuchetBoost, trebuchetBoost } };
         player.Modifiers.Values.Returns(values);

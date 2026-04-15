@@ -11,10 +11,12 @@ namespace Tests.Messaging;
 public class AdaptiveIntervalTests
 {
     private static AdaptiveInterval Create(
-        double minSec = 10, double maxSec = 60, double failBaseSec = 1, double jitter = 0.2)
+        double minSec = 10,
+        double maxSec = 60,
+        double failBaseSec = 1,
+        double jitter = 0.2)
     {
-        return new AdaptiveInterval(
-            TimeSpan.FromSeconds(minSec),
+        return new AdaptiveInterval(TimeSpan.FromSeconds(minSec),
             TimeSpan.FromSeconds(maxSec),
             TimeSpan.FromSeconds(failBaseSec),
             jitter);

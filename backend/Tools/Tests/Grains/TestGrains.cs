@@ -57,7 +57,8 @@ public class SimpleTestGrain : Grain, ISimpleTestGrain
 // --- Collection test state ---
 
 [GenerateSerializer]
-[GrainState(Table = "state_test_collection", State = "collection_test", Lookup = "CollectionTest", Key = GrainKeyType.Guid)]
+[GrainState(Table = "state_test_collection", State = "collection_test", Lookup = "CollectionTest",
+    Key = GrainKeyType.Guid)]
 public class CollectionTestState : IStateValue
 {
     [Id(0)] public Guid Id { get; set; }

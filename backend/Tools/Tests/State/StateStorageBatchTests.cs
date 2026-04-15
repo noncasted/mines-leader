@@ -21,13 +21,16 @@ public class StateStorageBatchTests
         var storage = GetSiloService<IStateStorage>();
         var ids = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
 
-        foreach (var id in ids) {
+        foreach (var id in ids)
+        {
             var grain = GetGrain<ISimpleTestGrain>(id);
             await grain.SetCounter(id.GetHashCode());
         }
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
-        var identities = ids.Select(id => new StateIdentity {
+
+        var identities = ids.Select(id => new StateIdentity
+        {
             Key = id,
             Type = stateInfo.Name,
             TableName = stateInfo.TableName,
@@ -37,7 +40,9 @@ public class StateStorageBatchTests
         var result = await storage.ReadBatch<Guid, SimpleTestState>(identities);
 
         result.Count.Should().Be(5);
-        foreach (var id in ids) {
+
+        foreach (var id in ids)
+        {
             result.Should().ContainKey(id);
             result[id].Counter.Should().Be(id.GetHashCode());
         }
@@ -65,15 +70,18 @@ public class StateStorageBatchTests
         await grain.SetCounter(77);
 
         var stateInfo = storage.Registry.Get<SimpleTestState>();
+
         var identities = new List<StateIdentity>
         {
-            new() {
+            new()
+            {
                 Key = existingId,
                 Type = stateInfo.Name,
                 TableName = stateInfo.TableName,
                 Extension = null
             },
-            new() {
+            new()
+            {
                 Key = missingId,
                 Type = stateInfo.Name,
                 TableName = stateInfo.TableName,
@@ -94,7 +102,8 @@ public class StateStorageBatchTests
         var storage = GetSiloService<IStateStorage>();
 
         // Seed a few entries so iteration has something to yield
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++)
+        {
             var grain = GetGrain<ISimpleTestGrain>(Guid.NewGuid());
             await grain.SetCounter(i);
         }
@@ -103,7 +112,8 @@ public class StateStorageBatchTests
         var collected = new List<(Guid, SimpleTestState)>();
 
         var act = async () => {
-            await foreach (var entry in storage.ReadAll<Guid, SimpleTestState>(lifetime)) {
+            await foreach (var entry in storage.ReadAll<Guid, SimpleTestState>(lifetime))
+            {
                 collected.Add(entry);
                 // Terminate after the first result — simulates mid-stream cancellation
                 lifetime.Terminate();
@@ -122,7 +132,8 @@ public class StateStorageBatchTests
         var lifetime = new Lifetime();
         var results = new List<(Guid, TxTestState)>();
 
-        await foreach (var entry in storage.ReadAll<Guid, TxTestState>(lifetime)) {
+        await foreach (var entry in storage.ReadAll<Guid, TxTestState>(lifetime))
+        {
             results.Add(entry);
         }
 
@@ -138,22 +149,24 @@ public class StateStorageBatchTests
         var stateInfo = storage.Registry.Get<SimpleTestState>();
 
         var entries = Enumerable.Range(0, 4)
-            .Select(i => (id: Guid.NewGuid(), counter: i * 10, label: $"batch-{i}"))
-            .ToList();
+                                .Select(i => (id: Guid.NewGuid(), counter: i * 10, label: $"batch-{i}"))
+                                .ToList();
 
-        var records = entries.ToDictionary(
-            e => new StateIdentity {
+        var records = entries.ToDictionary(e => new StateIdentity
+            {
                 Key = e.id,
                 Type = stateInfo.Name,
                 TableName = stateInfo.TableName,
                 Extension = null
             },
-            e => (IStateValue) new SimpleTestState { Counter = e.counter, Label = e.label });
+            e => (IStateValue)new SimpleTestState { Counter = e.counter, Label = e.label });
 
         await storage.Write(new StateWriteRequest { Records = records });
 
-        foreach (var (id, counter, label) in entries) {
-            var identity = new StateIdentity {
+        foreach (var (id, counter, label) in entries)
+        {
+            var identity = new StateIdentity
+            {
                 Key = id,
                 Type = stateInfo.Name,
                 TableName = stateInfo.TableName,

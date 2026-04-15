@@ -205,7 +205,9 @@ public class SideEffectStuckDetectionTests(SideEffectTestFixture fixture)
     {
         await using var connection = await Database.DataSource.OpenConnectionAsync();
         await using var command = connection.CreateCommand();
-        command.CommandText = $"UPDATE side_effects_processing SET processing_started_at = now() - interval '{age.TotalSeconds} seconds'";
+
+        command.CommandText =
+            $"UPDATE side_effects_processing SET processing_started_at = now() - interval '{age.TotalSeconds} seconds'";
         await command.ExecuteNonQueryAsync();
     }
 

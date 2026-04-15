@@ -12,6 +12,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
     public void Use_SetsAllCardsDiscountModifier()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AllCardsDiscount, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
@@ -27,6 +28,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
     public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AllCardsDiscount, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
@@ -41,6 +43,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
     public void Use_DisposeActionRemovesDiscountAfterOneTick()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount } });
         var roundService = new RoundActionService();
