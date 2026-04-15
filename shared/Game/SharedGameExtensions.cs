@@ -12,6 +12,7 @@
             builder.Add<CardConfigOptions>();
             builder.Add<LootProgressionOptions>();
             builder.Add<MatchActionContexts.PlayerReady>();
+            builder.Add<MatchActionContexts.PlayerLoaded>();
 
             return builder;
         }

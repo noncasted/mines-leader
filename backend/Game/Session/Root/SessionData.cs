@@ -5,10 +5,10 @@ namespace Game.Session;
 
 public interface ISessionData
 {
-    public int ExpectedUsers { get; }
-    public SessionType Type { get; }
-    public Guid Id { get; }
-    public IReadOnlyLifetime Lifetime { get; }
+    int ExpectedUsers { get; }
+    SessionType Type { get; }
+    Guid Id { get; }
+    IReadOnlyLifetime Lifetime { get; }
 }
 
 public class SessionData : ISessionData

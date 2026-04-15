@@ -60,6 +60,7 @@ public class GameFlow : Service, IGameFlow
             _context.AddPlayer(player);
         }
 
+        _sessionLogger.RegisterPlayers(_users.ToList());
         _sessionLogger.LogGameStarted(playerIds);
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);

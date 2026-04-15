@@ -51,11 +51,8 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
             taken.Explode();
             opponent.Health.TakeDamage(1);
         }
-        else
-        {
-            taken.ToFree();
-        }
 
+        taken.ToFree();
         board.OnUpdated();
         board.Revealer.Reveal(cell.Position);
 

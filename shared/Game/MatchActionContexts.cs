@@ -8,5 +8,10 @@ namespace Shared
         public partial class PlayerReady : INetworkContext
         {
         }
+
+        [MemoryPackable]
+        public partial class PlayerLoaded : INetworkContext
+        {
+        }
     }
 }
