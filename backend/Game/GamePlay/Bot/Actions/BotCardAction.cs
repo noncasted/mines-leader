@@ -1,7 +1,7 @@
 using Cluster.Configs;
 using Common.Extensions;
 using Common.Reactive;
-using Microsoft.Extensions.Logging;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -18,67 +18,110 @@ public class BotCardAction : IBotCardAction
         IBotContext botContext,
         IBotCardStrategies botCardStrategies,
         IBotCommandUtils commandUtils,
-        ILogger<BotCardAction> logger)
+        ISessionLogger sessionLogger)
     {
         _cardConfigs = cardConfigs;
         _botContext = botContext;
         _botCardStrategies = botCardStrategies;
         _commandUtils = commandUtils;
-        _logger = logger;
+        _sessionLogger = sessionLogger;
     }
 
     private readonly ICardConfigs _cardConfigs;
     private readonly IBotContext _botContext;
     private readonly IBotCardStrategies _botCardStrategies;
     private readonly IBotCommandUtils _commandUtils;
-    private readonly ILogger<BotCardAction> _logger;
+    private readonly ISessionLogger _sessionLogger;
 
     public bool TryExecute(IReadOnlyLifetime lifetime)
     {
         var bot = _botContext.Bot;
+        var currentMana = bot.Mana.Current;
 
-        // Оцениваем полезность каждой карты в руке
-        var cardsWithUtility = new List<(float, Guid, CardType)>();
+        var cardsWithUtility = new List<(float utility, Guid id, CardType type)>();
         var entries = new List<ActiveCard>(bot.Hand.Entries);
         entries.Shuffle();
+
+        var skippedNoMana = new List<(CardType type, int cost)>();
+        var skippedNoStrategy = new List<CardType>();
+        var skippedZeroUtility = new List<(CardType type, float utility)>();
 
         foreach (var activeCard in entries)
         {
             var config = _cardConfigs.Value.All[activeCard.Type];
 
-            // Если нехватает маны - пропускаем
-            if (bot.Mana.Current < config.ManaCost)
+            if (currentMana < config.ManaCost)
+            {
+                skippedNoMana.Add((activeCard.Type, config.ManaCost));
                 continue;
+            }
 
-            var strategy = _botCardStrategies.Entries[activeCard.Type];
+            if (_botCardStrategies.Entries.TryGetValue(activeCard.Type, out var strategy) == false)
+            {
+                skippedNoStrategy.Add(activeCard.Type);
+                continue;
+            }
+
             var utility = strategy.Evaluate(activeCard.Type);
 
-            if (utility > 0)
-                cardsWithUtility.Add((utility, activeCard.Id, activeCard.Type));
+            if (utility <= 0)
+            {
+                skippedZeroUtility.Add((activeCard.Type, utility));
+                continue;
+            }
+
+            // Mana-efficiency bonus: cheaper cards get a small boost so bot prefers
+            // playing 2 cheap cards over 1 expensive one when utility is similar
+            var manaCost = config.ManaCost;
+            var manaBonus = (1f - manaCost / 6f) * 1.5f; // +1.5 for cost=0, +1.0 for cost=2, +0 for cost=6
+            var effectiveUtility = utility + manaBonus;
+
+            cardsWithUtility.Add((effectiveUtility, activeCard.Id, activeCard.Type));
         }
 
-        // Если нет карт с положительной полезностью - выходим
+        // Log evaluation of all cards
+        var evaluations = cardsWithUtility.Select(c => {
+            var cost = _cardConfigs.Value.All[c.type].ManaCost;
+            return $"{c.type}={c.utility:F1}(cost {cost})";
+        });
+        var manaSkips = skippedNoMana.Select(c => $"{c.type}(need {c.cost})");
+        var utilitySkips = skippedZeroUtility.Select(c => $"{c.type}={c.utility:F1}");
+
+        _sessionLogger.LogBotAction("CardEval",
+            $"Mana={currentMana} | Candidates=[{string.Join(", ", evaluations)}] | NoMana=[{string.Join(", ", manaSkips)}] | ZeroUtility=[{string.Join(", ", utilitySkips)}]" +
+            (skippedNoStrategy.Count > 0 ? $" | NoStrategy=[{string.Join(", ", skippedNoStrategy)}]" : ""));
+
         if (cardsWithUtility.Count == 0)
             return false;
 
-        // Выбираем карту с максимальной полезностью
-        var (_, selectedCardId, selectedCardType) = cardsWithUtility.OrderByDescending(t => t.Item1).First();
-        var cardStrategy = _botCardStrategies.Entries[selectedCardType];
+        // Try cards in order of effective utility (includes mana-efficiency bonus)
+        foreach (var (utility, cardId, cardType) in cardsWithUtility.OrderByDescending(t => t.utility))
+        {
+            var cardStrategy = _botCardStrategies.Entries[cardType];
+            var manaCost = _cardConfigs.Value.All[cardType].ManaCost;
 
-        var cardUsed = cardStrategy.Execute(selectedCardId, selectedCardType);
+            var cardUsed = cardStrategy.Execute(cardId, cardType);
 
-        _logger.LogInformation("[Game] [Bot] Used card {CardType} with result: {UseResult} ", selectedCardType,
-            cardUsed);
+            if (cardUsed == false)
+            {
+                _sessionLogger.LogBotAction("Card",
+                    $"FAILED to execute {cardType} | Utility={utility:F1} ManaCost={manaCost}");
+                continue;
+            }
 
-        if (cardUsed == false)
-            return false;
+            bot.Hand.Remove(cardId);
+            bot.Stash.Add(cardType);
+            bot.Moves.OnUsed();
+            bot.Mana.Use(manaCost);
+            bot.Actions.OnCardUsed(cardType, _commandUtils.LastUsedPayload!);
 
-        bot.Hand.Remove(selectedCardId);
-        bot.Stash.Add(selectedCardType);
-        bot.Moves.OnUsed();
-        bot.Mana.Use(_cardConfigs.Value.All[selectedCardType].ManaCost);
-        bot.Actions.OnCardUsed(selectedCardType, _commandUtils.LastUsedPayload!);
+            _sessionLogger.LogBotAction("Card",
+                $"Used {cardType} | Utility={utility:F1} ManaCost={manaCost} ManaLeft={bot.Mana.Current} MovesLeft={bot.Moves.Left}");
 
-        return true;
+            return true;
+        }
+
+        _sessionLogger.LogBotAction("Card", "All candidates failed to execute");
+        return false;
     }
 }

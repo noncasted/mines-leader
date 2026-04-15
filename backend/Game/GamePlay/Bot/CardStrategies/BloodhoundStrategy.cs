@@ -28,13 +28,17 @@ public class BloodhoundStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
         var totalCells = bot.Board.Cells.Count;
+
+        if (totalCells == 0)
+            return 0f;
+
         var closedCells = bot.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+        var closedRatio = (float)closedCells / totalCells;
 
-        // Если закрыто больше 50% поля - высокий приоритет
-        if (closedCells > totalCells * 0.5)
-            return 8f;
-
-        return 2f;
+        // Bloodhound reveals mine info — most useful early when board is unknown
+        // Cheap card (2 mana) — good for mana efficiency
+        // Scale: 9 at 80%+ closed → 3 at 20% closed
+        return 3f + closedRatio * 7.5f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)

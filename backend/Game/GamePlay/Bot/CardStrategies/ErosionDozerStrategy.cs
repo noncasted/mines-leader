@@ -28,13 +28,17 @@ public class ErosionDozerStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
         var totalCells = bot.Board.Cells.Count;
+
+        if (totalCells == 0)
+            return 0f;
+
         var closedCells = bot.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+        var closedRatio = (float)closedCells / totalCells;
 
-        // Если закрыто больше 50% поля - высокий приоритет
-        if (closedCells > totalCells * 0.5)
-            return 8f;
-
-        return 2f;
+        // ErosionDozer opens cells in area — useful when lots of closed cells
+        // More expensive than Bloodhound — slightly lower base to prefer cheap cards
+        // Scale: 8.5 at 80%+ closed → 2 at 20% closed
+        return 2f + closedRatio * 8f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)

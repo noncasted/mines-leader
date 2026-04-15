@@ -5,6 +5,7 @@ namespace Game.GamePlay;
 /// <summary>
 /// Стратегия Бомбы Противника (OpponentBomb) - наносит урон доске противника.
 /// Полезна когда противник открыл больше 70% своей доски.
+/// Не используется если у противника 1 HP (чтобы не добивать).
 /// </summary>
 public class OpponentBombStrategy : IBotCardStrategy
 {
@@ -27,19 +28,27 @@ public class OpponentBombStrategy : IBotCardStrategy
     public float Evaluate(CardType type)
     {
         var opponent = _context.Opponent;
+
+        // Don't finish off the opponent
+        if (opponent.Health.Current.Value <= 1)
+            return 0f;
+
+        if (FindTargetOnOpponentBoard() == new Position(-1, -1))
+            return 0f;
+
         var opponentTotalCells = opponent.Board.Cells.Count;
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
 
-        // Если противник открыл более 70% поля - наносим урон
+        // Если противник открыл более 70% поля - высокий приоритет
         if (opponentOpenCount > opponentTotalCells * 0.7)
             return 7f;
 
-        return 1f; // Низкий приоритет в остальных случаях
+        return 1f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = GetPosition();
+        var position = FindTargetOnOpponentBoard();
 
         if (position == new Position(-1, -1))
             return false;
@@ -53,37 +62,25 @@ public class OpponentBombStrategy : IBotCardStrategy
         };
 
         return _commandUtils.UseCard(bot, cardId, payload);
+    }
 
-        Position GetPosition()
-        {
-            var board = _context.Bot.Board;
+    /// <summary>
+    /// Find a random taken cell on the OPPONENT's board.
+    /// </summary>
+    private Position FindTargetOnOpponentBoard()
+    {
+        var board = _context.Opponent.Board;
 
-            foreach (var (checkPosition, cell) in board.Cells)
-            {
-                if (cell.IsTaken() == true)
-                    continue;
-
-                if (cell.AsFree().MinesAround == 0)
-                    continue;
-
-                var neighbours = board.NeighbourPositions(checkPosition);
-
-                foreach (var neighbour in neighbours)
-                {
-                    if (board.Cells[neighbour].IsTaken() == false)
-                        continue;
-
-                    var takenCell = board.Cells[neighbour].AsTaken();
-
-                    if (takenCell.IsFlagged == true)
-                        continue;
-
-                    if (takenCell.HasMine == true)
-                        return checkPosition;
-                }
-            }
-
+        if (board.Cells.Count == 0)
             return new Position(-1, -1);
-        }
+
+        var takenCells = board.Cells.Values
+                              .Where(c => c.IsTaken())
+                              .ToList();
+
+        if (takenCells.Count == 0)
+            return new Position(-1, -1);
+
+        return takenCells[Random.Shared.Next(takenCells.Count)].Position;
     }
 }

@@ -24,15 +24,18 @@ public class GravediggerStrategy : IBotCardStrategy
     public float Evaluate(CardType type)
     {
         var bot = _context.Bot;
-
-        // Полезна только если в стэше есть карты
         var stashCount = bot.Stash.Count;
 
         if (stashCount == 0)
             return 0f;
 
-        // Рандомный приоритет между 3 и 6
-        return Random.Shared.Next(3, 7);
+        // Scale with stash size — more cards to recycle = more valuable
+        // 1 card: 3, 2 cards: 5, 3+: 7
+        // High priority when hand is small (need more options)
+        var handSize = bot.Hand.Entries.Count;
+        var bonus = handSize <= 2 ? 2f : 0f;
+
+        return Math.Min(3f + stashCount * 2f + bonus, 9f);
     }
 
     public bool Execute(Guid cardId, CardType cardType)
