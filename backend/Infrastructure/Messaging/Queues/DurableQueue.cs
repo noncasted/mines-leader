@@ -72,8 +72,10 @@ public class DurableQueue : Grain, IDurableQueue
         if (_observers.Count == 0)
         {
             BackendMetrics.DurableQueueNoSubscribers.Add(1);
+
             _logger.LogWarning("[Messaging] [DurableQueue] No active subscribers for queue '{QueueName}'",
                 this.GetPrimaryKeyString());
+
             throw new InvalidOperationException(
                 $"No active subscribers for durable queue '{this.GetPrimaryKeyString()}'. Message left in processing for requeue.");
         }
@@ -106,7 +108,9 @@ public class DurableQueue : Grain, IDurableQueue
             if (_observers.Count == 0)
             {
                 BackendMetrics.DurableQueueNoSubscribers.Add(1);
-                _logger.LogWarning("[Messaging] [DurableQueue] All subscribers removed after delivery failure on queue '{QueueName}'",
+
+                _logger.LogWarning(
+                    "[Messaging] [DurableQueue] All subscribers removed after delivery failure on queue '{QueueName}'",
                     this.GetPrimaryKeyString());
             }
         }

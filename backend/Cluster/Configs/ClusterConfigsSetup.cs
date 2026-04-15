@@ -71,7 +71,8 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
             return InitConfigWithDefault(jsonPath, storage, new T());
         }
 
-        async Task InitConfigWithDefault<T>(string jsonPath, IAddressableState<T> storage, T defaultValue) where T : class, new()
+        async Task InitConfigWithDefault<T>(string jsonPath, IAddressableState<T> storage, T defaultValue)
+            where T : class, new()
         {
             try
             {

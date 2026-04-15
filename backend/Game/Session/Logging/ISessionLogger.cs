@@ -2,7 +2,8 @@ using Shared;
 
 namespace Game.Session;
 
-public interface ISessionLogger {
+public interface ISessionLogger
+{
     void LogSessionCreated(SessionType type, Guid sessionId);
     void LogGameStarted(IReadOnlyList<Guid> playerIds);
     void LogRoundStart(Guid playerId, int roundNumber);

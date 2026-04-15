@@ -80,7 +80,8 @@ public class RuntimeChannelDeliveryTimeoutTest
 
             await completion.Task.WaitAsync(handle.CancellationToken);
 
-            handle.Progress.Log($"Done. Fast listener received {receivedCount} messages. Slow listeners should have been removed by timeout.");
+            handle.Progress.Log(
+                $"Done. Fast listener received {receivedCount} messages. Slow listeners should have been removed by timeout.");
             handle.Progress.SetProgress(1f);
         }
     }

@@ -70,7 +70,8 @@ public class RuntimePipeRetryStressTest
                 return Task.FromResult(new PipeResponse { Index = req.Index, Attempt = 1 });
             });
 
-            handle.Progress.Log($"Handler ready (failure rate: {failureRate:P0}). Sending {totalRequests} requests (concurrency: {payload.Concurrency})...");
+            handle.Progress.Log(
+                $"Handler ready (failure rate: {failureRate:P0}). Sending {totalRequests} requests (concurrency: {payload.Concurrency})...");
 
             var semaphore = new SemaphoreSlim(payload.Concurrency);
             var completedCount = 0;
@@ -93,10 +94,13 @@ public class RuntimePipeRetryStressTest
                     semaphore.Release();
 
                     var completed = Interlocked.Increment(ref completedCount);
+
                     if (completed % 500 == 0)
                     {
                         handle.Progress.SetProgress((float)completed / totalRequests);
-                        handle.Progress.Log($"Progress: {completed}/{totalRequests}, success: {successCount}, handler failures: {retryCount}");
+
+                        handle.Progress.Log(
+                            $"Progress: {completed}/{totalRequests}, success: {successCount}, handler failures: {retryCount}");
                     }
                 }
             });

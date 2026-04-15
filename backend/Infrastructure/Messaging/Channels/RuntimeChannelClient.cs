@@ -137,8 +137,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
         public required IOrleans Orleans { get; init; }
         public Action? OnGapDetected { get; set; }
 
-        public AdaptiveInterval Interval { get; } = new(
-            minInterval: TimeSpan.FromSeconds(10),
+        public AdaptiveInterval Interval { get; } = new(minInterval: TimeSpan.FromSeconds(10),
             maxInterval: TimeSpan.FromSeconds(60),
             failureBaseInterval: TimeSpan.FromSeconds(1));
 

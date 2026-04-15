@@ -60,7 +60,8 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
                 var processed = Interlocked.Exchange(ref _processedAccumulator, 0);
                 var failed = Interlocked.Exchange(ref _failedAccumulator, 0);
 
-                _history.Add(new SideEffectsThroughputEntry {
+                _history.Add(new SideEffectsThroughputEntry
+                {
                     Timestamp = DateTime.UtcNow,
                     Processed = processed,
                     Failed = failed
@@ -72,13 +73,15 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
                 var stats = await _storage.GetStats();
                 var retryEntries = await _storage.GetRetryEntries(50);
 
-                await _liveData.SetValue(new SideEffectsLiveData {
+                await _liveData.SetValue(new SideEffectsLiveData
+                {
                     QueueCount = stats.QueueCount,
                     ProcessingCount = stats.ProcessingCount,
                     RetryCount = stats.RetryCount,
                     DeadLetterCount = stats.DeadLetterCount,
                     ThroughputHistory = _history.ToList(),
-                    RetryEntries = retryEntries.Select(e => new SideEffectsRetryEntry {
+                    RetryEntries = retryEntries.Select(e => new SideEffectsRetryEntry
+                    {
                         Id = e.Id,
                         TypeName = e.TypeName,
                         RetryCount = e.RetryCount,

@@ -46,8 +46,8 @@ public class StateCollectionUpdateStressTest
             var receivedCount = 0;
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            await Messaging.ListenDurableQueue<StateCollectionUpdate<Guid, TestStateValue>>(
-                handle.Lifetime, queueId, update => {
+            await Messaging.ListenDurableQueue<StateCollectionUpdate<Guid, TestStateValue>>(handle.Lifetime, queueId,
+                update => {
                     var count = Interlocked.Increment(ref receivedCount);
                     handle.Metrics.Inc();
                     handle.Progress.SetProgress((float)count / totalUpdates);

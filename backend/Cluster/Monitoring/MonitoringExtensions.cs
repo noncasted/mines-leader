@@ -4,8 +4,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Cluster.Monitoring;
 
-public static class MonitoringExtensions {
-    public static IHostApplicationBuilder AddMonitoring(this IHostApplicationBuilder builder) {
+public static class MonitoringExtensions
+{
+    public static IHostApplicationBuilder AddMonitoring(this IHostApplicationBuilder builder)
+    {
         builder.AddDynamicState<MatchmakingLiveData>();
         builder.AddDynamicState<LiveMatchesData>();
         builder.AddDynamicState<ConnectedUsersLiveData>();

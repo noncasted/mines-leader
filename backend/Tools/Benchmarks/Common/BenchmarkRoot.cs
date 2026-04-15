@@ -117,13 +117,16 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
                 {
                     var baselineMetric = baseline.CalculateMetricValue();
 
-                    var comparison = BenchmarkComparison.Compare(metricValue, baselineMetric, MetricDirection.HigherIsBetter);
+                    var comparison = BenchmarkComparison.Compare(metricValue, baselineMetric,
+                        MetricDirection.HigherIsBetter);
                     state.BaselineMetricValue = comparison.BaselineMetricValue;
                     state.RegressionPercent = comparison.RegressionPercent;
                     state.IsRegression = comparison.IsRegression;
 
                     if (comparison.IsRegression)
-                        Logger.LogWarning("[BenchmarkRunner] Regression detected for {Title}: {Percent:F1}% vs baseline", Title, comparison.RegressionPercent);
+                        Logger.LogWarning(
+                            "[BenchmarkRunner] Regression detected for {Title}: {Percent:F1}% vs baseline", Title,
+                            comparison.RegressionPercent);
                 }
 
                 await _utils.BenchmarkStorage.Write(state);

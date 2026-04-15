@@ -2,7 +2,8 @@ using Common;
 
 namespace Shared
 {
-    [SharedGrainState(Table = "configs", State = "game_mode_config", Key = GrainKeyType.String, Lookup = "GameModeConfig")]
+    [SharedGrainState(Table = "configs", State = "game_mode_config", Key = GrainKeyType.String,
+        Lookup = "GameModeConfig")]
     public class GameModeOptions
     {
         public LastManStandingModeOptions LastManStanding { get; set; } = new();

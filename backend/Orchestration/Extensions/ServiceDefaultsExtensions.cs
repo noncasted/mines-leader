@@ -43,8 +43,8 @@ public static class ServiceDefaultsExtensions
     {
         private void ConfigureOpenTelemetry()
         {
-            var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME")
-                             ?? builder.Environment.ApplicationName.ToLowerInvariant();
+            var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ??
+                              builder.Environment.ApplicationName.ToLowerInvariant();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
             builder.Logging.AddProvider(new FileLoggerProvider(serviceName));
 

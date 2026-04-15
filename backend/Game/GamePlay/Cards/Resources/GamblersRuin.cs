@@ -59,8 +59,8 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin>
         else
         {
             var candidates = invoker.Hand.Entries
-                .Where(c => c.Id != _snapshotAccessor.CardId)
-                .ToList();
+                                    .Where(c => c.Id != _snapshotAccessor.CardId)
+                                    .ToList();
 
             var toDiscard = Math.Min(config.LoseDiscard, candidates.Count);
 

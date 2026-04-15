@@ -193,6 +193,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
         }
+
         [MemoryPackable]
         public partial class ManaSurge : ICardActionData
         {

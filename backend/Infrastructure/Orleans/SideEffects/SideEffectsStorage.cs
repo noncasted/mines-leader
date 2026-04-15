@@ -48,7 +48,11 @@ public interface ISideEffectsStorage
     Task CompleteProcessing(Guid id);
 
     // Move from side_effects_processing → side_effects_retry_queue (or dead letter if max retries exceeded)
-    Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds,
+    Task FailProcessing(
+        Guid id,
+        int retryCount,
+        int maxRetryCount,
+        float incrementalRetryDelaySeconds,
         string? errorMessage = null);
 
     // Move entries from side_effects_retry_queue → side_effects_queue where retry_after <= now
@@ -211,7 +215,11 @@ public class SideEffectsStorage : ISideEffectsStorage
         await command.ExecuteNonQueryAsync();
     }
 
-    public async Task FailProcessing(Guid id, int retryCount, int maxRetryCount, float incrementalRetryDelaySeconds,
+    public async Task FailProcessing(
+        Guid id,
+        int retryCount,
+        int maxRetryCount,
+        float incrementalRetryDelaySeconds,
         string? errorMessage = null)
     {
         if (retryCount >= maxRetryCount)
@@ -221,6 +229,7 @@ public class SideEffectsStorage : ISideEffectsStorage
 
             await using var insertCmd = connection.CreateCommand();
             insertCmd.Transaction = deadLetterTx;
+
             insertCmd.CommandText = $@"
                 INSERT INTO {DbLookup.SE_DeadLetter} (id, payload, retry_count, created_at, failed_at, error_message)
                 SELECT id, payload, retry_count, created_at, now(), @errorMessage
@@ -241,6 +250,7 @@ public class SideEffectsStorage : ISideEffectsStorage
             await deadLetterTx.CommitAsync();
 
             BackendMetrics.SideEffectDeadLetter.Add(1);
+
             _logger.LogError("[SideEffects] Effect {Id} moved to dead letter after {RetryCount} retries: {Error}",
                 id, retryCount, errorMessage);
             return;
@@ -311,6 +321,7 @@ public class SideEffectsStorage : ISideEffectsStorage
         command.Parameters.AddWithValue("cutoff", DateTime.UtcNow - age);
 
         var moved = await command.ExecuteNonQueryAsync();
+
         if (moved > 0)
             _logger.LogWarning("[SideEffectsStorage] Requeued {Count} stuck entries older than {Age}", moved, age);
     }
@@ -433,6 +444,7 @@ public class SideEffectsStorage : ISideEffectsStorage
 
             await using var insertCommand = connection.CreateCommand();
             insertCommand.Transaction = tx;
+
             insertCommand.CommandText = @"
                 INSERT INTO side_effects_queue (id, payload, retry_count, created_at)
                 SELECT id, payload, retry_count, created_at
@@ -462,11 +474,15 @@ public class SideEffectsStorage : ISideEffectsStorage
         try
         {
             var typeStart = payloadJson.IndexOf("\"$type\"", StringComparison.Ordinal);
-            if (typeStart < 0) return "Unknown";
+
+            if (typeStart < 0)
+                return "Unknown";
 
             var valueStart = payloadJson.IndexOf('"', typeStart + 7) + 1;
             var valueEnd = payloadJson.IndexOf('"', valueStart);
-            if (valueStart <= 0 || valueEnd < 0) return "Unknown";
+
+            if (valueStart <= 0 || valueEnd < 0)
+                return "Unknown";
 
             var fullType = payloadJson[valueStart..valueEnd];
             var lastDot = fullType.LastIndexOf('.');

@@ -4,13 +4,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public sealed class FileLoggerProvider : ILoggerProvider, IDisposable {
-    public FileLoggerProvider(string serviceName) {
+public sealed class FileLoggerProvider : ILoggerProvider, IDisposable
+{
+    public FileLoggerProvider(string serviceName)
+    {
         _serviceName = serviceName;
 
         var dir = TelemetryPaths.GetTelemetryDir("logs");
 
-        if (dir != null) {
+        if (dir != null)
+        {
             var filePath = Path.Combine(dir, $"{serviceName}.log");
             var stream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read);
             _writer = new StreamWriter(stream) { AutoFlush = true };
@@ -21,21 +24,26 @@ public sealed class FileLoggerProvider : ILoggerProvider, IDisposable {
     private readonly StreamWriter? _writer;
     private readonly ConcurrentDictionary<string, FileLogger> _loggers = new();
 
-    public ILogger CreateLogger(string categoryName) {
+    public ILogger CreateLogger(string categoryName)
+    {
         return _loggers.GetOrAdd(categoryName, name => new FileLogger(name, this));
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         _writer?.Flush();
         _writer?.Dispose();
     }
 
-    internal void WriteEntry(string categoryName, LogLevel logLevel, string message, Exception? exception) {
+    internal void WriteEntry(string categoryName, LogLevel logLevel, string message, Exception? exception)
+    {
         if (_writer == null)
             return;
 
         var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
-        var level = logLevel switch {
+
+        var level = logLevel switch
+        {
             LogLevel.Trace => "TRC",
             LogLevel.Debug => "DBG",
             LogLevel.Information => "INF",
@@ -47,22 +55,27 @@ public sealed class FileLoggerProvider : ILoggerProvider, IDisposable {
 
         var line = $"[{timestamp}] [{level}] [{categoryName}] {message}";
 
-        try {
-            lock (_writer) {
+        try
+        {
+            lock (_writer)
+            {
                 _writer.WriteLine(line);
 
                 if (exception != null)
                     _writer.WriteLine(exception.ToString());
             }
         }
-        catch {
+        catch
+        {
             // Logging must not crash the app
         }
     }
 }
 
-internal sealed class FileLogger : ILogger {
-    public FileLogger(string categoryName, FileLoggerProvider provider) {
+internal sealed class FileLogger : ILogger
+{
+    public FileLogger(string categoryName, FileLoggerProvider provider)
+    {
         _categoryName = categoryName;
         _provider = provider;
     }
@@ -74,7 +87,13 @@ internal sealed class FileLogger : ILogger {
 
     public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) {
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
+    {
         if (!IsEnabled(logLevel))
             return;
 

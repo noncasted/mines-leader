@@ -160,8 +160,7 @@ public class DurableQueueClient : IDurableQueueClient
         public required object Delegate { get; init; }
         public required IOrleans Orleans { get; init; }
 
-        public AdaptiveInterval Interval { get; } = new(
-            minInterval: TimeSpan.FromSeconds(10),
+        public AdaptiveInterval Interval { get; } = new(minInterval: TimeSpan.FromSeconds(10),
             maxInterval: TimeSpan.FromSeconds(60),
             failureBaseInterval: TimeSpan.FromSeconds(1));
 

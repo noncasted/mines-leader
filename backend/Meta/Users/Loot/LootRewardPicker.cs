@@ -9,9 +9,9 @@ public static class LootRewardPicker
         var ownedSet = new HashSet<CardType>(ownedCards);
 
         var pool = CardTypeExtensions.All
-            .Where(c => !ownedSet.Contains(c))
-            .Where(c => c != CardType.Dud)
-            .ToList();
+                                     .Where(c => !ownedSet.Contains(c))
+                                     .Where(c => c != CardType.Dud)
+                                     .ToList();
 
         if (pool.Count == 0)
             return new List<CardType>();

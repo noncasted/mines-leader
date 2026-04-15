@@ -26,8 +26,8 @@ public class Recycler : ICard<CardUsePayload.Recycler>
         if (discardCard == null)
         {
             var candidates = invoker.Hand.Entries
-                .Where(c => c.Id != _snapshotAccessor.CardId)
-                .ToList();
+                                    .Where(c => c.Id != _snapshotAccessor.CardId)
+                                    .ToList();
 
             if (candidates.Count > 0)
                 discardCard = candidates[^1];

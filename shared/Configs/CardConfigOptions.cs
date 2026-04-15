@@ -502,6 +502,7 @@ namespace Shared
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
         }
+
         [MemoryPackable]
         public partial class ManaSurge : ICardConfig
         {
@@ -519,6 +520,7 @@ namespace Shared
             public CardTarget Target => CardTarget.Self;
             public int ExtraMoves => 1;
         }
+
         [MemoryPackable]
         public partial class BloodPact : ICardConfig
         {

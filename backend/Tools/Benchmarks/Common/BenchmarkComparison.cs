@@ -25,6 +25,7 @@ public class BenchmarkComparison
         }
 
         var delta = (currentMetric - baselineMetric) / baselineMetric;
+
         var isRegression = direction == MetricDirection.HigherIsBetter
             ? currentMetric < baselineMetric * (1 - threshold)
             : currentMetric > baselineMetric * (1 + threshold);

@@ -50,6 +50,7 @@ public class MatchHistoryStorage : IMatchHistoryStorage
             var totalCount = (int)(await countCmd.ExecuteScalarAsync())!;
 
             await using var cmd = connection.CreateCommand();
+
             cmd.CommandText = @"
                 SELECT key, data::text FROM state_match_entity
                 WHERE data IS NOT NULL
@@ -98,7 +99,8 @@ public class MatchHistoryStorage : IMatchHistoryStorage
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[MatchHistoryStorage] Failed to get page (offset={Offset}, limit={Limit})", offset, limit);
+            _logger.LogError(e, "[MatchHistoryStorage] Failed to get page (offset={Offset}, limit={Limit})", offset,
+                limit);
             return new MatchHistoryResult { Entries = Array.Empty<MatchHistoryEntry>(), TotalCount = 0 };
         }
     }

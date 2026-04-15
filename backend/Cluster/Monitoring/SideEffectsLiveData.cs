@@ -1,7 +1,8 @@
 namespace Cluster.Monitoring;
 
 [GenerateSerializer]
-public class SideEffectsLiveData {
+public class SideEffectsLiveData
+{
     [Id(0)] public int QueueCount { get; set; }
     [Id(1)] public int ProcessingCount { get; set; }
     [Id(2)] public int RetryCount { get; set; }
@@ -11,14 +12,16 @@ public class SideEffectsLiveData {
 }
 
 [GenerateSerializer]
-public class SideEffectsThroughputEntry {
+public class SideEffectsThroughputEntry
+{
     [Id(0)] public DateTime Timestamp { get; set; }
     [Id(1)] public long Processed { get; set; }
     [Id(2)] public long Failed { get; set; }
 }
 
 [GenerateSerializer]
-public class SideEffectsRetryEntry {
+public class SideEffectsRetryEntry
+{
     [Id(0)] public Guid Id { get; set; }
     [Id(1)] public string TypeName { get; set; } = string.Empty;
     [Id(2)] public int RetryCount { get; set; }

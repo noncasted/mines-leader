@@ -11,27 +11,35 @@ namespace Generators
         {
             var compilationProvider = context.CompilationProvider;
 
-            context.RegisterSourceOutput(compilationProvider, static (spc, compilation) =>
-            {
+            context.RegisterSourceOutput(compilationProvider, static (spc, compilation) => {
                 var attributeSymbols = new List<INamedTypeSymbol>();
                 var grainState = compilation.GetTypeByMetadataName("Common.GrainStateAttribute");
-                if (grainState != null) attributeSymbols.Add(grainState);
+
+                if (grainState != null)
+                    attributeSymbols.Add(grainState);
                 var sharedGrainState = compilation.GetTypeByMetadataName("Common.SharedGrainStateAttribute");
-                if (sharedGrainState != null) attributeSymbols.Add(sharedGrainState);
+
+                if (sharedGrainState != null)
+                    attributeSymbols.Add(sharedGrainState);
 
                 if (attributeSymbols.Count == 0)
                     return;
 
                 var entries = CollectEntries(compilation, attributeSymbols);
+
                 if (entries.Count == 0)
                     return;
 
                 spc.AddSource("StatesLookup.g.cs", SourceText.From(GenerateStatesLookup(entries), Encoding.UTF8));
-                spc.AddSource("GeneratedStatesRegistration.g.cs", SourceText.From(GenerateRegistration(entries), Encoding.UTF8));
+
+                spc.AddSource("GeneratedStatesRegistration.g.cs",
+                    SourceText.From(GenerateRegistration(entries), Encoding.UTF8));
             });
         }
 
-        private static List<GrainStateEntry> CollectEntries(Compilation compilation, List<INamedTypeSymbol> attributeSymbols)
+        private static List<GrainStateEntry> CollectEntries(
+            Compilation compilation,
+            List<INamedTypeSymbol> attributeSymbols)
         {
             var results = new List<GrainStateEntry>();
 
@@ -50,12 +58,16 @@ namespace Generators
             foreach (var reference in compilation.References)
             {
                 var symbol = compilation.GetAssemblyOrModuleSymbol(reference);
+
                 if (symbol is IAssemblySymbol assemblySymbol)
                     yield return assemblySymbol;
             }
         }
 
-        private static void VisitNamespace(INamespaceSymbol ns, List<INamedTypeSymbol> attributeSymbols, List<GrainStateEntry> results)
+        private static void VisitNamespace(
+            INamespaceSymbol ns,
+            List<INamedTypeSymbol> attributeSymbols,
+            List<GrainStateEntry> results)
         {
             foreach (var type in ns.GetTypeMembers())
             {
@@ -68,7 +80,10 @@ namespace Generators
             }
         }
 
-        private static void VisitType(INamedTypeSymbol type, List<INamedTypeSymbol> attributeSymbols, List<GrainStateEntry> results)
+        private static void VisitType(
+            INamedTypeSymbol type,
+            List<INamedTypeSymbol> attributeSymbols,
+            List<GrainStateEntry> results)
         {
             foreach (var attr in type.GetAttributes())
             {
@@ -76,6 +91,7 @@ namespace Generators
                     continue;
 
                 bool isMatch = false;
+
                 foreach (var attributeSymbol in attributeSymbols)
                 {
                     if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeSymbol))
@@ -84,6 +100,7 @@ namespace Generators
                         break;
                     }
                 }
+
                 if (!isMatch)
                     continue;
 
@@ -147,6 +164,7 @@ namespace Generators
         {
             var seen = new HashSet<string>();
             var deduped = new List<GrainStateEntry>();
+
             foreach (var entry in entries)
             {
                 if (seen.Add(entry.LookupName))
@@ -179,10 +197,12 @@ namespace Generators
 
             sb.AppendLine("    public static IReadOnlyList<Info> All =>");
             sb.AppendLine("    [");
+
             foreach (var entry in deduped)
             {
                 sb.AppendLine("        " + entry.LookupName + ",");
             }
+
             sb.AppendLine("    ];");
             sb.AppendLine("}");
 
@@ -218,7 +238,12 @@ namespace Generators
 
         private class GrainStateEntry
         {
-            public GrainStateEntry(string fullTypeName, string tableName, string stateName, string keyType, string lookupName)
+            public GrainStateEntry(
+                string fullTypeName,
+                string tableName,
+                string stateName,
+                string keyType,
+                string lookupName)
             {
                 FullTypeName = fullTypeName;
                 TableName = tableName;
