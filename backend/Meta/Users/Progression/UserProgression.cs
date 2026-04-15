@@ -13,7 +13,7 @@ public interface IUserProgressionRecord
     int GetExperience();
 }
 
-public interface IUserProgression : IUserGrain
+public interface IUserProgression : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task AddRecord(IUserProgressionRecord record);
@@ -74,7 +74,7 @@ public class UserProgression : UserGrain, IUserProgression
             record.GetType().FullName);
 
         var state = await _state.Update(state => state.AddRecord(record));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
 
         RegisterLootSideEffect();
     }
@@ -88,7 +88,7 @@ public class UserProgression : UserGrain, IUserProgression
     {
         var record = new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
         var state = await _state.Update(s => s.AddRecord(record));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
 
         RegisterLootSideEffect();
     }
@@ -99,9 +99,14 @@ public class UserProgression : UserGrain, IUserProgression
             s.Records.Clear();
             s.AddRecord(new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
         });
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
 
         RegisterLootSideEffect();
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(IProjectionPayload (s) => s);
     }
 
     private void RegisterLootSideEffect()

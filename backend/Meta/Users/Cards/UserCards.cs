@@ -6,7 +6,7 @@ using Shared;
 
 namespace Meta.Users;
 
-public interface IUserCards : IUserGrain
+public interface IUserCards : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task Initialize();
@@ -55,7 +55,7 @@ public class UserCards : UserGrain, IUserCards
                 state.Cards.Add(card);
         });
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public async Task AddCard(CardType card)
@@ -64,7 +64,7 @@ public class UserCards : UserGrain, IUserCards
             this.GetPrimaryKey(), card);
 
         var state = await _state.Update(state => state.Cards.Add(card));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public Task<bool> HasCard(CardType card)
@@ -75,5 +75,10 @@ public class UserCards : UserGrain, IUserCards
     public Task<IReadOnlyList<CardType>> GetAll()
     {
         return _state.Read(state => (IReadOnlyList<CardType>)state.Cards.ToList());
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(s => (IProjectionPayload)s);
     }
 }

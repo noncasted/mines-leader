@@ -53,7 +53,6 @@ public class TestCleanup
         Track<UserState>(userId);
         Track<UserAuthState>(userId);
         Track<UserProgressionState>(userId);
-        Track<UserProjectionState>(userId);
         Track<UserRatingState>(userId);
         Track<UserMatchHistoryState>(userId);
         Track<UserDeckState>(userId);

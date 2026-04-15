@@ -13,7 +13,7 @@ public interface IUserRatingRecord
     int GetRating();
 }
 
-public interface IUserRating : IUserGrain
+public interface IUserRating : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task AddRecord(IUserRatingRecord record);
@@ -73,7 +73,7 @@ public class UserRating : UserGrain, IUserRating
             record.GetType().FullName);
 
         var state = await _state.Update(state => state.AddRecord(record));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public async Task<int> GetTotal()
@@ -85,7 +85,7 @@ public class UserRating : UserGrain, IUserRating
     {
         var record = new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
         var state = await _state.Update(s => s.AddRecord(record));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public async Task SetRating(int value)
@@ -94,6 +94,11 @@ public class UserRating : UserGrain, IUserRating
             s.Records.Clear();
             s.AddRecord(new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
         });
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(s => (IProjectionPayload)s);
     }
 }
