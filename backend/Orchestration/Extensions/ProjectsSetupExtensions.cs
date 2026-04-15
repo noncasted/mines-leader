@@ -128,7 +128,6 @@ public static class ProjectsSetupExtensions
 
             // Console-only services
             builder.Services.AddSingleton<IMatchHistoryStorage, MatchHistoryStorage>();
-            builder.Services.AddSingleton<ICardAnalyticsStorage, CardAnalyticsStorage>();
 
             // Project services — auto-discover all IClusterTest implementations in Tests assembly
             var testsAssembly = typeof(IClusterTest).Assembly;
@@ -184,7 +183,8 @@ public static class ProjectsSetupExtensions
             return builder;
         }
 
-        private IHostApplicationBuilder AddStates() {
+        private IHostApplicationBuilder AddStates()
+        {
             var states = new List<GrainStateInfo>();
             GeneratedStatesRegistration.AddAllStates(states);
             var registry = new GrainStatesRegistry(states);
