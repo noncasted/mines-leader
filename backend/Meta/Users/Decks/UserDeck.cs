@@ -5,7 +5,7 @@ using Shared;
 
 namespace Meta.Users;
 
-public interface IUserDeck : IUserGrain
+public interface IUserDeck : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task Initialize();
@@ -81,7 +81,7 @@ public class UserDeck : UserGrain, IUserDeck
             state.SelectedIndex = 0;
         });
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public async Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex)
@@ -98,8 +98,6 @@ public class UserDeck : UserGrain, IUserDeck
 
             state.SelectedIndex = selectedIndex;
         });
-
-        await this.CacheProjection(state);
     }
 
     public async Task Update(int index, IReadOnlyList<CardType> cards)
@@ -111,8 +109,6 @@ public class UserDeck : UserGrain, IUserDeck
                 Cards = cards
             };
         });
-
-        await this.CacheProjection(state);
     }
 
     public Task<IReadOnlyList<CardType>> GetSelected()
@@ -126,5 +122,10 @@ public class UserDeck : UserGrain, IUserDeck
     public Task<UserDeckState> GetState()
     {
         return _state.ReadValue();
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(s => (IProjectionPayload)s);
     }
 }

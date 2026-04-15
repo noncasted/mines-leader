@@ -1,19 +1,15 @@
-﻿using Infrastructure;
+using Infrastructure;
 
 namespace Meta.Users;
 
 public static class UserProjectionExtensions
 {
-    extension(IOrleans orleans)
+    extension(IMessaging messaging)
     {
-        public Task SendOneTimeProjection(Guid id, IProjectionPayload payload)
+        public Task SendOneTimeProjection(Guid userId, IProjectionPayload payload)
         {
-            var projection = orleans.GetGrain<IUserProjection>(id);
-
-            if (TransactionContextProvider.Current == null)
-                return orleans.InTransaction(() => projection.SendOneTime(payload));
-
-            return projection.SendOneTime(payload);
+            var channelId = new UserProjectionChannelId(userId);
+            return messaging.PublishChannel(channelId, payload);
         }
     }
 }

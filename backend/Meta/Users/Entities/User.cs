@@ -6,7 +6,7 @@ using Shared;
 
 namespace Meta.Users;
 
-public interface IUser : IUserGrain
+public interface IUser : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task Initialize();
@@ -59,7 +59,7 @@ public class User : UserGrain, IUser
 
         _logger.LogInformation("[User] Created user {Id} with name {Name}", state.Id, state.Name);
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
         await _collection.OnUpdatedTransactional(state.Id, state);
     }
 
@@ -71,12 +71,17 @@ public class User : UserGrain, IUser
 
         _logger.LogInformation("[User] User {Id} changed name to {name}", state.Id, state.Name);
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
         await _collection.OnUpdatedTransactional(state.Id, state);
     }
 
     public Task<UserState> GetState()
     {
         return _state.ReadValue();
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(s => (IProjectionPayload)s);
     }
 }

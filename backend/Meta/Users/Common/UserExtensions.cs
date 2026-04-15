@@ -1,28 +1,17 @@
-﻿namespace Meta.Users;
+using Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Meta.Users;
 
 public static class UserExtensions
 {
     extension(UserGrain source)
     {
-        public Task SendCachedProjection(IProjectionPayload payload)
+        public Task SendProjection(IProjectionPayload payload)
         {
-            var id = source.GetPrimaryKey();
-            var projection = source.Grains.GetGrain<IUserProjection>(id);
-            return projection.SendCached(payload);
-        }
-
-        public Task CacheProjection(IProjectionPayload payload)
-        {
-            var id = source.GetPrimaryKey();
-            var projection = source.Grains.GetGrain<IUserProjection>(id);
-            return projection.Cache(payload);
-        }
-
-        public Task SendOneTimeProjection(IProjectionPayload payload)
-        {
-            var id = source.GetPrimaryKey();
-            var projection = source.Grains.GetGrain<IUserProjection>(id);
-            return projection.SendOneTime(payload);
+            var messaging = source.Services.GetRequiredService<IMessaging>();
+            var channelId = new UserProjectionChannelId(source.UserId);
+            return messaging.PublishChannel(channelId, payload);
         }
     }
 }

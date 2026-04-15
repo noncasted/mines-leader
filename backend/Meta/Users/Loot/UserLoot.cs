@@ -7,7 +7,7 @@ using Shared;
 
 namespace Meta.Users;
 
-public interface IUserLoot : IUserGrain
+public interface IUserLoot : IUserGrain, IUserProjectionSource
 {
     [Transaction]
     Task Initialize();
@@ -81,8 +81,8 @@ public class UserLoot : UserGrain, IUserLoot
         var totalXp = await progression.GetTotal();
 
         var thresholds = _lootProgressionConfig.Value.Thresholds
-            .OrderBy(t => t)
-            .ToList();
+                                               .OrderBy(t => t)
+                                               .ToList();
 
         var crossedCount = thresholds.Count(t => totalXp >= t);
         var currentAwarded = await _state.Read(s => s.AwardedCount);
@@ -100,6 +100,7 @@ public class UserLoot : UserGrain, IUserLoot
             for (var i = 0; i < toAward; i++)
             {
                 var id = Guid.NewGuid();
+
                 s.Boxes[id] = new LootBoxEntry
                 {
                     Id = id,
@@ -110,7 +111,7 @@ public class UserLoot : UserGrain, IUserLoot
             s.AwardedCount = crossedCount;
         });
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public async Task AddBox()
@@ -128,7 +129,7 @@ public class UserLoot : UserGrain, IUserLoot
             };
         });
 
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
     }
 
     public Task<LootBoxEntry?> GetBox(Guid id)
@@ -144,13 +145,18 @@ public class UserLoot : UserGrain, IUserLoot
             return false;
 
         var state = await _state.Update(state => state.Boxes.Remove(id));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
         return true;
     }
 
     public async Task RemoveBox(Guid id)
     {
         var state = await _state.Update(state => state.Boxes.Remove(id));
-        await this.SendCachedProjection(state);
+        await this.SendProjection(state);
+    }
+
+    public Task<IProjectionPayload> GetProjection()
+    {
+        return _state.Read(s => (IProjectionPayload)s);
     }
 }

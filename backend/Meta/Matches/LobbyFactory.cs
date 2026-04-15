@@ -64,7 +64,7 @@ public class LobbyFactory : ILobbyFactory
             response.SessionId,
             serverUrl);
 
-        await _orleans.SendOneTimeProjection(userId, result);
+        await _messaging.SendOneTimeProjection(userId, result);
 
         _logger.LogInformation("{UserId} [Lobby] [Meta] Sent lobby search result projection",
             userId);

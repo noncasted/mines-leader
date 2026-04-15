@@ -62,7 +62,7 @@ public class MatchFactory : IMatchFactory
         };
 
         foreach (var participant in participants)
-            await _orleans.SendOneTimeProjection(participant, result);
+            await _messaging.SendOneTimeProjection(participant, result);
     }
 
     public async Task CreateWithBot(Guid participant, GameMatchType type)
@@ -92,7 +92,7 @@ public class MatchFactory : IMatchFactory
             Type = type
         };
 
-        await _orleans.SendOneTimeProjection(participant, result);
+        await _messaging.SendOneTimeProjection(participant, result);
     }
 
     private Guid GetRandomBotId()
