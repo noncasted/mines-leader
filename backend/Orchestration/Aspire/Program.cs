@@ -10,12 +10,24 @@ var builder = DistributedApplication.CreateBuilder(args);
 builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(30));
 
 Console.WriteLine("[Aspire] ===== AppHost starting =====");
-Console.WriteLine($"[Aspire] SSL_CERT_DIR          = {Environment.GetEnvironmentVariable("SSL_CERT_DIR") ?? "(not set)"}");
-Console.WriteLine($"[Aspire] Kestrel cert path      = {Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path") ?? "(not set)"}");
-Console.WriteLine($"[Aspire] Kestrel cert password  = {(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password") != null ? "***" : "(not set)")}");
-Console.WriteLine($"[Aspire] ASPIRE_TOKEN           = {(Environment.GetEnvironmentVariable("ASPIRE_TOKEN") != null ? "***" : "(not set)")}");
-Console.WriteLine($"[Aspire] GAME_SERVER_URL        = {Environment.GetEnvironmentVariable("GAME_SERVER_URL") ?? "(not set)"}");
-Console.WriteLine($"[Aspire] DB_CONNECTION_STRING   = {(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") != null ? "***" : "(not set)")}");
+
+Console.WriteLine(
+    $"[Aspire] SSL_CERT_DIR          = {Environment.GetEnvironmentVariable("SSL_CERT_DIR") ?? "(not set)"}");
+
+Console.WriteLine(
+    $"[Aspire] Kestrel cert path      = {Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path") ?? "(not set)"}");
+
+Console.WriteLine(
+    $"[Aspire] Kestrel cert password  = {(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password") != null ? "***" : "(not set)")}");
+
+Console.WriteLine(
+    $"[Aspire] ASPIRE_TOKEN           = {(Environment.GetEnvironmentVariable("ASPIRE_TOKEN") != null ? "***" : "(not set)")}");
+
+Console.WriteLine(
+    $"[Aspire] GAME_SERVER_URL        = {Environment.GetEnvironmentVariable("GAME_SERVER_URL") ?? "(not set)"}");
+
+Console.WriteLine(
+    $"[Aspire] DB_CONNECTION_STRING   = {(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") != null ? "***" : "(not set)")}");
 
 var configuration = builder.Configuration;
 configuration.AddJsonFile("appsettings.local.json", true);
@@ -37,12 +49,10 @@ Console.WriteLine("[Aspire] Registering projects...");
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder.AddProject<MetaGateway>("meta");
-var consoleToken = Environment.GetEnvironmentVariable("ASPIRE_TOKEN")
-                   ?? configuration["ConsoleToken"]
-                   ?? "";
+var consoleToken = Environment.GetEnvironmentVariable("ASPIRE_TOKEN") ?? configuration["ConsoleToken"] ?? "";
 
 var console = builder.AddProject<ConsoleGateway>("console")
-    .WithEnvironment("CONSOLE_TOKEN", consoleToken);
+                     .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 var game = builder.AddProject<GameGateway>("game")
                   .WithEnvironment(options =>
@@ -74,7 +84,8 @@ builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) => {
             var requiresDrop = localSection.GetSection("DropStates").Get<bool>();
             var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>();
 
-            Console.WriteLine($"[Aspire] Setup attempt {attempt}/5 (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
+            Console.WriteLine(
+                $"[Aspire] Setup attempt {attempt}/5 (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
 
             if (requiresDrop == true)
             {
@@ -94,6 +105,10 @@ builder.Eventing.Subscribe<AfterResourcesCreatedEvent>(async (_, _) => {
             Console.WriteLine("[Aspire] Running BenchmarkSetup...");
             await BenchmarkSetup.Run(configuration);
             Console.WriteLine("[Aspire] BenchmarkSetup done");
+
+            Console.WriteLine("[Aspire] Running AuditLogSetup...");
+            await AuditLogSetup.Run(configuration);
+            Console.WriteLine("[Aspire] AuditLogSetup done");
 
             if (requiresCleanup == true)
             {
