@@ -54,6 +54,10 @@ public class BotRunner : IBotRunner
             if (player.User.Id != user.Id)
                 return;
 
+            // Skip false trigger during initialization (moves not yet restored)
+            if (player.Moves.IsAvailable == false)
+                return;
+
             Task.Run(() => OnBotTurn(roundLifetime));
         });
     }
@@ -62,85 +66,168 @@ public class BotRunner : IBotRunner
     {
         var bot = _botContext.Bot;
         var configValue = _config.Value;
-        var delay = TimeSpan.FromSeconds(configValue.ActionDelay);
+
+        // Random round duration for human-like pacing
+        var roundTime = configValue.MinRoundTime +
+                        (float)Random.Shared.NextDouble() * (configValue.MaxRoundTime - configValue.MinRoundTime);
 
         try
         {
             _sessionLogger.LogBotTurnStart(bot.User.Id);
 
-            // Пауза перед ходом - бот "думает"
-            await Task.Delay(delay, lifetime.Token);
+            var handCards = string.Join(", ", bot.Hand.Entries.Select(c => c.Type));
+
+            _sessionLogger.LogBotAction("State",
+                $"Mana={bot.Mana.Current}/{bot.Mana.Max} Moves={bot.Moves.Left}/{bot.Moves.Max} Hand=[{handCards}] Health={bot.Health.Current.Value}");
+
+            var startTime = DateTime.UtcNow;
+
+            // Initial "thinking" pause
+            await Delay(1.5f, lifetime);
 
             if (_botContext.Bot.Board.Cells.Count == 0)
             {
                 _sessionLogger.LogBotAction("Init", "Board empty, opening first cell");
-                await Task.Delay(TimeSpan.FromSeconds(2f), lifetime.Token);
+                await Delay(2f, lifetime);
                 _cellAction.TryExecute();
-                await Task.Delay(TimeSpan.FromSeconds(1f), lifetime.Token);
+                await Delay(1f, lifetime);
             }
 
-            var flagsPlaced = 0;
-
-            for (var i = 0; i < configValue.FlagsPerRound; i++)
-            {
-                if (_flagAction.TryExecute() == false)
-                    break;
-
-                flagsPlaced++;
-                await Task.Delay(delay, lifetime.Token);
-            }
-
-            if (flagsPlaced > 0)
-                _sessionLogger.LogBotAction("Flags", $"Placed {flagsPlaced} flags");
-
-            await Task.Delay(delay, lifetime.Token);
-
-            var cellsOpened = 0;
-
-            for (var i = 0; i < configValue.CellsOpenPerRound; i++)
-            {
-                if (bot.Moves.Left <= 0)
-                    break;
-
-                if (_cellAction.TryExecute() == false)
-                    break;
-
-                cellsOpened++;
-                await Task.Delay(delay, lifetime.Token);
-            }
-
-            if (cellsOpened > 0)
-                _sessionLogger.LogBotAction("Cells", $"Opened {cellsOpened} cells");
-
-            await Task.Delay(delay, lifetime.Token);
-
+            // Collect actions — interleave card, flag, cell to look more human
             var cardsUsed = 0;
+            var flagsPlaced = 0;
+            var cellsOpened = 0;
+            var cardsExhausted = false;
+            var flagsExhausted = false;
+            var cellsExhausted = false;
 
-            for (var i = 0; i < configValue.CardsUsePerRound; i++)
+            while (cardsExhausted == false || flagsExhausted == false || cellsExhausted == false)
             {
-                if (bot.Moves.Left <= 0)
+                var didSomething = false;
+
+                // One card
+                if (cardsExhausted == false)
+                {
+                    if (cardsUsed >= configValue.CardsUsePerRound || bot.Moves.Left <= 0)
+                    {
+                        cardsExhausted = true;
+                    }
+                    else
+                    {
+                        var usedCard = _cardAction.TryExecute(lifetime);
+
+                        if (usedCard)
+                        {
+                            cardsUsed++;
+                            didSomething = true;
+                            await DelayForAction(startTime, roundTime, lifetime);
+                        }
+                        else
+                        {
+                            cardsExhausted = true;
+                        }
+                    }
+                }
+
+                // One flag
+                if (flagsExhausted == false)
+                {
+                    if (flagsPlaced >= configValue.FlagsPerRound)
+                    {
+                        flagsExhausted = true;
+                    }
+                    else
+                    {
+                        var placed = _flagAction.TryExecute();
+
+                        if (placed)
+                        {
+                            flagsPlaced++;
+                            didSomething = true;
+                            await DelayForAction(startTime, roundTime, lifetime);
+                        }
+                        else
+                        {
+                            flagsExhausted = true;
+                        }
+                    }
+                }
+
+                // One cell
+                if (cellsExhausted == false)
+                {
+                    if (bot.Moves.Left <= 0)
+                    {
+                        cellsExhausted = true;
+                    }
+                    else
+                    {
+                        var opened = _cellAction.TryExecute();
+
+                        if (opened)
+                        {
+                            cellsOpened++;
+                            didSomething = true;
+                            await DelayForAction(startTime, roundTime, lifetime);
+                        }
+                        else
+                        {
+                            cellsExhausted = true;
+                        }
+                    }
+                }
+
+                if (didSomething == false)
                     break;
-
-                var usedCard = _cardAction.TryExecute(lifetime);
-
-                if (usedCard == false)
-                    continue;
-
-                cardsUsed++;
-                await Task.Delay(delay, lifetime.Token);
             }
 
             if (cardsUsed > 0)
                 _sessionLogger.LogBotAction("Cards", $"Used {cardsUsed} cards");
 
-            await Task.Delay(delay, lifetime.Token);
+            if (flagsPlaced > 0)
+                _sessionLogger.LogBotAction("Flags", $"Placed {flagsPlaced} flags");
 
-            _sessionLogger.LogBotAction("EndTurn", $"Flags={flagsPlaced} Cells={cellsOpened} Cards={cardsUsed}");
+            if (cellsOpened > 0)
+                _sessionLogger.LogBotAction("Cells", $"Opened {cellsOpened} cells");
+
+            // Wait remaining time budget before ending turn
+            var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
+            var remaining = roundTime - elapsed;
+
+            if (remaining > 0.5f)
+                await Delay(remaining, lifetime);
+
+            _sessionLogger.LogBotAction("EndTurn",
+                $"Flags={flagsPlaced} Cells={cellsOpened} Cards={cardsUsed} MovesLeft={bot.Moves.Left} Time={elapsed:F1}s/{roundTime:F1}s");
             _round.SkipTurn();
         }
         catch (OperationCanceledException)
         {
             // Ход отменен (пользователь отключился)
         }
+    }
+
+    /// <summary>
+    /// Delay proportional to remaining time budget, with some randomness.
+    /// </summary>
+    private async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    {
+        var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
+        var remaining = roundTime - elapsed;
+
+        if (remaining <= 0.5f)
+            return;
+
+        // Random delay: 0.5-2s, but don't exceed remaining budget
+        var delay = 0.5f + (float)Random.Shared.NextDouble() * 1.5f;
+        delay = Math.Min(delay, remaining * 0.4f);
+        delay = Math.Max(delay, 0.3f);
+
+        await Delay(delay, lifetime);
+    }
+
+    private static Task Delay(float seconds, IReadOnlyLifetime lifetime)
+    {
+        return Task.Delay(TimeSpan.FromSeconds(seconds), lifetime.Token);
     }
 }

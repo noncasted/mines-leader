@@ -1,3 +1,4 @@
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -9,14 +10,16 @@ public interface IBotFlagAction
 
 public class BotFlagAction : IBotFlagAction
 {
-    public BotFlagAction(IBotCommandUtils commandUtils, IBotContext context)
+    public BotFlagAction(IBotCommandUtils commandUtils, IBotContext context, ISessionLogger sessionLogger)
     {
         _commandUtils = commandUtils;
         _context = context;
+        _sessionLogger = sessionLogger;
     }
 
     private readonly IBotCommandUtils _commandUtils;
     private readonly IBotContext _context;
+    private readonly ISessionLogger _sessionLogger;
 
     public bool TryExecute()
     {
@@ -26,11 +29,15 @@ public class BotFlagAction : IBotFlagAction
         {
             var randomPosition = _context.Bot.Board.RandomPosition();
             board.EnsureGenerated(randomPosition);
+            _sessionLogger.LogBotAction("Flag", $"Board empty, generated at {randomPosition}");
             return true;
         }
 
-        if (TryGetMineToFlag(out var target) == false)
+        if (TryGetMineToFlag(out var target, out var reason) == false)
+        {
+            _sessionLogger.LogBotAction("Flag", $"No mine to flag | {reason}");
             return false;
+        }
 
         _commandUtils.WithSnapshot(() => {
             var taken = board.Cells[target].AsTaken();
@@ -39,10 +46,12 @@ public class BotFlagAction : IBotFlagAction
             board.OnUpdated();
         });
 
+        _sessionLogger.LogBotAction("Flag", $"Placed at {target} | {reason}");
+
         return true;
     }
 
-    private bool TryGetMineToFlag(out Position target)
+    private bool TryGetMineToFlag(out Position target, out string reason)
     {
         var board = _context.Bot.Board;
 
@@ -77,11 +86,13 @@ public class BotFlagAction : IBotFlagAction
                     continue;
 
                 target = takenCell.Position;
+                reason = $"Constraint-solve near {position} (MinesAround={freeCell.MinesAround})";
                 return true;
             }
         }
 
         target = new Position(-1, -1);
+        reason = "No unflagged mines found by constraint-solving";
         return false;
     }
 }

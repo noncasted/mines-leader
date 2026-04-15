@@ -1,4 +1,3 @@
-using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -12,38 +11,42 @@ public class ZipZapStrategy : IBotCardStrategy
     public ZipZapStrategy(
         IBotContext context,
         BotBoardUtils boardUtils,
-        IBotCommandUtils commandUtils,
-        ISessionEntities sessionEntities)
+        IBotCommandUtils commandUtils)
     {
         _context = context;
         _boardUtils = boardUtils;
         _commandUtils = commandUtils;
-        _sessionEntities = sessionEntities;
     }
 
     private readonly IBotContext _context;
     private readonly BotBoardUtils _boardUtils;
     private readonly IBotCommandUtils _commandUtils;
-    private readonly ISessionEntities _sessionEntities;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.ZipZap, CardType.ZipZap_Max];
 
     public float Evaluate(CardType type)
     {
+        if (FindMineTarget() == new Position(-1, -1))
+            return 0f;
+
         var bot = _context.Bot;
         var totalCells = bot.Board.Cells.Count;
+
+        if (totalCells == 0)
+            return 0f;
+
         var closedCells = bot.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+        var closedRatio = (float)closedCells / totalCells;
 
-        // Если закрыто больше 50% поля - высокий приоритет
-        if (closedCells > totalCells * 0.5)
-            return 8f;
-
-        return 2f;
+        // ZipZap destroys mines — always valuable when target exists
+        // Higher priority than ErosionDozer since it removes threats
+        // Scale: 9 at 80%+ closed → 4 at 20% closed
+        return 4f + closedRatio * 6.5f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = GetPosition();
+        var position = FindMineTarget();
 
         if (position == new Position(-1, -1))
             return false;
@@ -58,37 +61,37 @@ public class ZipZapStrategy : IBotCardStrategy
         };
 
         return _commandUtils.UseCard(bot, cardId, payload);
+    }
 
-        Position GetPosition()
+    /// <summary>
+    /// Find an unflagged mine that has at least one adjacent free cell.
+    /// Returns the mine position directly — the card will find it via SearchRadius.
+    /// </summary>
+    private Position FindMineTarget()
+    {
+        var board = _context.Bot.Board;
+
+        foreach (var (position, cell) in board.Cells)
         {
-            var board = _context.Bot.Board;
+            if (cell.IsTaken() == false)
+                continue;
 
-            foreach (var (checkPosition, cell) in board.Cells)
-            {
-                if (cell.IsTaken() == true)
-                    continue;
+            var taken = cell.AsTaken();
 
-                if (cell.AsFree().MinesAround == 0)
-                    continue;
+            if (taken.IsFlagged == true)
+                continue;
 
-                var neighbours = board.NeighbourPositions(checkPosition);
+            if (taken.HasMine == false)
+                continue;
 
-                foreach (var neighbour in neighbours)
-                {
-                    if (board.Cells[neighbour].IsTaken() == false)
-                        continue;
+            // Verify there's at least one adjacent free cell (so card's SelectFree won't fail)
+            var neighbours = board.NeighbourPositions(position);
+            var hasAdjacentFree = neighbours.Any(n => board.Cells.TryGetValue(n, out var nc) && nc.IsFree());
 
-                    var takenCell = board.Cells[neighbour].AsTaken();
-
-                    if (takenCell.IsFlagged == true)
-                        continue;
-
-                    if (takenCell.HasMine == true)
-                        return checkPosition;
-                }
-            }
-
-            return new Position(-1, -1);
+            if (hasAdjacentFree)
+                return position;
         }
+
+        return new Position(-1, -1);
     }
 }

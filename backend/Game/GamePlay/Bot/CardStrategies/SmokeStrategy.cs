@@ -27,15 +27,23 @@ public class SmokeStrategy : IBotCardStrategy
     public float Evaluate(CardType type)
     {
         var opponent = _context.Opponent;
+        var opponentTotal = opponent.Board.Cells.Count;
 
-        // Проверяем есть ли клетки у противника
-        var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
-
-        if (opponentTakenCount == 0)
+        if (opponentTotal == 0)
             return 0f;
 
-        // Рандомный приоритет между 1 и 4
-        return Random.Shared.Next(1, 5);
+        var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
+        var openRatio = (float)opponentOpenCount / opponentTotal;
+
+        // Smoke hides opponent's open cells — most useful when opponent is ahead
+        // Higher utility when opponent has opened a lot (more targets to disrupt)
+        if (openRatio > 0.6f)
+            return 6f;
+
+        if (openRatio > 0.3f)
+            return 4f;
+
+        return 2f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)
