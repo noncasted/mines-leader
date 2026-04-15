@@ -6,7 +6,7 @@ public interface IUserGrain : IGrainWithGuidKey
 {
 }
 
-public interface IUserProjectionSource
+public interface IUserProjectionSource : IGrainWithGuidKey
 {
     [Transaction]
     Task<IProjectionPayload> GetProjection();

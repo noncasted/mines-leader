@@ -39,7 +39,7 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
 
         try
         {
-            Target = _grains.GetGrain(context.Request.GetInterfaceType(), context.TargetId.Key)
+            Target = _grains.GetGrain(context.TargetId)
                             .AsReference<IGrainTransactionHandler>();
 
             await context.Invoke();

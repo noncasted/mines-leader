@@ -108,7 +108,7 @@ namespace Generators
 
             sb.AppendLine(
                 "    public static async Task<IReadOnlyList<IProjectionPayload>> GetAllUserProjections(IOrleans orleans, Guid userId) {");
-            sb.AppendLine("        var results = await Task.WhenAll(");
+            sb.AppendLine("        var results = await orleans.InTransaction(async () => await Task.WhenAll(");
 
             for (var i = 0; i < grainInterfaces.Count; i++)
             {
@@ -118,7 +118,7 @@ namespace Generators
                     "            orleans.GetGrain<" + grainInterfaces[i] + ">(userId).GetProjection()" + comma);
             }
 
-            sb.AppendLine("        );");
+            sb.AppendLine("        ));");
             sb.AppendLine("        return results;");
             sb.AppendLine("    }");
             sb.AppendLine("}");
