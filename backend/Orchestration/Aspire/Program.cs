@@ -37,7 +37,12 @@ Console.WriteLine("[Aspire] Registering projects...");
 var silo = builder.AddProject<Silo>("silo");
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder.AddProject<MetaGateway>("meta");
-var console = builder.AddProject<ConsoleGateway>("console");
+var consoleToken = Environment.GetEnvironmentVariable("ASPIRE_TOKEN")
+                   ?? configuration["ConsoleToken"]
+                   ?? "";
+
+var console = builder.AddProject<ConsoleGateway>("console")
+    .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 var game = builder.AddProject<GameGateway>("game")
                   .WithEnvironment(options =>
