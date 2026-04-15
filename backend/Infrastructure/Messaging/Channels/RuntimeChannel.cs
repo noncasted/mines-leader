@@ -146,8 +146,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
                     toRemove.Add(data.Id);
                     BackendMetrics.ChannelDeliveryTimeout.Add(1);
 
-                    _logger.LogWarning(
-                        "[Messaging] [Channel] Delivery timeout on {ChannelName}",
+                    _logger.LogWarning("[Messaging] [Channel] Delivery timeout on {ChannelName}",
                         this.GetPrimaryKeyString());
                     return;
                 }
@@ -177,7 +176,9 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         }
 
         var oldestInBuffer = _sequenceNumber - _bufferSize + 1;
-        if (oldestInBuffer < 1) oldestInBuffer = 1;
+
+        if (oldestInBuffer < 1)
+            oldestInBuffer = 1;
 
         var gapDetected = lastSeenSequence < oldestInBuffer - 1;
         var startSequence = Math.Max(lastSeenSequence + 1, oldestInBuffer);
@@ -187,6 +188,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         for (var seq = startSequence; seq <= _sequenceNumber; seq++)
         {
             var entry = _buffer[seq % _bufferSize];
+
             if (entry != null && entry.Sequence == seq)
                 messages.Add(entry);
         }

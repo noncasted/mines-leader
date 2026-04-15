@@ -34,6 +34,7 @@ public static class SessionEndpoints
             return Results.NotFound($"Session {sessionId} not found");
 
         var snapshot = session.Users.ToList();
+
         IReadOnlyList<SessionPlayerDto> players = snapshot.Select(u => new SessionPlayerDto
         {
             Id = u.Id,

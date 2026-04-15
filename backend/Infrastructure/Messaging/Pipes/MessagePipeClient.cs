@@ -183,8 +183,7 @@ public class RuntimePipeClient : IRuntimePipeClient
         public required IRuntimePipe Pipe { get; init; }
         public required ILogger Logger { get; init; }
 
-        public AdaptiveInterval Interval { get; } = new(
-            minInterval: TimeSpan.FromSeconds(10),
+        public AdaptiveInterval Interval { get; } = new(minInterval: TimeSpan.FromSeconds(10),
             maxInterval: TimeSpan.FromSeconds(60),
             failureBaseInterval: TimeSpan.FromSeconds(1));
 

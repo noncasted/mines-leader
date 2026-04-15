@@ -13,18 +13,21 @@ namespace Generators
         {
             var compilationProvider = context.CompilationProvider;
 
-            context.RegisterSourceOutput(compilationProvider, static (spc, compilation) =>
-            {
+            context.RegisterSourceOutput(compilationProvider, static (spc, compilation) => {
                 var payloadInterface = compilation.GetTypeByMetadataName("Shared.ICardUsePayload");
+
                 if (payloadInterface == null)
                     return;
 
                 var payloadTypes = CollectPayloadTypes(payloadInterface);
+
                 if (payloadTypes.Count == 0)
                     return;
 
                 spc.AddSource("CardDispatch.g.cs", SourceText.From(GenerateDispatch(payloadTypes), Encoding.UTF8));
-                spc.AddSource("CardRegistration.g.cs", SourceText.From(GenerateRegistration(payloadTypes), Encoding.UTF8));
+
+                spc.AddSource("CardRegistration.g.cs",
+                    SourceText.From(GenerateRegistration(payloadTypes), Encoding.UTF8));
             });
         }
 
@@ -41,6 +44,7 @@ namespace Generators
                     continue;
 
                 var typeArg = attr.ConstructorArguments[1];
+
                 if (typeArg.Value is INamedTypeSymbol typeSymbol)
                 {
                     var fullName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -62,7 +66,9 @@ namespace Generators
             sb.AppendLine("namespace Game.GamePlay;");
             sb.AppendLine();
             sb.AppendLine("public static class CardDispatch {");
-            sb.AppendLine("    public static CardUseResult Use(this IServiceProvider provider, IPlayer invoker, ICardUsePayload payload) {");
+
+            sb.AppendLine(
+                "    public static CardUseResult Use(this IServiceProvider provider, IPlayer invoker, ICardUsePayload payload) {");
             sb.AppendLine("        return payload switch {");
 
             foreach (var type in payloadTypes)
@@ -70,7 +76,8 @@ namespace Generators
                 sb.AppendLine($"            {type} p => provider.GetRequiredService<ICard<{type}>>().Use(invoker, p),");
             }
 
-            sb.AppendLine("            _ => throw new ArgumentOutOfRangeException(nameof(payload), payload.GetType().Name, \"Unknown card payload type\")");
+            sb.AppendLine(
+                "            _ => throw new ArgumentOutOfRangeException(nameof(payload), payload.GetType().Name, \"Unknown card payload type\")");
             sb.AppendLine("        };");
             sb.AppendLine("    }");
             sb.AppendLine("}");

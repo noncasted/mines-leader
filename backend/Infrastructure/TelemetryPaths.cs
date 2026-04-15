@@ -1,10 +1,13 @@
 namespace Infrastructure;
 
-public static class TelemetryPaths {
-    public static string? FindProjectRoot() {
+public static class TelemetryPaths
+{
+    public static string? FindProjectRoot()
+    {
         var dir = AppContext.BaseDirectory;
 
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++)
+        {
             dir = Path.GetDirectoryName(dir);
 
             if (dir == null)
@@ -17,7 +20,8 @@ public static class TelemetryPaths {
         return null;
     }
 
-    public static string? GetTelemetryDir(string subfolder) {
+    public static string? GetTelemetryDir(string subfolder)
+    {
         var root = FindProjectRoot();
 
         if (root == null)

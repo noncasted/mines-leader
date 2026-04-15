@@ -1,6 +1,7 @@
 namespace Common
 {
-    public enum GrainKeyType {
+    public enum GrainKeyType
+    {
         Integer = 100,
         String = 200,
         Guid = 300,

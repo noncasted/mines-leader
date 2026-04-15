@@ -2,7 +2,8 @@ using Common;
 
 namespace Infrastructure;
 
-[GrainState(Table = "configs", State = "runtime_channel_config", Lookup = "RuntimeChannelConfig", Key = GrainKeyType.String)]
+[GrainState(Table = "configs", State = "runtime_channel_config", Lookup = "RuntimeChannelConfig",
+    Key = GrainKeyType.String)]
 public class RuntimeChannelOptions
 {
     public int ObserverKeepAliveMinutes { get; set; } = 3;

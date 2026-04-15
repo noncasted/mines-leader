@@ -182,7 +182,8 @@ public class SideEffectsWorker : IHostedService
             await Task.Delay(50, CancellationToken.None);
 
         if (Volatile.Read(ref _inProgress) > 0)
-            _logger.LogWarning("[SideEffects] Shutdown timeout exceeded, {InProgress} effects still in progress", _inProgress);
+            _logger.LogWarning("[SideEffects] Shutdown timeout exceeded, {InProgress} effects still in progress",
+                _inProgress);
 
         _shutdownCts.Dispose();
     }

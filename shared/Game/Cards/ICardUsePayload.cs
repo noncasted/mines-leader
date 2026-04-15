@@ -206,6 +206,7 @@ namespace Shared
         {
             public CardType Type { get; set; }
         }
+
         [MemoryPackable]
         public partial class ManaSurge : ICardUsePayload
         {
@@ -217,6 +218,7 @@ namespace Shared
         {
             public CardType Type { get; set; }
         }
+
         [MemoryPackable]
         public partial class BloodPact : ICardUsePayload
         {

@@ -72,13 +72,19 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class RestoreMana : INetworkContext { }
+        public partial class RestoreMana : INetworkContext
+        {
+        }
 
         [MemoryPackable]
-        public partial class RestoreHealth : INetworkContext { }
+        public partial class RestoreHealth : INetworkContext
+        {
+        }
 
         [MemoryPackable]
-        public partial class RestoreMoves : INetworkContext { }
+        public partial class RestoreMoves : INetworkContext
+        {
+        }
 
         [MemoryPackable]
         public partial class EndMatch : INetworkContext

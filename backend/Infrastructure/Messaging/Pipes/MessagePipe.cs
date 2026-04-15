@@ -90,6 +90,7 @@ public class RuntimePipe : Grain, IRuntimePipe
         catch (Exception ex)
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+
             _logger.LogError(ex,
                 "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType} on pipe {PipeId}",
                 message.GetType().Name, this.GetPrimaryKeyString());

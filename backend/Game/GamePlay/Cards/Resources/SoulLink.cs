@@ -26,8 +26,7 @@ public class SoulLink : ICard<CardUsePayload.SoulLink>
 
         invoker.Modifiers.Inc(PlayerModifier.SoulLink, 1);
 
-        _roundActionService.Schedule(
-            new SoulLinkDisposeAction(invoker, opponent), config.Duration);
+        _roundActionService.Schedule(new SoulLinkDisposeAction(invoker, opponent), config.Duration);
 
         return new CardUseResult
         {
