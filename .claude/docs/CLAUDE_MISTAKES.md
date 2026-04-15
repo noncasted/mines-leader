@@ -95,12 +95,71 @@ public void Show(DialogueTextTrack track, IReadOnlyLifetime lifetime) {
 
 ---
 
+## Lesson 5: Bot Card Strategy Must Match Card's Internal Logic
+
+### Mistake Made
+```csharp
+// WRONG — ZipZap strategy passes FREE cell position, but card searches mines in Rhombus (no diagonals)
+Position GetPosition() {
+    // Finds free cell with mine neighbors (including diagonal)
+    return checkPosition; // Free cell, not the mine itself
+}
+```
+
+```csharp
+// WRONG — OpponentBomb strategy searches BOT's board, but card operates on OPPONENT's board
+var board = _context.Bot.Board; // Should be _context.Opponent.Board!
+```
+
+### Correct Pattern
+```csharp
+// CORRECT — pass the MINE position directly, card will find it via SearchRadius
+Position FindMineTarget() {
+    // Find unflagged mine with at least one adjacent free cell
+    if (taken.HasMine && !taken.IsFlagged && hasAdjacentFree)
+        return position; // Mine position, not free cell
+}
+
+// CORRECT — search the correct board
+var board = _context.Opponent.Board; // Match what the card actually targets
+```
+
+**Rule:** Bot strategy's position-finding MUST match the card's internal search logic.
+Always verify: which board does the card operate on? What search shape does it use?
+
+---
+
+## Lesson 6: Guard ViewNotNull Against Initialization Triggers
+
+### Mistake Made
+```csharp
+// WRONG — _currentPlayer.Set(botPlayer) before round loop triggers ViewNotNull with Moves=0
+_round.CurrentPlayer.ViewNotNull(user.Lifetime, (roundLifetime, player) => {
+    Task.Run(() => OnBotTurn(roundLifetime)); // Fires with Moves=0!
+});
+```
+
+### Correct Pattern
+```csharp
+// CORRECT — guard against premature trigger
+_round.CurrentPlayer.ViewNotNull(user.Lifetime, (roundLifetime, player) => {
+    if (player.Moves.IsAvailable == false) return; // Skip init trigger
+    Task.Run(() => OnBotTurn(roundLifetime));
+});
+```
+
+**Rule:** When ViewNotNull fires during object setup (before game loop starts), the state may not be fully initialized. Always guard with a readiness check.
+
+---
+
 ## Accumulation Log
 
 | # | Date | File | Mistake | Lesson | Status |
 |---|------|------|---------|--------|--------|
 | 1 | 2026-01-25 | ObjectEditAnimationPlayTypeSelector.cs | Missing ISceneService, IScopeSetup, Create() | MonoBehaviour registration | Fixed |
 | 2 | 2026-02-10 | DialogueTextView.cs | Dialogue text not updating on frame change | Frame synchronization | Fixed |
+| 3 | 2026-04-15 | ZipZapStrategy.cs, OpponentBombStrategy.cs | Strategy position/board mismatch with card logic | Card strategy must match card internals | Fixed |
+| 4 | 2026-04-15 | BotRunner.cs | ViewNotNull fires before moves restored | Guard against init triggers | Fixed |
 
 ---
 

@@ -209,39 +209,42 @@ Backend action (e.g. OpenCellCommand)
 
 ## Bot System
 
-Three-class architecture in `backend/Game/GamePlay/Bot/`:
+Architecture in `backend/Game/GamePlay/Bot/`. Config: `BotConfigOptions` (shared).
 
 ### BotRunner (Orchestrator)
 
 ```csharp
-_round.CurrentPlayer.ViewNotNull(botLifetime, async player => {
-    if (!IsBotTurn(player)) return;
-    await UniTask.Delay(Random.Range(300, 500));  // thinking delay
-    _ = OnBotTurnAsync(bot);                       // fire-and-forget
+_round.CurrentPlayer.ViewNotNull(botLifetime, (roundLifetime, player) => {
+    if (player.User.Id != user.Id) return;
+    if (player.Moves.IsAvailable == false) return; // guard against init trigger
+    Task.Run(() => OnBotTurn(roundLifetime));
 });
 ```
 
-Turn sequence: use cards → place flags → open cells → end turn.
+Turn sequence: **interleaved** — card → flag → cell → card → flag → cell → ...
+- Random round duration: `MinRoundTime`–`MaxRoundTime` (default 7–12s)
+- Random delay 0.5–2s between actions (distributed across time budget)
+- Waits remaining budget before ending turn (human-like pacing)
 
 ### BotFlagAction
 
-Two strategies (in order):
-1. **Logical**: Find Free cell where neighbor's `MinesAround > flaggedNeighborCount` → flag unflagged mine
-2. **Random fallback**: Flag any discovered unflagged mine on the board
+Constraint-solving: Find Free cell where `MinesAround > 0`, check Taken neighbors for unflagged mines.
+Logs decision reason: which constraint triggered the flag.
 
 ### BotCellAction
 
-Constraint-solving:
-- Find Taken cells with `MinesAround > 0`
-- If all mines are flagged → open safe unflagged neighbors (`HasMine == false`)
+Two strategies (in order):
+1. **Constraint-solving**: Free cell with flagged neighbors → open safe unflagged neighbor (`HasMine == false`)
+2. **Fallback** (HP > 1 only): Open random Taken cell known to have no mine
 
 ### BotCardAction
 
 Algorithm:
 1. Filter hand cards by mana cost
-2. Call `strategy.Evaluate()` for each card → get utility float (0–10)
-3. Sort by utility (SortedList)
-4. Execute highest utility card via `strategy.Execute()`
+2. Call `strategy.Evaluate()` → get base utility (0–10)
+3. Add mana-efficiency bonus: `(1 - manaCost/6) * 1.5` — cheaper cards score higher
+4. Try cards in descending utility order
+5. If Execute() fails → try next candidate (not give up)
 
 ### IBotCardStrategy
 
@@ -249,17 +252,20 @@ Algorithm:
 public interface IBotCardStrategy {
     IReadOnlyList<CardType> TargetCards { get; }   // includes _Max variants
     float Evaluate(CardType type);                  // 0-10 utility score
-    Task<bool> Execute(IReadOnlyLifetime lifetime, CardType cardType);
+    bool Execute(Guid cardId, CardType cardType);
 }
 ```
 
-Strategy utilities:
-- **Bloodhound/ErosionDozer/ZipZap**: Utility 8 if >50% board closed, 2 otherwise
-- **TrebuchetAimer**: Utility 8 if Trebuchet in hand AND opponent ahead; 1 if boost active
-- **Trebuchet**: Utility 10 if boost active; 7 if opponent more open; 2 if ahead
-- **OpponentBomb**: Utility 7 if opponent opened >70%
-- **OpponentFlagErase**: Utility 7 if >10 flags, 5 if >5, 3 otherwise
-- **GraveDigger**: Random 3–6 if stash has cards, 0 otherwise
+Strategy utilities (gradient, not binary):
+- **Bloodhound**: `3 + closedRatio * 7.5` — cheap (2 mana), good info, prioritized
+- **ErosionDozer**: `2 + closedRatio * 8` — slightly lower than Bloodhound, more expensive
+- **ZipZap**: `4 + closedRatio * 6.5` — destroys mines, always high if target exists. Returns 0 if no valid target (HasValidTarget check). Passes MINE position to card.
+- **TrebuchetAimer**: 8 if Trebuchet in hand AND opponent ahead; 1 if boost active
+- **Trebuchet**: 10 if boost active; 7 if opponent more open; 2 if ahead
+- **OpponentBomb**: 7 if opponent opened >70%. 0 if opponent HP <= 1 (no finishing). Searches OPPONENT's board.
+- **OpponentFlagErase**: 7 if >10 flags, 5 if >5, 3 otherwise
+- **Smoke**: 6 if opponent openRatio > 60%, 4 if > 30%, 2 otherwise
+- **Gravedigger**: `min(3 + stash*2 + handBonus, 9)` — scales with stash size
 
 ### IBotCommandUtils
 
@@ -267,6 +273,7 @@ Wraps board changes in MoveSnapshot for client sync:
 ```csharp
 WithSnapshot(Action action)                     // simple operations
 WithSnapshot(Action<MoveSnapshot> action)       // operations needing snapshot reference
+bool UseCard(IPlayer bot, Guid cardId, ICardUsePayload payload)  // execute card via service provider
 ```
 
 ### BotBoardUtils
@@ -276,6 +283,16 @@ Stateless board analysis (injected into strategies via constructor):
 - `FindClosestUnflaggedMine()` — nearest discovered mine
 - `FindRandomFlaggedPosition(opponent?)` — flagged cell (own or opponent)
 - `HasFlaggedCells(opponent?)` — check flag presence
+
+### Session Logging
+
+`ISessionLogger` logs all bot decisions to `.telemetry/logs-games/{date}/{sessionId}.log`:
+- Player labels: `Human`/`Bot` instead of GUIDs (via `RegisterPlayers`)
+- Round separators: `-------- Round N Start/End PLAYER --------`
+- Bot state at turn start: mana, moves, hand, health
+- Card evaluation: all candidates with utility, skipped cards with reasons (no mana, zero utility, no strategy)
+- Flag/cell decisions: position + constraint-solve reason
+- Mana changes at round end
 
 ---
 
