@@ -142,6 +142,7 @@ public class RuntimeChannelCatchUpTests
             lock (allReceived)
             {
                 allReceived.Add(msg);
+
                 if (allReceived.Count >= 3)
                     firstBatch.TrySetResult();
             }
@@ -167,6 +168,7 @@ public class RuntimeChannelCatchUpTests
             lock (catchUpReceived)
             {
                 catchUpReceived.Add(msg);
+
                 if (catchUpReceived.Count >= 3)
                     secondBatch.TrySetResult();
             }

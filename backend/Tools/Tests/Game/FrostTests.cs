@@ -9,7 +9,10 @@ namespace Tests.Game;
 
 public class FrostTests : PlayerCardTestsBase
 {
-    private CardUseResult Use(IBoard board, CardUsePayload.Frost payload, IRoundActionService roundActionService,
+    private CardUseResult Use(
+        IBoard board,
+        CardUsePayload.Frost payload,
+        IRoundActionService roundActionService,
         ICardConfigs? configs = null)
     {
         var invoker = MockPlayer();

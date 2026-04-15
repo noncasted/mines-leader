@@ -12,6 +12,7 @@ public class CoinTossTests : PlayerCardTestsBase
     public void Use_Heads_SetsAdditionalMovesModifier()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMoves, 0f } });
         var gameRandom = Substitute.For<IGameRandom>();
@@ -33,7 +34,9 @@ public class CoinTossTests : PlayerCardTestsBase
         owner.Moves.Left.Returns(3);
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(false);
-        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(), MockSnapshotAccessor());
+
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(),
+            MockSnapshotAccessor());
 
         var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
@@ -45,12 +48,15 @@ public class CoinTossTests : PlayerCardTestsBase
     public void Use_RecordsSnapshotWithIsHeads()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMoves, 0f } });
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(true);
         var snapshot = new MoveSnapshot();
-        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(), MockSnapshotAccessor(snapshot));
+
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(),
+            MockSnapshotAccessor(snapshot));
 
         card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 

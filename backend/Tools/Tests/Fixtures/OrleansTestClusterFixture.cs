@@ -211,7 +211,8 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         return mock;
     }
 
-    private static GrainStatesRegistry BuildStatesRegistry() {
+    private static GrainStatesRegistry BuildStatesRegistry()
+    {
         var states = new List<GrainStateInfo>();
         GeneratedStatesRegistration.AddAllStates(states);
         return new GrainStatesRegistry(states);

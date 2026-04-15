@@ -12,6 +12,7 @@ public class ManaSurgeTests : PlayerCardTestsBase
     public void Use_SetsAdditionalManaModifierAndCurrentMana()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f } });
         owner.Mana.Current.Returns(2);
@@ -29,6 +30,7 @@ public class ManaSurgeTests : PlayerCardTestsBase
     public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f } });
         owner.Mana.Current.Returns(0);

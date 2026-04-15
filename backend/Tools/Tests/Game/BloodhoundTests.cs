@@ -79,12 +79,12 @@ public class BloodhoundTests : PlayerCardTestsBase
     public void Use_AllTakenAlreadyFreeInCross_Fails()
     {
         var (board, _) = BoardParser.Parse("""
-                                            t t t t t
-                                            t t _ t t
-                                            t _ _ _ t
-                                            t t _ t t
-                                            t t t t t
-                                            """);
+                                           t t t t t
+                                           t t _ t t
+                                           t _ _ _ t
+                                           t t _ t t
+                                           t t t t t
+                                           """);
         var invoker = MockInvoker(board);
         var card = new Bloodhound(MockConfigs());
         var result = card.Use(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });

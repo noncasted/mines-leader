@@ -12,6 +12,7 @@ public class ManaFountainTests : PlayerCardTestsBase
     public void Use_RollsRangeAndGrantsMana()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f } });
         owner.Mana.Current.Returns(1);
@@ -32,6 +33,7 @@ public class ManaFountainTests : PlayerCardTestsBase
     public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f } });
         owner.Mana.Current.Returns(0);

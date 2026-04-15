@@ -34,7 +34,8 @@ public class DurableQueueSubscriberTests
         await act.Should().ThrowAsync<InvalidOperationException>();
 
         // Add subscriber, queue should work
-        var observer = new DurableQueueObserver(_ => { });
+        var observer = new DurableQueueObserver(_ => {
+        });
         var observerRef = GrainFactory.CreateObjectReference<IDurableQueueObserver>(observer);
         await queue.AddObserver(Guid.NewGuid(), observerRef);
 

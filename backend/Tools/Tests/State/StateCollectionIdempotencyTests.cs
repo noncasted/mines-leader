@@ -42,6 +42,7 @@ public class StateCollectionIdempotencyTests
     public void StateCollectionUpdate_PreservesTimestampThroughSerialization()
     {
         var now = DateTime.UtcNow;
+
         var update = new StateCollectionUpdate<string, TestCollectionValue>
         {
             Key = "ser-test",

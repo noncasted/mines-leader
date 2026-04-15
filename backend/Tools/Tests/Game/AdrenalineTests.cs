@@ -12,6 +12,7 @@ public class AdrenalineTests : PlayerCardTestsBase
     public void Use_SetsAdditionalMovesModifier()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMoves, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
@@ -27,6 +28,7 @@ public class AdrenalineTests : PlayerCardTestsBase
     public void Use_SchedulesDisposeAction()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMoves, 0f } });
         var roundService = Substitute.For<IRoundActionService>();
@@ -42,6 +44,7 @@ public class AdrenalineTests : PlayerCardTestsBase
     {
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMoves, 0f } });
         var card = new Adrenaline(MockConfigs(), Substitute.For<IRoundActionService>());

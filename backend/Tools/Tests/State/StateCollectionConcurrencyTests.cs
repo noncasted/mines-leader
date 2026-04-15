@@ -82,7 +82,9 @@ public class StateCollectionConcurrencyTests
 
         var storage = GetSiloService<IStateStorage>();
         var stateInfo = storage.Registry.Get<CollectionTestState>();
-        await storage.Delete(new StateIdentity {
+
+        await storage.Delete(new StateIdentity
+        {
             Key = id,
             Type = stateInfo.Name,
             TableName = stateInfo.TableName,

@@ -12,6 +12,7 @@ public class BloodPactTests : PlayerCardTestsBase
     public void Use_TakesDamageAndGrantsManaAndMoves()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f }, { PlayerModifier.AdditionalMoves, 0f } });
         owner.Mana.Current.Returns(1);
@@ -31,6 +32,7 @@ public class BloodPactTests : PlayerCardTestsBase
     public void Use_SchedulesDisposeActions()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.AdditionalMana, 0f }, { PlayerModifier.AdditionalMoves, 0f } });
         owner.Mana.Current.Returns(0);

@@ -13,6 +13,7 @@ public class EmbargoTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var opponent = MockPlayer();
+
         opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.ManaCostPenalty, 0f } });
         var gameContext = MockGameContext(owner, opponent);
@@ -30,6 +31,7 @@ public class EmbargoTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var opponent = MockPlayer();
+
         opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
             { { PlayerModifier.ManaCostPenalty, 0f } });
         var gameContext = MockGameContext(owner, opponent);

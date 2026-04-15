@@ -66,10 +66,11 @@ public class MineClusterTests : PlayerCardTestsBase
     public void Use_ActionDataReferencesTargetBoardOwner()
     {
         var ownerId = Guid.NewGuid();
+
         var board = new TestBoardBuilder(5)
-            .WithOwner(ownerId)
-            .WithFreeAt((2, 1), (1, 2), (2, 2), (3, 2), (2, 3))
-            .Build();
+                    .WithOwner(ownerId)
+                    .WithFreeAt((2, 1), (1, 2), (2, 2), (3, 2), (2, 3))
+                    .Build();
 
         var result = Use(board, new CardUsePayload.MineCluster { Position = new Position(2, 2) });
 

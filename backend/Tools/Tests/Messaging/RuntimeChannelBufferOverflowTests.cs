@@ -69,6 +69,7 @@ public class RuntimeChannelBufferOverflowTests
 
         // Sequences must be strictly sequential with no corruption from modulo wraparound
         var expectedStart = totalMessages - bufferSize + 1;
+
         for (var i = 0; i < result.Messages.Count; i++)
             result.Messages[i].Sequence.Should().Be(expectedStart + i);
     }
