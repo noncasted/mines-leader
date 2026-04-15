@@ -21,5 +21,9 @@
         <ProjectReference Include="..\..\shared\shared.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Game\Analytics\CardAnalytics.razor" />
+    </ItemGroup>
+
 
 </Project>
