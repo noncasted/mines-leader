@@ -20,8 +20,6 @@ public static class ConsoleConstants
         public const string LiveMatches = "/matches";
         public const string Matchmaking = "/matchmaking";
         public const string MatchHistory = "/match-history";
-        public const string CardAnalytics = "/analytics/cards";
-        public const string DebugPanel = "/debug";
         public const string AuditLog = "/audit";
         public const string Discovery = "/discovery";
     }
