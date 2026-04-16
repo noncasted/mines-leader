@@ -32,6 +32,8 @@ public class Excavator : ICard<CardUsePayload.Excavator>
             };
         }
 
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+
         foreach (var cell in selected)
         {
             if (cell.HasMine)
@@ -51,7 +53,8 @@ public class Excavator : ICard<CardUsePayload.Excavator>
             ActionData = new CardActionSnapshot.Excavator()
             {
                 TargetPlayer = board.OwnerId,
-                TargetCells = selected.Select(c => c.Position).ToList()
+                TargetCells = selected.Select(c => c.Position).ToList(),
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
     }

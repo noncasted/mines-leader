@@ -123,18 +123,21 @@ namespace Shared
         public partial class OpponentFlagErase : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class OpponentFlagReshuffle : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class Smoke : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -149,6 +152,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> RevealedCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -175,6 +179,7 @@ namespace Shared
         public partial class FogOfWar : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -200,12 +205,14 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> FlaggedCells { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class Purge : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -305,6 +312,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> HighlightedMines { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -352,6 +360,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -359,6 +368,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> FrozenCells { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -366,6 +376,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> AffectedCells { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]

@@ -66,6 +66,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
             };
         }
 
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+
         foreach (var target in targets)
             target.ToFree();
 
@@ -82,7 +84,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
             ActionData = new CardActionSnapshot.ZipZap()
             {
                 TargetPlayer = board.OwnerId,
-                TargetCells = targets.Select(t => t.Position).ToList()
+                TargetCells = targets.Select(t => t.Position).ToList(),
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
 

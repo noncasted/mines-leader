@@ -45,6 +45,7 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         }
 
         var taken = cell.ToTaken();
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
 
         if (taken.HasMine == true)
         {
@@ -62,7 +63,8 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
             ActionData = new CardActionSnapshot.OpponentBomb()
             {
                 TargetPlayer = board.OwnerId,
-                TargetCells = new List<Position> { cell.Position }
+                TargetCells = new List<Position> { cell.Position },
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
     }

@@ -20,8 +20,6 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
         var lifetime = new Lifetime();
 
         var snapshot = new MoveSnapshot();
-        snapshot.HandleBoards(lifetime, Utils.GameContext);
-        snapshot.HandlePlayers(lifetime, Utils.GameContext);
 
         var commandContext = new Context
         {
