@@ -21,6 +21,11 @@ namespace Animations
             _renderer.sprite = sprite;
         }
 
+        public void SetColor(Color color)
+        {
+            _renderer.color = color;
+        }
+
         protected virtual void OnRegister(IEntityBuilder builder)
         {
         }

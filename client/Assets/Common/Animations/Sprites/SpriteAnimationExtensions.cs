@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Internal;
 using UnityEngine;
 
@@ -31,7 +31,7 @@ namespace Animations
         public static void RegisterSpriteForwardAnimation<T>(this IEntityBuilder builder, ForwardAnimationAsset asset)
             where T : ForwardSpriteAnimation
         {
-            var data = new SpriteAnimationData(asset.Sprites, asset.Time);
+            var data = new SpriteAnimationData(asset.Sprites, asset.Time, asset.Color);
 
             builder.Register<T>()
                    .As<IScopeSetup>()
@@ -41,7 +41,7 @@ namespace Animations
         public static void RegisterSpriteForwardAnimation<T>(this IEntityBuilder builder, ForwardAnimationData data)
             where T : ForwardSpriteAnimation
         {
-            var animationData = new SpriteAnimationData(data.Sprites, data.Time);
+            var animationData = new SpriteAnimationData(data.Sprites, data.Time, data.Color);
 
             builder.Register<T>()
                    .As<IScopeSetup>()
