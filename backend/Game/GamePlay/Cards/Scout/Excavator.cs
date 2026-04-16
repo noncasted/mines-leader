@@ -50,7 +50,8 @@ public class Excavator : ICard<CardUsePayload.Excavator>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Excavator()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

@@ -51,7 +51,8 @@ public class FortuneBlast : ICard<CardUsePayload.FortuneBlast>
             ActionData = new CardActionSnapshot.FortuneBlast()
             {
                 TargetPlayer = board.OwnerId,
-                ActualSize = actualSize
+                ActualSize = actualSize,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

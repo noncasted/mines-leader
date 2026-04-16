@@ -21,6 +21,7 @@ namespace GamePlay.Boards
         [SerializeField] private CellSelectionView _selection;
 
         [SerializeField] private CellAnimator _cellAnimator;
+        [SerializeField] private CellVisuals _visuals;
         [SerializeField] private CellEffects _effects;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
@@ -33,6 +34,7 @@ namespace GamePlay.Boards
         public ICellPointerHandler PointerHandler => _pointerHandler;
         public IBoard Source => _board;
         public ICellSelectionView Selection => _selection;
+        public CellVisuals Visuals => _visuals;
         public CellEffects Effects => _effects;
 
         public void ConstructFromBuild(Vector2Int position, Board board)
@@ -45,6 +47,7 @@ namespace GamePlay.Boards
         {
             _connection = connection;
             _cellAnimator.Construct(updater);
+            _visuals.Construct(updater);
             _takenView.FlagAnimator.Construct(updater);
             var taken = new CellTakenState(this, _takenView, _connection);
             _state.Set(taken);
@@ -56,6 +59,9 @@ namespace GamePlay.Boards
             if (_state.Value is not CellTakenState)
             {
                 Effects.Clear();
+
+                if (_visuals.HasPendingTarget)
+                    _visuals.PlayCellAction(this.GetObjectLifetime()).Forget();
 
                 var taken = new CellTakenState(this, _takenView, _connection);
                 _state.Set(taken);
@@ -70,6 +76,9 @@ namespace GamePlay.Boards
             if (_state.Value is not CellFreeState)
             {
                 Effects.Clear();
+
+                if (_visuals.HasPendingTarget)
+                    _visuals.PlayCellAction(this.GetObjectLifetime()).Forget();
 
                 _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);

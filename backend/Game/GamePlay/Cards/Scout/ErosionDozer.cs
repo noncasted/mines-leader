@@ -44,7 +44,8 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.ErosionDozer()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = limited.Select(c => c.Position).ToList()
             }
         };
     }

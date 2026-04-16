@@ -42,7 +42,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Bloodhound()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

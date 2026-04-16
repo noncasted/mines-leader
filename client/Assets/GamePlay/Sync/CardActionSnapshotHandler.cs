@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
@@ -35,6 +37,8 @@ namespace GamePlay
             var card = player.Hand.Entries.First(t => t.Id == record.CardId)!;
 
             _actionLog.LogCardAction(record.PlayerId, card.Type);
+
+            await PlayTargetAnimation(record.Data);
 
             await card.Use(_lifetime, record.Data);
 
@@ -77,6 +81,31 @@ namespace GamePlay
                            )
                        .Forget();
             }
+        }
+
+        private async UniTask PlayTargetAnimation(ICardActionData data)
+        {
+            var targetCells = data.TargetCells;
+
+            if (targetCells == null || targetCells.Count == 0)
+                return;
+
+            var board = _gameContext.GetPlayer(data.TargetPlayer).Board;
+            var tasks = new List<UniTask>();
+
+            foreach (var position in targetCells)
+            {
+                var vector = position.ToVector();
+
+                if (board.Cells.TryGetValue(vector, out var cell) == false)
+                    continue;
+
+                if (cell is CellView cellView)
+                    tasks.Add(cellView.Visuals.PlayCellTarget(_lifetime));
+            }
+
+            if (tasks.Count > 0)
+                await UniTask.WhenAll(tasks);
         }
     }
 }

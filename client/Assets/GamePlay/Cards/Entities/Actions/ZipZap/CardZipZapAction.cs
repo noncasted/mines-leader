@@ -73,7 +73,7 @@ namespace GamePlay.Cards
                 var targets = new List<IBoardCell>();
                 var board = _context.GetPlayer(payload.TargetPlayer).Board;
 
-                foreach (var position in payload.Targets)
+                foreach (var position in payload.TargetCells)
                 {
                     var boardPosition = position.ToVector();
                     var cell = board.Cells[boardPosition];

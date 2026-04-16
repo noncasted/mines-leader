@@ -60,6 +60,7 @@ namespace Shared
     public partial interface ICardActionData
     {
         Guid TargetPlayer { get; set; }
+        IReadOnlyList<Position>? TargetCells => null;
     }
 
     public partial class CardActionSnapshot
@@ -68,43 +69,49 @@ namespace Shared
         public partial class ZipZap : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
-            public IReadOnlyList<Position> Targets { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class Bloodhound : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class ErosionDozer : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class Gravedigger : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class Trebuchet : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class TrebuchetAimer : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class OpponentBomb : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -136,6 +143,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> RevealedCells { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -149,6 +157,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> SpawnedMines { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -282,6 +291,7 @@ namespace Shared
         public partial class Excavator : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -296,6 +306,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -303,18 +314,21 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public int ActualLength { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class MineCluster : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
         public partial class CarpetBomb : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -322,6 +336,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]
@@ -350,6 +365,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> RevealedMines { get; set; }
+            public IReadOnlyList<Position>? TargetCells { get; set; }
         }
 
         [MemoryPackable]

@@ -89,7 +89,8 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
             ActionData = new CardActionSnapshot.ChainReaction
             {
                 TargetPlayer = board.OwnerId,
-                SpawnedMines = spawnedMines
+                SpawnedMines = spawnedMines,
+                TargetCells = targets.Select(t => t.Position).ToList()
             }
         };
 

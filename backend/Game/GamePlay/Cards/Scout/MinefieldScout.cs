@@ -67,7 +67,8 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
             ActionData = new CardActionSnapshot.MinefieldScout()
             {
                 TargetPlayer = board.OwnerId,
-                RevealedCells = revealed
+                RevealedCells = revealed,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

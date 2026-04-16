@@ -61,7 +61,8 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
             ActionData = new CardActionSnapshot.ChaosScout()
             {
                 TargetPlayer = board.OwnerId,
-                ActualLength = actualLength
+                ActualLength = actualLength,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

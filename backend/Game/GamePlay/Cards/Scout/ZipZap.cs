@@ -5,14 +5,12 @@ namespace Game.GamePlay;
 
 public class ZipZap : ICard<CardUsePayload.ZipZap>
 {
-    public ZipZap(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
+    public ZipZap(ICardConfigs configs)
     {
         _configs = configs;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ICardConfigs _configs;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
     public CardUseResult Use(IPlayer invoker, CardUsePayload.ZipZap payload)
     {
@@ -68,13 +66,9 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
             };
         }
 
-        var snapshot = _snapshotAccessor.Snapshot;
-        snapshot.Lock();
-
         foreach (var target in targets)
             target.ToFree();
 
-        snapshot.Unlock();
         board.OnUpdated();
 
         foreach (var target in targets)
@@ -88,7 +82,7 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
             ActionData = new CardActionSnapshot.ZipZap()
             {
                 TargetPlayer = board.OwnerId,
-                Targets = targets.Select(t => t.Position).ToList()
+                TargetCells = targets.Select(t => t.Position).ToList()
             }
         };
 
