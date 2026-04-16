@@ -1,0 +1,35 @@
+<UXML xmlns="UnityEngine.UIElements" xmlns:t="Global.UI.Toolkit">
+    <Style src="MenuBottomBar.uss" />
+    <Style src="../UI/Styles/MenuTheme.uss" />
+
+    <VisualElement name="bottom-bar-root" class="bottom-bar-root">
+
+        <VisualElement name="play-popup" class="play-popup">
+            <VisualElement name="mode-selection" class="mode-selection">
+                <Label text="select mode" class="mode-title" />
+                <t:NavButton name="btn-time-limited" text="time limited" class="mode-btn" />
+                <VisualElement class="mode-separator" />
+                <t:NavButton name="btn-last-man" text="last man standing" class="mode-btn" />
+            </VisualElement>
+
+            <Label name="timer" class="timer-label" />
+        </VisualElement>
+
+        <VisualElement name="bottom-bar" class="bottom-bar">
+            <VisualElement class="bar-content">
+                <t:NavButton name="btn-settings" text="&#9881;" class="settings-button" />
+                <VisualElement class="separator" />
+                <t:NavButton name="btn-progression" text="progression" />
+                <VisualElement class="separator" />
+                <t:NavButton name="btn-cards" text="cards" />
+                <VisualElement class="separator" />
+                <TextField name="chat-input" class="chat-input" placeholder-text="Write to chat" />
+                <VisualElement class="separator" />
+
+                <VisualElement name="play-area" class="play-area">
+                    <t:NavButton name="btn-play" text="play" class="play-button" />
+                </VisualElement>
+            </VisualElement>
+        </VisualElement>
+    </VisualElement>
+</UXML>
