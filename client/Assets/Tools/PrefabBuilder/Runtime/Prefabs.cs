@@ -21,8 +21,6 @@ namespace Tools
         public static readonly StaticPrefab MenuPlayer = new("MenuPlayer");
         public static readonly StaticPrefab Mines = new("Mines");
         public static readonly StaticPrefab PlayerTurnPoint = new("PlayerTurnPoint");
-        public static readonly StaticPrefab Settings = new("Settings");
-        public static readonly StaticPrefab SettingsSlider = new("SettingsSlider");
         public static readonly StaticPrefab StashCard = new("StashCard");
     }
 }

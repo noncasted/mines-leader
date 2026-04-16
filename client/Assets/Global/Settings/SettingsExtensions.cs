@@ -1,17 +1,11 @@
-﻿using Internal;
-using Tools;
+using Internal;
 
-namespace Global.Settings
-{
-    public static class SettingsExtensions
-    {
-        public static IScopeBuilder AddSettings(this IScopeBuilder builder)
-        {
-            var view = builder.Instantiate(Prefabs.Settings.As<SettingsView>());
-
+namespace Global.Settings {
+    public static class SettingsExtensions {
+        public static IScopeBuilder AddSettings(this IScopeBuilder builder) {
             builder.Register<Settings>()
                    .WithAsset<SettingsOptions>()
-                   .WithParameter<ISettingsView>(view)
+                   .WithParameter<ISettingsView>(new SettingsView())
                    .As<ISettings>()
                    .As<IScopeSetupAsync>();
 
