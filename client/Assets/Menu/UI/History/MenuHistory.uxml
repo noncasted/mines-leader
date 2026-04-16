@@ -1,0 +1,59 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="../Styles/MenuTheme.uss"/>
+    <Style src="../Decks/MenuCards.uss"/>
+    <Style src="MenuHistory.uss"/>
+    <!-- MenuCards.uss needed only for .card-element sprite frame; scrollbar styling is local. -->
+    <VisualElement name="history-root" class="history-root">
+        <VisualElement name="stats-row" class="stats-row">
+            <VisualElement name="rating-block" class="stat-block">
+                <Label name="rating-value" text="0" class="u-ithaca stat-value"/>
+                <VisualElement class="stat-divider"/>
+                <Label text="Rating" class="u-ithaca stat-label"/>
+            </VisualElement>
+            <VisualElement name="progression-block" class="stat-block">
+                <Label name="progression-value" text="0" class="u-ithaca stat-value"/>
+                <VisualElement class="stat-divider"/>
+                <Label text="Progression" class="u-ithaca stat-label"/>
+            </VisualElement>
+        </VisualElement>
+        <VisualElement name="content-row" class="content-row">
+            <ScrollView name="history-list"
+                        vertical-scroller-visibility="AlwaysVisible"
+                        horizontal-scroller-visibility="Hidden"
+                        class="history-list"/>
+            <VisualElement name="details-panel" class="details-panel">
+                <VisualElement name="opponent-area" class="card-area opponent-area">
+                    <VisualElement name="opponent-cards" class="card-row"/>
+                </VisualElement>
+                <VisualElement name="match-info-row" class="match-info-row">
+                    <VisualElement class="info-cell">
+                        <Label name="round-time" text="-" class="u-ithaca info-value"/>
+                        <Label text="time" class="u-ithaca info-caption"/>
+                    </VisualElement>
+                    <VisualElement class="info-sep"/>
+                    <VisualElement class="info-cell">
+                        <Label name="rating-change" text="-" class="u-ithaca info-value"/>
+                        <Label text="rating" class="u-ithaca info-caption"/>
+                    </VisualElement>
+                    <VisualElement class="info-sep"/>
+                    <VisualElement class="info-cell">
+                        <Label name="progression-change" text="-" class="u-ithaca info-value"/>
+                        <Label text="progression" class="u-ithaca info-caption"/>
+                    </VisualElement>
+                </VisualElement>
+                <VisualElement name="own-area" class="card-area own-area">
+                    <VisualElement name="own-cards" class="card-row"/>
+                </VisualElement>
+                <VisualElement name="details-empty" class="details-empty">
+                    <Label text="Select a match" class="u-ithaca details-empty-label"/>
+                </VisualElement>
+                <VisualElement name="loading-overlay" class="loading-overlay">
+                    <VisualElement class="loading-bar">
+                        <VisualElement name="loading-bar-fill" class="loading-bar-fill"/>
+                    </VisualElement>
+                </VisualElement>
+            </VisualElement>
+        </VisualElement>
+        <Button name="btn-exit" class="exit-btn"/>
+    </VisualElement>
+</UXML>

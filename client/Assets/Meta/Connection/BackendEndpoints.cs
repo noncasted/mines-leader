@@ -75,6 +75,22 @@ namespace Meta
             });
         }
 
+        public static UniTask<SharedBackendUser.MatchHistoryResponse> GetMatchHistory(
+            this IMetaBackend backend,
+            int count)
+        {
+            return backend.Connection.Writer.WriteRequest<SharedBackendUser.MatchHistoryResponse>(
+                new SharedBackendUser.MatchHistoryRequest { Count = count });
+        }
+
+        public static UniTask<SharedBackendUser.MatchDetailsResponse> GetMatchDetails(
+            this IMetaBackend backend,
+            Guid matchId)
+        {
+            return backend.Connection.Writer.WriteRequest<SharedBackendUser.MatchDetailsResponse>(
+                new SharedBackendUser.MatchDetailsRequest { MatchId = matchId });
+        }
+
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)
             where TRequest : INetworkContext
         {

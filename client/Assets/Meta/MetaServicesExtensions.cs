@@ -44,6 +44,7 @@ namespace Meta
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
                 .RegisterBackendProjection<SharedBackendUser.ProgressionProjection>()
+                .RegisterBackendProjection<SharedBackendUser.RatingProjection>()
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
                 .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
                 .RegisterBackendProjection<SharedBackendUser.LootProjection>()

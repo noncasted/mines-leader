@@ -23,6 +23,7 @@ namespace Menu.Main
 
         private IMenuDecks _decks;
         private IMenuProgression _progressionScreen;
+        private IMenuHistory _historyScreen;
         private IUIStateMachine _stateMachine;
         private ISettings _settings;
 
@@ -32,11 +33,13 @@ namespace Menu.Main
         private void Construct(
             IMenuDecks decks,
             IMenuProgression progressionScreen,
+            IMenuHistory historyScreen,
             IUIStateMachine stateMachine,
             ISettings settings)
         {
             _stateMachine = stateMachine;
             _progressionScreen = progressionScreen;
+            _historyScreen = historyScreen;
             _decks = decks;
             _settings = settings;
         }
@@ -56,12 +59,16 @@ namespace Menu.Main
             var btnSettings = Root.Q<Button>("btn-settings");
             var btnCards = Root.Q<Button>("btn-cards");
             var btnProgression = Root.Q<Button>("btn-progression");
+            var btnHistory = Root.Q<Button>("btn-history");
 
             btnSettings.ListenClick(lifetime, () => _settings.Open());
             btnCards.ListenClick(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _decks));
 
             btnProgression.ListenClick(lifetime,
                 () => _stateMachine.ProcessChild(_stateMachine.Base, _progressionScreen));
+
+            btnHistory.ListenClick(lifetime,
+                () => _stateMachine.ProcessChild(_stateMachine.Base, _historyScreen));
         }
     }
 }
