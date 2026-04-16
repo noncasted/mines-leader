@@ -1,15 +1,15 @@
 <UXML xmlns="UnityEngine.UIElements" xmlns:t="Global.UI.Toolkit">
     <Style src="MenuBottomBar.uss" />
-    <Style src="../UI/Styles/MenuTheme.uss" />
+    <Style src="../Styles/MenuTheme.uss" />
 
     <VisualElement name="bottom-bar-root" class="bottom-bar-root">
 
         <VisualElement name="play-popup" class="play-popup">
             <VisualElement name="mode-selection" class="mode-selection">
                 <Label text="select mode" class="mode-title" />
-                <t:NavButton name="btn-time-limited" text="time limited" class="mode-btn" />
+                <t:NavButton name="btn-time-limited" text="time limited" class="mode-btn u-ithaca" />
                 <VisualElement class="mode-separator" />
-                <t:NavButton name="btn-last-man" text="last man standing" class="mode-btn" />
+                <t:NavButton name="btn-last-man" text="last man standing" class="mode-btn u-ithaca" />
             </VisualElement>
 
             <Label name="timer" class="timer-label" />
@@ -19,15 +19,15 @@
             <VisualElement class="bar-content">
                 <t:NavButton name="btn-settings" text="&#9881;" class="settings-button" />
                 <VisualElement class="separator" />
-                <t:NavButton name="btn-progression" text="progression" />
+                <t:NavButton name="btn-progression" text="progression" class="u-ithaca" />
                 <VisualElement class="separator" />
-                <t:NavButton name="btn-cards" text="cards" />
+                <t:NavButton name="btn-cards" text="cards" class="u-ithaca" />
                 <VisualElement class="separator" />
                 <TextField name="chat-input" class="chat-input" placeholder-text="Write to chat" />
                 <VisualElement class="separator" />
 
                 <VisualElement name="play-area" class="play-area">
-                    <t:NavButton name="btn-play" text="play" class="play-button" />
+                    <t:NavButton name="btn-play" text="play" class="play-button u-ithaca" />
                 </VisualElement>
             </VisualElement>
         </VisualElement>

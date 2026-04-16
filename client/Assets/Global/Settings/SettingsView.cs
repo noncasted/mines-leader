@@ -17,10 +17,21 @@ namespace Global.Settings {
 
     public class SettingsView : ISettingsView {
         public async UniTask<SettingsViewResult> Show(SettingsSave data, Action pushCallback) {
-            var doc = UnityEngine.Object.FindFirstObjectByType<UIDocument>();
-            if (doc == null) return SettingsViewResult.Cancel;
+            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            VisualElement container = null;
 
-            var container = doc.rootVisualElement.Q<VisualElement>("bottom-bar-root");
+            foreach (var doc in docs) {
+                var root = doc.rootVisualElement;
+                if (root == null) continue;
+
+                var found = root.Q<VisualElement>("bottom-bar-root");
+
+                if (found != null) {
+                    container = found;
+                    break;
+                }
+            }
+
             if (container == null) return SettingsViewResult.Cancel;
 
             var lifetime = new Lifetime();

@@ -2,8 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Menu.Decks {
-    public class CardDragManipulator : PointerManipulator {
+namespace Menu.Decks
+{
+    public class CardDragManipulator : PointerManipulator
+    {
         private readonly VisualElement _dragLayer;
         private readonly Func<VisualElement> _createGhost;
         private readonly Action<VisualElement> _onDropped;
@@ -17,27 +19,31 @@ namespace Menu.Decks {
         public CardDragManipulator(
             VisualElement dragLayer,
             Func<VisualElement> createGhost,
-            Action<VisualElement> onDropped) {
+            Action<VisualElement> onDropped)
+        {
             _dragLayer = dragLayer;
             _createGhost = createGhost;
             _onDropped = onDropped;
         }
 
-        protected override void RegisterCallbacksOnTarget() {
+        protected override void RegisterCallbacksOnTarget()
+        {
             target.RegisterCallback<PointerDownEvent>(OnPointerDown);
             target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
             target.RegisterCallback<PointerUpEvent>(OnPointerUp);
             target.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
         }
 
-        protected override void UnregisterCallbacksFromTarget() {
+        protected override void UnregisterCallbacksFromTarget()
+        {
             target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
             target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
             target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
             target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
         }
 
-        private void OnPointerDown(PointerDownEvent evt) {
+        private void OnPointerDown(PointerDownEvent evt)
+        {
             if (_isDragging || evt.button != 0)
                 return;
 
@@ -57,6 +63,7 @@ namespace Menu.Decks {
 
             // Dim the original card
             target.style.unityBackgroundImageTintColor = new Color(0.1f, 0.1f, 0.15f, 1f);
+
             target.Query<VisualElement>().ForEach(e => {
                 e.style.unityBackgroundImageTintColor = new Color(0.1f, 0.1f, 0.15f, 1f);
             });
@@ -66,7 +73,8 @@ namespace Menu.Decks {
             evt.StopPropagation();
         }
 
-        private void OnPointerMove(PointerMoveEvent evt) {
+        private void OnPointerMove(PointerMoveEvent evt)
+        {
             if (!_isDragging || _ghost == null)
                 return;
 
@@ -78,7 +86,8 @@ namespace Menu.Decks {
             evt.StopPropagation();
         }
 
-        private void OnPointerUp(PointerUpEvent evt) {
+        private void OnPointerUp(PointerUpEvent evt)
+        {
             if (!_isDragging)
                 return;
 
@@ -93,25 +102,30 @@ namespace Menu.Decks {
             evt.StopPropagation();
         }
 
-        private void OnPointerCaptureOut(PointerCaptureOutEvent evt) {
+        private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
+        {
             CleanupDrag();
         }
 
-        private void UpdateGhostPosition(Vector3 pointerPos) {
+        private void UpdateGhostPosition(Vector3 pointerPos)
+        {
             var local = _dragLayer.WorldToLocal(new Vector2(pointerPos.x, pointerPos.y));
             _ghost.style.left = local.x - _cardWidth / 2;
             _ghost.style.top = local.y - _cardHeight / 2;
         }
 
-        private void CleanupDrag() {
+        private void CleanupDrag()
+        {
             // Restore original card colors
             target.style.unityBackgroundImageTintColor = StyleKeyword.Null;
+
             target.Query<VisualElement>().ForEach(e => {
                 e.style.unityBackgroundImageTintColor = StyleKeyword.Null;
             });
             target.Query<Label>().ForEach(l => l.style.color = StyleKeyword.Null);
 
-            if (_ghost != null) {
+            if (_ghost != null)
+            {
                 _ghost.RemoveFromHierarchy();
                 _ghost = null;
             }
@@ -123,7 +137,8 @@ namespace Menu.Decks {
                 target.ReleasePointer(_pointerId);
         }
 
-        private VisualElement Pick(Vector3 position) {
+        private VisualElement Pick(Vector3 position)
+        {
             if (_ghost != null)
                 _ghost.style.display = DisplayStyle.None;
 
@@ -135,8 +150,10 @@ namespace Menu.Decks {
             return picked;
         }
 
-        private VisualElement FindDeckSlot(VisualElement element) {
-            while (element != null) {
+        private VisualElement FindDeckSlot(VisualElement element)
+        {
+            while (element != null)
+            {
                 if (element.ClassListContains("deck-slot"))
                     return element;
                 element = element.parent;
@@ -147,7 +164,8 @@ namespace Menu.Decks {
 
         private VisualElement _currentHighlight;
 
-        private void HighlightSlot(VisualElement picked) {
+        private void HighlightSlot(VisualElement picked)
+        {
             var slot = FindDeckSlot(picked);
 
             if (slot == _currentHighlight)
@@ -158,7 +176,8 @@ namespace Menu.Decks {
             _currentHighlight?.AddToClassList("drag-hover");
         }
 
-        private void ClearHighlights() {
+        private void ClearHighlights()
+        {
             _currentHighlight?.RemoveFromClassList("drag-hover");
             _currentHighlight = null;
         }

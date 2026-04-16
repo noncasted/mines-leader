@@ -42,19 +42,22 @@ namespace Menu.Main
         private void Construct(
             IMenuNavigation navigation,
             IMatchmaking matchmaking,
-            IUpdater updater) {
+            IUpdater updater)
+        {
             _navigation = navigation;
             _updater = updater;
             _matchmaking = matchmaking;
         }
 
-        public void Create(IScopeBuilder builder) {
+        public void Create(IScopeBuilder builder)
+        {
             builder.RegisterComponent(this)
                    .As<IMenuPlay>()
                    .As<IScopeSetup>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime) {
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
             var root = _navigation.Root;
 
             _button = root.Q<Button>("btn-play");
@@ -69,30 +72,38 @@ namespace Menu.Main
             _button.ListenClick(lifetime, OnClicked);
         }
 
-        private void OnClicked() {
+        private void OnClicked()
+        {
             var lifetime = this.GetObjectLifetime();
 
-            if (_isInSearch) {
+            if (_isInSearch)
+            {
                 _isInSearch = false;
                 _searchLifetime?.Terminate();
                 _timer.Hide();
                 _matchmaking.CancelSearch(lifetime);
-                _button.text ="play";
+                _button.text = "play";
             }
-            else {
+            else
+            {
                 ProcessModeSelection().Forget();
             }
         }
 
-        private async UniTask ProcessModeSelection() {
+        private async UniTask ProcessModeSelection()
+        {
             _selectionLifetime?.Terminate();
             _selectionLifetime = this.GetObjectLifetime().Child();
 
             var completion = new UniTaskCompletionSource<(bool, GameMatchType)>();
 
             _button.ListenClick(_selectionLifetime, () => completion.TrySetResult((false, GameMatchType.Single)));
-            _timeLimited.ListenClick(_selectionLifetime, () => completion.TrySetResult((true, GameMatchType.TimeLimited)));
-            _lastManStanding.ListenClick(_selectionLifetime, () => completion.TrySetResult((true, GameMatchType.LastManStanding)));
+
+            _timeLimited.ListenClick(_selectionLifetime,
+                () => completion.TrySetResult((true, GameMatchType.TimeLimited)));
+
+            _lastManStanding.ListenClick(_selectionLifetime,
+                () => completion.TrySetResult((true, GameMatchType.LastManStanding)));
 
             _modeSelection.Show();
 
@@ -111,11 +122,12 @@ namespace Menu.Main
             _selectionLifetime.Terminate();
         }
 
-        private async UniTask Search(GameMatchType type) {
+        private async UniTask Search(GameMatchType type)
+        {
             _isInSearch = true;
             _searchLifetime = this.GetObjectLifetime().Child();
             _timer.Show();
-            _button.text ="cancel";
+            _button.text = "cancel";
             _time = 0;
 
             _updater.RunUpdateAction(_searchLifetime, delta => {
