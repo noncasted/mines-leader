@@ -97,6 +97,36 @@ namespace Shared
             public CardType ChosenCard { get; set; }
         }
 
+        [MemoryPackable]
+        public partial class MatchHistoryRequest : INetworkContext
+        {
+            public int Count { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MatchHistoryResponse : INetworkContext
+        {
+            public List<Match> Matches { get; set; } = new();
+        }
+
+        [MemoryPackable]
+        public partial class MatchDetailsRequest : INetworkContext
+        {
+            public Guid MatchId { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MatchDetailsResponse : INetworkContext
+        {
+            public Guid MatchId { get; set; }
+            public List<CardType> OpponentCards { get; set; } = new();
+            public List<CardType> OwnCards { get; set; } = new();
+            public TimeSpan Time { get; set; }
+            public int RatingChange { get; set; }
+            public int ProgressionChange { get; set; }
+            public bool Won { get; set; }
+        }
+
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
         {
             return builder
@@ -110,7 +140,11 @@ namespace Shared
                    .Add<LootProjection>()
                    .Add<LootOpenRequest>()
                    .Add<LootOpenResponse>()
-                   .Add<LootChooseRequest>();
+                   .Add<LootChooseRequest>()
+                   .Add<MatchHistoryRequest>()
+                   .Add<MatchHistoryResponse>()
+                   .Add<MatchDetailsRequest>()
+                   .Add<MatchDetailsResponse>();
         }
     }
 }

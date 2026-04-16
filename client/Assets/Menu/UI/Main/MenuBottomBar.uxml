@@ -21,6 +21,8 @@
                 <VisualElement class="separator" />
                 <t:NavButton name="btn-progression" text="progression" class="u-ithaca" />
                 <VisualElement class="separator" />
+                <t:NavButton name="btn-history" text="history" class="u-ithaca" />
+                <VisualElement class="separator" />
                 <t:NavButton name="btn-cards" text="cards" class="u-ithaca" />
                 <VisualElement class="separator" />
                 <TextField name="chat-input" class="chat-input" placeholder-text="Write to chat" />

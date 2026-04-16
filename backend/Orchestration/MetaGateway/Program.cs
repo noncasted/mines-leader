@@ -11,7 +11,8 @@ builder
     .AddMatchmakingServices()
     .AddUserFlow()
     .AddUserCommands()
-    .AddLootCommands();
+    .AddLootCommands()
+    .AddMatchCommands();
 
 var app = builder.Build();
 
