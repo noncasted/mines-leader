@@ -1,0 +1,161 @@
+.bottom-bar-root {
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+.bottom-bar {
+    height: 50px;
+    background-image: resource("NavButtonBackdrop");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(204, 204, 204);
+    overflow: hidden;
+}
+
+.chat-panel {
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(204, 204, 204);
+}
+
+.bar-content {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+/* Nav button — extends Button, backdrop via Resources sprite */
+
+.nav-button {
+    flex-grow: 1;
+    flex-shrink: 0;
+    align-self: stretch;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(204, 204, 204);
+    color: var(--color-text);
+    -unity-text-align: middle-center;
+    font-size: 28px;
+}
+
+.nav-button:hover {
+    -unity-background-image-tint-color: rgb(220, 220, 225);
+    color: var(--color-text-accent);
+}
+
+.nav-button:active {
+    -unity-background-image-tint-color: rgb(185, 185, 190);
+    color: rgba(200, 200, 210, 0.7);
+}
+
+.settings-button {
+    flex-grow: 0;
+    width: 50px;
+    font-size: 24px;
+}
+
+/* Separators */
+
+.separator {
+    width: 4px;
+    align-self: stretch;
+    background-color: var(--color-bar-lower);
+}
+
+/* Chat input */
+
+.chat-input {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 600px;
+    align-self: stretch;
+    margin: 6px 0;
+    padding: 0 16px;
+    border-top-width: 1px;
+    border-top-color: var(--color-bar-lower);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--color-bar-upper);
+    border-left-width: 1px;
+    border-left-color: var(--color-bar-lower);
+    border-right-width: 1px;
+    border-right-color: var(--color-bar-lower);
+    border-radius: 0;
+    background-color: var(--color-input-bg);
+    max-height: 38px;
+    color: var(--color-text);
+    font-size: 16px;
+}
+
+.chat-input > .unity-text-field__input {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 0;
+    padding: 0 8px;
+    margin: 0;
+    color: var(--color-text);
+    -unity-text-align: middle-left;
+    -unity-font-style: normal;
+}
+
+.chat-input .unity-text-field__placeholder > .unity-text-element {
+    color: rgba(200, 200, 210, 0.5);
+    -unity-font-style: italic;
+}
+
+/* Play area */
+
+.play-area {
+    flex-grow: 1;
+    align-self: stretch;
+}
+
+.play-button {
+    flex-grow: 1;
+    color: var(--color-text-accent);
+}
+
+.play-popup {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.timer-label {
+    display: none;
+    width: 100px;
+    padding: 8px 0;
+    background-color: var(--color-panel-border-mid);
+    color: var(--color-text-accent);
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-top-color: var(--color-panel-highlight);
+}
+
+.mode-selection {
+    display: none;
+    width: 350px;
+    background-color: var(--color-panel-border-mid);
+    border-top-width: 1px;
+    border-top-color: var(--color-panel-highlight);
+    border-left-width: 1px;
+    border-left-color: var(--color-panel-highlight);
+}
+
+.mode-title {
+    color: var(--color-panel-highlight);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    padding: 6px 0 2px 0;
+}
+
+.mode-btn {
+    height: 42px;
+    font-size: 20px;
+}
+
+.mode-separator {
+    height: 2px;
+    background-color: var(--color-bar-lower);
+}

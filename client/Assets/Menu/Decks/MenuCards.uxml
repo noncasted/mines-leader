@@ -1,0 +1,22 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Menu/Decks/MenuCards.uss?fileID=7433441132597879392&amp;guid=ecb5f2dd60030d006a87532c59b7847c&amp;type=3#MenuCards"/>
+    <Style src="project://database/Assets/Menu/UI/Styles/MenuTheme.uss?fileID=7433441132597879392&amp;guid=0343b35e0706debdc94c1025e64deaf7&amp;type=3#MenuTheme"/>
+    <VisualElement name="cards-root" class="cards-root" style="width: 1920px; height: 1080px;">
+        <VisualElement name="Mana" class="cards-header-left" style="top: 59px; left: 100px; width: 390px; height: 64px;">
+            <Label text="Average" name="Label" class="avg-label" style="-unity-font-definition: url(&quot;project://database/Assets/Common/Artwork/Ithaca-LVB75.ttf?fileID=12800000&amp;guid=b6c79f33d9aac085c92e8a4c7c851a0d&amp;type=3#Ithaca-LVB75&quot;); height: 55px; width: 174px; font-size: 64px; -unity-text-align: middle-left; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
+            <VisualElement name="mana-orb" class="mana-orb" style="width: 57px; height: 74px; -unity-text-align: upper-left; margin-right: 0;"/>
+            <Label name="avg-mana" text="0.0" class="avg-value" style="-unity-font-definition: url(&quot;project://database/Assets/Common/Artwork/Ithaca-LVB75.ttf?fileID=12800000&amp;guid=b6c79f33d9aac085c92e8a4c7c851a0d&amp;type=3#Ithaca-LVB75&quot;); font-size: 64px; -unity-text-align: lower-center; height: 68px; width: 91px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
+        </VisualElement>
+        <VisualElement name="Decks" class="cards-header-center" style="height: 126px; width: 287px;">
+            <Label text="Deck" class="deck-label" style="-unity-font-definition: url(&quot;project://database/Assets/Common/Artwork/Ithaca-LVB75.ttf?fileID=12800000&amp;guid=b6c79f33d9aac085c92e8a4c7c851a0d&amp;type=3#Ithaca-LVB75&quot;); height: 74px; width: 182px; -unity-text-align: middle-center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 64px;"/>
+            <VisualElement name="deck-index-row" class="deck-index-row">
+                <Button text="0" class="deck-index-btn"/>
+                <Button text="1" class="deck-index-btn"/>
+                <Button text="2" class="deck-index-btn"/>
+            </VisualElement>
+        </VisualElement>
+        <VisualElement name="deck-slots" class="deck-slots" style="min-height: 75px; height: 241px; width: 1008px; justify-content: space-around; align-self: center; align-items: center;"/>
+        <ScrollView name="pool-scroll" vertical-scroller-visibility="AlwaysVisible" class="pool-scroll" style="max-width: 2000px; width: 1000px; padding-top: 0; margin-top: 20px; margin-bottom: 60px;"/>
+        <Button name="btn-exit" class="exit-btn"/>
+    </VisualElement>
+</UXML>

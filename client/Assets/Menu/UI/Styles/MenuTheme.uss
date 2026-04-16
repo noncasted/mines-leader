@@ -1,0 +1,163 @@
+:root {
+    --color-bar-upper: rgb(96, 97, 124);
+    --color-bar-divider: rgb(70, 68, 100);
+    --color-bar-lower: rgb(58, 50, 78);
+    --color-input-bg: rgb(33, 23, 47);
+    --color-text: rgb(200, 200, 210);
+    --color-text-accent: rgb(255, 255, 255);
+
+    --color-panel-border-outer: rgb(56, 49, 78);
+    --color-panel-border-mid: rgb(69, 67, 100);
+    --color-panel-highlight: rgb(120, 118, 150);
+    --color-panel-header-upper: rgb(95, 90, 125);
+    --color-panel-header-lower: rgb(75, 70, 105);
+    --color-panel-bg: var(--color-input-bg);
+}
+
+/* Reusable pixel-art beveled panel */
+
+.panel {
+    background-color: var(--color-panel-border-outer);
+    padding: 1px 2px 2px 2px;
+}
+
+.panel-mid {
+    background-color: var(--color-panel-border-mid);
+    padding: 1px 2px 2px 2px;
+    flex-grow: 1;
+}
+
+.panel-highlight {
+    height: 1px;
+    background-color: var(--color-panel-highlight);
+}
+
+.panel-header-upper {
+    height: 2px;
+    background-color: var(--color-panel-header-upper);
+}
+
+.panel-header-lower {
+    height: 2px;
+    background-color: var(--color-panel-header-lower);
+}
+
+.panel-body {
+    flex-grow: 1;
+    background-color: var(--color-panel-bg);
+}
+
+/* Settings overlay */
+
+.settings-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.settings-panel {
+    width: 500px;
+}
+
+.settings-title {
+    color: var(--color-text-accent);
+    font-size: 28px;
+    -unity-text-align: middle-center;
+    padding: 12px 0 8px 0;
+}
+
+.settings-divider {
+    height: 1px;
+    background-color: var(--color-panel-highlight);
+    margin: 0 16px;
+}
+
+.settings-section-label {
+    color: var(--color-panel-highlight);
+    font-size: 16px;
+    margin: 12px 16px 2px 16px;
+}
+
+.settings-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 8px 16px;
+}
+
+.settings-row-label {
+    width: 200px;
+    color: var(--color-text);
+    font-size: 20px;
+}
+
+.settings-slider {
+    flex-grow: 1;
+}
+
+.settings-slider .unity-base-slider__input {
+    margin: 0;
+}
+
+.settings-slider .unity-base-slider__tracker {
+    height: 4px;
+    background-color: var(--color-bar-lower);
+    border-width: 0;
+    border-radius: 0;
+    margin-top: -2px;
+}
+
+.settings-slider .unity-base-slider__dragger {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-panel-highlight);
+    border-width: 0;
+    border-radius: 0;
+    margin-top: -6px;
+}
+
+.settings-toggle-group {
+    flex-direction: row;
+}
+
+.settings-toggle-btn {
+    padding: 2px 16px;
+    margin: 0 2px;
+    border-width: 1px;
+    border-color: var(--color-bar-divider);
+    border-radius: 0;
+    background-color: var(--color-input-bg);
+    color: var(--color-text);
+    font-size: 16px;
+}
+
+.settings-toggle-btn.active {
+    background-color: var(--color-panel-header-upper);
+    color: var(--color-text-accent);
+}
+
+.settings-toggle-btn:hover {
+    background-color: var(--color-panel-header-lower);
+    color: var(--color-text-accent);
+}
+
+.settings-buttons {
+    flex-direction: row;
+    height: 50px;
+    margin: 0;
+    padding: 0;
+}
+
+.settings-buttons .nav-button {
+    font-size: 22px;
+}
+
+.settings-buttons .separator {
+    width: 4px;
+    align-self: stretch;
+    background-color: var(--color-panel-bg);
+}
