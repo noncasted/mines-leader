@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Global.Systems;
+using UnityEngine;
 using VContainer.Internal;
 
 namespace Animations
@@ -10,6 +11,7 @@ namespace Animations
                 utils.Updater,
                 utils.Renderer,
                 data.Time,
+                data.Color,
                 new ForwardFrameProvider(data.Sprites)
             )
         {
@@ -34,6 +36,7 @@ namespace Animations
                 utils.Updater,
                 utils.Renderer,
                 options.Time,
+                options.Color,
                 new RotatableFrameProvider(utils.RotationProvider, options.Animations)
             )
         {
@@ -41,14 +44,19 @@ namespace Animations
 
         public class Options
         {
-            public Options(float time, IReadOnlyDictionary<FiveAnimationDirection, ISpriteAnimationData> animations)
+            public Options(
+                float time,
+                IReadOnlyDictionary<FiveAnimationDirection, ISpriteAnimationData> animations,
+                Color? color = null)
             {
                 Time = time;
                 Animations = animations;
+                Color = color ?? UnityEngine.Color.white;
             }
 
             public float Time { get; }
             public IReadOnlyDictionary<FiveAnimationDirection, ISpriteAnimationData> Animations { get; }
+            public Color Color { get; }
         }
 
         public class Utils

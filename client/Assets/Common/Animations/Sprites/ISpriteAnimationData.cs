@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Animations
@@ -7,5 +7,6 @@ namespace Animations
     {
         IReadOnlyList<Sprite> Sprites { get; }
         float Time { get; }
+        Color Color { get; }
     }
 }

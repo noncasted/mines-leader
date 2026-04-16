@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -11,15 +11,20 @@ namespace Animations
             IUpdater updater,
             ISpriteAnimationRenderer renderer,
             float defaultTime,
+            Color color,
             IFrameProvider frameProvider)
         {
             _updater = updater;
+            _renderer = renderer;
             _defaultTime = defaultTime;
+            _color = color;
             _void = new SpriteAnimationVoidUpdatable(renderer, frameProvider);
         }
 
         private readonly IUpdater _updater;
+        private readonly ISpriteAnimationRenderer _renderer;
         private readonly float _defaultTime;
+        private readonly Color _color;
         private readonly SpriteAnimationVoidUpdatable _void;
 
         private SpriteAnimationLoopUpdatable _loop;
@@ -44,6 +49,7 @@ namespace Animations
             if (Mathf.Approximately(time, 0f) == true)
                 time = _defaultTime;
 
+            _renderer.SetColor(_color);
             _void.Start(time);
             _current = _void;
         }
@@ -57,6 +63,7 @@ namespace Animations
             if (Mathf.Approximately(time, 0f) == true)
                 time = _defaultTime;
 
+            _renderer.SetColor(_color);
             _current = _async;
             await _async.Process(time);
             _current = null;
@@ -71,6 +78,7 @@ namespace Animations
             if (Mathf.Approximately(time, 0f) == true)
                 time = _defaultTime;
 
+            _renderer.SetColor(_color);
             _loop.Start(time);
             _current = _loop;
         }

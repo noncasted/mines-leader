@@ -43,7 +43,7 @@ namespace GamePlay.Cards
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
-                    new SpriteAnimationData(data.Sprites, data.Time));
+                    new SpriteAnimationData(data.Sprites, data.Time, data.Color));
             }
         }
 
@@ -89,6 +89,11 @@ namespace GamePlay.Cards
         public void SetSprite(Sprite sprite)
         {
             _renderer.sprite = sprite;
+        }
+
+        public void SetColor(Color color)
+        {
+            _renderer.color = color;
         }
     }
 }
