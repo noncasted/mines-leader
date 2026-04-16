@@ -25,17 +25,20 @@ namespace Menu.Social
         public IViewableDelegate<string> MessageSend => _messageSend;
 
         [Inject]
-        private void Construct(IMenuNavigation navigation) {
+        private void Construct(IMenuNavigation navigation)
+        {
             _navigation = navigation;
         }
 
-        public void Create(IScopeBuilder builder) {
+        public void Create(IScopeBuilder builder)
+        {
             builder.RegisterComponent(this)
                    .As<IMenuChatUI>()
                    .As<IScopeSetup>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime) {
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
             var root = _navigation.Root;
             var input = root.Q<TextField>("chat-input");
 

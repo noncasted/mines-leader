@@ -11,13 +11,16 @@ using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using VContainer;
 
-namespace Menu.Decks {
-    public interface IMenuDecks : IUIState {
+namespace Menu.Decks
+{
+    public interface IMenuDecks : IUIState
+    {
     }
 
     [DisallowMultipleComponent]
     [RequireComponent(typeof(UIDocument))]
-    public class MenuDecks : MonoBehaviour, IMenuDecks, IScopeSetup, ISceneService, IUIStateAsyncEnterHandler {
+    public class MenuDecks : MonoBehaviour, IMenuDecks, IScopeSetup, ISceneService, IUIStateAsyncEnterHandler
+    {
         [SerializeField] private VisualTreeAsset _cardTemplate;
 
         private VisualElement _root;
@@ -45,20 +48,23 @@ namespace Menu.Decks {
             IDeckService deckService,
             ICardsRegistry cardsRegistry,
             ICardConfigs configs,
-            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection) {
+            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection)
+        {
             _configs = configs;
             _cardsRegistry = cardsRegistry;
             _deckService = deckService;
             _cardsProjection = cardsProjection;
         }
 
-        public void Create(IScopeBuilder builder) {
+        public void Create(IScopeBuilder builder)
+        {
             builder.RegisterComponent(this)
                    .As<IMenuDecks>()
                    .As<IScopeSetup>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime) {
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
             _root = GetComponent<UIDocument>().rootVisualElement;
 
             _cardsRoot = _root.Q<VisualElement>("cards-root");
@@ -69,10 +75,15 @@ namespace Menu.Decks {
 
             // Find bottom bar from another UIDocument
             var allDocs = Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
-            foreach (var doc in allDocs) {
-                if (doc == GetComponent<UIDocument>()) continue;
+
+            foreach (var doc in allDocs)
+            {
+                if (doc == GetComponent<UIDocument>())
+                    continue;
                 var bar = doc.rootVisualElement?.Q<VisualElement>("bottom-bar");
-                if (bar != null) {
+
+                if (bar != null)
+                {
                     _bottomBar = doc.rootVisualElement;
                     break;
                 }
@@ -86,7 +97,8 @@ namespace Menu.Decks {
                 OnInitialized(lifetime);
         }
 
-        private CardElement CloneCard(bool isPoolCard) {
+        private CardElement CloneCard(bool isPoolCard)
+        {
             var container = _cardTemplate.CloneTree();
             var cardRoot = container.Q<VisualElement>("card-root");
 
@@ -99,13 +111,17 @@ namespace Menu.Decks {
             return new CardElement(cardRoot);
         }
 
-        private void OnInitialized(IReadOnlyLifetime lifetime) {
+        private void OnInitialized(IReadOnlyLifetime lifetime)
+        {
             if (_deckSlots.Count != 0)
                 return;
 
             var deckButtons = _deckIndexRow.Query<Button>(className: "deck-index-btn").ToList();
-            for (var i = 0; i < deckButtons.Count; i++) {
+
+            for (var i = 0; i < deckButtons.Count; i++)
+            {
                 var index = i;
+
                 deckButtons[i].ListenClick(lifetime, () => {
                     SetActiveIndex(index);
                     UpdateDeck(index);
@@ -116,7 +132,9 @@ namespace Menu.Decks {
 
             // Deck slots
             var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
-            for (var i = 0; i < selected.Cards.Count; i++) {
+
+            for (var i = 0; i < selected.Cards.Count; i++)
+            {
                 var slot = CloneCard(false);
                 slot.Root.AddToClassList("deck-slot");
                 _deckSlotsContainer.Add(slot.Root);
@@ -124,7 +142,8 @@ namespace Menu.Decks {
             }
 
             // Pool cards
-            foreach (var (type, definition) in _cardsRegistry.Entries) {
+            foreach (var (type, definition) in _cardsRegistry.Entries)
+            {
                 var config = _configs.Value.All[type];
                 var card = CloneCard(true);
                 card.SetCard(definition, config);
@@ -150,15 +169,20 @@ namespace Menu.Decks {
 
         private Texture2D _glowTexture;
 
-        private void GenerateGlowTexture() {
-            if (_poolCards.Count == 0) return;
+        private void GenerateGlowTexture()
+        {
+            if (_poolCards.Count == 0)
+                return;
 
             var frame = _poolCards[0].Root.Q<VisualElement>("card-frame");
             var bg = frame.resolvedStyle.backgroundImage;
             var srcTex = bg.texture;
+
             if (srcTex == null && bg.sprite != null)
                 srcTex = bg.sprite.texture;
-            if (srcTex == null) return;
+
+            if (srcTex == null)
+                return;
 
             var rt = RenderTexture.GetTemporary(srcTex.width, srcTex.height, 0);
             Graphics.Blit(srcTex, rt);
@@ -170,6 +194,7 @@ namespace Menu.Decks {
             RenderTexture.ReleaseTemporary(rt);
 
             var pixels = _glowTexture.GetPixels();
+
             for (var i = 0; i < pixels.Length; i++)
                 pixels[i] = new Color(1f, 1f, 1f, pixels[i].a);
             _glowTexture.SetPixels(pixels);
@@ -177,31 +202,41 @@ namespace Menu.Decks {
             _glowTexture.filterMode = FilterMode.Point;
 
             var style = new StyleBackground(_glowTexture);
-            foreach (var card in _poolCards) {
+
+            foreach (var card in _poolCards)
+            {
                 var glow = card.Root.Q<VisualElement>("card-glow");
-                if (glow != null) glow.style.backgroundImage = style;
+
+                if (glow != null)
+                    glow.style.backgroundImage = style;
             }
-            foreach (var slot in _deckSlots) {
+
+            foreach (var slot in _deckSlots)
+            {
                 var glow = slot.Root.Q<VisualElement>("card-glow");
-                if (glow != null) glow.style.backgroundImage = style;
+
+                if (glow != null)
+                    glow.style.backgroundImage = style;
             }
         }
 
-        private void OnCardsUpdated(SharedBackendUser.CardsProjection projection) {
+        private void OnCardsUpdated(SharedBackendUser.CardsProjection projection)
+        {
             var ownedSet = new HashSet<CardType>(projection.OwnedCards);
 
             foreach (var (type, card) in _typeToPoolCard)
                 card.SetOwned(ownedSet.Contains(type));
 
             var sorted = _poolCards
-                .OrderByDescending(c => c.IsOwned)
-                .ToList();
+                         .OrderByDescending(c => c.IsOwned)
+                         .ToList();
 
             for (var i = 0; i < sorted.Count; i++)
                 _poolScroll.Insert(i, sorted[i].Root);
         }
 
-        public async UniTask OnEntered(IUIStateHandle handle) {
+        public async UniTask OnEntered(IUIStateHandle handle)
+        {
             _cardsRoot.Show();
             _bottomBar?.Hide();
 
@@ -213,10 +248,12 @@ namespace Menu.Decks {
             var completion = new UniTaskCompletionSource();
 
             var exitBtn = _root.Q<Button>("btn-exit");
+
             if (exitBtn != null)
                 exitBtn.ListenClick(handle.InnerLifetime, () => completion.TrySetResult());
 
-            void OnKeyDown(KeyDownEvent evt) {
+            void OnKeyDown(KeyDownEvent evt)
+            {
                 if (evt.keyCode == KeyCode.Escape)
                     completion.TrySetResult();
             }
@@ -229,9 +266,12 @@ namespace Menu.Decks {
             _deckService.SendUpdate().Forget();
         }
 
-        private void SetActiveIndex(int activeIndex) {
+        private void SetActiveIndex(int activeIndex)
+        {
             var buttons = _deckIndexRow.Children().ToList();
-            for (var i = 0; i < buttons.Count; i++) {
+
+            for (var i = 0; i < buttons.Count; i++)
+            {
                 if (i == activeIndex)
                     buttons[i].AddToClassList("active");
                 else
@@ -239,18 +279,21 @@ namespace Menu.Decks {
             }
         }
 
-        private void UpdateDeck(int index) {
+        private void UpdateDeck(int index)
+        {
             _deckService.SetIndex(index);
             ForceUpdateDeck(index);
         }
 
-        private void ForceUpdateDeck(int index) {
+        private void ForceUpdateDeck(int index)
+        {
             foreach (var card in _poolCards)
                 card.SetInDeck(false);
 
             var selected = _deckService.Configurations[index];
 
-            for (var i = 0; i < selected.Cards.Count && i < _deckSlots.Count; i++) {
+            for (var i = 0; i < selected.Cards.Count && i < _deckSlots.Count; i++)
+            {
                 var cardDef = selected.Cards[i];
                 var config = _configs.Value.All[cardDef.Type];
                 _deckSlots[i].SetCard(cardDef, config);
@@ -260,10 +303,14 @@ namespace Menu.Decks {
             RecalculateMana();
         }
 
-        private void OnCardDropped(CardElement poolCard, VisualElement dropTarget) {
+        private void OnCardDropped(CardElement poolCard, VisualElement dropTarget)
+        {
             var slotIndex = -1;
-            for (var i = 0; i < _deckSlots.Count; i++) {
-                if (_deckSlots[i].Root == dropTarget) {
+
+            for (var i = 0; i < _deckSlots.Count; i++)
+            {
+                if (_deckSlots[i].Root == dropTarget)
+                {
                     slotIndex = i;
                     break;
                 }
@@ -273,6 +320,7 @@ namespace Menu.Decks {
                 return;
 
             var slot = _deckSlots[slotIndex];
+
             if (slot.CurrentType.HasValue)
                 _typeToPoolCard[slot.CurrentType.Value].SetInDeck(false);
 
@@ -281,6 +329,7 @@ namespace Menu.Decks {
             poolCard.SetInDeck(true);
 
             var cards = new List<ICardDefinition>();
+
             foreach (var s in _deckSlots)
                 cards.Add(s.CurrentDefinition);
 
@@ -289,12 +338,15 @@ namespace Menu.Decks {
             RecalculateMana();
         }
 
-        private void RecalculateMana() {
+        private void RecalculateMana()
+        {
             var total = 0f;
             var count = 0;
 
-            foreach (var slot in _deckSlots) {
-                if (slot.CurrentType.HasValue) {
+            foreach (var slot in _deckSlots)
+            {
+                if (slot.CurrentType.HasValue)
+                {
                     total += _configs.Value.All[slot.CurrentType.Value].ManaCost;
                     count++;
                 }
@@ -304,7 +356,8 @@ namespace Menu.Decks {
             _avgManaLabel.text = avg.ToString("F1");
         }
 
-        private VisualElement CreateGhostCard(ICardDefinition definition, ICardConfig config) {
+        private VisualElement CreateGhostCard(ICardDefinition definition, ICardConfig config)
+        {
             var card = CloneCard(true);
             card.SetCard(definition, config);
             return card.Root;
@@ -314,7 +367,8 @@ namespace Menu.Decks {
     /// <summary>
     /// Wrapper around a cloned card UXML template. Provides Q-based access to elements.
     /// </summary>
-    public class CardElement {
+    public class CardElement
+    {
         public VisualElement Root { get; }
         public ICardDefinition CurrentDefinition { get; private set; }
         public ICardDefinition Definition => CurrentDefinition;
@@ -326,7 +380,8 @@ namespace Menu.Decks {
         private readonly Label _mana;
         private readonly Label _desc;
 
-        public CardElement(VisualElement root) {
+        public CardElement(VisualElement root)
+        {
             Root = root;
             _image = Root.Q<VisualElement>("card-image");
             _name = Root.Q<Label>("card-name");
@@ -334,7 +389,8 @@ namespace Menu.Decks {
             _desc = Root.Q<Label>("card-info");
         }
 
-        public void SetCard(ICardDefinition definition, ICardConfig config) {
+        public void SetCard(ICardDefinition definition, ICardConfig config)
+        {
             CurrentDefinition = definition;
             CurrentType = definition.Type;
 
@@ -348,7 +404,8 @@ namespace Menu.Decks {
             _desc.text = definition.Description;
         }
 
-        public void SetOwned(bool owned) {
+        public void SetOwned(bool owned)
+        {
             IsOwned = owned;
 
             if (owned)
@@ -357,7 +414,8 @@ namespace Menu.Decks {
                 Root.AddToClassList("unowned");
         }
 
-        public void SetInDeck(bool inDeck) {
+        public void SetInDeck(bool inDeck)
+        {
             if (inDeck)
                 Root.AddToClassList("in-deck");
             else

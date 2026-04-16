@@ -1,0 +1,22 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Menu/UI/Decks/MenuCards.uss?fileID=7433441132597879392&amp;guid=ecb5f2dd60030d006a87532c59b7847c&amp;type=3#MenuCards"/>
+    <Style src="project://database/Assets/Menu/UI/Styles/MenuTheme.uss?fileID=7433441132597879392&amp;guid=0343b35e0706debdc94c1025e64deaf7&amp;type=3#MenuTheme"/>
+    <VisualElement name="cards-root" style="flex-grow: 1; flex-shrink: 1; padding: 0 6px 2px 6px; background-image: resource(&quot;Menu/background_blue&quot;); -unity-background-scale-mode: stretch-to-fill; overflow: hidden;">
+        <VisualElement name="Mana" style="position: absolute; top: 16px; left: 27px; width: 104px; height: 17px; flex-direction: row; align-items: center;">
+            <Label text="Average" name="Label" class="u-ithaca" style="height: 15px; width: 46px; font-size: 17px; -unity-text-align: middle-left; color: rgb(255, 255, 255); margin: 0; padding: 0;"/>
+            <VisualElement name="mana-orb" style="width: 11px; height: 11px; background-image: resource(&quot;Menu/mana_icon&quot;); -unity-background-scale-mode: scale-to-fit;"/>
+            <Label name="avg-mana" text="0.0" class="u-ithaca" style="font-size: 17px; -unity-text-align: lower-center; height: 18px; width: 24px; color: rgb(255, 255, 255); margin: 0; padding: 0;"/>
+        </VisualElement>
+        <VisualElement name="Decks" style="height: 34px; width: 77px; align-self: center; align-items: center; margin-bottom: 1px;">
+            <Label text="Deck" class="u-ithaca" style="height: 20px; width: 49px; -unity-text-align: middle-center; font-size: 17px; color: rgb(255, 255, 255); margin: 0; padding: 0;"/>
+            <VisualElement name="deck-index-row" style="flex-direction: row; justify-content: center; margin-top: 1px;">
+                <Button text="0" class="deck-index-btn"/>
+                <Button text="1" class="deck-index-btn"/>
+                <Button text="2" class="deck-index-btn"/>
+            </VisualElement>
+        </VisualElement>
+        <VisualElement name="deck-slots" style="flex-direction: row; min-height: 20px; height: 64px; width: 269px; justify-content: space-around; align-self: center; align-items: center; margin-bottom: 2px;"/>
+        <ScrollView name="pool-scroll" vertical-scroller-visibility="AlwaysVisible" horizontal-scroller-visibility="Hidden" class="pool-scroll" style="width: 232px; margin-top: 5px; margin-bottom: 16px;"/>
+        <Button name="btn-exit" class="exit-btn"/>
+    </VisualElement>
+</UXML>

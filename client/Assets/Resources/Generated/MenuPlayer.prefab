@@ -110,6 +110,7 @@ MonoBehaviour:
     - {fileID: -2520632018165115713, guid: b963b20ea4bf25e459be6d4fe53501be, type: 3}
     - {fileID: -8041152791138440053, guid: b963b20ea4bf25e459be6d4fe53501be, type: 3}
     _time: 0.8
+    _color: {r: 1, g: 1, b: 1, a: 1}
   _run:
     _sprites:
     - {fileID: -2764211182337578097, guid: b963b20ea4bf25e459be6d4fe53501be, type: 3}
@@ -117,6 +118,7 @@ MonoBehaviour:
     - {fileID: -8041152791138440053, guid: b963b20ea4bf25e459be6d4fe53501be, type: 3}
     - {fileID: 6305219850919522360, guid: b963b20ea4bf25e459be6d4fe53501be, type: 3}
     _time: 0.8
+    _color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &3031664632126853975
 GameObject:
   m_ObjectHideFlags: 0

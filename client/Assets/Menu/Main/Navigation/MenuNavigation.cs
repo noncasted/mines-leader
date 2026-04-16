@@ -33,20 +33,23 @@ namespace Menu.Main
             IMenuDecks decks,
             IMenuProgression progressionScreen,
             IUIStateMachine stateMachine,
-            ISettings settings) {
+            ISettings settings)
+        {
             _stateMachine = stateMachine;
             _progressionScreen = progressionScreen;
             _decks = decks;
             _settings = settings;
         }
 
-        public void Create(IScopeBuilder builder) {
+        public void Create(IScopeBuilder builder)
+        {
             builder.RegisterComponent(this)
                    .As<IMenuNavigation>()
                    .As<IScopeSetup>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime) {
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
             _document = GetComponent<UIDocument>();
             Root = _document.rootVisualElement;
 
@@ -56,7 +59,9 @@ namespace Menu.Main
 
             btnSettings.ListenClick(lifetime, () => _settings.Open());
             btnCards.ListenClick(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _decks));
-            btnProgression.ListenClick(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _progressionScreen));
+
+            btnProgression.ListenClick(lifetime,
+                () => _stateMachine.ProcessChild(_stateMachine.Base, _progressionScreen));
         }
     }
 }

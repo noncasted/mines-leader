@@ -4,16 +4,11 @@
 }
 
 .bottom-bar {
-    height: 50px;
+    height: 20px;
     background-image: resource("NavButtonBackdrop");
     -unity-background-scale-mode: stretch-to-fill;
     -unity-background-image-tint-color: rgb(204, 204, 204);
     overflow: hidden;
-}
-
-.chat-panel {
-    -unity-background-scale-mode: stretch-to-fill;
-    -unity-background-image-tint-color: rgb(204, 204, 204);
 }
 
 .bar-content {
@@ -37,7 +32,7 @@
     -unity-background-image-tint-color: rgb(204, 204, 204);
     color: var(--color-text);
     -unity-text-align: middle-center;
-    font-size: 28px;
+    font-size: 11px;
 }
 
 .nav-button:hover {
@@ -52,14 +47,14 @@
 
 .settings-button {
     flex-grow: 0;
-    width: 50px;
-    font-size: 24px;
+    width: 20px;
+    font-size: 12px;
 }
 
 /* Separators */
 
 .separator {
-    width: 4px;
+    width: 1px;
     align-self: stretch;
     background-color: var(--color-bar-lower);
 }
@@ -69,10 +64,10 @@
 .chat-input {
     flex-grow: 0;
     flex-shrink: 0;
-    width: 600px;
+    width: 150px;
     align-self: stretch;
-    margin: 6px 0;
-    padding: 0 16px;
+    margin: 2px 0;
+    padding: 0 4px;
     border-top-width: 1px;
     border-top-color: var(--color-bar-lower);
     border-bottom-width: 1px;
@@ -83,16 +78,17 @@
     border-right-color: var(--color-bar-lower);
     border-radius: 0;
     background-color: var(--color-input-bg);
-    max-height: 38px;
+    max-height: 16px;
     color: var(--color-text);
-    font-size: 16px;
+    -unity-font-definition: resource("Ithaca-LVB75");
+    font-size: 8px;
 }
 
 .chat-input > .unity-text-field__input {
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 0;
-    padding: 0 8px;
+    padding: 0 2px;
     margin: 0;
     color: var(--color-text);
     -unity-text-align: middle-left;
@@ -114,6 +110,7 @@
 .play-button {
     flex-grow: 1;
     color: var(--color-text-accent);
+    font-size: 13px;
 }
 
 .play-popup {
@@ -123,11 +120,12 @@
 
 .timer-label {
     display: none;
-    width: 100px;
-    padding: 8px 0;
+    width: 40px;
+    padding: 3px 0;
     background-color: var(--color-panel-border-mid);
     color: var(--color-text-accent);
-    font-size: 22px;
+    font-size: 13px;
+    -unity-font-definition: resource("Ithaca-LVB75");
     -unity-text-align: middle-center;
     border-top-width: 1px;
     border-top-color: var(--color-panel-highlight);
@@ -135,7 +133,7 @@
 
 .mode-selection {
     display: none;
-    width: 350px;
+    width: 140px;
     background-color: var(--color-panel-border-mid);
     border-top-width: 1px;
     border-top-color: var(--color-panel-highlight);
@@ -145,17 +143,18 @@
 
 .mode-title {
     color: var(--color-panel-highlight);
-    font-size: 14px;
+    -unity-font-definition: resource("Ithaca-LVB75");
+    font-size: 7px;
     -unity-text-align: middle-center;
-    padding: 6px 0 2px 0;
+    padding: 2px 0 1px 0;
 }
 
 .mode-btn {
-    height: 42px;
-    font-size: 20px;
+    height: 18px;
+    font-size: 11px;
 }
 
 .mode-separator {
-    height: 2px;
+    height: 1px;
     background-color: var(--color-bar-lower);
 }
