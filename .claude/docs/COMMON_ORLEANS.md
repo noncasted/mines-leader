@@ -1,7 +1,5 @@
 # Orleans: Full Reference
 
-Quick rules: → [rules/ORLEANS_GRAINS.md](../rules/ORLEANS_GRAINS.md) | [rules/ORLEANS_STATE.md](../rules/ORLEANS_STATE.md)
-
 ## Quick Navigation
 
 | Looking for... | Go to section |
@@ -260,6 +258,47 @@ Use `OnDeactivateAsync` for: flushing pending writes, preventing premature deact
 
 ---
 
+## Storage: PostgreSQL jsonb
+
+Orleans state is persisted via custom `IGrainStateStorage` backed by PostgreSQL `jsonb` columns.
+
+### Storage schema
+
+Single table `OrleansStorage` holds all grain state:
+
+| Column | Purpose |
+|--------|---------|
+| `GrainIdHash` | 32-bit unchecked hash of `GrainKey.GetHashBytes()` |
+| `GrainIdN0`, `GrainIdN1` | Raw grain id bytes |
+| `GrainTypeHash` | Hash of UTF-8 encoded type string |
+| `GrainTypeString` | Full grain type name |
+| `GrainIdExtensionString` | Extension segment of `GrainId` |
+| `ServiceId` | Constant `"atlantis"` |
+| `PayloadBinary` | jsonb binary (see below) |
+| `ModifiedOn`, `Version` | Optimistic concurrency |
+
+### jsonb binary format
+
+PostgreSQL stores `jsonb` with a leading **version byte** (`0x01`). `PostgresJsonbConverter<T>` in `backend/Common/Extensions/` handles both sides:
+
+- **Write**: prepend `0x01` to UTF-8 JSON → byte array → `jsonb` column
+- **Read**: skip `0x01` → deserialize remaining bytes as UTF-8 JSON
+
+Serialization itself uses `OrleansJsonSerializer` (Newtonsoft.Json with Orleans settings exposed via `JsonUtils.Settings`).
+
+### GrainStateStorage API
+
+```csharp
+T? Read<T>(GrainId id);
+string? ReadRaw<T>(GrainId id);          // raw JSON, no deserialization
+Task Write<T>(GrainId id, T value);
+Task Write(IReadOnlyList<StateWriteRequest> batch);  // foreach INSERT...ON CONFLICT
+```
+
+Implementation lives in `backend/Infrastructure/Orleans/State/GrainStateStorage.cs`, uses `NpgsqlDataSource` for database access.
+
+---
+
 ## Key Files
 
 | File | Purpose |
@@ -273,3 +312,6 @@ Use `OnDeactivateAsync` for: flushing pending writes, preventing premature deact
 | `backend/Meta/Bots/BotEntity.cs` | Grain + State<T> example |
 | `backend/Meta/Users/Entities/User.cs` | Grain + State<T> example |
 | `backend/Meta/Bots/BotCollection.cs` | StateCollection example |
+| `backend/Infrastructure/Orleans/State/GrainStateStorage.cs` | jsonb storage implementation |
+| `backend/Common/Extensions/PostgresJsonbConverter.cs` | jsonb read/write converter |
+| `backend/Common/Extensions/JsonUtils.cs` | Shared Newtonsoft.Json settings |

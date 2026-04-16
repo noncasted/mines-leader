@@ -24,13 +24,10 @@ When: new concept introduced, term renamed, "do not mix" rule needed
 When: AI pattern mistake documented
 Format: `## N. Short description` + What happened + Root cause + Lesson + Rule link
 
-### 5. COMMON_MISTAKES.md (`rules/COMMON_MISTAKES.md`)
-When: new critical/recurring pattern from CLAUDE_MISTAKES.md
-
-### 6. Code Examples (`client/Assets/Common/Docs/Claude/`)
+### 5. Code Examples (`client/Assets/Common/Docs/Claude/`)
 When: new pattern needs example, existing example outdated
 
-### 7. Decision Trees (`docs/DECISION_TREES.md`)
+### 6. Decision Trees (`docs/DECISION_TREES.md`)
 When: new architectural choice point, decision criteria changed
 
 ## What You Do NOT Check

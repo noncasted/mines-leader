@@ -312,6 +312,39 @@ MatchFactory.CreateWithBot():
 
 ---
 
+## Testing Conventions
+
+### BoardParser — visual board layout for all gameplay tests
+
+ALL gameplay tests MUST use `BoardParser` for boards — never `TestBoardBuilder` directly.
+
+```csharp
+// 1. Create initial board from ASCII
+var board = BoardParser.Parse("""
+    . . . .
+    . ? . .
+    . . M .
+    . . . .
+""");
+
+// 2. Perform action
+card.Use(...);
+
+// 3. Verify result via ASCII diff
+BoardParser.AssertBoard(board, """
+    . . . .
+    . 1 . .
+    . . X .
+    . . . .
+""");
+```
+
+**Why:** programmatic board construction hides what the board actually looks like. `BoardParser` gives a visual, readable representation matching the real game. Reference tests: `OpponentBombTests.cs`, `BloodhoundTests.cs`.
+
+`TestBoardBuilder` is internal — used only inside `BoardParser`, never in test methods directly.
+
+---
+
 ## Key Files
 
 ### Backend

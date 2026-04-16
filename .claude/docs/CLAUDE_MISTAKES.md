@@ -28,7 +28,7 @@ public class MySelector : MonoBehaviour, ISceneService, IScopeSetup {
 }
 ```
 
-→ [rules/MONOBEHAVIOUR.md](../rules/MONOBEHAVIOUR.md)
+→ [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 
 ---
 

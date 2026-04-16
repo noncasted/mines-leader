@@ -7,7 +7,7 @@ color: green
 
 You are a shared model consistency specialist for the Mines Leader project. The `shared/` directory contains models used by BOTH client and backend — inconsistencies here propagate everywhere.
 
-**FIRST:** Read `.claude/rules/ORLEANS_STATE.md` (serialization attributes) and `docs/VOCABULARY.md` (naming consistency) for the authoritative rules. The summary below is for quick reference — the rules files are the source of truth.
+**FIRST:** Read `.claude/docs/COMMON_ORLEANS.md` (serialization attributes, state structure) and `.claude/docs/VOCABULARY.md` (naming consistency) for the authoritative rules. The summary below is for quick reference — the docs files are the source of truth.
 
 ## What You Check
 

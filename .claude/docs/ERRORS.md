@@ -8,10 +8,10 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error Message | Root Cause | Key File | Fix |
 |---|---|---|---|
-| `NullReferenceException` in OnSetup() | Lifetime parameter is null | [MONOBEHAVIOUR.md](../rules/MONOBEHAVIOUR.md) | OnSetup signature must be `void OnSetup(IReadOnlyLifetime lt)` |
-| Callback never fires | Missing Lifetime on subscription | [LIFETIMES.md](../rules/LIFETIMES.md) | Add lifetime: `event.Advise(lifetime, callback)` |
-| UI text doesn't show initial value | Using `Advise()` instead of `View()` | [REACTIVE.md](../rules/REACTIVE.md), [COMMON_REACTIVE_VALUES.md](COMMON_REACTIVE_VALUES.md) | Change to `View()`: `property.View(lifetime, val => text.text = val)` |
-| Object reference disappears | Item subscription using wrong lifetime | [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) Mistake 4 | Use `item.Lifetime` for item-level subscriptions |
+| `NullReferenceException` in OnSetup() | Lifetime parameter is null | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | OnSetup signature must be `void OnSetup(IReadOnlyLifetime lt)` |
+| Callback never fires | Missing Lifetime on subscription | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | Add lifetime: `event.Advise(lifetime, callback)` |
+| UI text doesn't show initial value | Using `Advise()` instead of `View()` | [COMMON_REACTIVE_VALUES.md](COMMON_REACTIVE_VALUES.md) | Change to `View()`: `property.View(lifetime, val => text.text = val)` |
+| Object reference disappears | Item subscription using wrong lifetime | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4 | Use `item.Lifetime` for item-level subscriptions |
 | Task exceptions swallowed | Async method not awaited | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Use `.NoAwait()` if fire-and-forget, else `await` |
 
 ---
@@ -20,8 +20,8 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Leak Pattern | Why It Leaks | Key File | Fix |
 |---|---|---|---|
-| `event.Advise(null, callback)` | Null lifetime = no cleanup | [LIFETIMES.md](../rules/LIFETIMES.md) | NEVER pass null: `event.Advise(lifetime, callback)` |
-| `items.View(parentLifetime, item => item.Events.Advise(parentLifetime, ...))` | Item subscriptions survive item removal | [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) Mistake 4 | Use `item.Events.Advise(item.Lifetime, ...)` |
+| `event.Advise(null, callback)` | Null lifetime = no cleanup | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | NEVER pass null: `event.Advise(lifetime, callback)` |
+| `items.View(parentLifetime, item => item.Events.Advise(parentLifetime, ...))` | Item subscriptions survive item removal | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4 | Use `item.Events.Advise(item.Lifetime, ...)` |
 | Lifetime never terminated | Manual lifetime created but not cleaned up | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | Call `lifetime.Terminate()` when done |
 | Double Lifetime creation in loop | Creating new Lifetime per iteration | [COMMON_LIFETIMES_PATTERNS.md](COMMON_LIFETIMES_PATTERNS.md) | Reuse lifetime: `for (...) { Advise(lifetime, ...) }` |
 
@@ -31,7 +31,7 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error | Cause | Key File | Fix |
 |---|---|---|---|
-| `OnSetup()` never called | Missing ISceneService or IScopeSetup | [MONOBEHAVIOUR.md](../rules/MONOBEHAVIOUR.md) | Implement both interfaces + Create() + register |
+| `OnSetup()` never called | Missing ISceneService or IScopeSetup | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Implement both interfaces + Create() + register |
 | `[Inject]` field stays null | Not registered in DI container | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Register in Create(): `builder.RegisterComponent(this).As<IService>()` |
 | Circular dependency between services | A→B→A reference | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Refactor to inject Lifetime instead of direct reference |
 | Service initialized twice | Multiple registrations | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Remove duplicate `builder.RegisterComponent()` calls |
@@ -42,8 +42,8 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error | Cause | Key File | Fix |
 |---|---|---|---|
-| New .cs file silently not compiled | File not added to .csproj (Unity doesn't auto-discover) | [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) #6 | 1. Find correct csproj: `grep -rl "SimilarFile.cs" *.csproj` 2. Add `<Compile Include="Path\To\NewFile.cs" />` inside `<ItemGroup>` |
-| Missing using statements in docs | Path reference uses old location | [TRIGGERS.md](TRIGGERS.md) | Update to `.claude/docs/` or `.claude/rules/` paths |
+| New .cs file silently not compiled | File not added to .csproj (Unity doesn't auto-discover) | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) #6 | 1. Find correct csproj: `grep -rl "SimilarFile.cs" *.csproj` 2. Add `<Compile Include="Path\To\NewFile.cs" />` inside `<ItemGroup>` |
+| Missing using statements in docs | Path reference uses old location | [TRIGGERS.md](TRIGGERS.md) | Update to `.claude/docs/` paths |
 | Compiler warning: async not awaited | Fire-and-forget without .NoAwait() | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Add `.NoAwait()` to suppress: `method().NoAwait()` |
 
 ---
@@ -80,8 +80,8 @@ Fast reference table for common errors, their causes, and fixes.
 ## Error Investigation Checklist
 
 **Memory leak suspicion?**
-- [ ] Every `Advise()` has non-null lifetime? (Check [LIFETIMES.md](../rules/LIFETIMES.md))
-- [ ] Item subscriptions use `item.Lifetime`? (Check [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) Mistake 4)
+- [ ] Every `Advise()` has non-null lifetime? (Check [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md))
+- [ ] Item subscriptions use `item.Lifetime`? (Check [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4)
 - [ ] Manual `new Lifetime()` gets terminated? (Check [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md))
 
 **Callback never fires?**
@@ -90,8 +90,8 @@ Fast reference table for common errors, their causes, and fixes.
 - [ ] Using `Advise()` for UI? (Should be `View()` per [DECISION_TREES.md](DECISION_TREES.md) #5)
 
 **Service not initializing?**
-- [ ] Implements ISceneService + IScopeSetup? (Check [MONOBEHAVIOUR.md](../rules/MONOBEHAVIOUR.md))
-- [ ] Has Create() method? (Check [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) Mistake 1)
+- [ ] Implements ISceneService + IScopeSetup? (Check [COMMON_CONTAINER.md](COMMON_CONTAINER.md))
+- [ ] Has Create() method? (Check [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 1)
 - [ ] Registered with builder? (Check [COMMON_CONTAINER.md](COMMON_CONTAINER.md))
 
 ---
@@ -106,4 +106,4 @@ When you discover a new error pattern:
 
 For examples:
 → [CODE_EXAMPLES.md](CODE_EXAMPLES.md) - all working code patterns
-→ [COMMON_MISTAKES.md](../rules/COMMON_MISTAKES.md) - top 5 mistakes
+→ [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) - top 5 mistakes

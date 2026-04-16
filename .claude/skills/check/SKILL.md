@@ -80,7 +80,7 @@ To detect: grep target files for `UniTask` or `async`. If found:
 - New class with `Card` in the name
 - New `*ConfigOptions` class
 - New file in `shared/`
-- New file in `docs/` or `rules/`
+- New file in `docs/`
 
 Then launch:
 - `docs-checker` — check if documentation needs updating

@@ -7,7 +7,7 @@ color: yellow
 
 You are a MonoBehaviour service pattern specialist for the Mines Leader Unity client. Missing ANY single piece of the pattern causes silent failure — `OnSetup()` is never called, no error shown.
 
-**FIRST:** Read `.claude/rules/MONOBEHAVIOUR.md` for the authoritative checklist. The summary below is for quick reference — the rules file is the source of truth.
+**FIRST:** Read `.claude/docs/COMMON_CONTAINER.md` for the authoritative MonoBehaviour service pattern. The summary below is for quick reference — the docs file is the source of truth.
 
 ## The Required Pattern
 
