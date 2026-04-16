@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 namespace Tools.EditorTools {
     public class ProjectToolsWindow : EditorWindow {
         private static readonly string UssPath = "Assets/Tools/EditorTools/ProjectTools/ProjectToolsWindow.uss";
+        private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field" };
 
         private OptionsContainer _options;
         private VisualElement _root;
@@ -83,6 +84,38 @@ namespace Tools.EditorTools {
             foldout.AddToClassList("section");
 
             var scenes = FindAllScenes();
+            var favorites = new List<string>();
+            var others = new List<string>();
+
+            foreach (var scene in scenes) {
+                var sceneName = Path.GetFileNameWithoutExtension(scene);
+
+                if (FavoriteSceneNames.Contains(sceneName))
+                    favorites.Add(scene);
+                else
+                    others.Add(scene);
+            }
+
+            favorites = favorites
+                .OrderBy(s => System.Array.IndexOf(FavoriteSceneNames, Path.GetFileNameWithoutExtension(s)))
+                .ToList();
+
+            if (favorites.Count > 0) {
+                var favoritesGrid = BuildSceneGrid(favorites);
+                foldout.Add(favoritesGrid);
+
+                var separator = new VisualElement();
+                separator.AddToClassList("scene-separator");
+                foldout.Add(separator);
+            }
+
+            var othersGrid = BuildSceneGrid(others);
+            foldout.Add(othersGrid);
+
+            parent.Add(foldout);
+        }
+
+        private VisualElement BuildSceneGrid(IEnumerable<string> scenes) {
             var grid = new VisualElement();
             grid.AddToClassList("scene-grid");
 
@@ -97,8 +130,7 @@ namespace Tools.EditorTools {
                 grid.Add(button);
             }
 
-            foldout.Add(grid);
-            parent.Add(foldout);
+            return grid;
         }
 
         private void BuildAssetsSection(VisualElement parent) {
