@@ -118,10 +118,6 @@ public void OnSetup(IReadOnlyLifetime lifetime) {
 }
 ```
 
-## Quick Checklist
-
-→ [rules/MONOBEHAVIOUR.md](../rules/MONOBEHAVIOUR.md)
-
 ## VContainer Flow
 
 ```csharp
@@ -369,4 +365,4 @@ public class Service : MonoBehaviour, ISceneService, IScopeSetup {
 ## Related
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
 - **Reactive:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md)
-- **Code Style:** [CODE_STYLE.md](../rules/CODE_STYLE.md)
+- **Code Style:** [CODE_STYLE_FULL.md](CODE_STYLE_FULL.md)

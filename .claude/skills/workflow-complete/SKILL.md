@@ -116,16 +116,16 @@ Based on the completed work, check and update relevant documentation in `.claude
 
 | What changed in the task | Documentation to check/update |
 |--------------------------|-------------------------------|
-| New MonoBehaviour service patterns | `docs/GAMEPLAY.md`, `rules/MONOBEHAVIOUR.md` |
-| New Orleans grains or state types | `docs/COMMON_ORLEANS.md`, `rules/ORLEANS_GRAINS.md`, `rules/ORLEANS_STATE.md` |
+| New MonoBehaviour service patterns | `docs/GAMEPLAY.md`, `docs/COMMON_CONTAINER.md` |
+| New Orleans grains or state types | `docs/COMMON_ORLEANS.md` |
 | New card types or mechanics | `docs/GAMEPLAY.md` |
-| New Blazor pages or editors | `rules/BLAZOR.md` |
+| New Blazor pages or editors | `docs/BLAZOR.md` |
 | New PrefabBuilder patterns | `docs/PREFAB_CODEGEN.md` |
-| New API patterns or async patterns | `rules/API_DESIGN.md` |
+| New API patterns or async patterns | `docs/API_DESIGN_FULL.md` |
 | New vocabulary/concepts introduced | `docs/VOCABULARY.md` |
 | New error patterns discovered | `docs/ERRORS.md` |
 | New decision points for developers | `docs/DECISION_TREES.md` |
-| AI mistakes made during task | `docs/CLAUDE_MISTAKES.md`, `rules/COMMON_MISTAKES.md` |
+| AI mistakes made during task | `docs/CLAUDE_MISTAKES.md` |
 | New key files added to the project | `docs/GAMEPLAY.md` key files section, relevant docs |
 
 ### 6.2 — What to update
@@ -140,8 +140,7 @@ For each relevant doc:
 
 If ANY mistakes were made during the task (visible in `<task_name>_progress.md`, git history, or known from context):
 - Add a new numbered Lesson entry to `docs/CLAUDE_MISTAKES.md`
-- Add a condensed rule to `rules/COMMON_MISTAKES.md` if it's a recurring/critical pattern
-- Format: wrong code, correct code, one-line rule, link to relevant rules doc
+- Format: wrong code, correct code, one-line rule, link to relevant docs page
 
 ### 6.4 — VOCABULARY.md
 

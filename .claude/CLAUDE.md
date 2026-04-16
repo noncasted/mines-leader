@@ -10,22 +10,24 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 | Keywords | Go to |
 |----------|-------|
-| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | rules/MONOBEHAVIOUR.md |
-| Lifetime, Advise, View, Terminate, subscription, cleanup | rules/LIFETIMES.md |
-| EventSource, ViewableProperty, ViewableList, reactive, observable, event | rules/REACTIVE.md |
-| UniTask, async, IReadOnlyList, file I/O, callback wrapping | rules/API_DESIGN.md |
-| member order, _camelCase, GC.KeepAlive, NoAwait, braces | rules/CODE_STYLE.md |
-| Grain, IGrainWithGuidKey, [Transaction], constructor injection | rules/ORLEANS_GRAINS.md |
-| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | rules/ORLEANS_STATE.md |
-| Blazor, razor, @inject, UiComponent, early return, console UI | rules/BLAZOR.md |
+| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | docs/COMMON_CONTAINER.md |
+| Lifetime, Advise, View, Terminate, subscription, cleanup | docs/COMMON_LIFETIMES.md |
+| EventSource, ViewableProperty, ViewableList, reactive, observable, event | docs/COMMON_REACTIVE_BASICS.md |
+| UniTask, async, IReadOnlyList, file I/O, callback wrapping | docs/API_DESIGN_FULL.md |
+| member order, _camelCase, GC.KeepAlive, NoAwait, braces | docs/CODE_STYLE_FULL.md |
+| Grain, IGrainWithGuidKey, [Transaction], constructor injection | docs/COMMON_ORLEANS.md |
+| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | docs/COMMON_ORLEANS.md |
+| Blazor, razor, @inject, UiComponent, early return, console UI | docs/BLAZOR.md |
 | which pattern to use, decision | docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |
-| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking | docs/GAMEPLAY.md |
+| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | docs/GAMEPLAY.md |
+| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | docs/UI_MENU.md |
+| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | docs/COMMON_ORLEANS.md |
 | new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
 | IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/COMMON_ORLEANS.md |
 | trigger keywords, documentation finder, reading order | docs/TRIGGERS.md |
 | code examples, Docs_*.cs, working examples | docs/CODE_EXAMPLES.md |
-| common mistakes, top errors, checklist failures | rules/COMMON_MISTAKES.md |
+| common mistakes, top errors, checklist failures | docs/CLAUDE_MISTAKES.md |
 | full examples, Lifetime details, reactive details | docs/COMMON_*.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/PREFAB_CODEGEN.md |
 | telemetry, metrics, logs, .telemetry, file logging, session logs | docs/TELEMETRY.md |
@@ -59,26 +61,21 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 ## Full Documentation
 
-**Rules (critical checklists):**
-- `rules/MONOBEHAVIOUR.md` — MonoBehaviour service pattern checklist
-- `rules/LIFETIMES.md` — Lifetime usage, which lifetime to use
-- `rules/REACTIVE.md` — EventSource, ViewableProperty, ViewableList quick API
-- `rules/API_DESIGN.md` — UniTask, return types, error handling (full: `docs/API_DESIGN_FULL.md`)
-- `rules/CODE_STYLE.md` — member order, naming, braces, NoAwait (full: `docs/CODE_STYLE_FULL.md`)
-- `rules/COMMON_MISTAKES.md` — top mistakes checklist
-- `rules/ORLEANS_GRAINS.md` — Orleans grain pattern checklist
-- `rules/ORLEANS_STATE.md` — state types, adding new state
-- `rules/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
+**Patterns & rules:**
+- `docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
+- `docs/COMMON_LIFETIMES.md` + `COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
+- `docs/COMMON_REACTIVE_BASICS.md` / `_VALUES.md` / `_COLLECTIONS.md` / `_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
+- `docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
+- `docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
+- `docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
+- `docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
+- `docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
 
-**Docs (full reference):**
+**Reference & lookup:**
 - `docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
 - `docs/ERRORS.md` — error lookup table with causes & fixes
 - `docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
 - `docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
-- `docs/COMMON_ORLEANS.md` — IOrleans, AddressableDictionary, messaging, grain lifecycle
-- `docs/COMMON_CONTAINER.md` — VContainer DI full details, lifecycle phases, gotchas
-- `docs/COMMON_LIFETIMES.md` + `COMMON_LIFETIMES_PATTERNS.md` — Lifetime details
-- `docs/COMMON_REACTIVE_*.md` — EventSource, ViewableProperty, ViewableList details
 - `docs/VOCABULARY.md` — consistent terminology
 - `docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
 - `docs/TRIGGERS.md` — keyword-based documentation finder, reading orders

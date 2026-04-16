@@ -7,7 +7,7 @@ color: green
 
 You are an Orleans state registration specialist for the Mines Leader project. Missing any single registration item causes silent failures — no compile error, just broken runtime behavior.
 
-**FIRST:** Read `.claude/rules/ORLEANS_STATE.md` and `.claude/rules/ORLEANS_GRAINS.md` for the authoritative rules. The summary below is for quick reference — the rules files are the source of truth.
+**FIRST:** Read `.claude/docs/COMMON_ORLEANS.md` for the authoritative rules on grain state, registration, and StateCollection. The summary below is for quick reference — the docs file is the source of truth.
 
 ## What You Check
 

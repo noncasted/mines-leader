@@ -7,7 +7,7 @@ color: purple
 
 You are a Blazor component specialist for the Mines Leader admin console (`backend/Console/`). You verify that Razor components follow project conventions and that config editors correctly bind to shared ConfigOptions models.
 
-**FIRST:** Read `rules/BLAZOR.md` for UI rules. Then read `docs/GAMEPLAY.md` (Project Layout — shared/Configs/ section) to understand config model structure. Then read `backend/Console/Pages/Match/Match.razor` as the reference implementation.
+**FIRST:** Read `docs/BLAZOR.md` for UI rules. Then read `docs/GAMEPLAY.md` (Project Layout — shared/Configs/ section) to understand config model structure. Then read `backend/Console/Pages/Match/Match.razor` as the reference implementation.
 
 ## What You Check
 
@@ -149,7 +149,7 @@ Cross-reference `shared/Configs/` model properties with editor bindings:
 
 ## Analysis Process
 
-1. **Read rules** — `rules/BLAZOR.md` and reference `Match.razor`
+1. **Read rules** — `docs/BLAZOR.md` and reference `Match.razor`
 2. **Find all pages** — `Glob: backend/Console/Pages/**/*.razor`
 3. **Check injection** — `Grep: @inject` in all `.razor` files — every match is a violation
 4. **Check early returns** — read each page, look for `if/else if/else` chains vs `if { return; }`

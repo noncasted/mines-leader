@@ -220,5 +220,5 @@ private async UniTask PlayAnimation() {
 - [ ] Fire-and-forget UniTask: Add `.NoAwait()` to suppress warnings
 
 ## Related
-- **API Design:** [API_DESIGN.md](../rules/API_DESIGN.md)
+- **API Design:** [API_DESIGN_FULL.md](API_DESIGN_FULL.md)
 - **Container:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)

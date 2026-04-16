@@ -32,17 +32,17 @@ Include docs that are **relevant** to this task. Use this map:
 
 | Task touches... | Include |
 |-----------------|---------|
-| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `rules/MONOBEHAVIOUR.md` |
-| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `rules/LIFETIMES.md` |
-| `EventSource`, `ViewableProperty`, `ViewableList` | `rules/REACTIVE.md` |
-| `UniTask`, async methods, file I/O, `IReadOnlyList` | `rules/API_DESIGN.md` |
-| member order, naming, braces, `NoAwait` | `rules/CODE_STYLE.md` |
-| Grain, State, `[Transaction]`, Orleans backend | `rules/ORLEANS_GRAINS.md`, `rules/ORLEANS_STATE.md` |
-| Blazor, razor, `@inject`, console UI | `rules/BLAZOR.md` |
+| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `docs/COMMON_CONTAINER.md` |
+| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `docs/COMMON_LIFETIMES.md` |
+| `EventSource`, `ViewableProperty`, `ViewableList` | `docs/COMMON_REACTIVE_BASICS.md` |
+| `UniTask`, async methods, file I/O, `IReadOnlyList` | `docs/API_DESIGN_FULL.md` |
+| member order, naming, braces, `NoAwait` | `docs/CODE_STYLE_FULL.md` |
+| Grain, State, `[Transaction]`, Orleans backend | `docs/COMMON_ORLEANS.md` |
+| Blazor, razor, `@inject`, console UI | `docs/BLAZOR.md` |
 | game flow, board, cards, bots, matchmaking | `docs/GAMEPLAY.md` |
 | IOrleans, AddressableDictionary, messaging | `docs/COMMON_ORLEANS.md` |
 | "which pattern", architectural choice | `docs/DECISION_TREES.md` |
-| common pitfalls, known mistakes | `rules/COMMON_MISTAKES.md` |
+| common pitfalls, known mistakes | `docs/CLAUDE_MISTAKES.md` |
 | PrefabBuilder, prefab codegen | `docs/PREFAB_CODEGEN.md` |
 
 If unsure whether a doc is needed — include it. An extra doc reference is cheap; a missing one causes mistakes.
@@ -115,7 +115,7 @@ After outputting the brief to the user:
 | `path/to/Other.cs` | [what this file is and why it's relevant] |
 
 ### Документация к прочтению
-- `rules/MONOBEHAVIOUR.md` — [конкретная причина: например, создаём новый сервис]
+- `docs/COMMON_CONTAINER.md` — [конкретная причина: например, создаём новый сервис]
 - `docs/GAMEPLAY.md` — [конкретная причина: например, работаем с картами]
 
 ### Риски

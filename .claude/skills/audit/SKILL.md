@@ -12,7 +12,6 @@ Audits parts of the `.claude` folder by researching domain-specific best practic
 - `/audit agents` — audit agent definitions in `.claude/agents/`
 - `/audit skills` — audit all skills in `.claude/skills/`
 - `/audit skills/check` — audit a specific skill
-- `/audit rules` — audit rules in `.claude/rules/`
 - `/audit docs` — audit docs in `.claude/docs/`
 - `/audit CLAUDE.md` — audit the main CLAUDE.md
 - `/audit all` — full audit of everything (takes a while)
@@ -35,8 +34,8 @@ The same files can serve different purposes depending on context. For example:
 | `.claude/agents/` as validators (from `/check`) | Static analysis / linting design | How to build effective code validators, what makes good lint rules, false positive rates |
 | `.claude/skills/commit/` | Git commit workflow automation | Conventional commits, commit message best practices, pre-commit hooks |
 | `.claude/skills/check/` | Code review automation | Automated code review systems, which checks catch real bugs vs noise |
-| `.claude/rules/LIFETIMES.md` | Resource management documentation | How to document ownership/lifetime patterns, common pitfalls in reactive systems |
-| `.claude/rules/ORLEANS_GRAINS.md` | Distributed systems documentation | Orleans grain best practices, actor model anti-patterns |
+| `.claude/docs/COMMON_LIFETIMES.md` | Resource management documentation | How to document ownership/lifetime patterns, common pitfalls in reactive systems |
+| `.claude/docs/COMMON_ORLEANS.md` | Distributed systems documentation | Orleans grain best practices, actor model anti-patterns |
 | `.claude/docs/GAMEPLAY.md` | Game design documentation | How to document game mechanics for developers |
 | `.claude/CLAUDE.md` | Claude Code configuration | CLAUDE.md structure, prompt hierarchy, what goes where |
 

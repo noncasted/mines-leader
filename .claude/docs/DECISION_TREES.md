@@ -261,4 +261,4 @@ For more context:
 → [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md) - EventSource details
 → [COMMON_REACTIVE_VALUES.md](COMMON_REACTIVE_VALUES.md) - ViewableProperty details
 → [COMMON_REACTIVE_COLLECTIONS.md](COMMON_REACTIVE_COLLECTIONS.md) - ViewableList details
-→ [API_DESIGN.md](../rules/API_DESIGN.md) - Return types & method design
+→ [API_DESIGN_FULL.md](API_DESIGN_FULL.md) - Return types & method design
