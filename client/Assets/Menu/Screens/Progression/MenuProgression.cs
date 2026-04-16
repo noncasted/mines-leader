@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
+using Global.UI.Toolkit;
 using Internal;
+using Menu.Decks;
 using Meta;
 using Shared;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VContainer;
 
 namespace Menu.Screens
@@ -17,29 +19,42 @@ namespace Menu.Screens
     }
 
     [DisallowMultipleComponent]
+    [RequireComponent(typeof(UIDocument))]
     public class MenuProgression : MonoBehaviour,
                                    IMenuProgression,
                                    ISceneService,
                                    IScopeSetup,
                                    IUIStateAsyncEnterHandler
     {
-        [SerializeField] private DesignButton _backButton;
-        [SerializeField] private RectTransform _barFill;
-        [SerializeField] private RectTransform _barRoot;
-        [SerializeField] private TMP_Text _xpText;
-        [SerializeField] private RectTransform _milestonesRoot;
-        [SerializeField] private ProgressionMilestone _milestonePrefab;
+        [SerializeField] private VisualTreeAsset _chestTemplate;
+        [SerializeField] private VisualTreeAsset _lootOverlayTemplate;
+        [SerializeField] private VisualTreeAsset _cardTemplate;
 
         private IBackendProjection<SharedBackendUser.ProgressionProjection> _progressionProjection;
         private IBackendProjection<SharedBackendUser.LootProjection> _lootProjection;
         private ILootProgressionConfigs _lootConfig;
         private IMetaBackend _backend;
         private ICardsRegistry _cardsRegistry;
+        private ICardConfigs _cardConfigs;
+
+        private VisualElement _root;
+        private VisualElement _progressionRoot;
+        private VisualElement _chestRow;
+        private VisualElement _thresholdRow;
+        private VisualElement _barFill;
+        private VisualElement _xpMarker;
+        private Label _xpLabel;
+        private Button _exitButton;
+        private VisualElement _bottomBar;
 
         private readonly List<ProgressionMilestone> _milestones = new();
+        private readonly List<Label> _thresholdLabels = new();
+
+        private LootProgressionOptions _cachedConfig;
         private SharedBackendUser.LootProjection _lastLootProjection;
         private int _currentXp;
-        private bool _initialized;
+        private int _maxXp;
+        private bool _uiReady;
         private bool _isOpeningLootBox;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
@@ -50,13 +65,15 @@ namespace Menu.Screens
             IBackendProjection<SharedBackendUser.LootProjection> lootProjection,
             ILootProgressionConfigs lootConfig,
             IMetaBackend backend,
-            ICardsRegistry cardsRegistry)
+            ICardsRegistry cardsRegistry,
+            ICardConfigs cardConfigs)
         {
             _progressionProjection = progressionProjection;
             _lootProjection = lootProjection;
             _lootConfig = lootConfig;
             _backend = backend;
             _cardsRegistry = cardsRegistry;
+            _cardConfigs = cardConfigs;
         }
 
         public void Create(IScopeBuilder builder)
@@ -74,48 +91,92 @@ namespace Menu.Screens
             _progressionProjection.Listen(lifetime, OnProgressionUpdated);
             _lootProjection.Listen(lifetime, OnLootUpdated);
         }
-        
+
         public async UniTask OnEntered(IUIStateHandle handle)
         {
             handle.AttachGameObject(gameObject);
+
+            EnsureUiInitialized();
+
+            _progressionRoot.Show();
+            _bottomBar?.Hide();
+
+            handle.InnerLifetime.Listen(() => {
+                if (_progressionRoot != null)
+                    _progressionRoot.Hide();
+                _bottomBar?.Show();
+            });
+
+            RebuildMilestones();
+            UpdateMilestoneBoxes(_lastLootProjection);
             UpdateBar();
+            WireMilestoneClicks(handle.InnerLifetime);
 
-            foreach (var milestone in _milestones)
+            var completion = new UniTaskCompletionSource();
+
+            _exitButton.ListenClick(handle.InnerLifetime, () => completion.TrySetResult());
+
+            void OnKeyDown(KeyDownEvent evt)
             {
-                milestone.Button.ListenClick(handle.InnerLifetime, () => {
-                    if (milestone.HasAvailableBox == false || _isOpeningLootBox)
-                        return;
-
-                    OpenLootBox(milestone.BoxId).Forget();
-                });
+                if (evt.keyCode == KeyCode.Escape)
+                    completion.TrySetResult();
             }
 
-            await _backButton.WaitClick(handle);
+            _progressionRoot.RegisterCallback<KeyDownEvent>(OnKeyDown);
+            handle.InnerLifetime.Listen(
+                () => _progressionRoot.UnregisterCallback<KeyDownEvent>(OnKeyDown));
+
+            await completion.Task;
+        }
+
+        private void EnsureUiInitialized()
+        {
+            if (_uiReady)
+                return;
+
+            var document = GetComponent<UIDocument>();
+            _root = document.rootVisualElement;
+
+            if (_root == null)
+                return;
+
+            _progressionRoot = _root.Q<VisualElement>("progression-root");
+            _chestRow = _root.Q<VisualElement>("chest-row");
+            _thresholdRow = _root.Q<VisualElement>("threshold-row");
+            _barFill = _root.Q<VisualElement>("bar-fill");
+            _xpMarker = _root.Q<VisualElement>("xp-marker");
+            _xpLabel = _root.Q<Label>("xp-label");
+            _exitButton = _root.Q<Button>("btn-exit");
+
+            _bottomBar = FindBottomBar();
+
+            _uiReady = true;
+        }
+
+        private VisualElement FindBottomBar()
+        {
+            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            var self = GetComponent<UIDocument>();
+
+            foreach (var doc in docs)
+            {
+                if (doc == self)
+                    continue;
+                var bar = doc.rootVisualElement?.Q<VisualElement>("bottom-bar");
+
+                if (bar != null)
+                    return doc.rootVisualElement;
+            }
+
+            return null;
         }
 
         private void OnConfigReceived(LootProgressionOptions config)
         {
-            foreach (var milestone in _milestones)
-                Destroy(milestone.gameObject);
-
-            _milestones.Clear();
-
-            var thresholds = config.Thresholds
-                                   .OrderBy(t => t)
-                                   .ToList();
-
-            var maxXp = thresholds.Count > 0 ? thresholds.Max() : 1;
-
-            foreach (var threshold in thresholds)
-            {
-                var milestone = Instantiate(_milestonePrefab, _milestonesRoot);
-                milestone.Setup(threshold, (float)threshold / maxXp);
-                _milestones.Add(milestone);
-            }
-
-            _initialized = true;
-            UpdateBar();
+            _cachedConfig = config;
+            RebuildMilestones();
             UpdateMilestoneBoxes(_lastLootProjection);
+            UpdateBar();
         }
 
         private void OnProgressionUpdated(SharedBackendUser.ProgressionProjection projection)
@@ -132,28 +193,85 @@ namespace Menu.Screens
             UpdateBar();
         }
 
-        private void UpdateBar()
+        private void RebuildMilestones()
         {
-            if (!_initialized || _milestones.Count == 0)
+            if (!_uiReady || _cachedConfig == null)
                 return;
 
-            var maxXp = _milestones.Max(m => m.RequiredXp);
-            var fillRatio = maxXp > 0 ? Mathf.Clamp01((float)_currentXp / maxXp) : 0f;
+            _chestRow.Clear();
+            _thresholdRow.Clear();
+            _milestones.Clear();
+            _thresholdLabels.Clear();
 
-            var barWidth = _barRoot.rect.width;
-            _barFill.sizeDelta = new Vector2(barWidth * fillRatio, 0);
+            var thresholds = _cachedConfig.Thresholds
+                                          .OrderBy(t => t)
+                                          .ToList();
 
-            _xpText.text = $"{_currentXp} XP";
-            var xpRt = _xpText.GetComponent<RectTransform>();
-            xpRt.anchoredPosition = new Vector2(barWidth * fillRatio, xpRt.anchoredPosition.y);
+            _maxXp = thresholds.Count > 0 ? thresholds.Max() : 1;
 
+            foreach (var threshold in thresholds)
+            {
+                var normalized = _maxXp > 0 ? (float)threshold / _maxXp : 0f;
+
+                var chestContainer = _chestTemplate.CloneTree();
+                var chestRoot = chestContainer.Q<VisualElement>("chest");
+                chestRoot.RemoveFromHierarchy();
+
+                SetNormalizedLeftCentered(chestRoot, normalized);
+                _chestRow.Add(chestRoot);
+
+                var milestone = new ProgressionMilestone(chestRoot);
+                milestone.Setup(threshold);
+                _milestones.Add(milestone);
+
+                var label = new Label(threshold.ToString());
+                label.AddToClassList("threshold-label");
+                label.AddToClassList("u-ithaca");
+                SetNormalizedLeftCentered(label, normalized);
+                _thresholdRow.Add(label);
+                _thresholdLabels.Add(label);
+            }
+        }
+
+        private void WireMilestoneClicks(IReadOnlyLifetime lifetime)
+        {
             foreach (var milestone in _milestones)
-                milestone.SetReached(_currentXp >= milestone.RequiredXp);
+            {
+                var local = milestone;
+
+                local.Button.ListenClick(lifetime, () => {
+                    if (!local.HasAvailableBox || _isOpeningLootBox)
+                        return;
+
+                    OpenLootBox(local.BoxId, lifetime).Forget();
+                });
+            }
+        }
+
+        private void UpdateBar()
+        {
+            if (!_uiReady || _milestones.Count == 0)
+                return;
+
+            var fillRatio = _maxXp > 0 ? Mathf.Clamp01((float)_currentXp / _maxXp) : 0f;
+            _barFill.style.width = Length.Percent(fillRatio * 100f);
+            SetNormalizedLeftCentered(_xpMarker, fillRatio);
+            _xpLabel.text = $"{_currentXp} XP";
+
+            for (var i = 0; i < _milestones.Count; i++)
+            {
+                _milestones[i].SetReached(_currentXp >= _milestones[i].RequiredXp);
+
+                if (_currentXp >= _milestones[i].RequiredXp)
+                    _thresholdLabels[i].AddToClassList("reached");
+                else
+                    _thresholdLabels[i].RemoveFromClassList("reached");
+            }
         }
 
         private void UpdateMilestoneBoxes(SharedBackendUser.LootProjection lootProjection)
         {
-            if (lootProjection?.Boxes == null || !_initialized || _milestones.Count == 0)
+            if (!_uiReady || lootProjection?.Boxes == null || _milestones.Count == 0)
                 return;
 
             var sorted = _milestones.OrderBy(m => m.RequiredXp).ToList();
@@ -167,29 +285,26 @@ namespace Menu.Screens
 
                 if (i < claimedCount)
                 {
-                    // Already opened
                     milestone.SetReached(true);
                     milestone.SetClaimed(true);
                     milestone.SetAvailableBox(Guid.Empty);
                 }
                 else if (i < awardedCount && availableBoxes.Count > 0)
                 {
-                    // Available to open
                     milestone.SetReached(true);
                     milestone.SetClaimed(false);
                     milestone.SetAvailableBox(availableBoxes.Dequeue());
                 }
                 else
                 {
-                    // Not yet awarded or locked
                     milestone.SetReached(_currentXp >= milestone.RequiredXp);
                     milestone.SetClaimed(false);
                     milestone.SetAvailableBox(Guid.Empty);
                 }
             }
         }
-        
-        public async UniTask OpenLootBox(Guid boxId)
+
+        private async UniTask OpenLootBox(Guid boxId, IReadOnlyLifetime lifetime)
         {
             if (_isOpeningLootBox)
                 return;
@@ -211,17 +326,12 @@ namespace Menu.Screens
                 if (definitions.Count == 0)
                     return;
 
-                var choiceCompletion = new UniTaskCompletionSource<CardType>();
-
-                var choicePanel = new GameObject("LootChoicePanel");
-                choicePanel.transform.SetParent(transform, false);
-
-                var choiceUI = choicePanel.AddComponent<LootBoxChoicePanel>();
-                choiceUI.Setup(definitions, response.Choices, choiceCompletion);
-
-                var chosenCard = await choiceCompletion.Task;
-
-                Destroy(choicePanel);
+                var choicePanel = new LootBoxChoicePanel(_lootOverlayTemplate, _cardTemplate, _cardConfigs);
+                var chosenCard = await choicePanel.ShowAndAwait(
+                    _progressionRoot,
+                    lifetime,
+                    definitions,
+                    response.Choices);
 
                 await _backend.ChooseLootReward(boxId, chosenCard);
             }
@@ -229,6 +339,13 @@ namespace Menu.Screens
             {
                 _isOpeningLootBox = false;
             }
+        }
+
+        private static void SetNormalizedLeftCentered(VisualElement element, float normalized)
+        {
+            element.style.position = UnityEngine.UIElements.Position.Absolute;
+            element.style.left = Length.Percent(normalized * 100f);
+            element.style.translate = new StyleTranslate(new Translate(Length.Percent(-50f), 0));
         }
     }
 }
