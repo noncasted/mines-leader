@@ -36,6 +36,8 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
             };
         }
 
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+
         foreach (var cell in selected)
         {
             if (cell.HasMine)
@@ -56,7 +58,8 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
             {
                 TargetPlayer = board.OwnerId,
                 ActualSize = actualSize,
-                TargetCells = selected.Select(c => c.Position).ToList()
+                TargetCells = selected.Select(c => c.Position).ToList(),
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
     }

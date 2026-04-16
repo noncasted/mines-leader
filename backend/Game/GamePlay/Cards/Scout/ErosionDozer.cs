@@ -33,6 +33,8 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
             };
         }
 
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+
         foreach (var cell in limited)
             cell.ToFree();
 
@@ -45,7 +47,8 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
             ActionData = new CardActionSnapshot.ErosionDozer()
             {
                 TargetPlayer = board.OwnerId,
-                TargetCells = limited.Select(c => c.Position).ToList()
+                TargetCells = limited.Select(c => c.Position).ToList(),
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
     }

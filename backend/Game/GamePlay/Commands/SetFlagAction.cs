@@ -6,6 +6,8 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.SetFlag request)
     {
+        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
+
         var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 

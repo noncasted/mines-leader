@@ -6,6 +6,9 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.OpenMultiple request)
     {
+        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
+        context.Snapshot.HandlePlayers(context.Lifetime, Utils.GameContext);
+
         var board = context.Player.Board;
         board.EnsureGenerated(request.Position);
         var targetCell = board.Cells[request.Position];

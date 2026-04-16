@@ -6,6 +6,8 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.RemoveFlag request)
     {
+        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
+
         var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 

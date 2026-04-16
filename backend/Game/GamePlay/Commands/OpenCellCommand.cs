@@ -6,6 +6,9 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.Open request)
     {
+        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
+        context.Snapshot.HandlePlayers(context.Lifetime, Utils.GameContext);
+
         var board = context.Player.Board;
         board.EnsureGenerated(request.Position);
         var targetCell = board.Cells[request.Position];

@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
@@ -31,6 +31,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
             };
         }
 
+        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+
         foreach (var cell in selected)
             cell.ToFree();
 
@@ -43,7 +45,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
             ActionData = new CardActionSnapshot.Bloodhound()
             {
                 TargetPlayer = board.OwnerId,
-                TargetCells = selected.Select(c => c.Position).ToList()
+                TargetCells = selected.Select(c => c.Position).ToList(),
+                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
             }
         };
     }
