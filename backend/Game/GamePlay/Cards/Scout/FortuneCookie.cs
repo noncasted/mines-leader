@@ -65,7 +65,8 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
             ActionData = new CardActionSnapshot.FortuneCookie()
             {
                 TargetPlayer = invoker.User.Id,
-                RevealedMines = revealed
+                RevealedMines = revealed,
+                TargetCells = revealed
             }
         };
     }

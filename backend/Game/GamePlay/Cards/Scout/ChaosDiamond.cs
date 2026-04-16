@@ -55,7 +55,8 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
             ActionData = new CardActionSnapshot.ChaosDiamond()
             {
                 TargetPlayer = board.OwnerId,
-                ActualSize = actualSize
+                ActualSize = actualSize,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

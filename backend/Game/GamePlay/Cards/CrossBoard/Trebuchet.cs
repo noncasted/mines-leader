@@ -75,7 +75,8 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.Trebuchet()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

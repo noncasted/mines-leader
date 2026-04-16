@@ -47,7 +47,8 @@ public class MineCluster : ICard<CardUsePayload.MineCluster>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.MineCluster()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

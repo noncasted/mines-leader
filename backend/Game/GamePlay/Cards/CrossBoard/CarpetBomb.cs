@@ -52,7 +52,8 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.CarpetBomb()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = selected.Select(c => c.Position).ToList()
             }
         };
     }

@@ -61,7 +61,8 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.OpponentBomb()
             {
-                TargetPlayer = board.OwnerId
+                TargetPlayer = board.OwnerId,
+                TargetCells = new List<Position> { cell.Position }
             }
         };
     }
