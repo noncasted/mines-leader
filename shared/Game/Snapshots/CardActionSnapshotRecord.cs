@@ -61,6 +61,7 @@ namespace Shared
     {
         Guid TargetPlayer { get; set; }
         IReadOnlyList<Position>? TargetCells => null;
+        IReadOnlyList<Position>? ActionCells => null;
     }
 
     public partial class CardActionSnapshot
@@ -70,6 +71,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -77,6 +79,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -84,6 +87,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -112,6 +116,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -292,6 +297,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -307,6 +313,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
@@ -315,6 +322,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualLength { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? ActionCells { get; set; }
         }
 
         [MemoryPackable]
