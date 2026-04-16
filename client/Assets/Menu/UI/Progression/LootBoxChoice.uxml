@@ -1,0 +1,9 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="MenuProgression.uss"/>
+    <Style src="../Styles/MenuTheme.uss"/>
+    <Style src="../Decks/MenuCards.uss"/>
+    <VisualElement name="loot-overlay" class="loot-overlay">
+        <Label text="Choose a Card" name="loot-title" class="u-ithaca loot-title"/>
+        <VisualElement name="loot-card-row" class="loot-card-row"/>
+    </VisualElement>
+</UXML>

@@ -1,0 +1,13 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="MenuProgression.uss"/>
+    <Style src="../Styles/MenuTheme.uss"/>
+    <VisualElement name="chest" class="chest locked">
+        <VisualElement name="chest-glow" class="chest-glow"/>
+        <VisualElement name="chest-lid" class="chest-lid"/>
+        <VisualElement name="chest-body" class="chest-body">
+            <VisualElement class="chest-band"/>
+            <VisualElement name="chest-lock" class="chest-lock"/>
+        </VisualElement>
+        <Button name="chest-hit" class="chest-hit"/>
+    </VisualElement>
+</UXML>
