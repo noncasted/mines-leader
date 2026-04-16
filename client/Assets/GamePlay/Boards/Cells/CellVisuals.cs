@@ -18,10 +18,6 @@ namespace GamePlay.Boards
         private ForwardSpriteAnimation _cellTarget;
         private ForwardSpriteAnimation _cellAction;
 
-        private bool _hasTarget;
-
-        public bool HasPendingTarget => _hasTarget;
-
         public void Construct(IUpdater updater)
         {
             _cellTarget = Create(_cellTargetData);
@@ -33,28 +29,28 @@ namespace GamePlay.Boards
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
-                    new SpriteAnimationData(data.Sprites, data.Time));
+                    new SpriteAnimationData(data.Sprites, data.Time, data.Color));
             }
         }
 
         public async UniTask PlayCellTarget(IReadOnlyLifetime lifetime)
         {
-            _hasTarget = true;
             gameObject.SetActive(true);
 
             var animationLifetime = lifetime.Child();
             _cellTarget.OnSetup(animationLifetime);
             await _cellTarget.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
+
+            gameObject.SetActive(false);
         }
 
         public async UniTask PlayCellAction(IReadOnlyLifetime lifetime)
         {
-            _hasTarget = false;
             gameObject.SetActive(true);
 
             var animationLifetime = lifetime.Child();
-            _cellAction.OnSetup(animationLifetime);
+            _cellAction.OnSetup(animationLifetime); 
             await _cellAction.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
 
@@ -64,6 +60,11 @@ namespace GamePlay.Boards
         public void SetSprite(Sprite sprite)
         {
             _renderer.sprite = sprite;
+        }
+
+        public void SetColor(Color color)
+        {
+            _renderer.color = color;
         }
     }
 }

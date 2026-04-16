@@ -39,6 +39,7 @@ namespace GamePlay
             _actionLog.LogCardAction(record.PlayerId, card.Type);
 
             await PlayTargetAnimation(record.Data);
+            await PlayActionAnimation(record.Data);
 
             await card.Use(_lifetime, record.Data);
 
@@ -83,17 +84,28 @@ namespace GamePlay
             }
         }
 
-        private async UniTask PlayTargetAnimation(ICardActionData data)
+        private UniTask PlayTargetAnimation(ICardActionData data)
         {
-            var targetCells = data.TargetCells;
+            return PlayCellsAnimation(data, data.TargetCells, (visuals, lifetime) => visuals.PlayCellTarget(lifetime));
+        }
 
-            if (targetCells == null || targetCells.Count == 0)
+        private UniTask PlayActionAnimation(ICardActionData data)
+        {
+            return PlayCellsAnimation(data, data.ActionCells, (visuals, lifetime) => visuals.PlayCellAction(lifetime));
+        }
+
+        private async UniTask PlayCellsAnimation(
+            ICardActionData data,
+            IReadOnlyList<Position>? cells,
+            System.Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
+        {
+            if (cells == null || cells.Count == 0)
                 return;
 
             var board = _gameContext.GetPlayer(data.TargetPlayer).Board;
             var tasks = new List<UniTask>();
 
-            foreach (var position in targetCells)
+            foreach (var position in cells)
             {
                 var vector = position.ToVector();
 
@@ -101,7 +113,7 @@ namespace GamePlay
                     continue;
 
                 if (cell is CellView cellView)
-                    tasks.Add(cellView.Visuals.PlayCellTarget(_lifetime));
+                    tasks.Add(play(cellView.Visuals, _lifetime));
             }
 
             if (tasks.Count > 0)

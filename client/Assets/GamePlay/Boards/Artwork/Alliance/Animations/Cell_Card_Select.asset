@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4a78524aab449a80c31d1634db585a, type: 3}
+  m_Name: Cell_Card_Select
+  m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
+  _sprites:
+  - {fileID: 6115346676105642206, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 1406903663381077548, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 4496008805204617521, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 5078710050306846450, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 3742540863784016127, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 3640568985206257311, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 8476719301844426752, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: 8045693849786547052, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  _time: 0.3
+  _color: {r: 1, g: 0.9766192, b: 0.3584906, a: 0.7137255}

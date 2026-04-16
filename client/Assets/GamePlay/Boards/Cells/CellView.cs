@@ -60,9 +60,6 @@ namespace GamePlay.Boards
             {
                 Effects.Clear();
 
-                if (_visuals.HasPendingTarget)
-                    _visuals.PlayCellAction(this.GetObjectLifetime()).Forget();
-
                 var taken = new CellTakenState(this, _takenView, _connection);
                 _state.Set(taken);
                 taken.Construct(_state.ValueLifetime);
@@ -76,9 +73,6 @@ namespace GamePlay.Boards
             if (_state.Value is not CellFreeState)
             {
                 Effects.Clear();
-
-                if (_visuals.HasPendingTarget)
-                    _visuals.PlayCellAction(this.GetObjectLifetime()).Forget();
 
                 _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);
