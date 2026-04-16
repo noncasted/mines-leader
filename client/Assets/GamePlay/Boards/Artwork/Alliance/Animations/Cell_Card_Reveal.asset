@@ -21,5 +21,5 @@ MonoBehaviour:
   - {fileID: 3640568985206257311, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
   - {fileID: 8476719301844426752, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
   - {fileID: 8045693849786547052, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  _time: 1
-  _color: {r: 1, g: 0.16037738, b: 0.16037738, a: 0.75686276}
+  _time: 0.3
+  _color: {r: 1, g: 1, b: 1, a: 0.6901961}
