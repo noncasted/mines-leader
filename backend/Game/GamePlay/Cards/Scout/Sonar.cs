@@ -47,16 +47,18 @@ public class Sonar : ICard<CardUsePayload.Sonar>
             flaggedPositions.Add(cell.Position);
         }
 
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Sonar
         {
             TargetPlayer = board.OwnerId,
-            FlaggedCells = flaggedPositions
+            FlaggedCells = flaggedPositions,
+            UpdatedFreeCells = updatedFreeCells,
+            TargetCells = flaggedPositions
         });
-
-        foreach (var position in flaggedPositions)
-            snapshot.RecordFlag(board, position, true);
-
-        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {

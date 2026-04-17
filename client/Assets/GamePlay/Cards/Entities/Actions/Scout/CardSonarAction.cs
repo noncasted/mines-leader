@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
+using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -45,8 +47,39 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Sonar>
         {
+            public Snapshot(IGameContext gameContext)
+            {
+                _gameContext = gameContext;
+            }
+
+            private readonly IGameContext _gameContext;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Sonar payload)
             {
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                if (payload.FlaggedCells != null)
+                {
+                    foreach (var position in payload.FlaggedCells)
+                    {
+                        var vector = position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureTaken().OnFlagUpdated(true);
+                    }
+                }
+
+                if (payload.UpdatedFreeCells != null)
+                {
+                    foreach (var opened in payload.UpdatedFreeCells)
+                    {
+                        var vector = opened.Position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    }
+                }
+
                 return UniTask.CompletedTask;
             }
         }

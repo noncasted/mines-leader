@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
+using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -48,16 +50,42 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.FortuneBlast>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator)
+            public Snapshot(ICardRandomAnimator randomAnimator, IGameContext gameContext)
             {
                 _randomAnimator = randomAnimator;
+                _gameContext = gameContext;
             }
 
             private readonly ICardRandomAnimator _randomAnimator;
+            private readonly IGameContext _gameContext;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.FortuneBlast payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.FortuneBlast payload)
             {
-                return _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
+                await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
+
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                if (payload.TakenCells != null)
+                {
+                    foreach (var position in payload.TakenCells)
+                    {
+                        var vector = position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureTaken();
+                    }
+                }
+
+                if (payload.UpdatedFreeCells != null)
+                {
+                    foreach (var opened in payload.UpdatedFreeCells)
+                    {
+                        var vector = opened.Position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    }
+                }
             }
         }
 

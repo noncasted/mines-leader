@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -53,14 +54,16 @@ public class Frost : ICard<CardUsePayload.Frost>
 
         _roundActionService.Schedule(new FrostDisposeAction(board, effectId, affectedCells), config.Duration);
 
+        var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Frost()
         {
             TargetPlayer = board.OwnerId,
-            FrozenCells = frozenPositions
+            FrozenCells = frozenPositions,
+            AffectedCells = affectedPositions,
+            EffectId = effectId,
+            TargetCells = affectedPositions
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Frost, effectId);
 
         return new CardUseResult
         {

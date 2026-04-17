@@ -45,18 +45,19 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
         foreach (var cell in selected)
             cell.ToTaken().SetMine();
 
+        var takenPositions = selected.Select(c => c.Position).ToList();
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.CarpetBomb()
         {
             TargetPlayer = board.OwnerId,
-            TargetCells = selected.Select(c => c.Position).ToList()
+            TargetCells = takenPositions,
+            TakenCells = takenPositions,
+            UpdatedFreeCells = updatedFreeCells
         });
-
-        var minesRecords = board.MinesScanner.Recalculate(snapshot);
-
-        foreach (var cell in selected)
-            snapshot.RecordCellTaken(board, cell.Position);
-
-        snapshot.RecordMines(board, minesRecords);
 
         return new CardUseResult
         {

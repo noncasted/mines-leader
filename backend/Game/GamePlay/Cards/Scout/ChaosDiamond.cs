@@ -67,11 +67,9 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
             ActualSize = actualSize,
             TargetCells = selected.Select(c => c.Position).ToList(),
             OpenedCells = openedCells,
-            UpdatedFreeCells = openedCells
+            UpdatedFreeCells = openedCells,
+            FlaggedCells = flagged
         });
-
-        foreach (var position in flagged)
-            snapshot.RecordFlag(board, position, true);
 
         return new CardUseResult
         {

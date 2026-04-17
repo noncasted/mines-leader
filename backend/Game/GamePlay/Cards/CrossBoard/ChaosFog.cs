@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -51,14 +52,16 @@ public class ChaosFog : ICard<CardUsePayload.ChaosFog>
         var disposeAction = new ChaosFogDisposeAction(board, effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
 
+        var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChaosFog()
         {
             TargetPlayer = board.OwnerId,
-            ActualSize = actualSize
+            ActualSize = actualSize,
+            AffectedCells = affectedPositions,
+            EffectId = effectId,
+            TargetCells = affectedPositions
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Smoke, effectId);
 
         return new CardUseResult
         {

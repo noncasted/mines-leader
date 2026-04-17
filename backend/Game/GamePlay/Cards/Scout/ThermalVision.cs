@@ -44,14 +44,16 @@ public class ThermalVision : ICard<CardUsePayload.ThermalVision>
         if (affectedCells.Count > 0)
             _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells), 2);
 
+        var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ThermalVision()
         {
             TargetPlayer = board.OwnerId,
-            HighlightedMines = mines
+            HighlightedMines = mines,
+            AffectedCells = affectedPositions,
+            EffectId = effectId,
+            TargetCells = selected.Select(t => t.Position).ToArray()
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.MineHighlight, effectId);
 
         return new CardUseResult
         {

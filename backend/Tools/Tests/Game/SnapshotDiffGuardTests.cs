@@ -661,7 +661,7 @@ public class BloodhoundSnapshotSequenceTests : PlayerCardTestsBase
 public class CarpetBombSnapshotSequenceTests : PlayerCardTestsBase
 {
     [Fact]
-    public void Use_WritesCellTakenThenMinesAroundForNeighbors()
+    public void Use_PopulatesTakenCellsAndUpdatedFreeNeighbors()
     {
         var ownerId = Guid.NewGuid();
         // Opponent's board — all free, the bomb plants mines along a line.
@@ -688,18 +688,10 @@ public class CarpetBombSnapshotSequenceTests : PlayerCardTestsBase
 
         var records = snapshot.Collect().Records;
 
-        records.Should().ContainSingle(r => r is SharedBoardSnapshot);
-        var boardSnapshot = records.OfType<SharedBoardSnapshot>().Single();
+        var cardUseRecord = records.OfType<PlayerSnapshotRecord.CardUse>().Should().ContainSingle().Subject;
+        var data = cardUseRecord.Data.Should().BeOfType<CardActionSnapshot.CarpetBomb>().Subject;
 
-        var takens = boardSnapshot.Records.OfType<BoardSnapshotRecord.CellTaken>().Count();
-        var mines = boardSnapshot.Records.OfType<BoardSnapshotRecord.MinesAround>().Count();
-
-        takens.Should().BeGreaterThan(0);
-        mines.Should().BeGreaterThan(0, "neighbors of the newly-placed mines must be re-recorded");
-
-        // CellTaken records must come before MinesAround records — mines exist before diff computes.
-        var firstMines = boardSnapshot.Records.ToList().FindIndex(r => r is BoardSnapshotRecord.MinesAround);
-        var lastTaken = boardSnapshot.Records.ToList().FindLastIndex(r => r is BoardSnapshotRecord.CellTaken);
-        lastTaken.Should().BeLessThan(firstMines, "status changes must be recorded before mines recount");
+        data.TakenCells.Should().NotBeNullOrEmpty();
+        data.UpdatedFreeCells.Should().NotBeNullOrEmpty("neighbors of the newly-placed mines must be re-recorded");
     }
 }

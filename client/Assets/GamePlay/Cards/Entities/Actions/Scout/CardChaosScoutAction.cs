@@ -85,17 +85,28 @@ namespace GamePlay.Cards
             {
                 await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualLength);
 
-                if (payload.UpdatedFreeCells == null || payload.UpdatedFreeCells.Count == 0)
-                    return;
-
                 var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
 
-                foreach (var opened in payload.UpdatedFreeCells)
+                if (payload.FlaggedCells != null)
                 {
-                    var vector = opened.Position.ToVector();
+                    foreach (var position in payload.FlaggedCells)
+                    {
+                        var vector = position.ToVector();
 
-                    if (board.Cells.TryGetValue(vector, out var cell))
-                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureTaken().OnFlagUpdated(true);
+                    }
+                }
+
+                if (payload.UpdatedFreeCells != null)
+                {
+                    foreach (var opened in payload.UpdatedFreeCells)
+                    {
+                        var vector = opened.Position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    }
                 }
             }
         }

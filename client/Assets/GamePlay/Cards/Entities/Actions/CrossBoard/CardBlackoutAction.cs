@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -48,8 +49,26 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Blackout>
         {
+            public Snapshot(IGameContext gameContext)
+            {
+                _gameContext = gameContext;
+            }
+
+            private readonly IGameContext _gameContext;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Blackout payload)
             {
+                if (payload.AffectedCells == null || payload.AffectedCells.Count == 0)
+                    return UniTask.CompletedTask;
+
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                foreach (var position in payload.AffectedCells)
+                {
+                    if (board.Cells.TryGetValue(position.ToVector(), out var cell) && cell is CellView cellView)
+                        cellView.Effects.AddEffect(payload.EffectId, CellEffectType.Blackout);
+                }
+
                 return UniTask.CompletedTask;
             }
         }

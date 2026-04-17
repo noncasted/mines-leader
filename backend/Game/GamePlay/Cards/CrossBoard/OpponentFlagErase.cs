@@ -51,15 +51,20 @@ public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase>
             removed.Add(cell.Position);
         }
 
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
+        var selectedPositions = selected.Select(c => c.Position).ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.OpponentFlagErase()
         {
-            TargetPlayer = board.OwnerId
+            TargetPlayer = board.OwnerId,
+            UnflaggedCells = removed,
+            UpdatedFreeCells = updatedFreeCells,
+            TargetCells = selectedPositions
         });
-
-        foreach (var position in removed)
-            snapshot.RecordFlag(board, position, false);
-
-        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {

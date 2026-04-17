@@ -74,11 +74,9 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
             RevealedCells = selected.Select(c => c.Position).ToList(),
             TargetCells = selected.Select(c => c.Position).ToList(),
             OpenedCells = openedCells,
-            UpdatedFreeCells = openedCells
+            UpdatedFreeCells = openedCells,
+            FlaggedCells = flagged
         });
-
-        foreach (var position in flagged)
-            snapshot.RecordFlag(board, position, true);
 
         return new CardUseResult
         {

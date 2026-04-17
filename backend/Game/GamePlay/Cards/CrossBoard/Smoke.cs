@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -57,13 +58,16 @@ public class Smoke : ICard<CardUsePayload.Smoke>
         var disposeAction = new SmokeDisposeAction(board, effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
 
+        var positions = affectedCells.Select(c => c.Position).ToArray();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Smoke()
         {
-            TargetPlayer = board.OwnerId
+            TargetPlayer = board.OwnerId,
+            TargetCells = positions,
+            OpenedCells = positions,
+            AffectedCells = positions,
+            EffectId = effectId
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Smoke, effectId);
 
         return new CardUseResult
         {
