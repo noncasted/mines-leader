@@ -1,5 +1,4 @@
 using Common.Extensions;
-using Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace Console;

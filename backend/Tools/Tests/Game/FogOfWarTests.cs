@@ -1,4 +1,3 @@
-using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -23,7 +22,10 @@ public class FogOfWarTests : PlayerCardTestsBase
         return new FogOfWar(MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
     }
 
-    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.FogOfWar payload, IRoundActionService roundActionService)
+    private (CardUseResult, MoveSnapshot) UseCapture(
+        IBoard board,
+        CardUsePayload.FogOfWar payload,
+        IRoundActionService roundActionService)
     {
         var invoker = MockPlayer();
         var opponent = MockPlayer();
@@ -180,7 +182,8 @@ public class FogOfWarTests : PlayerCardTestsBase
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.FogOfWar { Position = new Position(2, 2) }, roundActionService);
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.FogOfWar { Position = new Position(2, 2) },
+            roundActionService);
 
         var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.FogOfWar>();
         actionData.Should().NotBeNull();

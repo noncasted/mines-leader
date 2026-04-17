@@ -71,6 +71,7 @@ public class TimeLimitedRound : Service, IGameRound
             _secondsLeft[player.User.Id] = ModeOptions.RoundTime;
 
         var snapshot = new MoveSnapshot();
+
         var initPreState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)
             : null;
@@ -223,6 +224,7 @@ public class TimeLimitedRound : Service, IGameRound
 
         {
             var startSnapshot = new MoveSnapshot();
+
             var startPreState = _diffGuard.IsEnabled == true
                 ? GameStateCapture.Capture(_gameContext)
                 : null;
@@ -261,6 +263,7 @@ public class TimeLimitedRound : Service, IGameRound
 
         {
             var endSnapshot = new MoveSnapshot();
+
             var endPreState = _diffGuard.IsEnabled == true
                 ? GameStateCapture.Capture(_gameContext)
                 : null;

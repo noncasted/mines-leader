@@ -67,14 +67,14 @@ public static class BoardPositionsExtensions
                 {
                     if (board.Cells[neighbour].Status != CellStatus.Free)
                         continue;
-                    
+
                     neighbours.Add(neighbour);
                 }
             }
-            
+
             return neighbours;
         }
-        
+
         public Position RandomPosition()
         {
             var bounds = board.Size;

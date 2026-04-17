@@ -9,7 +9,6 @@ using Infrastructure.Execution;
 using Infrastructure.Startup;
 using Infrastructure.State;
 using Meta.Bots;
-using Meta.Matches;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;

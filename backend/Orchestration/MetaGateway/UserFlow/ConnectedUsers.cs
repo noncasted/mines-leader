@@ -1,7 +1,7 @@
-﻿using Cluster.Monitoring;
+﻿using Cluster.Deploy;
+using Cluster.Monitoring;
 using Common.Extensions;
 using Common.Reactive;
-using Infrastructure;
 using MetaGateway.UserFlow.Connection;
 
 namespace MetaGateway.UserFlow;
@@ -18,12 +18,12 @@ public interface IConnectedUsers
 
 public class ConnectedUsers : IConnectedUsers
 {
-    public ConnectedUsers(IDynamicState<ConnectedUsersLiveData> liveData)
+    public ConnectedUsers(ILiveState<ConnectedUsersLiveData> liveData)
     {
         _liveData = liveData;
     }
 
-    private readonly IDynamicState<ConnectedUsersLiveData> _liveData;
+    private readonly ILiveState<ConnectedUsersLiveData> _liveData;
     private readonly ViewableDelegate<IUserSession> _connected = new();
     private readonly Dictionary<Guid, IUserSession> _entries = new();
 

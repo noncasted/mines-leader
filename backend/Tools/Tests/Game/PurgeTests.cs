@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Game.GamePlay;
-using Game.Session;
 using NSubstitute;
 using Shared;
 using Xunit;

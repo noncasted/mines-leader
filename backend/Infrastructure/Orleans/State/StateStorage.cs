@@ -92,7 +92,7 @@ public class StateStorage : IStateStorage
             if (version < latestVersion)
                 return _migrations.Migrate<T>(raw, version);
 
-            return _serializer.TryDeserialize<T>(raw)!;
+            return _serializer.TryDeserialize<T>(raw).ThrowIfNull();
         }
         catch (Exception e)
         {
@@ -149,7 +149,7 @@ public class StateStorage : IStateStorage
 
                     result[key] = version < latestVersion
                         ? _migrations.Migrate<TValue>(raw, version)
-                        : _serializer.TryDeserialize<TValue>(raw)!;
+                        : _serializer.TryDeserialize<TValue>(raw).ThrowIfNull();
                 }
             }
         }

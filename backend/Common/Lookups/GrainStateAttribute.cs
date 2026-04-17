@@ -1,5 +1,3 @@
-using System;
-
 namespace Common
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]

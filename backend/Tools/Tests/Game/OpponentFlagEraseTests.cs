@@ -1,4 +1,3 @@
-using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -154,7 +153,8 @@ public class OpponentFlagEraseTests : PlayerCardTestsBase
 
         var ownerId = board.OwnerId;
 
-        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
+        var (_, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
 
         var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.OpponentFlagErase>();
         actionData.Should().NotBeNull();

@@ -1,8 +1,8 @@
+@using Cluster.Deploy
 @using Cluster.Monitoring
-@using Meta.Users
 @using global::Common.Extensions
 @using global::Common.Reactive
-@using global::Infrastructure
+@using Meta.Users
 @inherits UiComponent
 
 <div class="flex flex-col gap-4">
@@ -31,7 +31,7 @@
 </div>
 
 @code {
-    [Inject] public IDynamicState<ConnectedUsersLiveData> LiveData { get; set; } = null!;
+    [Inject] public ILiveState<ConnectedUsersLiveData> LiveData { get; set; } = null!;
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
 
     private ConnectedUsersLiveData _data = new();

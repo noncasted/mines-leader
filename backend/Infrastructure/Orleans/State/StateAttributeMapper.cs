@@ -1,11 +1,12 @@
 using System.Reflection;
+using Common.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.State;
 
 public class StateAttributeMapper : IAttributeToFactoryMapper<StateAttribute>
 {
-    private readonly MethodInfo _createMethodInfo = typeof(IStateFactory).GetMethod("Create")!;
+    private readonly MethodInfo _createMethodInfo = typeof(IStateFactory).GetMethod("Create").ThrowIfNull();
 
     public Factory<IGrainContext, object> GetFactory(ParameterInfo parameter, StateAttribute attribute)
     {
@@ -27,7 +28,7 @@ public class StateAttributeMapper : IAttributeToFactoryMapper<StateAttribute>
     {
         var factory = context.ActivationServices.GetRequiredService<IStateFactory>();
         object[] args = [context];
-        return genericCreate.Invoke(factory, args)!;
+        return genericCreate.Invoke(factory, args).ThrowIfNull();
     }
 }
 

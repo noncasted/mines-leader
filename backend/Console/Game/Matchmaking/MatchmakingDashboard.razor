@@ -1,8 +1,8 @@
 @page "/matchmaking"
+@using Cluster.Deploy
 @using Cluster.Monitoring
 @using global::Common.Extensions
 @using global::Common.Reactive
-@using global::Infrastructure
 @inherits UiComponent
 
 <PageTitle>Matchmaking</PageTitle>
@@ -76,7 +76,7 @@
 </div>
 
 @code {
-    [Inject] public IDynamicState<MatchmakingLiveData> LiveData { get; set; } = null!;
+    [Inject] public ILiveState<MatchmakingLiveData> LiveData { get; set; } = null!;
 
     private MatchmakingLiveData _data = new();
 

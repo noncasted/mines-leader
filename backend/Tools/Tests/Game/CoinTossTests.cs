@@ -23,7 +23,9 @@ public class CoinTossTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, CardConfigs.CoinToss.WinMoves);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
+            CardConfigs.CoinToss.WinMoves);
         roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 

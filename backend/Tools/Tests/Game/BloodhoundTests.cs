@@ -177,7 +177,9 @@ public class BloodhoundTests : PlayerCardTestsBase
         var board = new TestBoardBuilder(5).WithOwner(ownerId).WithMinesAt((0, 0)).Build();
         var invoker = MockInvoker(board);
         var card = new Bloodhound(MockConfigs());
-        var (_, moveSnapshot) = card.UseCapture(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
+
+        var (_, moveSnapshot) = card.UseCapture(invoker,
+            new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
 
         var snapshot = moveSnapshot.GetLastCardAction<CardActionSnapshot.Bloodhound>();
         snapshot.Should().NotBeNull();

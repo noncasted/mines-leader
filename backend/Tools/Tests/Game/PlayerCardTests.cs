@@ -88,6 +88,7 @@ public static class CardTestExtensions
         where TPayload : ICardUsePayload
     {
         var snapshot = new MoveSnapshot();
+
         var context = new CardUseContext
         {
             Invoker = invoker,
@@ -273,7 +274,8 @@ public class SiphonTests : PlayerCardTestsBase
         opponent.Mana.Max.Returns(5);
         owner.Mana.Max.Returns(3);
 
-        var (_, snapshot) = new Siphon(configs, gameContext).UseCapture(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
+        var (_, snapshot) = new Siphon(configs, gameContext).UseCapture(owner,
+            new CardUsePayload.Siphon { Type = CardType.Siphon });
 
         var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Siphon>();
         actionData.Should().NotBeNull();
@@ -733,7 +735,8 @@ public class LockdownTests : PlayerCardTestsBase
             roundActionService.Tick(new MoveSnapshot());
 
         // Dec sets -(movesReduction*2), then dispose restores to 0
-        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -(movesReduction * 2));
+        opponent.Modifiers.Received(1)
+                .Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -(movesReduction * 2));
         opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, 0f);
     }
 

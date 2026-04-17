@@ -1,4 +1,4 @@
-﻿using Cluster.Coordination;
+using Cluster.Deploy;
 using Cluster.State;
 using Common.Reactive;
 using Infrastructure;
@@ -8,18 +8,21 @@ namespace Coordinator;
 public class ClusterCoordinator : ILocalSetupCompleted
 {
     public ClusterCoordinator(
-        IMessaging messaging,
+        IOrleans orleans,
+        IDeployContext deployContext,
         IClusterFeatures clusterFeatures,
         ISideEffectsStorage sideEffectsStorage,
         ILogger<ClusterCoordinator> logger)
     {
-        _messaging = messaging;
+        _orleans = orleans;
+        _deployContext = deployContext;
         _clusterFeatures = clusterFeatures;
         _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
     }
 
-    private readonly IMessaging _messaging;
+    private readonly IOrleans _orleans;
+    private readonly IDeployContext _deployContext;
     private readonly IClusterFeatures _clusterFeatures;
     private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<ClusterCoordinator> _logger;
@@ -39,6 +42,7 @@ public class ClusterCoordinator : ILocalSetupCompleted
 
         _logger.LogInformation("[Coordinator] Cluster coordinator finished");
 
-        await _messaging.PublishChannel(CoordinatorEvents.ReadyId, new CoordinatorEvents.ReadyPayload());
+        var grain = _orleans.GetGrain<IDeployManagement>(_deployContext.DeployId);
+        await grain.MarkCoordinatorReady();
     }
 }

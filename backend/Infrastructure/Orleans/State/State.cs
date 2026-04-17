@@ -1,3 +1,5 @@
+using Common.Extensions;
+
 namespace Infrastructure.State;
 
 public interface IStateValue
@@ -31,7 +33,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
     private T? _value;
     private Guid _currentTransactionId;
 
-    public T Value => _value!;
+    public T Value => _value.ThrowIfNull();
 
     public async Task Read()
     {
@@ -52,7 +54,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
 
         _currentTransactionId = TransactionContextProvider.Current.Id;
         _value = await _stateStorage.Read<T>(_context.GrainId);
-        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>().ThrowIfNull();
         handler.RecordStateChanged(this);
     }
 
@@ -64,7 +66,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
         if (TransactionContextProvider.Current.Id != _currentTransactionId)
             throw new InvalidOperationException("Concurrent transactions are not supported.");
 
-        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>().ThrowIfNull();
         handler.RecordStateChanged(this);
 
         return Task.CompletedTask;
@@ -82,7 +84,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
             throw new InvalidOperationException("Concurrent transactions are not supported.");
 
         _value = value;
-        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>()!;
+        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>().ThrowIfNull();
         handler.RecordStateChanged(this);
 
         return Task.CompletedTask;
@@ -90,7 +92,7 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IStat
 
     public IStateValue GetState()
     {
-        return _value!;
+        return _value.ThrowIfNull();
     }
 
     public void OnTransactionSuccess()

@@ -1,5 +1,4 @@
-using Common.Extensions;
-using Infrastructure;
+using Cluster.Deploy;
 using Microsoft.Extensions.Hosting;
 
 namespace Cluster.Monitoring;
@@ -8,10 +7,10 @@ public static class MonitoringExtensions
 {
     public static IHostApplicationBuilder AddMonitoring(this IHostApplicationBuilder builder)
     {
-        builder.AddDynamicState<MatchmakingLiveData>();
-        builder.AddDynamicState<LiveMatchesData>();
-        builder.AddDynamicState<ConnectedUsersLiveData>();
-        builder.AddDynamicState<SideEffectsLiveData>();
+        builder.AddLiveState<MatchmakingLiveData>();
+        builder.AddLiveState<LiveMatchesData>();
+        builder.AddLiveState<ConnectedUsersLiveData>();
+        builder.AddLiveState<SideEffectsLiveData>();
 
         return builder;
     }

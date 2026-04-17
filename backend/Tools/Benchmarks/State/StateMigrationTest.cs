@@ -1,4 +1,5 @@
 using Common;
+using Common.Extensions;
 using Infrastructure.State;
 
 namespace Benchmarks;
@@ -48,7 +49,7 @@ public class StateMigrationTest
 
         public IStateValue Deserialize(string raw)
         {
-            return _serializer.TryDeserialize<MigrationTestState_0>(raw)!;
+            return _serializer.TryDeserialize<MigrationTestState_0>(raw).ThrowIfNull();
         }
 
         public IStateValue Migrate(IStateValue value)
@@ -71,7 +72,7 @@ public class StateMigrationTest
 
         public IStateValue Deserialize(string raw)
         {
-            return _serializer.TryDeserialize<MigrationTestState_1>(raw)!;
+            return _serializer.TryDeserialize<MigrationTestState_1>(raw).ThrowIfNull();
         }
 
         public IStateValue Migrate(IStateValue value)

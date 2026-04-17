@@ -105,7 +105,7 @@
         {
             var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
             var fullPath = Path.GetFullPath(configPath);
-            var json = JsonUtils.Serialize(value)!;
+            var json = JsonUtils.Serialize(value).ThrowIfNull();
             await File.WriteAllTextAsync(fullPath, json);
         }
     }

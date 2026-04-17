@@ -1,4 +1,3 @@
-using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;

@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using Cluster.Discovery;
 using Common.Extensions;
-using Common.Reactive;
 using Infrastructure;
-using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;
 
@@ -104,10 +101,9 @@ public class RuntimePipeRetryStressTest
                     {
                         handle.Progress.SetProgress((float)completed / totalRequests);
 
-                        handle.Progress.Log(
-                            $"Progress: {completed}/{totalRequests}, " +
-                            $"success: {successCount}, exhausted: {failedCount}, " +
-                            $"handler invocations: {handlerInvocations}, handler failures: {handlerFailures}");
+                        handle.Progress.Log($"Progress: {completed}/{totalRequests}, " +
+                                            $"success: {successCount}, exhausted: {failedCount}, " +
+                                            $"handler invocations: {handlerInvocations}, handler failures: {handlerFailures}");
                     }
                 }
             });
@@ -116,10 +112,9 @@ public class RuntimePipeRetryStressTest
 
             var amplification = totalRequests > 0 ? (double)handlerInvocations / totalRequests : 0;
 
-            handle.Progress.Log(
-                $"Done. Success: {successCount}/{totalRequests}, exhausted retries: {failedCount}. " +
-                $"Handler invocations: {handlerInvocations} (amplification: {amplification:F2}x), " +
-                $"handler failures: {handlerFailures}.");
+            handle.Progress.Log($"Done. Success: {successCount}/{totalRequests}, exhausted retries: {failedCount}. " +
+                                $"Handler invocations: {handlerInvocations} (amplification: {amplification:F2}x), " +
+                                $"handler failures: {handlerFailures}.");
 
             handle.Progress.SetProgress(1f);
         }

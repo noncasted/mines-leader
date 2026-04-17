@@ -57,7 +57,7 @@ public class ConnectionReader : IConnectionReader
                 break;
 
             var payload = buffer[..receiveResult.Count];
-            var context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
+            var context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span);
 
             switch (context)
             {

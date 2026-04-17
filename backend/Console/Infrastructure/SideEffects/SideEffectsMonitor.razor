@@ -1,4 +1,5 @@
 @page "/side-effects"
+@using Cluster.Deploy
 @using Cluster.Monitoring
 @using global::Common.Extensions
 @using global::Common.Reactive
@@ -163,7 +164,7 @@
 </div>
 
 @code {
-    [Inject] public IDynamicState<SideEffectsLiveData> LiveData { get; set; } = null!;
+    [Inject] public ILiveState<SideEffectsLiveData> LiveData { get; set; } = null!;
     [Inject] public ISideEffectsStorage Storage { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
 

@@ -2,9 +2,9 @@ namespace Cluster.Discovery;
 
 public interface IServiceOverview
 {
-    public Guid Id { get; }
-    public ServiceTag Tag { get; }
-    public DateTime UpdateTime { get; }
+    Guid Id { get; }
+    ServiceTag Tag { get; }
+    DateTime UpdateTime { get; }
 }
 
 [GenerateSerializer]

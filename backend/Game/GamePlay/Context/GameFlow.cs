@@ -1,7 +1,6 @@
 ﻿using Game.Session;
 using Infrastructure;
 using Meta.Matches;
-using Shared;
 
 namespace Game.GamePlay;
 

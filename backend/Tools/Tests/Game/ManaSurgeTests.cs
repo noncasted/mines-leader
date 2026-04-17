@@ -22,7 +22,9 @@ public class ManaSurgeTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.ManaSurge { Type = CardType.ManaSurge });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, CardConfigs.ManaSurge.ManaGain);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana,
+            CardConfigs.ManaSurge.ManaGain);
         owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 2 + CardConfigs.ManaSurge.ManaGain);
     }
 

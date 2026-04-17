@@ -91,7 +91,8 @@ public class FrostTests : PlayerCardTestsBase
         var configs = Substitute.For<ICardConfigs>();
         configs.Value.Returns(allConfigs);
 
-        var (_, snapshot) = UseCapture(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService, configs);
+        var (_, snapshot) = UseCapture(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService,
+            configs);
 
         var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Frost>();
         actionData.Should().NotBeNull();

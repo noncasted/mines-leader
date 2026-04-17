@@ -21,7 +21,7 @@ public abstract class BenchmarkRoot<TPayload> : IClusterTest where TPayload : cl
 
     object IClusterTest.Payload
     {
-        get => _payload!;
+        get => _payload.ThrowIfNull();
         set => _payload = (TPayload)value;
     }
 

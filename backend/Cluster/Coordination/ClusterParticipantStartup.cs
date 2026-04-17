@@ -1,4 +1,6 @@
-﻿using Cluster.Discovery;
+using Cluster.Deploy;
+using Cluster.Discovery;
+using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Execution;
@@ -16,6 +18,8 @@ public class ClusterParticipantStartup : BackgroundService
         IServiceLoopObserver loopObserver,
         IServiceLoop loop,
         IMessaging messaging,
+        IOrleans orleans,
+        IDeployContext deployContext,
         IClusterParticipantContext context,
         ILogger<ClusterParticipantStartup> logger)
     {
@@ -24,6 +28,8 @@ public class ClusterParticipantStartup : BackgroundService
         _loopObserver = loopObserver;
         _loop = loop;
         _messaging = messaging;
+        _orleans = orleans;
+        _deployContext = deployContext;
         _context = context;
         _logger = logger;
     }
@@ -33,31 +39,38 @@ public class ClusterParticipantStartup : BackgroundService
     private readonly IServiceLoopObserver _loopObserver;
     private readonly IServiceLoop _loop;
     private readonly IMessaging _messaging;
+    private readonly IOrleans _orleans;
+    private readonly IDeployContext _deployContext;
     private readonly IClusterParticipantContext _context;
     private readonly ILogger<ClusterParticipantStartup> _logger;
 
     protected override async Task ExecuteAsync(CancellationToken cancellation)
     {
         var lifetime = cancellation.ToLifetime();
-        var startupLifetime = lifetime.Child();
         var serviceName = _discovery.Self.Tag.ToString();
-        var coordinatorCompletion = new TaskCompletionSource();
+        var isCoordinator = _discovery.Self.Tag == ServiceTag.Coordinator;
 
         lifetime.Listen(() => _logger.LogError("[Startup] {Service} cancellation requested", serviceName));
 
         const string stageOrleans = "Orleans";
         const string stageTaskBalancer = "Task Balancer";
         const string stageMessaging = "Messaging";
+        const string stageDeployId = "Deploy Id";
         const string stageDiscovery = "Service Discovery";
         const string stageWaitServices = "Waiting for Services";
         const string stageLocalSetup = "Local Setup";
         const string stageCoordinator = "Coordinator";
 
-        _context.SetStages(new[]
-        {
-            stageOrleans, stageTaskBalancer, stageMessaging,
-            stageDiscovery, stageWaitServices, stageLocalSetup, stageCoordinator
-        });
+        _context.SetStages([
+            stageOrleans,
+            stageTaskBalancer,
+            stageMessaging,
+            stageDeployId,
+            stageDiscovery,
+            stageWaitServices,
+            stageLocalSetup,
+            stageCoordinator
+        ]);
 
         _logger.LogInformation("[Startup] {Service} start", serviceName);
 
@@ -72,7 +85,6 @@ public class ClusterParticipantStartup : BackgroundService
         _logger.LogInformation("[Startup] {Service} starting task balancer", serviceName);
 
         await _loop.OnOrleansStarted(lifetime);
-
         await _taskBalancer.Run(lifetime);
 
         _logger.LogInformation("[Startup] {Service} task balancer started", serviceName);
@@ -81,26 +93,32 @@ public class ClusterParticipantStartup : BackgroundService
         _logger.LogInformation("[Startup] {Service} starting messaging", serviceName);
 
         await _messaging.Start(lifetime);
-
-        await _messaging.ListenChannel<CoordinatorEvents.ReadyPayload>(startupLifetime,
-            CoordinatorEvents.ReadyId,
-            _ => coordinatorCompletion.TrySetResult());
+        _context.SetMessagingStarted();
 
         _logger.LogInformation("[Startup] {Service} messaging started", serviceName);
+
+        _context.SetStage(stageDeployId);
+        _logger.LogInformation("[Startup] {Service} waiting for deploy id via pipe...", serviceName);
+
+        var deployId = await AcquireDeployId(lifetime);
+        await _deployContext.Set(deployId, lifetime);
+
+        _logger.LogInformation("[Startup] {Service} got deploy id {DeployId}", serviceName, deployId);
 
         _context.SetStage(stageDiscovery);
         _logger.LogInformation("[Startup] {Service} starting service discovery", serviceName);
 
         await _discovery.Start(lifetime);
+        await _discovery.Push();
 
         _logger.LogInformation("[Startup] {Service} service discovery started", serviceName);
 
         _context.SetStage(stageWaitServices);
-        _logger.LogInformation("[Startup] {Service} waiting for other services...", serviceName);
+        _logger.LogInformation("[Startup] {Service} waiting for cluster to be ready...", serviceName);
 
-        await WaitDiscovery();
+        await WaitClusterReady();
 
-        _logger.LogInformation("[Startup] {Service} all required services found", serviceName);
+        _logger.LogInformation("[Startup] {Service} cluster is ready", serviceName);
 
         _context.SetStage(stageLocalSetup);
         _logger.LogInformation("[Startup] {Service} running local setup loop", serviceName);
@@ -110,60 +128,106 @@ public class ClusterParticipantStartup : BackgroundService
         _logger.LogInformation("[Startup] {Service} local setup loop completed", serviceName);
 
         _context.SetStage(stageCoordinator);
-        _logger.LogInformation("[Startup] {Service} waiting for coordinator to be ready", serviceName);
 
-        await coordinatorCompletion.Task;
+        if (isCoordinator == false)
+        {
+            _logger.LogInformation("[Startup] {Service} waiting for coordinator to be ready", serviceName);
+            await WaitCoordinatorReady();
+        }
+
         await _loop.OnCoordinatorSetupCompleted(lifetime);
 
         _logger.LogInformation("[Startup] {Service} coordinator is ready", serviceName);
         _logger.LogInformation("[Startup] {Service} startup finished", serviceName);
 
-        startupLifetime.Terminate();
-
         _context.Initialize();
 
         _logger.LogInformation("[Startup] {Service} cluster participant initialized", serviceName);
 
+        _loop.OnServiceStarted(lifetime).NoAwait();
+
         return;
 
-        async Task WaitDiscovery()
+        async Task<Guid> AcquireDeployId(IReadOnlyLifetime lf)
         {
-            var requiredServices = new[]
+            while (lf.IsTerminated == false)
             {
-                ServiceTag.Coordinator,
-                ServiceTag.Meta,
-                ServiceTag.Game,
-                ServiceTag.Silo,
-            };
+                try
+                {
+                    var response = await _messaging.SendPipe<DeployIdResponse>(DeployIdPipe.Id, new DeployIdRequest());
 
-            while (lifetime.IsTerminated == false && AllServicesFound() == false)
-            {
-                await _discovery.Push();
-                await Task.Delay(TimeSpan.FromSeconds(0.2f), cancellation);
+                    if (response.DeployId != Guid.Empty)
+                        return response.DeployId;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "[Startup] {Service} failed to acquire deploy id, retrying",
+                        serviceName);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(0.2), cancellation);
             }
 
-            return;
+            throw new OperationCanceledException("Deploy id acquisition cancelled");
+        }
 
-            bool AllServicesFound()
+        async Task WaitClusterReady()
+        {
+            while (lifetime.IsTerminated == false)
             {
-                var foundServices = _discovery.Entries.Values
-                                              .Select(entry => entry.Tag)
-                                              .Distinct()
-                                              .ToHashSet();
+                try
+                {
+                    await _discovery.Push();
 
-                var servicesToAwait = requiredServices
-                                      .Where(tag => foundServices.Contains(tag) == false)
-                                      .Select(tag => tag.ToString())
-                                      .ToList();
+                    var present = _discovery.Entries.Values.Select(m => m.Tag).ToHashSet();
 
-                if (servicesToAwait.Count == 0)
-                    return true;
+                    var missing = DeployConstants.RequiredServices
+                                                 .Where(tag => present.Contains(tag) == false)
+                                                 .Select(tag => tag.ToString())
+                                                 .ToList();
 
-                _logger.LogWarning("[Startup] {Service} waiting for services: {RequiredServices}",
-                    serviceName,
-                    string.Join(", ", servicesToAwait));
+                    if (missing.Count == 0)
+                        return;
 
-                return false;
+                    _logger.LogWarning("[Startup] {Service} cluster not ready, missing: {Missing}",
+                        serviceName, string.Join(", ", missing));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "[Startup] {Service} cluster readiness poll failed", serviceName);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(0.2), cancellation);
+            }
+        }
+
+        async Task WaitCoordinatorReady()
+        {
+            var grain = _orleans.GetGrain<IDeployManagement>(_deployContext.DeployId);
+            var pollCount = 0;
+
+            while (lifetime.IsTerminated == false)
+            {
+                try
+                {
+                    var state = await grain.GetState();
+
+                    if (state.CoordinatorReady)
+                        return;
+
+                    pollCount++;
+
+                    if (pollCount % 25 == 1)
+                        _logger.LogInformation(
+                            "[Startup] {Service} still waiting on CoordinatorReady (poll {Count}, deploy {DeployId})",
+                            serviceName, pollCount, _deployContext.DeployId);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "[Startup] {Service} coordinator readiness poll failed", serviceName);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(0.2), cancellation);
             }
         }
     }

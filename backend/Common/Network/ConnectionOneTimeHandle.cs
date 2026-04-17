@@ -1,4 +1,5 @@
 ﻿using System.Net.WebSockets;
+using Common.Extensions;
 using MemoryPack;
 using Shared;
 
@@ -21,7 +22,7 @@ public class ConnectionOneTimeHandle : IDisposable
     {
         var rawAuth = await _socket.ReceiveAsync(_readBuffer, CancellationToken.None);
         var payload = _readBuffer[..rawAuth.Count];
-        var message = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span)!;
+        var message = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span).ThrowIfNull();
 
         if (message is not RequestMessageFromClient request)
         {

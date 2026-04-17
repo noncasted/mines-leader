@@ -15,8 +15,8 @@ public static class OrleansSetupExtensions
         public IHostApplicationBuilder AddOrleansClient()
         {
             builder.UseOrleansClient(clientBuilder => {
-                var postgresConnectionString =
-                    clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)!;
+                var postgresConnectionString = clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)
+                                                            .ThrowIfNull();
 
                 clientBuilder.Configure<ClientMessagingOptions>(options => {
                     options.ResponseTimeout = ReplyTimeoutSeconds;
@@ -46,7 +46,7 @@ public static class OrleansSetupExtensions
             var configuration = builder.Configuration;
 
             builder.UseOrleans(siloBuilder => {
-                var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres)!;
+                var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres).ThrowIfNull();
 
                 siloBuilder.Configure<SiloMessagingOptions>(options => {
                     options.ResponseTimeout = ReplyTimeoutSeconds;

@@ -94,10 +94,10 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
         if (target.x < 0 || target.y < 0)
             throw new InvalidOperationException($"Scenario for {cardType} has no 'x' target marker");
 
-        if (scenario.MineAtTarget
-            && board.Cells.TryGetValue(target, out var targetCell)
-            && targetCell is ITakenCell taken
-            && taken.HasMine == false)
+        if (scenario.MineAtTarget &&
+            board.Cells.TryGetValue(target, out var targetCell) &&
+            targetCell is ITakenCell taken &&
+            taken.HasMine == false)
         {
             taken.SetMine();
             board.MinesScanner.Recalculate();
@@ -209,37 +209,36 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
 
             case CardType.MineCluster:
             case CardType.MineCluster_Max:
-                return RunCrossBoard(target, context, (ctx, payload) =>
-                    new MineCluster(_configs, ctx).Use(payload.Context,
-                        new CardUsePayload.MineCluster { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, payload) => new MineCluster(_configs, ctx).Use(
+                    payload.Context,
+                    new CardUsePayload.MineCluster { Type = cardType, Position = target }));
 
             case CardType.CarpetBomb:
             case CardType.CarpetBomb_Max:
-                return RunCrossBoard(target, context, (ctx, payload) =>
-                    new CarpetBomb(_configs, ctx).Use(payload.Context,
-                        new CardUsePayload.CarpetBomb { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, payload) => new CarpetBomb(_configs, ctx).Use(
+                    payload.Context,
+                    new CardUsePayload.CarpetBomb { Type = cardType, Position = target }));
 
             case CardType.Trebuchet:
             case CardType.Trebuchet_Max:
-                return RunCrossBoard(target, context, (ctx, payload) =>
-                    new Trebuchet(_configs, ctx).Use(payload.Context,
-                        new CardUsePayload.Trebuchet { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, payload) => new Trebuchet(_configs, ctx).Use(
+                    payload.Context,
+                    new CardUsePayload.Trebuchet { Type = cardType, Position = target }));
 
             case CardType.OpponentBomb:
-                return RunCrossBoard(target, context, (ctx, _) =>
-                    new OpponentBomb(ctx).Use(_.Context,
-                        new CardUsePayload.OpponentBomb { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, _) => new OpponentBomb(ctx).Use(_.Context,
+                    new CardUsePayload.OpponentBomb { Type = cardType, Position = target }));
 
             case CardType.OpponentFlagErase:
             case CardType.OpponentFlagErase_Max:
-                return RunCrossBoard(target, context, (ctx, payload) =>
-                    new OpponentFlagErase(_configs, ctx).Use(payload.Context,
-                        new CardUsePayload.OpponentFlagErase { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, payload) => new OpponentFlagErase(_configs, ctx).Use(
+                    payload.Context,
+                    new CardUsePayload.OpponentFlagErase { Type = cardType, Position = target }));
 
             case CardType.ChainReaction:
-                return RunCrossBoard(target, context, (ctx, payload) =>
-                    new ChainReaction(_configs, ctx).Use(payload.Context,
-                        new CardUsePayload.ChainReaction { Type = cardType, Position = target }));
+                return RunCrossBoard(target, context, (ctx, payload) => new ChainReaction(_configs, ctx).Use(
+                    payload.Context,
+                    new CardUsePayload.ChainReaction { Type = cardType, Position = target }));
 
             case CardType.Smoke:
             case CardType.Smoke_Max:
@@ -294,9 +293,8 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
                             new CardUsePayload.OpponentFlagReshuffle { Type = cardType, Position = target }));
 
             default:
-                throw new NotSupportedException(
-                    $"CardPreviewGenerator does not yet support {cardType}. " +
-                    "Add a handler in CardPreviewGenerator.RunCard.");
+                throw new NotSupportedException($"CardPreviewGenerator does not yet support {cardType}. " +
+                                                "Add a handler in CardPreviewGenerator.RunCard.");
         }
     }
 
@@ -306,18 +304,21 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
     /// The <paramref name="run"/> callback receives a fresh <see cref="IGameContext"/>
     /// and a <see cref="CrossBoardInvoke"/> wrapper carrying the self-invoker <see cref="CardUseContext"/>.
     /// </summary>
-    private CardUseResult RunCrossBoard(Position target, CardUseContext originalContext,
+    private CardUseResult RunCrossBoard(
+        Position target,
+        CardUseContext originalContext,
         Func<IGameContext, CrossBoardInvoke, CardUseResult> run)
     {
         var opponentPlayer = (PreviewPlayer)originalContext.Invoker;
 
         var (selfBoard, _) = BoardLayoutParser.Parse("""
-            t t
-            t t
-            """, Guid.Empty);
+                                                     t t
+                                                     t t
+                                                     """, Guid.Empty);
         var selfInvoker = new PreviewPlayer(selfBoard);
 
         var gameContext = new PreviewGameContext(selfInvoker, opponentPlayer);
+
         var selfUseContext = new CardUseContext
         {
             Invoker = selfInvoker,
@@ -335,11 +336,13 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
         public PreviewGameContext(IPlayer self, IPlayer opponent)
         {
             _players = new List<IPlayer> { self, opponent };
+
             _boards = new Dictionary<IPlayer, IBoard>
             {
                 [self] = self.Board,
                 [opponent] = opponent.Board
             };
+
             _userToPlayer = new Dictionary<IUser, IPlayer>
             {
                 [self.User] = self,

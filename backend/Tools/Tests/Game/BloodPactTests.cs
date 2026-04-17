@@ -23,9 +23,13 @@ public class BloodPactTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
         owner.Health.Received(1).TakeDamage(Arg.Any<MoveSnapshot>(), CardConfigs.BloodPact.HpCost);
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, CardConfigs.BloodPact.ManaGain);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana,
+            CardConfigs.BloodPact.ManaGain);
         owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 1 + CardConfigs.BloodPact.ManaGain);
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, CardConfigs.BloodPact.ExtraMoves);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
+            CardConfigs.BloodPact.ExtraMoves);
     }
 
     [Fact]

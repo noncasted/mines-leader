@@ -21,7 +21,9 @@ public class PowerSurgeTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount,
+            CardConfigs.PowerSurge.Discount);
     }
 
     [Fact]
