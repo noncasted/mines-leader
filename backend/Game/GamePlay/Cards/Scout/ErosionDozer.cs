@@ -1,5 +1,5 @@
-﻿using Shared;
-using Cluster.Configs;
+﻿using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -60,6 +60,7 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
         }).ToList();
 
         var updatedPositions = revealed.Concat(board.GetFreeNeighbours(minePositions)).Distinct();
+
         var updatedFreeCells = updatedPositions.Select(p => new OpenedCell
         {
             Position = p,

@@ -10,6 +10,7 @@ public class Dud : ICard<CardUsePayload.Dud>
     public CardUseResult Use(CardUseContext context, CardUsePayload.Dud payload)
     {
         var invoker = context.Invoker;
+
         context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Dud()
         {
             TargetPlayer = invoker.User.Id

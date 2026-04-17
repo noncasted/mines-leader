@@ -22,6 +22,7 @@ public class SabotageDeck : ICard<CardUsePayload.SabotageDeck>
         opponent.Deck.Shuffle();
 
         var snapshot = context.Snapshot;
+
         snapshot.RecordCardUse(context.Invoker.User.Id, context.CardId, new CardActionSnapshot.SabotageDeck()
         {
             TargetPlayer = opponent.User.Id

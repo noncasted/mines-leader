@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -52,9 +52,10 @@ public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase>
         }
 
         var minesRecords = board.MinesScanner.Recalculate(snapshot);
+
         var updatedFreeCells = minesRecords
-            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
-            .ToList();
+                               .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+                               .ToList();
 
         var selectedPositions = selected.Select(c => c.Position).ToList();
 
