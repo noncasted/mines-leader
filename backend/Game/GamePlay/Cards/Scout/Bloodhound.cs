@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -58,6 +58,7 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
         }).ToList();
 
         var updatedPositions = revealed.Concat(board.GetFreeNeighbours(minePositions)).Distinct();
+
         var updatedFreeCells = updatedPositions.Select(p => new OpenedCell
         {
             Position = p,

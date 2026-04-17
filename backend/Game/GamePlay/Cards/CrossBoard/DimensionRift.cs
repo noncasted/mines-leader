@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -28,6 +28,7 @@ public class DimensionRift : ICard<CardUsePayload.DimensionRift>
 
         // TODO: Full implementation requires complete cell state swap logic.
         var snapshot = context.Snapshot;
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.DimensionRift()
         {
             TargetPlayer = opponentBoard.OwnerId

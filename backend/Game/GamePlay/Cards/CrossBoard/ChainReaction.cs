@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -84,9 +84,10 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
         }
 
         var minesRecords = board.MinesScanner.Recalculate(snapshot);
+
         var updatedFreeCells = minesRecords
-            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
-            .ToList();
+                               .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+                               .ToList();
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChainReaction
         {

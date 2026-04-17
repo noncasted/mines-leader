@@ -1,6 +1,5 @@
-using System.Linq;
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 

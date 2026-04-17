@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -80,6 +80,7 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         }).ToList();
 
         var updatedPositions = revealed.Concat(board.GetFreeNeighbours(targetPositions)).Distinct();
+
         var updatedFreeCells = updatedPositions.Select(p => new OpenedCell
         {
             Position = p,

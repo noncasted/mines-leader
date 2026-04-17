@@ -1,5 +1,5 @@
-using Shared;
 using Cluster.Configs;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -45,9 +45,10 @@ public class FortuneBlast : ICard<CardUsePayload.FortuneBlast>
 
         var takenPositions = selected.Select(c => c.Position).ToList();
         var minesRecords = board.MinesScanner.Recalculate(snapshot);
+
         var updatedFreeCells = minesRecords
-            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
-            .ToList();
+                               .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+                               .ToList();
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.FortuneBlast()
         {
