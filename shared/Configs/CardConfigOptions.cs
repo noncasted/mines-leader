@@ -630,7 +630,7 @@ namespace Shared
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
-            public int Size { get; set; } = 3;
+            public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
         }
 
