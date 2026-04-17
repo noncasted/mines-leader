@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using Internal;
-using Network;
 using Shared;
 
 namespace GamePlay.Loop
@@ -19,22 +18,19 @@ namespace GamePlay.Loop
         IViewableProperty<MatchCompletedData> CompletedData { get; }
 
         void Set(GameStateType type);
+        void SetWinner(Guid winner);
         UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime);
         void OnLeave();
     }
 
-    public class GameState : NetworkService, IGameState
+    public class GameState : IGameState
     {
-        public GameState(
-            IGameContext context,
-            NetworkProperty<GameFlowState> state)
+        public GameState(IGameContext context)
         {
             _context = context;
-            _state = state;
         }
 
         private readonly IGameContext _context;
-        private readonly NetworkProperty<GameFlowState> _state;
         private readonly UniTaskCompletionSource<MatchCompletedData> _completion = new();
 
         private readonly ViewableProperty<GameStateType> _value = new(GameStateType.WaitingFoPlayers);
@@ -43,24 +39,22 @@ namespace GamePlay.Loop
         public IViewableProperty<GameStateType> Value => _value;
         public IViewableProperty<MatchCompletedData> CompletedData => _completed;
 
-        public override void OnStarted(IReadOnlyLifetime lifetime)
-        {
-            _state.Advise(lifetime, state => {
-                if (state.Winner == Guid.Empty)
-                    return;
-
-                var player = _context.GetPlayer(state.Winner);
-
-                _completion.TrySetResult(new MatchCompletedData()
-                {
-                    Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
-                });
-            });
-        }
-
         public void Set(GameStateType type)
         {
             _value.Set(type);
+        }
+
+        public void SetWinner(Guid winner)
+        {
+            if (winner == Guid.Empty)
+                return;
+
+            var player = _context.GetPlayer(winner);
+
+            _completion.TrySetResult(new MatchCompletedData()
+            {
+                Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
+            });
         }
 
         public async UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime)

@@ -98,6 +98,17 @@ namespace GamePlay.Cards
 
                 foreach (var line in lines)
                     Object.Destroy(line.gameObject);
+
+                if (payload.OpenedCells != null)
+                {
+                    foreach (var opened in payload.OpenedCells)
+                    {
+                        var vector = opened.Position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    }
+                }
             }
         }
 

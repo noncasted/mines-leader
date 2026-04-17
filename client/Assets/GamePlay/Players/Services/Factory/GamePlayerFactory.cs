@@ -47,9 +47,8 @@ namespace GamePlay.Players
             var player = loadResult.Get<IGamePlayer>();
 
             var board = loadResult.Get<IBoard>();
-            var entity = loadResult.Get<INetworkEntity>();
 
-            board.Setup(entity);
+            board.Setup(data.Owner.IsLocal);
 
             loadResult.FillProperties(data);
 
@@ -66,12 +65,6 @@ namespace GamePlay.Players
                 builder
                     .AddPlayerComponents()
                     .AddPlayerRoot(data.Owner, payload.SelectedCharacter);
-
-                builder.RegisterProperty<BoardState>(PlayerStateIds.Board);
-                builder.RegisterProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
-                builder.RegisterProperty<PlayerHandState>(PlayerStateIds.Hand);
-                builder.RegisterProperty<PlayerStashState>(PlayerStateIds.Stash);
-                builder.RegisterProperty<PlayerDeckState>(PlayerStateIds.Deck);
             }
         }
     }

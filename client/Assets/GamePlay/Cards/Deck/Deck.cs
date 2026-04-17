@@ -1,34 +1,28 @@
-﻿using Internal;
-using Network;
-using Shared;
+using Internal;
 
 namespace GamePlay.Cards
 {
     public interface IDeck
     {
         IDeckView View { get; }
+
+        void SetCount(int count);
     }
 
-    public class Deck : IScopeLoaded, IDeck
+    public class Deck : IDeck
     {
-        public Deck(IDeckView view, NetworkProperty<PlayerDeckState> state)
+        public Deck(IDeckView view)
         {
             _view = view;
-            _state = state;
         }
 
-        private int _size;
-
-        private readonly NetworkProperty<PlayerDeckState> _state;
         private readonly IDeckView _view;
 
         public IDeckView View => _view;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void SetCount(int count)
         {
-            _state.Advise(lifetime, () => {
-                _view.UpdateAmount(_state.Value.Queue.Count);
-            });
+            _view.UpdateAmount(count);
         }
     }
 }

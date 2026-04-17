@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards.Effects;
 using Global.Systems;
 using Internal;
-using Network;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -25,7 +24,7 @@ namespace GamePlay.Boards
         [SerializeField] private CellEffects _effects;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
-        private INetworkConnection _connection;
+        private IBoardActions _actions;
 
         public Vector2Int BoardPosition => _boardPosition;
         public Vector2 WorldPosition => transform.position;
@@ -43,13 +42,13 @@ namespace GamePlay.Boards
             _board = board;
         }
 
-        public void Setup(IUpdater updater, INetworkConnection connection)
+        public void Setup(IUpdater updater, IBoardActions actions)
         {
-            _connection = connection;
+            _actions = actions;
             _cellAnimator.Construct(updater);
             _visuals.Construct(updater);
             _takenView.FlagAnimator.Construct(updater);
-            var taken = new CellTakenState(this, _takenView, _connection);
+            var taken = new CellTakenState(this, _takenView, _actions);
             _state.Set(taken);
             taken.Construct(_state.ValueLifetime);
         }
@@ -60,7 +59,7 @@ namespace GamePlay.Boards
             {
                 Effects.Clear();
 
-                var taken = new CellTakenState(this, _takenView, _connection);
+                var taken = new CellTakenState(this, _takenView, _actions);
                 _state.Set(taken);
                 taken.Construct(_state.ValueLifetime);
             }

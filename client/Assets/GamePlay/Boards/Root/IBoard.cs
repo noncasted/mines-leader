@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Internal;
-using Network;
 using Shared;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -16,7 +15,8 @@ namespace GamePlay.Boards
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }
 
-        void Setup(INetworkEntity entity);
+        void Setup(bool isMine);
+        void UpdateState(int mines, int flags);
     }
 
     public static class BoardExtensions

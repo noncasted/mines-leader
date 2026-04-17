@@ -17,6 +17,7 @@ namespace GamePlay.Players
         IPlayerMoves Moves { get; }
         IHand Hand { get; }
         IBoard Board { get; }
+        IPlayerModifiers Modifiers { get; }
     }
 
     public class GamePlayer : IGamePlayer
@@ -30,7 +31,8 @@ namespace GamePlay.Players
             IPlayerMoves moves,
             IGamePlayerInfo info,
             IDeck deck,
-            IStash stash)
+            IStash stash,
+            IPlayerModifiers modifiers)
         {
             Mana = mana;
 
@@ -42,6 +44,7 @@ namespace GamePlay.Players
             Deck = deck;
             Stash = stash;
             Health = health;
+            Modifiers = modifiers;
         }
 
         public Guid Id => Info.Id;
@@ -54,5 +57,6 @@ namespace GamePlay.Players
         public IGamePlayerInfo Info { get; }
         public IHand Hand { get; }
         public IBoard Board { get; }
+        public IPlayerModifiers Modifiers { get; }
     }
 }

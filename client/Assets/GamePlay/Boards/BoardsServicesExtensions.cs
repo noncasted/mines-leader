@@ -17,6 +17,9 @@ namespace GamePlay.Boards
 
             builder.Register<CellsSelection>()
                    .As<ICellsSelection>();
+            
+            builder.Register<BoardActions>()
+                   .As<IBoardActions>();
 
             return builder;
         }
