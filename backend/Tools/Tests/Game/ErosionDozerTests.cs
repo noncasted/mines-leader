@@ -131,8 +131,8 @@ public class ErosionDozerTests : PlayerCardTestsBase
 
         BoardParser.AssertBoard(board, """
                                        m t t m
-                                       t _ D R
-                                       t t R t
+                                       t _ D t
+                                       t R R t
                                        m t t m
                                        """);
     }
