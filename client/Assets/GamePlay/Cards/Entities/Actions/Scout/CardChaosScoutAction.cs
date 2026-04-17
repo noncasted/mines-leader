@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
+using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -70,16 +72,31 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ChaosScout>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator)
+            public Snapshot(IGameContext gameContext, ICardRandomAnimator randomAnimator)
             {
+                _gameContext = gameContext;
                 _randomAnimator = randomAnimator;
             }
 
+            private readonly IGameContext _gameContext;
             private readonly ICardRandomAnimator _randomAnimator;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosScout payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosScout payload)
             {
-                return _randomAnimator.PlayDiceRoll(lifetime, payload.ActualLength);
+                await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualLength);
+
+                if (payload.OpenedCells == null || payload.OpenedCells.Count == 0)
+                    return;
+
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                foreach (var opened in payload.OpenedCells)
+                {
+                    var vector = opened.Position.ToVector();
+
+                    if (board.Cells.TryGetValue(vector, out var cell))
+                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                }
             }
         }
     }

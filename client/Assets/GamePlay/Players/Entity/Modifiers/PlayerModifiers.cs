@@ -1,5 +1,4 @@
-﻿using Internal;
-using Network;
+using Internal;
 using Shared;
 
 namespace GamePlay.Players
@@ -7,29 +6,25 @@ namespace GamePlay.Players
     public interface IPlayerModifiers
     {
         IViewableDictionary<PlayerModifier, float> Values { get; }
+
+        void Set(PlayerModifier modifier, float value);
     }
 
-    public class PlayerModifiers : IPlayerModifiers, IScopeLoaded
+    public class PlayerModifiers : IPlayerModifiers
     {
-        public PlayerModifiers(NetworkProperty<PlayerModifiersState> state)
+        public PlayerModifiers()
         {
-            _state = state;
-
             foreach (var modifier in PlayerModifierExtensions.All)
                 _values[modifier] = 0f;
         }
 
-        private readonly NetworkProperty<PlayerModifiersState> _state;
         private readonly ViewableDictionary<PlayerModifier, float> _values = new();
 
         public IViewableDictionary<PlayerModifier, float> Values => _values;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void Set(PlayerModifier modifier, float value)
         {
-            _state.Advise(lifetime, state => {
-                foreach (var (type, value) in state.Values)
-                    _values[type] = value;
-            });
+            _values[modifier] = value;
         }
     }
 }

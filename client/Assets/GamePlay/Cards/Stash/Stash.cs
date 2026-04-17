@@ -1,6 +1,4 @@
-﻿using Internal;
-using Network;
-using Shared;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -8,26 +6,24 @@ namespace GamePlay.Cards
     public interface IStash
     {
         Vector2 PickPoint { get; }
+
+        void SetCount(int count);
     }
 
-    public class Stash : IScopeLoaded, IStash
+    public class Stash : IStash
     {
-        public Stash(IStashView view, NetworkProperty<PlayerStashState> state)
+        public Stash(IStashView view)
         {
             _view = view;
-            _state = state;
         }
 
-        private readonly NetworkProperty<PlayerStashState> _state;
         private readonly IStashView _view;
 
         public Vector2 PickPoint => _view.PickPoint;
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void SetCount(int count)
         {
-            _state.Advise(lifetime, () => {
-                _view.UpdateAmount(_state.Value.Count);
-            });
+            _view.UpdateAmount(count);
         }
     }
 }

@@ -38,8 +38,22 @@ namespace GamePlay.Services
                     continue;
                 }
 
+                if (record is TimeLimitedRoundRecord || record is LastManStandingRoundRecord)
+                {
+                    HandleRecordImmediately(record);
+                    continue;
+                }
+
                 _queue.Enqueue(record);
             }
+        }
+
+        private void HandleRecordImmediately(IMoveSnapshotRecord record)
+        {
+            if (_handlers.TryGetValue(record.GetType(), out var handler) == false)
+                return;
+
+            handler.Invoke(record);
         }
 
         private void ProcessBoardSnapshot(SharedBoardSnapshot boardSnapshot)

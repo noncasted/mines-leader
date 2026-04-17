@@ -91,7 +91,8 @@ namespace GamePlay
 
         private UniTask PlayActionAnimation(ICardActionData data)
         {
-            return PlayCellsAnimation(data, data.ActionCells, (visuals, lifetime) => visuals.PlayCellAction(lifetime));
+            var positions = data.OpenedCells?.Select(o => o.Position).ToList();
+            return PlayCellsAnimation(data, positions, (visuals, lifetime) => visuals.PlayCellAction(lifetime));
         }
 
         private async UniTask PlayCellsAnimation(

@@ -1,21 +1,19 @@
-﻿using Internal;
-using Network;
-using Shared;
+using Internal;
 
 namespace GamePlay.Boards
 {
     public class CellTakenState : ICellTakenState
     {
-        public CellTakenState(IBoardCell cell, CellTakenView view, INetworkConnection connection)
+        public CellTakenState(IBoardCell cell, CellTakenView view, IBoardActions actions)
         {
             _cell = cell;
             _view = view;
-            _connection = connection;
+            _actions = actions;
         }
 
         private readonly IBoardCell _cell;
         private readonly CellTakenView _view;
-        private readonly INetworkConnection _connection;
+        private readonly IBoardActions _actions;
 
         private readonly ViewableProperty<bool> _isFlagged = new(false);
 
@@ -31,26 +29,17 @@ namespace GamePlay.Boards
 
         public void Flag()
         {
-            _connection.Request(new SharedGameAction.SetFlag()
-            {
-                Position = _cell.BoardPosition.ToPosition()
-            });
+            _actions.Flag(_cell.BoardPosition);
         }
 
         public void UnFlag()
         {
-            _connection.Request(new SharedGameAction.RemoveFlag()
-            {
-                Position = _cell.BoardPosition.ToPosition()
-            });
+            _actions.Unflag(_cell.BoardPosition);
         }
 
         public void Open()
         {
-            _connection.Request(new SharedGameAction.Open()
-            {
-                Position = _cell.BoardPosition.ToPosition()
-            });
+            _actions.Open(_cell.BoardPosition);
         }
 
         public void Explode(CellExplosionType type)

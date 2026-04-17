@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
+using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -46,8 +48,28 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Bloodhound>
         {
+            public Snapshot(IGameContext gameContext)
+            {
+                _gameContext = gameContext;
+            }
+
+            private readonly IGameContext _gameContext;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
             {
+                if (payload.OpenedCells == null || payload.OpenedCells.Count == 0)
+                    return UniTask.CompletedTask;
+
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                foreach (var opened in payload.OpenedCells)
+                {
+                    var vector = opened.Position.ToVector();
+
+                    if (board.Cells.TryGetValue(vector, out var cell))
+                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                }
+
                 return UniTask.CompletedTask;
             }
         }

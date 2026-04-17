@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cheats;
+using GamePlay.Services;
 using GamePlay.UI;
 using Internal;
 using Network;
@@ -55,9 +56,8 @@ namespace GamePlay.Loop
             builder.Register<PvPGameLoop>()
                    .As<IPvPGameLoop>();
 
-            builder.AddNetworkService<GameState>("game-flow")
-                   .WithProperty<GameFlowState>(1)
-                   .Registration.As<IGameState>();
+            builder.Register<GameState>()
+                   .As<IGameState>();
 
             builder.Register<MatchEventLoop>()
                    .As<IScopeSetup>();
@@ -65,14 +65,16 @@ namespace GamePlay.Loop
             switch (sessionData.Type)
             {
                 case GameMatchType.TimeLimited:
-                    builder.AddNetworkService<TimeLimitedGameRound>("game-round")
-                           .WithProperty<TimeLimitedRoundState>(1)
-                           .Registration.As<IGameRound>();
+                    builder.Register<TimeLimitedGameRound>()
+                           .As<IGameRound>()
+                           .As<ITimeLimitedGameRound>();
+                    builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
                     break;
                 case GameMatchType.LastManStanding:
-                    builder.AddNetworkService<LastManStandingRound>("game-round")
-                           .WithProperty<LastManStandingRoundState>(1)
-                           .Registration.As<IGameRound>();
+                    builder.Register<LastManStandingRound>()
+                           .As<IGameRound>()
+                           .As<ILastManStandingRound>();
+                    builder.AddSnapshotHandler<LastManStandingRoundSnapshotHandler, LastManStandingRoundRecord>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

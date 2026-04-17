@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using GamePlay.Boards;
+using Internal;
 using Network;
 using Shared;
 
@@ -18,8 +19,7 @@ namespace GamePlay.Players
                    .As<IPlayerMoves>();
 
             builder.Register<PlayerModifiers>()
-                   .As<IPlayerModifiers>()
-                   .As<IScopeLoaded>();
+                   .As<IPlayerModifiers>();
 
             return builder;
         }

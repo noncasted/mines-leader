@@ -2,8 +2,6 @@ using GamePlay.Loop;
 using GamePlay.Players;
 using GamePlay.Services;
 using Internal;
-using Network;
-using Shared;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -16,12 +14,12 @@ namespace GamePlay.Boards
     public class CellMultipleOpenAction : ICellMultipleOpenAction
     {
         public CellMultipleOpenAction(
-            INetworkConnection connection,
+            IBoardActions actions,
             IGameContext gameContext,
             IGameInput input,
             ICellsSelection selection)
         {
-            _connection = connection;
+            _actions = actions;
             _gameContext = gameContext;
             _input = input;
             _selection = selection;
@@ -29,7 +27,7 @@ namespace GamePlay.Boards
 
         private const float DoubleClickTime = 0.3f;
 
-        private readonly INetworkConnection _connection;
+        private readonly IBoardActions _actions;
         private readonly IGameContext _gameContext;
         private readonly IGameInput _input;
         private readonly ICellsSelection _selection;
@@ -67,10 +65,7 @@ namespace GamePlay.Boards
             if (cell.State.Value.Status == CellStatus.Taken)
                 return;
 
-            _connection.Request(new SharedGameAction.OpenMultiple()
-            {
-                Position = cell.BoardPosition.ToPosition()
-            });
+            _actions.OpenMultiple(cell.BoardPosition);
         }
     }
 }

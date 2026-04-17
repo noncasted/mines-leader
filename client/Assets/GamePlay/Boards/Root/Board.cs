@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Global.Systems;
 using Internal;
-using Network;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -15,28 +14,24 @@ namespace GamePlay.Boards
         [SerializeField] private BoardConstructionData _constructionData;
 
         private readonly Dictionary<Vector2Int, IBoardCell> _cellsDictionary = new();
+        private readonly ViewableProperty<BoardState> _state = new(new BoardState());
 
-        private INetworkEntity _entity;
         private IUpdater _updater;
-        private INetworkConnection _connection;
-        private NetworkProperty<BoardState> _state;
+        private IBoardActions _actions;
+        private bool _isMine;
 
         public IBoardConstructionData ConstructionDataData => _constructionData;
         public IViewableProperty<BoardState> State => _state;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
-        public bool IsMine => _entity.Owner.IsLocal;
+        public bool IsMine => _isMine;
 
         [Inject]
         private void Construct(
             IUpdater updater,
-            INetworkEntity entity,
-            NetworkProperty<BoardState> state,
-            INetworkConnection connection)
+            IBoardActions actions)
         {
-            _state = state;
-            _connection = connection;
             _updater = updater;
-            _entity = entity;
+            _actions = actions;
         }
 
         public void Register(IEntityBuilder builder)
@@ -54,10 +49,17 @@ namespace GamePlay.Boards
                 _cellsDictionary.Add(cell.BoardPosition, cell);
         }
 
-        public void Setup(INetworkEntity entity)
+        public void Setup(bool isMine)
         {
+            _isMine = isMine;
+
             foreach (var cell in _cells)
-                cell.Setup(_updater, _connection);
+                cell.Setup(_updater, _actions);
+        }
+
+        public void UpdateState(int mines, int flags)
+        {
+            _state.Set(new BoardState { Mines = mines, Flags = flags });
         }
 
         public void Construct(CellView[] cells, BoardConstructionData constructionData)

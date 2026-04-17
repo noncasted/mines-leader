@@ -28,8 +28,7 @@ namespace GamePlay.Cards
                    .As<IDeckView>();
 
             builder.Register<Deck>()
-                   .As<IDeck>()
-                   .As<IScopeLoaded>();
+                   .As<IDeck>();
         }
 
         public void UpdateAmount(int amount)

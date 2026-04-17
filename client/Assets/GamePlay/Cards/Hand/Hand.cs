@@ -1,6 +1,4 @@
-﻿using Internal;
-using Network;
-using Shared;
+using Internal;
 
 namespace GamePlay.Cards
 {
@@ -14,14 +12,12 @@ namespace GamePlay.Cards
 
     public class Hand : IHand
     {
-        public Hand(IHandView view, NetworkProperty<PlayerHandState> state)
+        public Hand(IHandView view)
         {
             _view = view;
-            _state = state;
         }
 
         private readonly IHandView _view;
-        private readonly NetworkProperty<PlayerHandState> _state;
         private readonly ViewableList<ICard> _entries = new();
 
         public IHandPositions Positions => _view.Positions;

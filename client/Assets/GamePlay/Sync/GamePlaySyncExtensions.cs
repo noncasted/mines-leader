@@ -16,6 +16,11 @@ namespace GamePlay
             builder.AddSnapshotHandler<PlayerManaSnapshotHandler, PlayerSnapshotRecord.ManaUpdate>();
             builder.AddSnapshotHandler<PlayerHealthSnapshotHandler, PlayerSnapshotRecord.HealthUpdate>();
             builder.AddSnapshotHandler<PlayerMovesSnapshotHandler, PlayerSnapshotRecord.MovesUpdate>();
+            builder.AddSnapshotHandler<PlayerModifierSnapshotHandler, PlayerSnapshotRecord.ModifierUpdate>();
+            builder.AddSnapshotHandler<DeckSnapshotHandler, PlayerSnapshotRecord.DeckUpdate>();
+            builder.AddSnapshotHandler<StashSnapshotHandler, PlayerSnapshotRecord.StashUpdate>();
+            builder.AddSnapshotHandler<BoardStateUpdateSnapshotHandler, PlayerSnapshotRecord.BoardStateUpdate>();
+            builder.AddSnapshotHandler<GameCompletedSnapshotHandler, GameCompletedRecord>();
 
             return builder;
         }

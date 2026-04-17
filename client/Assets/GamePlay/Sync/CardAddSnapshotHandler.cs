@@ -30,6 +30,13 @@ namespace GamePlay
             var player = _gameContext.GetPlayer(record.PlayerId);
             var isLocal = player == _gameContext.Self;
 
+            if (record.IsStash == true)
+            {
+                Debug.Log(
+                    $"Handling stash add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}");
+                return;
+            }
+
             Debug.Log(
                 $"Handling card add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}");
             _cardFactory.Create(_lifetime, isLocal, record.CardId, record.Type).Forget();

@@ -28,7 +28,6 @@ namespace GamePlay.Cards
                    .As<IStashView>();
 
             builder.Register<Stash>()
-                   .As<IScopeLoaded>()
                    .As<IStash>()
                    .AsSelfResolvable();
         }
