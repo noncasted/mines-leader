@@ -6,6 +6,7 @@
         {
             builder.Add<SharedBackendProjection>();
             builder.Add<SharedConnectionCompleted>();
+            builder.Add<InitialCardPreviews>();
 
             SharedBackendSocketAuth.Register(builder);
             SharedBackendUser.Register(builder);

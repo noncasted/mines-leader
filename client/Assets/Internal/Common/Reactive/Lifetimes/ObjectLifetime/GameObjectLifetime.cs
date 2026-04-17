@@ -36,5 +36,13 @@ namespace Internal
 
             return _lifetime;
         }
+
+        public void ForceTerminate()
+        {
+            if (_lifetime is { IsTerminated: false })
+                _lifetime.Terminate();
+
+            _lifetime = null;
+        }
     }
 }

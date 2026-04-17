@@ -11,6 +11,7 @@ namespace Tools.SceneBuilder
         public static readonly StaticScene GameServices = new("d8cf087558b3f9d4f9791bd93ed518af");
         public static readonly StaticScene GlobalServices = new("fa9902c71b5f7cd4f98e1a5c19e15def");
         public static readonly StaticScene Menu = new("b072020bf5a8f9c44a8f48ef9ae3fe23");
+        public static readonly StaticScene MenuBoard = new("158e8abf9b3fab5f8bfe001dc4baf959");
         public static readonly StaticScene MenuServices = new("4d21236cc0b1e1146b72afd98396ebb4");
         public static readonly StaticScene MetaServices = new("b70b56507d8b176409f686c0c5e39968");
         public static readonly StaticScene Startup = new("e192e966f28f2434fad44cfad9dbeca2");

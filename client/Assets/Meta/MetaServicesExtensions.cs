@@ -49,7 +49,8 @@ namespace Meta
                 .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
                 .RegisterBackendProjection<SharedBackendUser.LootProjection>()
                 .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
-                .RegisterBackendProjection<SharedMatchmaking.LobbyResult>();
+                .RegisterBackendProjection<SharedMatchmaking.LobbyResult>()
+                .RegisterBackendProjection<InitialCardPreviews>();
 
             builder.Register<CardConfigs>()
                    .As<IBackendProjection<CardConfigOptions>>()

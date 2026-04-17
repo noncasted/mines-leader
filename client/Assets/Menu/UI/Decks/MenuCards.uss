@@ -167,3 +167,44 @@
 .exit-btn:active {
     -unity-background-image-tint-color: rgb(180, 180, 180);
 }
+
+.card-preview-popup {
+    position: absolute;
+    width: 96px;
+    padding: 3px;
+    background-color: var(--color-panel-bg);
+    border-width: 1px;
+    border-color: var(--color-panel-border-outer);
+    border-radius: 0;
+    align-items: center;
+}
+
+.card-preview-image {
+    width: 88px;
+    height: 88px;
+    background-color: rgb(12, 12, 20);
+    border-width: 1px;
+    border-color: var(--color-panel-border-mid);
+    -unity-background-scale-mode: scale-to-fit;
+    margin-bottom: 2px;
+}
+
+.card-preview-name {
+    width: 88px;
+    height: 8px;
+    font-size: 7px;
+    -unity-text-align: middle-center;
+    color: var(--color-text-accent);
+    margin: 0;
+    padding: 0;
+}
+
+.card-preview-desc {
+    width: 88px;
+    font-size: 5px;
+    white-space: normal;
+    -unity-text-align: upper-center;
+    color: var(--color-text);
+    margin: 1px 0 0 0;
+    padding: 0;
+}
