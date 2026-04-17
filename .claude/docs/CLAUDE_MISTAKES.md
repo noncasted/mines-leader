@@ -198,6 +198,142 @@ NEVER use `new Lifetime()` in tests. Always use `handle.Lifetime` or `handle.Lif
 
 ---
 
+## Lesson 7: Every Mutation Needs an Explicit Record* Call
+
+### Mistake Made
+
+Relying on the old `MoveSnapshot.HandleBoards/HandlePlayers` auto-subscribe
+mechanism, or forgetting a `Record*` call after mutating cells/mana/health/moves/modifiers.
+
+```csharp
+// WRONG — resource is mutated but nothing is recorded.
+invoker.Mana.Use(manaCost);
+// result: client still sees the old mana value; diff-guard throws in tests.
+```
+
+### Correct Pattern
+
+Every state-changing line in a command or card body is paired with a `Record*`
+call on the snapshot the engine handed over (`CardUseContext.Snapshot` for cards,
+`Context.Snapshot` for commands, explicit parameter for round actions).
+
+```csharp
+// CORRECT
+invoker.Mana.Use(manaCost);
+snapshot.RecordManaUpdate(invoker);
+
+// CORRECT — modifier affects derived Max, so re-record the resource too.
+invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, amount);
+snapshot.RecordModifierUpdate(invoker, PlayerModifier.AdditionalMana,
+    invoker.Modifiers.Get(PlayerModifier.AdditionalMana));
+invoker.Mana.SetCurrent(invoker.Mana.Current + amount);
+snapshot.RecordManaUpdate(invoker);
+
+// CORRECT (reveal-card, Шаг 14 refactor) — backend mutates silently,
+// OpenedCells travel via CardActionSnapshot, client ICardActionSync owns the visual reveal
+var opened = board.Revealer.Reveal(selected.Select(c => c.Position).ToList());
+snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Bloodhound
+{
+    TargetPlayer = board.OwnerId,
+    TargetCells = selected.Select(c => c.Position).ToList(),
+    OpenedCells = opened
+});
+```
+
+### Rule
+
+- Never mutate `Board` / `Player.Mana` / `Health` / `Moves` / `Modifiers` / `Hand`
+  inside a command or card without a matching `snapshot.Record*` call on the next line.
+- When a modifier influences derived `Max` (`AdditionalMana`, `AdditionalHealth`,
+  `AdditionalMoves`), follow `RecordModifierUpdate` with the resource's own
+  record (or let the `IModifiers.Set` cascade handle it automatically).
+- **`RecordCardUse` must be the FIRST record** a card writes. All other derived
+  records (`RecordCellTaken`, `RecordFlag`, `RecordEffectAdded`, `RecordMines`,
+  etc.) must be written **after** the `RecordCardUse` call.
+- **Cards that change the mine layout** (add/remove mines, reveal cells,
+  set/remove flags) must always call
+  `snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot))` as
+  the last board record — after `RecordCardUse`. The `snapshot` argument lets
+  the scanner auto-write `BoardStateUpdate` when mine/flag totals change.
+- **Reveal-cards** (Bloodhound, ChaosDiamond, ChaosScout, ErosionDozer,
+  Excavator, MinefieldScout, OpponentBomb, ZipZap): call
+  `board.Revealer.Reveal(positions)` directly — do NOT use
+  `snapshot.RecordReveal`. Expose opened positions through
+  `CardActionSnapshot.X.OpenedCells` inside the `snapshot.RecordCardUse(...)`
+  call the card writes itself.
+- For non-card sites (`OpenCellCommand`, `OpenMultipleCellsCommand`,
+  `BotCellAction`), the extension `snapshot.RecordReveal(board, positions)`
+  remains — it records reveals as `CellFree`/`MinesAround` for the client.
+- Cards that add mines to Free cells combine `RecordCellTaken` with
+  `snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot))` for
+  neighbour recount (note the `snapshot` argument).
+- `SnapshotDiffGuard` (enabled in tests + togglable from the Features console)
+  will throw `SnapshotDiffException` listing exactly which field was mutated
+  without a record.
+
+→ [GAMEPLAY.md §Snapshot Sync](GAMEPLAY.md#snapshot-sync)
+
+---
+
+## Lesson 8: Snapshot Record Order — `CardRemove` After `RecordCardUse`
+
+### Wrong
+
+```csharp
+// Backend (CardUseCommand): CardRemove inserted into prefix, BEFORE RecordCardUse
+using (context.Snapshot.BeginInsertAt(prefixMark))
+{
+    player.Hand.Remove(cardId);
+    context.Snapshot.RecordCardRemove(player.User.Id, cardId);  // prefix
+    player.Mana.Use(context.Snapshot, manaCost);
+    player.Moves.OnUsed(context.Snapshot);
+}
+// Card itself wrote RecordCardUse via context.Snapshot inside Use()
+```
+
+Client then applies records sequentially:
+
+```csharp
+// CardRemoveSnapshotHandler
+var card = player.Hand.Entries.First(c => c.Id == record.CardId);
+await card.Destroy();  // card gone from Hand
+
+// CardActionSnapshotHandler (for RecordCardUse that follows)
+var card = player.Hand.Entries.First(t => t.Id == record.CardId)!; // THROWS — sequence empty
+```
+
+### Correct
+
+```csharp
+// Only Mana + Moves in prefix; CardRemove appended AFTER card records
+using (context.Snapshot.BeginInsertAt(prefixMark))
+{
+    player.Mana.Use(context.Snapshot, manaCost);
+    player.Moves.OnUsed(context.Snapshot);
+}
+
+player.Hand.Remove(cardId);
+context.Snapshot.RecordCardRemove(player.User.Id, cardId);
+
+player.Stash.Add(handCard.Type);
+context.Snapshot.RecordCardAdd(player.User.Id, cardId, handCard.Type, isStash: true);
+```
+
+### Rule
+
+- **`RecordCardUse` must reach the client while the card entity is still in
+  `Hand`.** The client's `CardActionSnapshotHandler` looks the card up by
+  `record.CardId` to drive the play-out animation.
+- Keep the final record order: `Mana → Moves → [card's side-effect records incl.
+  RecordCardUse] → CardRemove → CardAdd(stash)`.
+- Inserting `CardRemove` into the prefix is a subtle mismatch — the backend
+  tests pass (they don't exercise client sync), but the Unity client throws
+  `InvalidOperationException: Sequence contains no matching element`.
+
+→ [GAMEPLAY.md §Card Lifecycle (Backend)](GAMEPLAY.md#card-lifecycle-backend)
+
+---
+
 ## Related Documentation
 - **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)

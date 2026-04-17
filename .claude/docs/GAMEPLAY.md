@@ -156,11 +156,25 @@ Each card type also has a `_Max` variant (upgraded version with enhanced effect)
 
 ```
 CardUseCommand.Execute()
-    └─> ICard.Use(context)
-            └─> CardUseResult { Result, ActionData }
-                    └─> MoveSnapshot.RecordCard(actionData)
-                            └─> broadcast to clients via snapshot sync
+    prefixMark = snapshot.Count                           # remember insertion point
+    ├─> ICard.Use(context)                                # card mutates state + writes records,
+    │       └─> CardUseResult { Result }                  # including its own snapshot.RecordCardUse(...)
+    ├─> using (snapshot.BeginInsertAt(prefixMark)) {
+    │       Hand.Remove + RecordCardRemove                # all inserted BEFORE the card's records
+    │       Mana.Use                                      # (auto-records ManaUpdate)
+    │       Moves.OnUsed                                  # (auto-records MovesUpdate)
+    │   }
+    └─> Stash.Add + RecordCardAdd(isStash: true)          # appended AFTER card's records
 ```
+
+**Final record order in snapshot**:
+`CardRemove → ManaUpdate → MovesUpdate → [card's side-effect records incl. RecordCardUse] → CardAdd(stash)`.
+
+This ordering guarantees the client-side playback matches visual choreography: card leaves hand → resources spent → card animation → card lands in stash.
+
+`CardUseResult` carries only `EmptyResponse Result`. Cards that need an `ICardActionData` payload call `context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.X(...))` **inside** `Use()`. Cards must validate before any mutation — if they return `Fail`, the snapshot must remain empty of side-effects.
+
+**Reveal cards** (Bloodhound, ChaosDiamond, ChaosScout, ErosionDozer, Excavator, ZipZap, MinefieldScout, OpponentBomb) call `board.Revealer.Reveal(positions)` directly — the reveal is **not** recorded as `CellFree`/`MinesAround`, and the card does **not** call `snapshot.RecordMines(...)`. The opened cells travel to the client through `CardActionSnapshot.X.OpenedCells: IReadOnlyList<OpenedCell>?` where `OpenedCell { Position Position; int MinesAround }`. Every cell revealed by the card (including wave-flooded cells with `MinesAround=0`) is included; cells absent from the list remain Taken. The client-side `ICardActionSync` reads `MinesAround` directly from the payload and applies it via `cell.EnsureFree().OnMinesUpdated(opened.MinesAround)`. `SnapshotApplier.ApplyCardUseReveals` mirrors the same write on the backend for diff-guard validation.
 
 ### Card Lifecycle (Client)
 
@@ -188,12 +202,48 @@ MoveSnapshot is the client-server sync protocol for board state changes.
 ### How It Works
 
 ```
-Backend action (e.g. OpenCellCommand)
-    └─> MoveSnapshot.Record*(data)      # registers what changed
+Backend action (e.g. OpenCellCommand, Card.Use, round start/end)
+    └─> MoveSnapshot.Record*(data)         # explicit, per-mutation write
+            └─> (optional) SnapshotDiffGuard.Validate(pre, records, post)
             └─> snapshot serialized → sent to both clients
                     └─> client SnapshotHandler.Handle(snapshot)
                             └─> update Board / Card visuals
 ```
+
+**Manual-only API.** `MoveSnapshot` has no implicit subscription to engine events —
+every cell/mana/health/moves/modifier mutation must be paired with a matching
+`snapshot.Record*` call. The record order is the client playback order — cards
+use this to choreograph animations (flash → explosion → cell open → mana refill).
+
+### Record API
+
+| Method | What it records |
+|--------|----------------|
+| `RecordCellTaken(board, pos)` / `RecordCellFree(board, pos)` | Cell status change (resets flag/effects/mines) |
+| `RecordFlag(board, pos, isFlagged)` | Flag toggle |
+| `RecordMines(board, pos, count)` | `MinesAround` recalculation |
+| `RecordExplosion(board, pos)` | Visual-only (no state change) |
+| `RecordEffectAdded/Removed(board, pos, ...)` | Cell effect add/remove |
+| `RecordManaUpdate(player)` / `RecordHealthUpdate` / `RecordMovesUpdate` | Resource change |
+| `RecordModifierUpdate(player, modifier, value)` | Modifier change — **required** when a modifier affects derived `Max` |
+| `RecordCardAdd(playerId, cardId, type, isStash)` | Card lands in hand (default) or stash (`isStash: true`) |
+| `RecordCardRemove / RecordCardUse(...)` | Card leaves hand / card-use notification with `ICardActionData` |
+| `BeginInsertAt(index)` *(IDisposable)* | Redirects subsequent `Record*` calls to insert at `index` instead of appending — used by `CardUseCommand` to place CardRemove/Mana/Moves before the card's own records |
+| `RecordReveal(board, positions)` *(extension)* | **Non-card sites only** (OpenCellCommand, BotCellAction): reveal + `CellFree` + `MinesAround` records. Cards call `board.Revealer.Reveal` without recording. |
+
+### SnapshotDiffGuard (dev/test)
+
+`SnapshotDiffGuard` captures game state **before** each snapshot block, applies the
+collected records to that snapshot via `SnapshotApplier`, and compares the result
+against the **actual** post-mutation state. On divergence it throws
+`SnapshotDiffException` with a per-field diff — "Player X Mana: expected 3/5, got 7/5" —
+pointing directly at the card/command that forgot a `Record*` call.
+
+- Toggle from the Console (Features page) via `ClusterFeaturesState.SnapshotDiffGuardEnabled`,
+  exposed on `IClusterFlags.SnapshotDiffGuardEnabled`.
+- Guard call sites: `GameCommand.Execute`, `BotCommandUtils.WithSnapshot`,
+  round snapshot blocks (init / round-start / round-end).
+- Enabled by default in the Orleans test cluster.
 
 ### Snapshot Handlers (Client)
 
@@ -202,6 +252,7 @@ Backend action (e.g. OpenCellCommand)
 | `BoardSnapshotHandler` | Cell state changes (revealed, flagged) |
 | `CardAddSnapshotHandler` | New card added to hand |
 | `CardActionSnapshotHandler` | Card used — applies effect, then Drop animation |
+| `PlayerModifierSnapshotHandler` | Modifier update (currently no-op, required for MemoryPack union dispatch) |
 
 **CardActionSnapshotHandler** calls `card.Drop.Enter()` after effect — this is how card is removed visually.
 
