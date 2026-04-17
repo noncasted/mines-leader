@@ -61,7 +61,8 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         {
             TargetPlayer = board.OwnerId,
             TargetCells = new List<Position> { cell.Position },
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = openedCells
         });
 
         if (hadMine == true)

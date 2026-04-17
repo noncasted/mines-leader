@@ -66,7 +66,8 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
             TargetPlayer = board.OwnerId,
             ActualSize = actualSize,
             TargetCells = selected.Select(c => c.Position).ToList(),
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = openedCells
         });
 
         foreach (var position in flagged)

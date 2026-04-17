@@ -73,7 +73,8 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
             TargetPlayer = board.OwnerId,
             RevealedCells = selected.Select(c => c.Position).ToList(),
             TargetCells = selected.Select(c => c.Position).ToList(),
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = openedCells
         });
 
         foreach (var position in flagged)

@@ -229,14 +229,25 @@ snapshot.RecordModifierUpdate(invoker, PlayerModifier.AdditionalMana,
 invoker.Mana.SetCurrent(invoker.Mana.Current + amount);
 snapshot.RecordManaUpdate(invoker);
 
-// CORRECT (reveal-card, Шаг 14 refactor) — backend mutates silently,
-// OpenedCells travel via CardActionSnapshot, client ICardActionSync owns the visual reveal
-var opened = board.Revealer.Reveal(selected.Select(c => c.Position).ToList());
+// CORRECT (reveal-card) — backend mutates silently, two parallel lists travel
+// via CardActionSnapshot: OpenedCells drives PlayCellAction animation,
+// UpdatedFreeCells drives cell.OnMinesUpdated on the client.
+var revealed = board.Revealer.Reveal(targetPositions);
+revealed.AddRange(minePositions);
+var openedCells = revealed.Distinct().Select(p => new OpenedCell {
+    Position = p, MinesAround = board.Cells[p].AsFree().MinesAround
+}).ToList();
+// For Bloodhound/ErosionDozer/ZipZap add neighbours whose MinesAround changed.
+var updatedFreeCells = revealed.Concat(board.GetFreeNeighbours(minePositions))
+    .Distinct().Select(p => new OpenedCell {
+        Position = p, MinesAround = board.Cells[p].AsFree().MinesAround
+    }).ToList();
 snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Bloodhound
 {
     TargetPlayer = board.OwnerId,
-    TargetCells = selected.Select(c => c.Position).ToList(),
-    OpenedCells = opened
+    TargetCells = targetPositions,
+    OpenedCells = openedCells,
+    UpdatedFreeCells = updatedFreeCells
 });
 ```
 
@@ -258,9 +269,13 @@ snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.B
 - **Reveal-cards** (Bloodhound, ChaosDiamond, ChaosScout, ErosionDozer,
   Excavator, MinefieldScout, OpponentBomb, ZipZap): call
   `board.Revealer.Reveal(positions)` directly — do NOT use
-  `snapshot.RecordReveal`. Expose opened positions through
-  `CardActionSnapshot.X.OpenedCells` inside the `snapshot.RecordCardUse(...)`
-  call the card writes itself.
+  `snapshot.RecordReveal`. Expose opened positions through two parallel
+  fields on `CardActionSnapshot.X`: `OpenedCells` (только реально открытые,
+  для анимации `PlayCellAction`) и `UpdatedFreeCells` (opened + соседи с
+  изменённым `MinesAround`, для `cell.OnMinesUpdated` на клиенте). Для
+  OpponentBomb/MinefieldScout/Excavator/ChaosDiamond/ChaosScout
+  `UpdatedFreeCells = OpenedCells`; соседи подмешивают только
+  Bloodhound/ErosionDozer/ZipZap через `board.GetFreeNeighbours(...)`.
 - For non-card sites (`OpenCellCommand`, `OpenMultipleCellsCommand`,
   `BotCellAction`), the extension `snapshot.RecordReveal(board, positions)`
   remains — it records reveals as `CellFree`/`MinesAround` for the client.

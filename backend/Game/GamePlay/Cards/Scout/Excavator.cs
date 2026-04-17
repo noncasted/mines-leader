@@ -61,7 +61,8 @@ public class Excavator : ICard<CardUsePayload.Excavator>
         {
             TargetPlayer = board.OwnerId,
             TargetCells = selected.Select(c => c.Position).ToList(),
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = openedCells
         });
 
         foreach (var position in flagged)
