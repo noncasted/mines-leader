@@ -20,6 +20,7 @@ public static class JsonUtils
 
     public static T Deserialize<T>(string raw)
     {
-        return JsonConvert.DeserializeObject<T>(raw, _options)!;
+        return JsonConvert.DeserializeObject<T>(raw, _options) ??
+               throw new InvalidOperationException($"Failed to deserialize JSON into {typeof(T)}");
     }
 }

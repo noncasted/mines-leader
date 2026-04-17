@@ -10,6 +10,8 @@ builder.SetupCoordinator();
 builder.Services.Add<ClusterCoordinator>()
        .As<ILocalSetupCompleted>();
 
+builder.Services.AddHostedService<DeployIdentity>();
+
 var app = builder.Build();
 
 app.Run();

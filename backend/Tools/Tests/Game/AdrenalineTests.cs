@@ -21,7 +21,9 @@ public class AdrenalineTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, CardConfigs.Adrenaline.ExtraMoves);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
+            CardConfigs.Adrenaline.ExtraMoves);
     }
 
     [Fact]

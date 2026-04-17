@@ -1,7 +1,7 @@
+using Cluster.Deploy;
 using Cluster.Monitoring;
 using Common.Reactive;
 using FluentAssertions;
-using Infrastructure;
 using MetaGateway.UserFlow;
 using MetaGateway.UserFlow.Connection;
 using NSubstitute;
@@ -11,7 +11,7 @@ namespace Tests.Meta;
 
 public class ConnectedUsersTests
 {
-    private readonly ConnectedUsers _sut = new(Substitute.For<IDynamicState<ConnectedUsersLiveData>>());
+    private readonly ConnectedUsers _sut = new(Substitute.For<ILiveState<ConnectedUsersLiveData>>());
 
     private static IUserSession CreateSession(Guid? userId = null, Lifetime? lifetime = null)
     {

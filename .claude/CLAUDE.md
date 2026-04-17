@@ -17,6 +17,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | member order, _camelCase, GC.KeepAlive, NoAwait, braces | docs/CODE_STYLE_FULL.md |
 | Grain, IGrainWithGuidKey, [Transaction], constructor injection | docs/COMMON_ORLEANS.md |
 | State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | docs/COMMON_ORLEANS.md |
+| DeployId, IDeployManagement, IDeployContext, IDeployAware, DeployIdPipe, DeployIdentity, DeployLifetime, LiveState, cluster restart | /docs/obsidian/architecture/deploy-epoch.md |
 | Blazor, razor, @inject, UiComponent, early return, console UI | docs/BLAZOR.md |
 | which pattern to use, decision | docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |

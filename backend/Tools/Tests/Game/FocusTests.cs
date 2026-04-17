@@ -20,7 +20,9 @@ public class FocusTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.NextCardDiscount, CardConfigs.Focus.Discount);
+
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.NextCardDiscount,
+            CardConfigs.Focus.Discount);
     }
 
     [Fact]

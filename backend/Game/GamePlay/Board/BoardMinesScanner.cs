@@ -39,6 +39,7 @@ public class BoardMinesScanner : IBoardMinesScanner
                 continue;
 
             free.UpdateMinesAround(newMines);
+
             (changed ??= new List<BoardSnapshotRecord.MinesAround>())
                 .Add(new BoardSnapshotRecord.MinesAround { Position = position, Count = newMines });
         }
@@ -54,7 +55,8 @@ public class BoardMinesScanner : IBoardMinesScanner
         if (stateChanged && snapshot != null)
             snapshot.RecordBoardStateUpdate(_board.OwnerId, Mines, Flags);
 
-        return changed ?? (IReadOnlyList<BoardSnapshotRecord.MinesAround>)Array.Empty<BoardSnapshotRecord.MinesAround>();
+        return changed ??
+               (IReadOnlyList<BoardSnapshotRecord.MinesAround>)Array.Empty<BoardSnapshotRecord.MinesAround>();
 
         int GetTotalMines()
         {

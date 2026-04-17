@@ -6,7 +6,7 @@ namespace Infrastructure;
 public class RuntimePipeOptions
 {
     public int ObserverKeepAliveMinutes { get; set; } = 3;
-    public int SendTimeoutSeconds { get; set; } = 30;
+    public int SendTimeoutSeconds { get; set; } = 10;
     public int SendRetryCount { get; set; } = 3;
     public int SendRetryBaseDelayMs { get; set; } = 500;
 }

@@ -1,4 +1,3 @@
-using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -50,7 +49,8 @@ public class ChainReactionTests : PlayerCardTestsBase
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 3) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(3, 3) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -108,7 +108,8 @@ public class ChainReactionTests : PlayerCardTestsBase
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(0, 0) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -148,7 +149,8 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t t t t
                                            """);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(5, 5) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(5, 5) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -184,7 +186,8 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t t
                                            """);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -210,7 +213,8 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t
                                            """);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -263,7 +267,8 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t
                                            """);
 
-        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
+        var (result, moveSnapshot) = UseCapture(board,
+            new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 

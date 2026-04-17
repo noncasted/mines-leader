@@ -19,6 +19,11 @@ public interface ICoordinatorSetupCompleted
     Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime);
 }
 
+public interface IServiceStarted
+{
+    Task OnServiceStarted(IReadOnlyLifetime lifetime);
+}
+
 public static class LoopExtensions
 {
     public static IHostApplicationBuilder AddServiceLoop(this IHostApplicationBuilder builder)

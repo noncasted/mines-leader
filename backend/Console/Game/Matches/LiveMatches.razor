@@ -1,8 +1,8 @@
 @page "/matches"
+@using Cluster.Deploy
 @using Cluster.Monitoring
 @using global::Common.Extensions
 @using global::Common.Reactive
-@using global::Infrastructure
 @using Meta.Users
 @inherits UiComponent
 
@@ -97,7 +97,7 @@
 </div>
 
 @code {
-    [Inject] public IDynamicState<LiveMatchesData> LiveData { get; set; } = null!;
+    [Inject] public ILiveState<LiveMatchesData> LiveData { get; set; } = null!;
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
     [Inject] public IJSRuntime JS { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;

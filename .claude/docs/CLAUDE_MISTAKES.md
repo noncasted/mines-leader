@@ -349,6 +349,100 @@ context.Snapshot.RecordCardAdd(player.User.Id, cardId, handCard.Type, isStash: t
 
 ---
 
+## Lesson 9: Observer Grains Must Be `[Reentrant]`
+
+### Mistake Made
+```csharp
+// WRONG — non-reentrant grain holding an observer reference
+public class RuntimePipe : Grain, IRuntimePipe
+{
+    private IRuntimePipeObserver? _observer;
+
+    public Task BindObserver(IRuntimePipeObserver observer) { _observer = observer; return Task.CompletedTask; }
+
+    public async Task<TResponse> Send<TResponse>(object message)
+    {
+        // Calls _observer.Send() — blocks for 30s when observer's client is dead.
+        // Grain queue serializes every incoming call → new BindObserver waits behind
+        // every stuck Send. Coordinator restart = 50s+ freeze across cluster.
+    }
+}
+```
+
+### Correct Pattern
+```csharp
+using Orleans.Concurrency;
+
+[Reentrant]
+public class RuntimePipe : Grain, IRuntimePipe
+{
+    public async Task<TResponse> Send<TResponse>(object message)
+    {
+        var observer = _observer; // snapshot
+        try { return await observer!.Send<TResponse>(message).WaitAsync(timeout); }
+        catch (Exception ex)
+        {
+            if (ReferenceEquals(_observer, observer)) _observer = null; // discard dead
+            throw;
+        }
+    }
+}
+```
+
+### Rule
+
+- Any grain that forwards calls to an **observer reference whose owning process can die**
+  must be `[Reentrant]` and must **discard** the observer on Send failure.
+- A single stuck `_observer.Send(...)` on a non-reentrant grain blocks the entire queue —
+  subsequent `BindObserver` from a fresh client cannot unstick it until Orleans' outer
+  response timeout (50s) fires one-by-one for each queued message.
+- Orleans gives disconnected clients a ~65s grace window before dropping them; during
+  that window the grain will still route observer callbacks to the dead client.
+
+→ [deploy-epoch.md §Фиксы пайпа](../../docs/obsidian/architecture/deploy-epoch.md)
+
+---
+
+## Lesson 10: Do Not Wait For Your Own State Write
+
+### Mistake Made
+```csharp
+// Coordinator process:
+await _loop.OnLocalSetupCompleted(lifetime);    // calls grain.MarkCoordinatorReady() → true
+// Then, symmetric with other services:
+await WaitCoordinatorReady();                    // polls grain.GetState() for 55 seconds
+                                                 // before seeing CoordinatorReady=true
+```
+
+The coordinator's Orleans client has just restarted; silo routes the poll through a
+fresh client connection. Initialize/MarkCoordinatorReady succeeded (first burst), but
+follow-up reads sat in some transient routing state until the silo dropped the previous
+client (~65s grace). Meanwhile, other services (with their own clients) saw
+`CoordinatorReady=true` instantly.
+
+### Correct Pattern
+```csharp
+if (_discovery.Self.Tag == ServiceTag.Coordinator)
+{
+    // Coordinator just awaited grain.MarkCoordinatorReady() locally — it's already true.
+}
+else
+{
+    await WaitCoordinatorReady();
+}
+```
+
+### Rule
+
+- A process that just awaited its own grain write does not need to poll the grain to
+  confirm it. Treat the local `await` as the acknowledgment.
+- Symmetric startup code for coordinator and participants tempts you to make the
+  coordinator "wait for itself" — it may mask latent Orleans routing hiccups for minutes.
+
+→ [deploy-epoch.md §Диаграмма рестарта координатора](../../docs/obsidian/architecture/deploy-epoch.md)
+
+---
+
 ## Related Documentation
 - **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)

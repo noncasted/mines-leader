@@ -12,6 +12,7 @@ public class ShieldTests : PlayerCardTestsBase
     public void Use_IncrementsShieldModifier()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
         {
             { PlayerModifier.Shield, 0f }

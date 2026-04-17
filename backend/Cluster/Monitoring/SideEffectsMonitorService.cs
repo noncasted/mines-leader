@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using Cluster.Deploy;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
@@ -9,7 +10,7 @@ namespace Cluster.Monitoring;
 public class SideEffectsMonitorService : ILocalSetupCompleted
 {
     public SideEffectsMonitorService(
-        IDynamicState<SideEffectsLiveData> liveData,
+        ILiveState<SideEffectsLiveData> liveData,
         ISideEffectsStorage storage,
         ILogger<SideEffectsMonitorService> logger)
     {
@@ -18,7 +19,7 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
         _logger = logger;
     }
 
-    private readonly IDynamicState<SideEffectsLiveData> _liveData;
+    private readonly ILiveState<SideEffectsLiveData> _liveData;
     private readonly ISideEffectsStorage _storage;
     private readonly ILogger<SideEffectsMonitorService> _logger;
 

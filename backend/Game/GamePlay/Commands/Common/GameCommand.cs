@@ -50,6 +50,7 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
             if (preState != null)
             {
                 var postState = GameStateCapture.Capture(Utils.GameContext);
+
                 Utils.DiffGuard.Validate(preState, snapshot.Collect(), postState,
                     $"command:{request.GetType().Name}");
             }

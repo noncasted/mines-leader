@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
+using Orleans.Concurrency;
 
 namespace Infrastructure;
 
@@ -10,6 +11,7 @@ public interface IRuntimePipe : IGrainWithStringKey
     Task<TResponse> Send<TResponse>(object message);
 }
 
+[Reentrant]
 public class RuntimePipe : Grain, IRuntimePipe
 {
     public RuntimePipe(ILogger<RuntimePipe> logger, IRuntimePipeConfig config)
@@ -59,7 +61,9 @@ public class RuntimePipe : Grain, IRuntimePipe
             "[Messaging] [RuntimePipe] Sending request-response message {MessageType} expecting {ResponseType} to pipe {PipeId}",
             message.GetType().Name, typeof(TResponse).Name, this.GetPrimaryKeyString());
 
-        if (_observer == null)
+        var observer = _observer;
+
+        if (observer == null)
         {
             _logger.LogError(
                 "[Messaging] [RuntimePipe] No observer bound for request-response message {MessageType} on pipe {PipeId}",
@@ -70,7 +74,7 @@ public class RuntimePipe : Grain, IRuntimePipe
         try
         {
             var timeout = TimeSpan.FromSeconds(_config.Value.SendTimeoutSeconds);
-            var response = await _observer!.Send<TResponse>(message).WaitAsync(timeout);
+            var response = await observer.Send<TResponse>(message).WaitAsync(timeout);
 
             _logger.LogTrace(
                 "[Messaging] [RuntimePipe] Successfully received response {ResponseType} for message {MessageType} on pipe {PipeId}",
@@ -79,6 +83,8 @@ public class RuntimePipe : Grain, IRuntimePipe
         }
         catch (TimeoutException ex)
         {
+            DiscardObserverIfSame(observer);
+
             activity?.SetStatus(ActivityStatusCode.Error, "Pipe send timed out");
             BackendMetrics.PipeTimeout.Add(1);
 
@@ -89,6 +95,8 @@ public class RuntimePipe : Grain, IRuntimePipe
         }
         catch (Exception ex)
         {
+            DiscardObserverIfSame(observer);
+
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
             _logger.LogError(ex,
@@ -96,5 +104,16 @@ public class RuntimePipe : Grain, IRuntimePipe
                 message.GetType().Name, this.GetPrimaryKeyString());
             throw;
         }
+    }
+
+    private void DiscardObserverIfSame(IRuntimePipeObserver observer)
+    {
+        if (ReferenceEquals(_observer, observer) == false)
+            return;
+
+        _observer = null;
+
+        _logger.LogWarning("[Messaging] [RuntimePipe] Discarded stale observer for pipe {PipeId} after send failure",
+            this.GetPrimaryKeyString());
     }
 }

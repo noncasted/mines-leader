@@ -1,8 +1,8 @@
-﻿using Cluster.Monitoring;
+﻿using Cluster.Deploy;
+using Cluster.Monitoring;
 using Common.Extensions;
 using Common.Reactive;
 using Game.Session;
-using Infrastructure;
 using Shared;
 
 namespace Game.Global;
@@ -17,12 +17,12 @@ public interface ISessionsCollection
 
 public class SessionsCollection : ISessionsCollection
 {
-    public SessionsCollection(IDynamicState<LiveMatchesData> liveData)
+    public SessionsCollection(ILiveState<LiveMatchesData> liveData)
     {
         _liveData = liveData;
     }
 
-    private readonly IDynamicState<LiveMatchesData> _liveData;
+    private readonly ILiveState<LiveMatchesData> _liveData;
     private readonly Dictionary<Guid, ISession> _entries = new();
     private readonly Dictionary<Guid, DateTime> _createdAt = new();
     private readonly Dictionary<Guid, GameMatchType?> _gameModes = new();

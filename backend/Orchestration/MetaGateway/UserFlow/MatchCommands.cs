@@ -41,9 +41,9 @@ public static class MatchCommands
             var response = new SharedBackendUser.MatchHistoryResponse
             {
                 Matches = matches
-                    .Select(m => (SharedBackendUser.Match)m.ToContext())
-                    .OrderByDescending(m => m.Date)
-                    .ToList()
+                          .Select(m => (SharedBackendUser.Match)m.ToContext())
+                          .OrderByDescending(m => m.Date)
+                          .ToList()
             };
 
             return response;
@@ -69,17 +69,20 @@ public static class MatchCommands
             var state = await _orleans.Transactions.Run(match.GetState);
 
             var userId = session.UserId;
+
             var ownCards = state.ParticipantDecks.TryGetValue(userId, out var own)
                 ? own.ToList()
                 : new List<CardType>();
 
             var opponentId = state.Participants.FirstOrDefault(p => p != userId);
+
             var opponentCards = state.ParticipantDecks.TryGetValue(opponentId, out var opp)
                 ? opp.ToList()
                 : new List<CardType>();
 
             var won = state.Winner == userId;
             var ratingChange = state.RatingChanges.TryGetValue(userId, out var rating) ? rating : 0;
+
             var progressionChange = won
                 ? _progressionOptions.Value.WinExperience
                 : _progressionOptions.Value.LossExperience;

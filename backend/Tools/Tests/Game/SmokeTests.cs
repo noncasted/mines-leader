@@ -1,4 +1,3 @@
-using Cluster.Configs;
 using FluentAssertions;
 using Game.GamePlay;
 using NSubstitute;
@@ -23,7 +22,10 @@ public class SmokeTests : PlayerCardTestsBase
         return new Smoke(MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
     }
 
-    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.Smoke payload, IRoundActionService roundActionService)
+    private (CardUseResult, MoveSnapshot) UseCapture(
+        IBoard board,
+        CardUsePayload.Smoke payload,
+        IRoundActionService roundActionService)
     {
         var invoker = MockPlayer();
         var opponent = MockPlayer();

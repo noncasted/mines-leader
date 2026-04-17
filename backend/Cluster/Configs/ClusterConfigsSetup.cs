@@ -88,7 +88,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
                 }
 
                 var json = await File.ReadAllTextAsync(configPath);
-                var value = JsonUtils.Deserialize<T>(json)!;
+                var value = JsonUtils.Deserialize<T>(json).ThrowIfNull();
                 await storage.SetValue(value);
             }
             catch (Exception e)

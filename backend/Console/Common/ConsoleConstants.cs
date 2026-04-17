@@ -22,5 +22,6 @@ public static class ConsoleConstants
         public const string MatchHistory = "/match-history";
         public const string AuditLog = "/audit";
         public const string Discovery = "/discovery";
+        public const string Deploy = "/deploy";
     }
 }

@@ -15,7 +15,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(new IOrleansStarted[] { p1, p2 },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>());
+            Array.Empty<ICoordinatorSetupCompleted>(),
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
         await loop.OnOrleansStarted(lifetime);
@@ -32,7 +33,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(Array.Empty<IOrleansStarted>(),
             new ILocalSetupCompleted[] { p1, p2 },
-            Array.Empty<ICoordinatorSetupCompleted>());
+            Array.Empty<ICoordinatorSetupCompleted>(),
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
         await loop.OnLocalSetupCompleted(lifetime);
@@ -49,7 +51,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(Array.Empty<IOrleansStarted>(),
             Array.Empty<ILocalSetupCompleted>(),
-            new ICoordinatorSetupCompleted[] { p1, p2 });
+            new ICoordinatorSetupCompleted[] { p1, p2 },
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
         await loop.OnCoordinatorSetupCompleted(lifetime);
@@ -65,7 +68,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(new IOrleansStarted[] { participant },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>());
+            Array.Empty<ICoordinatorSetupCompleted>(),
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
         await loop.OnOrleansStarted(lifetime);
@@ -83,7 +87,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(new IOrleansStarted[] { failing, successful },
             Array.Empty<ILocalSetupCompleted>(),
-            Array.Empty<ICoordinatorSetupCompleted>());
+            Array.Empty<ICoordinatorSetupCompleted>(),
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
         var act = () => loop.OnOrleansStarted(lifetime);
@@ -103,7 +108,8 @@ public class ServiceLoopTests
 
         var loop = new ServiceLoop(new IOrleansStarted[] { orleans },
             new ILocalSetupCompleted[] { local },
-            new ICoordinatorSetupCompleted[] { coordinator });
+            new ICoordinatorSetupCompleted[] { coordinator },
+            Array.Empty<IServiceStarted>());
 
         var lifetime = new Lifetime();
 

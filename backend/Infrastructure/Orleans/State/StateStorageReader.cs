@@ -2,6 +2,7 @@ using System.Text;
 using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Infrastructure.State;
 
@@ -50,12 +51,16 @@ public class StateStorageReader : IStateStorageReader
             await using var connection = await _dbSource.Value.OpenConnectionAsync();
 
             await using var countCmd = connection.CreateCommand();
-            countCmd.CommandText = $"SELECT COUNT(*)::int FROM {stateInfo.TableName} WHERE type = @type AND value IS NOT NULL";
+
+            countCmd.CommandText =
+                $"SELECT COUNT(*)::int FROM {stateInfo.TableName} WHERE type = @type AND value IS NOT NULL";
             countCmd.Parameters.AddWithValue("type", stateInfo.Name);
-            var totalCount = (int)(await countCmd.ExecuteScalarAsync())!;
+            var totalCount = (int)(await countCmd.ExecuteScalarAsync()).ThrowIfNull();
 
             await using var cmd = connection.CreateCommand();
-            cmd.CommandText = $"SELECT key, value, version FROM {stateInfo.TableName} WHERE type = @type AND value IS NOT NULL ORDER BY key DESC OFFSET @offset LIMIT @limit";
+
+            cmd.CommandText =
+                $"SELECT key, value, version FROM {stateInfo.TableName} WHERE type = @type AND value IS NOT NULL ORDER BY key DESC OFFSET @offset LIMIT @limit";
             cmd.Parameters.AddWithValue("type", stateInfo.Name);
             cmd.Parameters.AddWithValue("offset", offset);
             cmd.Parameters.AddWithValue("limit", limit);
@@ -106,7 +111,7 @@ public class StateStorageReader : IStateStorageReader
         }
     }
 
-    private static TKey ReadKeyFromReader<TKey>(Npgsql.NpgsqlDataReader reader, GrainStateInfo info) => info.KeyType switch
+    private static TKey ReadKeyFromReader<TKey>(NpgsqlDataReader reader, GrainStateInfo info) => info.KeyType switch
     {
         GrainKeyType.Guid or GrainKeyType.GuidAndString => (TKey)(object)reader.GetFieldValue<Guid>(0),
         GrainKeyType.String => (TKey)(object)reader.GetFieldValue<string>(0),

@@ -1,4 +1,5 @@
 ﻿using Cluster.Configs;
+using Cluster.Deploy;
 using Cluster.Monitoring;
 using Common;
 using Common.Extensions;
@@ -55,7 +56,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         IBotConfig botConfig,
         IClusterFlags clusterFlags,
         IClusterParticipantContext participantContext,
-        IDynamicState<MatchmakingLiveData> liveData,
+        ILiveState<MatchmakingLiveData> liveData,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
@@ -77,7 +78,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly IBotConfig _botConfig;
     private readonly IClusterFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
-    private readonly IDynamicState<MatchmakingLiveData> _liveData;
+    private readonly ILiveState<MatchmakingLiveData> _liveData;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);

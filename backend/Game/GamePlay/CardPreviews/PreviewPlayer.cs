@@ -1,7 +1,6 @@
 using Common.Network;
 using Common.Reactive;
 using Game.Session;
-using Shared;
 
 namespace Game.GamePlay.CardPreviews;
 
@@ -42,7 +41,7 @@ internal sealed class PreviewPlayer : IPlayer
         public PreviewUser(Guid id)
         {
             Id = id;
-            Lifetime = new Common.Reactive.Lifetime();
+            Lifetime = new Lifetime();
         }
 
         public Guid Id { get; }

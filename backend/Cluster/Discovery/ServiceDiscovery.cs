@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Cluster.Deploy;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
@@ -19,39 +20,34 @@ public interface IServiceDiscovery
 public class ServiceDiscovery : IServiceDiscovery
 {
     public ServiceDiscovery(
-        IMessaging messaging,
+        IOrleans orleans,
+        IDeployContext deployContext,
         IServiceEnvironment environment,
         ILogger<ServiceDiscovery> logger)
     {
-        _messaging = messaging;
+        _orleans = orleans;
+        _deployContext = deployContext;
         _environment = environment;
         _logger = logger;
 
         _self = CreateOverview();
     }
 
-    private readonly IMessaging _messaging;
+    private readonly IOrleans _orleans;
+    private readonly IDeployContext _deployContext;
     private readonly IServiceEnvironment _environment;
     private readonly ILogger<ServiceDiscovery> _logger;
     private readonly ConcurrentDictionary<Guid, IServiceOverview> _entries = new();
-    private readonly IRuntimeChannelId _channelId = new RuntimeChannelId("service-discovery");
 
     private volatile IServiceOverview _self;
 
     public IServiceOverview Self => _self;
     public IReadOnlyDictionary<Guid, IServiceOverview> Entries => _entries;
 
-    public async Task Start(IReadOnlyLifetime lifetime)
+    public Task Start(IReadOnlyLifetime lifetime)
     {
-        try
-        {
-            UpdateLoop(lifetime).NoAwait();
-            await _messaging.ListenChannel<IServiceOverview>(lifetime, _channelId, Update);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[ServiceDiscovery] Start failed");
-        }
+        RefreshLoop(lifetime).NoAwait();
+        return Task.CompletedTask;
     }
 
     public async Task Push()
@@ -59,7 +55,14 @@ public class ServiceDiscovery : IServiceDiscovery
         try
         {
             _self = CreateOverview();
-            await _messaging.PublishChannel(_channelId, _self);
+
+            if (_deployContext.DeployId == Guid.Empty)
+                return;
+
+            var grain = _orleans.GetGrain<IServiceDiscoveryStorage>(_deployContext.DeployId);
+            var members = await grain.Update(_self);
+
+            ApplyMembers(members);
         }
         catch (Exception e)
         {
@@ -67,14 +70,14 @@ public class ServiceDiscovery : IServiceDiscovery
         }
     }
 
-    private async Task UpdateLoop(IReadOnlyLifetime lifetime)
+    private async Task RefreshLoop(IReadOnlyLifetime lifetime)
     {
         while (lifetime.IsTerminated == false)
         {
             try
             {
                 await Push();
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await Task.Delay(TimeSpan.FromSeconds(2));
             }
             catch (OperationCanceledException)
             {
@@ -82,31 +85,21 @@ public class ServiceDiscovery : IServiceDiscovery
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[ServiceDiscovery] UpdateLoop iteration failed");
+                _logger.LogError(e, "[ServiceDiscovery] RefreshLoop iteration failed");
                 await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
     }
 
-    private void Update(IServiceOverview overview)
+    private void ApplyMembers(Dictionary<Guid, IServiceOverview> members)
     {
-        try
-        {
-            _entries[overview.Id] = overview;
+        foreach (var (id, overview) in members)
+            _entries[id] = overview;
 
-            foreach (var (id, service) in _entries)
-            {
-                if (DateTime.UtcNow - service.UpdateTime > TimeSpan.FromSeconds(30))
-                {
-                    if (_entries.TryRemove(id, out _))
-                        _logger.LogInformation("[ServiceDiscovery] Removed stale entry {Id} (tag={Tag})", id,
-                            service.Tag);
-                }
-            }
-        }
-        catch (Exception e)
+        foreach (var existingId in _entries.Keys.ToList())
         {
-            _logger.LogError(e, "[ServiceDiscovery] Update failed");
+            if (members.ContainsKey(existingId) == false)
+                _entries.TryRemove(existingId, out _);
         }
     }
 
@@ -152,8 +145,8 @@ public class ServiceDiscovery : IServiceDiscovery
         {
             var url = Environment.GetEnvironmentVariable("GAME_SERVER_URL");
 
-            if (string.IsNullOrWhiteSpace(url))
-                return "http://localhost:5268";
+            if (url == null)
+                throw new InvalidOperationException("GAME_SERVER_URL environment variable is not set");
 
             return url;
         }

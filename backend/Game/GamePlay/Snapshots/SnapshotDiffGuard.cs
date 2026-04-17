@@ -95,7 +95,11 @@ public static class SnapshotDiffCalculator
         }
     }
 
-    private static void ComparePlayer(Guid id, PlayerStateSnapshot expected, PlayerStateSnapshot actual, List<string> diff)
+    private static void ComparePlayer(
+        Guid id,
+        PlayerStateSnapshot expected,
+        PlayerStateSnapshot actual,
+        List<string> diff)
     {
         if (expected.ManaCurrent != actual.ManaCurrent || expected.ManaMax != actual.ManaMax)
         {
@@ -113,8 +117,9 @@ public static class SnapshotDiffCalculator
             expected.MovesMax != actual.MovesMax ||
             expected.MovesIsAvailable != actual.MovesIsAvailable)
         {
-            diff.Add($"Player {id} Moves: expected {expected.MovesLeft}/{expected.MovesMax} available={expected.MovesIsAvailable}, " +
-                     $"got {actual.MovesLeft}/{actual.MovesMax} available={actual.MovesIsAvailable}");
+            diff.Add(
+                $"Player {id} Moves: expected {expected.MovesLeft}/{expected.MovesMax} available={expected.MovesIsAvailable}, " +
+                $"got {actual.MovesLeft}/{actual.MovesMax} available={actual.MovesIsAvailable}");
         }
 
         CompareModifiers(id, expected.Modifiers, actual.Modifiers, diff);
@@ -204,7 +209,11 @@ public static class SnapshotDiffCalculator
         }
     }
 
-    private static void CompareBoard(Guid ownerId, BoardStateSnapshot expected, BoardStateSnapshot actual, List<string> diff)
+    private static void CompareBoard(
+        Guid ownerId,
+        BoardStateSnapshot expected,
+        BoardStateSnapshot actual,
+        List<string> diff)
     {
         foreach (var (position, expectedCell) in expected.Cells)
         {
@@ -239,12 +248,14 @@ public static class SnapshotDiffCalculator
 
         if (expected.Status == CellStatus.Taken && expected.IsFlagged != actual.IsFlagged)
         {
-            diff.Add($"Board {ownerId} cell {position} IsFlagged: expected {expected.IsFlagged}, got {actual.IsFlagged}");
+            diff.Add(
+                $"Board {ownerId} cell {position} IsFlagged: expected {expected.IsFlagged}, got {actual.IsFlagged}");
         }
 
         if (expected.Status == CellStatus.Free && expected.MinesAround != actual.MinesAround)
         {
-            diff.Add($"Board {ownerId} cell {position} MinesAround: expected {expected.MinesAround}, got {actual.MinesAround}");
+            diff.Add(
+                $"Board {ownerId} cell {position} MinesAround: expected {expected.MinesAround}, got {actual.MinesAround}");
         }
 
         CompareEffects(ownerId, position, expected.Effects, actual.Effects, diff);
@@ -266,13 +277,15 @@ public static class SnapshotDiffCalculator
             }
 
             if (expectedType != actualType)
-                diff.Add($"Board {ownerId} cell {position} Effect {effectId}: expected {expectedType}, got {actualType}");
+                diff.Add(
+                    $"Board {ownerId} cell {position} Effect {effectId}: expected {expectedType}, got {actualType}");
         }
 
         foreach (var (effectId, actualType) in actual)
         {
             if (expected.ContainsKey(effectId) == false)
-                diff.Add($"Board {ownerId} cell {position} Effect {effectId} ({actualType}): unexpected extra in actual");
+                diff.Add(
+                    $"Board {ownerId} cell {position} Effect {effectId} ({actualType}): unexpected extra in actual");
         }
     }
 }

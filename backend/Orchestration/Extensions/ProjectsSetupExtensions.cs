@@ -1,6 +1,7 @@
 ﻿using Benchmarks;
 using Cluster.Configs;
 using Cluster.Coordination;
+using Cluster.Deploy;
 using Cluster.Discovery;
 using Cluster.Monitoring;
 using Cluster.State;
@@ -41,7 +42,7 @@ public static class ProjectsSetupExtensions
                    .As<ICoordinatorSetupCompleted>();
 
             builder.Add<ClusterBotsSetup>()
-                   .As<ICoordinatorSetupCompleted>();
+                   .As<IServiceStarted>();
 
             return builder;
         }
@@ -153,9 +154,13 @@ public static class ProjectsSetupExtensions
                 webBuilder.Host.UseDefaultServiceProvider(options => options.ValidateOnBuild = true);
 
             builder.Services.AddHostedService<ClusterParticipantStartup>();
+            builder.Services.AddHostedService<DeployHealthChecker>();
 
             builder.Add<ClusterParticipantContext>()
                    .As<IClusterParticipantContext>();
+
+            builder.Add<DeployContext>()
+                   .As<IDeployContext>();
 
             builder
                 .AddEnvironment(serviceTag)
@@ -164,6 +169,7 @@ public static class ProjectsSetupExtensions
                 .AddOrleansUtils()
                 .AddServiceDiscovery()
                 .AddTaskScheduling()
+                .AddDeployCleanup()
                 .AddClusterFeatures()
                 .AddMemoryPack()
                 .AddTests()

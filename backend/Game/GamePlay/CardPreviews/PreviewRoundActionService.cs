@@ -1,5 +1,3 @@
-using Shared;
-
 namespace Game.GamePlay.CardPreviews;
 
 /// <summary>

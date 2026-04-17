@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -52,7 +53,7 @@ public class StateSerializer : IStateSerializer
 
     public T Deserialize<T>(string value)
     {
-        return JsonConvert.DeserializeObject<T>(value, _settings)!;
+        return JsonConvert.DeserializeObject<T>(value, _settings).ThrowIfNull();
     }
 
     public T? TryDeserialize<T>(string value)

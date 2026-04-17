@@ -37,6 +37,7 @@ public static class SnapshotApplier
                     else
                         addPlayer.Hand[add.CardId] = add.Type;
                 }
+
                 break;
 
             case PlayerSnapshotRecord.CardRemove remove:
@@ -50,6 +51,7 @@ public static class SnapshotApplier
                     manaPlayer.ManaCurrent = mana.Current;
                     manaPlayer.ManaMax = mana.Max;
                 }
+
                 break;
 
             case PlayerSnapshotRecord.HealthUpdate health:
@@ -58,6 +60,7 @@ public static class SnapshotApplier
                     healthPlayer.HealthCurrent = health.Current;
                     healthPlayer.HealthMax = health.Max;
                 }
+
                 break;
 
             case PlayerSnapshotRecord.MovesUpdate moves:
@@ -67,6 +70,7 @@ public static class SnapshotApplier
                     movesPlayer.MovesMax = moves.Max;
                     movesPlayer.MovesIsAvailable = moves.IsAvailable;
                 }
+
                 break;
 
             case PlayerSnapshotRecord.ModifierUpdate modifier:

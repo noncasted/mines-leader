@@ -1,4 +1,5 @@
 using System.Runtime.ExceptionServices;
+using Common.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans.Serialization;
 using Orleans.Serialization.Invocation;
@@ -48,7 +49,7 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         {
             if (context.Response is TransactionResponse response)
             {
-                var currentContext = Context!;
+                var currentContext = Context.ThrowIfNull();
 
                 foreach (var (id, participants) in response.Context.Participants)
                     currentContext.Participants.TryAdd(id, participants);

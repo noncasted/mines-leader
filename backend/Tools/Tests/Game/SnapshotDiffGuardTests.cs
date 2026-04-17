@@ -61,6 +61,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.ManaUpdate
         {
             PlayerId = playerId,
@@ -79,6 +80,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.HealthUpdate
         {
             PlayerId = playerId,
@@ -97,6 +99,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.MovesUpdate
         {
             PlayerId = playerId,
@@ -117,6 +120,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.ModifierUpdate
         {
             PlayerId = playerId,
@@ -135,6 +139,7 @@ public class SnapshotApplierTests
         var playerId = Guid.NewGuid();
         var cardId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.CardAdd
         {
             PlayerId = playerId,
@@ -172,6 +177,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.CardUse
         {
             PlayerId = playerId,
@@ -190,6 +196,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         pre.Boards[playerId].Cells[new Position(0, 0)] = new CellStateSnapshot
         {
             Status = CellStatus.Free,
@@ -217,6 +224,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         pre.Boards[playerId].Cells[new Position(0, 0)] = new CellStateSnapshot
         {
             Status = CellStatus.Taken,
@@ -307,6 +315,7 @@ public class SnapshotApplierTests
                 }
             }
         };
+
         var postAdd = SnapshotApplier.Apply(pre, new SharedMoveSnapshot
         {
             Records = new IMoveSnapshotRecord[] { addSnapshot }
@@ -326,6 +335,7 @@ public class SnapshotApplierTests
                 }
             }
         };
+
         var postRemove = SnapshotApplier.Apply(postAdd, new SharedMoveSnapshot
         {
             Records = new IMoveSnapshotRecord[] { removeSnapshot }
@@ -352,7 +362,8 @@ public class SnapshotApplierTests
 
         var post = SnapshotApplier.Apply(pre, records);
 
-        post.Boards[playerId].Cells[new Position(0, 0)].Status.Should().Be(pre.Boards[playerId].Cells[new Position(0, 0)].Status);
+        post.Boards[playerId].Cells[new Position(0, 0)].Status.Should()
+            .Be(pre.Boards[playerId].Cells[new Position(0, 0)].Status);
     }
 
     [Fact]
@@ -360,6 +371,7 @@ public class SnapshotApplierTests
     {
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
+
         var records = ToRecords(new PlayerSnapshotRecord.ManaUpdate
         {
             PlayerId = playerId,
@@ -398,8 +410,16 @@ public class SnapshotDiffCalculatorTests
     public void Compute_IdenticalStates_ReturnsEmpty()
     {
         var id = Guid.NewGuid();
-        var a = StateWith(id, p => { p.ManaCurrent = 3; p.ManaMax = 5; });
-        var b = StateWith(id, p => { p.ManaCurrent = 3; p.ManaMax = 5; });
+
+        var a = StateWith(id, p => {
+            p.ManaCurrent = 3;
+            p.ManaMax = 5;
+        });
+
+        var b = StateWith(id, p => {
+            p.ManaCurrent = 3;
+            p.ManaMax = 5;
+        });
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
 
@@ -410,8 +430,16 @@ public class SnapshotDiffCalculatorTests
     public void Compute_ManaDiffers_ReportsManaDiff()
     {
         var id = Guid.NewGuid();
-        var a = StateWith(id, p => { p.ManaCurrent = 3; p.ManaMax = 5; });
-        var b = StateWith(id, p => { p.ManaCurrent = 7; p.ManaMax = 5; });
+
+        var a = StateWith(id, p => {
+            p.ManaCurrent = 3;
+            p.ManaMax = 5;
+        });
+
+        var b = StateWith(id, p => {
+            p.ManaCurrent = 7;
+            p.ManaMax = 5;
+        });
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
 
@@ -423,7 +451,9 @@ public class SnapshotDiffCalculatorTests
     public void Compute_MissingPlayer_Reports()
     {
         var id = Guid.NewGuid();
-        var a = StateWith(id, _ => { });
+
+        var a = StateWith(id, _ => {
+        });
         var b = new GameStateSnapshot();
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
@@ -436,7 +466,9 @@ public class SnapshotDiffCalculatorTests
     {
         var id = Guid.NewGuid();
         var a = new GameStateSnapshot();
-        var b = StateWith(id, _ => { });
+
+        var b = StateWith(id, _ => {
+        });
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
 
@@ -464,6 +496,7 @@ public class SnapshotDiffCalculatorTests
                 }
             }
         };
+
         var b = new GameStateSnapshot
         {
             Boards = new Dictionary<Guid, BoardStateSnapshot>
@@ -515,6 +548,7 @@ public class SnapshotDiffGuardTests
                 { id, new PlayerStateSnapshot { ManaCurrent = 1 } }
             }
         };
+
         var post = new GameStateSnapshot
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
@@ -541,6 +575,7 @@ public class SnapshotDiffGuardTests
                 { id, new PlayerStateSnapshot { ManaCurrent = 1, ManaMax = 5 } }
             }
         };
+
         var records = new SharedMoveSnapshot
         {
             Records = new IMoveSnapshotRecord[]
@@ -548,6 +583,7 @@ public class SnapshotDiffGuardTests
                 new PlayerSnapshotRecord.ManaUpdate { PlayerId = id, Current = 3, Max = 5 }
             }
         };
+
         var post = new GameStateSnapshot
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
@@ -575,6 +611,7 @@ public class SnapshotDiffGuardTests
         };
         // No records, but post mana changed — this is the bug diff-guard must catch.
         var records = new SharedMoveSnapshot { Records = Array.Empty<IMoveSnapshotRecord>() };
+
         var post = new GameStateSnapshot
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
@@ -584,6 +621,7 @@ public class SnapshotDiffGuardTests
         };
 
         var act = () => guard.Validate(pre, records, post, "bug");
+
         act.Should().Throw<SnapshotDiffException>()
            .WithMessage("*Mana*");
     }
@@ -595,6 +633,7 @@ public class BloodPactSnapshotSequenceTests : PlayerCardTestsBase
     public void Use_InvokesResourceMethodsInChoreographyOrder()
     {
         var owner = MockPlayer();
+
         owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
         {
             { PlayerModifier.AdditionalMana, 0f },
@@ -603,15 +642,17 @@ public class BloodPactSnapshotSequenceTests : PlayerCardTestsBase
         owner.Mana.Current.Returns(0);
 
         var calls = new List<string>();
+
         owner.Health.When(h => h.TakeDamage(Arg.Any<MoveSnapshot>(), Arg.Any<int>()))
              .Do(_ => calls.Add("Health.TakeDamage"));
-        owner.Modifiers.When(m =>
-                  m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, Arg.Any<float>()))
+
+        owner.Modifiers.When(m => m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, Arg.Any<float>()))
              .Do(_ => calls.Add("Modifiers.Set(AdditionalMana)"));
+
         owner.Mana.When(m => m.SetCurrent(Arg.Any<MoveSnapshot>(), Arg.Any<int>()))
              .Do(_ => calls.Add("Mana.SetCurrent"));
-        owner.Modifiers.When(m =>
-                  m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, Arg.Any<float>()))
+
+        owner.Modifiers.When(m => m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, Arg.Any<float>()))
              .Do(_ => calls.Add("Modifiers.Set(AdditionalMoves)"));
 
         var snapshot = new MoveSnapshot();
@@ -619,8 +660,7 @@ public class BloodPactSnapshotSequenceTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.BloodPact { Type = CardType.BloodPact }, snapshot);
 
-        calls.Should().Equal(
-            "Health.TakeDamage",
+        calls.Should().Equal("Health.TakeDamage",
             "Modifiers.Set(AdditionalMana)",
             "Mana.SetCurrent",
             "Modifiers.Set(AdditionalMoves)");
@@ -633,6 +673,7 @@ public class BloodhoundSnapshotSequenceTests : PlayerCardTestsBase
     public void Use_WritesBoardRecordsGroupedUnderInvokerBoard()
     {
         var ownerId = Guid.NewGuid();
+
         var (board, target) = BoardParser.Parse("""
                                                 t t t t t t t
                                                 t t t t t t t
@@ -664,6 +705,7 @@ public class CarpetBombSnapshotSequenceTests : PlayerCardTestsBase
     public void Use_PopulatesTakenCellsAndUpdatedFreeNeighbors()
     {
         var ownerId = Guid.NewGuid();
+
         // Opponent's board — all free, the bomb plants mines along a line.
         var (board, target) = BoardParser.Parse("""
                                                 _ _ _ _ _ _ _ _

@@ -1,5 +1,4 @@
 using Game.Global;
-using Game.Session;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameGateway;
