@@ -5,6 +5,13 @@ using MemoryPack;
 namespace Shared
 {
     [MemoryPackable]
+    public partial struct OpenedCell
+    {
+        public Position Position { get; set; }
+        public int MinesAround { get; set; }
+    }
+
+    [MemoryPackable]
     [MemoryPackUnion(0, typeof(CardActionSnapshot.ZipZap))]
     [MemoryPackUnion(1, typeof(CardActionSnapshot.Bloodhound))]
     [MemoryPackUnion(2, typeof(CardActionSnapshot.ErosionDozer))]
@@ -61,7 +68,7 @@ namespace Shared
     {
         Guid TargetPlayer { get; set; }
         IReadOnlyList<Position>? TargetCells => null;
-        IReadOnlyList<Position>? ActionCells => null;
+        IReadOnlyList<OpenedCell>? OpenedCells => null;
     }
 
     public partial class CardActionSnapshot
@@ -71,7 +78,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -79,7 +86,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -87,7 +94,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -116,7 +123,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -152,7 +159,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> RevealedCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -304,7 +311,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -321,7 +328,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -330,7 +337,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualLength { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
-            public IReadOnlyList<Position>? ActionCells { get; set; }
+            public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
         }
 
         [MemoryPackable]

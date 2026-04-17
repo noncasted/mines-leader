@@ -36,6 +36,13 @@ namespace Shared
     [MemoryPackUnion(5, typeof(PlayerSnapshotRecord.ManaUpdate))]
     [MemoryPackUnion(6, typeof(PlayerSnapshotRecord.HealthUpdate))]
     [MemoryPackUnion(7, typeof(PlayerSnapshotRecord.MovesUpdate))]
+    [MemoryPackUnion(8, typeof(PlayerSnapshotRecord.ModifierUpdate))]
+    [MemoryPackUnion(9, typeof(PlayerSnapshotRecord.DeckUpdate))]
+    [MemoryPackUnion(10, typeof(PlayerSnapshotRecord.StashUpdate))]
+    [MemoryPackUnion(11, typeof(PlayerSnapshotRecord.BoardStateUpdate))]
+    [MemoryPackUnion(12, typeof(GameCompletedRecord))]
+    [MemoryPackUnion(13, typeof(TimeLimitedRoundRecord))]
+    [MemoryPackUnion(14, typeof(LastManStandingRoundRecord))]
     public partial interface IMoveSnapshotRecord
     {
     }
