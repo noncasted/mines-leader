@@ -99,9 +99,9 @@ namespace GamePlay.Cards
                 foreach (var line in lines)
                     Object.Destroy(line.gameObject);
 
-                if (payload.OpenedCells != null)
+                if (payload.UpdatedFreeCells != null)
                 {
-                    foreach (var opened in payload.OpenedCells)
+                    foreach (var opened in payload.UpdatedFreeCells)
                     {
                         var vector = opened.Position.ToVector();
 

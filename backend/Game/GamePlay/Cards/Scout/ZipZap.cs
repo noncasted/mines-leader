@@ -72,9 +72,15 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
 
         var revealed = board.Revealer.Reveal(targetPositions);
         revealed.AddRange(targetPositions);
-        revealed.AddRange(board.GetFreeNeighbours(targetPositions));
 
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        var updatedPositions = revealed.Concat(board.GetFreeNeighbours(targetPositions)).Distinct();
+        var updatedFreeCells = updatedPositions.Select(p => new OpenedCell
         {
             Position = p,
             MinesAround = board.Cells[p].AsFree().MinesAround
@@ -84,7 +90,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         {
             TargetPlayer = board.OwnerId,
             TargetCells = targetPositions,
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = updatedFreeCells
         });
 
         return new CardUseResult

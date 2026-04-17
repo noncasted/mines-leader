@@ -85,12 +85,12 @@ namespace GamePlay.Cards
             {
                 await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualLength);
 
-                if (payload.OpenedCells == null || payload.OpenedCells.Count == 0)
+                if (payload.UpdatedFreeCells == null || payload.UpdatedFreeCells.Count == 0)
                     return;
 
                 var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
 
-                foreach (var opened in payload.OpenedCells)
+                foreach (var opened in payload.UpdatedFreeCells)
                 {
                     var vector = opened.Position.ToVector();
 

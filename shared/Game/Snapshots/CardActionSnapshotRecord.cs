@@ -69,6 +69,7 @@ namespace Shared
         Guid TargetPlayer { get; set; }
         IReadOnlyList<Position>? TargetCells => null;
         IReadOnlyList<OpenedCell>? OpenedCells => null;
+        IReadOnlyList<OpenedCell>? UpdatedFreeCells => null;
     }
 
     public partial class CardActionSnapshot
@@ -79,6 +80,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -87,6 +89,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -95,6 +98,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -124,6 +128,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -160,6 +165,7 @@ namespace Shared
             public IReadOnlyList<Position> RevealedCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -312,6 +318,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -329,6 +336,7 @@ namespace Shared
             public int ActualSize { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -338,6 +346,7 @@ namespace Shared
             public int ActualLength { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]

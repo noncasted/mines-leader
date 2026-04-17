@@ -50,9 +50,15 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
 
         var revealed = board.Revealer.Reveal(targetPositions);
         revealed.AddRange(minePositions);
-        revealed.AddRange(board.GetFreeNeighbours(minePositions));
-        
+
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        var updatedPositions = revealed.Concat(board.GetFreeNeighbours(minePositions)).Distinct();
+        var updatedFreeCells = updatedPositions.Select(p => new OpenedCell
         {
             Position = p,
             MinesAround = board.Cells[p].AsFree().MinesAround
@@ -62,7 +68,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
         {
             TargetPlayer = board.OwnerId,
             TargetCells = targetPositions,
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = updatedFreeCells
         });
 
         return new CardUseResult

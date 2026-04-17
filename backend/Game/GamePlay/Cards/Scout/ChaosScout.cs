@@ -72,7 +72,8 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
             TargetPlayer = board.OwnerId,
             ActualLength = actualLength,
             TargetCells = selected.Select(c => c.Position).ToList(),
-            OpenedCells = openedCells
+            OpenedCells = openedCells,
+            UpdatedFreeCells = openedCells
         });
 
         foreach (var position in flagged)

@@ -91,7 +91,7 @@ public static class SnapshotApplier
         if (data == null)
             return;
 
-        var openedCells = data.OpenedCells;
+        var openedCells = data.UpdatedFreeCells ?? data.OpenedCells;
 
         if (openedCells == null || openedCells.Count == 0)
             return;
