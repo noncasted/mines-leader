@@ -38,11 +38,18 @@ namespace GamePlay.Boards
             gameObject.SetActive(true);
 
             var animationLifetime = lifetime.Child();
-            _cellTarget.OnSetup(animationLifetime);
-            await _cellTarget.PlayAsync(animationLifetime);
-            animationLifetime.Terminate();
 
-            gameObject.SetActive(false);
+            try
+            {
+                _cellTarget.OnSetup(animationLifetime);
+                await _cellTarget.PlayAsync(animationLifetime);
+            }
+            finally
+            {
+                animationLifetime.Terminate();
+                if (this != null)
+                    gameObject.SetActive(false);
+            }
         }
 
         public async UniTask PlayCellAction(IReadOnlyLifetime lifetime)
@@ -50,11 +57,18 @@ namespace GamePlay.Boards
             gameObject.SetActive(true);
 
             var animationLifetime = lifetime.Child();
-            _cellAction.OnSetup(animationLifetime); 
-            await _cellAction.PlayAsync(animationLifetime);
-            animationLifetime.Terminate();
 
-            gameObject.SetActive(false);
+            try
+            {
+                _cellAction.OnSetup(animationLifetime);
+                await _cellAction.PlayAsync(animationLifetime);
+            }
+            finally
+            {
+                animationLifetime.Terminate();
+                if (this != null)
+                    gameObject.SetActive(false);
+            }
         }
 
         public void SetSprite(Sprite sprite)

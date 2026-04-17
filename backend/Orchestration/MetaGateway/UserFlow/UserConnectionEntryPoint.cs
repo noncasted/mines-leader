@@ -1,5 +1,6 @@
 using Cluster.Configs;
 using Common.Reactive;
+using Game.GamePlay.CardPreviews;
 using Infrastructure;
 using Meta.Users;
 using MetaGateway.UserFlow.Commands;
@@ -22,6 +23,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         IMessaging messaging,
         ICardConfigs cardConfigs,
         ILootProgressionConfig lootProgressionConfig,
+        ICardPreviewGenerator cardPreviewGenerator,
         ILogger<UserConnectionEntryPoint> logger)
     {
         _users = users;
@@ -29,6 +31,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         _messaging = messaging;
         _cardConfigs = cardConfigs;
         _lootProgressionConfig = lootProgressionConfig;
+        _cardPreviewGenerator = cardPreviewGenerator;
         _logger = logger;
         _commandsDispatcher = commandsDispatcher;
     }
@@ -40,6 +43,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
     private readonly ILootProgressionConfig _lootProgressionConfig;
+    private readonly ICardPreviewGenerator _cardPreviewGenerator;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
     public async Task OnConnected(IUserSession user)
@@ -76,6 +80,9 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
             _cardConfigs.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
             _lootProgressionConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
+
+            var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();
+            await writer.WriteOneWay(new InitialCardPreviews { Bundles = cardPreviews }.ToProjection());
 
             await writer.WriteOneWay(new SharedConnectionCompleted());
 

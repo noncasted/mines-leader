@@ -18,5 +18,10 @@
         <VisualElement name="deck-slots" style="flex-direction: row; min-height: 20px; height: 64px; width: 269px; justify-content: space-around; align-self: center; align-items: center; margin-bottom: 2px;"/>
         <ScrollView name="pool-scroll" vertical-scroller-visibility="AlwaysVisible" horizontal-scroller-visibility="Hidden" class="pool-scroll" style="width: 232px; margin-top: 5px; margin-bottom: 16px;"/>
         <Button name="btn-exit" class="exit-btn"/>
+        <VisualElement name="card-preview-popup" class="card-preview-popup" picking-mode="Ignore" style="display: none;">
+            <VisualElement name="card-preview-image" class="card-preview-image"/>
+            <Label name="card-preview-name" class="u-ithaca card-preview-name"/>
+            <Label name="card-preview-desc" class="u-ithaca card-preview-desc"/>
+        </VisualElement>
     </VisualElement>
 </UXML>

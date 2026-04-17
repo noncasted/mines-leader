@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Global.UI;
 using Global.UI.Toolkit;
 using Internal;
+using Menu.Screens.Cards.Preview;
 using Meta;
 using Shared;
 using UnityEngine;
@@ -34,12 +35,18 @@ namespace Menu.Decks
         private ICardsRegistry _cardsRegistry;
         private ICardConfigs _configs;
         private IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
+        private IMenuCardPreviewPlayer _previewPlayer;
 
         private Label _avgManaLabel;
         private VisualElement _deckSlotsContainer;
         private ScrollView _poolScroll;
         private VisualElement _deckIndexRow;
         private VisualElement _bottomBar;
+
+        private VisualElement _previewPopup;
+        private VisualElement _previewImage;
+        private Label _previewName;
+        private Label _previewDesc;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -48,12 +55,14 @@ namespace Menu.Decks
             IDeckService deckService,
             ICardsRegistry cardsRegistry,
             ICardConfigs configs,
-            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection)
+            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection,
+            IMenuCardPreviewPlayer previewPlayer)
         {
             _configs = configs;
             _cardsRegistry = cardsRegistry;
             _deckService = deckService;
             _cardsProjection = cardsProjection;
+            _previewPlayer = previewPlayer;
         }
 
         public void Create(IScopeBuilder builder)
@@ -72,6 +81,12 @@ namespace Menu.Decks
             _deckSlotsContainer = _root.Q<VisualElement>("deck-slots");
             _poolScroll = _root.Q<ScrollView>("pool-scroll");
             _deckIndexRow = _root.Q<VisualElement>("deck-index-row");
+
+            _previewPopup = _root.Q<VisualElement>("card-preview-popup");
+            _previewImage = _root.Q<VisualElement>("card-preview-image");
+            _previewName = _root.Q<Label>("card-preview-name");
+            _previewDesc = _root.Q<Label>("card-preview-desc");
+            _previewPopup.Hide();
 
             // Find bottom bar from another UIDocument
             var allDocs = Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
@@ -139,6 +154,7 @@ namespace Menu.Decks
                 slot.Root.AddToClassList("deck-slot");
                 _deckSlotsContainer.Add(slot.Root);
                 _deckSlots.Add(slot);
+                RegisterPreviewHover(slot, lifetime);
             }
 
             // Pool cards
@@ -156,6 +172,7 @@ namespace Menu.Decks
                     () => CreateGhostCard(definition, config),
                     dropTarget => OnCardDropped(card, dropTarget));
                 card.Root.AddManipulator(manipulator);
+                RegisterPreviewHover(card, lifetime);
             }
 
             ForceUpdateDeck(_deckService.SelectedIndex.Value);
@@ -361,6 +378,107 @@ namespace Menu.Decks
             var card = CloneCard(true);
             card.SetCard(definition, config);
             return card.Root;
+        }
+
+        private void RegisterPreviewHover(CardElement card, IReadOnlyLifetime lifetime)
+        {
+            void OnEnter(PointerEnterEvent evt) {
+                Debug.Log($"[Preview] Hover.Enter: cardType={card.CurrentType?.ToString() ?? "null"}.");
+                if (!card.CurrentType.HasValue)
+                    return;
+                ShowPreview(card);
+            }
+
+            void OnLeave(PointerLeaveEvent evt) {
+                Debug.Log("[Preview] Hover.Leave.");
+                HidePreview();
+            }
+
+            card.Root.RegisterCallback<PointerEnterEvent>(OnEnter);
+            card.Root.RegisterCallback<PointerLeaveEvent>(OnLeave);
+
+            lifetime.Listen(() => {
+                card.Root.UnregisterCallback<PointerEnterEvent>(OnEnter);
+                card.Root.UnregisterCallback<PointerLeaveEvent>(OnLeave);
+            });
+        }
+
+        private void ShowPreview(CardElement card)
+        {
+            if (!card.CurrentType.HasValue || card.CurrentDefinition == null)
+            {
+                Debug.Log("[Preview] Decks.ShowPreview: aborting (null type or definition).");
+                return;
+            }
+
+            var type = card.CurrentType.Value;
+
+            if (_previewPlayer.HasPreview(type) == false)
+            {
+                Debug.Log($"[Preview] Decks.ShowPreview({type}): no bundle (resource/buff/hand card), skipping popup.");
+                return;
+            }
+
+            Debug.Log($"[Preview] Decks.ShowPreview({type}): calling Player.Play.");
+            _previewPlayer.Play(type);
+
+            var rt = _previewPlayer.PreviewTexture;
+            Debug.Log($"[Preview] Decks.ShowPreview({type}): RT={(rt != null ? rt.name : "null")}.");
+
+            if (rt != null)
+                _previewImage.style.backgroundImage = Background.FromRenderTexture(rt);
+            else
+                _previewImage.style.backgroundImage = StyleKeyword.None;
+
+            _previewName.text = card.CurrentDefinition.Name;
+            _previewDesc.text = card.CurrentDefinition.Description ?? string.Empty;
+
+            _previewPopup.Show();
+            PositionPreview(card.Root);
+        }
+
+        private void HidePreview()
+        {
+            _previewPlayer.Stop();
+            _previewPopup.Hide();
+        }
+
+        private void PositionPreview(VisualElement anchor)
+        {
+            var panelWidth = _cardsRoot.resolvedStyle.width;
+            var panelHeight = _cardsRoot.resolvedStyle.height;
+            var popupWidth = _previewPopup.resolvedStyle.width;
+            var popupHeight = _previewPopup.resolvedStyle.height;
+
+            // Защита на случай, если layout ещё не просчитан.
+            if (popupWidth <= 0f)
+                popupWidth = 96f;
+            if (popupHeight <= 0f)
+                popupHeight = 120f;
+
+            // Якорный rect относительно cards-root.
+            var anchorRect = anchor.ChangeCoordinatesTo(_cardsRoot, new Rect(0, 0, anchor.resolvedStyle.width, anchor.resolvedStyle.height));
+
+            // Базовое позиционирование — справа от карточки, сверху совмещено.
+            var left = anchorRect.xMax + 2f;
+            var top = anchorRect.yMin - 4f;
+
+            // Overflow-safe: если выходит за правый край экрана — отзеркалим на левую сторону карточки.
+            if (left + popupWidth > panelWidth)
+                left = anchorRect.xMin - popupWidth - 2f;
+
+            // Если и слева не помещается — прижмём к краю.
+            if (left < 0f)
+                left = 0f;
+
+            // Вертикальная коррекция — чтобы не уходил вниз за экран.
+            if (top + popupHeight > panelHeight)
+                top = panelHeight - popupHeight;
+            if (top < 0f)
+                top = 0f;
+
+            _previewPopup.style.left = left;
+            _previewPopup.style.top = top;
         }
     }
 

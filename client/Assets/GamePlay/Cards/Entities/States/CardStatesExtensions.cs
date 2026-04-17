@@ -210,7 +210,7 @@ namespace GamePlay.Cards
             }
         }
 
-        public static void AddCardActionSync(this IEntityBuilder builder, ICardDefinition definition)
+        public static void AddCardActionSync(this IBuilder builder, ICardDefinition definition)
         {
             var type = definition.Type;
 
