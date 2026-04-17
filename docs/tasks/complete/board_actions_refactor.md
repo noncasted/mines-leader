@@ -18,3 +18,4 @@
 ### Заметки
 - `BoardActions` регистрируется в player entity scope (`AddPlayerComponents`), а не в корневом — каждый игрок получает свой экземпляр, хотя инстанс stateless и зависит только от `INetworkConnection`.
 - `Setup` теперь имеет сигнатуру `Setup(bool isMine)` вместо `Setup(INetworkEntity)` — в интерфейсе `IBoard` тоже.
+[card_cell_visualization](../current/card_cell_visualization)
