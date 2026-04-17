@@ -45,7 +45,7 @@ namespace Global.Audio
             musicSource.loop = true;
 
             builder
-                .WithName("Global_Audio_Player")
+                .WithName("Global/Global_Audio_Player")
                 .WithComponent<AudioPlayer>(player => {
                     player.Configure(musicSource, soundSources.ToArray());
                 });
@@ -58,7 +58,7 @@ namespace Global.Audio
         public static void Define(PrefabBuilder builder)
         {
             builder
-                .WithName("Global_Audio_Listener")
+                .WithName("Global/Global_Audio_Listener")
                 .WithComponent<UnityEngine.AudioListener>()
                 .WithComponent<AudioListener>();
         }

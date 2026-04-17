@@ -19,7 +19,7 @@ namespace Global.UI
             LoadingScreenAnimation animation = null;
 
             builder
-                .WithName("LoadingScreen")
+                .WithName("Global/LoadingScreen")
                 .WithComponent<Canvas>(c => {
                             c.renderMode = RenderMode.ScreenSpaceOverlay;
                             c.sortingOrder = 32767;

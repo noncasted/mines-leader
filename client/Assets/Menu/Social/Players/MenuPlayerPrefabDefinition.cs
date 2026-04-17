@@ -23,7 +23,7 @@ namespace Menu.Social
             SpriteRenderer viewRenderer = null;
 
             builder
-                .WithName("MenuPlayer")
+                .WithName("Menu/MenuPlayer")
                 .WithComponent<Rigidbody2D>(r => {
                             r.gravityScale = 1f;
                             r.constraints = RigidbodyConstraints2D.FreezeRotation;

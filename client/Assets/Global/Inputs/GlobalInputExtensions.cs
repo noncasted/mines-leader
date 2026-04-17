@@ -30,7 +30,7 @@ namespace Global.Inputs
         public static void Define(PrefabBuilder builder)
         {
             builder
-                .WithName("Global_Events")
+                .WithName("Global/Global_Events")
                 .WithComponent<EventSystem>()
                 .WithComponent<InputSystemUIInputModule>();
         }

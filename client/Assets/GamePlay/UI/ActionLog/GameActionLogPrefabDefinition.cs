@@ -22,7 +22,7 @@ namespace GamePlay.UI.ActionLog
             TMP_Text messageText = null;
 
             builder
-                .WithName("ActionLogTile")
+                .WithName("Game/ActionLogTile")
                 .WithRectTransform(rt => {
                     rt.sizeDelta = new Vector2(280f, 50f);
                 })
@@ -78,7 +78,7 @@ namespace GamePlay.UI.ActionLog
             ResponsiveContainer responsiveContainer = null;
 
             builder
-                .WithName("ActionLogPanel")
+                .WithName("Game/ActionLogPanel")
                 .WithRectTransform(rt => {
                     rt.anchorMin = new Vector2(0f, 0f);
                     rt.anchorMax = new Vector2(0f, 0f);

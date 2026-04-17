@@ -16,7 +16,7 @@ namespace GamePlay.Cards
             SpriteRenderer spriteRenderer = null;
 
             builder
-                .WithName("StashCard")
+                .WithName("Game/StashCard")
                 .WithComponent<StashCard>()
                 .WithComponent<SpriteRenderer>(sr => {
                     sr.color = Color.white;
