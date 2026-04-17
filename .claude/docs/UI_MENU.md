@@ -32,10 +32,13 @@ client/Assets/Menu/UI/
 ├── Main/
 │   ├── MenuBottomBar.uxml
 │   └── MenuBottomBar.uss
-└── Decks/
-    ├── MenuCards.uxml               # screen
-    ├── MenuCards.uss                # screen-specific styles
-    └── MenuCard.uxml                # card template (instantiated many times)
+├── Decks/
+│   ├── MenuCards.uxml               # screen
+│   ├── MenuCards.uss                # screen-specific styles
+│   └── MenuCard.uxml                # card template (instantiated many times)
+└── History/
+    ├── MenuHistory.uxml             # match history screen
+    └── MenuHistory.uss              # history-specific styles (stats row, entry list, details panel)
 ```
 
 `.cs` scripts and prefabs stay in their original screen folders (`Menu/Main/`, `Menu/Decks/`). Only UXML/USS and panel assets live under `Menu/UI/`.
