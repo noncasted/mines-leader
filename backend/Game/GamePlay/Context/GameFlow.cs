@@ -21,7 +21,8 @@ public class GameFlow : Service, IGameFlow
         IGameRound gameRound,
         MatchCreateOptions matchOptions,
         IRematchAwaiter rematchAwaiter,
-        ISessionLogger sessionLogger) : base("game-flow")
+        ISessionLogger sessionLogger,
+        ISnapshotSender snapshotSender) : base("game-flow")
     {
         _orleans = orleans;
         _context = context;
@@ -32,7 +33,7 @@ public class GameFlow : Service, IGameFlow
         _matchOptions = matchOptions;
         _rematchAwaiter = rematchAwaiter;
         _sessionLogger = sessionLogger;
-        BindProperty(_state);
+        _snapshotSender = snapshotSender;
     }
 
     private readonly IOrleans _orleans;
@@ -44,7 +45,7 @@ public class GameFlow : Service, IGameFlow
     private readonly MatchCreateOptions _matchOptions;
     private readonly IRematchAwaiter _rematchAwaiter;
     private readonly ISessionLogger _sessionLogger;
-    private readonly ValueProperty<GameFlowState> _state = new(1);
+    private readonly ISnapshotSender _snapshotSender;
 
     public async Task<MatchTransitionResult> Process()
     {
@@ -64,7 +65,10 @@ public class GameFlow : Service, IGameFlow
         _sessionLogger.LogGameStarted(playerIds);
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
-        _state.Update(state => state.Winner = winner);
+
+        var completionSnapshot = new MoveSnapshot();
+        completionSnapshot.RecordGameCompleted(winner);
+        _snapshotSender.Send(completionSnapshot);
 
         await _orleans.InTransaction(() => match.OnComplete(winner));
 

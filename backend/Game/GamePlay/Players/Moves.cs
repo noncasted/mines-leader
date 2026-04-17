@@ -11,12 +11,12 @@ public interface IMoves
 
     IViewableDelegate Updated { get; }
 
-    void SetCurrent(int value);
-    void SetMax(int value);
-    void OnUsed();
-    void Restore();
-    void Lock();
-    void Refresh();
+    void SetCurrent(MoveSnapshot snapshot, int value);
+    void SetMax(MoveSnapshot snapshot, int value);
+    void OnUsed(MoveSnapshot snapshot);
+    void Restore(MoveSnapshot snapshot);
+    void Lock(MoveSnapshot snapshot);
+    void Refresh(MoveSnapshot snapshot);
 }
 
 public class Moves : IMoves
@@ -31,6 +31,7 @@ public class Moves : IMoves
     private int _maxTurns;
     private int _rawLeft;
     private bool _isAvailable;
+    private IPlayer? _owner;
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMoves);
 
@@ -41,7 +42,12 @@ public class Moves : IMoves
     public int Max => _maxTurns + Bonus;
     public bool IsAvailable => _isAvailable;
 
-    public void SetCurrent(int value)
+    public void BindOwner(IPlayer owner)
+    {
+        _owner = owner;
+    }
+
+    public void SetCurrent(MoveSnapshot snapshot, int value)
     {
         if (value < 0)
             value = 0;
@@ -51,9 +57,10 @@ public class Moves : IMoves
 
         _rawLeft = value - Bonus;
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void SetMax(int value)
+    public void SetMax(MoveSnapshot snapshot, int value)
     {
         _maxTurns = value;
 
@@ -64,9 +71,10 @@ public class Moves : IMoves
             throw new InvalidOperationException("Turns cannot be less than zero.");
 
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void OnUsed()
+    public void OnUsed(MoveSnapshot snapshot)
     {
         _rawLeft -= 1;
 
@@ -74,24 +82,34 @@ public class Moves : IMoves
             throw new InvalidOperationException("Turns cannot be less than zero.");
 
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Restore()
+    public void Restore(MoveSnapshot snapshot)
     {
         _rawLeft = _maxTurns;
         _isAvailable = true;
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Lock()
+    public void Lock(MoveSnapshot snapshot)
     {
         _rawLeft = 0;
         _isAvailable = false;
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Refresh()
+    public void Refresh(MoveSnapshot snapshot)
     {
         _updated.Invoke();
+        Record(snapshot);
+    }
+
+    private void Record(MoveSnapshot snapshot)
+    {
+        if (_owner != null)
+            snapshot.RecordMovesUpdate(_owner);
     }
 }

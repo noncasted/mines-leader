@@ -12,8 +12,10 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ErosionDozer payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ErosionDozer payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -28,28 +30,46 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No taken cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No taken cells in the pattern")
             };
         }
 
-        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+        var targetPositions = limited.Select(c => c.Position).ToList();
+        var minePositions = new List<Position>();
 
         foreach (var cell in limited)
-            cell.ToFree();
+        {
+            var taken = cell.AsTaken();
 
-        foreach (var cell in limited)
-            board.Revealer.Reveal(cell.Position);
+            if (taken.HasMine == false)
+                continue;
+
+            snapshot.RecordExplosion(board, taken.Position);
+            taken.Explode();
+            taken.ToFree();
+            minePositions.Add(taken.Position);
+        }
+
+        var revealed = board.Revealer.Reveal(targetPositions);
+        revealed.AddRange(minePositions);
+        revealed.AddRange(board.GetFreeNeighbours(minePositions));
+
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ErosionDozer()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = targetPositions,
+            OpenedCells = openedCells
+        });
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ErosionDozer()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = limited.Select(c => c.Position).ToList(),
-                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

@@ -35,12 +35,6 @@ public class PlayerFactory : IPlayerFactory
 
         var entityBuilder = _entityFactory.Create(user);
 
-        var boardProperty = entityBuilder.AddProperty<BoardState>(PlayerStateIds.Board);
-        var modifiersProperty = entityBuilder.AddProperty<PlayerModifiersState>(PlayerStateIds.Modifiers);
-        var deckProperty = entityBuilder.AddProperty<PlayerDeckState>(PlayerStateIds.Deck);
-        var handProperty = entityBuilder.AddProperty<PlayerHandState>(PlayerStateIds.Hand);
-        var stashProperty = entityBuilder.AddProperty<PlayerStashState>(PlayerStateIds.Stash);
-
         entityBuilder.WithPayload(new PlayerCreatePayload()
         {
             Name = $"User_{user.Index}",
@@ -50,14 +44,14 @@ public class PlayerFactory : IPlayerFactory
 
         var entity = entityBuilder.Build();
 
-        var board = new Board(boardProperty, entity.Owner.Id, _boardOptions);
-        var modifiers = new Modifiers(modifiersProperty);
+        var board = new Board(entity.Owner.Id, _boardOptions);
+        var modifiers = new Modifiers();
         var health = new Health(modifiers);
         var mana = new Mana(modifiers);
-        var deck = new Deck(deckProperty, selectedDeck);
+        var deck = new Deck(selectedDeck);
         var moves = new Moves(modifiers);
-        var hand = new Hand(handProperty);
-        var stash = new Stash(stashProperty);
+        var hand = new Hand();
+        var stash = new Stash();
         var actions = new PlayerActions();
 
         var player = new Player(entity: entity,
@@ -71,7 +65,10 @@ public class PlayerFactory : IPlayerFactory
             stash: stash,
             playerActions: actions);
 
-        deckProperty.Update(state => state.Queue = new List<CardType>());
+        modifiers.BindOwner(player);
+        mana.BindOwner(player);
+        health.BindOwner(player);
+        moves.BindOwner(player);
 
         return player;
     }

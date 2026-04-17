@@ -7,19 +7,19 @@ namespace Game.GamePlay;
 /// </summary>
 public class CardThief : ICard<CardUsePayload.CardThief>
 {
-    public CardThief(IGameContext gameContext, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor)
+    public CardThief(IGameContext gameContext, IGameRandom gameRandom)
     {
         _gameContext = gameContext;
         _gameRandom = gameRandom;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly IGameContext _gameContext;
     private readonly IGameRandom _gameRandom;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.CardThief payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.CardThief payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var handEntries = opponent.Hand.Entries.ToList();
 
@@ -27,15 +27,14 @@ public class CardThief : ICard<CardUsePayload.CardThief>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Opponent has no cards in hand"),
-                ActionData = null
+                Result = EmptyResponse.Fail("Opponent has no cards in hand")
             };
         }
 
         var index = _gameRandom.Index(invoker, handEntries.Count);
         var entry = handEntries[index];
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId,
             new CardActionSnapshot.CardThief()
             {
                 TargetPlayer = opponent.User.Id,
@@ -43,15 +42,14 @@ public class CardThief : ICard<CardUsePayload.CardThief>
             });
 
         opponent.Hand.Remove(entry.Id);
-        _snapshotAccessor.Snapshot.RecordCardRemove(opponent.User.Id, entry.Id);
+        snapshot.RecordCardRemove(opponent.User.Id, entry.Id);
 
         var activeCard = invoker.Hand.Add(entry.Type);
-        _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
+        snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = null
+            Result = EmptyResponse.Ok
         };
     }
 }

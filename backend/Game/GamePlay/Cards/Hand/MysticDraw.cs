@@ -8,28 +8,30 @@ namespace Game.GamePlay;
 /// </summary>
 public class MysticDraw : ICard<CardUsePayload.MysticDraw>
 {
-    public MysticDraw(ICardConfigs configs, IGameRandom gameRandom, IMoveSnapshotAccessor snapshotAccessor)
+    public MysticDraw(ICardConfigs configs, IGameRandom gameRandom)
     {
         _configs = configs;
         _gameRandom = gameRandom;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.MysticDraw payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.MysticDraw payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.MysticDraw_Normal;
         var isHeads = _gameRandom.FlipCoin(invoker);
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId,
             new CardActionSnapshot.MysticDraw()
             {
                 TargetPlayer = invoker.User.Id,
                 IsHeads = isHeads
             });
+
+        var deckChanged = false;
 
         if (isHeads)
         {
@@ -39,8 +41,9 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw>
                     break;
 
                 var card = invoker.Deck.DrawCard();
+                deckChanged = true;
                 var activeCard = invoker.Hand.Add(card);
-                _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
+                snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
             }
         }
         else
@@ -53,14 +56,17 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw>
                 var entry = invoker.Hand.Entries[index];
                 invoker.Hand.Remove(entry.Id);
                 invoker.Deck.AddCard(entry.Type);
-                _snapshotAccessor.Snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
+                deckChanged = true;
+                snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
             }
         }
 
+        if (deckChanged == true)
+            snapshot.RecordDeckUpdate(invoker);
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = null
+            Result = EmptyResponse.Ok
         };
     }
 }

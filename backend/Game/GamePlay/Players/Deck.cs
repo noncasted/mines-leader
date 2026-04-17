@@ -1,5 +1,4 @@
-﻿using Common.Extensions;
-using Game.Session;
+using Common.Extensions;
 using Shared;
 
 namespace Game.GamePlay;
@@ -19,16 +18,15 @@ public interface IDeck
 
 public class Deck : IDeck
 {
-    public Deck(ValueProperty<PlayerDeckState> state, IReadOnlyList<CardType> selected)
+    public Deck(IReadOnlyList<CardType> selected)
     {
-        _state = state;
         _selected = selected;
     }
 
-    private readonly ValueProperty<PlayerDeckState> _state;
     private readonly IReadOnlyList<CardType> _selected;
+    private readonly List<CardType> _queue = new();
 
-    public int Count => _state.Value.Queue.Count;
+    public int Count => _queue.Count;
 
     public void Init(int size)
     {
@@ -54,37 +52,37 @@ public class Deck : IDeck
 
     public void AddCard(CardType card)
     {
-        _state.Update(state => state.Queue.Add(card));
+        _queue.Add(card);
     }
 
     public void InsertTop(CardType card)
     {
-        _state.Update(state => state.Queue.Insert(0, card));
+        _queue.Insert(0, card);
     }
 
     public void RemoveCard(CardType card)
     {
-        _state.Update(state => state.Queue.Remove(card));
+        _queue.Remove(card);
     }
 
     public CardType Peek(int index)
     {
-        return _state.Value.Queue[index];
+        return _queue[index];
     }
 
     public CardType DrawCard()
     {
-        if (_state.Value.Queue.Count == 0)
+        if (_queue.Count == 0)
             throw new InvalidOperationException("Deck is empty");
 
-        var card = _state.Value.Queue[0];
-        _state.Update(state => state.Queue.RemoveAt(0));
+        var card = _queue[0];
+        _queue.RemoveAt(0);
         return card;
     }
 
     public void Shuffle()
     {
-        _state.Update(state => state.Queue.Shuffle());
+        _queue.Shuffle();
     }
 }
 

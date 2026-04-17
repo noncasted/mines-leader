@@ -55,6 +55,26 @@ public static class BoardPositionsExtensions
             }
         }
 
+        public List<Position> GetFreeNeighbours(List<Position> positions)
+        {
+            var neighbours = new List<Position>();
+
+            foreach (var position in positions)
+            {
+                var positionNeighbours = board.NeighbourPositions(position);
+
+                foreach (var neighbour in positionNeighbours)
+                {
+                    if (board.Cells[neighbour].Status != CellStatus.Free)
+                        continue;
+                    
+                    neighbours.Add(neighbour);
+                }
+            }
+            
+            return neighbours;
+        }
+        
         public Position RandomPosition()
         {
             var bounds = board.Size;

@@ -10,10 +10,10 @@ public interface IHealth
 
     IViewableDelegate Updated { get; }
 
-    void SetCurrent(int value);
-    void SetMax(int value);
-    void TakeDamage(int damage);
-    void Heal(int amount);
+    void SetCurrent(MoveSnapshot snapshot, int value);
+    void SetMax(MoveSnapshot snapshot, int value);
+    void TakeDamage(MoveSnapshot snapshot, int damage);
+    void Heal(MoveSnapshot snapshot, int amount);
 }
 
 public class Health : IHealth
@@ -27,6 +27,7 @@ public class Health : IHealth
     private readonly ViewableProperty<int> _current = new(0);
 
     private int _max;
+    private IPlayer? _owner;
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalHealth);
 
@@ -36,7 +37,12 @@ public class Health : IHealth
     public IViewableProperty<int> Current => _current;
     public int Max => _max + Bonus;
 
-    public void SetCurrent(int value)
+    public void BindOwner(IPlayer owner)
+    {
+        _owner = owner;
+    }
+
+    public void SetCurrent(MoveSnapshot snapshot, int value)
     {
         if (value > Max)
             value = Max;
@@ -46,15 +52,17 @@ public class Health : IHealth
 
         _current.Set(value);
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void SetMax(int value)
+    public void SetMax(MoveSnapshot snapshot, int value)
     {
         _max = value;
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(MoveSnapshot snapshot, int damage)
     {
         if (damage < 0)
             throw new ArgumentException("Damage cannot be negative", nameof(damage));
@@ -66,9 +74,10 @@ public class Health : IHealth
 
         _current.Set(newHealth);
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Heal(int amount)
+    public void Heal(MoveSnapshot snapshot, int amount)
     {
         if (amount < 0)
             throw new ArgumentException("Healing amount cannot be negative", nameof(amount));
@@ -80,5 +89,12 @@ public class Health : IHealth
 
         _current.Set(newHealth);
         _updated.Invoke();
+        Record(snapshot);
+    }
+
+    private void Record(MoveSnapshot snapshot)
+    {
+        if (_owner != null)
+            snapshot.RecordHealthUpdate(_owner);
     }
 }

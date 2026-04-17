@@ -12,13 +12,17 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Bloodhound payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Bloodhound payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
-        var size = _configs.Value.BloodHound_Normal.Size;
-        var pattern = PatternShapes.Rhombus(size);
+        var config = payload.Type == CardType.Bloodhound_Max
+            ? _configs.Value.BloodHound_Max
+            : _configs.Value.BloodHound_Normal;
+        var pattern = PatternShapes.Rhombus(config.Size);
 
         var selected = pattern.SelectTaken(board, payload.Position);
 
@@ -26,28 +30,44 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No taken cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No taken cells in the pattern")
             };
         }
 
-        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+        var targetPositions = selected.Select(c => c.Position).ToList();
+        var minePositions = new List<Position>();
 
         foreach (var cell in selected)
+        {
+            if (cell.HasMine == false)
+                continue;
+
+            snapshot.RecordExplosion(board, cell.Position);
+            cell.Explode();
             cell.ToFree();
+            minePositions.Add(cell.Position);
+        }
 
-        foreach (var cell in selected)
-            board.Revealer.Reveal(cell.Position);
+        var revealed = board.Revealer.Reveal(targetPositions);
+        revealed.AddRange(minePositions);
+        revealed.AddRange(board.GetFreeNeighbours(minePositions));
+        
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Bloodhound()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = targetPositions,
+            OpenedCells = openedCells
+        });
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Bloodhound()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = selected.Select(c => c.Position).ToList(),
-                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

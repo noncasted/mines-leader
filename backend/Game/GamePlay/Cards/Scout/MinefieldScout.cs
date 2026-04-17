@@ -12,8 +12,10 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.MinefieldScout payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.MinefieldScout payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -21,8 +23,7 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -39,37 +40,48 @@ public class MinefieldScout : ICard<CardUsePayload.MinefieldScout>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No cells in the line pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No cells in the line pattern")
             };
         }
 
-        var revealed = new List<Position>();
+        var toReveal = new List<Position>();
+        var flagged = new List<Position>();
 
         foreach (var cell in selected)
         {
             if (cell.HasMine)
             {
                 cell.SetFlag();
+                flagged.Add(cell.Position);
             }
             else
             {
-                cell.ToFree();
-                board.Revealer.Reveal(cell.Position);
+                toReveal.Add(cell.Position);
             }
-
-            revealed.Add(cell.Position);
         }
+
+        var revealed = board.Revealer.Reveal(toReveal);
+
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.MinefieldScout()
+        {
+            TargetPlayer = board.OwnerId,
+            RevealedCells = selected.Select(c => c.Position).ToList(),
+            TargetCells = selected.Select(c => c.Position).ToList(),
+            OpenedCells = openedCells
+        });
+
+        foreach (var position in flagged)
+            snapshot.RecordFlag(board, position, true);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.MinefieldScout()
-            {
-                TargetPlayer = board.OwnerId,
-                RevealedCells = revealed,
-                TargetCells = selected.Select(c => c.Position).ToList()
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

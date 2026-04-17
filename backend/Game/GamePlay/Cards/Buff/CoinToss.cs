@@ -8,29 +8,25 @@ namespace Game.GamePlay;
 /// </summary>
 public class CoinToss : ICard<CardUsePayload.CoinToss>
 {
-    public CoinToss(
-        ICardConfigs configs,
-        IGameRandom gameRandom,
-        IRoundActionService roundActionService,
-        IMoveSnapshotAccessor snapshotAccessor)
+    public CoinToss(ICardConfigs configs, IGameRandom gameRandom, IRoundActionService roundActionService)
     {
         _configs = configs;
         _gameRandom = gameRandom;
         _roundActionService = roundActionService;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
     private readonly IRoundActionService _roundActionService;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.CoinToss payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.CoinToss payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.CoinToss_Normal;
         var isHeads = _gameRandom.FlipCoin(invoker);
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId,
             new CardActionSnapshot.CoinToss()
             {
                 TargetPlayer = invoker.User.Id,
@@ -39,7 +35,7 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
 
         if (isHeads)
         {
-            invoker.Modifiers.Inc(PlayerModifier.AdditionalMoves, config.WinMoves);
+            invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMoves, config.WinMoves);
 
             _roundActionService.Schedule(
                 new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMoves, config.WinMoves), 1);
@@ -50,13 +46,12 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
 
             if (newMoves < 0)
                 newMoves = 0;
-            invoker.Moves.SetCurrent(newMoves);
+            invoker.Moves.SetCurrent(snapshot, newMoves);
         }
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = null
+            Result = EmptyResponse.Ok
         };
     }
 }

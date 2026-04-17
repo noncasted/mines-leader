@@ -11,8 +11,10 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
 
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.OpponentBomb payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.OpponentBomb payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -21,8 +23,7 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -30,8 +31,7 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail($"No cell at position {payload.Position}"),
-                ActionData = null
+                Result = EmptyResponse.Fail($"No cell at position {payload.Position}")
             };
         }
 
@@ -39,33 +39,40 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail($"Cell at position {payload.Position} is not taken"),
-                ActionData = null
+                Result = EmptyResponse.Fail($"Cell at position {payload.Position} is not taken")
             };
         }
 
         var taken = cell.ToTaken();
-        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+        var hadMine = taken.HasMine;
 
-        if (taken.HasMine == true)
-        {
+        if (hadMine == true)
             taken.Explode();
-            opponent.Health.TakeDamage(1);
-        }
 
-        taken.ToFree();
-        board.OnUpdated();
-        board.Revealer.Reveal(cell.Position);
+        var revealed = board.Revealer.Reveal(new[] { cell.Position });
+
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.OpponentBomb()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = new List<Position> { cell.Position },
+            OpenedCells = openedCells
+        });
+
+        if (hadMine == true)
+        {
+            snapshot.RecordExplosion(board, cell.Position);
+            opponent.Health.TakeDamage(snapshot, 1);
+        }
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.OpponentBomb()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = new List<Position> { cell.Position },
-                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

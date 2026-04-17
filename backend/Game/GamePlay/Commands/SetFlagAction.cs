@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -6,8 +6,6 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.SetFlag request)
     {
-        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
-
         var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 
@@ -23,7 +21,8 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
             return EmptyResponse.Failed;
 
         taken.SetFlag();
-        board.OnUpdated();
+        context.Snapshot.RecordFlag(board, request.Position, true);
+        context.Snapshot.RecordMines(board, board.MinesScanner.Recalculate(context.Snapshot));
 
         Utils.SessionLogger.LogFlagSet(context.Player.User.Id, request.Position);
 

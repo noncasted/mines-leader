@@ -26,6 +26,9 @@ public static class GameContextServiceExtensions
         services.Add<SnapshotSender>()
                 .As<ISnapshotSender>();
 
+        services.Add<SnapshotDiffGuard>()
+                .As<ISnapshotDiffGuard>();
+
         return services;
     }
 }

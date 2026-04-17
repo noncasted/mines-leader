@@ -19,8 +19,10 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
     private readonly IGameRandom _gameRandom;
     private readonly IRoundActionService _roundActionService;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.FortuneCookie payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.FortuneCookie payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
 
         var mineCells = board.Cells.Values
@@ -33,8 +35,7 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No hidden mines on board"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No hidden mines on board")
             };
         }
 
@@ -57,17 +58,21 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
         }
 
         if (affectedCells.Count > 0)
-            _roundActionService.Schedule(new MineHighlightDisposeAction(effectId, affectedCells), 1);
+            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells), 1);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.FortuneCookie()
+        {
+            TargetPlayer = invoker.User.Id,
+            RevealedMines = revealed,
+            TargetCells = revealed
+        });
+
+        foreach (var cell in affectedCells)
+            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.MineHighlight, effectId);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.FortuneCookie()
-            {
-                TargetPlayer = invoker.User.Id,
-                RevealedMines = revealed,
-                TargetCells = revealed
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

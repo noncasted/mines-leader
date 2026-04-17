@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -6,8 +6,6 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.RemoveFlag request)
     {
-        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
-
         var board = context.Player.Board;
         var targetCell = board.Cells[request.Position];
 
@@ -23,7 +21,8 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
             return EmptyResponse.Failed;
 
         taken.RemoveFlag();
-        board.OnUpdated();
+        context.Snapshot.RecordFlag(board, request.Position, false);
+        context.Snapshot.RecordMines(board, board.MinesScanner.Recalculate(context.Snapshot));
 
         Utils.SessionLogger.LogFlagRemoved(context.Player.User.Id, request.Position);
 

@@ -17,22 +17,25 @@ public class Adrenaline : ICard<CardUsePayload.Adrenaline>
     private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Adrenaline payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Adrenaline payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.Adrenaline_Normal;
 
-        invoker.Modifiers.Inc(PlayerModifier.AdditionalMoves, config.ExtraMoves);
+        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMoves, config.ExtraMoves);
 
         _roundActionService.Schedule(
             new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMoves, config.ExtraMoves), 1);
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Adrenaline()
+        {
+            TargetPlayer = invoker.User.Id
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Adrenaline()
-            {
-                TargetPlayer = invoker.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

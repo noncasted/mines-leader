@@ -14,8 +14,10 @@ public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.OpponentFlagErase payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.OpponentFlagErase payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -24,8 +26,7 @@ public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -37,23 +38,32 @@ public class OpponentFlagErase : ICard<CardUsePayload.OpponentFlagErase>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No free cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No free cells in the pattern")
             };
         }
 
-        var flagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == true);
+        var flagged = selected.Where(cell => cell.IsFlagged == true).ToList();
+        var removed = new List<Position>();
 
         foreach (var cell in flagged)
+        {
             cell.RemoveFlag();
+            removed.Add(cell.Position);
+        }
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.OpponentFlagErase()
+        {
+            TargetPlayer = board.OwnerId
+        });
+
+        foreach (var position in removed)
+            snapshot.RecordFlag(board, position, false);
+
+        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.OpponentFlagErase()
-            {
-                TargetPlayer = board.OwnerId
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

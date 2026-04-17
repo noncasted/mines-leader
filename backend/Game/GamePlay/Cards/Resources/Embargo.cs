@@ -19,23 +19,26 @@ public class Embargo : ICard<CardUsePayload.Embargo>
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Embargo payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Embargo payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.Embargo_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Modifiers.Inc(PlayerModifier.ManaCostPenalty, config.CostIncrease);
+        opponent.Modifiers.Inc(snapshot, PlayerModifier.ManaCostPenalty, config.CostIncrease);
 
         _roundActionService.Schedule(
             new ModifierDisposeAction(opponent, PlayerModifier.ManaCostPenalty, config.CostIncrease), 1);
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Embargo()
+        {
+            TargetPlayer = opponent.User.Id
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Embargo()
-            {
-                TargetPlayer = opponent.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

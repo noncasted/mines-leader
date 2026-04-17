@@ -10,11 +10,11 @@ public interface IMana
 
     IViewableDelegate Updated { get; }
 
-    void SetCurrent(int value);
-    void SetMax(int value);
+    void SetCurrent(MoveSnapshot snapshot, int value);
+    void SetMax(MoveSnapshot snapshot, int value);
 
-    void Use(int amount);
-    void Restore();
+    void Use(MoveSnapshot snapshot, int amount);
+    void Restore(MoveSnapshot snapshot);
 }
 
 public class Mana : IMana
@@ -28,6 +28,7 @@ public class Mana : IMana
     private readonly ViewableProperty<int> _current = new(0);
 
     private int _max;
+    private IPlayer? _owner;
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMana);
 
@@ -37,7 +38,12 @@ public class Mana : IMana
     public int Current => _current.Value;
     public int Max => _max + Bonus;
 
-    public void SetCurrent(int value)
+    public void BindOwner(IPlayer owner)
+    {
+        _owner = owner;
+    }
+
+    public void SetCurrent(MoveSnapshot snapshot, int value)
     {
         if (value > Max)
             value = Max;
@@ -47,9 +53,10 @@ public class Mana : IMana
 
         _current.Set(value);
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void SetMax(int value)
+    public void SetMax(MoveSnapshot snapshot, int value)
     {
         _max = value;
 
@@ -57,9 +64,10 @@ public class Mana : IMana
             _current.Set(_max);
 
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Use(int amount)
+    public void Use(MoveSnapshot snapshot, int amount)
     {
         if (amount < 0)
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
@@ -71,11 +79,19 @@ public class Mana : IMana
 
         _current.Set(newMana);
         _updated.Invoke();
+        Record(snapshot);
     }
 
-    public void Restore()
+    public void Restore(MoveSnapshot snapshot)
     {
         _current.Set(_max);
         _updated.Invoke();
+        Record(snapshot);
+    }
+
+    private void Record(MoveSnapshot snapshot)
+    {
+        if (_owner != null)
+            snapshot.RecordManaUpdate(_owner);
     }
 }

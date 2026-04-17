@@ -12,12 +12,15 @@ public class RoundPlayers
     public void RestoreCards(IPlayer player, MoveSnapshot snapshot)
     {
         var cardsNeeded = player.Hand.Size - player.Hand.Entries.Count;
+        var stashConsumed = false;
+        var deckTouched = cardsNeeded > 0;
 
         for (var i = 0; i < cardsNeeded; i++)
         {
             if (player.Deck.Count == 0)
             {
                 var stashCards = player.Stash.Collect();
+                stashConsumed |= stashCards.Count > 0;
 
                 foreach (var cardType in stashCards)
                     player.Deck.AddCard(cardType);
@@ -27,6 +30,12 @@ public class RoundPlayers
             var activeCard = player.Hand.Add(card);
             snapshot.RecordCardAdd(player.User.Id, activeCard.Id, activeCard.Type);
         }
+
+        if (deckTouched == true)
+            snapshot.RecordDeckUpdate(player);
+
+        if (stashConsumed == true)
+            snapshot.RecordStashUpdate(player);
     }
 
 

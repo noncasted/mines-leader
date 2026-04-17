@@ -17,8 +17,10 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
     private readonly ICardConfigs _configs;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChaosScout payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ChaosScout payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -37,36 +39,48 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No cells in the line pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No cells in the line pattern")
             };
         }
 
-        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+        var toReveal = new List<Position>();
+        var flagged = new List<Position>();
 
         foreach (var cell in selected)
         {
             if (cell.HasMine)
             {
                 cell.SetFlag();
+                flagged.Add(cell.Position);
             }
             else
             {
-                cell.ToFree();
-                board.Revealer.Reveal(cell.Position);
+                toReveal.Add(cell.Position);
             }
         }
 
+        var revealed = board.Revealer.Reveal(toReveal);
+
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChaosScout()
+        {
+            TargetPlayer = board.OwnerId,
+            ActualLength = actualLength,
+            TargetCells = selected.Select(c => c.Position).ToList(),
+            OpenedCells = openedCells
+        });
+
+        foreach (var position in flagged)
+            snapshot.RecordFlag(board, position, true);
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ChaosScout()
-            {
-                TargetPlayer = board.OwnerId,
-                ActualLength = actualLength,
-                TargetCells = selected.Select(c => c.Position).ToList(),
-                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

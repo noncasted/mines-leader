@@ -15,8 +15,8 @@ public class ModifierDisposeAction : IRoundAction
     private readonly PlayerModifier _type;
     private readonly float _amount;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
-        _player.Modifiers.Dec(_type, _amount);
+        _player.Modifiers.Dec(snapshot, _type, _amount);
     }
 }

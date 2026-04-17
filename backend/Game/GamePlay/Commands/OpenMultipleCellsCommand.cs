@@ -6,9 +6,6 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.OpenMultiple request)
     {
-        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
-        context.Snapshot.HandlePlayers(context.Lifetime, Utils.GameContext);
-
         var board = context.Player.Board;
         board.EnsureGenerated(request.Position);
         var targetCell = board.Cells[request.Position];
@@ -41,7 +38,7 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
         if (around != placedFlags)
             return EmptyResponse.Ok;
 
-        var openedCells = new List<ITakenCell>();
+        var toReveal = new List<Position>();
 
         foreach (var neighbour in takenNeighbours)
         {
@@ -50,21 +47,23 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
 
             if (neighbour.HasMine == true)
             {
-                context.Player.Health.TakeDamage(1);
+                context.Player.Health.TakeDamage(context.Snapshot, 1);
+
+                context.Snapshot.RecordExplosion(board, neighbour.Position);
                 neighbour.Explode();
+                neighbour.ToFree();
+                context.Snapshot.RecordCellFree(board, neighbour.Position);
+                continue;
             }
 
-            neighbour.ToFree();
-            openedCells.Add(neighbour);
+            toReveal.Add(neighbour.Position);
         }
 
-        foreach (var neighbour in openedCells)
-            board.Revealer.Reveal(neighbour.Position);
+        toReveal.Add(request.Position);
 
-        context.Player.Moves.OnUsed();
-        board.Revealer.Reveal(request.Position);
+        context.Player.Moves.OnUsed(context.Snapshot);
 
-        board.OnUpdated();
+        context.Snapshot.RecordReveal(board, toReveal);
 
         return EmptyResponse.Ok;
     }

@@ -16,8 +16,10 @@ public class Smoke : ICard<CardUsePayload.Smoke>
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Smoke payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Smoke payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -26,8 +28,7 @@ public class Smoke : ICard<CardUsePayload.Smoke>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -39,8 +40,7 @@ public class Smoke : ICard<CardUsePayload.Smoke>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No cells in the pattern")
             };
         }
 
@@ -54,35 +54,44 @@ public class Smoke : ICard<CardUsePayload.Smoke>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new SmokeDisposeAction(effectId, affectedCells);
+        var disposeAction = new SmokeDisposeAction(board, effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Smoke()
+        {
+            TargetPlayer = board.OwnerId
+        });
+
+        foreach (var cell in affectedCells)
+            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Smoke, effectId);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Smoke()
-            {
-                TargetPlayer = board.OwnerId
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }
 
 public class SmokeDisposeAction : IRoundAction
 {
-    public SmokeDisposeAction(Guid effectId, List<ICell> affectedCells)
+    public SmokeDisposeAction(IBoard board, Guid effectId, List<ICell> affectedCells)
     {
+        _board = board;
         _effectId = effectId;
         _affectedCells = affectedCells;
     }
 
+    private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _affectedCells;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
         foreach (var cell in _affectedCells)
+        {
             cell.RemoveEffect(_effectId);
+            snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
+        }
     }
 }
 

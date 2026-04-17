@@ -10,6 +10,7 @@ public class GameCommandUtils
         IGameRound gameRound,
         IServiceProvider serviceProvider,
         ISnapshotSender snapshotSender,
+        ISnapshotDiffGuard diffGuard,
         ILogger<GameCommandUtils> logger,
         ISessionLogger sessionLogger)
     {
@@ -17,6 +18,7 @@ public class GameCommandUtils
         GameRound = gameRound;
         ServiceProvider = serviceProvider;
         SnapshotSender = snapshotSender;
+        DiffGuard = diffGuard;
         Logger = logger;
         SessionLogger = sessionLogger;
     }
@@ -25,6 +27,7 @@ public class GameCommandUtils
     public IGameRound GameRound { get; }
     public IServiceProvider ServiceProvider { get; }
     public ISnapshotSender SnapshotSender { get; }
+    public ISnapshotDiffGuard DiffGuard { get; }
     public ILogger Logger { get; }
     public ISessionLogger SessionLogger { get; }
 }

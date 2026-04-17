@@ -1,99 +1,108 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
 public interface IBoardRevealer
 {
-    void Reveal(Position position);
+    List<Position> Reveal(IReadOnlyList<Position> positions, MoveSnapshot? snapshot = null);
 }
 
 public class BoardRevealer : IBoardRevealer
 {
-    public BoardRevealer(IBoard board)
+    public BoardRevealer(IBoard board, IBoardMinesScanner scanner)
     {
         _board = board;
+        _scanner = scanner;
     }
 
     private readonly IBoard _board;
+    private readonly IBoardMinesScanner _scanner;
 
-    public void Reveal(Position position)
+    public List<Position> Reveal(IReadOnlyList<Position> positions, MoveSnapshot? snapshot = null)
     {
-        _board.OnUpdated();
+        var opened = new HashSet<Position>();
 
-        var initialTargets = _board.NeighbourPositions(position)
-                                   .Where(t => _board.Cells[t].Status != CellStatus.Free)
-                                   .ToList();
-
-        Check(initialTargets);
-
-        return;
-
-        void Check(IReadOnlyList<Position> targets)
+        foreach (var position in positions)
         {
-            var cleanupTargets = new List<Position>();
+            if (_board.Cells.TryGetValue(position, out var cell) == false)
+                continue;
 
-            foreach (var target in targets)
-            {
-                if (_board.Cells[target].Status != CellStatus.Taken)
-                    continue;
+            if (cell.Status != CellStatus.Taken)
+                continue;
 
-                if (_board.Cells[target].ToTaken().HasMine == true)
-                    continue;
+            if (cell.AsTaken().HasMine == true)
+                continue;
 
-                if (HasInvalidFreeCell(target) == true)
-                    cleanupTargets.Add(target);
-            }
-
-            foreach (var cleanupTarget in cleanupTargets)
-            {
-                var targetCell = _board.Cells[cleanupTarget];
-                targetCell.AsTaken().ToFree();
-            }
-
-            _board.OnUpdated();
-
-            var newTargets = new List<Position>();
-
-            foreach (var cleanupTargetPosition in cleanupTargets)
-            {
-                foreach (var direction in BoardPositionsExtensions.Directions)
-                {
-                    var newTargetPosition = cleanupTargetPosition + direction;
-
-                    if (_board.Cells.TryGetValue(newTargetPosition, out var cell) == false)
-                        continue;
-
-                    if (cell.Status != CellStatus.Taken)
-                        continue;
-
-                    if (newTargets.Contains(newTargetPosition) == true)
-                        continue;
-
-                    newTargets.Add(newTargetPosition);
-                }
-            }
-
-            if (newTargets.Count > 0)
-                Check(newTargets);
+            cell.ToFree();
+            opened.Add(position);
         }
 
-        bool HasInvalidFreeCell(Position target)
+        RecalculateScanner(snapshot);
+
+        ExpandWave(opened, snapshot);
+
+        return opened.ToList();
+    }
+
+    private void ExpandWave(HashSet<Position> opened, MoveSnapshot? snapshot)
+    {
+        while (true)
         {
-            foreach (var direction in BoardPositionsExtensions.Directions)
+            var candidates = new List<ITakenCell>();
+
+            foreach (var (position, cell) in _board.Cells)
             {
-                var checkPosition = target + direction;
-
-                if (_board.Cells.TryGetValue(checkPosition, out var cell) == false)
+                if (cell.Status != CellStatus.Taken)
                     continue;
 
-                if (cell.Status != CellStatus.Free)
+                var taken = cell.AsTaken();
+
+                if (taken.HasMine == true)
                     continue;
 
-                if (cell.AsFree().MinesAround == 0)
-                    return true;
+                if (HasAdjacentEmptyFree(position) == false)
+                    continue;
+
+                candidates.Add(taken);
             }
 
-            return false;
+            if (candidates.Count == 0)
+                return;
+
+            foreach (var taken in candidates)
+            {
+                taken.ToFree();
+                opened.Add(taken.Position);
+            }
+
+            RecalculateScanner(snapshot);
         }
+    }
+
+    private void RecalculateScanner(MoveSnapshot? snapshot)
+    {
+        var changes = _scanner.Recalculate(snapshot);
+
+        if (snapshot != null && changes.Count > 0)
+            snapshot.RecordMines(_board, changes);
+    }
+
+    private bool HasAdjacentEmptyFree(Position position)
+    {
+        foreach (var direction in BoardPositionsExtensions.Directions)
+        {
+            var neighbourPosition = position + direction;
+
+            if (_board.Cells.TryGetValue(neighbourPosition, out var cell) == false)
+                continue;
+
+            if (cell.Status != CellStatus.Free)
+                continue;
+
+            if (cell.AsFree().MinesAround == 0)
+                return true;
+        }
+
+        return false;
     }
 }

@@ -17,22 +17,25 @@ public class Focus : ICard<CardUsePayload.Focus>
     private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Focus payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Focus payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.Focus_Normal;
 
-        invoker.Modifiers.Inc(PlayerModifier.NextCardDiscount, config.Discount);
+        invoker.Modifiers.Inc(snapshot, PlayerModifier.NextCardDiscount, config.Discount);
 
         _roundActionService.Schedule(
             new ModifierDisposeAction(invoker, PlayerModifier.NextCardDiscount, config.Discount), 1);
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Focus()
+        {
+            TargetPlayer = invoker.User.Id
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Focus()
-            {
-                TargetPlayer = invoker.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

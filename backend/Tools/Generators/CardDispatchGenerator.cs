@@ -68,12 +68,12 @@ namespace Generators
             sb.AppendLine("public static class CardDispatch {");
 
             sb.AppendLine(
-                "    public static CardUseResult Use(this IServiceProvider provider, IPlayer invoker, ICardUsePayload payload) {");
+                "    public static CardUseResult Use(this IServiceProvider provider, CardUseContext context, ICardUsePayload payload) {");
             sb.AppendLine("        return payload switch {");
 
             foreach (var type in payloadTypes)
             {
-                sb.AppendLine($"            {type} p => provider.GetRequiredService<ICard<{type}>>().Use(invoker, p),");
+                sb.AppendLine($"            {type} p => provider.GetRequiredService<ICard<{type}>>().Use(context, p),");
             }
 
             sb.AppendLine(

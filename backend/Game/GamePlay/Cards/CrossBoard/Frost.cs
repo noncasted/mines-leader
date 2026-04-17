@@ -19,8 +19,10 @@ public class Frost : ICard<CardUsePayload.Frost>
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Frost payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Frost payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -33,8 +35,7 @@ public class Frost : ICard<CardUsePayload.Frost>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No cells in the pattern")
             };
         }
 
@@ -50,35 +51,44 @@ public class Frost : ICard<CardUsePayload.Frost>
             frozenPositions.Add(cell.Position);
         }
 
-        _roundActionService.Schedule(new FrostDisposeAction(effectId, affectedCells), config.Duration);
+        _roundActionService.Schedule(new FrostDisposeAction(board, effectId, affectedCells), config.Duration);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Frost()
+        {
+            TargetPlayer = board.OwnerId,
+            FrozenCells = frozenPositions
+        });
+
+        foreach (var cell in affectedCells)
+            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Frost, effectId);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Frost()
-            {
-                TargetPlayer = board.OwnerId,
-                FrozenCells = frozenPositions
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }
 
 public class FrostDisposeAction : IRoundAction
 {
-    public FrostDisposeAction(Guid effectId, List<ICell> cells)
+    public FrostDisposeAction(IBoard board, Guid effectId, List<ICell> cells)
     {
+        _board = board;
         _effectId = effectId;
         _cells = cells;
     }
 
+    private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _cells;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
         foreach (var cell in _cells)
+        {
             cell.RemoveEffect(_effectId);
+            snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
+        }
     }
 }
 

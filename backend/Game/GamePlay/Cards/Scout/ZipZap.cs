@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
@@ -12,8 +12,10 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ZipZap payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ZipZap payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -28,8 +30,7 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No taken cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No taken cells in the pattern")
             };
         }
 
@@ -40,8 +41,7 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No target found in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No target found in the pattern")
             };
         }
 
@@ -61,32 +61,35 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No targets found in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No targets found in the pattern")
             };
         }
 
-        var takenBefore = CardActionCellsHelper.CaptureTaken(board);
+        var targetPositions = targets.Select(t => t.Position).ToList();
 
         foreach (var target in targets)
             target.ToFree();
 
-        board.OnUpdated();
+        var revealed = board.Revealer.Reveal(targetPositions);
+        revealed.AddRange(targetPositions);
+        revealed.AddRange(board.GetFreeNeighbours(targetPositions));
 
-        foreach (var target in targets)
-            board.Revealer.Reveal(target.Position);
+        var openedCells = revealed.Distinct().Select(p => new OpenedCell
+        {
+            Position = p,
+            MinesAround = board.Cells[p].AsFree().MinesAround
+        }).ToList();
 
-        board.OnUpdated();
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ZipZap()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = targetPositions,
+            OpenedCells = openedCells
+        });
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ZipZap()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = targets.Select(t => t.Position).ToList(),
-                ActionCells = CardActionCellsHelper.CollectOpened(board, takenBefore)
-            }
+            Result = EmptyResponse.Ok
         };
 
         ITakenCell? SelectTarget(Position center)

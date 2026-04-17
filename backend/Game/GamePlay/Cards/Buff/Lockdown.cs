@@ -19,25 +19,27 @@ public class Lockdown : ICard<CardUsePayload.Lockdown>
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Lockdown payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Lockdown payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.Lockdown_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Modifiers.Dec(PlayerModifier.AdditionalMoves, config.MovesReduction);
-        opponent.Moves.Refresh();
+        opponent.Modifiers.Dec(snapshot, PlayerModifier.AdditionalMoves, config.MovesReduction);
 
         _roundActionService.Schedule(
             new ModifierDisposeAction(opponent, PlayerModifier.AdditionalMoves, -config.MovesReduction),
             config.Duration);
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Lockdown
+        {
+            TargetPlayer = opponent.User.Id
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Lockdown
-            {
-                TargetPlayer = opponent.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

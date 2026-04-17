@@ -5,18 +5,21 @@ namespace Game.GamePlay;
 
 public class Scavenger : ICard<CardUsePayload.Scavenger>
 {
-    public Scavenger(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
+    public Scavenger(ICardConfigs configs)
     {
         _configs = configs;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ICardConfigs _configs;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Scavenger payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Scavenger payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var drawCount = _configs.Value.Scavenger_Normal.DrawCount;
+
+        var drawn = 0;
+        var addedCards = new List<(Guid Id, CardType Type)>();
 
         for (var i = 0; i < drawCount; i++)
         {
@@ -25,16 +28,24 @@ public class Scavenger : ICard<CardUsePayload.Scavenger>
 
             var card = invoker.Deck.DrawCard();
             var activeCard = invoker.Hand.Add(card);
-            _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
+            addedCards.Add((activeCard.Id, activeCard.Type));
+            drawn++;
         }
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Scavenger()
+        {
+            TargetPlayer = invoker.User.Id
+        });
+
+        foreach (var added in addedCards)
+            snapshot.RecordCardAdd(invoker.User.Id, added.Id, added.Type);
+
+        if (drawn > 0)
+            snapshot.RecordDeckUpdate(invoker);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Scavenger()
-            {
-                TargetPlayer = invoker.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

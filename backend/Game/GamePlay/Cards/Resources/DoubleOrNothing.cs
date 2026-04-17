@@ -7,22 +7,19 @@ namespace Game.GamePlay;
 /// </summary>
 public class DoubleOrNothing : ICard<CardUsePayload.DoubleOrNothing>
 {
-    public DoubleOrNothing(
-        IGameRandom gameRandom,
-        IRoundActionService roundActionService,
-        IMoveSnapshotAccessor snapshotAccessor)
+    public DoubleOrNothing(IGameRandom gameRandom, IRoundActionService roundActionService)
     {
         _gameRandom = gameRandom;
         _roundActionService = roundActionService;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly IGameRandom _gameRandom;
     private readonly IRoundActionService _roundActionService;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.DoubleOrNothing payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.DoubleOrNothing payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var isHeads = _gameRandom.FlipCoin(invoker);
         int resultMana;
 
@@ -35,7 +32,7 @@ public class DoubleOrNothing : ICard<CardUsePayload.DoubleOrNothing>
             resultMana = 0;
         }
 
-        _snapshotAccessor.Snapshot.RecordCardUse(invoker.User.Id, _snapshotAccessor.CardId,
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId,
             new CardActionSnapshot.DoubleOrNothing()
             {
                 TargetPlayer = invoker.User.Id,
@@ -46,20 +43,19 @@ public class DoubleOrNothing : ICard<CardUsePayload.DoubleOrNothing>
         if (isHeads)
         {
             var bonus = invoker.Mana.Current;
-            invoker.Modifiers.Inc(PlayerModifier.AdditionalMana, bonus);
-            invoker.Mana.SetCurrent(resultMana);
+            invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, bonus);
+            invoker.Mana.SetCurrent(snapshot, resultMana);
 
             _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, bonus), 1);
         }
         else
         {
-            invoker.Mana.SetCurrent(0);
+            invoker.Mana.SetCurrent(snapshot, 0);
         }
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = null
+            Result = EmptyResponse.Ok
         };
     }
 }
