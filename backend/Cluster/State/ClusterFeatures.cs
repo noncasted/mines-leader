@@ -11,6 +11,7 @@ public interface IClusterFeatures : IAddressableState<ClusterFeaturesState>, ICl
     Task SetAcceptingConnections(bool accepting);
     Task SetMatchmakingEnabled(bool enabled);
     Task SetSideEffectsEnabled(bool enabled);
+    Task SetSnapshotDiffGuardEnabled(bool enabled);
 }
 
 public class ClusterFeatures(AddressableStateUtils utils)
@@ -18,6 +19,7 @@ public class ClusterFeatures(AddressableStateUtils utils)
 {
     bool IClusterFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
     bool IClusterFlags.SideEffectsEnabled => Value.SideEffectsEnabled;
+    bool IClusterFlags.SnapshotDiffGuardEnabled => Value.SnapshotDiffGuardEnabled;
 
     public Task SetAcceptingConnections(bool accepting)
     {
@@ -27,7 +29,8 @@ public class ClusterFeatures(AddressableStateUtils utils)
         {
             AcceptingConnections = accepting,
             MatchmakingEnabled = current.MatchmakingEnabled,
-            SideEffectsEnabled = current.SideEffectsEnabled
+            SideEffectsEnabled = current.SideEffectsEnabled,
+            SnapshotDiffGuardEnabled = current.SnapshotDiffGuardEnabled
         });
     }
 
@@ -39,7 +42,8 @@ public class ClusterFeatures(AddressableStateUtils utils)
         {
             AcceptingConnections = current.AcceptingConnections,
             MatchmakingEnabled = enabled,
-            SideEffectsEnabled = current.SideEffectsEnabled
+            SideEffectsEnabled = current.SideEffectsEnabled,
+            SnapshotDiffGuardEnabled = current.SnapshotDiffGuardEnabled
         });
     }
 
@@ -51,7 +55,21 @@ public class ClusterFeatures(AddressableStateUtils utils)
         {
             AcceptingConnections = current.AcceptingConnections,
             MatchmakingEnabled = current.MatchmakingEnabled,
-            SideEffectsEnabled = enabled
+            SideEffectsEnabled = enabled,
+            SnapshotDiffGuardEnabled = current.SnapshotDiffGuardEnabled
+        });
+    }
+
+    public Task SetSnapshotDiffGuardEnabled(bool enabled)
+    {
+        var current = Value;
+
+        return SetValue(new ClusterFeaturesState
+        {
+            AcceptingConnections = current.AcceptingConnections,
+            MatchmakingEnabled = current.MatchmakingEnabled,
+            SideEffectsEnabled = current.SideEffectsEnabled,
+            SnapshotDiffGuardEnabled = enabled
         });
     }
 }
@@ -68,6 +86,9 @@ public class ClusterFeaturesState
 
     [Id(2)]
     public bool SideEffectsEnabled { get; set; } = false;
+
+    [Id(3)]
+    public bool SnapshotDiffGuardEnabled { get; set; } = false;
 }
 
 public static class ClusterFeaturesExtensions

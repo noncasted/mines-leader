@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 using Cluster.Configs;
 
 namespace Game.GamePlay;
@@ -14,8 +14,10 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Trebuchet payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Trebuchet payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -24,8 +26,7 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -39,15 +40,14 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No free cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No free cells in the pattern")
             };
         }
 
         var minesTargets = new List<ICell>();
 
-        var cellsByY = Enumerable.GroupBy<ICell, int>(selected, cell => cell.Position.y)
-                                 .OrderByDescending(group => group.Key);
+        var cellsByY = selected.GroupBy(cell => cell.Position.y)
+                               .OrderByDescending(group => group.Key);
 
         foreach (var group in cellsByY)
         {
@@ -68,16 +68,22 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
         foreach (var cell in minesTargets)
             cell.ToTaken().SetMine();
 
-        invoker.Modifiers.Reset(PlayerModifier.TrebuchetBoost);
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Trebuchet()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = selected.Select(c => c.Position).ToList()
+        });
+
+        foreach (var cell in selected)
+            snapshot.RecordCellTaken(board, cell.Position);
+
+        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
+
+        invoker.Modifiers.Reset(snapshot, PlayerModifier.TrebuchetBoost);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Trebuchet()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = selected.Select(c => c.Position).ToList()
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

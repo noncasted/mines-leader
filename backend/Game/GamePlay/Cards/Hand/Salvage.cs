@@ -8,23 +8,23 @@ namespace Game.GamePlay;
 /// </summary>
 public class Salvage : ICard<CardUsePayload.Salvage>
 {
-    public Salvage(ICardConfigs configs, IMoveSnapshotAccessor snapshotAccessor)
+    public Salvage(ICardConfigs configs)
     {
         _configs = configs;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ICardConfigs _configs;
-    private readonly IMoveSnapshotAccessor _snapshotAccessor;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Salvage payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Salvage payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
+
         if (invoker.Deck.Count == 0)
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Deck is empty"),
-                ActionData = null
+                Result = EmptyResponse.Fail("Deck is empty")
             };
         }
 
@@ -42,17 +42,20 @@ public class Salvage : ICard<CardUsePayload.Salvage>
         var chosenCard = peeked[chosenIndex];
         invoker.Deck.RemoveCard(chosenCard);
         var activeCard = invoker.Hand.Add(chosenCard);
-        _snapshotAccessor.Snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Salvage()
+        {
+            TargetPlayer = invoker.User.Id,
+            PeekedCards = peeked,
+            ChosenIndex = chosenIndex
+        });
+
+        snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);
+        snapshot.RecordDeckUpdate(invoker);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Salvage()
-            {
-                TargetPlayer = invoker.User.Id,
-                PeekedCards = peeked,
-                ChosenIndex = chosenIndex
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

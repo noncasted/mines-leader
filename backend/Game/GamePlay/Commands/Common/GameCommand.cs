@@ -28,17 +28,34 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
             Snapshot = snapshot
         };
 
+        var preState = Utils.DiffGuard.IsEnabled == true
+            ? GameStateCapture.Capture(Utils.GameContext)
+            : null;
+
         try
         {
-            var response = Execute(commandContext, request);
+            EmptyResponse response;
+
+            try
+            {
+                response = Execute(commandContext, request);
+            }
+            catch (Exception e)
+            {
+                Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
+                    request.GetType().Name, player.User.Id);
+                return EmptyResponse.Fail("An error occurred while processing the command.");
+            }
+
+            if (preState != null)
+            {
+                var postState = GameStateCapture.Capture(Utils.GameContext);
+                Utils.DiffGuard.Validate(preState, snapshot.Collect(), postState,
+                    $"command:{request.GetType().Name}");
+            }
+
             Utils.SnapshotSender.Send(snapshot);
             return response;
-        }
-        catch (Exception e)
-        {
-            Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
-                request.GetType().Name, player.User.Id);
-            return EmptyResponse.Fail("An error occurred while processing the command.");
         }
         finally
         {

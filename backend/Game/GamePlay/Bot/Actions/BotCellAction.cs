@@ -35,12 +35,12 @@ public class BotCellAction : IBotCellAction
         {
             var randomPosition = _context.Bot.Board.RandomPosition();
 
-            _commandUtils.WithSnapshot(() => {
-                _context.Bot.Moves.OnUsed();
+            _commandUtils.WithSnapshot(snapshot => {
+                _context.Bot.Moves.OnUsed(snapshot);
+
                 board.Generator.Generate(randomPosition);
-                board.Cells[randomPosition].ToFree();
-                board.Revealer.Reveal(randomPosition);
-                board.OnUpdated();
+                snapshot.RecordReveal(board, randomPosition);
+
                 _context.Bot.Actions.OnCellOpened();
             });
 
@@ -50,7 +50,6 @@ public class BotCellAction : IBotCellAction
 
         if (TryGetFirstTargetCell(out var target, out var reason) == false)
         {
-            // Fallback: open a random safe cell (known to have no mine), only if HP > 1
             if (_context.Bot.Health.Current.Value > 1 && TryGetRandomSafeCell(out target, out reason) == false)
             {
                 _sessionLogger.LogBotAction("Cell", $"No cell found | {reason}");
@@ -63,13 +62,22 @@ public class BotCellAction : IBotCellAction
             }
         }
 
-        _commandUtils.WithSnapshot(() => {
+        _commandUtils.WithSnapshot(snapshot => {
             var taken = board.Cells[target].AsTaken();
 
-            _context.Bot.Moves.OnUsed();
-            taken.ToFree();
-            board.Revealer.Reveal(target);
-            board.OnUpdated();
+            _context.Bot.Moves.OnUsed(snapshot);
+
+            if (taken.HasMine == true)
+            {
+                _context.Bot.Health.TakeDamage(snapshot, 1);
+                snapshot.RecordExplosion(board, target);
+                taken.Explode();
+                taken.ToFree();
+                snapshot.RecordCellFree(board, target);
+            }
+
+            snapshot.RecordReveal(board, target);
+
             _context.Bot.Actions.OnCellOpened();
         });
 

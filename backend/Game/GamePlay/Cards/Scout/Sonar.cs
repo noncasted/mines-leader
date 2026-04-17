@@ -12,8 +12,10 @@ public class Sonar : ICard<CardUsePayload.Sonar>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Sonar payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Sonar payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -21,14 +23,22 @@ public class Sonar : ICard<CardUsePayload.Sonar>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
         var pattern = PatternShapes.Rhombus(_configs.Value.Sonar_Normal.Size);
         var selected = pattern.SelectTaken(board, payload.Position);
         var mines = selected.Where(cell => cell.HasMine && !cell.IsFlagged).ToList();
+
+        if (mines.Count == 0)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("No unflagged mines in the sonar range")
+            };
+        }
+
         var flaggedPositions = new List<Position>();
 
         foreach (var cell in mines)
@@ -37,14 +47,20 @@ public class Sonar : ICard<CardUsePayload.Sonar>
             flaggedPositions.Add(cell.Position);
         }
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Sonar
+        {
+            TargetPlayer = board.OwnerId,
+            FlaggedCells = flaggedPositions
+        });
+
+        foreach (var position in flaggedPositions)
+            snapshot.RecordFlag(board, position, true);
+
+        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Sonar
-            {
-                TargetPlayer = board.OwnerId,
-                FlaggedCells = flaggedPositions
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

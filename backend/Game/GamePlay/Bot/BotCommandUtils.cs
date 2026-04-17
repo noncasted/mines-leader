@@ -1,4 +1,3 @@
-using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -15,46 +14,44 @@ public class BotCommandUtils : IBotCommandUtils
 {
     public BotCommandUtils(
         ISnapshotSender snapshotSender,
+        ISnapshotDiffGuard diffGuard,
         IGameContext gameContext,
-        IServiceProvider serviceProvider,
-        MoveSnapshotAccessor snapshotAccessor)
+        IServiceProvider serviceProvider)
     {
         _snapshotSender = snapshotSender;
+        _diffGuard = diffGuard;
         _gameContext = gameContext;
         _serviceProvider = serviceProvider;
-        _snapshotAccessor = snapshotAccessor;
     }
 
     private readonly ISnapshotSender _snapshotSender;
+    private readonly ISnapshotDiffGuard _diffGuard;
     private readonly IGameContext _gameContext;
     private readonly IServiceProvider _serviceProvider;
-    private readonly MoveSnapshotAccessor _snapshotAccessor;
 
     public ICardUsePayload? LastUsedPayload { get; private set; }
 
     public void WithSnapshot(Action action)
     {
-        var lifetime = new Lifetime();
-        var snapshot = new MoveSnapshot();
-        snapshot.HandleBoards(lifetime, _gameContext);
-        snapshot.HandlePlayers(lifetime, _gameContext);
-
-        action();
-
-        lifetime.Terminate();
-        _snapshotSender.Send(snapshot);
+        WithSnapshot(_ => action());
     }
 
     public void WithSnapshot(Action<MoveSnapshot> action)
     {
-        var lifetime = new Lifetime();
         var snapshot = new MoveSnapshot();
-        snapshot.HandleBoards(lifetime, _gameContext);
-        snapshot.HandlePlayers(lifetime, _gameContext);
+
+        var preState = _diffGuard.IsEnabled == true
+            ? GameStateCapture.Capture(_gameContext)
+            : null;
 
         action(snapshot);
 
-        lifetime.Terminate();
+        if (preState != null)
+        {
+            var postState = GameStateCapture.Capture(_gameContext);
+            _diffGuard.Validate(preState, snapshot.Collect(), postState, "bot");
+        }
+
         _snapshotSender.Send(snapshot);
     }
 
@@ -64,19 +61,15 @@ public class BotCommandUtils : IBotCommandUtils
         var wasUsed = false;
 
         WithSnapshot(snapshot => {
-            _snapshotAccessor.Set(snapshot, cardId);
+            var cardContext = new CardUseContext
+            {
+                Invoker = bot,
+                Snapshot = snapshot,
+                CardId = cardId
+            };
 
-            var use = _serviceProvider.Use(bot, payload);
+            var use = _serviceProvider.Use(cardContext, payload);
             wasUsed = use.Result.HasError == false;
-
-            if (wasUsed == false)
-                return;
-
-            if (use.ActionData != null)
-                snapshot.RecordCardUse(bot.User.Id, cardId, use.ActionData);
-
-            foreach (var (_, board) in _gameContext.Boards)
-                board.OnUpdated();
         });
 
         return wasUsed;

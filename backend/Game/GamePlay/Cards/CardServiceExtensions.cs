@@ -8,9 +8,6 @@ public static class CardServiceExtensions
 {
     public static IServiceCollection AddCardServices(this IServiceCollection services)
     {
-        services.AddSingleton<MoveSnapshotAccessor>();
-        services.AddSingleton<IMoveSnapshotAccessor>(sp => sp.GetRequiredService<MoveSnapshotAccessor>());
-
         // Buff
         services.Add<Focus>().As<ICard<CardUsePayload.Focus>>();
         services.Add<Adrenaline>().As<ICard<CardUsePayload.Adrenaline>>();

@@ -1,5 +1,6 @@
 ﻿using Cluster.Configs;
 using Cluster.Discovery;
+using Common;
 using Common.Extensions;
 using Common.Reactive;
 using Game.GamePlay;
@@ -247,5 +248,6 @@ public class SessionFactory : ISessionFactory
         collection.Pass<ICardConfigs>(_serviceProvider);
         collection.Pass<IBotConfig>(_serviceProvider);
         collection.Pass<IGameModeConfig>(_serviceProvider);
+        collection.Pass<IClusterFlags>(_serviceProvider);
     }
 }

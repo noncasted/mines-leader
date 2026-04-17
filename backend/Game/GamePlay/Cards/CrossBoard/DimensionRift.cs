@@ -17,8 +17,9 @@ public class DimensionRift : ICard<CardUsePayload.DimensionRift>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.DimensionRift payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.DimensionRift payload)
     {
+        var invoker = context.Invoker;
         var opponent = _gameContext.GetOpponent(invoker);
         var opponentBoard = opponent.Board;
         var ownerBoard = invoker.Board;
@@ -26,13 +27,15 @@ public class DimensionRift : ICard<CardUsePayload.DimensionRift>
         ownerBoard.EnsureGenerated(payload.Position);
 
         // TODO: Full implementation requires complete cell state swap logic.
+        var snapshot = context.Snapshot;
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.DimensionRift()
+        {
+            TargetPlayer = opponentBoard.OwnerId
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.DimensionRift()
-            {
-                TargetPlayer = opponentBoard.OwnerId
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

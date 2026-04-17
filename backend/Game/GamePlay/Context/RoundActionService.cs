@@ -2,13 +2,13 @@ namespace Game.GamePlay;
 
 public interface IRoundAction
 {
-    void Execute();
+    void Execute(MoveSnapshot snapshot);
 }
 
 public interface IRoundActionService
 {
     void Schedule(IRoundAction action, int rounds);
-    void Tick();
+    void Tick(MoveSnapshot snapshot);
 }
 
 public class RoundActionService : IRoundActionService
@@ -23,7 +23,7 @@ public class RoundActionService : IRoundActionService
         _scheduledActions.Add(new Entry { Id = Guid.NewGuid(), Action = action, RoundsLeft = rounds });
     }
 
-    public void Tick()
+    public void Tick(MoveSnapshot snapshot)
     {
         var toRemove = new List<Guid>();
 
@@ -33,7 +33,7 @@ public class RoundActionService : IRoundActionService
 
             if (entry.RoundsLeft == 0)
             {
-                entry.Action.Execute();
+                entry.Action.Execute(snapshot);
                 toRemove.Add(entry.Id);
             }
         }

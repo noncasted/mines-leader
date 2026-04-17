@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -6,9 +6,6 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.Open request)
     {
-        context.Snapshot.HandleBoards(context.Lifetime, Utils.GameContext);
-        context.Snapshot.HandlePlayers(context.Lifetime, Utils.GameContext);
-
         var board = context.Player.Board;
         board.EnsureGenerated(request.Position);
         var targetCell = board.Cells[request.Position];
@@ -28,32 +25,34 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 
             if (shield > 0)
             {
-                context.Player.Modifiers.Set(PlayerModifier.Shield, shield - 1);
+                context.Player.Modifiers.Set(context.Snapshot, PlayerModifier.Shield, shield - 1);
                 shieldConsumed = true;
             }
             else
             {
-                context.Player.Health.TakeDamage(1);
+                context.Player.Health.TakeDamage(context.Snapshot, 1);
 
                 var soulLink = (int)context.Player.Modifiers.Get(PlayerModifier.SoulLink);
 
                 if (soulLink > 0)
                 {
                     var opponent = Utils.GameContext.GetOpponent(context.Player);
-                    opponent.Health.TakeDamage(1);
+                    opponent.Health.TakeDamage(context.Snapshot, 1);
                 }
             }
 
+            context.Snapshot.RecordExplosion(board, request.Position);
             targetCell.ToTaken().Explode();
+            targetCell.ToFree();
+            context.Snapshot.RecordCellFree(board, request.Position);
         }
 
         Utils.SessionLogger.LogCellOpened(context.Player.User.Id, request.Position, hasMine, shieldConsumed);
 
         context.Player.Actions.OnCellOpened();
-        context.Player.Moves.OnUsed();
-        targetCell.ToFree();
-        board.Revealer.Reveal(request.Position);
-        board.OnUpdated();
+        context.Player.Moves.OnUsed(context.Snapshot);
+
+        context.Snapshot.RecordReveal(board, request.Position);
 
         return EmptyResponse.Ok;
     }

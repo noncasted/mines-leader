@@ -17,8 +17,10 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.CarpetBomb payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.CarpetBomb payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -36,25 +38,29 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No free cells in the line pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No free cells in the line pattern")
             };
         }
 
         foreach (var cell in selected)
-            cell.ToTaken();
+            cell.ToTaken().SetMine();
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.CarpetBomb()
+        {
+            TargetPlayer = board.OwnerId,
+            TargetCells = selected.Select(c => c.Position).ToList()
+        });
+
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
 
         foreach (var cell in selected)
-            cell.ToTaken().SetMine();
+            snapshot.RecordCellTaken(board, cell.Position);
+
+        snapshot.RecordMines(board, minesRecords);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.CarpetBomb()
-            {
-                TargetPlayer = board.OwnerId,
-                TargetCells = selected.Select(c => c.Position).ToList()
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

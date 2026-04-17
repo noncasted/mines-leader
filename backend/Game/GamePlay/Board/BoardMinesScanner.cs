@@ -1,53 +1,60 @@
-﻿using Common.Reactive;
-using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
 
 public interface IBoardMinesScanner
 {
-    void Start(IReadOnlyLifetime lifetime);
+    int Mines { get; }
+    int Flags { get; }
+
+    IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot? snapshot = null);
 }
 
 public class BoardMinesScanner : IBoardMinesScanner
 {
-    public BoardMinesScanner(IBoard board, ValueProperty<BoardState> state)
+    public BoardMinesScanner(IBoard board)
     {
         _board = board;
-        _state = state;
     }
 
     private readonly IBoard _board;
-    private readonly ValueProperty<BoardState> _state;
 
-    public void Start(IReadOnlyLifetime lifetime)
-    {
-        _board.Updated.Advise(lifetime, Recalculate);
-    }
+    public int Mines { get; private set; }
+    public int Flags { get; private set; }
 
-    private void Recalculate()
+    public IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot? snapshot = null)
     {
-        var target = new Dictionary<Position, int>();
         var cells = _board.Cells;
+        List<BoardSnapshotRecord.MinesAround>? changed = null;
 
-        foreach (var (position, _) in cells)
-            target[position] = GetAround(_board, position);
-
-        foreach (var (_, cell) in cells)
+        foreach (var (position, cell) in cells)
         {
             if (cell.Status != CellStatus.Free)
                 continue;
 
-            var freeState = cell.ToFree();
-            freeState.UpdateMinesAround(target[cell.Position]);
+            var free = cell.AsFree();
+            var newMines = GetAround(_board, position);
+
+            if (free.MinesAround == newMines)
+                continue;
+
+            free.UpdateMinesAround(newMines);
+            (changed ??= new List<BoardSnapshotRecord.MinesAround>())
+                .Add(new BoardSnapshotRecord.MinesAround { Position = position, Count = newMines });
         }
 
-        _state.Update(state => {
-            state.Mines = GetTotalMines();
-            state.Flags = GetTotalFlags();
-        });
+        var newTotalMines = GetTotalMines();
+        var newTotalFlags = GetTotalFlags();
 
-        return;
+        var stateChanged = newTotalMines != Mines || newTotalFlags != Flags;
+
+        Mines = newTotalMines;
+        Flags = newTotalFlags;
+
+        if (stateChanged && snapshot != null)
+            snapshot.RecordBoardStateUpdate(_board.OwnerId, Mines, Flags);
+
+        return changed ?? (IReadOnlyList<BoardSnapshotRecord.MinesAround>)Array.Empty<BoardSnapshotRecord.MinesAround>();
 
         int GetTotalMines()
         {
@@ -58,9 +65,7 @@ public class BoardMinesScanner : IBoardMinesScanner
                 if (cell.Status != CellStatus.Taken)
                     continue;
 
-                var takenState = cell.ToTaken();
-
-                if (takenState.HasMine)
+                if (cell.AsTaken().HasMine)
                     total++;
             }
 
@@ -76,9 +81,7 @@ public class BoardMinesScanner : IBoardMinesScanner
                 if (cell.Status != CellStatus.Taken)
                     continue;
 
-                var takenState = cell.ToTaken();
-
-                if (takenState.IsFlagged)
+                if (cell.AsTaken().IsFlagged)
                     total++;
             }
 
@@ -86,23 +89,19 @@ public class BoardMinesScanner : IBoardMinesScanner
         }
     }
 
-    private int GetAround(IBoard board, Position position)
+    private static int GetAround(IBoard board, Position position)
     {
         var count = 0;
-
         var neighbours = board.NeighbourPositions(position);
 
         foreach (var neighbour in neighbours)
         {
             var cell = board.Cells[neighbour];
-            var state = cell;
 
-            if (state.Status != CellStatus.Taken)
+            if (cell.Status != CellStatus.Taken)
                 continue;
 
-            var takenState = cell.ToTaken();
-
-            if (takenState.HasMine)
+            if (cell.AsTaken().HasMine)
                 count++;
         }
 

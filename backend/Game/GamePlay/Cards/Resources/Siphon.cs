@@ -17,21 +17,24 @@ public class Siphon : ICard<CardUsePayload.Siphon>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Siphon payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Siphon payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.Siphon_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Mana.SetMax(opponent.Mana.Max - config.DrainAmount);
-        invoker.Mana.SetMax(invoker.Mana.Max + config.DrainAmount);
+        opponent.Mana.SetMax(snapshot, opponent.Mana.Max - config.DrainAmount);
+        invoker.Mana.SetMax(snapshot, invoker.Mana.Max + config.DrainAmount);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Siphon()
+        {
+            TargetPlayer = opponent.User.Id
+        });
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Siphon()
-            {
-                TargetPlayer = opponent.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

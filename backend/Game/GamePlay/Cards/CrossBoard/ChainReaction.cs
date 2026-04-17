@@ -14,8 +14,10 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
     private readonly ICardConfigs _configs;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChainReaction payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ChainReaction payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -24,8 +26,7 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail($"No cell at position {payload.Position}"),
-                ActionData = null
+                Result = EmptyResponse.Fail($"No cell at position {payload.Position}")
             };
         }
 
@@ -33,8 +34,7 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("Target cell has no mine"),
-                ActionData = null
+                Result = EmptyResponse.Fail("Target cell has no mine")
             };
         }
 
@@ -55,6 +55,7 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
         }
 
         var spawnedMines = new List<Position>();
+        var takenPositions = new List<Position>();
 
         foreach (var mine in targets)
         {
@@ -67,6 +68,7 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
                     case CellStatus.Free:
                         candidate.ToTaken().SetMine();
                         spawnedMines.Add(candidate.Position);
+                        takenPositions.Add(candidate.Position);
                         break;
                     case CellStatus.Taken:
                         if (candidate.AsTaken().HasMine)
@@ -81,17 +83,21 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
             }
         }
 
-        board.OnUpdated();
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChainReaction
+        {
+            TargetPlayer = board.OwnerId,
+            SpawnedMines = spawnedMines,
+            TargetCells = targets.Select(t => t.Position).ToList()
+        });
+
+        foreach (var position in takenPositions)
+            snapshot.RecordCellTaken(board, position);
+
+        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ChainReaction
-            {
-                TargetPlayer = board.OwnerId,
-                SpawnedMines = spawnedMines,
-                TargetCells = targets.Select(t => t.Position).ToList()
-            }
+            Result = EmptyResponse.Ok
         };
 
         ITakenCell? SelectMine(Position center)

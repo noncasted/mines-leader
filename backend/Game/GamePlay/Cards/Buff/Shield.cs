@@ -7,17 +7,20 @@ namespace Game.GamePlay;
 /// </summary>
 public class Shield : ICard<CardUsePayload.Shield>
 {
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.Shield payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Shield payload)
     {
-        invoker.Modifiers.Inc(PlayerModifier.Shield);
+        var invoker = context.Invoker;
+
+        invoker.Modifiers.Inc(context.Snapshot, PlayerModifier.Shield);
+
+        context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Shield()
+        {
+            TargetPlayer = invoker.User.Id
+        });
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.Shield()
-            {
-                TargetPlayer = invoker.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

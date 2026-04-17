@@ -109,11 +109,19 @@ public class BotCardAction : IBotCardAction
                 continue;
             }
 
-            bot.Hand.Remove(cardId);
-            bot.Stash.Add(cardType);
-            bot.Moves.OnUsed();
-            bot.Mana.Use(manaCost);
-            bot.Actions.OnCardUsed(cardType, _commandUtils.LastUsedPayload!);
+            _commandUtils.WithSnapshot(snapshot => {
+                bot.Hand.Remove(cardId);
+                snapshot.RecordCardRemove(bot.User.Id, cardId);
+
+                bot.Mana.Use(snapshot, manaCost);
+                bot.Moves.OnUsed(snapshot);
+
+                bot.Stash.Add(cardType);
+                snapshot.RecordCardAdd(bot.User.Id, cardId, cardType, isStash: true);
+                snapshot.RecordStashUpdate(bot);
+
+                bot.Actions.OnCardUsed(cardType, _commandUtils.LastUsedPayload!);
+            });
 
             _sessionLogger.LogBotAction("Card",
                 $"Used {cardType} | Utility={utility:F1} ManaCost={manaCost} ManaLeft={bot.Mana.Current} MovesLeft={bot.Moves.Left}");

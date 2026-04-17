@@ -1,4 +1,3 @@
-﻿using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -6,47 +5,43 @@ namespace Game.GamePlay;
 public class MoveSnapshot
 {
     private readonly List<IMoveSnapshotRecord> _records = new();
+    private int? _insertAt;
 
-    private bool _isLocked = false;
+    public int Count => _records.Count;
 
-    public void Lock()
+    public IDisposable BeginInsertAt(int index)
     {
-        _isLocked = true;
-    }
+        if (index < 0 || index > _records.Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
 
-    public void Unlock()
-    {
-        _isLocked = false;
+        _insertAt = index;
+        return new InsertScope(this);
     }
 
     public void RecordCardUse(Guid playerId, Guid cardId, ICardActionData data)
     {
-        var record = new PlayerSnapshotRecord.CardUse()
+        Append(new PlayerSnapshotRecord.CardUse()
         {
             PlayerId = playerId,
             CardId = cardId,
             Data = data
-        };
-
-        if (_records.Count != 0)
-            _records.Insert(0, record);
-        else
-            _records.Add(record);
+        });
     }
 
-    public void RecordCardAdd(Guid playerId, Guid cardId, CardType type)
+    public void RecordCardAdd(Guid playerId, Guid cardId, CardType type, bool isStash = false)
     {
-        _records.Add(new PlayerSnapshotRecord.CardAdd()
+        Append(new PlayerSnapshotRecord.CardAdd()
         {
             PlayerId = playerId,
             CardId = cardId,
-            Type = type
+            Type = type,
+            IsStash = isStash
         });
     }
 
     public void RecordCardRemove(Guid playerId, Guid cardId)
     {
-        _records.Add(new PlayerSnapshotRecord.CardRemove()
+        Append(new PlayerSnapshotRecord.CardRemove()
         {
             PlayerId = playerId,
             CardId = cardId
@@ -55,155 +50,159 @@ public class MoveSnapshot
 
     public void RecordGameStarted()
     {
-        _records.Add(new GameStartedRecord());
+        Append(new GameStartedRecord());
     }
 
-
-    public void HandlePlayers(IReadOnlyLifetime lifetime, IGameContext gameContext)
+    public void RecordCellTaken(IBoard board, Position position)
     {
-        foreach (var player in gameContext.Players)
-        {
-            var playerId = player.User.Id;
-            var mana = player.Mana;
-            var health = player.Health;
-            var moves = player.Moves;
-
-            mana.Updated.Advise(lifetime, () => {
-                _records.Add(new PlayerSnapshotRecord.ManaUpdate
-                {
-                    PlayerId = playerId,
-                    Current = mana.Current,
-                    Max = mana.Max
-                });
-            });
-
-            health.Updated.Advise(lifetime, () => {
-                _records.Add(new PlayerSnapshotRecord.HealthUpdate
-                {
-                    PlayerId = playerId,
-                    Current = health.Current.Value,
-                    Max = health.Max
-                });
-            });
-
-            moves.Updated.Advise(lifetime, () => {
-                _records.Add(new PlayerSnapshotRecord.MovesUpdate
-                {
-                    PlayerId = playerId,
-                    Left = moves.Left,
-                    Max = moves.Max,
-                    IsAvailable = moves.IsAvailable
-                });
-            });
-        }
+        AppendBoardRecord(board, new BoardSnapshotRecord.CellTaken { Position = position });
     }
 
-    public void HandleBoards(IReadOnlyLifetime lifetime, IGameContext gameContext)
+    public void RecordCellFree(IBoard board, Position position)
     {
-        foreach (var (_, board) in gameContext.Boards)
+        AppendBoardRecord(board, new BoardSnapshotRecord.CellFree { Position = position });
+    }
+
+    public void RecordFlag(IBoard board, Position position, bool isFlagged)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.Flag { Position = position, IsFlagged = isFlagged });
+    }
+
+    public void RecordMines(IBoard board, Position position, int count)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.MinesAround { Position = position, Count = count });
+    }
+
+    public void RecordMines(IBoard board, IReadOnlyList<BoardSnapshotRecord.MinesAround> records)
+    {
+        foreach (var record in records)
+            AppendBoardRecord(board, record);
+    }
+
+    public void RecordExplosion(IBoard board, Position position)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.Explosion { Position = position });
+    }
+
+    public void RecordEffectAdded(IBoard board, Position position, CellEffectType type, Guid effectId)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.EffectAdded
         {
-            var events = board.Events;
+            Position = position,
+            Type = type,
+            EffectId = effectId
+        });
+    }
 
-            events.CellSet.Advise(lifetime, CellSet);
-            events.Flag.Advise(lifetime, Flag);
-            events.Mines.Advise(lifetime, Mines);
-            events.Record.Advise(lifetime, record => WriteBoardRecord(board, record));
-            events.Explode.Advise(lifetime, Explosion);
-            events.EffectAdded.Advise(lifetime, (cell, effect) => EffectAdded(board, cell, effect));
-            events.EffectRemoved.Advise(lifetime, (cell, effectId) => EffectRemoved(board, cell, effectId));
-
-            continue;
-
-            void CellSet(ICell cell)
-            {
-                IBoardSnapshotRecord record = cell.Status switch
-                {
-                    CellStatus.Free => new BoardSnapshotRecord.CellFree() { Position = cell.Position },
-                    CellStatus.Taken => new BoardSnapshotRecord.CellTaken() { Position = cell.Position },
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-
-                WriteBoardRecord(board, record);
-            }
-
-            void Flag(ICell cell, bool isFlagged)
-            {
-                var record = new BoardSnapshotRecord.Flag()
-                {
-                    Position = cell.Position,
-                    IsFlagged = isFlagged
-                };
-
-                WriteBoardRecord(board, record);
-            }
-
-            void Mines(ICell cell, int count)
-            {
-                var record = new BoardSnapshotRecord.MinesAround()
-                {
-                    Position = cell.Position,
-                    Count = count
-                };
-
-                WriteBoardRecord(board, record);
-            }
-
-            void Explosion(ICell cell)
-            {
-                var record = new BoardSnapshotRecord.Explosion()
-                {
-                    Position = cell.Position,
-                };
-
-                WriteBoardRecord(board, record);
-            }
-
-            void EffectAdded(IBoard targetBoard, ICell cell, ICellEffect effect)
-            {
-                var record = new BoardSnapshotRecord.EffectAdded()
-                {
-                    Position = cell.Position,
-                    Type = effect.Type,
-                    EffectId = effect.Id
-                };
-
-                WriteBoardRecord(targetBoard, record);
-            }
-
-            void EffectRemoved(IBoard targetBoard, ICell cell, Guid effectId)
-            {
-                var record = new BoardSnapshotRecord.EffectRemoved()
-                {
-                    Position = cell.Position,
-                    EffectId = effectId
-                };
-
-                WriteBoardRecord(targetBoard, record);
-            }
-        }
-
-        return;
-
-        void WriteBoardRecord(IBoard board, IBoardSnapshotRecord record)
+    public void RecordEffectRemoved(IBoard board, Position position, Guid effectId)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.EffectRemoved
         {
-            if (_isLocked == true)
-                return;
+            Position = position,
+            EffectId = effectId
+        });
+    }
 
-            if (_records.Count == 0 ||
-                _records.Last() is not SharedBoardSnapshot boardRecord ||
-                boardRecord.BoardOwnerId != board.OwnerId)
-            {
-                boardRecord = new SharedBoardSnapshot
-                {
-                    BoardOwnerId = board.OwnerId,
-                    Records = new List<IBoardSnapshotRecord>()
-                };
+    public void RecordManaUpdate(IPlayer player)
+    {
+        var mana = player.Mana;
 
-                _records.Add(boardRecord);
-            }
+        Append(new PlayerSnapshotRecord.ManaUpdate
+        {
+            PlayerId = player.User.Id,
+            Current = mana.Current,
+            Max = mana.Max
+        });
+    }
 
-            boardRecord.Records.Add(record);
-        }
+    public void RecordHealthUpdate(IPlayer player)
+    {
+        var health = player.Health;
+
+        Append(new PlayerSnapshotRecord.HealthUpdate
+        {
+            PlayerId = player.User.Id,
+            Current = health.Current.Value,
+            Max = health.Max
+        });
+    }
+
+    public void RecordMovesUpdate(IPlayer player)
+    {
+        var moves = player.Moves;
+
+        Append(new PlayerSnapshotRecord.MovesUpdate
+        {
+            PlayerId = player.User.Id,
+            Left = moves.Left,
+            Max = moves.Max,
+            IsAvailable = moves.IsAvailable
+        });
+    }
+
+    public void RecordModifierUpdate(IPlayer player, PlayerModifier modifier, float value)
+    {
+        Append(new PlayerSnapshotRecord.ModifierUpdate
+        {
+            PlayerId = player.User.Id,
+            Modifier = modifier,
+            Value = value
+        });
+    }
+
+    public void RecordDeckUpdate(IPlayer player)
+    {
+        Append(new PlayerSnapshotRecord.DeckUpdate
+        {
+            PlayerId = player.User.Id,
+            Count = player.Deck.Count
+        });
+    }
+
+    public void RecordStashUpdate(IPlayer player)
+    {
+        Append(new PlayerSnapshotRecord.StashUpdate
+        {
+            PlayerId = player.User.Id,
+            Count = player.Stash.Count
+        });
+    }
+
+    public void RecordBoardStateUpdate(Guid ownerId, int mines, int flags)
+    {
+        Append(new PlayerSnapshotRecord.BoardStateUpdate
+        {
+            PlayerId = ownerId,
+            Mines = mines,
+            Flags = flags
+        });
+    }
+
+    public void RecordGameCompleted(Guid winner)
+    {
+        Append(new GameCompletedRecord
+        {
+            Winner = winner
+        });
+    }
+
+    public void RecordTimeLimitedRound(Guid currentPlayer, Dictionary<Guid, long> secondsLeft)
+    {
+        Append(new TimeLimitedRoundRecord
+        {
+            CurrentPlayer = currentPlayer,
+            SecondsLeft = new Dictionary<Guid, long>(secondsLeft)
+        });
+    }
+
+    public void RecordLastManStandingRound(Guid currentPlayer, int currentRound, int secondsLeft)
+    {
+        Append(new LastManStandingRoundRecord
+        {
+            CurrentPlayer = currentPlayer,
+            CurrentRound = currentRound,
+            SecondsLeft = secondsLeft
+        });
     }
 
     public SharedMoveSnapshot Collect()
@@ -212,5 +211,64 @@ public class MoveSnapshot
         {
             Records = _records.AsReadOnly()
         };
+    }
+
+    private void Append(IMoveSnapshotRecord record)
+    {
+        if (_insertAt.HasValue == true)
+        {
+            _records.Insert(_insertAt.Value, record);
+            _insertAt = _insertAt.Value + 1;
+        }
+        else
+        {
+            _records.Add(record);
+        }
+    }
+
+    private void AppendBoardRecord(IBoard board, IBoardSnapshotRecord record)
+    {
+        if (_insertAt.HasValue == true)
+        {
+            var container = new SharedBoardSnapshot
+            {
+                BoardOwnerId = board.OwnerId,
+                Records = new List<IBoardSnapshotRecord> { record }
+            };
+
+            _records.Insert(_insertAt.Value, container);
+            _insertAt = _insertAt.Value + 1;
+            return;
+        }
+
+        if (_records.Count == 0 ||
+            _records[^1] is not SharedBoardSnapshot boardRecord ||
+            boardRecord.BoardOwnerId != board.OwnerId)
+        {
+            boardRecord = new SharedBoardSnapshot
+            {
+                BoardOwnerId = board.OwnerId,
+                Records = new List<IBoardSnapshotRecord>()
+            };
+
+            _records.Add(boardRecord);
+        }
+
+        boardRecord.Records.Add(record);
+    }
+
+    private sealed class InsertScope : IDisposable
+    {
+        public InsertScope(MoveSnapshot owner)
+        {
+            _owner = owner;
+        }
+
+        private readonly MoveSnapshot _owner;
+
+        public void Dispose()
+        {
+            _owner._insertAt = null;
+        }
     }
 }

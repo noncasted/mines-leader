@@ -12,15 +12,19 @@ public class TrebuchetAimer : ICard<CardUsePayload.TrebuchetAimer>
 
     private readonly ICardConfigs _configs;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.TrebuchetAimer payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.TrebuchetAimer payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.TrebuchetAimer_Normal;
-        invoker.Modifiers.Inc(PlayerModifier.TrebuchetBoost, config.Size);
+
+        invoker.Modifiers.Inc(snapshot, PlayerModifier.TrebuchetBoost, config.Size);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.TrebuchetAimer());
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.TrebuchetAimer()
+            Result = EmptyResponse.Ok
         };
     }
 }

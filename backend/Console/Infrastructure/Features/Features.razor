@@ -39,6 +39,13 @@
             Value="_state.SideEffectsEnabled"
             OnToggle="ToggleSideEffectsEnabled"
             Saving="_isSaving" />
+
+        <FeatureToggle
+            Label="Snapshot Diff Guard"
+            Description="Validate snapshot records against pre/post game state; throws on drift (tests/dev)"
+            Value="_state.SnapshotDiffGuardEnabled"
+            OnToggle="ToggleSnapshotDiffGuardEnabled"
+            Saving="_isSaving" />
     </div>
 
 </div>
@@ -65,6 +72,7 @@
     private Task ToggleAcceptingConnections() => Toggle("AcceptingConnections", v => ClusterFeatures.SetAcceptingConnections(v), !_state.AcceptingConnections);
     private Task ToggleMatchmakingEnabled() => Toggle("Matchmaking", v => ClusterFeatures.SetMatchmakingEnabled(v), !_state.MatchmakingEnabled);
     private Task ToggleSideEffectsEnabled() => Toggle("SideEffects", v => ClusterFeatures.SetSideEffectsEnabled(v), !_state.SideEffectsEnabled);
+    private Task ToggleSnapshotDiffGuardEnabled() => Toggle("SnapshotDiffGuard", v => ClusterFeatures.SetSnapshotDiffGuardEnabled(v), !_state.SnapshotDiffGuardEnabled);
 
     private async Task Toggle(string name, Func<bool, Task> setter, bool newValue)
     {

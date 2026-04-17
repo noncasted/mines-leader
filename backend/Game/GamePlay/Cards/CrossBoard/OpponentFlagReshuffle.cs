@@ -16,8 +16,10 @@ public class OpponentFlagReshuffle : ICard<CardUsePayload.OpponentFlagReshuffle>
     private readonly IGameContext _gameContext;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.OpponentFlagReshuffle payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.OpponentFlagReshuffle payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -26,8 +28,7 @@ public class OpponentFlagReshuffle : ICard<CardUsePayload.OpponentFlagReshuffle>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("TargetId board has no cells"),
-                ActionData = null
+                Result = EmptyResponse.Fail("TargetId board has no cells")
             };
         }
 
@@ -39,13 +40,13 @@ public class OpponentFlagReshuffle : ICard<CardUsePayload.OpponentFlagReshuffle>
         {
             return new CardUseResult
             {
-                Result = EmptyResponse.Fail("No free cells in the pattern"),
-                ActionData = null
+                Result = EmptyResponse.Fail("No free cells in the pattern")
             };
         }
 
-        var flagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == true).ToList();
-        var notFlagged = Enumerable.Where<ITakenCell>(selected, cell => cell.IsFlagged == false).ToList();
+        var flagged = selected.Where(cell => cell.IsFlagged == true).ToList();
+        var notFlagged = selected.Where(cell => cell.IsFlagged == false).ToList();
+        var flagChanges = new List<(Position Position, bool IsFlagged)>();
 
         while (flagged.Count != 0 && notFlagged.Count != 0)
         {
@@ -54,18 +55,28 @@ public class OpponentFlagReshuffle : ICard<CardUsePayload.OpponentFlagReshuffle>
             var randomNotFlagged = notFlagged[randomNotFlaggedIndex];
 
             firstFlagged.RemoveFlag();
+            flagChanges.Add((firstFlagged.Position, false));
+
             randomNotFlagged.SetFlag();
+            flagChanges.Add((randomNotFlagged.Position, true));
+
             flagged.RemoveAt(0);
             notFlagged.RemoveAt(randomNotFlaggedIndex);
         }
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.OpponentFlagReshuffle()
+        {
+            TargetPlayer = board.OwnerId
+        });
+
+        foreach (var change in flagChanges)
+            snapshot.RecordFlag(board, change.Position, change.IsFlagged);
+
+        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.OpponentFlagReshuffle()
-            {
-                TargetPlayer = board.OwnerId
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }

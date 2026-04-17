@@ -39,11 +39,12 @@ public class BotFlagAction : IBotFlagAction
             return false;
         }
 
-        _commandUtils.WithSnapshot(() => {
+        _commandUtils.WithSnapshot(snapshot => {
             var taken = board.Cells[target].AsTaken();
 
             taken.SetFlag();
-            board.OnUpdated();
+            snapshot.RecordFlag(board, target, true);
+            snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
         });
 
         _sessionLogger.LogBotAction("Flag", $"Placed at {target} | {reason}");

@@ -1,4 +1,3 @@
-﻿using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -7,33 +6,48 @@ public interface IModifiers
 {
     IReadOnlyDictionary<PlayerModifier, float> Values { get; }
 
-    void Set(PlayerModifier type, float value);
+    void Set(MoveSnapshot snapshot, PlayerModifier type, float value);
 }
 
 public class Modifiers : IModifiers
 {
-    public Modifiers(ValueProperty<PlayerModifiersState> state)
+    public Modifiers()
     {
-        _state = state;
-
         foreach (var type in PlayerModifierExtensions.All)
             _values[type] = 0f;
     }
 
-    private readonly ValueProperty<PlayerModifiersState> _state;
     private readonly Dictionary<PlayerModifier, float> _values = new();
+    private IPlayer? _owner;
 
     public IReadOnlyDictionary<PlayerModifier, float> Values => _values;
 
-    public void Set(PlayerModifier type, float value)
+    public void BindOwner(IPlayer owner)
     {
-        _values[type] = value;
-        SyncState();
+        _owner = owner;
     }
 
-    public void SyncState()
+    public void Set(MoveSnapshot snapshot, PlayerModifier type, float value)
     {
-        _state.Set(new PlayerModifiersState { Values = new Dictionary<PlayerModifier, float>(_values) });
+        _values[type] = value;
+
+        if (_owner == null)
+            return;
+
+        snapshot.RecordModifierUpdate(_owner, type, value);
+
+        switch (type)
+        {
+            case PlayerModifier.AdditionalMana:
+                snapshot.RecordManaUpdate(_owner);
+                break;
+            case PlayerModifier.AdditionalHealth:
+                snapshot.RecordHealthUpdate(_owner);
+                break;
+            case PlayerModifier.AdditionalMoves:
+                snapshot.RecordMovesUpdate(_owner);
+                break;
+        }
     }
 }
 
@@ -46,24 +60,24 @@ public static class PlayerModifiersExtensions
             return modifiers.Values[type];
         }
 
-        public void Inc(PlayerModifier type)
+        public void Inc(MoveSnapshot snapshot, PlayerModifier type)
         {
-            modifiers.Set(type, modifiers.Values[type] + 1);
+            modifiers.Set(snapshot, type, modifiers.Values[type] + 1);
         }
 
-        public void Inc(PlayerModifier type, float amount)
+        public void Inc(MoveSnapshot snapshot, PlayerModifier type, float amount)
         {
-            modifiers.Set(type, modifiers.Values[type] + amount);
+            modifiers.Set(snapshot, type, modifiers.Values[type] + amount);
         }
 
-        public void Dec(PlayerModifier type, float amount)
+        public void Dec(MoveSnapshot snapshot, PlayerModifier type, float amount)
         {
-            modifiers.Set(type, modifiers.Values[type] - amount);
+            modifiers.Set(snapshot, type, modifiers.Values[type] - amount);
         }
 
-        public void Reset(PlayerModifier type)
+        public void Reset(MoveSnapshot snapshot, PlayerModifier type)
         {
-            modifiers.Set(type, 0f);
+            modifiers.Set(snapshot, type, 0f);
         }
     }
 }

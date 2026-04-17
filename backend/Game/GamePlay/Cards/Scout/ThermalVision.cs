@@ -17,8 +17,10 @@ public class ThermalVision : ICard<CardUsePayload.ThermalVision>
     private readonly ICardConfigs _configs;
     private readonly IRoundActionService _roundActionService;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ThermalVision payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ThermalVision payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var board = invoker.Board;
         board.EnsureGenerated(payload.Position);
 
@@ -40,16 +42,20 @@ public class ThermalVision : ICard<CardUsePayload.ThermalVision>
         }
 
         if (affectedCells.Count > 0)
-            _roundActionService.Schedule(new MineHighlightDisposeAction(effectId, affectedCells), 2);
+            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells), 2);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ThermalVision()
+        {
+            TargetPlayer = board.OwnerId,
+            HighlightedMines = mines
+        });
+
+        foreach (var cell in affectedCells)
+            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.MineHighlight, effectId);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ThermalVision()
-            {
-                TargetPlayer = board.OwnerId,
-                HighlightedMines = mines
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }
@@ -62,18 +68,23 @@ public class MineHighlightEffect : ICellEffect
 
 public class MineHighlightDisposeAction : IRoundAction
 {
-    public MineHighlightDisposeAction(Guid effectId, List<ICell> cells)
+    public MineHighlightDisposeAction(IBoard board, Guid effectId, List<ICell> cells)
     {
+        _board = board;
         _effectId = effectId;
         _cells = cells;
     }
 
+    private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _cells;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
         foreach (var cell in _cells)
+        {
             cell.RemoveEffect(_effectId);
+            snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
+        }
     }
 }

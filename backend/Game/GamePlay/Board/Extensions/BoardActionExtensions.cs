@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 
 namespace Game.GamePlay;
 
@@ -10,7 +10,5 @@ public static class BoardActionExtensions
             return;
 
         board.Generator.Generate(position);
-        board.Revealer.Reveal(position);
-        board.OnUpdated();
     }
 }

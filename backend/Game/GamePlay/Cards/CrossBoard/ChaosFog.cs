@@ -25,8 +25,10 @@ public class ChaosFog : ICard<CardUsePayload.ChaosFog>
     private readonly IGameContext _gameContext;
     private readonly IGameRandom _gameRandom;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.ChaosFog payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.ChaosFog payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
@@ -46,36 +48,45 @@ public class ChaosFog : ICard<CardUsePayload.ChaosFog>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new ChaosFogDisposeAction(effectId, affectedCells);
+        var disposeAction = new ChaosFogDisposeAction(board, effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChaosFog()
+        {
+            TargetPlayer = board.OwnerId,
+            ActualSize = actualSize
+        });
+
+        foreach (var cell in affectedCells)
+            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Smoke, effectId);
 
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.ChaosFog()
-            {
-                TargetPlayer = board.OwnerId,
-                ActualSize = actualSize
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }
 
 public class ChaosFogDisposeAction : IRoundAction
 {
-    public ChaosFogDisposeAction(Guid effectId, List<ICell> affectedCells)
+    public ChaosFogDisposeAction(IBoard board, Guid effectId, List<ICell> affectedCells)
     {
+        _board = board;
         _effectId = effectId;
         _affectedCells = affectedCells;
     }
 
+    private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _affectedCells;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
         foreach (var cell in _affectedCells)
+        {
             cell.RemoveEffect(_effectId);
+            snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
+        }
     }
 }
 

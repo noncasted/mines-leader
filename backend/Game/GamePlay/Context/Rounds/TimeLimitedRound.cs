@@ -13,6 +13,7 @@ public class TimeLimitedRound : Service, IGameRound
         IGameReadyAwaiter readyAwaiter,
         IPlayersReadyAwaiter playersReadyAwaiter,
         ISnapshotSender snapshotSender,
+        ISnapshotDiffGuard diffGuard,
         IRoundActionService roundActionService,
         RoundPlayers players,
         IGameModeConfig modeOptions,
@@ -23,16 +24,17 @@ public class TimeLimitedRound : Service, IGameRound
         _readyAwaiter = readyAwaiter;
         _playersReadyAwaiter = playersReadyAwaiter;
         _snapshotSender = snapshotSender;
+        _diffGuard = diffGuard;
         _roundActionService = roundActionService;
         _players = players;
         _modeOptions = modeOptions;
         _logger = logger;
         _sessionLogger = sessionLogger;
-
-        BindProperty(_state);
     }
 
-    private readonly ValueProperty<TimeLimitedRoundState> _state = new(1);
+    private readonly Dictionary<Guid, long> _secondsLeft = new();
+    private Guid _currentPlayerId;
+
     private readonly RoundPlayers _players;
     private readonly IGameModeConfig _modeOptions;
     private readonly ILogger<TimeLimitedRound> _logger;
@@ -41,6 +43,7 @@ public class TimeLimitedRound : Service, IGameRound
     private readonly IGameReadyAwaiter _readyAwaiter;
     private readonly IPlayersReadyAwaiter _playersReadyAwaiter;
     private readonly ISnapshotSender _snapshotSender;
+    private readonly ISnapshotDiffGuard _diffGuard;
     private readonly IRoundActionService _roundActionService;
 
     private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
@@ -64,39 +67,38 @@ public class TimeLimitedRound : Service, IGameRound
 
         var players = _gameContext.Players;
 
-        _state.Update(state => {
-            var playersSecondsLeft = new Dictionary<Guid, long>();
+        foreach (var player in players)
+            _secondsLeft[player.User.Id] = ModeOptions.RoundTime;
 
-            foreach (var player in players)
-                playersSecondsLeft.Add(player.User.Id, ModeOptions.RoundTime);
-
-            state.SecondsLeft = playersSecondsLeft;
-        });
-
-        var snapshotLifetime = new Lifetime();
         var snapshot = new MoveSnapshot();
-        snapshot.HandlePlayers(snapshotLifetime, _gameContext);
+        var initPreState = _diffGuard.IsEnabled == true
+            ? GameStateCapture.Capture(_gameContext)
+            : null;
 
         foreach (var player in _gameContext.Players)
         {
-            player.Health.SetMax(ModeOptions.PlayerHealth);
-            player.Health.SetCurrent(ModeOptions.PlayerHealth);
+            player.Health.SetMax(snapshot, ModeOptions.PlayerHealth);
+            player.Health.SetCurrent(snapshot, ModeOptions.PlayerHealth);
 
-            player.Mana.SetMax(ModeOptions.PlayerStartMana);
-            player.Mana.Restore();
+            player.Mana.SetMax(snapshot, ModeOptions.PlayerStartMana);
+            player.Mana.Restore(snapshot);
 
-            player.Moves.SetMax(ModeOptions.PlayerMoves);
+            player.Moves.SetMax(snapshot, ModeOptions.PlayerMoves);
         }
 
         foreach (var player in players)
             _players.RestoreCards(player, snapshot);
 
-        foreach (var player in players)
-            player.Board.MinesScanner.Start(lifetime);
-
         snapshot.RecordGameStarted();
+        snapshot.RecordTimeLimitedRound(_currentPlayerId, _secondsLeft);
+
+        if (initPreState != null)
+        {
+            var postState = GameStateCapture.Capture(_gameContext);
+            _diffGuard.Validate(initPreState, snapshot.Collect(), postState, "round:init");
+        }
+
         _snapshotSender.Send(snapshot);
-        snapshotLifetime.Terminate();
 
         var playersReadyLifetime = lifetime.Child();
 
@@ -137,7 +139,7 @@ public class TimeLimitedRound : Service, IGameRound
             if (players.Any(p => p.User.Lifetime.IsTerminated == true))
                 return true;
 
-            if (_state.Value.SecondsLeft.Any(kvp => kvp.Value <= 0))
+            if (_secondsLeft.Any(kvp => kvp.Value <= 0))
                 return true;
 
             if (roundsCount >= 2)
@@ -165,7 +167,7 @@ public class TimeLimitedRound : Service, IGameRound
                     return _gameContext.GetOpponent(player).User.Id;
             }
 
-            foreach (var (id, timeLeft) in _state.Value.SecondsLeft)
+            foreach (var (id, timeLeft) in _secondsLeft)
             {
                 if (timeLeft <= 0)
                     return players.First(p => p.User.Id != id).User.Id;
@@ -193,7 +195,7 @@ public class TimeLimitedRound : Service, IGameRound
                     return $"Player {user.Id} disconnected";
             }
 
-            foreach (var (id, timeLeft) in _state.Value.SecondsLeft)
+            foreach (var (id, timeLeft) in _secondsLeft)
             {
                 if (timeLeft <= 0)
                     return $"Player {id} ran out of time";
@@ -217,17 +219,24 @@ public class TimeLimitedRound : Service, IGameRound
         _roundForcedLifetime = lifetime.Child();
         var roundForcedLifetime = _roundForcedLifetime;
 
-        _state.Update(state => state.CurrentPlayer = player.User.Id);
+        _currentPlayerId = player.User.Id;
 
         {
-            var startLifetime = new Lifetime();
             var startSnapshot = new MoveSnapshot();
-            startSnapshot.HandlePlayers(startLifetime, _gameContext);
+            var startPreState = _diffGuard.IsEnabled == true
+                ? GameStateCapture.Capture(_gameContext)
+                : null;
 
-            player.Moves.Restore();
+            player.Moves.Restore(startSnapshot);
+            startSnapshot.RecordTimeLimitedRound(_currentPlayerId, _secondsLeft);
+
+            if (startPreState != null)
+            {
+                var postState = GameStateCapture.Capture(_gameContext);
+                _diffGuard.Validate(startPreState, startSnapshot.Collect(), postState, "round:start");
+            }
 
             _snapshotSender.Send(startSnapshot);
-            startLifetime.Terminate();
         }
 
         _currentPlayer.Set(player);
@@ -251,25 +260,31 @@ public class TimeLimitedRound : Service, IGameRound
         }
 
         {
-            var endLifetime = new Lifetime();
             var endSnapshot = new MoveSnapshot();
-            endSnapshot.HandlePlayers(endLifetime, _gameContext);
+            var endPreState = _diffGuard.IsEnabled == true
+                ? GameStateCapture.Capture(_gameContext)
+                : null;
 
             if (player.Mana.Max < ModeOptions.MaxManaCap)
             {
-                player.Mana.SetMax(player.Mana.Max + 1);
+                player.Mana.SetMax(endSnapshot, player.Mana.Max + 1);
             }
 
-            player.Mana.Restore();
+            player.Mana.Restore(endSnapshot);
             _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.Max);
 
             _players.RestoreCards(player, endSnapshot);
 
-            _roundActionService.Tick();
-            player.Moves.Lock();
+            _roundActionService.Tick(endSnapshot);
+            player.Moves.Lock(endSnapshot);
+
+            if (endPreState != null)
+            {
+                var postState = GameStateCapture.Capture(_gameContext);
+                _diffGuard.Validate(endPreState, endSnapshot.Collect(), postState, "round:end");
+            }
 
             _snapshotSender.Send(endSnapshot);
-            endLifetime.Terminate();
         }
 
         roundForcedLifetime.Terminate();
@@ -280,12 +295,13 @@ public class TimeLimitedRound : Service, IGameRound
         {
             var timeSpan = TimeSpan.FromSeconds(1);
 
-            while (_state.Value.SecondsLeft[player.User.Id] > 0 && roundForcedLifetime.IsTerminated == false)
+            while (_secondsLeft[player.User.Id] > 0 && roundForcedLifetime.IsTerminated == false)
             {
                 try
                 {
                     await roundLock.WaitAsync();
-                    _state.Update(state => state.SecondsLeft[player.User.Id]--);
+                    _secondsLeft[player.User.Id]--;
+                    EmitRoundSnapshot();
                 }
                 finally
                 {
@@ -309,13 +325,21 @@ public class TimeLimitedRound : Service, IGameRound
             try
             {
                 roundLock.Wait();
-                _state.Update(state => state.SecondsLeft[player.User.Id] += ModeOptions.TimeGainPerAction);
+                _secondsLeft[player.User.Id] += ModeOptions.TimeGainPerAction;
+                EmitRoundSnapshot();
             }
             finally
             {
                 roundLock.Release();
             }
         }
+    }
+
+    private void EmitRoundSnapshot()
+    {
+        var snapshot = new MoveSnapshot();
+        snapshot.RecordTimeLimitedRound(_currentPlayerId, _secondsLeft);
+        _snapshotSender.Send(snapshot);
     }
 
     private void ListenPlayersEvents(IReadOnlyLifetime lifetime)

@@ -19,22 +19,25 @@ public class SoulLink : ICard<CardUsePayload.SoulLink>
     private readonly IRoundActionService _roundActionService;
     private readonly IGameContext _gameContext;
 
-    public CardUseResult Use(IPlayer invoker, CardUsePayload.SoulLink payload)
+    public CardUseResult Use(CardUseContext context, CardUsePayload.SoulLink payload)
     {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
         var config = _configs.Value.SoulLink_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        invoker.Modifiers.Inc(PlayerModifier.SoulLink, 1);
+        invoker.Modifiers.Inc(snapshot, PlayerModifier.SoulLink, 1);
 
         _roundActionService.Schedule(new SoulLinkDisposeAction(invoker, opponent), config.Duration);
 
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.SoulLink()
+        {
+            TargetPlayer = opponent.User.Id
+        });
+
         return new CardUseResult
         {
-            Result = EmptyResponse.Ok,
-            ActionData = new CardActionSnapshot.SoulLink()
-            {
-                TargetPlayer = opponent.User.Id
-            }
+            Result = EmptyResponse.Ok
         };
     }
 }
@@ -50,8 +53,8 @@ public class SoulLinkDisposeAction : IRoundAction
     private readonly IPlayer _invoker;
     private readonly IPlayer _opponent;
 
-    public void Execute()
+    public void Execute(MoveSnapshot snapshot)
     {
-        _invoker.Modifiers.Dec(PlayerModifier.SoulLink, 1);
+        _invoker.Modifiers.Dec(snapshot, PlayerModifier.SoulLink, 1);
     }
 }
