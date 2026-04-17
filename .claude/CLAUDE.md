@@ -31,6 +31,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | full examples, Lifetime details, reactive details | docs/COMMON_*.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/PREFAB_CODEGEN.md |
 | telemetry, metrics, logs, .telemetry, file logging, session logs | docs/TELEMETRY.md |
+| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | docs/TESTING.md |
 
 ## Architecture
 

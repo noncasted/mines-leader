@@ -193,28 +193,40 @@ public partial class NewCard : ICardActionData {
 
 Use the appropriate pattern based on card type:
 
+> **Snapshot records are mandatory.** Any state change inside `Use` — cell status,
+> mines, flags, effects, mana, health, moves, modifiers, hand — must be paired
+> with a matching `snapshot.Record*` call. `SnapshotDiffGuard` (on by default in
+> tests, togglable from the Features console) throws on drift and names the exact
+> field that was mutated without a record. See
+> [GAMEPLAY.md §Snapshot Sync](../../docs/GAMEPLAY.md#snapshot-sync) and
+> [CLAUDE_MISTAKES.md Lesson 7](../../docs/CLAUDE_MISTAKES.md#lesson-7-every-mutation-needs-an-explicit-record-call).
+
 **Simple non-board card (like Lockdown, Medic):**
 ```csharp
 using Shared;
 
 namespace Game.GamePlay;
 
-public class NewCard : ICard {
-    public NewCard(IPlayer owner, CardConfigOptions.NewCard config) {
-        _owner = owner;
-        _config = config;
+public class NewCard : ICard<CardUsePayload.NewCard> {
+    public NewCard(ICardConfigs configs) {
+        _configs = configs;
     }
 
-    private readonly IPlayer _owner;
-    private readonly CardConfigOptions.NewCard _config;
+    private readonly ICardConfigs _configs;
 
-    public CardUseResult Use() {
-        // Card mechanic logic here
+    public CardUseResult Use(CardUseContext context, CardUsePayload.NewCard payload) {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
+        var config = _configs.Value.NewCard_Normal;
+
+        // Example: heal the player and record the mutation.
+        invoker.Health.Heal(config.HealAmount);
+        snapshot.RecordHealthUpdate(invoker);
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.NewCard {
-                TargetPlayer = _owner.User.Id
+                TargetPlayer = invoker.User.Id
             }
         };
     }
@@ -227,24 +239,30 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class NewCard : ICard {
-    public NewCard(IBoard target, CardConfigOptions.NewCard config, CardUsePayload.NewCard payload) {
-        _target = target;
-        _config = config;
-        _payload = payload;
+public class NewCard : ICard<CardUsePayload.NewCard> {
+    public NewCard(ICardConfigs configs, IGameContext gameContext) {
+        _configs = configs;
+        _gameContext = gameContext;
     }
 
-    private readonly IBoard _target;
-    private readonly CardConfigOptions.NewCard _config;
-    private readonly CardUsePayload.NewCard _payload;
+    private readonly ICardConfigs _configs;
+    private readonly IGameContext _gameContext;
 
-    public CardUseResult Use() {
-        // Board mechanic logic here
+    public CardUseResult Use(CardUseContext context, CardUsePayload.NewCard payload) {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
+        var target = _gameContext.GetOpponent(invoker).Board;
+        target.EnsureGenerated(payload.Position);
+
+        // Reveal: use RecordReveal — it returns the fully-opened wave and
+        // records the CellFree + MinesAround pairs automatically.
+        var opened = snapshot.RecordReveal(target, new[] { payload.Position });
 
         return new CardUseResult {
             Result = EmptyResponse.Ok,
             ActionData = new CardActionSnapshot.NewCard {
-                TargetPlayer = _target.OwnerId
+                TargetPlayer = target.OwnerId,
+                ActionCells = opened
             }
         };
     }
