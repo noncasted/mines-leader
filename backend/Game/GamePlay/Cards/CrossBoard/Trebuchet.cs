@@ -68,16 +68,19 @@ public class Trebuchet : ICard<CardUsePayload.Trebuchet>
         foreach (var cell in minesTargets)
             cell.ToTaken().SetMine();
 
+        var takenPositions = selected.Select(c => c.Position).ToList();
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Trebuchet()
         {
             TargetPlayer = board.OwnerId,
-            TargetCells = selected.Select(c => c.Position).ToList()
+            TargetCells = takenPositions,
+            TakenCells = takenPositions,
+            UpdatedFreeCells = updatedFreeCells
         });
-
-        foreach (var cell in selected)
-            snapshot.RecordCellTaken(board, cell.Position);
-
-        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         invoker.Modifiers.Reset(snapshot, PlayerModifier.TrebuchetBoost);
 

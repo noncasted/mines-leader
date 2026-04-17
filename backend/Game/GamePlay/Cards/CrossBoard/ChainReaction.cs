@@ -83,17 +83,19 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
             }
         }
 
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ChainReaction
         {
             TargetPlayer = board.OwnerId,
             SpawnedMines = spawnedMines,
-            TargetCells = targets.Select(t => t.Position).ToList()
+            TargetCells = targets.Select(t => t.Position).ToList(),
+            TakenCells = takenPositions,
+            UpdatedFreeCells = updatedFreeCells
         });
-
-        foreach (var position in takenPositions)
-            snapshot.RecordCellTaken(board, position);
-
-        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {

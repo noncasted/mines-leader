@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -64,11 +65,10 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
         {
             TargetPlayer = invoker.User.Id,
             RevealedMines = revealed,
-            TargetCells = revealed
+            TargetCells = revealed,
+            AffectedCells = affectedCells.Select(c => c.Position).ToArray(),
+            EffectId = effectId
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.MineHighlight, effectId);
 
         return new CardUseResult
         {

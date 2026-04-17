@@ -64,15 +64,21 @@ public class OpponentFlagReshuffle : ICard<CardUsePayload.OpponentFlagReshuffle>
             notFlagged.RemoveAt(randomNotFlaggedIndex);
         }
 
+        var minesRecords = board.MinesScanner.Recalculate(snapshot);
+        var updatedFreeCells = minesRecords
+            .Select(r => new OpenedCell { Position = r.Position, MinesAround = r.Count })
+            .ToList();
+
+        var selectedPositions = selected.Select(c => c.Position).ToList();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.OpponentFlagReshuffle()
         {
-            TargetPlayer = board.OwnerId
+            TargetPlayer = board.OwnerId,
+            FlaggedCells = flagChanges.Where(c => c.IsFlagged).Select(c => c.Position).ToList(),
+            UnflaggedCells = flagChanges.Where(c => c.IsFlagged == false).Select(c => c.Position).ToList(),
+            UpdatedFreeCells = updatedFreeCells,
+            TargetCells = selectedPositions
         });
-
-        foreach (var change in flagChanges)
-            snapshot.RecordFlag(board, change.Position, change.IsFlagged);
-
-        snapshot.RecordMines(board, board.MinesScanner.Recalculate(snapshot));
 
         return new CardUseResult
         {

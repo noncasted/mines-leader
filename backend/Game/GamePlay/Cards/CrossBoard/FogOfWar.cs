@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -57,13 +58,15 @@ public class FogOfWar : ICard<CardUsePayload.FogOfWar>
         var disposeAction = new FogDisposeAction(board, effectId, affectedCells);
         _roundActionService.Schedule(disposeAction, config.Duration);
 
+        var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
+
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.FogOfWar()
         {
-            TargetPlayer = board.OwnerId
+            TargetPlayer = board.OwnerId,
+            AffectedCells = affectedPositions,
+            EffectId = effectId,
+            TargetCells = affectedPositions
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Fog, effectId);
 
         return new CardUseResult
         {

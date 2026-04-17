@@ -113,6 +113,8 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? TakenCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -136,6 +138,8 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? UnflaggedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -143,6 +147,9 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? FlaggedCells { get; set; }
+            public IReadOnlyList<Position>? UnflaggedCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -150,6 +157,9 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? OpenedCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -166,6 +176,7 @@ namespace Shared
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position>? FlaggedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -180,6 +191,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> SpawnedMines { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? TakenCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -193,6 +206,8 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -219,6 +234,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> FlaggedCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -319,6 +335,7 @@ namespace Shared
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position>? FlaggedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -327,6 +344,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> HighlightedMines { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -337,6 +356,7 @@ namespace Shared
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position>? FlaggedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -347,6 +367,7 @@ namespace Shared
             public IReadOnlyList<Position>? TargetCells { get; set; }
             public IReadOnlyList<OpenedCell>? OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position>? FlaggedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -354,6 +375,8 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? TakenCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -361,6 +384,8 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? TakenCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -369,6 +394,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public IReadOnlyList<Position>? TakenCells { get; set; }
+            public IReadOnlyList<OpenedCell>? UpdatedFreeCells { get; set; }
         }
 
         [MemoryPackable]
@@ -377,6 +404,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public int ActualSize { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -385,6 +414,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> FrozenCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -393,6 +424,7 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> AffectedCells { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]
@@ -401,6 +433,8 @@ namespace Shared
             public Guid TargetPlayer { get; set; }
             public IReadOnlyList<Position> RevealedMines { get; set; }
             public IReadOnlyList<Position>? TargetCells { get; set; }
+            public Position[] AffectedCells { get; set; }
+            public Guid EffectId { get; set; }
         }
 
         [MemoryPackable]

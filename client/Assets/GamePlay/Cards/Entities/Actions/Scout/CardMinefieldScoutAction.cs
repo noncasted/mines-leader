@@ -56,17 +56,28 @@ namespace GamePlay.Cards
 
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MinefieldScout payload)
             {
-                if (payload.UpdatedFreeCells == null || payload.UpdatedFreeCells.Count == 0)
-                    return UniTask.CompletedTask;
-
                 var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
 
-                foreach (var opened in payload.UpdatedFreeCells)
+                if (payload.FlaggedCells != null)
                 {
-                    var vector = opened.Position.ToVector();
+                    foreach (var position in payload.FlaggedCells)
+                    {
+                        var vector = position.ToVector();
 
-                    if (board.Cells.TryGetValue(vector, out var cell))
-                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureTaken().OnFlagUpdated(true);
+                    }
+                }
+
+                if (payload.UpdatedFreeCells != null)
+                {
+                    foreach (var opened in payload.UpdatedFreeCells)
+                    {
+                        var vector = opened.Position.ToVector();
+
+                        if (board.Cells.TryGetValue(vector, out var cell))
+                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    }
                 }
 
                 return UniTask.CompletedTask;

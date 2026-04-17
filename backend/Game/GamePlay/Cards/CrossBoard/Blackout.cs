@@ -1,3 +1,4 @@
+using System.Linq;
 using Shared;
 using Cluster.Configs;
 
@@ -56,11 +57,10 @@ public class Blackout : ICard<CardUsePayload.Blackout>
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Blackout()
         {
             TargetPlayer = board.OwnerId,
-            AffectedCells = affectedPositions
+            AffectedCells = affectedPositions,
+            EffectId = effectId,
+            TargetCells = affectedPositions
         });
-
-        foreach (var cell in affectedCells)
-            snapshot.RecordEffectAdded(board, cell.Position, CellEffectType.Blackout, effectId);
 
         return new CardUseResult
         {

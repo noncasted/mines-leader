@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -48,16 +49,29 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ChaosFog>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator)
+            public Snapshot(ICardRandomAnimator randomAnimator, IGameContext gameContext)
             {
                 _randomAnimator = randomAnimator;
+                _gameContext = gameContext;
             }
 
             private readonly ICardRandomAnimator _randomAnimator;
+            private readonly IGameContext _gameContext;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosFog payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosFog payload)
             {
-                return _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
+                await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
+
+                if (payload.AffectedCells == null || payload.AffectedCells.Length == 0)
+                    return;
+
+                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+
+                foreach (var position in payload.AffectedCells)
+                {
+                    if (board.Cells.TryGetValue(position.ToVector(), out var cell) && cell is CellView cellView)
+                        cellView.Effects.AddEffect(payload.EffectId, CellEffectType.Smoke);
+                }
             }
         }
 
