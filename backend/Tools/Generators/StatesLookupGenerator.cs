@@ -17,6 +17,7 @@ namespace Generators
 
                 if (grainState != null)
                     attributeSymbols.Add(grainState);
+
                 var sharedGrainState = compilation.GetTypeByMetadataName("Common.SharedGrainStateAttribute");
 
                 if (sharedGrainState != null)

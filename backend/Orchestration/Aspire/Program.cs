@@ -1,6 +1,9 @@
-﻿using Aspire;
+﻿using System.Net.Sockets;
+using Aspire;
+using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Projects;
 using Silo = Projects.Silo;
@@ -42,11 +45,21 @@ if (configuration.GetSection("Local").GetSection("KillPrevious").Get<bool>())
 }
 
 Console.WriteLine("[Aspire] Setting up database...");
-var dbConnection = await GetOrCreateDb();
-Console.WriteLine("[Aspire] Database ready");
+var upstream = GetOrCreateDbUpstream();
+Console.WriteLine($"[Aspire] DB upstream ready: {upstream.Host}:{upstream.Port}");
 
+var pgbouncer = CreatePgBouncer(upstream);
+
+var dbConnection =
+    $"Host=127.0.0.1;Port={pgbouncer.Port};Database={upstream.Database};Username={upstream.User};Password={upstream.Password}";
+
+Console.WriteLine($"[Aspire] PgBouncer ready on port {pgbouncer.Port}");
 Console.WriteLine("[Aspire] Registering projects...");
+
 var silo = builder.AddProject<Silo>("silo");
+silo.WaitFor(pgbouncer.Resource);
+Console.WriteLine("[Aspire] silo will WaitFor(pgbouncer) TCP readiness");
+
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder.AddProject<MetaGateway>("meta");
 var consoleToken = Environment.GetEnvironmentVariable("ASPIRE_TOKEN") ?? configuration["ConsoleToken"] ?? "";
@@ -180,29 +193,33 @@ void SetDashboardToken()
     Console.WriteLine("[Aspire] Dashboard token configured");
 }
 
-Task<string> GetOrCreateDb()
+DbUpstream GetOrCreateDbUpstream()
 {
     var externalDb = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 
     if (externalDb != null)
     {
         Console.WriteLine($"[AppHost] [DB] Received external db: {externalDb}");
-        return Task.FromResult(externalDb);
+        var parts = ParseConnString(externalDb);
+
+        return new DbUpstream
+        {
+            Host = ResolveHost(parts.GetValueOrDefault("Host") ?? parts["Server"]),
+            Port = int.Parse(parts["Port"]),
+            Database = parts["Database"],
+            User = parts.GetValueOrDefault("Username") ?? parts["User Id"],
+            Password = parts["Password"],
+            PostgresResource = null
+        };
     }
 
     var localDb = configuration.GetConnectionString("db")!;
+    var local = ParseConnString(localDb);
 
-    var parts = localDb
-                .Split(';', StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => p.Split('=', 2))
-                .Where(p => p.Length == 2)
-                .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
-
-    var host = parts["Server"];
-    var port = int.Parse(parts["Port"]);
-    var database = parts["Database"];
-    var user = parts["User Id"];
-    var password = parts["Password"];
+    var port = int.Parse(local["Port"]);
+    var database = local["Database"];
+    var user = local["User Id"];
+    var password = local["Password"];
 
     var postgres = builder
                    .AddContainer("postgres", "postgres", "17.6")
@@ -214,18 +231,86 @@ Task<string> GetOrCreateDb()
                    .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
                    .WithLifetime(ContainerLifetime.Persistent);
 
-    var pgbouncerPort = port + 1;
-    var pgbouncerConfigPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/pgbouncer.ini");
-    var pgbouncerUserlistPath = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer/userlist.txt");
+    return new DbUpstream
+    {
+        Host = "postgres",
+        Port = 5432,
+        Database = database,
+        User = user,
+        Password = password,
+        PostgresResource = postgres
+    };
+}
 
-    builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
-           .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port", isProxied: false)
-           .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
-           .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
-           .WaitFor(postgres)
-           .WithLifetime(ContainerLifetime.Persistent);
+PgBouncerResult CreatePgBouncer(DbUpstream db)
+{
+    var pgbouncerPort = db.Port + 1;
+    var pgbouncerDir = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer");
+    var pgbouncerConfigPath = Path.Combine(pgbouncerDir, "pgbouncer.ini");
+    var pgbouncerUserlistPath = Path.Combine(pgbouncerDir, "userlist.txt");
+    var databasesIniPath = Path.Combine(pgbouncerDir, "databases.ini");
 
-    var result = $"Host={host};Port={pgbouncerPort};Database={database};Username={user};Password={password}";
-    Console.WriteLine($"[AppHost] [DB] Create db string from options: {result} (via PgBouncer:{pgbouncerPort})");
-    return Task.FromResult(result);
+    File.WriteAllText(databasesIniPath,
+        $"[databases]\n* = host={db.Host} port={db.Port}\n");
+    Console.WriteLine($"[AppHost] [PgBouncer] databases.ini -> host={db.Host} port={db.Port}");
+
+    const string pgbouncerHealthCheckName = "pgbouncer-tcp";
+
+    builder.Services.AddHealthChecks().AddAsyncCheck(pgbouncerHealthCheckName, async () => {
+        try
+        {
+            using var client = new TcpClient();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            await client.ConnectAsync("127.0.0.1", pgbouncerPort, cts.Token);
+            return HealthCheckResult.Healthy();
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy($"PgBouncer not listening on {pgbouncerPort}: {ex.Message}");
+        }
+    });
+
+    var pgbouncer = builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
+                           .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port",
+                               isProxied: false)
+                           .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
+                           .WithBindMount(databasesIniPath, "/etc/pgbouncer/databases.ini", isReadOnly: true)
+                           .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
+                           .WithHealthCheck(pgbouncerHealthCheckName)
+                           .WithLifetime(ContainerLifetime.Persistent);
+
+    if (db.PostgresResource != null)
+        pgbouncer.WaitFor(db.PostgresResource);
+
+    return new PgBouncerResult { Port = pgbouncerPort, Resource = pgbouncer };
+}
+
+static Dictionary<string, string> ParseConnString(string connString)
+{
+    return connString
+           .Split(';', StringSplitOptions.RemoveEmptyEntries)
+           .Select(p => p.Split('=', 2))
+           .Where(p => p.Length == 2)
+           .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
+}
+
+static string ResolveHost(string host)
+{
+    return host is "localhost" or "127.0.0.1" ? "host.docker.internal" : host;
+}
+
+record DbUpstream
+{
+    public required string Host { get; init; }
+    public required int Port { get; init; }
+    public required string Database { get; init; }
+    public required string User { get; init; }
+    public required string Password { get; init; }
+    public required IResourceBuilder<ContainerResource>? PostgresResource { get; init; }
+}
+
+record PgBouncerResult
+{
+    public required int Port { get; init; }
+    public required IResourceBuilder<ContainerResource> Resource { get; init; }
 }
