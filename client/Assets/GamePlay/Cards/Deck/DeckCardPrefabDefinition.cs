@@ -16,7 +16,7 @@ namespace GamePlay.Cards
             SpriteRenderer spriteRenderer = null;
 
             builder
-                .WithName("DeckCard")
+                .WithName("Game/DeckCard")
                 .WithComponent<SpriteRenderer>(sr => {
                             sr.color = Color.white;
                             sr.sortingLayerName = "Field";

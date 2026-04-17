@@ -11,7 +11,7 @@ namespace Global.Setup
         public static void Define(PrefabBuilder builder)
         {
             builder
-                .WithName("InternalScope")
+                .WithName("Global/InternalScope")
                 .WithComponent<InternalScope>();
         }
     }

@@ -24,7 +24,7 @@ namespace GamePlay.Cards
             CardRenderer cardRenderer = null;
 
             builder
-                .WithName("Card_Local")
+                .WithName("Game/Card_Local")
                 .WithComponent<CardScope>(c => cardScope = c)
                 .WithComponent<CardScopeEntity>()
                 .WithComponent<SortingGroup>(sg => {
@@ -209,7 +209,7 @@ namespace GamePlay.Cards
             CardScope cardScope = null;
 
             builder
-                .WithName("Card_Remote")
+                .WithName("Game/Card_Remote")
                 .WithComponent<CardScope>(c => cardScope = c)
                 .WithComponent<CardScopeEntity>()
                 .WithComponent<SortingGroup>(sg => {

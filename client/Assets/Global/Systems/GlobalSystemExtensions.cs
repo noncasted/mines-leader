@@ -38,7 +38,7 @@ namespace Global.Systems
         public static void Define(PrefabBuilder builder)
         {
             builder
-                .WithName("GlobalUpdater")
+                .WithName("Global/GlobalUpdater")
                 .WithComponent<Updater>();
         }
     }

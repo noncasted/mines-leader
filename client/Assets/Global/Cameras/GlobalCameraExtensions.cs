@@ -32,7 +32,7 @@ namespace Global.Cameras
         public static void Define(PrefabBuilder builder)
         {
             builder
-                .WithName("Global_Camera")
+                .WithName("Global/Global_Camera")
                 .WithComponent<Camera>(camera => {
                             camera.orthographic = true;
                             camera.orthographicSize = 3.1f;

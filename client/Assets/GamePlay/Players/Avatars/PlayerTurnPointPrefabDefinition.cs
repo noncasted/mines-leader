@@ -16,7 +16,7 @@ namespace GamePlay.Players
             SpriteRenderer spriteRenderer = null;
 
             builder
-                .WithName("PlayerTurnPoint")
+                .WithName("Game/PlayerTurnPoint")
                 .WithComponent<SpriteRenderer>(sr => {
                             sr.sprite = AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive");
                             sr.color = Color.white;

@@ -18,7 +18,7 @@ namespace GamePlay.Players
             SpriteRenderer spriteRenderer = null;
 
             builder
-                .WithName("ManaPoint")
+                .WithName("Game/ManaPoint")
                 .WithComponent<SpriteRenderer>(sr => {
                     sr.sprite = spriteFull;
                     sr.color = Color.white;
