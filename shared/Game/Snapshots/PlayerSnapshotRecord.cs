@@ -19,6 +19,7 @@ namespace Shared
             public Guid PlayerId { get; set; }
             public CardType Type { get; set; }
             public Guid CardId { get; set; }
+            public bool IsStash { get; set; }
         }
 
         [MemoryPackable]
@@ -51,6 +52,36 @@ namespace Shared
             public int Left { get; set; }
             public int Max { get; set; }
             public bool IsAvailable { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ModifierUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public PlayerModifier Modifier { get; set; }
+            public float Value { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class DeckUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Count { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class StashUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Count { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class BoardStateUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Mines { get; set; }
+            public int Flags { get; set; }
         }
     }
 }
