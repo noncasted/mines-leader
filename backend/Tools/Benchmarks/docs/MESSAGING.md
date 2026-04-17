@@ -48,8 +48,8 @@ Tests messaging infrastructure throughput: durable queues (direct and transactio
 
 ### Retry stress (intermittent failures)
 - **File**: `Messaging/RuntimePipeRetryStressTest.cs`
-- **Payload**: `RequestCount=5000`, `FailureRate=0.3`, `Concurrency=50`
-- **What it measures**: Pipe throughput under 30% handler failure rate with exponential backoff retry. Sends requests concurrently (50 in-flight). Measures effective req/s including retry overhead.
+- **Payload**: `RequestCount=500`, `FailureRate=0.2`, `Concurrency=32`
+- **What it measures**: Pipe throughput under 20% handler failure rate with exponential backoff retry (client retries 3x with 500/1000/2000ms delays). Sends requests concurrently (32 in-flight) to a single pipe grain, which serializes turns — throughput is capped by grain turn latency plus amplified by failed-attempt delays held in concurrency slots. Final log reports attempt amplification factor.
 - **Distributed**: No
 
 ---

@@ -19,7 +19,6 @@ public class RuntimePipeRetryStressTest
     public class PipeResponse
     {
         [Id(0)] public int Index { get; set; }
-        [Id(1)] public int Attempt { get; set; }
     }
 
     [GenerateSerializer]
@@ -27,13 +26,13 @@ public class RuntimePipeRetryStressTest
     public class StartPayload()
     {
         [Id(0)]
-        public int RequestCount { get; set; } = 5000;
+        public int RequestCount { get; set; } = 500;
 
         [Id(1)]
-        public double FailureRate { get; set; } = 0.3;
+        public double FailureRate { get; set; } = 0.2;
 
         [Id(2)]
-        public int Concurrency { get; set; } = 50;
+        public int Concurrency { get; set; } = 32;
     }
 
     public static string TestName => "runtime-pipe-retry-stress";
@@ -56,25 +55,31 @@ public class RuntimePipeRetryStressTest
             var pipeId = new RuntimePipeId(TestName);
             var totalRequests = payload.RequestCount;
             var failureRate = payload.FailureRate;
-            var successCount = 0;
-            var retryCount = 0;
 
-            // Handler that fails intermittently
+            var handlerInvocations = 0;
+            var handlerFailures = 0;
+            var successCount = 0;
+            var failedCount = 0;
+            var completedCount = 0;
+
             await Messaging.AddPipeRequestHandler<PipeRequest, PipeResponse>(handle.Lifetime, pipeId, req => {
+                Interlocked.Increment(ref handlerInvocations);
+
                 if (Random.Shared.NextDouble() < failureRate)
                 {
-                    Interlocked.Increment(ref retryCount);
+                    Interlocked.Increment(ref handlerFailures);
                     throw new Exception("Transient failure");
                 }
 
-                return Task.FromResult(new PipeResponse { Index = req.Index, Attempt = 1 });
+                return Task.FromResult(new PipeResponse { Index = req.Index });
             });
 
             handle.Progress.Log(
                 $"Handler ready (failure rate: {failureRate:P0}). Sending {totalRequests} requests (concurrency: {payload.Concurrency})...");
 
-            var semaphore = new SemaphoreSlim(payload.Concurrency);
-            var completedCount = 0;
+            var logStep = Math.Max(1, totalRequests / 20);
+
+            using var semaphore = new SemaphoreSlim(payload.Concurrency);
 
             var tasks = Enumerable.Range(0, totalRequests).Select(async i => {
                 await semaphore.WaitAsync(handle.CancellationToken);
@@ -87,7 +92,7 @@ public class RuntimePipeRetryStressTest
                 }
                 catch
                 {
-                    // All retries exhausted for this request
+                    Interlocked.Increment(ref failedCount);
                 }
                 finally
                 {
@@ -95,19 +100,27 @@ public class RuntimePipeRetryStressTest
 
                     var completed = Interlocked.Increment(ref completedCount);
 
-                    if (completed % 500 == 0)
+                    if (completed % logStep == 0 || completed == totalRequests)
                     {
                         handle.Progress.SetProgress((float)completed / totalRequests);
 
                         handle.Progress.Log(
-                            $"Progress: {completed}/{totalRequests}, success: {successCount}, handler failures: {retryCount}");
+                            $"Progress: {completed}/{totalRequests}, " +
+                            $"success: {successCount}, exhausted: {failedCount}, " +
+                            $"handler invocations: {handlerInvocations}, handler failures: {handlerFailures}");
                     }
                 }
             });
 
             await Task.WhenAll(tasks);
 
-            handle.Progress.Log($"Done. Success: {successCount}/{totalRequests}, handler failures: {retryCount}");
+            var amplification = totalRequests > 0 ? (double)handlerInvocations / totalRequests : 0;
+
+            handle.Progress.Log(
+                $"Done. Success: {successCount}/{totalRequests}, exhausted retries: {failedCount}. " +
+                $"Handler invocations: {handlerInvocations} (amplification: {amplification:F2}x), " +
+                $"handler failures: {handlerFailures}.");
+
             handle.Progress.SetProgress(1f);
         }
     }
