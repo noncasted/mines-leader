@@ -24,6 +24,15 @@ public class ChainReactionTests : PlayerCardTestsBase
         return new ChainReaction(MockConfigs(), gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.ChainReaction payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new ChainReaction(MockConfigs(), gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_ChainsFromInitialMine()
     {
@@ -41,11 +50,11 @@ public class ChainReactionTests : PlayerCardTestsBase
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell tc && tc.HasMine);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 3) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 3) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
         actionData!.SpawnedMines.Count.Should().BeGreaterThan(0);
 
@@ -99,11 +108,11 @@ public class ChainReactionTests : PlayerCardTestsBase
         var minesBefore = board.Cells.Values
                                .Count(c => c.Status == CellStatus.Taken && c is ITakenCell t && t.HasMine);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(0, 0) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(0, 0) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
         actionData!.SpawnedMines.Should().NotBeEmpty();
 
@@ -139,11 +148,11 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t t t t
                                            """);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(5, 5) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(5, 5) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
         actionData!.SpawnedMines.Should().NotBeEmpty();
 
@@ -175,11 +184,11 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t t
                                            """);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
 
         // Previously Free cells near mine should now be Taken with mines
@@ -201,11 +210,11 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t
                                            """);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
 
         // 8 neighbors of (2,2) already have mines — SpawnedMines should NOT include them
@@ -254,11 +263,11 @@ public class ChainReactionTests : PlayerCardTestsBase
                                            t t t t t t t
                                            """);
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
+        var (result, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(3, 4) });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
 
         // Flagged mine at (3,2) should be skipped — spawned mines should only be around (3,4)
@@ -296,9 +305,9 @@ public class ChainReactionTests : PlayerCardTestsBase
 
         var ownerId = board.OwnerId;
 
-        var result = Use(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.ChainReaction { Position = new Position(2, 2) });
 
-        var actionData = result.ActionData as CardActionSnapshot.ChainReaction;
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.ChainReaction>();
         actionData.Should().NotBeNull();
         actionData!.TargetPlayer.Should().Be(ownerId);
     }

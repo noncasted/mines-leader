@@ -23,6 +23,15 @@ public class FogOfWarTests : PlayerCardTestsBase
         return new FogOfWar(MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.FogOfWar payload, IRoundActionService roundActionService)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new FogOfWar(MockConfigs(), roundActionService, gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_AddsFogToFreeCells()
     {
@@ -171,11 +180,11 @@ public class FogOfWarTests : PlayerCardTestsBase
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var result = Use(board, new CardUsePayload.FogOfWar { Position = new Position(2, 2) }, roundActionService);
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.FogOfWar { Position = new Position(2, 2) }, roundActionService);
 
-        var snapshot = result.ActionData as CardActionSnapshot.FogOfWar;
-        snapshot.Should().NotBeNull();
-        snapshot!.TargetPlayer.Should().Be(ownerId);
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.FogOfWar>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 
     [Fact]
@@ -200,7 +209,7 @@ public class FogOfWarTests : PlayerCardTestsBase
 
         // Tick Duration times
         for (var i = 0; i < CardConfigs.FogOfWar.Duration; i++)
-            roundActionService.Tick();
+            roundActionService.Tick(new MoveSnapshot());
 
         // Effects should be removed
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Fog))

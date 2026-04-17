@@ -18,6 +18,15 @@ public class MineClusterTests : PlayerCardTestsBase
         return new MineCluster(MockConfigs(), gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.MineCluster payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new MineCluster(MockConfigs(), gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_PlacesMinesOnFreeCellsInCross()
     {
@@ -56,10 +65,10 @@ public class MineClusterTests : PlayerCardTestsBase
                                                 t t t t t
                                                 """);
 
-        var result = Use(board, new CardUsePayload.MineCluster { Position = target });
+        var (result, snapshot) = UseCapture(board, new CardUsePayload.MineCluster { Position = target });
 
         result.Result.HasError.Should().BeTrue();
-        result.ActionData.Should().BeNull();
+        snapshot.GetLastCardAction<ICardActionData>().Should().BeNull();
     }
 
     [Fact]
@@ -72,9 +81,10 @@ public class MineClusterTests : PlayerCardTestsBase
                     .WithFreeAt((2, 1), (1, 2), (2, 2), (3, 2), (2, 3))
                     .Build();
 
-        var result = Use(board, new CardUsePayload.MineCluster { Position = new Position(2, 2) });
+        var (_, snapshot) = UseCapture(board, new CardUsePayload.MineCluster { Position = new Position(2, 2) });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.MineCluster>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.MineCluster>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

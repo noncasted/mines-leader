@@ -61,7 +61,7 @@ public class OpponentBombTests : PlayerCardTestsBase
                                        t t t t m t t t m t
                                        """);
 
-        opponent.Health.DidNotReceive().TakeDamage(Arg.Any<int>());
+        opponent.Health.DidNotReceive().TakeDamage(Arg.Any<MoveSnapshot>(), Arg.Any<int>());
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class OpponentBombTests : PlayerCardTestsBase
         var opponent = MockOpponent();
         Use(opponent, board, new CardUsePayload.OpponentBomb { Position = new Position(2, 2) });
 
-        opponent.Health.Received(1).TakeDamage(1);
+        opponent.Health.Received(1).TakeDamage(Arg.Any<MoveSnapshot>(), 1);
 
         // Mine cell stays Taken (explode doesn't convert to Free)
         // But reveal from that position opens neighbors without mines

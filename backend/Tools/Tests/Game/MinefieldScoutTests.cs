@@ -73,11 +73,11 @@ public class MinefieldScoutTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new MinefieldScout(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.MinefieldScout;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.MinefieldScout>();
         actionData.Should().NotBeNull();
         actionData!.RevealedCells.Should().HaveCount(4);
         actionData.RevealedCells.Should().Contain(new Position(1, 3));
@@ -103,11 +103,11 @@ public class MinefieldScoutTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new MinefieldScout(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.MinefieldScout;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.MinefieldScout>();
         actionData.Should().NotBeNull();
         actionData!.RevealedCells.Should().HaveCount(4);
         actionData.RevealedCells.Should().Contain(new Position(2, 3), "mine position is flagged and included");
@@ -164,13 +164,13 @@ public class MinefieldScoutTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new MinefieldScout(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
         // Vertical line should be chosen (more Taken cells — horizontal has 1, vertical has 4)
         // Line(4, vertical) at (3,3): covers (3,1), (3,2), (3,3), (3,4)
-        var actionData = result.ActionData as CardActionSnapshot.MinefieldScout;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.MinefieldScout>();
         actionData.Should().NotBeNull();
         actionData!.RevealedCells.Should().HaveCount(4);
         actionData.RevealedCells.Should().Contain(new Position(3, 1));
@@ -200,7 +200,7 @@ public class MinefieldScoutTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new MinefieldScout(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.MinefieldScout { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.MinefieldScout { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
@@ -213,7 +213,7 @@ public class MinefieldScoutTests : PlayerCardTestsBase
         takenMine.HasMine.Should().BeTrue("mine cell should still have mine");
 
         // All revealed positions including mine should be in ActionData
-        var actionData = result.ActionData as CardActionSnapshot.MinefieldScout;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.MinefieldScout>();
         actionData.Should().NotBeNull();
         actionData!.RevealedCells.Should().Contain(new Position(1, 3));
     }

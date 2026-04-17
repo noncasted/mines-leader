@@ -66,10 +66,10 @@ public class PurgeTests : PlayerCardTestsBase
                                            """);
         var owner = MockOwner(board);
         var card = new Purge();
-        var result = card.Use(owner, new CardUsePayload.Purge { Type = CardType.Purge });
+        var (_, snapshot) = card.UseCapture(owner, new CardUsePayload.Purge { Type = CardType.Purge });
 
-        var snapshot = result.ActionData as CardActionSnapshot.Purge;
-        snapshot.Should().NotBeNull();
-        snapshot!.TargetPlayer.Should().Be(owner.User.Id);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Purge>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(owner.User.Id);
     }
 }

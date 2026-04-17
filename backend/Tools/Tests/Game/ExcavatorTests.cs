@@ -98,9 +98,10 @@ public class ExcavatorTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(builtBoard);
         var card = new Excavator(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.Excavator { Position = new Position(1, 1) });
+        var (_, snapshot) = card.UseCapture(invoker, new CardUsePayload.Excavator { Position = new Position(1, 1) });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Excavator>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Excavator>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

@@ -12,7 +12,7 @@ public class HealthTests
 {
     private static Health Create()
     {
-        var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
+        var modifiers = new Modifiers();
         return new Health(modifiers);
     }
 
@@ -21,7 +21,7 @@ public class HealthTests
     {
         var health = Create();
 
-        health.SetMax(100);
+        health.SetMax(new MoveSnapshot(), 100);
 
         health.Max.Should().Be(100);
     }
@@ -30,9 +30,9 @@ public class HealthTests
     public void SetCurrent_ClampsToMax()
     {
         var health = Create();
-        health.SetMax(50);
+        health.SetMax(new MoveSnapshot(), 50);
 
-        health.SetCurrent(999);
+        health.SetCurrent(new MoveSnapshot(), 999);
 
         health.Current.Value.Should().Be(50);
     }
@@ -41,9 +41,9 @@ public class HealthTests
     public void SetCurrent_ClampsToZero()
     {
         var health = Create();
-        health.SetMax(50);
+        health.SetMax(new MoveSnapshot(), 50);
 
-        health.SetCurrent(-10);
+        health.SetCurrent(new MoveSnapshot(), -10);
 
         health.Current.Value.Should().Be(0);
     }
@@ -52,9 +52,9 @@ public class HealthTests
     public void SetCurrent_WithinRange_SetsExactValue()
     {
         var health = Create();
-        health.SetMax(100);
+        health.SetMax(new MoveSnapshot(), 100);
 
-        health.SetCurrent(42);
+        health.SetCurrent(new MoveSnapshot(), 42);
 
         health.Current.Value.Should().Be(42);
     }
@@ -63,10 +63,10 @@ public class HealthTests
     public void TakeDamage_ReducesCurrentHp()
     {
         var health = Create();
-        health.SetMax(100);
-        health.SetCurrent(100);
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 100);
 
-        health.TakeDamage(30);
+        health.TakeDamage(new MoveSnapshot(), 30);
 
         health.Current.Value.Should().Be(70);
     }
@@ -75,10 +75,10 @@ public class HealthTests
     public void TakeDamage_BelowZero_ClampsToZero()
     {
         var health = Create();
-        health.SetMax(100);
-        health.SetCurrent(10);
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 10);
 
-        health.TakeDamage(50);
+        health.TakeDamage(new MoveSnapshot(), 50);
 
         health.Current.Value.Should().Be(0);
     }
@@ -87,10 +87,10 @@ public class HealthTests
     public void TakeDamage_NegativeAmount_Throws()
     {
         var health = Create();
-        health.SetMax(100);
-        health.SetCurrent(50);
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 50);
 
-        var act = () => health.TakeDamage(-5);
+        var act = () => health.TakeDamage(new MoveSnapshot(), -5);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -99,10 +99,10 @@ public class HealthTests
     public void Heal_IncreasesCurrentHp()
     {
         var health = Create();
-        health.SetMax(100);
-        health.SetCurrent(50);
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 50);
 
-        health.Heal(20);
+        health.Heal(new MoveSnapshot(), 20);
 
         health.Current.Value.Should().Be(70);
     }
@@ -111,10 +111,10 @@ public class HealthTests
     public void Heal_AboveMax_ClampsToMax()
     {
         var health = Create();
-        health.SetMax(100);
-        health.SetCurrent(90);
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 90);
 
-        health.Heal(50);
+        health.Heal(new MoveSnapshot(), 50);
 
         health.Current.Value.Should().Be(100);
     }
@@ -124,7 +124,7 @@ public class HealthTests
     {
         var health = Create();
 
-        var act = () => health.Heal(-1);
+        var act = () => health.Heal(new MoveSnapshot(), -1);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -133,10 +133,10 @@ public class HealthTests
     public void TakeDamage_ToZero_CurrentIsZero()
     {
         var health = Create();
-        health.SetMax(50);
-        health.SetCurrent(50);
+        health.SetMax(new MoveSnapshot(), 50);
+        health.SetCurrent(new MoveSnapshot(), 50);
 
-        health.TakeDamage(50);
+        health.TakeDamage(new MoveSnapshot(), 50);
 
         health.Current.Value.Should().Be(0);
     }
@@ -149,8 +149,8 @@ public class HealthTests
         var fireCount = 0;
 
         health.Updated.Advise(lifetime, () => fireCount++);
-        health.SetMax(80);
-        health.SetCurrent(45);
+        health.SetMax(new MoveSnapshot(), 80);
+        health.SetCurrent(new MoveSnapshot(), 45);
 
         fireCount.Should().Be(2);
         health.Max.Should().Be(80);
@@ -171,7 +171,7 @@ public class ManaTests
     {
         var mana = Create();
 
-        mana.SetMax(10);
+        mana.SetMax(new MoveSnapshot(), 10);
 
         mana.Max.Should().Be(10);
     }
@@ -180,11 +180,11 @@ public class ManaTests
     public void SetMax_ClampsCurrent_WhenCurrentExceedsNewMax()
     {
         var mana = Create();
-        mana.SetMax(10);
-        mana.Restore();
+        mana.SetMax(new MoveSnapshot(), 10);
+        mana.Restore(new MoveSnapshot());
         mana.Current.Should().Be(10);
 
-        mana.SetMax(5);
+        mana.SetMax(new MoveSnapshot(), 5);
 
         mana.Current.Should().Be(5);
     }
@@ -193,10 +193,10 @@ public class ManaTests
     public void Restore_SetsCurrentToMax()
     {
         var mana = Create();
-        mana.SetMax(10);
-        mana.Use(5);
+        mana.SetMax(new MoveSnapshot(), 10);
+        mana.Use(new MoveSnapshot(), 5);
 
-        mana.Restore();
+        mana.Restore(new MoveSnapshot());
 
         mana.Current.Should().Be(10);
     }
@@ -205,10 +205,10 @@ public class ManaTests
     public void Use_ReducesCurrentMana()
     {
         var mana = Create();
-        mana.SetMax(10);
-        mana.Restore();
+        mana.SetMax(new MoveSnapshot(), 10);
+        mana.Restore(new MoveSnapshot());
 
-        mana.Use(3);
+        mana.Use(new MoveSnapshot(), 3);
 
         mana.Current.Should().Be(7);
     }
@@ -217,10 +217,10 @@ public class ManaTests
     public void Use_MoreThanAvailable_ClampsToZero()
     {
         var mana = Create();
-        mana.SetMax(5);
-        mana.Restore();
+        mana.SetMax(new MoveSnapshot(), 5);
+        mana.Restore(new MoveSnapshot());
 
-        mana.Use(20);
+        mana.Use(new MoveSnapshot(), 20);
 
         mana.Current.Should().Be(0);
     }
@@ -230,7 +230,7 @@ public class ManaTests
     {
         var mana = Create();
 
-        var act = () => mana.Use(-1);
+        var act = () => mana.Use(new MoveSnapshot(), -1);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -239,9 +239,9 @@ public class ManaTests
     public void SetCurrent_ClampsToMax()
     {
         var mana = Create();
-        mana.SetMax(10);
+        mana.SetMax(new MoveSnapshot(), 10);
 
-        mana.SetCurrent(50);
+        mana.SetCurrent(new MoveSnapshot(), 50);
 
         mana.Current.Should().Be(10);
     }
@@ -250,9 +250,9 @@ public class ManaTests
     public void SetCurrent_ClampsToZero()
     {
         var mana = Create();
-        mana.SetMax(10);
+        mana.SetMax(new MoveSnapshot(), 10);
 
-        mana.SetCurrent(-5);
+        mana.SetCurrent(new MoveSnapshot(), -5);
 
         mana.Current.Should().Be(0);
     }
@@ -265,9 +265,9 @@ public class ManaTests
         var fireCount = 0;
 
         mana.Updated.Advise(lifetime, () => fireCount++);
-        mana.SetMax(8);
-        mana.Restore();
-        mana.Use(3);
+        mana.SetMax(new MoveSnapshot(), 8);
+        mana.Restore(new MoveSnapshot());
+        mana.Use(new MoveSnapshot(), 3);
 
         fireCount.Should().Be(3);
         mana.Max.Should().Be(8);
@@ -280,7 +280,7 @@ public class MovesTests
 {
     private static Moves Create()
     {
-        var modifiers = new Modifiers(new ValueProperty<PlayerModifiersState>(0).ForTest());
+        var modifiers = new Modifiers();
         return new Moves(modifiers);
     }
 
@@ -289,7 +289,7 @@ public class MovesTests
     {
         var moves = Create();
 
-        moves.SetMax(5);
+        moves.SetMax(new MoveSnapshot(), 5);
 
         moves.Max.Should().Be(5);
     }
@@ -298,9 +298,9 @@ public class MovesTests
     public void Restore_ResetsLeftToMax()
     {
         var moves = Create();
-        moves.SetMax(3);
+        moves.SetMax(new MoveSnapshot(), 3);
 
-        moves.Restore();
+        moves.Restore(new MoveSnapshot());
 
         moves.Left.Should().Be(3);
     }
@@ -309,10 +309,10 @@ public class MovesTests
     public void OnUsed_DecrementsByOne()
     {
         var moves = Create();
-        moves.SetMax(3);
-        moves.Restore();
+        moves.SetMax(new MoveSnapshot(), 3);
+        moves.Restore(new MoveSnapshot());
 
-        moves.OnUsed();
+        moves.OnUsed(new MoveSnapshot());
 
         moves.Left.Should().Be(2);
     }
@@ -321,11 +321,11 @@ public class MovesTests
     public void OnUsed_AtZero_Throws()
     {
         var moves = Create();
-        moves.SetMax(1);
-        moves.Restore();
-        moves.OnUsed();
+        moves.SetMax(new MoveSnapshot(), 1);
+        moves.Restore(new MoveSnapshot());
+        moves.OnUsed(new MoveSnapshot());
 
-        var act = () => moves.OnUsed();
+        var act = () => moves.OnUsed(new MoveSnapshot());
 
         act.Should().Throw<InvalidOperationException>();
     }
@@ -334,10 +334,10 @@ public class MovesTests
     public void Lock_SetsLeftToZero()
     {
         var moves = Create();
-        moves.SetMax(5);
-        moves.Restore();
+        moves.SetMax(new MoveSnapshot(), 5);
+        moves.Restore(new MoveSnapshot());
 
-        moves.Lock();
+        moves.Lock(new MoveSnapshot());
 
         moves.Left.Should().Be(0);
         moves.IsAvailable.Should().BeFalse();
@@ -347,10 +347,10 @@ public class MovesTests
     public void Restore_SetsIsAvailableTrue()
     {
         var moves = Create();
-        moves.SetMax(3);
-        moves.Lock();
+        moves.SetMax(new MoveSnapshot(), 3);
+        moves.Lock(new MoveSnapshot());
 
-        moves.Restore();
+        moves.Restore(new MoveSnapshot());
 
         moves.IsAvailable.Should().BeTrue();
     }
@@ -359,9 +359,9 @@ public class MovesTests
     public void SetCurrent_ClampsToMax()
     {
         var moves = Create();
-        moves.SetMax(5);
+        moves.SetMax(new MoveSnapshot(), 5);
 
-        moves.SetCurrent(100);
+        moves.SetCurrent(new MoveSnapshot(), 100);
 
         moves.Left.Should().Be(5);
     }
@@ -370,9 +370,9 @@ public class MovesTests
     public void SetCurrent_ClampsToZero()
     {
         var moves = Create();
-        moves.SetMax(5);
+        moves.SetMax(new MoveSnapshot(), 5);
 
-        moves.SetCurrent(-10);
+        moves.SetCurrent(new MoveSnapshot(), -10);
 
         moves.Left.Should().Be(0);
     }
@@ -381,10 +381,10 @@ public class MovesTests
     public void SetMax_ClampsLeftWhenExceeds()
     {
         var moves = Create();
-        moves.SetMax(10);
-        moves.Restore();
+        moves.SetMax(new MoveSnapshot(), 10);
+        moves.Restore(new MoveSnapshot());
 
-        moves.SetMax(3);
+        moves.SetMax(new MoveSnapshot(), 3);
 
         moves.Left.Should().Be(3);
     }
@@ -397,8 +397,8 @@ public class MovesTests
         var fireCount = 0;
 
         moves.Updated.Advise(lifetime, () => fireCount++);
-        moves.SetMax(7);
-        moves.Restore();
+        moves.SetMax(new MoveSnapshot(), 7);
+        moves.Restore(new MoveSnapshot());
 
         fireCount.Should().Be(2);
         moves.Max.Should().Be(7);
@@ -414,7 +414,7 @@ public class DeckTests
         var state = new ValueProperty<PlayerDeckState>(0).ForTest();
         state.Update(s => s.Queue = new List<CardType>());
         selected ??= new[] { CardType.Bloodhound, CardType.Trebuchet };
-        var deck = new Deck(state, selected);
+        var deck = new Deck(selected);
         return (deck, state);
     }
 
@@ -511,7 +511,7 @@ public class HandTests
     private static (Hand hand, ValueProperty<PlayerHandState> state) Create()
     {
         var state = new ValueProperty<PlayerHandState>(0).ForTest();
-        var hand = new Hand(state);
+        var hand = new Hand();
         return (hand, state);
     }
 
@@ -606,7 +606,7 @@ public class StashTests
     private static (Stash stash, ValueProperty<PlayerStashState> state) Create()
     {
         var state = new ValueProperty<PlayerStashState>(0).ForTest();
-        var stash = new Stash(state);
+        var stash = new Stash();
         return (stash, state);
     }
 
@@ -670,19 +670,6 @@ public class StashTests
         collected.Should().BeEmpty();
         stash.Count.Should().Be(0);
     }
-
-    [Fact]
-    public void SyncState_CountReflectsInState()
-    {
-        var (stash, state) = Create();
-        stash.Add(CardType.Bloodhound);
-        stash.Add(CardType.Trebuchet);
-
-        state.Value.Count.Should().Be(2);
-
-        stash.Pick();
-        state.Value.Count.Should().Be(1);
-    }
 }
 
 public class RoundActionServiceTests
@@ -691,7 +678,7 @@ public class RoundActionServiceTests
     {
         public int ExecuteCount { get; private set; }
 
-        public void Execute()
+        public void Execute(MoveSnapshot snapshot)
         {
             ExecuteCount++;
         }
@@ -705,11 +692,11 @@ public class RoundActionServiceTests
 
         service.Schedule(action, 3);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(0);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(0);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(1);
     }
 
@@ -720,7 +707,7 @@ public class RoundActionServiceTests
         var action = new TestAction();
 
         service.Schedule(action, 1);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(1);
     }
@@ -732,7 +719,7 @@ public class RoundActionServiceTests
         var action = new TestAction();
 
         service.Schedule(action, 0);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(0);
     }
@@ -744,7 +731,7 @@ public class RoundActionServiceTests
         var action = new TestAction();
 
         service.Schedule(action, -5);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(0);
     }
@@ -754,18 +741,18 @@ public class RoundActionServiceTests
     {
         var service = new RoundActionService();
 
-        var act = () => service.Tick();
+        var act = () => service.Tick(new MoveSnapshot());
 
         act.Should().NotThrow();
 
         // Verify idempotency — ticking twice with no actions is also safe
-        service.Tick();
-        service.Tick();
+        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot());
 
         // Schedule an action after empty ticks to confirm service is still functional
         var action = new TestAction();
         service.Schedule(action, 1);
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(1, "service should still work after empty ticks");
     }
 
@@ -779,11 +766,11 @@ public class RoundActionServiceTests
         service.Schedule(action1, 2);
         service.Schedule(action2, 2);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action1.ExecuteCount.Should().Be(0);
         action2.ExecuteCount.Should().Be(0);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         action1.ExecuteCount.Should().Be(1);
         action2.ExecuteCount.Should().Be(1);
     }
@@ -795,8 +782,8 @@ public class RoundActionServiceTests
         var action = new TestAction();
 
         service.Schedule(action, 1);
-        service.Tick();
-        service.Tick();
+        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(1);
     }
@@ -811,14 +798,14 @@ public class RoundActionServiceTests
         service.Schedule(early, 1);
         service.Schedule(late, 3);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         early.ExecuteCount.Should().Be(1);
         late.ExecuteCount.Should().Be(0);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         late.ExecuteCount.Should().Be(0);
 
-        service.Tick();
+        service.Tick(new MoveSnapshot());
         late.ExecuteCount.Should().Be(1);
     }
 }
@@ -828,7 +815,7 @@ public class ModifiersTests
     private static (Modifiers modifiers, ValueProperty<PlayerModifiersState> state) Create()
     {
         var state = new ValueProperty<PlayerModifiersState>(0).ForTest();
-        var modifiers = new Modifiers(state);
+        var modifiers = new Modifiers();
         return (modifiers, state);
     }
 
@@ -846,7 +833,7 @@ public class ModifiersTests
     {
         var (modifiers, _) = Create();
 
-        modifiers.Set(PlayerModifier.TrebuchetBoost, 5f);
+        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 5f);
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(5f);
     }
@@ -855,7 +842,7 @@ public class ModifiersTests
     public void Get_ReturnsCurrentValue()
     {
         var (modifiers, _) = Create();
-        modifiers.Set(PlayerModifier.TrebuchetBoost, 3.5f);
+        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 3.5f);
 
         var value = modifiers.Get(PlayerModifier.TrebuchetBoost);
 
@@ -867,8 +854,8 @@ public class ModifiersTests
     {
         var (modifiers, _) = Create();
 
-        modifiers.Inc(PlayerModifier.TrebuchetBoost);
-        modifiers.Inc(PlayerModifier.TrebuchetBoost);
+        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
+        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(2f);
     }
@@ -877,21 +864,11 @@ public class ModifiersTests
     public void Reset_SetsToZero()
     {
         var (modifiers, _) = Create();
-        modifiers.Set(PlayerModifier.TrebuchetBoost, 10f);
+        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 10f);
 
-        modifiers.Reset(PlayerModifier.TrebuchetBoost);
+        modifiers.Reset(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(0f);
-    }
-
-    [Fact]
-    public void SyncState_ReflectsInValueProperty()
-    {
-        var (modifiers, state) = Create();
-
-        modifiers.Set(PlayerModifier.TrebuchetBoost, 7f);
-
-        state.Value.Values[PlayerModifier.TrebuchetBoost].Should().Be(7f);
     }
 }
 

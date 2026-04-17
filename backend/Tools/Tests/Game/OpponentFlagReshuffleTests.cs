@@ -25,6 +25,15 @@ public class OpponentFlagReshuffleTests : PlayerCardTestsBase
         return new OpponentFlagReshuffle(MockConfigs(), gameContext, GameRandom).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.OpponentFlagReshuffle payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new OpponentFlagReshuffle(MockConfigs(), gameContext, GameRandom).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_MovesFlags()
     {
@@ -188,10 +197,10 @@ public class OpponentFlagReshuffleTests : PlayerCardTestsBase
 
         var ownerId = board.OwnerId;
 
-        var result = Use(board, new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) });
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.OpponentFlagReshuffle { Position = new Position(2, 2) });
 
-        var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagReshuffle;
-        snapshot.Should().NotBeNull();
-        snapshot!.TargetPlayer.Should().Be(ownerId);
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.OpponentFlagReshuffle>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

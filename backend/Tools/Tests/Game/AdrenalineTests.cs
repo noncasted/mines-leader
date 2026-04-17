@@ -21,7 +21,7 @@ public class AdrenalineTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, CardConfigs.Adrenaline.ExtraMoves);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, CardConfigs.Adrenaline.ExtraMoves);
     }
 
     [Fact]
@@ -49,9 +49,10 @@ public class AdrenalineTests : PlayerCardTestsBase
             { { PlayerModifier.AdditionalMoves, 0f } });
         var card = new Adrenaline(MockConfigs(), Substitute.For<IRoundActionService>());
 
-        var result = card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
+        var (_, snapshot) = card.UseCapture(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Adrenaline>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Adrenaline>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

@@ -17,7 +17,7 @@ public class BoardGenerationTests
     {
         var options = Options.Create(new BoardOptions { Size = size, Mines = mines });
         var state = new ValueProperty<BoardState>(0).ForTest();
-        var board = new Board(state, Guid.NewGuid(), options);
+        var board = new Board(Guid.NewGuid(), options);
         board.Generator.Generate(start);
         return board;
     }
@@ -116,7 +116,7 @@ public class BoardGenerationTests
         var safeZone = new HashSet<Position> { start };
         var options = Options.Create(new BoardOptions { Size = size, Mines = 0 });
         var state = new ValueProperty<BoardState>(0).ForTest();
-        var board = new Board(state, Guid.NewGuid(), options);
+        var board = new Board(Guid.NewGuid(), options);
 
         // Calculate safe zone size (start + neighbours)
         foreach (var dir in BoardPositionsExtensions.Directions)

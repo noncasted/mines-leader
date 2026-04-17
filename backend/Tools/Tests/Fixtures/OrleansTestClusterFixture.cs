@@ -126,6 +126,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 var clusterFlags = Substitute.For<IClusterFlags>();
                 clusterFlags.MatchmakingEnabled.Returns(true);
                 clusterFlags.SideEffectsEnabled.Returns(true);
+                clusterFlags.SnapshotDiffGuardEnabled.Returns(true);
                 services.AddSingleton(clusterFlags);
 
                 // Configs — all with default values via TestAddressableState
@@ -185,6 +186,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         clusterFeatures.IsInitialized.Returns(true);
         clusterFeatures.MatchmakingEnabled.Returns(true);
         clusterFeatures.SideEffectsEnabled.Returns(true);
+        clusterFeatures.SnapshotDiffGuardEnabled.Returns(true);
         services.AddSingleton(clusterFeatures);
     }
 

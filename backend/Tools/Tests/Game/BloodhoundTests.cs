@@ -118,15 +118,68 @@ public class BloodhoundTests : PlayerCardTestsBase
     }
 
     [Fact]
+    public void Use_MineInPattern_DefusesAndReveals()
+    {
+        var (board, target) = BoardParser.Parse("""
+                                                t t t t t t t
+                                                t m t t t m t
+                                                t t t t t t t
+                                                t m t x m m t
+                                                t t t t t t t
+                                                t m t t t m t
+                                                t t t t t t t
+                                                """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        card.Use(invoker, new CardUsePayload.Bloodhound { Position = target });
+
+        BoardParser.AssertBoard(board, """
+                                       * * * * * * *
+                                       * * * * * * *
+                                       * * * * * * *
+                                       * * * * D * *
+                                       * * * * * * *
+                                       * * * * * * *
+                                       * * * * * * *
+                                       """);
+    }
+
+    [Fact]
+    public void Use_MineInPattern_RecordsExplosion()
+    {
+        var (board, target) = BoardParser.Parse("""
+                                                t t t t t t t
+                                                t m t t t m t
+                                                t t t t t t t
+                                                t m t x m m t
+                                                t t t t t t t
+                                                t m t t t m t
+                                                t t t t t t t
+                                                """);
+        var invoker = MockInvoker(board);
+        var card = new Bloodhound(MockConfigs());
+        var (_, moveSnapshot) = card.UseCapture(invoker, new CardUsePayload.Bloodhound { Position = target });
+
+        var explosions = moveSnapshot.Collect().Records
+                                     .OfType<SharedBoardSnapshot>()
+                                     .SelectMany(b => b.Records)
+                                     .OfType<BoardSnapshotRecord.Explosion>()
+                                     .ToList();
+
+        explosions.Should().ContainSingle();
+        explosions[0].Position.Should().Be(new Position(4, 3));
+    }
+
+    [Fact]
     public void Use_ActionDataHasTargetPlayer()
     {
         var ownerId = Guid.NewGuid();
         var board = new TestBoardBuilder(5).WithOwner(ownerId).WithMinesAt((0, 0)).Build();
         var invoker = MockInvoker(board);
         var card = new Bloodhound(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
+        var (_, moveSnapshot) = card.UseCapture(invoker, new CardUsePayload.Bloodhound { Position = new Position(2, 2) });
 
-        var snapshot = result.ActionData as CardActionSnapshot.Bloodhound;
+        var snapshot = moveSnapshot.GetLastCardAction<CardActionSnapshot.Bloodhound>();
         snapshot.Should().NotBeNull();
         snapshot!.TargetPlayer.Should().Be(ownerId);
     }
