@@ -23,7 +23,7 @@ public class EmbargoTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.Embargo { Type = CardType.Embargo });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Modifiers.Received(1).Set(PlayerModifier.ManaCostPenalty, CardConfigs.Embargo.CostIncrease);
+        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.ManaCostPenalty, CardConfigs.Embargo.CostIncrease);
     }
 
     [Fact]

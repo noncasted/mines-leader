@@ -20,13 +20,13 @@ public class ManaFountainTests : PlayerCardTestsBase
         var config = CardConfigs.ManaFountain;
         gameRandom.Range(owner, config.MinMana, config.MaxMana).Returns(3);
         var roundService = Substitute.For<IRoundActionService>();
-        var card = new ManaFountain(MockConfigs(), roundService, gameRandom, MockSnapshotAccessor());
+        var card = new ManaFountain(MockConfigs(), roundService, gameRandom);
 
         var result = card.Use(owner, new CardUsePayload.ManaFountain { Type = CardType.ManaFountain });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMana, 3f);
-        owner.Mana.Received(1).SetCurrent(4);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, 3f);
+        owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 4);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class ManaFountainTests : PlayerCardTestsBase
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.Range(owner, Arg.Any<int>(), Arg.Any<int>()).Returns(2);
         var roundService = Substitute.For<IRoundActionService>();
-        var card = new ManaFountain(MockConfigs(), roundService, gameRandom, MockSnapshotAccessor());
+        var card = new ManaFountain(MockConfigs(), roundService, gameRandom);
 
         card.Use(owner, new CardUsePayload.ManaFountain { Type = CardType.ManaFountain });
 

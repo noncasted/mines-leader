@@ -88,6 +88,6 @@ public class TrebuchetTests : PlayerCardTestsBase
         var card = new Trebuchet(MockConfigs(), ctx);
         card.Use(invoker, new CardUsePayload.Trebuchet { Position = new Position(4, 4) });
 
-        invoker.Modifiers.Received(1).Set(PlayerModifier.TrebuchetBoost, 0f);
+        invoker.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, 0f);
     }
 }

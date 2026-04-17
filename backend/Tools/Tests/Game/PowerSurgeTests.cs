@@ -21,7 +21,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount, CardConfigs.PowerSurge.Discount);
     }
 
     [Fact]
@@ -50,8 +50,8 @@ public class PowerSurgeTests : PlayerCardTestsBase
         var card = new PowerSurge(MockConfigs(), roundService);
 
         card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
-        roundService.Tick();
+        roundService.Tick(new MoveSnapshot());
 
-        owner.Modifiers.Received(1).Set(PlayerModifier.AllCardsDiscount, 0f);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount, 0f);
     }
 }

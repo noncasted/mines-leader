@@ -23,6 +23,15 @@ public class SmokeTests : PlayerCardTestsBase
         return new Smoke(MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.Smoke payload, IRoundActionService roundActionService)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new Smoke(MockConfigs(), roundActionService, gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_AddsSmokeEffectToCells()
     {
@@ -139,11 +148,11 @@ public class SmokeTests : PlayerCardTestsBase
         var ownerId = board.OwnerId;
         var roundActionService = Substitute.For<IRoundActionService>();
 
-        var result = Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
-        var snapshot = result.ActionData as CardActionSnapshot.Smoke;
-        snapshot.Should().NotBeNull();
-        snapshot!.TargetPlayer.Should().Be(ownerId);
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.Smoke>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 
     [Fact]
@@ -168,7 +177,7 @@ public class SmokeTests : PlayerCardTestsBase
 
         // Tick Duration times to trigger dispose
         for (var i = 0; i < CardConfigs.Smoke.Duration; i++)
-            roundActionService.Tick();
+            roundActionService.Tick(new MoveSnapshot());
 
         // Effects should be removed
         board.Cells.Values.Any(c => c.Effects.Any(e => e.Type == CellEffectType.Smoke))

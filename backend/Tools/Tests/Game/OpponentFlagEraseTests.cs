@@ -23,6 +23,15 @@ public class OpponentFlagEraseTests : PlayerCardTestsBase
         return new OpponentFlagErase(MockConfigs(), gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(IBoard board, CardUsePayload.OpponentFlagErase payload)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new OpponentFlagErase(MockConfigs(), gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_RemovesFlagsInPattern()
     {
@@ -145,11 +154,11 @@ public class OpponentFlagEraseTests : PlayerCardTestsBase
 
         var ownerId = board.OwnerId;
 
-        var result = Use(board, new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
+        var (_, moveSnapshot) = UseCapture(board, new CardUsePayload.OpponentFlagErase { Position = new Position(2, 2) });
 
-        var snapshot = result.ActionData as CardActionSnapshot.OpponentFlagErase;
-        snapshot.Should().NotBeNull();
-        snapshot!.TargetPlayer.Should().Be(ownerId);
+        var actionData = moveSnapshot.GetLastCardAction<CardActionSnapshot.OpponentFlagErase>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 
     [Fact]

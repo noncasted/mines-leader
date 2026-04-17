@@ -22,6 +22,19 @@ public class FrostTests : PlayerCardTestsBase
         return new Frost(configs ?? MockConfigs(), roundActionService, gameContext).Use(invoker, payload);
     }
 
+    private (CardUseResult, MoveSnapshot) UseCapture(
+        IBoard board,
+        CardUsePayload.Frost payload,
+        IRoundActionService roundActionService,
+        ICardConfigs? configs = null)
+    {
+        var invoker = MockPlayer();
+        var opponent = MockPlayer();
+        opponent.Board.Returns(board);
+        var gameContext = MockGameContext(invoker, opponent);
+        return new Frost(configs ?? MockConfigs(), roundActionService, gameContext).UseCapture(invoker, payload);
+    }
+
     [Fact]
     public void Use_AddsFrostEffectToCellsInPattern()
     {
@@ -61,7 +74,7 @@ public class FrostTests : PlayerCardTestsBase
 
         Use(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService, configs);
 
-        roundService.Tick();
+        roundService.Tick(new MoveSnapshot());
 
         var center = board.Cells[new Position(2, 2)];
         center.Effects.Should().NotContain(e => e.Type == CellEffectType.Frost);
@@ -78,10 +91,11 @@ public class FrostTests : PlayerCardTestsBase
         var configs = Substitute.For<ICardConfigs>();
         configs.Value.Returns(allConfigs);
 
-        var result = Use(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService, configs);
+        var (_, snapshot) = UseCapture(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService, configs);
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Frost>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Frost>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
         actionData.FrozenCells.Should().NotBeEmpty();
     }
 }

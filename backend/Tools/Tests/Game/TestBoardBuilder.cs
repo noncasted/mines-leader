@@ -82,7 +82,7 @@ public class TestBoardBuilder
     {
         var options = Options.Create(new BoardOptions { Size = _size, Mines = _mines.Count });
         var state = new ValueProperty<BoardState>(0).ForTest();
-        var board = new Board(state, _ownerId, options);
+        var board = new Board(_ownerId, options);
 
         // Create all cells as Taken first
         for (var x = 0; x < _size; x++)
@@ -115,8 +115,8 @@ public class TestBoardBuilder
 
         // Start mines scanner to calculate MinesAround
         var lifetime = new Lifetime();
-        board.MinesScanner.Start(lifetime);
-        board.OnUpdated();
+        board.MinesScanner.Recalculate();
+        board.MinesScanner.Recalculate();
 
         return board;
     }

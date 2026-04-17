@@ -75,7 +75,7 @@ public class MinesScannerTests
 
         // Convert cell at (1,1) to Free after build
         board.Cells[new Position(1, 1)].ToTaken().ToFree();
-        board.OnUpdated();
+        board.MinesScanner.Recalculate();
 
         var freeCell = (IFreeCell)board.Cells[new Position(1, 1)];
         freeCell.MinesAround.Should().Be(1);

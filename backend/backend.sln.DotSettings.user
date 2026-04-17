@@ -303,8 +303,12 @@
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">/home/noncasted/.local/share/mise/installs/dotnet/9.0.305/sdk/9.0.305/MSBuild.dll</s:String>
 	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114126</s:Int64>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=21874996_002D212c_002D4f6a_002Db862_002D175dc51c5351/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Project Location="/projects/mines-leader/backend/Tools/Tests" Presentation="&amp;lt;Tools&amp;gt;\&amp;lt;Tests&amp;gt;" /&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b718701e_002D5c22_002D4010_002D82fb_002Ded2e3ad3aa16/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;And&gt;
+    &lt;Namespace&gt;Tests.Game&lt;/Namespace&gt;
+    &lt;Project Location="/projects/mines-leader/backend/Tools/Tests" Presentation="&amp;lt;Tools&amp;gt;\&amp;lt;Tests&amp;gt;" /&gt;
+  &lt;/And&gt;
 &lt;/SessionState&gt;</s:String>
+	
 	
 	</wpf:ResourceDictionary>

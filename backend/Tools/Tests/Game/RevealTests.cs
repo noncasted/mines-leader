@@ -27,8 +27,8 @@ public class RevealTests
         if (cell.Status == CellStatus.Taken)
             ((ITakenCell)cell).ToFree();
 
-        board.OnUpdated(); // trigger MinesScanner recalculation
-        board.Revealer.Reveal(pos);
+        board.MinesScanner.Recalculate(); // trigger MinesScanner recalculation
+        board.Revealer.Reveal(new[] { pos });
     }
 
     [Fact]

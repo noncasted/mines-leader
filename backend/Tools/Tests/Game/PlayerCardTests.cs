@@ -47,15 +47,64 @@ public class PlayerCardTestsBase
         return ctx;
     }
 
-    protected static IMoveSnapshotAccessor MockSnapshotAccessor(MoveSnapshot? snapshot = null, Guid? cardId = null)
+    protected static MoveSnapshot CreateSnapshot() => new();
+}
+
+public static class CardTestExtensions
+{
+    public static CardUseResult Use<TPayload>(this ICard<TPayload> card, IPlayer invoker, TPayload payload)
+        where TPayload : ICardUsePayload
     {
-        var accessor = Substitute.For<IMoveSnapshotAccessor>();
-        accessor.Snapshot.Returns(snapshot ?? new MoveSnapshot());
-        accessor.CardId.Returns(cardId ?? Guid.NewGuid());
-        return accessor;
+        var context = new CardUseContext
+        {
+            Invoker = invoker,
+            Snapshot = new MoveSnapshot(),
+            CardId = Guid.NewGuid()
+        };
+        return card.Use(context, payload);
     }
 
-    protected static MoveSnapshot CreateSnapshot() => new();
+    public static CardUseResult Use<TPayload>(
+        this ICard<TPayload> card,
+        IPlayer invoker,
+        TPayload payload,
+        MoveSnapshot snapshot,
+        Guid? cardId = null)
+        where TPayload : ICardUsePayload
+    {
+        var context = new CardUseContext
+        {
+            Invoker = invoker,
+            Snapshot = snapshot,
+            CardId = cardId ?? Guid.NewGuid()
+        };
+        return card.Use(context, payload);
+    }
+
+    public static (CardUseResult Result, MoveSnapshot Snapshot) UseCapture<TPayload>(
+        this ICard<TPayload> card,
+        IPlayer invoker,
+        TPayload payload)
+        where TPayload : ICardUsePayload
+    {
+        var snapshot = new MoveSnapshot();
+        var context = new CardUseContext
+        {
+            Invoker = invoker,
+            Snapshot = snapshot,
+            CardId = Guid.NewGuid()
+        };
+        return (card.Use(context, payload), snapshot);
+    }
+
+    public static T? GetLastCardAction<T>(this MoveSnapshot snapshot) where T : ICardActionData
+    {
+        return snapshot.Collect().Records
+                       .OfType<PlayerSnapshotRecord.CardUse>()
+                       .Select(r => r.Data)
+                       .OfType<T>()
+                       .LastOrDefault();
+    }
 }
 
 public class TrebuchetAimerTests : PlayerCardTestsBase
@@ -76,7 +125,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
             new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.TrebuchetBoost, size);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, size);
     }
 
     [Fact]
@@ -95,7 +144,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
             new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.TrebuchetBoost, 2f + size);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, 2f + size);
     }
 
     [Fact]
@@ -112,7 +161,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
 
         new TrebuchetAimer(configs).Use(owner, new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
-        owner.Modifiers.Received(1).Set(PlayerModifier.TrebuchetBoost, size);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, size);
     }
 
     [Fact]
@@ -126,10 +175,10 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
             { PlayerModifier.TrebuchetBoost, 0f }
         });
 
-        var result = new TrebuchetAimer(configs).Use(owner,
+        var (_, snapshot) = new TrebuchetAimer(configs).UseCapture(owner,
             new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
-        result.ActionData.Should().BeOfType<CardActionSnapshot.TrebuchetAimer>();
+        snapshot.GetLastCardAction<CardActionSnapshot.TrebuchetAimer>().Should().NotBeNull();
     }
 }
 
@@ -143,7 +192,7 @@ public class MedicTests : PlayerCardTestsBase
         var result = new Medic().Use(owner, new CardUsePayload.Medic { Type = CardType.Medic });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Health.Received(1).Heal(1);
+        owner.Health.Received(1).Heal(Arg.Any<MoveSnapshot>(), 1);
     }
 
     [Fact]
@@ -152,10 +201,11 @@ public class MedicTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
 
-        var result = new Medic().Use(owner, new CardUsePayload.Medic { Type = CardType.Medic });
+        var (_, snapshot) = new Medic().UseCapture(owner, new CardUsePayload.Medic { Type = CardType.Medic });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Medic>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Medic>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }
 
@@ -175,7 +225,7 @@ public class SiphonTests : PlayerCardTestsBase
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Mana.Received(1).SetMax(5 - drainAmount);
+        opponent.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 5 - drainAmount);
     }
 
     [Fact]
@@ -191,7 +241,7 @@ public class SiphonTests : PlayerCardTestsBase
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
-        owner.Mana.Received(1).SetMax(3 + drainAmount);
+        owner.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 3 + drainAmount);
     }
 
     [Fact]
@@ -208,8 +258,8 @@ public class SiphonTests : PlayerCardTestsBase
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Mana.Received(1).SetMax(0 - drainAmount);
-        owner.Mana.Received(1).SetMax(3 + drainAmount);
+        opponent.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 0 - drainAmount);
+        owner.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 3 + drainAmount);
     }
 
     [Fact]
@@ -223,10 +273,11 @@ public class SiphonTests : PlayerCardTestsBase
         opponent.Mana.Max.Returns(5);
         owner.Mana.Max.Returns(3);
 
-        var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
+        var (_, snapshot) = new Siphon(configs, gameContext).UseCapture(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Siphon>().Subject;
-        actionData.TargetPlayer.Should().Be(opponentId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Siphon>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(opponentId);
     }
 
     [Fact]
@@ -242,8 +293,8 @@ public class SiphonTests : PlayerCardTestsBase
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
-        opponent.Mana.Received(1).SetMax(10 - drainAmount);
-        owner.Mana.Received(1).SetMax(3 + drainAmount);
+        opponent.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 10 - drainAmount);
+        owner.Mana.Received(1).SetMax(Arg.Any<MoveSnapshot>(), 3 + drainAmount);
     }
 }
 
@@ -266,7 +317,7 @@ public class OverclockTests : PlayerCardTestsBase
             new CardUsePayload.Overclock { Type = CardType.Overclock });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, extraMoves);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, extraMoves);
     }
 
     [Fact]
@@ -299,11 +350,12 @@ public class OverclockTests : PlayerCardTestsBase
             { PlayerModifier.AdditionalMoves, 0f }
         });
 
-        var result = new Overclock(configs, roundService).Use(owner,
+        var (_, snapshot) = new Overclock(configs, roundService).UseCapture(owner,
             new CardUsePayload.Overclock { Type = CardType.Overclock });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Overclock>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Overclock>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }
 
@@ -315,13 +367,12 @@ public class GraveDiggerTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         owner.Stash.Count.Returns(1);
         owner.Stash.Pick().Returns(CardType.Bloodhound);
         var activeCard = new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound };
         owner.Hand.Add(CardType.Bloodhound).Returns(activeCard);
 
-        var result = new GraveDigger(snapshotAccessor).Use(owner,
+        var result = new GraveDigger().Use(owner,
             new CardUsePayload.Gravedigger { Type = CardType.Gravedigger });
 
         result.Result.HasError.Should().BeFalse();
@@ -333,15 +384,13 @@ public class GraveDiggerTests : PlayerCardTestsBase
     public void Use_EmptyStash_Fails()
     {
         var owner = MockPlayer();
-        var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         owner.Stash.Count.Returns(0);
 
-        var result = new GraveDigger(snapshotAccessor).Use(owner,
+        var (result, snapshot) = new GraveDigger().UseCapture(owner,
             new CardUsePayload.Gravedigger { Type = CardType.Gravedigger });
 
         result.Result.HasError.Should().BeTrue();
-        result.ActionData.Should().BeNull();
+        snapshot.GetLastCardAction<ICardActionData>().Should().BeNull();
     }
 
     [Fact]
@@ -350,18 +399,16 @@ public class GraveDiggerTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         owner.Stash.Count.Returns(1);
         owner.Stash.Pick().Returns(CardType.Trebuchet);
         var cardId = Guid.NewGuid();
         var activeCard = new ActiveCard { Id = cardId, Type = CardType.Trebuchet };
         owner.Hand.Add(CardType.Trebuchet).Returns(activeCard);
 
-        new GraveDigger(snapshotAccessor).Use(owner, new CardUsePayload.Gravedigger { Type = CardType.Gravedigger });
+        new GraveDigger().Use(owner, new CardUsePayload.Gravedigger { Type = CardType.Gravedigger }, snapshot);
 
         var collected = snapshot.Collect();
-        collected.Records.Should().ContainSingle();
-        var record = collected.Records[0].Should().BeOfType<PlayerSnapshotRecord.CardAdd>().Subject;
+        var record = collected.Records.OfType<PlayerSnapshotRecord.CardAdd>().Should().ContainSingle().Subject;
         record.PlayerId.Should().Be(ownerId);
         record.CardId.Should().Be(cardId);
         record.Type.Should().Be(CardType.Trebuchet);
@@ -372,17 +419,16 @@ public class GraveDiggerTests : PlayerCardTestsBase
     {
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
-        var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         owner.Stash.Count.Returns(1);
         owner.Stash.Pick().Returns(CardType.Bloodhound);
         owner.Hand.Add(CardType.Bloodhound).Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound });
 
-        var result = new GraveDigger(snapshotAccessor).Use(owner,
+        var (_, snapshot) = new GraveDigger().UseCapture(owner,
             new CardUsePayload.Gravedigger { Type = CardType.Gravedigger });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Gravedigger>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Gravedigger>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }
 
@@ -394,7 +440,6 @@ public class ScavengerTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var configs = MockConfigs();
         var drawCount = CardConfigs.All.Scavenger_Normal.DrawCount;
         owner.Deck.Count.Returns(5, 4);
@@ -404,7 +449,7 @@ public class ScavengerTests : PlayerCardTestsBase
              .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
                  new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet });
 
-        var result = new Scavenger(configs, snapshotAccessor).Use(owner,
+        var result = new Scavenger(configs).Use(owner,
             new CardUsePayload.Scavenger { Type = CardType.Scavenger });
 
         result.Result.HasError.Should().BeFalse();
@@ -417,7 +462,6 @@ public class ScavengerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var configs = MockConfigs();
         // Deck has 1 card, config wants more
         owner.Deck.Count.Returns(1, 0);
@@ -426,7 +470,7 @@ public class ScavengerTests : PlayerCardTestsBase
         owner.Hand.Add(Arg.Any<CardType>())
              .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound });
 
-        var result = new Scavenger(configs, snapshotAccessor).Use(owner,
+        var result = new Scavenger(configs).Use(owner,
             new CardUsePayload.Scavenger { Type = CardType.Scavenger });
 
         result.Result.HasError.Should().BeFalse();
@@ -438,11 +482,10 @@ public class ScavengerTests : PlayerCardTestsBase
     {
         var owner = MockPlayer();
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var configs = MockConfigs();
         owner.Deck.Count.Returns(0);
 
-        var result = new Scavenger(configs, snapshotAccessor).Use(owner,
+        var result = new Scavenger(configs).Use(owner,
             new CardUsePayload.Scavenger { Type = CardType.Scavenger });
 
         result.Result.HasError.Should().BeFalse();
@@ -455,7 +498,6 @@ public class ScavengerTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var configs = MockConfigs();
         var drawCount = CardConfigs.All.Scavenger_Normal.DrawCount;
         owner.Deck.Count.Returns(5, 4);
@@ -465,12 +507,13 @@ public class ScavengerTests : PlayerCardTestsBase
              .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
                  new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet });
 
-        new Scavenger(configs, snapshotAccessor).Use(owner, new CardUsePayload.Scavenger { Type = CardType.Scavenger });
+        new Scavenger(configs).Use(owner, new CardUsePayload.Scavenger { Type = CardType.Scavenger }, snapshot);
 
         var collected = snapshot.Collect();
-        collected.Records.Should().HaveCount(drawCount);
-        collected.Records[0].Should().BeOfType<PlayerSnapshotRecord.CardAdd>();
-        collected.Records[1].Should().BeOfType<PlayerSnapshotRecord.CardAdd>();
+        var cardAdds = collected.Records.OfType<PlayerSnapshotRecord.CardAdd>().ToList();
+        cardAdds.Should().HaveCount(drawCount);
+        cardAdds[0].Should().BeOfType<PlayerSnapshotRecord.CardAdd>();
+        cardAdds[1].Should().BeOfType<PlayerSnapshotRecord.CardAdd>();
     }
 
     [Fact]
@@ -478,8 +521,6 @@ public class ScavengerTests : PlayerCardTestsBase
     {
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
-        var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var configs = MockConfigs();
         owner.Deck.Count.Returns(5, 4);
         owner.Deck.DrawCard().Returns(CardType.Bloodhound, CardType.Trebuchet);
@@ -488,11 +529,12 @@ public class ScavengerTests : PlayerCardTestsBase
              .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound },
                  new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Trebuchet });
 
-        var result = new Scavenger(configs, snapshotAccessor).Use(owner,
+        var (_, snapshot) = new Scavenger(configs).UseCapture(owner,
             new CardUsePayload.Scavenger { Type = CardType.Scavenger });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Scavenger>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Scavenger>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }
 
@@ -505,7 +547,6 @@ public class HandScrambleTests : PlayerCardTestsBase
         var opponentId = Guid.NewGuid();
         var opponent = MockPlayer(opponentId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var gameContext = MockGameContext(invoker, opponent);
 
         var card1 = new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound };
@@ -518,7 +559,7 @@ public class HandScrambleTests : PlayerCardTestsBase
                 .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke },
                     new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Medic });
 
-        var result = new HandScramble(gameContext, snapshotAccessor).Use(invoker,
+        var result = new HandScramble(gameContext).Use(invoker,
             new CardUsePayload.HandScramble { Type = CardType.HandScramble });
 
         result.Result.HasError.Should().BeFalse();
@@ -534,16 +575,14 @@ public class HandScrambleTests : PlayerCardTestsBase
     {
         var invoker = MockPlayer();
         var opponent = MockPlayer();
-        var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var gameContext = MockGameContext(invoker, opponent);
         opponent.Hand.Entries.Returns(new List<ActiveCard>());
 
-        var result = new HandScramble(gameContext, snapshotAccessor).Use(invoker,
+        var (result, snapshot) = new HandScramble(gameContext).UseCapture(invoker,
             new CardUsePayload.HandScramble { Type = CardType.HandScramble });
 
         result.Result.HasError.Should().BeTrue();
-        result.ActionData.Should().BeNull();
+        snapshot.GetLastCardAction<ICardActionData>().Should().BeNull();
     }
 
     [Fact]
@@ -553,7 +592,6 @@ public class HandScrambleTests : PlayerCardTestsBase
         var opponentId = Guid.NewGuid();
         var opponent = MockPlayer(opponentId);
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var gameContext = MockGameContext(invoker, opponent);
 
         var cardId1 = Guid.NewGuid();
@@ -566,15 +604,14 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Add(Arg.Any<CardType>())
                 .Returns(new ActiveCard { Id = newCardId, Type = CardType.Smoke });
 
-        new HandScramble(gameContext, snapshotAccessor).Use(invoker,
-            new CardUsePayload.HandScramble { Type = CardType.HandScramble });
+        new HandScramble(gameContext).Use(invoker,
+            new CardUsePayload.HandScramble { Type = CardType.HandScramble }, snapshot);
 
         var collected = snapshot.Collect();
-        collected.Records.Should().HaveCount(2);
-        var removeRecord = collected.Records[0].Should().BeOfType<PlayerSnapshotRecord.CardRemove>().Subject;
+        var removeRecord = collected.Records.OfType<PlayerSnapshotRecord.CardRemove>().Should().ContainSingle().Subject;
         removeRecord.PlayerId.Should().Be(opponentId);
         removeRecord.CardId.Should().Be(cardId1);
-        var addRecord = collected.Records[1].Should().BeOfType<PlayerSnapshotRecord.CardAdd>().Subject;
+        var addRecord = collected.Records.OfType<PlayerSnapshotRecord.CardAdd>().Should().ContainSingle().Subject;
         addRecord.PlayerId.Should().Be(opponentId);
         addRecord.CardId.Should().Be(newCardId);
     }
@@ -585,7 +622,6 @@ public class HandScrambleTests : PlayerCardTestsBase
         var invoker = MockPlayer();
         var opponent = MockPlayer();
         var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var gameContext = MockGameContext(invoker, opponent);
 
         var card1 = new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound };
@@ -596,7 +632,7 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Add(Arg.Any<CardType>())
                 .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke });
 
-        new HandScramble(gameContext, snapshotAccessor).Use(invoker,
+        new HandScramble(gameContext).Use(invoker,
             new CardUsePayload.HandScramble { Type = CardType.HandScramble });
 
         opponent.Deck.Received(1).AddCard(CardType.Bloodhound);
@@ -608,8 +644,6 @@ public class HandScrambleTests : PlayerCardTestsBase
         var invoker = MockPlayer();
         var opponentId = Guid.NewGuid();
         var opponent = MockPlayer(opponentId);
-        var snapshot = CreateSnapshot();
-        var snapshotAccessor = MockSnapshotAccessor(snapshot);
         var gameContext = MockGameContext(invoker, opponent);
 
         var card1 = new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Bloodhound };
@@ -620,11 +654,12 @@ public class HandScrambleTests : PlayerCardTestsBase
         opponent.Hand.Add(Arg.Any<CardType>())
                 .Returns(new ActiveCard { Id = Guid.NewGuid(), Type = CardType.Smoke });
 
-        var result = new HandScramble(gameContext, snapshotAccessor).Use(invoker,
+        var (_, snapshot) = new HandScramble(gameContext).UseCapture(invoker,
             new CardUsePayload.HandScramble { Type = CardType.HandScramble });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.HandScramble>().Subject;
-        actionData.TargetPlayer.Should().Be(opponentId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.HandScramble>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(opponentId);
     }
 }
 
@@ -649,7 +684,7 @@ public class LockdownTests : PlayerCardTestsBase
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, -movesReduction);
+        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -movesReduction);
     }
 
     [Fact]
@@ -695,11 +730,11 @@ public class LockdownTests : PlayerCardTestsBase
 
         // Tick duration times to trigger the scheduled action
         for (var i = 0; i < duration; i++)
-            roundActionService.Tick();
+            roundActionService.Tick(new MoveSnapshot());
 
         // Dec sets -(movesReduction*2), then dispose restores to 0
-        opponent.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, -(movesReduction * 2));
-        opponent.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, 0f);
+        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -(movesReduction * 2));
+        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, 0f);
     }
 
     [Fact]
@@ -717,11 +752,12 @@ public class LockdownTests : PlayerCardTestsBase
             { PlayerModifier.AdditionalMoves, 0f }
         });
 
-        var result = new Lockdown(configs, roundActionService, gameContext).Use(invoker,
+        var (_, snapshot) = new Lockdown(configs, roundActionService, gameContext).UseCapture(invoker,
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Lockdown>().Subject;
-        actionData.TargetPlayer.Should().Be(opponentId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Lockdown>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(opponentId);
     }
 
     [Fact]
@@ -744,10 +780,10 @@ public class LockdownTests : PlayerCardTestsBase
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
         // Only tick once — action should not fire yet (duration = 2)
-        roundActionService.Tick();
+        roundActionService.Tick(new MoveSnapshot());
 
         // Dec(-movesReduction) from Lockdown happened, but no restore yet
-        opponent.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, -movesReduction);
-        opponent.Modifiers.DidNotReceive().Set(PlayerModifier.AdditionalMoves, 0f);
+        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -movesReduction);
+        opponent.Modifiers.DidNotReceive().Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, 0f);
     }
 }

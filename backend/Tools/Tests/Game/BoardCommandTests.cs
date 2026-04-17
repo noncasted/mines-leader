@@ -79,10 +79,10 @@ public class BoardCommandTests
         }
 
         foreach (var neighbour in openedCells)
-            board.Revealer.Reveal(neighbour.Position);
+            board.Revealer.Reveal(new[] { neighbour.Position });
 
-        board.Revealer.Reveal(position);
-        board.OnUpdated();
+        board.Revealer.Reveal(new[] { position });
+        board.MinesScanner.Recalculate();
 
         return (openedCells.Count, exploded);
     }
@@ -293,11 +293,11 @@ public class BoardCommandTests
         // Create an empty board (no cells yet) via Board constructor directly
         var options = Options.Create(new BoardOptions { Size = 8, Mines = 10 });
         var state = new ValueProperty<BoardState>(0).ForTest();
-        var board = new Board(state, Guid.NewGuid(), options);
+        var board = new Board(Guid.NewGuid(), options);
 
         // Start MinesScanner so Reveal can calculate MinesAround
         var lifetime = new Lifetime();
-        board.MinesScanner.Start(lifetime);
+        board.MinesScanner.Recalculate();
 
         board.Cells.Count.Should().Be(0, "board starts empty");
 
@@ -325,10 +325,10 @@ public class BoardCommandTests
     {
         var options = Options.Create(new BoardOptions { Size = 6, Mines = 5 });
         var state = new ValueProperty<BoardState>(0).ForTest();
-        var board = new Board(state, Guid.NewGuid(), options);
+        var board = new Board(Guid.NewGuid(), options);
 
         var lifetime = new Lifetime();
-        board.MinesScanner.Start(lifetime);
+        board.MinesScanner.Recalculate();
 
         var start = new Position(3, 3);
         board.EnsureGenerated(start);

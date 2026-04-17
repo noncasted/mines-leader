@@ -20,7 +20,7 @@ public class FocusTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.NextCardDiscount, CardConfigs.Focus.Discount);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.NextCardDiscount, CardConfigs.Focus.Discount);
     }
 
     [Fact]
@@ -48,9 +48,10 @@ public class FocusTests : PlayerCardTestsBase
             { { PlayerModifier.NextCardDiscount, 0f } });
         var card = new Focus(MockConfigs(), Substitute.For<IRoundActionService>());
 
-        var result = card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
+        var (_, snapshot) = card.UseCapture(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Focus>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Focus>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

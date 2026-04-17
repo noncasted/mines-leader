@@ -12,11 +12,15 @@ public class ShieldTests : PlayerCardTestsBase
     public void Use_IncrementsShieldModifier()
     {
         var owner = MockPlayer();
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+        {
+            { PlayerModifier.Shield, 0f }
+        });
 
         var result = new Shield().Use(owner, new CardUsePayload.Shield());
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Inc(PlayerModifier.Shield);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.Shield, 1f);
     }
 
     [Fact]
@@ -25,9 +29,10 @@ public class ShieldTests : PlayerCardTestsBase
         var ownerId = Guid.NewGuid();
         var owner = MockPlayer(ownerId);
 
-        var result = new Shield().Use(owner, new CardUsePayload.Shield());
+        var (_, snapshot) = new Shield().UseCapture(owner, new CardUsePayload.Shield());
 
-        var actionData = result.ActionData.Should().BeOfType<CardActionSnapshot.Shield>().Subject;
-        actionData.TargetPlayer.Should().Be(ownerId);
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.Shield>();
+        actionData.Should().NotBeNull();
+        actionData!.TargetPlayer.Should().Be(ownerId);
     }
 }

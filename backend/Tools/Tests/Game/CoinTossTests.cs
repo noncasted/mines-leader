@@ -18,12 +18,12 @@ public class CoinTossTests : PlayerCardTestsBase
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(true);
         var roundService = Substitute.For<IRoundActionService>();
-        var card = new CoinToss(MockConfigs(), gameRandom, roundService, MockSnapshotAccessor());
+        var card = new CoinToss(MockConfigs(), gameRandom, roundService);
 
         var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(PlayerModifier.AdditionalMoves, CardConfigs.CoinToss.WinMoves);
+        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, CardConfigs.CoinToss.WinMoves);
         roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
     }
 
@@ -35,13 +35,12 @@ public class CoinTossTests : PlayerCardTestsBase
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(false);
 
-        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(),
-            MockSnapshotAccessor());
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>());
 
         var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Moves.Received(1).SetCurrent(3 - CardConfigs.CoinToss.LoseMoves);
+        owner.Moves.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 3 - CardConfigs.CoinToss.LoseMoves);
     }
 
     [Fact]
@@ -55,10 +54,9 @@ public class CoinTossTests : PlayerCardTestsBase
         gameRandom.FlipCoin(owner).Returns(true);
         var snapshot = new MoveSnapshot();
 
-        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>(),
-            MockSnapshotAccessor(snapshot));
+        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>());
 
-        card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
+        card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss }, snapshot);
 
         snapshot.Collect().Records.Should().ContainSingle(r => r is PlayerSnapshotRecord.CardUse);
     }

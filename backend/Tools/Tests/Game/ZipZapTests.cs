@@ -46,11 +46,11 @@ public class ZipZapTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new ZipZap(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ZipZap;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
         actionData.Should().NotBeNull();
         actionData!.TargetCells.Should().Contain(new Position(2, 2));
     }
@@ -134,11 +134,11 @@ public class ZipZapTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new ZipZap(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ZipZap;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
         actionData.Should().NotBeNull();
         actionData!.TargetCells.Count.Should().Be(2, "both mines at (2,2) and (1,1) should be found");
         actionData.TargetCells.Should().Contain(new Position(2, 2));
@@ -162,11 +162,11 @@ public class ZipZapTests : PlayerCardTestsBase
         var ownerId = board.OwnerId;
         var invoker = MockInvoker(board);
         var card = new ZipZap(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ZipZap;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
         actionData.Should().NotBeNull();
         actionData!.TargetPlayer.Should().Be(ownerId);
         actionData.TargetCells.Should().NotBeEmpty();
@@ -188,11 +188,11 @@ public class ZipZapTests : PlayerCardTestsBase
 
         var invoker = MockInvoker(board);
         var card = new ZipZap(MockConfigs());
-        var result = card.Use(invoker, new CardUsePayload.ZipZap { Position = target });
+        var (result, snapshot) = card.UseCapture(invoker, new CardUsePayload.ZipZap { Position = target });
 
         result.Result.HasError.Should().BeFalse();
 
-        var actionData = result.ActionData as CardActionSnapshot.ZipZap;
+        var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
 
         foreach (var pos in actionData!.TargetCells)
         {
