@@ -409,6 +409,38 @@ app.MapStaticAssets();
 ```
 Done in `ConsoleGateway/Program.cs`. Apply the same change to any other Web SDK service that mixes the two.
 
+## Aspire Dashboard takes ~2 minutes to become reachable after deploy
+
+**Symptom.** Right after a successful redeploy, `https://aspire.minesleader.xyz/` hangs / 504s for 1-3 minutes, then suddenly works. Console and game services are responsive immediately.
+
+**Cause.** `aspire-dashboard` is wired with `depends_on: resource-service condition: service_started`. `service_started` waits only until Docker has booted the container, **not** until its gRPC port is actually accepting connections. The dashboard kicks off `WatchResources` immediately, the call fails (port not yet listening), and the gRPC channel goes into exponential back-off. Each retry doubles the delay; after a few rounds the back-off window happens to land just past the moment resource-service is ready, and the next call succeeds.
+
+**Fix.** Replace `service_started` with `service_healthy` and add a TCP healthcheck to `resource-service`:
+
+```yaml
+resource-service:
+  healthcheck:
+    test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/80 && echo ok >&3"]
+    interval: 1s
+    retries: 30
+    start_period: 2s
+
+aspire-dashboard:
+  depends_on:
+    resource-service:
+      condition: service_healthy
+```
+
+Without `start_period`, the first failed checks during the ~3-second cold start mark the container unhealthy and Coolify may flap it. With it, the dashboard waits the real ~5s instead of the back-off ~120s.
+
+## "Login to the dashboard at http://localhost:18888" startup log line
+
+**Symptom.** Aspire dashboard logs `Login to the dashboard at http://localhost:1...` (truncated). Looks alarming.
+
+**Cause.** Cosmetic. The dashboard prints its bind address (always `0.0.0.0:18888` inside the container) and assumes the user opens it as `localhost`. Coolify Traefik terminates TLS externally and proxies to that bind address.
+
+**Fix.** Ignore. The real entry point is `https://aspire.<your-domain>/` and the browser-token URL is shown inside the dashboard UI after first login — not in this log line.
+
 ## Quick reference: where to look when a deploy goes sideways
 
 | Symptom | First check | Second |
@@ -433,3 +465,5 @@ Done in `ConsoleGateway/Program.cs`. Apply the same change to any other Web SDK 
 | Resource-service `CS0718 / CS0234` after rename | static class collision with proto-generated `DashboardService` | wrapper renamed everywhere incl. tests |
 | `NU1902` advisory for OTel | bump OpenTelemetry.* to ≥ 1.15 in fork's ServiceDefaults csproj | do not disable TreatWarningsAsErrors |
 | `CS0246` flood after Dockerfile tweak | per-service `BaseIntermediateOutputPath` was added? | revert — it breaks transitive ProjectReferences |
+| Aspire dashboard 504 for first ~2 min | `depends_on: resource-service` is still `service_started`? | switch to `service_healthy` + TCP healthcheck on resource-service |
+| `_blazor/negotiate` 502/503/504 then container is `Up healthy` | Traefik pool holding the previous container ID | `docker restart coolify-proxy` (kicks all sites for ~10 s) |
