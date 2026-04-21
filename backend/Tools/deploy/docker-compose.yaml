@@ -179,11 +179,15 @@ services:
     networks:
       - mines-internal
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-app
-      # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
-      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
-      - "traefik.docker.network=${APP_UUID}"
+      # Pin Traefik's Docker provider to the Coolify-injected per-application
+      # network (named after the app UUID) so it never resolves a backend IP
+      # from `mines-internal`, where coolify-proxy is not a member and every
+      # request would hang. The UUID is hardcoded because Coolify does NOT
+      # perform compose-style `${VAR}` substitution in label values (only in
+      # environment: blocks) — there is no way to parameterise this from the
+      # Coolify UI. If the application is recreated in Coolify, update the
+      # four occurrences below to the new UUID visible in the app URL.
+      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
     healthcheck:
       <<: *service-healthcheck
 
@@ -211,11 +215,15 @@ services:
     networks:
       - mines-internal
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-app
-      # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
-      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
-      - "traefik.docker.network=${APP_UUID}"
+      # Pin Traefik's Docker provider to the Coolify-injected per-application
+      # network (named after the app UUID) so it never resolves a backend IP
+      # from `mines-internal`, where coolify-proxy is not a member and every
+      # request would hang. The UUID is hardcoded because Coolify does NOT
+      # perform compose-style `${VAR}` substitution in label values (only in
+      # environment: blocks) — there is no way to parameterise this from the
+      # Coolify UI. If the application is recreated in Coolify, update the
+      # four occurrences below to the new UUID visible in the app URL.
+      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
     healthcheck:
       <<: *service-healthcheck
 
@@ -251,11 +259,15 @@ services:
     networks:
       - mines-internal
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-app
-      # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
-      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
-      - "traefik.docker.network=${APP_UUID}"
+      # Pin Traefik's Docker provider to the Coolify-injected per-application
+      # network (named after the app UUID) so it never resolves a backend IP
+      # from `mines-internal`, where coolify-proxy is not a member and every
+      # request would hang. The UUID is hardcoded because Coolify does NOT
+      # perform compose-style `${VAR}` substitution in label values (only in
+      # environment: blocks) — there is no way to parameterise this from the
+      # Coolify UI. If the application is recreated in Coolify, update the
+      # four occurrences below to the new UUID visible in the app URL.
+      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
     healthcheck:
       <<: *service-healthcheck
 
@@ -291,11 +303,15 @@ services:
     networks:
       - mines-internal
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-app
-      # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
-      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
-      - "traefik.docker.network=${APP_UUID}"
+      # Pin Traefik's Docker provider to the Coolify-injected per-application
+      # network (named after the app UUID) so it never resolves a backend IP
+      # from `mines-internal`, where coolify-proxy is not a member and every
+      # request would hang. The UUID is hardcoded because Coolify does NOT
+      # perform compose-style `${VAR}` substitution in label values (only in
+      # environment: blocks) — there is no way to parameterise this from the
+      # Coolify UI. If the application is recreated in Coolify, update the
+      # four occurrences below to the new UUID visible in the app URL.
+      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
 
   # Third-party standalone resource server — populates the dashboard Resources tab
   # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
