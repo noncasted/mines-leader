@@ -25,6 +25,16 @@ name: mines-leader
 # redeploy. Listing `coolify` on every service below prevents Compose from
 # inventing a default network for them.
 networks:
+  # Internal bridge for intra-cluster traffic (Orleans, pgbouncer clients,
+  # OTel). Isolated from the shared `coolify` bridge so service-name aliases
+  # (`silo`, `coordinator`, `meta`, ...) stay unique to this compose project
+  # and cannot collide with a neighbour app that happens to use the same
+  # names.
+  mines-internal:
+    driver: bridge
+  # Coolify-managed bridge where the managed Postgres and `coolify-proxy`
+  # live. Only pgbouncer joins it (so it can resolve the Postgres hostname)
+  # — no gateway ever reaches the shared namespace directly.
   coolify:
     external: true
 
@@ -75,6 +85,7 @@ services:
       - "6432"
     restart: unless-stopped
     networks:
+      - mines-internal
       - coolify
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
@@ -97,7 +108,7 @@ services:
         condition: service_healthy
     restart: "no"
     networks:
-      - coolify
+      - mines-internal
 
   silo:
     build:
@@ -117,7 +128,7 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
     healthcheck:
       <<: *service-healthcheck
 
@@ -139,7 +150,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
     healthcheck:
       <<: *service-healthcheck
 
@@ -166,7 +177,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
+    labels:
+      # Pin Traefik's Docker provider to the Coolify-injected per-app
+      # network so it never resolves backend IPs from `mines-internal`
+      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
+      # by Coolify at deploy time.
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -192,7 +209,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
+    labels:
+      # Pin Traefik's Docker provider to the Coolify-injected per-app
+      # network so it never resolves backend IPs from `mines-internal`
+      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
+      # by Coolify at deploy time.
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -226,7 +249,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
+    labels:
+      # Pin Traefik's Docker provider to the Coolify-injected per-app
+      # network so it never resolves backend IPs from `mines-internal`
+      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
+      # by Coolify at deploy time.
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -260,7 +289,13 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
+    labels:
+      # Pin Traefik's Docker provider to the Coolify-injected per-app
+      # network so it never resolves backend IPs from `mines-internal`
+      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
+      # by Coolify at deploy time.
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
 
   # Third-party standalone resource server — populates the dashboard Resources tab
   # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
@@ -282,7 +317,7 @@ services:
       - "80"
     restart: unless-stopped
     networks:
-      - coolify
+      - mines-internal
 
 volumes:
   aspire-dashboard-keys:

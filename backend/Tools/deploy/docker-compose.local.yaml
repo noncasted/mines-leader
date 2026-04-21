@@ -9,12 +9,17 @@
 #     -f backend/Tools/deploy/docker-compose.yaml \
 #     -f backend/Tools/deploy/docker-compose.local.yaml up --build -d
 
-# Override the prod `default → external:coolify` network with a local bridge —
-# locally there is no Coolify network, so services just share a throwaway bridge.
+# Prod has two networks (mines-internal + external coolify) — locally there is
+# no Coolify bridge, so stub `coolify` out with a disposable local bridge and
+# keep `mines-internal` as the isolated internal one.
 networks:
-  default:
+  mines-internal:
     name: mines-leader-local
     driver: bridge
+  coolify:
+    name: mines-leader-local-coolify
+    driver: bridge
+    external: false
 
 services:
   migrator:
