@@ -16,9 +16,6 @@ networks:
   mines-leader-production:
     name: mines-leader-local
     driver: bridge
-  coolify:
-    name: mines-leader-local-coolify
-    driver: bridge
 
 services:
   migrator:

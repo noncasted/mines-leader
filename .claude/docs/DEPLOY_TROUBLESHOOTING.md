@@ -37,35 +37,113 @@ Verify: `sudo docker network inspect coolify --format '{{range .Containers}}{{.N
 
 The setup is gated on `OrleansQuery` existence, so first deploy bootstraps everything and subsequent deploys are essentially no-ops. If you upgrade Orleans, re-check upstream `PostgreSQL-Clustering.sql` — the supplemental row may have been merged and the patch can be removed.
 
-## Console returns 502 / Gateway Timeout while game and meta work
+## Gateway service intermittently returns Gateway Timeout after redeploy (THE BIG ONE)
 
-**Symptom.** `https://console.minesleader.xyz/login` hangs and returns 504, but `meta` / `game` on identical Traefik labels are fine. Container itself is `Up (healthy)`, internal `curl http://localhost:8080/login` works, `coolify-proxy` access logs do not show the request.
+**Symptom.** After a Coolify Redeploy, one of the public gateways (`console.minesleader.xyz`, `game.minesleader.xyz`, `meta.minesleader.xyz`, or `aspire.minesleader.xyz`) starts returning `504 Gateway Timeout`. The rest work fine. Which one breaks is **different every time** — sometimes console, sometimes aspire. Force-Redeploy without cache does not fix it. The backend container is `Up (healthy)`, internal `curl http://localhost:8080/...` returns 200 in <5ms, direct `curl` from host to any container IP returns 200, but HTTPS through Traefik hangs.
 
-**Cause.** Traefik's dynamic router store can hold a stale entry for the host pointing at a dead container after a redeploy or a rapid label change. The router exists — Traefik resolves the host — but the upstream IP is gone, hence the timeout (request enters Traefik, never leaves).
+This entry is long because figuring it out was long. Read before changing anything in `networks:` or `labels:`.
 
-**Diagnosis.**
+### Root cause
+
+Traefik's Docker provider, in the absence of a `traefik.docker.network` label, picks **any** Docker network the backend container is a member of and uses that network's IP as the upstream. If the chosen network does not also contain `coolify-proxy`, every SYN the proxy sends to that IP disappears into the bridge with no return path, and the HTTP handler sits waiting forever.
+
+In our initial deploy each gateway container ended up in **three** networks simultaneously:
+
+| Network | Who created it | Contains coolify-proxy? |
+|---|---|---|
+| `coolify` | Coolify (shared) | yes |
+| `<application-UUID>` | Coolify auto-injects one per compose app | yes |
+| `<project>_default` | Docker Compose auto-created from top-level | **no** |
+
+For game/meta the Docker provider happened to pick a "good" network. For the unlucky gateway it picked `_default` → request enters Traefik, never leaves. That is the flaky Gateway Timeout.
+
+### How we proved it
+
+The decisive evidence is a `tcpdump` inside the `coolify-proxy` network namespace while curl'ing the broken HTTPS endpoint:
+
 ```bash
-# enumerate routers Traefik thinks exist for this host
-sudo docker exec coolify-proxy wget -qO- http://127.0.0.1:8080/api/http/routers \
-  | python3 -m json.tool | grep -iC2 console.minesleader
-
-# scan host for label collisions on the same hostname
-sudo docker ps --format "{{.Names}}" | while read c; do
-  sudo docker inspect "$c" --format '{{range $k,$v := .Config.Labels}}{{$k}}={{$v}} {{end}}' \
-    | grep -q "console.minesleader.xyz" && echo "=== $c ==="
-done
+PID=$(sudo docker inspect coolify-proxy --format '{{.State.Pid}}')
+sudo nsenter -t $PID -n tcpdump -nni any 'port 8080' -c 20
 ```
 
-If you see two `===` lines, two containers are competing for the host — kill the orphan. If only one and the router still misroutes:
+On the proxy side you see repeated `[S]` (SYN) packets to `10.0.4.8:8080` (the backend's address in `<project>_default`) with no SYN-ACK ever coming back. On the backend's namespace you see zero packets from the proxy IP — the SYNs never arrive there, because the proxy has no route into `_default`.
 
-**Fix.** Restart the proxy (briefly drops every site for 5-10s):
-```bash
-sudo docker restart coolify-proxy
+The full investigation (all three networks enumerated via `docker network inspect`, proxy-reachable networks via `docker inspect coolify-proxy --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'`, proof that internal `curl localhost:8080` works) is documented in progress notes.
+
+### Why the obvious fixes did not work
+
+- **"Just restart coolify-proxy."** Symptom returned on the next Redeploy because the root cause (non-deterministic network pick) persists.
+- **Top-level `networks.default: {external: true, name: coolify}`** (alias the compose default to the shared network). Coolify's compose pre-processor **rewrites** this — it silently substitutes its own per-application UUID network as the default and drops the `coolify` alias. Symptom moved: pgbouncer lost access to managed Postgres and `DNS lookup failed: qxeff0...` flooded its logs.
+- **Custom `mines-internal` bridge + `traefik.docker.network=${APP_UUID}` label.** The intent was to pin Traefik to the right network via a user-set Coolify env var. It does not work: Coolify does **not** perform compose variable substitution in the `labels:` section (only in `environment:`). The placeholder reaches Docker as a literal string `${APP_UUID}`, Traefik ignores the bogus label, and we are back to arbitrary network picking.
+  - **Confirmed bug**: [coollabsio/coolify#5351](https://github.com/coollabsio/coolify/issues/5351) — open since 2025-03, no fix as of 2026-04.
+  - Additional quirk: variable names with the `COOLIFY_` prefix are **reserved** — even if you add `COOLIFY_RESOURCE_UUID` via the UI, Coolify strips it and does not export it to compose. Use a neutral name like `APP_UUID` — but that still does not help because of #5351.
+
+### The fix (what is in place now)
+
+Assign the application to its own **Coolify Destination** (Servers → Destinations → Add, called `mines-leader`, backing Docker network named `mines-leader-production`). Move the application (and optionally Postgres) to that Destination from the UI.
+
+Move the managed Postgres to the same Destination as well (or create a new Postgres resource on it) so pgbouncer can reach the DB directly through the Destination network — no second network leg needed. The compose then simplifies to:
+
+```yaml
+networks:
+  mines-leader-production:
+    external: true            # single network for the whole stack
+
+services:
+  pgbouncer / silo / coordinator / meta / game / console / aspire-dashboard / resource-service / migrator:
+    networks: [mines-leader-production]
+
+  meta / game / console / aspire-dashboard:
+    labels:
+      - "traefik.docker.network=mines-leader-production"   # hardcoded name; no UUID, no substitution needed
 ```
 
-We hit this once after the rapid healthcheck-tuning redeploy cycle. A clean Redeploy from the Coolify UI fixed it without needing the proxy restart, presumably because Coolify reissues all dynamic config on Redeploy.
+Why this survives:
+- `mines-leader-production` is a dedicated Destination — **only** our containers, managed Postgres, and `coolify-proxy` are members. No neighbours, no ambiguity.
+- Every gateway is a member of exactly one network. Traefik's Docker provider has only one choice of backend IP.
+- The `traefik.docker.network` label is stable text — no `${VAR}` involved, so Coolify's broken label substitution cannot affect it.
+- pgbouncer resolves Postgres via the Destination DNS directly. Nobody touches the shared `coolify` bridge.
 
-If the symptom returns, the nuclear option is to rename the offending hostname temporarily (e.g. `admin.minesleader.xyz`) — that bypasses any cached router and confirms whether the issue is host-name-bound or container-bound.
+### Coolify limitations to remember
+
+1. **No variable substitution in `labels:`.** This is Coolify's pre-processor being incomplete. `${…}` in `environment:` works; `${…}` in `labels:` is passed through literally. If you need a variable in a label, either (a) use a Coolify magic var (`SERVICE_FQDN_…`, which Coolify itself expands into labels), or (b) hardcode the value.
+2. **`COOLIFY_*` variable names are reserved.** User-supplied env vars with that prefix are not propagated.
+3. **Top-level `networks:` aliases and `external` flags are partially overridden** by Coolify's compose pre-processor. Do not rely on aliasing `default` to a shared network — use explicit per-service `networks: [name]` lists instead.
+4. **Coolify injects a per-application `<UUID>` network** regardless of what your compose declares. Factor that in when reasoning about network membership.
+5. **Docker Compose will auto-create `<project>_default`** whenever a service has no explicit `networks:` list. Always list networks explicitly — this was the proximate trigger of the whole saga.
+
+### If the symptom returns
+
+First, rule out whether it is the same root cause:
+
+```bash
+# 1. container actually up?
+sudo docker ps --format '{{.Names}}\t{{.Status}}' | grep <svc>
+
+# 2. backend reachable from host by IP?
+IP=$(sudo docker inspect <container> --format '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}')
+for ip in $IP; do curl -sS -o /dev/null -w "$ip %{http_code}\n" --max-time 3 http://$ip:8080/; done
+
+# 3. reachable from coolify-proxy network namespace?
+sudo docker exec coolify-proxy curl -sS -o /dev/null -w "%{http_code} %{time_total}\n" --max-time 3 http://<svc>:8080/
+
+# 4. how many networks is the container in, and is proxy in the same set?
+sudo docker inspect <container> --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+sudo docker inspect coolify-proxy --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+```
+
+If step 4 shows the gateway in an extra network that the proxy is not in, that is the same class of bug again — audit `networks:` in compose.
+
+If step 3 works (proxy reaches backend by DNS name) but external HTTPS still hangs, the label check:
+
+```bash
+sudo docker inspect <container> --format '{{index .Config.Labels "traefik.docker.network"}}'
+# expect: mines-leader-production  (literal, not ${...})
+```
+
+If the literal string is `${...}`, Coolify did not substitute — hardcode the value.
+
+**Nuclear option**: move the entire application to a fresh Destination by creating a new Coolify application pointing at the same Git repo. We did this during the saga and it reset all Coolify-injected state cleanly.
 
 ## `host.docker.internal` does not resolve in pgbouncer (local only)
 

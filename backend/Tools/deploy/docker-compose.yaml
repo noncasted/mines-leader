@@ -25,15 +25,12 @@ name: mines-leader
 # redeploy. Listing `coolify` on every service below prevents Compose from
 # inventing a default network for them.
 networks:
-  # Dedicated Coolify Destination — attaches the app, `coolify-proxy`, and
-  # nothing else. Isolates our short service aliases (`silo`, `coordinator`,
-  # ...) from any other app on the same Coolify Server.
+  # Dedicated Coolify Destination — contains our whole application
+  # (app services + pgbouncer + managed Postgres + coolify-proxy) and
+  # nothing else. Keeps short service aliases unambiguous and gives
+  # Traefik's Docker provider a single deterministic network to pick
+  # the backend IP from.
   mines-leader-production:
-    external: true
-  # Coolify-managed bridge that hosts the managed Postgres container.
-  # Only pgbouncer joins it — to resolve the Postgres hostname. No gateway
-  # ever touches this shared namespace directly.
-  coolify:
     external: true
 
 x-service-build: &service-build
@@ -84,7 +81,6 @@ services:
     restart: unless-stopped
     networks:
       - mines-leader-production
-      - coolify
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
       interval: 2s
