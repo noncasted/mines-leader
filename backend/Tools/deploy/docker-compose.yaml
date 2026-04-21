@@ -181,9 +181,9 @@ services:
     labels:
       # Pin Traefik's Docker provider to the Coolify-injected per-app
       # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
-      # by Coolify at deploy time.
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
+      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
+      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
+      - "traefik.docker.network=${APP_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -213,9 +213,9 @@ services:
     labels:
       # Pin Traefik's Docker provider to the Coolify-injected per-app
       # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
-      # by Coolify at deploy time.
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
+      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
+      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
+      - "traefik.docker.network=${APP_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -253,9 +253,9 @@ services:
     labels:
       # Pin Traefik's Docker provider to the Coolify-injected per-app
       # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
-      # by Coolify at deploy time.
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
+      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
+      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
+      - "traefik.docker.network=${APP_UUID}"
     healthcheck:
       <<: *service-healthcheck
 
@@ -293,9 +293,9 @@ services:
     labels:
       # Pin Traefik's Docker provider to the Coolify-injected per-app
       # network so it never resolves backend IPs from `mines-internal`
-      # (where the proxy is not a member). COOLIFY_RESOURCE_UUID is set
-      # by Coolify at deploy time.
-      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID}"
+      # (where the proxy is not a member). APP_UUID must be set to the Coolify application UUID (it is
+      # visible in the Coolify app URL) because Coolify reserves the COOLIFY_ prefix
+      - "traefik.docker.network=${APP_UUID}"
 
   # Third-party standalone resource server — populates the dashboard Resources tab
   # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
