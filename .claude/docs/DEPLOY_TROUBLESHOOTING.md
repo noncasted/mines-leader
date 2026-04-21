@@ -145,6 +145,72 @@ If the literal string is `${...}`, Coolify did not substitute — hardcode the v
 
 **Nuclear option**: move the entire application to a fresh Destination by creating a new Coolify application pointing at the same Git repo. We did this during the saga and it reset all Coolify-injected state cleanly.
 
+## Setting up a new Coolify Compose app correctly (from scratch)
+
+This is the short version of everything the saga above taught us. Follow it whenever you add a new compose-based app to Coolify — deviating from any single step resurrects one of the failure modes above.
+
+1. **Create a dedicated Destination first.**
+   - `Servers → <your server> → Destinations → Add`
+   - Name: something human-readable, e.g. `<projectname>-production`. This becomes the Docker network name — no UUID in your compose.
+   - Do **not** reuse the default `coolify` Destination. Neighbour apps live there and their short service aliases (`silo`, `pgbouncer`, ...) will collide with yours in DNS.
+
+2. **Create every managed resource on that Destination.**
+   - Postgres / Redis / etc. → Destination = `<projectname>-production`.
+   - If the resource already exists on the default Destination, the UI cannot migrate it — drop it and recreate it on the new Destination (dump/restore data first). You cannot move it later.
+
+3. **Create the Application on the same Destination.**
+   - Build Pack: Docker Compose.
+   - Destination: `<projectname>-production`.
+   - Env vars: use any names **except** `COOLIFY_*`. That prefix is reserved — user-set values with it are silently stripped.
+
+4. **In compose, declare the Destination network as the only network.**
+   ```yaml
+   networks:
+     <projectname>-production:
+       external: true
+
+   services:
+     <every service>:
+       networks: [<projectname>-production]
+   ```
+   - Do **not** leave Compose to create a default network — always list networks explicitly on every service.
+   - Do **not** attach services to both the Destination and `coolify` unless a specific container genuinely needs to reach the shared bridge (nothing in our stack does).
+
+5. **For public-facing services, pin Traefik to the Destination.**
+   ```yaml
+   labels:
+     - "traefik.docker.network=<projectname>-production"
+   ```
+   Hardcode the name — compose `${VAR}` substitution does not work inside `labels:` (Coolify bug [#5351](https://github.com/coollabsio/coolify/issues/5351)). Paste the literal string.
+
+6. **Do not try to parameterise anything Coolify-specific.**
+   - No `${COOLIFY_RESOURCE_UUID}` (reserved prefix, stripped).
+   - No `${APP_UUID}` in `labels:` (never substituted).
+   - Hardcode Destination name and UUID-adjacent values, keep them in one clearly-commented block so future-you knows what to update.
+
+7. **Verify after first deploy.**
+   ```bash
+   # network membership sanity
+   sudo docker network inspect <projectname>-production \
+     --format '{{range .Containers}}{{.Name}}{{"\n"}}{{end}}'
+   # expect: coolify-proxy + every app container + managed DB + (possibly) UUID-injected container
+
+   # label sanity on every public service
+   for svc in meta game console aspire-dashboard; do
+     C=$(sudo docker ps --format '{{.Names}}' | grep -m1 "^$svc-")
+     echo "$svc: $(sudo docker inspect $C --format '{{index .Config.Labels "traefik.docker.network"}}')"
+   done
+   # expect: literal <projectname>-production on every line, never ${...}
+
+   # external HTTPS
+   for h in <public-hosts>; do
+     curl -sS -o /dev/null -w "$h %{http_code} %{time_total}\n" --max-time 6 https://$h/
+   done
+   # expect: 200/302/404/405, all under ~1s
+   ```
+
+If all three checks pass, the app is configured correctly and future Redeploys are deterministic.
+
 ## `host.docker.internal` does not resolve in pgbouncer (local only)
 
 **Symptom.** Local smoke test: `pgbouncer` exits with `getaddrinfo failed for host.docker.internal`. Production is unaffected.
