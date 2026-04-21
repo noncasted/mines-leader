@@ -126,13 +126,34 @@ x-service-healthcheck: &service-healthcheck   # curl -fsS /ready, interval 2s, r
 
 ```yaml
 networks:
-  coolify:
-    external: true                    # declared, not managed by this compose.
+  mines-leader-production:
+    external: true                    # Coolify Destination — sole network
 ```
 
-Every service attaches to **both** `default` (compose-created per-project bridge) and `coolify` (Coolify's shared bridge that also hosts managed Postgres). Without `coolify` the app cannot DNS-resolve `qxeff...`.
+The app, pgbouncer, managed Postgres, and `coolify-proxy` all live in a **single dedicated Coolify Destination** (`mines-leader-production`). Every service explicitly lists it:
 
-Important subtlety — Coolify **overrides** our top-level `networks: default: external: coolify` attempt. The only thing that sticks is explicit `networks: [default, coolify]` under each service block. See `DEPLOY_TROUBLESHOOTING.md`.
+```yaml
+services:
+  pgbouncer:
+    networks: [mines-leader-production]
+  silo:
+    networks: [mines-leader-production]
+  ...
+```
+
+Because neighbour apps live on the default `coolify` Destination and **not** here, short service aliases (`silo`, `coordinator`, `meta`, `pgbouncer`) stay unambiguous — no foreign container with the same name can ever shadow us in DNS.
+
+and every public-facing service pins Traefik's Docker provider:
+
+```yaml
+  meta:
+    labels:
+      - "traefik.docker.network=mines-leader-production"
+```
+
+Without this label Traefik's Docker provider picks a backend IP **arbitrarily** from all networks a container is in, which at best fluctuates per redeploy and at worst hangs the HTTPS handler. The full failure mode + why Coolify cannot substitute `${VAR}` into label values is documented under "Gateway service intermittently returns Gateway Timeout after redeploy" in `DEPLOY_TROUBLESHOOTING.md`.
+
+Getting to this shape took several iterations. Historical context and the reasoning behind the current layout lives in the same troubleshooting entry — read it before touching the networks block.
 
 ### Service graph
 
