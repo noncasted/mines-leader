@@ -10,24 +10,23 @@
 
 name: mines-leader
 
-# Single network: reuse Coolify's shared `coolify` bridge as the compose default.
+# Networks:
+#   `coolify`   — shared bridge where managed Postgres + coolify-proxy live.
+#                 We join it explicitly so pgbouncer can resolve the managed
+#                 DB hostname and the proxy can reach our gateways.
 #
-# WHY: Coolify auto-creates a per-application ingress network named `${UUID}`
-# and attaches `coolify-proxy` there, but does NOT emit a
-# `traefik.docker.network=<UUID>` label. If we additionally let compose create
-# its own `_default` network, each container ends up in THREE networks
-# (coolify, UUID, <project>_default). Traefik's Docker provider then picks a
-# backend IP arbitrarily — sometimes `_default`, where the proxy is not present
-# → the request is routed to an IP that has no return path and the HTTPS
-# handler hangs indefinitely. Symptom: one service works, another times out;
-# identity of the broken one drifts between redeploys.
-#
-# Fix: collapse everything into `coolify` (shared with proxy + managed Postgres).
-# The local overlay re-points `default` to a throwaway bridge for `docker compose up`.
+# We deliberately do NOT leave Compose to create a `<project>_default`
+# network. Reason: Coolify also attaches each container to its own
+# per-application network (named after the application UUID) where the proxy
+# is a member. If `_default` also exists, Traefik's Docker provider may pick
+# a backend IP from `_default` — a network the proxy does not belong to —
+# and every HTTPS request to that backend hangs indefinitely. Symptom: a
+# single service (console, game, etc.) randomly stops responding after a
+# redeploy. Listing `coolify` on every service below prevents Compose from
+# inventing a default network for them.
 networks:
-  default:
+  coolify:
     external: true
-    name: coolify
 
 x-service-build: &service-build
   # Compose file lives at backend/Tools/deploy/, build context is the repo root.
@@ -75,6 +74,8 @@ services:
     expose:
       - "6432"
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
       interval: 2s
@@ -95,6 +96,8 @@ services:
       pgbouncer:
         condition: service_healthy
     restart: "no"
+    networks:
+      - coolify
 
   silo:
     build:
@@ -113,6 +116,8 @@ services:
       migrator:
         condition: service_completed_successfully
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       <<: *service-healthcheck
 
@@ -133,6 +138,8 @@ services:
       silo:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       <<: *service-healthcheck
 
@@ -158,6 +165,8 @@ services:
       coordinator:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       <<: *service-healthcheck
 
@@ -182,6 +191,8 @@ services:
       coordinator:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       <<: *service-healthcheck
 
@@ -214,6 +225,8 @@ services:
       coordinator:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - coolify
     healthcheck:
       <<: *service-healthcheck
 
@@ -246,6 +259,8 @@ services:
       resource-service:
         condition: service_started
     restart: unless-stopped
+    networks:
+      - coolify
 
   # Third-party standalone resource server — populates the dashboard Resources tab
   # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
@@ -266,6 +281,8 @@ services:
     expose:
       - "80"
     restart: unless-stopped
+    networks:
+      - coolify
 
 volumes:
   aspire-dashboard-keys:
