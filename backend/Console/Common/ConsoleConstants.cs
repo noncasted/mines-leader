@@ -23,5 +23,6 @@ public static class ConsoleConstants
         public const string AuditLog = "/audit";
         public const string Discovery = "/discovery";
         public const string Deploy = "/deploy";
+        public const string Monitoring = "/monitoring";
     }
 }

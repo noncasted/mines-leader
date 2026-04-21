@@ -10,7 +10,6 @@ public static class MonitoringExtensions
         builder.AddLiveState<MatchmakingLiveData>();
         builder.AddLiveState<LiveMatchesData>();
         builder.AddLiveState<ConnectedUsersLiveData>();
-        builder.AddLiveState<SideEffectsLiveData>();
 
         return builder;
     }

@@ -105,6 +105,7 @@ public static class StateStorageExtensions
         }
 
         public Task<IReadOnlyDictionary<TKey, TValue>> Read<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
+            where TKey : notnull
             where TValue : IStateValue, new()
         {
             return storage.ReadBatch<TKey, TValue>(identities);

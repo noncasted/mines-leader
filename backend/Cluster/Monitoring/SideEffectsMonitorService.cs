@@ -1,5 +1,6 @@
 using System.Diagnostics.Metrics;
-using Cluster.Deploy;
+using Cluster.Coordination;
+using Cluster.Discovery;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
@@ -10,18 +11,23 @@ namespace Cluster.Monitoring;
 public class SideEffectsMonitorService : ILocalSetupCompleted
 {
     public SideEffectsMonitorService(
-        ILiveState<SideEffectsLiveData> liveData,
         ISideEffectsStorage storage,
+        IMessaging messaging,
+        IServiceDiscovery discovery,
         ILogger<SideEffectsMonitorService> logger)
     {
-        _liveData = liveData;
         _storage = storage;
+        _messaging = messaging;
+        _discovery = discovery;
         _logger = logger;
     }
 
-    private readonly ILiveState<SideEffectsLiveData> _liveData;
     private readonly ISideEffectsStorage _storage;
+    private readonly IMessaging _messaging;
+    private readonly IServiceDiscovery _discovery;
     private readonly ILogger<SideEffectsMonitorService> _logger;
+
+    private readonly ViewableProperty<SideEffectsLiveData> _current = new(new SideEffectsLiveData());
 
     private long _processedAccumulator;
     private long _failedAccumulator;
@@ -49,6 +55,16 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
         lifetime.Listen(() => listener.Dispose());
 
         Loop(lifetime).NoAwait();
+
+        _messaging.AddPipeRequestHandler<SideEffectsSnapshotRequest, SideEffectsSnapshotResponse>(
+            lifetime,
+            new MessagePipeServiceRequestId(_discovery.Self, typeof(SideEffectsSnapshotRequest)),
+            _ => Task.FromResult(new SideEffectsSnapshotResponse {
+                ServiceTag = _discovery.Self.Tag.ToString(),
+                ServiceId = _discovery.Self.Id,
+                Data = _current.Value,
+            }));
+
         return Task.CompletedTask;
     }
 
@@ -74,7 +90,7 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
                 var stats = await _storage.GetStats();
                 var retryEntries = await _storage.GetRetryEntries(50);
 
-                await _liveData.SetValue(new SideEffectsLiveData
+                _current.Set(new SideEffectsLiveData
                 {
                     QueueCount = stats.QueueCount,
                     ProcessingCount = stats.ProcessingCount,
@@ -96,7 +112,7 @@ public class SideEffectsMonitorService : ILocalSetupCompleted
                 _logger.LogError(e, "[SideEffectsMonitor] Failed to update live data");
             }
 
-            await Task.Delay(1000, lifetime.Token);
+            await Task.Delay(5000, lifetime.Token);
         }
     }
 }

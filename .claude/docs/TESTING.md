@@ -1,6 +1,6 @@
 # Testing — How to Run Tests & Read Their Logs
 
-**TL;DR:** Backend tests use xUnit v3 on Microsoft Testing Platform. Logs are written in UTF-16LE — convert them via `Tools/get-test-log.sh` before reading with Read tool.
+**TL;DR:** Backend tests use xUnit v3 on Microsoft Testing Platform. Logs are written in UTF-16LE — convert them via `tools/scripts/get-test-log.sh` before reading with Read tool.
 
 ---
 
@@ -89,7 +89,7 @@ xUnit v3 emits UTF-16LE logs into `**/TestResults/*.log`. The Read tool cannot p
 
 ```bash
 # 1. After tests finish, convert every UTF-16LE log into UTF-8:
-Tools/get-test-log.sh
+tools/scripts/get-test-log.sh
 
 # 2. Find converted logs:
 # Glob: **/TestResults/*.utf8.log
@@ -147,5 +147,5 @@ public class BoardTests {
 ## Reference
 
 - `backend/Tools/Tests/Tests.csproj` — canonical test project layout
-- `Tools/get-test-log.sh` — UTF-16LE → UTF-8 conversion
+- `tools/scripts/get-test-log.sh` — UTF-16LE → UTF-8 conversion
 - `.claude/docs/ERRORS.md` — error lookup table (includes test-log errors)

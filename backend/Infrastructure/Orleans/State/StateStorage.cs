@@ -40,6 +40,7 @@ public interface IStateStorage
     Task<T> Read<T>(StateIdentity identity) where T : IStateValue, new();
 
     Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
+        where TKey : notnull
         where TValue : IStateValue, new();
 
     IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
@@ -109,6 +110,7 @@ public class StateStorage : IStateStorage
 
     public async Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(
         IReadOnlyList<StateIdentity> identities)
+        where TKey : notnull
         where TValue : IStateValue, new()
     {
         if (identities.Count == 0)

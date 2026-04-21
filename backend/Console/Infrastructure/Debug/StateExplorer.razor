@@ -126,9 +126,9 @@
         UpdateFilteredGroups();
     }
 
-    private void OnSearchChanged(string value)
+    private void OnSearchChanged(string? value)
     {
-        _searchText = value;
+        _searchText = value ?? string.Empty;
         _dropdownOpen = true;
         UpdateFilteredGroups();
     }

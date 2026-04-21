@@ -182,7 +182,7 @@ public class SideEffectsStorage : ISideEffectsStorage
                 var effect = _serializer.Deserialize<ISideEffect>(payloadJson);
                 entries.Add(new SideEffectEntry { Id = id, Effect = effect, RetryCount = retryCount });
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // If deserialization fails, the entry stays in processing and will be failed later.
                 entries.Add(new SideEffectEntry

@@ -12,6 +12,9 @@
 /backend/**/[Oo]bj/
 /backend/Orchestration/Aspire/appsettings.local.json
 .telemetry/
+/publish/
+/backend/Tools/deploy/.env.local
+.env.local
 
 /server/**/x64/
 /server/**/x86/

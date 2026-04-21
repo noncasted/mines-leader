@@ -43,7 +43,7 @@ public class TaskBalancerPriorityTest
             });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
-            balancer.Run(handle.Lifetime);
+            _ = balancer.Run(handle.Lifetime);
 
             var priorities = new[] { TaskPriority.Critical, TaskPriority.High, TaskPriority.Medium, TaskPriority.Low };
             var priorityIndex = 0;

@@ -15,13 +15,13 @@ dotnet run --project backend/Orchestration/Aspire/Aspire.csproj --launch-profile
 
 IMPORTANT: `aspire run` does NOT support `--launch-profile` (known issue). Always use `dotnet run` instead.
 
-The `http` profile is required — the `https` profile needs `/https/aspnetapp.pfx` which only exists in Docker. Never reorder profiles in launchSettings.json — `https` must remain first.
+The `http` profile is the first entry in `launchSettings.json` and is what both local runs and the Coolify deploy use. All service-to-service transport is plain HTTP — no pfx/dev-cert is needed anywhere.
 
 ## Procedure
 
 1. Check if cluster is already running:
 ```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/benchmarks 2>/dev/null
+curl -s -o /dev/null -w "%{http_code}" http://localhost:7103/api/benchmarks 2>/dev/null
 ```
 If returns `200` — cluster is already running, skip startup.
 
@@ -34,7 +34,7 @@ Use `run_in_background=true` for the Bash tool.
 3. Poll until API is ready (up to 2 minutes):
 ```bash
 for i in $(seq 1 24); do
-  code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/benchmarks 2>/dev/null)
+  code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:7103/api/benchmarks 2>/dev/null)
   if [ "$code" = "200" ]; then echo "READY"; break; fi
   sleep 5
 done
@@ -52,8 +52,12 @@ pkill -f "Aspire.dll"
 
 | Service | Port |
 |---------|------|
-| ConsoleGateway (API + UI) | 5000 |
-| Aspire Dashboard | 15178 |
+| ConsoleGateway (API + UI) | 7103 |
+| GameGateway | 7102 |
+| MetaGateway | 7101 |
+| Coordinator | 6001 |
+| Silo (Orleans gateway HTTP) | 6002 |
+| Aspire Dashboard | 7100 |
 | PostgreSQL | 9432 |
 
 ## Requirements

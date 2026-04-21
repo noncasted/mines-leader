@@ -46,7 +46,7 @@ public class TimeLimitedRound : Service, IGameRound
     private readonly ISnapshotDiffGuard _diffGuard;
     private readonly IRoundActionService _roundActionService;
 
-    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
+    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null!);
 
     private ILifetime? _roundForcedLifetime;
     private TimeLimitedModeOptions ModeOptions => _modeOptions.Value.TimeLimited;

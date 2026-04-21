@@ -11,7 +11,7 @@ public class PostgresJsonbConverter<T> : JsonConverter<T> where T : class
     public override T ReadJson(
         JsonReader reader,
         Type objectType,
-        T existingValue,
+        T? existingValue,
         bool hasExistingValue,
         JsonSerializer serializer)
     {
@@ -31,7 +31,7 @@ public class PostgresJsonbConverter<T> : JsonConverter<T> where T : class
     }
 
 
-    public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, T? value, JsonSerializer serializer)
     {
         if (value == null)
         {

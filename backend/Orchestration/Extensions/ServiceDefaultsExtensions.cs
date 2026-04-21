@@ -60,7 +60,13 @@ public static class ServiceDefaultsExtensions
                        if (serviceName == null)
                            return;
 
-                       resourceBuilder.AddService(serviceName);
+                       var instanceId = Environment.GetEnvironmentVariable("SERVICE_INSTANCE_ID")
+                                        ?? Environment.GetEnvironmentVariable("HOSTNAME")
+                                        ?? serviceName;
+                       resourceBuilder.AddService(
+                           serviceName,
+                           autoGenerateServiceInstanceId: false,
+                           serviceInstanceId: instanceId);
                    })
                    .WithMetrics(metrics => {
                        metrics.AddAspNetCoreInstrumentation()
@@ -108,20 +114,25 @@ public static class ServiceDefaultsExtensions
         private void AddDefaultHealthChecks()
         {
             builder.Services.AddHealthChecks()
-                   .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+                   .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"])
+                   .AddCheck<OrleansReadyHealthCheck>("orleans", tags: ["ready"]);
         }
     }
 
+    private const string ReadyEndpointPath = "/ready";
+
     public static void MapDefaultEndpoints(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapHealthChecks(HealthEndpointPath);
+        app.MapHealthChecks(HealthEndpointPath);
 
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("live")
-            });
-        }
+        app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("live")
+        });
+
+        app.MapHealthChecks(ReadyEndpointPath, new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("ready")
+        });
     }
 }
