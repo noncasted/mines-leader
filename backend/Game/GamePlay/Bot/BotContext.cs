@@ -10,8 +10,8 @@ public interface IBotContext
 
 public class BotContext : IBotContext
 {
-    public IPlayer Bot { get; private set; }
-    public IPlayer Opponent { get; private set; }
+    public IPlayer Bot { get; private set; } = null!;
+    public IPlayer Opponent { get; private set; } = null!;
 
     public void Construct(IPlayer bot, IPlayer opponent)
     {

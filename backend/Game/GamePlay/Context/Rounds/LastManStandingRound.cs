@@ -47,7 +47,7 @@ public class LastManStandingRound : Service, IGameRound
     private readonly ILogger<TimeLimitedRound> _logger;
     private readonly ISessionLogger _sessionLogger;
 
-    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null);
+    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null!);
 
     private ILifetime? _roundForcedLifetime;
 

@@ -28,10 +28,10 @@ public class StateTest
         public int Inc { get; set; }
 
         [Id(1)]
-        public IGrain Grain { get; set; }
+        public IGrain Grain { get; set; } = null!;
 
         [Id(2)]
-        public TestStateA A0 { get; set; }
+        public TestStateA A0 { get; set; } = null!;
 
         public int Version => 0;
     }
@@ -43,7 +43,7 @@ public class StateTest
         public int A1 { get; set; }
 
         [Id(1)]
-        public IGrain A2 { get; set; }
+        public IGrain A2 { get; set; } = null!;
     }
 
     public interface IGrain : IGrainWithStringKey

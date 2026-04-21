@@ -10,9 +10,9 @@
         "_value": "1.0.0"
     },
     "_backend": {
-        "_environment": 0,
-        "_productionApiUrl": "https://gateway.minesleader.xyz",
-        "_localApiUrl": "http://localhost:5003"
+        "_environment": 1,
+        "_productionApiUrl": "https://meta.minesleader.xyz",
+        "_localApiUrl": "http://localhost:7101"
     },
     "_platform": {
         "_platform": 110

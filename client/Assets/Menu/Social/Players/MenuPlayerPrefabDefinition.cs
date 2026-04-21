@@ -14,7 +14,7 @@ namespace Menu.Social
     [PrefabDefinition]
     public static class MenuPlayerPrefab
     {
-        private const string CharacterPsd = "Assets/Menu/Artowrk/Player/main_menu_character.psd";
+        private const string CharacterPsd = "Assets/Menu/Artwork/Player/main_menu_character.psd";
         private const string FontBitach = "Assets/Common/Artwork/BITACH SDF.asset";
 
         public static void Define(PrefabBuilder builder)

@@ -150,10 +150,28 @@ public class ClusterParticipantStartup : BackgroundService
 
         async Task<Guid> AcquireDeployId(IReadOnlyLifetime lf)
         {
+            var missingSince = (DateTime?)null;
+            var warnThreshold = TimeSpan.FromSeconds(5);
+
             while (lf.IsTerminated == false)
             {
                 try
                 {
+                    if (await _messaging.IsPipeExists(DeployIdPipe.Id) == false)
+                    {
+                        missingSince ??= DateTime.UtcNow;
+
+                        if (DateTime.UtcNow - missingSince.Value >= warnThreshold)
+                            _logger.LogWarning(
+                                "[Startup] {Service} deploy id pipe observer is missing for {Elapsed}s, still waiting",
+                                serviceName, (DateTime.UtcNow - missingSince.Value).TotalSeconds);
+
+                        await Task.Delay(TimeSpan.FromSeconds(0.2), cancellation);
+                        continue;
+                    }
+
+                    missingSince = null;
+
                     var response = await _messaging.SendPipe<DeployIdResponse>(DeployIdPipe.Id, new DeployIdRequest());
 
                     if (response.DeployId != Guid.Empty)

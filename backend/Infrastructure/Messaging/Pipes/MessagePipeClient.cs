@@ -12,6 +12,8 @@ public interface IRuntimePipeClient
 
     Task<TResponse> Send<TResponse>(IRuntimePipeId id, object message);
 
+    Task<bool> Exists(IRuntimePipeId id);
+
     Task AddHandler<TRequest, TResponse>(
         IReadOnlyLifetime lifetime,
         IRuntimePipeId id,
@@ -78,6 +80,19 @@ public class RuntimePipeClient : IRuntimePipeClient
 
     private static bool IsTransient(Exception e) =>
         e is not (InvalidCastException or ArgumentException or NotSupportedException);
+
+    public async Task<bool> Exists(IRuntimePipeId id)
+    {
+        try
+        {
+            return await GetPipe(id).HasObserver();
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e, "[Messaging] [Pipe] Exists check for {PipeId} failed", id.ToRaw());
+            return false;
+        }
+    }
 
     public async Task AddHandler<TRequest, TResponse>(
         IReadOnlyLifetime lifetime,

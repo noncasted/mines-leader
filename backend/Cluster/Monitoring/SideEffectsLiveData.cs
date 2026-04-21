@@ -1,6 +1,17 @@
 namespace Cluster.Monitoring;
 
 [GenerateSerializer]
+public class SideEffectsSnapshotRequest { }
+
+[GenerateSerializer]
+public class SideEffectsSnapshotResponse
+{
+    [Id(0)] public string ServiceTag { get; set; } = "";
+    [Id(1)] public Guid ServiceId { get; set; }
+    [Id(2)] public SideEffectsLiveData Data { get; set; } = new();
+}
+
+[GenerateSerializer]
 public class SideEffectsLiveData
 {
     [Id(0)] public int QueueCount { get; set; }

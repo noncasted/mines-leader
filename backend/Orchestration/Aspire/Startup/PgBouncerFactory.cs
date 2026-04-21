@@ -10,6 +10,8 @@ public record PgBouncerResult
     public required IResourceBuilder<ContainerResource> Resource { get; init; }
 }
 
+// Dev-only sidecar pooling in front of the Aspire-managed Postgres container.
+// In production pgbouncer is a first-class compose service, not driven from here.
 public static class PgBouncerFactory
 {
     public static PgBouncerResult Create(IDistributedApplicationBuilder builder, DbUpstream db)
@@ -22,6 +24,9 @@ public static class PgBouncerFactory
 
         File.WriteAllText(databasesIniPath,
             $"[databases]\n* = host={db.Host} port={db.Port}\n");
+
+        File.WriteAllText(pgbouncerUserlistPath,
+            $"\"{db.User}\" \"{db.Password}\"\n");
 
         const string pgbouncerHealthCheckName = "pgbouncer-tcp";
 
@@ -46,10 +51,8 @@ public static class PgBouncerFactory
                                .WithBindMount(databasesIniPath, "/etc/pgbouncer/databases.ini", isReadOnly: true)
                                .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
                                .WithHealthCheck(pgbouncerHealthCheckName)
-                               .WithLifetime(ContainerLifetime.Persistent);
-
-        if (db.PostgresResource != null)
-            pgbouncer.WaitFor(db.PostgresResource);
+                               .WithLifetime(ContainerLifetime.Persistent)
+                               .WaitFor(db.PostgresResource);
 
         return new PgBouncerResult { Port = pgbouncerPort, Resource = pgbouncer };
     }

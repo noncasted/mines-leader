@@ -3,6 +3,7 @@
     <PropertyGroup>
         <AssemblyName>MetaGateway</AssemblyName>
         <RootNamespace>MetaGateway</RootNamespace>
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

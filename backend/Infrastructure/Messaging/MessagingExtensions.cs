@@ -80,6 +80,11 @@ public static class MessagingExtensions
             return messaging.RuntimePipe.Send<TResponse>(id, message);
         }
 
+        public Task<bool> IsPipeExists(IRuntimePipeId id)
+        {
+            return messaging.RuntimePipe.Exists(id);
+        }
+
         public Task PublishChannel(IRuntimeChannelId id, object message)
         {
             return messaging.RuntimeChannel.Publish(id, message);

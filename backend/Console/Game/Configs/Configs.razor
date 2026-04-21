@@ -273,11 +273,11 @@
 
     private async Task Save()
     {
-        CardConfigs.SetValue(_cardsValue);
-        BotConfig.SetValue(_botValue);
-        GameModeConfig.SetValue(_gameModeValue);
-        RatingConfig.SetValue(_ratingValue);
-        LootProgressionConfig.SetValue(_lootProgressionValue);
+        await CardConfigs.SetValue(_cardsValue);
+        await BotConfig.SetValue(_botValue);
+        await GameModeConfig.SetValue(_gameModeValue);
+        await RatingConfig.SetValue(_ratingValue);
+        await LootProgressionConfig.SetValue(_lootProgressionValue);
         await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression)");
         ToastService.Success("Configs saved", "Saved");
     }
@@ -313,7 +313,7 @@
         {
             var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
             var fullPath = Path.GetFullPath(configPath);
-            var json = JsonUtils.Serialize(value)!;
+            var json = JsonUtils.Serialize(value!)!;
             await File.WriteAllTextAsync(fullPath, json);
         }
     }

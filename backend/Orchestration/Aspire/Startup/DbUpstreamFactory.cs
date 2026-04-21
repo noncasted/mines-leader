@@ -10,30 +10,15 @@ public record DbUpstream
     public required string Database { get; init; }
     public required string User { get; init; }
     public required string Password { get; init; }
-    public required IResourceBuilder<ContainerResource>? PostgresResource { get; init; }
+    public required IResourceBuilder<ContainerResource> PostgresResource { get; init; }
 }
 
+// Dev-only: AppHost spins up a local Postgres container for `aspire run`. Production uses
+// an external Postgres via docker-compose.yaml — AppHost never runs there.
 public static class DbUpstreamFactory
 {
     public static DbUpstream Create(IDistributedApplicationBuilder builder, IConfigurationManager configuration)
     {
-        var externalDb = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-
-        if (externalDb != null)
-        {
-            var parts = ParseConnString(externalDb);
-
-            return new DbUpstream
-            {
-                Host = ResolveHost(parts.GetValueOrDefault("Host") ?? parts["Server"]),
-                Port = int.Parse(parts["Port"]),
-                Database = parts["Database"],
-                User = parts.GetValueOrDefault("Username") ?? parts["User Id"],
-                Password = parts["Password"],
-                PostgresResource = null
-            };
-        }
-
         var localDb = configuration.GetConnectionString("db").ThrowIfNull();
         var local = ParseConnString(localDb);
 
@@ -70,10 +55,5 @@ public static class DbUpstreamFactory
                .Select(p => p.Split('=', 2))
                .Where(p => p.Length == 2)
                .ToDictionary(p => p[0].Trim(), p => p[1].Trim(), StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static string ResolveHost(string host)
-    {
-        return host is "localhost" or "127.0.0.1" ? "host.docker.internal" : host;
     }
 }

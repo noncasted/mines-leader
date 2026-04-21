@@ -64,7 +64,7 @@ Fast reference table for common errors, their causes, and fixes.
 | Error / Symptom | Root Cause | Key File | Fix |
 |---|---|---|---|
 | `--filter "FullyQualifiedName~..."` is silently ignored | xUnit v2 syntax, dropped in v3 | [TESTING.md](TESTING.md) | Use `-- --filter-class "*ClassName"` (note the `--` separator) |
-| `TestResults/*.log` unreadable (mojibake / binary garbage) | xUnit v3 writes UTF-16LE, Read tool cannot parse | [TESTING.md](TESTING.md) | Run `Tools/get-test-log.sh`, then Read `*.utf8.log` files |
+| `TestResults/*.log` unreadable (mojibake / binary garbage) | xUnit v3 writes UTF-16LE, Read tool cannot parse | [TESTING.md](TESTING.md) | Run `tools/scripts/get-test-log.sh`, then Read `*.utf8.log` files |
 | No log files created after `dotnet test` | Missing `UseMicrosoftTestingPlatformRunner` in .csproj | [TESTING.md](TESTING.md) | Add `<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>` + `<OutputType>Exe</OutputType>` |
 | Tests hang / timeout | Deadlock, infinite loop, bad SQL, `Task.Delay` as wait | [TESTING.md](TESTING.md) | Find root cause in code; never increase timeouts blindly |
 | `xunit.runner.json` settings ignored | File not copied to output | [TESTING.md](TESTING.md) | Add `<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>` |

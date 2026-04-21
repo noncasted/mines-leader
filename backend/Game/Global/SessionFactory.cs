@@ -232,8 +232,8 @@ public class SessionFactory : ISessionFactory
             await session.AllUsersConnected.WaitInvoke(session.Lifetime);
             var handle = provider.GetRequiredService<MatchHandle>();
 
-            Task.Run(() => handle.Process());
-            Task.Run(() => botRunner.Run(bot));
+            _ = Task.Run(() => handle.Process());
+            _ = Task.Run(() => botRunner.Run(bot));
 
             _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
                 session.Id, createOptions);

@@ -9,6 +9,7 @@ public interface IRuntimePipe : IGrainWithStringKey
 {
     Task BindObserver(IRuntimePipeObserver observer);
     Task<TResponse> Send<TResponse>(object message);
+    Task<bool> HasObserver();
 }
 
 [Reentrant]
@@ -46,6 +47,11 @@ public class RuntimePipe : Grain, IRuntimePipe
         _observer = observer;
         _setDate = DateTime.UtcNow;
         return Task.CompletedTask;
+    }
+
+    public Task<bool> HasObserver()
+    {
+        return Task.FromResult(_observer != null);
     }
 
     public async Task<TResponse> Send<TResponse>(object message)
@@ -95,8 +101,6 @@ public class RuntimePipe : Grain, IRuntimePipe
         }
         catch (Exception ex)
         {
-            DiscardObserverIfSame(observer);
-
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
             _logger.LogError(ex,

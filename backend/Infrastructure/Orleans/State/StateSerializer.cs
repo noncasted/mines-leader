@@ -66,9 +66,9 @@ public class GrainIdConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType) => objectType == typeof(GrainId);
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        var id = (GrainId)value;
+        var id = (GrainId)value!;
         writer.WriteStartObject();
         writer.WritePropertyName("key");
         var key = $"{id.Type}:{id.Key}";
@@ -76,7 +76,7 @@ public class GrainIdConverter : JsonConverter
         writer.WriteEndObject();
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         var json = JObject.Load(reader);
         var raw = json["key"]!.ToObject<string>()!;
@@ -105,7 +105,7 @@ public class GrainReferenceJsonConverter : JsonConverter
         return AddressableType.IsAssignableFrom(objectType);
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
 
         GrainReference context = value switch
@@ -113,7 +113,7 @@ public class GrainReferenceJsonConverter : JsonConverter
             GrainReference reference => reference,
             Grain grain => grain.GrainContext.GrainReference,
             IGrainBase grainBase => grainBase.GrainContext.GrainReference,
-            _ => throw new InvalidOperationException($"Unsupported type {value.GetType()} for grain reference")
+            _ => throw new InvalidOperationException($"Unsupported type {value?.GetType()} for grain reference")
         };
 
         var id = context.GrainId;
@@ -122,7 +122,7 @@ public class GrainReferenceJsonConverter : JsonConverter
         writer.WriteValue(raw);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         var json = JToken.Load(reader);
         var raw = json.Value<string>()!;

@@ -31,7 +31,7 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
     public TransactionContext? Context { get; set; }
 
     [Id(1)]
-    public IAddressable Target { get; set; }
+    public IAddressable Target { get; set; } = null!;
 
     async Task IOutgoingGrainCallFilter.Invoke(IOutgoingGrainCallContext context)
     {
@@ -134,7 +134,7 @@ public sealed class TransactionResponse : Response
         set => Response.Result = value;
     }
 
-    public override Exception Exception
+    public override Exception? Exception
     {
         get
         {
@@ -144,10 +144,10 @@ public sealed class TransactionResponse : Response
             return null;
         }
 
-        set => Response.Exception = value;
+        set => Response.Exception = value!;
     }
 
-    public Exception GetException() => Response.Exception;
+    public Exception? GetException() => Response.Exception;
 
     public override void Dispose()
     {

@@ -1,4 +1,5 @@
 ﻿using Benchmarks;
+using Cluster;
 using Cluster.Configs;
 using Cluster.Coordination;
 using Cluster.Deploy;
@@ -36,6 +37,10 @@ public static class ProjectsSetupExtensions
             // Cluster services
             builder
                 .AddBase(ServiceTag.Coordinator);
+
+            // Coordinator-specific readiness: deploy identity assigned by DeployIdentity BackgroundService
+            builder.Services.AddHealthChecks()
+                   .AddCheck<CoordinatorReadyHealthCheck>("coordinator-deploy", tags: ["ready"]);
 
             // Project services
             builder.Add<ClusterConfigsSetup>()
@@ -104,9 +109,6 @@ public static class ProjectsSetupExtensions
 
             builder.Add<SideEffectsWorker>()
                    .As<IHostedService>();
-
-            builder.Services.Add<SideEffectsMonitorService>()
-                   .As<ILocalSetupCompleted>();
 
             return builder;
         }
@@ -177,7 +179,8 @@ public static class ProjectsSetupExtensions
                 .AddSideEffects()
                 .AddStates()
                 .AddMonitoring()
-                .AddUserServices();
+                .AddUserServices()
+                .AddHeapDiagnostics();
 
             builder.AddBotServices();
 
@@ -205,6 +208,9 @@ public static class ProjectsSetupExtensions
         {
             builder.Add<SideEffectsStorage>()
                    .As<ISideEffectsStorage>();
+
+            builder.Services.Add<SideEffectsMonitorService>()
+                             .As<ILocalSetupCompleted>();
 
             return builder;
         }

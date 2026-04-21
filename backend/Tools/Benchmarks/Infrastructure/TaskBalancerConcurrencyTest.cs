@@ -42,7 +42,7 @@ public class TaskBalancerConcurrencyTest
             });
 
             var balancer = new TaskBalancer(queue, NullLogger<TaskBalancer>.Instance, config);
-            balancer.Run(handle.Lifetime);
+            _ = balancer.Run(handle.Lifetime);
 
             await handle.RunConcurrentIterations(payload, Process);
 

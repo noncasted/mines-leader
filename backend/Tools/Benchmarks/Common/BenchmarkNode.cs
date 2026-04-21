@@ -16,7 +16,7 @@ public abstract class BenchmarkNode<TPayload> : ICoordinatorSetupCompleted
 
     private readonly ClusterTestUtils _utils;
 
-    private ILifetime _testLifetime;
+    private ILifetime _testLifetime = null!;
 
     public IMessaging Messaging => _utils.Messaging;
     public IServiceEnvironment Environment => _utils.Environment;
@@ -46,7 +46,7 @@ public abstract class BenchmarkNode<TPayload> : ICoordinatorSetupCompleted
             payload = (TPayload)request.Payload;
 
         _testLifetime = new Lifetime();
-        Run(_testLifetime, payload).NoAwait();
+        Run(_testLifetime, payload!).NoAwait();
         return new ClusterTestNodeMessages.StartResponse();
     }
 

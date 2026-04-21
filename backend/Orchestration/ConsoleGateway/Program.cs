@@ -2,6 +2,8 @@ using System.Security.Claims;
 using BlazorBlueprint.Components;
 using Console;
 using Console.Home;
+using Console.Infrastructure.Monitoring;
+using Console.Infrastructure.SideEffects;
 using ConsoleGateway;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -15,6 +17,11 @@ builder.SetupConsole();
 builder.AddCommonConsoleComponents();
 builder.Services.AddBlazorBlueprintComponents();
 builder.Services.AddSingleton<IAuditLogStorage, AuditLogStorage>();
+builder.Services.AddSingleton<IHeapReportStorage, HeapReportStorage>();
+builder.Services.AddSingleton<HeapReportCollector>();
+builder.Services.AddSingleton<SideEffectsAggregatorService>();
+builder.Services.AddSingleton<ISideEffectsAggregator>(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
 
 var consoleToken = Environment.GetEnvironmentVariable("CONSOLE_TOKEN") ?? "";
 var authEnabled = !string.IsNullOrEmpty(consoleToken) && consoleToken != defaultToken;
@@ -41,7 +48,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 if (authEnabled)
 {
@@ -54,8 +60,11 @@ if (authEnabled)
         var path = context.Request.Path.Value ?? "";
         var isLoginPath = path.StartsWith("/login", StringComparison.OrdinalIgnoreCase);
         var isStaticPath = path.StartsWith("/_") || path.StartsWith("/css") || path.StartsWith("/styles");
+        var isHealthPath = path.Equals("/health", StringComparison.OrdinalIgnoreCase)
+                           || path.Equals("/alive", StringComparison.OrdinalIgnoreCase)
+                           || path.Equals("/ready", StringComparison.OrdinalIgnoreCase);
 
-        if (!isStaticPath && !isLoginPath && context.User.Identity?.IsAuthenticated != true)
+        if (!isStaticPath && !isLoginPath && !isHealthPath && context.User.Identity?.IsAuthenticated != true)
         {
             context.Response.Redirect(ConsoleConstants.Pages.Login);
             return;
@@ -128,6 +137,7 @@ if (authEnabled)
 }
 
 app.AddBenchmarkEndpoints();
+app.MapDefaultEndpoints();
 
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode()

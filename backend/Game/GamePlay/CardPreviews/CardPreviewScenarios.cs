@@ -338,5 +338,5 @@ public static class CardPreviewScenarios
         }
     }
 
-    private static IReadOnlyDictionary<CardType, Scenario> _expanded;
+    private static IReadOnlyDictionary<CardType, Scenario>? _expanded;
 }

@@ -1,0 +1,288 @@
+# Production deployment for Coolify.
+#
+# Deploy via Coolify → Build Pack: Docker Compose → Compose Location: /backend/Tools/deploy/docker-compose.yaml.
+# Configure environment variables in the Coolify UI (see .env.example / backend/Tools/deploy/COOLIFY.md).
+#
+# Local smoke test (run from repo root):
+#   docker compose --env-file backend/Tools/deploy/.env.local \
+#     -f backend/Tools/deploy/docker-compose.yaml \
+#     -f backend/Tools/deploy/docker-compose.local.yaml up --build
+
+name: mines-leader
+
+# Each service joins Coolify's shared bridge network in addition to the default
+# compose one — managed Postgres lives in `coolify`, so this is the only way to
+# resolve its internal hostname. Declaring it external tells Compose not to
+# create/own the network.
+networks:
+  coolify:
+    external: true
+
+x-service-build: &service-build
+  # Compose file lives at backend/Tools/deploy/, build context is the repo root.
+  context: ../../..
+  dockerfile: ./backend/Orchestration/Dockerfile
+
+x-service-env: &service-env
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_URLS: http://0.0.0.0:8080
+  ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+  DOTNET_RUNNING_IN_CONTAINER: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+  OTEL_EXPORTER_OTLP_HEADERS: "x-otlp-api-key=${OTEL_API_KEY:-dev-otlp-key}"
+  OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
+  ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+  postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+
+x-service-healthcheck: &service-healthcheck
+  test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ready || exit 1"]
+  interval: 2s
+  timeout: 3s
+  retries: 60
+  start_period: 10s
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      LISTEN_PORT: "6432"
+      POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
+      MAX_CLIENT_CONN: "200"
+      DEFAULT_POOL_SIZE: "20"
+      SERVER_TLS_SSLMODE: prefer
+    extra_hosts:
+      # Allow DB_HOST=host.docker.internal to resolve to the Docker host on Linux.
+      # Safe on macOS/Windows where the name is built-in.
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "6432"
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  migrator:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: DeploySetup
+    image: mines-leader/migrator:latest
+    environment:
+      ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+      postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - default
+      - coolify
+
+  silo:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: Silo
+    image: mines-leader/silo:latest
+    environment:
+      <<: *service-env
+      SERVICE_NAME: silo
+    expose:
+      - "8080"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      <<: *service-healthcheck
+
+  coordinator:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: Coordinator
+    image: mines-leader/coordinator:latest
+    environment:
+      <<: *service-env
+      SERVICE_NAME: coordinator
+    expose:
+      - "8080"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      <<: *service-healthcheck
+
+  meta:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: MetaGateway
+    image: mines-leader/meta:latest
+    environment:
+      <<: *service-env
+      SERVICE_NAME: meta
+      # Coolify magic var: generates https://meta-<hash>.<coolify-domain> automatically
+      # Override in Coolify UI with a custom domain, e.g. SERVICE_FQDN_META_8080=https://meta.yourdomain.com
+      SERVICE_FQDN_META_8080: /
+    expose:
+      - "8080"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      <<: *service-healthcheck
+
+  game:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: GameGateway
+    image: mines-leader/game:latest
+    environment:
+      <<: *service-env
+      SERVICE_NAME: game
+      GAME_SERVER_URL: ${GAME_SERVER_URL}
+      SERVICE_FQDN_GAME_8080: /
+    expose:
+      - "8080"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      <<: *service-healthcheck
+
+  console:
+    build:
+      <<: *service-build
+      args:
+        ASSEMBLY_NAME: ConsoleGateway
+    image: mines-leader/console:latest
+    environment:
+      <<: *service-env
+      SERVICE_NAME: console
+      CONSOLE_TOKEN: ${CONSOLE_TOKEN}
+      SERVICE_FQDN_CONSOLE_8080: /
+    expose:
+      - "8080"
+    user: root
+    volumes:
+      # Persist DataProtection keyring across redeploys.
+      # Blazor antiforgery + auth cookies are encrypted with these keys; without
+      # persistence every redeploy invalidates browser cookies and form POSTs
+      # fail with AntiforgeryValidationException → buttons stop working.
+      # `user: root` because the aspnet base image may drop privileges.
+      - console-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+    healthcheck:
+      <<: *service-healthcheck
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+    environment:
+      DASHBOARD__FRONTEND__AUTHMODE: BrowserToken
+      DASHBOARD__FRONTEND__BROWSERTOKEN: ${ASPIRE_TOKEN:-dev-token}
+      DASHBOARD__OTLP__AUTHMODE: ApiKey
+      DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:-dev-otlp-key}
+      DASHBOARD__OTLP__ENDPOINTURL: http://0.0.0.0:18889
+      DASHBOARD__FRONTEND__ENDPOINTURLS: http://0.0.0.0:18888
+      # Fetch resource list (Resources tab) from the standalone resource service over Docker socket.
+      DASHBOARD__RESOURCESERVICECLIENT__AUTHMODE: Unsecured
+      DASHBOARD__RESOURCESERVICECLIENT__URL: http://resource-service:80
+      SERVICE_FQDN_ASPIREDASHBOARD_18888: /
+    expose:
+      - "18888"
+      - "18889"
+    user: root
+    volumes:
+      # Persist DataProtection keyring across redeploys.
+      # Without it, every container restart generates a new keyring → all
+      # ProtectedBrowserStorage cookies set by the previous instance become
+      # undecryptable and every dashboard page throws CryptographicException.
+      # `user: root` is required because the aspire-dashboard image runs as a
+      # non-root user by default and cannot write to /root/.aspnet/.
+      - aspire-dashboard-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      resource-service:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+
+  # Third-party standalone resource server — populates the dashboard Resources tab
+  # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
+  # Source: https://github.com/kiapanahi/Aspire.ResourceServer.Standalone
+  resource-service:
+    build:
+      # Fork adds optional COMPOSE_PROJECT_FILTER env to scope resources to one compose project.
+      # Upstream: https://github.com/kiapanahi/Aspire.ResourceServer.Standalone
+      context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#ba56b364bfb7d56262e984c476071a811af07c5a
+    image: mines-leader/resource-service:ba56b36
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:80
+      ResourceProvider: docker
+      COMPOSE_PROJECT_FILTER: ${COMPOSE_PROJECT_NAME:-mines-leader}
+    volumes:
+      # Read-only docker socket is enough: provider only lists/watches/reads logs.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - default
+      - coolify
+
+volumes:
+  aspire-dashboard-keys:
+  console-keys:
