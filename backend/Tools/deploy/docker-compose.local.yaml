@@ -13,13 +13,12 @@
 # no Coolify bridge, so stub `coolify` out with a disposable local bridge and
 # keep `mines-internal` as the isolated internal one.
 networks:
-  mines-internal:
+  mines-leader-production:
     name: mines-leader-local
     driver: bridge
   coolify:
     name: mines-leader-local-coolify
     driver: bridge
-    external: false
 
 services:
   migrator:

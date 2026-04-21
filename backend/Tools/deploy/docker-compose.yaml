@@ -25,16 +25,14 @@ name: mines-leader
 # redeploy. Listing `coolify` on every service below prevents Compose from
 # inventing a default network for them.
 networks:
-  # Internal bridge for intra-cluster traffic (Orleans, pgbouncer clients,
-  # OTel). Isolated from the shared `coolify` bridge so service-name aliases
-  # (`silo`, `coordinator`, `meta`, ...) stay unique to this compose project
-  # and cannot collide with a neighbour app that happens to use the same
-  # names.
-  mines-internal:
-    driver: bridge
-  # Coolify-managed bridge where the managed Postgres and `coolify-proxy`
-  # live. Only pgbouncer joins it (so it can resolve the Postgres hostname)
-  # — no gateway ever reaches the shared namespace directly.
+  # Dedicated Coolify Destination — attaches the app, `coolify-proxy`, and
+  # nothing else. Isolates our short service aliases (`silo`, `coordinator`,
+  # ...) from any other app on the same Coolify Server.
+  mines-leader-production:
+    external: true
+  # Coolify-managed bridge that hosts the managed Postgres container.
+  # Only pgbouncer joins it — to resolve the Postgres hostname. No gateway
+  # ever touches this shared namespace directly.
   coolify:
     external: true
 
@@ -85,7 +83,7 @@ services:
       - "6432"
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
       - coolify
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
@@ -108,7 +106,7 @@ services:
         condition: service_healthy
     restart: "no"
     networks:
-      - mines-internal
+      - mines-leader-production
 
   silo:
     build:
@@ -128,7 +126,7 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     healthcheck:
       <<: *service-healthcheck
 
@@ -150,7 +148,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     healthcheck:
       <<: *service-healthcheck
 
@@ -177,17 +175,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-application
-      # network (named after the app UUID) so it never resolves a backend IP
-      # from `mines-internal`, where coolify-proxy is not a member and every
-      # request would hang. The UUID is hardcoded because Coolify does NOT
-      # perform compose-style `${VAR}` substitution in label values (only in
-      # environment: blocks) — there is no way to parameterise this from the
-      # Coolify UI. If the application is recreated in Coolify, update the
-      # four occurrences below to the new UUID visible in the app URL.
-      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
+      # Pin Traefik's Docker provider to our dedicated Destination network.
+      # Needed because a service may be on multiple networks and Traefik
+      # otherwise selects a backend IP arbitrarily — sometimes from a
+      # network where the proxy is not a member.
+      - "traefik.docker.network=mines-leader-production"
     healthcheck:
       <<: *service-healthcheck
 
@@ -213,17 +207,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-application
-      # network (named after the app UUID) so it never resolves a backend IP
-      # from `mines-internal`, where coolify-proxy is not a member and every
-      # request would hang. The UUID is hardcoded because Coolify does NOT
-      # perform compose-style `${VAR}` substitution in label values (only in
-      # environment: blocks) — there is no way to parameterise this from the
-      # Coolify UI. If the application is recreated in Coolify, update the
-      # four occurrences below to the new UUID visible in the app URL.
-      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
+      # Pin Traefik's Docker provider to our dedicated Destination network.
+      # Needed because a service may be on multiple networks and Traefik
+      # otherwise selects a backend IP arbitrarily — sometimes from a
+      # network where the proxy is not a member.
+      - "traefik.docker.network=mines-leader-production"
     healthcheck:
       <<: *service-healthcheck
 
@@ -257,17 +247,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-application
-      # network (named after the app UUID) so it never resolves a backend IP
-      # from `mines-internal`, where coolify-proxy is not a member and every
-      # request would hang. The UUID is hardcoded because Coolify does NOT
-      # perform compose-style `${VAR}` substitution in label values (only in
-      # environment: blocks) — there is no way to parameterise this from the
-      # Coolify UI. If the application is recreated in Coolify, update the
-      # four occurrences below to the new UUID visible in the app URL.
-      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
+      # Pin Traefik's Docker provider to our dedicated Destination network.
+      # Needed because a service may be on multiple networks and Traefik
+      # otherwise selects a backend IP arbitrarily — sometimes from a
+      # network where the proxy is not a member.
+      - "traefik.docker.network=mines-leader-production"
     healthcheck:
       <<: *service-healthcheck
 
@@ -301,17 +287,13 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
     labels:
-      # Pin Traefik's Docker provider to the Coolify-injected per-application
-      # network (named after the app UUID) so it never resolves a backend IP
-      # from `mines-internal`, where coolify-proxy is not a member and every
-      # request would hang. The UUID is hardcoded because Coolify does NOT
-      # perform compose-style `${VAR}` substitution in label values (only in
-      # environment: blocks) — there is no way to parameterise this from the
-      # Coolify UI. If the application is recreated in Coolify, update the
-      # four occurrences below to the new UUID visible in the app URL.
-      - "traefik.docker.network=zufqewcez1k024uw3hnzspzp"
+      # Pin Traefik's Docker provider to our dedicated Destination network.
+      # Needed because a service may be on multiple networks and Traefik
+      # otherwise selects a backend IP arbitrarily — sometimes from a
+      # network where the proxy is not a member.
+      - "traefik.docker.network=mines-leader-production"
 
   # Third-party standalone resource server — populates the dashboard Resources tab
   # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
@@ -333,7 +315,7 @@ services:
       - "80"
     restart: unless-stopped
     networks:
-      - mines-internal
+      - mines-leader-production
 
 volumes:
   aspire-dashboard-keys:
