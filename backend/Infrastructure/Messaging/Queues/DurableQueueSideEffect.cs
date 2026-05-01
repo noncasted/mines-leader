@@ -20,6 +20,6 @@ public class DurableQueueSideEffect : ISideEffect, ICorrelatedSideEffect
     public Task Execute(IOrleans orleans)
     {
         var queue = orleans.GetGrain<IDurableQueue>(QueueName);
-        return queue.Push(Message);
+        return queue.Push(Message, CorrelationId);
     }
 }

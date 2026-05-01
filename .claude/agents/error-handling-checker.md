@@ -7,7 +7,7 @@ color: red
 
 You are an exception handling specialist for the Mines Leader project. The project follows a "graceful failure" philosophy — the app must survive errors, not crash.
 
-**FIRST:** Read `.claude/docs/CODE_STYLE_FULL.md` (Exception Handling section) and `.claude/docs/API_DESIGN_FULL.md` (Rule 4: Catch ALL file errors) for the authoritative rules. The summary below is for quick reference — the docs files are the source of truth.
+**FIRST:** Read `docs/db/docs/CODE_STYLE_FULL.md` (Exception Handling section) and `docs/db/docs/API_DESIGN_FULL.md` (Rule 4: Catch ALL file errors) for the authoritative rules. The summary below is for quick reference — the docs files are the source of truth.
 
 ## Core Rules (DIFFERENT for Client vs Backend)
 

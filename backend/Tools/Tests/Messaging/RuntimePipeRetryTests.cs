@@ -7,34 +7,31 @@ using Xunit;
 namespace Tests.Messaging;
 
 /// <summary>
-/// Tests RuntimePipe retry with exponential backoff.
+/// Tests RuntimePipe retry boundaries: transport-style failures may retry, handler failures do not.
 /// </summary>
 [Collection(nameof(OrleansIntegrationCollection))]
 public class RuntimePipeRetryTests
     (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
 {
     [Fact]
-    public async Task Send_HandlerFailsOnceThenSucceeds_ReturnsResponse()
+    public async Task Send_HandlerFails_DoesNotRetryApplicationException()
     {
         var pipeId = new TestPipeId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
         var lifetime = new Lifetime();
         var callCount = 0;
 
-        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId, req => {
-            var attempt = Interlocked.Increment(ref callCount);
-
-            if (attempt == 1)
-                throw new Exception("transient failure");
-
-            return Task.FromResult(new TestResponse { Answer = $"ok-{attempt}" });
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId, _ => {
+            Interlocked.Increment(ref callCount);
+            return Task.FromException<TestResponse>(new InvalidOperationException("non-idempotent handler failure"));
         });
 
-        var response = await messaging.SendPipe<TestResponse>(pipeId,
-            new TestRequest { Question = "retry-me" });
+        var act = () => messaging.SendPipe<TestResponse>(pipeId,
+            new TestRequest { Question = "do-not-retry" });
 
-        response.Answer.Should().StartWith("ok");
-        callCount.Should().BeGreaterThan(1);
+        await act.Should().ThrowAsync<Exception>()
+                 .WithMessage("*non-idempotent handler failure*");
+        callCount.Should().Be(1);
         lifetime.Terminate();
     }
 

@@ -79,6 +79,19 @@ public class RuntimeChannelCatchUpTests
     }
 
     [Fact]
+    public async Task CatchUp_LastSeenGreaterThanCurrentSequence_DetectsGap()
+    {
+        var channelId = Guid.NewGuid().ToString();
+        var channel = GetGrain<IRuntimeChannel>(channelId);
+
+        var result = await channel.CatchUp(5);
+
+        result.Messages.Should().BeEmpty();
+        result.GapDetected.Should().BeTrue();
+        result.CurrentSequence.Should().Be(0);
+    }
+
+    [Fact]
     public async Task CatchUp_PayloadPreserved()
     {
         var channelId = Guid.NewGuid().ToString();

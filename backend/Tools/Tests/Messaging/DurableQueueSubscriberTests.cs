@@ -42,4 +42,25 @@ public class DurableQueueSubscriberTests
         var pushAct = () => queue.Push(new TestMessage { Text = "delivered" });
         await pushAct.Should().NotThrowAsync();
     }
+
+    [Fact]
+    public async Task Push_AllSubscribersFail_ThrowsAndRemovesFailedObservers()
+    {
+        var queueId = Guid.NewGuid().ToString();
+        var queue = GetGrain<IDurableQueue>(queueId);
+        var observer = new DurableQueueObserver(_ => {
+            throw new InvalidOperationException("subscriber failed");
+        });
+        var observerRef = GrainFactory.CreateObjectReference<IDurableQueueObserver>(observer);
+
+        await queue.AddObserver(Guid.NewGuid(), observerRef);
+
+        var act = () => queue.Push(new TestMessage { Text = "should-retry" });
+        await act.Should().ThrowAsync<InvalidOperationException>()
+                 .WithMessage("*No subscribers successfully processed*");
+
+        var subsequentAct = () => queue.Push(new TestMessage { Text = "still-no-subscriber" });
+        await subsequentAct.Should().ThrowAsync<InvalidOperationException>()
+                           .WithMessage("*No active subscribers*");
+    }
 }

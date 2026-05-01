@@ -58,13 +58,23 @@ public static class MessagingExtensions
             return messaging.DurableQueue.PushDirect(id, message);
         }
 
-        public async Task ListenDurableQueue<T>(
+        public Task ListenDurableQueue<T>(
             IReadOnlyLifetime lifetime,
             IDurableQueueId id,
             Action<T> listener)
         {
-            var consumer = await messaging.DurableQueue.GetOrCreateConsumer<T>(id);
-            consumer.Advise(lifetime, listener);
+            return messaging.DurableQueue.Listen<T>(lifetime, id, message => {
+                listener(message);
+                return Task.CompletedTask;
+            });
+        }
+
+        public Task ListenDurableQueue<T>(
+            IReadOnlyLifetime lifetime,
+            IDurableQueueId id,
+            Func<T, Task> listener)
+        {
+            return messaging.DurableQueue.Listen(lifetime, id, listener);
         }
 
         public Task AddPipeRequestHandler<TRequest, TResponse>(
@@ -90,14 +100,25 @@ public static class MessagingExtensions
             return messaging.RuntimeChannel.Publish(id, message);
         }
 
-        public async Task ListenChannel<T>(
+        public Task ListenChannel<T>(
             IReadOnlyLifetime lifetime,
             IRuntimeChannelId id,
             Action<T> listener,
             Action? onGapDetected = null)
         {
-            var consumer = await messaging.RuntimeChannel.GetOrCreateConsumer<T>(id, onGapDetected);
-            consumer.Advise(lifetime, listener);
+            return messaging.RuntimeChannel.Listen<T>(lifetime, id, message => {
+                listener(message);
+                return Task.CompletedTask;
+            }, onGapDetected);
+        }
+
+        public Task ListenChannel<T>(
+            IReadOnlyLifetime lifetime,
+            IRuntimeChannelId id,
+            Func<T, Task> listener,
+            Action? onGapDetected = null)
+        {
+            return messaging.RuntimeChannel.Listen(lifetime, id, listener, onGapDetected);
         }
     }
 

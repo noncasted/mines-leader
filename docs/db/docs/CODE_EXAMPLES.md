@@ -5,7 +5,7 @@
 All examples are in: `client/Assets/Common/Docs/Claude/`
 
 ## Lifetimes Examples
-File: [Docs_Lifetimes.cs](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs)
+File: [Docs_Lifetimes.cs](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs)
 
 | Example | Line | Topic |
 |---------|------|-------|
@@ -31,7 +31,7 @@ File: [Docs_Lifetimes.cs](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.
 | Debugging: Ungraceful | #L438 | Shutdown patterns |
 
 ## Reactive Examples
-File: [Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
+File: [Docs_Reactive.cs](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
 
 | Example | Line | Topic |
 |---------|------|-------|
@@ -55,7 +55,7 @@ File: [Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs
 | Special: ModifiableList | #L259 | Iteration-safe list |
 
 ## API Design Examples
-File: [Docs_ApiDesign.cs](../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs)
+File: [Docs_ApiDesign.cs](../../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs)
 
 | Example | Line | Topic |
 |---------|------|-------|
@@ -74,7 +74,7 @@ File: [Docs_ApiDesign.cs](../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.
 | Callback Rule | #L246 | Callback wrapping rule |
 
 ## Code Style Examples
-File: [Docs_CodeStyle.cs](../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs)
+File: [Docs_CodeStyle.cs](../../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs)
 
 | Example | Line | Topic |
 |---------|------|-------|
@@ -94,7 +94,7 @@ File: [Docs_CodeStyle.cs](../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.
 | Service Template | #L308 | Complete template |
 
 ## Container/DI Examples
-File: [Docs_Container.cs](../../client/Assets/Common/Docs/Claude/Docs_Container.cs)
+File: [Docs_Container.cs](../../../client/Assets/Common/Docs/Claude/Docs_Container.cs)
 
 | Example | Line | Topic |
 |---------|------|-------|
@@ -131,8 +131,8 @@ File: [Docs_Container.cs](../../client/Assets/Common/Docs/Claude/Docs_Container.
 
 ## Quick Links
 
-- **Lifetimes:** [Docs_Lifetimes.cs](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs) + [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
-- **Reactive:** [Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs) + [COMMON_REACTIVE_*.md](COMMON_REACTIVE_BASICS.md)
-- **API Design:** [Docs_ApiDesign.cs](../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs) + [API_DESIGN_FULL.md](API_DESIGN_FULL.md)
-- **Code Style:** [Docs_CodeStyle.cs](../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs) + [CODE_STYLE_FULL.md](CODE_STYLE_FULL.md)
-- **Container/DI:** [Docs_Container.cs](../../client/Assets/Common/Docs/Claude/Docs_Container.cs) + [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
+- **Lifetimes:** [Docs_Lifetimes.cs](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs) + [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
+- **Reactive:** [Docs_Reactive.cs](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs) + [COMMON_REACTIVE_*.md](COMMON_REACTIVE_BASICS.md)
+- **API Design:** [Docs_ApiDesign.cs](../../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs) + [API_DESIGN_FULL.md](API_DESIGN_FULL.md)
+- **Code Style:** [Docs_CodeStyle.cs](../../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs) + [CODE_STYLE_FULL.md](CODE_STYLE_FULL.md)
+- **Container/DI:** [Docs_Container.cs](../../../client/Assets/Common/Docs/Claude/Docs_Container.cs) + [COMMON_CONTAINER.md](COMMON_CONTAINER.md)

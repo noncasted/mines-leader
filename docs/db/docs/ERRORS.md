@@ -43,7 +43,7 @@ Fast reference table for common errors, their causes, and fixes.
 | Error | Cause | Key File | Fix |
 |---|---|---|---|
 | New .cs file silently not compiled | File not added to .csproj (Unity doesn't auto-discover) | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) #6 | 1. Find correct csproj: `grep -rl "SimilarFile.cs" *.csproj` 2. Add `<Compile Include="Path\To\NewFile.cs" />` inside `<ItemGroup>` |
-| Missing using statements in docs | Path reference uses old location | [TRIGGERS.md](TRIGGERS.md) | Update to `.claude/docs/` paths |
+| Missing using statements in docs | Path reference uses old location | [TRIGGERS.md](TRIGGERS.md) | Update to `docs/db/docs/` paths |
 | Compiler warning: async not awaited | Fire-and-forget without .NoAwait() | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Add `.NoAwait()` to suppress: `method().NoAwait()` |
 
 ---

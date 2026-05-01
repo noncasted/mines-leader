@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
-using Orleans.Concurrency;
 
 namespace Infrastructure;
 
@@ -45,10 +44,11 @@ public interface IRuntimeChannel : IGrainWithStringKey
     Task AddObserver(Guid id, IRuntimeChannelObserver observer);
     Task RemoveObserver(Guid id);
 
-    [AlwaysInterleave]
+    /// <summary>
+    /// Publishes messages in Orleans grain turn order. Concurrent callers should not infer ordering from caller-side task creation order.
+    /// </summary>
     Task Publish(object message);
 
-    [AlwaysInterleave]
     Task<CatchUpResult> CatchUp(long lastSeenSequence);
 }
 
@@ -113,7 +113,9 @@ public class RuntimeChannel : Grain, IRuntimeChannel
 
     public async Task Publish(object message)
     {
+        var channelName = this.GetPrimaryKeyString();
         using var activity = TraceExtensions.MessagingRuntimeChannel.StartActivity("RuntimeChannel.Publish");
+        activity?.SetTag("messaging.channel", channelName);
         activity?.SetTag("message.type", message.GetType().Name);
         activity?.SetTag("observer.count", _observers.Count);
 
@@ -123,6 +125,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         _sequenceNumber++;
         var sequenced = new SequencedMessage { Sequence = _sequenceNumber, Payload = message };
         _buffer[_sequenceNumber % _bufferSize] = sequenced;
+        activity?.SetTag("messaging.sequence", sequenced.Sequence);
 
         var toRemove = new ConcurrentBag<Guid>();
 
@@ -145,8 +148,9 @@ public class RuntimeChannel : Grain, IRuntimeChannel
                     toRemove.Add(data.Id);
                     BackendMetrics.ChannelDeliveryTimeout.Add(1);
 
-                    _logger.LogWarning("[Messaging] [Channel] Delivery timeout on {ChannelName}",
-                        this.GetPrimaryKeyString());
+                    _logger.LogWarning(
+                        "[Messaging] [Channel] Delivery timeout on {ChannelName} to observer {ObserverId} at sequence {Sequence}",
+                        channelName, data.Id, sequenced.Sequence);
                     return;
                 }
 
@@ -158,15 +162,32 @@ public class RuntimeChannel : Grain, IRuntimeChannel
                 BackendMetrics.ChannelDeliveryFailure.Add(1);
 
                 _logger.LogError(e,
-                    "[Messaging] [Channel] Delivering message from {ChannelName} to observer failed",
-                    this.GetPrimaryKeyString());
+                    "[Messaging] [Channel] Delivering message from {ChannelName} to observer {ObserverId} failed at sequence {Sequence}",
+                    channelName, data.Id, sequenced.Sequence);
             }
         }
     }
 
     public Task<CatchUpResult> CatchUp(long lastSeenSequence)
     {
-        if (lastSeenSequence >= _sequenceNumber)
+        var channelName = this.GetPrimaryKeyString();
+
+        if (lastSeenSequence > _sequenceNumber)
+        {
+            BackendMetrics.ChannelGapDetected.Add(1);
+
+            _logger.LogWarning(
+                "[Messaging] [Channel] Sequence reset/gap detected on {ChannelName}: requested seq {RequestedSeq}, current seq {CurrentSeq}",
+                channelName, lastSeenSequence, _sequenceNumber);
+
+            return Task.FromResult(new CatchUpResult
+            {
+                GapDetected = true,
+                CurrentSequence = _sequenceNumber
+            });
+        }
+
+        if (lastSeenSequence == _sequenceNumber)
         {
             return Task.FromResult(new CatchUpResult
             {
@@ -203,8 +224,8 @@ public class RuntimeChannel : Grain, IRuntimeChannel
             BackendMetrics.ChannelGapDetected.Add(1);
 
             _logger.LogWarning(
-                "[Messaging] [Channel] Gap detected on {ChannelName}: requested seq {RequestedSeq}, oldest available {OldestSeq}",
-                this.GetPrimaryKeyString(), lastSeenSequence, oldestInBuffer);
+                "[Messaging] [Channel] Gap detected on {ChannelName}: requested seq {RequestedSeq}, oldest available {OldestSeq}, current seq {CurrentSeq}",
+                channelName, lastSeenSequence, oldestInBuffer, _sequenceNumber);
         }
 
         return Task.FromResult(new CatchUpResult

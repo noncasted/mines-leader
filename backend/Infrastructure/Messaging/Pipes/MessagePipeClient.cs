@@ -78,8 +78,28 @@ public class RuntimePipeClient : IRuntimePipeClient
         throw lastException!;
     }
 
-    private static bool IsTransient(Exception e) =>
-        e is not (InvalidCastException or ArgumentException or NotSupportedException);
+    private static bool IsTransient(Exception e)
+    {
+        if (ContainsHandlerFailure(e))
+            return false;
+
+        return e is not (InvalidCastException or ArgumentException or NotSupportedException);
+    }
+
+    private static bool ContainsHandlerFailure(Exception e)
+    {
+        var current = e;
+
+        while (current != null)
+        {
+            if (current.Message.Contains(RuntimePipeObserver.HandlerFailurePrefix, StringComparison.Ordinal))
+                return true;
+
+            current = current.InnerException;
+        }
+
+        return false;
+    }
 
     public async Task<bool> Exists(IRuntimePipeId id)
     {
@@ -99,8 +119,10 @@ public class RuntimePipeClient : IRuntimePipeClient
         IRuntimePipeId id,
         Func<TRequest, Task<TResponse>> listener)
     {
-        var observer = await CreateObserver(lifetime, id);
+        if (lifetime.IsTerminated)
+            return;
 
+        var observer = new RuntimePipeObserver(_logger);
         observer.BindResponseHandler(async message => {
             if (message is not TRequest castedMessage)
                 throw new InvalidCastException($"Expected {typeof(TRequest)}, but got {message.GetType()}");
@@ -112,48 +134,56 @@ public class RuntimePipeClient : IRuntimePipeClient
 
             return response;
         });
+
+        await RegisterObserver(lifetime, id, observer);
     }
 
-    private async Task<RuntimePipeObserver> CreateObserver(IReadOnlyLifetime lifetime, IRuntimePipeId id)
+    private async Task RegisterObserver(IReadOnlyLifetime lifetime, IRuntimePipeId id, RuntimePipeObserver observer)
     {
-        var observer = new RuntimePipeObserver(_logger);
+        var observerId = Guid.NewGuid();
         var observerReference = _orleans.Client.CreateObjectReference<IRuntimePipeObserver>(observer);
 
-        lifetime.Listen(() => _orleans.Client.DeleteObjectReference<IRuntimePipeObserver>(observerReference));
-
-        var toRemove = new List<Guid>();
-
-        foreach (var (checkId, checkListener) in _listeners)
+        foreach (var (checkId, checkListener) in _listeners.ToArray())
         {
             if (checkListener.Id.ToRaw() != id.ToRaw())
                 continue;
 
-            toRemove.Add(checkId);
+            _logger.LogWarning("[Messaging] [RuntimePipe] Removing duplicate observer {ObserverId} for pipe {PipeId}",
+                checkListener.ObserverId, id.ToRaw());
+            RemoveListener(checkId, checkListener);
         }
 
-        foreach (var removeId in toRemove)
+        var transportListener = new Listener(
+            id,
+            observerId,
+            observer,
+            observerReference,
+            GetPipe(id),
+            _orleans,
+            _logger);
+
+        _listeners[observerId] = transportListener;
+        lifetime.Listen(() => RemoveListener(observerId, transportListener));
+
+        try
         {
-            _logger.LogWarning("[Messaging] [RuntimePipe] Removing duplicate observer for pipe {PipeId}", id.ToRaw());
-            _listeners.Remove(removeId, out _);
+            await transportListener.Resubscribe();
+            transportListener.RecordSuccess();
         }
-
-        var listenerId = Guid.NewGuid();
-
-        var listener = new Listener
+        catch (Exception e)
         {
-            Id = id,
-            ObserverSource = observer,
-            Observer = observerReference,
-            Pipe = GetPipe(id),
-            Logger = _logger
-        };
+            transportListener.RecordFailure(e);
+            RemoveListener(observerId, transportListener);
+            throw;
+        }
+    }
 
-        _listeners.AddOrUpdate(listenerId, _ => listener, (_, __) => listener);
-        lifetime.Listen(() => _listeners.Remove(listenerId, out _));
+    private void RemoveListener(Guid listenerId, Listener listener)
+    {
+        var listeners = (ICollection<KeyValuePair<Guid, Listener>>)_listeners;
 
-        await listener.Resubscribe();
-
-        return observer;
+        if (listeners.Remove(new KeyValuePair<Guid, Listener>(listenerId, listener)))
+            listener.Cleanup();
     }
 
     private IRuntimePipe GetPipe(IRuntimePipeId id)
@@ -168,57 +198,137 @@ public class RuntimePipeClient : IRuntimePipeClient
         {
             if (_listeners.IsEmpty)
             {
-                await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(10), lifetime.Token);
+                }
+                catch (OperationCanceledException) when (lifetime.IsTerminated)
+                {
+                }
+
                 continue;
             }
 
-            foreach (var listener in _listeners.Values)
+            var snapshot = _listeners.Values.ToArray();
+
+            foreach (var listener in snapshot)
             {
                 try
                 {
                     await listener.Resubscribe();
-                    listener.Interval.RecordSuccess();
+                    listener.RecordSuccess();
                 }
-                catch
+                catch (Exception e)
                 {
-                    listener.Interval.RecordFailure();
+                    listener.RecordFailure(e);
                 }
             }
 
-            var delay = _listeners.Values.Min(l => l.Interval.GetNextDelay());
-            await Task.Delay(delay, lifetime.Token);
+            var delay = snapshot.Length == 0
+                ? TimeSpan.FromSeconds(10)
+                : snapshot.Min(l => l.Interval.GetNextDelay());
+
+            try
+            {
+                await Task.Delay(delay, lifetime.Token);
+            }
+            catch (OperationCanceledException) when (lifetime.IsTerminated)
+            {
+            }
         }
     }
 
     public class Listener
     {
-        public required IRuntimePipeId Id { get; init; }
-        public required RuntimePipeObserver ObserverSource { get; init; }
-        public required IRuntimePipeObserver Observer { get; init; }
-        public required IRuntimePipe Pipe { get; init; }
-        public required ILogger Logger { get; init; }
+        public Listener(
+            IRuntimePipeId id,
+            Guid observerId,
+            RuntimePipeObserver observerSource,
+            IRuntimePipeObserver observer,
+            IRuntimePipe pipe,
+            IOrleans orleans,
+            ILogger logger)
+        {
+            Id = id;
+            ObserverId = observerId;
+            ObserverSource = observerSource;
+            Observer = observer;
+            Pipe = pipe;
+            Orleans = orleans;
+            Logger = logger;
+        }
+
+        private int _cleanupStarted;
+        private int _consecutiveFailures;
+
+        public IRuntimePipeId Id { get; }
+        public Guid ObserverId { get; }
+        public RuntimePipeObserver ObserverSource { get; }
+        public IRuntimePipeObserver Observer { get; }
+        public IRuntimePipe Pipe { get; }
+        public IOrleans Orleans { get; }
+        public ILogger Logger { get; }
 
         public AdaptiveInterval Interval { get; } = new(minInterval: TimeSpan.FromSeconds(10),
             maxInterval: TimeSpan.FromSeconds(60),
             failureBaseInterval: TimeSpan.FromSeconds(1));
 
-        private int _consecutiveFailures;
-
         public async Task Resubscribe()
         {
+            await Pipe.BindObserver(ObserverId, Observer);
+        }
+
+        public void RecordSuccess()
+        {
+            _consecutiveFailures = 0;
+            Interval.RecordSuccess();
+        }
+
+        public void RecordFailure(Exception e)
+        {
+            _consecutiveFailures++;
+            Interval.RecordFailure();
+
+            if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
+            {
+                Logger.LogError(e,
+                    "[Messaging] [RuntimePipe] Failed to rebind observer {ObserverId} (attempt {Count}) to pipe {PipeId}",
+                    ObserverId, _consecutiveFailures, Id.ToRaw());
+            }
+        }
+
+        public void Cleanup()
+        {
+            if (Interlocked.Exchange(ref _cleanupStarted, 1) == 1)
+                return;
+
+            CleanupTransport().NoAwait();
+        }
+
+        private async Task CleanupTransport()
+        {
+            ObserverSource.ClearResponseHandler();
+
             try
             {
-                await Pipe.BindObserver(Observer);
-                _consecutiveFailures = 0;
+                await Pipe.UnbindObserver(ObserverId);
             }
             catch (Exception e)
             {
-                _consecutiveFailures++;
+                Logger.LogWarning(e,
+                    "[Messaging] [RuntimePipe] Failed to unbind observer {ObserverId} from pipe {PipeId}",
+                    ObserverId, Id.ToRaw());
+            }
 
-                if (_consecutiveFailures == 1 || _consecutiveFailures % 10 == 0)
-                    Logger.LogError(e,
-                        "[Messaging] [RuntimePipe] Failed to rebind observer (attempt {Count}) to pipe {PipeId}",
-                        _consecutiveFailures, Id.ToRaw());
+            try
+            {
+                Orleans.Client.DeleteObjectReference<IRuntimePipeObserver>(Observer);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning(e,
+                    "[Messaging] [RuntimePipe] Failed to delete object reference for observer {ObserverId} on pipe {PipeId}",
+                    ObserverId, Id.ToRaw());
             }
         }
     }

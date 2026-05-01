@@ -108,6 +108,48 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
     }
 
     [Fact]
+    public async Task PushDirect_TerminatedListener_DoesNotAckSideEffect()
+    {
+        var queueId = new TestQueueId(Guid.NewGuid().ToString());
+        var lifetime = new Lifetime();
+        var messaging = GetSiloService<IMessaging>();
+
+        await messaging.ListenDurableQueue<TestMessage>(lifetime, queueId, _ => {
+        });
+
+        lifetime.Terminate();
+
+        await messaging.PushDirectQueue(queueId, new TestMessage { Text = "must-not-ack" });
+        var drain = await DrainSideEffectsAsync();
+
+        drain.AllSucceeded.Should().BeFalse();
+        drain.ExecutionTrace.Should().Contain(e =>
+            e.Success == false &&
+            e.ErrorMessage != null &&
+            (e.ErrorMessage.Contains("No active subscribers") ||
+             e.ErrorMessage.Contains("No subscribers successfully processed")));
+    }
+
+    [Fact]
+    public async Task PushDirect_AsyncListener_AwaitsBeforeSideEffectCompletes()
+    {
+        var queueId = new TestQueueId(Guid.NewGuid().ToString());
+        var messaging = GetSiloService<IMessaging>();
+        var completed = false;
+
+        await messaging.ListenDurableQueue<TestMessage>(new Lifetime(), queueId, async _ => {
+            await Task.Delay(50);
+            completed = true;
+        });
+
+        await messaging.PushDirectQueue(queueId, new TestMessage { Text = "async" });
+        var drain = await DrainSideEffectsAsync();
+
+        drain.AssertDrainedWithWork();
+        completed.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task PushTransactional_WithinTransaction_DeliveredAfterCommit()
     {
         var queueId = new TestQueueId(Guid.NewGuid().ToString());
@@ -144,8 +186,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
 
         var result = await transactions.Run(() => {
             messaging.PushTransactionalQueue(queueId, new TestMessage { Text = "should-not-arrive" });
-            throw new Exception("Intentional rollback");
-            return Task.CompletedTask;
+            return Task.FromException(new Exception("Intentional rollback"));
         });
 
         result.IsSuccess.Should().BeFalse();

@@ -7,7 +7,7 @@ description: Convert a Unity prefab to code-generated [PrefabDefinition] using P
 
 This skill converts an existing Unity prefab into a `[PrefabDefinition]` class that generates the prefab from C# code using `PrefabBuilder`. The generated prefab is saved to `Assets/Resources/Generated/` and accessible via `Prefabs.PropertyName`.
 
-Reference: `.claude/docs/PREFAB_CODEGEN.md`
+Reference: `docs/db/docs/PREFAB_CODEGEN.md`
 
 ## Input
 

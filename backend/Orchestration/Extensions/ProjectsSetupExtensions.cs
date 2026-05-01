@@ -179,8 +179,7 @@ public static class ProjectsSetupExtensions
                 .AddSideEffects()
                 .AddStates()
                 .AddMonitoring()
-                .AddUserServices()
-                .AddHeapDiagnostics();
+                .AddUserServices();
 
             builder.AddBotServices();
 

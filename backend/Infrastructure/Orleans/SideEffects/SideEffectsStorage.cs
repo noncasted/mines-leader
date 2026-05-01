@@ -103,7 +103,17 @@ public class SideEffectsStorage : ISideEffectsStorage
         catch (Exception e)
         {
             _logger.LogError(e, "[SideEffectsStorage] Failed to write side effect");
-            await transaction.RollbackAsync();
+
+            try
+            {
+                await transaction.RollbackAsync();
+            }
+            catch (Exception rollbackException)
+            {
+                _logger.LogWarning(rollbackException, "[SideEffectsStorage] Rollback failed after side effect write error");
+            }
+
+            throw;
         }
     }
 

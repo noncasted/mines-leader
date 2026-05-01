@@ -13,7 +13,7 @@ The Aspire cluster must be running. Use `/start-cluster` skill to start it if ne
 
 ## API Base URL
 
-`http://localhost:5000`
+`http://localhost:7103`
 
 ## Available Endpoints
 
@@ -46,7 +46,7 @@ Parse the user's request:
 
 Use Bash to check if the API is reachable:
 ```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/benchmarks
+curl -s -o /dev/null -w "%{http_code}" http://localhost:7103/api/benchmarks
 ```
 
 If not 200 or 503, start the cluster yourself:
@@ -62,10 +62,10 @@ Use Bash with curl. Benchmarks can take 5-60 seconds each, so set appropriate ti
 
 ```bash
 # Run single benchmark
-curl -s -X POST http://localhost:5000/api/benchmarks/{title}/run --connect-timeout 5 --max-time 120
+curl -s -X POST http://localhost:7103/api/benchmarks/{title}/run --connect-timeout 5 --max-time 120
 
 # Run group
-curl -s -X POST http://localhost:5000/api/benchmarks/group/{group}/run --connect-timeout 5 --max-time 600
+curl -s -X POST http://localhost:7103/api/benchmarks/group/{group}/run --connect-timeout 5 --max-time 600
 ```
 
 Report each result as it completes. Show a summary table after all benchmarks finish.
@@ -74,10 +74,10 @@ Report each result as it completes. Show a summary table after all benchmarks fi
 
 ```bash
 # Single benchmark history
-curl -s http://localhost:5000/api/benchmarks/{title}/history
+curl -s http://localhost:7103/api/benchmarks/{title}/history
 
 # Group history
-curl -s http://localhost:5000/api/benchmarks/group/{group}/history
+curl -s http://localhost:7103/api/benchmarks/group/{group}/history
 ```
 
 ### Step 5 — Analyse and report

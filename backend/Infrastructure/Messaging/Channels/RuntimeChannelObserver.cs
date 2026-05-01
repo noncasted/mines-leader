@@ -8,29 +8,116 @@ public interface IRuntimeChannelObserver : IGrainObserver
 public class RuntimeChannelObserver : IRuntimeChannelObserver
 {
     public RuntimeChannelObserver(Action<object> onMessage)
+        : this(message => {
+            onMessage(message);
+            return Task.CompletedTask;
+        })
+    {
+    }
+
+    public RuntimeChannelObserver(Func<object, Task> onMessage)
     {
         _onMessage = onMessage;
     }
 
-    private readonly Action<object> _onMessage;
+    private readonly Func<object, Task> _onMessage;
+    private readonly SemaphoreSlim _deliveryGate = new(1, 1);
+    private readonly object _bufferGate = new();
+
+    private List<object> _bufferedMessages = new();
+    private bool _isBuffering;
 
     public Guid Id { get; } = Guid.NewGuid();
     public long LastSeenSequence { get; private set; }
 
-    public Task Send(object message)
+    public void BeginBuffering()
     {
-        if (message is SequencedMessage sequenced)
+        lock (_bufferGate)
         {
-            if (sequenced.Sequence > LastSeenSequence)
-                LastSeenSequence = sequenced.Sequence;
-
-            _onMessage(sequenced.Payload);
+            _bufferedMessages.Clear();
+            _isBuffering = true;
         }
-        else
+    }
+
+    public async Task ReplayCatchUp(IReadOnlyList<SequencedMessage> messages)
+    {
+        await _deliveryGate.WaitAsync();
+
+        try
         {
-            _onMessage(message);
+            foreach (var message in messages)
+                await SendLocked(message);
+        }
+        finally
+        {
+            _deliveryGate.Release();
+        }
+    }
+
+    public async Task EndBuffering()
+    {
+        List<object> bufferedMessages;
+
+        lock (_bufferGate)
+        {
+            bufferedMessages = _bufferedMessages;
+            _bufferedMessages = new List<object>();
+            _isBuffering = false;
         }
 
-        return Task.CompletedTask;
+        await _deliveryGate.WaitAsync();
+
+        try
+        {
+            foreach (var message in bufferedMessages)
+                await SendLocked(message);
+        }
+        finally
+        {
+            _deliveryGate.Release();
+        }
+    }
+
+    public void ResetLastSeen(long lastSeenSequence)
+    {
+        LastSeenSequence = lastSeenSequence;
+    }
+
+    public async Task Send(object message)
+    {
+        lock (_bufferGate)
+        {
+            if (_isBuffering)
+            {
+                _bufferedMessages.Add(message);
+                return;
+            }
+        }
+
+        await _deliveryGate.WaitAsync();
+
+        try
+        {
+            await SendLocked(message);
+        }
+        finally
+        {
+            _deliveryGate.Release();
+        }
+    }
+
+    private async Task SendLocked(object message)
+    {
+        if (message is not SequencedMessage sequenced)
+        {
+            await _onMessage(message);
+            return;
+        }
+
+        if (sequenced.Sequence <= LastSeenSequence)
+            return;
+
+        await _onMessage(sequenced.Payload);
+        LastSeenSequence = sequenced.Sequence;
     }
 }

@@ -148,4 +148,4 @@ public class BoardTests {
 
 - `backend/Tools/Tests/Tests.csproj` — canonical test project layout
 - `tools/scripts/get-test-log.sh` — UTF-16LE → UTF-8 conversion
-- `.claude/docs/ERRORS.md` — error lookup table (includes test-log errors)
+- `docs/db/docs/ERRORS.md` — error lookup table (includes test-log errors)

@@ -5,10 +5,13 @@ namespace Infrastructure;
 public interface IRuntimePipeObserver : IGrainObserver
 {
     Task<TResponse> Send<TResponse>(object message);
+    Task Ping();
 }
 
 public class RuntimePipeObserver : IRuntimePipeObserver
 {
+    public const string HandlerFailurePrefix = "[Messaging] [RuntimePipe] Handler failed";
+
     public RuntimePipeObserver(ILogger logger)
     {
         _logger = logger;
@@ -30,6 +33,19 @@ public class RuntimePipeObserver : IRuntimePipeObserver
 
         _responseHandler = handler;
         _logger.LogTrace("[Messaging] [RuntimePipe] Response handler bound successfully");
+    }
+
+    public void ClearResponseHandler()
+    {
+        _responseHandler = null;
+    }
+
+    public Task Ping()
+    {
+        if (_responseHandler == null)
+            throw new InvalidOperationException("[Messaging] [RuntimePipe] No response handler bound.");
+
+        return Task.CompletedTask;
     }
 
     public async Task<TResponse> Send<TResponse>(object message)
@@ -69,7 +85,7 @@ public class RuntimePipeObserver : IRuntimePipeObserver
         {
             _logger.LogError(ex, "[Messaging] [RuntimePipe] Failed to process request-response message {MessageType}",
                 message.GetType().Name);
-            throw;
+            throw new InvalidOperationException($"{HandlerFailurePrefix}: {ex.Message}", ex);
         }
     }
 }

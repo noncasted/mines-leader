@@ -49,13 +49,13 @@ public void OnSetup(IReadOnlyLifetime lifetime) {
 ## Full Code Examples
 
 Complete runnable examples with all scenarios:
-→ [Assets/Common/Docs/Claude/Docs_Lifetimes.cs](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs)
+→ [Assets/Common/Docs/Claude/Docs_Lifetimes.cs](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs)
 
 Specific examples:
-- [Standalone lifetime](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L16)
-- [Child lifetime](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L31)
-- [Lifetime hierarchy](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L49)
-- [Scoped subscriptions](../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L118)
+- [Standalone lifetime](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L16)
+- [Child lifetime](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L31)
+- [Lifetime hierarchy](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L49)
+- [Scoped subscriptions](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs#L118)
 
 ## Common Mistakes
 

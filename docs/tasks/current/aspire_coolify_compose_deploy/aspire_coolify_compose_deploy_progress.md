@@ -1,12 +1,61 @@
 ## Aspire Coolify Compose Deploy — Рабочие заметки
 
-### Статус: В работе (сессия 3 — продолжение)
+### Статус: В работе (разделение сессии 4 — `/workflow-split`)
+
+### Сессия 4: что сделано
+
+- [x] **Корневая причина Blazor `_framework/blazor.web.js` 404 найдена.** Образ `mcr.microsoft.com/dotnet/sdk` (и `:10.0.201`, и `:10.0.202`) не auto-restore'ит приватный пакет `Microsoft.AspNetCore.App.Internal.Assets`, в котором лежит сам файл. Локально работает, потому что пакет давно в global NuGet кеше с других проектов. Фикс: explicit `<PackageReference Include="Microsoft.AspNetCore.App.Internal.Assets" />` в `ConsoleGateway.csproj` + версия `10.0.5` в `Directory.Packages.props`. Проверено локально через `docker build --target publish-all` — `/app/out/ConsoleGateway/wwwroot/_framework/` теперь содержит 6 файлов.
+- [x] **Aspire dashboard DataProtection `CryptographicException`.** Фикс — named volume `aspire-dashboard-keys:/root/.aspnet/DataProtection-Keys` + `user: root` (иначе non-root entrypoint не пишет в /root/...).
+- [x] **Console DataProtection / `AntiforgeryValidationException` — кнопки молча не работали.** То же лекарство: volume `console-keys` + `user: root` для `console` сервиса.
+- [x] **Resource-service форк допатчен** (новые SHA в фокусе): `7c158a9` lookup by display name, `31272a1` net10 bump, `ca5558e` OpenTelemetry 1.15 (clears NU1902), `b2f751c` ContainerDashboardService rename (CS0718 фикс), `ba56b36` test refs обновлены. В compose стоит full SHA `ba56b364bfb7d56262e984c476071a811af07c5a` — BuildKit `git+sha` короткие SHA отвергает.
+- [x] **Console gateway убрал `app.UseStaticFiles()`** — он дублирует `MapStaticAssets` и в .NET 9+ ломает framework asset routing. Оставлен только `MapStaticAssets`.
+- [x] **DEPLOY_TROUBLESHOOTING.md дополнен 8 новыми разделами**: Blazor 404 (с полным investigation log), Console antiforgery, full SHA для BuildKit, Resource-service CS0718 rename, NU1902 OTel bump, BaseIntermediateOutputPath ловушка, UseStaticFiles+MapStaticAssets exclusivity, dashboard 2-минутный startup wait, "Login to dashboard at http://localhost" cosmetic log, плюс проблема Traefik pool stale на healthy контейнере. Quick reference table расширен.
+- [x] **DEPLOY.md дополнен**: новые разделы про persistent volumes (DataProtection keyrings) и Blazor framework JS publish output. Memory baseline таблица обновлена тремя столбцами (DinD / Coolify idle / Coolify под бенчмарками silo) + примечание про Coolify infra ~660 MiB.
+- [x] **History squash.** 35 коммитов (от `a53206cf Enable docker-in-docker` до `90b4612d Add benchmark-loaded memory column`) объединены в один — `21fc2853 [Infra] [Console] Production deploy on Coolify Compose + heap monitoring`. Выполнено `git reset --soft 724c603f && git commit && git push --force-with-lease`. Поверх — `3f1a8ee5 [Docs] Document dashboard startup wait + Traefik pool stale on healthy container`.
+- [x] **Метрики памяти пересняты на VPS.** Idle ~734 MiB, под бенчмарками silo ~1140 MiB. Coolify infra сверху ~660 MiB. На 11 GiB VPS остаётся ~9 GiB.
+
+### Текущий момент остановки (сессия 4)
+
+**Проблема которая открыта:** "после последнего деплоя опять не запускается консоль на ремоуте" — формулировка пользователя при `/workflow-split`. Состояние:
+
+- Последние коммиты в main: `3f1a8ee5` (docs) → `21fc2853` (squash). Coolify должен был передеплоить.
+- В рабочей копии есть **uncommitted одна строка** в `backend/Orchestration/ConsoleGateway/Program.cs` строка 126 — кириллическая `у` залипла после закрывающего тега формы:
+  ```diff
+  -<form method="get" action="/login">
+  +<form method="get" action="/login">у
+  ```
+  Это inline-HTML внутри `app.MapGet("/login", ...)`. Сама `у` появится как текст между `<form>` и `<label>` — не должна ломать функциональность, но явный артефакт случайного нажатия. Перед расследованием прод-проблемы — **откатить эту строку** (`git checkout backend/Orchestration/ConsoleGateway/Program.cs`), чтобы не было ложных следов.
+- Что именно "не запускается" неизвестно: не открывается совсем, healthcheck unhealthy, container в crash-loop, или Blazor фронт лежит. Нужно повторить диагностику из TROUBLESHOOTING:
+  ```bash
+  for h in console game meta aspire; do curl -sS -o /dev/null -w "$h: %{http_code} time=%{time_total}\n" --max-time 8 https://$h.minesleader.xyz/; done
+  sudo docker ps --format '{{.Names}}\t{{.Status}}' | grep -E 'zufqewce'
+  sudo docker logs --tail 100 $(sudo docker ps --format '{{.Names}}' | grep -m1 console)
+  sudo docker inspect $(sudo docker ps --format '{{.Names}}' | grep -m1 console) --format 'restarts={{.RestartCount}} oom={{.State.OOMKilled}} exit={{.State.ExitCode}}'
+  ```
+
+**Гипотезы (по приоритету):**
+1. **Coolify Redeploy ещё не прошёл / упал на сборке.** В прошлый раз Coolify иногда катал старый образ. Проверить статус Deployments в Coolify UI, что последний `21fc2853`/`3f1a8ee5` собрался.
+2. **Traefik pool stale** — контейнер healthy но Traefik роутит на мёртвый ID. Лечится `docker restart coolify-proxy` (см. одноимённый раздел в DEPLOY_TROUBLESHOOTING.md).
+3. **Контейнер в restart-loop** — вернуть `docker logs --tail 200`, искать stack trace на старте. Возможна regression из squash (35 коммитов в один — теоретически могла слететь склейка, хотя 9 файлов в diff и 195 файлов в коммите).
+4. Ничего нового, та же DataProtection / `_framework/blazor.web.js` проблема — НО это уже задокументировано и фиксы в коде. Если симптомы те же — проверить что фиксы реально вкатились (см. ниже).
+
+**Verification commands (если новый контейнер живой):**
+```bash
+sudo docker exec <console-name> ls /app/wwwroot/_framework/   # ждём blazor.web.js + dotnet.js
+sudo docker exec <console-name> ls -la /root/.aspnet/DataProtection-Keys/   # должны быть persistent ключи
+curl -sS -o /dev/null -w "%{http_code}\n" https://console.minesleader.xyz/_framework/blazor.web.js  # ждём 200
+```
+
+**Незакрытые todos (продолжают висеть):**
+- [ ] Cutover старого DinD-приложения на VPS — не проверено существует ли оно вообще.
+- [ ] PR в upstream `kiapanahi/Aspire.ResourceServer.Standalone` с патчами форка — опционально.
+- [ ] Healthcheck для resource-service + переключить `aspire-dashboard.depends_on.condition: service_healthy` — описано в DEPLOY_TROUBLESHOOTING.md как фикс 2-минутной задержки. Не вкатано в compose.
 
 ### Сессия 3: что сделано
 
 - [x] **Console gateway timeout — разрешилось.** Все три домена (console/game/meta) отвечают 200 OK, time ~0.4s. Гипотеза о залипшем Traefik router подтвердилась косвенно (после очередного Redeploy в Coolify проблема ушла без ручного вмешательства). Диагностические шаги задокументированы в `DEPLOY_TROUBLESHOOTING.md` для будущего self.
-- [x] **`.claude/docs/DEPLOY_TROUBLESHOOTING.md` создан** — 149 строк, охватывает: Coolify shared network, Orleans schema bootstrap, console 502/timeout (с командами для Traefik API + label-collision scan), `host.docker.internal` Linux quirk, plain `postgres` vs `ConnectionStrings__postgres`, NuGet restore caching, resource-service пустой Resources tab, console healthcheck 302, OTLP nag, quick reference table.
-- [x] **`.claude/docs/DEPLOY.md` финализирован** (был ~70% в конце сессии 2 — теперь полный, ссылка на TROUBLESHOOTING валидна).
+- [x] **`docs/db/docs/DEPLOY_TROUBLESHOOTING.md` создан** — 149 строк, охватывает: Coolify shared network, Orleans schema bootstrap, console 502/timeout (с командами для Traefik API + label-collision scan), `host.docker.internal` Linux quirk, plain `postgres` vs `ConnectionStrings__postgres`, NuGet restore caching, resource-service пустой Resources tab, console healthcheck 302, OTLP nag, quick reference table.
+- [x] **`docs/db/docs/DEPLOY.md` финализирован** (был ~70% в конце сессии 2 — теперь полный, ссылка на TROUBLESHOOTING валидна).
 
 ### Статус: Закрытые vs незакрытые
 
@@ -95,13 +144,13 @@ VPS 11 GiB: used 2.5 GiB (проект + Coolify + Laravel + dockerd), available
 
 **Незакрытые todos (переехали из сессии 1):**
 - [ ] `CONSOLE_TOKEN`/`GAME_SERVER_URL` в Coolify env прописаны (подтверждено работой game).
-- [ ] Описать деплой в `.claude/docs/DEPLOY.md` — файл создан, начато писаться; user прервал на `DEPLOY_TROUBLESHOOTING.md` (ещё не существует). **Dedicated docs для будущего self** — запланировано в следующую сессию.
+- [ ] Описать деплой в `docs/db/docs/DEPLOY.md` — файл создан, начато писаться; user прервал на `DEPLOY_TROUBLESHOOTING.md` (ещё не существует). **Dedicated docs для будущего self** — запланировано в следующую сессию.
 - [ ] Cutover старого DinD-приложения — если оно ещё существует, снести.
 - [ ] PR в upstream `kiapanahi/Aspire.ResourceServer.Standalone` с тремя патчами из нашего форка (label filter + state mapping + display-name/exit-code) — опционально.
 
 ### Рабочая копия на момент разделения
 
-- `.claude/docs/DEPLOY.md` — **untracked**, написана ~70% (разделы Overview, Why split, File layout, Dockerfile layering, Caches, compose structure, Networks, Service graph, Ports, Env vars, Profiles, local overlay, Coolify config, Health, Resource service, Memory, Timing). Нужно ли дописывать — решать в следующей сессии.
+- `docs/db/docs/DEPLOY.md` — **untracked**, написана ~70% (разделы Overview, Why split, File layout, Dockerfile layering, Caches, compose structure, Networks, Service graph, Ports, Env vars, Profiles, local overlay, Coolify config, Health, Resource service, Memory, Timing). Нужно ли дописывать — решать в следующей сессии.
 - `client/Assets/Tools/SceneBuilder/Runtime/Scenes.cs` — modified, **не по теме задачи**.
 
 ### Коммиты сессии 2 (все запушены в main)
