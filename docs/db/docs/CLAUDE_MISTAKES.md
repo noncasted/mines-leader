@@ -399,7 +399,7 @@ public class RuntimePipe : Grain, IRuntimePipe
 - Orleans gives disconnected clients a ~65s grace window before dropping them; during
   that window the grain will still route observer callbacks to the dead client.
 
-→ [deploy-epoch.md §Фиксы пайпа](../../docs/obsidian/architecture/deploy-epoch.md)
+→ [deploy-epoch.md §Фиксы пайпа](../../obsidian/architecture/deploy-epoch.md)
 
 ---
 
@@ -439,7 +439,43 @@ else
 - Symmetric startup code for coordinator and participants tempts you to make the
   coordinator "wait for itself" — it may mask latent Orleans routing hiccups for minutes.
 
-→ [deploy-epoch.md §Диаграмма рестарта координатора](../../docs/obsidian/architecture/deploy-epoch.md)
+→ [deploy-epoch.md §Диаграмма рестарта координатора](../../obsidian/architecture/deploy-epoch.md)
+
+---
+
+## Lesson: Do Not Hold Local Delivery Locks Across Orleans Observer Binding
+
+### Mistake Made
+```csharp
+// WRONG — Publish can call observer.Send while this client waits for CatchUp.
+await using var deliveryLock = await observer.LockDelivery();
+await channel.AddObserver(observer.Id, observerRef);
+var catchUp = await channel.CatchUp(observer.LastSeenSequence);
+```
+
+After removing `[AlwaysInterleave]`, a concurrent `Publish` grain turn can call
+`observer.Send` and wait for the local lock while the client's `CatchUp` call is queued
+behind that `Publish`. The result is a delivery-timeout deadlock pattern.
+
+### Correct Pattern
+```csharp
+// CORRECT — buffer live deliveries; do not block the grain's observer.Send call.
+observer.BeginBuffering();
+try {
+    await channel.AddObserver(observer.Id, observerRef);
+    var catchUp = await channel.CatchUp(lastSeenSequence);
+    await observer.ReplayCatchUp(catchUp.Messages);
+}
+finally {
+    await observer.EndBuffering();
+}
+```
+
+### Rule
+When coordinating Orleans catch-up with live observer delivery, local synchronization
+must not make `observer.Send` wait for a grain call queued behind the current `Publish`.
+Buffer live deliveries and flush them after catch-up; use sequence filtering to skip
+duplicates.
 
 ---
 

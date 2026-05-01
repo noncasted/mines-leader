@@ -55,6 +55,23 @@ public class RuntimeChannelTests
     }
 
     [Fact]
+    public async Task Publish_AsyncListener_AwaitsBeforePublishCompletes()
+    {
+        var channelId = new TestChannelId(Guid.NewGuid().ToString());
+        var messaging = GetSiloService<IMessaging>();
+        var completed = false;
+
+        await messaging.ListenChannel<TestMessage>(new Lifetime(), channelId, async _ => {
+            await Task.Delay(50);
+            completed = true;
+        });
+
+        await messaging.PublishChannel(channelId, new TestMessage { Text = "async" });
+
+        completed.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Publish_MultipleMessages_AllDeliveredInOrder()
     {
         var channelId = new TestChannelId(Guid.NewGuid().ToString());
@@ -78,6 +95,66 @@ public class RuntimeChannelTests
         await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
         received.Should().HaveCount(10);
         received.Should().Equal(Enumerable.Range(0, 10).ToList());
+    }
+
+    [Fact]
+    public async Task Observer_ResetLastSeen_AllowsLowerSequenceAfterGap()
+    {
+        var received = new List<int>();
+        var observer = new RuntimeChannelObserver(message => {
+            var typed = (TestMessage)message;
+            received.Add(typed.Sequence);
+            return Task.CompletedTask;
+        });
+
+        await observer.Send(new SequencedMessage
+        {
+            Sequence = 100,
+            Payload = new TestMessage { Sequence = 100 }
+        });
+
+        observer.ResetLastSeen(0);
+
+        await observer.Send(new SequencedMessage
+        {
+            Sequence = 1,
+            Payload = new TestMessage { Sequence = 1 }
+        });
+
+        received.Should().Equal([100, 1]);
+    }
+
+    [Fact]
+    public async Task Observer_BufferedLiveDelivery_AfterCatchUpSkipsDuplicate()
+    {
+        var received = new List<int>();
+        var observer = new RuntimeChannelObserver(message => {
+            var typed = (TestMessage)message;
+            received.Add(typed.Sequence);
+            return Task.CompletedTask;
+        });
+
+        await observer.Send(new SequencedMessage
+        {
+            Sequence = 3,
+            Payload = new TestMessage { Sequence = 3 }
+        });
+
+        observer.BeginBuffering();
+
+        await observer.Send(new SequencedMessage
+        {
+            Sequence = 5,
+            Payload = new TestMessage { Sequence = 5 }
+        });
+
+        await observer.ReplayCatchUp([
+            new SequencedMessage { Sequence = 4, Payload = new TestMessage { Sequence = 4 } },
+            new SequencedMessage { Sequence = 5, Payload = new TestMessage { Sequence = 5 } }
+        ]);
+        await observer.EndBuffering();
+
+        received.Should().Equal([3, 4, 5]);
     }
 
     [Fact]

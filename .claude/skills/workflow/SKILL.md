@@ -52,18 +52,18 @@ Include docs that are **relevant** to this task:
 
 | Task touches... | Include |
 |-----------------|---------|
-| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `docs/COMMON_CONTAINER.md` |
-| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `docs/COMMON_LIFETIMES.md` |
-| `EventSource`, `ViewableProperty`, `ViewableList` | `docs/COMMON_REACTIVE_BASICS.md` |
-| `UniTask`, async methods, file I/O, `IReadOnlyList` | `docs/API_DESIGN_FULL.md` |
-| member order, naming, braces, `NoAwait` | `docs/CODE_STYLE_FULL.md` |
-| Grain, State, `[Transaction]`, Orleans backend | `docs/COMMON_ORLEANS.md` |
-| Blazor, razor, `@inject`, console UI | `docs/BLAZOR.md` |
-| game flow, board, cards, bots, matchmaking | `docs/GAMEPLAY.md` |
-| IOrleans, AddressableDictionary, messaging | `docs/COMMON_ORLEANS.md` |
-| "which pattern", architectural choice | `docs/DECISION_TREES.md` |
-| common pitfalls, known mistakes | `docs/CLAUDE_MISTAKES.md` |
-| PrefabBuilder, prefab codegen | `docs/PREFAB_CODEGEN.md` |
+| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `docs/db/docs/COMMON_CONTAINER.md` |
+| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `docs/db/docs/COMMON_LIFETIMES.md` |
+| `EventSource`, `ViewableProperty`, `ViewableList` | `docs/db/docs/COMMON_REACTIVE_BASICS.md` |
+| `UniTask`, async methods, file I/O, `IReadOnlyList` | `docs/db/docs/API_DESIGN_FULL.md` |
+| member order, naming, braces, `NoAwait` | `docs/db/docs/CODE_STYLE_FULL.md` |
+| Grain, State, `[Transaction]`, Orleans backend | `docs/db/docs/COMMON_ORLEANS.md` |
+| Blazor, razor, `@inject`, console UI | `docs/db/docs/BLAZOR.md` |
+| game flow, board, cards, bots, matchmaking | `docs/db/docs/GAMEPLAY.md` |
+| IOrleans, AddressableDictionary, messaging | `docs/db/docs/COMMON_ORLEANS.md` |
+| "which pattern", architectural choice | `docs/db/docs/DECISION_TREES.md` |
+| common pitfalls, known mistakes | `docs/db/docs/CLAUDE_MISTAKES.md` |
+| PrefabBuilder, prefab codegen | `docs/db/docs/PREFAB_CODEGEN.md` |
 
 ### Step 4 — Decompose into steps
 
@@ -113,7 +113,7 @@ Save the brief to `docs/tasks/current/<task_name>/<task_name>_info.md` using thi
 | `path/to/File.cs` | [what and why] |
 
 ### Документация к прочтению
-- `docs/COMMON_CONTAINER.md` — [конкретная причина]
+- `docs/db/docs/COMMON_CONTAINER.md` — [конкретная причина]
 
 ### Риски
 [Specific gotchas. Omit section if no risks.]

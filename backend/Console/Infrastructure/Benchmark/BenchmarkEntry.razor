@@ -43,9 +43,9 @@
             }
         </div>
 
-        <span class="w-48 shrink-0 truncate text-sm font-medium" title="@Test.Title">@Test.Title</span>
+        <span class="w-48 shrink-0 min-w-0 truncate text-sm font-medium" title="@Test.Title">@Test.Title</span>
 
-        <div class="flex items-center gap-2 w-36 shrink-0">
+        <div class="flex items-center gap-2 w-36 shrink-0 min-w-0 overflow-hidden">
             @if (Test.LastResult != null && Test.LastResult.MetricValue > 0)
             {
                 <span class="font-mono text-xs font-semibold">@FormatMetric(Test.LastResult.MetricValue)</span>

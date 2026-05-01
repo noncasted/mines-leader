@@ -10,29 +10,29 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 | Keywords | Go to |
 |----------|-------|
-| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | docs/COMMON_CONTAINER.md |
-| Lifetime, Advise, View, Terminate, subscription, cleanup | docs/COMMON_LIFETIMES.md |
-| EventSource, ViewableProperty, ViewableList, reactive, observable, event | docs/COMMON_REACTIVE_BASICS.md |
-| UniTask, async, IReadOnlyList, file I/O, callback wrapping | docs/API_DESIGN_FULL.md |
-| member order, _camelCase, GC.KeepAlive, NoAwait, braces | docs/CODE_STYLE_FULL.md |
-| Grain, IGrainWithGuidKey, [Transaction], constructor injection | docs/COMMON_ORLEANS.md |
-| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | docs/COMMON_ORLEANS.md |
+| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | docs/db/docs/COMMON_CONTAINER.md |
+| Lifetime, Advise, View, Terminate, subscription, cleanup | docs/db/docs/COMMON_LIFETIMES.md |
+| EventSource, ViewableProperty, ViewableList, reactive, observable, event | docs/db/docs/COMMON_REACTIVE_BASICS.md |
+| UniTask, async, IReadOnlyList, file I/O, callback wrapping | docs/db/docs/API_DESIGN_FULL.md |
+| member order, _camelCase, GC.KeepAlive, NoAwait, braces | docs/db/docs/CODE_STYLE_FULL.md |
+| Grain, IGrainWithGuidKey, [Transaction], constructor injection | docs/db/docs/COMMON_ORLEANS.md |
+| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | docs/db/docs/COMMON_ORLEANS.md |
 | DeployId, IDeployManagement, IDeployContext, IDeployAware, DeployIdPipe, DeployIdentity, DeployLifetime, LiveState, cluster restart | /docs/obsidian/architecture/deploy-epoch.md |
-| Blazor, razor, @inject, UiComponent, early return, console UI | docs/BLAZOR.md |
-| which pattern to use, decision | docs/DECISION_TREES.md |
-| error lookup, why X fails, memory leak, NullRef | docs/ERRORS.md |
-| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | docs/GAMEPLAY.md |
-| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | docs/UI_MENU.md |
-| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | docs/COMMON_ORLEANS.md |
+| Blazor, razor, @inject, UiComponent, early return, console UI | docs/db/docs/BLAZOR.md |
+| which pattern to use, decision | docs/db/docs/DECISION_TREES.md |
+| error lookup, why X fails, memory leak, NullRef | docs/db/docs/ERRORS.md |
+| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | docs/db/docs/GAMEPLAY.md |
+| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | docs/db/docs/UI_MENU.md |
+| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | docs/db/docs/COMMON_ORLEANS.md |
 | new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
-| IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/COMMON_ORLEANS.md |
-| trigger keywords, documentation finder, reading order | docs/TRIGGERS.md |
-| code examples, Docs_*.cs, working examples | docs/CODE_EXAMPLES.md |
-| common mistakes, top errors, checklist failures | docs/CLAUDE_MISTAKES.md |
-| full examples, Lifetime details, reactive details | docs/COMMON_*.md |
-| PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/PREFAB_CODEGEN.md |
-| telemetry, metrics, logs, .telemetry, file logging, session logs | docs/TELEMETRY.md |
-| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | docs/TESTING.md |
+| IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/db/docs/COMMON_ORLEANS.md |
+| trigger keywords, documentation finder, reading order | docs/db/docs/TRIGGERS.md |
+| code examples, Docs_*.cs, working examples | docs/db/docs/CODE_EXAMPLES.md |
+| common mistakes, top errors, checklist failures | docs/db/docs/CLAUDE_MISTAKES.md |
+| full examples, Lifetime details, reactive details | docs/db/docs/COMMON_*.md |
+| PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/db/docs/PREFAB_CODEGEN.md |
+| telemetry, metrics, logs, .telemetry, file logging, session logs | docs/db/docs/TELEMETRY.md |
+| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | docs/db/docs/TESTING.md |
 
 ## Architecture
 
@@ -64,23 +64,23 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 ## Full Documentation
 
 **Patterns & rules:**
-- `docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
-- `docs/COMMON_LIFETIMES.md` + `COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
-- `docs/COMMON_REACTIVE_BASICS.md` / `_VALUES.md` / `_COLLECTIONS.md` / `_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
-- `docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
-- `docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
-- `docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
-- `docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
-- `docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
+- `docs/db/docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
+- `docs/db/docs/COMMON_LIFETIMES.md` + `docs/db/docs/COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
+- `docs/db/docs/COMMON_REACTIVE_BASICS.md` / `docs/db/docs/COMMON_REACTIVE_VALUES.md` / `docs/db/docs/COMMON_REACTIVE_COLLECTIONS.md` / `docs/db/docs/COMMON_REACTIVE_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
+- `docs/db/docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
+- `docs/db/docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
+- `docs/db/docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
+- `docs/db/docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
+- `docs/db/docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
 
 **Reference & lookup:**
-- `docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
-- `docs/ERRORS.md` — error lookup table with causes & fixes
-- `docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
-- `docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
-- `docs/VOCABULARY.md` — consistent terminology
-- `docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
-- `docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
-- `docs/CODE_EXAMPLES.md` — index of runnable code examples
-- `docs/TELEMETRY.md` — .telemetry directory: metrics, logs, game session logs
+- `docs/db/docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
+- `docs/db/docs/ERRORS.md` — error lookup table with causes & fixes
+- `docs/db/docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
+- `docs/db/docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
+- `docs/db/docs/VOCABULARY.md` — consistent terminology
+- `docs/db/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
+- `docs/db/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
+- `docs/db/docs/CODE_EXAMPLES.md` — index of runnable code examples
+- `docs/db/docs/TELEMETRY.md` — .telemetry directory: metrics, logs, game session logs
 - `client/Assets/Common/Docs/Claude/*.cs` — runnable code examples for all patterns

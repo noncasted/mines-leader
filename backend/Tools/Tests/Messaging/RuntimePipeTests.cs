@@ -109,11 +109,36 @@ public class RuntimePipeTests
         // Terminate the handler
         lifetime.Terminate();
 
-        // Allow resubscribe loop to notice the termination
+        // Allow cleanup to run
         await Task.Delay(200);
 
         var act = () => messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "gone" });
         await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task Exists_HandlerTerminated_ReturnsFalse()
+    {
+        var pipeId = new TestPipeId(Guid.NewGuid().ToString());
+        var messaging = GetSiloService<IMessaging>();
+        var lifetime = new Lifetime();
+
+        await messaging.AddPipeRequestHandler<TestRequest, TestResponse>(lifetime, pipeId,
+            req => Task.FromResult(new TestResponse { Answer = "ok" }));
+
+        (await messaging.IsPipeExists(pipeId)).Should().BeTrue();
+
+        lifetime.Terminate();
+
+        var exists = true;
+
+        for (var i = 0; i < 20 && exists; i++)
+        {
+            await Task.Delay(50);
+            exists = await messaging.IsPipeExists(pipeId);
+        }
+
+        exists.Should().BeFalse();
     }
 
     [Fact]

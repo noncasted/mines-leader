@@ -167,7 +167,7 @@ Fix: перенумеровать: 0, 1, 2
 ### Документация
 
 > Из: docs-checker
-`docs/GAMEPLAY.md` — CardType.ChainReaction не документирован
+`docs/db/docs/GAMEPLAY.md` — CardType.ChainReaction не документирован
 Action: запустить docs-writer для обновления
 
 ---

@@ -7,7 +7,7 @@ public interface IDurableQueue : IGrainWithStringKey
 {
     Task AddObserver(Guid id, IDurableQueueObserver observer);
     Task RemoveObserver(Guid id);
-    Task Push(object message);
+    Task Push(object message, Guid correlationId = default);
 }
 
 public class DurableQueue : Grain, IDurableQueue
@@ -59,11 +59,16 @@ public class DurableQueue : Grain, IDurableQueue
         return Task.CompletedTask;
     }
 
-    public async Task Push(object message)
+    public async Task Push(object message, Guid correlationId = default)
     {
+        var queueName = this.GetPrimaryKeyString();
         using var activity = TraceExtensions.MessagingDurableQueue.StartActivity("DurableQueue.Push");
+        activity?.SetTag("messaging.queue", queueName);
         activity?.SetTag("message.type", message.GetType().Name);
         activity?.SetTag("observer.count", _observers.Count);
+
+        if (correlationId != Guid.Empty)
+            activity?.SetTag("messaging.correlation_id", correlationId);
 
         BackendMetrics.DurableQueuePushed.Add(1);
         BackendMetrics.DurableQueueObserverCount.Record(_observers.Count);
@@ -72,47 +77,63 @@ public class DurableQueue : Grain, IDurableQueue
         {
             BackendMetrics.DurableQueueNoSubscribers.Add(1);
 
-            _logger.LogWarning("[Messaging] [DurableQueue] No active subscribers for queue '{QueueName}'",
-                this.GetPrimaryKeyString());
+            _logger.LogWarning(
+                "[Messaging] [DurableQueue] No active subscribers for queue '{QueueName}' (correlation {CorrelationId})",
+                queueName, correlationId);
 
             throw new InvalidOperationException(
-                $"No active subscribers for durable queue '{this.GetPrimaryKeyString()}'. Message left in processing for requeue.");
+                $"No active subscribers for durable queue '{queueName}'. Message left in processing for requeue.");
         }
 
-        List<Guid>? toRemove = null;
+        var toRemove = new List<Guid>();
+        var successCount = 0;
+        var failedCount = 0;
 
-        foreach (var data in _observers.Values)
+        foreach (var data in _observers.Values.ToArray())
         {
             try
             {
                 await data.Observer.Send(message);
+                successCount++;
             }
             catch (Exception e)
             {
-                toRemove ??= new List<Guid>();
+                failedCount++;
                 toRemove.Add(data.Id);
                 BackendMetrics.DurableQueueDeliveryFailure.Add(1);
 
                 _logger.LogError(e,
-                    "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer failed",
-                    this.GetPrimaryKeyString());
+                    "[Messaging] [DurableQueue] Delivering message from {QueueName} to observer {ObserverId} failed (correlation {CorrelationId})",
+                    queueName, data.Id, correlationId);
             }
         }
 
-        if (toRemove != null)
+        foreach (var id in toRemove)
+            _observers.Remove(id);
+
+        activity?.SetTag("observer.success_count", successCount);
+        activity?.SetTag("observer.failure_count", failedCount);
+
+        if (successCount > 0)
         {
-            foreach (var id in toRemove)
-                _observers.Remove(id);
-
-            if (_observers.Count == 0)
+            if (failedCount > 0)
             {
-                BackendMetrics.DurableQueueNoSubscribers.Add(1);
-
                 _logger.LogWarning(
-                    "[Messaging] [DurableQueue] All subscribers removed after delivery failure on queue '{QueueName}'",
-                    this.GetPrimaryKeyString());
+                    "[Messaging] [DurableQueue] Delivered message from {QueueName} to {SuccessCount}/{ObserverCount} observers; removed {FailedCount} failed observers (correlation {CorrelationId})",
+                    queueName, successCount, successCount + failedCount, failedCount, correlationId);
             }
+
+            return;
         }
+
+        BackendMetrics.DurableQueueNoSubscribers.Add(1);
+
+        _logger.LogWarning(
+            "[Messaging] [DurableQueue] No successful deliveries on queue '{QueueName}': observers={ObserverCount}, failed={FailedCount}, remaining={RemainingCount}, correlation={CorrelationId}",
+            queueName, successCount + failedCount, failedCount, _observers.Count, correlationId);
+
+        throw new InvalidOperationException(
+            $"No subscribers successfully processed durable queue '{queueName}'. Message left in processing for requeue.");
     }
 
     public class ObserverData

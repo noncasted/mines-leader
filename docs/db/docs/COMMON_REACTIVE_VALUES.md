@@ -49,13 +49,13 @@ gold.IsGreater(50);                            // Predicate
 ## Full Code Examples
 
 Complete examples with all ViewableProperty scenarios:
-→ [Assets/Common/Docs/Claude/Docs_Reactive.cs](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
+→ [Assets/Common/Docs/Claude/Docs_Reactive.cs](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs)
 
 Specific examples:
-- [LifetimedValue](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L54)
-- [ViewableProperty](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
-- [Boolean extensions](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
-- [Integer extensions](../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
+- [LifetimedValue](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L54)
+- [ViewableProperty](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
+- [Boolean extensions](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
+- [Integer extensions](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs#L75)
 
 ## Key Rules
 

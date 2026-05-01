@@ -12,7 +12,7 @@ Audits parts of the `.claude` folder by researching domain-specific best practic
 - `/audit agents` — audit agent definitions in `.claude/agents/`
 - `/audit skills` — audit all skills in `.claude/skills/`
 - `/audit skills/check` — audit a specific skill
-- `/audit docs` — audit docs in `.claude/docs/`
+- `/audit docs` — audit docs in `docs/db/docs/`
 - `/audit CLAUDE.md` — audit the main CLAUDE.md
 - `/audit all` — full audit of everything (takes a while)
 
@@ -34,9 +34,9 @@ The same files can serve different purposes depending on context. For example:
 | `.claude/agents/` as validators (from `/check`) | Static analysis / linting design | How to build effective code validators, what makes good lint rules, false positive rates |
 | `.claude/skills/commit/` | Git commit workflow automation | Conventional commits, commit message best practices, pre-commit hooks |
 | `.claude/skills/check/` | Code review automation | Automated code review systems, which checks catch real bugs vs noise |
-| `.claude/docs/COMMON_LIFETIMES.md` | Resource management documentation | How to document ownership/lifetime patterns, common pitfalls in reactive systems |
-| `.claude/docs/COMMON_ORLEANS.md` | Distributed systems documentation | Orleans grain best practices, actor model anti-patterns |
-| `.claude/docs/GAMEPLAY.md` | Game design documentation | How to document game mechanics for developers |
+| `docs/db/docs/COMMON_LIFETIMES.md` | Resource management documentation | How to document ownership/lifetime patterns, common pitfalls in reactive systems |
+| `docs/db/docs/COMMON_ORLEANS.md` | Distributed systems documentation | Orleans grain best practices, actor model anti-patterns |
+| `docs/db/docs/GAMEPLAY.md` | Game design documentation | How to document game mechanics for developers |
 | `.claude/CLAUDE.md` | Claude Code configuration | CLAUDE.md structure, prompt hierarchy, what goes where |
 
 The key insight: **don't audit the container, audit the content**. Agent files are prompts — audit them as prompts. A skill that automates commits — audit the commit workflow it implements. Rules about Orleans — audit whether the Orleans guidance is correct and complete.

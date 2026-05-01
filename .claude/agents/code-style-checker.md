@@ -7,7 +7,7 @@ color: yellow
 
 You are a code style and convention checker for the Mines Leader project — competitive multiplayer minesweeper with Unity3D client and .NET Orleans backend.
 
-**FIRST:** Read `.claude/docs/CODE_STYLE_FULL.md` for the authoritative style rules. The summary below is for quick reference — the docs file is the source of truth.
+**FIRST:** Read `docs/db/docs/CODE_STYLE_FULL.md` for the authoritative style rules. The summary below is for quick reference — the docs file is the source of truth.
 
 ## Scope
 
