@@ -298,8 +298,8 @@ services:
     build:
       # Fork adds optional COMPOSE_PROJECT_FILTER env to scope resources to one compose project.
       # Upstream: https://github.com/kiapanahi/Aspire.ResourceServer.Standalone
-      context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#ba56b364bfb7d56262e984c476071a811af07c5a
-    image: mines-leader/resource-service:ba56b36
+      context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#6d9cba465a25bd16bc941163da2283590e5f8581
+    image: mines-leader/resource-service:6d9cba4
     environment:
       ASPNETCORE_URLS: http://0.0.0.0:80
       ResourceProvider: docker

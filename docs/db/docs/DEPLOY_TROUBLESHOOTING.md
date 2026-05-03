@@ -520,7 +520,7 @@ NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnera
 
 **Cause.** `Directory.Build.props` in the fork sets `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`. Upstream pinned OpenTelemetry to 1.10.0; later advisories upgraded that to NU1902.
 
-**Fix.** Bump every OpenTelemetry.* package in `src/Aspire.ResourceService.Standalone.ServiceDefaults/*.csproj` to ≥ 1.15.0 (we use 1.15.2 stable + 1.15.0-beta.1 for the GrpcNetClient/Process instrumentations). Fork commit `ca5558e`.
+**Fix.** Bump every OpenTelemetry.* package in `src/Aspire.ResourceService.Standalone.ServiceDefaults/*.csproj` to ≥ 1.15.3 (we use 1.15.3 stable + 1.15.0-beta.1 for the GrpcNetClient/Process instrumentations). Fork commit `6d9cba4`.
 
 Future advisories will need the same kind of bump; do not turn off `TreatWarningsAsErrors` to dodge it.
 
@@ -607,7 +607,7 @@ Without `start_period`, the first failed checks during the ~3-second cold start 
 | Blazor buttons silently dead | server logs for `AntiforgeryValidationException` | persistent DataProtection volume + `user: root` |
 | `repository does not contain ref <sha>` | `context:` uses **full** 40-char SHA, not abbreviated | `git rev-parse <ref>` to get full SHA |
 | Resource-service `CS0718 / CS0234` after rename | static class collision with proto-generated `DashboardService` | wrapper renamed everywhere incl. tests |
-| `NU1902` advisory for OTel | bump OpenTelemetry.* to ≥ 1.15 in fork's ServiceDefaults csproj | do not disable TreatWarningsAsErrors |
+| `NU1902` advisory for OTel | bump OpenTelemetry.* to ≥ 1.15.3 in fork's ServiceDefaults csproj | do not disable TreatWarningsAsErrors |
 | `CS0246` flood after Dockerfile tweak | per-service `BaseIntermediateOutputPath` was added? | revert — it breaks transitive ProjectReferences |
 | Aspire dashboard 504 for first ~2 min | `depends_on: resource-service` is still `service_started`? | switch to `service_healthy` + TCP healthcheck on resource-service |
 | `_blazor/negotiate` 502/503/504 then container is `Up healthy` | Traefik pool holding the previous container ID | `docker restart coolify-proxy` (kicks all sites for ~10 s) |
