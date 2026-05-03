@@ -1,3 +1,7 @@
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /view-prefab, view-prefab, посмотри префаб, view prefab, screenshot prefab, покажи префаб, prefab screenshot
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # View Prefab Skill
 
 Capture a screenshot and full hierarchy of a Unity prefab. Returns the image and structural data for analysis.

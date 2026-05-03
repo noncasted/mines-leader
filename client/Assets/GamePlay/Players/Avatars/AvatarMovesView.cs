@@ -2,6 +2,7 @@
 using Internal;
 using Network;
 using Tools;
+using Tools.Runtime.PrefabBuilder;
 using UnityEngine;
 using VContainer;
 

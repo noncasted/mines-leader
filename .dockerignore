@@ -40,5 +40,5 @@ backend/Tools/Tests/
 **/launchSettings.json
 
 # Telemetry / logs
-.telemetry/
+backend/.telemetry/
 **/*.log

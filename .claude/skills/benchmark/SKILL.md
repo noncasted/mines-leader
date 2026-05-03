@@ -3,6 +3,10 @@ name: benchmark
 description: Write new benchmarks for backend features using the project's cluster benchmark framework. Use this skill whenever the user asks to benchmark, performance-test, or measure throughput of any backend feature — grains, state, transactions, messaging, game logic, meta systems, infrastructure, task scheduling, or any other backend functionality. Also trigger when the user says "benchmark this", "add benchmark coverage", "measure performance of", or mentions benchmarking backend code.
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /benchmark, benchmark, бенчмарк, напиши бенчмарк, добавь бенчмарк, benchmark this, measure performance, протестируй производительность, напиши benchmark
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Write Benchmarks
 
 This skill writes benchmarks for backend features using the cluster benchmark framework in `backend/Benchmarks/`.

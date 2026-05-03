@@ -3,6 +3,10 @@ name: gitstat
 description: "Collect and display git commit statistics for the current user. Shows commit count, total file/line changes, and .cs-specific changes in a compact table. Use this skill when the user asks for git statistics, commit stats, daily activity summary, line change counts, or wants to know what they (or someone) committed today or over a period."
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /gitstat, gitstat, статистика гита, коммит статистика, git stats, сколько коммитов, daily activity, commit stats, статистика коммитов
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Git Statistics
 
 Collect git commit statistics and display them in a compact table.

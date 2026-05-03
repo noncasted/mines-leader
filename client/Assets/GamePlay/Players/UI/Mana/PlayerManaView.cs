@@ -2,6 +2,7 @@
 using System.Linq;
 using Internal;
 using Tools;
+using Tools.Runtime.PrefabBuilder;
 using UnityEngine;
 using VContainer;
 

@@ -3,6 +3,10 @@ name: audit
 description: "Audit and improve parts of the .claude configuration folder — agents, skills, rules, docs, CLAUDE.md. Researches best practices online for the specific domain being audited, then finds inconsistencies, errors, and improvement opportunities. Use this skill when the user says /audit, asks to review or improve their .claude setup, mentions 'audit agents', 'improve my rules', 'check my skill', or wants to optimize any part of the .claude folder."
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /audit, audit, аудит, проверь конфиг, аудит агентов, аудит скиллов, аудит доков, аудит CLAUDE.md, аудит всего
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Audit Skill
 
 Audits parts of the `.claude` folder by researching domain-specific best practices and then comparing the current state against them.

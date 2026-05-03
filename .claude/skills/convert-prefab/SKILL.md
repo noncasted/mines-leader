@@ -3,6 +3,10 @@ name: convert-prefab
 description: Convert a Unity prefab to code-generated [PrefabDefinition] using PrefabBuilder. Use this skill whenever the user asks to convert, codegen, or recreate a prefab from code. Also trigger when user says "prefab to code", "generate prefab", or mentions PrefabBuilder for a specific prefab.
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /convert-prefab, convert-prefab, конвертируй префаб, prefab to code, generate prefab, префаб в код, кодген префаба, PrefabBuilder
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Convert Prefab to Code Skill
 
 This skill converts an existing Unity prefab into a `[PrefabDefinition]` class that generates the prefab from C# code using `PrefabBuilder`. The generated prefab is saved to `Assets/Resources/Generated/` and accessible via `Prefabs.PropertyName`.

@@ -8,7 +8,6 @@ using Menu.Screens.Cards.Preview;
 using Meta;
 using Shared;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using VContainer;
 
@@ -47,6 +46,7 @@ namespace Menu.Decks
         private VisualElement _previewImage;
         private Label _previewName;
         private Label _previewDesc;
+        private Texture2D _glowTexture;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -184,7 +184,6 @@ namespace Menu.Decks
             _poolScroll.schedule.Execute(GenerateGlowTexture).ExecuteLater(200);
         }
 
-        private Texture2D _glowTexture;
 
         private void GenerateGlowTexture()
         {
@@ -382,14 +381,17 @@ namespace Menu.Decks
 
         private void RegisterPreviewHover(CardElement card, IReadOnlyLifetime lifetime)
         {
-            void OnEnter(PointerEnterEvent evt) {
+            void OnEnter(PointerEnterEvent evt)
+            {
                 Debug.Log($"[Preview] Hover.Enter: cardType={card.CurrentType?.ToString() ?? "null"}.");
+
                 if (!card.CurrentType.HasValue)
                     return;
                 ShowPreview(card);
             }
 
-            void OnLeave(PointerLeaveEvent evt) {
+            void OnLeave(PointerLeaveEvent evt)
+            {
                 Debug.Log("[Preview] Hover.Leave.");
                 HidePreview();
             }
@@ -453,11 +455,13 @@ namespace Menu.Decks
             // Защита на случай, если layout ещё не просчитан.
             if (popupWidth <= 0f)
                 popupWidth = 96f;
+
             if (popupHeight <= 0f)
                 popupHeight = 120f;
 
             // Якорный rect относительно cards-root.
-            var anchorRect = anchor.ChangeCoordinatesTo(_cardsRoot, new Rect(0, 0, anchor.resolvedStyle.width, anchor.resolvedStyle.height));
+            var anchorRect = anchor.ChangeCoordinatesTo(_cardsRoot,
+                new Rect(0, 0, anchor.resolvedStyle.width, anchor.resolvedStyle.height));
 
             // Базовое позиционирование — справа от карточки, сверху совмещено.
             var left = anchorRect.xMax + 2f;
@@ -474,6 +478,7 @@ namespace Menu.Decks
             // Вертикальная коррекция — чтобы не уходил вниз за экран.
             if (top + popupHeight > panelHeight)
                 top = panelHeight - popupHeight;
+
             if (top < 0f)
                 top = 0f;
 

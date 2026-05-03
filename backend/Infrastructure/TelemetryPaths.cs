@@ -27,7 +27,7 @@ public static class TelemetryPaths
         if (root == null)
             return null;
 
-        var dir = Path.Combine(root, ".telemetry", subfolder);
+        var dir = Path.Combine(root, "backend", ".telemetry", subfolder);
         Directory.CreateDirectory(dir);
         return dir;
     }

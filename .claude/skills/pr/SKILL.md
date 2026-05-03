@@ -1,3 +1,7 @@
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /pr, pr, пулл реквест, создай PR, pull request, открой PR, запрос на слияние, github pr
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # PR Skill
 
 When the user runs `/pr`, create a GitHub pull request for the current branch.

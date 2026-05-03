@@ -1,8 +1,7 @@
 #if UNITY_EDITOR
 using MPUIKIT;
 using Tools;
-using Tools.DI;
-using Tools.Objects;
+using Tools.Runtime.PrefabBuilder;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -31,7 +31,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | common mistakes, top errors, checklist failures | docs/db/docs/CLAUDE_MISTAKES.md |
 | full examples, Lifetime details, reactive details | docs/db/docs/COMMON_*.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/db/docs/PREFAB_CODEGEN.md |
-| telemetry, metrics, logs, .telemetry, file logging, session logs | docs/db/docs/TELEMETRY.md |
+| telemetry, metrics, logs, backend/.telemetry, file logging, session logs | docs/db/docs/TELEMETRY.md |
 | test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | docs/db/docs/TESTING.md |
 
 ## Architecture
@@ -82,5 +82,5 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - `docs/db/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
 - `docs/db/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
 - `docs/db/docs/CODE_EXAMPLES.md` — index of runnable code examples
-- `docs/db/docs/TELEMETRY.md` — .telemetry directory: metrics, logs, game session logs
+- `docs/db/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs
 - `client/Assets/Common/Docs/Claude/*.cs` — runnable code examples for all patterns
