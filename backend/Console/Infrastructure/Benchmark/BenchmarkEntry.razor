@@ -10,14 +10,16 @@
             <LucideIcon Name="@(_expanded ? "chevron-down" : "chevron-right")" Size="14" />
         </button>
 
-        @if (_operation.Status.Value is OperationStatus.Preparing or OperationStatus.InProgress)
-        {
-            <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive" @onclick="Cancel">Cancel</BbButton>
-        }
-        else
-        {
-            <BbButton Size="ButtonSize.Small" @onclick="Start">Run</BbButton>
-        }
+        <div class="w-16 shrink-0">
+            @if (_operation.Status.Value is OperationStatus.Preparing or OperationStatus.InProgress)
+            {
+                <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Destructive" @onclick="Cancel">Cancel</BbButton>
+            }
+            else
+            {
+                <BbButton Size="ButtonSize.Small" @onclick="Start">Run</BbButton>
+            }
+        </div>
 
         <div class="flex w-4 shrink-0 justify-center">
             @switch (_operation.Status.Value)

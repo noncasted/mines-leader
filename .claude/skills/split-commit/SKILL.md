@@ -1,3 +1,7 @@
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /split-commit, split-commit, раздели коммит, split commit, разбей на коммиты, организуй коммиты, commit everything in parts, too many changes for one commit
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Split Commit Skill
 
 When the user runs `/split-commit`, analyze all current changes and split them into logical groups, committing each group separately. The goal is to produce a clean, readable git history instead of one massive commit with unrelated changes mixed together.

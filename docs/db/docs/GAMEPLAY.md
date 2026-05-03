@@ -337,7 +337,7 @@ Stateless board analysis (injected into strategies via constructor):
 
 ### Session Logging
 
-`ISessionLogger` logs all bot decisions to `.telemetry/logs-games/{date}/{sessionId}.log`:
+`ISessionLogger` logs all bot decisions to `backend/.telemetry/logs-games/{date}/{sessionId}.log`:
 - Player labels: `Human`/`Bot` instead of GUIDs (via `RegisterPlayers`)
 - Round separators: `-------- Round N Start/End PLAYER --------`
 - Bot state at turn start: mana, moves, hand, health

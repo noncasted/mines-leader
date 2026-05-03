@@ -1,3 +1,7 @@
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /validate, validate, валидация, валидируй, проверь правила, validate files, проверь по правилам, project rules, code validation
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Validate Skill
 
 When the user runs `/validate`, check all modified `.cs` files against project rules and report every violation.

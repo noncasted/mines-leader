@@ -1,3 +1,7 @@
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /workflow, workflow, воркфлоу, запусти воркфлоу, create workflow, task workspace, начни задачу, workflow task
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Workflow Skill
 
 When the user runs `/workflow [description]`, create a structured task workspace with three files and begin implementation.

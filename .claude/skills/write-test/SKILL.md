@@ -3,6 +3,10 @@ name: write-test
 description: Write integration tests for backend features using the project's custom Orleans cluster test framework. Use this skill whenever the user asks to write, create, or add a test for any backend feature — grains, state, transactions, messaging, game logic, meta systems, cards, matchmaking, user flows, or any other backend functionality. Also trigger when the user says "cover this with tests", "add test coverage", or mentions testing backend code.
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /write-test, write-test, напиши интеграционный тест, write integration test, integration test, тест бэкенда, backend test, backend tests, Orleans test
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Write Integration Tests
 
 This skill writes tests for backend features using the project's custom cluster test framework in `backend/Tests/`.

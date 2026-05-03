@@ -3,6 +3,10 @@ name: benchmark-analyse
 description: Run benchmarks via API and analyse results — trends, regressions, anomalies. Use when user asks to run benchmarks, check performance, compare benchmark results, or analyse benchmark history. Also trigger on "run benchmarks", "check performance", "benchmark results", "performance regression".
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /benchmark-analyse, benchmark-analyse, анализ бенчмарков, запусти бенчмарки, проверь производительность, benchmark results, performance regression, сравни бенчмарки, run benchmarks, check performance
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Benchmark Analyse
 
 Run benchmarks through the ConsoleGateway API and interpret results.

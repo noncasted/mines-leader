@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using Internal;
 using Tools;
-using Tools.Objects;
+using Tools.Runtime.PrefabBuilder;
 
 namespace Global.Setup
 {

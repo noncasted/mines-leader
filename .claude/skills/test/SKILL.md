@@ -3,6 +3,10 @@ name: test
 description: Write xUnit integration and unit tests for backend features. Use this skill whenever the user asks to write, create, add, or cover tests for any backend functionality — cards, board mechanics, grains, state, transactions, messaging, player stats, meta services, or any game logic. Also trigger on "cover with tests", "add test coverage", "test this", or when user mentions a specific card/system and wants tests written.
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /test, test, тест, напиши тест, добавь тест, cover with tests, add test coverage, test this, тестирование, напиши тесты, напиши xUnit
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Write Tests
 
 This skill writes xUnit tests for backend features using the test framework in `backend/Tests/`.

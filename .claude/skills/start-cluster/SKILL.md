@@ -3,6 +3,10 @@ name: start-cluster
 description: Start the backend Aspire cluster. Use when any task requires a running cluster — benchmarks, tests, API calls, telemetry analysis. Also trigger on "start cluster", "start backend", "start server", "run cluster".
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /start-cluster, start-cluster, запусти кластер, start cluster, start backend, start server, run cluster, запусти бэкенд, запусти сервер
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Start Cluster
 
 Start the Aspire backend cluster and wait for it to be ready.

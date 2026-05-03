@@ -5,6 +5,7 @@ using Internal;
 using Meta;
 using Shared;
 using Tools;
+using Tools.Runtime.PrefabBuilder;
 using VContainer.Unity;
 
 namespace GamePlay.Cards

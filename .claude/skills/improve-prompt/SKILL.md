@@ -3,6 +3,10 @@ name: improve-prompt
 description: "Rewrite and improve a Claude Code prompt for maximum effectiveness. Use this skill whenever the user asks to improve, rewrite, optimize, or enhance a prompt — or when they paste a draft prompt and say something like 'make this better', 'polish this', 'how should I phrase this', 'fix my prompt'. Also trigger when the user says /improve-prompt or mentions prompt quality."
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /improve-prompt, improve-prompt, улучши промпт, оптимизируй промпт, rewrite prompt, polish prompt, fix my prompt, make this better, how should I phrase this, улучши запрос
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Improve Prompt
 
 You receive a raw prompt from the user. Your job: return a significantly better version that will produce more accurate, focused results from Claude Code.

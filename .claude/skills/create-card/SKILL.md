@@ -3,6 +3,10 @@ name: create-card
 description: Create a new card for the competitive minesweeper game. Use this skill whenever the user asks to add, create, or implement a new card, card type, or card mechanic. Also use when the user mentions a card name from docs/obsidian/game/cards/ and wants it implemented. Covers all three codebases — shared models, backend mechanics + bot strategy, console config editor, and client-side action + sync.
 ---
 
+# AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
+TRIGGERS: /create-card, create-card, создай карту, новая карта, добавь карту, create card, implement card, новый тип карт, card type
+BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
+
 # Create Card Skill
 
 This skill guides you through adding a new card to the game across all three codebases. A card touches ~15 files across shared/, backend/, and client/ — missing any one of them causes silent failures, so follow the checklist carefully.
