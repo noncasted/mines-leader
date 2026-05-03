@@ -158,9 +158,9 @@
     },
     {
       "type": "Scavenger",
-      "name": "Scavenger",
+      "name": "Mobilization",
       "description": "Draws 2 cards from the deck into your hand, ignoring the hand limit.",
-      "icon": "Cards/Scavenger"
+      "icon": "Cards/Mobilization"
     },
     {
       "type": "HandScramble",
@@ -190,7 +190,7 @@
       "type": "Adrenaline",
       "name": "Adrenaline",
       "description": "Grants +1 extra action this turn.",
-      "icon": "Cards/New/Adrenaline"
+      "icon": "Cards/Adrenaline"
     },
     {
       "type": "ManaSurge",
@@ -202,19 +202,19 @@
       "type": "BloodPact",
       "name": "Blood Pact",
       "description": "Sacrifice 1 HP to gain +3 temporary mana and +2 extra actions this turn.",
-      "icon": "Cards/New/BloodPact"
+      "icon": "Cards/BloodPact"
     },
     {
       "type": "CoinToss",
       "name": "Coin Toss",
       "description": "Flip a coin: heads grants +2 actions, tails costs 1 action.",
-      "icon": "Cards/New/CoinToss"
+      "icon": "Cards/CoinToss"
     },
     {
       "type": "ManaFountain",
       "name": "Mana Fountain",
       "description": "Roll a d5: gain 1-5 temporary mana this turn.",
-      "icon": "Cards/New/ManaFountain"
+      "icon": "Cards/ManaFountain"
     },
     {
       "type": "Focus",
@@ -226,7 +226,7 @@
       "type": "Shield",
       "name": "Shield",
       "description": "Absorbs the next mine hit, preventing 1 HP damage.",
-      "icon": "Cards/New/Shield"
+      "icon": "Cards/Shield"
     },
     {
       "type": "PowerSurge",
@@ -298,7 +298,7 @@
       "type": "ChaosScout",
       "name": "Chaos Scout",
       "description": "Random scout line of length 3-7, flagging mines and revealing safe cells.",
-      "icon": "Cards/New/ChaosScout"
+      "icon": "Cards/ChaosScout"
     },
     {
       "type": "MineCluster",
@@ -316,7 +316,7 @@
       "type": "CarpetBomb",
       "name": "Carpet Bomb",
       "description": "Plants mines in a line of 5 on the opponent's field.",
-      "icon": "Cards/New/CarpetBomb"
+      "icon": "Cards/CarpetBomb"
     },
     {
       "type": "CarpetBomb_Max",
@@ -340,7 +340,7 @@
       "type": "Frost",
       "name": "Frost",
       "description": "Freezes the opponent, preventing them from opening cells for 1 round.",
-      "icon": "Cards/New/Frost"
+      "icon": "Cards/Frost"
     },
     {
       "type": "Frost_Max",
@@ -364,7 +364,7 @@
       "type": "FortuneCookie",
       "name": "Fortune Cookie",
       "description": "Draw a random card from the deck.",
-      "icon": "Cards/New/FortuneCookie"
+      "icon": "Cards/FortuneCookie"
     },
     {
       "type": "Salvage",
