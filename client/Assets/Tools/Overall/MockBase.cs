@@ -5,7 +5,7 @@ using Meta;
 using UnityEngine;
 using VContainer;
 
-namespace Tools
+namespace Tools.Overall
 {
     [DisallowMultipleComponent]
     public abstract class MockBase : MonoBehaviour

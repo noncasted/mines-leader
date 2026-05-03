@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
@@ -98,7 +99,7 @@ namespace GamePlay
         private async UniTask PlayCellsAnimation(
             ICardActionData data,
             IReadOnlyList<Position>? cells,
-            System.Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
+            Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
         {
             if (cells == null || cells.Count == 0)
                 return;

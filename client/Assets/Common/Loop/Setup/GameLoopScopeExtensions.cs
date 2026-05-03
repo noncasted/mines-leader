@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 using Loop.Loaders;
-using Tools.Runtime.SceneBuilder;
+using Tools.SceneBuilder;
 
 namespace Loop.Setup
 {

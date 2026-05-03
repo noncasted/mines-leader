@@ -7,7 +7,8 @@ public interface IBoardMinesScanner
     int Mines { get; }
     int Flags { get; }
 
-    IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot? snapshot = null);
+    IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate();
+    IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot snapshot);
 }
 
 public class BoardMinesScanner : IBoardMinesScanner
@@ -22,7 +23,17 @@ public class BoardMinesScanner : IBoardMinesScanner
     public int Mines { get; private set; }
     public int Flags { get; private set; }
 
-    public IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot? snapshot = null)
+    public IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate()
+    {
+        return RecalculateCore(snapshot: null);
+    }
+
+    public IReadOnlyList<BoardSnapshotRecord.MinesAround> Recalculate(MoveSnapshot snapshot)
+    {
+        return RecalculateCore(snapshot);
+    }
+
+    private IReadOnlyList<BoardSnapshotRecord.MinesAround> RecalculateCore(MoveSnapshot? snapshot)
     {
         var cells = _board.Cells;
         List<BoardSnapshotRecord.MinesAround>? changed = null;

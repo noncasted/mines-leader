@@ -21,6 +21,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         IRuntimeChannelConfig runtimeChannel,
         ITransactionConfig transactionConfig,
         ILootProgressionConfig lootProgression,
+        IUserDeckConfig userDeckConfig,
         ILogger<ClusterConfigsSetup> logger)
     {
         _cards = cards;
@@ -34,6 +35,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _runtimeChannel = runtimeChannel;
         _transactionConfig = transactionConfig;
         _lootProgression = lootProgression;
+        _userDeckConfig = userDeckConfig;
         _logger = logger;
     }
 
@@ -48,6 +50,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly IRuntimeChannelConfig _runtimeChannel;
     private readonly ITransactionConfig _transactionConfig;
     private readonly ILootProgressionConfig _lootProgression;
+    private readonly IUserDeckConfig _userDeckConfig;
     private readonly ILogger<ClusterConfigsSetup> _logger;
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
@@ -63,6 +66,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitConfig("config.runtimeChannel", _runtimeChannel);
         await InitConfig("config.transaction", _transactionConfig);
         await InitConfigWithDefault("config.lootProgression", _lootProgression, LootProgressionOptions.CreateDefault());
+        await InitConfig("config.userDeck", _userDeckConfig);
 
         return;
 

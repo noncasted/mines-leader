@@ -1,6 +1,6 @@
 using System;
 
-namespace Tools.Runtime.PrefabBuilder
+namespace Tools.PrefabBuilder
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class InjectGeneratedAttribute : Attribute

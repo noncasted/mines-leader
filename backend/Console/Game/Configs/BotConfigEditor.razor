@@ -6,40 +6,111 @@
         </div>
         <h2 class="text-sm font-semibold">Bot Configuration</h2>
     </div>
-    <div class="flex flex-col">
-        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-            <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
-            <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
-            <input type="number" @bind="Value.MatchmakingApplyThreshold" step="0.1"
-                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-        </div>
-        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-            <LucideIcon Name="zap" Size="12" class="text-muted-foreground shrink-0" />
-            <span class="text-sm flex-1">Action Delay (sec)</span>
-            <input type="number" @bind="Value.ActionDelay" step="0.1"
-                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-        </div>
-        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-            <LucideIcon Name="flag" Size="12" class="text-muted-foreground shrink-0" />
-            <span class="text-sm flex-1">Flags Per Round</span>
-            <input type="number" @bind="Value.FlagsPerRound"
-                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-        </div>
-        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-            <LucideIcon Name="grid-2x2" Size="12" class="text-muted-foreground shrink-0" />
-            <span class="text-sm flex-1">Cells Open Per Round</span>
-            <input type="number" @bind="Value.CellsOpenPerRound"
-                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-        </div>
-        <div class="flex items-center gap-3 py-1.5">
-            <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
-            <span class="text-sm flex-1">Cards Use Per Round</span>
-            <input type="number" @bind="Value.CardsUsePerRound"
-                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-        </div>
+
+    <div class="flex gap-1 border-b border-border/60 pb-1">
+        @foreach (var profile in _profiles)
+        {
+            <button
+                @onclick="() => SelectProfile(profile)"
+                class="px-3 py-1 text-xs font-medium rounded-t transition-colors @GetTabClass(profile)">
+                @profile
+            </button>
+        }
     </div>
+
+    @if (_selectedProfile is {} selected)
+    {
+        var config = Value.Profiles[selected];
+
+        @if (_editingDeckIndex is {} deckIndex && deckIndex >= 0 && deckIndex < config.Decks.Count)
+        {
+            <BotDeckEditor
+                Deck="config.Decks[deckIndex]"
+                DeckSize="config.DeckSize"
+                OnBack="() => _editingDeckIndex = null" />
+        }
+        else
+        {
+            <div class="flex flex-col">
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="zap" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Action Delay (sec)</span>
+                    <input type="number" @bind="config.ActionDelay" step="0.1"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="flag" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Flags Per Round</span>
+                    <input type="number" @bind="config.FlagsPerRound"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="grid-2x2" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Cells Open Per Round</span>
+                    <input type="number" @bind="config.CellsOpenPerRound"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Cards Use Per Round</span>
+                    <input type="number" @bind="config.CardsUsePerRound"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="database" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Deck Size</span>
+                    <input type="number" @bind="config.DeckSize"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="timer" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Min Round Time (sec)</span>
+                    <input type="number" @bind="config.MinRoundTime" step="0.1"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5">
+                    <LucideIcon Name="timer" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Max Round Time (sec)</span>
+                    <input type="number" @bind="config.MaxRoundTime" step="0.1"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-border/60">
+                <BotDeckBuilder Config="config" OnEditDeck="index => _editingDeckIndex = index" />
+            </div>
+        }
+    }
 </div>
 
 @code {
     [Parameter, EditorRequired] public BotConfigOptions Value { get; set; } = null!;
+    [Parameter] public EventCallback OnProfileChanged { get; set; }
+
+    private readonly BotProfile[] _profiles = [BotProfile.Easy, BotProfile.Medium, BotProfile.Hard];
+    private BotProfile _selectedProfile = BotProfile.Easy;
+    private int? _editingDeckIndex;
+
+    protected override void OnInitialized()
+    {
+        _selectedProfile = Value.CurrentProfile;
+    }
+
+    protected override void OnParametersSet()
+    {
+        _selectedProfile = Value.CurrentProfile;
+    }
+
+    private async Task SelectProfile(BotProfile profile)
+    {
+        _selectedProfile = profile;
+        Value.CurrentProfile = profile;
+        _editingDeckIndex = null;
+        await OnProfileChanged.InvokeAsync();
+    }
+
+    private string GetTabClass(BotProfile profile) =>
+        profile == _selectedProfile
+            ? "bg-primary/10 text-primary border-b-2 border-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/50";
 }

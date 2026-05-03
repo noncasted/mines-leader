@@ -51,6 +51,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
         var revealed = board.Revealer.Reveal(targetPositions);
         revealed.AddRange(minePositions);
 
+        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {
             Position = p,

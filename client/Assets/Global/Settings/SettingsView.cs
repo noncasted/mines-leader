@@ -2,8 +2,10 @@ using System;
 using Cysharp.Threading.Tasks;
 using Global.UI.Toolkit;
 using Internal;
+using Tools.PrefabBuilder;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Global.Settings {
     public enum SettingsViewResult {
@@ -17,193 +19,65 @@ namespace Global.Settings {
 
     public class SettingsView : ISettingsView {
         public async UniTask<SettingsViewResult> Show(SettingsSave data, Action pushCallback) {
-            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
-            VisualElement container = null;
+            var prefab = (GameObject)Object.Instantiate(Prefabs.SettingsPanel);
+            var document = prefab.GetComponent<UIDocument>();
+            var root = document.rootVisualElement;
 
-            foreach (var doc in docs) {
-                var root = doc.rootVisualElement;
-                if (root == null) continue;
-
-                var found = root.Q<VisualElement>("bottom-bar-root");
-
-                if (found != null) {
-                    container = found;
-                    break;
-                }
+            if (root == null) {
+                Object.Destroy(prefab);
+                return SettingsViewResult.Cancel;
             }
-
-            if (container == null) return SettingsViewResult.Cancel;
 
             var lifetime = new Lifetime();
             var completionSource = new UniTaskCompletionSource<SettingsViewResult>();
 
-            var overlay = BuildOverlay(data, pushCallback, lifetime, completionSource);
-            container.Add(overlay);
+            var sliderMaster = root.Q<Slider>("slider-master");
+            var sliderSounds = root.Q<Slider>("slider-sounds");
+            var sliderMusic = root.Q<Slider>("slider-music");
+            var sliderShake = root.Q<Slider>("slider-shake");
+            var btnVsyncOn = root.Q<Button>("btn-vsync-on");
+            var btnVsyncOff = root.Q<Button>("btn-vsync-off");
+            var btnCancel = root.Q<NavButton>("btn-cancel");
+            var btnApply = root.Q<NavButton>("btn-apply");
+
+            sliderMaster.value = data.MasterVolume;
+            sliderSounds.value = data.SoundsVolume;
+            sliderMusic.value = data.MusicVolume;
+            sliderShake.value = data.ShakeIntensity;
+
+            void RefreshVsync(bool vsync) {
+                if (vsync) {
+                    btnVsyncOn.AddToClassList("active");
+                    btnVsyncOff.RemoveFromClassList("active");
+                } else {
+                    btnVsyncOn.RemoveFromClassList("active");
+                    btnVsyncOff.AddToClassList("active");
+                }
+            }
+            RefreshVsync(data.VSync);
+
+            EventCallback<ChangeEvent<float>> onMaster = evt => { data.MasterVolume = evt.newValue; pushCallback?.Invoke(); };
+            EventCallback<ChangeEvent<float>> onSounds = evt => { data.SoundsVolume = evt.newValue; pushCallback?.Invoke(); };
+            EventCallback<ChangeEvent<float>> onMusic = evt => { data.MusicVolume = evt.newValue; pushCallback?.Invoke(); };
+            EventCallback<ChangeEvent<float>> onShake = evt => { data.ShakeIntensity = evt.newValue; };
+
+            sliderMaster.RegisterValueChangedCallback(onMaster);
+            sliderSounds.RegisterValueChangedCallback(onSounds);
+            sliderMusic.RegisterValueChangedCallback(onMusic);
+            sliderShake.RegisterValueChangedCallback(onShake);
+
+            btnVsyncOn.RegisterCallback<ClickEvent>(_ => { data.VSync = true; RefreshVsync(true); });
+            btnVsyncOff.RegisterCallback<ClickEvent>(_ => { data.VSync = false; RefreshVsync(false); });
+
+            btnCancel.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Cancel));
+            btnApply.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Apply));
 
             var result = await completionSource.Task;
 
             lifetime.Terminate();
-            container.Remove(overlay);
+            Object.Destroy(prefab);
 
             return result;
-        }
-
-        private VisualElement BuildOverlay(
-            SettingsSave data,
-            Action pushCallback,
-            IReadOnlyLifetime lifetime,
-            UniTaskCompletionSource<SettingsViewResult> completionSource) {
-            var overlay = new VisualElement();
-            overlay.AddToClassList("settings-overlay");
-
-            var panel = new VisualElement();
-            panel.AddToClassList("panel");
-            panel.AddToClassList("settings-panel");
-
-            var panelMid = new VisualElement();
-            panelMid.AddToClassList("panel-mid");
-
-            panelMid.Add(CreateDiv("panel-highlight"));
-            panelMid.Add(CreateDiv("panel-header-upper"));
-            panelMid.Add(CreateDiv("panel-header-lower"));
-
-            var body = new VisualElement();
-            body.AddToClassList("panel-body");
-
-            var title = new Label("Settings");
-            title.AddToClassList("settings-title");
-            body.Add(title);
-            body.Add(CreateDivider());
-
-            body.Add(CreateSectionLabel("Audio"));
-
-            body.Add(CreateSliderRow("Master Volume", data.MasterVolume, lifetime, value => {
-                data.MasterVolume = value;
-                pushCallback?.Invoke();
-            }));
-
-            body.Add(CreateSliderRow("Sound Effects", data.SoundsVolume, lifetime, value => {
-                data.SoundsVolume = value;
-                pushCallback?.Invoke();
-            }));
-
-            body.Add(CreateSliderRow("Music", data.MusicVolume, lifetime, value => {
-                data.MusicVolume = value;
-                pushCallback?.Invoke();
-            }));
-
-            body.Add(CreateDivider());
-            body.Add(CreateSectionLabel("Effects"));
-
-            body.Add(CreateSliderRow("Shake", data.ShakeIntensity, lifetime, value => {
-                data.ShakeIntensity = value;
-            }));
-
-            body.Add(CreateDivider());
-            body.Add(CreateSectionLabel("Video"));
-
-            body.Add(CreateVSyncRow(data, lifetime));
-
-            var buttonsRow = new VisualElement();
-            buttonsRow.AddToClassList("settings-buttons");
-
-            var cancelBtn = new NavButton { text = "Cancel" };
-            cancelBtn.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Cancel));
-
-            var separator = new VisualElement();
-            separator.AddToClassList("separator");
-
-            var applyBtn = new NavButton { text = "Apply" };
-            applyBtn.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Apply));
-
-            buttonsRow.Add(cancelBtn);
-            buttonsRow.Add(separator);
-            buttonsRow.Add(applyBtn);
-            body.Add(buttonsRow);
-
-            panelMid.Add(body);
-            panel.Add(panelMid);
-            overlay.Add(panel);
-
-            return overlay;
-        }
-
-        private VisualElement CreateSliderRow(string label, float initialValue, IReadOnlyLifetime lifetime, Action<float> onChange) {
-            var row = new VisualElement();
-            row.AddToClassList("settings-row");
-
-            var lbl = new Label(label);
-            lbl.AddToClassList("settings-row-label");
-
-            var slider = new Slider(0f, 1f) { value = initialValue };
-            slider.AddToClassList("settings-slider");
-
-            EventCallback<ChangeEvent<float>> handler = evt => onChange(evt.newValue);
-            slider.RegisterValueChangedCallback(handler);
-            lifetime.Listen(() => slider.UnregisterValueChangedCallback(handler));
-
-            row.Add(lbl);
-            row.Add(slider);
-
-            return row;
-        }
-
-        private VisualElement CreateVSyncRow(SettingsSave data, IReadOnlyLifetime lifetime) {
-            var row = new VisualElement();
-            row.AddToClassList("settings-row");
-
-            var lbl = new Label("VSync");
-            lbl.AddToClassList("settings-row-label");
-
-            var group = new VisualElement();
-            group.AddToClassList("settings-toggle-group");
-
-            var onBtn = new Button { text = "On" };
-            onBtn.AddToClassList("settings-toggle-btn");
-
-            var offBtn = new Button { text = "Off" };
-            offBtn.AddToClassList("settings-toggle-btn");
-
-            void Refresh(bool vsync) {
-                if (vsync) {
-                    onBtn.AddToClassList("active");
-                    offBtn.RemoveFromClassList("active");
-                } else {
-                    onBtn.RemoveFromClassList("active");
-                    offBtn.AddToClassList("active");
-                }
-            }
-
-            Refresh(data.VSync);
-
-            onBtn.ListenClick(lifetime, () => { data.VSync = true; Refresh(true); });
-            offBtn.ListenClick(lifetime, () => { data.VSync = false; Refresh(false); });
-
-            group.Add(onBtn);
-            group.Add(offBtn);
-
-            row.Add(lbl);
-            row.Add(group);
-
-            return row;
-        }
-
-        private static VisualElement CreateDivider() {
-            var divider = new VisualElement();
-            divider.AddToClassList("settings-divider");
-            return divider;
-        }
-
-        private static Label CreateSectionLabel(string text) {
-            var label = new Label(text);
-            label.AddToClassList("settings-section-label");
-            return label;
-        }
-
-        private static VisualElement CreateDiv(string className) {
-            var div = new VisualElement();
-            div.AddToClassList(className);
-            return div;
         }
     }
 }

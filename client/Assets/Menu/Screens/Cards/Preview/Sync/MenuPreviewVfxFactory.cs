@@ -59,10 +59,7 @@ namespace Menu.Screens.Cards.Preview.Sync
         public T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour
         {
             if (prefab == null)
-            {
-                Debug.LogError("[Preview] MenuPreviewVfxFactory: prefab is null.");
                 return null;
-            }
 
             _index++;
 

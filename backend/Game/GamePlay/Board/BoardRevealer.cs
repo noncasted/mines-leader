@@ -81,10 +81,17 @@ public class BoardRevealer : IBoardRevealer
 
     private void RecalculateScanner(MoveSnapshot? snapshot)
     {
-        var changes = _scanner.Recalculate(snapshot);
+        if (snapshot != null)
+        {
+            var changes = _scanner.Recalculate(snapshot);
 
-        if (snapshot != null && changes.Count > 0)
-            snapshot.RecordMines(_board, changes);
+            if (changes.Count > 0)
+                snapshot.RecordMines(_board, changes);
+        }
+        else
+        {
+            _scanner.Recalculate();
+        }
     }
 
     private bool HasAdjacentEmptyFree(Position position)

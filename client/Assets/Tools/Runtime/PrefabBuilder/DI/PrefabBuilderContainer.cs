@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace Tools.Runtime.PrefabBuilder
+namespace Tools.PrefabBuilder
 {
     public class PrefabBuilderContainer
     {

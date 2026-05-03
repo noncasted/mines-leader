@@ -1,5 +1,6 @@
 using System;
 using Internal;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Global.UI.Toolkit
@@ -20,8 +21,8 @@ namespace Global.UI.Toolkit
             IReadOnlyLifetime lifetime,
             Action<string> callback) {
             void Handler(KeyDownEvent evt) {
-                if (evt.keyCode != UnityEngine.KeyCode.Return &&
-                    evt.keyCode != UnityEngine.KeyCode.KeypadEnter)
+                if (evt.keyCode != KeyCode.Return &&
+                    evt.keyCode != KeyCode.KeypadEnter)
                     return;
 
                 var text = field.value;

@@ -479,7 +479,60 @@ duplicates.
 
 ---
 
-## Related Documentation
+## Lesson 11: UI Toolkit Sprite Reference — Use `resource()` Inline, Not `url()` in USS
+
+### Mistake Made
+```css
+/* WRONG — url() with GUID paths in USS for sprites */
+background-image: url("project://Assets/GamePlay/Players/Art/Step.psd#step_button_1");
+```
+```css
+/* WRONG — resource() in USS for multi-sprite PSDs misses the right sprite */
+background-image: resource("GamePlay/UI/card_desc");
+```
+```xml
+<!-- WRONG — arbitrary size, not matching sprite native dimensions -->
+<VisualElement style="width: 142px; height: 142px;"/>
+```
+```css
+/* WRONG — using Ithaca-LVB75 where BITACH is required */
+-unity-font-definition: resource("Ithaca-LVB75");
+```
+```xml
+<!-- WRONG — unnecessary nested container for background -->
+<VisualElement name="round-button">
+    <VisualElement name="round-bg" style="background-image: ..."/>
+    <Label name="round-time"/>
+</VisualElement>
+```
+
+### Correct Pattern
+```xml
+<!-- CORRECT — resource() inline, exact sprite size, font matches design -->
+<VisualElement name="card-preview" style="background-image: resource(&quot;GamePlay/UI/card_desc&quot;); height: 50px; width: 38px;">
+    <Label name="card-name" style="-unity-font-definition: resource(&quot;BITACH&quot;); font-size: 3px; -unity-text-align: lower-center; -unity-text-auto-size: best-fit 2px 4px;"/>
+    <Label name="card-description" style="-unity-font-definition: resource(&quot;Ithaca-LVB75&quot;); font-size: 4px; -unity-text-align: upper-center;"/>
+</VisualElement>
+```
+```xml
+<!-- CORRECT — background on root element, no extra wrapper -->
+<VisualElement name="round-button" style="background-image: resource(&quot;GamePlay/UI/Step&quot;);">
+    <Label name="round-time" style="-unity-font-definition: resource(&quot;DreiFraktur&quot;); -unity-text-align: upper-center;"/>
+</VisualElement>
+```
+
+### Rules
+1. **Always use `resource("Path/Name")` inline in UXML** for sprites — not in USS, not `url()`. Multi-sprite PSDs under `Resources/` resolve correctly by texture name; the first/default sprite is used.
+2. **Element size must match sprite native dimensions** — check the sprite rect in Inspector. Do not upscale arbitrarily; PanelSettings `Scale With Screen Size` handles display scaling.
+3. **Use exact pixel values in inline styles** for pixel-art UI: `font-size: 3px`, `margin-top: 2px`, `height: 6px`. UI Builder shows these accurately when Canvas is set to art-native resolution (512×288 for menus).
+4. **Match the exact font** specified by design — card names use `BITACH`, round timer uses `DreiFraktur`, general text uses `Ithaca-LVB75`.
+5. **Never create wrapper elements just for background** — put `background-image` directly on the semantic root element (e.g., `round-button`, not `round-bg`).
+6. **Use `-unity-text-auto-size: best-fit`** for pixel-art labels that must fit tight bounds.
+7. **USS is for reusable classes and pseudo-selectors only** — per-element positioning, sizing, and sprite references belong inline in UXML.
+
+→ [UI_MENU.md](UI_MENU.md)
+
+---
 - **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
 - **Reactive:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md)

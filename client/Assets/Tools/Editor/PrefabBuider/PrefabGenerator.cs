@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Tools.Runtime.PrefabBuilder;
+using Tools.PrefabBuilder;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Tools
+namespace Tools.PrefabBuider
 {
     public static class PrefabGenerator
     {
@@ -36,7 +36,7 @@ namespace Tools
                 var parameters = defineMethod.GetParameters();
                 var returnsVoid = defineMethod.ReturnType == typeof(void);
 
-                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder) && returnsVoid)
+                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder) && returnsVoid)
                     baseTypes.Add(type);
                 else
                     derivedTypes.Add(type);
@@ -130,12 +130,12 @@ namespace Tools
             }
 
             var parameters = defineMethod.GetParameters();
-            var returnsBuilder = defineMethod.ReturnType == typeof(PrefabBuilder);
+            var returnsBuilder = defineMethod.ReturnType == typeof(PrefabBuilder.PrefabBuilder);
 
             // Support two signatures:
             //   void Define(PrefabBuilder builder)  -- base prefabs (builder created by generator)
             //   PrefabBuilder Define()              -- derived prefabs (builder created by Define itself, e.g. via FromPrefab)
-            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder))
+            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder))
             {
                 return GenerateWithProvidedBuilder(type, defineMethod);
             }
@@ -155,7 +155,7 @@ namespace Tools
             Type type,
             MethodInfo defineMethod)
         {
-            var builder = new PrefabBuilder();
+            var builder = new PrefabBuilder.PrefabBuilder();
 
             try
             {
@@ -181,11 +181,11 @@ namespace Tools
             Type type,
             MethodInfo defineMethod)
         {
-            PrefabBuilder builder = null;
+            PrefabBuilder.PrefabBuilder builder = null;
 
             try
             {
-                builder = (PrefabBuilder)defineMethod.Invoke(null, null);
+                builder = (PrefabBuilder.PrefabBuilder)defineMethod.Invoke(null, null);
 
                 if (builder == null)
                 {

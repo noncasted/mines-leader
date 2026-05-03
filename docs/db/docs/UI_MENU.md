@@ -352,7 +352,94 @@ Typical sizes used in the project:
 | MenuCard.uxml classes not resolving in UI Builder preview | Template UXML missing `<Style>` tags | Keep `<Style>` tags in partial templates for preview |
 | Sprite path suddenly breaks after rename | Using GUID `url(project://…)` that didn't track rename | Migrate to `resource("Folder/Name")` |
 
-## 11. Pre-Commit Checklist
+## 13. Game Overlay Components
+
+Game overlay UI lives in `client/Assets/GamePlay/UI/Overlay/` and uses the same pixel-art principles as menu UI, but with a different PanelSettings reference resolution.
+
+### File layout
+
+```
+client/Assets/GamePlay/UI/Overlay/
+├── GameOverlay.uxml          # root template, imports three sub-templates
+├── GameOverlay.uss           # @import only, no direct rules
+├── GamePauseButton.uxml      # pause button template
+├── GamePauseButton.uss       # pause button styles
+├── GameRoundButton.uxml      # round timer / skip button template
+├── GameRoundButton.uss       # round button styles
+├── GameCardPreview.uxml      # card info tooltip template
+├── GameCardPreview.uss       # card preview styles
+├── GameOverlayUI.cs          # pause button click handler
+├── RoundButton.cs            # round timer update + skip click
+└── CardInfoDisplayUI.cs      # card preview fade in/out
+```
+
+### Template usage
+
+`GameOverlay.uxml` composes sub-templates via `ui:Template` + `ui:Instance`:
+
+```xml
+<UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="GamePauseButton" src="GamePauseButton.uxml"/>
+    <ui:Template name="GameRoundButton" src="GameRoundButton.uxml"/>
+    <ui:Template name="GameCardPreview" src="GameCardPreview.uxml"/
+    
+    <ui:Style src="GameOverlay.uss"/>
+    
+    <ui:VisualElement name="overlay-root" class="overlay-root">
+        <ui:Instance template="GamePauseButton"/>
+        <ui:Instance template="GameRoundButton"/>
+        <ui:Instance template="GameCardPreview"/>
+    </ui:VisualElement>
+</UXML>
+```
+
+### Sprite reference pattern
+
+All overlay sprites live in `Assets/Resources/GamePlay/UI/`:
+
+```xml
+<!-- Popup menu button (16x16) -->
+<VisualElement name="pause-button" style="background-image: resource(&quot;GamePlay/UI/popup_menu_button&quot;); -unity-background-scale-mode: scale-to-fit;"/>
+
+<!-- Step button (29x21) — first/default sprite from Step.psd -->
+<VisualElement name="round-button" style="background-image: resource(&quot;GamePlay/UI/Step&quot;);">
+    <Label name="round-time" style="-unity-font-definition: resource(&quot;DreiFraktur&quot;); -unity-text-align: upper-center;"/>
+</VisualElement>
+
+<!-- Card desc (38x50) — first/default sprite from card_desc.psd -->
+<VisualElement name="card-preview" style="background-image: resource(&quot;GamePlay/UI/card_desc&quot;); height: 50px; width: 38px;">
+    <Label name="card-name" style="-unity-font-definition: resource(&quot;BITACH&quot;); font-size: 3px; -unity-text-align: lower-center; -unity-text-auto-size: best-fit 2px 4px;"/>
+    <Label name="card-description" style="-unity-font-definition: resource(&quot;Ithaca-LVB75&quot;); font-size: 4px; -unity-text-align: upper-center;"/>
+</VisualElement>
+```
+
+### Key differences from menu UI
+
+| Aspect | Menu UI | Game Overlay |
+|--------|---------|--------------|
+| PanelSettings resolution | 512 × 288 | 512 × 288 (same asset) |
+| Element sizing | Based on sprite native size | Same — sprite-native |
+| Font for headers | Ithaca-LVB75 | BITACH (card names), DreiFraktur (timer) |
+| Font for body | Ithaca-LVB75 | Ithaca-LVB75 (card descriptions) |
+| Background image location | Inline UXML style | Inline UXML style |
+| Template composition | `ui:Template` + `ui:Instance` | Same |
+
+### Runtime sprite swap
+
+The round button changes sprite based on whose turn it is (own vs opponent). The initial sprite is set inline in UXML; runtime code swaps it via `StyleBackground`:
+
+```csharp
+var roundButton = root.Q<VisualElement>("round-button");
+
+if (isOwnTurn)
+    roundButton.style.backgroundImage = new StyleBackground(_ownRoundSprite);
+else
+    roundButton.style.backgroundImage = new StyleBackground(_opponentRoundSprite);
+```
+
+The `StyleBackground` constructor accepts a `Sprite` directly and updates the inline style at runtime without touching the UXML asset.
+
+## 14. Pre-Commit Checklist (Extended)
 
 - [ ] PanelSettings Reference = 512×288, Match = 1.
 - [ ] Every sprite referenced from USS/UXML lives in `Assets/Resources/`.
@@ -363,6 +450,10 @@ Typical sizes used in the project:
 - [ ] Screen `.uxml` and `.uss` live in `Assets/Menu/UI/<Screen>/`, not next to code.
 - [ ] UI Builder Canvas Reference Resolution set to 512×288 when editing.
 - [ ] Fonts referenced via `.u-ithaca` utility (or direct `resource(...)` if single-use).
+- [ ] **Overlay sprites use `resource()` inline in UXML, not USS.**
+- [ ] **Overlay element size matches sprite native dimensions.**
+- [ ] **Overlay uses correct font per element (BITACH / DreiFraktur / Ithaca-LVB75).**
+- [ ] **No wrapper elements created solely for background-image.**
 
 ## 12. Quick Reference — What Goes Where
 

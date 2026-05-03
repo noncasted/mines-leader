@@ -1,0 +1,151 @@
+@import url("project://database/Assets/GamePlay/UI/Overlay/GamePauseButton.uss?fileID=7433441132597879392&guid=78a63714af7978149900f070eee82991&type=3#GamePauseButton");
+@import url("project://database/Assets/GamePlay/UI/Overlay/GameRoundButton.uss?fileID=7433441132597879392&guid=9ca5120f347cf1a1aa7c82905cf63a7d&type=3#GameRoundButton");
+@import url("project://database/Assets/GamePlay/UI/Overlay/GameCardPreview.uss?fileID=7433441132597879392&guid=029d13af6aec6419d8ab8c5e26376672&type=3#GameCardPreview");
+
+.action-log-root {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 72px;
+}
+
+.tile-container {
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.action-log-tile {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 3px;
+    padding: 0 3px;
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+    background-color: rgba(46, 89, 148, 0.9);
+    width: 100%;
+}
+
+.tile-self {
+    background-color: rgba(46, 89, 148, 0.9);
+}
+
+.tile-opponent {
+    background-color: rgba(148, 56, 46, 0.9);
+}
+
+.tile-mana {
+    background-color: rgba(72, 56, 148, 0.9);
+}
+
+.tile-health {
+    background-color: rgba(46, 122, 72, 0.9);
+}
+
+.tile-moves {
+    background-color: rgba(140, 107, 46, 0.9);
+}
+
+.tile-message {
+    font-size: 4px;
+    color: rgb(242, 242, 242);
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    padding: 0;
+    margin: 0;
+}
+
+.tooltip {
+    position: absolute;
+    width: auto;
+    min-width: 60px;
+    background-color: rgba(20, 20, 30, 0.95);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding: 3px;
+    flex-direction: column;
+}
+
+.tooltip-name {
+    font-size: 5px;
+    color: rgb(237, 206, 173);
+    -unity-font-style: bold;
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+}
+
+.tooltip-desc {
+    font-size: 4px;
+    color: rgb(180, 180, 190);
+    white-space: normal;
+    padding: 0;
+    margin: 1px 0 0 0;
+}
+
+.overlay-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.pause-button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 50px;
+    height: 50px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.round-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    width: 32px;
+    height: 23px;
+}
+
+.round-button:hover {
+    -unity-background-image-tint-color: rgb(220, 220, 220);
+    scale: 1.05 1.05;
+}
+
+.round-button:active {
+    -unity-background-image-tint-color: rgb(180, 180, 180);
+    scale: 0.95 0.95;
+}
+
+.round-time {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -unity-text-align: upper-center;
+    font-size: 12px;
+    color: rgb(51, 18, 22);
+    -unity-font-definition: resource("DreiFraktur");
+    margin: 0;
+    padding: 0;
+}
+
+.card-preview {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+}

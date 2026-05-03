@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="card-preview" style="background-image: resource(&quot;GamePlay/UI/card_desc&quot;); width: 76px; height: 80px;">
+        <ui:Label name="card-name" text="Card Name" style="-unity-font-definition: resource(&quot;BITACH&quot;); font-size: 7px; height: 12%; width: auto; margin-top: 5%; margin-left: 10%; margin-right: 10%; padding-left: 0; padding-bottom: 0; margin-bottom: 5%; padding-top: 0; padding-right: 0; -unity-text-align: lower-center; -unity-font-style: normal; white-space: nowrap; text-overflow: ellipsis; -unity-text-auto-size: best-fit 2px 9px; -unity-text-generator: advanced;"/>
+        <ui:Label name="card-description" text="Card description" style="padding-left: 4%; margin-right: 10%; margin-top: 5%; padding-top: 0%; height: 75%; font-size: 7px; -unity-font-definition: resource(&quot;Ithaca-LVB75&quot;); padding-right: 3%; white-space: normal; -unity-text-align: upper-center; margin-bottom: 2%; margin-left: 10%; padding-bottom: 10%; -unity-text-auto-size: best-fit 4px 12px; -unity-text-generator: advanced;"/>
+    </ui:VisualElement>
+</UXML>

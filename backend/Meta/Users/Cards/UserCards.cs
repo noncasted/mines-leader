@@ -3,6 +3,7 @@ using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Shared;
+using Cluster.Configs;
 
 namespace Meta.Users;
 
@@ -39,19 +40,22 @@ public class UserCards : UserGrain, IUserCards
 {
     public UserCards(
         [State] State<UserCardsState> state,
+        IUserDeckConfig userDeckConfig,
         ILogger<UserCards> logger)
     {
         _state = state;
+        _userDeckConfig = userDeckConfig;
         _logger = logger;
     }
 
     private readonly State<UserCardsState> _state;
+    private readonly IUserDeckConfig _userDeckConfig;
     private readonly ILogger<UserCards> _logger;
 
     public async Task Initialize()
     {
         var state = await _state.Update(state => {
-            foreach (var card in DeckOptions.BaseDeck)
+            foreach (var card in _userDeckConfig.Value.BaseDeck)
                 state.Cards.Add(card);
         });
 

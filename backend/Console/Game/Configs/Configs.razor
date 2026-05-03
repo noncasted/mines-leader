@@ -1,6 +1,7 @@
 @page "/configs"
 @using Cluster.Configs
 @using global::Common.Extensions
+@using Meta.Users
 @using Shared
 
 <PageTitle>Configs</PageTitle>
@@ -22,13 +23,40 @@
         </BbButton>
     </div>
 
-    <BotConfigEditor Value="_botValue" />
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-blue-500/15 p-1.5">
+                <LucideIcon Name="settings" Size="14" class="text-blue-400" />
+            </div>
+            <h2 class="text-sm font-semibold">Bot Global Settings</h2>
+        </div>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-3 py-1.5">
+                <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
+                <input type="number" @bind="_botValue.MatchmakingApplyThreshold" step="0.1"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+        </div>
+    </div>
+
+    <BotConfigEditor Value="_botValue" OnProfileChanged="Save" />
 
     <GameModeConfigEditor Value="_gameModeValue" />
 
     <RatingConfigEditor Value="_ratingValue" />
 
     <LootProgressionConfigEditor Value="_lootProgressionValue" />
+
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-amber-500/15 p-1.5">
+                <LucideIcon Name="library" Size="14" class="text-amber-400" />
+            </div>
+            <h2 class="text-sm font-semibold">User Base Deck</h2>
+        </div>
+        <UserDeckConfigEditor Value="_userDeckValue.BaseDeck" DeckSize="@DeckOptions.DeckSize" />
+    </div>
 
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
@@ -171,6 +199,7 @@
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
     [Inject] public ILootProgressionConfig LootProgressionConfig { get; set; } = null!;
+    [Inject] public IUserDeckConfig UserDeckConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
     [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
@@ -179,6 +208,7 @@
     private GameModeOptions _gameModeValue = new();
     private RatingOptions _ratingValue = new();
     private LootProgressionOptions _lootProgressionValue = new();
+    private UserDeckConfigOptions _userDeckValue = new();
     private bool _isUpdatingJson;
 
     private static readonly CardType[] _scoutCards = [
@@ -260,6 +290,7 @@
         ReloadField(GameModeConfig.Value, ref _gameModeValue);
         ReloadField(RatingConfig.Value, ref _ratingValue);
         ReloadField(LootProgressionConfig.Value, ref _lootProgressionValue);
+        ReloadField(UserDeckConfig.Value, ref _userDeckValue);
         InvokeAsync(StateHasChanged);
 
         return;
@@ -278,7 +309,8 @@
         await GameModeConfig.SetValue(_gameModeValue);
         await RatingConfig.SetValue(_ratingValue);
         await LootProgressionConfig.SetValue(_lootProgressionValue);
-        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression)");
+        await UserDeckConfig.SetValue(_userDeckValue);
+        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression, UserDeck)");
         ToastService.Success("Configs saved", "Saved");
     }
 
@@ -295,6 +327,7 @@
             await SaveConfig("config.gameMode", _gameModeValue);
             await SaveConfig("config.rating", _ratingValue);
             await SaveConfig("config.lootProgression", _lootProgressionValue);
+            await SaveConfig("config.userDeck", _userDeckValue);
 
             ToastService.Success("Configs saved to JSON", "Saved");
         }

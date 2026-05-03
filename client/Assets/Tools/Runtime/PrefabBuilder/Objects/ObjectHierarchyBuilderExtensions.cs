@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools.Runtime.PrefabBuilder
+namespace Tools.PrefabBuilder
 {
     public static class ObjectHierarchyBuilderExtensions
     {

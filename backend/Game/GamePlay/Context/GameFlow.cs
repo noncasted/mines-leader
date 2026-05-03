@@ -1,4 +1,5 @@
-﻿using Game.Session;
+﻿using Cluster.Configs;
+using Game.Session;
 using Infrastructure;
 using Meta.Matches;
 
@@ -21,6 +22,7 @@ public class GameFlow : Service, IGameFlow
         MatchCreateOptions matchOptions,
         IRematchAwaiter rematchAwaiter,
         ISessionLogger sessionLogger,
+        IBotConfig botConfig,
         ISnapshotSender snapshotSender) : base("game-flow")
     {
         _orleans = orleans;
@@ -32,6 +34,7 @@ public class GameFlow : Service, IGameFlow
         _matchOptions = matchOptions;
         _rematchAwaiter = rematchAwaiter;
         _sessionLogger = sessionLogger;
+        _botConfig = botConfig;
         _snapshotSender = snapshotSender;
     }
 
@@ -44,6 +47,7 @@ public class GameFlow : Service, IGameFlow
     private readonly MatchCreateOptions _matchOptions;
     private readonly IRematchAwaiter _rematchAwaiter;
     private readonly ISessionLogger _sessionLogger;
+    private readonly IBotConfig _botConfig;
     private readonly ISnapshotSender _snapshotSender;
 
     public async Task<MatchTransitionResult> Process()
@@ -62,6 +66,10 @@ public class GameFlow : Service, IGameFlow
 
         _sessionLogger.RegisterPlayers(_users.ToList());
         _sessionLogger.LogGameStarted(playerIds);
+
+        foreach (var user in _users.Where(u => u.IsBot))
+            _sessionLogger.LogBotProfile(user.Id, _botConfig.Value.CurrentProfile.ToString());
+
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
 

@@ -1,6 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
-using Tools.Runtime.SceneBuilder;
+using Tools.SceneBuilder;
 
 namespace Meta
 {

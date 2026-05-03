@@ -4,8 +4,7 @@ using GamePlay.Loop;
 using Internal;
 using Meta;
 using Shared;
-using Tools;
-using Tools.Runtime.PrefabBuilder;
+using Tools.PrefabBuilder;
 using VContainer.Unity;
 
 namespace GamePlay.Cards

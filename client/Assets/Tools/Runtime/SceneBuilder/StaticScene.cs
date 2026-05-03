@@ -1,6 +1,6 @@
 using UnityEngine.AddressableAssets;
 
-namespace Tools.Runtime.SceneBuilder
+namespace Tools.SceneBuilder
 {
     public class StaticScene
     {

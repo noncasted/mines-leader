@@ -3,7 +3,7 @@ using Menu.Social;
 using Network;
 using Shared;
 
-namespace Tools.MemoryPackTools
+namespace Tools.Overall
 {
     public class UnionInitializer : EnvPreprocessor
     {

@@ -51,6 +51,8 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
 
         var revealed = board.Revealer.Reveal(new[] { cell.Position });
 
+        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {
             Position = p,

@@ -8,7 +8,7 @@ namespace Tools.SceneBuilder
 {
     public static class ScenesClassGenerator
     {
-        private const string OutputPath = "Assets/Tools/SceneBuilder/Runtime/Scenes.cs";
+        private const string OutputPath = "Assets/Tools/Runtime/SceneBuilder/Scenes.cs";
 
         public static void Generate(List<(string sceneName, string sceneGuid)> scenes)
         {
@@ -37,6 +37,10 @@ namespace Tools.SceneBuilder
                 if (existingContent == newContent)
                     return;
             }
+
+            var directory = Path.GetDirectoryName(OutputPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
 
             File.WriteAllText(OutputPath, newContent);
             Debug.Log($"[ScenesClassGenerator] Generated {OutputPath}");

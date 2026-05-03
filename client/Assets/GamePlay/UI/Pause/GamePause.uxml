@@ -1,0 +1,10 @@
+<UXML xmlns="UnityEngine.UIElements" xmlns:t="Global.UI.Toolkit" editor-extension-mode="False">
+    <Style src="project://database/Assets/GamePlay/UI/Pause/GamePause.uss?fileID=7433441132597879392&amp;guid=a4a98965396fc0c5383f5298461b2c12&amp;type=3#GamePause"/>
+    <VisualElement name="pause-overlay" class="pause-overlay">
+        <VisualElement name="pause-panel" class="pause-panel" style="padding-top: 1px; padding-right: 2px; padding-bottom: 1px; padding-left: 2px;">
+            <t:NavButton name="btn-continue" text="continue" class="pause-button"/>
+            <t:NavButton name="btn-settings" text="settings" class="pause-button"/>
+            <t:NavButton name="btn-leave" text="leave" class="pause-button"/>
+        </VisualElement>
+    </VisualElement>
+</UXML>

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Meta.Bots;
 using Meta.Users;
 using Shared;
+using Cluster.Configs;
 using Tests.Fixtures;
 using Xunit;
 
@@ -70,33 +71,55 @@ public class BotFactoryWorkflowTests
     }
 
     [Fact]
-    public async Task BotCreation_CustomDeckFromBotPool()
+    public async Task BotCreation_CustomDeckFromProfileConfig()
     {
         var id = Guid.NewGuid();
+        var botConfig = GetSiloService<IBotConfig>().Value;
+        var profileConfig = botConfig.CurrentProfileConfig;
+        var deckSize = profileConfig.DeckSize;
+        var decks = profileConfig.Decks;
+
+        decks.Should().NotBeEmpty("profile should have at least one deck configured");
 
         await RunTransaction(async () => {
             var deck = GetGrain<IUserDeck>(id);
             await deck.Initialize();
-            // Replicate BotFactory random selection: shuffle BotPool, take DeckSize
-            var pool = new List<CardType>(DeckOptions.BotPool);
-            pool.Shuffle();
-            var cards = pool.Take(DeckOptions.DeckSize).ToList();
-            await deck.Update(0, cards);
+
+            var cards = GetGrain<IUserCards>(id);
+            await cards.Initialize();
+
+            var template = decks[0];
+            var selectedCards = new List<CardType>(template.Cards);
+
+            while (selectedCards.Count > deckSize)
+                selectedCards.RemoveAt(selectedCards.Count - 1);
+            while (selectedCards.Count < deckSize)
+                selectedCards.Add(CardType.Dud);
+
+            foreach (var card in selectedCards.Distinct())
+                await cards.AddCard(card);
+
+            await deck.Update(0, selectedCards);
         });
         IReadOnlyList<CardType>? selected = null;
 
         await RunTransaction(async () => {
             selected = await GetGrain<IUserDeck>(id).GetSelected();
         });
-        selected.Should().HaveCount(DeckOptions.DeckSize);
-        selected!.Should().OnlyContain(c => DeckOptions.BotPool.Contains(c));
-        selected.Should().NotBeEquivalentTo(DeckOptions.BaseDeck, "bot deck should differ from base deck");
+        selected.Should().HaveCount(deckSize);
+        selected.Should().NotBeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck, "bot deck should differ from base deck");
     }
 
     [Fact]
     public async Task BotCreation_FullWorkflow_InitializesAllGrains()
     {
         var id = Guid.NewGuid();
+        var botConfig = GetSiloService<IBotConfig>().Value;
+        var profileConfig = botConfig.CurrentProfileConfig;
+        var deckSize = profileConfig.DeckSize;
+        var decks = profileConfig.Decks;
+
+        decks.Should().NotBeEmpty("profile should have at least one deck configured");
 
         // Replicate BotFactory.Create() logic
         await RunTransaction(async () => {
@@ -107,13 +130,24 @@ public class BotFactoryWorkflowTests
             var deck = GetGrain<IUserDeck>(id);
             await deck.Initialize();
 
+            var cards = GetGrain<IUserCards>(id);
+            await cards.Initialize();
+
             var auth = GetGrain<IUserAuth>(id);
             await auth.OnRegistered();
 
-            var pool = new List<CardType>(DeckOptions.BotPool);
-            pool.Shuffle();
-            var cards = pool.Take(DeckOptions.DeckSize).ToList();
-            await deck.Update(0, cards);
+            var template = decks[0];
+            var selectedCards = new List<CardType>(template.Cards);
+
+            while (selectedCards.Count > deckSize)
+                selectedCards.RemoveAt(selectedCards.Count - 1);
+            while (selectedCards.Count < deckSize)
+                selectedCards.Add(CardType.Dud);
+
+            foreach (var card in selectedCards.Distinct())
+                await cards.AddCard(card);
+
+            await deck.Update(0, selectedCards);
 
             var bot = GetGrain<IBot>(id);
             await bot.Initialize();
@@ -143,7 +177,6 @@ public class BotFactoryWorkflowTests
         await RunTransaction(async () => {
             deck = await GetGrain<IUserDeck>(id).GetSelected();
         });
-        deck.Should().HaveCount(DeckOptions.DeckSize);
-        deck!.Should().OnlyContain(c => DeckOptions.BotPool.Contains(c));
+        deck.Should().HaveCount(deckSize);
     }
 }

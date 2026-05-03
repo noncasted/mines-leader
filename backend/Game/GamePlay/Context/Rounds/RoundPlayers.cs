@@ -60,6 +60,12 @@ public class RoundPlayers
                     allMinesFlagged = false;
                     break;
                 }
+
+                if (taken.HasMine == false && taken.IsFlagged == true)
+                {
+                    allMinesFlagged = false;
+                    break;
+                }
             }
 
             if (allMinesFlagged == true)

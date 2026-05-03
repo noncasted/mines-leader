@@ -10,6 +10,11 @@ public static class BotServiceExtensions
         services.AddSingleton<IBotContext, BotContext>();
         services.AddSingleton<IBotCardStrategies, BotCardStrategies>();
 
+        services.AddSingleton<IBotProfileStrategyProvider, BotProfileStrategyProvider>();
+        services.AddSingleton<EasyBotProfile>();
+        services.AddSingleton<MediumBotProfile>();
+        services.AddSingleton<HardBotProfile>();
+
         services.AddSingleton<BotBoardUtils>();
         services.AddSingleton<IBotCommandUtils, BotCommandUtils>();
 

@@ -1,0 +1,11 @@
+{
+  "$type": "Shared.UserDeckConfigOptions, Shared",
+  "BaseDeck": [
+    "Bloodhound",
+    "ErosionDozer",
+    "Gravedigger",
+    "Trebuchet",
+    "Sonar",
+    "ZipZap"
+  ]
+}

@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Internal;
-using Shared;
 
 namespace GamePlay.Loop
 {

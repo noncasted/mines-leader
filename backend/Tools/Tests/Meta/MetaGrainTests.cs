@@ -2,6 +2,7 @@ using FluentAssertions;
 using Meta.Matches;
 using Meta.Users;
 using Shared;
+using Cluster.Configs;
 using Tests.Fixtures;
 using Xunit;
 
@@ -284,7 +285,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         state!.Entries.Should().HaveCount(DeckOptions.MaxDecks);
 
         foreach (var entry in state.Entries.Values)
-            entry.Cards.Should().BeEquivalentTo(DeckOptions.BaseDeck);
+            entry.Cards.Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
     }
 
     [Fact]
@@ -298,7 +299,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         await RunTransaction(async () => {
             selected = await grain.GetSelected();
         });
-        selected.Should().BeEquivalentTo(DeckOptions.BaseDeck);
+        selected.Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
     }
 
     [Fact]
@@ -307,6 +308,11 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
+        var cardsGrain = GetGrain<IUserCards>(id);
+        await RunTransaction(() => cardsGrain.Initialize());
+        await RunTransaction(() => cardsGrain.AddCard(CardType.Smoke));
+        await RunTransaction(() => cardsGrain.AddCard(CardType.OpponentBomb));
 
         var customCards = new List<CardType>
         {
@@ -328,6 +334,10 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
+
+        var cardsGrain = GetGrain<IUserCards>(id);
+        await RunTransaction(() => cardsGrain.Initialize());
+        await RunTransaction(() => cardsGrain.AddCard(CardType.Smoke));
 
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
@@ -353,6 +363,10 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
 
+        var cardsGrain = GetGrain<IUserCards>(id);
+        await RunTransaction(() => cardsGrain.Initialize());
+        await RunTransaction(() => cardsGrain.AddCard(CardType.Smoke));
+
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
         await RunTransaction(() => grain.Update(1, customCards));
@@ -373,6 +387,10 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         var grain = GetGrain<IUserDeck>(id);
         await RunTransaction(() => grain.Initialize());
 
+        var cardsGrain = GetGrain<IUserCards>(id);
+        await RunTransaction(() => cardsGrain.Initialize());
+        await RunTransaction(() => cardsGrain.AddCard(CardType.Smoke));
+
         var customCards = new List<CardType>
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
         await RunTransaction(() => grain.Update(0, customCards));
@@ -382,7 +400,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         await RunTransaction(async () => {
             state = await grain.GetState();
         });
-        state!.Entries[0].Cards.Should().BeEquivalentTo(DeckOptions.BaseDeck);
+        state!.Entries[0].Cards.Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
     }
 }
 
@@ -505,8 +523,8 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         });
         state!.ParticipantDecks.Should().ContainKey(user1);
         state.ParticipantDecks.Should().ContainKey(user2);
-        state.ParticipantDecks[user1].Should().BeEquivalentTo(DeckOptions.BaseDeck);
-        state.ParticipantDecks[user2].Should().BeEquivalentTo(DeckOptions.BaseDeck);
+        state.ParticipantDecks[user1].Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
+        state.ParticipantDecks[user2].Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
     }
 
     [Fact]

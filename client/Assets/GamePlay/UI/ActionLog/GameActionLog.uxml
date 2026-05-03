@@ -1,0 +1,14 @@
+<UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="GameActionLogTile" src="project://database/Assets/GamePlay/UI/ActionLog/GameActionLogTile.uxml?fileID=9197481963319205126&amp;guid=0066cc2406668c289842a74c88d43ffd&amp;type=3#GameActionLogTile"/>
+    <Style src="project://database/Assets/GamePlay/UI/ActionLog/GameActionLog.uss?fileID=7433441132597879392&amp;guid=85f059d79eef6ef8887148dba99f076b&amp;type=3#GameActionLog"/>
+    <ui:VisualElement name="action-log-root" class="action-log-root">
+        <ui:VisualElement name="tile-container" class="tile-container">
+            <ui:Instance template="GameActionLogTile"/>
+            <ui:VisualElement name="tooltip" picking-mode="Ignore" class="tooltip">
+                <ui:Label name="tooltip-name" class="tooltip-name"/>
+                <ui:Label name="tooltip-desc" class="tooltip-desc"/>
+            </ui:VisualElement>
+            <ui:Instance template="GameActionLogTile"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</UXML>
