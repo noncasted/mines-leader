@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -40,9 +41,6 @@ namespace Menu.Screens.Cards.Preview
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            Debug.Log(
-                $"[Preview] MenuBoard.OnSetup: board={(_board != null)}, camera={(_previewCamera != null)}, texture={(_previewTexture != null)}, updater={(_updater != null)}.");
-
             if (_board == null)
                 return;
 
@@ -56,15 +54,10 @@ namespace Menu.Screens.Cards.Preview
 
             if (_previewCamera != null && _previewTexture != null)
                 _previewCamera.targetTexture = _previewTexture;
-
-            Debug.Log($"[Preview] MenuBoard.OnSetup done: cells={_board.Cells?.Count ?? 0}.");
         }
 
         public void ApplyInitialState(BoardLayoutSnapshot state)
         {
-            Debug.Log(
-                $"[Preview] MenuBoard.ApplyInitialState: state={(state != null)}, stateCells={state?.Cells?.Count ?? 0}, boardCells={_board?.Cells?.Count ?? 0}.");
-
             if (_board == null || state == null)
                 return;
 
@@ -98,8 +91,6 @@ namespace Menu.Screens.Cards.Preview
                         break;
                 }
             }
-
-            Debug.Log($"[Preview] MenuBoard.ApplyInitialState: applied {applied}/{state.Cells?.Count ?? 0} cells.");
         }
 
         public UniTask PlayTargetAnimation(IReadOnlyLifetime lifetime, ICardActionData data, Position? fallback = null)
@@ -205,14 +196,12 @@ namespace Menu.Screens.Cards.Preview
                 var free = cell.EnsureFree();
                 free.OnMinesUpdated(opened.MinesAround);
             }
-
-            Debug.Log($"[Preview] MenuBoard.ApplyUpdatedCells: applied {updates.Count} updates.");
         }
 
         private async UniTask PlayCellsAnimation(
             IReadOnlyLifetime lifetime,
             IReadOnlyList<Position> cells,
-            System.Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
+            Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
         {
             if (cells == null || cells.Count == 0 || _board == null)
                 return;

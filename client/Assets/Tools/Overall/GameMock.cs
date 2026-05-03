@@ -6,7 +6,7 @@ using Network;
 using Shared;
 using UnityEngine;
 
-namespace Tools
+namespace Tools.Overall
 {
     public class GameMock : MockBase
     {

@@ -27,7 +27,16 @@ public class OpponentBombStrategy : IBotCardStrategy
 
     public float Evaluate(CardType type)
     {
+        var bot = _context.Bot;
         var opponent = _context.Opponent;
+
+        // Winning by flagging is the primary goal — don't waste mana on damage
+        // while we still have unflagged mines on our own board.
+        var hasUnflaggedMines = bot.Board.Cells.Values
+            .Any(c => c.Status == CellStatus.Taken && c.AsTaken().HasMine && !c.AsTaken().IsFlagged);
+
+        if (hasUnflaggedMines)
+            return 0f;
 
         // Don't finish off the opponent
         if (opponent.Health.Current.Value <= 1)

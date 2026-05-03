@@ -5,12 +5,13 @@ using Cysharp.Threading.Tasks;
 using Global.UI;
 using Global.UI.Toolkit;
 using Internal;
-using Menu.Decks;
 using Meta;
 using Shared;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
+using Object = UnityEngine.Object;
+using Position = UnityEngine.UIElements.Position;
 
 namespace Menu.Screens
 {
@@ -155,7 +156,7 @@ namespace Menu.Screens
 
         private VisualElement FindBottomBar()
         {
-            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            var docs = FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
             var self = GetComponent<UIDocument>();
 
             foreach (var doc in docs)
@@ -343,7 +344,7 @@ namespace Menu.Screens
 
         private static void SetNormalizedLeftCentered(VisualElement element, float normalized)
         {
-            element.style.position = UnityEngine.UIElements.Position.Absolute;
+            element.style.position = Position.Absolute;
             element.style.left = Length.Percent(normalized * 100f);
             element.style.translate = new StyleTranslate(new Translate(Length.Percent(-50f), 0));
         }

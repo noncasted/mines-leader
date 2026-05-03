@@ -38,9 +38,10 @@ public class BotCardAction : IBotCardAction
         var bot = _botContext.Bot;
         var currentMana = bot.Mana.Current;
 
-        var cardsWithUtility = new List<(float utility, Guid id, CardType type)>();
         var entries = new List<ActiveCard>(bot.Hand.Entries);
         entries.Shuffle();
+
+        var cardsWithUtility = new List<(float utility, Guid id, CardType type)>();
 
         var skippedNoMana = new List<(CardType type, int cost)>();
         var skippedNoStrategy = new List<CardType>();
@@ -70,16 +71,13 @@ public class BotCardAction : IBotCardAction
                 continue;
             }
 
-            // Mana-efficiency bonus: cheaper cards get a small boost so bot prefers
-            // playing 2 cheap cards over 1 expensive one when utility is similar
             var manaCost = config.ManaCost;
-            var manaBonus = (1f - manaCost / 6f) * 1.5f; // +1.5 for cost=0, +1.0 for cost=2, +0 for cost=6
+            var manaBonus = (1f - manaCost / 6f) * 1.5f;
             var effectiveUtility = utility + manaBonus;
 
             cardsWithUtility.Add((effectiveUtility, activeCard.Id, activeCard.Type));
         }
 
-        // Log evaluation of all cards
         var evaluations = cardsWithUtility.Select(c => {
             var cost = _cardConfigs.Value.All[c.type].ManaCost;
             return $"{c.type}={c.utility:F1}(cost {cost})";
@@ -94,7 +92,6 @@ public class BotCardAction : IBotCardAction
         if (cardsWithUtility.Count == 0)
             return false;
 
-        // Try cards in order of effective utility (includes mana-efficiency bonus)
         foreach (var (utility, cardId, cardType) in cardsWithUtility.OrderByDescending(t => t.utility))
         {
             var cardStrategy = _botCardStrategies.Entries[cardType];

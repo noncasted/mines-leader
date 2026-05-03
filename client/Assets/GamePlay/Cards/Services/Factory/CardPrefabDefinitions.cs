@@ -1,8 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using TMPro;
-using Tools;
-using Tools.Runtime.PrefabBuilder;
+using Tools.PrefabBuilder;
 using UnityEngine;
 using UnityEngine.Rendering;
 

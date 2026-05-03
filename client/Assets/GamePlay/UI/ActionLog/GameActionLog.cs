@@ -22,6 +22,7 @@ namespace GamePlay.UI.ActionLog
         {
             _gameContext = gameContext;
             _cardsRegistry = cardsRegistry;
+            Debug.Log("[GameActionLog] Service created");
         }
 
         private readonly IGameContext _gameContext;
@@ -31,6 +32,7 @@ namespace GamePlay.UI.ActionLog
 
         public void LogCardAction(Guid playerId, CardType cardType)
         {
+            Debug.Log($"[GameActionLog] LogCardAction called: player={playerId}, card={cardType}");
             if (!_cardsRegistry.Entries.TryGetValue(cardType, out var definition))
             {
                 Debug.LogWarning($"[GameActionLog] Card definition not found for {cardType}");
@@ -54,6 +56,7 @@ namespace GamePlay.UI.ActionLog
 
         public void LogResourceChange(Guid playerId, GameActionLogEntryType type, string resourceName, int oldValue, int newValue)
         {
+            Debug.Log($"[GameActionLog] LogResourceChange called: player={playerId}, type={type}, {resourceName}: {oldValue} > {newValue}");
             if (oldValue == newValue)
                 return;
 
@@ -79,7 +82,9 @@ namespace GamePlay.UI.ActionLog
             if (Entries.Count >= MaxEntries)
                 Entries.RemoveAt(0);
 
+            Debug.Log($"[GameActionLog] Adding entry: {entry.PlayerName}: {entry.Message}. Count before add: {Entries.Count}");
             Entries.Add(entry);
+            Debug.Log($"[GameActionLog] Entry added. Count after add: {Entries.Count}");
         }
     }
 }

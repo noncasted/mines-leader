@@ -38,8 +38,6 @@ namespace Menu.Screens.Cards.Preview.Sync
 
                 _byPayload[payloadType] = sync;
             }
-
-            Debug.Log($"[Preview] SyncRegistry built: {_byPayload.Count} payload-type mappings.");
         }
 
         public async UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data)
@@ -48,18 +46,14 @@ namespace Menu.Screens.Cards.Preview.Sync
                 return;
 
             if (_byPayload.TryGetValue(data.GetType(), out var sync) == false)
-            {
-                Debug.LogWarning($"[Preview] SyncRegistry.Dispatch: no sync registered for {data.GetType().Name}.");
                 return;
-            }
 
             try
             {
                 await sync.Sync(lifetime, data);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.LogError($"[Preview] SyncRegistry.Dispatch({data.GetType().Name}): {ex}");
             }
         }
 

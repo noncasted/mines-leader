@@ -1,5 +1,3 @@
-using Internal;
-
 namespace GamePlay.Cards
 {
     public interface IDeck

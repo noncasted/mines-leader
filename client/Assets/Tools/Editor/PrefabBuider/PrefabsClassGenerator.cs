@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Tools
+namespace Tools.PrefabBuider
 {
     public static class PrefabsClassGenerator
     {

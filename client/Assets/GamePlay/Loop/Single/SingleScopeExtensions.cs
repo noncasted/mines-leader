@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
-using Tools.Runtime.SceneBuilder;
+using Tools.SceneBuilder;
 using VContainer;
 
 namespace GamePlay.Loop

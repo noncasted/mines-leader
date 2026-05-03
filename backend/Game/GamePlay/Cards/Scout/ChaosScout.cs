@@ -61,6 +61,8 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
 
         var revealed = board.Revealer.Reveal(toReveal);
 
+        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {
             Position = p,

@@ -10,6 +10,7 @@ using Shared;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
+using Object = UnityEngine.Object;
 
 namespace Menu.Screens
 {
@@ -163,7 +164,7 @@ namespace Menu.Screens
 
         private VisualElement FindBottomBar()
         {
-            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            var docs = FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
             var self = GetComponent<UIDocument>();
 
             foreach (var doc in docs)

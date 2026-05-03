@@ -1,6 +1,5 @@
 ﻿using Internal;
-using Tools;
-using Tools.Runtime.PrefabBuilder;
+using Tools.PrefabBuilder;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 

@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
-using Tools;
-using Tools.Runtime.PrefabBuilder;
+using Tools.PrefabBuilder;
 using UnityEngine;
 
 namespace GamePlay.Cards

@@ -44,7 +44,7 @@ public class ErosionDozerStrategy : IBotCardStrategy
     public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
-        var position = _boardUtils.FindRandomTakenPosition();
+        var position = FindBestPosition();
 
         if (position == new Position(-1, -1))
             return false;
@@ -56,5 +56,48 @@ public class ErosionDozerStrategy : IBotCardStrategy
         };
 
         return _commandUtils.UseCard(bot, cardId, payload);
+    }
+
+    /// <summary>
+    /// Find the taken position surrounded by the most closed cells.
+    /// Maximises the number of cells ErosionDozer will actually open.
+    /// </summary>
+    private Position FindBestPosition()
+    {
+        var board = _context.Bot.Board;
+        var bestPosition = new Position(-1, -1);
+        var bestCount = -1;
+
+        foreach (var (_, cell) in board.Cells)
+        {
+            if (cell.Status != CellStatus.Taken)
+                continue;
+
+            var taken = cell.AsTaken();
+
+            if (taken.HasMine == true)
+                continue; // Prefer safe centers so the card isn't wasted on a mine
+
+            var neighbours = board.NeighbourPositions(taken.Position);
+            var closedCount = neighbours.Count(n =>
+            {
+                if (board.Cells.TryGetValue(n, out var nc) == false)
+                    return false;
+
+                return nc.Status == CellStatus.Taken;
+            });
+
+            if (closedCount <= bestCount)
+                continue;
+
+            bestCount = closedCount;
+            bestPosition = taken.Position;
+        }
+
+        // Fallback: any taken position if no safe centre found
+        if (bestPosition == new Position(-1, -1))
+            return _boardUtils.FindRandomTakenPosition();
+
+        return bestPosition;
     }
 }

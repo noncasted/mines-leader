@@ -17,9 +17,7 @@ namespace Menu.Screens.Cards.Preview
 
         public bool TryGet(CardType cardType, out CardPreviewBundle bundle)
         {
-            var found = _bundles.TryGetValue(cardType, out bundle);
-            Debug.Log($"[Preview] Cache.TryGet({cardType}) = {found} (cache size={_bundles.Count}).");
-            return found;
+            return _bundles.TryGetValue(cardType, out bundle);
         }
 
         public void Set(IReadOnlyList<CardPreviewBundle> bundles)
@@ -28,13 +26,10 @@ namespace Menu.Screens.Cards.Preview
 
             foreach (var bundle in bundles)
                 _bundles[bundle.CardType] = bundle;
-
-            Debug.Log($"[Preview] Cache.Set stored {_bundles.Count} bundles: [{string.Join(", ", _bundles.Keys)}].");
         }
 
         public void Clear()
         {
-            Debug.Log("[Preview] Cache.Clear.");
             _bundles.Clear();
         }
     }

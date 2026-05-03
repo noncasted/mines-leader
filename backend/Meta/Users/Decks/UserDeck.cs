@@ -2,6 +2,7 @@
 using Infrastructure;
 using Infrastructure.State;
 using Shared;
+using Cluster.Configs;
 
 namespace Meta.Users;
 
@@ -57,19 +58,23 @@ public class UserDeckState : IProjectionPayload, IStateValue
 
 public class UserDeck : UserGrain, IUserDeck
 {
-    public UserDeck([State] State<UserDeckState> state)
+    public UserDeck(
+        [State] State<UserDeckState> state,
+        IUserDeckConfig userDeckConfig)
     {
         _state = state;
+        _userDeckConfig = userDeckConfig;
     }
 
     private readonly State<UserDeckState> _state;
+    private readonly IUserDeckConfig _userDeckConfig;
 
     public async Task Initialize()
     {
         var state = await _state.Update(state => {
             for (var i = 0; i < DeckOptions.MaxDecks; i++)
             {
-                var cards = new List<CardType>(DeckOptions.BaseDeck);
+                var cards = new List<CardType>(_userDeckConfig.Value.BaseDeck);
 
                 state.Entries[i] = new UserDeckState.Entry
                 {
@@ -86,6 +91,9 @@ public class UserDeck : UserGrain, IUserDeck
 
     public async Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex)
     {
+        foreach (var (_, cards) in decks)
+            await ValidateCards(cards);
+
         var state = await _state.Update(state => {
             foreach (var (index, cards) in decks)
             {
@@ -102,6 +110,8 @@ public class UserDeck : UserGrain, IUserDeck
 
     public async Task Update(int index, IReadOnlyList<CardType> cards)
     {
+        await ValidateCards(cards);
+
         var state = await _state.Update(state => {
             state.Entries[index] = new UserDeckState.Entry
             {
@@ -127,5 +137,18 @@ public class UserDeck : UserGrain, IUserDeck
     public Task<IProjectionPayload> GetProjection()
     {
         return _state.Read(s => (IProjectionPayload)s);
+    }
+
+    private async Task ValidateCards(IEnumerable<CardType> cards)
+    {
+        var userCards = this.Grains.GetGrain<IUserCards>(this.UserId);
+
+        foreach (var card in cards)
+        {
+            var hasCard = await userCards.HasCard(card);
+
+            if (!hasCard)
+                throw new InvalidOperationException($"Card {card} is not owned");
+        }
     }
 }

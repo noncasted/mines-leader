@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 using VContainer;
 
@@ -54,7 +55,7 @@ namespace Internal {
                 File.WriteAllText(path, json);
 
 #if UNITY_EDITOR
-                UnityEditor.AssetDatabase.Refresh();
+                AssetDatabase.Refresh();
 #endif
             }
             catch (Exception e) {

@@ -1,8 +1,172 @@
 {
   "$type": "Shared.BotConfigOptions, Shared",
   "MatchmakingApplyThreshold": 3.0,
-  "ActionDelay": 0.3,
-  "FlagsPerRound": 3,
-  "CellsOpenPerRound": 3,
-  "CardsUsePerRound": 2
+  "CurrentProfile": "Medium",
+  "Profiles": {
+    "Easy": {
+      "ActionDelay": 1.0,
+      "MinRoundTime": 10.0,
+      "MaxRoundTime": 15.0,
+      "FlagsPerRound": 3,
+      "CellsOpenPerRound": 5,
+      "CardsUsePerRound": 1,
+      "DeckSize": 6,
+      "Decks": [
+        {
+          "Name": "Scout Pack",
+          "Cards": [
+            "Bloodhound",
+            "ErosionDozer",
+            "MinefieldScout",
+            "Medic",
+            "ManaSurge",
+            "ZipZap"
+          ]
+        }
+      ]
+    },
+    "Medium": {
+      "ActionDelay": 0.5,
+      "MinRoundTime": 7.0,
+      "MaxRoundTime": 12.0,
+      "FlagsPerRound": 7,
+      "CellsOpenPerRound": 4,
+      "CardsUsePerRound": 2,
+      "DeckSize": 6,
+      "Decks": [
+        {
+          "Name": "Balanced",
+          "Cards": [
+            "Bloodhound",
+            "ErosionDozer",
+            "ZipZap",
+            "Trebuchet",
+            "Medic",
+            "ManaSurge"
+          ]
+        },
+        {
+          "Name": "Aggro",
+          "Cards": [
+            "OpponentBomb",
+            "OpponentFlagErase",
+            "Trebuchet",
+            "ZipZap",
+            "Smoke",
+            "Adrenaline"
+          ]
+        }
+      ]
+    },
+    "Hard": {
+      "ActionDelay": 0.3,
+      "MinRoundTime": 5.0,
+      "MaxRoundTime": 10.0,
+      "FlagsPerRound": 10,
+      "CellsOpenPerRound": 3,
+      "CardsUsePerRound": 2,
+      "DeckSize": 6,
+      "Decks": [
+        {
+          "Name": "Pure Scout",
+          "Cards": [
+            "Bloodhound", "Bloodhound_Max",
+            "ErosionDozer", "ErosionDozer_Max",
+            "ZipZap", "ZipZap_Max"
+          ]
+        },
+        {
+          "Name": "Flag Hunter",
+          "Cards": [
+            "OpponentFlagErase", "OpponentFlagErase_Max",
+            "OpponentFlagReshuffle", "OpponentFlagReshuffle_Max",
+            "Trebuchet", "Trebuchet_Max"
+          ]
+        },
+        {
+          "Name": "Aggro Damage",
+          "Cards": [
+            "OpponentBomb",
+            "Trebuchet", "Trebuchet_Max",
+            "ChainReaction",
+            "MineCluster", "MineCluster_Max"
+          ]
+        },
+        {
+          "Name": "Control",
+          "Cards": [
+            "FogOfWar", "FogOfWar_Max",
+            "Smoke", "Smoke_Max",
+            "Lockdown",
+            "Embargo"
+          ]
+        },
+        {
+          "Name": "Survival",
+          "Cards": [
+            "Medic",
+            "Shield",
+            "Adrenaline",
+            "BloodPact",
+            "CoinToss",
+            "PowerSurge"
+          ]
+        },
+        {
+          "Name": "Mana Engine",
+          "Cards": [
+            "ManaSurge",
+            "ManaFountain",
+            "Focus",
+            "Overclock",
+            "Recycler",
+            "Scavenger"
+          ]
+        },
+        {
+          "Name": "Cross-Board Assault",
+          "Cards": [
+            "CarpetBomb", "CarpetBomb_Max",
+            "FortuneBlast",
+            "ChaosFog",
+            "DimensionRift",
+            "Blackout"
+          ]
+        },
+        {
+          "Name": "Mixed Balanced",
+          "Cards": [
+            "Bloodhound",
+            "ErosionDozer",
+            "Trebuchet",
+            "Medic",
+            "ZipZap",
+            "ManaSurge"
+          ]
+        },
+        {
+          "Name": "Late Game",
+          "Cards": [
+            "Siphon",
+            "SoulLink",
+            "MirrorMatch",
+            "GamblersRuin",
+            "Gravedigger",
+            "Salvage"
+          ]
+        },
+        {
+          "Name": "Speed",
+          "Cards": [
+            "Adrenaline",
+            "Overclock",
+            "ZipZap",
+            "Sonar",
+            "ManaSurge",
+            "Bloodhound"
+          ]
+        }
+      ]
+    }
+  }
 }

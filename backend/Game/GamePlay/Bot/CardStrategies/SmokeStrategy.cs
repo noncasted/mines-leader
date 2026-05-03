@@ -32,18 +32,9 @@ public class SmokeStrategy : IBotCardStrategy
         if (opponentTotal == 0)
             return 0f;
 
-        var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
-        var openRatio = (float)opponentOpenCount / opponentTotal;
-
-        // Smoke hides opponent's open cells — most useful when opponent is ahead
-        // Higher utility when opponent has opened a lot (more targets to disrupt)
-        if (openRatio > 0.6f)
-            return 6f;
-
-        if (openRatio > 0.3f)
-            return 4f;
-
-        return 2f;
+        // Smoke is a disruption card — it does not help the bot win by flagging.
+        // Keep priority low so mana and moves are spent on proactive cards instead.
+        return 1.5f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)

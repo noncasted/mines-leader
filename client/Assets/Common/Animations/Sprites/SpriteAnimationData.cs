@@ -9,7 +9,7 @@ namespace Animations
         {
             Sprites = sprites;
             Time = time;
-            Color = color ?? UnityEngine.Color.white;
+            Color = color ?? Color.white;
         }
 
         public IReadOnlyList<Sprite> Sprites { get; }

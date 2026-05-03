@@ -51,7 +51,7 @@ namespace Animations
             {
                 Time = time;
                 Animations = animations;
-                Color = color ?? UnityEngine.Color.white;
+                Color = color ?? Color.white;
             }
 
             public float Time { get; }

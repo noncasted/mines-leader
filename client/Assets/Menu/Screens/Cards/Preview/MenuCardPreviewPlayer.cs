@@ -46,17 +46,12 @@ namespace Menu.Screens.Cards.Preview
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _scopeLifetime = lifetime;
-
-            Debug.Log($"[Preview] Player.OnSetup: menuBoard={(_menuBoard != null)}, board={(_menuBoard?.Board != null)}, texture={(_menuBoard?.PreviewTexture != null)}.");
         }
 
         public void Play(CardType cardType)
         {
-            Debug.Log($"[Preview] Player.Play({cardType}) called.");
-
             if (_scopeLifetime == null)
             {
-                Debug.LogWarning("[Preview] Player.Play called before OnSetup.");
                 return;
             }
 
@@ -76,7 +71,6 @@ namespace Menu.Screens.Cards.Preview
 
             if (_cache.TryGet(cardType, out var bundle) == false)
             {
-                Debug.Log($"[Preview] Player.Play({cardType}): no bundle in cache, aborting after cleanup.");
                 _hasActiveTask = hadPrevious;
                 _activeTask = previousTask;
                 return;
@@ -84,7 +78,6 @@ namespace Menu.Screens.Cards.Preview
 
             var actions = bundle?.Actions?.Count ?? 0;
             var cells = bundle?.InitialState?.Cells?.Count ?? 0;
-            Debug.Log($"[Preview] Player.Play({cardType}): bundle found, initialCells={cells}, actions={actions}.");
 
             var newLifetime = new Lifetime(_scopeLifetime);
             _activeLifetime = newLifetime;
@@ -97,8 +90,6 @@ namespace Menu.Screens.Cards.Preview
         {
             if (_activeLifetime == null && _hasActiveTask == false)
                 return;
-
-            Debug.Log("[Preview] Player.Stop: terminating active playback + full cleanup.");
 
             _activeLifetime?.Terminate();
             _activeLifetime = null;
@@ -142,7 +133,6 @@ namespace Menu.Screens.Cards.Preview
                     _menuBoard.ResetPreview();
                     _vfxFactory?.ClearSpawned();
 
-                    Debug.Log("[Preview] Player.RunLoop: applying initial state.");
                     _menuBoard.ApplyInitialState(bundle.InitialState);
 
                     await UniTask.Delay(LoopDelayMs / 2, cancellationToken: lifetime.Token);
@@ -154,8 +144,6 @@ namespace Menu.Screens.Cards.Preview
                         {
                             if (lifetime.IsTerminated == true)
                                 return;
-
-                            Debug.Log($"[Preview] Player.RunLoop: action #{index} type={action?.GetType().Name}.");
 
                             // Gameplay's CardActionSnapshotHandler plays target + action cell
                             // animations before invoking card.Use(data) — we mirror that here so
@@ -189,7 +177,6 @@ namespace Menu.Screens.Cards.Preview
 
                     if (bundle.FinalState != null)
                     {
-                        Debug.Log("[Preview] Player.RunLoop: applying final state.");
                         _menuBoard.ApplyFinalState(bundle.FinalState);
                     }
 
@@ -198,11 +185,9 @@ namespace Menu.Screens.Cards.Preview
             }
             catch (OperationCanceledException)
             {
-                Debug.Log("[Preview] Player.RunLoop: cancelled (hover changed).");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.LogError($"[Preview] Player.RunLoop: exception {ex}.");
             }
         }
     }

@@ -73,6 +73,8 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         var revealed = board.Revealer.Reveal(targetPositions);
         revealed.AddRange(targetPositions);
 
+        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {
             Position = p,

@@ -64,8 +64,9 @@ public class ZipZapStrategy : IBotCardStrategy
     }
 
     /// <summary>
-    /// Find an unflagged mine that has at least one adjacent free cell.
-    /// Returns the mine position directly — the card will find it via SearchRadius.
+    /// Find a free cell that has an unflagged mine nearby.
+    /// ZipZap needs a free position as its pattern anchor; the card
+    /// then searches for mines within SearchRadius of that anchor.
     /// </summary>
     private Position FindMineTarget()
     {
@@ -73,23 +74,24 @@ public class ZipZapStrategy : IBotCardStrategy
 
         foreach (var (position, cell) in board.Cells)
         {
-            if (cell.IsTaken() == false)
+            if (cell.Status != CellStatus.Free)
                 continue;
 
-            var taken = cell.AsTaken();
-
-            if (taken.IsFlagged == true)
+            var freeCell = cell.AsFree();
+            if (freeCell.MinesAround == 0)
                 continue;
 
-            if (taken.HasMine == false)
-                continue;
+            var takenNeighbors = board
+                .NeighbourPositions(position)
+                .Where(p => board.Cells.TryGetValue(p, out var neighbor) && neighbor.Status == CellStatus.Taken)
+                .Select(p => board.Cells[p].AsTaken())
+                .ToList();
 
-            // Verify there's at least one adjacent free cell (so card's SelectFree won't fail)
-            var neighbours = board.NeighbourPositions(position);
-            var hasAdjacentFree = neighbours.Any(n => board.Cells.TryGetValue(n, out var nc) && nc.IsFree());
+            var flaggedCount = takenNeighbors.Count(t => t.IsFlagged == true);
+            if (freeCell.MinesAround == flaggedCount)
+                continue; // All mines around this cell are already flagged
 
-            if (hasAdjacentFree)
-                return position;
+            return position;
         }
 
         return new Position(-1, -1);

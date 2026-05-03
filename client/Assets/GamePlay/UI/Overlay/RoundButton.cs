@@ -1,23 +1,18 @@
 ﻿using GamePlay.Loop;
-using Global.UI;
 using Internal;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using VContainer;
+using Cursor = UnityEngine.UIElements.Cursor;
 
 namespace GamePlay.UI
 {
     [DisallowMultipleComponent]
+    [RequireComponent(typeof(UIDocument))]
     public class RoundButton : MonoBehaviour, ISceneService, IScopeSetup
     {
         [SerializeField] private Sprite _ownRound;
         [SerializeField] private Sprite _opponentRound;
-
-        [SerializeField] private Image _image;
-        [SerializeField] private TMP_Text _timeText;
-
-        [SerializeField] private DesignButton _button;
 
         private IGameRound _round;
 
@@ -35,17 +30,43 @@ namespace GamePlay.UI
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _round.Player.Advise(lifetime, Update);
-            _round.RoundTime.View(lifetime, time => _timeText.text = ((int)time).ToString());
-
-            _button.ListenClick(lifetime, () => _round.TrySkip());
-
-            void Update()
+            var document = GetComponent<UIDocument>();
+            if (document == null)
             {
-                if (_round.IsTurnAllowed == true)
-                    _image.sprite = _ownRound;
+                Debug.LogError("[RoundButton] UIDocument not found");
+                return;
+            }
+
+            var root = document.rootVisualElement;
+            var roundButton = root.Q<VisualElement>("round-button");
+            var roundTime = root.Q<Label>("round-time");
+
+            if (roundButton == null || roundTime == null)
+            {
+                Debug.LogError("[RoundButton] Required elements not found in UXML");
+                return;
+            }
+
+            // Make button clickable with hover cursor
+            roundButton.AddManipulator(new Clickable(_ => _round.TrySkip()));
+            roundButton.style.cursor = new StyleCursor(new Cursor { texture = null });
+
+            _round.Player.Advise(lifetime, _ => UpdateSprite(roundButton));
+            _round.RoundTime.View(lifetime, time => roundTime.text = ((int)time).ToString());
+        }
+
+        private void UpdateSprite(VisualElement roundButton)
+        {
+            try
+            {
+                if (_round.IsTurnAllowed)
+                    roundButton.style.backgroundImage = new StyleBackground(_ownRound);
                 else
-                    _image.sprite = _opponentRound;
+                    roundButton.style.backgroundImage = new StyleBackground(_opponentRound);
+            }
+            catch (System.NullReferenceException)
+            {
+                // _gameContext.Self not yet initialized — skip until first Player update
             }
         }
     }

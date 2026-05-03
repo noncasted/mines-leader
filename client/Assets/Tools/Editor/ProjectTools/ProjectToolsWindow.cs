@@ -2,18 +2,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Internal;
-using Tools;
+using Tools.PrefabBuider;
 using Tools.SceneBuilder;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Tools.EditorTools
+namespace Tools
 {
     public class ProjectToolsWindow : EditorWindow
     {
-        private static readonly string UssPath = "Assets/Tools/EditorTools/ProjectTools/ProjectToolsWindow.uss";
+        private static readonly string UssPath = "Assets/Tools/Editor/ProjectTools/ProjectToolsWindow.uss";
         private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field" };
 
         private OptionsContainer _options;

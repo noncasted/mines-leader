@@ -1,0 +1,83 @@
+.action-log-root {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    width: 72px;
+}
+
+.tile-container {
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.action-log-tile {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 3px;
+    padding: 0 3px;
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+    background-color: rgba(46, 89, 148, 0.9);
+    width: 100%;
+}
+
+.tile-self {
+    background-color: rgba(46, 89, 148, 0.9);
+}
+
+.tile-opponent {
+    background-color: rgba(148, 56, 46, 0.9);
+}
+
+.tile-mana {
+    background-color: rgba(72, 56, 148, 0.9);
+}
+
+.tile-health {
+    background-color: rgba(46, 122, 72, 0.9);
+}
+
+.tile-moves {
+    background-color: rgba(140, 107, 46, 0.9);
+}
+
+.tile-message {
+    font-size: 4px;
+    color: rgb(242, 242, 242);
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    padding: 0;
+    margin: 0;
+}
+
+.tooltip {
+    position: absolute;
+    width: 72px;
+    background-color: rgba(20, 20, 30, 0.95);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding: 4px;
+    flex-direction: column;
+}
+
+.tooltip-name {
+    font-size: 5px;
+    color: rgb(237, 206, 173);
+    -unity-font-style: bold;
+    margin-bottom: 1px;
+}
+
+.tooltip-desc {
+    font-size: 4px;
+    color: rgb(180, 180, 190);
+    white-space: normal;
+}

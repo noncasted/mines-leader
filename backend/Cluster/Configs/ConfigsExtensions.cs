@@ -42,6 +42,9 @@ public static class ConfigsExtensions
         builder.AddAddressableState<LootProgressionConfigState>()
                .As<ILootProgressionConfig>();
 
+        builder.AddAddressableState<UserDeckConfigState>()
+               .As<IUserDeckConfig>();
+
         return builder;
     }
 }

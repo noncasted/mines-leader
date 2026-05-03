@@ -103,6 +103,11 @@ public class SessionFileLogger : ISessionLogger, IDisposable
         Write($"[Bot] {actionType} | {details}");
     }
 
+    public void LogBotProfile(Guid botId, string profile)
+    {
+        Write($"[Bot] Profile | {Label(botId)} | Profile={profile}");
+    }
+
     public void LogTurnSkipped(Guid playerId)
     {
         Write($"[Turn] Skipped | Player={Label(playerId)}");

@@ -276,6 +276,35 @@ public class GetFlagWinnerTests
     }
 
     [Fact]
+    public void AllMinesFlagged_ExtraFlagOnSafeCell_NoWinner()
+    {
+        // All mines are flagged, but there's an extra flag on a safe cell
+        // This should NOT produce a winner (counter would show negative)
+        var (board1, _) = BoardParser.Parse("""
+                                            f f f f f
+                                            t t t t g
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        var (board2, _) = BoardParser.Parse("""
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        var (context, _, _) = CreateContext(board1, board2);
+        var roundPlayers = new RoundPlayers(context);
+
+        var winner = roundPlayers.GetFlagWinner();
+
+        winner.Should().Be(Guid.Empty, "extra flag on safe cell prevents win");
+    }
+
+    [Fact]
     public void ManyMines_AllFlagged_Winner()
     {
         var (board1, _) = BoardParser.Parse("""

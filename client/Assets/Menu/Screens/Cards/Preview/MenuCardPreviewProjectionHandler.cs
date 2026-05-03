@@ -24,14 +24,8 @@ namespace Menu.Screens.Cards.Preview
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            Debug.Log("[Preview] ProjectionHandler.OnSetup: subscribing to InitialCardPreviews projection.");
-
             _projection.Listen(lifetime, value =>
             {
-                var count = value?.Bundles?.Count ?? 0;
-
-                Debug.Log($"[Preview] ProjectionHandler received InitialCardPreviews: bundles={count}.");
-
                 if (value?.Bundles == null)
                     return;
 

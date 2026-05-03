@@ -9,6 +9,7 @@ namespace Menu.Decks
         private readonly VisualElement _dragLayer;
         private readonly Func<VisualElement> _createGhost;
         private readonly Action<VisualElement> _onDropped;
+        private readonly Func<bool> _canDrag;
 
         private VisualElement _ghost;
         private bool _isDragging;
@@ -19,11 +20,13 @@ namespace Menu.Decks
         public CardDragManipulator(
             VisualElement dragLayer,
             Func<VisualElement> createGhost,
-            Action<VisualElement> onDropped)
+            Action<VisualElement> onDropped,
+            Func<bool> canDrag = null)
         {
             _dragLayer = dragLayer;
             _createGhost = createGhost;
             _onDropped = onDropped;
+            _canDrag = canDrag;
         }
 
         protected override void RegisterCallbacksOnTarget()
@@ -45,6 +48,9 @@ namespace Menu.Decks
         private void OnPointerDown(PointerDownEvent evt)
         {
             if (_isDragging || evt.button != 0)
+                return;
+
+            if (_canDrag != null && !_canDrag())
                 return;
 
             _pointerId = evt.pointerId;

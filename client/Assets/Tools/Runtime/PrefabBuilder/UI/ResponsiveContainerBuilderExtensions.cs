@@ -3,7 +3,7 @@ using System;
 using Exoa.Responsive;
 using UnityEngine;
 
-namespace Tools.Runtime.PrefabBuilder
+namespace Tools.PrefabBuilder
 {
     public class ResponsiveContainerBuilder
     {

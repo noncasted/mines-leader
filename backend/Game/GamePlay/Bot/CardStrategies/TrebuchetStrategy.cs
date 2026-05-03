@@ -32,8 +32,9 @@ public class TrebuchetStrategy : IBotCardStrategy
 
         // Проверяем есть ли вообще закрытые клетки у противника
         var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
+        var opponentFreeCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
 
-        if (opponentTakenCount == 0)
+        if (opponentTakenCount == 0 || opponentFreeCount == 0)
             return 0f;
 
         // Если активен модификатор TrebuchetAimer - максимальный приоритет
@@ -52,7 +53,7 @@ public class TrebuchetStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = _boardUtils.FindRandomTakenPosition(opponent: true);
+        var position = _boardUtils.FindRandomFreePosition(opponent: true);
 
         if (position == new Position(-1, -1))
             return false;

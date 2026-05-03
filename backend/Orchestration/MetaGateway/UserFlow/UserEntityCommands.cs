@@ -30,22 +30,11 @@ public static class UserEntityCommands
         {
             return _orleans.InTransaction(async () => {
                 var deck = _orleans.GetGrain<IUserDeck>(session.UserId);
-                var cards = _orleans.GetGrain<IUserCards>(session.UserId);
-                var ownedCards = await cards.GetAll();
-                var ownedSet = new HashSet<CardType>(ownedCards);
 
                 var update = new Dictionary<int, IReadOnlyList<CardType>>();
 
                 foreach (var (index, entry) in request.Projection.Entries)
-                {
-                    foreach (var card in entry.Cards)
-                    {
-                        if (!ownedSet.Contains(card))
-                            throw new InvalidOperationException($"Card {card} not owned");
-                    }
-
                     update[index] = entry.Cards;
-                }
 
                 await deck.Update(update, request.Projection.SelectedIndex);
             }).FromResult();

@@ -89,7 +89,7 @@ namespace Menu.Decks
             _previewPopup.Hide();
 
             // Find bottom bar from another UIDocument
-            var allDocs = Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            var allDocs = FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
 
             foreach (var doc in allDocs)
             {
@@ -170,7 +170,8 @@ namespace Menu.Decks
                 var manipulator = new CardDragManipulator(
                     _root,
                     () => CreateGhostCard(definition, config),
-                    dropTarget => OnCardDropped(card, dropTarget));
+                    dropTarget => OnCardDropped(card, dropTarget),
+                    () => card.IsOwned);
                 card.Root.AddManipulator(manipulator);
                 RegisterPreviewHover(card, lifetime);
             }
@@ -321,6 +322,9 @@ namespace Menu.Decks
 
         private void OnCardDropped(CardElement poolCard, VisualElement dropTarget)
         {
+            if (!poolCard.IsOwned)
+                return;
+
             var slotIndex = -1;
 
             for (var i = 0; i < _deckSlots.Count; i++)
