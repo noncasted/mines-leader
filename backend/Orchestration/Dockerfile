@@ -39,7 +39,7 @@ RUN dotnet restore backend/Orchestration/Silo/Silo.csproj \
 FROM restore AS publish-all
 ARG CONFIGURATION=Release
 
-COPY . .
+COPY --link . .
 
 RUN set -e; \
     for pair in \
