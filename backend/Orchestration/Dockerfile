@@ -56,6 +56,7 @@ RUN set -e; \
       # and every later one ends up with a manifest pointing at missing files
       # (404 at runtime in the Blazor console).
       find /src -path "*/obj/*" \( -name "staticwebassets*.json" -o -name "*.StaticWebAssets.Up2Date" \) -delete 2>/dev/null || true; \
+      # Aspire AppHost requires publish (not build) with IsAspireHost=false for valid runtime output
       if [ "$name" = "Aspire.AppHost" ]; then \
         dotnet publish "$proj" \
           -c "${CONFIGURATION}" \
