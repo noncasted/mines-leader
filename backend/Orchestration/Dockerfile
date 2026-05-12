@@ -56,11 +56,19 @@ RUN set -e; \
       # and every later one ends up with a manifest pointing at missing files
       # (404 at runtime in the Blazor console).
       find /src -path "*/obj/*" \( -name "staticwebassets*.json" -o -name "*.StaticWebAssets.Up2Date" \) -delete 2>/dev/null || true; \
-      dotnet publish "$proj" \
-        -c "${CONFIGURATION}" \
-        -o "/app/out/${name}" \
-        --no-restore \
-        /p:UseAppHost=false; \
+      if [ "$name" = "Aspire.AppHost" ]; then \
+        dotnet build "$proj" \
+          -c "${CONFIGURATION}" \
+          -o "/app/out/${name}" \
+          --no-restore \
+          /p:UseAppHost=false; \
+      else \
+        dotnet publish "$proj" \
+          -c "${CONFIGURATION}" \
+          -o "/app/out/${name}" \
+          --no-restore \
+          /p:UseAppHost=false; \
+      fi \
     done
 
 # Stage 3: lean runtime. Compose selects service via build-arg ASSEMBLY_NAME.
