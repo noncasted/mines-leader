@@ -46,8 +46,7 @@ RUN set -e; \
       "backend/Orchestration/Coordinator/Coordinator.csproj:Coordinator" \
       "backend/Orchestration/MetaGateway/MetaGateway.csproj:MetaGateway" \
       "backend/Orchestration/GameGateway/GameGateway.csproj:GameGateway" \
-      "backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj:ConsoleGateway" \
-
+      "backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj:ConsoleGateway"; do \
       proj=${pair%:*}; name=${pair##*:}; \
       # Wipe StaticWebAssets incremental tracking so each publish actually
       # copies wwwroot/_framework/* into its output. Without this, only the
