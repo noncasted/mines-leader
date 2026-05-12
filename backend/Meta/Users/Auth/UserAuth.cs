@@ -7,7 +7,7 @@ namespace Meta.Users;
 
 [GenerateSerializer]
 [GrainState(Table = "state_user_auth", State = "user_auth", Lookup = "UserAuth", Key = GrainKeyType.Guid)]
-public class UserAuthState : IStateValue
+public class UserAuthState : IStateValue, IDirectStateValue
 {
     [Id(0)] public bool IsExists { get; set; }
     [Id(1)] public DateTime RegisteredAt { get; set; }

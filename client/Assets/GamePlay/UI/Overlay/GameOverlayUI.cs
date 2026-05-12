@@ -1,6 +1,6 @@
+﻿using Global.UI;
 using Internal;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer;
 
 namespace GamePlay.UI
@@ -11,9 +11,10 @@ namespace GamePlay.UI
     }
 
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(UIDocument))]
     public class GameOverlayUI : MonoBehaviour, ISceneService, IScopeSetup, IGameOverlayUI
     {
+        [SerializeField] private DesignButton _pauseButton;
+
         private IGamePause _pause;
 
         [Inject]
@@ -31,22 +32,7 @@ namespace GamePlay.UI
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            var document = GetComponent<UnityEngine.UIElements.UIDocument>();
-            if (document == null)
-            {
-                Debug.LogError("[GameOverlayUI] UIDocument not found");
-                return;
-            }
-
-            var root = document.rootVisualElement;
-            var pauseButton = root.Q<UnityEngine.UIElements.VisualElement>("pause-button");
-            if (pauseButton == null)
-            {
-                Debug.LogError("[GameOverlayUI] pause-button not found in UXML");
-                return;
-            }
-
-            pauseButton.RegisterCallback<UnityEngine.UIElements.PointerDownEvent>(_ => _pause.Open());
+            _pauseButton.ListenClick(lifetime, () => _pause.Open());
         }
 
         public void Show()

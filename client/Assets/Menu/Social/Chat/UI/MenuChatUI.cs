@@ -1,9 +1,6 @@
-using Global.UI.Toolkit;
-using Internal;
-using Menu.Main;
+﻿using Internal;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
-using VContainer;
 
 namespace Menu.Social
 {
@@ -14,49 +11,40 @@ namespace Menu.Social
     }
 
     [DisallowMultipleComponent]
-    public class MenuChatUI : MonoBehaviour, IMenuChatUI, ISceneService, IScopeSetup
+    public class MenuChatUI : MonoBehaviour, IMenuChatUI, ISceneService
     {
-        private IMenuNavigation _navigation;
+        [SerializeField] private TMP_InputField _input;
 
         private readonly ViewableDelegate<string> _messageSend = new();
+
         private bool _isSelected;
 
         public bool IsSelected => _isSelected;
         public IViewableDelegate<string> MessageSend => _messageSend;
 
-        [Inject]
-        private void Construct(IMenuNavigation navigation)
-        {
-            _navigation = navigation;
-        }
-
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                   .As<IMenuChatUI>()
-                   .As<IScopeSetup>();
+                   .As<IMenuChatUI>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime)
+        private void OnEnable()
         {
-            var root = _navigation.Root;
-            var input = root.Q<TextField>("chat-input");
+            var lifetime = this.GetObjectLifetime();
+            _input.onSubmit.Listen(lifetime, OnSubmit);
+            _input.onSelect.Listen(lifetime, aa => _isSelected = true);
+            _input.onDeselect.Listen(lifetime, aa => _isSelected = false);
+        }
 
-            void OnFocusIn(FocusInEvent evt) => _isSelected = true;
-            void OnFocusOut(FocusOutEvent evt) => _isSelected = false;
+        private void OnSubmit(string message)
+        {
+            if (message == string.Empty || message == " ")
+                return;
 
-            input.RegisterCallback<FocusInEvent>(OnFocusIn);
-            input.RegisterCallback<FocusOutEvent>(OnFocusOut);
+            _input.text = string.Empty;
+            _isSelected = false;
 
-            lifetime.Listen(() => {
-                input.UnregisterCallback<FocusInEvent>(OnFocusIn);
-                input.UnregisterCallback<FocusOutEvent>(OnFocusOut);
-            });
-
-            input.ListenSubmit(lifetime, message => {
-                _isSelected = false;
-                _messageSend.Invoke(message);
-            });
+            _messageSend.Invoke(message);
         }
     }
 }

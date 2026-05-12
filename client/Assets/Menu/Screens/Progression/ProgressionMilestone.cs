@@ -1,32 +1,47 @@
 using System;
-using UnityEngine.UIElements;
+using Cysharp.Threading.Tasks;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace Menu.Screens
 {
-    /// <summary>
-    /// Wrapper around a cloned ProgressionChest UXML template.
-    /// Mirrors the CardElement pattern from MenuDecks.
-    /// </summary>
-    public class ProgressionMilestone
+    [DisallowMultipleComponent]
+    public class ProgressionMilestone : MonoBehaviour
     {
-        public VisualElement Root { get; }
-        public Button Button { get; }
-        public int RequiredXp { get; private set; }
-        public Guid BoxId { get; private set; }
-        public bool HasAvailableBox => BoxId != Guid.Empty;
+        [SerializeField] private Image _icon;
+        [SerializeField] private TMP_Text _xpLabel;
+        [SerializeField] private Image _background;
+        [SerializeField] private Button _button;
+        [SerializeField] private Color _lockedColor = new(0.2f, 0.2f, 0.2f, 1f);
+        [SerializeField] private Color _reachedColor = new(0.4f, 0.5f, 0.45f, 1f);
+        [SerializeField] private Color _availableColor = new(1f, 0.84f, 0f, 1f);
+        [SerializeField] private Color _claimedColor = new(0.3f, 0.6f, 0.35f, 0.7f);
 
+        private RectTransform _rectTransform;
         private bool _reached;
         private bool _claimed;
+        private bool _hasAvailableBox;
+        private Guid _boxId;
 
-        public ProgressionMilestone(VisualElement root)
-        {
-            Root = root;
-            Button = root.Q<Button>("chest-hit");
-        }
+        public int RequiredXp { get; private set; }
+        public Button Button => _button;
+        public Guid BoxId => _boxId;
+        public bool HasAvailableBox => _hasAvailableBox;
 
-        public void Setup(int requiredXp)
+        public void Setup(int requiredXp, float normalizedPosition)
         {
             RequiredXp = requiredXp;
+            _rectTransform = GetComponent<RectTransform>();
+
+            _xpLabel.text = $"{requiredXp}";
+
+            _rectTransform.anchorMin = new Vector2(normalizedPosition, 0);
+            _rectTransform.anchorMax = new Vector2(normalizedPosition, 1);
+            _rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            _rectTransform.anchoredPosition = Vector2.zero;
+            _rectTransform.sizeDelta = new Vector2(60, 0);
+
             UpdateVisual();
         }
 
@@ -44,25 +59,34 @@ namespace Menu.Screens
 
         public void SetAvailableBox(Guid boxId)
         {
-            BoxId = boxId;
+            _boxId = boxId;
+            _hasAvailableBox = boxId != Guid.Empty;
             UpdateVisual();
         }
 
         private void UpdateVisual()
         {
-            Root.RemoveFromClassList("locked");
-            Root.RemoveFromClassList("ready");
-            Root.RemoveFromClassList("reached");
-            Root.RemoveFromClassList("claimed");
-
             if (!_reached)
-                Root.AddToClassList("locked");
-            else if (HasAvailableBox)
-                Root.AddToClassList("ready");
+            {
+                _background.color = _lockedColor;
+                _icon.color = _lockedColor;
+            }
+            else if (_hasAvailableBox)
+            {
+                _background.color = _availableColor;
+                _icon.color = Color.white;
+            }
             else if (_claimed)
-                Root.AddToClassList("claimed");
+            {
+                _background.color = _claimedColor;
+                _icon.color = _claimedColor;
+            }
             else
-                Root.AddToClassList("reached");
+            {
+                // Reached but box not awarded yet
+                _background.color = _reachedColor;
+                _icon.color = _reachedColor;
+            }
         }
     }
 }

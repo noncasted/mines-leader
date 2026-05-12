@@ -29,23 +29,23 @@ public interface IUserProgression : IUserGrain, IUserProjectionSource
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_progression", State = "user_progression", Lookup = "UserProgression",
+[GrainEventState(State = "user_progression", Lookup = "UserProgression",
     Key = GrainKeyType.Guid)]
-public class UserProgressionState : IProjectionPayload, IStateValue
+public class UserProgressionState : IEventStateValue, IProjectionPayload
 {
-    [Id(0)] public List<IUserProgressionRecord> Records { get; } = new();
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public List<IUserProgressionRecord> Records { get; set; } = new();
 
     public int Version => 0;
 
-    public void AddRecord(IUserProgressionRecord record)
+    public void Apply(ProgressionAdded e) => Records.Add(e.Record);
+    public void Apply(ProgressionReset e)
     {
-        Records.Add(record);
+        Records.Clear();
+        Records.Add(new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = e.Value });
     }
 
-    public int CalculateTotal()
-    {
-        return Records.Sum(total => total.GetExperience());
-    }
+    public int CalculateTotal() => Records.Sum(r => r.GetExperience());
 
     public INetworkContext ToContext() => new SharedBackendUser.ProgressionProjection()
     {
@@ -53,17 +53,31 @@ public class UserProgressionState : IProjectionPayload, IStateValue
     };
 }
 
+[GenerateSerializer]
+public class ProgressionAdded
+{
+    [Id(0)]
+    public IUserProgressionRecord Record { get; set; } = null!;
+}
+
+[GenerateSerializer]
+public class ProgressionReset
+{
+    [Id(0)]
+    public int Value { get; set; }
+}
+
 public class UserProgression : UserGrain, IUserProgression
 {
     public UserProgression(
-        [State] State<UserProgressionState> state,
+        [EventState] EventState<UserProgressionState> state,
         ILogger<UserProgression> logger)
     {
         _state = state;
         _logger = logger;
     }
 
-    private readonly State<UserProgressionState> _state;
+    private readonly EventState<UserProgressionState> _state;
     private readonly ILogger<UserProgression> _logger;
 
     public async Task AddRecord(IUserProgressionRecord record)
@@ -73,40 +87,41 @@ public class UserProgression : UserGrain, IUserProgression
             record.GetExperience(),
             record.GetType().FullName);
 
-        var state = await _state.Update(state => state.AddRecord(record));
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new ProgressionAdded { Record = record });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
 
         RegisterLootSideEffect();
     }
 
     public Task<int> GetTotal()
     {
-        return _state.Read(state => state.CalculateTotal());
+        // Use a synchronous-looking wrapper for the projection if possible,
+        // but in EventState we must call Read().
+        // Since the interface is Task<int>, we can just await.
+        return _state.ReadAndGetTotal();
     }
 
     public async Task AdjustProgression(int delta)
     {
         var record = new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
-        var state = await _state.Update(s => s.AddRecord(record));
-        await this.SendProjection(state);
-
-        RegisterLootSideEffect();
+        await AddRecord(record);
     }
 
     public async Task SetProgression(int value)
     {
-        var state = await _state.Update(s => {
-            s.Records.Clear();
-            s.AddRecord(new UserProgressionRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
-        });
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new ProgressionReset { Value = value });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
 
         RegisterLootSideEffect();
     }
 
     public Task<IProjectionPayload> GetProjection()
     {
-        return _state.Read(IProjectionPayload (s) => s);
+        return Task.FromResult((IProjectionPayload)_state.Value);
     }
 
     private void RegisterLootSideEffect()
@@ -115,5 +130,14 @@ public class UserProgression : UserGrain, IUserProgression
         {
             UserId = this.GetPrimaryKey()
         }.AddToTransaction();
+    }
+}
+
+public static class UserProgressionEventStateExtensions
+{
+    public static async Task<int> ReadAndGetTotal(this EventState<UserProgressionState> state)
+    {
+        await state.Read();
+        return state.Value.CalculateTotal();
     }
 }

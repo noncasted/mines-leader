@@ -8,6 +8,9 @@ using Infrastructure;
 using Infrastructure.Execution;
 using Infrastructure.Startup;
 using Infrastructure.State;
+using JasperFx;
+using JasperFx.Events;
+using Marten.Events.Projections;
 using Meta.Bots;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,13 +70,73 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 dbSource.Value.Returns(dataSource);
                 services.AddSingleton(dbSource);
 
+                // Marten document store for event sourcing tests
+                var martenStore = Marten.DocumentStore.For(options =>
+                {
+                    options.Connection(dataSource);
+                    options.Events.StreamIdentity = StreamIdentity.AsString;
+                    options.Events.AppendMode = EventAppendMode.Quick;
+                    options.AutoCreateSchemaObjects = AutoCreate.All;
+
+                    var baseSettings = JsonStateSettings.CreateBase();
+                    var jsonSerializer = new Marten.Services.JsonNetSerializer();
+                    jsonSerializer.Configure(s =>
+                    {
+                        s.TypeNameHandling = baseSettings.TypeNameHandling;
+                        s.MetadataPropertyHandling = baseSettings.MetadataPropertyHandling;
+                        s.PreserveReferencesHandling = baseSettings.PreserveReferencesHandling;
+                        s.DateFormatHandling = baseSettings.DateFormatHandling;
+                        s.DefaultValueHandling = baseSettings.DefaultValueHandling;
+                        s.MissingMemberHandling = baseSettings.MissingMemberHandling;
+                        s.NullValueHandling = baseSettings.NullValueHandling;
+                        s.ConstructorHandling = baseSettings.ConstructorHandling;
+                        s.TypeNameAssemblyFormatHandling = baseSettings.TypeNameAssemblyFormatHandling;
+                        s.Formatting = baseSettings.Formatting;
+                        foreach (var converter in baseSettings.Converters)
+                            s.Converters.Add(converter);
+                    });
+                    options.Serializer(jsonSerializer);
+                    var eventStateInterface = typeof(IEventStateValue);
+                    var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location));
+                    foreach (var asm in assemblies)
+                    {
+                        Type[] types;
+                        try { types = asm.GetTypes(); }
+                        catch { continue; }
+
+                        foreach (var type in types)
+                        {
+                            if (type.IsInterface || type.IsAbstract || type.IsGenericTypeDefinition)
+                                continue;
+                            if (!eventStateInterface.IsAssignableFrom(type))
+                                continue;
+                            if (type.GetConstructor(Type.EmptyTypes) is not { IsPublic: true })
+                                continue;
+
+                            var snapshotMethod = options.Projections.GetType().GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                                .FirstOrDefault(m => m.Name == "Snapshot"
+                                    && m.IsGenericMethod
+                                    && m.GetParameters().Length >= 1
+                                    && m.GetParameters()[0].ParameterType == typeof(SnapshotLifecycle));
+                            if (snapshotMethod != null)
+                            {
+                                var generic = snapshotMethod.MakeGenericMethod(type);
+                                generic.Invoke(options.Projections, [SnapshotLifecycle.Inline, null]);
+                            }
+                        }
+                    }
+                });
+                services.AddSingleton<Marten.IDocumentStore>(martenStore);
+
                 // State registry — register all grain states
                 services.AddSingleton<IGrainStatesRegistry>(BuildStatesRegistry());
 
                 // Core Orleans utilities
                 services.AddSingleton<IStateSerializer, StateSerializer>();
                 services.AddSingleton<IStateMigrations, StateMigrations>();
+                services.AddSingleton<DirectStorage>();
                 services.AddSingleton<IStateStorage, StateStorage>();
+                services.AddSingleton<IEventStorage, EventStorage>();
                 services.AddSingleton<ITransactions, Transactions>();
                 services.AddSingleton<IOrleans, OrleansUtils>();
                 services.AddSingleton<ISideEffectsStorage, SideEffectsStorage>();
@@ -81,6 +144,10 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 // State factory for grain [State] attribute injection
                 services.AddSingleton<IStateFactory, StateFactory>();
                 services.AddSingleton<IAttributeToFactoryMapper<StateAttribute>, StateAttributeMapper>();
+
+                // Event state factory for grain [EventState] attribute injection
+                services.AddSingleton<IEventStateFactory, EventStateFactory>();
+                services.AddSingleton<IAttributeToFactoryMapper<EventStateAttribute>, EventStateAttributeMapper>();
 
                 // Migration steps (V0→V1 chain targeting MigrationTestState_1)
                 services.AddSingleton<IStateMigrationStep, MigrationTestStep_V0>();

@@ -1,81 +1,79 @@
+using System.Collections;
 using Internal;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GamePlay.UI.CardInfo
 {
     [DisallowMultipleComponent]
     public class CardInfoDisplayUI : MonoBehaviour, ISceneService
     {
+        [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField] private TMP_Text _cardName;
+        [SerializeField] private TMP_Text _cardDescription;
         [SerializeField] private float _fadeInDuration = 0.15f;
         [SerializeField] private float _fadeOutDuration = 0.1f;
 
-        private VisualElement _cardPreview;
-        private Label _cardName;
-        private Label _cardDescription;
-
-        private float _targetAlpha;
-        private float _currentAlpha;
-        private float _fadeSpeed;
+        private Coroutine _fadeCoroutine;
 
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this);
         }
 
-        private void Awake()
-        {
-            var document = GetComponent<UIDocument>();
-            if (document == null)
-            {
-                Debug.LogError("[CardInfoDisplayUI] UIDocument not found");
-                return;
-            }
-
-            var root = document.rootVisualElement;
-            _cardPreview = root.Q<VisualElement>("card-preview");
-            _cardName = root.Q<Label>("card-name");
-            _cardDescription = root.Q<Label>("card-description");
-
-            if (_cardPreview != null)
-                _cardPreview.style.opacity = 0f;
-        }
-
-        private void Update()
-        {
-            if (_cardPreview == null)
-                return;
-
-            if (!Mathf.Approximately(_currentAlpha, _targetAlpha))
-            {
-                _currentAlpha = Mathf.MoveTowards(_currentAlpha, _targetAlpha, _fadeSpeed * Time.deltaTime);
-                _cardPreview.style.opacity = _currentAlpha;
-            }
-        }
-
         public void DisplayCard(string cardName, string description)
         {
-            if (_cardName != null)
-                _cardName.text = cardName;
-            if (_cardDescription != null)
-                _cardDescription.text = description;
+            _cardName.text = cardName;
+            _cardDescription.text = description;
 
-            _targetAlpha = 1f;
-            _fadeSpeed = 1f / _fadeInDuration;
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+
+            _fadeCoroutine = StartCoroutine(FadeIn());
         }
 
         public void Hide()
         {
-            _targetAlpha = 0f;
-            _fadeSpeed = 1f / _fadeOutDuration;
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+
+            _fadeCoroutine = StartCoroutine(FadeOut());
         }
 
         public void HideImmediately()
         {
-            _targetAlpha = 0f;
-            _currentAlpha = 0f;
-            if (_cardPreview != null)
-                _cardPreview.style.opacity = 0f;
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+
+            _canvasGroup.alpha = 0f;
+        }
+
+        private IEnumerator FadeIn()
+        {
+            float elapsed = 0f;
+
+            while (elapsed < _fadeInDuration)
+            {
+                elapsed += Time.deltaTime;
+                _canvasGroup.alpha = Mathf.Clamp01(elapsed / _fadeInDuration);
+                yield return null;
+            }
+
+            _canvasGroup.alpha = 1f;
+        }
+
+        private IEnumerator FadeOut()
+        {
+            float elapsed = 0f;
+
+            while (elapsed < _fadeOutDuration)
+            {
+                elapsed += Time.deltaTime;
+                _canvasGroup.alpha = Mathf.Clamp01(1f - (elapsed / _fadeOutDuration));
+                yield return null;
+            }
+
+            _canvasGroup.alpha = 0f;
         }
     }
 }

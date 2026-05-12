@@ -20,3 +20,4 @@ MonoBehaviour:
     <ShakeIntensity>k__BackingField: 0.5
     <VSync>k__BackingField: 1
     <WasChanged>k__BackingField: 0
+  _viewPrefab: {fileID: 298676351081192702, guid: 5e792f53413314846908eef6fdef883f, type: 3}

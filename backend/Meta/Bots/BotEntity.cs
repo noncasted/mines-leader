@@ -7,7 +7,7 @@ namespace Meta.Bots;
 
 [GenerateSerializer]
 [GrainState(Table = "bot_entity", State = "bot_entity", Lookup = "Bot", Key = GrainKeyType.Guid)]
-public class BotState : IStateValue
+public class BotState : IDirectStateValue
 {
     [Id(0)] public Guid Id { get; set; }
 

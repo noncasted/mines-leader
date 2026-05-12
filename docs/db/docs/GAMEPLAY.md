@@ -262,31 +262,65 @@ pointing directly at the card/command that forgot a `Record*` call.
 
 Architecture in `backend/Game/GamePlay/Bot/`. Config: `BotConfigOptions` (shared).
 
+### Profile Architecture
+
+Three difficulty profiles via `IBotProfileStrategy`:
+
+| Profile | `ConstraintDepth` | Flag limit | Cell limit | Card limit | Behavior |
+|---------|-------------------|------------|------------|------------|----------|
+| **Easy** | 1 | 2 | 3 | 1 | Random card selection, random cell opening when no safe cells |
+| **Medium** | 2 | 5 | 2 | 2 | Level-1 + Level-2 constraint-solving, utility-based cards |
+| **Hard** | 2 | 50 | 1 | 2 | Full constraint-solving, probabilistic cell opening, optimal cards |
+
+```csharp
+public interface IBotProfileStrategy {
+    BotProfile Profile { get; }          // Easy / Medium / Hard
+    int ConstraintDepth { get; }         // 1 = single-cell, 2 = overlapping subsets
+    Task ExecuteTurn(IReadOnlyLifetime lifetime);
+}
+```
+
+**Phase-based turn** (Flags → Cards → Cells):
+```csharp
+// Phase 1: Flags — constraint-solving (free, limited by FlagsPerRound)
+await RunFlagPhase(profileConfig.FlagsPerRound, ...);
+
+// Phase 2: Cards — utility-based selection (uses Moves)
+await RunCardPhase(profileConfig.CardsUsePerRound, ...);
+
+// Phase 3: Cells — proven-safe opening (uses Moves)
+await RunCellPhase(profileConfig.CellsOpenPerRound, ...);
+```
+
+Profile selection: `BotProfileStrategyProvider` resolves strategy from `IBotConfig.CurrentProfile`. Config holds `Dictionary<BotProfile, BotProfileConfig>` — each profile has its own `FlagsPerRound`, `CellsOpenPerRound`, `CardsUsePerRound`, `Min/MaxRoundTime`, and `List<BotDeck> Decks`.
+
 ### BotRunner (Orchestrator)
 
 ```csharp
 _round.CurrentPlayer.ViewNotNull(botLifetime, (roundLifetime, player) => {
     if (player.User.Id != user.Id) return;
     if (player.Moves.IsAvailable == false) return; // guard against init trigger
-    Task.Run(() => OnBotTurn(roundLifetime));
+    var profile = _profileProvider.GetStrategy(_config.Value.CurrentProfile);
+    Task.Run(() => profile.ExecuteTurn(roundLifetime));
 });
 ```
 
-Turn sequence: **interleaved** — card → flag → cell → card → flag → cell → ...
-- Random round duration: `MinRoundTime`–`MaxRoundTime` (default 7–12s)
-- Random delay 0.5–2s between actions (distributed across time budget)
-- Waits remaining budget before ending turn (human-like pacing)
-
 ### BotFlagAction
 
-Constraint-solving: Find Free cell where `MinesAround > 0`, check Taken neighbors for unflagged mines.
-Logs decision reason: which constraint triggered the flag.
+Constraint-solving with configurable depth:
+- **Level 1**: Single Free cell — if `MinesAround == flaggedCount + unflaggedCount`, all unflagged neighbors are mines.
+- **Level 2** (`ConstraintDepth >= 2`): Overlapping Free cells — subset reasoning. If neighbors of B are a subset of neighbors of A, derive mine/safe status of the difference set.
+
+Logs decision reason for every flag placement.
 
 ### BotCellAction
 
-Two strategies (in order):
-1. **Constraint-solving**: Free cell with flagged neighbors → open safe unflagged neighbor (`HasMine == false`)
-2. **Fallback** (HP > 1 only): Open random Taken cell known to have no mine
+Proven-safe opening via constraint-solving (no random fallback):
+- **Level 1**: Free cell where `MinesAround == flaggedCount` → all unflagged neighbors are safe.
+- **Level 2** (`ConstraintDepth >= 2`): Subset reasoning on overlapping Free cells to find additional safe cells.
+- **Hard probabilistic fallback**: If no constraint-proven safe cells, opens the cell with lowest mine probability (computed from local constraints). Only Hard uses this; Easy/Medium stop if no safe cells.
+
+Easy profile falls back to random opening if no safe cells found (simulates beginner mistakes).
 
 ### BotCardAction
 
@@ -306,6 +340,19 @@ public interface IBotCardStrategy {
     bool Execute(Guid cardId, CardType cardType);
 }
 ```
+
+### BotDeck & CardPool
+
+Each profile has a list of `BotDeck` (name + `List<CardType>`). `BotFactory` picks a random deck from the current profile and deals it to the bot. Empty deck list = all cards available.
+
+```csharp
+public class BotDeck {
+    public string Name { get; set; }
+    public List<CardType> Cards { get; set; }
+}
+```
+
+`BotCardAction` filters hand cards against the bot's deck before evaluating utility.
 
 Strategy utilities (gradient, not binary):
 - **Bloodhound**: `3 + closedRatio * 7.5` — cheap (2 mana), good info, prioritized
@@ -335,14 +382,21 @@ Stateless board analysis (injected into strategies via constructor):
 - `FindRandomFlaggedPosition(opponent?)` — flagged cell (own or opponent)
 - `HasFlaggedCells(opponent?)` — check flag presence
 
+### Console Config Editors
+
+Blazor editors in `backend/Console/Game/Configs/`:
+- **`BotConfigEditor.razor`** — Tabs Easy/Medium/Hard with numeric fields (FlagsPerRound, CellsOpenPerRound, CardsUsePerRound, Min/MaxRoundTime) + deck builder
+- **`BotDeckBuilder.razor`** — List of decks per profile, Add/Delete/Edit
+- **`BotDeckEditor.razor`** — Deck name + card grid (green border toggle for inclusion), validates count == DeckSize
+
 ### Session Logging
 
 `ISessionLogger` logs all bot decisions to `backend/.telemetry/logs-games/{date}/{sessionId}.log`:
 - Player labels: `Human`/`Bot` instead of GUIDs (via `RegisterPlayers`)
 - Round separators: `-------- Round N Start/End PLAYER --------`
-- Bot state at turn start: mana, moves, hand, health
-- Card evaluation: all candidates with utility, skipped cards with reasons (no mana, zero utility, no strategy)
-- Flag/cell decisions: position + constraint-solve reason
+- Bot state at turn start: mana, moves, hand, health, **active profile**
+- Card evaluation: all candidates with utility, skipped cards with reasons (no mana, zero utility, no strategy, **not in deck**)
+- Flag/cell decisions: position + constraint-solve reason + **constraint depth**
 - Mana changes at round end
 
 ---

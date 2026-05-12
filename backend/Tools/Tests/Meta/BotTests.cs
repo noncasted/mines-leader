@@ -32,7 +32,7 @@ public class BotFactoryWorkflowTests
         await RunTransaction(async () => {
             state = await GetGrain<IUser>(id).GetState();
         });
-        state!.Id.Should().Be(id);
+        state!.Id.Should().Be($"user_entity:{id}");
         state.Name.Should().Be("TestBot");
     }
 
@@ -160,7 +160,7 @@ public class BotFactoryWorkflowTests
         await RunTransaction(async () => {
             userState = await GetGrain<IUser>(id).GetState();
         });
-        userState!.Id.Should().Be(id);
+        userState!.Id.Should().Be($"user_entity:{id}");
         userState.Name.Should().Be("FullBot");
 
         // Verify auth

@@ -4,6 +4,8 @@ namespace Tools.PrefabBuilder
 {
     public static class Prefabs
     {
+        public static readonly StaticPrefab ActionLogPanel = new("Game/ActionLogPanel");
+        public static readonly StaticPrefab ActionLogTile = new("Game/ActionLogTile");
         public static readonly StaticPrefab CardLocal = new("Game/Card_Local");
         public static readonly StaticPrefab CardRemote = new("Game/Card_Remote");
         public static readonly StaticPrefab DeckCard = new("Game/DeckCard");
@@ -18,6 +20,5 @@ namespace Tools.PrefabBuilder
         public static readonly StaticPrefab InternalScope = new("Global/InternalScope");
         public static readonly StaticPrefab LoadingScreen = new("Global/LoadingScreen");
         public static readonly StaticPrefab MenuPlayer = new("Menu/MenuPlayer");
-        public static readonly StaticPrefab SettingsPanel = new("Global/SettingsPanel");
     }
 }

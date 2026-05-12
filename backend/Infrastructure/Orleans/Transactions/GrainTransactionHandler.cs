@@ -9,6 +9,9 @@ public class TransactionHandlerResult
 {
     [Id(0)]
     public required IReadOnlyList<IStateValue> States { get; init; }
+
+    [Id(1)]
+    public required List<GrainEventRecord> Events { get; init; }
 }
 
 public interface IGrainTransactionHandler : IGrainExtension
@@ -77,6 +80,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     private DateTime _currentTransactionTime;
 
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
+    private readonly HashSet<IGrainEventTransactionParticipant> _events = new();
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
     // Returns _participantId so Transactions.Process() can track this grain.
@@ -137,7 +141,12 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             foreach (var state in _states)
                 state.OnTransactionFailure();
 
+            foreach (var ev in _events)
+                ev.OnTransactionFailure();
+
             _states.Clear();
+            _events.Clear();
+
             _currentTransactionId = transactionId;
             _currentTransactionTime = DateTime.UtcNow;
             return _participantId;
@@ -164,6 +173,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         _states.Add(state);
     }
 
+    public void RecordEventStateChanged(IGrainEventTransactionParticipant events)
+    {
+        _events.Add(events);
+    }
+
     // Called by Transactions.Process() after all grain methods have executed.
     // Returns the current in-memory snapshots of all modified states.
     // These are then written atomically to Postgres in a single DB transaction.
@@ -180,13 +194,24 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         }
 
         var states = new List<IStateValue>();
+        var events = new List<GrainEventRecord>();
 
         foreach (var state in _states)
             states.Add(state.GetState());
 
+        foreach (var ev in _events)
+        {
+            events.Add(new GrainEventRecord
+            {
+                StreamId = ev.StreamId,
+                Events = ev.GetPendingEvents().ToList()
+            });
+        }
+
         return Task.FromResult(new TransactionHandlerResult
         {
             States = states,
+            Events = events
         });
     }
 
@@ -208,7 +233,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         foreach (var state in _states)
             state.OnTransactionSuccess();
 
+        foreach (var ev in _events)
+            ev.OnTransactionSuccess();
+
         _states.Clear();
+        _events.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)
@@ -228,7 +257,11 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         foreach (var state in _states)
             state.OnTransactionFailure();
 
+        foreach (var ev in _events)
+            ev.OnTransactionFailure();
+
         _states.Clear();
+        _events.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)

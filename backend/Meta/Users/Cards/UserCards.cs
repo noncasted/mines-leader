@@ -23,12 +23,21 @@ public interface IUserCards : IUserGrain, IUserProjectionSource
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_cards", State = "user_cards", Lookup = "UserCards", Key = GrainKeyType.Guid)]
-public class UserCardsState : IProjectionPayload, IStateValue
+[GrainEventState(State = "user_cards", Lookup = "UserCards", Key = GrainKeyType.Guid)]
+public class UserCardsState : IEventStateValue, IProjectionPayload
 {
-    [Id(0)] public HashSet<CardType> Cards { get; set; } = new();
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public HashSet<CardType> Cards { get; set; } = new();
 
     public int Version => 0;
+
+    public void Apply(CardsInitialized e)
+    {
+        foreach (var card in e.BaseDeck)
+            Cards.Add(card);
+    }
+
+    public void Apply(CardAdded e) => Cards.Add(e.Card);
 
     public INetworkContext ToContext() => new SharedBackendUser.CardsProjection
     {
@@ -36,10 +45,20 @@ public class UserCardsState : IProjectionPayload, IStateValue
     };
 }
 
+public class CardsInitialized
+{
+    public IReadOnlyList<CardType> BaseDeck { get; set; } = new List<CardType>();
+}
+
+public class CardAdded
+{
+    public CardType Card { get; set; }
+}
+
 public class UserCards : UserGrain, IUserCards
 {
     public UserCards(
-        [State] State<UserCardsState> state,
+        [EventState] EventState<UserCardsState> state,
         IUserDeckConfig userDeckConfig,
         ILogger<UserCards> logger)
     {
@@ -48,18 +67,18 @@ public class UserCards : UserGrain, IUserCards
         _logger = logger;
     }
 
-    private readonly State<UserCardsState> _state;
+    private readonly EventState<UserCardsState> _state;
     private readonly IUserDeckConfig _userDeckConfig;
     private readonly ILogger<UserCards> _logger;
 
     public async Task Initialize()
     {
-        var state = await _state.Update(state => {
-            foreach (var card in _userDeckConfig.Value.BaseDeck)
-                state.Cards.Add(card);
-        });
+        await _state.Read();
+        if (_state.Value.Cards.Count > 0) return;
 
-        await this.SendProjection(state);
+        await _state.Append(new CardsInitialized { BaseDeck = _userDeckConfig.Value.BaseDeck });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
     }
 
     public async Task AddCard(CardType card)
@@ -67,22 +86,39 @@ public class UserCards : UserGrain, IUserCards
         _logger.LogInformation("[User] [Cards] User {Id} received card {Card}",
             this.GetPrimaryKey(), card);
 
-        var state = await _state.Update(state => state.Cards.Add(card));
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new CardAdded { Card = card });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
     }
 
     public Task<bool> HasCard(CardType card)
     {
-        return _state.Read(state => state.Cards.Contains(card));
+        return _state.ReadAndHasCard(card);
     }
 
     public Task<IReadOnlyList<CardType>> GetAll()
     {
-        return _state.Read(state => (IReadOnlyList<CardType>)state.Cards.ToList());
+        return _state.ReadAndGetAll();
     }
 
     public Task<IProjectionPayload> GetProjection()
     {
-        return _state.Read(s => (IProjectionPayload)s);
+        return Task.FromResult((IProjectionPayload)_state.Value);
+    }
+}
+
+public static class UserCardsEventStateExtensions
+{
+    public static async Task<bool> ReadAndHasCard(this EventState<UserCardsState> state, CardType card)
+    {
+        await state.Read();
+        return state.Value.Cards.Contains(card);
+    }
+
+    public static async Task<IReadOnlyList<CardType>> ReadAndGetAll(this EventState<UserCardsState> state)
+    {
+        await state.Read();
+        return state.Value.Cards.ToList();
     }
 }

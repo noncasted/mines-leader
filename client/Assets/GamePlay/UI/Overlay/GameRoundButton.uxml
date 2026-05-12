@@ -1,5 +1,0 @@
-<UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="round-button" style="background-image: resource(&quot;GamePlay/UI/Step&quot;); width: 32px; height: 23px; position: relative; padding-left: 3px; padding-right: 2px;">
-        <ui:Label name="round-time" text="115" style="-unity-text-align: middle-center; -unity-font-definition: resource(&quot;DreiFraktur&quot;); left: 0; right: 0; margin-left: 3px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-top: 6px; margin-bottom: 3px;" picking-mode="Ignore"/>
-    </ui:VisualElement>
-</UXML>

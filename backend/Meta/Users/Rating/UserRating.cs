@@ -29,22 +29,22 @@ public interface IUserRating : IUserGrain, IUserProjectionSource
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_rating", State = "user_rating", Lookup = "UserRating", Key = GrainKeyType.Guid)]
-public class UserRatingState : IProjectionPayload, IStateValue
+[GrainEventState(State = "user_rating", Lookup = "UserRating", Key = GrainKeyType.Guid)]
+public class UserRatingState : IEventStateValue, IProjectionPayload
 {
-    [Id(0)] public List<IUserRatingRecord> Records { get; } = new();
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public List<IUserRatingRecord> Records { get; set; } = new();
 
     public int Version => 0;
 
-    public void AddRecord(IUserRatingRecord record)
+    public void Apply(RatingAdded e) => Records.Add(e.Record);
+    public void Apply(RatingReset e)
     {
-        Records.Add(record);
+        Records.Clear();
+        Records.Add(new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = e.Value });
     }
 
-    public int CalculateTotal()
-    {
-        return Records.Sum(r => r.GetRating());
-    }
+    public int CalculateTotal() => Records.Sum(r => r.GetRating());
 
     public INetworkContext ToContext() => new SharedBackendUser.RatingProjection()
     {
@@ -52,17 +52,27 @@ public class UserRatingState : IProjectionPayload, IStateValue
     };
 }
 
+public class RatingAdded
+{
+    public IUserRatingRecord Record { get; set; } = null!;
+}
+
+public class RatingReset
+{
+    public int Value { get; set; }
+}
+
 public class UserRating : UserGrain, IUserRating
 {
     public UserRating(
-        [State] State<UserRatingState> state,
+        [EventState] EventState<UserRatingState> state,
         ILogger<UserRating> logger)
     {
         _state = state;
         _logger = logger;
     }
 
-    private readonly State<UserRatingState> _state;
+    private readonly EventState<UserRatingState> _state;
     private readonly ILogger<UserRating> _logger;
 
     public async Task AddRecord(IUserRatingRecord record)
@@ -72,33 +82,32 @@ public class UserRating : UserGrain, IUserRating
             record.GetRating(),
             record.GetType().FullName);
 
-        var state = await _state.Update(state => state.AddRecord(record));
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new RatingAdded { Record = record });
+        await this.SendProjection(_state.Value);
     }
 
     public async Task<int> GetTotal()
     {
-        return await _state.Read(s => s.CalculateTotal());
+        await _state.Read();
+        return _state.Value.CalculateTotal();
     }
 
     public async Task AdjustRating(int delta)
     {
         var record = new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = delta };
-        var state = await _state.Update(s => s.AddRecord(record));
-        await this.SendProjection(state);
+        await AddRecord(record);
     }
 
     public async Task SetRating(int value)
     {
-        var state = await _state.Update(s => {
-            s.Records.Clear();
-            s.AddRecord(new UserRatingRecords.AdminAdjust { Date = DateTime.UtcNow, Value = value });
-        });
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new RatingReset { Value = value });
+        await this.SendProjection(_state.Value);
     }
 
     public Task<IProjectionPayload> GetProjection()
     {
-        return _state.Read(s => (IProjectionPayload)s);
+        return Task.FromResult((IProjectionPayload)_state.Value);
     }
 }

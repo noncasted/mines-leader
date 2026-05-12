@@ -25,6 +25,7 @@ public class TransactionParameters
 public class TransactionCommitResult
 {
     public required IReadOnlyList<GrainStateRecord> States { get; init; }
+    public required List<GrainEventRecord> Events { get; init; }
 }
 
 public interface ITransactions
@@ -36,17 +37,20 @@ public class Transactions : ITransactions
 {
     public Transactions(
         IStateStorage stateStorage,
+        IEventStorage eventStorage,
         IDbSource dbSource,
         ISideEffectsStorage sideEffectsStorage,
         ILogger<Transactions> logger)
     {
         _stateStorage = stateStorage;
+        _eventStorage = eventStorage;
         _dbSource = dbSource;
         _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
     }
 
     private readonly IStateStorage _stateStorage;
+    private readonly IEventStorage _eventStorage;
     private readonly IDbSource _dbSource;
     private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<Transactions> _logger;
@@ -122,6 +126,9 @@ public class Transactions : ITransactions
                 if (result.States.Count != 0)
                     await _stateStorage.Write(transaction, result.States);
 
+                if (result.Events.Count != 0)
+                    await _eventStorage.Write(transaction, result.Events);
+
                 if (context.SideEffects.Count != 0)
                     await _sideEffectsStorage.Write(transaction, context.SideEffects.Values.ToList());
 
@@ -171,20 +178,26 @@ public class Transactions : ITransactions
         async Task<TransactionCommitResult> CollectStates()
         {
             var states = new List<GrainStateRecord>();
+            var events = new List<GrainEventRecord>();
 
             var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Value)));
 
             foreach (var collection in collections)
+            {
                 states.AddRange(collection.States);
+                events.AddRange(collection.Events);
+            }
 
             return new TransactionCommitResult()
             {
                 States = states,
+                Events = events
             };
 
             async Task<TransactionCommitResult> Collect(IGrainTransactionHandler handler)
             {
                 var grainStates = new List<GrainStateRecord>();
+                var grainEvents = new List<GrainEventRecord>();
 
                 var result = await handler.CollectResult(context.Id);
                 var participantId = handler.GetGrainId();
@@ -198,9 +211,12 @@ public class Transactions : ITransactions
                     });
                 }
 
+                grainEvents.AddRange(result.Events);
+
                 return new TransactionCommitResult
                 {
                     States = grainStates,
+                    Events = grainEvents
                 };
             }
         }

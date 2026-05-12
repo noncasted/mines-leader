@@ -19,7 +19,7 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         await RunTransaction(async () => {
             state = await grain.GetState();
         });
-        state!.Id.Should().Be(id);
+        state!.Id.Should().Be($"user_entity:{id}");
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         await RunTransaction(async () => {
             state2 = await grain2.GetState();
         });
-        state1!.Id.Should().Be(id);
-        state2!.Id.Should().Be(id);
+        state1!.Id.Should().Be($"user_entity:{id}");
+        state2!.Id.Should().Be($"user_entity:{id}");
         state1.Name.Should().Be("ConsistencyTest");
         state2.Name.Should().Be("ConsistencyTest");
     }
@@ -101,7 +101,7 @@ public class UserGrainTests(OrleansTestClusterFixture fixture) : IntegrationTest
         await RunTransaction(async () => {
             state = await grain.GetState();
         });
-        state!.Id.Should().Be(Guid.Empty);
+        state!.Id.Should().BeEmpty();
         state.Name.Should().BeEmpty();
     }
 }

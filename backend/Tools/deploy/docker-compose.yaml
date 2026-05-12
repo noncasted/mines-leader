@@ -92,11 +92,12 @@ services:
     build:
       <<: *service-build
       args:
-        ASSEMBLY_NAME: DeploySetup
+        ASSEMBLY_NAME: Aspire.AppHost
     image: mines-leader/migrator:latest
     environment:
       ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
       postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+    command: ["--migrate"]
     depends_on:
       pgbouncer:
         condition: service_healthy
