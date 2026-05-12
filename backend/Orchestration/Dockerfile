@@ -57,11 +57,12 @@ RUN set -e; \
       # (404 at runtime in the Blazor console).
       find /src -path "*/obj/*" \( -name "staticwebassets*.json" -o -name "*.StaticWebAssets.Up2Date" \) -delete 2>/dev/null || true; \
       if [ "$name" = "Aspire.AppHost" ]; then \
-        dotnet build "$proj" \
+        dotnet publish "$proj" \
           -c "${CONFIGURATION}" \
           -o "/app/out/${name}" \
           --no-restore \
-          /p:UseAppHost=false; \
+          /p:UseAppHost=false \
+          /p:IsAspireHost=false; \
       else \
         dotnet publish "$proj" \
           -c "${CONFIGURATION}" \

@@ -7,36 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Projects;
 using Silo = Projects.Silo;
 
-// Supports two modes:
-//   dotnet Aspire.AppHost.dll              — dev orchestrator (aspire run)
-//   dotnet Aspire.AppHost.dll --migrate    — production migrations only (migrator container)
-
-if (args.Contains("--migrate"))
-{
-    Console.WriteLine("[Migrations] Starting idempotent database migrations");
-
-    var migrationConfig = new ConfigurationManager();
-    migrationConfig.AddEnvironmentVariables();
-
-    var connectionFromCli = args.FirstOrDefault(a => a.StartsWith("--connection="))?.Substring("--connection=".Length);
-
-    if (connectionFromCli != null)
-    {
-        migrationConfig.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["ConnectionStrings:postgres"] = connectionFromCli,
-            ["postgres"] = connectionFromCli,
-        });
-    }
-
-    await PostResourcesSetup.Run(migrationConfig);
-
-    Console.WriteLine("[Migrations] Done");
-    return;
-}
-
-// --- Dev orchestrator mode (aspire run) ---
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(30));
@@ -53,14 +23,20 @@ var consoleToken = configuration["ConsoleToken"] ?? "";
 var upstream = DbUpstreamFactory.Create(builder, configuration);
 var pgbouncer = PgBouncerFactory.Create(builder, upstream);
 
-var dbConnection = $"Host=127.0.0.1;" +
-                   $"Port={pgbouncer.Port};" +
+// Production: pgbouncer is a compose service on port 6432.
+// Dev: local sidecar pgbouncer with dynamic port.
+var pgbouncerPort = pgbouncer?.Port ?? 6432;
+var pgbouncerHost = pgbouncer is not null ? "127.0.0.1" : "pgbouncer";
+
+var dbConnection = $"Host={pgbouncerHost};" +
+                   $"Port={pgbouncerPort};" +
                    $"Database={upstream.Database};" +
                    $"Username={upstream.User};" +
                    $"Password={upstream.Password}";
 
 var silo = builder.AddProject<Silo>("silo");
-silo.WaitFor(pgbouncer.Resource);
+if (pgbouncer?.Resource is not null)
+    silo.WaitFor(pgbouncer.Resource);
 
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder.AddProject<MetaGateway>("meta");
