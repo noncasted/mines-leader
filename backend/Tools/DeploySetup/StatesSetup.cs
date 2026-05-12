@@ -3,7 +3,7 @@ using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-namespace Aspire.Startup;
+namespace DeploySetup;
 
 public class StatesSetup
 {

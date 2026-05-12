@@ -2,7 +2,7 @@ using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 
-namespace Aspire.Startup;
+namespace DeploySetup;
 
 public class StatesDrop
 {

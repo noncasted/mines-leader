@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace Aspire.Startup;
+namespace DeploySetup;
 
 public static class PostResourcesSetup
 {
@@ -21,7 +21,7 @@ public static class PostResourcesSetup
                                       Environment.GetEnvironmentVariable("ClearStates") == "TRUE";
 
                 Console.WriteLine(
-                    $"[Migrations] Setup attempt {attempt}/{MaxAttempts} (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
+                    $"[DeploySetup] Setup attempt {attempt}/{MaxAttempts} (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
 
                 if (requiresDrop)
                     await StatesDrop.Run(configuration);
@@ -35,18 +35,18 @@ public static class PostResourcesSetup
                 if (requiresCleanup)
                     await StatesCleanup.Run(configuration);
 
-                Console.WriteLine("[Migrations] Post-setup completed successfully");
+                Console.WriteLine("[DeploySetup] Post-setup completed successfully");
                 return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Migrations] Setup attempt {attempt}/{MaxAttempts} failed: {ex.Message}");
+                Console.WriteLine($"[DeploySetup] Setup attempt {attempt}/{MaxAttempts} failed: {ex.Message}");
 
                 if (attempt < MaxAttempts)
                     await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
 
-        Console.WriteLine($"[Migrations] Setup failed after {MaxAttempts} attempts");
+        Console.WriteLine($"[DeploySetup] Setup failed after {MaxAttempts} attempts");
     }
 }

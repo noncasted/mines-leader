@@ -1,7 +1,7 @@
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 
-namespace Aspire.Startup;
+namespace DeploySetup;
 
 public static class AuditLogSetup
 {

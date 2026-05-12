@@ -89,12 +89,11 @@ services:
       start_period: 5s
 
 
-  aspire:
+  migrator:
     build:
-      <<: *service-build
-      args:
-        ASSEMBLY_NAME: Aspire.AppHost
-    image: mines-leader/aspire:latest
+      context: ../../..
+      dockerfile: ./backend/Tools/DeploySetup/Dockerfile
+    image: mines-leader/migrator:latest
     environment:
       ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
       postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
@@ -119,6 +118,8 @@ services:
     depends_on:
       pgbouncer:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - mines-leader-production

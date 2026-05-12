@@ -2,7 +2,7 @@ using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 
-namespace Aspire.Startup;
+namespace DeploySetup;
 
 public static class StatesCleanup
 {
@@ -11,9 +11,7 @@ public static class StatesCleanup
         await using var connection = await configuration.GetConnection();
 
         foreach (var info in StatesLookup.All)
-        {
             await connection.Truncate(info.TableName);
-        }
 
         await connection.Truncate(DbLookup.SE_Queue);
         await connection.Truncate(DbLookup.SE_Processing);
