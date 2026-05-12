@@ -7,15 +7,19 @@ namespace Aspire.Startup;
 public record PgBouncerResult
 {
     public required int Port { get; init; }
-    public required IResourceBuilder<ContainerResource> Resource { get; init; }
+    public IResourceBuilder<ContainerResource>? Resource { get; init; }
 }
 
-// Dev-only sidecar pooling in front of the Aspire-managed Postgres container.
-// In production pgbouncer is a first-class compose service, not driven from here.
+// Production: pgbouncer is a compose service — no local sidecar needed.
+// Dev: sidecar pooling in front of the Aspire-managed Postgres container.
 public static class PgBouncerFactory
 {
-    public static PgBouncerResult Create(IDistributedApplicationBuilder builder, DbUpstream db)
+    public static PgBouncerResult? Create(IDistributedApplicationBuilder builder, DbUpstream db)
     {
+        // Production: pgbouncer runs as a separate compose service — no local sidecar.
+        if (db.PostgresResource is null)
+            return null;
+
         var pgbouncerPort = db.Port + 1;
         var pgbouncerDir = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer");
         var pgbouncerConfigPath = Path.Combine(pgbouncerDir, "pgbouncer.ini");
@@ -44,16 +48,18 @@ public static class PgBouncerFactory
             }
         });
 
-        var pgbouncer = builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
-                               .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port",
-                                   isProxied: false)
-                               .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
-                               .WithBindMount(databasesIniPath, "/etc/pgbouncer/databases.ini", isReadOnly: true)
-                               .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
-                               .WithHealthCheck(pgbouncerHealthCheckName)
-                               .WithLifetime(ContainerLifetime.Persistent)
-                               .WaitFor(db.PostgresResource);
+        var pgbouncerBuilder = builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
+                                      .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port",
+                                          isProxied: false)
+                                      .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)
+                                      .WithBindMount(databasesIniPath, "/etc/pgbouncer/databases.ini", isReadOnly: true)
+                                      .WithBindMount(pgbouncerUserlistPath, "/etc/pgbouncer/userlist.txt", isReadOnly: true)
+                                      .WithHealthCheck(pgbouncerHealthCheckName)
+                                      .WithLifetime(ContainerLifetime.Persistent);
 
-        return new PgBouncerResult { Port = pgbouncerPort, Resource = pgbouncer };
+        if (db.PostgresResource is not null)
+            pgbouncerBuilder.WaitFor(db.PostgresResource);
+
+        return new PgBouncerResult { Port = pgbouncerPort, Resource = pgbouncerBuilder };
     }
 }

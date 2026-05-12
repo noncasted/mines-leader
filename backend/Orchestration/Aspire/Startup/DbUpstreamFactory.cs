@@ -10,40 +10,70 @@ public record DbUpstream
     public required string Database { get; init; }
     public required string User { get; init; }
     public required string Password { get; init; }
-    public required IResourceBuilder<ContainerResource> PostgresResource { get; init; }
+    public IResourceBuilder<ContainerResource>? PostgresResource { get; init; }
 }
 
-// Dev-only: AppHost spins up a local Postgres container for `aspire run`. Production uses
-// an external Postgres via docker-compose.yaml — AppHost never runs there.
+// Production: external Postgres via Coolify env (DB_HOST, DB_USER, etc.).
+// Dev: local Postgres container for `aspire run`.
 public static class DbUpstreamFactory
 {
     public static DbUpstream Create(IDistributedApplicationBuilder builder, IConfigurationManager configuration)
     {
-        var localDb = configuration.GetConnectionString("db").ThrowIfNull();
+        var externalHost = Environment.GetEnvironmentVariable("DB_HOST");
+
+        // --- Production mode: external Postgres from Coolify env ---
+        if (!string.IsNullOrEmpty(externalHost))
+        {
+            var user = Environment.GetEnvironmentVariable("DB_USER")
+                       ?? throw new InvalidOperationException("DB_USER is required when DB_HOST is set");
+            var password = Environment.GetEnvironmentVariable("DB_PASSWORD")
+                             ?? throw new InvalidOperationException("DB_PASSWORD is required when DB_HOST is set");
+            var database = Environment.GetEnvironmentVariable("DB_NAME")
+                             ?? throw new InvalidOperationException("DB_NAME is required when DB_HOST is set");
+            var port = int.TryParse(Environment.GetEnvironmentVariable("DB_PORT"), out var p) ? p : 5432;
+
+            Console.WriteLine($"[AppHost] [DB] Using external database at {externalHost}:{port}/{database}");
+
+            return new DbUpstream
+            {
+                Host = externalHost,
+                Port = port,
+                Database = database,
+                User = user,
+                Password = password,
+                PostgresResource = null
+            };
+        }
+
+        // --- Dev mode: local Postgres container ---
+        var localDb = configuration.GetConnectionString("db")
+                      ?? throw new InvalidOperationException("connectionString 'db' is required for local dev mode");
         var local = ParseConnString(localDb);
 
-        var port = int.Parse(local["Port"]);
-        var database = local["Database"];
-        var user = local["User Id"];
-        var password = local["Password"];
+        var localPort = int.Parse(local["Port"]);
+        var localDatabase = local["Database"];
+        var localUser = local["User Id"];
+        var localPassword = local["Password"];
 
         var postgres = builder
                        .AddContainer("postgres", "postgres", "17.6")
-                       .WithHttpEndpoint(port: port, targetPort: 5432, name: "tcp", isProxied: false)
+                       .WithHttpEndpoint(port: localPort, targetPort: 5432, name: "tcp", isProxied: false)
                        .WithVolume("mines-leader-postgres-data", "/var/lib/postgresql/data")
-                       .WithEnvironment("POSTGRES_PASSWORD", password)
-                       .WithEnvironment("POSTGRES_DB", database)
-                       .WithEnvironment("POSTGRES_USER", user)
+                       .WithEnvironment("POSTGRES_PASSWORD", localPassword)
+                       .WithEnvironment("POSTGRES_DB", localDatabase)
+                       .WithEnvironment("POSTGRES_USER", localUser)
                        .WithEnvironment("POSTGRES_HOST_AUTH_METHOD", "trust")
                        .WithLifetime(ContainerLifetime.Persistent);
+
+        Console.WriteLine($"[AppHost] [DB] Using local database at localhost:{localPort}/{localDatabase}");
 
         return new DbUpstream
         {
             Host = "postgres",
             Port = 5432,
-            Database = database,
-            User = user,
-            Password = password,
+            Database = localDatabase,
+            User = localUser,
+            Password = localPassword,
             PostgresResource = postgres
         };
     }
