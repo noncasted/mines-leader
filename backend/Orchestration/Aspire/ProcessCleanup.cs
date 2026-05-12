@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Aspire.Startup;
+namespace Aspire;
 
 public static class ProcessCleanup
 {

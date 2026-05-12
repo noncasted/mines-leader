@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7-labs
 #
-# Shared multi-stage Dockerfile for the six production .NET services.
+# Shared multi-stage Dockerfile for the five production .NET services.
 # Optimised for Coolify/BuildKit:
 #   - restore stage only copies .csproj / .slnx / Directory.*.props so that a code edit
 #     does not invalidate the NuGet cache layer.
@@ -31,8 +31,7 @@ RUN dotnet restore backend/Orchestration/Silo/Silo.csproj \
  && dotnet restore backend/Orchestration/Coordinator/Coordinator.csproj \
  && dotnet restore backend/Orchestration/MetaGateway/MetaGateway.csproj \
  && dotnet restore backend/Orchestration/GameGateway/GameGateway.csproj \
- && dotnet restore backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj \
- && dotnet restore backend/Orchestration/Aspire/Aspire.csproj
+ && dotnet restore backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj
 
 # Stage 2: publish every service inside a single RUN so msbuild's incremental compilation
 # reuses shared project outputs across services.
@@ -48,7 +47,7 @@ RUN set -e; \
       "backend/Orchestration/MetaGateway/MetaGateway.csproj:MetaGateway" \
       "backend/Orchestration/GameGateway/GameGateway.csproj:GameGateway" \
       "backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj:ConsoleGateway" \
-      "backend/Orchestration/Aspire/Aspire.csproj:Aspire.AppHost"; do \
+
       proj=${pair%:*}; name=${pair##*:}; \
       # Wipe StaticWebAssets incremental tracking so each publish actually
       # copies wwwroot/_framework/* into its output. Without this, only the
@@ -56,21 +55,11 @@ RUN set -e; \
       # and every later one ends up with a manifest pointing at missing files
       # (404 at runtime in the Blazor console).
       find /src -path "*/obj/*" \( -name "staticwebassets*.json" -o -name "*.StaticWebAssets.Up2Date" \) -delete 2>/dev/null || true; \
-      # Aspire AppHost requires publish (not build) with IsAspireHost=false for valid runtime output
-      if [ "$name" = "Aspire.AppHost" ]; then \
-        dotnet publish "$proj" \
-          -c "${CONFIGURATION}" \
-          -o "/app/out/${name}" \
-          --no-restore \
-          /p:UseAppHost=false \
-          /p:IsAspireHost=false; \
-      else \
-        dotnet publish "$proj" \
-          -c "${CONFIGURATION}" \
-          -o "/app/out/${name}" \
-          --no-restore \
-          /p:UseAppHost=false; \
-      fi \
+      dotnet publish "$proj" \
+        -c "${CONFIGURATION}" \
+        -o "/app/out/${name}" \
+        --no-restore \
+        /p:UseAppHost=false; \
     done
 
 # Stage 3: lean runtime. Compose selects service via build-arg ASSEMBLY_NAME.

@@ -15,7 +15,6 @@
         <PackageReference Include="Aspire.Hosting.AppHost"/>
         <PackageReference Include="Aspire.Hosting.PostgreSQL"/>
         <PackageReference Include="Aspire.Hosting.Docker"/>
-        <PackageReference Include="Npgsql"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -33,11 +32,6 @@
         <ProjectReference Include="..\Silo\Silo.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="Startup\Migrations\Sql\*.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
 
     <ItemGroup>
         <Content Include="appsettings.local.json" Condition="Exists('appsettings.local.json')">

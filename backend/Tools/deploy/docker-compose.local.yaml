@@ -20,12 +20,8 @@ networks:
 services:
   migrator:
     build:
-      dockerfile: ./backend/Orchestration/Dockerfile.prebuilt
-      args:
-        PUBLISH_DIR: publish/Aspire.AppHost
-        ASSEMBLY_NAME: Aspire.AppHost
-    command: ["--migrate"]
-
+      context: ../../..
+      dockerfile: ./backend/Tools/DeploySetup/Dockerfile
   silo:
     build:
       dockerfile: ./backend/Orchestration/Dockerfile.prebuilt
