@@ -32,6 +32,10 @@
         <ProjectReference Include="..\Silo\Silo.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\..\Tools\DeploySetup\DeploySetup.csproj" IsAspireProjectResource="false"/>
+    </ItemGroup>
+
 
     <ItemGroup>
         <Content Include="appsettings.local.json" Condition="Exists('appsettings.local.json')">
