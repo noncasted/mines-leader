@@ -85,7 +85,7 @@ public class DeployCleanup : IDeployCleanup
         Guid currentDeployId,
         List<StateIdentity> toDelete,
         HashSet<Guid> staleIds)
-        where T : IStateValue, new()
+        where T : class, IStateValue, new()
     {
         var info = _stateStorage.Registry.Get<T>();
 

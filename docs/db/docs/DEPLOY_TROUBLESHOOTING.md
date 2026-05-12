@@ -30,7 +30,7 @@ Verify: `sudo docker network inspect coolify --format '{{range .Containers}}{{.N
 
 **Cause.** Orleans `UseAdoNetClustering` expects the schema (`OrleansQuery` table + a set of stored queries) to already exist. Locally Aspire's dev provider auto-bootstraps it; in prod nothing does. Worse, Orleans 10.1.0's bundled `PostgreSQL-Clustering.sql` is missing the `CleanupDefunctSiloEntriesKey` row, so even after running upstream SQL the cluster fails on cleanup paths.
 
-**Fix.** `OrleansClusteringSetup` in `DeploySetup` runs three embedded SQL files in order on every migrator boot:
+**Fix.** `OrleansClusteringSetup` in `Aspire/Startup/Migrations/` runs three SQL files in order on every migrator boot:
 1. `Sql/PostgreSQL-Main.sql` — creates `OrleansQuery` if absent.
 2. `Sql/PostgreSQL-Clustering.sql` — membership tables + 8 stored queries from upstream.
 3. `Sql/PostgreSQL-Supplemental.sql` — our patch with `CleanupDefunctSiloEntriesKey`, applied via `ON CONFLICT DO NOTHING` so it is safe to re-run.

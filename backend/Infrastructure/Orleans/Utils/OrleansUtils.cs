@@ -51,11 +51,22 @@ public static class OrleansUtilsExtensions
         builder.Add<StateAttributeMapper>()
                .As<IAttributeToFactoryMapper<StateAttribute>>();
 
+        builder.Add<EventStateFactory>()
+               .As<IEventStateFactory>();
+
+        builder.Add<EventStateAttributeMapper>()
+               .As<IAttributeToFactoryMapper<EventStateAttribute>>();
+
         builder.Add<StateMigrations>()
                .As<IStateMigrations>();
 
         builder.Add<StateStorage>()
                .As<IStateStorage>();
+
+        builder.Add<DirectStorage>();
+
+        builder.Add<EventStorage>()
+               .As<IEventStorage>();
 
         builder.Add<StateSerializer>()
                .As<IStateSerializer>();

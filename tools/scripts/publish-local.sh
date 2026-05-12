@@ -18,7 +18,7 @@ publish Coordinator    backend/Orchestration/Coordinator/Coordinator.csproj
 publish MetaGateway    backend/Orchestration/MetaGateway/MetaGateway.csproj
 publish GameGateway    backend/Orchestration/GameGateway/GameGateway.csproj
 publish ConsoleGateway backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj
-publish DeploySetup    backend/Tools/DeploySetup/DeploySetup.csproj
+publish Aspire.AppHost backend/Orchestration/Aspire/Aspire.csproj
 
 echo
 echo "Done. Artefacts in ./publish/"

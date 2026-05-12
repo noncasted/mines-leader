@@ -8,7 +8,7 @@ namespace Tests.Grains;
 [GenerateSerializer]
 [GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest",
     Key = GrainKeyType.String)]
-public class MigrationTestState_0 : IStateValue
+public class MigrationTestState_0 : IDirectStateValue
 {
     [Id(0)] public int Value { get; set; }
     public int Version => 0;
@@ -17,7 +17,7 @@ public class MigrationTestState_0 : IStateValue
 [GenerateSerializer]
 [GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest",
     Key = GrainKeyType.String)]
-public class MigrationTestState_1 : IStateValue
+public class MigrationTestState_1 : IDirectStateValue
 {
     [Id(0)] public int Value { get; set; }
     [Id(1)] public string Label { get; set; } = string.Empty;
@@ -83,7 +83,7 @@ public class MigrationTestStep_V1 : IStateMigrationStep
 [GenerateSerializer]
 [GrainState(Table = "state_test_default_state", State = "migration_test_state", Lookup = "StateMigrationTest",
     Key = GrainKeyType.String)]
-public class MigrationTestState_2 : IStateValue
+public class MigrationTestState_2 : IDirectStateValue
 {
     [Id(0)] public int Value { get; set; }
     [Id(1)] public string Label { get; set; } = string.Empty;

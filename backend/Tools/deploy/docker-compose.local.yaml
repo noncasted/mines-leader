@@ -22,8 +22,9 @@ services:
     build:
       dockerfile: ./backend/Orchestration/Dockerfile.prebuilt
       args:
-        PUBLISH_DIR: publish/DeploySetup
-        ASSEMBLY_NAME: DeploySetup
+        PUBLISH_DIR: publish/Aspire.AppHost
+        ASSEMBLY_NAME: Aspire.AppHost
+    command: ["--migrate"]
 
   silo:
     build:

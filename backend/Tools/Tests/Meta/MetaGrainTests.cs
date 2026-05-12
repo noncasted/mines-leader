@@ -381,7 +381,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
     }
 
     [Fact]
-    public async Task Initialize_OverwritesPreviousState()
+    public async Task Initialize_IsIdempotent()
     {
         var id = Guid.NewGuid();
         var grain = GetGrain<IUserDeck>(id);
@@ -400,7 +400,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
         await RunTransaction(async () => {
             state = await grain.GetState();
         });
-        state!.Entries[0].Cards.Should().BeEquivalentTo(GetSiloService<IUserDeckConfig>().Value.BaseDeck);
+        state!.Entries[0].Cards.Should().BeEquivalentTo(customCards);
     }
 }
 

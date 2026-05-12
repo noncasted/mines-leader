@@ -23,6 +23,10 @@ namespace Generators
                 if (sharedGrainState != null)
                     attributeSymbols.Add(sharedGrainState);
 
+                var eventState = compilation.GetTypeByMetadataName("Common.GrainEventStateAttribute");
+                if (eventState != null)
+                    attributeSymbols.Add(eventState);
+
                 if (attributeSymbols.Count == 0)
                     return;
 
@@ -91,34 +95,35 @@ namespace Generators
                 if (attr.AttributeClass == null)
                     continue;
 
-                bool isMatch = false;
+                INamedTypeSymbol? matchedAttribute = null;
 
                 foreach (var attributeSymbol in attributeSymbols)
                 {
                     if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeSymbol))
                     {
-                        isMatch = true;
+                        matchedAttribute = attributeSymbol;
                         break;
                     }
                 }
 
-                if (!isMatch)
+                if (matchedAttribute == null)
                     continue;
+
+                var attrName = matchedAttribute.Name;
+                var isEventState = attrName == "GrainEventStateAttribute";
 
                 string tableName = string.Empty;
                 string stateName = string.Empty;
                 string lookupName = string.Empty;
                 string keyType = "Guid";
-                bool hasTableName = false;
                 bool hasStateName = false;
                 bool hasLookupName = false;
 
                 foreach (var namedArg in attr.NamedArguments)
                 {
-                    if (namedArg.Key == "Table")
+                    if (!isEventState && namedArg.Key == "Table")
                     {
                         tableName = (namedArg.Value.Value as string) ?? string.Empty;
-                        hasTableName = true;
                     }
                     else if (namedArg.Key == "State")
                     {
@@ -148,11 +153,20 @@ namespace Generators
                     }
                 }
 
-                if (!hasTableName || !hasStateName || !hasLookupName)
+                if (!hasStateName || !hasLookupName)
+                    continue;
+
+                // For event state types, derive the Marten snapshot table name
+                if (isEventState)
+                {
+                    tableName = $"mt_doc_{type.Name.ToLowerInvariant()}";
+                }
+
+                if (string.IsNullOrEmpty(tableName))
                     continue;
 
                 var fullTypeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                results.Add(new GrainStateEntry(fullTypeName, tableName, stateName, keyType, lookupName));
+                results.Add(new GrainStateEntry(fullTypeName, tableName, stateName, keyType, lookupName, isEventState));
             }
 
             foreach (var nested in type.GetTypeMembers())
@@ -182,7 +196,9 @@ namespace Generators
             sb.AppendLine("    public class Info {");
             sb.AppendLine("        public required string TableName { get; init; }");
             sb.AppendLine("        public required string StateName { get; init; }");
+            sb.AppendLine("        public required string TypeName { get; init; }");
             sb.AppendLine("        public required GrainKeyType KeyType { get; init; }");
+            sb.AppendLine("        public required bool IsEventState { get; init; }");
             sb.AppendLine("    }");
             sb.AppendLine();
 
@@ -191,7 +207,9 @@ namespace Generators
                 sb.AppendLine("    public static readonly Info " + entry.LookupName + " = new() {");
                 sb.AppendLine("        TableName = \"" + entry.TableName + "\",");
                 sb.AppendLine("        StateName = \"" + entry.StateName + "\",");
-                sb.AppendLine("        KeyType = GrainKeyType." + entry.KeyType);
+                sb.AppendLine("        TypeName = \"" + entry.FullTypeName.Replace("global::", "") + "\",");
+                sb.AppendLine("        KeyType = GrainKeyType." + entry.KeyType + ",");
+                sb.AppendLine("        IsEventState = " + entry.IsEventState.ToString().ToLowerInvariant());
                 sb.AppendLine("    };");
                 sb.AppendLine();
             }
@@ -244,13 +262,15 @@ namespace Generators
                 string tableName,
                 string stateName,
                 string keyType,
-                string lookupName)
+                string lookupName,
+                bool isEventState)
             {
                 FullTypeName = fullTypeName;
                 TableName = tableName;
                 StateName = stateName;
                 KeyType = keyType;
                 LookupName = lookupName;
+                IsEventState = isEventState;
             }
 
             public string FullTypeName { get; }
@@ -258,6 +278,7 @@ namespace Generators
             public string StateName { get; }
             public string KeyType { get; }
             public string LookupName { get; }
+            public bool IsEventState { get; }
         }
     }
 }

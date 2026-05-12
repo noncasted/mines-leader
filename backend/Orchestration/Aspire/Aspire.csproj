@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <Sdk Name="Aspire.AppHost.Sdk" Version="13.0.0"/>
+    <Sdk Name="Aspire.AppHost.Sdk" Version="13.2.2"/>
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -15,6 +15,7 @@
         <PackageReference Include="Aspire.Hosting.AppHost"/>
         <PackageReference Include="Aspire.Hosting.PostgreSQL"/>
         <PackageReference Include="Aspire.Hosting.Docker"/>
+        <PackageReference Include="Npgsql"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -22,7 +23,6 @@
         <ProjectReference Include="..\..\Common\Common.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" IsAspireProjectResource="false"/>
         <ProjectReference Include="..\Extensions\Extensions.csproj" IsAspireProjectResource="false"/>
-        <ProjectReference Include="..\..\Tools\DeploySetup\DeploySetup.csproj" IsAspireProjectResource="false"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -34,42 +34,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="Startup\NamedGrainStorage.sql">
+        <Content Include="Startup\Migrations\Sql\*.sql">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\PostgreSQL-Clustering.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\PostgreSQL-Clustering-3.7.0.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\PostgreSQL-Main.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\PostgreSQL-Persistence.sql">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <None Remove="Startup\NamedGrainStorage.sql"/>
-        <None Remove="Startup\PostgreSQL-Clustering.sql"/>
-        <None Remove="Startup\PostgreSQL-Clustering-3.7.0.sql"/>
-        <None Remove="Startup\PostgreSQL-Main.sql"/>
-        <None Remove="Startup\PostgreSQL-Persistence.sql"/>
-        <Content Update="Startup\Queries\PostgreSQL-Clustering.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\Queries\PostgreSQL-Persistence.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\Queries\PostgreSQL-Main.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Update="Startup\Queries\PostgreSQL-Clustering-3.7.0.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="appsettings.local.json" Condition="Exists('ppsettings.local.json')">
+        <Content Include="appsettings.local.json" Condition="Exists('appsettings.local.json')">
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

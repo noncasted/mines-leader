@@ -13,6 +13,7 @@ public class GrainStateInfo
 public interface IGrainStatesRegistry
 {
     IReadOnlyCollection<GrainStateInfo> All { get; }
+    
     GrainStateInfo Get<T>();
     GrainStateInfo Get(Type type);
 }

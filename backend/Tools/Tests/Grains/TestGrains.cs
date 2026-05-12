@@ -9,7 +9,7 @@ namespace Tests.Grains;
 
 [GenerateSerializer]
 [GrainState(Table = "state_simple_test", State = "simple_test", Lookup = "SimpleTest", Key = GrainKeyType.Guid)]
-public class SimpleTestState : IStateValue
+public class SimpleTestState : IDirectStateValue
 {
     [Id(0)] public int Counter { get; set; }
     [Id(1)] public string Label { get; set; } = string.Empty;
@@ -59,7 +59,7 @@ public class SimpleTestGrain : Grain, ISimpleTestGrain
 [GenerateSerializer]
 [GrainState(Table = "state_test_collection", State = "collection_test", Lookup = "CollectionTest",
     Key = GrainKeyType.Guid)]
-public class CollectionTestState : IStateValue
+public class CollectionTestState : IDirectStateValue
 {
     [Id(0)] public Guid Id { get; set; }
     [Id(1)] public string Name { get; set; } = string.Empty;
@@ -99,7 +99,7 @@ public class CollectionTestGrain : Grain, ICollectionTestGrain
 
 [GenerateSerializer]
 [GrainState(Table = "state_tx_test", State = "tx_test", Lookup = "TxTest", Key = GrainKeyType.Guid)]
-public class TxTestState : IStateValue
+public class TxTestState : IDirectStateValue
 {
     [Id(0)] public int Value { get; set; }
     public int Version => 0;
@@ -334,5 +334,151 @@ public class TxSideEffectGrain : Grain, ITxSideEffectGrain
     public async Task<int> Get()
     {
         return await _state.Read(s => s.Value);
+    }
+}
+// --- Event-sourced test grain ---
+
+[GenerateSerializer]
+[GrainEventState(State = "event_test", Lookup = "EventTest", Key = GrainKeyType.Guid)]
+public class EventTestAggregate : IEventStateValue
+{
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public int Counter { get; set; }
+    [Id(2)] public string Label { get; set; } = string.Empty;
+    public int Version => 0;
+
+    public void Apply(CounterIncremented e) => Counter += e.Amount;
+    public void Apply(LabelChanged e) => Label = e.Label;
+}
+
+public class CounterIncremented
+{
+    public int Amount { get; set; }
+}
+
+public class LabelChanged
+{
+    public string Label { get; set; } = string.Empty;
+}
+
+public interface IEventTestGrain : IGrainWithGuidKey
+{
+    [Transaction]
+    Task AppendEvents(int counterAmount, string label);
+
+    [Transaction]
+    Task AppendThenFail(int counterAmount);
+
+    Task AppendEventsStandalone(int counterAmount, string label);
+
+    Task<string> GetStreamId();
+    Task<int> GetCounter();
+}
+
+[Reentrant]
+public class EventTestGrain : Grain, IEventTestGrain
+{
+    public EventTestGrain(
+        [EventState] EventState<EventTestAggregate> state)
+    {
+        _state = state;
+    }
+
+    private readonly EventState<EventTestAggregate> _state;
+
+    public async Task AppendEvents(int counterAmount, string label)
+    {
+        await _state.Read();
+        await _state.Append(
+            new CounterIncremented { Amount = counterAmount },
+            new LabelChanged { Label = label }
+        );
+        await _state.WriteSession();
+    }
+
+    public async Task AppendThenFail(int counterAmount)
+    {
+        await _state.Read();
+        await _state.Append(new CounterIncremented { Amount = counterAmount });
+        await _state.WriteSession();
+        throw new Exception("Intentional failure after append");
+    }
+
+    public async Task AppendEventsStandalone(int counterAmount, string label)
+    {
+        await _state.Read();
+        _state.StartSession();
+        await _state.Append(
+            new CounterIncremented { Amount = counterAmount },
+            new LabelChanged { Label = label }
+        );
+        await _state.WriteSession();
+    }
+
+    public Task<string> GetStreamId()
+    {
+        return Task.FromResult(_state.StreamId);
+    }
+
+    public async Task<int> GetCounter()
+    {
+        await _state.Read();
+        return _state.Value.Counter;
+    }
+}
+
+// --- Mixed direct + event state grain ---
+
+public interface IMixedStateGrain : IGrainWithGuidKey
+{
+    [Transaction]
+    Task IncrementAndAppend(int amount);
+
+    [Transaction]
+    Task IncrementAndAppendThenFail(int amount);
+
+    Task<int> GetDirectValue();
+    Task<string> GetStreamId();
+}
+
+[Reentrant]
+public class MixedStateGrain : Grain, IMixedStateGrain
+{
+    public MixedStateGrain(
+        [State] State<TxTestState> directState,
+        [EventState] EventState<EventTestAggregate> eventState)
+    {
+        _directState = directState;
+        _eventState = eventState;
+    }
+
+    private readonly State<TxTestState> _directState;
+    private readonly EventState<EventTestAggregate> _eventState;
+
+    public async Task IncrementAndAppend(int amount)
+    {
+        await _directState.Write(s => s.Value += 1);
+        await _eventState.Read();
+        await _eventState.Append(new CounterIncremented { Amount = amount });
+        await _eventState.WriteSession();
+    }
+
+    public async Task IncrementAndAppendThenFail(int amount)
+    {
+        await _directState.Write(s => s.Value += 1);
+        await _eventState.Read();
+        await _eventState.Append(new CounterIncremented { Amount = amount });
+        await _eventState.WriteSession();
+        throw new Exception("Intentional mixed failure");
+    }
+
+    public async Task<int> GetDirectValue()
+    {
+        return await _directState.Read(s => s.Value);
+    }
+
+    public Task<string> GetStreamId()
+    {
+        return Task.FromResult(_eventState.StreamId);
     }
 }

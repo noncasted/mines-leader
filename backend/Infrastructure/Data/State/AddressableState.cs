@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure;
 
 [GenerateSerializer]
-public class AddressableStateValue : IStateValue
+public class AddressableStateValue : IDirectStateValue
 {
     [Id(0)]
     public string Value { get; set; } = string.Empty;

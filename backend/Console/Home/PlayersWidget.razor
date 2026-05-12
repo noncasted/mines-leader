@@ -1,5 +1,6 @@
 @using global::Common.Extensions
 @using global::Common.Reactive
+@using global::Infrastructure
 @using global::Infrastructure.State
 @using Meta.Users
 @inherits UiComponent
@@ -31,16 +32,16 @@
                         <button class="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
                                 title="Click to copy"
                                 @onclick="@(() => CopyId(user.Id))">
-                            @(user.Id.ToString()[..8])&hellip;
+                            @(user.Id[..8])&hellip;
                         </button>
                     </td>
                     <td class="px-4 py-2.5 text-muted-foreground text-xs">
-                        @(_xp.TryGetValue(user.Id, out var xp) ? xp.ToString() : "—")
+                        @(_xp.TryGetValue(ExtractGuid(user.Id), out var xp) ? xp.ToString() : "—")
                     </td>
                     <td class="px-4 py-2.5">
                         <div class="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
                             <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, user.Id)))">
+                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, ExtractGuid(user.Id))))">
                                 <LucideIcon Name="ellipsis" Size="14"/>
                             </BbButton>
                         </div>
@@ -81,7 +82,7 @@
 
 @code {
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
-    [Inject] public IStateStorage Storage { get; set; } = null!;
+    [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
     [Inject] public IJSRuntime JS { get; set; } = null!;
 
@@ -127,7 +128,7 @@
             var query = _search.Trim();
             _filteredUsers = _allUsers
                 .Where(u => u.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
-                            || u.Id.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                            || u.Id.Contains(query, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 
@@ -144,18 +145,14 @@
             return;
         }
 
-        var stateInfo = Storage.Registry.Get<UserProgressionState>();
-        var identities = _pageUsers.Select(u => new StateIdentity
-            {
-                Key = u.Id,
-                Type = stateInfo.Name,
-                Extension = null,
-                TableName = stateInfo.TableName
-            })
-            .ToList();
+        var xpTasks = _pageUsers.Select(async user => {
+            var guid = ExtractGuid(user.Id);
+            var xp = await Orleans.GetGrain<IUserProgression>(guid).GetTotal();
+            return (guid, xp);
+        });
 
-        var result = await Storage.Read<Guid, UserProgressionState>(identities);
-        _xp = result.ToDictionary(kv => kv.Key, kv => kv.Value.CalculateTotal());
+        var results = await Task.WhenAll(xpTasks);
+        _xp = results.ToDictionary(r => r.guid, r => r.xp);
     }
 
     private async Task OnSearchChanged(string value)
@@ -167,9 +164,9 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task CopyId(Guid id)
+    private async Task CopyId(string id)
     {
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", id.ToString());
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", id);
     }
 
     private async Task PrevPage()
@@ -188,5 +185,12 @@
         _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
         await LoadXpForCurrentPage();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private static Guid ExtractGuid(string streamId)
+    {
+        var colonIndex = streamId.IndexOf(':');
+        var key = colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
+        return Guid.TryParse(key, out var guid) ? guid : Guid.Empty;
     }
 }

@@ -1,9 +1,14 @@
 @page "/users/{Id}"
 @using global::Infrastructure
 @using global::Infrastructure.State
+@using Marten
 @using Meta.Matches
 @using Meta.Users
 @using Shared
+@using System.Text.Json
+@using global::Common
+@using global::Common.Extensions
+
 
 <PageTitle>Player Dashboard</PageTitle>
 <PageHeader Title="Player Dashboard"/>
@@ -40,7 +45,7 @@
                         @_user.Name
                     </h1>
                     <p class="text-xs text-muted-foreground font-mono cursor-pointer hover:text-foreground transition-colors select-none"
-                       title="Click to copy" @onclick="@(() => CopyToClipboard(_user.Id.ToString()))">
+                       title="Click to copy" @onclick="@(() => CopyToClipboard(_user.Id))">
                         @_user.Id
                     </p>
                     <p class="text-xs text-muted-foreground">
@@ -243,6 +248,88 @@
             }
         </div>
 
+        @* States *@
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-2 border-b pb-2">
+                <div class="flex items-center gap-2 cursor-pointer select-none flex-1"
+                     @onclick="@(() => _statesExpanded = !_statesExpanded)">
+                    <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">States</h2>
+                    <LucideIcon Name="@(_statesExpanded ? "chevron-up" : "chevron-down")" Size="14" class="text-muted-foreground"/>
+                </div>
+            </div>
+            @if (_statesExpanded)
+            {
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var state in _userStates)
+                    {
+                        var isSelected = state.TableName == _selectedStateTable;
+                        <button class="@(isSelected ? "border-green-500/50 bg-green-500/10 text-green-400 ring-1 ring-green-500/30" : "border-border bg-muted text-muted-foreground hover:border-primary/30 hover:text-foreground") border rounded px-3 py-2 text-xs font-medium transition-colors"
+                                @onclick="@(() => SelectState(state.TableName))">
+                            @state.Name
+                        </button>
+                    }
+                </div>
+
+                @if (_isLoadingState)
+                {
+                    <div class="flex items-center justify-center py-8">
+                        <LucideIcon Name="loader-circle" Size="24" class="animate-spin text-primary"/>
+                    </div>
+                }
+                else if (_selectedStateTable != null)
+                {
+                    <div class="grid grid-cols-2 gap-4">
+                        @* State JSON *@
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xs font-semibold text-muted-foreground">State JSON</h3>
+                                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="CopyStateJson">
+                                    <LucideIcon Name="copy" Size="14" class="mr-1"/>
+                                    Copy
+                                </BbButton>
+                            </div>
+                            <div class="rounded-lg border bg-muted/30 p-3 overflow-auto max-h-[500px]">
+                                <pre class="text-xs font-mono whitespace-pre-wrap break-all">@_stateJson</pre>
+                            </div>
+                        </div>
+
+                        @* Marten Events *@
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xs font-semibold text-muted-foreground">Marten Events (@_stateEvents.Count)</h3>
+                                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="CopyEvents">
+                                    <LucideIcon Name="copy" Size="14" class="mr-1"/>
+                                    Copy
+                                </BbButton>
+                            </div>
+                            <div class="rounded-lg border bg-muted/30 p-3 overflow-auto max-h-[500px]">
+                                @if (_stateEvents.Count == 0)
+                                {
+                                    <p class="text-xs text-muted-foreground py-4 text-center">No events found</p>
+                                }
+                                else
+                                {
+                                    <div class="flex flex-col gap-2">
+                                        @foreach (var evt in _stateEvents)
+                                        {
+                                            <div class="rounded border border-border/50 bg-card p-2">
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="text-[10px] font-mono text-muted-foreground">#@evt.SeqId</span>
+                                                    <span class="text-[10px] font-semibold text-primary">@evt.EventType</span>
+                                                    <span class="text-[10px] text-muted-foreground ml-auto">@evt.Timestamp.ToString("HH:mm:ss")</span>
+                                                </div>
+                                                <pre class="text-[11px] font-mono whitespace-pre-wrap break-all text-muted-foreground">@evt.Data</pre>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
     </div>
 </div>
 
@@ -255,6 +342,9 @@
     [Inject] public NavigationManager Navigation { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
     [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+    [Inject] public IDocumentStore DocumentStore { get; set; } = null!;
+    [Inject] public IStateSerializer StateSerializer { get; set; } = null!;
+
 
     private const int MatchPageSize = 10;
 
@@ -277,12 +367,23 @@
     private int _progressionTarget;
     private HashSet<CardType> _ownedCards = new();
     private bool _cardsExpanded;
+    private bool _statesExpanded;
+    private List<GrainStateInfo> _userStates = new();
+    private string? _selectedStateTable;
+    private string? _stateJson;
+    private List<MartenEvent> _stateEvents = new();
+    private bool _isLoadingState;
+
+    private record MartenEvent(long SeqId, string EventType, string Data, DateTime Timestamp);
+
 
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
 
-        if (!Guid.TryParse(Id, out _userId))
+        _userId = ExtractGuid(Id);
+
+        if (_userId == Guid.Empty)
         {
             _isLoading = false;
             return;
@@ -306,7 +407,14 @@
             ToastService.Error($"[UserDashboard] Error loading player data: {ex.Message}", "Error");
         }
 
+        _userStates = Storage.Registry.All
+            .Where(s => s.KeyType == GrainKeyType.Guid && typeof(IEventStateValue).IsAssignableFrom(s.Type))
+            .OrderBy(s => s.Name)
+            .ToList();
+
+
         _isLoading = false;
+
     }
 
     private async Task LoadPlayerData()
@@ -453,8 +561,12 @@
         try
         {
             var handle = Orleans.CreateUserHandle(_userId);
-            await Orleans.InTransaction(() => handle.Cards.AddCard(card));
-            _ownedCards.Add(card);
+            await Orleans.InTransaction(async () =>
+            {
+                await handle.Cards.AddCard(card);
+                var cards = await handle.Cards.GetAll();
+                _ownedCards = new HashSet<CardType>(cards);
+            });
             ToastService.Success($"Card {card} added", "Done");
         }
         catch (Exception ex)
@@ -473,20 +585,15 @@
         _isSaving = true;
         try
         {
-            var missing = CardTypeExtensions.All.Where(c => !_ownedCards.Contains(c)).ToList();
-            if (missing.Count == 0) return;
-
             var handle = Orleans.CreateUserHandle(_userId);
             await Orleans.InTransaction(async () =>
             {
-                foreach (var card in missing)
+                foreach (var card in CardTypeExtensions.All)
                     await handle.Cards.AddCard(card);
+                var cards = await handle.Cards.GetAll();
+                _ownedCards = new HashSet<CardType>(cards);
             });
-
-            foreach (var card in missing)
-                _ownedCards.Add(card);
-
-            ToastService.Success($"Added {missing.Count} cards", "Done");
+            ToastService.Success("All cards added", "Done");
         }
         catch (Exception ex)
         {
@@ -500,20 +607,123 @@
 
     private void MatchPrevPage()
     {
-        if (_matchCurrentPage <= 0)
-            return;
-
-        _matchCurrentPage--;
-        _matchPageItems = _allMatches.Skip(_matchCurrentPage * MatchPageSize).Take(MatchPageSize).ToList();
+        if (_matchCurrentPage > 0)
+        {
+            _matchCurrentPage--;
+            _matchPageItems = _allMatches.Skip(_matchCurrentPage * MatchPageSize).Take(MatchPageSize).ToList();
+        }
     }
 
     private void MatchNextPage()
     {
-        if (_matchCurrentPage >= _matchTotalPages - 1)
-            return;
-
-        _matchCurrentPage++;
-        _matchPageItems = _allMatches.Skip(_matchCurrentPage * MatchPageSize).Take(MatchPageSize).ToList();
+        if (_matchCurrentPage < _matchTotalPages - 1)
+        {
+            _matchCurrentPage++;
+            _matchPageItems = _allMatches.Skip(_matchCurrentPage * MatchPageSize).Take(MatchPageSize).ToList();
+        }
     }
 
+    private async Task SelectState(string tableName)
+    {
+        _selectedStateTable = _selectedStateTable == tableName ? null : tableName;
+        _stateJson = null;
+        _stateEvents = new();
+
+        if (_selectedStateTable == null)
+            return;
+
+        _isLoadingState = true;
+        try
+        {
+            var info = _userStates.First(s => s.TableName == _selectedStateTable);
+            var identity = new StateIdentity
+            {
+                Key = _userId,
+                Type = info.Name,
+                Extension = null,
+                TableName = info.TableName
+            };
+
+            var raw = await Storage.ReadRawJson(identity);
+            _stateJson = string.IsNullOrEmpty(raw) ? "No state data" : FormatJson(raw);
+
+            var streamId = $"{info.Name}:{_userId}";
+            _stateEvents = await LoadEvents(streamId);
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[UserDashboard] Error loading state: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isLoadingState = false;
+        }
+    }
+
+    private async Task<List<MartenEvent>> LoadEvents(string streamId)
+    {
+        var events = new List<MartenEvent>();
+        try
+        {
+            await using var session = DocumentStore.QuerySession();
+            var stream = await session.Events.FetchStreamAsync(streamId);
+            if (stream == null)
+                return events;
+
+            foreach (var evt in stream)
+            {
+                var eventData = evt.Data;
+                var json = eventData != null
+                    ? StateSerializer.Serialize(eventData)
+                    : "{}";
+                events.Add(new MartenEvent(
+                    evt.Sequence,
+                    evt.EventType?.Name ?? eventData?.GetType().Name ?? "Unknown",
+                    FormatJson(json),
+                    evt.Timestamp.UtcDateTime
+                ));
+            }
+        }
+        catch
+        {
+            // Events are optional; don't fail the UI if Marten is unavailable
+        }
+        return events;
+    }
+
+    private async Task CopyStateJson()
+    {
+        if (_stateJson != null)
+            await CopyToClipboard(_stateJson);
+    }
+
+    private async Task CopyEvents()
+    {
+        if (_stateEvents.Count > 0)
+        {
+            var json = JsonSerializer.Serialize(_stateEvents, new JsonSerializerOptions { WriteIndented = true });
+            await CopyToClipboard(json);
+        }
+    }
+
+    private static string FormatJson(string json)
+    {
+        try
+        {
+            var element = JsonSerializer.Deserialize<JsonElement>(json);
+            return JsonSerializer.Serialize(element, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch
+        {
+            return json;
+        }
+    }
+
+
+    private static Guid ExtractGuid(string streamId)
+    {
+        var colonIndex = streamId.IndexOf(':');
+        var key = colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
+        return Guid.TryParse(key, out var guid) ? guid : Guid.Empty;
+    }
 }

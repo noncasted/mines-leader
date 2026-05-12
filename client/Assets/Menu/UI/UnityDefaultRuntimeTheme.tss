@@ -1,9 +1,0 @@
-@import url("unity-theme://default");
-
-.unity-ui-document__root {
-    flex-grow: 1;
-    -unity-font: resource('DreiFraktur');
-    -unity-font-definition: initial;
-}
-
-VisualElement {}

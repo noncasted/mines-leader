@@ -1,234 +1,99 @@
 using System.Collections.Generic;
-using System.Linq;
-using Global.UI.Toolkit;
+using Exoa.Responsive;
 using Internal;
+using TMPro;
+using Tools.PrefabBuilder;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer;
 
 namespace GamePlay.UI.ActionLog
 {
-    [DisallowMultipleComponent]
-    [RequireComponent(typeof(UIDocument))]
-    public class GameActionLogUI : MonoBehaviour, ISceneService, IScopeSetupCompletion
+    public class GameActionLogUI : MonoBehaviour, ISceneService, IScopeSetup
     {
-        [SerializeField] private VisualTreeAsset _tileTemplate;
+        [SerializeField] private RectTransform _container;
+        [SerializeField] private CanvasGroup _tooltipGroup;
+        [SerializeField] private TMP_Text _tooltipCardName;
+        [SerializeField] private TMP_Text _tooltipCardDescription;
+        [SerializeField] private ResponsiveContainer _responsiveContainer;
 
-        private IGameActionLog _log;
+        [Inject] private IGameActionLog _log;
 
-        [Inject]
-        private void Construct(IGameActionLog log)
-        {
-            _log = log;
-        }
-
-        private readonly List<VisualElement> _tiles = new();
-
-        private VisualElement _tileContainer;
-        private VisualElement _tooltip;
-        private Label _tooltipName;
-        private Label _tooltipDesc;
+        private readonly List<GameActionLogTileUI> _activeTiles = new();
 
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                   .As<IScopeSetupCompletion>();
+                   .As<IScopeSetup>();
         }
 
-        public void OnSetupCompletion(IReadOnlyLifetime lifetime)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            Debug.Log("[GameActionLogUI] OnSetup start");
+            HideTooltip();
 
-            var document = GetComponent<UIDocument>();
-            if (document == null)
-            {
-                Debug.LogError("[GameActionLogUI] UIDocument component missing");
-                return;
-            }
-
-            var root = document.rootVisualElement;
-            if (root == null)
-            {
-                Debug.LogError("[GameActionLogUI] rootVisualElement is null");
-                return;
-            }
-
-            _tileContainer = root.Q<VisualElement>("tile-container");
-            if (_tileContainer == null)
-            {
-                Debug.LogError("[GameActionLogUI] tile-container not found in UXML");
-                return;
-            }
-
-            var defaultTile = _tileContainer.Children().FirstOrDefault();
-            if (defaultTile != null)
-            {
-                defaultTile.style.display = DisplayStyle.None;
-                Debug.Log("[GameActionLogUI] Default tile hidden");
-            }
-            else
-            {
-                Debug.LogWarning("[GameActionLogUI] No default tile found in tile-container");
-            }
-
-            _tooltip = root.Q<VisualElement>("tooltip");
-            _tooltipName = root.Q<Label>("tooltip-name");
-            _tooltipDesc = root.Q<Label>("tooltip-desc");
-
-            if (_tooltip == null)
-                Debug.LogError("[GameActionLogUI] tooltip not found in UXML");
-            if (_tooltipName == null)
-                Debug.LogError("[GameActionLogUI] tooltip-name not found in UXML");
-            if (_tooltipDesc == null)
-                Debug.LogError("[GameActionLogUI] tooltip-desc not found in UXML");
-
-            if (_tooltip != null)
-            {
-                _tooltip.style.display = DisplayStyle.None;
-                Debug.Log("[GameActionLogUI] Tooltip hidden");
-            }
-            else
-            {
-                Debug.LogWarning("[GameActionLogUI] Tooltip not found, cannot hide");
-            }
-
-            if (_tileTemplate == null)
-            {
-                Debug.LogError("[GameActionLogUI] _tileTemplate is null — assign GameActionLogTile.uxml in Inspector!");
-                return;
-            }
-
-            if (_log == null)
-            {
-                Debug.LogError("[GameActionLogUI] _log is null — IGameActionLog was not injected!");
-                return;
-            }
-
-            Debug.Log($"[GameActionLogUI] _log entries: {_log.Entries.Count}");
-
-            _log.Entries.Advise(lifetime, (entryLifetime, entry) =>
-            {
-                Debug.Log($"[GameActionLogUI] New entry: {entry.PlayerName}: {entry.Message}");
+            _log.Entries.View(lifetime, (entryLifetime, entry) => {
                 var tile = CreateTile(entry);
-                if (tile != null)
-                    _tiles.Add(tile);
-                
-                TrimExcessTiles();
+                _activeTiles.Add(tile);
 
-                entryLifetime.Listen(() =>
-                {
-                    _tiles.Remove(tile);
-                    tile?.RemoveFromHierarchy();
+                entryLifetime.Listen(() => {
+                    _activeTiles.Remove(tile);
+                    Destroy(tile.gameObject);
                     RefreshOpacity();
+                    RefreshLayout();
                 });
 
                 RefreshOpacity();
+                RefreshLayout();
             });
-
-            foreach (var entry in _log.Entries)
-            {
-                var tile = CreateTile(entry);
-                if (tile != null)
-                    _tiles.Add(tile);
-            }
-            
-            TrimExcessTiles();
-            RefreshOpacity();
-
-            Debug.Log($"[GameActionLogUI] OnSetup complete. Tiles: {_tiles.Count}");
         }
 
-        private VisualElement CreateTile(GameActionLogEntry entry)
+        private GameActionLogTileUI CreateTile(GameActionLogEntry entry)
         {
-            if (_tileTemplate == null)
-                return null;
-
-            var templateContainer = _tileTemplate.Instantiate();
-            var tileRoot = templateContainer.Q<VisualElement>("tile-root")
-                            ?? templateContainer.contentContainer
-                            ?? templateContainer;
-
-            if (tileRoot == null)
-                return null;
-
-            var messageLabel = tileRoot.Q<Label>("tile-message");
-            if (messageLabel != null)
-                messageLabel.text = $"{entry.PlayerName}: {entry.Message}";
-
-            tileRoot.AddToClassList(GetClassForType(entry.Type));
-
-            tileRoot.RegisterCallback<PointerEnterEvent>(_ => OnTileHoverEnter(entry, tileRoot));
-            tileRoot.RegisterCallback<PointerLeaveEvent>(_ => OnTileHoverExit());
-
-            _tileContainer.Add(tileRoot);
-            Debug.Log($"[GameActionLogUI] Tile created: {entry.Message}");
-
-            return tileRoot;
-        }
-
-        private void OnTileHoverEnter(GameActionLogEntry entry, VisualElement tile)
-        {
-            if (_tooltip == null)
-                return;
-
-            if (string.IsNullOrEmpty(entry.CardName))
-                return;
-
-            _tooltipName.text = entry.CardName;
-            _tooltipDesc.text = entry.CardDescription ?? "";
-            _tooltipDesc.style.display = string.IsNullOrEmpty(entry.CardDescription)
-                ? DisplayStyle.None
-                : DisplayStyle.Flex;
-
-            var tileWorldBounds = tile.worldBound;
-            var rootLocal = _tooltip.parent != null
-                ? _tooltip.parent.WorldToLocal(tileWorldBounds.position)
-                : tileWorldBounds.position;
-
-            _tooltip.style.left = rootLocal.x + tileWorldBounds.width + 4f;
-            _tooltip.style.top = rootLocal.y;
-            _tooltip.style.display = DisplayStyle.Flex;
-        }
-
-        private void OnTileHoverExit()
-        {
-            if (_tooltip != null)
-                _tooltip.style.display = DisplayStyle.None;
-        }
-
-        private void TrimExcessTiles()
-        {
-            const int maxTiles = 5;
-            while (_tiles.Count > maxTiles)
-            {
-                var oldest = _tiles[0];
-                _tiles.RemoveAt(0);
-                oldest?.RemoveFromHierarchy();
-            }
+            var prefab = Prefabs.ActionLogTile.As<GameActionLogTileUI>();
+            var tile = Instantiate(prefab, _container);
+            tile.Setup(entry, OnTileHoverEnter, OnTileHoverExit);
+            return tile;
         }
 
         private void RefreshOpacity()
         {
-            var count = _tiles.Count;
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < _activeTiles.Count; i++)
             {
-                var distanceFromNewest = count - 1 - i;
-                var alpha = 1f - distanceFromNewest * 0.2f;
-                _tiles[i].style.opacity = Mathf.Clamp01(alpha);
+                var isNewest = i == _activeTiles.Count - 1;
+                _activeTiles[i].SetOpacity(isNewest ? 1f : 0.5f);
             }
         }
 
-        private static string GetClassForType(GameActionLogEntryType type)
+        private void RefreshLayout()
         {
-            return type switch
-            {
-                GameActionLogEntryType.CardPlayedSelf => "tile-self",
-                GameActionLogEntryType.CardPlayedOpponent => "tile-opponent",
-                GameActionLogEntryType.ManaChanged => "tile-mana",
-                GameActionLogEntryType.HealthChanged => "tile-health",
-                GameActionLogEntryType.MaxMovesChanged => "tile-moves",
-                _ => "tile-self",
-            };
+            if (_responsiveContainer != null)
+                _responsiveContainer.Resize(true);
+        }
+
+        private void OnTileHoverEnter(GameActionLogTileUI tile)
+        {
+            if (tile.Entry.CardName == null)
+                return;
+
+            _tooltipCardName.text = tile.Entry.CardName;
+            _tooltipCardDescription.text = tile.Entry.CardDescription;
+            _tooltipGroup.alpha = 1f;
+            _tooltipGroup.gameObject.SetActive(true);
+
+            var tooltipRt = (RectTransform)_tooltipGroup.transform;
+            var tileWidth = tile.RectTransform.rect.width;
+
+            tooltipRt.anchoredPosition = new Vector2(tileWidth + 8f, 0f);
+        }
+
+        private void OnTileHoverExit(GameActionLogTileUI tile)
+        {
+            HideTooltip();
+        }
+
+        private void HideTooltip()
+        {
+            _tooltipGroup.alpha = 0f;
+            _tooltipGroup.gameObject.SetActive(false);
         }
     }
 }

@@ -29,13 +29,36 @@ public interface IUserLoot : IUserGrain, IUserProjectionSource
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_loot", State = "user_loot", Lookup = "UserLoot", Key = GrainKeyType.Guid)]
-public class UserLootState : IProjectionPayload, IStateValue
+[GrainEventState(State = "user_loot", Lookup = "UserLoot", Key = GrainKeyType.Guid)]
+public class UserLootState : IEventStateValue, IProjectionPayload
 {
-    [Id(0)] public Dictionary<Guid, LootBoxEntry> Boxes { get; set; } = new();
-    [Id(1)] public int AwardedCount { get; set; }
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public Dictionary<Guid, LootBoxEntry> Boxes { get; set; } = new();
+    [Id(2)] public int AwardedCount { get; set; }
 
     public int Version => 0;
+
+    public void Apply(LootBoxesCalculated e)
+    {
+        foreach (var entry in e.Boxes)
+            Boxes[entry.Key] = entry.Value;
+
+        AwardedCount = e.AwardedCount;
+    }
+
+    public void Apply(LootBoxAdded e)
+    {
+        Boxes[e.Id] = new LootBoxEntry
+        {
+            Id = e.Id,
+            AwardedDate = DateTime.UtcNow
+        };
+    }
+
+    public void Apply(LootBoxRemoved e)
+    {
+        Boxes.Remove(e.Id);
+    }
 
     public INetworkContext ToContext() => new SharedBackendUser.LootProjection
     {
@@ -54,10 +77,26 @@ public class LootBoxEntry
     [Id(1)] public DateTime AwardedDate { get; set; }
 }
 
+public class LootBoxAdded
+{
+    public Guid Id { get; set; }
+}
+
+public class LootBoxRemoved
+{
+    public Guid Id { get; set; }
+}
+
+public class LootBoxesCalculated
+{
+    public Dictionary<Guid, LootBoxEntry> Boxes { get; set; } = new();
+    public int AwardedCount { get; set; }
+}
+
 public class UserLoot : UserGrain, IUserLoot
 {
     public UserLoot(
-        [State] State<UserLootState> state,
+        [EventState] EventState<UserLootState> state,
         ILootProgressionConfig lootProgressionConfig,
         ILogger<UserLoot> logger)
     {
@@ -66,7 +105,7 @@ public class UserLoot : UserGrain, IUserLoot
         _logger = logger;
     }
 
-    private readonly State<UserLootState> _state;
+    private readonly EventState<UserLootState> _state;
     private readonly ILootProgressionConfig _lootProgressionConfig;
     private readonly ILogger<UserLoot> _logger;
 
@@ -85,7 +124,9 @@ public class UserLoot : UserGrain, IUserLoot
                                                .ToList();
 
         var crossedCount = thresholds.Count(t => totalXp >= t);
-        var currentAwarded = await _state.Read(s => s.AwardedCount);
+        
+        await _state.Read();
+        var currentAwarded = _state.Value.AwardedCount;
 
         if (crossedCount <= currentAwarded)
             return;
@@ -96,22 +137,28 @@ public class UserLoot : UserGrain, IUserLoot
             "[User] [Loot] User {Id} has {TotalXp} XP, crossed {Crossed} thresholds, awarding {ToAward} new boxes",
             this.GetPrimaryKey(), totalXp, crossedCount, toAward);
 
-        var state = await _state.Update(s => {
-            for (var i = 0; i < toAward; i++)
+        var newBoxes = new Dictionary<Guid, LootBoxEntry>();
+        for (var i = 0; i < toAward; i++)
+        {
+            var id = Guid.NewGuid();
+            newBoxes[id] = new LootBoxEntry
             {
-                var id = Guid.NewGuid();
+                Id = id,
+                AwardedDate = DateTime.UtcNow
+            };
+        }
 
-                s.Boxes[id] = new LootBoxEntry
-                {
-                    Id = id,
-                    AwardedDate = DateTime.UtcNow
-                };
-            }
-
-            s.AwardedCount = crossedCount;
+        await _state.Append(new LootBoxesCalculated
+        {
+            Boxes = _state.Value.Boxes.ToDictionary(k => k.Key, v => v.Value), // preserve existing
+            AwardedCount = crossedCount
         });
-
-        await this.SendProjection(state);
+        // Note: We could just append the new boxes as separate events, but for Recalculate,
+        // a bulk update of the set is cleaner to avoid event log bloat.
+        // Wait, Apply for LootBoxesCalculated replaces the whole dictionary.
+        // Let's fix Apply to merge.
+        
+        await this.SendProjection(_state.Value);
     }
 
     public async Task AddBox()
@@ -121,42 +168,48 @@ public class UserLoot : UserGrain, IUserLoot
         _logger.LogInformation("[User] [Loot] User {Id} received loot box",
             this.GetPrimaryKey());
 
-        var state = await _state.Update(state => {
-            state.Boxes[id] = new LootBoxEntry
-            {
-                Id = id,
-                AwardedDate = DateTime.UtcNow
-            };
-        });
-
-        await this.SendProjection(state);
+        await _state.Read();
+        await _state.Append(new LootBoxAdded { Id = id });
+        await this.SendProjection(_state.Value);
     }
 
     public Task<LootBoxEntry?> GetBox(Guid id)
     {
-        return _state.Read(state => state.Boxes.TryGetValue(id, out var entry) ? entry : null);
+        return _state.ReadAndGetBox(id);
     }
 
     public async Task<bool> TryRemoveBox(Guid id)
     {
-        var exists = await _state.Read(state => state.Boxes.ContainsKey(id));
+        await _state.Read();
+        var exists = _state.Value.Boxes.ContainsKey(id);
 
         if (!exists)
             return false;
 
-        var state = await _state.Update(state => state.Boxes.Remove(id));
-        await this.SendProjection(state);
+        await _state.Append(new LootBoxRemoved { Id = id });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
         return true;
     }
 
     public async Task RemoveBox(Guid id)
     {
-        var state = await _state.Update(state => state.Boxes.Remove(id));
-        await this.SendProjection(state);
+        await _state.Append(new LootBoxRemoved { Id = id });
+        await _state.WriteSession();
+        await this.SendProjection(_state.Value);
     }
 
     public Task<IProjectionPayload> GetProjection()
     {
-        return _state.Read(s => (IProjectionPayload)s);
+        return Task.FromResult((IProjectionPayload)_state.Value);
+    }
+}
+
+public static class UserLootEventStateExtensions
+{
+    public static async Task<LootBoxEntry?> ReadAndGetBox(this EventState<UserLootState> state, Guid id)
+    {
+        await state.Read();
+        return state.Value.Boxes.TryGetValue(id, out var entry) ? entry : null;
     }
 }

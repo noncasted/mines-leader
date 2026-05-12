@@ -140,6 +140,4 @@ Replaced by:
 - `backend/Tools/deploy/docker-compose.local.yaml` + `backend/Orchestration/Dockerfile.prebuilt` — local dev overlay.
 - `backend/Tools/deploy/.env.example` / `.env.local` — env templates.
 - `backend/Orchestration/Dockerfile` — shared multi-stage per-service image.
-- `backend/Tools/DeploySetup/` — init-container executable with migration code (was `Aspire/Startup/Setup*.cs`).
-
-Aspire AppHost (`backend/Orchestration/Aspire/`) remains unchanged — still used for `aspire run` in local dev.
+|- `backend/Orchestration/Aspire/` — orchestrator + migrations (migrator container runs `dotnet Aspire.AppHost.dll --migrate`). Local dev via `aspire run`.

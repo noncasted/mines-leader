@@ -1,7 +1,8 @@
-﻿using Common;
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Meta.Matches;
+using Shared;
 
 namespace Meta.Users;
 
@@ -15,32 +16,52 @@ public interface IUserMatchHistory : IUserGrain
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_match_history", State = "user_match_history", Lookup = "UserMatchHistory",
+[GrainEventState(State = "user_match_history", Lookup = "UserMatchHistory",
     Key = GrainKeyType.Guid)]
-public class UserMatchHistoryState : IStateValue
+public class UserMatchHistoryAggregate : IEventStateValue
 {
-    [Id(0)] public List<MatchOverview> Matches { get; } = new();
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public List<MatchOverview> Matches { get; set; } = new();
 
     public int Version => 0;
+
+    public void Apply(MatchAdded e) => Matches.Add(e.Match);
+}
+
+public class MatchAdded
+{
+    public MatchOverview Match { get; set; } = new MatchOverview
+    {
+        Id = Guid.Empty,
+        Participants = new List<Guid>(),
+        Date = DateTime.MinValue,
+        Winner = Guid.Empty,
+        Time = TimeSpan.Zero,
+        Type = GameMatchType.Single
+    };
 }
 
 public class UserMatchHistory : UserGrain, IUserMatchHistory
 {
-    public UserMatchHistory([State] State<UserMatchHistoryState> state)
+    public UserMatchHistory(
+        [EventState] EventState<UserMatchHistoryAggregate> state)
     {
         _state = state;
     }
 
-    private readonly State<UserMatchHistoryState> _state;
+    private readonly EventState<UserMatchHistoryAggregate> _state;
 
-    public Task Add(MatchOverview match)
+    public async Task Add(MatchOverview match)
     {
-        return Task.WhenAll(_state.Write(state => state.Matches.Add(match)),
-            this.SendProjection(match));
+        await _state.Read();
+        await _state.Append(new MatchAdded { Match = match });
+        await _state.WriteSession();
+        await this.SendProjection(match);
     }
 
-    public Task<IReadOnlyList<MatchOverview>> GetBlock(int count)
+    public async Task<IReadOnlyList<MatchOverview>> GetBlock(int count)
     {
-        return _state.Read(state => (IReadOnlyList<MatchOverview>)state.Matches.TakeLast(count).ToList());
+        await _state.Read();
+        return _state.Value.Matches.TakeLast(count).ToList();
     }
 }

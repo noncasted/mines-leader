@@ -1,8 +1,8 @@
-﻿using Common;
+using Cluster.Configs;
+using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Shared;
-using Cluster.Configs;
 
 namespace Meta.Users;
 
@@ -25,13 +25,36 @@ public interface IUserDeck : IUserGrain, IUserProjectionSource
 }
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_projection", State = "user_deck", Lookup = "UserDeck", Key = GrainKeyType.Guid)]
-public class UserDeckState : IProjectionPayload, IStateValue
+[GrainEventState(State = "user_deck", Lookup = "UserDeck", Key = GrainKeyType.Guid)]
+public class UserDeckState : IEventStateValue, IProjectionPayload
 {
-    [Id(0)] public Dictionary<int, Entry> Entries { get; } = new();
-    [Id(1)] public int SelectedIndex { get; set; }
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public Dictionary<int, Entry> Entries { get; set; } = new();
+    [Id(2)] public int SelectedIndex { get; set; }
 
     public int Version => 0;
+
+    public void Apply(DeckInitialized e)
+    {
+        foreach (var entry in e.Entries)
+            Entries[entry.Key] = entry.Value;
+
+        SelectedIndex = e.SelectedIndex;
+    }
+
+    public void Apply(DeckEntryUpdated e)
+    {
+        Entries[e.Index] = new Entry
+        {
+            Index = e.Index,
+            Cards = e.Cards
+        };
+    }
+
+    public void Apply(DeckSelectedIndexUpdated e)
+    {
+        SelectedIndex = e.SelectedIndex;
+    }
 
     public INetworkContext ToContext()
     {
@@ -51,42 +74,64 @@ public class UserDeckState : IProjectionPayload, IStateValue
     public class Entry
     {
         [Id(0)] public required int Index { get; init; }
-
         [Id(1)] public required IReadOnlyList<CardType> Cards { get; init; }
     }
+}
+
+public class DeckInitialized
+{
+    public Dictionary<int, UserDeckState.Entry> Entries { get; set; } = new();
+    public int SelectedIndex { get; set; }
+}
+
+public class DeckEntryUpdated
+{
+    public int Index { get; set; }
+    public IReadOnlyList<CardType> Cards { get; set; } = new List<CardType>();
+}
+
+public class DeckSelectedIndexUpdated
+{
+    public int SelectedIndex { get; set; }
 }
 
 public class UserDeck : UserGrain, IUserDeck
 {
     public UserDeck(
-        [State] State<UserDeckState> state,
+        [EventState] EventState<UserDeckState> state,
         IUserDeckConfig userDeckConfig)
     {
         _state = state;
         _userDeckConfig = userDeckConfig;
     }
 
-    private readonly State<UserDeckState> _state;
+    private readonly EventState<UserDeckState> _state;
     private readonly IUserDeckConfig _userDeckConfig;
 
     public async Task Initialize()
     {
-        var state = await _state.Update(state => {
-            for (var i = 0; i < DeckOptions.MaxDecks; i++)
+        await _state.Read();
+        if (_state.Value.Entries.Count > 0) return;
+
+        var entries = new Dictionary<int, UserDeckState.Entry>();
+        for (var i = 0; i < DeckOptions.MaxDecks; i++)
+        {
+            var cards = new List<CardType>(_userDeckConfig.Value.BaseDeck);
+            entries[i] = new UserDeckState.Entry
             {
-                var cards = new List<CardType>(_userDeckConfig.Value.BaseDeck);
+                Index = i,
+                Cards = cards
+            };
+        }
 
-                state.Entries[i] = new UserDeckState.Entry
-                {
-                    Index = i,
-                    Cards = cards
-                };
-            }
-
-            state.SelectedIndex = 0;
+        await _state.Append(new DeckInitialized
+        {
+            Entries = entries,
+            SelectedIndex = 0
         });
+        await _state.WriteSession();
 
-        await this.SendProjection(state);
+        await this.SendProjection(_state.Value);
     }
 
     public async Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex)
@@ -94,49 +139,58 @@ public class UserDeck : UserGrain, IUserDeck
         foreach (var (_, cards) in decks)
             await ValidateCards(cards);
 
-        var state = await _state.Update(state => {
-            foreach (var (index, cards) in decks)
+        await _state.Read();
+        
+        foreach (var (index, cards) in decks)
+        {
+            await _state.Append(new DeckEntryUpdated
             {
-                state.Entries[index] = new UserDeckState.Entry
-                {
-                    Index = index,
-                    Cards = cards
-                };
-            }
+                Index = index,
+                Cards = cards
+            });
+        }
 
-            state.SelectedIndex = selectedIndex;
-        });
+        if (selectedIndex != _state.Value.SelectedIndex)
+        {
+            await _state.Append(new DeckSelectedIndexUpdated
+            {
+                SelectedIndex = selectedIndex
+            });
+        }
+
+        await _state.WriteSession();
+
+        await this.SendProjection(_state.Value);
     }
 
     public async Task Update(int index, IReadOnlyList<CardType> cards)
     {
         await ValidateCards(cards);
 
-        var state = await _state.Update(state => {
-            state.Entries[index] = new UserDeckState.Entry
-            {
-                Index = index,
-                Cards = cards
-            };
+        await _state.Read();
+        await _state.Append(new DeckEntryUpdated
+        {
+            Index = index,
+            Cards = cards
         });
+        await _state.WriteSession();
+
+        await this.SendProjection(_state.Value);
     }
 
     public Task<IReadOnlyList<CardType>> GetSelected()
     {
-        return _state.Read(state => {
-            var selectedDeck = state.Entries[state.SelectedIndex];
-            return selectedDeck.Cards;
-        });
+        return _state.ReadAndGetSelected();
     }
 
     public Task<UserDeckState> GetState()
     {
-        return _state.ReadValue();
+        return _state.ReadAndReturn();
     }
 
     public Task<IProjectionPayload> GetProjection()
     {
-        return _state.Read(s => (IProjectionPayload)s);
+        return Task.FromResult((IProjectionPayload)_state.Value);
     }
 
     private async Task ValidateCards(IEnumerable<CardType> cards)
@@ -150,5 +204,21 @@ public class UserDeck : UserGrain, IUserDeck
             if (!hasCard)
                 throw new InvalidOperationException($"Card {card} is not owned");
         }
+    }
+}
+
+public static class UserDeckEventStateExtensions
+{
+    public static async Task<IReadOnlyList<CardType>> ReadAndGetSelected(this EventState<UserDeckState> state)
+    {
+        await state.Read();
+        var selectedDeck = state.Value.Entries[state.Value.SelectedIndex];
+        return selectedDeck.Cards;
+    }
+
+    public static async Task<UserDeckState> ReadAndReturn(this EventState<UserDeckState> state)
+    {
+        await state.Read();
+        return state.Value;
     }
 }

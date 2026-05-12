@@ -114,7 +114,7 @@ public class BenchmarkMetricsHandle
 
 [GenerateSerializer]
 [GrainState(Table = "state_benchmark", State = "benchmark", Lookup = "Benchmark", Key = GrainKeyType.Guid)]
-public class BenchmarkState : IStateValue
+public class BenchmarkState : IDirectStateValue
 {
     [Id(0)] public Guid Id { get; set; }
     [Id(1)] public string Name { get; set; } = string.Empty;

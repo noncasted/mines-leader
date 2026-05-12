@@ -32,7 +32,7 @@ RUN dotnet restore backend/Orchestration/Silo/Silo.csproj \
  && dotnet restore backend/Orchestration/MetaGateway/MetaGateway.csproj \
  && dotnet restore backend/Orchestration/GameGateway/GameGateway.csproj \
  && dotnet restore backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj \
- && dotnet restore backend/Tools/DeploySetup/DeploySetup.csproj
+ && dotnet restore backend/Orchestration/Aspire/Aspire.csproj
 
 # Stage 2: publish every service inside a single RUN so msbuild's incremental compilation
 # reuses shared project outputs across services.
@@ -48,7 +48,7 @@ RUN set -e; \
       "backend/Orchestration/MetaGateway/MetaGateway.csproj:MetaGateway" \
       "backend/Orchestration/GameGateway/GameGateway.csproj:GameGateway" \
       "backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj:ConsoleGateway" \
-      "backend/Tools/DeploySetup/DeploySetup.csproj:DeploySetup"; do \
+      "backend/Orchestration/Aspire/Aspire.csproj:Aspire.AppHost"; do \
       proj=${pair%:*}; name=${pair##*:}; \
       # Wipe StaticWebAssets incremental tracking so each publish actually
       # copies wwwroot/_framework/* into its output. Without this, only the

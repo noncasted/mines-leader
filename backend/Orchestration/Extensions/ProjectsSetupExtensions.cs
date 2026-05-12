@@ -178,6 +178,7 @@ public static class ProjectsSetupExtensions
                 .AddConfigs()
                 .AddSideEffects()
                 .AddStates()
+                .AddMartenStore()
                 .AddMonitoring()
                 .AddUserServices();
 

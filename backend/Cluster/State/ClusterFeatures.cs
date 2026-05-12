@@ -132,7 +132,7 @@ public class ClusterFeatures : ViewableProperty<ClusterFeaturesState>, IClusterF
 
 [GenerateSerializer]
 [GrainState(Table = "cluster", State = "cluster_features", Lookup = "ClusterFeatures", Key = GrainKeyType.Guid)]
-public class ClusterFeaturesState : IStateValue
+public class ClusterFeaturesState : IDirectStateValue
 {
     [Id(0)] public bool AcceptingConnections { get; set; } = false;
     [Id(1)] public bool MatchmakingEnabled { get; set; } = false;

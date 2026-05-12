@@ -2,7 +2,7 @@ using System.Net.Sockets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Aspire;
+namespace Aspire.Startup;
 
 public record PgBouncerResult
 {

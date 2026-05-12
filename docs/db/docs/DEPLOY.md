@@ -13,7 +13,7 @@ Two parallel deployment models that **do not share a runtime**:
 | Dashboard | AppHost-spawned dashboard | Standalone `mcr.microsoft.com/dotnet/aspire-dashboard` container |
 | Resources tab | Native AppHost resource service | Third-party `kiapanahi/Aspire.ResourceServer.Standalone` (forked) |
 | TLS / routing | `localhost:<port>` | Coolify Traefik + Let's Encrypt |
-| Migrations | `PostResourcesSetup.Run` called from AppHost after resources come up | Dedicated `migrator` init-container (DeploySetup) |
+|| Migrations | `PostResourcesSetup.Run` via `--migrate` mode | `migrator` init-container (`Aspire.AppHost --migrate`) |
 
 Production **never** boots `Aspire/Program.cs`. AppHost is dev-only. Anything in that file guarded by `IsDevelopment()` or env vars like `COOLIFY_URL` / `DB_CONNECTION_STRING` was dead in prod and has already been pruned.
 
@@ -36,11 +36,23 @@ Swap direction of truth depending on what you are touching:
 backend/
   Orchestration/
     Aspire/
-      Program.cs              # dev composition (local postgres + pgbouncer + 5 services)
+      Program.cs              # dev composition + prod migrations (--migrate mode)
       Startup/
         DbUpstreamFactory.cs  # dev-only: spins up postgres container
         PgBouncerFactory.cs   # dev-only: writes pgbouncer.ini / databases.ini
         ProcessCleanup.cs     # dev convenience
+        Migrations/
+          PostResourcesSetup.cs   # orchestrates the migration steps
+          StatesSetup.cs          # creates state_* tables per GeneratedStatesRegistration
+          SideEffectsSetup.cs
+          AuditLogSetup.cs
+          BenchmarkSetup.cs
+          StatesCleanup.cs / StatesDrop.cs
+          OrleansClusteringSetup.cs      # bootstraps Orleans AdoNet schema (see below)
+          Sql/
+            PostgreSQL-Main.sql            # OrleansQuery table (dotnet/orleans v10.1.0)
+            PostgreSQL-Clustering.sql      # membership tables + 8 stored queries
+            PostgreSQL-Supplemental.sql    # our addition: CleanupDefunctSiloEntriesKey (missing upstream)
     Dockerfile                # shared multi-stage image for prod services
     Dockerfile.prebuilt       # runtime-only image for local compose smoke tests
     Extensions/
@@ -49,20 +61,6 @@ backend/
       OrleansReadyHealthCheck.cs     # /ready reports Orleans silo started
       CoordinatorReadyHealthCheck.cs # /ready additionally requires DeployId
       OrleansSetupExtensions.cs      # dev uses localhost clustering, prod uses AdoNet
-  Tools/
-    DeploySetup/              # init-container: runs DB migrations before cluster starts
-      Program.cs
-      PostResourcesSetup.cs   # orchestrates the migration steps
-      StatesSetup.cs          # creates state_* tables per GeneratedStatesRegistration
-      SideEffectsSetup.cs
-      AuditLogSetup.cs
-      BenchmarkSetup.cs
-      StatesCleanup.cs / StatesDrop.cs
-      OrleansClusteringSetup.cs      # bootstraps Orleans AdoNet schema (see below)
-      Sql/
-        PostgreSQL-Main.sql            # OrleansQuery table (dotnet/orleans v10.1.0)
-        PostgreSQL-Clustering.sql      # membership tables + 8 stored queries
-        PostgreSQL-Supplemental.sql    # our addition: CleanupDefunctSiloEntriesKey (missing upstream)
     deploy/
       docker-compose.yaml      # Coolify-targeted prod compose
       docker-compose.local.yaml # overlay for local smoke tests using prebuilt binaries
@@ -161,7 +159,7 @@ Getting to this shape took several iterations. Historical context and the reason
 pgbouncer  (edoburu/pgbouncer, sidecar)
   │ healthcheck: pg_isready -h 127.0.0.1 -p 6432
   ▼
-migrator   (ASSEMBLY_NAME=DeploySetup, restart: "no")
+migrator   (ASSEMBLY_NAME=Aspire.AppHost --migrate, restart: "no")
   │ waits for pgbouncer healthy, runs PostResourcesSetup.Run, exits 0
   ▼
 silo       (ASSEMBLY_NAME=Silo)

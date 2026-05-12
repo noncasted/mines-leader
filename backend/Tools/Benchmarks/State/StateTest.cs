@@ -22,7 +22,7 @@ public class StateTest
     [GenerateSerializer]
     [GrainState(Table = "state_test_default_state", State = "state_test", Lookup = "StateTestTest",
         Key = GrainKeyType.String)]
-    public class TestState : IStateValue
+    public class TestState : IDirectStateValue
     {
         [Id(0)]
         public int Inc { get; set; }

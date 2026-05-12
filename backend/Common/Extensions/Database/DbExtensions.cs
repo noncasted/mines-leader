@@ -69,7 +69,7 @@ public static class DbExtensions
         if (await connection.IsTableExists(tableName) == false)
             return;
 
-        var truncateQuery = $"TRUNCATE TABLE {tableName};";
+        var truncateQuery = $"TRUNCATE TABLE {tableName} CASCADE;";
         await using var truncateCommand = new NpgsqlCommand(truncateQuery, connection);
         await truncateCommand.ExecuteNonQueryAsync();
     }
@@ -79,7 +79,7 @@ public static class DbExtensions
         if (await connection.IsTableExists(tableName) == false)
             return;
 
-        var truncateQuery = $"DROP TABLE {tableName};";
+        var truncateQuery = $"DROP TABLE IF EXISTS {tableName} CASCADE;";
         await using var truncateCommand = new NpgsqlCommand(truncateQuery, connection);
         await truncateCommand.ExecuteNonQueryAsync();
     }

@@ -12,13 +12,14 @@ public interface IStateSerializer
     string Serialize<T>(T value);
     T Deserialize<T>(string value);
     T? TryDeserialize<T>(string value);
+    object? Deserialize(string value, Type type);
 }
 
-public class StateSerializer : IStateSerializer
+public static class JsonStateSettings
 {
-    public StateSerializer(IServiceProvider serviceProvider)
+    public static JsonSerializerSettings CreateBase()
     {
-        _settings = new JsonSerializerSettings
+        return new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All,
             MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
@@ -32,9 +33,15 @@ public class StateSerializer : IStateSerializer
             Formatting = Formatting.None,
             SerializationBinder = null,
         };
+    }
+}
 
+public class StateSerializer : IStateSerializer
+{
+    public StateSerializer(IServiceProvider serviceProvider)
+    {
+        _settings = JsonStateSettings.CreateBase();
         _settings.Converters.Add(new GrainIdConverter());
-
         _settings.Converters.Add(
             new GrainReferenceJsonConverter(serviceProvider.GetRequiredService<GrainReferenceActivator>()));
     }
@@ -59,6 +66,11 @@ public class StateSerializer : IStateSerializer
     public T? TryDeserialize<T>(string value)
     {
         return JsonConvert.DeserializeObject<T>(value, _settings);
+    }
+
+    public object? Deserialize(string value, Type type)
+    {
+        return JsonConvert.DeserializeObject(value, type, _settings);
     }
 }
 

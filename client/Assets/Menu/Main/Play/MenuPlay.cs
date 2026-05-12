@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
-using Global.UI.Toolkit;
+using Global.UI;
 using Internal;
 using Meta;
 using Shared;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer;
 
 namespace Menu.Main
@@ -17,22 +17,22 @@ namespace Menu.Main
     }
 
     [DisallowMultipleComponent]
-    public class MenuPlay : MonoBehaviour, ISceneService, IScopeSetup, IMenuPlay
+    public class MenuPlay : MonoBehaviour, ISceneService, IMenuPlay
     {
-        private IMenuNavigation _navigation;
-        private IMatchmaking _matchmaking;
-        private IUpdater _updater;
+        [SerializeField] private TMP_Text _timer;
+        [SerializeField] private TMP_Text _buttonText;
+        [SerializeField] private DesignButton _button;
 
+        [SerializeField] private GameObject _modeSelection;
+        [SerializeField] private DesignButton _timeLimited;
+        [SerializeField] private DesignButton _lastManStanding;
+
+        private IMatchmaking _matchmaking;
         private bool _isInSearch;
+        private IUpdater _updater;
         private ILifetime _searchLifetime;
         private ILifetime _selectionLifetime;
         private float _time;
-
-        private Button _button;
-        private Label _timer;
-        private VisualElement _modeSelection;
-        private Button _timeLimited;
-        private Button _lastManStanding;
 
         private readonly ViewableDelegate<SharedMatchmaking.MatchResult> _gameFound = new();
 
@@ -40,11 +40,9 @@ namespace Menu.Main
 
         [Inject]
         private void Construct(
-            IMenuNavigation navigation,
             IMatchmaking matchmaking,
             IUpdater updater)
         {
-            _navigation = navigation;
             _updater = updater;
             _matchmaking = matchmaking;
         }
@@ -52,23 +50,12 @@ namespace Menu.Main
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                   .As<IMenuPlay>()
-                   .As<IScopeSetup>();
+                   .As<IMenuPlay>();
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime)
+        private void OnEnable()
         {
-            var root = _navigation.Root;
-
-            _button = root.Q<Button>("btn-play");
-            _timer = root.Q<Label>("timer");
-            _modeSelection = root.Q<VisualElement>("mode-selection");
-            _timeLimited = root.Q<Button>("btn-time-limited");
-            _lastManStanding = root.Q<Button>("btn-last-man");
-
-            _timer.Hide();
-            _modeSelection.Hide();
-
+            var lifetime = this.GetObjectLifetime();
             _button.ListenClick(lifetime, OnClicked);
         }
 
@@ -76,13 +63,13 @@ namespace Menu.Main
         {
             var lifetime = this.GetObjectLifetime();
 
-            if (_isInSearch)
+            if (_isInSearch == true)
             {
                 _isInSearch = false;
                 _searchLifetime?.Terminate();
-                _timer.Hide();
+                _timer.gameObject.SetActive(false);
                 _matchmaking.CancelSearch(lifetime);
-                _button.text = "play";
+                _buttonText.text = "play";
             }
             else
             {
@@ -105,19 +92,24 @@ namespace Menu.Main
             _lastManStanding.ListenClick(_selectionLifetime,
                 () => completion.TrySetResult((true, GameMatchType.LastManStanding)));
 
-            _modeSelection.Show();
+            _modeSelection.SetActive(true);
 
             _selectionLifetime.Listen(() => {
-                _modeSelection.Hide();
+                _modeSelection.SetActive(false);
                 completion.TrySetCanceled();
             });
 
             var (confirmed, type) = await completion.Task;
 
-            _modeSelection.Hide();
-
-            if (confirmed)
+            if (confirmed == true)
+            {
+                _modeSelection.SetActive(false);
                 Search(type).Forget();
+            }
+            else
+            {
+                _modeSelection.SetActive(false);
+            }
 
             _selectionLifetime.Terminate();
         }
@@ -126,15 +118,17 @@ namespace Menu.Main
         {
             _isInSearch = true;
             _searchLifetime = this.GetObjectLifetime().Child();
-            _timer.Show();
-            _button.text = "cancel";
+            _timer.gameObject.SetActive(true);
+            _buttonText.text = "cancel";
             _time = 0;
 
             _updater.RunUpdateAction(_searchLifetime, delta => {
-                _time += delta;
-                var timeSpan = TimeSpan.FromSeconds(_time);
-                _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
-            }).Forget();
+                                _time += delta;
+                                var timeSpan = TimeSpan.FromSeconds(_time);
+                                _timer.text = $"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}";
+                            }
+                        )
+                    .Forget();
 
             var sessionData = await _matchmaking.SearchGame(_searchLifetime, type);
             _gameFound.Invoke(sessionData);

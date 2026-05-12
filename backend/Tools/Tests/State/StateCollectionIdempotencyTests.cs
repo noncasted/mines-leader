@@ -56,7 +56,7 @@ public class StateCollectionIdempotencyTests
 }
 
 [GenerateSerializer]
-public class TestCollectionValue : IStateValue
+public class TestCollectionValue : IDirectStateValue
 {
     [Id(0)] public Guid Id { get; set; } = Guid.NewGuid();
     [Id(1)] public string Name { get; set; } = string.Empty;

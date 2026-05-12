@@ -1,6 +1,0 @@
-<UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/GamePlay/UI/ActionLog/GameActionLog.uss?fileID=7433441132597879392&amp;guid=85f059d79eef6ef8887148dba99f076b&amp;type=3#GameActionLog"/>
-    <ui:VisualElement name="tile-root" class="action-log-tile" style="padding-left: 0; padding-right: 0; margin-bottom: 2px; height: 12px;">
-        <ui:Label name="tile-message" data-source-path="" text="some game action" class="tile-message" style="font-size: 4px; -unity-font-definition: resource(&quot;DreiFraktur&quot;); padding-top: 0; padding-right: 2px; padding-left: 4px; padding-bottom: 0;"/>
-    </ui:VisualElement>
-</UXML>

@@ -1,7 +1,7 @@
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 
-namespace Aspire;
+namespace Aspire.Startup;
 
 public record DbUpstream
 {

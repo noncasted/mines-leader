@@ -89,6 +89,18 @@
 | Epoch health watchdog | DeployHealthChecker | Hosted service polling pipe + heartbeat staleness |
 | Old-deploy garbage removal | IDeployCleanup | Deletes DeployId-keyed state rows for every DeployId ≠ current |
 
+## Bot Profiles
+
+| Concept | Term | Description |
+|---------|------|-------------|
+| Bot difficulty enum | `BotProfile` | Easy / Medium / Hard — selected via `IBotConfig.CurrentProfile` |
+| Profile settings | `BotProfileConfig` | Per-profile limits (FlagsPerRound, CellsOpenPerRound, etc.) + `List<BotDeck>` |
+| Named card deck | `BotDeck` | `Name` + `List<CardType> Cards` — one of several decks per profile |
+| Profile behavior contract | `IBotProfileStrategy` | `Profile`, `ConstraintDepth`, `ExecuteTurn()` |
+| Profile factory | `BotProfileStrategyProvider` | DI-resolves strategy from current `BotProfile` |
+| Constraint-solving depth | `ConstraintDepth` | 1 = single-cell logic; 2 = overlapping subset reasoning |
+| Phase-based turn | Flags → Cards → Cells | All profiles use same phase order; differ in limits and depth |
+
 ## Rules (DO NOT USE SYNONYMS)
 
 - ❌ Do NOT mix: "Lifetime" + "Token" (token is part of lifetime, not synonym)
@@ -97,4 +109,5 @@
 - ❌ Do NOT mix: "Setup" + "Create" (different phases, Setup is later)
 - ❌ Do NOT mix: "Scheme" + "Runtime" (different layers, converted via ParseTracks)
 - ❌ Do NOT mix: "Timeline" + "Track" (timeline is UI, track is data structure)
+- ❌ Do NOT mix: "CardPool" + "BotDeck" (CardPool was abandoned; BotDeck is the current pattern)
 - ✅ Do use: One term consistently throughout your response
