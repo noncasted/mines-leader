@@ -129,7 +129,7 @@ public class UserDeck : UserGrain, IUserDeck
             Entries = entries,
             SelectedIndex = 0
         });
-        await _state.WriteSession();
+        await _state.Write();
 
         await this.SendProjection(_state.Value);
     }
@@ -158,7 +158,7 @@ public class UserDeck : UserGrain, IUserDeck
             });
         }
 
-        await _state.WriteSession();
+        await _state.Write();
 
         await this.SendProjection(_state.Value);
     }
@@ -173,7 +173,7 @@ public class UserDeck : UserGrain, IUserDeck
             Index = index,
             Cards = cards
         });
-        await _state.WriteSession();
+        await _state.Write();
 
         await this.SendProjection(_state.Value);
     }

@@ -116,6 +116,7 @@ public class Match : Grain, IMatch
 
         var decks = deckResults.ToDictionary(r => r.UserId, r => r.Cards);
 
+        await _state.Read();
         await _state.Append(new MatchSetup
         {
             Type = type,
@@ -123,7 +124,7 @@ public class Match : Grain, IMatch
             Participants = participants,
             ParticipantDecks = decks
         });
-        await _state.WriteSession();
+        await _state.Write();
     }
 
     public async Task OnComplete(Guid winnerId)
@@ -180,7 +181,7 @@ public class Match : Grain, IMatch
                 [loserId] = lossRatingRecord.GetRating()
             }
         });
-        await _state.WriteSession();
+        await _state.Write();
 
         await Task.WhenAll(winner.MatchHistory.Add(overview),
             winner.Progression.AddRecord(winRecord),

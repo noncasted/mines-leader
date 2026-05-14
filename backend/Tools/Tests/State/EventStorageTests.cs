@@ -1,0 +1,108 @@
+using Common;
+using FluentAssertions;
+using Infrastructure.State;
+using Marten;
+using Tests.Fixtures;
+using Tests.Grains;
+using Xunit;
+
+namespace Tests.State;
+
+[Collection(nameof(OrleansIntegrationCollection))]
+public class EventStorageTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
+    [Fact]
+    public async Task Delete_RemovesStream()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var store = GetSiloService<IDocumentStore>();
+        var streamId = $"event_test:{Guid.NewGuid():D}";
+
+        await eventStorage.Append(streamId, new CounterIncremented { Amount = 5 });
+
+        var before = await store.QuerySession().Events.FetchStreamAsync(streamId);
+        before.Should().NotBeEmpty();
+
+        await eventStorage.Delete(streamId);
+
+        var after = await store.QuerySession().Events.FetchStreamAsync(streamId);
+        after.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ReadBatch_MultipleStreams_ReturnsAll()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        var streamId1 = $"event_test:{id1:D}";
+        var streamId2 = $"event_test:{id2:D}";
+
+        await eventStorage.Append(streamId1, new CounterIncremented { Amount = 10 });
+        await eventStorage.Append(streamId2, new CounterIncremented { Amount = 20 });
+
+        var result = await eventStorage.ReadBatch<Guid, EventTestAggregate>([streamId1, streamId2]);
+
+        result.Should().HaveCount(2);
+        result[id1].Counter.Should().Be(10);
+        result[id2].Counter.Should().Be(20);
+    }
+
+    [Fact]
+    public async Task ReadBatch_PartialMiss_ReturnsExisting()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var id = Guid.NewGuid();
+        var streamId = $"event_test:{id:D}";
+
+        await eventStorage.Append(streamId, new CounterIncremented { Amount = 7 });
+
+        var result = await eventStorage.ReadBatch<Guid, EventTestAggregate>([streamId, $"event_test:{Guid.NewGuid():D}"]);
+
+        result.Should().ContainKey(id);
+        result[id].Counter.Should().Be(7);
+    }
+
+    [Fact]
+    public async Task ReadBatch_EmptyList_ReturnsEmpty()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+
+        var result = await eventStorage.ReadBatch<Guid, EventTestAggregate>([]);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ReadAll_ReturnsAggregatesByPrefix()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var id = Guid.NewGuid();
+        var streamId = $"event_test:{id:D}";
+
+        await eventStorage.Append(streamId, new CounterIncremented { Amount = 3 });
+
+        var results = new List<(Guid, EventTestAggregate)>();
+        await foreach (var item in eventStorage.ReadAll<Guid, EventTestAggregate>("event_test:", GrainKeyType.Guid))
+        {
+            results.Add(item);
+        }
+
+        results.Should().Contain(r => r.Item1 == id && r.Item2.Counter == 3);
+    }
+
+    [Fact]
+    public async Task ReadAll_EmptyPrefix_YieldsNothing()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+
+        var results = new List<(Guid, EventTestAggregate)>();
+        await foreach (var item in eventStorage.ReadAll<Guid, EventTestAggregate>($"nonexistent_{Guid.NewGuid()}:", GrainKeyType.Guid))
+        {
+            results.Add(item);
+        }
+
+        results.Should().BeEmpty();
+    }
+}

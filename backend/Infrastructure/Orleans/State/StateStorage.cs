@@ -39,7 +39,7 @@ public interface IStateStorage
 
     Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
         where TKey : notnull
-        where TValue : IStateValue, new();
+        where TValue : class, IStateValue, new();
 
     IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
         where TKey : notnull
@@ -94,15 +94,28 @@ public class StateStorage : IStateStorage
 
     public Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
         where TKey : notnull
-        where TValue : IStateValue, new()
+        where TValue : class, IStateValue, new()
     {
         if (typeof(TValue).IsAssignableTo(typeof(IDirectStateValue)))
             return _directStorage.ReadBatch<TKey, TValue>(identities);
 
         if (typeof(TValue).IsAssignableTo(typeof(IEventStateValue)))
-            throw new NotSupportedException("Batch read is not supported for event-sourced state values.");
+            return ReadBatchEventSourced<TKey, TValue>(identities);
 
         throw new InvalidOperationException($"State type {typeof(TValue).Name} must implement either IDirectStateValue or IEventStateValue.");
+    }
+
+    private async Task<IReadOnlyDictionary<TKey, TValue>> ReadBatchEventSourced<TKey, TValue>(IReadOnlyList<StateIdentity> identities)
+        where TKey : notnull
+        where TValue : class, IStateValue, new()
+    {
+        if (identities.Count == 0)
+            return new Dictionary<TKey, TValue>();
+
+        var streamIds = identities.Select(i => $"{i.Type}:{i.Key}").ToList();
+        var result = await _eventStorage.ReadBatch<TKey, TValue>(streamIds);
+
+        return result;
     }
 
     public IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
@@ -113,26 +126,13 @@ public class StateStorage : IStateStorage
             return _directStorage.ReadAll<TKey, TValue>(lifetime);
 
         if (typeof(TValue).IsAssignableTo(typeof(IEventStateValue)))
-            return ReadAllEventSourced<TKey, TValue>(lifetime);
+        {
+            var stateInfo = Registry.Get<TValue>();
+            var prefix = stateInfo.Name + ":";
+            return _eventStorage.ReadAll<TKey, TValue>(prefix, stateInfo.KeyType);
+        }
 
         throw new InvalidOperationException($"State type {typeof(TValue).Name} must implement either IDirectStateValue or IEventStateValue.");
-    }
-
-    private async IAsyncEnumerable<(TKey, TValue)> ReadAllEventSourced<TKey, TValue>(IReadOnlyLifetime lifetime)
-        where TKey : notnull
-        where TValue : class, IStateValue, new()
-    {
-        var stateInfo = Registry.Get<TValue>();
-        var prefix = stateInfo.Name + ":";
-
-        var aggregates = _eventStorage.ReadAll<TValue>(prefix);
-
-        await foreach (var (streamId, aggregate) in aggregates)
-        {
-            var grainKey = ExtractGrainKey(streamId);
-            var key = ParseKey<TKey>(grainKey, stateInfo.KeyType);
-            yield return (key, aggregate);
-        }
     }
 
     public async Task Write(StateWriteRequest request)
@@ -147,8 +147,9 @@ public class StateStorage : IStateStorage
             }
             else if (value is IEventStateValue)
             {
-                // Event-sourced values are persisted by Marten inline projections.
-                // No direct storage write needed.
+                throw new NotSupportedException(
+                    $"Writing event-sourced state of type {value.GetType().Name} through StateStorage is not supported. " +
+                    "Event-sourced state must be written through IEventStorage.Append or EventState.Write.");
             }
             else
             {
@@ -166,10 +167,29 @@ public class StateStorage : IStateStorage
         }
     }
 
-    public Task Delete(StateDeleteRequest request)
+    public async Task Delete(StateDeleteRequest request)
     {
-        // All deletes route through direct storage (event-sourced deletion is stream-based).
-        return _directStorage.Delete(request);
+        var directIdentities = new List<StateIdentity>();
+
+        foreach (var identity in request.Identities)
+        {
+            var info = Registry.All.FirstOrDefault(s => s.Name == identity.Type);
+
+            if (info != null && typeof(IEventStateValue).IsAssignableFrom(info.Type))
+            {
+                var streamId = $"{identity.Type}:{identity.Key}";
+                await _eventStorage.Delete(streamId);
+            }
+            else
+            {
+                directIdentities.Add(identity);
+            }
+        }
+
+        if (directIdentities.Count != 0)
+        {
+            await _directStorage.Delete(new StateDeleteRequest { Identities = directIdentities });
+        }
     }
 
     public async Task<string> ReadRawJson(StateIdentity identity)
@@ -191,18 +211,4 @@ public class StateStorage : IStateStorage
 
         return await _directStorage.ReadRawJson(identity);
     }
-
-    private static string ExtractGrainKey(string streamId)
-    {
-        var colonIndex = streamId.IndexOf(':');
-        return colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
-    }
-
-    private static TKey ParseKey<TKey>(string value, GrainKeyType keyType) => keyType switch
-    {
-        GrainKeyType.Guid or GrainKeyType.GuidAndString => (TKey)(object)Guid.Parse(value),
-        GrainKeyType.String => (TKey)(object)value,
-        GrainKeyType.Integer or GrainKeyType.IntegerAndString => (TKey)(object)long.Parse(value),
-        _ => throw new InvalidOperationException($"[StateStorage] Unsupported key type for ReadAll: {keyType}")
-    };
 }

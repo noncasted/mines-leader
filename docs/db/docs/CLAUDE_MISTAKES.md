@@ -536,3 +536,126 @@ background-image: resource("GamePlay/UI/card_desc");
 - **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
 - **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
 - **Reactive:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md)
+
+---
+
+## Lesson 12: EventState.Write() in Transaction Must Snapshot Pending Events Immediately
+
+### Mistake Made
+
+```csharp
+// WRONG — Write() only registers participant, CollectResult reads pending later
+public Task Write()
+{
+    var handler = ...;
+    handler.RecordEventStateChanged(this); // only adds participant
+    return Task.CompletedTask;
+}
+
+// Later: CollectResult() calls ev.GetPendingEvents() — but Read() may have cleared them!
+```
+
+If `Read()` is called between `Write()` and `CollectResult()` (e.g. another grain method
+in the same transaction), `Read()` clears `_pendingEvents` → `CollectResult()` sees empty
+events → transaction commits with no events written.
+
+### Correct Pattern
+
+```csharp
+// CORRECT — Write() passes events to handler immediately and clears local list
+public Task Write()
+{
+    var handler = ...;
+    handler.RecordEventStateChanged(this, GetPendingEvents()); // snapshot events NOW
+    _pendingEvents.Clear(); // safe to clear — handler owns the snapshot
+    return Task.CompletedTask;
+}
+
+// CollectResult() returns handler's accumulated records, not querying participants
+```
+
+### Rule
+
+- **Never let transactional state hold mutable pending data across grain method boundaries.**
+- `Write()` must transfer ownership of pending events to the transaction handler immediately.
+- The handler must accumulate its own snapshot (`List<GrainEventRecord>`), not query
+  participants during `CollectResult()`.
+
+→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+
+---
+
+## Lesson 13: EventState.Append() Without Write() = Lost Events
+
+### Mistake Made
+
+```csharp
+// WRONG — events appended but never committed
+public async Task AddRecord(IUserRatingRecord record)
+{
+    await _state.Read();
+    await _state.Append(new RatingAdded { Record = record });
+    // Missing: await _state.Write();
+    await this.SendProjection(_state.Value);
+}
+```
+
+In standalone mode: events sit in `_pendingEvents` forever; grain deactivation loses them.
+In transactional mode: `Append()` mutates the aggregate but `Write()` is what registers
+events with the transaction handler. Without it, `CollectResult()` sees no events.
+
+### Correct Pattern
+
+```csharp
+// CORRECT — every Append() must be followed by Write()
+public async Task AddRecord(IUserRatingRecord record)
+{
+    await _state.Read();
+    await _state.Append(new RatingAdded { Record = record });
+    await _state.Write();
+    await this.SendProjection(_state.Value);
+}
+```
+
+### Rule
+
+- **Every `Append()` must have a matching `Write()`** before the method returns or awaits
+  an external call (grain call, DB call, delay).
+- Treat `Append()` + `Write()` as an atomic pair — like `State.Write()` for direct state.
+
+→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+
+---
+
+## Lesson 14: Missing Apply() Method = Silent Runtime/Persistence Desync
+
+### Mistake Made
+
+```csharp
+public void Apply(SomeEvent e) => Counter += e.Amount; // exists
+// No Apply(OtherEvent) — but Append silently ignores it
+
+// Event is written to DB, aggregate in memory is NOT updated
+// Next Read() (after deactivation) recalculates from events → different value!
+```
+
+### Correct Pattern
+
+```csharp
+// EventState.Append() throws if Apply method is missing
+var apply = _applyCache.GetOrAdd(..., static key => {
+    var applyMethod = aggType.GetMethod("Apply", ...);
+    if (applyMethod == null)
+        throw new InvalidOperationException($"No Apply({evtType.Name}) method found...");
+    ...
+});
+```
+
+### Rule
+
+- **Every event type appended to an aggregate MUST have a matching `void Apply(TEvent)` method.**
+- The exception must be thrown at `Append()` time, not at serialization or load time.
+- A typo in the event type name or namespace silently breaks consistency — compile-time
+  safety (source generators) is preferable to runtime reflection.
+
+→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)

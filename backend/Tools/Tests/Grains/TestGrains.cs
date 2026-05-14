@@ -361,6 +361,16 @@ public class LabelChanged
     public string Label { get; set; } = string.Empty;
 }
 
+public class BadEvent
+{
+    public string Data { get; set; } = string.Empty;
+}
+
+public class NoApplyEvent
+{
+    public int Value { get; set; }
+}
+
 public interface IEventTestGrain : IGrainWithGuidKey
 {
     [Transaction]
@@ -371,6 +381,11 @@ public interface IEventTestGrain : IGrainWithGuidKey
 
     Task AppendEventsStandalone(int counterAmount, string label);
 
+
+    Task AppendWithoutRead();
+    Task AppendNoApplyEvent();
+    Task WriteWithoutPending();
+    Task AppendTwiceInTransaction();
     Task<string> GetStreamId();
     Task<int> GetCounter();
 }
@@ -393,26 +408,51 @@ public class EventTestGrain : Grain, IEventTestGrain
             new CounterIncremented { Amount = counterAmount },
             new LabelChanged { Label = label }
         );
-        await _state.WriteSession();
+        await _state.Write();
     }
 
     public async Task AppendThenFail(int counterAmount)
     {
         await _state.Read();
         await _state.Append(new CounterIncremented { Amount = counterAmount });
-        await _state.WriteSession();
+        await _state.Write();
         throw new Exception("Intentional failure after append");
     }
 
     public async Task AppendEventsStandalone(int counterAmount, string label)
     {
         await _state.Read();
-        _state.StartSession();
         await _state.Append(
             new CounterIncremented { Amount = counterAmount },
             new LabelChanged { Label = label }
         );
-        await _state.WriteSession();
+        await _state.Write();
+    }
+
+    public async Task AppendWithoutRead()
+    {
+        await _state.Append(new CounterIncremented { Amount = 1 });
+    }
+
+    public async Task AppendNoApplyEvent()
+    {
+        await _state.Read();
+        await _state.Append(new NoApplyEvent { Value = 42 });
+    }
+
+    public async Task WriteWithoutPending()
+    {
+        await _state.Read();
+        await _state.Write();
+    }
+
+    public async Task AppendTwiceInTransaction()
+    {
+        await _state.Read();
+        await _state.Append(new CounterIncremented { Amount = 1 });
+        await _state.Write();
+        await _state.Append(new CounterIncremented { Amount = 2 });
+        await _state.Write();
     }
 
     public Task<string> GetStreamId()
@@ -460,7 +500,7 @@ public class MixedStateGrain : Grain, IMixedStateGrain
         await _directState.Write(s => s.Value += 1);
         await _eventState.Read();
         await _eventState.Append(new CounterIncremented { Amount = amount });
-        await _eventState.WriteSession();
+        await _eventState.Write();
     }
 
     public async Task IncrementAndAppendThenFail(int amount)
@@ -468,7 +508,7 @@ public class MixedStateGrain : Grain, IMixedStateGrain
         await _directState.Write(s => s.Value += 1);
         await _eventState.Read();
         await _eventState.Append(new CounterIncremented { Amount = amount });
-        await _eventState.WriteSession();
+        await _eventState.Write();
         throw new Exception("Intentional mixed failure");
     }
 

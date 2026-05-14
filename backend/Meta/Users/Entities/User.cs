@@ -69,7 +69,7 @@ public class User : UserGrain, IUser
         
         var userId = this.GetPrimaryKey();
         await _state.Append(new UserInitialized { Id = userId });
-        await _state.WriteSession();
+        await _state.Write();
         
         var state = _state.Value;
         _logger.LogInformation("[User] Created user {Id} with name {Name}", state.Id, state.Name);
@@ -83,7 +83,7 @@ public class User : UserGrain, IUser
         await _state.Read();
         
         await _state.Append(new UserNameChanged { Name = name });
-        await _state.WriteSession();
+        await _state.Write();
         
         var state = _state.Value;
         var userId = this.GetPrimaryKey();

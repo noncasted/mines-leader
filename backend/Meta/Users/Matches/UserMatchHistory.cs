@@ -55,7 +55,7 @@ public class UserMatchHistory : UserGrain, IUserMatchHistory
     {
         await _state.Read();
         await _state.Append(new MatchAdded { Match = match });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(match);
     }
 

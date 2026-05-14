@@ -77,7 +77,7 @@ public class UserCards : UserGrain, IUserCards
         if (_state.Value.Cards.Count > 0) return;
 
         await _state.Append(new CardsInitialized { BaseDeck = _userDeckConfig.Value.BaseDeck });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 
@@ -88,7 +88,7 @@ public class UserCards : UserGrain, IUserCards
 
         await _state.Read();
         await _state.Append(new CardAdded { Card = card });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 
