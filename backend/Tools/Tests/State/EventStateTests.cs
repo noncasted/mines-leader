@@ -192,6 +192,76 @@ public class EventStateTests
         events.Should().HaveCount(4);
     }
 
+    // --- Error cases ---
+
+    [Fact]
+    public async Task AppendWithoutRead_ThrowsInvalidOperationException()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IEventTestGrain>(id);
+
+        var act = () => grain.AppendWithoutRead();
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task Append_MissingApplyMethod_ThrowsInvalidOperationException()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IEventTestGrain>(id);
+
+        var act = () => grain.AppendNoApplyEvent();
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task Write_NoPendingEvents_NoOp()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IEventTestGrain>(id);
+
+        var act = () => grain.WriteWithoutPending();
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task Transaction_MultipleWrites_AllEventsCommitted()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IEventTestGrain>(id);
+
+        await RunTransaction(() => grain.AppendTwiceInTransaction());
+
+        var streamId = await grain.GetStreamId();
+        var events = await FetchStreamEvents(streamId);
+
+        events.Should().HaveCount(2);
+        events[0].Should().BeOfType<CounterIncremented>().Which.Amount.Should().Be(1);
+        events[1].Should().BeOfType<CounterIncremented>().Which.Amount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Standalone_ConcurrentAppends_NoRaceCondition()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IEventTestGrain>(id);
+
+        // Prime the state
+        await grain.WriteWithoutPending();
+
+        var tasks = Enumerable.Range(0, 10)
+            .Select(_ => grain.AppendEventsStandalone(1, "c"))
+            .ToList();
+
+        await Task.WhenAll(tasks);
+
+        var counter = await grain.GetCounter();
+        counter.Should().Be(10);
+    }
+
     // --- Reusability after rollback ---
 
     [Fact]

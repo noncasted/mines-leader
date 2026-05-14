@@ -81,6 +81,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
     private readonly HashSet<IGrainEventTransactionParticipant> _events = new();
+    private readonly List<GrainEventRecord> _eventRecords = [];
 
     // Called by TransactionAttribute every time a [Transaction] method on this grain is invoked.
     // Returns _participantId so Transactions.Process() can track this grain.
@@ -146,6 +147,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
             _states.Clear();
             _events.Clear();
+            _eventRecords.Clear();
 
             _currentTransactionId = transactionId;
             _currentTransactionTime = DateTime.UtcNow;
@@ -178,6 +180,16 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         _events.Add(events);
     }
 
+    public void RecordEventStateChanged(IGrainEventTransactionParticipant events, IReadOnlyList<EventPayload> payloads)
+    {
+        _events.Add(events);
+        _eventRecords.Add(new GrainEventRecord
+        {
+            StreamId = events.StreamId,
+            Events = payloads.ToList()
+        });
+    }
+
     // Called by Transactions.Process() after all grain methods have executed.
     // Returns the current in-memory snapshots of all modified states.
     // These are then written atomically to Postgres in a single DB transaction.
@@ -194,24 +206,14 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         }
 
         var states = new List<IStateValue>();
-        var events = new List<GrainEventRecord>();
 
         foreach (var state in _states)
             states.Add(state.GetState());
 
-        foreach (var ev in _events)
-        {
-            events.Add(new GrainEventRecord
-            {
-                StreamId = ev.StreamId,
-                Events = ev.GetPendingEvents().ToList()
-            });
-        }
-
         return Task.FromResult(new TransactionHandlerResult
         {
             States = states,
-            Events = events
+            Events = _eventRecords
         });
     }
 
@@ -238,6 +240,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
         _states.Clear();
         _events.Clear();
+        _eventRecords.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)
@@ -262,6 +265,7 @@ public class GrainTransactionHandler : IGrainTransactionHandler
 
         _states.Clear();
         _events.Clear();
+        _eventRecords.Clear();
         _currentTransactionId = Guid.Empty;
 
         if (_lock.CurrentCount == 0)

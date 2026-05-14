@@ -3,8 +3,8 @@ using Infrastructure.Execution;
 
 namespace Cluster.Configs;
 
-public class SideEffectsConfigState
-    (AddressableStateUtils utils) : AddressableState<SideEffectsOptions>(utils), ISideEffectsConfig;
+public class SideEffectsConfigState(AddressableStateUtils utils)
+    : AddressableState<SideEffectsOptions>(utils), ISideEffectsConfig;
 
 public class DurableQueueConfigState(AddressableStateUtils utils)
     : AddressableState<DurableQueueOptions>(utils), IDurableQueueConfig;

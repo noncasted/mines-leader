@@ -89,7 +89,7 @@ public class UserProgression : UserGrain, IUserProgression
 
         await _state.Read();
         await _state.Append(new ProgressionAdded { Record = record });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
 
         RegisterLootSideEffect();
@@ -113,7 +113,7 @@ public class UserProgression : UserGrain, IUserProgression
     {
         await _state.Read();
         await _state.Append(new ProgressionReset { Value = value });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
 
         RegisterLootSideEffect();

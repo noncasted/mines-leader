@@ -158,6 +158,7 @@ public class UserLoot : UserGrain, IUserLoot
         // Wait, Apply for LootBoxesCalculated replaces the whole dictionary.
         // Let's fix Apply to merge.
         
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 
@@ -170,6 +171,7 @@ public class UserLoot : UserGrain, IUserLoot
 
         await _state.Read();
         await _state.Append(new LootBoxAdded { Id = id });
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 
@@ -187,15 +189,16 @@ public class UserLoot : UserGrain, IUserLoot
             return false;
 
         await _state.Append(new LootBoxRemoved { Id = id });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
         return true;
     }
 
     public async Task RemoveBox(Guid id)
     {
+        await _state.Read();
         await _state.Append(new LootBoxRemoved { Id = id });
-        await _state.WriteSession();
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 

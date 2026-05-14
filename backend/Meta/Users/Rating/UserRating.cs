@@ -84,6 +84,7 @@ public class UserRating : UserGrain, IUserRating
 
         await _state.Read();
         await _state.Append(new RatingAdded { Record = record });
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 
@@ -103,6 +104,7 @@ public class UserRating : UserGrain, IUserRating
     {
         await _state.Read();
         await _state.Append(new RatingReset { Value = value });
+        await _state.Write();
         await this.SendProjection(_state.Value);
     }
 

@@ -67,7 +67,7 @@ public class DirectStorage
     public async Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(
         IReadOnlyList<StateIdentity> identities)
         where TKey : notnull
-        where TValue : IStateValue, new()
+        where TValue : class, IStateValue, new()
     {
         if (identities.Count == 0)
             return new Dictionary<TKey, TValue>();
