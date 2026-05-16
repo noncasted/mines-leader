@@ -1,9 +1,9 @@
+using Cluster.Configs;
 using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
 using Shared;
-using Cluster.Configs;
 
 namespace Meta.Users;
 

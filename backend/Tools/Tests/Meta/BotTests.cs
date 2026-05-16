@@ -1,9 +1,8 @@
-using Common.Extensions;
+using Cluster.Configs;
 using FluentAssertions;
 using Meta.Bots;
 using Meta.Users;
 using Shared;
-using Cluster.Configs;
 using Tests.Fixtures;
 using Xunit;
 

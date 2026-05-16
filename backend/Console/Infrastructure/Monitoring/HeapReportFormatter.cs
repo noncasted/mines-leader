@@ -1,7 +1,7 @@
 using System.Text;
-using Infrastructure;
+using Infrastructure.Diagnostics;
 
-namespace Console.Infrastructure.Monitoring;
+namespace Console.Monitoring;
 
 public static class HeapReportFormatter
 {

@@ -1,5 +1,6 @@
 using Common;
 using Npgsql;
+using Shared;
 using Testcontainers.PostgreSql;
 
 namespace Tests.Fixtures;

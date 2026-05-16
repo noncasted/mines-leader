@@ -2,6 +2,7 @@ using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using Shared;
 
 namespace DeploySetup;
 

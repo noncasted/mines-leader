@@ -1,6 +1,6 @@
 using Shared;
 
-namespace Game.GamePlay;
+namespace Game.GamePlay.Profiles;
 
 public interface IBotProfileStrategyProvider
 {

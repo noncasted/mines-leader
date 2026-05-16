@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Infrastructure;
-using Infrastructure.State;
 using Marten;
 using Tests.Fixtures;
 using Tests.Grains;

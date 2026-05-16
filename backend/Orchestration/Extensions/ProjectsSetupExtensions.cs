@@ -1,5 +1,4 @@
 ﻿using Benchmarks;
-using Cluster;
 using Cluster.Configs;
 using Cluster.Coordination;
 using Cluster.Deploy;

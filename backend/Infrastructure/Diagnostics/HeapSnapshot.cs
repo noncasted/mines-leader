@@ -1,4 +1,4 @@
-namespace Infrastructure;
+namespace Infrastructure.Diagnostics;
 
 [GenerateSerializer]
 public class HeapSnapshotRequest

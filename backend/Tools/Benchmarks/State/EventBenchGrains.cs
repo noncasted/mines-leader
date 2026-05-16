@@ -1,6 +1,7 @@
 using Common;
 using Infrastructure;
 using Infrastructure.State;
+using Shared;
 
 namespace Benchmarks;
 

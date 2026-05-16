@@ -1,5 +1,3 @@
-using Shared;
-
 namespace Meta.Users;
 
 public static class DeckOptions

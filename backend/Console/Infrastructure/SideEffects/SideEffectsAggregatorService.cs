@@ -6,7 +6,7 @@ using Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Console.Infrastructure.SideEffects;
+namespace Console;
 
 public interface ISideEffectsAggregator
 {

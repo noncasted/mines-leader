@@ -1,6 +1,6 @@
 using Cluster.Monitoring;
 
-namespace Console.Infrastructure.SideEffects;
+namespace Console;
 
 public class SideEffectsAggregate
 {

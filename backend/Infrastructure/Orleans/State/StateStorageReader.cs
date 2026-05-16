@@ -3,6 +3,7 @@ using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Shared;
 
 namespace Infrastructure.State;
 
