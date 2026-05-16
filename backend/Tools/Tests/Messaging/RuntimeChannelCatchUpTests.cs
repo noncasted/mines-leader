@@ -136,7 +136,7 @@ public class RuntimeChannelCatchUpTests
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "unwrapped", Sequence = 7 });
 
-        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("unwrapped");
         result.Sequence.Should().Be(7);
     }
@@ -165,7 +165,7 @@ public class RuntimeChannelCatchUpTests
         for (var i = 1; i <= 3; i++)
             await messaging.PublishChannel(channelId, new TestMessage { Text = $"msg-{i}", Sequence = i });
 
-        await firstBatch.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await firstBatch.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         allReceived.Should().HaveCount(3);
 
         // Terminate listener, publish more messages
@@ -188,11 +188,11 @@ public class RuntimeChannelCatchUpTests
         });
 
         // Force resubscribe by waiting for the resubscribe loop
-        await Task.Delay(TimeSpan.FromSeconds(12));
+        await Task.Delay(TimeSpan.FromSeconds(12), TestContext.Current.CancellationToken);
 
         // Publish one more to ensure the new listener works
         await messaging.PublishChannel(channelId, new TestMessage { Text = "msg-7", Sequence = 7 });
-        await Task.Delay(500);
+        await Task.Delay(500, TestContext.Current.CancellationToken);
 
         // The new listener should have received msg-7 at minimum
         lock (catchUpReceived)

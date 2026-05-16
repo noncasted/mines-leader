@@ -25,7 +25,7 @@ public class RuntimeChannelTests
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "broadcast", Sequence = 1 });
 
-        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("broadcast");
         result.Sequence.Should().Be(1);
     }
@@ -45,9 +45,9 @@ public class RuntimeChannelTests
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "all", Sequence = 7 });
 
-        var r1 = await received1.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var r2 = await received2.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var r3 = await received3.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var r1 = await received1.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        var r2 = await received2.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        var r3 = await received3.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         r1.Text.Should().Be("all");
         r2.Text.Should().Be("all");
@@ -92,7 +92,7 @@ public class RuntimeChannelTests
         for (var i = 0; i < 10; i++)
             await messaging.PublishChannel(channelId, new TestMessage { Sequence = i });
 
-        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         received.Should().HaveCount(10);
         received.Should().Equal(Enumerable.Range(0, 10).ToList());
     }
@@ -187,8 +187,8 @@ public class RuntimeChannelTests
         await messaging.PublishChannel(channelA, new TestMessage { Text = "for-A" });
         await messaging.PublishChannel(channelB, new TestMessage { Text = "for-B" });
 
-        await doneA.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        await doneB.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await doneA.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await doneB.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         receivedA.Should().ContainSingle().Which.Should().Be("for-A");
         receivedB.Should().ContainSingle().Which.Should().Be("for-B");
@@ -211,7 +211,7 @@ public class RuntimeChannelTests
         lifetime.Terminate();
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "ghost" });
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         received.Should().BeEmpty();
     }
@@ -231,7 +231,7 @@ public class RuntimeChannelTests
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "after-empty", Sequence = 42 });
 
-        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("after-empty");
         result.Sequence.Should().Be(42);
     }
@@ -254,7 +254,7 @@ public class RuntimeChannelTests
         });
 
         // Wait a bit to ensure no late delivery of the old message
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
         received.Should().BeEmpty();
 
         // New message should arrive
@@ -266,7 +266,7 @@ public class RuntimeChannelTests
         });
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "new" });
-        await done.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await done.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -294,7 +294,7 @@ public class RuntimeChannelTests
                               .ToList();
         await Task.WhenAll(tasks);
 
-        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
         received.Should().HaveCount(messageCount);
         received.Should().BeEquivalentTo(Enumerable.Range(0, messageCount));
     }
@@ -326,7 +326,7 @@ public class RuntimeChannelTests
         lifetime1.Terminate();
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "after-terminate" });
-        await done2.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await done2.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         received1.Should().BeEmpty();
         received2.Should().ContainSingle().Which.Should().Be("after-terminate");

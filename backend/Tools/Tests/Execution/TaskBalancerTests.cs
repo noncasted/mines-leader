@@ -52,7 +52,7 @@ public class TaskBalancerTests
         var balancer = new TaskBalancer(_queue, logger, config);
 
         var lifetime = new Lifetime();
-        balancer.Run(lifetime);
+        await balancer.Run(lifetime);
 
         await WaitUntil(() => executionOrder.Count >= 2, timeoutMs: 3000);
 
@@ -71,7 +71,7 @@ public class TaskBalancerTests
         _queue.Enqueue(task);
 
         var lifetime = new Lifetime();
-        _balancer.Run(lifetime);
+        await _balancer.Run(lifetime);
 
         await WaitUntil(() => task.ExecuteCount >= 2, timeoutMs: 3000);
 
@@ -101,10 +101,10 @@ public class TaskBalancerTests
         var balancer = new TaskBalancer(_queue, logger, config);
 
         var lifetime = new Lifetime();
-        balancer.Run(lifetime);
+        await balancer.Run(lifetime);
 
         // Let the low task age through several collect cycles (gains IterationScore=100 each cycle)
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         var highTask = new OrderTrackingTask("high-new", TaskPriority.High, executionOrder);
 
@@ -132,7 +132,7 @@ public class TaskBalancerTests
             _queue.Enqueue(task);
 
         var lifetime = new Lifetime();
-        _balancer.Run(lifetime);
+        await _balancer.Run(lifetime);
 
         await WaitUntil(() => tasks.All(t => t.ExecuteCount >= 1), timeoutMs: 3000);
 
@@ -146,15 +146,15 @@ public class TaskBalancerTests
     public async Task LifetimeTermination_StopsProcessing()
     {
         var lifetime = new Lifetime();
-        _balancer.Run(lifetime);
+        await _balancer.Run(lifetime);
 
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
         lifetime.Terminate();
 
         var task = new FakeTask("late", delay: TimeSpan.Zero);
         _queue.Enqueue(task);
 
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         task.ExecuteCount.Should()
             .Be(0,

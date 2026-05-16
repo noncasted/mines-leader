@@ -60,7 +60,7 @@ public class StateStorageEventTests
 
         await storage.Delete(identity);
 
-        var events = await store.QuerySession().Events.FetchStreamAsync(streamId);
+        var events = await store.QuerySession().Events.FetchStreamAsync(streamId, token: TestContext.Current.CancellationToken);
         events.Should().BeEmpty();
     }
 

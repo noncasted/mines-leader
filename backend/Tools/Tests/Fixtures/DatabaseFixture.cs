@@ -28,8 +28,7 @@ public class DatabaseFixture : IAsyncDisposable
         {
             if (_sharedContainer == null)
             {
-                _sharedContainer = new PostgreSqlBuilder()
-                                   .WithImage("postgres:17")
+                _sharedContainer = new PostgreSqlBuilder("postgres:17")
                                    .WithUsername("test")
                                    .WithPassword("test")
                                    .Build();

@@ -110,7 +110,7 @@ public class RuntimePipeTests
         lifetime.Terminate();
 
         // Allow cleanup to run
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
 
         var act = () => messaging.SendPipe<TestResponse>(pipeId, new TestRequest { Question = "gone" });
         await act.Should().ThrowAsync<Exception>();
@@ -134,7 +134,7 @@ public class RuntimePipeTests
 
         for (var i = 0; i < 20 && exists; i++)
         {
-            await Task.Delay(50);
+            await Task.Delay(50, TestContext.Current.CancellationToken);
             exists = await messaging.IsPipeExists(pipeId);
         }
 

@@ -27,7 +27,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         await messaging.PushDirectQueue(queueId, new TestMessage { Text = "hello", Sequence = 1 });
         await DrainSideEffectsAsync();
 
-        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("hello");
         result.Sequence.Should().Be(1);
     }
@@ -56,7 +56,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
             await messaging.PushDirectQueue(queueId, new TestMessage { Text = $"msg-{i}", Sequence = i });
 
         await DrainSideEffectsAsync();
-        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         received.Should().HaveCount(5);
         received.Select(m => m.Sequence).Should().BeEquivalentTo([0, 1, 2, 3, 4]);
@@ -76,8 +76,8 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         await messaging.PushDirectQueue(queueId, new TestMessage { Text = "broadcast", Sequence = 42 });
         await DrainSideEffectsAsync();
 
-        var r1 = await received1.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var r2 = await received2.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var r1 = await received1.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        var r2 = await received2.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         r1.Text.Should().Be("broadcast");
         r2.Text.Should().Be("broadcast");
@@ -103,7 +103,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         await DrainSideEffectsAsync();
 
         // Small delay to ensure no late delivery
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         received.Should().BeEmpty();
     }
 
@@ -165,7 +165,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
 
         await DrainSideEffectsAsync();
 
-        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("tx-msg");
         result.Sequence.Should().Be(99);
     }
@@ -195,7 +195,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         var drain = await Pipeline!.DrainUntilQuietAsync();
         drain.TotalTasks.Should().Be(0);
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
         received.Should().BeEmpty();
     }
 
@@ -225,7 +225,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         });
 
         await DrainSideEffectsAsync();
-        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await allReceived.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         received.Should().HaveCount(3);
         received.Select(m => m.Sequence).Should().BeEquivalentTo([0, 1, 2]);
@@ -249,7 +249,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
                 received.Add(msg);
         });
 
-        await Task.Delay(200);
+        await Task.Delay(200, TestContext.Current.CancellationToken);
         received.Should().BeEmpty("messages pushed with no listeners should not be buffered");
 
         // Verify queue is still functional — new message should arrive
@@ -259,7 +259,7 @@ public class DurableQueueTests(SideEffectTestFixture fixture) : IntegrationTestB
         await messaging.PushDirectQueue(queueId, new TestMessage { Text = "new", Sequence = 1 });
         await DrainSideEffectsAsync();
 
-        var result = await done.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var result = await done.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.Text.Should().Be("new");
     }
 }

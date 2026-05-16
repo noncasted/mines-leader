@@ -135,7 +135,7 @@ public class TaskQueueTests
     }
 
     [Fact]
-    public void ConcurrentEnqueueAndCollect_AllTasksEventuallyCollected()
+    public async Task ConcurrentEnqueueAndCollect_AllTasksEventuallyCollected()
     {
         const int iterations = 50;
         var exceptions = new List<Exception>();
@@ -154,7 +154,7 @@ public class TaskQueueTests
                         exceptions.Add(e);
                 }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         var collectTask = Task.Run(() => {
             for (var i = 0; i < iterations; i++)
@@ -175,9 +175,9 @@ public class TaskQueueTests
                         exceptions.Add(e);
                 }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
-        Task.WaitAll(enqueueTask, collectTask);
+        await Task.WhenAll(enqueueTask, collectTask);
         exceptions.Should().BeEmpty();
 
         // Drain any remaining tasks after concurrent phase
