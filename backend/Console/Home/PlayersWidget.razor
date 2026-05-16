@@ -11,7 +11,7 @@
         <span class="text-xs text-muted-foreground">@_allUsers.Count total</span>
     </div>
 
-    <BbInput Value="@_search" ValueChanged="@OnSearchChanged" Placeholder="Search by name or ID..." />
+    <BbInput Value="@_search" ValueChanged="@OnSearchChanged" Placeholder="Search by name or ID..."/>
 
     <div class="rounded-lg border">
         <table class="w-full text-sm">
@@ -19,6 +19,7 @@
             <tr class="border-b bg-muted/50">
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Rating</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">XP</th>
                 <th class="h-10 px-4 w-10"></th>
             </tr>
@@ -31,17 +32,20 @@
                     <td class="px-4 py-2.5">
                         <button class="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
                                 title="Click to copy"
-                                @onclick="@(() => CopyId(user.Id))">
-                            @(user.Id[..8])&hellip;
+                                @onclick="@(() => CopyId(user.UserId.ToString()))">
+                            @(user.UserId.ToString()[..8])&hellip;
                         </button>
                     </td>
                     <td class="px-4 py-2.5 text-muted-foreground text-xs">
-                        @(_xp.TryGetValue(ExtractGuid(user.Id), out var xp) ? xp.ToString() : "—")
+                        @(_rating.TryGetValue(user.UserId, out var rating) ? rating.ToString() : "—")
+                    </td>
+                    <td class="px-4 py-2.5 text-muted-foreground text-xs">
+                        @(_xp.TryGetValue(user.UserId, out var xp) ? xp.ToString() : "—")
                     </td>
                     <td class="px-4 py-2.5">
                         <div class="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
                             <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, ExtractGuid(user.Id))))">
+                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, user.UserId.ToString())))">
                                 <LucideIcon Name="ellipsis" Size="14"/>
                             </BbButton>
                         </div>
@@ -52,7 +56,7 @@
             @if (_pageUsers.Count == 0)
             {
                 <tr>
-                    <td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No players found</td>
+                    <td colspan="5" class="px-4 py-8 text-center text-muted-foreground">No players found</td>
                 </tr>
             }
             </tbody>
@@ -84,13 +88,14 @@
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
     [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
-    [Inject] public IJSRuntime JS { get; set; } = null!;
+    [Inject] public IClipboard Clipboard { get; set; } = null!;
 
     private const int PageSize = 10;
 
     private List<UserState> _allUsers = new();
     private List<UserState> _filteredUsers = new();
     private List<UserState> _pageUsers = new();
+    private Dictionary<Guid, int> _rating = new();
     private Dictionary<Guid, int> _xp = new();
     private string _search = string.Empty;
     private int _page;
@@ -108,7 +113,7 @@
         {
             _allUsers = UserCollection.Values.ToList();
             ApplyFilter();
-            await LoadXpForCurrentPage();
+            await LoadStatsForCurrentPage();
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
@@ -126,33 +131,45 @@
         else
         {
             var query = _search.Trim();
+
             _filteredUsers = _allUsers
-                .Where(u => u.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
-                            || u.Id.Contains(query, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                             .Where(u => u.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || u.UserId.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                             .ToList();
         }
 
         _totalPages = _filteredUsers.Count == 0 ? 1 : (_filteredUsers.Count + PageSize - 1) / PageSize;
-        if (_page >= _totalPages) _page = 0;
+
+        if (_page >= _totalPages)
+            _page = 0;
         _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
     }
 
-    private async Task LoadXpForCurrentPage()
+    private async Task LoadStatsForCurrentPage()
     {
         if (_pageUsers.Count == 0)
         {
             _xp = new Dictionary<Guid, int>();
+            _rating = new Dictionary<Guid, int>();
             return;
         }
 
-        var xpTasks = _pageUsers.Select(async user => {
-            var guid = ExtractGuid(user.Id);
-            var xp = await Orleans.GetGrain<IUserProgression>(guid).GetTotal();
-            return (guid, xp);
+        var tasks = _pageUsers.Select(async user => {
+            var rating = 0;
+            var xp = 0;
+
+            await Orleans.InTransaction(async () => {
+                var xpTask = Orleans.GetGrain<IUserProgression>(user.UserId).GetTotal();
+                var ratingTask = Orleans.GetGrain<IUserRating>(user.UserId).GetTotal();
+                xp = await xpTask;
+                rating = await ratingTask;
+            });
+
+            return (user.UserId, xp, rating);
         });
 
-        var results = await Task.WhenAll(xpTasks);
-        _xp = results.ToDictionary(r => r.guid, r => r.xp);
+        var results = await Task.WhenAll(tasks);
+        _xp = results.ToDictionary(r => r.UserId, r => r.xp);
+        _rating = results.ToDictionary(r => r.UserId, r => r.rating);
     }
 
     private async Task OnSearchChanged(string value)
@@ -160,37 +177,33 @@
         _search = value;
         _page = 0;
         ApplyFilter();
-        await LoadXpForCurrentPage();
+        await LoadStatsForCurrentPage();
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task CopyId(string id)
     {
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", id);
+        await Clipboard.Copy(id);
     }
 
     private async Task PrevPage()
     {
-        if (_page <= 0) return;
+        if (_page <= 0)
+            return;
         _page--;
         _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
-        await LoadXpForCurrentPage();
+        await LoadStatsForCurrentPage();
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task NextPage()
     {
-        if (_page >= _totalPages - 1) return;
+        if (_page >= _totalPages - 1)
+            return;
         _page++;
         _pageUsers = _filteredUsers.Skip(_page * PageSize).Take(PageSize).ToList();
-        await LoadXpForCurrentPage();
+        await LoadStatsForCurrentPage();
         await InvokeAsync(StateHasChanged);
     }
 
-    private static Guid ExtractGuid(string streamId)
-    {
-        var colonIndex = streamId.IndexOf(':');
-        var key = colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
-        return Guid.TryParse(key, out var guid) ? guid : Guid.Empty;
-    }
 }

@@ -119,9 +119,10 @@
 
     private bool _expanded;
     private IOperationProgress _operation = new OperationProgress();
-    private Timer? _timer;
-    private ILifetime _subscriptionLifetime = new Lifetime();
-    private IReadOnlyList<BenchmarkState> _history = [];
+	private Timer? _timer;
+	private ILifetime _subscriptionLifetime = new Lifetime();
+	private ILifetime _progressLifetime = new Lifetime();
+	private IReadOnlyList<BenchmarkState> _history = [];
     private IReadOnlyList<BenchmarkState> _chartStates = [];
     private double _deltaPercent;
 
@@ -154,28 +155,32 @@
         Runner.Cancel(Test.Title);
     }
 
-    public void Dispose()
-    {
-        _timer?.Dispose();
-        _subscriptionLifetime.Terminate();
-    }
+	public void Dispose()
+	{
+		_timer?.Dispose();
+		_subscriptionLifetime.Terminate();
+		_progressLifetime.Terminate();
+	}
 
-    private void AttachToProgress(IOperationProgress progress)
-    {
-        _operation = progress;
+	private void AttachToProgress(IOperationProgress progress)
+	{
+		_progressLifetime.Terminate();
+		_progressLifetime = new Lifetime();
+		_operation = progress;
 
-        progress.Progress.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
-        progress.Status.View(_subscriptionLifetime, () =>
-        {
-            InvokeAsync(() => StatusChanged.InvokeAsync(progress.Status.Value)).NoAwait();
-        });
-        progress.Message.View(_subscriptionLifetime, () => InvokeAsync(StateHasChanged));
-    }
+		progress.Progress.View(_progressLifetime, () => InvokeAsync(StateHasChanged));
+		progress.Status.View(_progressLifetime, () =>
+		{
+			InvokeAsync(() => StatusChanged.InvokeAsync(progress.Status.Value)).NoAwait();
+		});
+		progress.Message.View(_progressLifetime, () => InvokeAsync(StateHasChanged));
+	}
 
-    private async Task OnCompleted()
-    {
-        await LoadHistory();
-    }
+	private async Task OnCompleted()
+	{
+		await LoadHistory();
+		await StatusChanged.InvokeAsync(_operation.Status.Value);
+	}
 
     private async Task LoadHistory()
     {
