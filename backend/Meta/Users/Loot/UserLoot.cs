@@ -178,8 +178,9 @@ public class UserLoot : UserGrain, IUserLoot
         await this.SendProjection(state);
     }
 
-    public Task<IProjectionPayload> GetProjection()
+    public async Task<IProjectionPayload> GetProjection()
     {
-        return Task.FromResult((IProjectionPayload)_state.Value);
+        var state = await _state.Read();
+        return state;
     }
 }
