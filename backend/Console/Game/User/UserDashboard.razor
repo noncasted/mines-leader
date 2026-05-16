@@ -45,8 +45,8 @@
                         @_user.Name
                     </h1>
                     <p class="text-xs text-muted-foreground font-mono cursor-pointer hover:text-foreground transition-colors select-none"
-                       title="Click to copy" @onclick="@(() => CopyToClipboard(_user.Id))">
-                        @_user.Id
+                       title="Click to copy" @onclick="@(() => CopyToClipboard(_user.UserId.ToString()))">
+                        @_user.UserId
                     </p>
                     <p class="text-xs text-muted-foreground">
                         Registered: @(_registeredAt.HasValue ? _registeredAt.Value.ToString("yyyy-MM-dd HH:mm") + " UTC" : "—")
@@ -341,7 +341,7 @@
     [Inject] public IOrleans Orleans { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
-    [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
+    [Inject] public IClipboard Clipboard { get; set; } = null!;
     [Inject] public IDocumentStore DocumentStore { get; set; } = null!;
     [Inject] public IStateSerializer StateSerializer { get; set; } = null!;
 
@@ -381,7 +381,8 @@
     {
         _isLoading = true;
 
-        _userId = ExtractGuid(Id);
+
+        _userId = Guid.Parse(Id);
 
         if (_userId == Guid.Empty)
         {
@@ -443,15 +444,7 @@
 
     private async Task CopyToClipboard(string text)
     {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
-            ToastService.Success("Copied to clipboard", "Copied");
-        }
-        catch
-        {
-            ToastService.Error("Failed to copy", "Error");
-        }
+        await Clipboard.Copy(text);
     }
 
     private async Task AdjustRating()
@@ -717,13 +710,5 @@
         {
             return json;
         }
-    }
-
-
-    private static Guid ExtractGuid(string streamId)
-    {
-        var colonIndex = streamId.IndexOf(':');
-        var key = colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
-        return Guid.TryParse(key, out var guid) ? guid : Guid.Empty;
     }
 }

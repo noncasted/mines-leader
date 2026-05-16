@@ -146,13 +146,23 @@
     private int _passedCount;
     private int _failedCount;
 
-    protected override Task OnSetup(IReadOnlyLifetime lifetime) {
-        ParticipantContext.IsInitialized.View(lifetime, value => {
-            _isInitialized = value;
-            InvokeAsync(StateHasChanged).NoAwait();
-        });
-        return Task.CompletedTask;
-    }
+	protected override Task OnSetup(IReadOnlyLifetime lifetime) {
+		ParticipantContext.IsInitialized.View(lifetime, value => {
+			_isInitialized = value;
+			InvokeAsync(StateHasChanged).NoAwait();
+		});
+
+		Runner.Completed.Advise(lifetime, title =>
+		{
+			InvokeAsync(() =>
+			{
+				RecalculateCounts();
+				StateHasChanged();
+			}).NoAwait();
+		});
+
+		return Task.CompletedTask;
+	}
 
     protected override void OnParametersSet()
     {

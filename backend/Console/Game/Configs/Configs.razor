@@ -23,174 +23,200 @@
         </BbButton>
     </div>
 
-    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-        <div class="flex items-center gap-2">
-            <div class="rounded-md bg-blue-500/15 p-1.5">
-                <LucideIcon Name="settings" Size="14" class="text-blue-400" />
+    <div class="flex gap-2 overflow-x-auto pb-1">
+        @foreach (var sec in _sections)
+        {
+            <div @onclick="() => _activeSection = sec.Key"
+                 class="flex-1 min-w-[100px] cursor-pointer rounded-lg border p-3 flex flex-col items-center gap-1.5 transition-colors
+                        @(_activeSection == sec.Key ? "bg-primary/10 border-primary/50" : "bg-card hover:bg-muted/50")">
+                <LucideIcon Name="@sec.Icon" Size="18" class="@(_activeSection == sec.Key ? "text-primary" : "text-muted-foreground")" />
+                <span class="text-xs font-medium text-center @(_activeSection == sec.Key ? "text-primary" : "text-muted-foreground")">@sec.Label</span>
             </div>
-            <h2 class="text-sm font-semibold">Bot Global Settings</h2>
-        </div>
-        <div class="flex flex-col">
-            <div class="flex items-center gap-3 py-1.5">
-                <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
-                <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
-                <input type="number" @bind="_botValue.MatchmakingApplyThreshold" step="0.1"
-                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-        </div>
+        }
     </div>
 
-    <BotConfigEditor Value="_botValue" OnProfileChanged="Save" />
+    @switch (_activeSection)
+    {
+        case ConfigSection.Bot:
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-blue-500/15 p-1.5">
+                        <LucideIcon Name="settings" Size="14" class="text-blue-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">Bot Global Settings</h2>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-3 py-1.5">
+                        <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
+                        <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
+                        <input type="number" @bind="_botValue.MatchmakingApplyThreshold" step="0.1"
+                               class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                    </div>
+                </div>
+            </div>
+            <BotConfigEditor Value="_botValue" OnProfileChanged="Save" />
+            break;
 
-    <GameModeConfigEditor Value="_gameModeValue" />
+        case ConfigSection.GameMode:
+            <GameModeConfigEditor Value="_gameModeValue" />
+            break;
 
-    <RatingConfigEditor Value="_ratingValue" />
+        case ConfigSection.Rating:
+            <RatingConfigEditor Value="_ratingValue" />
+            break;
 
-    <LootProgressionConfigEditor Value="_lootProgressionValue" />
+        case ConfigSection.Loot:
+            <LootProgressionConfigEditor Value="_lootProgressionValue" />
+            break;
 
-    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-        <div class="flex items-center gap-2">
-            <div class="rounded-md bg-amber-500/15 p-1.5">
-                <LucideIcon Name="library" Size="14" class="text-amber-400" />
+        case ConfigSection.UserDeck:
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-amber-500/15 p-1.5">
+                        <LucideIcon Name="library" Size="14" class="text-amber-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">User Base Deck</h2>
+                </div>
+                <UserDeckConfigEditor Value="_userDeckValue.BaseDeck" DeckSize="@DeckOptions.DeckSize" />
             </div>
-            <h2 class="text-sm font-semibold">User Base Deck</h2>
-        </div>
-        <UserDeckConfigEditor Value="_userDeckValue.BaseDeck" DeckSize="@DeckOptions.DeckSize" />
-    </div>
+            break;
 
-    <div class="flex flex-col gap-3">
-        <div class="flex items-center gap-2">
-            <div class="rounded-md bg-violet-500/15 p-1.5">
-                <LucideIcon Name="layers" Size="14" class="text-violet-400" />
-            </div>
-            <h2 class="text-sm font-semibold">Card Configurations</h2>
-        </div>
+        case ConfigSection.Cards:
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-violet-500/15 p-1.5">
+                        <LucideIcon Name="layers" Size="14" class="text-violet-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">Card Configurations</h2>
+                </div>
 
-        @* Scout — board reveal/flag cards *@
-        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Scout</span>
-                <span class="text-xs text-muted-foreground">board reveal and mine detection</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                @foreach (var type in _scoutCards)
-                {
-                    @if (_cardsValue.All.TryGetValue(type, out var config))
-                    {
-                        @if (config is CardConfigOptions.ChaosDiamond or CardConfigOptions.ChaosScout or CardConfigOptions.FortuneCookie)
+                @* Scout *@
+                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Scout</span>
+                        <span class="text-xs text-muted-foreground">board reveal and mine detection</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (var type in _scoutCards)
                         {
-                            <CardRangeConfigEditor @key="type" Value="config" Type="type" />
+                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                            {
+                                @if (config is CardConfigOptions.ChaosDiamond or CardConfigOptions.ChaosScout or CardConfigOptions.FortuneCookie)
+                                {
+                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                                else
+                                {
+                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                            }
                         }
-                        else
-                        {
-                            <CardSizeConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                    }
-                }
-            </div>
-        </div>
+                    </div>
+                </div>
 
-        @* Cross-Board — cards affecting opponent's board *@
-        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Cross-Board</span>
-                <span class="text-xs text-muted-foreground">affects opponent's board</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                @foreach (var type in _crossBoardCards)
-                {
-                    @if (_cardsValue.All.TryGetValue(type, out var config))
-                    {
-                        @if (config is CardConfigOptions.ChainReaction chainReaction)
+                @* Cross-Board *@
+                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Cross-Board</span>
+                        <span class="text-xs text-muted-foreground">affects opponent's board</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (var type in _crossBoardCards)
                         {
-                            <CardChainReactionConfigEditor @key="type" Value="chainReaction" Type="type" />
+                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                            {
+                                @if (config is CardConfigOptions.ChainReaction chainReaction)
+                                {
+                                    <CardChainReactionConfigEditor @key="type" Value="chainReaction" Type="type" />
+                                }
+                                else if (config is CardConfigOptions.OpponentBomb or CardConfigOptions.OpponentFlagErase or CardConfigOptions.OpponentFlagReshuffle)
+                                {
+                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                                else if (config is CardConfigOptions.FortuneBlast or CardConfigOptions.ChaosFog)
+                                {
+                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                                else
+                                {
+                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                            }
                         }
-                        else if (config is CardConfigOptions.OpponentBomb or CardConfigOptions.OpponentFlagErase or CardConfigOptions.OpponentFlagReshuffle)
-                        {
-                            <CardSizeConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                        else if (config is CardConfigOptions.FortuneBlast or CardConfigOptions.ChaosFog)
-                        {
-                            <CardRangeConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                        else
-                        {
-                            <CardSizeConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                    }
-                }
-            </div>
-        </div>
+                    </div>
+                </div>
 
-        @* Buff — self-enhancement cards *@
-        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Buff</span>
-                <span class="text-xs text-muted-foreground">moves, shield, mana discount</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                @foreach (var type in _buffCards)
-                {
-                    @if (_cardsValue.All.TryGetValue(type, out var config))
-                    {
-                        @if (config is CardConfigOptions.Lockdown lockdown)
+                @* Buff *@
+                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Buff</span>
+                        <span class="text-xs text-muted-foreground">moves, shield, mana discount</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (var type in _buffCards)
                         {
-                            <CardLockdownConfigEditor @key="type" Value="lockdown" Type="type" />
+                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                            {
+                                @if (config is CardConfigOptions.Lockdown lockdown)
+                                {
+                                    <CardLockdownConfigEditor @key="type" Value="lockdown" Type="type" />
+                                }
+                                else
+                                {
+                                    <CardConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                            }
                         }
-                        else
-                        {
-                            <CardConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                    }
-                }
-            </div>
-        </div>
+                    </div>
+                </div>
 
-        @* Resources — mana/HP manipulation *@
-        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-blue-500/15 text-blue-400">Resources</span>
-                <span class="text-xs text-muted-foreground">mana, HP, and resource manipulation</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                @foreach (var type in _resourceCards)
-                {
-                    @if (_cardsValue.All.TryGetValue(type, out var config))
-                    {
-                        @if (config is CardConfigOptions.Siphon siphon)
+                @* Resources *@
+                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-blue-500/15 text-blue-400">Resources</span>
+                        <span class="text-xs text-muted-foreground">mana, HP, and resource manipulation</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (var type in _resourceCards)
                         {
-                            <CardSiphonConfigEditor @key="type" Value="siphon" Type="type" />
+                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                            {
+                                @if (config is CardConfigOptions.Siphon siphon)
+                                {
+                                    <CardSiphonConfigEditor @key="type" Value="siphon" Type="type" />
+                                }
+                                else if (config is CardConfigOptions.ManaFountain)
+                                {
+                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                                else
+                                {
+                                    <CardConfigEditor @key="type" Value="config" Type="type" />
+                                }
+                            }
                         }
-                        else if (config is CardConfigOptions.ManaFountain)
-                        {
-                            <CardRangeConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                        else
-                        {
-                            <CardConfigEditor @key="type" Value="config" Type="type" />
-                        }
-                    }
-                }
-            </div>
-        </div>
+                    </div>
+                </div>
 
-        @* Hand — deck/hand manipulation *@
-        <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Hand</span>
-                <span class="text-xs text-muted-foreground">deck and hand manipulation</span>
+                @* Hand *@
+                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Hand</span>
+                        <span class="text-xs text-muted-foreground">deck and hand manipulation</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach (var type in _handCards)
+                        {
+                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                            {
+                                <CardConfigEditor @key="type" Value="config" Type="type" />
+                            }
+                        }
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                @foreach (var type in _handCards)
-                {
-                    @if (_cardsValue.All.TryGetValue(type, out var config))
-                    {
-                        <CardConfigEditor @key="type" Value="config" Type="type" />
-                    }
-                }
-            </div>
-        </div>
-    </div>
+            break;
+    }
 </div>
 
 @code {
@@ -210,6 +236,16 @@
     private LootProgressionOptions _lootProgressionValue = new();
     private UserDeckConfigOptions _userDeckValue = new();
     private bool _isUpdatingJson;
+    private ConfigSection _activeSection = ConfigSection.Bot;
+
+    private static readonly (ConfigSection Key, string Icon, string Label)[] _sections = [
+        (ConfigSection.Bot,       "bot",      "Bot"),
+        (ConfigSection.GameMode,  "sword",    "Game Mode"),
+        (ConfigSection.Rating,    "star",     "Rating"),
+        (ConfigSection.Loot,      "package",  "Loot"),
+        (ConfigSection.UserDeck,  "library",  "User Deck"),
+        (ConfigSection.Cards,     "zap",      "Cards"),
+    ];
 
     private static readonly CardType[] _scoutCards = [
         CardType.Bloodhound, CardType.Bloodhound_Max,
@@ -349,5 +385,15 @@
             var json = JsonUtils.Serialize(value!)!;
             await File.WriteAllTextAsync(fullPath, json);
         }
+    }
+
+    private enum ConfigSection
+    {
+        Bot,
+        GameMode,
+        Rating,
+        Loot,
+        UserDeck,
+        Cards,
     }
 }

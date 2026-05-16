@@ -99,8 +99,7 @@
 @code {
     [Inject] public ILiveState<LiveMatchesData> LiveData { get; set; } = null!;
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
-    [Inject] public IJSRuntime JS { get; set; } = null!;
-    [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IClipboard Clipboard { get; set; } = null!;
 
     private LiveMatchesData _data = new();
 
@@ -124,7 +123,6 @@
 
     private async Task CopyToClipboard(string text)
     {
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
-        ToastService.Success("Copied to clipboard", "Done");
+        await Clipboard.Copy(text);
     }
 }

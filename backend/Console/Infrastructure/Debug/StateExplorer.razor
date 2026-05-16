@@ -106,7 +106,7 @@
 @code {
     [Inject] public IStateStorage Storage { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
-    [Inject] public IJSRuntime JS { get; set; } = null!;
+    [Inject] public IClipboard Clipboard { get; set; } = null!;
 
     private IReadOnlyList<GrainStateInfo> _stateTypes = [];
     private string _selectedTable = string.Empty;
@@ -235,10 +235,7 @@
     private async Task CopyJson()
     {
         if (_json != null)
-        {
-            await JS.InvokeVoidAsync("navigator.clipboard.writeText", _json);
-            ToastService.Success("Copied to clipboard", "Done");
-        }
+            await Clipboard.Copy(_json);
     }
 
     private static string FormatJson(string json)
