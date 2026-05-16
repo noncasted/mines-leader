@@ -6,7 +6,7 @@ Tests Orleans grain state operations: read/write cycles, transactions (single, c
 
 ## Metric
 
-- **Throughput benchmarks** (9): `ops/s` — auto-calculated by `RunConcurrentIterations` as `iterations * concurrent / elapsed.TotalSeconds`
+- **Throughput benchmarks** (14): `ops/s` — auto-calculated by `RunConcurrentIterations` as `iterations * concurrent / elapsed.TotalSeconds`
 - **Correctness benchmarks** (11): `ms` — auto-fallback to `DurationMs`
 
 ---
@@ -65,6 +65,36 @@ Tests Orleans grain state operations: read/write cycles, transactions (single, c
 - **File**: `backend/Benchmarks/State/StateMigrationConcurrentTest.cs`
 - **Payload**: `Iterations=20`, `Concurrent=5`
 - **What it measures**: Concurrent state migrations from V0 to V1 schema. Writes as V0 grain, reads as V1 grain triggering migration.
+- **Distributed**: No
+
+### event-storage
+- **File**: `backend/Benchmarks/State/EventStorageTest.cs`
+- **Payload**: `Iterations=3300`, `Concurrent=10`
+- **What it measures**: Direct `IEventStorage` read + append through a grain. Each operation creates a grain, reads aggregate via `EventStorage.Read<>()`, appends an event via `EventStorage.Append()`.
+- **Distributed**: No
+
+### event-state
+- **File**: `backend/Benchmarks/State/EventStateTest.cs`
+- **Payload**: `Iterations=3300`, `Concurrent=10`
+- **What it measures**: Event-sourced grain read/append/write cycle through `EventState<TAggregate>`. Each operation creates a grain, loads aggregate, appends an event, writes pending events.
+- **Distributed**: No
+
+### event-state-transaction
+- **File**: `backend/Benchmarks/State/EventStateTransactionTest.cs`
+- **Payload**: `Iterations=3300`, `Concurrent=3`
+- **What it measures**: Single-grain transactional event append. Each operation runs `Append()` inside a transaction on a unique event-sourced grain.
+- **Distributed**: No
+
+### event-state-transaction-chained
+- **File**: `backend/Benchmarks/State/EventStateTransactionChainedTest.cs`
+- **Payload**: `ChainLength=3`, `Iterations=1250`, `Concurrent=3`
+- **What it measures**: Chained transaction across N event-sourced grains. Single transaction appends events to all grains in sequence.
+- **Distributed**: No
+
+### event-state-transaction-concurrent
+- **File**: `backend/Benchmarks/State/EventStateTransactionConcurrentTest.cs`
+- **Payload**: `ConcurrentTransactions=10`, `Iterations=3300`, `Concurrent=3`
+- **What it measures**: Concurrent transactions on a single event-sourced grain. Multiple transactions append events to the same grain concurrently.
 - **Distributed**: No
 
 ---
@@ -161,3 +191,4 @@ Tests Orleans grain state operations: read/write cycles, transactions (single, c
 ## Helper Files (not benchmarks)
 
 - `TransactionTestsGrain.cs` — `ITransactionTestGrain`, `TransactionTestState`, `TransactionTestGrain` used by transaction benchmarks
+- `EventBenchGrains.cs` — `EventBenchAggregate`, `CounterIncremented`, `IEventStorageTestGrain`, `IEventStateTestGrain`, `IEventStateTransactionTestGrain` and their grain implementations used by event-sourced benchmarks

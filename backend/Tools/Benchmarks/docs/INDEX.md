@@ -54,7 +54,7 @@ Three modes:
 
 | Group | Metric | Count | TODO | Doc |
 |-------|--------|-------|------|-----|
-| [State](STATE.md) | ops/s (throughput) or ms (correctness) | 20 | +9 | Grain state, transactions, migrations, storage |
+| [State](STATE.md) | ops/s (throughput) or ms (correctness) | 25 | +4 | Grain state, transactions, migrations, storage, event sourcing |
 | [Messaging](MESSAGING.md) | msg/s | 6 | +6 | Queues, pipes, channels |
 | [Game](GAME.md) | ms | 5 | +13 | Board, cells, cards, commands, bots, round flow |
 | [Meta](META.md) | ms | 3 | +10 | Users, auth, projection, matches, matchmaking, bots |
