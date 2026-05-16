@@ -147,15 +147,19 @@ public class BenchmarkRunner
             info.Progress.SetStatus(OperationStatus.Cancelled);
             _logger.LogInformation("[BenchmarkRunner] Benchmark {Title} cancelled", info.Test.Title);
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[BenchmarkRunner] Benchmark {Title} failed", info.Test.Title);
-        }
-        finally
-        {
-            Remove(info);
-            _completed.Invoke(info.Test.Title);
-        }
+		catch (Exception e)
+		{
+			info.Progress.SetStatus(OperationStatus.Failed);
+			_logger.LogError(e, "[BenchmarkRunner] Benchmark {Title} failed", info.Test.Title);
+		}
+		finally
+		{
+			if (info.Progress.Status.Value is OperationStatus.Preparing or OperationStatus.InProgress)
+				info.Progress.SetStatus(OperationStatus.Success);
+
+			Remove(info);
+			_completed.Invoke(info.Test.Title);
+		}
     }
 
     private void Remove(BenchmarkRunInfo info)

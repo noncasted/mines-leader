@@ -15,37 +15,47 @@ public class TestCleanup
 
     private readonly IStateStorage _stateStorage;
     private readonly ILogger<TestCleanup> _logger;
+    private readonly Lock _lock = new();
     private readonly List<StateIdentity> _identities = new();
 
     public void Track<TState>(Guid key) where TState : IStateValue, new()
     {
         var stateInfo = _stateStorage.Registry.Get<TState>();
 
-        _identities.Add(new StateIdentity
+        lock (_lock)
         {
-            Key = key,
-            Type = stateInfo.Name,
-            TableName = stateInfo.TableName,
-            Extension = null
-        });
+            _identities.Add(new StateIdentity
+            {
+                Key = key,
+                Type = stateInfo.Name,
+                TableName = stateInfo.TableName,
+                Extension = null
+            });
+        }
     }
 
     public void Track<TState>(string key) where TState : IStateValue, new()
     {
         var stateInfo = _stateStorage.Registry.Get<TState>();
 
-        _identities.Add(new StateIdentity
+        lock (_lock)
         {
-            Key = key,
-            Type = stateInfo.Name,
-            TableName = stateInfo.TableName,
-            Extension = null
-        });
+            _identities.Add(new StateIdentity
+            {
+                Key = key,
+                Type = stateInfo.Name,
+                TableName = stateInfo.TableName,
+                Extension = null
+            });
+        }
     }
 
     public void Track(StateIdentity identity)
     {
-        _identities.Add(identity);
+        lock (_lock)
+        {
+            _identities.Add(identity);
+        }
     }
 
     public void TrackUser(Guid userId)
@@ -63,16 +73,27 @@ public class TestCleanup
         Track<MatchState>(matchId);
     }
 
-    public async Task Execute()
-    {
-        if (_identities.Count == 0)
-            return;
+	public async Task Execute()
+	{
+		List<StateIdentity> snapshot;
+		lock (_lock)
+		{
+			if (_identities.Count == 0)
+				return;
 
-        _logger.LogInformation("[TestCleanup] Deleting {Count} state records", _identities.Count);
+			snapshot = _identities.ToList();
+			_identities.Clear();
+		}
 
-        await _stateStorage.Delete(_identities);
+		_logger.LogInformation("[TestCleanup] Deleting {Count} state records", snapshot.Count);
 
-        _logger.LogInformation("[TestCleanup] Cleanup complete");
-        _identities.Clear();
-    }
+		const int batchSize = 1000;
+		for (var i = 0; i < snapshot.Count; i += batchSize)
+		{
+			var batch = snapshot.Skip(i).Take(batchSize).ToList();
+			await _stateStorage.Delete(batch);
+		}
+
+		_logger.LogInformation("[TestCleanup] Cleanup complete");
+	}
 }
