@@ -6,14 +6,23 @@ using Microsoft.Extensions.Logging;
 namespace Meta.Users;
 
 [GenerateSerializer]
-[GrainState(Table = "state_user_auth", State = "user_auth", Lookup = "UserAuth", Key = GrainKeyType.Guid)]
-public class UserAuthState : IStateValue, IDirectStateValue
+[GrainEventState(State = "user_auth", Lookup = "UserAuth", Key = GrainKeyType.Guid)]
+public class UserAuthState : IEventStateValue
 {
-    [Id(0)] public bool IsExists { get; set; }
-    [Id(1)] public DateTime RegisteredAt { get; set; }
+    [Id(0)] public string Id { get; set; } = string.Empty;
+    [Id(1)] public bool IsExists { get; set; }
+    [Id(2)] public DateTime RegisteredAt { get; set; }
 
     public int Version => 0;
+
+    public void Apply(UserRegistered e)
+    {
+        IsExists = true;
+        RegisteredAt = e.RegisteredAt;
+    }
 }
+
+public record UserRegistered(DateTime RegisteredAt);
 
 public interface IUserAuth : IUserGrain
 {
@@ -30,30 +39,32 @@ public interface IUserAuth : IUserGrain
 public class UserAuth : UserGrain, IUserAuth
 {
     public UserAuth(
-        [State] State<UserAuthState> state,
+        [EventState] EventState<UserAuthState> state,
         ILogger<UserAuth> logger)
     {
         _state = state;
         _logger = logger;
     }
 
-    private readonly State<UserAuthState> _state;
+    private readonly EventState<UserAuthState> _state;
     private readonly ILogger<UserAuth> _logger;
 
-    public Task<bool> IsExists() => _state.Read(state => state.IsExists);
+    public async Task<bool> IsExists()
+    {
+        var state = await _state.Read();
+        return state.IsExists;
+    }
 
     public async Task OnRegistered()
     {
-        await _state.Update(state => {
-            state.IsExists = true;
-            state.RegisteredAt = DateTime.UtcNow;
-        });
+        var state = await _state.Apply(new UserRegistered(DateTime.UtcNow));
 
         _logger.LogInformation("[User] [Auth] User {UserId} registered", this.GetPrimaryKey());
     }
 
-    public Task<DateTime> GetDate()
+    public async Task<DateTime> GetDate()
     {
-        return _state.Read(state => state.RegisteredAt);
+        var state = await _state.Read();
+        return state.RegisteredAt;
     }
 }

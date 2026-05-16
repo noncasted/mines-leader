@@ -54,18 +54,10 @@ public class UserProgressionState : IEventStateValue, IProjectionPayload
 }
 
 [GenerateSerializer]
-public class ProgressionAdded
-{
-    [Id(0)]
-    public IUserProgressionRecord Record { get; set; } = null!;
-}
+public record ProgressionAdded(IUserProgressionRecord Record);
 
 [GenerateSerializer]
-public class ProgressionReset
-{
-    [Id(0)]
-    public int Value { get; set; }
-}
+public record ProgressionReset(int Value);
 
 public class UserProgression : UserGrain, IUserProgression
 {
@@ -87,20 +79,16 @@ public class UserProgression : UserGrain, IUserProgression
             record.GetExperience(),
             record.GetType().FullName);
 
-        await _state.Read();
-        await _state.Append(new ProgressionAdded { Record = record });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new ProgressionAdded(record));
+        await this.SendProjection(state);
 
         RegisterLootSideEffect();
     }
 
-    public Task<int> GetTotal()
+    public async Task<int> GetTotal()
     {
-        // Use a synchronous-looking wrapper for the projection if possible,
-        // but in EventState we must call Read().
-        // Since the interface is Task<int>, we can just await.
-        return _state.ReadAndGetTotal();
+        var state = await _state.Read();
+        return state.CalculateTotal();
     }
 
     public async Task AdjustProgression(int delta)
@@ -111,10 +99,8 @@ public class UserProgression : UserGrain, IUserProgression
 
     public async Task SetProgression(int value)
     {
-        await _state.Read();
-        await _state.Append(new ProgressionReset { Value = value });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new ProgressionReset(value));
+        await this.SendProjection(state);
 
         RegisterLootSideEffect();
     }
@@ -133,11 +119,3 @@ public class UserProgression : UserGrain, IUserProgression
     }
 }
 
-public static class UserProgressionEventStateExtensions
-{
-    public static async Task<int> ReadAndGetTotal(this EventState<UserProgressionState> state)
-    {
-        await state.Read();
-        return state.Value.CalculateTotal();
-    }
-}

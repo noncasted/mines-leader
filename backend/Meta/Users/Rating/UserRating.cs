@@ -52,15 +52,9 @@ public class UserRatingState : IEventStateValue, IProjectionPayload
     };
 }
 
-public class RatingAdded
-{
-    public IUserRatingRecord Record { get; set; } = null!;
-}
+public record RatingAdded(IUserRatingRecord Record);
 
-public class RatingReset
-{
-    public int Value { get; set; }
-}
+public record RatingReset(int Value);
 
 public class UserRating : UserGrain, IUserRating
 {
@@ -82,16 +76,14 @@ public class UserRating : UserGrain, IUserRating
             record.GetRating(),
             record.GetType().FullName);
 
-        await _state.Read();
-        await _state.Append(new RatingAdded { Record = record });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new RatingAdded(record));
+        await this.SendProjection(state);
     }
 
     public async Task<int> GetTotal()
     {
-        await _state.Read();
-        return _state.Value.CalculateTotal();
+        var state = await _state.Read();
+        return state.CalculateTotal();
     }
 
     public async Task AdjustRating(int delta)
@@ -102,10 +94,8 @@ public class UserRating : UserGrain, IUserRating
 
     public async Task SetRating(int value)
     {
-        await _state.Read();
-        await _state.Append(new RatingReset { Value = value });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new RatingReset(value));
+        await this.SendProjection(state);
     }
 
     public Task<IProjectionPayload> GetProjection()
