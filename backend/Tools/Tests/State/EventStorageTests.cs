@@ -2,6 +2,7 @@ using Common;
 using FluentAssertions;
 using Infrastructure.State;
 using Marten;
+using Shared;
 using Tests.Fixtures;
 using Tests.Grains;
 using Xunit;

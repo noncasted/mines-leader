@@ -3,7 +3,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Shared;
 
-namespace Game.GamePlay;
+namespace Game.GamePlay.Snapshots;
 
 public interface ISnapshotDiffGuard
 {

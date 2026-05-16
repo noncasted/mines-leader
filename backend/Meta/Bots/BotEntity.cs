@@ -2,6 +2,7 @@ using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Meta.Bots;
 

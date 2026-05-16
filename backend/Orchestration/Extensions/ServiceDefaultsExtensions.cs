@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Infrastructure;
+using Infrastructure.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;

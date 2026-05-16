@@ -1,5 +1,3 @@
-using Common;
-
 namespace Shared
 {
     [SharedGrainState(Table = "configs", State = "rating_config", Key = GrainKeyType.String, Lookup = "RatingConfig")]

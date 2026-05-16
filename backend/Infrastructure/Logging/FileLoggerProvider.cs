@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure;
+namespace Infrastructure.Logging;
 
 public sealed class FileLoggerProvider : ILoggerProvider, IDisposable
 {

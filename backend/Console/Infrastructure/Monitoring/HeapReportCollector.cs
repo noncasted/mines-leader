@@ -1,9 +1,10 @@
 using Cluster.Coordination;
 using Cluster.Discovery;
 using Infrastructure;
+using Infrastructure.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Console.Infrastructure.Monitoring;
+namespace Console.Monitoring;
 
 public class HeapReportCollector
 {

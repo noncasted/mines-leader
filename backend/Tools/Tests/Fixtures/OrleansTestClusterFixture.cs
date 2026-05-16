@@ -1,3 +1,4 @@
+using System.Reflection;
 using Cluster.Configs;
 using Cluster.Discovery;
 using Cluster.State;
@@ -10,7 +11,9 @@ using Infrastructure.Startup;
 using Infrastructure.State;
 using JasperFx;
 using JasperFx.Events;
+using Marten;
 using Marten.Events.Projections;
+using Marten.Services;
 using Meta.Bots;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +74,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 services.AddSingleton(dbSource);
 
                 // Marten document store for event sourcing tests
-                var martenStore = Marten.DocumentStore.For(options =>
+                var martenStore = DocumentStore.For(options =>
                 {
                     options.Connection(dataSource);
                     options.Events.StreamIdentity = StreamIdentity.AsString;
@@ -79,7 +82,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                     options.AutoCreateSchemaObjects = AutoCreate.All;
 
                     var baseSettings = JsonStateSettings.CreateBase();
-                    var jsonSerializer = new Marten.Services.JsonNetSerializer();
+                    var jsonSerializer = new JsonNetSerializer();
                     jsonSerializer.Configure(s =>
                     {
                         s.TypeNameHandling = baseSettings.TypeNameHandling;
@@ -113,7 +116,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                             if (type.GetConstructor(Type.EmptyTypes) is not { IsPublic: true })
                                 continue;
 
-                            var snapshotMethod = options.Projections.GetType().GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                            var snapshotMethod = options.Projections.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
                                 .FirstOrDefault(m => m.Name == "Snapshot"
                                     && m.IsGenericMethod
                                     && m.GetParameters().Length >= 1
@@ -126,7 +129,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                         }
                     }
                 });
-                services.AddSingleton<Marten.IDocumentStore>(martenStore);
+                services.AddSingleton<IDocumentStore>(martenStore);
 
                 // State registry — register all grain states
                 services.AddSingleton<IGrainStatesRegistry>(BuildStatesRegistry());

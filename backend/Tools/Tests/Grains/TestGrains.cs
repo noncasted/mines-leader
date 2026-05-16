@@ -2,6 +2,7 @@ using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Orleans.Concurrency;
+using Shared;
 
 namespace Tests.Grains;
 

@@ -1,8 +1,8 @@
+using Cluster.Configs;
 using FluentAssertions;
 using Meta.Matches;
 using Meta.Users;
 using Shared;
-using Cluster.Configs;
 using Tests.Fixtures;
 using Xunit;
 

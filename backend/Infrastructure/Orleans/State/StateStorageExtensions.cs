@@ -2,6 +2,7 @@ using System.Buffers.Text;
 using System.Text;
 using Common;
 using Npgsql;
+using Shared;
 
 namespace Infrastructure.State;
 

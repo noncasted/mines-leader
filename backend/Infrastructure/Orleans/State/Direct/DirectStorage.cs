@@ -5,6 +5,7 @@ using Common.Reactive;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using NpgsqlTypes;
+using Shared;
 
 namespace Infrastructure.State;
 

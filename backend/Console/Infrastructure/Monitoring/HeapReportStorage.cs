@@ -1,7 +1,8 @@
 using Infrastructure;
+using Infrastructure.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Console.Infrastructure.Monitoring;
+namespace Console.Monitoring;
 
 public class HeapReport
 {
@@ -47,19 +48,19 @@ public class HeapReportStorage : IHeapReportStorage
                 return [];
 
             return System.IO.Directory
-                          .EnumerateFiles(_directory, $"{FilePrefix}*{FileSuffix}")
-                          .Select(path => {
-                              var info = new FileInfo(path);
-                              return new HeapReport
-                              {
-                                  FileName = info.Name,
-                                  FilePath = info.FullName,
-                                  Timestamp = info.LastWriteTimeUtc,
-                                  SizeBytes = info.Length,
-                              };
-                          })
-                          .OrderByDescending(r => r.Timestamp)
-                          .ToList();
+                         .EnumerateFiles(_directory, $"{FilePrefix}*{FileSuffix}")
+                         .Select(path => {
+                             var info = new FileInfo(path);
+                             return new HeapReport
+                             {
+                                 FileName = info.Name,
+                                 FilePath = info.FullName,
+                                 Timestamp = info.LastWriteTimeUtc,
+                                 SizeBytes = info.Length,
+                             };
+                         })
+                         .OrderByDescending(r => r.Timestamp)
+                         .ToList();
         }
     }
 

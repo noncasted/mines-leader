@@ -1,6 +1,6 @@
 using System;
 
-namespace Common
+namespace Shared
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class SharedGrainStateAttribute : Attribute

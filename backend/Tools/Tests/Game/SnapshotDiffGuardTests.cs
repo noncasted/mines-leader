@@ -1,6 +1,7 @@
 using Common;
 using FluentAssertions;
 using Game.GamePlay;
+using Game.GamePlay.Snapshots;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Shared;

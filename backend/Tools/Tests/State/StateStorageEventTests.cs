@@ -1,8 +1,7 @@
-using Marten;
-using Common;
 using Common.Reactive;
 using FluentAssertions;
 using Infrastructure.State;
+using Marten;
 using Tests.Fixtures;
 using Tests.Grains;
 using Xunit;

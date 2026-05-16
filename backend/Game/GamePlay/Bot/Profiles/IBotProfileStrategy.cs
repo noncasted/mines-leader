@@ -1,7 +1,7 @@
 using Common.Reactive;
 using Shared;
 
-namespace Game.GamePlay;
+namespace Game.GamePlay.Profiles;
 
 public interface IBotProfileStrategy
 {

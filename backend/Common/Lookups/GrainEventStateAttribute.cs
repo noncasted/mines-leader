@@ -1,3 +1,5 @@
+using Shared;
+
 namespace Common
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]

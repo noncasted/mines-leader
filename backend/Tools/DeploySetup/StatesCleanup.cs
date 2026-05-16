@@ -1,6 +1,7 @@
 using Common;
 using Common.Extensions;
 using Microsoft.Extensions.Configuration;
+using Shared;
 
 namespace DeploySetup;
 

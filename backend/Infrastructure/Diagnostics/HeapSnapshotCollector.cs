@@ -1,7 +1,8 @@
+using System.Diagnostics;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure;
+namespace Infrastructure.Diagnostics;
 
 public interface IHeapSnapshotCollector
 {
@@ -21,7 +22,7 @@ public class HeapSnapshotCollector : IHeapSnapshotCollector
 
     public HeapSnapshotResponse Collect(string serviceName, Guid serviceId, bool deep, int topN = 150)
     {
-        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var sw = Stopwatch.StartNew();
         var response = new HeapSnapshotResponse
         {
             ServiceName = serviceName,

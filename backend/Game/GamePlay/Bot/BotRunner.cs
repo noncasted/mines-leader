@@ -1,5 +1,6 @@
 using Cluster.Configs;
 using Common.Reactive;
+using Game.GamePlay.Profiles;
 using Game.Session;
 
 namespace Game.GamePlay;

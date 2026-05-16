@@ -39,7 +39,7 @@ public class EventState<TAggregate> : IGrainEventTransactionParticipant
     public async Task<TAggregate> Read()
     {
         await Load();
-        return _value;
+        return _value.ThrowIfNull();
     }
 
     public async Task Load()

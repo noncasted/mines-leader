@@ -3,7 +3,7 @@ using Common.Reactive;
 using Game.Session;
 using Shared;
 
-namespace Game.GamePlay;
+namespace Game.GamePlay.Profiles;
 
 public class EasyBotProfile : BotProfileBase
 {

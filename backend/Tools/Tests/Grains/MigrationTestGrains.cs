@@ -1,5 +1,6 @@
 using Common;
 using Infrastructure.State;
+using Shared;
 
 namespace Tests.Grains;
 
