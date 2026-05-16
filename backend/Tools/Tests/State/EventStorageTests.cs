@@ -21,12 +21,12 @@ public class EventStorageTests
 
         await eventStorage.Append(streamId, new CounterIncremented { Amount = 5 });
 
-        var before = await store.QuerySession().Events.FetchStreamAsync(streamId);
+        var before = await store.QuerySession().Events.FetchStreamAsync(streamId, token: TestContext.Current.CancellationToken);
         before.Should().NotBeEmpty();
 
         await eventStorage.Delete(streamId);
 
-        var after = await store.QuerySession().Events.FetchStreamAsync(streamId);
+        var after = await store.QuerySession().Events.FetchStreamAsync(streamId, token: TestContext.Current.CancellationToken);
         after.Should().BeEmpty();
     }
 

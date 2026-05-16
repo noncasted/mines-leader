@@ -139,7 +139,7 @@ public class ZipZapTests : PlayerCardTestsBase
 
         var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
         actionData.Should().NotBeNull();
-        actionData!.TargetCells.Count.Should().Be(2, "both mines at (2,2) and (1,1) should be found");
+        actionData!.TargetCells!.Count.Should().Be(2, "both mines at (2,2) and (1,1) should be found");
         actionData.TargetCells.Should().Contain(new Position(2, 2));
         actionData.TargetCells.Should().Contain(new Position(1, 1));
     }
@@ -193,7 +193,7 @@ public class ZipZapTests : PlayerCardTestsBase
 
         var actionData = snapshot.GetLastCardAction<CardActionSnapshot.ZipZap>();
 
-        foreach (var pos in actionData!.TargetCells)
+        foreach (var pos in actionData!.TargetCells!)
         {
             board.Cells[pos]
                  .Status.Should()

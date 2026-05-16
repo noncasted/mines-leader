@@ -132,7 +132,7 @@ public class TransactionTests
         // Wait long enough so that by the time the fast transaction's lock-wait
         // times out (LockWaitSeconds=2s), the total elapsed time exceeds StuckGraceSeconds (5s).
         // 4s wait + 2s lock timeout = 6s > 5s grace period → takeover triggers.
-        await Task.Delay(4000);
+        await Task.Delay(4000, TestContext.Current.CancellationToken);
 
         // Second transaction should wait, then takeover after StuckGraceSeconds
         var fastResult = await transactions.Run(() => grain.Increment());
@@ -158,7 +158,7 @@ public class TransactionTests
 
         // Force grain deactivation — next call will reload from DB
         await grain.Deactivate();
-        await Task.Delay(2000);
+        await Task.Delay(2000, TestContext.Current.CancellationToken);
 
         var value = await grain.Get();
         value.Should().Be(3);
