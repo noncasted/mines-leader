@@ -153,9 +153,10 @@ public class UserDeck : UserGrain, IUserDeck
         return _state.Read();
     }
 
-    public Task<IProjectionPayload> GetProjection()
+    public async Task<IProjectionPayload> GetProjection()
     {
-        return Task.FromResult((IProjectionPayload)_state.Value);
+        var state = await _state.Read();
+        return state;
     }
 
     private async Task ValidateCards(IEnumerable<CardType> cards)

@@ -86,6 +86,22 @@ public class UserRatingTests
     }
 
     [Fact]
+    public async Task GetProjection_NoRecords_ReturnsZeroRating()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserRating>(id);
+        IProjectionPayload? projection = null;
+
+        await RunTransaction(async () => {
+            projection = await grain.GetProjection();
+        });
+
+        projection.Should().NotBeNull();
+        var context = projection!.ToContext();
+        var ratingProjection = context.Should().BeOfType<SharedBackendUser.RatingProjection>().Subject;
+        ratingProjection.Rating.Should().Be(0);
+    }
+    [Fact]
     public async Task AddRecord_RatingCanGoNegative()
     {
         var id = Guid.NewGuid();
@@ -185,6 +201,22 @@ public class UserProgressionTests
         total.Should().Be(0);
     }
 
+    [Fact]
+    public async Task GetProjection_NoRecords_ReturnsZeroExperience()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserProgression>(id);
+        IProjectionPayload? projection = null;
+
+        await RunTransaction(async () => {
+            projection = await grain.GetProjection();
+        });
+
+        projection.Should().NotBeNull();
+        var context = projection!.ToContext();
+        var progressionProjection = context.Should().BeOfType<SharedBackendUser.ProgressionProjection>().Subject;
+        progressionProjection.Experience.Should().Be(0);
+    }
     [Fact]
     public async Task AddRecord_MultipleRecords_SumAll()
     {
