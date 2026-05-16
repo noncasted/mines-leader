@@ -1,8 +1,5 @@
-using Common.Extensions;
 using Common.Reactive;
 using Infrastructure.State;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
@@ -37,20 +34,6 @@ public class AddressableStateChannelId<T> : IRuntimeChannelId
     {
         return $"addressable-state-{Name}";
     }
-}
-
-public class AddressableStateUtils
-{
-    public AddressableStateUtils(IOrleans orleans, IMessaging messaging, ILoggerFactory loggerFactory)
-    {
-        Orleans = orleans;
-        Messaging = messaging;
-        LoggerFactory = loggerFactory;
-    }
-
-    public IOrleans Orleans { get; }
-    public IMessaging Messaging { get; }
-    public ILoggerFactory LoggerFactory { get; }
 }
 
 public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddressableState<T>
@@ -161,17 +144,5 @@ public class AddressableState<T> : ViewableProperty<T>, IOrleansStarted, IAddres
         {
             _logger.LogError(e, "[AddressableState] Failed to deserialize update for {Type}", typeof(T).Name);
         }
-    }
-}
-
-public static class AddressableStateExtensions
-{
-    public static ContainerExtensions.Registration AddAddressableState<T>(this IHostApplicationBuilder builder)
-        where T : class, IOrleansStarted
-    {
-        builder.Services.AddSingleton<AddressableStateUtils>();
-
-        return builder.Add<T>()
-                      .As<IOrleansStarted>();
     }
 }

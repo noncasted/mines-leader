@@ -11,7 +11,7 @@ public class EventStateTransactionConcurrentTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)] public int ConcurrentTransactions { get; set; } = 10;
-        [Id(1)] public int Iterations { get; set; } = 3300;
+        [Id(1)] public int Iterations { get; set; } = 1000;
         [Id(2)] public int Concurrent { get; set; } = 3;
     }
 

@@ -31,8 +31,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
     private readonly IOrleans _orleans;
     private readonly ILogger<RuntimeChannelClient> _logger;
 
-    private readonly ConcurrentDictionary<string, Listener> _listeners = new();
-    private readonly SemaphoreSlim _createLock = new(1, 1);
+    private readonly ConcurrentDictionary<Guid, Listener> _listeners = new();
 
     public Task Start(IReadOnlyLifetime lifetime)
     {
@@ -49,8 +48,9 @@ public class RuntimeChannelClient : IRuntimeChannelClient
         if (lifetime.IsTerminated)
             return;
 
-        var rawId = id.ToRaw();
-        var (transportListener, created) = await GetOrCreateListener(id);
+        var transportListener = new Listener(id, GetChannel(id), _orleans, _logger);
+        _listeners[transportListener.ObserverSource.Id] = transportListener;
+
         var handlerId = transportListener.AddHandler(async message => {
             if (message is not T castedMessage)
                 throw new InvalidCastException($"Expected {typeof(T)}, but got {message.GetType()}");
@@ -60,11 +60,8 @@ public class RuntimeChannelClient : IRuntimeChannelClient
 
         lifetime.Listen(() => {
             if (transportListener.RemoveHandler(handlerId))
-                RemoveListener(rawId, transportListener);
+                RemoveListener(transportListener);
         });
-
-        if (created == false)
-            return;
 
         try
         {
@@ -76,7 +73,7 @@ public class RuntimeChannelClient : IRuntimeChannelClient
             transportListener.RecordFailure(e);
 
             if (transportListener.RemoveHandler(handlerId))
-                RemoveListener(rawId, transportListener);
+                RemoveListener(transportListener);
 
             throw;
         }
@@ -87,35 +84,9 @@ public class RuntimeChannelClient : IRuntimeChannelClient
         return GetChannel(id).Publish(message);
     }
 
-    private async Task<(Listener Listener, bool Created)> GetOrCreateListener(IRuntimeChannelId id)
+    private void RemoveListener(Listener listener)
     {
-        var rawId = id.ToRaw();
-
-        if (_listeners.TryGetValue(rawId, out var existing))
-            return (existing, false);
-
-        await _createLock.WaitAsync();
-
-        try
-        {
-            if (_listeners.TryGetValue(rawId, out existing))
-                return (existing, false);
-
-            var listener = new Listener(id, GetChannel(id), _orleans, _logger);
-            _listeners[rawId] = listener;
-            return (listener, true);
-        }
-        finally
-        {
-            _createLock.Release();
-        }
-    }
-
-    private void RemoveListener(string rawId, Listener listener)
-    {
-        var listeners = (ICollection<KeyValuePair<string, Listener>>)_listeners;
-
-        if (listeners.Remove(new KeyValuePair<string, Listener>(rawId, listener)))
+        if (_listeners.TryRemove(listener.ObserverSource.Id, out _))
             listener.Cleanup();
     }
 

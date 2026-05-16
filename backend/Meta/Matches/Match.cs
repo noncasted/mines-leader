@@ -69,7 +69,11 @@ public class MatchState : IEventStateValue
     }
 }
 
-public record MatchSetup(GameMatchType Type, DateTime StartDate, IReadOnlyList<Guid> Participants, Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks);
+public record MatchSetup
+(GameMatchType Type,
+    DateTime StartDate,
+    IReadOnlyList<Guid> Participants,
+    Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks);
 
 public record MatchCompleted(Guid Winner, TimeSpan Time);
 
@@ -108,18 +112,8 @@ public class Match : Grain, IMatch
 
     public async Task OnComplete(Guid winnerId)
     {
-        await _state.Read();
         var endDate = DateTime.UtcNow;
-        var startTime = _state.Value.StartDate;
-
-        var state = _state.Value;
-        var loserId = state.Participants.First(p => p != winnerId);
-
-        var winner = _orleans.CreateUserHandle(winnerId);
-        var loser = _orleans.CreateUserHandle(loserId);
-
-        var overview = state.CreateOverview(this.GetPrimaryKey());
-
+        
         var winRecord = new UserProgressionRecords.Win
         {
             Date = endDate,
@@ -145,16 +139,25 @@ public class Match : Grain, IMatch
             Date = endDate,
             Rating = ratingOptions.LossRating
         };
+        
+        var state = await _state.Read();
+        var loserId = state.Participants.First(p => p != winnerId);
+        var startTime = state.StartDate;
 
-        await _state.Append(
-            new MatchCompleted(winnerId, endDate - startTime),
+        await _state.Append(new MatchCompleted(winnerId, endDate - startTime),
             new MatchRatingCalculated(new Dictionary<Guid, int>
             {
                 [winnerId] = winRatingRecord.GetRating(),
                 [loserId] = lossRatingRecord.GetRating()
             }));
+        
         await _state.Write();
 
+        var overview = state.CreateOverview(this.GetPrimaryKey());
+        
+        var winner = _orleans.CreateUserHandle(winnerId);
+        var loser = _orleans.CreateUserHandle(loserId);
+        
         await Task.WhenAll(winner.MatchHistory.Add(overview),
             winner.Progression.AddRecord(winRecord),
             winner.Rating.AddRecord(winRatingRecord),
