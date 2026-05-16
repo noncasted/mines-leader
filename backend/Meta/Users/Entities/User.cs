@@ -23,31 +23,26 @@ public interface IUser : IUserGrain, IUserProjectionSource
 public class UserState : IEventStateValue, IProjectionPayload
 {
     [Id(0)] public string Id { get; set; } = string.Empty;
-    [Id(1)] public string Name { get; set; } = string.Empty;
+    [Id(1)] public Guid UserId { get; set; }
+    [Id(2)] public string Name { get; set; } = string.Empty;
 
     public int Version => 0;
 
-    public void Apply(UserInitialized e) => Id = e.Id.ToString();
+    public void Apply(UserInitialized e) => UserId = e.Id;
     public void Apply(UserNameChanged e) => Name = e.Name;
 
     public INetworkContext ToContext() => new SharedBackendUser.ProfileProjection()
     {
-        Id = Guid.Parse(Id),
+        Id = UserId,
         Name = Name
     };
 }
 
-public class UserInitialized
-{
-    public Guid Id { get; set; }
-}
+public record UserInitialized(Guid Id);
 
-public class UserNameChanged
-{
-    public string Name { get; set; } = string.Empty;
-}
+public record UserNameChanged(string Name);
 
-public class User : UserGrain, IUser
+public partial class User : UserGrain, IUser
 {
     public User(
         [EventState] EventState<UserState> state,
@@ -65,50 +60,38 @@ public class User : UserGrain, IUser
 
     public async Task Initialize()
     {
-        await _state.Read();
-        
         var userId = this.GetPrimaryKey();
-        await _state.Append(new UserInitialized { Id = userId });
-        await _state.Write();
-        
-        var state = _state.Value;
-        _logger.LogInformation("[User] Created user {Id} with name {Name}", state.Id, state.Name);
-
-        await this.SendProjection(state);
-        await _collection.OnUpdatedTransactional(userId, state);
+        var state = await _state.Apply(new UserInitialized(userId));
+        LogUserCreatedUserIdWithNameName(state.Id, state.Name);
+        await Update(state);
     }
 
     public async Task SetName(string name)
     {
-        await _state.Read();
-        
-        await _state.Append(new UserNameChanged { Name = name });
-        await _state.Write();
-        
-        var state = _state.Value;
-        var userId = this.GetPrimaryKey();
-        _logger.LogInformation("[User] User {Id} changed name to {name}", state.Id, state.Name);
-
-        await this.SendProjection(state);
-        await _collection.OnUpdatedTransactional(userId, state);
+        var state = await _state.Apply(new UserNameChanged(name));
+        LogUserUserIdChangedNameToName(state.Id, state.Name);
+        await Update(state);
     }
 
     public Task<UserState> GetState()
     {
-        return _state.ReadAndReturn();
+        return _state.Read();
     }
 
-    public Task<IProjectionPayload> GetProjection()
+    public async Task<IProjectionPayload> GetProjection()
     {
-        return Task.FromResult((IProjectionPayload)_state.Value);
+        var state = await _state.Read();
+        return state;
     }
-}
 
-public static class UserEventStateExtensions
-{
-    public static async Task<UserState> ReadAndReturn(this EventState<UserState> state)
+    private Task Update(UserState state)
     {
-        await state.Read();
-        return state.Value;
+        return Task.WhenAll(this.SendProjection(state), _collection.OnUpdatedTransactional(state.UserId, state));
     }
+
+    [LoggerMessage(LogLevel.Information, "[User] Created user {Id} with name {Name}")]
+    partial void LogUserCreatedUserIdWithNameName(string id, string name);
+
+    [LoggerMessage(LogLevel.Information, "[User] User {Id} changed name to {name}")]
+    partial void LogUserUserIdChangedNameToName(string id, string name);
 }

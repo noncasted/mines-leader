@@ -28,18 +28,7 @@ public class UserMatchHistoryAggregate : IEventStateValue
     public void Apply(MatchAdded e) => Matches.Add(e.Match);
 }
 
-public class MatchAdded
-{
-    public MatchOverview Match { get; set; } = new MatchOverview
-    {
-        Id = Guid.Empty,
-        Participants = new List<Guid>(),
-        Date = DateTime.MinValue,
-        Winner = Guid.Empty,
-        Time = TimeSpan.Zero,
-        Type = GameMatchType.Single
-    };
-}
+public record MatchAdded(MatchOverview Match);
 
 public class UserMatchHistory : UserGrain, IUserMatchHistory
 {
@@ -53,15 +42,13 @@ public class UserMatchHistory : UserGrain, IUserMatchHistory
 
     public async Task Add(MatchOverview match)
     {
-        await _state.Read();
-        await _state.Append(new MatchAdded { Match = match });
-        await _state.Write();
+        await _state.Apply(new MatchAdded(match));
         await this.SendProjection(match);
     }
 
     public async Task<IReadOnlyList<MatchOverview>> GetBlock(int count)
     {
-        await _state.Read();
-        return _state.Value.Matches.TakeLast(count).ToList();
+        var state = await _state.Read();
+        return state.Matches.TakeLast(count).ToList();
     }
 }

@@ -45,15 +45,9 @@ public class UserCardsState : IEventStateValue, IProjectionPayload
     };
 }
 
-public class CardsInitialized
-{
-    public IReadOnlyList<CardType> BaseDeck { get; set; } = new List<CardType>();
-}
+public record CardsInitialized(IReadOnlyList<CardType> BaseDeck);
 
-public class CardAdded
-{
-    public CardType Card { get; set; }
-}
+public record CardAdded(CardType Card);
 
 public class UserCards : UserGrain, IUserCards
 {
@@ -73,12 +67,11 @@ public class UserCards : UserGrain, IUserCards
 
     public async Task Initialize()
     {
-        await _state.Read();
-        if (_state.Value.Cards.Count > 0) return;
+        var state = await _state.Read();
+        if (state.Cards.Count > 0) return;
 
-        await _state.Append(new CardsInitialized { BaseDeck = _userDeckConfig.Value.BaseDeck });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        state = await _state.Apply(new CardsInitialized(_userDeckConfig.Value.BaseDeck));
+        await this.SendProjection(state);
     }
 
     public async Task AddCard(CardType card)
@@ -86,39 +79,25 @@ public class UserCards : UserGrain, IUserCards
         _logger.LogInformation("[User] [Cards] User {Id} received card {Card}",
             this.GetPrimaryKey(), card);
 
-        await _state.Read();
-        await _state.Append(new CardAdded { Card = card });
-        await _state.Write();
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new CardAdded(card));
+        await this.SendProjection(state);
     }
 
-    public Task<bool> HasCard(CardType card)
+    public async Task<bool> HasCard(CardType card)
     {
-        return _state.ReadAndHasCard(card);
+        var state = await _state.Read();
+        return state.Cards.Contains(card);
     }
 
-    public Task<IReadOnlyList<CardType>> GetAll()
+    public async Task<IReadOnlyList<CardType>> GetAll()
     {
-        return _state.ReadAndGetAll();
+        var state = await _state.Read();
+        return state.Cards.ToList();
     }
 
-    public Task<IProjectionPayload> GetProjection()
+    public async Task<IProjectionPayload> GetProjection()
     {
-        return Task.FromResult((IProjectionPayload)_state.Value);
-    }
-}
-
-public static class UserCardsEventStateExtensions
-{
-    public static async Task<bool> ReadAndHasCard(this EventState<UserCardsState> state, CardType card)
-    {
-        await state.Read();
-        return state.Value.Cards.Contains(card);
-    }
-
-    public static async Task<IReadOnlyList<CardType>> ReadAndGetAll(this EventState<UserCardsState> state)
-    {
-        await state.Read();
-        return state.Value.Cards.ToList();
+        var state = await _state.Read();
+        return state;
     }
 }

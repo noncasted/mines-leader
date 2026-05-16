@@ -78,22 +78,11 @@ public class UserDeckState : IEventStateValue, IProjectionPayload
     }
 }
 
-public class DeckInitialized
-{
-    public Dictionary<int, UserDeckState.Entry> Entries { get; set; } = new();
-    public int SelectedIndex { get; set; }
-}
+public record DeckInitialized(Dictionary<int, UserDeckState.Entry> Entries, int SelectedIndex);
 
-public class DeckEntryUpdated
-{
-    public int Index { get; set; }
-    public IReadOnlyList<CardType> Cards { get; set; } = new List<CardType>();
-}
+public record DeckEntryUpdated(int Index, IReadOnlyList<CardType> Cards);
 
-public class DeckSelectedIndexUpdated
-{
-    public int SelectedIndex { get; set; }
-}
+public record DeckSelectedIndexUpdated(int SelectedIndex);
 
 public class UserDeck : UserGrain, IUserDeck
 {
@@ -110,8 +99,8 @@ public class UserDeck : UserGrain, IUserDeck
 
     public async Task Initialize()
     {
-        await _state.Read();
-        if (_state.Value.Entries.Count > 0) return;
+        var state = await _state.Read();
+        if (state.Entries.Count > 0) return;
 
         var entries = new Dictionary<int, UserDeckState.Entry>();
         for (var i = 0; i < DeckOptions.MaxDecks; i++)
@@ -124,14 +113,8 @@ public class UserDeck : UserGrain, IUserDeck
             };
         }
 
-        await _state.Append(new DeckInitialized
-        {
-            Entries = entries,
-            SelectedIndex = 0
-        });
-        await _state.Write();
-
-        await this.SendProjection(_state.Value);
+        state = await _state.Apply(new DeckInitialized(entries, 0));
+        await this.SendProjection(state);
     }
 
     public async Task Update(IReadOnlyDictionary<int, IReadOnlyList<CardType>> decks, int selectedIndex)
@@ -139,53 +122,35 @@ public class UserDeck : UserGrain, IUserDeck
         foreach (var (_, cards) in decks)
             await ValidateCards(cards);
 
-        await _state.Read();
-        
+        var state = await _state.Read();
+        var events = new List<object>();
+
         foreach (var (index, cards) in decks)
-        {
-            await _state.Append(new DeckEntryUpdated
-            {
-                Index = index,
-                Cards = cards
-            });
-        }
+            events.Add(new DeckEntryUpdated(index, cards));
 
-        if (selectedIndex != _state.Value.SelectedIndex)
-        {
-            await _state.Append(new DeckSelectedIndexUpdated
-            {
-                SelectedIndex = selectedIndex
-            });
-        }
+        if (selectedIndex != state.SelectedIndex)
+            events.Add(new DeckSelectedIndexUpdated(selectedIndex));
 
-        await _state.Write();
-
-        await this.SendProjection(_state.Value);
+        state = await _state.Apply(events.ToArray());
+        await this.SendProjection(state);
     }
 
     public async Task Update(int index, IReadOnlyList<CardType> cards)
     {
         await ValidateCards(cards);
-
-        await _state.Read();
-        await _state.Append(new DeckEntryUpdated
-        {
-            Index = index,
-            Cards = cards
-        });
-        await _state.Write();
-
-        await this.SendProjection(_state.Value);
+        var state = await _state.Apply(new DeckEntryUpdated(index, cards));
+        await this.SendProjection(state);
     }
 
-    public Task<IReadOnlyList<CardType>> GetSelected()
+    public async Task<IReadOnlyList<CardType>> GetSelected()
     {
-        return _state.ReadAndGetSelected();
+        var state = await _state.Read();
+        return state.Entries[state.SelectedIndex].Cards;
     }
 
     public Task<UserDeckState> GetState()
     {
-        return _state.ReadAndReturn();
+        return _state.Read();
     }
 
     public Task<IProjectionPayload> GetProjection()
@@ -204,21 +169,5 @@ public class UserDeck : UserGrain, IUserDeck
             if (!hasCard)
                 throw new InvalidOperationException($"Card {card} is not owned");
         }
-    }
-}
-
-public static class UserDeckEventStateExtensions
-{
-    public static async Task<IReadOnlyList<CardType>> ReadAndGetSelected(this EventState<UserDeckState> state)
-    {
-        await state.Read();
-        var selectedDeck = state.Value.Entries[state.Value.SelectedIndex];
-        return selectedDeck.Cards;
-    }
-
-    public static async Task<UserDeckState> ReadAndReturn(this EventState<UserDeckState> state)
-    {
-        await state.Read();
-        return state.Value;
     }
 }

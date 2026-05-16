@@ -22,7 +22,7 @@ public interface IMatch : IGrainWithGuidKey
 
 [GenerateSerializer]
 [GrainEventState(State = "match_entity", Lookup = "Match", Key = GrainKeyType.Guid)]
-public class MatchAggregate : IEventStateValue
+public class MatchState : IEventStateValue
 {
     [Id(0)] public string Id { get; set; } = string.Empty;
     [Id(1)] public GameMatchType Type { get; set; }
@@ -69,29 +69,16 @@ public class MatchAggregate : IEventStateValue
     }
 }
 
-public class MatchSetup
-{
-    public GameMatchType Type { get; set; }
-    public DateTime StartDate { get; set; }
-    public IReadOnlyList<Guid> Participants { get; set; } = new List<Guid>();
-    public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; set; } = new();
-}
+public record MatchSetup(GameMatchType Type, DateTime StartDate, IReadOnlyList<Guid> Participants, Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks);
 
-public class MatchCompleted
-{
-    public Guid Winner { get; set; }
-    public TimeSpan Time { get; set; }
-}
+public record MatchCompleted(Guid Winner, TimeSpan Time);
 
-public class MatchRatingCalculated
-{
-    public Dictionary<Guid, int> Changes { get; set; } = new();
-}
+public record MatchRatingCalculated(Dictionary<Guid, int> Changes);
 
 public class Match : Grain, IMatch
 {
     public Match(
-        [EventState] EventState<MatchAggregate> state,
+        [EventState] EventState<MatchState> state,
         IOrleans orleans,
         IOptions<ProgressionOptions> options,
         IRatingConfig ratingConfig)
@@ -102,7 +89,7 @@ public class Match : Grain, IMatch
         _ratingConfig = ratingConfig;
     }
 
-    private readonly EventState<MatchAggregate> _state;
+    private readonly EventState<MatchState> _state;
     private readonly IOrleans _orleans;
     private readonly IOptions<ProgressionOptions> _options;
     private readonly IRatingConfig _ratingConfig;
@@ -116,15 +103,7 @@ public class Match : Grain, IMatch
 
         var decks = deckResults.ToDictionary(r => r.UserId, r => r.Cards);
 
-        await _state.Read();
-        await _state.Append(new MatchSetup
-        {
-            Type = type,
-            StartDate = DateTime.UtcNow,
-            Participants = participants,
-            ParticipantDecks = decks
-        });
-        await _state.Write();
+        await _state.Apply(new MatchSetup(type, DateTime.UtcNow, participants, decks));
     }
 
     public async Task OnComplete(Guid winnerId)
@@ -132,12 +111,6 @@ public class Match : Grain, IMatch
         await _state.Read();
         var endDate = DateTime.UtcNow;
         var startTime = _state.Value.StartDate;
-
-        await _state.Append(new MatchCompleted
-        {
-            Winner = winnerId,
-            Time = endDate - startTime
-        });
 
         var state = _state.Value;
         var loserId = state.Participants.First(p => p != winnerId);
@@ -173,14 +146,13 @@ public class Match : Grain, IMatch
             Rating = ratingOptions.LossRating
         };
 
-        await _state.Append(new MatchRatingCalculated
-        {
-            Changes = new Dictionary<Guid, int>
+        await _state.Append(
+            new MatchCompleted(winnerId, endDate - startTime),
+            new MatchRatingCalculated(new Dictionary<Guid, int>
             {
                 [winnerId] = winRatingRecord.GetRating(),
                 [loserId] = lossRatingRecord.GetRating()
-            }
-        });
+            }));
         await _state.Write();
 
         await Task.WhenAll(winner.MatchHistory.Add(overview),
@@ -193,39 +165,6 @@ public class Match : Grain, IMatch
 
     public Task<MatchState> GetState()
     {
-        return _state.ReadAndMapToState();
-    }
-}
-
-[GenerateSerializer]
-public class MatchState : IDirectStateValue
-{
-    [Id(0)] public GameMatchType Type { get; set; }
-    [Id(1)] public Guid Winner { get; set; }
-    [Id(2)] public TimeSpan Time { get; set; }
-    [Id(3)] public DateTime StartDate { get; set; }
-    [Id(4)] public IReadOnlyList<Guid> Participants { get; set; } = new List<Guid>();
-    [Id(5)] public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; set; } = new();
-    [Id(6)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
-
-    public int Version => 0;
-}
-
-public static class MatchEventStateExtensions
-{
-    public static async Task<MatchState> ReadAndMapToState(this EventState<MatchAggregate> state)
-    {
-        await state.Read();
-        var v = state.Value;
-        return new MatchState
-        {
-            Type = v.Type,
-            Winner = v.Winner,
-            Time = v.Time,
-            StartDate = v.StartDate,
-            Participants = v.Participants,
-            ParticipantDecks = v.ParticipantDecks,
-            RatingChanges = v.RatingChanges
-        };
+        return _state.Read();
     }
 }
