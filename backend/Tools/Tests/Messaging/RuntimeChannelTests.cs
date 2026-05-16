@@ -55,7 +55,7 @@ public class RuntimeChannelTests
     }
 
     [Fact]
-    public async Task Publish_AsyncListener_AwaitsBeforePublishCompletes()
+    public async Task Publish_AsyncListener_DoesNotBlockPublish()
     {
         var channelId = new TestChannelId(Guid.NewGuid().ToString());
         var messaging = GetSiloService<IMessaging>();
@@ -68,6 +68,10 @@ public class RuntimeChannelTests
 
         await messaging.PublishChannel(channelId, new TestMessage { Text = "async" });
 
+        // Publish should return immediately, before the async listener completes
+        completed.Should().BeFalse();
+
+        await Task.Delay(200, TestContext.Current.CancellationToken);
         completed.Should().BeTrue();
     }
 

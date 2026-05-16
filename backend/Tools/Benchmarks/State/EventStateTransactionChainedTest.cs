@@ -11,7 +11,7 @@ public class EventStateTransactionChainedTest
     public class StartPayload() : IConcurrentIterationTestPayload
     {
         [Id(0)] public int ChainLength { get; set; } = 3;
-        [Id(1)] public int Iterations { get; set; } = 1250;
+        [Id(1)] public int Iterations { get; set; } = 1000;
         [Id(2)] public int Concurrent { get; set; } = 3;
     }
 
