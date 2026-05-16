@@ -4,19 +4,14 @@ namespace Infrastructure.State;
 
 public class State<T> : IGrainStateTransactionParticipant where T : class, IDirectStateValue, new()
 {
-    public State(
-        IStateStorage stateStorage,
-        IGrainContext context,
-        IStateSerializer serializer)
+    public State(IStateStorage stateStorage, IGrainContext context)
     {
         _stateStorage = stateStorage;
         _context = context;
-        _serializer = serializer;
     }
 
     private readonly IStateStorage _stateStorage;
     private readonly IGrainContext _context;
-    private readonly IStateSerializer _serializer;
 
     private T? _value;
     private Guid _currentTransactionId;
@@ -54,24 +49,6 @@ public class State<T> : IGrainStateTransactionParticipant where T : class, IDire
         if (TransactionContextProvider.Current.Id != _currentTransactionId)
             throw new InvalidOperationException("Concurrent transactions are not supported.");
 
-        var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>().ThrowIfNull();
-        handler.RecordStateChanged(this);
-
-        return Task.CompletedTask;
-    }
-
-    public Task Replace(T value)
-    {
-        if (TransactionContextProvider.Current == null)
-        {
-            _value = value;
-            return _stateStorage.Write(_context.GrainId, _value!);
-        }
-
-        if (TransactionContextProvider.Current.Id != _currentTransactionId)
-            throw new InvalidOperationException("Concurrent transactions are not supported.");
-
-        _value = value;
         var handler = (GrainTransactionHandler)_context.GetComponent<IGrainTransactionHandler>().ThrowIfNull();
         handler.RecordStateChanged(this);
 

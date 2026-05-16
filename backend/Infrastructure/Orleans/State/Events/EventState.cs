@@ -36,7 +36,13 @@ public class EventState<TAggregate> : IGrainEventTransactionParticipant
 
     public TAggregate Value => _value.ThrowIfNull();
 
-    public async Task Read()
+    public async Task<TAggregate> Read()
+    {
+        await Load();
+        return _value;
+    }
+
+    public async Task Load()
     {
         if (TransactionContextProvider.Current == null)
         {

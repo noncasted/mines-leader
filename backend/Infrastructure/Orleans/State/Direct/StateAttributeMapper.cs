@@ -39,17 +39,15 @@ public interface IStateFactory
 
 public class StateFactory : IStateFactory
 {
-    public StateFactory(IStateStorage stateStorage, IStateSerializer serializer)
+    public StateFactory(IStateStorage stateStorage)
     {
         _stateStorage = stateStorage;
-        _serializer = serializer;
     }
 
     private readonly IStateStorage _stateStorage;
-    private readonly IStateSerializer _serializer;
 
     public State<TState> Create<TState>(IGrainContext context) where TState : class, IDirectStateValue, new()
     {
-        return new State<TState>(_stateStorage, context, _serializer);
+        return new State<TState>(_stateStorage, context);
     }
 }
