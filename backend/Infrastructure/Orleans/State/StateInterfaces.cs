@@ -9,7 +9,7 @@ public interface IDirectStateValue : IStateValue { }
 
 public interface IEventStateValue : IStateValue
 {
-    string Id { get; }
+    string Id { get; set; }
 }
 
 public interface IGrainStateTransactionParticipant

@@ -198,74 +198,84 @@ public class DirectStorage
         }
     }
 
-    public async Task Delete(StateDeleteRequest request)
-    {
-        var identities = request.Identities;
+	public async Task Delete(StateDeleteRequest request)
+	{
+		var identities = request.Identities;
 
-        if (identities.Count == 0)
-            return;
+		if (identities.Count == 0)
+			return;
 
-        using var watch = MetricWatch.Start(BackendMetrics.StateDeleteDuration);
+		using var watch = MetricWatch.Start(BackendMetrics.StateDeleteDuration);
 
-        try
-        {
-            await using var connection = await _dbSource.Value.OpenConnectionAsync();
-            await using var transaction = await connection.BeginTransactionAsync();
+		try
+		{
+			if (request.Transaction != null)
+			{
+				await DeleteBatch(request.Transaction, identities);
+			}
+			else
+			{
+				await using var connection = await _dbSource.Value.OpenConnectionAsync();
+				await using var transaction = await connection.BeginTransactionAsync();
+				await DeleteBatch(transaction, identities);
+				await transaction.CommitAsync();
+			}
+		}
+		catch (Exception e)
+		{
+			_logger.LogError(e, "[DirectStorage] Failed to delete {Count} records", identities.Count);
+			throw;
+		}
+		finally
+		{
+			BackendMetrics.StateDeleteTotal.Add(1);
+		}
+	}
 
-            var groups = new Dictionary<(string TableName, bool HasExtension), List<StateIdentity>>();
+	private static async Task DeleteBatch(NpgsqlTransaction transaction, IReadOnlyList<StateIdentity> identities)
+	{
+		var groups = new Dictionary<(string TableName, bool HasExtension), List<StateIdentity>>();
 
-            foreach (var identity in identities)
-            {
-                var key = (identity.TableName, identity.Extension != null);
+		foreach (var identity in identities)
+		{
+			var key = (identity.TableName, identity.Extension != null);
 
-                if (groups.TryGetValue(key, out var list) == false)
-                {
-                    list = new List<StateIdentity>();
-                    groups[key] = list;
-                }
+			if (!groups.TryGetValue(key, out var list))
+			{
+				list = new List<StateIdentity>();
+				groups[key] = list;
+			}
 
-                list.Add(identity);
-            }
+			list.Add(identity);
+		}
 
-            foreach (var ((tableName, hasExtension), entries) in groups)
-            {
-                await using var command = connection.CreateCommand();
-                command.Transaction = transaction;
+		foreach (var ((tableName, hasExtension), entries) in groups)
+		{
+			await using var command = transaction.Connection!.CreateCommand();
+			command.Transaction = transaction;
 
-                var conditions = new List<string>(entries.Count);
+			var conditions = new List<string>(entries.Count);
 
-                for (var i = 0; i < entries.Count; i++)
-                {
-                    command.Parameters.AddWithValue($"key{i}", entries[i].Key);
-                    command.Parameters.AddWithValue($"type{i}", entries[i].Type);
+			for (var i = 0; i < entries.Count; i++)
+			{
+				command.Parameters.AddWithValue($"key{i}", entries[i].Key);
+				command.Parameters.AddWithValue($"type{i}", entries[i].Type);
 
-                    if (hasExtension)
-                    {
-                        command.Parameters.AddWithValue($"ext{i}", entries[i].Extension!);
-                        conditions.Add($"(key = @key{i} AND type = @type{i} AND extension = @ext{i})");
-                    }
-                    else
-                    {
-                        conditions.Add($"(key = @key{i} AND type = @type{i})");
-                    }
-                }
+				if (hasExtension)
+				{
+					command.Parameters.AddWithValue($"ext{i}", entries[i].Extension!);
+					conditions.Add($"(key = @key{i} AND type = @type{i} AND extension = @ext{i})");
+				}
+				else
+				{
+					conditions.Add($"(key = @key{i} AND type = @type{i})");
+				}
+			}
 
-                command.CommandText = $"DELETE FROM {tableName} WHERE {string.Join(" OR ", conditions)}";
-                await command.ExecuteNonQueryAsync();
-            }
-
-            await transaction.CommitAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[DirectStorage] Failed to delete {Count} records", identities.Count);
-            throw;
-        }
-        finally
-        {
-            BackendMetrics.StateDeleteTotal.Add(1);
-        }
-    }
+			command.CommandText = $"DELETE FROM {tableName} WHERE {string.Join(" OR ", conditions)}";
+			await command.ExecuteNonQueryAsync();
+		}
+	}
 
     private async Task<(string, int)> ReadRaw(StateIdentity stateIdentity)
     {

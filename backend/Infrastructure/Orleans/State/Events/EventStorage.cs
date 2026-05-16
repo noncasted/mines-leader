@@ -1,4 +1,5 @@
 using Common;
+using Newtonsoft.Json;
 using System.Data.Common;
 using System.Linq.Expressions;
 using Marten;
@@ -20,13 +21,17 @@ public class GrainEventRecord
 
 public interface IEventStorage
 {
-    Task<T> Read<T>(string streamId) where T : class, new();
+    Task<T> Read<T>(string streamId) where T : class, IEventStateValue, new();
     Task Append(string streamId, params object[] events);
     Task Write(DbTransaction transaction, IReadOnlyList<GrainEventRecord> records);
     Task Delete(string streamId);
+    Task DeleteBatch(IReadOnlyList<string> streamIds);
+    Task DeleteBatch(NpgsqlTransaction transaction, IReadOnlyList<string> streamIds);
+
     Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(IReadOnlyList<string> streamIds)
         where TKey : notnull
         where TValue : class, new();
+
     IAsyncEnumerable<(TKey Key, TValue Aggregate)> ReadAll<TKey, TValue>(string streamPrefix, GrainKeyType keyType)
         where TKey : notnull
         where TValue : class, new();
@@ -45,15 +50,21 @@ public class EventStorage : IEventStorage
         _logger = logger;
     }
 
-    public async Task<T> Read<T>(string streamId) where T : class, new()
+    public async Task<T> Read<T>(string streamId) where T : class, IEventStateValue, new()
     {
         await using var session = _store.QuerySession();
-        var aggregate = await session.LoadAsync<T>(streamId);
-        if (aggregate != null)
-            return aggregate;
 
-        aggregate = await session.Events.AggregateStreamAsync<T>(streamId);
-        return aggregate ?? new T();
+        var aggregate = await TryLoadAsync<T>(session, streamId);
+        if (aggregate == null)
+            aggregate = await session.Events.AggregateStreamAsync<T>(streamId);
+
+        if (aggregate != null)
+        {
+            SetIdFromStream(aggregate, streamId);
+            return aggregate;
+        }
+
+		return new T();
     }
 
     public async Task Append(string streamId, params object[] events)
@@ -90,6 +101,46 @@ public class EventStorage : IEventStorage
         await session.SaveChangesAsync();
     }
 
+    public async Task DeleteBatch(IReadOnlyList<string> streamIds)
+    {
+        if (streamIds.Count == 0)
+            return;
+
+        const int batchSize = 1000;
+
+        for (var i = 0; i < streamIds.Count; i += batchSize)
+        {
+            var batch = streamIds.Skip(i).Take(batchSize).ToList();
+            await using var session = _store.LightweightSession();
+
+            foreach (var streamId in batch)
+                session.Events.ArchiveStream(streamId);
+
+            await session.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteBatch(NpgsqlTransaction transaction, IReadOnlyList<string> streamIds)
+    {
+        if (streamIds.Count == 0)
+            return;
+
+        const int batchSize = 1000;
+
+        for (var i = 0; i < streamIds.Count; i += batchSize)
+        {
+            var batch = streamIds.Skip(i).Take(batchSize).ToList();
+
+            await using var session =
+                _store.OpenSession(SessionOptions.ForTransaction(transaction, shouldAutoCommit: false));
+
+            foreach (var streamId in batch)
+                session.Events.ArchiveStream(streamId);
+
+            await session.SaveChangesAsync();
+        }
+    }
+
     public async Task<IReadOnlyDictionary<TKey, TValue>> ReadBatch<TKey, TValue>(IReadOnlyList<string> streamIds)
         where TKey : notnull
         where TValue : class, new()
@@ -103,12 +154,13 @@ public class EventStorage : IEventStorage
 
         foreach (var streamId in streamIds)
         {
-            var aggregate = await session.LoadAsync<TValue>(streamId);
+            var aggregate = await TryLoadAsync<TValue>(session, streamId);
             if (aggregate == null)
                 aggregate = await session.Events.AggregateStreamAsync<TValue>(streamId);
 
             if (aggregate != null)
             {
+                SetIdFromStream(aggregate, streamId);
                 var key = ParseStreamKey<TKey>(streamId);
                 result[key] = aggregate;
             }
@@ -117,42 +169,44 @@ public class EventStorage : IEventStorage
         return result;
     }
 
-    public async IAsyncEnumerable<(TKey Key, TValue Aggregate)> ReadAll<TKey, TValue>(string streamPrefix, GrainKeyType keyType)
-        where TKey : notnull
-        where TValue : class, new()
-    {
-        await using var session = _store.QuerySession();
+	    public async IAsyncEnumerable<(TKey Key, TValue Aggregate)> ReadAll<TKey, TValue>(
+	        string streamPrefix,
+	        GrainKeyType keyType)
+	        where TKey : notnull
+	        where TValue : class, new()
+	    {
+	        await using var session = _store.QuerySession();
 
-        var parameter = Expression.Parameter(typeof(TValue), "x");
-        var idProperty = Expression.Property(parameter, "Id");
-        var startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!;
-        var body = Expression.Call(idProperty, startsWithMethod, Expression.Constant(streamPrefix));
-        var predicate = Expression.Lambda<Func<TValue, bool>>(body, parameter);
+	        var parameter = Expression.Parameter(typeof(TValue), "x");
+	        var idProperty = Expression.Property(parameter, "Id");
+	        var startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!;
+	        var body = Expression.Call(idProperty, startsWithMethod, Expression.Constant(streamPrefix));
+	        var predicate = Expression.Lambda<Func<TValue, bool>>(body, parameter);
 
-        var aggregates = await session.Query<TValue>()
-            .Where(predicate)
-            .ToListAsync();
+	        var aggregates = await session.Query<TValue>()
+	            .Where(predicate)
+	            .ToListAsync();
 
-        foreach (var aggregate in aggregates)
-        {
-            var id = ((IEventStateValue)aggregate).Id;
-            var grainKey = ExtractGrainKey(id);
-            var key = ParseKey<TKey>(grainKey, keyType);
-            yield return (key, aggregate);
-        }
-    }
+	        foreach (var aggregate in aggregates)
+	        {
+	            var id = ((IEventStateValue)aggregate).Id;
+	            var grainKey = ExtractGrainKey(id);
+	            var key = ParseKey<TKey>(grainKey, keyType);
+	            yield return (key, aggregate);
+	        }
+	    }
 
     private object Deserialize(EventPayload payload)
     {
-        var type = Type.GetType(payload.Type)
-            ?? throw new InvalidOperationException(
-                $"Unable to resolve event type '{payload.Type}'. Ensure the type is available in the current AppDomain.");
+        var type = Type.GetType(payload.Type) ??
+                   throw new InvalidOperationException(
+                       $"Unable to resolve event type '{payload.Type}'. Ensure the type is available in the current AppDomain.");
 
         try
         {
-            return _stateSerializer.Deserialize(payload.Json, type)
-                ?? throw new InvalidOperationException(
-                    $"Event deserialization returned null. Type: {type.Name}, Json: {payload.Json}");
+            return _stateSerializer.Deserialize(payload.Json, type) ??
+                   throw new InvalidOperationException(
+                       $"Event deserialization returned null. Type: {type.Name}, Json: {payload.Json}");
         }
         catch (Exception ex)
         {
@@ -165,6 +219,24 @@ public class EventStorage : IEventStorage
     {
         var colonIndex = streamId.IndexOf(':');
         return colonIndex >= 0 ? streamId.Substring(colonIndex + 1) : streamId;
+    }
+
+    private static void SetIdFromStream<T>(T aggregate, string streamId) where T : class
+    {
+        if (aggregate is IEventStateValue esv)
+            esv.Id = streamId;
+    }
+
+    private static async Task<T?> TryLoadAsync<T>(IQuerySession session, string streamId) where T : class, new()
+    {
+        try
+        {
+            return await session.LoadAsync<T>(streamId);
+        }
+        catch (JsonException)
+        {
+            return await session.Events.AggregateStreamAsync<T>(streamId);
+        }
     }
 
     private static TKey ParseKey<TKey>(string value, GrainKeyType keyType) => keyType switch

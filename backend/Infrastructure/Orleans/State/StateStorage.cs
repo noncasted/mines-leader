@@ -1,4 +1,5 @@
 using Common;
+using Common.Extensions;
 using Common.Reactive;
 using Marten;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,8 @@ public class StateWriteRequest
 
 public class StateDeleteRequest
 {
-    public required IReadOnlyList<StateIdentity> Identities { get; init; }
+	public required IReadOnlyList<StateIdentity> Identities { get; init; }
+	public NpgsqlTransaction? Transaction { get; init; }
 }
 
 public interface IStateStorage
@@ -53,27 +55,30 @@ public interface IStateStorage
 
 public class StateStorage : IStateStorage
 {
-    public StateStorage(
-        DirectStorage directStorage,
-        IEventStorage eventStorage,
-        IDocumentStore documentStore,
-        IGrainStatesRegistry statesRegistry,
-        IStateSerializer stateSerializer,
-        ILogger<StateStorage> logger)
-    {
-        _directStorage = directStorage;
-        _eventStorage = eventStorage;
-        _documentStore = documentStore;
-        _stateSerializer = stateSerializer;
-        _logger = logger;
-        Registry = statesRegistry;
-    }
+	public StateStorage(
+		DirectStorage directStorage,
+		IEventStorage eventStorage,
+		IDocumentStore documentStore,
+		IGrainStatesRegistry statesRegistry,
+		IStateSerializer stateSerializer,
+		IDbSource dbSource,
+		ILogger<StateStorage> logger)
+	{
+		_directStorage = directStorage;
+		_eventStorage = eventStorage;
+		_documentStore = documentStore;
+		_stateSerializer = stateSerializer;
+		_dbSource = dbSource;
+		_logger = logger;
+		Registry = statesRegistry;
+	}
 
-    private readonly DirectStorage _directStorage;
-    private readonly IEventStorage _eventStorage;
-    private readonly IDocumentStore _documentStore;
-    private readonly IStateSerializer _stateSerializer;
-    private readonly ILogger<StateStorage> _logger;
+	private readonly DirectStorage _directStorage;
+	private readonly IEventStorage _eventStorage;
+	private readonly IDocumentStore _documentStore;
+	private readonly IStateSerializer _stateSerializer;
+	private readonly IDbSource _dbSource;
+	private readonly ILogger<StateStorage> _logger;
 
     public IGrainStatesRegistry Registry { get; }
 
@@ -167,30 +172,48 @@ public class StateStorage : IStateStorage
         }
     }
 
-    public async Task Delete(StateDeleteRequest request)
-    {
-        var directIdentities = new List<StateIdentity>();
+	public async Task Delete(StateDeleteRequest request)
+	{
+		var identities = request.Identities;
 
-        foreach (var identity in request.Identities)
-        {
-            var info = Registry.All.FirstOrDefault(s => s.Name == identity.Type);
+		if (identities.Count == 0)
+			return;
 
-            if (info != null && typeof(IEventStateValue).IsAssignableFrom(info.Type))
-            {
-                var streamId = $"{identity.Type}:{identity.Key}";
-                await _eventStorage.Delete(streamId);
-            }
-            else
-            {
-                directIdentities.Add(identity);
-            }
-        }
+		var eventStreamIds = new List<string>();
+		var directIdentities = new List<StateIdentity>();
 
-        if (directIdentities.Count != 0)
-        {
-            await _directStorage.Delete(new StateDeleteRequest { Identities = directIdentities });
-        }
-    }
+		foreach (var identity in identities)
+		{
+			var info = Registry.All.FirstOrDefault(s => s.Name == identity.Type);
+
+			if (info != null && typeof(IEventStateValue).IsAssignableFrom(info.Type))
+				eventStreamIds.Add($"{identity.Type}:{identity.Key}");
+			else
+				directIdentities.Add(identity);
+		}
+
+		if (eventStreamIds.Count == 0 && directIdentities.Count == 0)
+			return;
+
+		await using var connection = await _dbSource.Value.OpenConnectionAsync();
+		await using var transaction = await connection.BeginTransactionAsync();
+
+		try
+		{
+			if (eventStreamIds.Count != 0)
+				await _eventStorage.DeleteBatch(transaction, eventStreamIds);
+
+			if (directIdentities.Count != 0)
+				await _directStorage.Delete(new StateDeleteRequest { Identities = directIdentities, Transaction = transaction });
+
+			await transaction.CommitAsync();
+		}
+		catch
+		{
+			await transaction.RollbackAsync();
+			throw;
+		}
+	}
 
     public async Task<string> ReadRawJson(StateIdentity identity)
     {
