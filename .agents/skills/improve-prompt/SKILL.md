@@ -75,20 +75,20 @@ Tell Claude what TO do, not what NOT to do. Negations are weaker signals.
 
 ### 8. Remove noise
 
-Strip filler words, politeness padding, and redundant context that Claude already knows from CLAUDE.md. Every token of noise dilutes the signal.
+Strip filler words, politeness padding, and redundant context that Claude already knows from AGENTS.md. Every token of noise dilutes the signal.
 
 ## Project-specific improvements
 
 You know this codebase. When improving prompts, leverage that knowledge:
 
-- Reference the correct CLAUDE.md rules when relevant (MonoBehaviour pattern, Lifetime rules, Orleans grain checklist)
+- Reference the correct AGENTS.md rules when relevant (MonoBehaviour pattern, Lifetime rules, Orleans grain checklist)
 - Add the right file paths — you can grep or glob to find them
 - Mention the right base classes, interfaces, and patterns from the project
 - Add build/test commands specific to the project
 
 ## What NOT to do
 
-- Don't add instructions that duplicate what's already in CLAUDE.md — Claude loads those automatically
+- Don't add instructions that duplicate what's already in AGENTS.md — Claude loads those automatically
 - Don't add generic "write clean code" filler
 - Don't make the prompt 10x longer than necessary — brevity with precision beats verbose with padding
 - Don't change the user's intent — improve HOW they ask, not WHAT they ask

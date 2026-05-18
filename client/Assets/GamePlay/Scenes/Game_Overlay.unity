@@ -417,6 +417,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -657,6 +658,7 @@ GameObject:
   - component: {fileID: 1241235514}
   - component: {fileID: 1241235513}
   - component: {fileID: 1241235517}
+  - component: {fileID: 1241235518}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -761,6 +763,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GameOverlayUI
   _pauseButton: {fileID: 81047811}
+--- !u!114 &1241235518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241235512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7c2286d7e25eda88b7fac82be596288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.UI.CardInfo.CardInfoDisplayUI
+  _canvasGroup: {fileID: 0}
+  _cardName: {fileID: 0}
+  _cardDescription: {fileID: 0}
+  _fadeInDuration: 0.15
+  _fadeOutDuration: 0.1
 --- !u!1 &1781172154
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,6 +813,7 @@ MonoBehaviour:
   _services:
   - {fileID: 1241235517}
   - {fileID: 359578563}
+  - {fileID: 1241235518}
 --- !u!4 &1781172156
 Transform:
   m_ObjectHideFlags: 0

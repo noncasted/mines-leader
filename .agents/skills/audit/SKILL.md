@@ -1,23 +1,23 @@
 ---
 name: audit
-description: "Audit and improve parts of the .claude configuration folder — agents, skills, rules, docs, CLAUDE.md. Researches best practices online for the specific domain being audited, then finds inconsistencies, errors, and improvement opportunities. Use this skill when the user says /audit, asks to review or improve their .claude setup, mentions 'audit agents', 'improve my rules', 'check my skill', or wants to optimize any part of the .claude folder."
+description: "Audit and improve parts of the .agents configuration folder — agents, skills, rules, docs, AGENTS.md. Researches best practices online for the specific domain being audited, then finds inconsistencies, errors, and improvement opportunities. Use this skill when the user says /audit, asks to review or improve their .agents setup, mentions 'audit agents', 'improve my rules', 'check my skill', or wants to optimize any part of the .agents folder."
 ---
 
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
-TRIGGERS: /audit, audit, аудит, проверь конфиг, аудит агентов, аудит скиллов, аудит доков, аудит CLAUDE.md, аудит всего
+TRIGGERS: /audit, audit, аудит, проверь конфиг, аудит агентов, аудит скиллов, аудит доков, аудит AGENTS.md, аудит всего
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
 
 # Audit Skill
 
-Audits parts of the `.claude` folder by researching domain-specific best practices and then comparing the current state against them.
+Audits parts of the `.agents` folder by researching domain-specific best practices and then comparing the current state against them.
 
 ## Arguments
 
-- `/audit agents` — audit agent definitions in `.claude/agents/`
-- `/audit skills` — audit all skills in `.claude/skills/`
+- `/audit agents` — audit agent definitions in `.agents/agents/`
+- `/audit skills` — audit all skills in `.agents/skills/`
 - `/audit skills/check` — audit a specific skill
 - `/audit docs` — audit docs in `docs/db/docs/`
-- `/audit CLAUDE.md` — audit the main CLAUDE.md
+- `/audit AGENTS.md` — audit the main AGENTS.md
 - `/audit all` — full audit of everything (takes a while)
 
 If no argument given, ask the user what to audit.
@@ -34,14 +34,14 @@ The same files can serve different purposes depending on context. For example:
 
 | Target | Domain | What to research |
 |--------|--------|-----------------|
-| `.claude/agents/` as files | AI agent prompt engineering | How to write effective agent system prompts, tool descriptions, few-shot examples |
-| `.claude/agents/` as validators (from `/check`) | Static analysis / linting design | How to build effective code validators, what makes good lint rules, false positive rates |
-| `.claude/skills/commit/` | Git commit workflow automation | Conventional commits, commit message best practices, pre-commit hooks |
-| `.claude/skills/check/` | Code review automation | Automated code review systems, which checks catch real bugs vs noise |
+| `.agents/agents/` as files | AI agent prompt engineering | How to write effective agent system prompts, tool descriptions, few-shot examples |
+| `.agents/agents/` as validators (from `/check`) | Static analysis / linting design | How to build effective code validators, what makes good lint rules, false positive rates |
+| `.agents/skills/commit/` | Git commit workflow automation | Conventional commits, commit message best practices, pre-commit hooks |
+| `.agents/skills/check/` | Code review automation | Automated code review systems, which checks catch real bugs vs noise |
 | `docs/db/docs/COMMON_LIFETIMES.md` | Resource management documentation | How to document ownership/lifetime patterns, common pitfalls in reactive systems |
 | `docs/db/docs/COMMON_ORLEANS.md` | Distributed systems documentation | Orleans grain best practices, actor model anti-patterns |
 | `docs/db/docs/GAMEPLAY.md` | Game design documentation | How to document game mechanics for developers |
-| `.claude/CLAUDE.md` | Claude Code configuration | CLAUDE.md structure, prompt hierarchy, what goes where |
+| `.agents/AGENTS.md` | Claude Code configuration | AGENTS.md structure, prompt hierarchy, what goes where |
 
 The key insight: **don't audit the container, audit the content**. Agent files are prompts — audit them as prompts. A skill that automates commits — audit the commit workflow it implements. Rules about Orleans — audit whether the Orleans guidance is correct and complete.
 
@@ -55,7 +55,7 @@ Output a brief domain summary before proceeding to Phase 2. Example:
 
 ```
 Domain: AI agent prompt engineering
-Files: 13 agent definitions in .claude/agents/
+Files: 13 agent definitions in .agents/agents/
 Context: These are system prompts for specialized validation subagents.
 Each agent is spawned by the /check skill to validate specific code patterns.
 ```
@@ -87,8 +87,8 @@ Search strategy by domain type:
 - Look for the technology's own official best practices to verify the rules are correct
 - Find common misconceptions about the technology
 
-**For CLAUDE.md / configuration:**
-- Search for Claude Code CLAUDE.md best practices, project instruction patterns
+**For AGENTS.md / configuration:**
+- Search for Claude Code AGENTS.md best practices, project instruction patterns
 - Look for prompt hierarchy and context management strategies
 
 After researching, compile a **best practices checklist** specific to the domain. This becomes your audit criteria. Write it down explicitly before proceeding to Phase 3.
@@ -168,5 +168,5 @@ Errors: N | Gaps: N | Improvements: N | Style: N
 3. **Cite sources** — when a recommendation comes from research, mention where (e.g., "per Orleans documentation..." or "common pattern in prompt engineering...")
 4. **Cross-reference with project** — if a rule says "always do X", grep the codebase to see if X is actually done. Rules that don't match reality are either wrong rules or unenforced rules — both are findings
 5. **Russian prose** for the report, English for code and technical terms
-6. **Don't suggest changes to CLAUDE.md structure that would break the keyword lookup table** — it's load-bearing
+6. **Don't suggest changes to AGENTS.md structure that would break the keyword lookup table** — it's load-bearing
 7. **Prioritize actionable findings** — "this could be better" is less useful than "change line 42 from X to Y because Z"
