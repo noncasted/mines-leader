@@ -114,7 +114,7 @@ The full `<task_name>_result.md` is preserved in git history if anyone needs the
 
 ## Phase 6 — Update Project Documentation
 
-Based on the completed work, check and update relevant documentation in `.claude/`.
+Based on the completed work, check and update relevant documentation in `.agents/`.
 
 ### 6.1 — Check each documentation file for relevance
 
@@ -166,7 +166,7 @@ Check if any of the following should be saved to auto-memory:
 Do NOT save:
 - File lists (derivable from git)
 - Implementation details (in the code)
-- Anything already in `<task_name>_result.md` or `.claude/` docs
+- Anything already in `<task_name>_result.md` or `.agents/` docs
 
 ---
 
