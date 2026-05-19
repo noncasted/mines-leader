@@ -1,6 +1,7 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 using Common.Reactive;
 using MemoryPack;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Common.Network;
@@ -14,12 +15,14 @@ public interface IConnectionReader
 
 public class ConnectionReader : IConnectionReader
 {
-    public ConnectionReader(WebSocket webSocket)
+    public ConnectionReader(WebSocket webSocket, ILogger logger)
     {
         _webSocket = webSocket;
+        _logger = logger;
     }
 
     private readonly WebSocket _webSocket;
+    private readonly ILogger _logger;
 
     private readonly ViewableDelegate<OneWayMessageFromClient> _oneWay = new();
     private readonly ViewableDelegate<RequestMessageFromClient> _requests = new();
@@ -44,20 +47,46 @@ public class ConnectionReader : IConnectionReader
             {
                 receiveResult = await _webSocket.ReceiveAsync(buffer, lifetime.Token);
             }
-            catch (WebSocketException)
+            catch (WebSocketException e)
             {
+                _logger.LogError(e, "[Connection] WebSocket receive error — closing connection");
                 break;
             }
             catch (OperationCanceledException)
             {
+                _logger.LogInformation("[Connection] Read loop cancelled — closing connection");
                 break;
             }
 
             if (_webSocket.CloseStatus != null)
+            {
+                _logger.LogInformation("[Connection] WebSocket close status received: {Status} {Description}",
+                    _webSocket.CloseStatus,
+                    _webSocket.CloseStatusDescription);
                 break;
+            }
 
             var payload = buffer[..receiveResult.Count];
-            var context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span);
+
+            IMessageFromClient? context;
+
+            try
+            {
+                context = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[Connection] Failed to deserialize message — dropping payload ({Bytes} bytes)",
+                    receiveResult.Count);
+                continue;
+            }
+
+            if (context == null)
+            {
+                _logger.LogWarning("[Connection] Deserialized null message — dropping payload ({Bytes} bytes)",
+                    receiveResult.Count);
+                continue;
+            }
 
             switch (context)
             {
@@ -71,7 +100,9 @@ public class ConnectionReader : IConnectionReader
                     _responses.Invoke(response);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    _logger.LogWarning("[Connection] Unknown message type received: {Type} — dropping",
+                        context.GetType().FullName);
+                    break;
             }
         }
     }

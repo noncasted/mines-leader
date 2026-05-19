@@ -1,4 +1,5 @@
-﻿using Cluster.State;
+using System.Net.WebSockets;
+using Cluster.State;
 using Common.Extensions;
 using Common.Network;
 using Common.Reactive;
@@ -56,43 +57,102 @@ public class BackendConnectionMiddleware
             return;
         }
 
-        using var activity = TraceExtensions.PlayerConnection.Start();
+        WebSocket? webSocket = null;
 
-        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        var handle = new ConnectionOneTimeHandle(webSocket);
+        try
+        {
+            webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Meta] Failed to accept WebSocket: {Connection}", context.Connection.Id);
+            return;
+        }
 
-        var auth = await handle.ReadRequest<SharedBackendSocketAuth.Request>();
+        if (webSocket == null)
+        {
+            _logger.LogError("[Meta] AcceptWebSocketAsync returned null: {Connection}", context.Connection.Id);
+            return;
+        }
 
-        _logger.LogInformation("[Backend] [Meta] User connected: {Connection} {UserId}",
+        ConnectionOneTimeHandle? handle = null;
+        SharedBackendSocketAuth.Request auth;
+
+        try
+        {
+            handle = new ConnectionOneTimeHandle(webSocket);
+            auth = await handle.ReadRequest<SharedBackendSocketAuth.Request>();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Meta] WebSocket auth handshake failed: {Connection}", context.Connection.Id);
+            handle?.Dispose();
+
+            if (webSocket.State == WebSocketState.Open)
+            {
+                try
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Auth failed", CancellationToken.None);
+                }
+                catch (Exception closeEx)
+                {
+                    _logger.LogWarning(closeEx, "[Meta] Failed to close WebSocket after auth error: {Connection}", context.Connection.Id);
+                }
+            }
+
+            return;
+        }
+
+        _logger.LogInformation("[Meta] User connected: {Connection} {UserId}",
             context.Connection.Id,
             auth);
-
-        var completion = new TaskCompletionSource();
 
         var userHandle = _orleans.CreateUserHandle(auth.UserId);
         var isExists = await _orleans.Transactions.Run(() => userHandle.Auth.IsExists());
 
         if (isExists == false)
         {
-            _logger.LogWarning("[Backend] [Meta] User connection failed - user does not exist: {Connection} {UserId}",
+            _logger.LogWarning("[Meta] User connection failed — user does not exist: {Connection} {UserId}",
                 context.Connection.Id,
                 auth.UserId);
 
-            await handle.SendResponse(new SharedBackendSocketAuth.Response()
+            try
             {
-                IsSuccess = false
-            });
+                await handle.SendResponse(new SharedBackendSocketAuth.Response()
+                {
+                    IsSuccess = false
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "[Meta] Failed to send auth rejection: {Connection} {UserId}",
+                    context.Connection.Id,
+                    auth.UserId);
+            }
 
             handle.Dispose();
             return;
         }
 
-        await handle.SendResponse(new SharedBackendSocketAuth.Response()
+        try
         {
-            IsSuccess = true
-        });
+            await handle.SendResponse(new SharedBackendSocketAuth.Response()
+            {
+                IsSuccess = true
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Meta] Failed to send auth success: {Connection} {UserId}",
+                context.Connection.Id,
+                auth.UserId);
+            handle.Dispose();
+            return;
+        }
 
         handle.Dispose();
+
+        var completion = new TaskCompletionSource();
         var lifetime = new Lifetime();
         var connection = new Common.Network.Connection(webSocket, lifetime, _logger);
 
@@ -112,16 +172,15 @@ public class BackendConnectionMiddleware
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[Game] [Meta] Error during user connection handling: {Connection} {UserId}",
+            _logger.LogError(e, "[Meta] Error during user connection handling: {Connection} {UserId}",
                 context.Connection.Id,
                 auth.UserId);
         }
         finally
         {
-            activity.Stop();
             lifetime.Terminate();
 
-            _logger.LogInformation("[Game] [Meta] User disconnected: {Connection} {UserId}",
+            _logger.LogInformation("[Meta] User disconnected: {Connection} {UserId}",
                 context.Connection.Id,
                 auth.UserId);
         }

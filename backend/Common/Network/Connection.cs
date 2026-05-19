@@ -1,4 +1,4 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 using Common.Extensions;
 using Common.Reactive;
 using Microsoft.Extensions.Logging;
@@ -21,7 +21,7 @@ public class Connection : IConnection
     {
         _webSocket = webSocket;
         _lifetime = parentLifetime.Child();
-        _reader = new ConnectionReader(webSocket);
+        _reader = new ConnectionReader(webSocket, logger);
         _writer = new ConnectionWriter(webSocket, logger);
     }
 
@@ -58,11 +58,12 @@ public class Connection : IConnection
     {
         try
         {
-            _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User disconnected", CancellationToken.None);
+            _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User disconnected", CancellationToken.None)
+                .NoAwait();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine(e);
+            // CloseAsync is best-effort; ignore failures on already-closed sockets.
         }
     }
 }
