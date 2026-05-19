@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+using MemoryPack;
 
 namespace Shared
 {
@@ -6,7 +6,8 @@ namespace Shared
     public partial class PlayerMovesState
     {
         public int Left { get; set; }
-        public int Max { get; set; }
+        public int BaseMax { get; set; }
+        public int ResultMax { get; set; }
         public bool IsAvailable { get; set; }
     }
 }

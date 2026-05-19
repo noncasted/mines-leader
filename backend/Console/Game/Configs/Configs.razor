@@ -69,6 +69,10 @@
             <LootProgressionConfigEditor Value="_lootProgressionValue" />
             break;
 
+        case ConfigSection.Player:
+            <PlayerConfigEditor Value="_playerConfigValue" />
+            break;
+
         case ConfigSection.UserDeck:
             <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
                 <div class="flex items-center gap-2">
@@ -226,6 +230,7 @@
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
     [Inject] public ILootProgressionConfig LootProgressionConfig { get; set; } = null!;
     [Inject] public IUserDeckConfig UserDeckConfig { get; set; } = null!;
+    [Inject] public IPlayerConfig PlayerConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
     [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
 
@@ -235,6 +240,7 @@
     private RatingOptions _ratingValue = new();
     private LootProgressionOptions _lootProgressionValue = new();
     private UserDeckConfigOptions _userDeckValue = new();
+    private PlayerConfigOptions _playerConfigValue = new();
     private bool _isUpdatingJson;
     private ConfigSection _activeSection = ConfigSection.Bot;
 
@@ -243,6 +249,7 @@
         (ConfigSection.GameMode,  "sword",    "Game Mode"),
         (ConfigSection.Rating,    "star",     "Rating"),
         (ConfigSection.Loot,      "package",  "Loot"),
+        (ConfigSection.Player,    "user",     "Player"),
         (ConfigSection.UserDeck,  "library",  "User Deck"),
         (ConfigSection.Cards,     "zap",      "Cards"),
     ];
@@ -327,6 +334,7 @@
         ReloadField(RatingConfig.Value, ref _ratingValue);
         ReloadField(LootProgressionConfig.Value, ref _lootProgressionValue);
         ReloadField(UserDeckConfig.Value, ref _userDeckValue);
+        ReloadField(PlayerConfig.Value, ref _playerConfigValue);
         InvokeAsync(StateHasChanged);
 
         return;
@@ -346,7 +354,8 @@
         await RatingConfig.SetValue(_ratingValue);
         await LootProgressionConfig.SetValue(_lootProgressionValue);
         await UserDeckConfig.SetValue(_userDeckValue);
-        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression, UserDeck)");
+        await PlayerConfig.SetValue(_playerConfigValue);
+        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression, Player, UserDeck)");
         ToastService.Success("Configs saved", "Saved");
     }
 
@@ -364,7 +373,7 @@
             await SaveConfig("config.rating", _ratingValue);
             await SaveConfig("config.lootProgression", _lootProgressionValue);
             await SaveConfig("config.userDeck", _userDeckValue);
-
+            await SaveConfig("config.player", _playerConfigValue);
             ToastService.Success("Configs saved to JSON", "Saved");
         }
         catch (Exception ex)
@@ -393,6 +402,7 @@
         GameMode,
         Rating,
         Loot,
+        Player,
         UserDeck,
         Cards,
     }

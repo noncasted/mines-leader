@@ -24,8 +24,7 @@ public class EmbargoTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.ManaCostPenalty,
-            CardConfigs.Embargo.CostIncrease);
+        opponent.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -42,6 +41,6 @@ public class EmbargoTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.Embargo { Type = CardType.Embargo });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 }

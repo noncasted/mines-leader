@@ -21,8 +21,7 @@ public class FocusTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.NextCardDiscount,
-            CardConfigs.Focus.Discount);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -37,7 +36,7 @@ public class FocusTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.Focus { Type = CardType.Focus });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]

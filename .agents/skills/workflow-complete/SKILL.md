@@ -120,17 +120,17 @@ Based on the completed work, check and update relevant documentation in `.agents
 
 | What changed in the task | Documentation to check/update |
 |--------------------------|-------------------------------|
-| New MonoBehaviour service patterns | `docs/db/docs/GAMEPLAY.md`, `docs/db/docs/COMMON_CONTAINER.md` |
-| New Orleans grains or state types | `docs/db/docs/COMMON_ORLEANS.md` |
-| New card types or mechanics | `docs/db/docs/GAMEPLAY.md` |
-| New Blazor pages or editors | `docs/db/docs/BLAZOR.md` |
-| New PrefabBuilder patterns | `docs/db/docs/PREFAB_CODEGEN.md` |
-| New API patterns or async patterns | `docs/db/docs/API_DESIGN_FULL.md` |
-| New vocabulary/concepts introduced | `docs/db/docs/VOCABULARY.md` |
-| New error patterns discovered | `docs/db/docs/ERRORS.md` |
-| New decision points for developers | `docs/db/docs/DECISION_TREES.md` |
-| AI mistakes made during task | `docs/db/docs/CLAUDE_MISTAKES.md` |
-| New key files added to the project | `docs/db/docs/GAMEPLAY.md` key files section, relevant docs |
+| New MonoBehaviour service patterns | `.agents/docs/GAMEPLAY.md`, `.agents/docs/COMMON_CONTAINER.md` |
+| New Orleans grains or state types | `.agents/docs/COMMON_ORLEANS.md` |
+| New card types or mechanics | `.agents/docs/GAMEPLAY.md` |
+| New Blazor pages or editors | `.agents/docs/BLAZOR.md` |
+| New PrefabBuilder patterns | `.agents/docs/PREFAB_CODEGEN.md` |
+| New API patterns or async patterns | `.agents/docs/API_DESIGN_FULL.md` |
+| New vocabulary/concepts introduced | `.agents/docs/VOCABULARY.md` |
+| New error patterns discovered | `.agents/docs/ERRORS.md` |
+| New decision points for developers | `.agents/docs/DECISION_TREES.md` |
+| AI mistakes made during task | `.agents/docs/CLAUDE_MISTAKES.md` |
+| New key files added to the project | `.agents/docs/GAMEPLAY.md` key files section, relevant docs |
 
 ### 6.2 — What to update
 
@@ -143,7 +143,7 @@ For each relevant doc:
 ### 6.3 — CLAUDE_MISTAKES.md (CRITICAL)
 
 If ANY mistakes were made during the task (visible in `<task_name>_progress.md`, git history, or known from context):
-- Add a new numbered Lesson entry to `docs/db/docs/CLAUDE_MISTAKES.md`
+- Add a new numbered Lesson entry to `.agents/docs/CLAUDE_MISTAKES.md`
 - Format: wrong code, correct code, one-line rule, link to relevant docs page
 
 ### 6.4 — VOCABULARY.md
@@ -182,12 +182,12 @@ Output a summary to the user:
 - `docs/tasks/current/<task_name>/` — рабочие файлы удалены
 
 ### Документация обновлена
-- `docs/db/docs/GAMEPLAY.md` — [what changed]
-- `docs/db/docs/VOCABULARY.md` — [what added]
+- `.agents/docs/GAMEPLAY.md` — [what changed]
+- `.agents/docs/VOCABULARY.md` — [what added]
 - (or "Обновления не требуются")
 
 ### Ошибки зафиксированы
-- `docs/db/docs/CLAUDE_MISTAKES.md` — Lesson N: [description]
+- `.agents/docs/CLAUDE_MISTAKES.md` — Lesson N: [description]
 - (or "Новых ошибок не обнаружено")
 
 ### Memory обновлена

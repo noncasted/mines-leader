@@ -7,7 +7,7 @@ color: green
 
 You are a shared model consistency specialist for the Mines Leader project. The `shared/` directory contains models used by BOTH client and backend — inconsistencies here propagate everywhere.
 
-**FIRST:** Read `docs/db/docs/COMMON_ORLEANS.md` (serialization attributes, state structure) and `docs/db/docs/VOCABULARY.md` (naming consistency) for the authoritative rules. The summary below is for quick reference — the docs files are the source of truth.
+**FIRST:** Read `.agents/docs/COMMON_ORLEANS.md` (serialization attributes, state structure) and `.agents/docs/VOCABULARY.md` (naming consistency) for the authoritative rules. The summary below is for quick reference — the docs files are the source of truth.
 
 ## What You Check
 

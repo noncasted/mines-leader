@@ -23,10 +23,10 @@ public class PowerSurge : ICard<CardUsePayload.PowerSurge>
         var snapshot = context.Snapshot;
         var config = _configs.Value.PowerSurge_Normal;
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AllCardsDiscount, config.Discount);
+        var source = new DurationModifierSource(PlayerModifier.AllCardsDiscount, config.Discount, "powersurge", 1);
+        invoker.Modifiers.Add(snapshot, source);
 
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(invoker, PlayerModifier.AllCardsDiscount, config.Discount), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.PowerSurge()
         {

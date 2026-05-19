@@ -35,10 +35,10 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
 
         if (isHeads)
         {
-            invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMoves, config.WinMoves);
+            var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, config.WinMoves, "cointoss", 1);
+            invoker.Modifiers.Add(snapshot, source);
 
-            _roundActionService.Schedule(
-                new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMoves, config.WinMoves), 1);
+            _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
         }
         else
         {

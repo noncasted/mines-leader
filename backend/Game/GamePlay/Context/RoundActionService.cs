@@ -2,50 +2,36 @@ namespace Game.GamePlay;
 
 public interface IRoundAction
 {
-    void Execute(MoveSnapshot snapshot);
+    bool Tick(MoveSnapshot snapshot);
 }
 
 public interface IRoundActionService
 {
-    void Schedule(IRoundAction action, int rounds);
+    void Schedule(IRoundAction action);
     void Tick(MoveSnapshot snapshot);
 }
 
 public class RoundActionService : IRoundActionService
 {
-    private readonly List<Entry> _scheduledActions = new();
+    private readonly List<IRoundAction> _scheduledActions = new();
 
-    public void Schedule(IRoundAction action, int rounds)
+    public void Schedule(IRoundAction action)
     {
-        if (rounds <= 0)
-            return;
-
-        _scheduledActions.Add(new Entry { Id = Guid.NewGuid(), Action = action, RoundsLeft = rounds });
+        _scheduledActions.Add(action);
     }
 
     public void Tick(MoveSnapshot snapshot)
     {
-        var toRemove = new List<Guid>();
+        var toRemove = new List<int>();
 
-        foreach (var entry in _scheduledActions)
+        for (var i = 0; i < _scheduledActions.Count; i++)
         {
-            entry.RoundsLeft--;
-
-            if (entry.RoundsLeft == 0)
-            {
-                entry.Action.Execute(snapshot);
-                toRemove.Add(entry.Id);
-            }
+            var remove = _scheduledActions[i].Tick(snapshot);
+            if (remove)
+                toRemove.Add(i);
         }
 
-        foreach (var id in toRemove)
-            _scheduledActions.RemoveAll(e => e.Id == id);
-    }
-
-    private class Entry
-    {
-        public required Guid Id { get; init; }
-        public required IRoundAction Action { get; init; }
-        public int RoundsLeft { get; set; }
+        for (var i = toRemove.Count - 1; i >= 0; i--)
+            _scheduledActions.RemoveAt(toRemove[i]);
     }
 }

@@ -54,8 +54,8 @@ public class FogOfWar : ICard<CardUsePayload.FogOfWar>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new FogDisposeAction(board, effectId, affectedCells);
-        _roundActionService.Schedule(disposeAction, config.Duration);
+        var disposeAction = new FogDisposeAction(board, effectId, affectedCells, config.Duration);
+        _roundActionService.Schedule(disposeAction);
 
         var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
 
@@ -76,24 +76,33 @@ public class FogOfWar : ICard<CardUsePayload.FogOfWar>
 
 public class FogDisposeAction : IRoundAction
 {
-    public FogDisposeAction(IBoard board, Guid effectId, List<ICell> affectedCells)
+    public FogDisposeAction(IBoard board, Guid effectId, List<ICell> affectedCells, int roundsLeft)
     {
         _board = board;
         _effectId = effectId;
         _affectedCells = affectedCells;
+        _roundsLeft = roundsLeft;
     }
 
     private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _affectedCells;
+    private int _roundsLeft;
 
-    public void Execute(MoveSnapshot snapshot)
+    public bool Tick(MoveSnapshot snapshot)
     {
+        _roundsLeft--;
+
+        if (_roundsLeft > 0)
+            return false;
+
         foreach (var cell in _affectedCells)
         {
             cell.RemoveEffect(_effectId);
             snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
         }
+
+        return true;
     }
 }
 

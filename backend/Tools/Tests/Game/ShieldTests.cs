@@ -21,7 +21,7 @@ public class ShieldTests : PlayerCardTestsBase
         var result = new Shield().Use(owner, new CardUsePayload.Shield());
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.Shield, 1f);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]

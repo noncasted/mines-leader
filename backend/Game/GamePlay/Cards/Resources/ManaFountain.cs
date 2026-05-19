@@ -33,10 +33,11 @@ public class ManaFountain : ICard<CardUsePayload.ManaFountain>
                 RolledAmount = rolled
             });
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, rolled);
+        var source = new DurationModifierSource(PlayerModifier.AdditionalMana, rolled, "mana_fountain", 1);
+        invoker.Modifiers.Add(snapshot, source);
         invoker.Mana.SetCurrent(snapshot, invoker.Mana.Current + rolled);
 
-        _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, rolled), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         return new CardUseResult
         {

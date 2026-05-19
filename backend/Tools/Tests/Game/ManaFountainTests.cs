@@ -25,7 +25,7 @@ public class ManaFountainTests : PlayerCardTestsBase
         var result = card.Use(owner, new CardUsePayload.ManaFountain { Type = CardType.ManaFountain });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, 3f);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
         owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 4);
     }
 
@@ -44,6 +44,6 @@ public class ManaFountainTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.ManaFountain { Type = CardType.ManaFountain });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 }

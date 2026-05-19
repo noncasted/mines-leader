@@ -1,0 +1,100 @@
+using Common.Reactive;
+using FluentAssertions;
+using Game.GamePlay;
+using Game.GamePlay.Snapshots;
+using Game.Session;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using Shared;
+using Xunit;
+
+namespace Tests.Game;
+
+public class OpenCellCommandTests
+{
+    [Fact]
+    public void Execute_HitsMineWithShield_CallsRemoveOne()
+    {
+        var (board, target) = BoardParser.Parse("""
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """);
+
+        ((ITakenCell)board.Cells[target]).SetMine();
+
+        var player = Substitute.For<IPlayer>();
+        player.Board.Returns(board);
+        player.Modifiers.Returns(Substitute.For<IModifiers>());
+        player.Modifiers.Get(PlayerModifier.Shield).Returns(1f);
+        player.Health.Returns(Substitute.For<IHealth>());
+
+        var ctx = Substitute.For<IGameContext>();
+        var utils = new GameCommandUtils(
+            ctx, Substitute.For<IGameRound>(), Substitute.For<IServiceProvider>(),
+            Substitute.For<ISnapshotSender>(), Substitute.For<ISnapshotDiffGuard>(),
+            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>());
+
+        var cmd = new TestableOpenCellCommand(utils);
+        var snapshot = new MoveSnapshot();
+        var context = new GameCommand<SharedGameAction.Open>.Context
+        {
+            Player = player,
+            Lifetime = new Lifetime(),
+            Snapshot = snapshot
+        };
+
+        cmd.Execute(context, new SharedGameAction.Open { Position = target });
+
+        player.Modifiers.Received(1).RemoveOne(Arg.Is<MoveSnapshot>(s => s == snapshot), PlayerModifier.Shield);
+        player.Health.DidNotReceive().TakeDamage(Arg.Any<MoveSnapshot>(), Arg.Any<int>());
+    }
+
+    [Fact]
+    public void Execute_HitsMineWithoutShield_TakesDamage()
+    {
+        var (board, target) = BoardParser.Parse("""
+                                                t t t t t
+                                                t t t t t
+                                                t t x t t
+                                                t t t t t
+                                                t t t t t
+                                                """);
+
+        ((ITakenCell)board.Cells[target]).SetMine();
+
+        var player = Substitute.For<IPlayer>();
+        player.Board.Returns(board);
+        player.Modifiers.Returns(Substitute.For<IModifiers>());
+        player.Modifiers.Get(PlayerModifier.Shield).Returns(0f);
+        player.Health.Returns(Substitute.For<IHealth>());
+
+        var ctx = Substitute.For<IGameContext>();
+        var utils = new GameCommandUtils(
+            ctx, Substitute.For<IGameRound>(), Substitute.For<IServiceProvider>(),
+            Substitute.For<ISnapshotSender>(), Substitute.For<ISnapshotDiffGuard>(),
+            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>());
+
+        var cmd = new TestableOpenCellCommand(utils);
+        var snapshot = new MoveSnapshot();
+        var context = new GameCommand<SharedGameAction.Open>.Context
+        {
+            Player = player,
+            Lifetime = new Lifetime(),
+            Snapshot = snapshot
+        };
+
+        cmd.Execute(context, new SharedGameAction.Open { Position = target });
+
+        player.Modifiers.DidNotReceive().RemoveOne(Arg.Any<MoveSnapshot>(), Arg.Any<PlayerModifier>());
+        player.Health.Received(1).TakeDamage(Arg.Is<MoveSnapshot>(s => s == snapshot), 1);
+    }
+
+    private class TestableOpenCellCommand : OpenCellCommand
+    {
+        public TestableOpenCellCommand(GameCommandUtils utils) : base(utils) { }
+        public new EmptyResponse Execute(GameCommand<SharedGameAction.Open>.Context context, SharedGameAction.Open request) => base.Execute(context, request);
+    }
+}

@@ -111,7 +111,8 @@ public class MoveSnapshot
         {
             PlayerId = player.User.Id,
             Current = mana.Current,
-            Max = mana.Max
+            BaseMax = mana.BaseMax,
+            ResultMax = mana.ResultMax
         });
     }
 
@@ -135,18 +136,18 @@ public class MoveSnapshot
         {
             PlayerId = player.User.Id,
             Left = moves.Left,
-            Max = moves.Max,
+            BaseMax = moves.BaseMax,
+            ResultMax = moves.ResultMax,
             IsAvailable = moves.IsAvailable
         });
     }
 
-    public void RecordModifierUpdate(IPlayer player, PlayerModifier modifier, float value)
+    public void RecordModifierUpdate(IPlayer player, DurationalModifierOverview overview)
     {
         Append(new PlayerSnapshotRecord.ModifierUpdate
         {
             PlayerId = player.User.Id,
-            Modifier = modifier,
-            Value = value
+            Overview = overview
         });
     }
 

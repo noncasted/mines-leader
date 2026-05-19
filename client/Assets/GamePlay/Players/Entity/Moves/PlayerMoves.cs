@@ -1,4 +1,4 @@
-﻿using GamePlay.Loop;
+using GamePlay.Loop;
 using Internal;
 
 namespace GamePlay.Players
@@ -7,26 +7,30 @@ namespace GamePlay.Players
     {
         IViewableProperty<bool> IsTurn { get; }
         IViewableProperty<int> Current { get; }
-        IViewableProperty<int> Max { get; }
+        IViewableProperty<int> BaseMax { get; }
+        IViewableProperty<int> ResultMax { get; }
 
-        void Set(int left, int max, bool isAvailable);
+        void Set(int left, int baseMax, int resultMax, bool isAvailable);
     }
 
     public class PlayerMoves : IPlayerMoves
     {
         private readonly ViewableProperty<bool> _isTurn = new(false);
         private readonly ViewableProperty<int> _current = new();
-        private readonly ViewableProperty<int> _max = new();
+        private readonly ViewableProperty<int> _baseMax = new();
+        private readonly ViewableProperty<int> _resultMax = new();
 
         public IViewableProperty<bool> IsTurn => _isTurn;
 
         public IViewableProperty<int> Current => _current;
-        public IViewableProperty<int> Max => _max;
+        public IViewableProperty<int> BaseMax => _baseMax;
+        public IViewableProperty<int> ResultMax => _resultMax;
 
-        public void Set(int left, int max, bool isAvailable)
+        public void Set(int left, int baseMax, int resultMax, bool isAvailable)
         {
             _current.Set(left);
-            _max.Set(max);
+            _baseMax.Set(baseMax);
+            _resultMax.Set(resultMax);
             _isTurn.Set(isAvailable);
         }
     }

@@ -1,0 +1,28 @@
+@using Shared
+
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md bg-cyan-500/15 p-1.5">
+            <LucideIcon Name="user" Size="14" class="text-cyan-400" />
+        </div>
+        <h2 class="text-sm font-semibold">Player Settings</h2>
+    </div>
+    <div class="flex flex-col">
+        <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <LucideIcon Name="hand" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Hand Size</span>
+            <input type="number" @bind="Value.HandSize"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+        <div class="flex items-center gap-3 py-1.5">
+            <LucideIcon Name="database" Size="12" class="text-muted-foreground shrink-0" />
+            <span class="text-sm flex-1">Deck Size</span>
+            <input type="number" @bind="Value.DeckSize"
+                   class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PlayerConfigOptions Value { get; set; } = null!;
+}

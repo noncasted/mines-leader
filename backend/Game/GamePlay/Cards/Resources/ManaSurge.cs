@@ -23,10 +23,11 @@ public class ManaSurge : ICard<CardUsePayload.ManaSurge>
         var snapshot = context.Snapshot;
         var gain = _configs.Value.ManaSurge_Normal.ManaGain;
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, gain);
+        var source = new DurationModifierSource(PlayerModifier.AdditionalMana, gain, "mana_surge", 1);
+        invoker.Modifiers.Add(snapshot, source);
         invoker.Mana.SetCurrent(snapshot, invoker.Mana.Current + gain);
 
-        _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, gain), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.ManaSurge()
         {

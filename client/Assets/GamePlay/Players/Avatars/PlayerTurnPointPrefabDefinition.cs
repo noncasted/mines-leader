@@ -23,11 +23,18 @@ namespace GamePlay.Players
                     )
                 .WithComponent<AvatarTurnPointView>();
 
-            builder.SetSerialized<AvatarTurnPointView>("_active",
+            builder.SetSerialized<AvatarTurnPointView>("_baseActive",
                 AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active"));
 
-            builder.SetSerialized<AvatarTurnPointView>("_inactive",
+            builder.SetSerialized<AvatarTurnPointView>("_baseInactive",
                 AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive"));
+
+            builder.SetSerialized<AvatarTurnPointView>("_additionalActive",
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Active"));
+
+            builder.SetSerialized<AvatarTurnPointView>("_additionalInactive",
+                AssetsBuilderExtensions.LoadSubAsset<Sprite>(TurnSpritePath, "Player_Turn_Inactive"));
+
             builder.SetSerialized<AvatarTurnPointView>("_renderer", spriteRenderer);
         }
     }

@@ -122,10 +122,8 @@ public class FogOfWarTests : PlayerCardTestsBase
         Use(board, new CardUsePayload.FogOfWar { Position = new Position(2, 2) }, roundActionService);
 
         roundActionService.Received(1)
-                          .Schedule(Arg.Any<FogDisposeAction>(),
-                              CardConfigs.FogOfWar.Duration);
+                          .Schedule(Arg.Any<FogDisposeAction>());
     }
-
     [Fact]
     public void Use_EffectHasCorrectType()
     {

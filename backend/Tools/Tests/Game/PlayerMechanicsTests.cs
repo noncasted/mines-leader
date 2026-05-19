@@ -173,7 +173,7 @@ public class ManaTests
 
         mana.SetMax(new MoveSnapshot(), 10);
 
-        mana.Max.Should().Be(10);
+        mana.ResultMax.Should().Be(10);
     }
 
     [Fact]
@@ -270,7 +270,7 @@ public class ManaTests
         mana.Use(new MoveSnapshot(), 3);
 
         fireCount.Should().Be(3);
-        mana.Max.Should().Be(8);
+        mana.ResultMax.Should().Be(8);
         mana.Current.Should().Be(5);
         lifetime.Terminate();
     }
@@ -291,7 +291,7 @@ public class MovesTests
 
         moves.SetMax(new MoveSnapshot(), 5);
 
-        moves.Max.Should().Be(5);
+        moves.ResultMax.Should().Be(5);
     }
 
     [Fact]
@@ -401,7 +401,7 @@ public class MovesTests
         moves.Restore(new MoveSnapshot());
 
         fireCount.Should().Be(2);
-        moves.Max.Should().Be(7);
+        moves.ResultMax.Should().Be(7);
         moves.Left.Should().Be(7);
         lifetime.Terminate();
     }
@@ -676,11 +676,24 @@ public class RoundActionServiceTests
 {
     private class TestAction : IRoundAction
     {
+        private int _roundsLeft;
         public int ExecuteCount { get; private set; }
 
-        public void Execute(MoveSnapshot snapshot)
+        public TestAction(int roundsLeft = 1)
         {
-            ExecuteCount++;
+            _roundsLeft = roundsLeft;
+        }
+
+        public bool Tick(MoveSnapshot snapshot)
+        {
+            if (_roundsLeft > 0)
+                _roundsLeft--;
+
+            var expired = _roundsLeft == 0;
+            if (expired)
+                ExecuteCount++;
+
+            return expired;
         }
     }
 
@@ -688,9 +701,9 @@ public class RoundActionServiceTests
     public void Schedule_WithDelay_ExecutesAfterNTicks()
     {
         var service = new RoundActionService();
-        var action = new TestAction();
+        var action = new TestAction(3);
 
-        service.Schedule(action, 3);
+        service.Schedule(action);
 
         service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(0);
@@ -704,33 +717,33 @@ public class RoundActionServiceTests
     public void Schedule_WithOneRound_ExecutesOnFirstTick()
     {
         var service = new RoundActionService();
-        var action = new TestAction();
+        var action = new TestAction(1);
 
-        service.Schedule(action, 1);
+        service.Schedule(action);
         service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(1);
     }
 
     [Fact]
-    public void Schedule_WithZeroRounds_DoesNotSchedule()
+    public void Schedule_WithZeroRounds_ExecutesImmediately()
     {
         var service = new RoundActionService();
-        var action = new TestAction();
+        var action = new TestAction(0);
 
-        service.Schedule(action, 0);
+        service.Schedule(action);
         service.Tick(new MoveSnapshot());
 
-        action.ExecuteCount.Should().Be(0);
+        action.ExecuteCount.Should().Be(1);
     }
 
     [Fact]
-    public void Schedule_NegativeRounds_DoesNotSchedule()
+    public void Schedule_NegativeRounds_NeverExecutes()
     {
         var service = new RoundActionService();
-        var action = new TestAction();
+        var action = new TestAction(-5);
 
-        service.Schedule(action, -5);
+        service.Schedule(action);
         service.Tick(new MoveSnapshot());
 
         action.ExecuteCount.Should().Be(0);
@@ -750,8 +763,8 @@ public class RoundActionServiceTests
         service.Tick(new MoveSnapshot());
 
         // Schedule an action after empty ticks to confirm service is still functional
-        var action = new TestAction();
-        service.Schedule(action, 1);
+        var action = new TestAction(1);
+        service.Schedule(action);
         service.Tick(new MoveSnapshot());
         action.ExecuteCount.Should().Be(1, "service should still work after empty ticks");
     }
@@ -760,11 +773,11 @@ public class RoundActionServiceTests
     public void Tick_MultipleActionsAtSameRound_AllExecute()
     {
         var service = new RoundActionService();
-        var action1 = new TestAction();
-        var action2 = new TestAction();
+        var action1 = new TestAction(2);
+        var action2 = new TestAction(2);
 
-        service.Schedule(action1, 2);
-        service.Schedule(action2, 2);
+        service.Schedule(action1);
+        service.Schedule(action2);
 
         service.Tick(new MoveSnapshot());
         action1.ExecuteCount.Should().Be(0);
@@ -779,9 +792,9 @@ public class RoundActionServiceTests
     public void Action_RemovedAfterExecution()
     {
         var service = new RoundActionService();
-        var action = new TestAction();
+        var action = new TestAction(1);
 
-        service.Schedule(action, 1);
+        service.Schedule(action);
         service.Tick(new MoveSnapshot());
         service.Tick(new MoveSnapshot());
 
@@ -792,11 +805,11 @@ public class RoundActionServiceTests
     public void MultipleActions_DifferentDelays_ExecuteAtCorrectTimes()
     {
         var service = new RoundActionService();
-        var early = new TestAction();
-        var late = new TestAction();
+        var early = new TestAction(1);
+        var late = new TestAction(3);
 
-        service.Schedule(early, 1);
-        service.Schedule(late, 3);
+        service.Schedule(early);
+        service.Schedule(late);
 
         service.Tick(new MoveSnapshot());
         early.ExecuteCount.Should().Be(1);
@@ -833,7 +846,7 @@ public class ModifiersTests
     {
         var (modifiers, _) = Create();
 
-        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 5f);
+        modifiers.Add(new MoveSnapshot(), new DurationModifierSource(PlayerModifier.TrebuchetBoost, 5f, "", -1));
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(5f);
     }
@@ -842,7 +855,7 @@ public class ModifiersTests
     public void Get_ReturnsCurrentValue()
     {
         var (modifiers, _) = Create();
-        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 3.5f);
+        modifiers.Add(new MoveSnapshot(), new DurationModifierSource(PlayerModifier.TrebuchetBoost, 3.5f, "", -1));
 
         var value = modifiers.Get(PlayerModifier.TrebuchetBoost);
 
@@ -854,8 +867,8 @@ public class ModifiersTests
     {
         var (modifiers, _) = Create();
 
-        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
-        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
+        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 1f);
+        modifiers.Inc(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 1f);
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(2f);
     }
@@ -864,11 +877,60 @@ public class ModifiersTests
     public void Reset_SetsToZero()
     {
         var (modifiers, _) = Create();
-        modifiers.Set(new MoveSnapshot(), PlayerModifier.TrebuchetBoost, 10f);
+        modifiers.Add(new MoveSnapshot(), new DurationModifierSource(PlayerModifier.TrebuchetBoost, 10f, "", -1));
 
         modifiers.Reset(new MoveSnapshot(), PlayerModifier.TrebuchetBoost);
 
         modifiers.Values[PlayerModifier.TrebuchetBoost].Should().Be(0f);
+    }
+
+    [Fact]
+    public void Add_MultipleSourcesSameType_SumsValues()
+    {
+        var (modifiers, _) = Create();
+        var snapshot = new MoveSnapshot();
+
+        modifiers.Add(snapshot, new DurationModifierSource(PlayerModifier.AdditionalMoves, 2f, "a", 1));
+        modifiers.Add(snapshot, new DurationModifierSource(PlayerModifier.AdditionalMoves, 3f, "b", 1));
+
+        modifiers.Values[PlayerModifier.AdditionalMoves].Should().Be(5f);
+    }
+
+    [Fact]
+    public void RemoveOne_SingleSource_RemovesIt()
+    {
+        var (modifiers, _) = Create();
+        var snapshot = new MoveSnapshot();
+
+        modifiers.Add(snapshot, new DurationModifierSource(PlayerModifier.Shield, 1f, "", -1));
+        modifiers.Values[PlayerModifier.Shield].Should().Be(1f);
+
+        modifiers.RemoveOne(snapshot, PlayerModifier.Shield);
+        modifiers.Values[PlayerModifier.Shield].Should().Be(0f);
+    }
+
+    [Fact]
+    public void RemoveOne_MultipleSources_RemovesOnlyOne()
+    {
+        var (modifiers, _) = Create();
+        var snapshot = new MoveSnapshot();
+
+        modifiers.Add(snapshot, new DurationModifierSource(PlayerModifier.AdditionalMoves, 2f, "a", 1));
+        modifiers.Add(snapshot, new DurationModifierSource(PlayerModifier.AdditionalMoves, 3f, "b", 1));
+
+        modifiers.RemoveOne(snapshot, PlayerModifier.AdditionalMoves);
+        modifiers.Values[PlayerModifier.AdditionalMoves].Should().Be(3f);
+    }
+
+    [Fact]
+    public void RemoveOne_NoSource_DoesNothing()
+    {
+        var (modifiers, _) = Create();
+        var snapshot = new MoveSnapshot();
+
+        var act = () => modifiers.RemoveOne(snapshot, PlayerModifier.Shield);
+        act.Should().NotThrow();
+        modifiers.Values[PlayerModifier.Shield].Should().Be(0f);
     }
 }
 

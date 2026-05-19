@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Internal;
 using Network;
 using Tools.PrefabBuilder;
@@ -34,22 +34,25 @@ namespace GamePlay.Players
             transform.localPosition = viewPosition;
 
             _moves.Current.View(lifetime, Recalculate);
-            _moves.Max.View(lifetime, Recalculate);
+            _moves.BaseMax.View(lifetime, Recalculate);
+            _moves.ResultMax.View(lifetime, Recalculate);
 
             void Recalculate()
             {
-                var max = _moves.Max.Value;
+                var resultMax = _moves.ResultMax.Value;
                 var current = _moves.Current.Value;
+                var baseMax = _moves.BaseMax.Value;
 
                 CheckObjects();
+                SetPointTypes();
                 AdjustPosition();
                 SwitchPoints();
 
                 void CheckObjects()
                 {
-                    if (_points.Count > max)
+                    if (_points.Count > resultMax)
                     {
-                        var delta = _points.Count - max;
+                        var delta = _points.Count - resultMax;
 
                         for (var i = 0; i < delta; i++)
                         {
@@ -58,15 +61,28 @@ namespace GamePlay.Players
                             _points.RemoveAt(_points.Count - 1);
                         }
                     }
-                    else if (_points.Count < max)
+                    else if (_points.Count < resultMax)
                     {
-                        var delta = max - _points.Count;
+                        var delta = resultMax - _points.Count;
 
                         for (var i = 0; i < delta; i++)
                         {
                             var point = Instantiate(Prefabs.PlayerTurnPoint.As<AvatarTurnPointView>(), transform);
                             _points.Add(point);
                         }
+                    }
+                }
+
+                void SetPointTypes()
+                {
+                    for (var i = 0; i < _points.Count; i++)
+                    {
+                        var point = _points[i];
+
+                        if (i < baseMax)
+                            point.SetBase();
+                        else
+                            point.SetAdditional();
                     }
                 }
 

@@ -6,7 +6,8 @@ namespace Game.GamePlay;
 public interface IMoves
 {
     int Left { get; }
-    int Max { get; }
+    int BaseMax { get; }
+    int ResultMax { get; }
     bool IsAvailable { get; }
 
     IViewableDelegate Updated { get; }
@@ -39,7 +40,8 @@ public class Moves : IMoves
 
     public IViewableDelegate Updated => _updated;
     public int Left => _rawLeft + Bonus;
-    public int Max => _maxTurns + Bonus;
+    public int BaseMax => _maxTurns;
+    public int ResultMax => _maxTurns + Bonus;
     public bool IsAvailable => _isAvailable;
 
     public void BindOwner(IPlayer owner)
@@ -52,8 +54,8 @@ public class Moves : IMoves
         if (value < 0)
             value = 0;
 
-        if (value > Max)
-            value = Max;
+        if (value > ResultMax)
+            value = ResultMax;
 
         _rawLeft = value - Bonus;
         _updated.Invoke();

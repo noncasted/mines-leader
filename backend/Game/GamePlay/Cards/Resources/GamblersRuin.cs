@@ -52,11 +52,11 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin>
                 snapshot.RecordDeckUpdate(invoker);
 
             var manaGain = config.WinMana;
-            invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, manaGain);
+            var source = new DurationModifierSource(PlayerModifier.AdditionalMana, manaGain, "gamblers_ruin", 1);
+            invoker.Modifiers.Add(snapshot, source);
             invoker.Mana.SetCurrent(snapshot, invoker.Mana.Current + manaGain);
 
-            _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, manaGain),
-                1);
+            _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
         }
         else
         {

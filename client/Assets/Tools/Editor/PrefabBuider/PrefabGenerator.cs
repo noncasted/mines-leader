@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Tools.PrefabBuider
+namespace Tools
 {
     public static class PrefabGenerator
     {
@@ -36,7 +36,9 @@ namespace Tools.PrefabBuider
                 var parameters = defineMethod.GetParameters();
                 var returnsVoid = defineMethod.ReturnType == typeof(void);
 
-                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder) && returnsVoid)
+                if (parameters.Length == 1 &&
+                    parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder) &&
+                    returnsVoid)
                     baseTypes.Add(type);
                 else
                     derivedTypes.Add(type);

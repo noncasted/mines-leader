@@ -11,7 +11,7 @@ BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute 
 
 This skill converts an existing Unity prefab into a `[PrefabDefinition]` class that generates the prefab from C# code using `PrefabBuilder`. The generated prefab is saved to `Assets/Resources/Generated/` and accessible via `Prefabs.PropertyName`.
 
-Reference: `docs/db/docs/PREFAB_CODEGEN.md`
+Reference: `.agents/docs/PREFAB_CODEGEN.md`
 
 ## Input
 

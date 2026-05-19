@@ -45,6 +45,9 @@ public static class ConfigsExtensions
         builder.AddAddressableState<UserDeckConfigState>()
                .As<IUserDeckConfig>();
 
+        builder.AddAddressableState<PlayerConfigState>()
+               .As<IPlayerConfig>();
+
         return builder;
     }
 }

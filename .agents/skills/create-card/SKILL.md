@@ -202,8 +202,8 @@ Use the appropriate pattern based on card type:
 > with a matching `snapshot.Record*` call. `SnapshotDiffGuard` (on by default in
 > tests, togglable from the Features console) throws on drift and names the exact
 > field that was mutated without a record. See
-> [GAMEPLAY.md §Snapshot Sync](../../../docs/db/docs/GAMEPLAY.md#snapshot-sync) and
-> [CLAUDE_MISTAKES.md Lesson 7](../../../docs/db/docs/CLAUDE_MISTAKES.md#lesson-7-every-mutation-needs-an-explicit-record-call).
+> [GAMEPLAY.md §Snapshot Sync](../../docs/GAMEPLAY.md#snapshot-sync) and
+> [CLAUDE_MISTAKES.md Lesson 7](../../docs/CLAUDE_MISTAKES.md#lesson-7-every-mutation-needs-an-explicit-record-call).
 
 **Simple non-board card (like Lockdown, Medic):**
 ```csharp

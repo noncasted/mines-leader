@@ -14,8 +14,6 @@ namespace Shared
         public int PlayerMoves { get; set; } = 5;
         public int PlayerStartMana { get; set; } = 1;
         public int MaxManaCap { get; set; } = 10;
-        public int HandSize { get; set; } = 5;
-        public int DeckSize { get; set; } = 10;
         public int RoundTime { get; set; } = 30;
     }
 
@@ -25,8 +23,6 @@ namespace Shared
         public int PlayerMoves { get; set; } = 5;
         public int PlayerStartMana { get; set; } = 1;
         public int MaxManaCap { get; set; } = 10;
-        public int HandSize { get; set; } = 5;
-        public int DeckSize { get; set; } = 10;
         public int RoundTime { get; set; } = 120;
         public int TimeGainPerAction { get; set; } = 5;
     }

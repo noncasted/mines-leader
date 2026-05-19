@@ -43,10 +43,11 @@ public class DoubleOrNothing : ICard<CardUsePayload.DoubleOrNothing>
         if (isHeads)
         {
             var bonus = invoker.Mana.Current;
-            invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, bonus);
+            var source = new DurationModifierSource(PlayerModifier.AdditionalMana, bonus, "double_or_nothing", 1);
+            invoker.Modifiers.Add(snapshot, source);
             invoker.Mana.SetCurrent(snapshot, resultMana);
 
-            _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, bonus), 1);
+            _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
         }
         else
         {

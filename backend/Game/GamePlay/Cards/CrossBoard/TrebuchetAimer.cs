@@ -18,7 +18,8 @@ public class TrebuchetAimer : ICard<CardUsePayload.TrebuchetAimer>
         var snapshot = context.Snapshot;
         var config = _configs.Value.TrebuchetAimer_Normal;
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.TrebuchetBoost, config.Size);
+        var source = new DurationModifierSource(PlayerModifier.TrebuchetBoost, config.Size, "trebuchet_aimer", -1);
+        invoker.Modifiers.Add(snapshot, source);
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.TrebuchetAimer());
 

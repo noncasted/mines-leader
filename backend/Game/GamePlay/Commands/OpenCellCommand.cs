@@ -26,7 +26,7 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 
             if (shield > 0)
             {
-                context.Player.Modifiers.Set(context.Snapshot, PlayerModifier.Shield, shield - 1);
+                context.Player.Modifiers.RemoveOne(context.Snapshot, PlayerModifier.Shield);
                 shieldConsumed = true;
             }
             else

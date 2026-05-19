@@ -22,13 +22,15 @@ public static class GameStateCapture
         var state = new PlayerStateSnapshot
         {
             ManaCurrent = player.Mana.Current,
-            ManaMax = player.Mana.Max,
+            ManaBaseMax = player.Mana.BaseMax,
+            ManaResultMax = player.Mana.ResultMax,
             HealthCurrent = player.Health.Current.Value,
             HealthMax = player.Health.Max,
             MovesLeft = player.Moves.Left,
-            MovesMax = player.Moves.Max,
+            MovesBaseMax = player.Moves.BaseMax,
+            MovesResultMax = player.Moves.ResultMax,
             MovesIsAvailable = player.Moves.IsAvailable,
-            Modifiers = new Dictionary<PlayerModifier, float>(player.Modifiers.Values)
+            Modifiers = player.Modifiers.Sources.Select(s => s.GetOverview()).ToList()
         };
 
         foreach (var activeCard in player.Hand.Entries)

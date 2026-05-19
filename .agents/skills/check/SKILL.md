@@ -84,7 +84,7 @@ To detect: grep target files for `UniTask` or `async`. If found:
 - New class with `Card` in the name
 - New `*ConfigOptions` class
 - New file in `shared/`
-- New file in `docs/db/docs/`
+- New file in `.agents/docs/`
 
 Then launch:
 - `docs-checker` — check if documentation needs updating
@@ -171,7 +171,7 @@ Fix: перенумеровать: 0, 1, 2
 ### Документация
 
 > Из: docs-checker
-`docs/db/docs/GAMEPLAY.md` — CardType.ChainReaction не документирован
+`.agents/docs/GAMEPLAY.md` — CardType.ChainReaction не документирован
 Action: запустить docs-writer для обновления
 
 ---

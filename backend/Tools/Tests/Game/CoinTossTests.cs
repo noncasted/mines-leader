@@ -24,9 +24,8 @@ public class CoinTossTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
-            CardConfigs.CoinToss.WinMoves);
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]

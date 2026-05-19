@@ -26,11 +26,10 @@ public class Lockdown : ICard<CardUsePayload.Lockdown>
         var config = _configs.Value.Lockdown_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Modifiers.Dec(snapshot, PlayerModifier.AdditionalMoves, config.MovesReduction);
+        var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, -config.MovesReduction, "lockdown", config.Duration);
+        opponent.Modifiers.Add(snapshot, source);
 
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(opponent, PlayerModifier.AdditionalMoves, -config.MovesReduction),
-            config.Duration);
+        _roundActionService.Schedule(new ModifierRoundAction(opponent, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Lockdown
         {
