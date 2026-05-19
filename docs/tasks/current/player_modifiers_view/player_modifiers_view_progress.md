@@ -122,3 +122,5 @@ Shield используется в OpenCellCommand через Set() для ум�
 Клиент: `ViewableList.Remove` не удалял ключ из `_lifetimes`, вызывая `ArgumentException` при `Add` после `RemoveAt`+`Add` в `PlayerModifiers.UpdateOverview`. Исключение ловилось `SnapshotReceiver.Loop`, что приводило к пропускам snapshot records и отставанию UI.
 Клиент: добавлен `NotifyChangedAt` в `ViewableList` и `UpdateOverview` теперь обновляет overview inplace, что устраняет мигание UI.
 Клиент: `PlayerModifiersView` защищен от повторной подписки через `_isSubscribed`.
+
+Клиент: пофикшен `_isSubscribed` guard в `PlayerModifiersView.OnContextUpdated` — раньше guard проверялся до `self == null`, что приводило к блокировке подписки, если opponent добавлялся перед local player.
