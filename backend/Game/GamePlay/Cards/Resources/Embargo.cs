@@ -26,10 +26,9 @@ public class Embargo : ICard<CardUsePayload.Embargo>
         var config = _configs.Value.Embargo_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Modifiers.Inc(snapshot, PlayerModifier.ManaCostPenalty, config.CostIncrease);
-
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(opponent, PlayerModifier.ManaCostPenalty, config.CostIncrease), 1);
+        var source = new DurationModifierSource(PlayerModifier.ManaCostPenalty, config.CostIncrease, "embargo", 1);
+        opponent.Modifiers.Add(snapshot, source);
+        _roundActionService.Schedule(new ModifierRoundAction(opponent, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Embargo()
         {

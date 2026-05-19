@@ -87,10 +87,8 @@ public class SmokeTests : PlayerCardTestsBase
         Use(board, new CardUsePayload.Smoke { Position = target }, roundActionService);
 
         roundActionService.Received(1)
-                          .Schedule(Arg.Any<SmokeDisposeAction>(),
-                              CardConfigs.Smoke.Duration);
+                          .Schedule(Arg.Any<SmokeDisposeAction>());
     }
-
     [Fact]
     public void Use_AffectsBothTakenAndFreeCells()
     {

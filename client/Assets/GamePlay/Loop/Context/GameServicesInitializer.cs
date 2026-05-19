@@ -2,7 +2,6 @@
 using GamePlay.Boards;
 using GamePlay.Services;
 using GamePlay.UI;
-using GamePlay.UI.CardInfo;
 using Global.Cameras;
 using Global.UI;
 using Internal;
@@ -20,8 +19,7 @@ namespace GamePlay.Loop
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
-            ICellMultipleOpenAction cellMultipleOpenAction,
-            ICardInfoDisplayService cardInfoDisplayService)
+            ICellMultipleOpenAction cellMultipleOpenAction)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -31,7 +29,6 @@ namespace GamePlay.Loop
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
             _cellMultipleOpenAction = cellMultipleOpenAction;
-            _cardInfoDisplayService = cardInfoDisplayService;
         }
 
         private readonly ICellsSelection _cellsSelection;
@@ -44,7 +41,6 @@ namespace GamePlay.Loop
         private readonly IGameCamera _gameCamera;
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
-        private readonly ICardInfoDisplayService _cardInfoDisplayService;
 
         public void Init(IReadOnlyLifetime lifetime)
         {
@@ -52,15 +48,6 @@ namespace GamePlay.Loop
             _cellFlagAction.Start(lifetime);
             _cellOpenAction.Start(lifetime);
             _cellMultipleOpenAction.Start(lifetime);
-
-            try
-            {
-                _cardInfoDisplayService.Init(lifetime);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
 
             _overlayUI.Show();
 

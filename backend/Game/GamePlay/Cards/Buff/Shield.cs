@@ -11,7 +11,8 @@ public class Shield : ICard<CardUsePayload.Shield>
     {
         var invoker = context.Invoker;
 
-        invoker.Modifiers.Inc(context.Snapshot, PlayerModifier.Shield);
+        var source = new DurationModifierSource(PlayerModifier.Shield, 1, "shield", -1);
+        invoker.Modifiers.Add(context.Snapshot, source);
 
         context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Shield()
         {

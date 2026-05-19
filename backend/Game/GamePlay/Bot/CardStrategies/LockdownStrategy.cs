@@ -22,7 +22,7 @@ public class LockdownStrategy : IBotCardStrategy
     public float Evaluate(CardType type)
     {
         var opponent = _context.Opponent;
-        var opponentMoves = opponent.Moves.Max;
+        var opponentMoves = opponent.Moves.ResultMax;
 
         if (opponentMoves >= 3)
             return 7f;

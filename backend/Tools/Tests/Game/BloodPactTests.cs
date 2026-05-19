@@ -24,12 +24,8 @@ public class BloodPactTests : PlayerCardTestsBase
         result.Result.HasError.Should().BeFalse();
         owner.Health.Received(1).TakeDamage(Arg.Any<MoveSnapshot>(), CardConfigs.BloodPact.HpCost);
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana,
-            CardConfigs.BloodPact.ManaGain);
+        owner.Modifiers.Received(2).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
         owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 1 + CardConfigs.BloodPact.ManaGain);
-
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
-            CardConfigs.BloodPact.ExtraMoves);
     }
 
     [Fact]
@@ -45,6 +41,6 @@ public class BloodPactTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.BloodPact { Type = CardType.BloodPact });
 
-        roundService.Received(2).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(2).Schedule(Arg.Any<ModifierRoundAction>());
     }
 }

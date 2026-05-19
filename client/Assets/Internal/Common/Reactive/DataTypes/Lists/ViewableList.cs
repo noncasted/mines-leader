@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Internal
@@ -24,6 +24,19 @@ namespace Internal
         public IReadOnlyLifetime GetLifetime(TView value)
         {
             return _lifetimes[value];
+        }
+
+        public void NotifyChangedAt(int index)
+        {
+            if (_isDisposed == true)
+                return;
+
+            var value = base[index];
+            if (_lifetimes.TryGetValue(value, out var lifetime))
+            {
+                _eventSource.Invoke(lifetime, value);
+                OnModified();
+            }
         }
 
         public new IReadOnlyLifetime Add(TSource value)
@@ -63,9 +76,13 @@ namespace Internal
             if (_isDisposed == true)
                 return;
 
-            base.Remove(value);
-            _lifetimes[value].Terminate();
+            if (_lifetimes.TryGetValue(value, out var lifetime))
+            {
+                _lifetimes.Remove(value);
+                lifetime.Terminate();
+            }
 
+            base.Remove(value);
             OnModified();
         }
 

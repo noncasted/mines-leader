@@ -26,15 +26,15 @@ public class BloodPact : ICard<CardUsePayload.BloodPact>
         invoker.Health.TakeDamage(snapshot, config.HpCost);
 
         var manaGain = config.ManaGain;
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMana, manaGain);
+        var manaSource = new DurationModifierSource(PlayerModifier.AdditionalMana, manaGain, "blood_pact", 1);
+        invoker.Modifiers.Add(snapshot, manaSource);
         invoker.Mana.SetCurrent(snapshot, invoker.Mana.Current + manaGain);
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMoves, config.ExtraMoves);
+        var movesSource = new DurationModifierSource(PlayerModifier.AdditionalMoves, config.ExtraMoves, "blood_pact", 1);
+        invoker.Modifiers.Add(snapshot, movesSource);
 
-        _roundActionService.Schedule(new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMana, manaGain), 1);
-
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMoves, config.ExtraMoves), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, manaSource));
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, movesSource));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.BloodPact()
         {

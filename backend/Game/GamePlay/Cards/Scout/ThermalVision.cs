@@ -42,7 +42,7 @@ public class ThermalVision : ICard<CardUsePayload.ThermalVision>
         }
 
         if (affectedCells.Count > 0)
-            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells), 2);
+            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells, 2));
 
         var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
 
@@ -70,23 +70,30 @@ public class MineHighlightEffect : ICellEffect
 
 public class MineHighlightDisposeAction : IRoundAction
 {
-    public MineHighlightDisposeAction(IBoard board, Guid effectId, List<ICell> cells)
+    public MineHighlightDisposeAction(IBoard board, Guid effectId, List<ICell> cells, int roundsLeft)
     {
         _board = board;
         _effectId = effectId;
         _cells = cells;
+        _roundsLeft = roundsLeft;
     }
 
     private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _cells;
+    private int _roundsLeft;
 
-    public void Execute(MoveSnapshot snapshot)
+    public bool Tick(MoveSnapshot snapshot)
     {
+        _roundsLeft--;
+        if (_roundsLeft > 0)
+            return false;
+
         foreach (var cell in _cells)
         {
             cell.RemoveEffect(_effectId);
             snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
         }
+        return true;
     }
 }

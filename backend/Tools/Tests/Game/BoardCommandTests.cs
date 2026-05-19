@@ -24,7 +24,7 @@ public class BoardCommandTests
     // ──────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Replicates the chord-open algorithm from OpenMultipleCellsCommand.Execute
+    /// Replicates the chord-open algorithm from OpenMultipleCellsCommand.OnTime
     /// at the board level (no GameCommandUtils dependency).
     /// Returns (openedCells, explodedMines) counts.
     /// </summary>

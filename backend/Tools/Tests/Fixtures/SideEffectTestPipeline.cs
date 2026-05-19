@@ -27,7 +27,7 @@ public class SideEffectTestPipeline
     private readonly ISideEffectsConfig _config;
 
     /// <summary>
-    /// Execute one cycle: requeue ready retries, fetch from queue, execute each.
+    /// OnTime one cycle: requeue ready retries, fetch from queue, execute each.
     /// Returns the number of entries processed.
     /// </summary>
     public async Task<PumpResult> PumpOnceAsync()

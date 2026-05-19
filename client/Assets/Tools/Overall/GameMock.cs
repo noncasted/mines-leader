@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
@@ -35,7 +35,7 @@ namespace Tools.Overall
 
                 var manaLifetime = lifetime.Child();
 
-                context.Self.Mana.Max.View(manaLifetime, max => {
+                context.Self.Mana.ResultMax.View(manaLifetime, max => {
                     if (max == 0)
                         return;
 

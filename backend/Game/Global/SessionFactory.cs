@@ -1,4 +1,4 @@
-﻿using Cluster.Configs;
+using Cluster.Configs;
 using Cluster.Discovery;
 using Common;
 using Common.Extensions;
@@ -249,5 +249,6 @@ public class SessionFactory : ISessionFactory
         collection.Pass<IBotConfig>(_serviceProvider);
         collection.Pass<IGameModeConfig>(_serviceProvider);
         collection.Pass<IClusterFlags>(_serviceProvider);
+        collection.Pass<IPlayerConfig>(_serviceProvider);
     }
 }

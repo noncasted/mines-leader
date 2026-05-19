@@ -128,19 +128,24 @@ LastManStandingRoundState:
     "PlayerHealth": 3,
     "PlayerMoves": 5,
     "PlayerStartMana": 1,
-    "HandSize": 5,
-    "DeckSize": 10,
     "RoundTime": 30
   },
   "TimeLimited": {
     "PlayerHealth": 3,
     "PlayerMoves": 5,
     "PlayerStartMana": 1,
-    "HandSize": 5,
-    "DeckSize": 10,
     "RoundTime": 120,
     "TimeGainPerAction": 5
   }
+}
+```
+
+Параметры игрока (размер руки и колоды) хранятся в `config.player.json` и загружаются через `PlayerConfigOptions`:
+
+```json
+{
+  "HandSize": 5,
+  "DeckSize": 10
 }
 ```
 
@@ -150,7 +155,9 @@ LastManStandingRoundState:
 |------|----------|
 | `shared/Domain/GameMatchType.cs` | Enum режимов |
 | `shared/Configs/GameModeOptions.cs` | Параметры режимов |
+| `shared/Configs/PlayerConfigOptions.cs` | Параметры игрока |
 | `backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs` | Реализация TimeLimited |
 | `backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs` | Реализация LastManStanding |
 | `backend/Game/Global/SessionFactory.cs` | Выбор режима при создании сессии |
-| `backend/Orchestration/Coordinator/config.gameMode.json` | JSON-конфиг |
+| `backend/Orchestration/Coordinator/config.gameMode.json` | JSON-конфиг режимов |
+| `backend/Orchestration/Coordinator/config.player.json` | JSON-конфиг игрока |

@@ -104,6 +104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec8008233d3476cb49722848c2d54e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.AvatarTurnPointView
-  _active: {fileID: 2434396589234404517, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
-  _inactive: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
+  _baseActive: {fileID: 2434396589234404517, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
+  _baseInactive: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
+  _additionalActive: {fileID: 2434396589234404517, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
+  _additionalInactive: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
   _renderer: {fileID: 6573125556585026178}

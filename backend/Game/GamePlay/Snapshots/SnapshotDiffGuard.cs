@@ -101,10 +101,12 @@ public static class SnapshotDiffCalculator
         PlayerStateSnapshot actual,
         List<string> diff)
     {
-        if (expected.ManaCurrent != actual.ManaCurrent || expected.ManaMax != actual.ManaMax)
+        if (expected.ManaCurrent != actual.ManaCurrent ||
+            expected.ManaBaseMax != actual.ManaBaseMax ||
+            expected.ManaResultMax != actual.ManaResultMax)
         {
-            diff.Add($"Player {id} Mana: expected {expected.ManaCurrent}/{expected.ManaMax}, " +
-                     $"got {actual.ManaCurrent}/{actual.ManaMax}");
+            diff.Add($"Player {id} Mana: expected {expected.ManaCurrent}/{expected.ManaBaseMax}/{expected.ManaResultMax}, " +
+                     $"got {actual.ManaCurrent}/{actual.ManaBaseMax}/{actual.ManaResultMax}");
         }
 
         if (expected.HealthCurrent != actual.HealthCurrent || expected.HealthMax != actual.HealthMax)
@@ -114,12 +116,13 @@ public static class SnapshotDiffCalculator
         }
 
         if (expected.MovesLeft != actual.MovesLeft ||
-            expected.MovesMax != actual.MovesMax ||
+            expected.MovesBaseMax != actual.MovesBaseMax ||
+            expected.MovesResultMax != actual.MovesResultMax ||
             expected.MovesIsAvailable != actual.MovesIsAvailable)
         {
             diff.Add(
-                $"Player {id} Moves: expected {expected.MovesLeft}/{expected.MovesMax} available={expected.MovesIsAvailable}, " +
-                $"got {actual.MovesLeft}/{actual.MovesMax} available={actual.MovesIsAvailable}");
+                $"Player {id} Moves: expected {expected.MovesLeft}/{expected.MovesBaseMax}/{expected.MovesResultMax} available={expected.MovesIsAvailable}, " +
+                $"got {actual.MovesLeft}/{actual.MovesBaseMax}/{actual.MovesResultMax} available={actual.MovesIsAvailable}");
         }
 
         CompareModifiers(id, expected.Modifiers, actual.Modifiers, diff);
@@ -148,21 +151,24 @@ public static class SnapshotDiffCalculator
 
     private static void CompareModifiers(
         Guid playerId,
-        Dictionary<PlayerModifier, float> expected,
-        Dictionary<PlayerModifier, float> actual,
+        List<DurationalModifierOverview> expected,
+        List<DurationalModifierOverview> actual,
         List<string> diff)
     {
-        foreach (var (modifier, expectedValue) in expected)
+        var expectedDict = expected.ToDictionary(o => o.Type, o => o.Value);
+        var actualDict = actual.ToDictionary(o => o.Type, o => o.Value);
+
+        foreach (var (modifier, expectedValue) in expectedDict)
         {
-            var actualValue = actual.TryGetValue(modifier, out var value) == true ? value : 0f;
+            var actualValue = actualDict.TryGetValue(modifier, out var value) == true ? value : 0f;
 
             if (Math.Abs(expectedValue - actualValue) > 0.0001f)
                 diff.Add($"Player {playerId} Modifier {modifier}: expected {expectedValue}, got {actualValue}");
         }
 
-        foreach (var (modifier, actualValue) in actual)
+        foreach (var (modifier, actualValue) in actualDict)
         {
-            if (expected.ContainsKey(modifier) == false && Math.Abs(actualValue) > 0.0001f)
+            if (expectedDict.ContainsKey(modifier) == false && Math.Abs(actualValue) > 0.0001f)
                 diff.Add($"Player {playerId} Modifier {modifier}: expected 0, got {actualValue}");
         }
     }

@@ -1,4 +1,4 @@
-﻿using Common.Reactive;
+using Common.Reactive;
 using Shared;
 
 namespace Game.GamePlay;
@@ -6,7 +6,8 @@ namespace Game.GamePlay;
 public interface IMana
 {
     int Current { get; }
-    int Max { get; }
+    int BaseMax { get; }
+    int ResultMax { get; }
 
     IViewableDelegate Updated { get; }
 
@@ -36,7 +37,8 @@ public class Mana : IMana
 
     public IViewableDelegate Updated => _updated;
     public int Current => _current.Value;
-    public int Max => _max + Bonus;
+    public int BaseMax => _max;
+    public int ResultMax => _max + Bonus;
 
     public void BindOwner(IPlayer owner)
     {
@@ -45,8 +47,8 @@ public class Mana : IMana
 
     public void SetCurrent(MoveSnapshot snapshot, int value)
     {
-        if (value > Max)
-            value = Max;
+        if (value > ResultMax)
+            value = ResultMax;
 
         if (value < 0)
             value = 0;
@@ -60,8 +62,8 @@ public class Mana : IMana
     {
         _max = value;
 
-        if (_current.Value > _max)
-            _current.Set(_max);
+        if (_current.Value > ResultMax)
+            _current.Set(ResultMax);
 
         _updated.Invoke();
         Record(snapshot);

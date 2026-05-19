@@ -248,6 +248,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         RegisterConfig<IGameModeConfig, GameModeOptions>(services, "config.gameMode");
         RegisterConfig<IRatingConfig, RatingOptions>(services, "config.rating");
         RegisterConfig<IUserDeckConfig, UserDeckConfigOptions>(services, "config.userDeck");
+        RegisterConfig<IPlayerConfig, PlayerConfigOptions>(services, "config.player");
 
         // Cluster features
         var features = new TestAddressableState<ClusterFeaturesState>();

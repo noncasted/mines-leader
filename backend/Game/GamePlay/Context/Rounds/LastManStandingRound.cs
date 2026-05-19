@@ -18,6 +18,7 @@ public class LastManStandingRound : Service, IGameRound
         IRoundActionService roundActionService,
         RoundPlayers players,
         IGameModeConfig modeOptions,
+        IPlayerConfig playerConfig,
         ILogger<TimeLimitedRound> logger,
         ISessionLogger sessionLogger) : base("game-round")
     {
@@ -29,6 +30,7 @@ public class LastManStandingRound : Service, IGameRound
         _roundActionService = roundActionService;
         _players = players;
         _modeOptions = modeOptions;
+        _playerConfig = playerConfig;
         _logger = logger;
         _sessionLogger = sessionLogger;
     }
@@ -45,6 +47,7 @@ public class LastManStandingRound : Service, IGameRound
     private readonly ISnapshotDiffGuard _diffGuard;
     private readonly IRoundActionService _roundActionService;
     private readonly IGameModeConfig _modeOptions;
+    private readonly IPlayerConfig _playerConfig;
     private readonly ILogger<TimeLimitedRound> _logger;
     private readonly ISessionLogger _sessionLogger;
 
@@ -60,8 +63,8 @@ public class LastManStandingRound : Service, IGameRound
     {
         foreach (var player in _gameContext.Players)
         {
-            player.Hand.SetSize(ModeOptions.HandSize);
-            player.Deck.Init(ModeOptions.DeckSize);
+            player.Hand.SetSize(_playerConfig.Value.HandSize);
+            player.Deck.Init(_playerConfig.Value.DeckSize);
         }
 
         ListenPlayersEvents(lifetime);
@@ -228,13 +231,13 @@ public class LastManStandingRound : Service, IGameRound
             ? GameStateCapture.Capture(_gameContext)
             : null;
 
-        if (player.Mana.Max < ModeOptions.MaxManaCap)
+        if (player.Mana.ResultMax < ModeOptions.MaxManaCap)
         {
-            player.Mana.SetMax(endSnapshot, player.Mana.Max + 1);
+            player.Mana.SetMax(endSnapshot, player.Mana.ResultMax + 1);
         }
 
         player.Mana.Restore(endSnapshot);
-        _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.Max);
+        _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.ResultMax);
 
         _players.RestoreCards(player, endSnapshot);
 

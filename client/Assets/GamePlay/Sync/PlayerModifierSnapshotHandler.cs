@@ -17,7 +17,7 @@ namespace GamePlay
         public UniTask Handle(PlayerSnapshotRecord.ModifierUpdate record)
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
-            player.Modifiers.Set(record.Modifier, record.Value);
+            player.Modifiers.UpdateOverview(record.Overview);
             return UniTask.CompletedTask;
         }
     }

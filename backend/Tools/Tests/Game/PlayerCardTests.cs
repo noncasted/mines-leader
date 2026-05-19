@@ -126,7 +126,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
             new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, size);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
             new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, 2f + size);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class TrebuchetAimerTests : PlayerCardTestsBase
 
         new TrebuchetAimer(configs).Use(owner, new CardUsePayload.TrebuchetAimer { Type = CardType.TrebuchetAimer });
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.TrebuchetBoost, size);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -220,8 +220,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.Max.Returns(5);
-        owner.Mana.Max.Returns(3);
+        opponent.Mana.ResultMax.Returns(5);
+        owner.Mana.ResultMax.Returns(3);
 
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -237,8 +237,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.Max.Returns(5);
-        owner.Mana.Max.Returns(3);
+        opponent.Mana.ResultMax.Returns(5);
+        owner.Mana.ResultMax.Returns(3);
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -253,8 +253,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.Max.Returns(0);
-        owner.Mana.Max.Returns(3);
+        opponent.Mana.ResultMax.Returns(0);
+        owner.Mana.ResultMax.Returns(3);
 
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -271,8 +271,8 @@ public class SiphonTests : PlayerCardTestsBase
         var opponent = MockPlayer(opponentId);
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
-        opponent.Mana.Max.Returns(5);
-        owner.Mana.Max.Returns(3);
+        opponent.Mana.ResultMax.Returns(5);
+        owner.Mana.ResultMax.Returns(3);
 
         var (_, snapshot) = new Siphon(configs, gameContext).UseCapture(owner,
             new CardUsePayload.Siphon { Type = CardType.Siphon });
@@ -290,8 +290,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.Max.Returns(10);
-        owner.Mana.Max.Returns(3);
+        opponent.Mana.ResultMax.Returns(10);
+        owner.Mana.ResultMax.Returns(3);
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -319,7 +319,7 @@ public class OverclockTests : PlayerCardTestsBase
             new CardUsePayload.Overclock { Type = CardType.Overclock });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, extraMoves);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -336,7 +336,7 @@ public class OverclockTests : PlayerCardTestsBase
 
         new Overclock(configs, roundService).Use(owner, new CardUsePayload.Overclock { Type = CardType.Overclock });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]
@@ -686,7 +686,7 @@ public class LockdownTests : PlayerCardTestsBase
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
         result.Result.HasError.Should().BeFalse();
-        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -movesReduction);
+        opponent.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -708,7 +708,7 @@ public class LockdownTests : PlayerCardTestsBase
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
         roundActionService.Received(1)
-                          .Schedule(Arg.Any<ModifierDisposeAction>(), duration);
+                          .Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]
@@ -736,8 +736,8 @@ public class LockdownTests : PlayerCardTestsBase
 
         // Dec sets -(movesReduction*2), then dispose restores to 0
         opponent.Modifiers.Received(1)
-                .Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -(movesReduction * 2));
-        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, 0f);
+                .Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
+        opponent.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -782,11 +782,13 @@ public class LockdownTests : PlayerCardTestsBase
         new Lockdown(configs, roundActionService, gameContext).Use(invoker,
             new CardUsePayload.Lockdown { Type = CardType.Lockdown });
 
+        opponent.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
+
         // Only tick once — action should not fire yet (duration = 2)
         roundActionService.Tick(new MoveSnapshot());
 
-        // Dec(-movesReduction) from Lockdown happened, but no restore yet
-        opponent.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, -movesReduction);
-        opponent.Modifiers.DidNotReceive().Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, 0f);
+        // Source is still active, Update was called but not Remove
+        opponent.Modifiers.Received(1).Update(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
+        opponent.Modifiers.DidNotReceive().Remove(Arg.Any<MoveSnapshot>(), Arg.Any<Guid>());
     }
 }

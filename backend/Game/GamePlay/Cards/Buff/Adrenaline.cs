@@ -23,10 +23,10 @@ public class Adrenaline : ICard<CardUsePayload.Adrenaline>
         var snapshot = context.Snapshot;
         var config = _configs.Value.Adrenaline_Normal;
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.AdditionalMoves, config.ExtraMoves);
+        var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, config.ExtraMoves, "adrenaline", 1);
+        invoker.Modifiers.Add(snapshot, source);
 
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(invoker, PlayerModifier.AdditionalMoves, config.ExtraMoves), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Adrenaline()
         {

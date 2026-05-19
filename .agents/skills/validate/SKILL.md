@@ -24,14 +24,14 @@ If no `.cs` files changed — report "Нет изменённых .cs файло
 ### Step 2 — Load rules
 
 Always read:
-- `docs/db/docs/CODE_STYLE_FULL.md`
-- `docs/db/docs/CLAUDE_MISTAKES.md`
+- `.agents/docs/CODE_STYLE_FULL.md`
+- `.agents/docs/CLAUDE_MISTAKES.md`
 
 Read these only if relevant files are found:
-- `docs/db/docs/COMMON_CONTAINER.md` — if any file extends `MonoBehaviour`
-- `docs/db/docs/COMMON_LIFETIMES.md` — if any file uses `Advise`, `View`, `ListenClick`, `Lifetime`
-- `docs/db/docs/COMMON_REACTIVE_BASICS.md` — if any file uses `EventSource`, `ViewableProperty`, `ViewableList`
-- `docs/db/docs/API_DESIGN_FULL.md` — if any file has `UniTask`, `async`, collection return types
+- `.agents/docs/COMMON_CONTAINER.md` — if any file extends `MonoBehaviour`
+- `.agents/docs/COMMON_LIFETIMES.md` — if any file uses `Advise`, `View`, `ListenClick`, `Lifetime`
+- `.agents/docs/COMMON_REACTIVE_BASICS.md` — if any file uses `EventSource`, `ViewableProperty`, `ViewableList`
+- `.agents/docs/API_DESIGN_FULL.md` — if any file has `UniTask`, `async`, collection return types
 
 ### Step 3 — Validate each file
 

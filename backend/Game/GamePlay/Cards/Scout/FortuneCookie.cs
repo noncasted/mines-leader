@@ -58,7 +58,7 @@ public class FortuneCookie : ICard<CardUsePayload.FortuneCookie>
         }
 
         if (affectedCells.Count > 0)
-            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells), 1);
+            _roundActionService.Schedule(new MineHighlightDisposeAction(board, effectId, affectedCells, 1));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.FortuneCookie()
         {

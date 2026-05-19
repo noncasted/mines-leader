@@ -9,7 +9,7 @@ namespace Game.GamePlay.CardPreviews;
 /// </summary>
 internal sealed class PreviewRoundActionService : IRoundActionService
 {
-    public void Schedule(IRoundAction action, int rounds)
+    public void Schedule(IRoundAction action)
     {
     }
 

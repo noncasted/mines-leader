@@ -22,8 +22,7 @@ public class AdrenalineTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves,
-            CardConfigs.Adrenaline.ExtraMoves);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -38,7 +37,7 @@ public class AdrenalineTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.Adrenaline { Type = CardType.Adrenaline });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]

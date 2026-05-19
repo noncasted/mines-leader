@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace GamePlay.Players
 {
@@ -7,6 +7,8 @@ namespace GamePlay.Players
     {
         [SerializeField] private Sprite _empty;
         [SerializeField] private Sprite _full;
+        [SerializeField] private Color _baseColor = Color.white;
+        [SerializeField] private Color _additionalColor = Color.white;
         [SerializeField] private SpriteRenderer _renderer;
 
         public void SetEmpty()
@@ -17,6 +19,16 @@ namespace GamePlay.Players
         public void SetFull()
         {
             _renderer.sprite = _full;
+        }
+
+        public void SetBase()
+        {
+            _renderer.color = _baseColor;
+        }
+
+        public void SetAdditional()
+        {
+            _renderer.color = _additionalColor;
         }
     }
 }

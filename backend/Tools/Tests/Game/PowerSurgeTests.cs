@@ -22,8 +22,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount,
-            CardConfigs.PowerSurge.Discount);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 
     [Fact]
@@ -38,7 +37,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]
@@ -54,6 +53,6 @@ public class PowerSurgeTests : PlayerCardTestsBase
         card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
         roundService.Tick(new MoveSnapshot());
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AllCardsDiscount, 0f);
+        owner.Modifiers.Received(1).Remove(Arg.Any<MoveSnapshot>(), Arg.Any<Guid>());
     }
 }

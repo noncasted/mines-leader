@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MemoryPack;
 
 namespace Shared
@@ -34,7 +34,8 @@ namespace Shared
         {
             public Guid PlayerId { get; set; }
             public int Current { get; set; }
-            public int Max { get; set; }
+            public int BaseMax { get; set; }
+            public int ResultMax { get; set; }
         }
 
         [MemoryPackable]
@@ -50,7 +51,8 @@ namespace Shared
         {
             public Guid PlayerId { get; set; }
             public int Left { get; set; }
-            public int Max { get; set; }
+            public int BaseMax { get; set; }
+            public int ResultMax { get; set; }
             public bool IsAvailable { get; set; }
         }
 
@@ -58,8 +60,7 @@ namespace Shared
         public partial class ModifierUpdate : IMoveSnapshotRecord
         {
             public Guid PlayerId { get; set; }
-            public PlayerModifier Modifier { get; set; }
-            public float Value { get; set; }
+            public DurationalModifierOverview Overview { get; set; } = new();
         }
 
         [MemoryPackable]

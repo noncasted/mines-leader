@@ -17,20 +17,21 @@ public class SnapshotApplierTests
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
             {
-                {
-                    playerId, new PlayerStateSnapshot
+                { playerId, new PlayerStateSnapshot
                     {
                         ManaCurrent = 3,
-                        ManaMax = 5,
+                        ManaBaseMax = 5,
+                        ManaResultMax = 5,
                         HealthCurrent = 10,
                         HealthMax = 10,
                         MovesLeft = 2,
-                        MovesMax = 2,
+                        MovesBaseMax = 2,
+                        MovesResultMax = 2,
                         MovesIsAvailable = true,
-                        Modifiers = new Dictionary<PlayerModifier, float>
+                        Modifiers = new List<DurationalModifierOverview>
                         {
-                            { PlayerModifier.AdditionalMana, 0f },
-                            { PlayerModifier.AdditionalMoves, 0f }
+                            new DurationalModifierOverview { SourceId = Guid.NewGuid(), Type = PlayerModifier.AdditionalMana, Value = 0f, Key = "", TurnsToEnd = 0 },
+                            new DurationalModifierOverview { SourceId = Guid.NewGuid(), Type = PlayerModifier.AdditionalMoves, Value = 0f, Key = "", TurnsToEnd = 0 }
                         },
                         Hand = new Dictionary<Guid, CardType>()
                     }
@@ -67,13 +68,15 @@ public class SnapshotApplierTests
         {
             PlayerId = playerId,
             Current = 7,
-            Max = 9
+            BaseMax = 9,
+            ResultMax = 9
         });
 
         var post = SnapshotApplier.Apply(pre, records);
 
         post.Players[playerId].ManaCurrent.Should().Be(7);
-        post.Players[playerId].ManaMax.Should().Be(9);
+        post.Players[playerId].ManaBaseMax.Should().Be(9);
+        post.Players[playerId].ManaResultMax.Should().Be(9);
     }
 
     [Fact]
@@ -105,14 +108,16 @@ public class SnapshotApplierTests
         {
             PlayerId = playerId,
             Left = 0,
-            Max = 3,
+            BaseMax = 3,
+            ResultMax = 3,
             IsAvailable = false
         });
 
         var post = SnapshotApplier.Apply(pre, records);
 
         post.Players[playerId].MovesLeft.Should().Be(0);
-        post.Players[playerId].MovesMax.Should().Be(3);
+        post.Players[playerId].MovesBaseMax.Should().Be(3);
+        post.Players[playerId].MovesResultMax.Should().Be(3);
         post.Players[playerId].MovesIsAvailable.Should().BeFalse();
     }
 
@@ -122,16 +127,25 @@ public class SnapshotApplierTests
         var playerId = Guid.NewGuid();
         var pre = CreateBaseState(playerId);
 
+        var manaModifier = pre.Players[playerId].Modifiers.First(o => o.Type == PlayerModifier.AdditionalMana);
         var records = ToRecords(new PlayerSnapshotRecord.ModifierUpdate
         {
             PlayerId = playerId,
-            Modifier = PlayerModifier.AdditionalMana,
-            Value = 3f
+            Overview = new DurationalModifierOverview
+            {
+                SourceId = manaModifier.SourceId,
+                Type = PlayerModifier.AdditionalMana,
+                Value = 3f,
+                Key = "",
+                TurnsToEnd = 1
+            }
         });
 
         var post = SnapshotApplier.Apply(pre, records);
 
-        post.Players[playerId].Modifiers[PlayerModifier.AdditionalMana].Should().Be(3f);
+        var modifier = post.Players[playerId].Modifiers.FirstOrDefault(o => o.Type == PlayerModifier.AdditionalMana);
+        modifier.Should().NotBeNull();
+        modifier!.Value.Should().Be(3f);
     }
 
     [Fact]
@@ -377,13 +391,15 @@ public class SnapshotApplierTests
         {
             PlayerId = playerId,
             Current = 99,
-            Max = 99
+            BaseMax = 99,
+            ResultMax = 99
         });
 
         SnapshotApplier.Apply(pre, records);
 
         pre.Players[playerId].ManaCurrent.Should().Be(3);
-        pre.Players[playerId].ManaMax.Should().Be(5);
+        pre.Players[playerId].ManaBaseMax.Should().Be(5);
+        pre.Players[playerId].ManaResultMax.Should().Be(5);
     }
 }
 
@@ -393,9 +409,9 @@ public class SnapshotDiffCalculatorTests
     {
         var state = new PlayerStateSnapshot
         {
-            Modifiers = new Dictionary<PlayerModifier, float>
+            Modifiers = new List<DurationalModifierOverview>
             {
-                { PlayerModifier.AdditionalMana, 0f }
+                new DurationalModifierOverview { SourceId = Guid.NewGuid(), Type = PlayerModifier.AdditionalMana, Value = 0f, Key = "", TurnsToEnd = 0 }
             }
         };
         configure(state);
@@ -414,12 +430,14 @@ public class SnapshotDiffCalculatorTests
 
         var a = StateWith(id, p => {
             p.ManaCurrent = 3;
-            p.ManaMax = 5;
+            p.ManaBaseMax = 5;
+            p.ManaResultMax = 5;
         });
 
         var b = StateWith(id, p => {
             p.ManaCurrent = 3;
-            p.ManaMax = 5;
+            p.ManaBaseMax = 5;
+            p.ManaResultMax = 5;
         });
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
@@ -434,18 +452,20 @@ public class SnapshotDiffCalculatorTests
 
         var a = StateWith(id, p => {
             p.ManaCurrent = 3;
-            p.ManaMax = 5;
+            p.ManaBaseMax = 5;
+            p.ManaResultMax = 5;
         });
 
         var b = StateWith(id, p => {
             p.ManaCurrent = 7;
-            p.ManaMax = 5;
+            p.ManaBaseMax = 5;
+            p.ManaResultMax = 5;
         });
 
         var diff = SnapshotDiffCalculator.Compute(a, b);
 
         diff.Should().ContainSingle();
-        diff[0].Should().Contain("Mana").And.Contain("3/5").And.Contain("7/5");
+        diff[0].Should().Contain("Mana").And.Contain("3/5/5").And.Contain("7/5/5");
     }
 
     [Fact]
@@ -573,7 +593,7 @@ public class SnapshotDiffGuardTests
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
             {
-                { id, new PlayerStateSnapshot { ManaCurrent = 1, ManaMax = 5 } }
+                { id, new PlayerStateSnapshot { ManaCurrent = 1, ManaBaseMax = 5, ManaResultMax = 5 } }
             }
         };
 
@@ -581,7 +601,7 @@ public class SnapshotDiffGuardTests
         {
             Records = new IMoveSnapshotRecord[]
             {
-                new PlayerSnapshotRecord.ManaUpdate { PlayerId = id, Current = 3, Max = 5 }
+                new PlayerSnapshotRecord.ManaUpdate { PlayerId = id, Current = 3, BaseMax = 5, ResultMax = 5 }
             }
         };
 
@@ -589,7 +609,7 @@ public class SnapshotDiffGuardTests
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
             {
-                { id, new PlayerStateSnapshot { ManaCurrent = 3, ManaMax = 5 } }
+                { id, new PlayerStateSnapshot { ManaCurrent = 3, ManaBaseMax = 5, ManaResultMax = 5 } }
             }
         };
 
@@ -607,7 +627,7 @@ public class SnapshotDiffGuardTests
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
             {
-                { id, new PlayerStateSnapshot { ManaCurrent = 1, ManaMax = 5 } }
+                { id, new PlayerStateSnapshot { ManaCurrent = 1, ManaBaseMax = 5, ManaResultMax = 5 } }
             }
         };
         // No records, but post mana changed — this is the bug diff-guard must catch.
@@ -617,7 +637,7 @@ public class SnapshotDiffGuardTests
         {
             Players = new Dictionary<Guid, PlayerStateSnapshot>
             {
-                { id, new PlayerStateSnapshot { ManaCurrent = 5, ManaMax = 5 } }
+                { id, new PlayerStateSnapshot { ManaCurrent = 5, ManaBaseMax = 5, ManaResultMax = 5 } }
             }
         };
 
@@ -647,14 +667,14 @@ public class BloodPactSnapshotSequenceTests : PlayerCardTestsBase
         owner.Health.When(h => h.TakeDamage(Arg.Any<MoveSnapshot>(), Arg.Any<int>()))
              .Do(_ => calls.Add("Health.TakeDamage"));
 
-        owner.Modifiers.When(m => m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana, Arg.Any<float>()))
-             .Do(_ => calls.Add("Modifiers.Set(AdditionalMana)"));
+        owner.Modifiers.When(m => m.Add(Arg.Any<MoveSnapshot>(), Arg.Is<IModifierSource>(s => s.Type == PlayerModifier.AdditionalMana)))
+             .Do(_ => calls.Add("Modifiers.Add(AdditionalMana)"));
 
         owner.Mana.When(m => m.SetCurrent(Arg.Any<MoveSnapshot>(), Arg.Any<int>()))
              .Do(_ => calls.Add("Mana.SetCurrent"));
 
-        owner.Modifiers.When(m => m.Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMoves, Arg.Any<float>()))
-             .Do(_ => calls.Add("Modifiers.Set(AdditionalMoves)"));
+        owner.Modifiers.When(m => m.Add(Arg.Any<MoveSnapshot>(), Arg.Is<IModifierSource>(s => s.Type == PlayerModifier.AdditionalMoves)))
+             .Do(_ => calls.Add("Modifiers.Add(AdditionalMoves)"));
 
         var snapshot = new MoveSnapshot();
         var card = new BloodPact(MockConfigs(), Substitute.For<IRoundActionService>());
@@ -662,9 +682,9 @@ public class BloodPactSnapshotSequenceTests : PlayerCardTestsBase
         card.Use(owner, new CardUsePayload.BloodPact { Type = CardType.BloodPact }, snapshot);
 
         calls.Should().Equal("Health.TakeDamage",
-            "Modifiers.Set(AdditionalMana)",
+            "Modifiers.Add(AdditionalMana)",
             "Mana.SetCurrent",
-            "Modifiers.Set(AdditionalMoves)");
+            "Modifiers.Add(AdditionalMoves)");
     }
 }
 

@@ -10,29 +10,29 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 | Keywords | Go to |
 |----------|-------|
-| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | docs/db/docs/COMMON_CONTAINER.md |
-| Lifetime, Advise, View, Terminate, subscription, cleanup | docs/db/docs/COMMON_LIFETIMES.md |
-| EventSource, ViewableProperty, ViewableList, reactive, observable, event | docs/db/docs/COMMON_REACTIVE_BASICS.md |
-| UniTask, async, IReadOnlyList, file I/O, callback wrapping | docs/db/docs/API_DESIGN_FULL.md |
-| member order, _camelCase, GC.KeepAlive, NoAwait, braces | docs/db/docs/CODE_STYLE_FULL.md |
-| Grain, IGrainWithGuidKey, [Transaction], constructor injection | docs/db/docs/COMMON_ORLEANS.md |
-| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | docs/db/docs/COMMON_ORLEANS.md |
+| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | .agents/docs/COMMON_CONTAINER.md |
+| Lifetime, Advise, View, Terminate, subscription, cleanup | .agents/docs/COMMON_LIFETIMES.md |
+| EventSource, ViewableProperty, ViewableList, reactive, observable, event | .agents/docs/COMMON_REACTIVE_BASICS.md |
+| UniTask, async, IReadOnlyList, file I/O, callback wrapping | .agents/docs/API_DESIGN_FULL.md |
+| member order, _camelCase, GC.KeepAlive, NoAwait, braces | .agents/docs/CODE_STYLE_FULL.md |
+| Grain, IGrainWithGuidKey, [Transaction], constructor injection | .agents/docs/COMMON_ORLEANS.md |
+| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | .agents/docs/COMMON_ORLEANS.md |
 | DeployId, IDeployManagement, IDeployContext, IDeployAware, DeployIdPipe, DeployIdentity, DeployLifetime, LiveState, cluster restart | /docs/obsidian/architecture/deploy-epoch.md |
-| Blazor, razor, @inject, UiComponent, early return, console UI | docs/db/docs/BLAZOR.md |
-| which pattern to use, decision | docs/db/docs/DECISION_TREES.md |
-| error lookup, why X fails, memory leak, NullRef | docs/db/docs/ERRORS.md |
-| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | docs/db/docs/GAMEPLAY.md |
-| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | docs/db/docs/UI_MENU.md |
-| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | docs/db/docs/COMMON_ORLEANS.md |
+| Blazor, razor, @inject, UiComponent, early return, console UI | .agents/docs/BLAZOR.md |
+| which pattern to use, decision | .agents/docs/DECISION_TREES.md |
+| error lookup, why X fails, memory leak, NullRef | .agents/docs/ERRORS.md |
+| game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | .agents/docs/GAMEPLAY.md |
+| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | .agents/docs/UI_MENU.md |
+| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | .agents/docs/COMMON_ORLEANS.md |
 | new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
-| IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | docs/db/docs/COMMON_ORLEANS.md |
-| trigger keywords, documentation finder, reading order | docs/db/docs/TRIGGERS.md |
-| code examples, Docs_*.cs, working examples | docs/db/docs/CODE_EXAMPLES.md |
-| common mistakes, top errors, checklist failures | docs/db/docs/CLAUDE_MISTAKES.md |
-| full examples, Lifetime details, reactive details | docs/db/docs/COMMON_*.md |
-| PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | docs/db/docs/PREFAB_CODEGEN.md |
-| telemetry, metrics, logs, backend/.telemetry, file logging, session logs | docs/db/docs/TELEMETRY.md |
-| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | docs/db/docs/TESTING.md |
+| IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | .agents/docs/COMMON_ORLEANS.md |
+| trigger keywords, documentation finder, reading order | .agents/docs/TRIGGERS.md |
+| code examples, Docs_*.cs, working examples | .agents/docs/CODE_EXAMPLES.md |
+| common mistakes, top errors, checklist failures | .agents/docs/CLAUDE_MISTAKES.md |
+| full examples, Lifetime details, reactive details | .agents/docs/COMMON_*.md |
+| PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | .agents/docs/PREFAB_CODEGEN.md |
+| telemetry, metrics, logs, backend/.telemetry, file logging, session logs | .agents/docs/TELEMETRY.md |
+| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | .agents/docs/TESTING.md |
 
 ## Architecture
 
@@ -75,23 +75,23 @@ If the user wants error handling, they will say so. Until then — **fail fast, 
 ## Full Documentation
 
 **Patterns & rules:**
-- `docs/db/docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
-- `docs/db/docs/COMMON_LIFETIMES.md` + `docs/db/docs/COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
-- `docs/db/docs/COMMON_REACTIVE_BASICS.md` / `docs/db/docs/COMMON_REACTIVE_VALUES.md` / `docs/db/docs/COMMON_REACTIVE_COLLECTIONS.md` / `docs/db/docs/COMMON_REACTIVE_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
-- `docs/db/docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
-- `docs/db/docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
-- `docs/db/docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
-- `docs/db/docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
-- `docs/db/docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
+- `.agents/docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
+- `.agents/docs/COMMON_LIFETIMES.md` + `.agents/docs/COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
+- `.agents/docs/COMMON_REACTIVE_BASICS.md` / `.agents/docs/COMMON_REACTIVE_VALUES.md` / `.agents/docs/COMMON_REACTIVE_COLLECTIONS.md` / `.agents/docs/COMMON_REACTIVE_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
+- `.agents/docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
+- `.agents/docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
+- `.agents/docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
+- `.agents/docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
+- `.agents/docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
 
 **Reference & lookup:**
-- `docs/db/docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
-- `docs/db/docs/ERRORS.md` — error lookup table with causes & fixes
-- `docs/db/docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
-- `docs/db/docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
-- `docs/db/docs/VOCABULARY.md` — consistent terminology
-- `docs/db/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
-- `docs/db/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
-- `docs/db/docs/CODE_EXAMPLES.md` — index of runnable code examples
-- `docs/db/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs
+- `.agents/docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
+- `.agents/docs/ERRORS.md` — error lookup table with causes & fixes
+- `.agents/docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
+- `.agents/docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow
+- `.agents/docs/VOCABULARY.md` — consistent terminology
+- `.agents/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
+- `.agents/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
+- `.agents/docs/CODE_EXAMPLES.md` — index of runnable code examples
+- `.agents/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs
 - `client/Assets/Common/Docs/Claude/*.cs` — runnable code examples for all patterns

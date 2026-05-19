@@ -51,7 +51,7 @@ public class Blackout : ICard<CardUsePayload.Blackout>
             affectedPositions.Add(cell.Position);
         }
 
-        _roundActionService.Schedule(new BlackoutDisposeAction(board, effectId, affectedCells), config.Duration);
+        _roundActionService.Schedule(new BlackoutDisposeAction(board, effectId, affectedCells, config.Duration));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Blackout()
         {
@@ -70,24 +70,31 @@ public class Blackout : ICard<CardUsePayload.Blackout>
 
 public class BlackoutDisposeAction : IRoundAction
 {
-    public BlackoutDisposeAction(IBoard board, Guid effectId, List<ICell> cells)
+    public BlackoutDisposeAction(IBoard board, Guid effectId, List<ICell> cells, int roundsLeft)
     {
         _board = board;
         _effectId = effectId;
         _cells = cells;
+        _roundsLeft = roundsLeft;
     }
 
     private readonly IBoard _board;
     private readonly Guid _effectId;
     private readonly List<ICell> _cells;
+    private int _roundsLeft;
 
-    public void Execute(MoveSnapshot snapshot)
+    public bool Tick(MoveSnapshot snapshot)
     {
+        _roundsLeft--;
+        if (_roundsLeft > 0)
+            return false;
+
         foreach (var cell in _cells)
         {
             cell.RemoveEffect(_effectId);
             snapshot.RecordEffectRemoved(_board, cell.Position, _effectId);
         }
+        return true;
     }
 }
 

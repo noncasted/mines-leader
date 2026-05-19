@@ -24,13 +24,15 @@ public class GameStateSnapshot
 public class PlayerStateSnapshot
 {
     public int ManaCurrent { get; set; }
-    public int ManaMax { get; set; }
+    public int ManaBaseMax { get; set; }
+    public int ManaResultMax { get; set; }
     public int HealthCurrent { get; set; }
     public int HealthMax { get; set; }
     public int MovesLeft { get; set; }
-    public int MovesMax { get; set; }
+    public int MovesBaseMax { get; set; }
+    public int MovesResultMax { get; set; }
     public bool MovesIsAvailable { get; set; }
-    public Dictionary<PlayerModifier, float> Modifiers { get; set; } = new();
+    public List<DurationalModifierOverview> Modifiers { get; set; } = new();
     public Dictionary<Guid, CardType> Hand { get; set; } = new();
     public List<CardType> Stash { get; set; } = new();
 
@@ -39,13 +41,15 @@ public class PlayerStateSnapshot
         return new PlayerStateSnapshot
         {
             ManaCurrent = ManaCurrent,
-            ManaMax = ManaMax,
+            ManaBaseMax = ManaBaseMax,
+            ManaResultMax = ManaResultMax,
             HealthCurrent = HealthCurrent,
             HealthMax = HealthMax,
             MovesLeft = MovesLeft,
-            MovesMax = MovesMax,
+            MovesBaseMax = MovesBaseMax,
+            MovesResultMax = MovesResultMax,
             MovesIsAvailable = MovesIsAvailable,
-            Modifiers = new Dictionary<PlayerModifier, float>(Modifiers),
+            Modifiers = new List<DurationalModifierOverview>(Modifiers),
             Hand = new Dictionary<Guid, CardType>(Hand),
             Stash = new List<CardType>(Stash)
         };

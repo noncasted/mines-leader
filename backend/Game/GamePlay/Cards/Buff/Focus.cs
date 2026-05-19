@@ -23,10 +23,10 @@ public class Focus : ICard<CardUsePayload.Focus>
         var snapshot = context.Snapshot;
         var config = _configs.Value.Focus_Normal;
 
-        invoker.Modifiers.Inc(snapshot, PlayerModifier.NextCardDiscount, config.Discount);
+        var source = new DurationModifierSource(PlayerModifier.NextCardDiscount, config.Discount, "focus", 1);
+        invoker.Modifiers.Add(snapshot, source);
 
-        _roundActionService.Schedule(
-            new ModifierDisposeAction(invoker, PlayerModifier.NextCardDiscount, config.Discount), 1);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Focus()
         {

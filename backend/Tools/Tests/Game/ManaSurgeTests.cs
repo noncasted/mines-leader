@@ -23,8 +23,7 @@ public class ManaSurgeTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Set(Arg.Any<MoveSnapshot>(), PlayerModifier.AdditionalMana,
-            CardConfigs.ManaSurge.ManaGain);
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
         owner.Mana.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 2 + CardConfigs.ManaSurge.ManaGain);
     }
 
@@ -41,6 +40,6 @@ public class ManaSurgeTests : PlayerCardTestsBase
 
         card.Use(owner, new CardUsePayload.ManaSurge { Type = CardType.ManaSurge });
 
-        roundService.Received(1).Schedule(Arg.Any<ModifierDisposeAction>(), 1);
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 }

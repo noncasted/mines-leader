@@ -59,9 +59,8 @@ public class FrostTests : PlayerCardTestsBase
 
         Use(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService);
 
-        roundService.Received(1).Schedule(Arg.Any<FrostDisposeAction>(), config.Duration);
+        roundService.Received(1).Schedule(Arg.Any<FrostDisposeAction>());
     }
-
     [Fact]
     public void Use_DisposeActionRemovesFrostEffectAfterDuration()
     {

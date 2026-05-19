@@ -44,12 +44,12 @@ public static class SnapshotApplier
                 if (state.Players.TryGetValue(remove.PlayerId, out var removePlayer) == true)
                     removePlayer.Hand.Remove(remove.CardId);
                 break;
-
             case PlayerSnapshotRecord.ManaUpdate mana:
                 if (state.Players.TryGetValue(mana.PlayerId, out var manaPlayer) == true)
                 {
                     manaPlayer.ManaCurrent = mana.Current;
-                    manaPlayer.ManaMax = mana.Max;
+                    manaPlayer.ManaBaseMax = mana.BaseMax;
+                    manaPlayer.ManaResultMax = mana.ResultMax;
                 }
 
                 break;
@@ -67,15 +67,33 @@ public static class SnapshotApplier
                 if (state.Players.TryGetValue(moves.PlayerId, out var movesPlayer) == true)
                 {
                     movesPlayer.MovesLeft = moves.Left;
-                    movesPlayer.MovesMax = moves.Max;
+                    movesPlayer.MovesBaseMax = moves.BaseMax;
+                    movesPlayer.MovesResultMax = moves.ResultMax;
                     movesPlayer.MovesIsAvailable = moves.IsAvailable;
                 }
 
                 break;
-
             case PlayerSnapshotRecord.ModifierUpdate modifier:
                 if (state.Players.TryGetValue(modifier.PlayerId, out var modPlayer) == true)
-                    modPlayer.Modifiers[modifier.Modifier] = modifier.Value;
+                {
+                    var list = modPlayer.Modifiers;
+                    var existingIndex = list.FindIndex(o => o.SourceId == modifier.Overview.SourceId);
+
+                    if (modifier.Overview.TurnsToEnd == 0)
+                    {
+                        if (existingIndex >= 0)
+                            list.RemoveAt(existingIndex);
+                    }
+                    else if (existingIndex >= 0)
+                    {
+                        list[existingIndex] = modifier.Overview;
+                    }
+                    else
+                    {
+                        list.Add(modifier.Overview);
+                    }
+                }
+
                 break;
 
             case PlayerSnapshotRecord.DeckUpdate:
