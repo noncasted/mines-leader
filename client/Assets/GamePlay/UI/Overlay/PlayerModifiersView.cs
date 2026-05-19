@@ -44,17 +44,17 @@ namespace GamePlay.UI
 
         private void OnContextUpdated(IReadOnlyLifetime lifetime)
         {
-            if (_isSubscribed)
-                return;
-
-            _isSubscribed = true;
-
             var self = _gameContext.Self;
             if (self == null)
                 return;
 
             foreach (var overview in self.Modifiers.Overviews.ToList())
                 CreateOrUpdateEntry(overview);
+
+            if (_isSubscribed)
+                return;
+
+            _isSubscribed = true;
 
             self.Modifiers.Overviews.Advise(lifetime, (entryLifetime, overview) =>
             {
