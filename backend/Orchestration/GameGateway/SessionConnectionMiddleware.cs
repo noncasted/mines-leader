@@ -1,4 +1,4 @@
-﻿using Common.Network;
+using Common.Network;
 using Game.Global;
 using Infrastructure.Startup;
 using Shared;
@@ -39,36 +39,88 @@ public class SessionConnectionMiddleware
             return;
         }
 
-        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        var handle = new ConnectionOneTimeHandle(webSocket);
+        WebSocket? webSocket = null;
 
-        var auth = await handle.ReadRequest<SharedSessionAuth.Request>();
+        try
+        {
+            webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Game] Failed to accept WebSocket: {Connection}", context.Connection.Id);
+            return;
+        }
+
+        if (webSocket == null)
+        {
+            _logger.LogError("[Game] AcceptWebSocketAsync returned null: {Connection}", context.Connection.Id);
+            return;
+        }
+
+        ConnectionOneTimeHandle? handle = null;
+        SharedSessionAuth.Request auth;
+
+        try
+        {
+            handle = new ConnectionOneTimeHandle(webSocket);
+            auth = await handle.ReadRequest<SharedSessionAuth.Request>();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Game] WebSocket auth handshake failed: {Connection}", context.Connection.Id);
+            handle?.Dispose();
+
+            if (webSocket.State == WebSocketState.Open)
+            {
+                try
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Auth failed", CancellationToken.None);
+                }
+                catch (Exception closeEx)
+                {
+                    _logger.LogWarning(closeEx, "[Game] Failed to close WebSocket after auth error: {Connection}", context.Connection.Id);
+                }
+            }
+
+            return;
+        }
 
         var session = _sessionsCollection.Get(auth.SessionId);
 
-        _logger.LogInformation("[Game] [Meta] User connected: {Connection} {UserId}",
+        _logger.LogInformation("[Game] User connected: {Connection} {UserId}",
             context.Connection.Id,
             auth.UserId);
 
         var completion = new TaskCompletionSource();
 
-        session.ExecutionQueue.Enqueue(() => {
-            var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
-            user.Lifetime.Listen(() => completion.TrySetResult());
-        });
-
-        var response = new SharedSessionAuth.Response()
+        try
         {
-            IsSuccess = true
-        };
+            session.ExecutionQueue.Enqueue(() => {
+                var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
+                user.Lifetime.Listen(() => completion.TrySetResult());
+            });
 
-        await handle.SendResponse(response);
-        handle.Dispose();
+            var response = new SharedSessionAuth.Response()
+            {
+                IsSuccess = true
+            };
 
-        await completion.Task;
+            await handle.SendResponse(response);
+            handle.Dispose();
 
-        _logger.LogInformation("[Game] [Meta] User disconnected: {Connection} {UserId}",
-            context.Connection.Id,
-            auth.UserId);
+            await completion.Task;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Game] Error during session connection handling: {Connection} {UserId}",
+                context.Connection.Id,
+                auth.UserId);
+        }
+        finally
+        {
+            _logger.LogInformation("[Game] User disconnected: {Connection} {UserId}",
+                context.Connection.Id,
+                auth.UserId);
+        }
     }
 }
