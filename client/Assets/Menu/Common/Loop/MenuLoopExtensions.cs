@@ -1,4 +1,5 @@
-﻿using Internal;
+using Internal;
+using Menu.Screens.Cards.Preview;
 
 namespace Menu.Common
 {
@@ -8,6 +9,9 @@ namespace Menu.Common
         {
             builder.Register<MenuLoop>()
                    .As<IMenuLoop>();
+
+            builder.Register<MenuCardPreviewPlayer>()
+                   .As<IMenuCardPreviewPlayer>();
 
             return builder;
         }
