@@ -1,4 +1,5 @@
-﻿using Meta;
+using GamePlay.UI;
+using Meta;
 using UnityEngine;
 
 namespace Menu.Decks
@@ -9,6 +10,7 @@ namespace Menu.Decks
         [SerializeField] private MenuDeckPoolCard _card;
         [SerializeField] private RectTransform _transform;
         [SerializeField] private CanvasGroup _canvasGroup;
+        [SerializeField] private UIElementPointerHandler _pointerHandler;
 
         private ICardDefinition _cardDefinition;
         private bool _isOwned = true;
@@ -16,6 +18,7 @@ namespace Menu.Decks
         public MenuDeckPoolCard Card => _card;
         public RectTransform Transform => _transform;
         public bool IsOwned => _isOwned;
+        public UIElementPointerHandler PointerHandler => _pointerHandler;
 
         public void Setup(ICardDefinition definition)
         {
