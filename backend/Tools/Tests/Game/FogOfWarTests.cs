@@ -209,7 +209,7 @@ public class FogOfWarTests : PlayerCardTestsBase
              .BeTrue();
 
         // Tick Duration times
-        for (var i = 0; i < CardConfigs.FogOfWar.Duration; i++)
+        for (var i = 0; i < CardConfigs.FogOfWar.TurnsDuration; i++)
             roundActionService.Tick(new MoveSnapshot());
 
         // Effects should be removed

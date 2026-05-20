@@ -697,7 +697,7 @@ public class LockdownTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var roundActionService = Substitute.For<IRoundActionService>();
         var gameContext = MockGameContext(invoker, opponent);
-        var duration = CardConfigs.All.Lockdown_Normal.Duration;
+        var duration = CardConfigs.All.Lockdown_Normal.TurnsDuration;
 
         opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
         {
@@ -720,7 +720,7 @@ public class LockdownTests : PlayerCardTestsBase
         var roundActionService = new RoundActionService();
         var gameContext = MockGameContext(invoker, opponent);
         var movesReduction = CardConfigs.All.Lockdown_Normal.MovesReduction;
-        var duration = CardConfigs.All.Lockdown_Normal.Duration;
+        var duration = CardConfigs.All.Lockdown_Normal.TurnsDuration;
 
         opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
         {
@@ -772,7 +772,7 @@ public class LockdownTests : PlayerCardTestsBase
         var roundActionService = new RoundActionService();
         var gameContext = MockGameContext(invoker, opponent);
         var movesReduction = CardConfigs.All.Lockdown_Normal.MovesReduction;
-        var duration = CardConfigs.All.Lockdown_Normal.Duration;
+        var duration = CardConfigs.All.Lockdown_Normal.TurnsDuration;
 
         opponent.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
         {

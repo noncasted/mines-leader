@@ -176,7 +176,7 @@ public class SmokeTests : PlayerCardTestsBase
              .BeTrue();
 
         // Tick Duration times to trigger dispose
-        for (var i = 0; i < CardConfigs.Smoke.Duration; i++)
+        for (var i = 0; i < CardConfigs.Smoke.TurnsDuration; i++)
             roundActionService.Tick(new MoveSnapshot());
 
         // Effects should be removed

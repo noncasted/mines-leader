@@ -67,7 +67,7 @@ public class FrostTests : PlayerCardTestsBase
         var board = new TestBoardBuilder(5).Build();
         var roundService = new RoundActionService();
         var allConfigs = CardConfigs.All;
-        allConfigs.Frost_Normal = new CardConfigOptions.Frost { Size = 1, Duration = 1 };
+        allConfigs.Frost_Normal = new CardConfigOptions.Frost { Size = 1, TurnsDuration = 1 };
         var configs = Substitute.For<ICardConfigs>();
         configs.Value.Returns(allConfigs);
 
@@ -86,7 +86,7 @@ public class FrostTests : PlayerCardTestsBase
         var board = new TestBoardBuilder(5).WithOwner(ownerId).Build();
         var roundService = Substitute.For<IRoundActionService>();
         var allConfigs = CardConfigs.All;
-        allConfigs.Frost_Normal = new CardConfigOptions.Frost { Size = 1, Duration = 1 };
+        allConfigs.Frost_Normal = new CardConfigOptions.Frost { Size = 1, TurnsDuration = 1 };
         var configs = Substitute.For<ICardConfigs>();
         configs.Value.Returns(allConfigs);
 
