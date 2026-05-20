@@ -39,13 +39,13 @@
     {
       "type": "ErosionDozer",
       "name": "Erosion Dozer",
-      "description": "Clears up to 5 connected unrevealed cells starting from the target.",
+      "description": "Clears up to {SIZE} connected unrevealed cells starting from the target.",
       "icon": "Cards/ErosionDozer"
     },
     {
       "type": "ErosionDozer_Max",
       "name": "Erosion Dozer Max",
-      "description": "Clears up to 5 connected unrevealed cells starting from the target with greater reach.",
+      "description": "Clears up to {SIZE} connected unrevealed cells starting from the target with greater reach.",
       "icon": "Cards/ErosionDozer_Max"
     },
     {
@@ -57,19 +57,19 @@
     {
       "type": "ZipZap",
       "name": "Zip Zap",
-      "description": "Chain lightning that defuses up to 3 mines on your field.",
+      "description": "Chain lightning that defuses up to {SIZE} mines on your field.",
       "icon": "Cards/ZipZap"
     },
     {
       "type": "ZipZap_Max",
       "name": "Zip Zap Max",
-      "description": "Chain lightning that defuses up to 3 mines on your field with wider search radius.",
+      "description": "Chain lightning that defuses up to {SIZE} mines on your field with wider search radius.",
       "icon": "Cards/ZipZap_Max"
     },
     {
       "type": "OpponentBomb",
       "name": "Opponent Bomb",
-      "description": "Reveals one cell on the opponent's field. If it's a mine, they take 1 damage.",
+      "description": "Reveals one cell on the opponent's field. If it's a mine, they take {DAMAGE} damage.",
       "icon": "Cards/OpponentBomb"
     },
     {
@@ -99,19 +99,19 @@
     {
       "type": "Smoke",
       "name": "Smoke",
-      "description": "Covers cells in a diamond area with smoke for 3 rounds, hiding their contents.",
+      "description": "Covers cells in a diamond area with smoke for {ROUNDS} rounds, hiding their contents.",
       "icon": "Cards/Smoke"
     },
     {
       "type": "Smoke_Max",
       "name": "Smoke Max",
-      "description": "Covers cells in a large diamond area with smoke for 3 rounds, hiding their contents.",
+      "description": "Covers cells in a large diamond area with smoke for {ROUNDS} rounds, hiding their contents.",
       "icon": "Cards/Smoke_Max"
     },
     {
       "type": "Medic",
       "name": "Medic",
-      "description": "Restores 1 HP. Cannot exceed maximum health.",
+      "description": "Restores {HEAL} HP. Cannot exceed maximum health.",
       "icon": "Cards/Medic"
     },
     {
@@ -129,37 +129,37 @@
     {
       "type": "Siphon",
       "name": "Siphon",
-      "description": "Drains 1 mana from the opponent and adds it to yours.",
+      "description": "Drains {DRAIN_AMOUNT} mana from the opponent and adds it to yours.",
       "icon": "Cards/Siphon"
     },
     {
       "type": "ChainReaction",
       "name": "Chain Reaction",
-      "description": "Chains through up to 3 mines on the opponent's field, jumping to the nearest mine each time, and spawns additional mines around each in a diamond pattern.",
+      "description": "Chains through up to {MAX_CHAIN} mines on the opponent's field, jumping to the nearest mine each time, and spawns additional mines around each in a diamond pattern.",
       "icon": "Cards/ChainReaction"
     },
     {
       "type": "Overclock",
       "name": "Overclock",
-      "description": "Grants +2 extra actions this turn. Does not carry over to the next turn.",
+      "description": "Grants +{EXTRA_MOVES} extra actions this turn. Does not carry over to the next turn.",
       "icon": "Cards/Overclock"
     },
     {
       "type": "FogOfWar",
       "name": "Fog of War",
-      "description": "Hides mine numbers on revealed cells in a diamond area for 2 rounds.",
+      "description": "Hides mine numbers on revealed cells in a diamond area for {ROUNDS} rounds.",
       "icon": "Cards/FogOfWar"
     },
     {
       "type": "FogOfWar_Max",
       "name": "Fog of War Max",
-      "description": "Hides mine numbers on revealed cells in a large diamond area for 2 rounds.",
+      "description": "Hides mine numbers on revealed cells in a large diamond area for {ROUNDS} rounds.",
       "icon": "Cards/FogOfWar_Max"
     },
     {
       "type": "Scavenger",
       "name": "Mobilization",
-      "description": "Draws 2 cards from the deck into your hand, ignoring the hand limit.",
+      "description": "Draws {DRAW_COUNT} cards from the deck into your hand, ignoring the hand limit.",
       "icon": "Cards/Mobilization"
     },
     {
@@ -171,7 +171,7 @@
     {
       "type": "Lockdown",
       "name": "Lockdown",
-      "description": "Reduces the opponent's maximum actions per turn by 1 for 2 rounds.",
+      "description": "Reduces the opponent's maximum actions per turn by {MOVES_REDUCTION} for {ROUNDS} rounds.",
       "icon": "Cards/Lockdown"
     },
     {
@@ -189,67 +189,67 @@
     {
       "type": "Adrenaline",
       "name": "Adrenaline",
-      "description": "Grants +1 extra action this turn.",
+      "description": "Grants +{EXTRA_MOVES} extra action this turn.",
       "icon": "Cards/Adrenaline"
     },
     {
       "type": "ManaSurge",
       "name": "Mana Surge",
-      "description": "Grants +3 temporary mana this turn. Temporary mana does not carry over.",
+      "description": "Grants +{MANA_GAIN} temporary mana this turn. Temporary mana does not carry over.",
       "icon": "Cards/New/ManaSurge"
     },
     {
       "type": "BloodPact",
       "name": "Blood Pact",
-      "description": "Sacrifice 1 HP to gain +3 temporary mana and +2 extra actions this turn.",
+      "description": "Sacrifice {HP_COST} HP to gain +{MANA_GAIN} temporary mana and +{EXTRA_MOVES} extra actions this turn.",
       "icon": "Cards/BloodPact"
     },
     {
       "type": "CoinToss",
       "name": "Coin Toss",
-      "description": "Flip a coin: heads grants +2 actions, tails costs 1 action.",
+      "description": "Flip a coin: heads grants +{WIN_MOVES} actions, tails costs {LOSE_MOVES} action.",
       "icon": "Cards/CoinToss"
     },
     {
       "type": "ManaFountain",
       "name": "Mana Fountain",
-      "description": "Roll a d5: gain 1-5 temporary mana this turn.",
+      "description": "Roll a d5: gain {MIN_MANA}-{MAX_MANA} temporary mana this turn.",
       "icon": "Cards/ManaFountain"
     },
     {
       "type": "Focus",
       "name": "Focus",
-      "description": "Your next card costs 1 less mana (minimum 0).",
+      "description": "Your next card costs {DISCOUNT} less mana (minimum 0).",
       "icon": "Cards/New/Focus"
     },
     {
       "type": "Shield",
       "name": "Shield",
-      "description": "Absorbs the next mine hit, preventing 1 HP damage.",
+      "description": "Absorbs the next mine hit, preventing {HEAL} HP damage.",
       "icon": "Cards/Shield"
     },
     {
       "type": "PowerSurge",
       "name": "Power Surge",
-      "description": "All cards cost 1 less mana this turn (minimum 1).",
+      "description": "All cards cost {DISCOUNT} less mana this turn (minimum 1).",
       "icon": "Cards/New/PowerSurge"
     },
     {
       "type": "Embargo",
       "name": "Embargo",
-      "description": "All opponent's cards cost 1 more mana for their next turn.",
+      "description": "All opponent's cards cost {COST_INCREASE} more mana for their next turn.",
       "icon": "Cards/New/Embargo"
     },
     {
       "type": "Recycler",
       "name": "Recycler",
-      "description": "Discard 1 card from your hand, then draw 2 cards from your deck.",
+      "description": "Discard 1 card from your hand, then draw {DRAW_COUNT} cards from your deck.",
       "icon": "Cards/New/Recycler"
     },
     {
       "type": "MysticDraw",
       "name": "Mystic Draw",
-      "description": "Flip a coin: heads draws 2 cards, tails returns 2 random cards to deck.",
+      "description": "Flip a coin: heads draws {WIN_DRAW} cards, tails returns {LOSE_RETURN} random cards to deck.",
       "icon": "Cards/New/MysticDraw"
     },
     {
@@ -261,7 +261,7 @@
     {
       "type": "GamblersRuin",
       "name": "Gambler's Ruin",
-      "description": "Flip a coin: heads gives +3 cards and +2 mana, tails discards 2 random cards.",
+      "description": "Flip a coin: heads gives +{WIN_DRAW} cards and +{WIN_MANA} mana, tails discards {LOSE_DISCARD} random cards.",
       "icon": "Cards/New/GamblersRuin"
     },
     {
@@ -291,13 +291,13 @@
     {
       "type": "ChaosDiamond",
       "name": "Chaos Diamond",
-      "description": "Random Bloodhound: clears a diamond of random size (2-5), flagging mines and revealing safe cells.",
+      "description": "Random Bloodhound: clears a diamond of random size ({MIN_SIZE}-{MAX_SIZE}), flagging mines and revealing safe cells.",
       "icon": "Cards/New/ChaosDiamond"
     },
     {
       "type": "ChaosScout",
       "name": "Chaos Scout",
-      "description": "Random scout line of length 3-7, flagging mines and revealing safe cells.",
+      "description": "Random scout line of length {MIN_LENGTH}-{MAX_LENGTH}, flagging mines and revealing safe cells.",
       "icon": "Cards/ChaosScout"
     },
     {
@@ -315,7 +315,7 @@
     {
       "type": "CarpetBomb",
       "name": "Carpet Bomb",
-      "description": "Plants mines in a line of 5 on the opponent's field.",
+      "description": "Plants mines in a line of {LENGTH} on the opponent's field.",
       "icon": "Cards/CarpetBomb"
     },
     {
@@ -327,37 +327,37 @@
     {
       "type": "FortuneBlast",
       "name": "Fortune Blast",
-      "description": "Random trebuchet: plants mines in a diamond of random size (1-4) on the opponent's field.",
+      "description": "Random trebuchet: plants mines in a diamond of random size ({MIN_SIZE}-{MAX_SIZE}) on the opponent's field.",
       "icon": "Cards/New/FortuneBlast"
     },
     {
       "type": "ChaosFog",
       "name": "Chaos Fog",
-      "description": "Random smoke: covers opponent's field with fog in a diamond of random size (1-4) for 3 rounds.",
+      "description": "Random smoke: covers opponent's field with fog in a diamond of random size ({MIN_SIZE}-{MAX_SIZE}) for {ROUNDS} rounds.",
       "icon": "Cards/New/ChaosFog"
     },
     {
       "type": "Frost",
       "name": "Frost",
-      "description": "Freezes the opponent, preventing them from opening cells for 1 round.",
+      "description": "Freezes the opponent, preventing them from opening cells for {ROUNDS} round.",
       "icon": "Cards/Frost"
     },
     {
       "type": "Frost_Max",
       "name": "Frost Max",
-      "description": "Enhanced frost that freezes the opponent for 2 rounds.",
+      "description": "Enhanced frost that freezes the opponent for {ROUNDS} rounds.",
       "icon": "Cards/New/Frost_Max"
     },
     {
       "type": "Blackout",
       "name": "Blackout",
-      "description": "Covers the opponent's entire board with fog for 1 round.",
+      "description": "Covers the opponent's entire board with fog for {ROUNDS} round.",
       "icon": "Cards/New/Blackout"
     },
     {
       "type": "Blackout_Max",
       "name": "Blackout Max",
-      "description": "Enhanced blackout that covers the opponent's board with fog for 2 rounds.",
+      "description": "Enhanced blackout that covers the opponent's board with fog for {ROUNDS} rounds.",
       "icon": "Cards/New/Blackout_Max"
     },
     {

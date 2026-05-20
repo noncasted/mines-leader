@@ -277,6 +277,9 @@ namespace Tools
             var generateScenesButton = new Button(OnGenerateScenesClicked) { text = "Generate Scenes" };
             generateScenesButton.AddToClassList("assets-button");
             buttonRow.Add(generateScenesButton);
+            var exportIconsButton = new Button(OnExportCardIconsClicked) { text = "Export Card Icons" };
+            exportIconsButton.AddToClassList("assets-button");
+            buttonRow.Add(exportIconsButton);
 
             parent.Add(buttonRow);
 
@@ -316,6 +319,21 @@ namespace Tools
             {
                 UpdateStatus("Scene generation failed", true);
                 Debug.LogError($"[ProjectTools] Scene generation failed: {ex}");
+            }
+        }
+
+        private void OnExportCardIconsClicked()
+        {
+            try
+            {
+                UpdateStatus("Exporting card icons...", false);
+                CardIconsExporter.Export();
+                UpdateStatus("Card icons exported", false);
+            }
+            catch (System.Exception ex)
+            {
+                UpdateStatus("Card icons export failed", true);
+                Debug.LogError($"[ProjectTools] Card icons export failed: {ex}");
             }
         }
 
