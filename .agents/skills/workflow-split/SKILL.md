@@ -105,13 +105,17 @@ Rules for `_progress.md`:
 
 ## Phase 5 — Output Continuation Prompt
 
-After updating the files, output ONLY the following text that the user should paste into the next session:
+After updating the files, output ONLY the following text for the user to paste into the next session.
+
+**CRITICAL: This is text FOR THE USER to copy-paste into a new session. Do NOT execute it yourself. Do NOT read the files mentioned in it. Just output the text verbatim and stop.**
 
 ```
+[COPY-PASTE THIS INTO THE NEXT SESSION]
+
 В рамках /workflow продолжаем работу над docs/tasks/current/<task_name>/. Прочитай <task_name>_info.md и <task_name>_progress.md и продолжай с момента где остановились.
 ```
 
-Nothing else. No summaries, no explanations. Just the prompt string.
+Nothing else. No summaries, no explanations, no execution. Just the prompt string.
 
 ---
 
