@@ -64,7 +64,9 @@ namespace Menu.Common
 
         private static UniTask AddScene(this IScopeBuilder builder)
         {
-            return builder.FindOrLoadSceneWithServices(Scenes.Menu.Value);
+            return UniTask.WhenAll(
+                builder.FindOrLoadSceneWithServices(Scenes.Menu.Value),
+                builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value));
         }
     }
 }

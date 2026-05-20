@@ -305,6 +305,7 @@ MonoBehaviour:
   _name: {fileID: 263066854308385901}
   _description: {fileID: 636483189910509678}
   _manaCost: {fileID: 8684284636389373590}
+  _pointerHandler: {fileID: 8187558222251663261}
 --- !u!114 &6905006111850514044 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1450058649755480606, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
@@ -327,3 +328,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8187558222251663261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 8187558222251663260, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+  m_PrefabInstance: {fileID: 5461783130252260450}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6109562787507564576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fd51c68c95f46a8ad97c22f2e54a925, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
+using Menu.Screens.Cards.Preview;
 using Meta;
 using Shared;
 using TMPro;
@@ -30,6 +31,7 @@ namespace Menu.Decks
         [SerializeField] private RectTransform _indexRoot;
 
         [SerializeField] private TMP_Text _avgManaText;
+        [SerializeField] private MenuCardPreviewPopup _previewPopup;
 
         private readonly List<MenuDeckCard> _deckCards = new();
         private readonly List<MenuDeckIndexButton> _indexButtons = new();
@@ -40,6 +42,7 @@ namespace Menu.Decks
         private IViewInjector _viewInjector;
         private ICardConfigs _configs;
         private IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
+        private IMenuCardPreviewPlayer _previewPlayer;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -49,13 +52,15 @@ namespace Menu.Decks
             ICardsRegistry cardsRegistry,
             IViewInjector viewInjector,
             ICardConfigs configs,
-            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection)
+            IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection,
+            IMenuCardPreviewPlayer previewPlayer)
         {
             _configs = configs;
             _viewInjector = viewInjector;
             _cardsRegistry = cardsRegistry;
             _deckService = deckService;
             _cardsProjection = cardsProjection;
+            _previewPlayer = previewPlayer;
         }
 
         public void Create(IScopeBuilder builder)
@@ -107,6 +112,7 @@ namespace Menu.Decks
                 _viewInjector.Inject(view.Card);
                 view.Setup(definition);
                 _typeToPoolSpot.Add(type, view);
+                RegisterPreviewHover(view, lifetime);
             }
 
             var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
@@ -125,6 +131,89 @@ namespace Menu.Decks
             ResizePoolRoot();
 
             _cardsProjection.Listen(lifetime, OnCardsUpdated);
+        }
+
+        private void RegisterPreviewHover(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
+        {
+            if (spot.PointerHandler == null)
+                return;
+
+            spot.PointerHandler.IsHovered.Advise(lifetime, isHovered =>
+            {
+                if (isHovered)
+                    ShowPreview(spot);
+                else
+                    HidePreview();
+            });
+        }
+
+        private void ShowPreview(MenuDeckPoolSpot spot)
+        {
+            var card = spot.Card;
+
+            if (card == null || card.CardDefinition == null)
+                return;
+
+            var type = card.CardDefinition.Type;
+
+            if (_previewPlayer.HasPreview(type) == false)
+                return;
+
+            _previewPlayer.Play(type);
+            var rt = _previewPlayer.PreviewTexture;
+
+            if (_previewPopup != null)
+            {
+                _previewPopup.Show(rt);
+                PositionPreview(spot);
+            }
+        }
+
+        private void HidePreview()
+        {
+            _previewPlayer.Stop();
+
+            if (_previewPopup != null)
+                _previewPopup.Hide();
+        }
+
+        private void PositionPreview(MenuDeckPoolSpot spot)
+        {
+            if (_previewPopup == null)
+                return;
+
+            var spotTransform = spot.Transform;
+            var canvas = GetComponentInParent<Canvas>();
+            var canvasRect = canvas != null ? (RectTransform)canvas.transform : _poolRoot;
+
+            var popupSize = _previewPopup.GetComponent<RectTransform>().sizeDelta;
+
+            Vector3[] corners = new Vector3[4];
+            spotTransform.GetWorldCorners(corners);
+
+            Vector2 localCorner;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                corners[2],
+                canvas != null ? canvas.worldCamera : null,
+                out localCorner);
+
+            var left = localCorner.x + 4f;
+            var top = localCorner.y + 4f;
+
+            if (left + popupSize.x > canvasRect.rect.width / 2f)
+                left = localCorner.x - popupSize.x - 4f;
+
+            if (left < -canvasRect.rect.width / 2f)
+                left = -canvasRect.rect.width / 2f;
+
+            if (top - popupSize.y < -canvasRect.rect.height / 2f)
+                top = localCorner.y + popupSize.y + 4f;
+
+            if (top > canvasRect.rect.height / 2f)
+                top = canvasRect.rect.height / 2f;
+
+            _previewPopup.SetPosition(new Vector2(left, top));
         }
 
         private void OnCardsUpdated(SharedBackendUser.CardsProjection projection)
