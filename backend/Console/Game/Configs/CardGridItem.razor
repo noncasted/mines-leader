@@ -1,0 +1,117 @@
+@using Shared
+@using System.Reflection
+
+<div class="rounded-lg border bg-card flex flex-col">
+    <div style="padding: 5px;">
+        <img src="/card-icons/@(BaseName).png"
+             alt="@BaseName"
+             style="width: 100%; height: auto; image-rendering: pixelated;"
+             onerror="this.style.display='none'" />
+    </div>
+    <div class="flex flex-col gap-2 p-2 pt-0">
+        <div class="flex items-center gap-1 justify-center">
+            <span class="text-xs font-semibold truncate" title="@Name">@BaseName</span>
+            @if (IsMax)
+            {
+                <span class="rounded px-1 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-400 shrink-0">Max</span>
+            }
+        </div>
+        <div class="flex flex-col gap-1.5">
+            @foreach (var prop in _properties)
+            {
+                <div class="flex items-center gap-1.5">
+                    <span class="text-sm text-muted-foreground shrink-0 leading-none">@prop.Label:</span>
+                    <input type="number" value="@prop.Value"
+                           @onchange="e => OnPropertyChanged(prop, e)"
+                           class="h-8 flex-1 min-w-0 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ICardConfig Value { get; set; } = null!;
+    [Parameter, EditorRequired] public CardType Type { get; set; }
+
+    private string Name => Type.ToString();
+    private string BaseName => Name.Replace("_Max", "");
+    private bool IsMax => Name.EndsWith("_Max");
+
+    private List<CardProperty> _properties = [];
+
+    private static readonly Dictionary<string, string> LabelMap = new(StringComparer.Ordinal)
+    {
+        ["ManaCost"] = "Mana",
+        ["Size"] = "Size",
+        ["MinSize"] = "Min Size",
+        ["MaxSize"] = "Max Size",
+        ["MinLength"] = "Min Length",
+        ["MaxLength"] = "Max Length",
+        ["MinMines"] = "Min Mines",
+        ["MaxMines"] = "Max Mines",
+        ["MinMana"] = "Min Mana",
+        ["MaxMana"] = "Max Mana",
+        ["MaxChain"] = "Max Chain",
+        ["SearchRadius"] = "Search Radius",
+        ["SpawnSize"] = "Spawn Size",
+        ["Duration"] = "Duration",
+        ["MovesReduction"] = "Moves Reduction",
+        ["DrainAmount"] = "Drain Amount",
+        ["Damage"] = "Damage",
+        ["Heal"] = "Heal",
+        ["TurnsDuration"] = "Duration",
+        ["Length"] = "Length",
+        ["ManaGain"] = "Mana Gain",
+        ["ExtraMoves"] = "Extra Moves",
+        ["HpCost"] = "HP Cost",
+        ["WinMoves"] = "Win Moves",
+        ["LoseMoves"] = "Lose Moves",
+        ["Discount"] = "Discount",
+        ["CostIncrease"] = "Cost Increase",
+        ["DrawCount"] = "Draw Count",
+        ["WinDraw"] = "Win Draw",
+        ["LoseReturn"] = "Lose Return",
+        ["WinMana"] = "Win Mana",
+        ["LoseDiscard"] = "Lose Discard",
+        ["PeekCount"] = "Peek Count",
+    };
+
+    protected override void OnParametersSet()
+    {
+        _properties = [];
+        if (Value == null) return;
+
+        var type = Value.GetType();
+        var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.PropertyType == typeof(int) && p.CanWrite)
+            .Where(p => p.Name is not (nameof(ICardConfig.Type) or nameof(ICardConfig.Target)))
+            .OrderBy(p => p.Name == nameof(ICardConfig.ManaCost) ? 0 : 1)
+            .ThenBy(p => p.Name)
+            .ToList();
+
+        foreach (var p in props)
+        {
+            var currentValue = (int)p.GetValue(Value)!;
+            _properties.Add(new CardProperty(
+                LabelMap.GetValueOrDefault(p.Name, p.Name),
+                currentValue,
+                v => p.SetValue(Value, v)));
+        }
+    }
+
+    private void OnPropertyChanged(CardProperty prop, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var value))
+        {
+            prop.SetValue(value);
+        }
+    }
+
+    private sealed class CardProperty(string label, int value, Action<int> setValue)
+    {
+        public string Label { get; } = label;
+        public int Value { get; } = value;
+        public Action<int> SetValue { get; } = setValue;
+    }
+}
