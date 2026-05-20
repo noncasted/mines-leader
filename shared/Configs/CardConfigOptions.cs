@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using MemoryPack;
 using Newtonsoft.Json;
 
@@ -62,6 +62,130 @@ namespace Shared
         CardType Type { get; set; }
         int ManaCost { get; set; }
         CardTarget Target { get; }
+    }
+    public interface IDurationalCardConfig
+    {
+        int TurnsDuration { get; }
+    }
+
+    public interface IDamageCardConfig
+    {
+        int Damage { get; }
+    }
+
+    public interface IHealCardConfig
+    {
+        int Heal { get; }
+    }
+
+    public interface IAreaSizeCardConfig
+    {
+        int Size { get; }
+    }
+
+    public interface ISearchRadiusCardConfig
+    {
+        int SearchRadius { get; }
+    }
+
+    public interface IDrainAmountCardConfig
+    {
+        int DrainAmount { get; }
+    }
+
+    public interface IChainCardConfig
+    {
+        int MaxChain { get; }
+        int SearchRadius { get; }
+        int SpawnSize { get; }
+    }
+
+    public interface IExtraMovesCardConfig
+    {
+        int ExtraMoves { get; }
+    }
+
+    public interface IDrawCountCardConfig
+    {
+        int DrawCount { get; }
+    }
+
+    public interface IMovesReductionCardConfig
+    {
+        int MovesReduction { get; }
+    }
+
+    public interface IManaGainCardConfig
+    {
+        int ManaGain { get; }
+    }
+
+    public interface IHpCostCardConfig
+    {
+        int HpCost { get; }
+    }
+
+    public interface ICoinTossCardConfig
+    {
+        int WinMoves { get; }
+        int LoseMoves { get; }
+    }
+
+    public interface IManaRangeCardConfig
+    {
+        int MinMana { get; }
+        int MaxMana { get; }
+    }
+
+    public interface IDiscountCardConfig
+    {
+        int Discount { get; }
+    }
+
+    public interface ICostIncreaseCardConfig
+    {
+        int CostIncrease { get; }
+    }
+
+    public interface IWinLoseDrawCardConfig
+    {
+        int WinDraw { get; }
+        int LoseReturn { get; }
+    }
+
+    public interface IGamblersRuinCardConfig
+    {
+        int WinDraw { get; }
+        int WinMana { get; }
+        int LoseDiscard { get; }
+    }
+
+    public interface IRandomSizeCardConfig
+    {
+        int MinSize { get; }
+        int MaxSize { get; }
+    }
+
+    public interface IRandomLengthCardConfig
+    {
+        int MinLength { get; }
+        int MaxLength { get; }
+    }
+
+    public interface ILengthCardConfig
+    {
+        int Length { get; }
+    }
+
+    public interface IMinesRangeCardConfig
+    {
+        int MinMines { get; }
+        int MaxMines { get; }
+    }
+
+    public interface IPeekCountCardConfig
+    {
+        int PeekCount { get; }
     }
 
     [MemoryPackable]
@@ -167,10 +291,10 @@ namespace Shared
         public ChaosFog ChaosFog_Normal { get; set; } = new();
 
         public Frost Frost_Normal { get; set; } = new();
-        public Frost Frost_Max { get; set; } = new() { Size = 3 };
+        public Frost Frost_Max { get; set; } = new() { Size = 3, TurnsDuration = 2 };
 
         public Blackout Blackout_Normal { get; set; } = new();
-        public Blackout Blackout_Max { get; set; } = new() { Size = 3 };
+        public Blackout Blackout_Max { get; set; } = new() { Size = 3, TurnsDuration = 2 };
 
         public FortuneCookie FortuneCookie_Normal { get; set; } = new();
 
@@ -313,7 +437,7 @@ namespace Shared
         };
 
         [MemoryPackable]
-        public partial class Bloodhound : ICardConfig
+        public partial class Bloodhound : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -322,7 +446,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Trebuchet : ICardConfig
+        public partial class Trebuchet : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -331,7 +455,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class TrebuchetAimer : ICardConfig
+        public partial class TrebuchetAimer : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 1;
@@ -340,7 +464,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ErosionDozer : ICardConfig
+        public partial class ErosionDozer : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 5;
@@ -357,17 +481,17 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ZipZap : ICardConfig
+        public partial class ZipZap : ICardConfig, IAreaSizeCardConfig, ISearchRadiusCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
-            public int SearchRadius => 4;
+            public int SearchRadius { get; set; } = 4;
         }
 
         [MemoryPackable]
-        public partial class OpponentFlagErase : ICardConfig
+        public partial class OpponentFlagErase : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -376,7 +500,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class OpponentFlagReshuffle : ICardConfig
+        public partial class OpponentFlagReshuffle : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
@@ -385,33 +509,35 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class OpponentBomb : ICardConfig
+        public partial class OpponentBomb : ICardConfig, IDamageCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
+            public int Damage { get; set; } = 1;
             public CardTarget Target => CardTarget.OpponentBoard;
         }
 
         [MemoryPackable]
-        public partial class Smoke : ICardConfig
+        public partial class Smoke : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
-            public int Duration => 3;
+            public int TurnsDuration { get; set; } = 3;
         }
 
         [MemoryPackable]
-        public partial class Medic : ICardConfig
+        public partial class Medic : ICardConfig, IHealCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 4;
+            public int Heal { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
         }
 
         [MemoryPackable]
-        public partial class MinefieldScout : ICardConfig
+        public partial class MinefieldScout : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 5;
@@ -420,7 +546,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Siphon : ICardConfig
+        public partial class Siphon : ICardConfig, IDrainAmountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -429,7 +555,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChainReaction : ICardConfig
+        public partial class ChainReaction : ICardConfig, IChainCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 4;
@@ -440,31 +566,31 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Overclock : ICardConfig
+        public partial class Overclock : ICardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Self;
-            public int ExtraMoves => 2;
+            public int ExtraMoves { get; set; } = 2;
         }
 
         [MemoryPackable]
-        public partial class FogOfWar : ICardConfig
+        public partial class FogOfWar : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
-            public int Duration => 2;
+            public int TurnsDuration { get; set; } = 2;
         }
 
         [MemoryPackable]
-        public partial class Scavenger : ICardConfig
+        public partial class Scavenger : ICardConfig, IDrawCountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
-            public int DrawCount => 2;
+            public int DrawCount { get; set; } = 2;
         }
 
         [MemoryPackable]
@@ -476,17 +602,17 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Lockdown : ICardConfig
+        public partial class Lockdown : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
-            public int Duration { get; set; } = 2;
+            public int TurnsDuration { get; set; } = 2;
             public int MovesReduction { get; set; } = 1;
         }
 
         [MemoryPackable]
-        public partial class Sonar : ICardConfig
+        public partial class Sonar : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int Size { get; set; } = 4;
@@ -503,7 +629,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ManaSurge : ICardConfig
+        public partial class ManaSurge : ICardConfig, IManaGainCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -512,27 +638,27 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Adrenaline : ICardConfig
+        public partial class Adrenaline : ICardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
-            public int ExtraMoves => 1;
+            public int ExtraMoves { get; set; } = 1;
         }
 
         [MemoryPackable]
-        public partial class BloodPact : ICardConfig
+        public partial class BloodPact : ICardConfig, IHpCostCardConfig, IManaGainCardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 0;
             public CardTarget Target => CardTarget.Self;
-            public int HpCost => 1;
+            public int HpCost { get; set; } = 1;
             public int ManaGain { get; set; } = 3;
             public int ExtraMoves { get; set; } = 2;
         }
 
         [MemoryPackable]
-        public partial class CoinToss : ICardConfig
+        public partial class CoinToss : ICardConfig, ICoinTossCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
@@ -542,7 +668,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ManaFountain : ICardConfig
+        public partial class ManaFountain : ICardConfig, IManaRangeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
@@ -552,12 +678,12 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Focus : ICardConfig
+        public partial class Focus : ICardConfig, IDiscountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
-            public int Discount => 1;
+            public int Discount { get; set; } = 1;
         }
 
         [MemoryPackable]
@@ -569,7 +695,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class PowerSurge : ICardConfig
+        public partial class PowerSurge : ICardConfig, IDiscountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -578,7 +704,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Embargo : ICardConfig
+        public partial class Embargo : ICardConfig, ICostIncreaseCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -587,7 +713,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Recycler : ICardConfig
+        public partial class Recycler : ICardConfig, IDrawCountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
@@ -596,7 +722,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class MysticDraw : ICardConfig
+        public partial class MysticDraw : ICardConfig, IWinLoseDrawCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
@@ -614,7 +740,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class GamblersRuin : ICardConfig
+        public partial class GamblersRuin : ICardConfig, IGamblersRuinCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -625,7 +751,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Excavator : ICardConfig
+        public partial class Excavator : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -634,7 +760,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ThermalVision : ICardConfig
+        public partial class ThermalVision : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -643,7 +769,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChaosDiamond : ICardConfig
+        public partial class ChaosDiamond : ICardConfig, IRandomSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -653,7 +779,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChaosScout : ICardConfig
+        public partial class ChaosScout : ICardConfig, IRandomLengthCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -663,7 +789,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class MineCluster : ICardConfig
+        public partial class MineCluster : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
@@ -672,7 +798,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class CarpetBomb : ICardConfig
+        public partial class CarpetBomb : ICardConfig, ILengthCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 5;
@@ -681,7 +807,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class FortuneBlast : ICardConfig
+        public partial class FortuneBlast : ICardConfig, IRandomSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -691,38 +817,38 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChaosFog : ICardConfig
+        public partial class ChaosFog : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int MinSize { get; set; } = 1;
             public int MaxSize { get; set; } = 4;
-            public int Duration => 3;
+            public int TurnsDuration { get; set; } = 3;
         }
 
         [MemoryPackable]
-        public partial class Frost : ICardConfig
+        public partial class Frost : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
-            public int Duration { get; set; } = 1;
+            public int TurnsDuration { get; set; } = 1;
         }
 
         [MemoryPackable]
-        public partial class Blackout : ICardConfig
+        public partial class Blackout : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
-            public int Duration { get; set; } = 2;
+            public int TurnsDuration { get; set; } = 1;
         }
 
         [MemoryPackable]
-        public partial class FortuneCookie : ICardConfig
+        public partial class FortuneCookie : ICardConfig, IMinesRangeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 1;
@@ -732,7 +858,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Salvage : ICardConfig
+        public partial class Salvage : ICardConfig, IPeekCountCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 2;
@@ -765,12 +891,12 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class SoulLink : ICardConfig
+        public partial class SoulLink : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
-            public int Duration { get; set; } = 2;
+            public int TurnsDuration { get; set; } = 2;
         }
 
         [MemoryPackable]
@@ -782,7 +908,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class DimensionRift : ICardConfig
+        public partial class DimensionRift : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public int ManaCost { get; set; } = 4;

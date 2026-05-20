@@ -26,7 +26,7 @@ public class SoulLink : ICard<CardUsePayload.SoulLink>
         var config = _configs.Value.SoulLink_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        var source = new DurationModifierSource(PlayerModifier.SoulLink, 1, "soul_link", config.Duration);
+        var source = new DurationModifierSource(PlayerModifier.SoulLink, 1, "soul_link", config.TurnsDuration);
         invoker.Modifiers.Add(snapshot, source);
         _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 

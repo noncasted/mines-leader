@@ -51,7 +51,7 @@ public class Frost : ICard<CardUsePayload.Frost>
             frozenPositions.Add(cell.Position);
         }
 
-        _roundActionService.Schedule(new FrostDisposeAction(board, effectId, affectedCells, config.Duration));
+        _roundActionService.Schedule(new FrostDisposeAction(board, effectId, affectedCells, config.TurnsDuration));
 
         var affectedPositions = affectedCells.Select(c => c.Position).ToArray();
 
