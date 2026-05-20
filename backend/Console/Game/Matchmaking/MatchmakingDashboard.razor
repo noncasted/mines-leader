@@ -76,7 +76,7 @@
 </div>
 
 @code {
-    [Inject] public ILiveState<MatchmakingLiveData> LiveData { get; set; } = null!;
+    [Inject] public IDeploymentState<MatchmakingLiveData> LiveData { get; set; } = null!;
 
     private MatchmakingLiveData _data = new();
 

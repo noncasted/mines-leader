@@ -18,12 +18,12 @@ public interface IConnectedUsers
 
 public class ConnectedUsers : IConnectedUsers
 {
-    public ConnectedUsers(ILiveState<ConnectedUsersLiveData> liveData)
+    public ConnectedUsers(IDeploymentState<ConnectedUsersLiveData> liveData)
     {
         _liveData = liveData;
     }
 
-    private readonly ILiveState<ConnectedUsersLiveData> _liveData;
+    private readonly IDeploymentState<ConnectedUsersLiveData> _liveData;
     private readonly ViewableDelegate<IUserSession> _connected = new();
     private readonly Dictionary<Guid, IUserSession> _entries = new();
 

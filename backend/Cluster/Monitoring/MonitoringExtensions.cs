@@ -7,9 +7,9 @@ public static class MonitoringExtensions
 {
     public static IHostApplicationBuilder AddMonitoring(this IHostApplicationBuilder builder)
     {
-        builder.AddLiveState<MatchmakingLiveData>();
-        builder.AddLiveState<LiveMatchesData>();
-        builder.AddLiveState<ConnectedUsersLiveData>();
+        builder.AddDeploymentState<MatchmakingLiveData>();
+        builder.AddDeploymentState<LiveMatchesData>();
+        builder.AddDeploymentState<ConnectedUsersLiveData>();
 
         return builder;
     }

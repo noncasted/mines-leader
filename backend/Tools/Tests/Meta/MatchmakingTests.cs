@@ -42,7 +42,7 @@ public class MatchmakingTests
         var isInitialized = new ViewableProperty<bool>(false);
         _participantContext.IsInitialized.Returns(isInitialized);
 
-        var liveData = Substitute.For<ILiveState<MatchmakingLiveData>>();
+        var liveData = Substitute.For<IDeploymentState<MatchmakingLiveData>>();
 
         _sut = new Matchmaking(_matchFactory,
             _lobbyFactory,

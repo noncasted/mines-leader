@@ -11,123 +11,124 @@ using Shared;
 
 namespace Cluster.State;
 
-public interface IClusterFeatures : IViewableProperty<ClusterFeaturesState>, IClusterFlags
-{
-    bool IsInitialized { get; }
 
+public interface IClusterFeatures : IDeploymentState<ClusterFeaturesState>, IClusterFlags
+{
     Task SetAcceptingConnections(bool accepting);
     Task SetMatchmakingEnabled(bool enabled);
     Task SetSideEffectsEnabled(bool enabled);
     Task SetSnapshotDiffGuardEnabled(bool enabled);
 }
 
-public class ClusterFeaturesChannelId : IRuntimeChannelId
-{
-    public ClusterFeaturesChannelId(Guid deployId)
-    {
-        _deployId = deployId;
-    }
-
-    private readonly Guid _deployId;
-
-    public string ToRaw() => $"cluster-features-{_deployId:N}";
-}
-
-public class ClusterFeatures : ViewableProperty<ClusterFeaturesState>, IClusterFeatures, IDeployAware
+public class ClusterFeatures : DeploymentState<ClusterFeaturesState>, IClusterFeatures
 {
     public ClusterFeatures(
         IOrleans orleans,
         IMessaging messaging,
-        ILogger<ClusterFeatures> logger)
-        : base(new ClusterFeaturesState())
+        ILoggerFactory loggerFactory)
+        : base(orleans, messaging, loggerFactory, new ClusterFeaturesState())
     {
-        _orleans = orleans;
-        _messaging = messaging;
-        _logger = logger;
     }
-
-    private readonly IOrleans _orleans;
-    private readonly IMessaging _messaging;
-    private readonly ILogger<ClusterFeatures> _logger;
-
-    private Guid _deployId;
-    private volatile bool _isInitialized;
-    private readonly SemaphoreSlim _writeLock = new(1, 1);
-
-    public bool IsInitialized => _isInitialized;
 
     bool IClusterFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
     bool IClusterFlags.SideEffectsEnabled => Value.SideEffectsEnabled;
     bool IClusterFlags.SnapshotDiffGuardEnabled => Value.SnapshotDiffGuardEnabled;
 
-    public async Task OnDeployChanged(Guid newDeployId, IReadOnlyLifetime deployLifetime)
+    protected override StateIdentity CreateStateIdentity(Guid deployId)
     {
-        _deployId = newDeployId;
-
-        try
+        var stateInfo = _orleans.StateStorage.Registry.Get<ClusterFeaturesState>();
+        return new StateIdentity
         {
-            var grain = _orleans.GetGrain<IClusterFeaturesGrain>(newDeployId);
-            var state = await grain.Get();
-            Set(state);
-            _isInitialized = true;
+            Key = deployId,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        };
+    }
 
-            var channelId = new ClusterFeaturesChannelId(newDeployId);
-            await _messaging.ListenChannel<ClusterFeaturesState>(deployLifetime, channelId, OnRemoteUpdate);
+    public override async Task OnDeployChanged(Guid newDeployId, IReadOnlyLifetime deployLifetime)
+    {
+        _logger.LogInformation(
+            "[ClusterFeatures] Loading state for deploy {DeployId}",
+            newDeployId);
+
+        await base.OnDeployChanged(newDeployId, deployLifetime);
+
+        if (IsInitialized)
+        {
+            _logger.LogInformation(
+                "[ClusterFeatures] Loaded state for deploy {DeployId}: " +
+                "AcceptingConnections={Accepting}, Matchmaking={Matchmaking}, SideEffects={SideEffects}, SnapshotDiffGuard={SnapshotDiffGuard}",
+                newDeployId,
+                Value.AcceptingConnections,
+                Value.MatchmakingEnabled,
+                Value.SideEffectsEnabled,
+                Value.SnapshotDiffGuardEnabled);
         }
-        catch (Exception e)
+        else
         {
-            _logger.LogError(e, "[ClusterFeatures] Failed to initialize for deploy {DeployId}", newDeployId);
+            _logger.LogWarning(
+                "[ClusterFeatures] Failed to load state for deploy {DeployId}, using defaults",
+                newDeployId);
         }
     }
 
-    public Task SetAcceptingConnections(bool accepting) => ApplyUpdate(s => s.AcceptingConnections = accepting);
-
-    public Task SetMatchmakingEnabled(bool enabled) => ApplyUpdate(s => s.MatchmakingEnabled = enabled);
-
-    public Task SetSideEffectsEnabled(bool enabled) => ApplyUpdate(s => s.SideEffectsEnabled = enabled);
-
-    public Task SetSnapshotDiffGuardEnabled(bool enabled) => ApplyUpdate(s => s.SnapshotDiffGuardEnabled = enabled);
-
-    private async Task ApplyUpdate(Action<ClusterFeaturesState> mutator)
+    public override async Task SetValue(ClusterFeaturesState value)
     {
-        await _writeLock.WaitAsync();
+        _logger.LogInformation(
+            "[ClusterFeatures] Applying update for deploy {DeployId}: " +
+            "AcceptingConnections={Accepting}, Matchmaking={Matchmaking}, SideEffects={SideEffects}, SnapshotDiffGuard={SnapshotDiffGuard}",
+            _deployId,
+            value.AcceptingConnections,
+            value.MatchmakingEnabled,
+            value.SideEffectsEnabled,
+            value.SnapshotDiffGuardEnabled);
 
-        try
-        {
-            if (_deployId == Guid.Empty)
-                throw new InvalidOperationException("Cluster features not attached to a deploy yet");
+        await base.SetValue(value);
 
-            var grain = _orleans.GetGrain<IClusterFeaturesGrain>(_deployId);
-
-            var next = new ClusterFeaturesState
-            {
-                AcceptingConnections = Value.AcceptingConnections,
-                MatchmakingEnabled = Value.MatchmakingEnabled,
-                SideEffectsEnabled = Value.SideEffectsEnabled,
-                SnapshotDiffGuardEnabled = Value.SnapshotDiffGuardEnabled
-            };
-
-            mutator(next);
-
-            var stored = await grain.Set(next);
-            Set(stored);
-
-            await _messaging.PublishChannel(new ClusterFeaturesChannelId(_deployId), stored);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[ClusterFeatures] Failed to apply update for deploy {DeployId}", _deployId);
-            throw;
-        }
-        finally
-        {
-            _writeLock.Release();
-        }
+        _logger.LogInformation(
+            "[ClusterFeatures] State persisted and published for deploy {DeployId}",
+            _deployId);
     }
 
-    private void OnRemoteUpdate(ClusterFeaturesState state)
+    protected override void OnUpdate(AddressableStateValue state)
     {
-        Set(state);
+        _logger.LogInformation(
+            "[ClusterFeatures] Received remote update for deploy {DeployId}",
+            _deployId);
+
+        base.OnUpdate(state);
+
+        _logger.LogInformation(
+            "[ClusterFeatures] Remote update applied for deploy {DeployId}: " +
+            "AcceptingConnections={Accepting}, Matchmaking={Matchmaking}, SideEffects={SideEffects}, SnapshotDiffGuard={SnapshotDiffGuard}",
+            _deployId,
+            Value.AcceptingConnections,
+            Value.MatchmakingEnabled,
+            Value.SideEffectsEnabled,
+            Value.SnapshotDiffGuardEnabled);
+    }
+
+    public Task SetAcceptingConnections(bool accepting) => Apply(s => s.AcceptingConnections = accepting);
+    public Task SetMatchmakingEnabled(bool enabled) => Apply(s => s.MatchmakingEnabled = enabled);
+    public Task SetSideEffectsEnabled(bool enabled) => Apply(s => s.SideEffectsEnabled = enabled);
+    public Task SetSnapshotDiffGuardEnabled(bool enabled) => Apply(s => s.SnapshotDiffGuardEnabled = enabled);
+
+    private async Task Apply(Action<ClusterFeaturesState> mutator)
+    {
+        if (IsInitialized == false)
+            throw new InvalidOperationException("Cluster features not attached to a deploy yet");
+
+        var next = new ClusterFeaturesState
+        {
+            AcceptingConnections = Value.AcceptingConnections,
+            MatchmakingEnabled = Value.MatchmakingEnabled,
+            SideEffectsEnabled = Value.SideEffectsEnabled,
+            SnapshotDiffGuardEnabled = Value.SnapshotDiffGuardEnabled
+        };
+
+        mutator(next);
+        await SetValue(next);
     }
 }
 
@@ -143,13 +144,37 @@ public class ClusterFeaturesState : IDirectStateValue
     public int Version => 0;
 }
 
+public static class ClusterFeaturesExtensions
+{
+    public static IHostApplicationBuilder AddClusterFeatures(this IHostApplicationBuilder builder)
+    {
+        builder.Add<ClusterFeatures>()
+               .As<IClusterFeatures>()
+               .As<IDeployAware>();
+
+        builder.Services.AddSingleton<IClusterFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
+
+        return builder;
+    }
+}
+
+public static class ClusterFeaturesCompatExtensions
+{
+    [Obsolete("ClusterFeatures no longer uses a grain. Use IClusterFeatures directly.")]
+    public static IClusterFeaturesGrain GetClusterFeaturesGrain(this IOrleans orleans, Guid deployId)
+    {
+        throw new NotSupportedException("ClusterFeatures no longer uses a grain.");
+    }
+}
+
+[Obsolete("ClusterFeatures no longer uses a grain. State is persisted directly via StateStorage.")]
 public interface IClusterFeaturesGrain : IGrainWithGuidKey
 {
     Task<ClusterFeaturesState> Get();
-
     Task<ClusterFeaturesState> Set(ClusterFeaturesState state);
 }
 
+[Obsolete("ClusterFeatures no longer uses a grain. State is persisted directly via StateStorage.")]
 public class ClusterFeaturesGrain : Grain, IClusterFeaturesGrain
 {
     public ClusterFeaturesGrain([State] State<ClusterFeaturesState> state)
@@ -172,19 +197,5 @@ public class ClusterFeaturesGrain : Grain, IClusterFeaturesGrain
             s.SideEffectsEnabled = state.SideEffectsEnabled;
             s.SnapshotDiffGuardEnabled = state.SnapshotDiffGuardEnabled;
         });
-    }
-}
-
-public static class ClusterFeaturesExtensions
-{
-    public static IHostApplicationBuilder AddClusterFeatures(this IHostApplicationBuilder builder)
-    {
-        builder.Add<ClusterFeatures>()
-               .As<IClusterFeatures>()
-               .As<IDeployAware>();
-
-        builder.Services.AddSingleton<IClusterFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
-
-        return builder;
     }
 }
