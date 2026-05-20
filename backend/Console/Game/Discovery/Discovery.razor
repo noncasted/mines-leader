@@ -1,4 +1,6 @@
 @page "/discovery"
+@using global::Infrastructure
+@using Cluster.Deploy
 @using Cluster.Discovery
 @using global::Common.Extensions
 @using global::Common.Reactive
@@ -45,9 +47,24 @@
                         <div class="w-2 h-2 rounded-full @(StatusDot(status))"></div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Last heartbeat</span>
-                    <span>@FormatAge(service.UpdateTime)</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-muted-foreground">Last heartbeat @FormatAge(service.UpdateTime)</span>
+                    @if (service.Id != ServiceDiscovery.Self.Id)
+                    {
+                        <BbButton Variant="ButtonVariant.Destructive" Size="ButtonSize.Small"
+                                  @onclick="() => DisconnectService(service.Id)"
+                                  Disabled="@(DeployContext.DeployId == Guid.Empty || _disconnectingId == service.Id)">
+                            @if (_disconnectingId == service.Id)
+                            {
+                                <LucideIcon Name="loader-circle" Size="12" class="animate-spin mr-1"/>
+                            }
+                            else
+                            {
+                                <LucideIcon Name="unplug" Size="12" class="mr-1"/>
+                            }
+                            Disconnect
+                        </BbButton>
+                    }
                 </div>
             </div>
         }
@@ -57,6 +74,9 @@
 
 @code {
     [Inject] public IServiceDiscovery ServiceDiscovery { get; set; } = null!;
+    [Inject] public IOrleans Orleans { get; set; } = null!;
+    [Inject] public IDeployContext DeployContext { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
 
     private IReadOnlyList<IServiceOverview> _services = [];
 
@@ -122,4 +142,29 @@
         "stale" => "bg-red-400",
         _ => "bg-muted-foreground"
     };
+
+    private Guid _disconnectingId;
+
+    private async Task DisconnectService(Guid serviceId)
+    {
+        _disconnectingId = serviceId;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var grain = Orleans.GetGrain<IServiceDiscoveryStorage>(DeployContext.DeployId);
+            await grain.Unregister(serviceId);
+            _services = ServiceDiscovery.Entries.Values.OrderBy(s => s.Tag).ThenBy(s => s.Id).ToList();
+            ToastService.Success($"Service {serviceId} disconnected", "Done");
+        }
+        catch (Exception e)
+        {
+            ToastService.Error($"[Discovery] Failed to disconnect service {serviceId}: {e.Message}", "Error");
+        }
+        finally
+        {
+            _disconnectingId = Guid.Empty;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
 }
