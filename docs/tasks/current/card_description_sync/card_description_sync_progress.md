@@ -44,3 +44,16 @@
   - Discount, CostIncrease, WinDraw, LoseReturn, WinMana, LoseDiscard
   - Length, MinSize, MaxSize, MinLength, MaxLength, MinMines, MaxMines, PeekCount
 - Начинаю добавление интерфейсов и маркап-токенов
+#### [17:30] Устранение циклической зависимости
+`CardDescriptionProvider` зависел от `ICardsRegistry`, а `CardsRegistry` теперь должен использовать `ICardDescriptionProvider` — цикл.
+
+Решение:
+- `CardDescriptionProvider` теперь сам загружает `cards-info` в конструкторе (`LoadRawDescriptions`), хранит `_rawDescriptions`
+- Убрана зависимость `ICardsRegistry` из конструктора и всех обращений к `_registry`
+- `BuildIfNeeded` берёт базовое описание из `_rawDescriptions` вместо `_registry.Entries`
+- `CardsRegistry` принимает `ICardDescriptionProvider`, использует `_descriptionProvider.GetDescription(type)` при создании `CardDefinition`
+- DI-регистрация не требует изменений — VContainer разрешает граф автоматически
+
+Изменённые файлы:
+- `client/Assets/Meta/Cards/CardDescriptionProvider.cs`
+- `client/Assets/Meta/Cards/CardsRegistry.cs`
