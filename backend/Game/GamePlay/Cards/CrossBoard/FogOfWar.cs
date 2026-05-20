@@ -54,7 +54,7 @@ public class FogOfWar : ICard<CardUsePayload.FogOfWar>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new FogDisposeAction(board, effectId, affectedCells, config.Duration);
+        var disposeAction = new FogDisposeAction(board, effectId, affectedCells, config.TurnsDuration);
         _roundActionService.Schedule(disposeAction);
 
         var affectedPositions = affectedCells.Select(c => c.Position).ToArray();

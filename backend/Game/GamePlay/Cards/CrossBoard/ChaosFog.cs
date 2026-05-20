@@ -48,7 +48,7 @@ public class ChaosFog : ICard<CardUsePayload.ChaosFog>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new ChaosFogDisposeAction(board, effectId, affectedCells, config.Duration);
+        var disposeAction = new ChaosFogDisposeAction(board, effectId, affectedCells, config.TurnsDuration);
         _roundActionService.Schedule(disposeAction);
 
         var affectedPositions = affectedCells.Select(c => c.Position).ToArray();

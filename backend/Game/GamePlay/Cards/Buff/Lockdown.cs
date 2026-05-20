@@ -26,7 +26,7 @@ public class Lockdown : ICard<CardUsePayload.Lockdown>
         var config = _configs.Value.Lockdown_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, -config.MovesReduction, "lockdown", config.Duration);
+        var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, -config.MovesReduction, "lockdown", config.TurnsDuration);
         opponent.Modifiers.Add(snapshot, source);
 
         _roundActionService.Schedule(new ModifierRoundAction(opponent, source));

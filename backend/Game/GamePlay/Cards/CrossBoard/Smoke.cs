@@ -54,7 +54,7 @@ public class Smoke : ICard<CardUsePayload.Smoke>
             affectedCells.Add(cell);
         }
 
-        var disposeAction = new SmokeDisposeAction(board, effectId, affectedCells, config.Duration);
+        var disposeAction = new SmokeDisposeAction(board, effectId, affectedCells, config.TurnsDuration);
         _roundActionService.Schedule(disposeAction);
 
         var positions = affectedCells.Select(c => c.Position).ToArray();

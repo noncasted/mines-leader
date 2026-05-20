@@ -51,7 +51,7 @@ public class Blackout : ICard<CardUsePayload.Blackout>
             affectedPositions.Add(cell.Position);
         }
 
-        _roundActionService.Schedule(new BlackoutDisposeAction(board, effectId, affectedCells, config.Duration));
+        _roundActionService.Schedule(new BlackoutDisposeAction(board, effectId, affectedCells, config.TurnsDuration));
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Blackout()
         {
