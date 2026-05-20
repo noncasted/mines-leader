@@ -94,130 +94,129 @@
                     <h2 class="text-sm font-semibold">Card Configurations</h2>
                 </div>
 
+                <div class="flex items-center gap-2">
+                    <LucideIcon Name="search" Size="14" class="text-muted-foreground shrink-0" />
+                    <input type="text"
+                           @bind="_searchQuery"
+                           @bind:event="oninput"
+                           placeholder="Search cards..."
+                           class="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+
                 @* Scout *@
-                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Scout</span>
-                        <span class="text-xs text-muted-foreground">board reveal and mine detection</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach (var type in _scoutCards)
-                        {
-                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                @{
+                    var scoutFiltered = FilterCards(_scoutCards);
+                }
+                @if (scoutFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Scout</span>
+                            <span class="text-xs text-muted-foreground">board reveal and mine detection</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in scoutFiltered)
                             {
-                                @if (config is CardConfigOptions.ChaosDiamond or CardConfigOptions.ChaosScout or CardConfigOptions.FortuneCookie)
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
                                 {
-                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
-                                }
-                                else
-                                {
-                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
+                                    <CardGridItem @key="type" Value="config" Type="type" />
                                 }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
+                }
 
                 @* Cross-Board *@
-                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Cross-Board</span>
-                        <span class="text-xs text-muted-foreground">affects opponent's board</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach (var type in _crossBoardCards)
-                        {
-                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                @{
+                    var crossFiltered = FilterCards(_crossBoardCards);
+                }
+                @if (crossFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Cross-Board</span>
+                            <span class="text-xs text-muted-foreground">affects opponent's board</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in crossFiltered)
                             {
-                                @if (config is CardConfigOptions.ChainReaction chainReaction)
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
                                 {
-                                    <CardChainReactionConfigEditor @key="type" Value="chainReaction" Type="type" />
-                                }
-                                else if (config is CardConfigOptions.OpponentBomb or CardConfigOptions.OpponentFlagErase or CardConfigOptions.OpponentFlagReshuffle)
-                                {
-                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
-                                }
-                                else if (config is CardConfigOptions.FortuneBlast or CardConfigOptions.ChaosFog)
-                                {
-                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
-                                }
-                                else
-                                {
-                                    <CardSizeConfigEditor @key="type" Value="config" Type="type" />
+                                    <CardGridItem @key="type" Value="config" Type="type" />
                                 }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
+                }
 
-                @* Buff *@
-                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Buff</span>
-                        <span class="text-xs text-muted-foreground">moves, shield, mana discount</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach (var type in _buffCards)
-                        {
-                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                @* Improve *@
+                @{
+                    var improveFiltered = FilterCards(_improveCards);
+                }
+                @if (improveFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Improve</span>
+                            <span class="text-xs text-muted-foreground">moves, shield, mana discount</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in improveFiltered)
                             {
-                                @if (config is CardConfigOptions.Lockdown lockdown)
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
                                 {
-                                    <CardLockdownConfigEditor @key="type" Value="lockdown" Type="type" />
-                                }
-                                else
-                                {
-                                    <CardConfigEditor @key="type" Value="config" Type="type" />
+                                    <CardGridItem @key="type" Value="config" Type="type" />
                                 }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
+                }
 
                 @* Resources *@
-                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-blue-500/15 text-blue-400">Resources</span>
-                        <span class="text-xs text-muted-foreground">mana, HP, and resource manipulation</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach (var type in _resourceCards)
-                        {
-                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                @{
+                    var resourceFiltered = FilterCards(_resourceCards);
+                }
+                @if (resourceFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-blue-500/15 text-blue-400">Resources</span>
+                            <span class="text-xs text-muted-foreground">mana, HP, and resource manipulation</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in resourceFiltered)
                             {
-                                @if (config is CardConfigOptions.Siphon siphon)
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
                                 {
-                                    <CardSiphonConfigEditor @key="type" Value="siphon" Type="type" />
-                                }
-                                else if (config is CardConfigOptions.ManaFountain)
-                                {
-                                    <CardRangeConfigEditor @key="type" Value="config" Type="type" />
-                                }
-                                else
-                                {
-                                    <CardConfigEditor @key="type" Value="config" Type="type" />
+                                    <CardGridItem @key="type" Value="config" Type="type" />
                                 }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
+                }
 
                 @* Hand *@
-                <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Hand</span>
-                        <span class="text-xs text-muted-foreground">deck and hand manipulation</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach (var type in _handCards)
-                        {
-                            @if (_cardsValue.All.TryGetValue(type, out var config))
+                @{
+                    var handFiltered = FilterCards(_handCards);
+                }
+                @if (handFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Hand</span>
+                            <span class="text-xs text-muted-foreground">deck and hand manipulation</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in handFiltered)
                             {
-                                <CardConfigEditor @key="type" Value="config" Type="type" />
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
+                }
             </div>
             break;
     }
@@ -243,6 +242,7 @@
     private PlayerConfigOptions _playerConfigValue = new();
     private bool _isUpdatingJson;
     private ConfigSection _activeSection = ConfigSection.Bot;
+    private string _searchQuery = "";
 
     private static readonly (ConfigSection Key, string Icon, string Label)[] _sections = [
         (ConfigSection.Bot,       "bot",      "Bot"),
@@ -269,7 +269,6 @@
 
     private static readonly CardType[] _crossBoardCards = [
         CardType.Trebuchet, CardType.Trebuchet_Max,
-        CardType.TrebuchetAimer, CardType.TrebuchetAimer_Max,
         CardType.OpponentBomb,
         CardType.OpponentFlagErase, CardType.OpponentFlagErase_Max,
         CardType.OpponentFlagReshuffle, CardType.OpponentFlagReshuffle_Max,
@@ -285,26 +284,27 @@
         CardType.DimensionRift,
     ];
 
-    private static readonly CardType[] _buffCards = [
-        CardType.Adrenaline,
+    private static readonly CardType[] _improveCards = [
+        CardType.TrebuchetAimer, CardType.TrebuchetAimer_Max,
         CardType.Overclock,
+        CardType.Medic,
+        CardType.Purge,
+        CardType.Adrenaline,
+        CardType.CoinToss,
         CardType.Focus,
         CardType.Shield,
         CardType.PowerSurge,
-        CardType.CoinToss,
-        CardType.Medic,
-        CardType.Lockdown,
-        CardType.Purge,
     ];
 
     private static readonly CardType[] _resourceCards = [
-        CardType.ManaSurge,
-        CardType.ManaFountain,
-        CardType.BloodPact,
-        CardType.DoubleOrNothing,
-        CardType.GamblersRuin,
-        CardType.Embargo,
         CardType.Siphon,
+        CardType.Lockdown,
+        CardType.BloodPact,
+        CardType.ManaSurge,
+        CardType.DoubleOrNothing,
+        CardType.Embargo,
+        CardType.GamblersRuin,
+        CardType.ManaFountain,
         CardType.SoulLink,
     ];
 
@@ -312,14 +312,29 @@
         CardType.Gravedigger,
         CardType.Scavenger,
         CardType.HandScramble,
-        CardType.Recycler,
-        CardType.Salvage,
-        CardType.MysticDraw,
-        CardType.CardThief,
-        CardType.SabotageDeck,
-        CardType.Dud,
         CardType.MirrorMatch,
+        CardType.MysticDraw,
+        CardType.Recycler,
+        CardType.SabotageDeck,
+        CardType.Salvage,
+        CardType.CardThief,
+        CardType.Dud,
     ];
+
+    private IReadOnlyList<CardType> FilterCards(CardType[] cards)
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+            return cards;
+
+        var query = _searchQuery.Trim();
+        var filtered = new List<CardType>();
+        foreach (var type in cards)
+        {
+            if (type.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                filtered.Add(type);
+        }
+        return filtered;
+    }
 
     protected override void OnInitialized()
     {
