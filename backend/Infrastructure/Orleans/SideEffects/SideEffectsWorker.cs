@@ -178,12 +178,21 @@ public class SideEffectsWorker : IHostedService
     {
         _shutdownCts.Cancel();
 
-        while (Volatile.Read(ref _inProgress) > 0 && !cancellationToken.IsCancellationRequested)
-            await Task.Delay(50, CancellationToken.None);
+        const int maxIterations = 200;
+        var iterations = 0;
 
-        if (Volatile.Read(ref _inProgress) > 0)
-            _logger.LogWarning("[SideEffects] Shutdown timeout exceeded, {InProgress} effects still in progress",
-                _inProgress);
+        while (Volatile.Read(ref _inProgress) > 0 && !cancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(50, cancellationToken);
+            iterations++;
+
+            if (iterations >= maxIterations)
+            {
+                _logger.LogWarning("[SideEffects] Shutdown timeout exceeded, {InProgress} effects still in progress",
+                    _inProgress);
+                break;
+            }
+        }
 
         _shutdownCts.Dispose();
     }

@@ -53,7 +53,7 @@ public class TaskBalancer : ITaskBalancer
 
                 if (items.Count == 0)
                 {
-                    await Task.Delay(options.EmptyDelayMs);
+                    await Task.Delay(options.EmptyDelayMs, lifetime.Token);
                     continue;
                 }
 
@@ -91,28 +91,17 @@ public class TaskBalancer : ITaskBalancer
 
                 LogEntries();
 
-                await Task.Delay(options.NextDelayMs);
+                await Task.Delay(options.NextDelayMs, lifetime.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "[TaskBalancer] CollectLoop iteration failed");
-                await Task.Delay(_config.Value.EmptyDelayMs);
+                await Task.Delay(_config.Value.EmptyDelayMs, lifetime.Token);
             }
-        }
-
-        void LogEntries()
-        {
-            var sb = new StringBuilder();
-
-            lock (_scheduledLock)
-            {
-                sb.Append($"[TaskBalancer] Currently scheduled tasks ({_scheduled.Count}):\n");
-
-                foreach (var (_, entry) in _scheduled)
-                    sb.AppendLine($"    {entry.Task.Id} with score {entry.Score}");
-            }
-
-            _logger.LogTrace(sb.ToString());
         }
     }
 
@@ -130,7 +119,7 @@ public class TaskBalancer : ITaskBalancer
             {
                 var options = _config.Value;
 
-                await executionLock.WaitAsync();
+                await executionLock.WaitAsync(lifetime.Token);
                 acquired = true;
 
                 if (TryPickMaxScored(out var entry) == false)
@@ -138,7 +127,7 @@ public class TaskBalancer : ITaskBalancer
                     executionLock.Release();
                     acquired = false;
                     BackendMetrics.TaskQueueDepth.Record(0);
-                    await Task.Delay(options.EmptyDelayMs);
+                    await Task.Delay(options.EmptyDelayMs, lifetime.Token);
                     continue;
                 }
 
@@ -150,6 +139,12 @@ public class TaskBalancer : ITaskBalancer
                 acquired = false;
                 Execute(entry!).NoAwait();
             }
+            catch (OperationCanceledException)
+            {
+                if (acquired)
+                    executionLock.Release();
+                break;
+            }
             catch (Exception e)
             {
                 _logger.LogError(e, "[TaskBalancer] ExecuteLoop iteration failed");
@@ -157,9 +152,14 @@ public class TaskBalancer : ITaskBalancer
                 if (acquired)
                     executionLock.Release();
 
-                await Task.Delay(_config.Value.EmptyDelayMs);
+                await Task.Delay(_config.Value.EmptyDelayMs, lifetime.Token);
             }
         }
+
+        // Graceful drain: wait for all executing tasks to complete before returning
+        _logger.LogInformation("[TaskBalancer] Draining {Count} executing tasks...", concurrentTasks - executionLock.CurrentCount);
+        await executionLock.WaitAsync();
+        executionLock.Release(concurrentTasks);
 
         return;
 
@@ -216,6 +216,16 @@ public class TaskBalancer : ITaskBalancer
         }
     }
 
+    private void LogEntries()
+    {
+        lock (_scheduledLock)
+        {
+            if (_scheduled.Count == 0)
+                return;
+
+            _logger.LogDebug("[TaskBalancer] {Count} scheduled entries", _scheduled.Count);
+        }
+    }
     private bool TryPickMaxScored(out TaskEntry? maxEntry)
     {
         maxEntry = null;
