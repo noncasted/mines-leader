@@ -29,10 +29,12 @@ public class DeployIdentity : BackgroundService
     private readonly ILogger<DeployIdentity> _logger;
 
     private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(5);
+    private const int MaxConsecutiveFailures = 3;
 
     protected override async Task ExecuteAsync(CancellationToken cancellation)
     {
-        var lifetime = cancellation.ToLifetime();
+        var lifetime = new Lifetime();
+        cancellation.Register(() => lifetime.Terminate());
 
         try
         {
@@ -61,13 +63,16 @@ public class DeployIdentity : BackgroundService
         HeartbeatLoop(lifetime, grain).NoAwait();
     }
 
-    private async Task HeartbeatLoop(IReadOnlyLifetime lifetime, IDeployManagement grain)
+    private async Task HeartbeatLoop(ILifetime lifetime, IDeployManagement grain)
     {
+        var consecutiveFailures = 0;
+
         while (lifetime.IsTerminated == false)
         {
             try
             {
                 await grain.Heartbeat();
+                consecutiveFailures = 0;
                 await Task.Delay(HeartbeatInterval, lifetime.Token);
             }
             catch (OperationCanceledException)
@@ -76,8 +81,25 @@ public class DeployIdentity : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[DeployIdentity] Heartbeat iteration failed");
-                await Task.Delay(HeartbeatInterval);
+                consecutiveFailures++;
+                _logger.LogError(e, "[DeployIdentity] Heartbeat iteration failed ({FailureCount}/{MaxFailures})",
+                    consecutiveFailures, MaxConsecutiveFailures);
+
+                if (consecutiveFailures >= MaxConsecutiveFailures)
+                {
+                    _logger.LogCritical("[DeployIdentity] Max consecutive heartbeat failures reached, shutting down");
+                    lifetime.Terminate();
+                    break;
+                }
+
+                try
+                {
+                    await Task.Delay(HeartbeatInterval, lifetime.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
         }
     }

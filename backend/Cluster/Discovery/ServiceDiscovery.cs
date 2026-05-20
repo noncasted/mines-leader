@@ -15,6 +15,7 @@ public interface IServiceDiscovery
 
     Task Start(IReadOnlyLifetime lifetime);
     Task Push();
+    Task Unregister();
 }
 
 public class ServiceDiscovery : IServiceDiscovery
@@ -70,6 +71,23 @@ public class ServiceDiscovery : IServiceDiscovery
         }
     }
 
+    public async Task Unregister()
+    {
+        try
+        {
+            if (_deployContext.DeployId == Guid.Empty)
+                return;
+
+            var grain = _orleans.GetGrain<IServiceDiscoveryStorage>(_deployContext.DeployId);
+            await grain.Unregister(_environment.ServiceId);
+            _logger.LogInformation("[ServiceDiscovery] Unregistered service {ServiceId}", _environment.ServiceId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[ServiceDiscovery] Unregister failed");
+        }
+    }
+
     private async Task RefreshLoop(IReadOnlyLifetime lifetime)
     {
         while (lifetime.IsTerminated == false)
@@ -77,16 +95,17 @@ public class ServiceDiscovery : IServiceDiscovery
             try
             {
                 await Push();
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2), lifetime.Token);
             }
             catch (OperationCanceledException)
             {
+                await Unregister();
                 break;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "[ServiceDiscovery] RefreshLoop iteration failed");
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(5), lifetime.Token);
             }
         }
     }

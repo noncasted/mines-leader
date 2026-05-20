@@ -21,6 +21,8 @@ public class ClusterParticipantStartup : BackgroundService
         IOrleans orleans,
         IDeployContext deployContext,
         IClusterParticipantContext context,
+        IClusterStartupConfig startupConfig,
+        IHostApplicationLifetime hostLifetime,
         ILogger<ClusterParticipantStartup> logger)
     {
         _taskBalancer = taskBalancer;
@@ -31,6 +33,8 @@ public class ClusterParticipantStartup : BackgroundService
         _orleans = orleans;
         _deployContext = deployContext;
         _context = context;
+        _startupConfig = startupConfig;
+        _hostLifetime = hostLifetime;
         _logger = logger;
     }
 
@@ -42,6 +46,8 @@ public class ClusterParticipantStartup : BackgroundService
     private readonly IOrleans _orleans;
     private readonly IDeployContext _deployContext;
     private readonly IClusterParticipantContext _context;
+    private readonly IClusterStartupConfig _startupConfig;
+    private readonly IHostApplicationLifetime _hostLifetime;
     private readonly ILogger<ClusterParticipantStartup> _logger;
 
     protected override async Task ExecuteAsync(CancellationToken cancellation)
@@ -49,6 +55,11 @@ public class ClusterParticipantStartup : BackgroundService
         var lifetime = cancellation.ToLifetime();
         var serviceName = _discovery.Self.Tag.ToString();
         var isCoordinator = _discovery.Self.Tag == ServiceTag.Coordinator;
+
+        _hostLifetime.ApplicationStopping.Register(() =>
+        {
+            _discovery.Unregister().NoAwait();
+        });
 
         lifetime.Listen(() => _logger.LogError("[Startup] {Service} cancellation requested", serviceName));
 
@@ -199,7 +210,7 @@ public class ClusterParticipantStartup : BackgroundService
 
                     var present = _discovery.Entries.Values.Select(m => m.Tag).ToHashSet();
 
-                    var missing = DeployConstants.RequiredServices
+                    var missing = _startupConfig.RequiredServices
                                                  .Where(tag => present.Contains(tag) == false)
                                                  .Select(tag => tag.ToString())
                                                  .ToList();

@@ -1,4 +1,5 @@
 using Cluster.Discovery;
+using Cluster.State;
 using Common.Reactive;
 using Infrastructure;
 using Microsoft.Extensions.Hosting;
@@ -13,12 +14,14 @@ public class DeployHealthChecker : BackgroundService
         IDeployContext deployContext,
         IMessaging messaging,
         IOrleans orleans,
+        IClusterFeatures clusterFeatures,
         ILogger<DeployHealthChecker> logger)
     {
         _discovery = discovery;
         _deployContext = deployContext;
         _messaging = messaging;
         _orleans = orleans;
+        _clusterFeatures = clusterFeatures;
         _logger = logger;
     }
 
@@ -26,6 +29,7 @@ public class DeployHealthChecker : BackgroundService
     private readonly IDeployContext _deployContext;
     private readonly IMessaging _messaging;
     private readonly IOrleans _orleans;
+    private readonly IClusterFeatures _clusterFeatures;
     private readonly ILogger<DeployHealthChecker> _logger;
 
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(10);
@@ -61,7 +65,7 @@ public class DeployHealthChecker : BackgroundService
             }
 
             await CheckDeployEpoch(lifetime, serviceName, isCoordinator);
-            await CheckHeartbeat(serviceName);
+            await CheckHeartbeat(serviceName, isCoordinator);
         }
     }
 
@@ -79,9 +83,11 @@ public class DeployHealthChecker : BackgroundService
 
             if (isCoordinator)
             {
-                _logger.LogWarning(
-                    "[Health] Coordinator replaced: new deploy {New}, my deploy {Mine}, remaining passive",
+                _logger.LogCritical(
+                    "[Health] Coordinator replaced: new deploy {New}, my deploy {Mine}, going passive",
                     response.DeployId, _deployContext.DeployId);
+
+                await _clusterFeatures.SetAcceptingConnections(false);
             }
             else
             {
@@ -89,6 +95,7 @@ public class DeployHealthChecker : BackgroundService
                     serviceName, _deployContext.DeployId, response.DeployId);
 
                 await _deployContext.Set(response.DeployId, lifetime);
+                await _clusterFeatures.SetAcceptingConnections(true);
                 await _discovery.Push();
             }
         }
@@ -98,7 +105,7 @@ public class DeployHealthChecker : BackgroundService
         }
     }
 
-    private async Task CheckHeartbeat(string serviceName)
+    private async Task CheckHeartbeat(string serviceName, bool isCoordinator)
     {
         try
         {
@@ -108,9 +115,12 @@ public class DeployHealthChecker : BackgroundService
 
             if (since > HeartbeatStaleThreshold)
             {
-                _logger.LogWarning(
-                    "[Health] {Service} coordinator unhealthy for deploy {DeployId}, last heartbeat {Seconds:F1}s ago",
+                _logger.LogCritical(
+                    "[Health] {Service} coordinator unhealthy for deploy {DeployId}, last heartbeat {Seconds:F1}s ago. Going passive.",
                     serviceName, _deployContext.DeployId, since.TotalSeconds);
+
+                if (isCoordinator == false)
+                    await _clusterFeatures.SetAcceptingConnections(false);
             }
         }
         catch (Exception e)
