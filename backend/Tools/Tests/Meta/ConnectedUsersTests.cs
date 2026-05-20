@@ -11,7 +11,7 @@ namespace Tests.Meta;
 
 public class ConnectedUsersTests
 {
-    private readonly ConnectedUsers _sut = new(Substitute.For<ILiveState<ConnectedUsersLiveData>>());
+    private readonly ConnectedUsers _sut = new(Substitute.For<IDeploymentState<ConnectedUsersLiveData>>());
 
     private static IUserSession CreateSession(Guid? userId = null, Lifetime? lifetime = null)
     {

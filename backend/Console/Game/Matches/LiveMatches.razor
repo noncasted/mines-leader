@@ -97,7 +97,7 @@
 </div>
 
 @code {
-    [Inject] public ILiveState<LiveMatchesData> LiveData { get; set; } = null!;
+    [Inject] public IDeploymentState<LiveMatchesData> LiveData { get; set; } = null!;
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
     [Inject] public IClipboard Clipboard { get; set; } = null!;
 

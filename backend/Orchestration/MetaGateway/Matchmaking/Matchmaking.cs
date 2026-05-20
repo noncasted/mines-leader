@@ -56,7 +56,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         IBotConfig botConfig,
         IClusterFlags clusterFlags,
         IClusterParticipantContext participantContext,
-        ILiveState<MatchmakingLiveData> liveData,
+        IDeploymentState<MatchmakingLiveData> liveData,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
@@ -78,7 +78,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly IBotConfig _botConfig;
     private readonly IClusterFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
-    private readonly ILiveState<MatchmakingLiveData> _liveData;
+    private readonly IDeploymentState<MatchmakingLiveData> _liveData;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);

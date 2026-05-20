@@ -17,12 +17,12 @@ public interface ISessionsCollection
 
 public class SessionsCollection : ISessionsCollection
 {
-    public SessionsCollection(ILiveState<LiveMatchesData> liveData)
+    public SessionsCollection(IDeploymentState<LiveMatchesData> liveData)
     {
         _liveData = liveData;
     }
 
-    private readonly ILiveState<LiveMatchesData> _liveData;
+    private readonly IDeploymentState<LiveMatchesData> _liveData;
     private readonly Dictionary<Guid, ISession> _entries = new();
     private readonly Dictionary<Guid, DateTime> _createdAt = new();
     private readonly Dictionary<Guid, GameMatchType?> _gameModes = new();
