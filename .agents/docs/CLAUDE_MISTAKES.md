@@ -160,6 +160,8 @@ _round.CurrentPlayer.ViewNotNull(user.Lifetime, (roundLifetime, player) => {
 | 2 | 2026-02-10 | DialogueTextView.cs | Dialogue text not updating on frame change | Frame synchronization | Fixed |
 | 3 | 2026-04-15 | ZipZapStrategy.cs, OpponentBombStrategy.cs | Strategy position/board mismatch with card logic | Card strategy must match card internals | Fixed |
 | 4 | 2026-04-15 | BotRunner.cs | ViewNotNull fires before moves restored | Guard against init triggers | Fixed |
+| 15 | 2026-05-19 | CardIconsExporter.cs | One GetParent from Application.dataPath | Path to repo root needs two GetParent | Fixed |
+| 16 | 2026-05-19 | CardIconsExporter.cs | Exporting full texture atlas + EncodeToPNG on non-readable | Load Sprite + RenderTexture + ReadPixels sprite.rect | Fixed |
 
 ---
 
@@ -659,3 +661,71 @@ var apply = _applyCache.GetOrAdd(..., static key => {
   safety (source generators) is preferable to runtime reflection.
 
 → [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+
+---
+
+## Lesson 15: Unity `Application.dataPath` Points to `Assets/`, Not Repository Root
+
+### Mistake Made
+```csharp
+// WRONG — one GetParent only reaches the client/ folder, not the repo root
+string projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+string outputDir = Path.Combine(projectRoot, "docs", "obsidian", "game", "cards", "icons");
+// Result: writes to client/docs/... instead of repo-root/docs/...
+```
+
+### Correct Pattern
+```csharp
+// CORRECT — two GetParent calls to reach the repository root
+string projectRoot = Directory.GetParent(Directory.GetParent(Application.dataPath).FullName)?.FullName;
+string outputDir = Path.Combine(projectRoot, "docs", "obsidian", "game", "cards", "icons");
+```
+
+### Rule
+`Application.dataPath` resolves to `<repo>/client/Assets/`. One `Directory.GetParent` gives `<repo>/client/`.
+Always use two `GetParent` calls to reach the repository root when writing files outside `Assets/`.
+
+---
+
+## Lesson 16: Exporting Unity Sprites from Atlases / PSD / Aseprite
+
+### Mistake Made
+```csharp
+// WRONG — exports the entire atlas texture, not the individual sprite
+Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+byte[] bytes = tex.EncodeToPNG(); // ← entire atlas, including other sprites
+```
+
+```csharp
+// WRONG — EncodeToPNG throws because importer sets isReadable = 0
+Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+byte[] bytes = tex.EncodeToPNG(); // UnityException: texture is not readable
+```
+
+### Correct Pattern
+```csharp
+// CORRECT — load Sprite, copy via RenderTexture, read only sprite.rect
+Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+if (sprite == null) sprite = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().FirstOrDefault();
+
+var sourceTex = sprite.texture;
+var rect = sprite.rect;
+
+RenderTexture rt = RenderTexture.GetTemporary(sourceTex.width, sourceTex.height, 0, RenderTextureFormat.ARGB32);
+Graphics.Blit(sourceTex, rt);
+RenderTexture.active = rt;
+
+Texture2D readable = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.ARGB32, false);
+readable.ReadPixels(new Rect(rect.x, rect.y, rect.width, rect.height), 0, 0);
+readable.Apply();
+RenderTexture.active = null;
+RenderTexture.ReleaseTemporary(rt);
+
+byte[] bytes = readable.EncodeToPNG();
+```
+
+### Rules
+1. **Always load `Sprite`, not `Texture2D`** — `.psd` and `.aseprite` import as atlases with multiple sprites.
+2. **Use `sprite.rect`** to read only the specific sprite region from the atlas texture.
+3. **Never call `EncodeToPNG` on imported textures directly** — they are not readable. Use `RenderTexture` + `ReadPixels` to create a readable copy.
+4. **For `.aseprite` files**, `LoadAssetAtPath<Sprite>` may return null; fall back to `LoadAllAssetsAtPath` and find the first `Sprite` sub-asset.
