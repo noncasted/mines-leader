@@ -6,6 +6,7 @@ using Console.Monitoring;
 using ConsoleGateway;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
 using Orchestration;
 
 const string defaultToken = "local-dev-token";
@@ -48,6 +49,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+var cardIconsPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "docs", "obsidian", "game", "cards", "icons"));
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(cardIconsPath),
+    RequestPath = "/card-icons"
+});
+
 if (authEnabled)
 {
     System.Console.WriteLine("[Console] Auth enabled");
@@ -58,7 +66,7 @@ if (authEnabled)
     app.Use(async (context, next) => {
         var path = context.Request.Path.Value ?? "";
         var isLoginPath = path.StartsWith("/login", StringComparison.OrdinalIgnoreCase);
-        var isStaticPath = path.StartsWith("/_") || path.StartsWith("/css") || path.StartsWith("/styles");
+        var isStaticPath = path.StartsWith("/_") || path.StartsWith("/css") || path.StartsWith("/styles") || path.StartsWith("/card-icons");
         var isHealthPath = path.Equals("/health", StringComparison.OrdinalIgnoreCase)
                            || path.Equals("/alive", StringComparison.OrdinalIgnoreCase)
                            || path.Equals("/ready", StringComparison.OrdinalIgnoreCase);
