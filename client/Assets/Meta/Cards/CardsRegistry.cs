@@ -12,12 +12,12 @@ namespace Meta
 
     public class CardsRegistry : ICardsRegistry
     {
-        private readonly Dictionary<CardType, ICardDefinition> _cards = new();
-
         public CardsRegistry()
         {
             Load();
         }
+        
+        private readonly Dictionary<CardType, ICardDefinition> _cards = new();
 
         public IReadOnlyDictionary<CardType, ICardDefinition> Entries => _cards;
 

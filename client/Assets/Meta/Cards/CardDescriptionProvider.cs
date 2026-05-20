@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Shared;
+using UnityEngine;
 
 namespace Meta
 {
@@ -10,45 +12,52 @@ namespace Meta
 
     public class CardDescriptionProvider : ICardDescriptionProvider
     {
-        private readonly ICardConfigs _configs;
-        private readonly ICardsRegistry _registry;
-        private Dictionary<CardType, string> _resolved;
-
-        public CardDescriptionProvider(ICardConfigs configs, ICardsRegistry registry)
+        public CardDescriptionProvider(ICardConfigs configs)
         {
             _configs = configs;
-            _registry = registry;
+            LoadRawDescriptions();
         }
 
+        private readonly ICardConfigs _configs;
+        private readonly Dictionary<CardType, string> _rawDescriptions = new();
+        private readonly Dictionary<CardType, string> _resolved = new();
+        
         public string GetDescription(CardType type)
         {
             BuildIfNeeded();
 
-            if (_resolved != null && _resolved.TryGetValue(type, out var description))
+            if (_resolved.TryGetValue(type, out var description))
                 return description;
 
-            return _registry.Entries.TryGetValue(type, out var definition)
-                ? definition.Description
-                : string.Empty;
+            if (_rawDescriptions.TryGetValue(type, out var rawDescription))
+                return rawDescription;
+
+            return string.Empty;
+        }
+
+        private void LoadRawDescriptions()
+        {
+            var textAsset = Resources.Load<TextAsset>("cards-info");
+            var payload = JsonUtility.FromJson<CardsInfoPayload>(textAsset.text);
+
+            foreach (var entry in payload.cards)
+            {
+                var type = (CardType)Enum.Parse(typeof(CardType), entry.type);
+                _rawDescriptions[type] = entry.description;
+            }
         }
 
         private void BuildIfNeeded()
         {
-            if (_resolved != null)
-                return;
-
             var value = _configs.Value;
+
             if (value == null)
                 return;
 
-            _resolved = new Dictionary<CardType, string>();
-
             foreach (var (type, config) in value.All)
             {
-                if (!_registry.Entries.TryGetValue(type, out var definition))
+                if (!_rawDescriptions.TryGetValue(type, out var description))
                     continue;
-
-                var description = definition.Description;
 
                 if (config is IDurationalCardConfig durational)
                     description = description.Replace("{ROUNDS}", durational.TurnsDuration.ToString());
