@@ -41,6 +41,8 @@ public static class ProjectsSetupExtensions
             builder.Services.AddHealthChecks()
                    .AddCheck<CoordinatorReadyHealthCheck>("coordinator-deploy", tags: ["ready"]);
 
+            builder.Services.Configure<CoordinatorHealthOptions>(_ => { });
+
             // Project services
             builder.Add<ClusterConfigsSetup>()
                    .As<ICoordinatorSetupCompleted>();
@@ -162,6 +164,9 @@ public static class ProjectsSetupExtensions
 
             builder.Add<DeployContext>()
                    .As<IDeployContext>();
+
+            builder.Add<ClusterStartupConfig>()
+                   .As<IClusterStartupConfig>();
 
             builder
                 .AddEnvironment(serviceTag)

@@ -20,7 +20,7 @@ public class DeployCleanupResult
     public required Guid KeptDeployId { get; init; }
 }
 
-public class DeployCleanup : IDeployCleanup
+public class DeployCleanup : IDeployCleanup, IHostedService
 {
     public DeployCleanup(
         IDeployContext deployContext,
@@ -35,6 +35,16 @@ public class DeployCleanup : IDeployCleanup
     private readonly IDeployContext _deployContext;
     private readonly IStateStorage _stateStorage;
     private readonly ILogger<DeployCleanup> _logger;
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
     public async Task<DeployCleanupResult> Run()
     {
@@ -112,7 +122,8 @@ public static class DeployCleanupExtensions
     public static IHostApplicationBuilder AddDeployCleanup(this IHostApplicationBuilder builder)
     {
         builder.Add<DeployCleanup>()
-               .As<IDeployCleanup>();
+               .As<IDeployCleanup>()
+               .As<IHostedService>();
 
         return builder;
     }
