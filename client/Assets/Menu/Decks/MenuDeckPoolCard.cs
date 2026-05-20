@@ -1,4 +1,4 @@
-﻿using Menu.Services;
+using Menu.Services;
 using Meta;
 using Shared;
 using TMPro;
@@ -24,14 +24,17 @@ namespace Menu.Decks
         private IMenuMoveArea _moveArea;
         private ICardConfigs _configs;
         private ICardConfig _config;
+        private ICardDescriptionProvider _descriptionProvider;
 
         public ICardDefinition CardDefinition => _cardDefinition;
         public ICardConfig Config => _config;
 
+        public string ResolvedDescription { get; private set; }
         [Inject]
-        private void Construct(IMenuMoveArea moveArea, ICardConfigs configs)
+        private void Construct(IMenuMoveArea moveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
+            _descriptionProvider = descriptionProvider;
             _moveArea = moveArea;
             _rectTransform = GetComponent<RectTransform>();
         }
@@ -43,7 +46,8 @@ namespace Menu.Decks
 
             _image.sprite = definition.Image;
             _name.text = definition.Name;
-            _description.text = definition.Description;
+            _description.text = _descriptionProvider.GetDescription(definition.Type);
+            ResolvedDescription = _description.text;
             _config = _configs.Value.All[definition.Type];
             _manaCost.text = _config.ManaCost.ToString();
         }

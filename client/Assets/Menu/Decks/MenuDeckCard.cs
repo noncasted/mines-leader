@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Meta;
 using TMPro;
 using UnityEngine;
@@ -46,7 +46,7 @@ namespace Menu.Decks
         {
             _image.sprite = definition.Image;
             _name.text = definition.Name;
-            _description.text = definition.Description;
+            _description.text = _currentCard.ResolvedDescription;
             _manaCost.text = _currentCard.Config.ManaCost.ToString();
         }
 

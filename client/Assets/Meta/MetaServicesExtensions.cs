@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Network;
 using Shared;
 
@@ -33,6 +33,9 @@ namespace Meta
 
             builder.Register<CardsRegistry>()
                    .As<ICardsRegistry>();
+
+            builder.Register<CardDescriptionProvider>()
+                   .As<ICardDescriptionProvider>();
 
             builder.AddNetworkConnection();
 

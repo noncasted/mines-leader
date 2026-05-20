@@ -21,11 +21,13 @@ namespace GamePlay.Cards
         [SerializeField] private TMP_Text _description;
 
         private ICardDefinition _definition;
+        private ICardDescriptionProvider _descriptionProvider;
 
         [Inject]
-        private void Construct(ICardDefinition definition)
+        private void Construct(ICardDefinition definition, ICardDescriptionProvider descriptionProvider)
         {
             _definition = definition;
+            _descriptionProvider = descriptionProvider;
         }
 
         public void Register(IEntityBuilder builder)
@@ -39,7 +41,7 @@ namespace GamePlay.Cards
         {
             _image.sprite = _definition.Image;
             _name.text = _definition.Name;
-            _description.text = _definition.Description;
+            _description.text = _descriptionProvider.GetDescription(_definition.Type);
         }
 
         public void Reveal()
