@@ -29,13 +29,7 @@ namespace Menu.Decks
         public void SetOwned(bool owned)
         {
             _isOwned = owned;
-
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = owned ? 1f : 0.35f;
-                _canvasGroup.interactable = owned;
-                _canvasGroup.blocksRaycasts = owned;
-            }
+            _canvasGroup.alpha = owned ? 1f : 0.35f;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
-using Menu.Screens.Cards.Preview;
 using Meta;
 using Shared;
 using TMPro;
@@ -135,85 +134,63 @@ namespace Menu.Decks
 
         private void RegisterPreviewHover(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
         {
-            if (spot.PointerHandler == null)
-                return;
+            spot.PointerHandler.IsHovered.Advise(lifetime, isHovered => {
+                if (spot.Card.gameObject.activeInHierarchy == false)
+                    return;
 
-            spot.PointerHandler.IsHovered.Advise(lifetime, isHovered =>
-            {
-                if (isHovered)
-                    ShowPreview(spot);
-                else
-                    HidePreview();
+                if (isHovered == false)
+                    return;
+
+                var hoverLifetime = spot.PointerHandler.IsHovered.ValueLifetime;
+                ShowPreview(hoverLifetime, spot);
             });
         }
 
-        private void ShowPreview(MenuDeckPoolSpot spot)
+        private void ShowPreview(IReadOnlyLifetime lifetime, MenuDeckPoolSpot spot)
         {
             var card = spot.Card;
-
-            if (card == null || card.CardDefinition == null)
-                return;
-
             var type = card.CardDefinition.Type;
 
             if (_previewPlayer.HasPreview(type) == false)
                 return;
 
-            _previewPlayer.Play(type);
+            _previewPlayer.Play(lifetime, type).Forget();
             var rt = _previewPlayer.PreviewTexture;
 
-            if (_previewPopup != null)
-            {
-                _previewPopup.Show(rt);
-                PositionPreview(spot);
-            }
-        }
+            _previewPopup.Show(rt);
+            PositionPreview(spot);
 
-        private void HidePreview()
-        {
-            _previewPlayer.Stop();
-
-            if (_previewPopup != null)
-                _previewPopup.Hide();
+            lifetime.Listen(() => _previewPopup.Hide());
         }
 
         private void PositionPreview(MenuDeckPoolSpot spot)
         {
-            if (_previewPopup == null)
-                return;
-
-            var spotTransform = spot.Transform;
-            var canvas = GetComponentInParent<Canvas>();
-            var canvasRect = canvas != null ? (RectTransform)canvas.transform : _poolRoot;
-
-            var popupSize = _previewPopup.GetComponent<RectTransform>().sizeDelta;
+            var spotRect = spot.Transform;
+            var popupRect = _previewPopup.GetComponent<RectTransform>();
 
             Vector3[] corners = new Vector3[4];
-            spotTransform.GetWorldCorners(corners);
+            spotRect.GetWorldCorners(corners);
 
-            Vector2 localCorner;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                corners[2],
-                canvas != null ? canvas.worldCamera : null,
-                out localCorner);
+            var worldRightCenter = (corners[2] + corners[3]) * 0.5f;
 
-            var left = localCorner.x + 4f;
-            var top = localCorner.y + 4f;
+            var canvas = GetComponentInParent<Canvas>();
+            var canvasScale = 1f;
+            canvasScale = ((RectTransform)canvas.transform).localScale.x;
 
-            if (left + popupSize.x > canvasRect.rect.width / 2f)
-                left = localCorner.x - popupSize.x - 4f;
+            worldRightCenter.x += 450f / canvasScale;
 
-            if (left < -canvasRect.rect.width / 2f)
-                left = -canvasRect.rect.width / 2f;
+            var targetLocal = popupRect.parent.InverseTransformPoint(worldRightCenter);
 
-            if (top - popupSize.y < -canvasRect.rect.height / 2f)
-                top = localCorner.y + popupSize.y + 4f;
+            var size = popupRect.sizeDelta;
+            var popupScale = popupRect.localScale;
+            var pivot = popupRect.pivot;
 
-            if (top > canvasRect.rect.height / 2f)
-                top = canvasRect.rect.height / 2f;
+            var centerOffset = new Vector3(
+                (0.5f - pivot.x) * size.x * popupScale.x,
+                (0.5f - pivot.y) * size.y * popupScale.y,
+                0f);
 
-            _previewPopup.SetPosition(new Vector2(left, top));
+            popupRect.localPosition = targetLocal - centerOffset;
         }
 
         private void OnCardsUpdated(SharedBackendUser.CardsProjection projection)
@@ -225,8 +202,8 @@ namespace Menu.Decks
 
             // Sort: owned first, then unowned
             var sorted = _typeToPoolSpot.Values
-                .OrderByDescending(s => s.IsOwned)
-                .ToList();
+                                        .OrderByDescending(s => s.IsOwned)
+                                        .ToList();
 
             for (var i = 0; i < sorted.Count; i++)
                 sorted[i].transform.SetSiblingIndex(i);

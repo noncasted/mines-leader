@@ -1,7 +1,7 @@
 using GamePlay.Services;
 using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview.Sync
+namespace Menu.Decks
 {
     /// <summary>
     /// Stub <see cref="IGameCamera"/> wired to the Menu_Board preview camera.

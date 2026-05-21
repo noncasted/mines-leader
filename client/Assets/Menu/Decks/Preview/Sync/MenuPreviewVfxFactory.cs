@@ -2,7 +2,7 @@ using GamePlay.Cards;
 using Internal;
 using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview.Sync
+namespace Menu.Decks
 {
     /// <summary>
     /// <see cref="ICardVfxFactory"/> for the menu preview. The gameplay <c>CardVfxFactory</c> is a

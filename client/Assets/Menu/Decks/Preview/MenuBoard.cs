@@ -9,7 +9,7 @@ using Shared;
 using UnityEngine;
 using VContainer;
 
-namespace Menu.Screens.Cards.Preview
+namespace Menu.Decks
 {
     [DisallowMultipleComponent]
     public class MenuBoard : MonoBehaviour, IMenuBoard, ISceneService, IScopeSetup
