@@ -99,15 +99,12 @@ namespace GamePlay.Cards
                 foreach (var line in lines)
                     Object.Destroy(line.gameObject);
 
-                if (payload.UpdatedFreeCells != null)
+                foreach (var opened in payload.UpdatedFreeCells)
                 {
-                    foreach (var opened in payload.UpdatedFreeCells)
-                    {
-                        var vector = opened.Position.ToVector();
+                    var vector = opened.Position.ToVector();
 
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
-                    }
+                    if (board.Cells.TryGetValue(vector, out var cell))
+                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
                 }
             }
         }

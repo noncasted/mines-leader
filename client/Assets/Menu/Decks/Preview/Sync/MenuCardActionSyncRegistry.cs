@@ -4,9 +4,8 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using Internal;
 using Shared;
-using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview.Sync
+namespace Menu.Decks
 {
     /// <summary>
     /// Dispatches <see cref="ICardActionData"/> to the matching <see cref="ICardActionSync"/> resolver

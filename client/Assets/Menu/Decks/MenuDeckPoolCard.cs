@@ -30,6 +30,7 @@ namespace Menu.Decks
         public ICardConfig Config => _config;
 
         public string ResolvedDescription { get; private set; }
+        
         [Inject]
         private void Construct(IMenuMoveArea moveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {

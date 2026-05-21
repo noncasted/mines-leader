@@ -1,7 +1,7 @@
 using GamePlay.Boards;
 using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview
+namespace Menu.Decks
 {
     /// <summary>
     /// No-op <see cref="IBoardActions"/> used by the menu preview board. The preview

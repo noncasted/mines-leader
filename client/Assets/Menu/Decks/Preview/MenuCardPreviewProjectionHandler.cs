@@ -1,9 +1,8 @@
 using Internal;
 using Meta;
 using Shared;
-using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview
+namespace Menu.Decks
 {
     /// <summary>
     /// Listens to the backend-delivered <see cref="InitialCardPreviews"/> projection

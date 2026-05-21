@@ -5,7 +5,7 @@ using GamePlay.Players;
 using Shared;
 using VContainer.Unity;
 
-namespace Menu.Screens.Cards.Preview.Sync
+namespace Menu.Decks
 {
     /// <summary>
     /// Stub <see cref="IGamePlayer"/> used only by the menu card preview pipeline.

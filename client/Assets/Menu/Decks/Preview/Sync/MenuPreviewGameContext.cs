@@ -3,7 +3,7 @@ using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
 
-namespace Menu.Screens.Cards.Preview.Sync
+namespace Menu.Decks
 {
     /// <summary>
     /// Single-player <see cref="IGameContext"/> for the menu preview. Self == Other == the stub

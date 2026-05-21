@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using Shared;
-using UnityEngine;
 
-namespace Menu.Screens.Cards.Preview
+namespace Menu.Decks
 {
     public interface IMenuCardPreviewCache
     {
