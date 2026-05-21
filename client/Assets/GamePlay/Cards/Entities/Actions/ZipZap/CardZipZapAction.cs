@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -52,17 +52,20 @@ namespace GamePlay.Cards
         public class Snapshot : ICardActionSync<CardActionSnapshot.ZipZap>
         {
             public Snapshot(
+                IBoardCellsAnimator animator,
                 IGameCamera camera,
                 IGameContext context,
                 ICardVfxFactory vfxFactory,
                 ZipZapOptions options)
             {
+                _animator = animator;
                 _camera = camera;
                 _context = context;
                 _vfxFactory = vfxFactory;
                 _options = options;
             }
 
+            private readonly IBoardCellsAnimator _animator;
             private readonly IGameCamera _camera;
             private readonly IGameContext _context;
             private readonly ICardVfxFactory _vfxFactory;
@@ -70,6 +73,17 @@ namespace GamePlay.Cards
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ZipZap payload)
             {
+                // 1. Target animation
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
+
+                // 2. Action animation
+                if (payload.OpenedCells.Count > 0)
+                {
+                    var positions = payload.OpenedCells.Select(o => o.Position).ToList();
+                    await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
+                }
+                
                 var targets = new List<IBoardCell>();
                 var board = _context.GetPlayer(payload.TargetPlayer).Board;
 
@@ -80,7 +94,7 @@ namespace GamePlay.Cards
                     targets.Add(cell);
                 }
 
-                targets.First().Explode(CellExplosionType.ZipZap).Forget();
+                _animator.ExplodeCell(payload.TargetPlayer, payload.TargetCells[0], CellExplosionType.ZipZap).Forget();
                 _camera.BaseShake();
                 var lines = new List<ZipZapLine>();
 
@@ -91,7 +105,7 @@ namespace GamePlay.Cards
 
                     var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
                     await line.Show(lifetime, start, target);
-                    target.Explode(CellExplosionType.ZipZap).Forget();
+                    _animator.ExplodeCell(payload.TargetPlayer, payload.TargetCells[index], CellExplosionType.ZipZap).Forget();
                     _camera.BaseShake();
                     lines.Add(line);
                 }
@@ -99,13 +113,7 @@ namespace GamePlay.Cards
                 foreach (var line in lines)
                     Object.Destroy(line.gameObject);
 
-                foreach (var opened in payload.UpdatedFreeCells)
-                {
-                    var vector = opened.Position.ToVector();
-
-                    if (board.Cells.TryGetValue(vector, out var cell))
-                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
-                }
+                await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }
 

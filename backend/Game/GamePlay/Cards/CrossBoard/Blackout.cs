@@ -27,7 +27,7 @@ public class Blackout : ICard<CardUsePayload.Blackout>
         var board = opponent.Board;
         board.EnsureGenerated(payload.Position);
 
-        var config = _configs.Value.Blackout_Normal;
+        var config = payload.Type == CardType.Blackout_Max ? _configs.Value.Blackout_Max : _configs.Value.Blackout_Normal;
         var pattern = PatternShapes.Rhombus(config.Size);
         var selected = pattern.SelectAll(board, payload.Position);
 

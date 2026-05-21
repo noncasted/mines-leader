@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
-using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -47,29 +47,27 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Bloodhound>
         {
-            public Snapshot(IGameContext gameContext)
+            public Snapshot(IBoardCellsAnimator animator)
             {
-                _gameContext = gameContext;
+                _animator = animator;
             }
 
-            private readonly IGameContext _gameContext;
+            private readonly IBoardCellsAnimator _animator;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Bloodhound payload)
             {
-                if (payload.UpdatedFreeCells == null || payload.UpdatedFreeCells.Count == 0)
-                    return UniTask.CompletedTask;
+                // 1. Target animation
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
 
-                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
-
-                foreach (var opened in payload.UpdatedFreeCells)
+                // 2. Action animation
+                if (payload.OpenedCells.Count > 0)
                 {
-                    var vector = opened.Position.ToVector();
-
-                    if (board.Cells.TryGetValue(vector, out var cell))
-                        cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
+                    var positions = payload.OpenedCells.Select(o => o.Position).ToList();
+                    await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
                 }
 
-                return UniTask.CompletedTask;
+                await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }
 

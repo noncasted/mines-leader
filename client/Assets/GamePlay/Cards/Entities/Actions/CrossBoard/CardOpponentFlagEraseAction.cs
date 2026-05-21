@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
-using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -47,40 +46,22 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.OpponentFlagErase>
         {
-            public Snapshot(IGameContext gameContext)
+            public Snapshot(IBoardCellsAnimator animator)
             {
-                _gameContext = gameContext;
+                _animator = animator;
             }
 
-            private readonly IGameContext _gameContext;
+            private readonly IBoardCellsAnimator _animator;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.OpponentFlagErase payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.OpponentFlagErase payload)
             {
-                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
 
-                if (payload.UnflaggedCells != null)
-                {
-                    foreach (var position in payload.UnflaggedCells)
-                    {
-                        var vector = position.ToVector();
+                foreach (var position in payload.UnflaggedCells)
+                    _animator.UnflagCell(payload.TargetPlayer, position);
 
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureTaken().OnFlagUpdated(false);
-                    }
-                }
-
-                if (payload.UpdatedFreeCells != null)
-                {
-                    foreach (var opened in payload.UpdatedFreeCells)
-                    {
-                        var vector = opened.Position.ToVector();
-
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
-                    }
-                }
-
-                return UniTask.CompletedTask;
+                await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }
 

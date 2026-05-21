@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
-using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
 using Shared;
@@ -68,40 +67,22 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Trebuchet>
         {
-            public Snapshot(IGameContext gameContext)
+            public Snapshot(IBoardCellsAnimator animator)
             {
-                _gameContext = gameContext;
+                _animator = animator;
             }
 
-            private readonly IGameContext _gameContext;
+            private readonly IBoardCellsAnimator _animator;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Trebuchet payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Trebuchet payload)
             {
-                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
 
-                if (payload.TakenCells != null)
-                {
-                    foreach (var position in payload.TakenCells)
-                    {
-                        var vector = position.ToVector();
+                foreach (var position in payload.TakenCells)
+                    _animator.EnsureTaken(payload.TargetPlayer, position);
 
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureTaken();
-                    }
-                }
-
-                if (payload.UpdatedFreeCells != null)
-                {
-                    foreach (var opened in payload.UpdatedFreeCells)
-                    {
-                        var vector = opened.Position.ToVector();
-
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
-                    }
-                }
-
-                return UniTask.CompletedTask;
+                await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }
     }

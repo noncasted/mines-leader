@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
@@ -33,8 +31,6 @@ namespace GamePlay
                 $"Handling card action snapshot for player {record.PlayerId}, card {record.CardId}, data {record.Data}");
             var card = player.Hand.Entries.First(t => t.Id == record.CardId)!;
 
-            await PlayTargetAnimation(record.Data);
-            await PlayActionAnimation(record.Data);
 
             await card.Use(_lifetime, record.Data);
 
@@ -79,41 +75,5 @@ namespace GamePlay
             }
         }
 
-        private UniTask PlayTargetAnimation(ICardActionData data)
-        {
-            return PlayCellsAnimation(data, data.TargetCells, (visuals, lifetime) => visuals.PlayCellTarget(lifetime));
-        }
-
-        private UniTask PlayActionAnimation(ICardActionData data)
-        {
-            var positions = data.OpenedCells?.Select(o => o.Position).ToList();
-            return PlayCellsAnimation(data, positions, (visuals, lifetime) => visuals.PlayCellAction(lifetime));
-        }
-
-        private async UniTask PlayCellsAnimation(
-            ICardActionData data,
-            IReadOnlyList<Position>? cells,
-            Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
-        {
-            if (cells == null || cells.Count == 0)
-                return;
-
-            var board = _gameContext.GetPlayer(data.TargetPlayer).Board;
-            var tasks = new List<UniTask>();
-
-            foreach (var position in cells)
-            {
-                var vector = position.ToVector();
-
-                if (board.Cells.TryGetValue(vector, out var cell) == false)
-                    continue;
-
-                if (cell is CellView cellView)
-                    tasks.Add(play(cellView.Visuals, _lifetime));
-            }
-
-            if (tasks.Count > 0)
-                await UniTask.WhenAll(tasks);
-        }
     }
 }

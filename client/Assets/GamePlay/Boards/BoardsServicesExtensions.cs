@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 
 namespace GamePlay.Boards
 {
@@ -18,6 +18,8 @@ namespace GamePlay.Boards
             builder.Register<CellsSelection>()
                    .As<ICellsSelection>();
             
+            builder.Register<BoardCellsAnimator>()
+                   .As<IBoardCellsAnimator>();
             builder.Register<BoardActions>()
                    .As<IBoardActions>();
 

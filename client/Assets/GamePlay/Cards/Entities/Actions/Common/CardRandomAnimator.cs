@@ -12,6 +12,7 @@ namespace GamePlay.Cards
     {
         UniTask PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads);
         UniTask PlayDiceRoll(IReadOnlyLifetime lifetime, int result);
+        void Reset();
     }
 
     [DisallowMultipleComponent]
@@ -84,6 +85,11 @@ namespace GamePlay.Cards
             await UniTask.Delay(500, cancellationToken: lifetime.Token);
 
             gameObject.SetActive(false);
+        }
+
+        public void Reset()
+        {
+            _renderer.sprite = null;
         }
 
         public void SetSprite(Sprite sprite)

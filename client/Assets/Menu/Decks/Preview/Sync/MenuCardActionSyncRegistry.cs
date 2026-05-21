@@ -41,19 +41,10 @@ namespace Menu.Decks
 
         public async UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data)
         {
-            if (data == null)
-                return;
-
             if (_byPayload.TryGetValue(data.GetType(), out var sync) == false)
                 return;
 
-            try
-            {
-                await sync.Sync(lifetime, data);
-            }
-            catch (Exception)
-            {
-            }
+            await sync.Sync(lifetime, data);
         }
 
         private static Type ExtractPayloadType(ICardActionSync sync)

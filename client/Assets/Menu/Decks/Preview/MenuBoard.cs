@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Cards;
 using Global.Systems;
 using Internal;
 using Shared;
@@ -20,14 +20,16 @@ namespace Menu.Decks
 
         private IUpdater _updater;
         private IBoardActions _actions;
+        private ICardRandomAnimator _randomAnimator;
 
         public IBoard Board => _board;
         public Camera PreviewCamera => _previewCamera;
         public RenderTexture PreviewTexture => _previewTexture;
 
         [Inject]
-        private void Construct(IUpdater updater)
+        private void Construct(IUpdater updater, ICardRandomAnimator randomAnimator)
         {
+            _randomAnimator = randomAnimator;
             _updater = updater;
             _actions = new PreviewBoardActions();
         }
@@ -93,24 +95,6 @@ namespace Menu.Decks
             }
         }
 
-        public UniTask PlayTargetAnimation(IReadOnlyLifetime lifetime, ICardActionData data, Position? fallback = null)
-        {
-            IReadOnlyList<Position> positions = data?.TargetCells;
-
-            if ((positions == null || positions.Count == 0) && fallback.HasValue)
-                positions = new[] { fallback.Value };
-
-            return PlayCellsAnimation(lifetime, positions, (visuals, lt) => visuals.PlayCellTarget(lt));
-        }
-
-        public UniTask PlayActionAnimation(IReadOnlyLifetime lifetime, ICardActionData data)
-        {
-            // Only play the "cell action" overlay on cells that were actually opened — skipping
-            // this for pure-effect/mine-planter cards keeps the overlay from masking the Smoke /
-            // Frost / Blackout / Fog visuals that the Sync step is about to apply.
-            var positions = data?.OpenedCells?.Select(o => o.Position).ToList();
-            return PlayCellsAnimation(lifetime, positions, (visuals, lt) => visuals.PlayCellAction(lt));
-        }
 
         public void ResetPreview()
         {
@@ -133,6 +117,13 @@ namespace Menu.Decks
                 objectLifetime.gameObject.SetActive(isActive);
             }
 
+            _randomAnimator.Reset();
+
+            var cells = _board.GetComponentsInChildren<CellView>(includeInactive: true);
+
+            foreach (var cellView in cells)
+                cellView.ResetState();
+
             var animators = _board.GetComponentsInChildren<CellAnimator>(includeInactive: true);
 
             foreach (var cellAnimator in animators)
@@ -142,6 +133,11 @@ namespace Menu.Decks
 
             foreach (var cellVisuals in visuals)
                 cellVisuals.SetSprite(null);
+
+            var flags = _board.GetComponentsInChildren<FlagAnimator>(includeInactive: true);
+
+            foreach (var flagAnimator in flags)
+                flagAnimator.SetSprite(null);
         }
 
         public void ApplyFinalState(BoardLayoutSnapshot state)
@@ -175,53 +171,6 @@ namespace Menu.Decks
                 }
             }
         }
-
-        public void ApplyUpdatedCells(ICardActionData data)
-        {
-            if (_board == null || data == null)
-                return;
-
-            var updates = data.UpdatedFreeCells ?? data.OpenedCells;
-
-            if (updates == null)
-                return;
-
-            foreach (var opened in updates)
-            {
-                var key = opened.Position.ToVector();
-
-                if (_board.Cells.TryGetValue(key, out var cell) == false)
-                    continue;
-
-                var free = cell.EnsureFree();
-                free.OnMinesUpdated(opened.MinesAround);
-            }
-        }
-
-        private async UniTask PlayCellsAnimation(
-            IReadOnlyLifetime lifetime,
-            IReadOnlyList<Position> cells,
-            Func<CellVisuals, IReadOnlyLifetime, UniTask> play)
-        {
-            if (cells == null || cells.Count == 0 || _board == null)
-                return;
-
-            var tasks = new List<UniTask>();
-
-            foreach (var position in cells)
-            {
-                var key = position.ToVector();
-
-                if (_board.Cells.TryGetValue(key, out var cell) == false)
-                    continue;
-
-                if (cell is CellView cellView)
-                    tasks.Add(play(cellView.Visuals, lifetime));
-            }
-
-            if (tasks.Count > 0)
-                await UniTask.WhenAll(tasks);
-        }
     }
 
     public interface IMenuBoard
@@ -233,8 +182,5 @@ namespace Menu.Decks
         void ApplyInitialState(BoardLayoutSnapshot state);
         void ApplyFinalState(BoardLayoutSnapshot state);
         void ResetPreview();
-        UniTask PlayTargetAnimation(IReadOnlyLifetime lifetime, ICardActionData data, Position? fallback = null);
-        UniTask PlayActionAnimation(IReadOnlyLifetime lifetime, ICardActionData data);
-        void ApplyUpdatedCells(ICardActionData data);
     }
 }

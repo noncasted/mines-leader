@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
-using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -49,42 +48,26 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.FortuneBlast>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator, IGameContext gameContext)
+            public Snapshot(ICardRandomAnimator randomAnimator, IBoardCellsAnimator animator)
             {
                 _randomAnimator = randomAnimator;
-                _gameContext = gameContext;
+                _animator = animator;
             }
 
             private readonly ICardRandomAnimator _randomAnimator;
-            private readonly IGameContext _gameContext;
+            private readonly IBoardCellsAnimator _animator;
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.FortuneBlast payload)
             {
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
+
                 await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
 
-                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+                foreach (var position in payload.TakenCells)
+                    _animator.EnsureTaken(payload.TargetPlayer, position);
 
-                if (payload.TakenCells != null)
-                {
-                    foreach (var position in payload.TakenCells)
-                    {
-                        var vector = position.ToVector();
-
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureTaken();
-                    }
-                }
-
-                if (payload.UpdatedFreeCells != null)
-                {
-                    foreach (var opened in payload.UpdatedFreeCells)
-                    {
-                        var vector = opened.Position.ToVector();
-
-                        if (board.Cells.TryGetValue(vector, out var cell))
-                            cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
-                    }
-                }
+                await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }
 
