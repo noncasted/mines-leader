@@ -13,6 +13,7 @@ namespace Menu.Decks
             builder.AddCardActionSyncResolver<CardTrebuchetAimerAction.Snapshot, CardActionSnapshot.TrebuchetAimer>();
             builder.AddCardActionSyncResolver<CardErosionDozerAction.Snapshot, CardActionSnapshot.ErosionDozer>();
             builder.AddCardActionSyncResolver<CardGravediggerAction.Snapshot, CardActionSnapshot.Gravedigger>();
+            builder.AddCardActionSyncResolver<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>();
             builder.AddCardActionSyncResolver<CardOpponentBombAction.Snapshot, CardActionSnapshot.OpponentBomb>();
             builder.AddCardActionSyncResolver<CardOpponentFlagEraseAction.Snapshot, CardActionSnapshot.OpponentFlagErase>();
             builder.AddCardActionSyncResolver<CardOpponentFlagReshuffleAction.Snapshot, CardActionSnapshot.OpponentFlagReshuffle>();

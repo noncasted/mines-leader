@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using GamePlay.Players;
 using Internal;
 using Shared;
@@ -31,9 +32,15 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.TrebuchetAimer>
         {
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.TrebuchetAimer payload)
+            public Snapshot(IBoardCellsAnimator animator)
             {
-                return UniTask.CompletedTask;
+                _animator = animator;
+            }
+
+            private readonly IBoardCellsAnimator _animator;
+
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.TrebuchetAimer payload)
+            {
             }
         }
     }

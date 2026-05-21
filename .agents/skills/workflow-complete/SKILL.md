@@ -14,7 +14,7 @@ If `task_name` is omitted, look for the most recently modified task folder in `d
 
 1. Find the task folder: `docs/tasks/current/<task_name>/`
 2. Read all three files: `<task_name>_info.md`, `<task_name>_progress.md`, `<task_name>_result.md`
-3. If `<task_name>_result.md` has `Статус: Не завершено` — ask the user if the task is actually done before proceeding
+3. If `<task_name>_result.md` front-matter has `status: pending` or `phase` is `brief` or `implementation` — ask the user if the task is actually done before proceeding
 
 ---
 
@@ -42,37 +42,32 @@ Scan `<task_name>_progress.md` and git commit messages for:
 - Patterns that didn't work as expected
 - Compilation errors that required changes
 
+Record these as entries under `### Отличия от плана` or `### Нерешенные вопросы` in result.md.
+
 ---
 
 ## Phase 3 — Update `<task_name>_result.md` in current/
 
-Fill in or update all sections of `docs/tasks/current/<task_name>/<task_name>_result.md`:
+Result.md is a living document that was populated gradually during implementation. Finalize it:
 
-```markdown
-## [Task name] — Результат
+1. **Update front-matter:**
+   ```yaml
+   status: completed
+   phase: completed
+   updated: <YYYY-MM-DD>
+   ```
+2. **Ensure `### Статус:` is `Завершено`**
+3. **Complete `### Что сделано`** — add any missing completed items
+4. **Complete `### Измененные файлы`** — table with all changed files, verified against git diff:
+   ```markdown
+   | Файл | Что изменено | Шаг | Evidence |
+   |------|-------------|-----|----------|
+   | `path/to/File.cs` | [description] | [N] | [test name or command] |
+   ```
+5. **Complete `### Отличия от плана`** — what was done differently, problems encountered and solved
+6. **Complete `### Нерешенные вопросы`** — what remains to be done
 
-### Статус: Завершено
-
-### Что сделано
-[3-7 bullet points of what was implemented]
-
-### Измененные файлы
-
-| Файл | Что изменено |
-|------|-------------|
-| `path/to/File.cs` | [description] |
-
-### Отличия от плана
-[What was done differently from <task_name>_info.md. Omit if plan followed exactly.]
-
-### Проблемы и решения
-[Problems encountered and how they were solved. Omit if none.]
-
-### Нерешенные вопросы
-[What remains to be done. Omit if everything is done.]
-```
-
-The file list in `<task_name>_result.md` MUST match the actual git diff, not just what was planned.
+The file list MUST match the actual git diff, not just what was planned.
 
 ---
 
@@ -120,17 +115,32 @@ Based on the completed work, check and update relevant documentation in `.agents
 
 | What changed in the task | Documentation to check/update |
 |--------------------------|-------------------------------|
-| New MonoBehaviour service patterns | `.agents/docs/GAMEPLAY.md`, `.agents/docs/COMMON_CONTAINER.md` |
-| New Orleans grains or state types | `.agents/docs/COMMON_ORLEANS.md` |
-| New card types or mechanics | `.agents/docs/GAMEPLAY.md` |
-| New Blazor pages or editors | `.agents/docs/BLAZOR.md` |
-| New PrefabBuilder patterns | `.agents/docs/PREFAB_CODEGEN.md` |
-| New API patterns or async patterns | `.agents/docs/API_DESIGN_FULL.md` |
-| New vocabulary/concepts introduced | `.agents/docs/VOCABULARY.md` |
-| New error patterns discovered | `.agents/docs/ERRORS.md` |
-| New decision points for developers | `.agents/docs/DECISION_TREES.md` |
-| AI mistakes made during task | `.agents/docs/CLAUDE_MISTAKES.md` |
-| New key files added to the project | `.agents/docs/GAMEPLAY.md` key files section, relevant docs |
+| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `.agents/docs/COMMON_CONTAINER.md` |
+| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `.agents/docs/COMMON_LIFETIMES.md` |
+| `EventSource`, `ViewableProperty`, `ViewableList` | `.agents/docs/COMMON_REACTIVE_BASICS.md` |
+| `UniTask`, async methods, file I/O, `IReadOnlyList` | `.agents/docs/API_DESIGN_FULL.md` |
+| member order, naming, braces, `NoAwait` | `.agents/docs/CODE_STYLE_FULL.md` |
+| Grain, State, `[Transaction]`, Orleans backend | `.agents/docs/COMMON_ORLEANS.md` |
+| Blazor, razor, `@inject`, console UI | `.agents/docs/BLAZOR.md` |
+| game flow, board, cards, bots, matchmaking | `.agents/docs/GAMEPLAY.md` |
+| IOrleans, AddressableDictionary, messaging | `.agents/docs/COMMON_ORLEANS.md` |
+| "which pattern", architectural choice | `.agents/docs/DECISION_TREES.md` |
+| common pitfalls, known mistakes | `.agents/docs/CLAUDE_MISTAKES.md` |
+| PrefabBuilder, prefab codegen | `.agents/docs/PREFAB_CODEGEN.md` |
+| card effects, card mechanics | `.agents/docs/CARD_EFFECTS.md` |
+| terminology, vocabulary | `.agents/docs/VOCABULARY.md` |
+| menu UI, UI Toolkit, color palette | `.agents/docs/UI_MENU.md` |
+| keyword lookup, documentation finder | `.agents/docs/TRIGGERS.md` |
+| testing, xUnit, test logs | `.agents/docs/TESTING.md` |
+| telemetry, metrics, logs | `.agents/docs/TELEMETRY.md` |
+| error lookup, debugging | `.agents/docs/ERRORS.md` |
+| deploy, Coolify, docker-compose, Aspire | `.agents/docs/DEPLOY.md` |
+| deploy failure, troubleshooting | `.agents/docs/DEPLOY_TROUBLESHOOTING.md` |
+| reactive values, ViewableProperty patterns | `.agents/docs/COMMON_REACTIVE_VALUES.md` |
+| reactive collections, ViewableList | `.agents/docs/COMMON_REACTIVE_COLLECTIONS.md` |
+| reactive patterns, event wiring | `.agents/docs/COMMON_REACTIVE_PATTERNS.md` |
+| lifetime patterns, scoped cleanup | `.agents/docs/COMMON_LIFETIMES_PATTERNS.md` |
+| code examples, runnable samples | `.agents/docs/CODE_EXAMPLES.md` |
 
 ### 6.2 — What to update
 
@@ -156,17 +166,16 @@ If new concepts/terms were introduced:
 
 ## Phase 7 — Update Memory
 
-Check if any of the following should be saved to auto-memory:
+Check if any of the following should be saved:
 
-1. **New critical patterns** discovered during the task that future conversations need
-2. **New key files** added that are important for navigation
-3. **Architecture changes** that affect how to approach future tasks
-4. **Feedback from the user** during the task that should be remembered
+1. **New critical patterns** — save to `.agents/docs/CLAUDE_MISTAKES.md` or relevant `.agents/docs/*.md`
+2. **Architecture changes** — update relevant `.agents/docs/*.md`
+3. **User feedback** — save to `.omc/notepad.md` or `.omc/project-memory.json` if applicable
 
 Do NOT save:
 - File lists (derivable from git)
 - Implementation details (in the code)
-- Anything already in `<task_name>_result.md` or `.agents/` docs
+- Anything already in `.agents/docs/` or task files
 
 ---
 
@@ -180,6 +189,7 @@ Output a summary to the user:
 ### Задача завершена
 - `docs/tasks/complete/<task_name>.md` — сводка создана
 - `docs/tasks/current/<task_name>/` — рабочие файлы удалены
+- Front-matter обновлён: `status: completed`, `phase: completed`
 
 ### Документация обновлена
 - `.agents/docs/GAMEPLAY.md` — [what changed]
@@ -207,6 +217,7 @@ Output a summary to the user:
 - If a doc file doesn't exist, do NOT create it — only update existing files
 - Git diff is the source of truth for changed files, not the plan
 - Be conservative with CLAUDE_MISTAKES.md — only add genuinely new lessons, not variations of existing ones
-- When updating memory, check MEMORY.md first for duplicates
+- When updating memory, check `.omc/notepad.md` and `.omc/project-memory.json` for duplicates
 - The condensed summary in `complete/` is a quick reference — keep it short and useful
 - The full detailed `<task_name>_result.md` is preserved in git history, no need to duplicate everything in the summary
+- **Always update front-matter when finalizing result.md: `status: completed`, `phase: completed`, `updated`**

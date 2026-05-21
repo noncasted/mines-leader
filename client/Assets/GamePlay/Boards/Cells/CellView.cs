@@ -94,6 +94,11 @@ namespace GamePlay.Boards
             return _cellAnimator.PlayExplosion(this.GetObjectLifetime(), type);
         }
 
+        public void ResetState()
+        {
+            _state.Set(null);
+        }
+
         public override string ToString()
         {
             return name;

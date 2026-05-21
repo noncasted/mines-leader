@@ -32,7 +32,7 @@ namespace Menu.Decks
         UniTask Play(IReadOnlyLifetime lifetime, CardType cardType);
     }
 
-    public sealed class MenuCardPreviewPlayer : IMenuCardPreviewPlayer, IScopeSetup
+    public sealed class MenuCardPreviewPlayer : IMenuCardPreviewPlayer
     {
         public MenuCardPreviewPlayer(
             IMenuBoard menuBoard,
@@ -46,7 +46,7 @@ namespace Menu.Decks
             _vfxFactory = vfxFactory;
         }
 
-        private const int LoopDelayMs = 350;
+        private const int LoopDelayMs = 1500;
         private const int InterActionDelayMs = 200;
 
         private readonly IMenuBoard _menuBoard;
@@ -54,18 +54,11 @@ namespace Menu.Decks
         private readonly MenuCardActionSyncRegistry _syncRegistry;
         private readonly MenuPreviewVfxFactory _vfxFactory;
 
-        private IReadOnlyLifetime _scopeLifetime;
-
         public RenderTexture PreviewTexture => _menuBoard?.PreviewTexture;
 
         public bool HasPreview(CardType cardType)
         {
             return _cache.TryGet(cardType, out _);
-        }
-
-        public void OnSetup(IReadOnlyLifetime lifetime)
-        {
-            _scopeLifetime = lifetime;
         }
 
         public async UniTask Play(IReadOnlyLifetime lifetime, CardType cardType)
@@ -87,31 +80,10 @@ namespace Menu.Decks
                 _vfxFactory.ClearSpawned();
 
                 _menuBoard.ApplyInitialState(bundle.InitialState);
-
                 await UniTask.Delay(LoopDelayMs / 2, cancellationToken: lifetime.Token);
 
                 foreach (var action in bundle.Actions)
                 {
-                    if (lifetime.IsTerminated == true)
-                        return;
-
-                    // Gameplay's CardActionSnapshotHandler plays target + action cell
-                    // animations before invoking card.Use(data) — we mirror that here so
-                    // every card gets its generic target/opened-cell animation, then the
-                    // card-specific Snapshot (ZipZap lightning, Smoke fog, …) runs on top.
-                    // Effect cards (Smoke/Blackout/Frost/…) have empty TargetCells in
-                    // their ICardActionData — fall back to the bundle's single target.
-                    var targetFallback = (action?.TargetCells == null || action.TargetCells.Count == 0)
-                        ? bundle.Target
-                        : (Position?)null;
-
-                    await _menuBoard.PlayTargetAnimation(lifetime, action, targetFallback);
-
-                    if (lifetime.IsTerminated == true)
-                        return;
-
-                    await _menuBoard.PlayActionAnimation(lifetime, action);
-
                     if (lifetime.IsTerminated == true)
                         return;
 

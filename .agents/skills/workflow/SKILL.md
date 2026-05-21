@@ -17,11 +17,11 @@ Active tasks live under `docs/tasks/current/`, completed tasks move to `docs/tas
 ```
 docs/tasks/
   current/<task_name>/
-    <task_name>_info.md              — initial brief (what to do)
-    <task_name>_progress.md       — notes during implementation
-    <task_name>_result.md            — final result summary
+    <task_name>_info.md         — Requirements (stable) + mutable Plan
+    <task_name>_progress.md     — State snapshot + chronology
+    <task_name>_result.md       — Living result document
   complete/<task_name>/
-    <task_name>.md        — condensed summary (created by /workflow-complete)
+    <task_name>.md              — Condensed summary (created by /workflow-complete)
 ```
 
 `<task_name>` — lowercase, underscores, from the short task name (e.g. `bot_card_strategies`).
@@ -68,6 +68,20 @@ Include docs that are **relevant** to this task:
 | "which pattern", architectural choice | `.agents/docs/DECISION_TREES.md` |
 | common pitfalls, known mistakes | `.agents/docs/CLAUDE_MISTAKES.md` |
 | PrefabBuilder, prefab codegen | `.agents/docs/PREFAB_CODEGEN.md` |
+| card effects, card mechanics | `.agents/docs/CARD_EFFECTS.md` |
+| terminology, vocabulary | `.agents/docs/VOCABULARY.md` |
+| menu UI, UI Toolkit, color palette | `.agents/docs/UI_MENU.md` |
+| keyword lookup, documentation finder | `.agents/docs/TRIGGERS.md` |
+| testing, xUnit, test logs | `.agents/docs/TESTING.md` |
+| telemetry, metrics, logs | `.agents/docs/TELEMETRY.md` |
+| error lookup, debugging | `.agents/docs/ERRORS.md` |
+| deploy, Coolify, docker-compose, Aspire | `.agents/docs/DEPLOY.md` |
+| deploy failure, troubleshooting | `.agents/docs/DEPLOY_TROUBLESHOOTING.md` |
+| reactive values, ViewableProperty patterns | `.agents/docs/COMMON_REACTIVE_VALUES.md` |
+| reactive collections, ViewableList | `.agents/docs/COMMON_REACTIVE_COLLECTIONS.md` |
+| reactive patterns, event wiring | `.agents/docs/COMMON_REACTIVE_PATTERNS.md` |
+| lifetime patterns, scoped cleanup | `.agents/docs/COMMON_LIFETIMES_PATTERNS.md` |
+| code examples, runnable samples | `.agents/docs/CODE_EXAMPLES.md` |
 
 ### Step 4 — Decompose into steps
 
@@ -80,6 +94,7 @@ Rules:
 - Name the target file explicitly (real path found in Step 2)
 - If a new file must be created, mark it: `[новый файл — добавить в X.csproj]`
 - Steps must be sequenced so dependencies come first
+- Each step must have an acceptance criterion — a concrete test, command, or observable behavior that proves the step is done
 
 ### Step 5 — Verify completeness (CRITICAL)
 
@@ -87,28 +102,61 @@ Rules:
 - Verify it is covered by a concrete step
 - If something is NOT covered — add it now
 
+### Step 5.5 — Gate: Ask or Proceed?
+
+Before writing `_info.md`, check:
+1. Are there conflicting requirements with no clear priority?
+2. Does the task require choosing between architectural approaches where both are valid but have different risk profiles?
+3. Does the task reference external context not present in the codebase (past sprints, verbal agreements, other tasks)?
+
+If ANY checked: output the specific ambiguity, propose 2-3 options with tradeoffs, and ask the user **one concise question**. Wait for answer before proceeding to Step 6.
+
+If NONE checked: proceed to Step 6 without questions.
+
 ### Step 6 — Write `<task_name>_info.md`
 
-Save the brief to `docs/tasks/current/<task_name>/<task_name>_info.md` using this format:
+Save the brief to `docs/tasks/current/<task_name>/<task_name>_info.md`.
+
+**Mandatory YAML front-matter at the top of the file:**
+
+```yaml
+---
+task: <task_name>
+status: pending
+phase: brief
+created: <YYYY-MM-DD>
+updated: <YYYY-MM-DD>
+total_steps: 0
+completed_steps: []
+blocked_steps: []
+---
+```
+
+**File structure:** Requirements first (stable — do not change without user agreement), then Plan (mutable — update when approach changes).
 
 ```markdown
 ## Задача: [short name in Russian]
+
+### Что я хочу
+
+[Несколько абзацев, подробно передающих суть задачи. Сохрани здесь максимум информации из исходного сообщения пользователя: что нужно сделать, зачем, какие ограничения, примеры, контекст, детали. Не сокращай до одной фразы — распиши развёрнуто, чтобы через неделю можно было восстановить полную картину без перечитывания истории.]
 
 ### Цель
 [Полное описание цели. Каждый пункт пользователя должен быть представлен.]
 
 ### Контекст
-[Мотивация, ограничения, предпочтения, связь с другими задачами.
-Опустить секцию только если пользователь не дал никакого контекста.]
+[Мотивация, ограничения, предпочтения, связь с другими задачами.]
 
-### Шаги реализации
+## План реализации
 
-**1. [Требование пользователя N1]**
-  1.1. [Concrete action] — `path/to/File.cs`
-  1.2. [Concrete action] — `path/to/Other.cs`
-
-**2. [Требование пользователя N2]**
-  2.1. [Создать X] — `path/to/New.cs` [новый файл — добавить в X.csproj]
+#### [N] Название шага
+- **Статус:** [ ] pending | [/] in_progress | [x] completed | [!] blocked
+- **Цель:** [одно предложение — что должно быть true после шага]
+- **Как:** [конкретные действия]
+- **Проверка:** [конкретный тест, команда, или observable behavior]
+- **Файлы:** [список файлов]
+- **Зависит от:** [шаги или —]
+- **Блокирует:** [шаги или —]
 
 ### Ключевые файлы
 
@@ -125,25 +173,46 @@ Save the brief to `docs/tasks/current/<task_name>/<task_name>_info.md` using thi
 
 ### Step 7 — Initialize `<task_name>_progress.md`
 
-Create the file with this template:
+Create the file with this template. The snapshot table goes first, then chronology:
 
 ```markdown
-## [Task name] — Рабочие заметки
+---
+task: <task_name>
+updated: <YYYY-MM-DD>
+---
 
-### Статус: В работе
+## Snapshot
 
-### Заметки
+| Шаг | Статус | Evidence | Блокер |
+|-----|--------|----------|--------|
+| [N] | [ ] / [x] | [test name or command] | [or —] |
+
+## Заметки
 <!-- Сюда записываются находки, решения и полезная информация по ходу реализации -->
 ```
 
 ### Step 8 — Initialize `<task_name>_result.md`
 
-Create the file with this template:
+Create the file with this template. It is a living document — fill it gradually as steps complete, not only at the end:
 
 ```markdown
 ## [Task name] — Результат
 
-### Статус: Не завершено
+### Статус: В работе
+
+### Что сделано
+<!-- Populated as steps complete -->
+
+### Измененные файлы
+
+| Файл | Что изменено | Шаг | Evidence |
+|------|-------------|-----|----------|
+
+### Отличия от плана
+<!-- Recorded immediately when approach changes -->
+
+### Нерешенные вопросы
+<!-- Populated as open questions arise -->
 ```
 
 ### Step 9 — Confirm with user
@@ -154,37 +223,50 @@ Output the brief to the user and ask: **"Начинаем реализацию?"
 
 ## Phase 2 — During Implementation
 
-While working on the task, **actively maintain `<task_name>_progress.md`**:
+While working on the task, **actively maintain `<task_name>_progress.md`** and **gradually populate `<task_name>_result.md`**.
 
-### What to write there
+### Update priorities
 
-- Важные находки при исследовании кода (неочевидные зависимости, edge cases)
-- Принятые решения и почему (если был выбор из нескольких вариантов)
-- Обнаруженные проблемы и как они были решены
-- Изменения в плане относительно `<task_name>_info.md` (если план скорректирован)
-- Список реально измененных/созданных файлов
+1. **Update step status in `_info.md`** — `[ ]` → `[/]` → `[x]`.
+2. **Update `_progress.md` snapshot** — mark completed steps with evidence.
+3. **If the plan changes** — update `_info.md` (Plan section) and record the diff in `_progress.md`.
+4. **Populate `_result.md`** — add rows to the files table as changes are made.
+
+### What to write in `_progress.md`
+
+- Important findings during code investigation (non-obvious dependencies, edge cases)
+- Decisions made and why (if there was a choice between options)
+- Problems discovered and how they were solved
+- Changes to the plan relative to `<task_name>_info.md` (when and why)
+- List of actually changed/created files
 
 ### When to update
 
-- Перед началом каждого крупного шага из плана — записать что начинаем
-- После обнаружения чего-то неочевидного — записать находку
-- После решения проблемы — записать проблему и решение
-- При изменении плана — записать что и почему изменилось
+- Before starting each major step — record what we are starting
+- After discovering something non-obvious — record the finding
+- After solving a problem — record the problem and solution
+- When the plan changes — record what and why changed
 
 ### Format for entries
 
-Каждая запись — с временной меткой:
+Each entry — with a timestamp:
 
 ```markdown
-### [HH:MM] Название шага или находки
-Содержание заметки.
+### [YYYY-MM-DD HH:MM] Step title or finding title
+Content.
 ```
 
 ---
 
-## Phase 3 — Completion (`<task_name>_result.md`)
+## Phase 3 — Completion
 
-When the task is complete, write `<task_name>_result.md`:
+When the task is complete, finalize `<task_name>_result.md`:
+
+1. Change `### Статус:` to `Завершено`.
+2. Ensure `### Что сделано` lists all completed items.
+3. Ensure `### Измененные файлы` table is complete with Evidence column.
+4. Fill `### Отличия от плана` if any.
+5. Fill `### Нерешенные вопросы` if any.
 
 ```markdown
 ## [Task name] — Результат
@@ -196,9 +278,9 @@ When the task is complete, write `<task_name>_result.md`:
 
 ### Измененные файлы
 
-| Файл | Что изменено |
-|------|-------------|
-| `path/to/File.cs` | [краткое описание изменения] |
+| Файл | Что изменено | Шаг | Evidence |
+|------|-------------|-----|----------|
+| `path/to/File.cs` | [краткое описание изменения] | [N] | [test name or command] |
 
 ### Отличия от плана
 [Что было сделано иначе, чем описано в <task_name>_info.md. Omit if plan was followed exactly.]
@@ -215,8 +297,10 @@ When the task is complete, write `<task_name>_result.md`:
 - Prose labels — Russian
 - Steps must name real files found via search, never guessed paths
 - Do not lose user requirements during transformation
-- `<task_name>_progress.md` обновляется по ходу работы, а не только в конце
-- `<task_name>_result.md` заполняется только когда задача завершена
+- **Plan (in `_info.md`) is the source of truth. When the approach changes, update the Plan section in `_info.md` and record the diff in `_progress.md` and `_result.md`.**
+- `<task_name>_progress.md` — snapshot first, chronology second; updated continuously
+- `<task_name>_result.md` — living document, populated gradually as steps complete
+- При повторном вызове `/workflow` на ту же задачу — читать `_result.md` как primary source, `_info.md` как актуальный план
 - При повторном вызове `/workflow` на ту же задачу — продолжить работу в существующей папке в `docs/tasks/current/`, не создавать новую
 - Все рабочие файлы (`<task_name>_info.md`, `<task_name>_progress.md`, `<task_name>_result.md`) создаются в `docs/tasks/current/<task_name>/`
 - Перемещение в `docs/tasks/complete/` выполняет только `/workflow-complete`

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Reflection;
 using Shared;
 
 namespace Game.GamePlay.Snapshots;
@@ -113,7 +115,7 @@ public static class SnapshotApplier
         if (data == null)
             return;
 
-        var openedCells = data.UpdatedFreeCells ?? data.OpenedCells;
+        var openedCells = GetOpenedCells(data);
 
         if (openedCells == null || openedCells.Count == 0)
             return;
@@ -132,6 +134,29 @@ public static class SnapshotApplier
                 HasMine = hasMine
             };
         }
+    }
+
+    private static IReadOnlyList<OpenedCell>? GetOpenedCells(ICardActionData data)
+    {
+        var type = data.GetType();
+
+        var updatedProp = type.GetProperty("UpdatedFreeCells", BindingFlags.Public | BindingFlags.Instance);
+        if (updatedProp != null)
+        {
+            var value = updatedProp.GetValue(data) as IReadOnlyList<OpenedCell>;
+            if (value != null && value.Count > 0)
+                return value;
+        }
+
+        var openedProp = type.GetProperty("OpenedCells", BindingFlags.Public | BindingFlags.Instance);
+        if (openedProp != null)
+        {
+            var value = openedProp.GetValue(data) as IReadOnlyList<OpenedCell>;
+            if (value != null && value.Count > 0)
+                return value;
+        }
+
+        return null;
     }
 
     private static void ApplyBoardSnapshot(GameStateSnapshot state, SharedBoardSnapshot snapshot)

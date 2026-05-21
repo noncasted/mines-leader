@@ -151,15 +151,16 @@ public static class CardPreviewScenarios
                                             """),
 
         // OpponentBomb — detonates a single cell. Force a mine at target for the visible explosion.
+        // Layout: mixed open/closed field so the explosion is visible against a realistic board.
         [CardType.OpponentBomb] = new Scenario("""
-                                               t t t t t t t t
-                                               t t t t t t t t
-                                               t t t t t t t t
-                                               t t t t t t t t
-                                               t t t t x t t t
-                                               t t t t t t t t
-                                               t t t t t t t t
-                                               t t t t t t t t
+                                               _ _ _ _ _ _ _ _
+                                               _ t t t t t t _
+                                               _ t m t t m t _
+                                               _ t t t t t t _
+                                               _ t t t x t t _
+                                               _ t t t t t t _
+                                               _ t m t t m t _
+                                               _ _ _ _ _ _ _ _
                                                """, MineAtTarget: true),
 
         // OpponentFlagErase — clears flags inside a rhombus.

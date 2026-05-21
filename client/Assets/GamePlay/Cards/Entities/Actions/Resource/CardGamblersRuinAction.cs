@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using Internal;
 using Shared;
 
@@ -29,11 +30,13 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.GamblersRuin>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator)
+            public Snapshot(IBoardCellsAnimator animator, ICardRandomAnimator randomAnimator)
             {
+                _animator = animator;
                 _randomAnimator = randomAnimator;
             }
 
+            private readonly IBoardCellsAnimator _animator;
             private readonly ICardRandomAnimator _randomAnimator;
 
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.GamblersRuin payload)

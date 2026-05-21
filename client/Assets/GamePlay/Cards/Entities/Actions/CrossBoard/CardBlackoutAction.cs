@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
-using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -49,27 +48,25 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Blackout>
         {
-            public Snapshot(IGameContext gameContext)
+            public Snapshot(IBoardCellsAnimator animator)
             {
-                _gameContext = gameContext;
+                _animator = animator;
             }
 
-            private readonly IGameContext _gameContext;
+            private readonly IBoardCellsAnimator _animator;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Blackout payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Blackout payload)
             {
-                if (payload.AffectedCells == null || payload.AffectedCells.Count == 0)
-                    return UniTask.CompletedTask;
+                if (payload.TargetCells.Count > 0)
+                    await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
 
-                var board = _gameContext.GetPlayer(payload.TargetPlayer).Board;
+                if (payload.AffectedCells == null || payload.AffectedCells.Count == 0)
+                    return;
 
                 foreach (var position in payload.AffectedCells)
-                {
-                    if (board.Cells.TryGetValue(position.ToVector(), out var cell) && cell is CellView cellView)
-                        cellView.Effects.AddEffect(payload.EffectId, CellEffectType.Blackout);
-                }
+                    _animator.AddEffect(payload.EffectId, CellEffectType.Blackout, payload.TargetPlayer, position);
 
-                return UniTask.CompletedTask;
+                return;
             }
         }
 

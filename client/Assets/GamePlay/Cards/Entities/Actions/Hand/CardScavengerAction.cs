@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using Internal;
 using Shared;
 
@@ -26,6 +27,13 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Scavenger>
         {
+            public Snapshot(IBoardCellsAnimator animator)
+            {
+                _animator = animator;
+            }
+
+            private readonly IBoardCellsAnimator _animator;
+
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.Scavenger payload)
             {
                 return UniTask.CompletedTask;
