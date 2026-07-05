@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 namespace Global.UI
 {
-    [RequireComponent(typeof(Image))]
     public class DesignElementColor : DesignElementBehaviour
     {
         [SerializeField] private BaseElementConfig _config;

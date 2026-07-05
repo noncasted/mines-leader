@@ -13,7 +13,7 @@ namespace Startup
     [DisallowMultipleComponent]
     public class GameStartup : MonoBehaviour
     {
-        [SerializeField] private InternalScopeConfig _internal;
+        [SerializeField] private AssetsStorage _internal;
 
         private void Awake()
         {
@@ -30,11 +30,10 @@ namespace Startup
 
             var globalScope = await scopeLoader.LoadGlobal(internalScope);
             var globalCamera = globalScope.Resolve<IGlobalCamera>();
-            ;
             var loadingScreen = globalScope.Resolve<ILoadingScreen>();
-            ;
+
             globalCamera.Enable();
-            loadingScreen.Show();
+            loadingScreen.ShowInstantly();
 
             var metaScope = await scopeLoader.LoadMeta(globalScope);
 

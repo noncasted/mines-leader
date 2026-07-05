@@ -7,10 +7,11 @@ namespace VContainer
     public class RegistrationBuilder
     {
         public readonly Type ImplementationType;
-        protected internal readonly Lifetime Lifetime;
+        public readonly Lifetime Lifetime;
 
         protected internal List<Type> InterfaceTypes;
         protected internal List<IInjectParameter> Parameters;
+        protected internal object Key;
 
         public RegistrationBuilder(Type implementationType, Lifetime lifetime)
         {
@@ -26,7 +27,8 @@ namespace VContainer
                 ImplementationType,
                 Lifetime,
                 InterfaceTypes,
-                spawner);
+                spawner,
+                Key);
         }
 
         public RegistrationBuilder As<TInterface>()
@@ -125,6 +127,12 @@ namespace VContainer
         public RegistrationBuilder WithParameter<TParam>(Func<TParam> value)
         {
             return WithParameter(typeof(TParam), _ => value());
+        }
+
+        public RegistrationBuilder Keyed(object key)
+        {
+            Key = key;
+            return this;
         }
 
         protected virtual void AddInterfaceType(Type interfaceType)

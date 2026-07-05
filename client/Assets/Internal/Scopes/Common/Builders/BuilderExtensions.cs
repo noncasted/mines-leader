@@ -37,13 +37,12 @@ namespace Internal
 
         public static IRegistration RegisterInstance<T>(
             this IBuilder builder,
-            T instance,
-            VContainer.Lifetime lifetime = VContainer.Lifetime.Singleton)
+            T instance)
         {
             if (instance == null)
                 throw new NullReferenceException();
 
-            var registrationBuilder = new InstanceRegistrationBuilder(instance, lifetime).As(typeof(T));
+            var registrationBuilder = new InstanceRegistrationBuilder(instance).As(typeof(T));
             var registration = new ContainerRegistration(builder, registrationBuilder);
             builder.Services.AddBuilder(registrationBuilder);
 

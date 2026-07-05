@@ -51,7 +51,7 @@ namespace VContainer.Unity
         }
 
         public ComponentRegistrationBuilder(in Scene scene, Type implementationType)
-            : base(implementationType, Lifetime.Scoped)
+            : base(implementationType, Lifetime.Singleton)
         {
             this.scene = scene;
         }
@@ -97,7 +97,7 @@ namespace VContainer.Unity
                 var injector = InjectorCache.GetOrBuild(ImplementationType);
                 provider = new NewGameObjectProvider(ImplementationType, injector, Parameters, in destination, gameObjectName);
             }
-            return new Registration(ImplementationType, Lifetime, InterfaceTypes, provider);
+            return new Registration(ImplementationType, Lifetime, InterfaceTypes, provider, Key);
         }
 
         public ComponentRegistrationBuilder UnderTransform(Transform parent)

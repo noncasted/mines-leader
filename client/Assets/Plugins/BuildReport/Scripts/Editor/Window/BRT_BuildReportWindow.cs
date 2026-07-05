@@ -2211,29 +2211,24 @@ public class BRT_BuildReportWindow : EditorWindow
 			if (data[assetPath].IsImportedWidthAndHeightDifferentFromReal)
 			{
 				if (ZoomedInThumbnails)
-				{
-					TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2} (source: {3})",
-						data[assetPath].TextureType,
-						data[assetPath].GetShownTextureFormat(),
-						data[assetPath].ToDisplayedValue(TextureData.DataId.ImportedWidthAndHeight),
-						data[assetPath].ToDisplayedValue(TextureData.DataId.RealWidthAndHeight));
-				}
+                {
+                    TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2} (source: {3})",
+                        data[assetPath].TextureType,
+                        data[assetPath].GetShownTextureFormat());
+                }
 				else
-				{
-					TextureDataTooltipLabel.text = string.Format("{0} ({1})\n{2} (source: {3})",
-						data[assetPath].TextureType,
-						data[assetPath].GetShownTextureFormat(),
-						data[assetPath].ToDisplayedValue(TextureData.DataId.ImportedWidthAndHeight),
-						data[assetPath].ToDisplayedValue(TextureData.DataId.RealWidthAndHeight));
-				}
+                {
+                    TextureDataTooltipLabel.text = string.Format("{0} ({1})\n{2} (source: {3})",
+                        data[assetPath].TextureType,
+                        data[assetPath].GetShownTextureFormat());
+                }
 			}
 			else
-			{
-				TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2}",
-					data[assetPath].TextureType,
-					data[assetPath].GetShownTextureFormat(),
-					data[assetPath].ToDisplayedValue(TextureData.DataId.ImportedWidthAndHeight));
-			}
+            {
+                TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2}",
+                    data[assetPath].TextureType,
+                    data[assetPath].GetShownTextureFormat());
+            }
 
 			labelSize = labelStyle.CalcSize(TextureDataTooltipLabel);
 #if UNITY_6000_0_OR_NEWER

@@ -58,21 +58,5 @@ namespace Internal
         }
 
         private static IAssetEnvironment _environment;
-
-        public static IAssetEnvironment Environment => GetOrCreateEnvironment();
-
-        private static IAssetEnvironment GetOrCreateEnvironment()
-        {
-            if (_environment != null)
-                return _environment;
-
-#if UNITY_EDITOR
-            var config = FindAsset<InternalScopeConfig>();
-            config.AssetsStorage.Cache();
-            var assets = new AssetEnvironment(config.AssetsStorage);
-            return assets;
-#endif
-            return null;
-        }
     }
 }
