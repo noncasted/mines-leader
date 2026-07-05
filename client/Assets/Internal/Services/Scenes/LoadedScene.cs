@@ -4,6 +4,13 @@ using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace Internal
 {
+    public interface ILoadedScene
+    {
+        SceneInstance Instance { get; }
+
+        UniTask Unload();
+    }
+    
     public class LoadedScene : ILoadedScene
     {
         public LoadedScene(SceneInstance instance)

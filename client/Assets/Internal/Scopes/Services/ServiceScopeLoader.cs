@@ -5,6 +5,11 @@ using VContainer.Unity;
 
 namespace Internal
 {
+    public interface IServiceScopeLoader
+    {
+        UniTask<ILoadedScope> Load(ScopeLoadOptions options);
+    }
+    
     public class ServiceScopeLoader : IServiceScopeLoader
     {
         public ServiceScopeLoader(
@@ -17,8 +22,6 @@ namespace Internal
 
         private readonly IAssetEnvironment _assets;
         private readonly ISceneLoader _sceneLoader;
-
-        public IAssetEnvironment Assets => _assets;
 
         public async UniTask<ILoadedScope> Load(ScopeLoadOptions options)
         {

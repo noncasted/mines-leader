@@ -168,7 +168,12 @@ services:
       silo:
         condition: service_healthy
       coordinator:
-        condition: service_healthy
+        # NOT service_healthy: coordinator's /ready waits for Meta/Game/Console
+        # to register in the cluster (CoordinatorReadyHealthCheck), so gating
+        # gateways on coordinator health deadlocks the whole deploy. In-app
+        # startup (ClusterParticipantStartup.WaitCoordinatorReady) handles the
+        # real ordering.
+        condition: service_started
     restart: unless-stopped
     networks:
       - mines-leader-production
@@ -200,7 +205,12 @@ services:
       silo:
         condition: service_healthy
       coordinator:
-        condition: service_healthy
+        # NOT service_healthy: coordinator's /ready waits for Meta/Game/Console
+        # to register in the cluster (CoordinatorReadyHealthCheck), so gating
+        # gateways on coordinator health deadlocks the whole deploy. In-app
+        # startup (ClusterParticipantStartup.WaitCoordinatorReady) handles the
+        # real ordering.
+        condition: service_started
     restart: unless-stopped
     networks:
       - mines-leader-production
@@ -240,7 +250,12 @@ services:
       silo:
         condition: service_healthy
       coordinator:
-        condition: service_healthy
+        # NOT service_healthy: coordinator's /ready waits for Meta/Game/Console
+        # to register in the cluster (CoordinatorReadyHealthCheck), so gating
+        # gateways on coordinator health deadlocks the whole deploy. In-app
+        # startup (ClusterParticipantStartup.WaitCoordinatorReady) handles the
+        # real ordering.
+        condition: service_started
     restart: unless-stopped
     networks:
       - mines-leader-production

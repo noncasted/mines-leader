@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 217257422, guid: afbf832bc46149f5a291e87cab63e46d, type: 3}
+  m_Script: {fileID: 0}
   m_Name: Main Profile
   m_EditorClassIdentifier: 
   Include:
-  - Enabled: 0
+  - Enabled: 1
     Type: 2
     Asset:
       Path: 
@@ -25,7 +25,7 @@ MonoBehaviour:
       IncludeAssetDependencies: 1
     AssetBundle: 
     AddressableGroup: 
-  - Enabled: 0
+  - Enabled: 1
     Type: 2
     Asset:
       Path: 
@@ -37,7 +37,7 @@ MonoBehaviour:
       IncludeAssetDependencies: 1
     AssetBundle: 
     AddressableGroup: 
-  - Enabled: 0
+  - Enabled: 1
     Type: 2
     Asset:
       Path: 
@@ -61,17 +61,5 @@ MonoBehaviour:
       IncludeAssetDependencies: 0
     AssetBundle: 
     AddressableGroup: 
-  Exclude:
-  - Enabled: 1
-    Type: 0
-    Asset:
-      Path: Assets/Plugins
-      Filter: 
-    Object: {fileID: 0}
-    Scene:
-      Type: 0
-      Value: 
-      IncludeAssetDependencies: 0
-    AssetBundle: 
-    AddressableGroup: 
+  Exclude: []
   icon: 391

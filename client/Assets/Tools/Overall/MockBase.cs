@@ -2,6 +2,7 @@
 using Global.Setup;
 using Internal;
 using Meta;
+using Startup;
 using UnityEngine;
 using VContainer;
 
@@ -16,8 +17,9 @@ namespace Tools.Overall
 
         protected async UniTask<ILoadedScope> Bootstrap()
         {
-            var internalConfig = AssetsExtensions.Environment.GetAsset<InternalScopeConfig>();
-            var internalScopeLoader = new InternalScopeLoader(internalConfig);
+            var assets = AssetsExtensions.FindAsset<AssetsStorage>();
+            assets.Cache();
+            var internalScopeLoader = new InternalScopeLoader(assets);
             _internalScope = internalScopeLoader.Load();
             var scopeLoader = _internalScope.Container.Container.Resolve<IServiceScopeLoader>();
 

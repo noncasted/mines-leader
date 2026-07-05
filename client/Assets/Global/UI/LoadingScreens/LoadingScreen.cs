@@ -10,6 +10,7 @@ namespace Global.UI
     public interface ILoadingScreen
     {
         UniTask Show();
+        void ShowInstantly();
         void Hide();
     }
 
@@ -40,6 +41,12 @@ namespace Global.UI
         {
             _direction = Direction2.Forward;
             await UniTask.WaitUntil(() => _curveInstance.IsFinished == true);
+        }
+        
+        public void ShowInstantly()
+        {
+            _direction = Direction2.Forward;
+            _group.alpha = 1f;
         }
 
         public void Hide()
