@@ -49,6 +49,13 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
     private DeploymentStateChannelId<T>? _channelId;
     private volatile bool _isInitialized;
 
+    // UpdateDate of the last state applied to Value (from load, SetValue, or a channel
+    // update). Channel updates include our own publishes echoed back with messaging
+    // latency — without this watermark an old echo rolls Value back and the next
+    // read-modify-write (ClusterFeatures.Apply) publishes a state computed from the
+    // stale base, clobbering newer flags cluster-wide.
+    private DateTime _lastAppliedUpdate;
+
     protected readonly IOrleans _orleans;
     protected readonly ILogger _logger;
 
@@ -81,10 +88,12 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
             if (state.IsInitialized)
             {
                 var value = _orleans.Serializer.Deserialize<T>(state.Value);
+                _lastAppliedUpdate = state.UpdateDate;
                 Set(value);
             }
             else
             {
+                _lastAppliedUpdate = default;
                 Set(new T());
             }
 
@@ -104,8 +113,6 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
 
         try
         {
-            Set(value);
-
             if (_deployId == Guid.Empty || _identity == null || _channelId == null)
                 throw new InvalidOperationException("DeploymentState is not initialized with a valid deploy ID.");
 
@@ -115,6 +122,9 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
                 UpdateDate = DateTime.UtcNow,
                 Value = _orleans.Serializer.Serialize(value)
             };
+
+            _lastAppliedUpdate = state.UpdateDate;
+            Set(value);
 
             await _orleans.StateStorage.Write(_identity, state);
             await _messaging.PublishChannel(_channelId, state);
@@ -132,17 +142,33 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
 
     protected virtual void OnUpdate(AddressableStateValue state)
     {
+        TryApplyUpdate(state);
+    }
+
+    protected bool TryApplyUpdate(AddressableStateValue state)
+    {
         if (state.IsInitialized == false)
-            return;
+            return false;
+
+        if (state.UpdateDate <= _lastAppliedUpdate)
+        {
+            _logger.LogDebug(
+                "[DeploymentState] Skipped stale update for {Type}: sent {Sent:O}, last applied {Applied:O}",
+                typeof(T).Name, state.UpdateDate, _lastAppliedUpdate);
+            return false;
+        }
 
         try
         {
             var value = _orleans.Serializer.Deserialize<T>(state.Value);
+            _lastAppliedUpdate = state.UpdateDate;
             Set(value);
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[DeploymentState] Failed to deserialize update for {Type}", typeof(T).Name);
+            return false;
         }
     }
 }

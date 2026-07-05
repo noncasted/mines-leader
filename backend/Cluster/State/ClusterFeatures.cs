@@ -97,7 +97,13 @@ public class ClusterFeatures : DeploymentState<ClusterFeaturesState>, IClusterFe
             "[ClusterFeatures] Received remote update for deploy {DeployId}",
             _deployId);
 
-        base.OnUpdate(state);
+        if (TryApplyUpdate(state) == false)
+        {
+            _logger.LogInformation(
+                "[ClusterFeatures] Skipped stale remote update for deploy {DeployId} (sent {Sent:O})",
+                _deployId, state.UpdateDate);
+            return;
+        }
 
         _logger.LogInformation(
             "[ClusterFeatures] Remote update applied for deploy {DeployId}: " +
