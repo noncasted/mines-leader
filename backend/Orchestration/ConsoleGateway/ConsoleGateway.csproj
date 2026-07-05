@@ -13,6 +13,17 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- Card icons served at /card-icons in the console UI. Copied into the
+             build/publish output so they are available both locally and in the
+             container image (the docs/ folder itself is not shipped; see the
+             matching exception in the root .dockerignore). -->
+        <Content Include="..\..\..\docs\obsidian\game\cards\icons\*.png"
+                 LinkBase="card-icons"
+                 CopyToOutputDirectory="PreserveNewest"
+                 CopyToPublishDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\..\Console\Console.csproj"/>
         <ProjectReference Include="..\..\Tools\Benchmarks\Benchmarks.csproj"/>

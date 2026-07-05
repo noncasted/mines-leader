@@ -23,6 +23,9 @@ client/
 
 # Docs / tasks
 docs/
+# ...except card icons — ConsoleGateway copies them into its publish output
+# and serves them at /card-icons.
+!docs/obsidian/game/cards/icons/
 **/*.md
 
 # Editor state

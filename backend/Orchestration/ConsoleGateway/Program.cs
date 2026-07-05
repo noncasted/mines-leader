@@ -49,12 +49,23 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var cardIconsPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "docs", "obsidian", "game", "cards", "icons"));
-app.UseStaticFiles(new StaticFileOptions
+// Card icons are copied into the build/publish output as `card-icons` (see ConsoleGateway.csproj),
+// so the path resolves the same way locally and in the container.
+var cardIconsPath = Path.Combine(AppContext.BaseDirectory, "card-icons");
+
+// PhysicalFileProvider throws on a missing directory — that must not kill the console.
+if (Directory.Exists(cardIconsPath))
 {
-    FileProvider = new PhysicalFileProvider(cardIconsPath),
-    RequestPath = "/card-icons"
-});
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(cardIconsPath),
+        RequestPath = "/card-icons"
+    });
+}
+else
+{
+    System.Console.WriteLine($"[Console] Card icons directory not found at {cardIconsPath}, /card-icons disabled");
+}
 
 if (authEnabled)
 {
