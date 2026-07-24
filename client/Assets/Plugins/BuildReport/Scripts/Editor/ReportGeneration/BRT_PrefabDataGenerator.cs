@@ -7,7 +7,7 @@ namespace BuildReportTool
 {
 	public static class PrefabDataGenerator
 	{
-		public static void CreateForUsedAssetsOnly(PrefabData data, BuildReportTool.BuildInfo buildInfo, bool debugLog = false)
+		public static void CreateForUsedAssetsOnly(BuildReportTool.PrefabData data, BuildReportTool.BuildInfo buildInfo, bool debugLog = false)
 		{
 			if (buildInfo == null)
 			{
@@ -44,7 +44,7 @@ namespace BuildReportTool
 			}
 		}
 
-		static void AppendPrefabData(PrefabData data, IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
+		static void AppendPrefabData(BuildReportTool.PrefabData data, IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
 		{
 			if (assets == null || assets.Count == 0)
 			{
@@ -80,27 +80,27 @@ namespace BuildReportTool
 			}
 		}
 
-		static PrefabData.Entry CreateEntry(string assetPath, bool debugLog = false)
+		static BuildReportTool.PrefabData.Entry CreateEntry(string assetPath, bool debugLog = false)
 		{
 			var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 			if (prefabAsset == null)
 			{
-				return new PrefabData.Entry();
+				return new BuildReportTool.PrefabData.Entry();
 			}
 
-			var newEntry = new PrefabData.Entry();
+			var newEntry = new BuildReportTool.PrefabData.Entry();
 			StaticEditorFlags flags = GameObjectUtility.GetStaticEditorFlags(prefabAsset);
 			newEntry.StaticEditorFlags = GetIntFlags(flags);
 
 			int childStaticEditorFlags = 0;
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_CONTRIBUTE_GI, prefabAsset.transform);
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_BATCHING_STATIC, prefabAsset.transform);
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_OCCLUDER_STATIC, prefabAsset.transform);
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_OCCLUDEE_STATIC, prefabAsset.transform);
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_REFLECTION_PROBE_STATIC, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_CONTRIBUTE_GI, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_BATCHING_STATIC, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_OCCLUDER_STATIC, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_OCCLUDEE_STATIC, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_REFLECTION_PROBE_STATIC, prefabAsset.transform);
 #if !UNITY_2022_2_OR_NEWER
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_NAVIGATION_STATIC, prefabAsset.transform);
-			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, PrefabData.FLAG_OFF_MESH_LINK_GENERATION, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_NAVIGATION_STATIC, prefabAsset.transform);
+			childStaticEditorFlags = UpdateChildStaticEditorFlags(newEntry.StaticEditorFlags, childStaticEditorFlags, BuildReportTool.PrefabData.FLAG_OFF_MESH_LINK_GENERATION, prefabAsset.transform);
 #endif
 			newEntry.ChildStaticEditorFlags = childStaticEditorFlags;
 
@@ -147,35 +147,35 @@ namespace BuildReportTool
 
 			if (flags.Has(StaticEditorFlags.ContributeGI))
 			{
-				intFlags |= PrefabData.FLAG_CONTRIBUTE_GI;
+				intFlags |= BuildReportTool.PrefabData.FLAG_CONTRIBUTE_GI;
 			}
 			if (flags.Has(StaticEditorFlags.OccluderStatic))
 			{
-				intFlags |= PrefabData.FLAG_OCCLUDER_STATIC;
+				intFlags |= BuildReportTool.PrefabData.FLAG_OCCLUDER_STATIC;
 			}
 			if (flags.Has(StaticEditorFlags.BatchingStatic))
 			{
-				intFlags |= PrefabData.FLAG_BATCHING_STATIC;
+				intFlags |= BuildReportTool.PrefabData.FLAG_BATCHING_STATIC;
 			}
 #if !UNITY_2022_2_OR_NEWER
 			if (flags.Has(StaticEditorFlags.NavigationStatic))
 			{
-				intFlags |= PrefabData.FLAG_NAVIGATION_STATIC;
+				intFlags |= BuildReportTool.PrefabData.FLAG_NAVIGATION_STATIC;
 			}
 #endif
 			if (flags.Has(StaticEditorFlags.OccludeeStatic))
 			{
-				intFlags |= PrefabData.FLAG_OCCLUDEE_STATIC;
+				intFlags |= BuildReportTool.PrefabData.FLAG_OCCLUDEE_STATIC;
 			}
 #if !UNITY_2022_2_OR_NEWER
 			if (flags.Has(StaticEditorFlags.OffMeshLinkGeneration))
 			{
-				intFlags |= PrefabData.FLAG_OFF_MESH_LINK_GENERATION;
+				intFlags |= BuildReportTool.PrefabData.FLAG_OFF_MESH_LINK_GENERATION;
 			}
 #endif
 			if (flags.Has(StaticEditorFlags.ReflectionProbeStatic))
 			{
-				intFlags |= PrefabData.FLAG_REFLECTION_PROBE_STATIC;
+				intFlags |= BuildReportTool.PrefabData.FLAG_REFLECTION_PROBE_STATIC;
 			}
 
 			return intFlags;

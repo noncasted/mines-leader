@@ -334,7 +334,7 @@ public class BRT_BuildReportWindow : EditorWindow
 
 	static BuildReportTool.UnityBuildReport _unityBuildReport;
 
-	static ExtraData _extraData;
+	static BuildReportTool.ExtraData _extraData;
 
 	public const bool FORCE_USE_DARK_SKIN = false;
 
@@ -2211,24 +2211,29 @@ public class BRT_BuildReportWindow : EditorWindow
 			if (data[assetPath].IsImportedWidthAndHeightDifferentFromReal)
 			{
 				if (ZoomedInThumbnails)
-                {
-                    TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2} (source: {3})",
-                        data[assetPath].TextureType,
-                        data[assetPath].GetShownTextureFormat());
-                }
+				{
+					TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2} (source: {3})",
+						data[assetPath].TextureType,
+						data[assetPath].GetShownTextureFormat(),
+						data[assetPath].ToDisplayedValue(BuildReportTool.TextureData.DataId.ImportedWidthAndHeight),
+						data[assetPath].ToDisplayedValue(BuildReportTool.TextureData.DataId.RealWidthAndHeight));
+				}
 				else
-                {
-                    TextureDataTooltipLabel.text = string.Format("{0} ({1})\n{2} (source: {3})",
-                        data[assetPath].TextureType,
-                        data[assetPath].GetShownTextureFormat());
-                }
+				{
+					TextureDataTooltipLabel.text = string.Format("{0} ({1})\n{2} (source: {3})",
+						data[assetPath].TextureType,
+						data[assetPath].GetShownTextureFormat(),
+						data[assetPath].ToDisplayedValue(BuildReportTool.TextureData.DataId.ImportedWidthAndHeight),
+						data[assetPath].ToDisplayedValue(BuildReportTool.TextureData.DataId.RealWidthAndHeight));
+				}
 			}
 			else
-            {
-                TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2}",
-                    data[assetPath].TextureType,
-                    data[assetPath].GetShownTextureFormat());
-            }
+			{
+				TextureDataTooltipLabel.text = string.Format("{0} ({1}) {2}",
+					data[assetPath].TextureType,
+					data[assetPath].GetShownTextureFormat(),
+					data[assetPath].ToDisplayedValue(BuildReportTool.TextureData.DataId.ImportedWidthAndHeight));
+			}
 
 			labelSize = labelStyle.CalcSize(TextureDataTooltipLabel);
 #if UNITY_6000_0_OR_NEWER

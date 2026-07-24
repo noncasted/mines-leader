@@ -11,7 +11,9 @@ namespace BuildReportTool.Window.Screen
 			get { return Labels.BUILD_SETTINGS_CATEGORY_LABEL; }
 		}
 
-		public override void RefreshData(BuildInfo buildReport, AssetDependencies assetDependencies, TextureData textureData, MeshData meshData, PrefabData prefabData, UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
+		public override void RefreshData(BuildInfo buildReport, AssetDependencies assetDependencies,
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
+			UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
 		{
 			_selectedSettingsIdxFromDropdownBox = UnityBuildSettingsUtility.GetIdxFromBuildReportValues(buildReport);
 		}
@@ -1418,13 +1420,24 @@ namespace BuildReportTool.Window.Screen
 						GUILayout.EndHorizontal();
 						GUILayout.TextField(packageName, valueStyle);
 					}
-					else
+					else if (!string.IsNullOrEmpty(versionUsed))
 					{
 						// version is too long, put it as a 2nd line after the Display Name
+						GUILayout.BeginHorizontal(GUIContent.none, groupStyle, NoExpandWidth);
 						GUILayout.Label(displayName, nameStyle);
+						DrawPackagePingButton(packageName, localPath);
+						GUILayout.EndHorizontal();
 						GUILayout.TextField(versionUsed, valueStyle);
 						GUILayout.TextField(packageName, valueStyle);
+					}
+					else
+					{
+						// no version, just the display name and package name
+						GUILayout.BeginHorizontal(GUIContent.none, groupStyle, NoExpandWidth);
+						GUILayout.Label(displayName, nameStyle);
 						DrawPackagePingButton(packageName, localPath);
+						GUILayout.EndHorizontal();
+						GUILayout.TextField(packageName, valueStyle);
 					}
 				}
 				else
@@ -1441,16 +1454,24 @@ namespace BuildReportTool.Window.Screen
 						DrawPackagePingButton(packageName, localPath);
 						GUILayout.EndHorizontal();
 					}
-					else
+					else if (!string.IsNullOrEmpty(versionUsed))
 					{
 						// version is too long, put it as a 2nd line after the Package Name
 						GUILayout.TextField(packageName, nameStyle);
 						GUILayout.TextField(versionUsed, valueStyle);
 						DrawPackagePingButton(packageName, localPath);
 					}
+					else
+					{
+						// no version, just the package name
+						GUILayout.BeginHorizontal(GUIContent.none, groupStyle, NoExpandWidth);
+						GUILayout.TextField(packageName, nameStyle);
+						DrawPackagePingButton(packageName, localPath);
+						GUILayout.EndHorizontal();
+					}
 				}
 
-				if (!string.IsNullOrEmpty(location) && location != BuildReportTool.UnityBuildSettingsUtility.DEFAULT_REGISTRY_URL)
+				if (!string.IsNullOrEmpty(location) && location.StartsWith("http") && location != BuildReportTool.UnityBuildSettingsUtility.DEFAULT_REGISTRY_URL)
 				{
 					GUILayout.TextField(location, valueStyle);
 				}
@@ -1498,7 +1519,7 @@ namespace BuildReportTool.Window.Screen
 
 		public override void DrawGUI(Rect position,
 			BuildInfo buildReportToDisplay, AssetDependencies assetDependencies,
-			TextureData textureData, MeshData meshData, PrefabData prefabData,
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
 			UnityBuildReport unityBuildReport, BuildReportTool.ExtraData extraData, BuildReportTool.AssetBundleSession assetBundleSession,
 			out bool requestRepaint)
 		{

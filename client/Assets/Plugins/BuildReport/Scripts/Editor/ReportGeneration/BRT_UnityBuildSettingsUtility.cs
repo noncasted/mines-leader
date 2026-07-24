@@ -1256,6 +1256,8 @@ namespace BuildReportTool
 			// remove the "Assets" so that we go to the parent folder
 			projectPath = projectPath.Substring(0, projectPath.Length - 6);
 
+			string packagesPath = string.Format("{0}Packages", projectPath);
+
 			string manifestJsonPath = string.Format("{0}Packages/manifest.json", projectPath);
 			if (!System.IO.File.Exists(manifestJsonPath))
 			{
@@ -1275,12 +1277,13 @@ namespace BuildReportTool
 				packagesLockJsonText = null;
 			}
 
-			PopulatePackageList(manifestJsonText, packagesLockJsonText, packageList, dependencyPackageList, builtInPackageList);
+			PopulatePackageList(packagesPath, manifestJsonText, packagesLockJsonText,
+				packageList, dependencyPackageList, builtInPackageList);
 		}
 
 		public const string DEFAULT_REGISTRY_URL = "https://packages.unity.com";
 
-		static void PopulatePackageList(string manifestJsonText, string packagesLockJsonText,
+		static void PopulatePackageList(string packagesPath, string manifestJsonText, string packagesLockJsonText,
 			List<BuildReportTool.UnityBuildSettings.PackageEntry> packageList,
 			List<BuildReportTool.UnityBuildSettings.PackageDependencyEntry> dependencyPackageList,
 			List<BuildReportTool.UnityBuildSettings.BuiltInPackageEntry> builtInPackageList)
@@ -1437,6 +1440,8 @@ namespace BuildReportTool
 							newEntry.Location = null;
 						}
 
+						bool isLocalGitRepo = false;
+
 						if (string.IsNullOrEmpty(newEntry.VersionUsed))
 						{
 							if (version != null &&
@@ -1469,7 +1474,14 @@ namespace BuildReportTool
 							{
 								// local/embedded package
 								newEntry.VersionUsed = null;
-								newEntry.Location = version;
+								newEntry.Location = version.Substring("file:".Length);
+
+								// the path is usually relative (to the folder where the manifest.json is)
+								// convert it to a full path
+								newEntry.LocalPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(packagesPath, newEntry.Location) + "/");
+
+								newEntry.VersionUsed = GetCurrentCommitHash(newEntry.LocalPath, shortVersion: true);
+								isLocalGitRepo = !string.IsNullOrEmpty(newEntry.VersionUsed);
 							}
 							else
 							{
@@ -1490,21 +1502,36 @@ namespace BuildReportTool
 						// attempt to get the package's display name by loading its package.json file
 
 						// we need the VersionUsed since that's used as part of the folder name
-						if (!string.IsNullOrEmpty(newEntry.VersionUsed))
+						if (!string.IsNullOrEmpty(newEntry.VersionUsed) && string.IsNullOrEmpty(newEntry.LocalPath))
 						{
 							newEntry.LocalPath = GetPackageCachePath(newEntry.PackageName, newEntry.VersionUsed, newEntry.Location, projectPackagesCachePath);
-							newEntry.DisplayName = FindDisplayName(newEntry.PackageName, newEntry.LocalPath);
 						}
 
-						packageList.Add(newEntry);
+						if (!string.IsNullOrEmpty(newEntry.LocalPath))
+						{
+							(string gotDisplayName, string gotVersionUsed) = GetNameAndVersionFromPackage(newEntry.PackageName, newEntry.LocalPath);
+							newEntry.DisplayName = gotDisplayName;
+
+							if (isLocalGitRepo)
+							{
+								// show the package version, but also show the git commit hash in parentheses
+								newEntry.VersionUsed = string.Format("{0} ({1})", gotVersionUsed, newEntry.VersionUsed);
+							}
+							else if (string.IsNullOrEmpty(newEntry.VersionUsed))
+							{
+								newEntry.VersionUsed = gotVersionUsed;
+							}
+						}
+
+						packageList.AddSorted(newEntry);
 					}
 				}
 			}
 
 			if (externalLock != null)
 			{
-				// loop through the packages lock, and find the ones we haven't had a package for
-				// those will be the packages that got included only because they are dependencies
+				// Loop through the packages lock, and find the ones we haven't had a package for.
+				// Those will be the packages that got included only because they are dependencies.
 				foreach (var pair in externalLock)
 				{
 					if (pair.Key.StartsWith("com.unity.modules."))
@@ -1556,11 +1583,27 @@ namespace BuildReportTool
 								newEntry.Location = null;
 							}
 						}
+						else if (source == "embedded" && !string.IsNullOrEmpty(newEntry.VersionUsed))
+						{
+							newEntry.Location = newEntry.VersionUsed.Substring("file:".Length);
+							newEntry.VersionUsed = null;
 
-						if (!string.IsNullOrEmpty(newEntry.VersionUsed))
+							newEntry.LocalPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(packagesPath, newEntry.Location) + "/");
+						}
+
+						if (!string.IsNullOrEmpty(newEntry.VersionUsed) && string.IsNullOrEmpty(newEntry.LocalPath))
 						{
 							newEntry.LocalPath = GetPackageCachePath(newEntry.PackageName, newEntry.VersionUsed, newEntry.Location, projectPackagesCachePath);
-							newEntry.DisplayName = FindDisplayName(newEntry.PackageName, newEntry.LocalPath);
+						}
+
+						if (!string.IsNullOrEmpty(newEntry.LocalPath))
+						{
+							(string gotDisplayName, string gotVersionUsed) = GetNameAndVersionFromPackage(newEntry.PackageName, newEntry.LocalPath);
+							newEntry.DisplayName = gotDisplayName;
+							if (string.IsNullOrEmpty(newEntry.VersionUsed))
+							{
+								newEntry.VersionUsed = gotVersionUsed;
+							}
 						}
 					}
 
@@ -1590,7 +1633,22 @@ namespace BuildReportTool
 						}
 					}
 
-					dependencyPackageList.Add(newEntry);
+					if (newEntry.Dependents == null || newEntry.Dependents.Count == 0)
+					{
+						// If no package is using this one, this package is most likely added via the Asset Store.
+						// Move it to the package list instead.
+						BuildReportTool.UnityBuildSettings.PackageEntry newPackageEntry;
+						newPackageEntry.PackageName = newEntry.PackageName;
+						newPackageEntry.DisplayName = newEntry.DisplayName;
+						newPackageEntry.VersionUsed = newEntry.VersionUsed;
+						newPackageEntry.Location = newEntry.Location;
+						newPackageEntry.LocalPath = newEntry.LocalPath;
+						packageList.AddSorted(newPackageEntry);
+					}
+					else
+					{
+						dependencyPackageList.Add(newEntry);
+					}
 				}
 
 				// convert the dependents from their package name to their display name
@@ -1639,24 +1697,45 @@ namespace BuildReportTool
 			}
 #endif
 
-			string FindDisplayName(string packageName, string localPath)
+			(string, string) GetNameAndVersionFromPackage(string packageName, string localPath)
 			{
 				if (string.IsNullOrEmpty(localPath))
 				{
-					return null;
+					return (null, null);
 				}
 
 				string packageManifestPath = string.Format("{0}package.json", localPath);
 				if (!System.IO.File.Exists(packageManifestPath))
 				{
-					return null;
+					return (null, null);
 				}
 				//Debug.Log($"packageName: {packageName} packageManifestPath: {packageManifestPath}");
 
 				var packageManifest = MiniJSON.Json.Deserialize(System.IO.File.ReadAllText(packageManifestPath)) as Dictionary<string, object>;
-				if (packageManifest != null && packageManifest.ContainsKey("displayName"))
+
+				if (packageManifest != null)
 				{
-					return packageManifest["displayName"] as string;
+					string gotDisplayName;
+					if (packageManifest.ContainsKey("displayName"))
+					{
+						gotDisplayName = packageManifest["displayName"] as string;
+					}
+					else
+					{
+						gotDisplayName = null;
+					}
+
+					string gotVersion;
+					if (packageManifest.ContainsKey("version"))
+					{
+						gotVersion = packageManifest["version"] as string;
+					}
+					else
+					{
+						gotVersion = null;
+					}
+
+					return (gotDisplayName, gotVersion);
 				}
 				else
 				{
@@ -1664,11 +1743,11 @@ namespace BuildReportTool
 					// we can hardcode some detections here
 					if (packageName == "com.unity.ads")
 					{
-						return "Advertisement";
+						return ("Advertisement", null);
 					}
 				}
 
-				return null;
+				return (null, null);
 			}
 		}
 #if UNITY_6000_0_OR_NEWER
@@ -1705,7 +1784,10 @@ namespace BuildReportTool
 				string folderName = System.IO.Path.GetFileName(f);
 				if (folderName.StartsWith(packageName))
 				{
-					return f + "/";
+					if (System.IO.Directory.Exists(f))
+					{
+						return f + "/";
+					}
 				}
 			}
 
@@ -1775,7 +1857,10 @@ namespace BuildReportTool
 				string folderName = System.IO.Path.GetFileName(f);
 				if (folderName.StartsWith(packageName))
 				{
-					return f + "/";
+					if (System.IO.Directory.Exists(f))
+					{
+						return f + "/";
+					}
 				}
 			}
 
@@ -1855,6 +1940,67 @@ namespace BuildReportTool
 			}
 
 			return closestMatch;
+		}
+
+		public static void AddSorted(this List<BuildReportTool.UnityBuildSettings.PackageEntry> me, BuildReportTool.UnityBuildSettings.PackageEntry item)
+		{
+			if (me.Count == 0)
+			{
+				me.Add(item);
+				return;
+			}
+
+			if (string.Compare(me[me.Count-1].PackageName, item.PackageName, StringComparison.Ordinal) <= 0)
+			{
+				me.Add(item);
+				return;
+			}
+
+			if (string.Compare(me[0].PackageName, item.PackageName, StringComparison.Ordinal) >= 0)
+			{
+				me.Insert(0, item);
+				return;
+			}
+
+			int index = me.BinarySearch(item);
+			if (index < 0)
+			{
+				index = ~index;
+			}
+
+			me.Insert(index, item);
+		}
+
+		static string GetCurrentCommitHash(string path, bool shortVersion = false)
+		{
+			var processStart = new System.Diagnostics.ProcessStartInfo("git", shortVersion ? "rev-parse --short HEAD" : "rev-parse HEAD");
+			processStart.WorkingDirectory = path;
+			processStart.UseShellExecute = false;
+			processStart.CreateNoWindow = true;
+			processStart.RedirectStandardOutput = true;
+
+			try
+			{
+				var process = System.Diagnostics.Process.Start(processStart);
+				if (process == null)
+				{
+					return null;
+				}
+
+				var sb = new System.Text.StringBuilder();
+
+				while (!process.StandardOutput.EndOfStream)
+				{
+					sb.Append(process.StandardOutput.ReadLine());
+				}
+
+				process.WaitForExit();
+				return sb.ToString();
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 #if BRT_PACKAGE_PARSE_DEBUG

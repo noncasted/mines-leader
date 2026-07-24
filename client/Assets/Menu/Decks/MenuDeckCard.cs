@@ -52,10 +52,7 @@ namespace Menu.Decks
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (eventData.pointerDrag != null && eventData.pointerDrag.GetComponent<MenuDeckPoolCard>() != null)
-            {
-                _selectionHighlight.OnSelected();
-            }
+            _selectionHighlight.OnSelected();
         }
 
         public void OnPointerExit(PointerEventData eventData)

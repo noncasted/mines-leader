@@ -4,7 +4,8 @@ namespace BuildReportTool
 {
 	public static partial class AssetListUtility
 	{
-		public static void SortAssetList(BuildReportTool.SizePart[] assetList, BuildReportTool.PrefabData prefabData, PrefabData.DataId prefabSortType, BuildReportTool.AssetList.SortOrder sortOrder)
+		public static void SortAssetList(BuildReportTool.SizePart[] assetList, BuildReportTool.PrefabData prefabData,
+			BuildReportTool.PrefabData.DataId prefabSortType, BuildReportTool.AssetList.SortOrder sortOrder)
 		{
 			switch (prefabSortType)
 			{

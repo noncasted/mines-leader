@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 8162
   packageName: Build Report Tool
-  packageVersion: 3.13.5
+  packageVersion: 3.13.7
   assetPath: Assets/Plugins/BuildReport/Scripts/Editor/Options/BRT_FileFilters.cs
-  uploadId: 861544
+  uploadId: 911194

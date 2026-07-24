@@ -1206,7 +1206,7 @@ namespace BuildReportTool
 		// ---------------------------------------------------------------
 
 		[System.Serializable]
-		public struct PackageEntry
+		public struct PackageEntry : System.IComparable<PackageEntry>
 		{
 			/// <summary>
 			/// Name of package using reverse domain name notation. Serves as the unique identifier.
@@ -1228,7 +1228,7 @@ namespace BuildReportTool
 			/// <summary>
 			/// For normal packages, this will be the registry url that matches this package.<br/>
 			/// For git packages, this is the repo url.<br/>
-			/// For local folder packages, this is the path.
+			/// For local folder packages, this is the path (usually relative path) as assigned in the manifest.
 			/// </summary>
 			public string Location;
 
@@ -1237,6 +1237,11 @@ namespace BuildReportTool
 			/// This will normally be in the project's "Library/PackageCache/" subfolder.
 			/// </summary>
 			public string LocalPath;
+
+			public int CompareTo(PackageEntry other)
+			{
+				return string.Compare(PackageName, other.PackageName, System.StringComparison.Ordinal);
+			}
 		}
 
 

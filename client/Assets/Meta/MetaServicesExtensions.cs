@@ -65,6 +65,10 @@ namespace Meta
                    .As<IBackendProjection>()
                    .As<ILootProgressionConfigs>();
 
+            builder.Register<ProgressionService>()
+                   .As<IProgression>()
+                   .As<IScopeSetup>();
+
             return builder;
         }
     }

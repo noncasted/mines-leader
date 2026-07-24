@@ -8,7 +8,7 @@ namespace BuildReportTool
 {
 	public static class TextureDataGenerator
 	{
-		public static void Create(TextureData data, BuildReportTool.BuildInfo buildInfo, bool createForUnusedAssetsToo, bool debugLog = false)
+		public static void Create(BuildReportTool.TextureData data, BuildReportTool.BuildInfo buildInfo, bool createForUnusedAssetsToo, bool debugLog = false)
 		{
 			if (buildInfo == null)
 			{
@@ -55,7 +55,8 @@ namespace BuildReportTool
 			}
 		}
 
-		static void AppendTextureData(TextureData data, BuildReportTool.BuildPlatform buildPlatform, IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
+		static void AppendTextureData(BuildReportTool.TextureData data, BuildReportTool.BuildPlatform buildPlatform,
+			IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
 		{
 			if (assets == null || assets.Count == 0)
 			{
@@ -99,27 +100,27 @@ namespace BuildReportTool
 		const int COMPRESSION_QUALITY_IF_VALUE_IS_NEGATIVE_ONE = 50;
 		const string WRAP_MODE_IF_VALUE_IS_NEGATIVE_ONE = "Repeat";
 
-		static TextureData.Entry CreateEntry(string assetPath, string platform, bool debugLog = false)
+		static BuildReportTool.TextureData.Entry CreateEntry(string assetPath, string platform, bool debugLog = false)
 		{
 			var assetImporter = AssetImporter.GetAtPath(assetPath);
 			if (assetImporter == null)
 			{
 				if (debugLog) Debug.LogErrorFormat("AssetImporter.GetAtPath returned null for {0}", assetPath);
-				return new TextureData.Entry();
+				return new BuildReportTool.TextureData.Entry();
 			}
 
 			var textureImporter = assetImporter as TextureImporter;
 			if (textureImporter == null)
 			{
 				if (debugLog) Debug.LogErrorFormat("AssetImporter is not a TextureImporter for {0}", assetPath);
-				return new TextureData.Entry();
+				return new BuildReportTool.TextureData.Entry();
 			}
 
 			// -----------------------------------------------------------------------
 
 			if (debugLog) Debug.LogFormat("Inspecting Texture: {0}", assetPath);
 
-			var result = new TextureData.Entry();
+			var result = new BuildReportTool.TextureData.Entry();
 
 			// -----------------------------------------------------------------------
 

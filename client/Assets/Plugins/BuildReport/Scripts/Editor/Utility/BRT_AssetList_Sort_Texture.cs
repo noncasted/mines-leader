@@ -4,7 +4,8 @@ namespace BuildReportTool
 {
 	public static partial class AssetListUtility
 	{
-		public static void SortAssetList(BuildReportTool.SizePart[] assetList, BuildReportTool.TextureData textureData, TextureData.DataId textureSortType, BuildReportTool.AssetList.SortOrder sortOrder)
+		public static void SortAssetList(BuildReportTool.SizePart[] assetList, BuildReportTool.TextureData textureData,
+			BuildReportTool.TextureData.DataId textureSortType, BuildReportTool.AssetList.SortOrder sortOrder)
 		{
 			switch (textureSortType)
 			{
