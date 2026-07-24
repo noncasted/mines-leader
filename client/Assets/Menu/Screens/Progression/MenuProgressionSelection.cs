@@ -12,7 +12,7 @@ namespace Menu.Screens
     {
         [SerializeField] private MenuProgressionCard _cardPrefab;
         [SerializeField] private RectTransform _cardsRoot;
-        
+
         private IViewInjector _injector;
 
         [Inject]
@@ -20,30 +20,37 @@ namespace Menu.Screens
         {
             _injector = injector;
         }
-        
+
         public void Create(IScopeBuilder builder)
         {
             builder.Inject(this);
             gameObject.SetActive(false);
         }
-        
-        public async UniTask<ICardDefinition> Show(IReadOnlyLifetime lifetime, IReadOnlyList<ICardDefinition> definitions)
+
+        public async UniTask<ICardDefinition> Show(
+            IReadOnlyLifetime lifetime,
+            IReadOnlyList<ICardDefinition> definitions)
         {
             var completion = new UniTaskCompletionSource<ICardDefinition>();
             gameObject.SetActive(true);
+            var cards = new List<MenuProgressionCard>();
 
             foreach (var definition in definitions)
             {
                 var card = Instantiate(_cardPrefab, _cardsRoot);
                 _injector.Inject(card);
-                card.Setup(definition);
-                
-                card.Button.ListenClick(lifetime, () => completion.TrySetResult(definition));
+                card.Setup(lifetime, definition);
+                cards.Add(card);
+
+                card.PointerHandler.Clicked.Advise(lifetime, () => completion.TrySetResult(definition));
             }
-            
+
             var result = await completion.Task;
 
             gameObject.SetActive(false);
+
+            foreach (var card in cards)
+                Destroy(card.gameObject);
 
             return result;
         }
