@@ -1,3 +1,5 @@
+using GamePlay.UI;
+using Internal;
 using Meta;
 using TMPro;
 using UnityEngine;
@@ -8,21 +10,21 @@ using VContainer;
 namespace Menu.Screens
 {
     [DisallowMultipleComponent]
-    public class MenuProgressionCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class MenuProgressionCard : MonoBehaviour
     {
         [SerializeField] private Image _image;
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _description;
         [SerializeField] private TMP_Text _manaCost;
         [SerializeField] private GameObject _highlight;
-        [SerializeField] private Button _button;
+        [SerializeField] private UIElementPointerHandler _pointerHandler;
 
         private ICardDefinition _definition;
         private ICardDescriptionProvider _descriptionProvider;
         private ICardConfigs _configs;
 
         public ICardDefinition Definition => _definition;
-        public Button Button => _button;
+        public UIElementPointerHandler PointerHandler => _pointerHandler;
 
         [Inject]
         private void Construct(ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
@@ -31,23 +33,15 @@ namespace Menu.Screens
             _descriptionProvider = descriptionProvider;
         }
 
-        public void Setup(ICardDefinition definition)
+        public void Setup(IReadOnlyLifetime lifetime, ICardDefinition definition)
         {
             _definition = definition;
             _image.sprite = definition.Image;
             _name.text = definition.Name;
             _description.text = _descriptionProvider.GetDescription(definition.Type);
             _manaCost.text = _configs.Value.All[definition.Type].ManaCost.ToString();
-        }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            _highlight.SetActive(true);
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _highlight.SetActive(false);
+            _pointerHandler.IsHovered.Advise(lifetime, isHovered => _highlight.SetActive(isHovered));
         }
     }
 }

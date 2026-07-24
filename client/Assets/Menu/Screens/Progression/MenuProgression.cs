@@ -57,23 +57,21 @@ namespace Menu.Screens
             _progression.CurrentProgress.View(lifetime, UpdateBar);
 
             _progression.Milestones.View(lifetime, milestone => {
-                var milestoneLifetime = _progression.Milestones.GetLifetime(milestone);
                 var maxXp = _progression.Milestones.Count > 0 ? _progression.Milestones.Max(m => m.Required) : 1;
                 var normalizedPosition = (float)milestone.Required / maxXp;
 
                 var view = Instantiate(_milestonePrefab, _milestonesRoot);
                 var position = new Vector2(normalizedPosition * _milestonesRoot.rect.width, 0);
-                view.Setup(milestone, milestoneLifetime, position);
+                view.Setup(milestone, lifetime, position);
                 mileStones.Add(view);
 
-                view.Button.ListenClick(milestoneLifetime, () => OpenLootBox(lifetime, milestone).Forget());
+                view.Button.ListenClick(lifetime, () => OpenLootBox(lifetime, milestone).Forget());
             });
 
             await _backButton.WaitClick(handle);
 
             foreach (var milestone in mileStones)
                 Destroy(milestone.gameObject);
-
         }
 
         private void UpdateBar(int currentXp)
@@ -94,6 +92,7 @@ namespace Menu.Screens
                 return;
 
             var result = await _selection.Show(lifetime, offer.Definitions);
+            await _progression.ChooseLootReward(offer.BoxId, result.Type);
         }
     }
 }
