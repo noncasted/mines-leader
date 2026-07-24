@@ -11,9 +11,9 @@ namespace Menu.Social
 
     public class MenuPlayerInput : IMenuPlayerInput, IScopeSetup
     {
-        public MenuPlayerInput(IMenuChatUI chatUI)
+        public MenuPlayerInput()
         {
-            _chatUI = chatUI;
+           // _chatUI = chatUI;
             _controls = new Controls();
         }
 
@@ -30,11 +30,11 @@ namespace Menu.Social
             lifetime.Listen(_controls.Disable);
 
             _controls.Menu.Movement.Listen(lifetime, value => {
-                if (_chatUI.IsSelected)
-                {
-                    _movementDirection = Vector2.zero;
-                    return;
-                }
+                // if (_chatUI.IsSelected)
+                // {
+                //     _movementDirection = Vector2.zero;
+                //     return;
+                // }
 
                 _movementDirection = value.ReadValue<Vector2>();
             });

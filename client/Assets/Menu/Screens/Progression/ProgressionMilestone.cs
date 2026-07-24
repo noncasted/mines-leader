@@ -1,5 +1,6 @@
 using System;
-using Cysharp.Threading.Tasks;
+using Internal;
+using Meta;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,83 +10,55 @@ namespace Menu.Screens
     [DisallowMultipleComponent]
     public class ProgressionMilestone : MonoBehaviour
     {
+        [SerializeField] private Button _openButton;
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _xpLabel;
         [SerializeField] private Image _background;
-        [SerializeField] private Button _button;
-        [SerializeField] private Color _lockedColor = new(0.2f, 0.2f, 0.2f, 1f);
-        [SerializeField] private Color _reachedColor = new(0.4f, 0.5f, 0.45f, 1f);
-        [SerializeField] private Color _availableColor = new(1f, 0.84f, 0f, 1f);
-        [SerializeField] private Color _claimedColor = new(0.3f, 0.6f, 0.35f, 0.7f);
+
+        [SerializeField] private Sprite _taken;
+        [SerializeField] private Sprite _active;
+        [SerializeField] private Sprite _locked;
 
         private RectTransform _rectTransform;
-        private bool _reached;
-        private bool _claimed;
-        private bool _hasAvailableBox;
-        private Guid _boxId;
+        private IProgressionMilestone _milestone;
 
-        public int RequiredXp { get; private set; }
-        public Button Button => _button;
-        public Guid BoxId => _boxId;
-        public bool HasAvailableBox => _hasAvailableBox;
+        public Button Button => _openButton;
+        public IProgressionMilestone Milestone => _milestone;
 
-        public void Setup(int requiredXp, float normalizedPosition)
+        public void Setup(
+            IProgressionMilestone milestone,
+            IReadOnlyLifetime lifetime,
+            Vector2 normalizedPosition)
         {
-            RequiredXp = requiredXp;
+            _openButton.gameObject.SetActive(false);
+            _milestone = milestone;
             _rectTransform = GetComponent<RectTransform>();
 
-            _xpLabel.text = $"{requiredXp}";
+            _xpLabel.text = $"{milestone.Required}";
+            _rectTransform.anchoredPosition = normalizedPosition;
 
-            _rectTransform.anchorMin = new Vector2(normalizedPosition, 0);
-            _rectTransform.anchorMax = new Vector2(normalizedPosition, 1);
-            _rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            _rectTransform.anchoredPosition = Vector2.zero;
-            _rectTransform.sizeDelta = new Vector2(60, 0);
-
-            UpdateVisual();
+            milestone.Status.View(lifetime, UpdateVisual);
         }
 
-        public void SetReached(bool reached)
+        private void UpdateVisual(ProgressionMilestoneStatus status)
         {
-            _reached = reached;
-            UpdateVisual();
-        }
+            switch (status)
+            {
 
-        public void SetClaimed(bool claimed)
-        {
-            _claimed = claimed;
-            UpdateVisual();
-        }
-
-        public void SetAvailableBox(Guid boxId)
-        {
-            _boxId = boxId;
-            _hasAvailableBox = boxId != Guid.Empty;
-            UpdateVisual();
-        }
-
-        private void UpdateVisual()
-        {
-            if (!_reached)
-            {
-                _background.color = _lockedColor;
-                _icon.color = _lockedColor;
-            }
-            else if (_hasAvailableBox)
-            {
-                _background.color = _availableColor;
-                _icon.color = Color.white;
-            }
-            else if (_claimed)
-            {
-                _background.color = _claimedColor;
-                _icon.color = _claimedColor;
-            }
-            else
-            {
-                // Reached but box not awarded yet
-                _background.color = _reachedColor;
-                _icon.color = _reachedColor;
+                case ProgressionMilestoneStatus.Locked:
+                    _openButton.gameObject.SetActive(false);
+                    _icon.sprite = _locked;
+                    break;
+                case ProgressionMilestoneStatus.Active:
+                    _openButton.gameObject.SetActive(true);
+                    _icon.sprite = _active;
+                    break;
+                case ProgressionMilestoneStatus.Unlocked:
+                    _openButton.gameObject.SetActive(false);
+                    _icon.sprite = _taken;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(status), status, null);
             }
         }
     }

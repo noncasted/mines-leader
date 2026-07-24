@@ -18,12 +18,11 @@ namespace Menu.Social
     {
         public MenuChat(
             IUser user,
-            IMenuPlayersCollection playersCollection,
-            IMenuChatUI ui)
+            IMenuPlayersCollection playersCollection)
         {
             _user = user;
             _playersCollection = playersCollection;
-            _ui = ui;
+            //_ui = ui;
         }
 
         private readonly IUser _user;
@@ -32,7 +31,7 @@ namespace Menu.Social
 
         public override void OnStarted(IReadOnlyLifetime lifetime)
         {
-            _ui.MessageSend.Advise(lifetime, OnMessageSent);
+            // _ui.MessageSend.Advise(lifetime, OnMessageSent);
             Events.GetEvent<MenuChatMessagePayload>().Advise(lifetime, OnMessageReceived);
         }
 

@@ -11,7 +11,8 @@ namespace BuildReportTool.Window.Screen
 		public override string Name { get { return "Build Steps";  } }
 
 		public override void RefreshData(BuildInfo buildReport, AssetDependencies assetDependencies,
-			TextureData textureData, MeshData meshData, PrefabData prefabData, UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
+			UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
 		{
 			if (unityBuildReport != null)
 			{
@@ -85,7 +86,7 @@ namespace BuildReportTool.Window.Screen
 
 		public override void DrawGUI(Rect position,
 			BuildInfo buildReportToDisplay, AssetDependencies assetDependencies,
-			TextureData textureData, MeshData meshData, PrefabData prefabData,
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
 			UnityBuildReport unityBuildReport, BuildReportTool.ExtraData extraData, BuildReportTool.AssetBundleSession assetBundleSession,
 			out bool requestRepaint)
 		{

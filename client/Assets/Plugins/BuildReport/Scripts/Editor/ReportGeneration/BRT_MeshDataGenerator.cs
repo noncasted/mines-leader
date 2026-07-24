@@ -7,7 +7,7 @@ namespace BuildReportTool
 {
 	public static class MeshDataGenerator
 	{
-		public static void Create(MeshData data, BuildReportTool.BuildInfo buildInfo, bool createForUnusedAssetsToo, bool debugLog = false)
+		public static void Create(BuildReportTool.MeshData data, BuildReportTool.BuildInfo buildInfo, bool createForUnusedAssetsToo, bool debugLog = false)
 		{
 			if (buildInfo == null)
 			{
@@ -52,7 +52,7 @@ namespace BuildReportTool
 			}
 		}
 
-		static void AppendMeshData(MeshData data, IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
+		static void AppendMeshData(BuildReportTool.MeshData data, IList<SizePart> assets, bool overwriteExistingEntries, bool debugLog = false)
 		{
 			if (assets == null || assets.Count == 0)
 			{
@@ -97,27 +97,27 @@ namespace BuildReportTool
 		static readonly List<int> TriangleBuffer = new List<int>();
 #endif
 
-		static MeshData.Entry CreateEntry(string assetPath, bool debugLog = false)
+		static BuildReportTool.MeshData.Entry CreateEntry(string assetPath, bool debugLog = false)
 		{
 			var assetImporter = AssetImporter.GetAtPath(assetPath);
 			if (assetImporter == null)
 			{
 				if (debugLog) Debug.LogErrorFormat("AssetImporter.GetAtPath returned null for {0}", assetPath);
-				return new MeshData.Entry();
+				return new BuildReportTool.MeshData.Entry();
 			}
 
 			var modelImporter = assetImporter as ModelImporter;
 			if (modelImporter == null)
 			{
 				if (debugLog) Debug.LogErrorFormat("AssetImporter is not a ModelImporter for {0}", assetPath);
-				return new MeshData.Entry();
+				return new BuildReportTool.MeshData.Entry();
 			}
 
 			// -----------------------------------------------------------------------
 
 			if (debugLog) Debug.LogFormat("Inspecting Model: {0}", assetPath);
 
-			var result = new MeshData.Entry();
+			var result = new BuildReportTool.MeshData.Entry();
 
 			result.AnimationType = modelImporter.animationType.ToString();
 			if (modelImporter.clipAnimations != null && modelImporter.clipAnimations.Length > 0)

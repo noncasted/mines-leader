@@ -128,7 +128,8 @@ namespace BuildReportTool.Window.Screen
 		}
 
 		public override void RefreshData(BuildInfo buildReport, AssetDependencies assetDependencies,
-			TextureData textureData, MeshData meshData, PrefabData prefabData, UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
+			UnityBuildReport unityBuildReport, BuildReportTool.AssetBundleSession assetBundleSession)
 		{
 			RefreshConfiguredFileFilters();
 
@@ -248,9 +249,9 @@ namespace BuildReportTool.Window.Screen
 				_mouseIsOnOverlayControl = columnOptionsBg.Contains(Event.current.mousePosition);
 				if (_mouseIsOnOverlayControl)
 				{
-					_hoveredTextureDataId = TextureData.DataId.None;
-					_hoveredMeshDataId = MeshData.DataId.None;
-					_hoveredPrefabDataId = PrefabData.DataId.None;
+					_hoveredTextureDataId = BuildReportTool.TextureData.DataId.None;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.None;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.None;
 					_overridenTextureDataTooltipText = null;
 				}
 
@@ -344,7 +345,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowTextureColumnTextureType = GUI.Toggle(rect, BuildReportTool.Options.ShowTextureColumnTextureType, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredTextureDataId = TextureData.DataId.TextureType;
+					_hoveredTextureDataId = BuildReportTool.TextureData.DataId.TextureType;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				textureDataColumn1Width = Mathf.Max(textureDataColumn1Width, rect.width);
@@ -355,7 +356,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowTextureColumnIsSRGB = GUI.Toggle(rect, BuildReportTool.Options.ShowTextureColumnIsSRGB, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredTextureDataId = TextureData.DataId.IsSRGB;
+					_hoveredTextureDataId = BuildReportTool.TextureData.DataId.IsSRGB;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				textureDataColumn1Width = Mathf.Max(textureDataColumn1Width, rect.width);
@@ -726,7 +727,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnMeshFilterCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnMeshFilterCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.MeshFilterCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.MeshFilterCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				meshColumn1Width = Mathf.Max(meshColumn1Width, rect.width);
@@ -737,7 +738,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnSkinnedMeshRendererCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnSkinnedMeshRendererCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.SkinnedMeshRendererCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.SkinnedMeshRendererCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				meshColumn1Width = Mathf.Max(meshColumn1Width, rect.width);
@@ -760,7 +761,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnSubMeshCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnSubMeshCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.SubMeshCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.SubMeshCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				meshColumn2Width = Mathf.Max(meshColumn2Width, rect.width);
@@ -771,7 +772,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnVertexCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnVertexCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.VertexCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.VertexCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				meshColumn2Width = Mathf.Max(meshColumn2Width, rect.width);
@@ -782,7 +783,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnTriangleCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnTriangleCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.TriangleCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.TriangleCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				meshColumn2Width = Mathf.Max(meshColumn2Width, rect.width);
@@ -805,7 +806,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnAnimationType = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnAnimationType, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.AnimationType;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.AnimationType;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 
@@ -815,7 +816,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowMeshColumnAnimationClipCount = GUI.Toggle(rect, BuildReportTool.Options.ShowMeshColumnAnimationClipCount, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredMeshDataId = MeshData.DataId.AnimationClipCount;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.AnimationClipCount;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 
@@ -847,7 +848,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnContributeGI = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnContributeGI, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.ContributeGI;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.ContributeGI;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn1Width = Mathf.Max(prefabColumn1Width, rect.width);
@@ -858,7 +859,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnBatchingStatic = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnBatchingStatic, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.BatchingStatic;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.BatchingStatic;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn1Width = Mathf.Max(prefabColumn1Width, rect.width);
@@ -869,7 +870,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnReflectionProbeStatic = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnReflectionProbeStatic, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.ReflectionProbeStatic;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.ReflectionProbeStatic;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn1Width = Mathf.Max(prefabColumn1Width, rect.width);
@@ -892,7 +893,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnOccluderStatic = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnOccluderStatic, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.OccluderStatic;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.OccluderStatic;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn2Width = Mathf.Max(prefabColumn2Width, rect.width);
@@ -903,7 +904,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnOccludeeStatic = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnOccludeeStatic, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.OccludeeStatic;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.OccludeeStatic;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn2Width = Mathf.Max(prefabColumn2Width, rect.width);
@@ -926,7 +927,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnNavigationStatic = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnNavigationStatic, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.NavigationStatic;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.NavigationStatic;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn2Width = Mathf.Max(prefabColumn2Width, rect.width);
@@ -937,7 +938,7 @@ namespace BuildReportTool.Window.Screen
 				BuildReportTool.Options.ShowPrefabColumnOffMeshLinkGeneration = GUI.Toggle(rect, BuildReportTool.Options.ShowPrefabColumnOffMeshLinkGeneration, _columnLabel);
 				if (rect.Contains(Event.current.mousePosition))
 				{
-					_hoveredPrefabDataId = PrefabData.DataId.OffMeshLinkGeneration;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.OffMeshLinkGeneration;
 				}
 				rect.y += rect.height + TOGGLE_SPACING;
 				prefabColumn2Width = Mathf.Max(prefabColumn2Width, rect.width);
@@ -968,9 +969,9 @@ namespace BuildReportTool.Window.Screen
 				_mouseIsOnOverlayControl = searchOptionsBg.Contains(Event.current.mousePosition);
 				if (_mouseIsOnOverlayControl)
 				{
-					_hoveredTextureDataId = TextureData.DataId.None;
-					_hoveredMeshDataId = MeshData.DataId.None;
-					_hoveredPrefabDataId = PrefabData.DataId.None;
+					_hoveredTextureDataId = BuildReportTool.TextureData.DataId.None;
+					_hoveredMeshDataId = BuildReportTool.MeshData.DataId.None;
+					_hoveredPrefabDataId = BuildReportTool.PrefabData.DataId.None;
 					_overridenTextureDataTooltipText = null;
 				}
 
@@ -1105,7 +1106,7 @@ namespace BuildReportTool.Window.Screen
 
 		public override void DrawGUI(Rect position,
 			BuildInfo buildReportToDisplay, AssetDependencies assetDependencies,
-			TextureData textureData, MeshData meshData, PrefabData prefabData,
+			BuildReportTool.TextureData textureData, BuildReportTool.MeshData meshData, BuildReportTool.PrefabData prefabData,
 			UnityBuildReport unityBuildReport, BuildReportTool.ExtraData extraData, BuildReportTool.AssetBundleSession assetBundleSession,
 			out bool requestRepaint)
 		{
@@ -3369,8 +3370,8 @@ namespace BuildReportTool.Window.Screen
 			GUILayout.EndVertical();
 		}
 
-		void DrawMeshDataColumn(int sta, int end, MeshData.DataId meshDataId, string columnName,
-			bool allowSort, bool showScrollbar, BuildReportTool.AssetList assetListCollection, MeshData meshData,
+		void DrawMeshDataColumn(int sta, int end, BuildReportTool.MeshData.DataId meshDataId, string columnName,
+			bool allowSort, bool showScrollbar, BuildReportTool.AssetList assetListCollection, BuildReportTool.MeshData meshData,
 			SizePart[] assetList, ref Vector2 scrollbarPos)
 		{
 			var hiddenHorizontalScrollbarStyle = GUI.skin.FindStyle(BuildReportTool.Window.Settings.HIDDEN_SCROLLBAR_STYLE_NAME);
@@ -3494,8 +3495,8 @@ namespace BuildReportTool.Window.Screen
 			GUILayout.EndVertical();
 		}
 
-		void DrawPrefabDataColumn(int sta, int end, PrefabData.DataId prefabDataId, string columnName,
-			bool allowSort, bool showScrollbar, BuildReportTool.AssetList assetListCollection, PrefabData prefabData,
+		void DrawPrefabDataColumn(int sta, int end, BuildReportTool.PrefabData.DataId prefabDataId, string columnName,
+			bool allowSort, bool showScrollbar, BuildReportTool.AssetList assetListCollection, BuildReportTool.PrefabData prefabData,
 			SizePart[] assetList, ref Vector2 scrollbarPos)
 		{
 			var hiddenHorizontalScrollbarStyle = GUI.skin.FindStyle(BuildReportTool.Window.Settings.HIDDEN_SCROLLBAR_STYLE_NAME);

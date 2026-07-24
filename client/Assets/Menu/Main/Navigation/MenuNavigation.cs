@@ -49,6 +49,8 @@ namespace Menu.Main
             _cards.Clicked.Advise(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _decks));
             _progression.Clicked.Advise(lifetime, () => _stateMachine.ProcessChild(_stateMachine.Base, _progressionScreen));
             _settings.Clicked.Advise(lifetime, () => _settingsService.Open());
+            
+            lifetime.Listen(()=> Debug.Log($"Terminated"));
         }
     }
 }

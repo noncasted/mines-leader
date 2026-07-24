@@ -1,3 +1,11 @@
+Version 3.13.7
+- FIX: Fix for ambiguous reference error in Unity 6.4.
+
+
+Version 3.13.6
+- FIX: Fix for properly displaying local/embedded packages in the Project Settings tab.
+
+
 Version 3.13.5
 - FIX: Fix for compatibility with upcoming breaking changes by Unity 6.5 (Application.consoleLogPath).
 - FIX: Fixed 'Reveal in File Browser' for Linux.

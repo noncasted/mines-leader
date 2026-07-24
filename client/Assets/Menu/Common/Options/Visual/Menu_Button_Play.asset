@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Menu_Button_Play
   m_EditorClassIdentifier: 
   _idle: {r: 0.8018868, g: 1, b: 0.8440131, a: 1}
-  _hovered: {r: 0.5411765, g: 0.54509807, b: 0.62352943, a: 0.7058824}
-  _pressed: {r: 0.227451, g: 0.19607845, b: 0.30588236, a: 0.7058824}
+  _hovered: {r: 0.85466355, g: 0.8575412, b: 0.9150943, a: 1}
+  _pressed: {r: 0.77023184, g: 0.75060076, b: 0.8160377, a: 1}
   _transitionTime: 0.1
