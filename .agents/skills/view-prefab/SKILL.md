@@ -1,3 +1,8 @@
+---
+name: view-prefab
+description: Capture a screenshot and full hierarchy of a Unity prefab for visual and structural analysis. Use when the user runs /view-prefab or asks to inspect a prefab.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /view-prefab, view-prefab, посмотри префаб, view prefab, screenshot prefab, покажи префаб, prefab screenshot
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

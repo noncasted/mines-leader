@@ -1,3 +1,8 @@
+---
+name: task
+description: Transform a raw task description into a structured implementation brief and save it to docs/tasks/. Use when the user runs /task; do not implement.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /task, task, задача, создай задачу, task brief, implementation brief, structured task, опиши задачу
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

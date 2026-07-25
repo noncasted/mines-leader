@@ -3,14 +3,13 @@ using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VContainer;
 
 namespace Menu.Decks
 {
     [DisallowMultipleComponent]
-    public class MenuDeckPoolCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class MenuDeckPoolCard : MonoBehaviour
     {
         [SerializeField] private Image _raycastImage;
         [SerializeField] private Image _image;
@@ -28,6 +27,7 @@ namespace Menu.Decks
 
         public ICardDefinition CardDefinition => _cardDefinition;
         public ICardConfig Config => _config;
+        public RectTransform Transform => _rectTransform;
 
         public string ResolvedDescription { get; private set; }
         
@@ -53,45 +53,15 @@ namespace Menu.Decks
             _manaCost.text = _config.ManaCost.ToString();
         }
 
-        public void OnBeginDrag(PointerEventData eventData)
+        public void BeginDrag()
         {
             _raycastImage.raycastTarget = false;
             _rectTransform.SetParent(_moveArea.Transform, true);
         }
 
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _moveArea.Transform,
-                    eventData.position,
-                    eventData.pressEventCamera,
-                    out var localPointerPosition
-                ))
-            {
-                _rectTransform.localPosition = localPointerPosition;
-            }
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            if (eventData.pointerEnter != null)
-            {
-                var dropTarget = eventData.pointerEnter.GetComponentInParent<MenuDeckCard>();
-
-                if (dropTarget != null)
-                {
-                    dropTarget.OnCardDropped(this);
-                    gameObject.SetActive(false);
-                    return;
-                }
-            }
-
-            ReturnToSpot();
-        }
-
         public void ForceMoveToDeck(MenuDeckCard deckCard)
         {
-            deckCard.OnForceMove(this);
+            deckCard.OnForceMove(_parentPoolSpot);
             gameObject.SetActive(false);
         }
 

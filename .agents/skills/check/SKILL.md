@@ -1,3 +1,8 @@
+---
+name: check
+description: Launch validation agents in parallel to audit modified code for correctness, style, lifetimes, Orleans patterns, and documentation needs. Use when the user runs /check.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /check, check, чек, проверь, проверь код, валидируй, проверь стиль, проверь файлы, запусти чек, code check
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

@@ -1,3 +1,8 @@
+---
+name: workflow-split
+description: Save the current session state into the task's info/progress/result files so a fresh session can continue without context loss. Use when the user runs /workflow-split or says split workflow, save session, or continue later.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /workflow-split, workflow-split, раздели воркфлоу, split workflow, save session, context split, продолжи позже, раздели сессию, workflow split
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

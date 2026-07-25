@@ -1,3 +1,8 @@
+---
+name: split-commit
+description: Analyze current changes and split them into logical, focused commits with clean messages. Use when the user runs /split-commit or asks to commit changes in parts.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /split-commit, split-commit, раздели коммит, split commit, разбей на коммиты, организуй коммиты, commit everything in parts, too many changes for one commit
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

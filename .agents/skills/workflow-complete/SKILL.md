@@ -1,3 +1,8 @@
+---
+name: workflow-complete
+description: Finalize a /workflow task, produce a condensed summary in docs/tasks/complete/, and clean up the working folder from docs/tasks/current/. Use when the user runs /workflow-complete or says finalize, complete, or close task.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /workflow-complete, workflow-complete, заверши воркфлоу, complete workflow, finalize task, task complete, закрой задачу, workflow complete
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

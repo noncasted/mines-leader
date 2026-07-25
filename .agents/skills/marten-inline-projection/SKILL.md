@@ -1,3 +1,8 @@
+---
+name: marten-inline-projection
+description: Adapt the Atlantis event-store pattern to this project using Marten inline projections that automatically maintain snapshot documents for event-sourced grains. Use when the user runs /marten-inline-projection or mentions Marten inline projections or event store snapshots.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /marten-inline-projection, marten inline projection, inline projection, мартен inline, адаптировать мартен, event store snapshot, martensnapshot, marten snapshot
 BEHAVIOR: When triggered, execute the migration steps immediately. Do not explain — do.

@@ -1,3 +1,8 @@
+---
+name: report
+description: Generate a Russian report entry for the latest or given merged/open PR and append it to Assets/Common/Docs/Reports/report_ivan_stage_2. Use when the user runs /report.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /report, report, отчет, напиши отчет, отчет по PR, report PR, добавь отчет, сделай отчет
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

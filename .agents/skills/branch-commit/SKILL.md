@@ -1,3 +1,8 @@
+---
+name: branch-commit
+description: Create a new branch from the current branch, carry over uncommitted changes, and commit them following project conventions. Use when the user runs /branch-commit.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /branch-commit, branch-commit, ветка и коммит, создай ветку и коммит, branch commit, новая ветка с коммитом, перенеси изменения в ветку
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.
