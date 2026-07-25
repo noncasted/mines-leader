@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 814c59d3018b01f0eb55e486acfb36cb
+guid: 6dad055faa2ffc0bd959e0865d1a5bb0
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -36,7 +36,7 @@ ScriptedImporter:
     spriteMeshType: 1
     alignment: 0
     spritePivot: {x: 0.5, y: 0.5}
-    spritePixelsToUnits: 12
+    spritePixelsToUnits: 100
     spriteBorder: {x: 0, y: 0, z: 0, w: 0}
     spriteGenerateFallbackPhysicsShape: 0
     generateCubemap: 6
@@ -80,7 +80,7 @@ ScriptedImporter:
     defaultPivotSpace: 0
     defaultPivotAlignment: 7
     customPivotPosition: {x: 0.5, y: 0.5}
-    mosaicPadding: 0
+    mosaicPadding: 23
     spritePadding: 0
     generateModelPrefab: 1
     generateAnimationClips: 1
@@ -95,7 +95,7 @@ ScriptedImporter:
     defaultPivotSpace: 0
     defaultPivotAlignment: 7
     customPivotPosition: {x: 0.5, y: 0.5}
-    mosaicPadding: 0
+    mosaicPadding: 23
     spritePadding: 0
     generateModelPrefab: 1
     generateAnimationClips: 1
@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639206010554058030
+  platformSettingsDirtyTick: 639206009704725740
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -127,9 +127,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: flag_appear
+  - name: dice_roll
     originalName: 
-    pivot: {x: 0.4933333, y: -0.14666666}
+    pivot: {x: 0.50183153, y: -0.095454544}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 75
-      height: 75
-    spriteID: 8369c136ab682043b9f519e032ba79be
+      width: 273
+      height: 220
+    spriteID: d4e769215818a3e238341be9085dc814
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -147,9 +147,219 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: -7, y: -7}
+    uvTransform: {x: -19, y: -17}
   spriteSheetImportData:
-  - name: Game_Cell_Flag_Appear_0
+  - name: Game_UI_Dice_Roldd_0
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 192
+      width: 64
+      height: 64
+    spriteID: 477548e2fb3099ef5aefa42bf3722381
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_1
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 64
+      y: 192
+      width: 64
+      height: 64
+    spriteID: 3e3558b9f3d1ac0bb91e8e6de11879ad
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_2
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 128
+      y: 192
+      width: 64
+      height: 64
+    spriteID: 4ebcc3b69500ffb848acc8a1a77257c7
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_3
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 192
+      y: 192
+      width: 64
+      height: 64
+    spriteID: bf0ab91f95b851285bfa7befee90c2b2
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_4
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 256
+      y: 192
+      width: 64
+      height: 64
+    spriteID: 808ec9701e4edf92cac247a65bb3c512
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_5
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 128
+      width: 64
+      height: 64
+    spriteID: e3b4061cf156c77009e30acc26531ec0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_6
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 64
+      y: 128
+      width: 64
+      height: 64
+    spriteID: b76bb1fca166bab218b8036e088ff73e
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_7
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 128
+      y: 128
+      width: 64
+      height: 64
+    spriteID: af225c1fe611e21898ae423e5d5b38ff
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_8
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 192
+      y: 128
+      width: 64
+      height: 64
+    spriteID: d2a898723da4dd6d3a08b6216e2b4a0f
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_9
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 256
+      y: 128
+      width: 64
+      height: 64
+    spriteID: d36971b9e5cd0a7a1983689e504906c3
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Dice_Roldd_10
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -159,9 +369,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 64
-      width: 9
-      height: 11
-    spriteID: 36113488eb3fdbaa4964351eb7cd0a78
+      width: 64
+      height: 64
+    spriteID: acb41eb14c6220ab5a5ce926f85b66a5
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -170,28 +380,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_1
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 32
-      y: 64
-      width: 9
-      height: 11
-    spriteID: 5ed08f717ac2d925685a3892987e148a
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_2
+  - name: Game_UI_Dice_Roldd_11
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -201,9 +390,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 64
       y: 64
-      width: 9
-      height: 11
-    spriteID: 140410f7213a244c9838bd0f4ff41075
+      width: 64
+      height: 64
+    spriteID: 21a18cb49a12750eba5667477ec63db1
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -212,7 +401,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_3
+  - name: Game_UI_Dice_Roldd_12
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -220,11 +409,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 0
-      y: 32
-      width: 9
-      height: 11
-    spriteID: d1e077222736cf3ff83751fd6f9f6328
+      x: 128
+      y: 64
+      width: 64
+      height: 64
+    spriteID: 50df0c01ddcc3c943b7ab5e8b865f6e0
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -233,7 +422,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_4
+  - name: Game_UI_Dice_Roldd_13
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -241,11 +430,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 33
-      y: 32
-      width: 9
-      height: 11
-    spriteID: dc790c90dc3da81e4b4b9b1b70b0fe1b
+      x: 192
+      y: 64
+      width: 64
+      height: 64
+    spriteID: 69aa059154822ae4d9a759d1a6caa396
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -254,7 +443,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_5
+  - name: Game_UI_Dice_Roldd_14
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -262,11 +451,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 64
-      y: 32
-      width: 11
-      height: 11
-    spriteID: 80c9c9cbde42f3b0aa92b577573a52eb
+      x: 256
+      y: 64
+      width: 64
+      height: 64
+    spriteID: 1cfb2a5f0314d1aacb18cec17b72900a
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -275,7 +464,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_6
+  - name: Game_UI_Dice_Roldd_15
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -285,9 +474,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 9
-      height: 11
-    spriteID: 81882b7c697e7f9838e4d0aaf5dd1b37
+      width: 64
+      height: 64
+    spriteID: 0c8d5b0472501e006a5887871c125a19
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -296,28 +485,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_7
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 32
-      y: 0
-      width: 9
-      height: 11
-    spriteID: 97960102ab1fde612bcd456d208b2fb2
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
-  - name: Game_Cell_Flag_Appear_8
+  - name: Game_UI_Dice_Roldd_16
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -327,9 +495,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 64
       y: 0
-      width: 9
-      height: 11
-    spriteID: 4a74a088e371311f2a4f2d1827e7e5f3
+      width: 64
+      height: 64
+    spriteID: de8983f701268f77cbe831bc63510037
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -342,25 +510,25 @@ ScriptedImporter:
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 1683963184
+      value0: 1292362097
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: flag_appear
+    name: dice_roll
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: Game_Cell_Flag_Appear
+    - name: Game_UI_Dice_Roll
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
         x: 0
         y: 0
-        width: 96
-        height: 96
-      spriteId: 8369c136ab682043b9f519e032ba79be
+        width: 320
+        height: 256
+      spriteId: d4e769215818a3e238341be9085dc814
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -393,5 +561,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 128, y: 128}
-  canvasSize: {x: 96, y: 96}
+  previousTextureSize: {x: 512, y: 512}
+  canvasSize: {x: 320, y: 256}

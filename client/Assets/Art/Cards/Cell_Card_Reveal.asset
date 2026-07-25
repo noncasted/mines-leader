@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Cell_Card_Reveal
   m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
   _sprites:
-  - {fileID: 6115346676105642206, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 1406903663381077548, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 4496008805204617521, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 5078710050306846450, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 3742540863784016127, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 3640568985206257311, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 8476719301844426752, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
-  - {fileID: 8045693849786547052, guid: 37da10190c274db18b0c1a19e0ff5879, type: 3}
+  - {fileID: -3480239158003810081, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: 5661265416175928001, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: 8606934015754558071, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: 2985272232001676903, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: -8535192485084493942, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: -4451737053750010309, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: -1792265206314625863, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+  - {fileID: -2783211968502271673, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
   _time: 0.3
   _color: {r: 1, g: 1, b: 1, a: 0.6901961}

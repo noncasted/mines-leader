@@ -1,3 +1,8 @@
+---
+name: pr
+description: Create a GitHub pull request for the current branch with a formatted English title and body. Use when the user runs /pr.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /pr, pr, пулл реквест, создай PR, pull request, открой PR, запрос на слияние, github pr
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

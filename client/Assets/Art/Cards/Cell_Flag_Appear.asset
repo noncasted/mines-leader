@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Cell_Flag_Appear
   m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
   _sprites:
-  - {fileID: 765924328, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 1416013533, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: -200313253, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 1367946909, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 1251521909, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 1489830547, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 535692877, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: 1951366388, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
-  - {fileID: -461615745, guid: b75b9dd08acbd9ea4ac9dbdd4d020ebf, type: 3}
+  - {fileID: 7284823621976608856, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: -2805358507067532864, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 6858392311946912005, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 6029286139220150218, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 5217904795958871603, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 3459282602626187762, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 2852914290000234872, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 8246735750252426952, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
+  - {fileID: 1037232343371013857, guid: 814c59d3018b01f0eb55e486acfb36cb, type: 3}
   _time: 0.15
+  _color: {r: 1, g: 1, b: 1, a: 1}

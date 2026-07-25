@@ -1,3 +1,8 @@
+---
+name: validate
+description: Check all modified .cs files against project rules and report every violation. Use when the user runs /validate.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /validate, validate, валидация, валидируй, проверь правила, validate files, проверь по правилам, project rules, code validation
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

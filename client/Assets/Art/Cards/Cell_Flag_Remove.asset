@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Cell_Flag_Remove
   m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
   _sprites:
-  - {fileID: -659834257369693481, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: -1333520257, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: 567854872, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: -1965555217, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: -132337296, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: 527086896, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: 1221615050, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: -817948313, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
-  - {fileID: -722410962, guid: 0253efdab0180b9cb841a94689bb3c27, type: 3}
+  - {fileID: -8726767026648963902, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: 392343870553102597, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: -8128720500911032701, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: -5401972659270034434, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: 7714013160608763063, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: 3336475029985147086, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: 4170722418980595555, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: 1789929563072597373, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
+  - {fileID: -4029819838021021312, guid: 3b68259172a13b345837ee9c814b3e10, type: 3}
   _time: 0.15
+  _color: {r: 1, g: 1, b: 1, a: 1}

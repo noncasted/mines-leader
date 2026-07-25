@@ -1,3 +1,8 @@
+---
+name: workflow
+description: Create a structured task workspace (info/progress/result files) from a description and begin implementation. Use when the user runs /workflow or says create workflow, task workspace, or start task.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /workflow, workflow, воркфлоу, запусти воркфлоу, create workflow, task workspace, начни задачу, workflow task
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

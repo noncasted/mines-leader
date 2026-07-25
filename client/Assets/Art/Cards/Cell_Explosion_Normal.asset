@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Cell_Explosion_Normal
   m_EditorClassIdentifier: Common::Common.Animations.ForwardAnimationAsset
   _sprites:
-  - {fileID: 871651515, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: -838271488, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: -1710102008, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: -123560057, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: -1082079170, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: -1596493559, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: 760491675, guid: eb0225b3083a968759e460941212a13b, type: 3}
-  - {fileID: 1554932832, guid: eb0225b3083a968759e460941212a13b, type: 3}
+  - {fileID: -706909334090829898, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: 4936901609277146620, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -6560265352907944432, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -4737399271788463245, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -1201630826915897974, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -8620821349471945328, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -1800518755623102122, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
+  - {fileID: -8769882771344043024, guid: 278bf852fab6f9c9883b5891d71f40c9, type: 3}
   _time: 0.6
+  _color: {r: 1, g: 1, b: 1, a: 1}

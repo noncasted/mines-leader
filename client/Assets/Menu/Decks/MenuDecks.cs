@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Global.Systems;
 using Global.UI;
 using Internal;
 using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VContainer;
 
@@ -42,6 +44,7 @@ namespace Menu.Decks
         private ICardConfigs _configs;
         private IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
         private IMenuCardPreviewPlayer _previewPlayer;
+        private IUpdater _updater;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
@@ -52,7 +55,8 @@ namespace Menu.Decks
             IViewInjector viewInjector,
             ICardConfigs configs,
             IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection,
-            IMenuCardPreviewPlayer previewPlayer)
+            IMenuCardPreviewPlayer previewPlayer,
+            IUpdater updater)
         {
             _configs = configs;
             _viewInjector = viewInjector;
@@ -60,6 +64,7 @@ namespace Menu.Decks
             _deckService = deckService;
             _cardsProjection = cardsProjection;
             _previewPlayer = previewPlayer;
+            _updater = updater;
         }
 
         public void Create(IScopeBuilder builder)
@@ -112,6 +117,7 @@ namespace Menu.Decks
                 view.Setup(definition);
                 _typeToPoolSpot.Add(type, view);
                 RegisterPreviewHover(view, lifetime);
+                RegisterDrag(view, lifetime);
             }
 
             var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
@@ -121,7 +127,7 @@ namespace Menu.Decks
                 var view = Instantiate(_deckPrefab, _deckRoot);
                 _deckCards.Add(view);
                 var poolSpot = _typeToPoolSpot[cardDefinition.Type];
-                poolSpot.Card.ForceMoveToDeck(view);
+                poolSpot.ForceMoveToDeck(view);
                 view.Changed.Advise(lifetime, OnDeckChanged);
             }
 
@@ -130,6 +136,50 @@ namespace Menu.Decks
             ResizePoolRoot();
 
             _cardsProjection.Listen(lifetime, OnCardsUpdated);
+        }
+
+        private void RegisterDrag(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
+        {
+            spot.PointerHandler.IsDragging.ViewTrue(lifetime, _ => OnDragStarted(spot, lifetime).Forget());
+        }
+
+        private async UniTask OnDragStarted(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
+        {
+            if (spot.IsOwned == false)
+                return;
+
+            var card = spot.Card;
+            var canvas = GetComponentInParent<Canvas>();
+
+            card.BeginDrag();
+            spot.PointerHandler.gameObject.SetActive(false);
+
+            var cardTransform = card.Transform;
+            var startPosition = cardTransform.anchoredPosition;
+            var startPointer = Mouse.current.position.ReadValue();
+
+            await _updater.RunUpdateAction(
+                lifetime,
+                () => Mouse.current.leftButton.isPressed,
+                _ => {
+                    var pointer = Mouse.current.position.ReadValue();
+                    var delta = (pointer - startPointer) / canvas.scaleFactor;
+                    cardTransform.anchoredPosition = startPosition + delta;
+                });
+
+            spot.PointerHandler.gameObject.SetActive(true);
+
+            foreach (var deckCard in _deckCards)
+            {
+                if (deckCard.PointerHandler.IsHovered.Value == false)
+                    continue;
+
+                deckCard.OnCardDropped(spot);
+                card.gameObject.SetActive(false);
+                return;
+            }
+
+            card.ReturnToSpot();
         }
 
         private void RegisterPreviewHover(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
@@ -224,7 +274,7 @@ namespace Menu.Decks
             _deckService.SetIndex(index);
 
             foreach (var spot in _typeToPoolSpot.Values)
-                spot.Card.ReturnToSpot();
+                spot.ReturnToSpot();
 
             var selected = _deckService.Configurations[index];
 
@@ -233,7 +283,7 @@ namespace Menu.Decks
                 var deck = _deckCards[i];
                 var cardDefinition = selected.Cards[i];
                 var poolSpot = _typeToPoolSpot[cardDefinition.Type];
-                poolSpot.Card.ForceMoveToDeck(deck);
+                poolSpot.ForceMoveToDeck(deck);
             }
         }
 

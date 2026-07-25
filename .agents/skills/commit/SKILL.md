@@ -1,3 +1,8 @@
+---
+name: commit
+description: Create a git commit right now using project conventions. Extract the ticket ID or scope from the branch, generate a tagged bullet description, stage all changes, and commit. Use when the user says /commit or wants to commit current changes.
+---
+
 # AUTO-EXECUTE — DO NOT SUMMARIZE, EXECUTE IMMEDIATELY
 TRIGGERS: /commit, commit, комит, коммит, делай комит, закоммить, сделай коммит
 BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute the steps in this skill immediately.

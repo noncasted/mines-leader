@@ -31,5 +31,15 @@ namespace Menu.Decks
             _isOwned = owned;
             _canvasGroup.alpha = owned ? 1f : 0.35f;
         }
+
+        public void ForceMoveToDeck(MenuDeckCard deckCard)
+        {
+            _card.ForceMoveToDeck(deckCard);
+        }
+
+        public void ReturnToSpot()
+        {
+            _card.ReturnToSpot();
+        }
     }
 }
