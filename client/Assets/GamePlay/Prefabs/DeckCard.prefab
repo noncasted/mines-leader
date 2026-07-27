@@ -35,7 +35,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1440826769456200579
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -82,16 +82,17 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -7723078105094393389, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.5, y: 3.0833333}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &1836497579185106021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,6 +105,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c422dfe5f0fa43ce91b887a5d8c7794e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.DeckCard
-  _even: {fileID: -8578601589710533329, guid: f078831756db0c345be690697539beff, type: 3}
-  _odd: {fileID: -4533789036535041569, guid: f078831756db0c345be690697539beff, type: 3}
+  _even: {fileID: -7723078105094393389, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
+  _odd: {fileID: 4766513192042372085, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
   _renderer: {fileID: 1440826769456200579}

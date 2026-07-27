@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GamePlay.Prefabs;
 using Internal;
 using Network;
 using Tools.PrefabBuilder;
@@ -16,10 +17,12 @@ namespace GamePlay.Players
 
         private IPlayerMoves _moves;
         private INetworkEntity _playerEntity;
+        private GamePrefabs _prefabs;
 
         [Inject]
-        private void Construct(IPlayerMoves moves, INetworkEntity playerEntity)
+        private void Construct(IPlayerMoves moves, INetworkEntity playerEntity, GamePrefabs prefabs)
         {
+            _prefabs = prefabs;
             _playerEntity = playerEntity;
             _moves = moves;
         }
@@ -67,7 +70,7 @@ namespace GamePlay.Players
 
                         for (var i = 0; i < delta; i++)
                         {
-                            var point = Instantiate(Prefabs.PlayerTurnPoint.As<AvatarTurnPointView>(), transform);
+                            var point = Instantiate(_prefabs.AvatarTurnPoint, transform);
                             _points.Add(point);
                         }
                     }

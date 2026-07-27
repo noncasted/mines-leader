@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using GamePlay.Prefabs;
 using Global.Constants;
 using Internal;
 using Tools.PrefabBuilder;
 using UnityEngine;
+using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -19,9 +21,16 @@ namespace GamePlay.Cards
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private readonly List<StashCard> _cards = new();
+        private GamePrefabs _prefabs;
 
         public Vector2 PickPoint => transform.position + Vector3.up * _cardHeight * _cards.Count;
 
+        [Inject]
+        private void Construct(GamePrefabs prefabs)
+        {
+            _prefabs = prefabs;
+        }
+        
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -41,7 +50,7 @@ namespace GamePlay.Cards
                 for (var i = 0; i < delta; i++)
                 {
                     var position = transform.position + Vector3.up * _cardHeight * _cards.Count;
-                    var card = Instantiate(Prefabs.StashCard.As<StashCard>(), position, Quaternion.identity, transform);
+                    var card = Instantiate(_prefabs.StashCard, position, Quaternion.identity, transform);
                     _cards.Add(card);
                     card.Construct(_cards.Count);
                 }

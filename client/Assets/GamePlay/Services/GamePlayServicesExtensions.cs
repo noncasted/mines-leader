@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using GamePlay.Prefabs;
+using Internal;
 using Network;
 
 namespace GamePlay.Services
@@ -14,6 +15,8 @@ namespace GamePlay.Services
             builder.RegisterCommand<SnapshotReceiver>()
                    .As<ISnapshotReceiver>()
                    .As<IScopeSetup>();
+
+            builder.RegisterAsset<GamePrefabs>();
 
             return builder;
         }

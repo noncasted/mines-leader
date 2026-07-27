@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GamePlay.Prefabs;
 using Internal;
 using Tools.PrefabBuilder;
 using UnityEngine;
@@ -14,10 +15,12 @@ namespace GamePlay.Players
         [SerializeField] private float _spacing = 0.25f;
 
         private IPlayerMana _mana;
+        private GamePrefabs _prefabs;
 
         [Inject]
-        private void Construct(IPlayerMana mana)
+        private void Construct(IPlayerMana mana, GamePrefabs prefabs)
         {
+            _prefabs = prefabs;
             _mana = mana;
         }
 
@@ -40,7 +43,7 @@ namespace GamePlay.Players
             var baseMax = _mana.BaseMax.Value;
             var resultMax = _mana.ResultMax.Value;
 
-            var points = _root.CreateRequiredFromPrefab(Prefabs.ManaPoint.As<PlayerManaPointView>(), resultMax);
+            var points = _root.CreateRequiredFromPrefab(_prefabs.ManaPoint, resultMax);
             points = points.Reverse().ToList();
 
             LayoutPoints(points);

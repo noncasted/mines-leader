@@ -1,10 +1,10 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
+using GamePlay.Prefabs;
 using Internal;
 using Meta;
 using Shared;
-using Tools.PrefabBuilder;
 using VContainer.Unity;
 
 namespace GamePlay.Cards
@@ -17,6 +17,7 @@ namespace GamePlay.Cards
             IGameContext gameContext,
             ICardConfigs configs,
             ICardsRegistry registry,
+            GamePrefabs prefabs,
             LifetimeScope parentScope)
         {
             _entityScopeLoader = entityScopeLoader;
@@ -24,6 +25,7 @@ namespace GamePlay.Cards
             _gameContext = gameContext;
             _configs = configs;
             _registry = registry;
+            _prefabs = prefabs;
             _parentScope = parentScope;
         }
 
@@ -32,6 +34,7 @@ namespace GamePlay.Cards
         private readonly IGameContext _gameContext;
         private readonly ICardConfigs _configs;
         private readonly ICardsRegistry _registry;
+        private readonly GamePrefabs _prefabs;
         private readonly LifetimeScope _parentScope;
 
         public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
@@ -39,7 +42,7 @@ namespace GamePlay.Cards
             var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
             var definition = _registry.Entries[cardType];
 
-            var prefab = isLocal ? Prefabs.CardLocal.As<CardScopeEntity>() : Prefabs.CardRemote.As<CardScopeEntity>();
+            var prefab = isLocal ? _prefabs.CardLocal : _prefabs.CardRemote;
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _gameContext.Self.Deck.View.PickPoint : _gameContext.Other.Deck.View.PickPoint;
 

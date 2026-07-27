@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e455d602eb74411afa5e729675bd230, type: 3}
+  m_Name: GamePrefabs
+  m_EditorClassIdentifier: GamePlay::GamePlay.Prefabs.GamePrefabs
+  _assetId: 120
+  _stashCard: {fileID: 1382974112038058154, guid: 1439c14fbcaaf432081acb7a78f51d73, type: 3}
+  _cardLocal: {fileID: 2527661011492477406, guid: 75d1c8300d3c973968f9e706af7a36aa, type: 3}
+  _cardRemote: {fileID: 5896375272517734807, guid: 31b7b026bb3ecd47fb52d58ca1e3f05f, type: 3}
+  _avatarTurnPoint: {fileID: 5171409550910432039, guid: a71c072fec4b4190eb57f648c0ff9f6b, type: 3}
+  _manaPoint: {fileID: 3563425668842020081, guid: 44f3074dfee29fce6a860eed180d3040, type: 3}
+  _deckCard: {fileID: 1836497579185106021, guid: 52342becadf61bb588c115fd5cc797c4, type: 3}
