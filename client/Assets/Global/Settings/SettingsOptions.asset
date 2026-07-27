@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d3f8094442448dbb0e065921c1f5519, type: 3}
   m_Name: SettingsOptions
   m_EditorClassIdentifier: 
-  _assetId: 120
+  _assetId: 121
   _defaultValues:
     <MasterVolume>k__BackingField: 0.5
     <SoundsVolume>k__BackingField: 0.5

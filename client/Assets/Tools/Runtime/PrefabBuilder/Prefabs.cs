@@ -5,13 +5,6 @@ namespace Tools.PrefabBuilder
 {
     public static class Prefabs
     {
-        public static readonly StaticPrefab CardLocal = new("Game/Card_Local");
-        public static readonly StaticPrefab CardRemote = new("Game/Card_Remote");
-        public static readonly StaticPrefab DeckCard = new("Game/DeckCard");
-        public static readonly StaticPrefab ManaPoint = new("Game/ManaPoint");
-        public static readonly StaticPrefab ModifierEntry = new("Game/ModifierEntry");
-        public static readonly StaticPrefab PlayerTurnPoint = new("Game/PlayerTurnPoint");
-        public static readonly StaticPrefab StashCard = new("Game/StashCard");
         public static readonly StaticPrefab GlobalAudioListener = new("Global/Global_Audio_Listener");
         public static readonly StaticPrefab GlobalAudioPlayer = new("Global/Global_Audio_Player");
         public static readonly StaticPrefab GlobalCamera = new("Global/Global_Camera");

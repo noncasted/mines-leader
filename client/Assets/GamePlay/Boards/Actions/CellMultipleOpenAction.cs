@@ -25,7 +25,7 @@ namespace GamePlay.Boards
             _selection = selection;
         }
 
-        private const float DoubleClickTime = 0.3f;
+        private const float Threshold = 0.3f;
 
         private readonly IBoardActions _actions;
         private readonly IGameContext _gameContext;
@@ -43,13 +43,10 @@ namespace GamePlay.Boards
         {
             var timeSinceLastClick = Time.time - _lastClickTime;
 
-            if (timeSinceLastClick > DoubleClickTime)
-            {
-                _lastClickTime = Time.time;
+            if (timeSinceLastClick < Threshold)
                 return;
-            }
 
-            _lastClickTime = 0f;
+            _lastClickTime = Time.time;
 
             if (_gameContext.Self.Moves.IsAvailable(_gameContext) == false)
                 return;

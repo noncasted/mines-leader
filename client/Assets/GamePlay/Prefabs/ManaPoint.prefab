@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4776406414613929613
+--- !u!1 &2825141199106213494
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 764679150561145642}
-  - component: {fileID: 6573125556585026178}
-  - component: {fileID: 5171409550910432039}
+  - component: {fileID: 4135128547027235863}
+  - component: {fileID: 3657384495265561674}
+  - component: {fileID: 3563425668842020081}
   m_Layer: 0
-  m_Name: PlayerTurnPoint
+  m_Name: ManaPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &764679150561145642
+--- !u!4 &4135128547027235863
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4776406414613929613}
+  m_GameObject: {fileID: 2825141199106213494}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,14 +33,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6573125556585026178
+--- !u!212 &3657384495265561674
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4776406414613929613}
+  m_GameObject: {fileID: 2825141199106213494}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -78,34 +78,35 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 1503071599
+  m_SortingLayer: 4
+  m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
+  m_Sprite: {fileID: 6655173855762806840, guid: d961c130500b3bc67988e47da1de993c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.5, y: 0.5}
+  m_Size: {x: 0.11, y: 0.11}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &5171409550910432039
+  m_BlendShapeWeights: []
+--- !u!114 &3563425668842020081
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4776406414613929613}
+  m_GameObject: {fileID: 2825141199106213494}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ec8008233d3476cb49722848c2d54e8, type: 3}
+  m_Script: {fileID: 11500000, guid: c8e168c3c53b4a8f8d5bea2488e67392, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GamePlay::GamePlay.Players.AvatarTurnPointView
-  _baseActive: {fileID: 2434396589234404517, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
-  _baseInactive: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
-  _additionalActive: {fileID: 2434396589234404517, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
-  _additionalInactive: {fileID: 2697782503550993295, guid: 95d25086b1724b84ab1c3be0919e4ff1, type: 3}
-  _renderer: {fileID: 6573125556585026178}
+  m_EditorClassIdentifier: GamePlay::GamePlay.Players.PlayerManaPointView
+  _empty: {fileID: -6150627382027310280, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
+  _full: {fileID: 6815430782993304288, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
+  _baseColor: {r: 1, g: 1, b: 1, a: 1}
+  _additionalColor: {r: 0, g: 1, b: 0.15248537, a: 1}
+  _renderer: {fileID: 3657384495265561674}

@@ -17,7 +17,7 @@ namespace Menu.Main
     }
 
     [DisallowMultipleComponent]
-    public class MenuPlay : MonoBehaviour, ISceneService, IMenuPlay
+    public class MenuPlay : MonoBehaviour, ISceneService, IMenuPlay, IScopeSetup
     {
         [SerializeField] private TMP_Text _timer;
         [SerializeField] private TMP_Text _buttonText;
@@ -50,12 +50,15 @@ namespace Menu.Main
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
-                   .As<IMenuPlay>();
-        }
+                   .As<IMenuPlay>()
+                   .As<IScopeSetup>();
 
-        private void OnEnable()
+            gameObject.SetActive(false);
+            _timer.gameObject.SetActive(false);
+        }
+        
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            var lifetime = this.GetObjectLifetime();
             _button.ListenClick(lifetime, OnClicked);
         }
 
@@ -81,6 +84,7 @@ namespace Menu.Main
         {
             _selectionLifetime?.Terminate();
             _selectionLifetime = this.GetObjectLifetime().Child();
+            gameObject.SetActive(true);
 
             var completion = new UniTaskCompletionSource<(bool, GameMatchType)>();
 
