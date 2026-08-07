@@ -250,8 +250,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2df1b466f25d48c4982d4bdf74cfc9b0, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: -1834612389159900878, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -302,8 +302,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: 80}
+  m_SizeDelta: {x: 150, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &359578563
 MonoBehaviour:
@@ -317,8 +317,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0af3dfa8e054072a8c456f27c5c3ca4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ownRound: {fileID: -3817754384139816188, guid: 311412ebb76fea84db6a58ed4f828707, type: 3}
-  _opponentRound: {fileID: 4695843349523897811, guid: 311412ebb76fea84db6a58ed4f828707, type: 3}
+  _ownRound: {fileID: 3184018508462816657, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+  _opponentRound: {fileID: -4227697841525367302, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
   _image: {fileID: 992633536}
   _timeText: {fileID: 745580492}
   _button: {fileID: 992633534}
@@ -612,10 +612,10 @@ RectTransform:
   - {fileID: 745580491}
   m_Father: {fileID: 359578562}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 81.1}
-  m_SizeDelta: {x: 169.16669, y: 122.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &992633533
 MonoBehaviour:
@@ -708,7 +708,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4695843349523897811, guid: 311412ebb76fea84db6a58ed4f828707, type: 3}
+  m_Sprite: {fileID: -4227697841525367302, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -781,7 +781,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1241235513
 MonoBehaviour:
   m_ObjectHideFlags: 0

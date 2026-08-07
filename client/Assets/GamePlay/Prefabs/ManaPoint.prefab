@@ -90,7 +90,7 @@ SpriteRenderer:
   m_Size: {x: 0.11, y: 0.11}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!114 &3563425668842020081
@@ -105,8 +105,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e168c3c53b4a8f8d5bea2488e67392, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.PlayerManaPointView
-  _empty: {fileID: -6150627382027310280, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
-  _full: {fileID: 6815430782993304288, guid: a0e0344ab687a4948ba7dd30169bc32e, type: 3}
-  _baseColor: {r: 1, g: 1, b: 1, a: 1}
-  _additionalColor: {r: 0, g: 1, b: 0.15248537, a: 1}
+  _baseEmpty: {fileID: 8507833815840437696, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+  _baseFull: {fileID: -2870501604690513232, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+  _additionalEmpty: {fileID: 1804260823031049720, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+  _additionalFull: {fileID: -5201776231663678423, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
   _renderer: {fileID: 3657384495265561674}

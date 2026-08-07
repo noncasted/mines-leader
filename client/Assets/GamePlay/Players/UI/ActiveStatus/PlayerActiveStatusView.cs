@@ -9,6 +9,7 @@ namespace GamePlay.Players.ActiveStatus
     public class PlayerActiveStatusView : MonoBehaviour, IEntityComponent, IScopeLoaded
     {
         [SerializeField] private SpriteRenderer _frame;
+        [SerializeField] private SpriteRenderer _counter;
         [SerializeField] private Color _activeColor = Color.white;
         [SerializeField] private Color _inactiveColor = new(0.5f, 0.5f, 0.5f, 1f);
 
@@ -31,8 +32,10 @@ namespace GamePlay.Players.ActiveStatus
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
             _round.Player.View(lifetime, player => {
-                bool isActive = player != null && player.Info.Id == _playerInfo.Id;
-                _frame.color = isActive ? _activeColor : _inactiveColor;
+                var isActive = player != null && player.Info.Id == _playerInfo.Id;
+                var color = isActive ? _activeColor : _inactiveColor;
+                _frame.color = color;
+                _counter.color = color;
             });
         }
     }

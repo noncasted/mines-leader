@@ -630,6 +630,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8ef8d64f3fb47cebb5fbc4c0880827a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.BoardMinesCounterView
+--- !u!212 &563107308 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5929150993862751109, guid: 7a961df5950e7163bbea0b862bb84b41, type: 3}
+  m_PrefabInstance: {fileID: 563107305}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &694874233
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -714,6 +719,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Board_Local
       objectReference: {fileID: 0}
+    - target: {fileID: 3484249488465897922, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
+      propertyPath: _counter
+      value: 
+      objectReference: {fileID: 563107308}
     - target: {fileID: 4576346718155237162, guid: 6806cb1af4aace64db124e1c10035ecd, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.5
@@ -838,6 +847,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9112408119880451184, guid: 644a9c7cf0d4987488f58f744386d3ba, type: 3}
+      propertyPath: _counter
+      value: 
+      objectReference: {fileID: 2103405197}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1147,6 +1160,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Game_Player_Avatar
       objectReference: {fileID: 0}
+    - target: {fileID: 8966828124260786625, guid: bdefb429f757ac7ab8d092a44bcf4914, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1179,6 +1196,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8ef8d64f3fb47cebb5fbc4c0880827a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.BoardMinesCounterView
+--- !u!212 &2103405197 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5929150993862751109, guid: 7a961df5950e7163bbea0b862bb84b41, type: 3}
+  m_PrefabInstance: {fileID: 2185704654473214629}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &32978511199183607
 GameObject:
   m_ObjectHideFlags: 0
