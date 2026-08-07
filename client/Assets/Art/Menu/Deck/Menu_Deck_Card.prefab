@@ -34,11 +34,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 168
+      value: 210
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 192
+      value: 240
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_LocalPosition.x
@@ -90,7 +90,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2235368909299336258, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_Name
-      value: Menu_Deck_Card Variant
+      value: Menu_Deck_Card
+      objectReference: {fileID: 0}
+    - target: {fileID: 2866535747521795447, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4834922920066657292, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+      propertyPath: m_fontSize
+      value: 20.75
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -103,6 +111,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4338758576018201916}
   m_SourcePrefab: {fileID: 100100000, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+--- !u!114 &766353073403630267 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8187558222251663260, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+  m_PrefabInstance: {fileID: 8863839283243584807}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7207746154654484837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fd51c68c95f46a8ad97c22f2e54a925, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2187430432719140682 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7303148363140659821, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
@@ -174,7 +193,7 @@ MonoBehaviour:
   _description: {fileID: 4043025317325218091}
   _manaCost: {fileID: 5209062581403504595}
   _selectionHighlight: {fileID: 4338758576018201916}
-  _pointerHandler: {fileID: 4187446251523108567}
+  _pointerHandler: {fileID: 766353073403630267}
 --- !u!114 &4338758576018201916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,14 +207,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _outline: {fileID: 6684843567990298704}
---- !u!114 &4187446251523108567 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8187558222251663260, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
-  m_PrefabInstance: {fileID: 8863839283243584807}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fd51c68c95f46a8ad97c22f2e54a925, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
