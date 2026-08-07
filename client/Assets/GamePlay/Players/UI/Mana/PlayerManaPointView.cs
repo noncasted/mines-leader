@@ -5,30 +5,38 @@ namespace GamePlay.Players
     [DisallowMultipleComponent]
     public class PlayerManaPointView : MonoBehaviour
     {
-        [SerializeField] private Sprite _empty;
-        [SerializeField] private Sprite _full;
-        [SerializeField] private Color _baseColor = Color.white;
-        [SerializeField] private Color _additionalColor = Color.white;
+        [SerializeField] private Sprite _baseEmpty;
+        [SerializeField] private Sprite _baseFull;
+        [SerializeField] private Sprite _additionalEmpty;
+        [SerializeField] private Sprite _additionalFull;
         [SerializeField] private SpriteRenderer _renderer;
 
+        private bool _isBase;
+        
         public void SetEmpty()
         {
-            _renderer.sprite = _empty;
+            if (_isBase == true)
+                _renderer.sprite = _baseEmpty;
+            else
+                _renderer.sprite = _additionalEmpty;
         }
 
         public void SetFull()
         {
-            _renderer.sprite = _full;
+            if (_isBase == true)
+                _renderer.sprite = _baseFull;
+            else
+                _renderer.sprite = _additionalFull;
         }
 
         public void SetBase()
         {
-            _renderer.color = _baseColor;
+            _isBase = true;
         }
 
         public void SetAdditional()
         {
-            _renderer.color = _additionalColor;
+            _isBase = false;
         }
     }
 }
