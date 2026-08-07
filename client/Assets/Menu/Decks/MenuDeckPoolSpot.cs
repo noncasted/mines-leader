@@ -7,12 +7,11 @@ namespace Menu.Decks
     [DisallowMultipleComponent]
     public class MenuDeckPoolSpot : MonoBehaviour
     {
+        [SerializeField] private GameObject _block;
         [SerializeField] private MenuDeckPoolCard _card;
         [SerializeField] private RectTransform _transform;
-        [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private UIElementPointerHandler _pointerHandler;
 
-        private ICardDefinition _cardDefinition;
         private bool _isOwned = true;
 
         public MenuDeckPoolCard Card => _card;
@@ -22,14 +21,13 @@ namespace Menu.Decks
 
         public void Setup(ICardDefinition definition)
         {
-            _cardDefinition = definition;
             _card.Setup(definition, this);
         }
 
         public void SetOwned(bool owned)
         {
             _isOwned = owned;
-            _canvasGroup.alpha = owned ? 1f : 0.35f;
+            _block.SetActive(!owned);
         }
 
         public void ForceMoveToDeck(MenuDeckCard deckCard)

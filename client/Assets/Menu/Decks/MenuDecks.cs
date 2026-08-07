@@ -147,6 +147,9 @@ namespace Menu.Decks
         {
             if (spot.IsOwned == false)
                 return;
+            
+            if (spot.Card.gameObject.activeInHierarchy == false)
+                return;
 
             var card = spot.Card;
             var canvas = GetComponentInParent<Canvas>();
@@ -227,7 +230,7 @@ namespace Menu.Decks
             var canvasScale = 1f;
             canvasScale = ((RectTransform)canvas.transform).localScale.x;
 
-            worldRightCenter.x += 450f / canvasScale;
+            worldRightCenter.x += 100f / canvasScale;
 
             var targetLocal = popupRect.parent.InverseTransformPoint(worldRightCenter);
 
