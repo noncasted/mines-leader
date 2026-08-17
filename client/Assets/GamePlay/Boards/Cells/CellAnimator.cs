@@ -1,7 +1,6 @@
 using System;
 using Animations;
 using Cysharp.Threading.Tasks;
-using Global.Systems;
 using Internal;
 using Tools;
 using UnityEngine;
@@ -14,23 +13,19 @@ namespace GamePlay.Boards
     {
         [SerializeField] private SpriteRenderer _renderer;
 
-        [SerializeField] private ForwardAnimationAsset _mineExplosionData;
-        [SerializeField] private ForwardAnimationAsset _zipZapExplosionData;
-        [SerializeField] private ForwardAnimationAsset _cellOpenData;
-
         private ForwardSpriteAnimation _mineExplosion;
         private ForwardSpriteAnimation _zipZapExplosion;
         private ForwardSpriteAnimation _cellOpen;
 
         public void Construct(IUpdater updater)
         {
-            _mineExplosion = Create(_mineExplosionData);
-            _zipZapExplosion = Create(_zipZapExplosionData);
-            _cellOpen = Create(_cellOpenData);
+            _mineExplosion = Create(Sprites.GameCells.GameCellsExplosionNormal);
+            _zipZapExplosion = Create(Sprites.GameCells.GameCellsExplosionElectric);
+            _cellOpen = Create(Sprites.GameCells.GameCellsOpen);
 
             return;
 
-            ForwardSpriteAnimation Create(ForwardAnimationAsset data)
+            ForwardSpriteAnimation Create(ISpriteAnimationData data)
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
