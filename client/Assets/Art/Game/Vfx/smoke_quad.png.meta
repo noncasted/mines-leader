@@ -56,7 +56,9 @@ TextureImporter:
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
+  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -151,6 +153,6 @@ TextureImporter:
       smoke_quad_0: 1858717774882248226
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  userData: 
+  userData: "{\n  \"spriteCatalog\": {\n    \"group\": \"GameVfx\",\n    \"kind\": \"Sheet\",\n    \"time\": 0.8,\n    \"color\": {\n      \"r\": 1.0,\n      \"g\": 1.0,\n      \"b\": 1.0,\n      \"a\": 1.0\n    }\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

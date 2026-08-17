@@ -28,13 +28,10 @@
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.Unity.Addressables.csproj" />
   <Project Path="Docs.csproj" />
-  <Project Path="Tools.Overall.csproj" />
   <Project Path="GamePlay.Editor.csproj" />
   <Project Path="UniClipboard.csproj" />
-  <Project Path="Internal.Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
   <Project Path="UniTask.DOTween.csproj" />
   <Project Path="Assembly-CSharp-firstpass.csproj" />
-  <Project Path="Startup.csproj" />
 </Solution>

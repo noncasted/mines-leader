@@ -1,7 +1,7 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public static class AssetsBuilderExtensions
     {

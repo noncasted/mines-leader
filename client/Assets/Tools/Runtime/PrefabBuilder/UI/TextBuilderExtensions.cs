@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public static class TextBuilderExtensions
     {

@@ -140,6 +140,7 @@
 
 .assets-button-row {
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 10px;
 }

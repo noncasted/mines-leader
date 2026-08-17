@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public static class PrefabsExtensions
     {

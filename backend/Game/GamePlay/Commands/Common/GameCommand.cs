@@ -15,12 +15,17 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
 
     public readonly GameCommandUtils Utils;
 
+    protected virtual bool RequestOracle => false;
+
     protected override EmptyResponse Execute(IUser user, TRequest request)
     {
         var player = Utils.GameContext.UserToPlayer[user];
         var lifetime = new Lifetime();
 
-        var snapshot = new MoveSnapshot();
+        var snapshot = new MoveSnapshot
+        {
+            SessionLogger = Utils.SessionLogger
+        };
 
         var commandContext = new Context
         {
@@ -57,6 +62,12 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
             }
 
             Utils.SnapshotSender.Send(snapshot);
+            Utils.ObservationPublisher?.Publish(
+                player.User.Id,
+                "action",
+                response.HasError,
+                response.Message,
+                RequestOracle);
             return response;
         }
         finally

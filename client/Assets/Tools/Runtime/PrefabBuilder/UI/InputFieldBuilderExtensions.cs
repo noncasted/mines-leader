@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     /// <summary>
     /// PrefabBuilder extensions for creating input fields.

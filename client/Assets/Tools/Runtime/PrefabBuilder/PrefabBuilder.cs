@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public class PrefabBuilder
     {

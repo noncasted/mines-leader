@@ -13,6 +13,9 @@ public static class MoveSnapshotBoardExtensions
             foreach (var position in opened)
                 snapshot.RecordCellFree(board, position);
 
+            if (opened.Count > 0)
+                snapshot.SessionLogger?.LogBoardRevealed(board.OwnerId, opened);
+
             return opened;
         }
 

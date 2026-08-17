@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-using Tools.PrefabBuilder;
+using Tools;
 using UnityEngine;
 using UnityEngine.UI;
 

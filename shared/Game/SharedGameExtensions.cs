@@ -13,6 +13,8 @@
             builder.Add<LootProgressionOptions>();
             builder.Add<MatchActionContexts.PlayerReady>();
             builder.Add<MatchActionContexts.PlayerLoaded>();
+            builder.Add<SharedAgentObservation>();
+            builder.Add<SharedAgentObservationRequest>();
 
             return builder;
         }

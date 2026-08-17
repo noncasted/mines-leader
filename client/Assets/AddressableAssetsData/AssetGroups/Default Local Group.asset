@@ -66,7 +66,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e192e966f28f2434fad44cfad9dbeca2
-    m_Address: Assets/Startup/Startup.unity
+    m_Address: Assets/Loop/Startup/Startup.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

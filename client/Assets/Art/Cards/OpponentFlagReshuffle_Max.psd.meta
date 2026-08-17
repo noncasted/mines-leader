@@ -153,6 +153,6 @@ TextureImporter:
       10_up_0: 2050650176835127345
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  userData: 
+  userData: "{\n  \"spriteCatalog\": {\n    \"group\": \"Cards\",\n    \"kind\": \"Sheet\",\n    \"time\": 0.8,\n    \"color\": {\n      \"r\": 1.0,\n      \"g\": 1.0,\n      \"b\": 1.0,\n      \"a\": 1.0\n    }\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

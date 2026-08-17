@@ -2,7 +2,16 @@
     "name": "GamePlay.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:0111c49bb9c84f9ca0b14bd86d9e0630"
+        "GUID:0111c49bb9c84f9ca0b14bd86d9e0630",
+        "GUID:004191ba7e9fa37e9976d81dc0d56734",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
+        "GUID:9f28f05e990a4fb0b37d9b564dd0a6cf",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:25b7e03fa7ea4ed9a6217ec60de5aaa7",
+        "GUID:aa76e50385904580a751ab40cc7ad4e0",
+        "GUID:562a750ff18ee4193928e885c708fee1",
+        "GUID:98f702da6ca044be59a864a9419c4eab"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,6 +22,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.coplaydev.unity-mcp",
+            "expression": "",
+            "define": "MCP_FOR_UNITY"
+        }
+    ],
     "noEngineReferences": false
 }

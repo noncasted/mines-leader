@@ -1,3 +1,4 @@
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -6,6 +7,8 @@ public class MoveSnapshot
 {
     private readonly List<IMoveSnapshotRecord> _records = new();
     private int? _insertAt;
+
+    public ISessionLogger? SessionLogger { get; set; }
 
     public int Count => _records.Count;
 

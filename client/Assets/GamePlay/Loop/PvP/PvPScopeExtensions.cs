@@ -1,11 +1,12 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GamePlay.Agent;
 using GamePlay.Cheats;
 using GamePlay.Services;
 using GamePlay.UI;
 using Internal;
 using Shared;
-using Tools.SceneBuilder;
+using Tools;
 
 namespace GamePlay.Loop
 {
@@ -70,6 +71,7 @@ namespace GamePlay.Loop
                     builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
                     break;
                 case GameMatchType.LastManStanding:
+                case GameMatchType.LastManStandingTurnBased:
                     builder.Register<LastManStandingRound>()
                            .As<IGameRound>()
                            .As<ILastManStandingRound>();
@@ -80,6 +82,9 @@ namespace GamePlay.Loop
             }
 
             builder.Register<GameCheatsService>()
+                   .As<IScopeSetup>();
+
+            builder.Register<GameAgentService>()
                    .As<IScopeSetup>();
 
             return builder.AddScene();

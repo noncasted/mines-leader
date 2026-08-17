@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Internal;
-using Tools.PrefabBuilder;
+using Tools;
 using UnityEngine;
 
 namespace Global.Audio

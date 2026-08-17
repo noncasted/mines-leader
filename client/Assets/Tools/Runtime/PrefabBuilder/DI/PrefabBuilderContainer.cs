@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public class PrefabBuilderContainer
     {

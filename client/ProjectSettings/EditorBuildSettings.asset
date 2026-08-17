@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Common/Startup/Startup.unity
+    path: Assets/Loop/Startup/Startup.unity
     guid: e192e966f28f2434fad44cfad9dbeca2
   - enabled: 1
     path: Assets/Global/Setup/Global_Services.unity
@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Meta/Setup/Meta_Services.unity
     guid: b70b56507d8b176409f686c0c5e39968
   - enabled: 1
-    path: Assets/Common/Loop/Setup/GameLoop_Services.unity
+    path: Assets/Loop/Setup/GameLoop_Services.unity
     guid: 76a5a435461b3bc44991fe8c8cde3571
   - enabled: 1
     path: Assets/Menu/Common/Options/Menu.unity

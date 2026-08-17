@@ -1,5 +1,5 @@
 ﻿using Internal;
-using Tools.PrefabBuilder;
+using Tools;
 using UnityEngine;
 
 namespace Menu.Social

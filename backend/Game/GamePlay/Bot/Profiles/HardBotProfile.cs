@@ -14,8 +14,9 @@ public class HardBotProfile : BotProfileBase
         IBotCardAction cardAction,
         IBotFlagAction flagAction,
         ISessionLogger sessionLogger,
-        IGameRound round)
-        : base(config, botContext, cellAction, cardAction, flagAction, sessionLogger, round)
+        IGameRound round,
+        MatchCreateOptions matchOptions)
+        : base(config, botContext, cellAction, cardAction, flagAction, sessionLogger, round, matchOptions)
     {
     }
 

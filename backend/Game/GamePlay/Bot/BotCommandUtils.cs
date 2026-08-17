@@ -1,4 +1,5 @@
 using Game.GamePlay.Snapshots;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -17,18 +18,21 @@ public class BotCommandUtils : IBotCommandUtils
         ISnapshotSender snapshotSender,
         ISnapshotDiffGuard diffGuard,
         IGameContext gameContext,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        ISessionLogger sessionLogger)
     {
         _snapshotSender = snapshotSender;
         _diffGuard = diffGuard;
         _gameContext = gameContext;
         _serviceProvider = serviceProvider;
+        _sessionLogger = sessionLogger;
     }
 
     private readonly ISnapshotSender _snapshotSender;
     private readonly ISnapshotDiffGuard _diffGuard;
     private readonly IGameContext _gameContext;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ISessionLogger _sessionLogger;
 
     public ICardUsePayload? LastUsedPayload { get; private set; }
 
@@ -39,7 +43,10 @@ public class BotCommandUtils : IBotCommandUtils
 
     public void WithSnapshot(Action<MoveSnapshot> action)
     {
-        var snapshot = new MoveSnapshot();
+        var snapshot = new MoveSnapshot
+        {
+            SessionLogger = _sessionLogger
+        };
 
         var preState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)

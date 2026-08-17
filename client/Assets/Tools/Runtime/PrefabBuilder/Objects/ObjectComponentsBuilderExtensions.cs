@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     public static class ObjectComponentsBuilderExtensions
     {
