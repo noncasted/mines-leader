@@ -13,7 +13,7 @@ namespace Tools
 {
     public class LinkerGenerator : IPreprocessBuildWithReport
     {
-        private const string _linkXmlFolder = "Tools/Settings";
+        private const string _linkXmlFolder = "Settings";
 
         /// <summary>
         /// Сборки вне Assets, которым нужна защита от стриппинга.

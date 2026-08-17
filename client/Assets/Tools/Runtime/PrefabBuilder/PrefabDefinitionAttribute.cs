@@ -1,6 +1,6 @@
 using System;
 
-namespace Tools.PrefabBuilder
+namespace Tools
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class PrefabDefinitionAttribute : Attribute

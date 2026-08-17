@@ -87,6 +87,53 @@
             </div>
         </div>
     </div>
+
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-violet-500/15 p-1.5">
+                <LucideIcon Name="repeat" Size="14" class="text-violet-400" />
+            </div>
+            <h2 class="text-sm font-semibold">Last Man Standing (Turn Based)</h2>
+        </div>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="heart" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Health</span>
+                <input type="number" @bind="Value.LastManStandingTurnBased.PlayerHealth"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="move" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Moves</span>
+                <input type="number" @bind="Value.LastManStandingTurnBased.PlayerMoves"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="droplets" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Player Start Mana</span>
+                <input type="number" @bind="Value.LastManStandingTurnBased.PlayerStartMana"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="gauge" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Max Mana Cap</span>
+                <input type="number" @bind="Value.LastManStandingTurnBased.MaxManaCap"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Card Moves Cost</span>
+                <input type="number" min="0" @bind="Value.LastManStandingTurnBased.CardMovesCost"
+                       class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+            </div>
+            <div class="flex items-center gap-3 py-1.5">
+                <LucideIcon Name="eye" Size="12" class="text-muted-foreground shrink-0" />
+                <span class="text-sm flex-1">Include Oracle</span>
+                <input type="checkbox" @bind="Value.LastManStandingTurnBased.IncludeOracle"
+                       class="h-4 w-4 rounded border border-input" />
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {

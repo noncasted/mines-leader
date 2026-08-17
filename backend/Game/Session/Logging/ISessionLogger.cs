@@ -20,5 +20,6 @@ public interface ISessionLogger
     void LogBotProfile(Guid botId, string profile);
     void LogTurnSkipped(Guid playerId);
     void LogGameOver(Guid winnerId, string reason);
+    void LogBoardRevealed(Guid playerId, IReadOnlyList<Position> positions);
     void Log(string message);
 }

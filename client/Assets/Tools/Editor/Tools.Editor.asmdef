@@ -2,10 +2,11 @@
     "name": "Tools.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:441aa9a776cf4a1981dfdbf4fddca55c",
+        "GUID:aa76e50385904580a751ab40cc7ad4e0",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
-        "GUID:145ba95b4bb640c9788d905b21beaf64"
+        "GUID:145ba95b4bb640c9788d905b21beaf64",
+        "GUID:69448af7b92c7f342b298e06a37122aa"
     ],
     "includePlatforms": [
         "Editor"

@@ -6,15 +6,17 @@ namespace Game.Session;
 
 public class SessionFileLogger : ISessionLogger, IDisposable
 {
-    public SessionFileLogger(ISessionData sessionData)
+    public SessionFileLogger(ISessionData sessionData, IObservationEventBuffer eventBuffer)
     {
         _sessionId = sessionData.Id;
+        _eventBuffer = eventBuffer;
         _writer = CreateWriter(sessionData.Id);
 
         sessionData.Lifetime.Listen(Dispose);
     }
 
     private readonly Guid _sessionId;
+    private readonly IObservationEventBuffer _eventBuffer;
     private readonly StreamWriter _writer;
     private readonly object _lock = new();
     private readonly Dictionary<Guid, string> _playerLabels = new();
@@ -118,6 +120,15 @@ public class SessionFileLogger : ISessionLogger, IDisposable
         Write($"[Game] Over | Winner={Label(winnerId)} | Reason={reason}");
     }
 
+    public void LogBoardRevealed(Guid playerId, IReadOnlyList<Position> positions)
+    {
+        if (positions.Count == 0)
+            return;
+
+        var formatted = string.Join(",", positions.Select(p => $"({p.x},{p.y})"));
+        Write($"[Board] Revealed | Player={Label(playerId)} | Count={positions.Count} | Positions={formatted}");
+    }
+
     public void Log(string message)
     {
         Write(message);
@@ -153,6 +164,15 @@ public class SessionFileLogger : ISessionLogger, IDisposable
         {
             if (_disposed)
                 return;
+
+            try
+            {
+                _eventBuffer.Append(line);
+            }
+            catch
+            {
+                // Ignore — observation must not crash the game
+            }
 
             try
             {

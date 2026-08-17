@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Internal;
-using Tools.SceneBuilder;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -277,6 +276,11 @@ namespace Tools
             var generateScenesButton = new Button(OnGenerateScenesClicked) { text = "Generate Scenes" };
             generateScenesButton.AddToClassList("assets-button");
             buttonRow.Add(generateScenesButton);
+
+            var generateSpritesButton = new Button(OnGenerateSpritesClicked) { text = "Generate Sprites" };
+            generateSpritesButton.AddToClassList("assets-button");
+            buttonRow.Add(generateSpritesButton);
+
             var exportIconsButton = new Button(OnExportCardIconsClicked) { text = "Export Card Icons" };
             exportIconsButton.AddToClassList("assets-button");
             buttonRow.Add(exportIconsButton);
@@ -322,6 +326,21 @@ namespace Tools
             }
         }
 
+        private void OnGenerateSpritesClicked()
+        {
+            try
+            {
+                UpdateStatus("Generating sprites...", false);
+                SpriteGenerator.Generate();
+                UpdateStatus("Sprites generated", false);
+            }
+            catch (System.Exception ex)
+            {
+                UpdateStatus("Sprite generation failed", true);
+                Debug.LogError($"[ProjectTools] Sprite generation failed: {ex}");
+            }
+        }
+
         private void OnExportCardIconsClicked()
         {
             try
@@ -347,8 +366,11 @@ namespace Tools
                 _progressBar.value = 25;
                 PrefabGenerator.Generate();
 
-                _progressBar.value = 75;
+                _progressBar.value = 50;
                 SceneGenerator.Generate();
+
+                _progressBar.value = 75;
+                SpriteGenerator.Generate();
 
                 _progressBar.value = 100;
                 UpdateStatus("All generators completed", false);

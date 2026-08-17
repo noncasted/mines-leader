@@ -120,6 +120,11 @@ public class SessionFactory : ISessionFactory
                         .As<IService>()
                         .As<IGameRound>();
                 break;
+            case GameMatchType.LastManStandingTurnBased:
+                services.Add<LastManStandingTurnBasedRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -198,6 +203,11 @@ public class SessionFactory : ISessionFactory
                 break;
             case GameMatchType.LastManStanding:
                 services.Add<LastManStandingRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStandingTurnBased:
+                services.Add<LastManStandingTurnBasedRound>()
                         .As<IService>()
                         .As<IGameRound>();
                 break;

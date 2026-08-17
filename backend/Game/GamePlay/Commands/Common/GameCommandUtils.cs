@@ -13,7 +13,8 @@ public class GameCommandUtils
         ISnapshotSender snapshotSender,
         ISnapshotDiffGuard diffGuard,
         ILogger<GameCommandUtils> logger,
-        ISessionLogger sessionLogger)
+        ISessionLogger sessionLogger,
+        IAgentObservationPublisher? observationPublisher = null)
     {
         GameContext = gameContext;
         GameRound = gameRound;
@@ -22,6 +23,7 @@ public class GameCommandUtils
         DiffGuard = diffGuard;
         Logger = logger;
         SessionLogger = sessionLogger;
+        ObservationPublisher = observationPublisher;
     }
 
     public IGameContext GameContext { get; }
@@ -31,4 +33,5 @@ public class GameCommandUtils
     public ISnapshotDiffGuard DiffGuard { get; }
     public ILogger Logger { get; }
     public ISessionLogger SessionLogger { get; }
+    public IAgentObservationPublisher? ObservationPublisher { get; }
 }

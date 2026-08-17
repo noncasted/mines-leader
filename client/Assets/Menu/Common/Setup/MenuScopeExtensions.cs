@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using Menu.Social;
 using Network;
-using Tools.SceneBuilder;
+using Tools;
 
 namespace Menu.Common
 {

@@ -13,6 +13,7 @@ public static class GameCommandsExtensions
         services.AddSingleton<IResponseCommand, RemoveFlagAction>();
         services.AddSingleton<IResponseCommand, SetFlagAction>();
         services.AddSingleton<IResponseCommand, SkipTurn>();
+        services.AddSingleton<IResponseCommand, RequestAgentObservationCommand>();
 
         services.AddSingleton<ICommand, PlayerReadyCommand>();
         services.AddSingleton<ICommand, PlayerLoadedCommand>();

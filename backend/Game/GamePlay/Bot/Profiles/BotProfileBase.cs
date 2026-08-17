@@ -14,7 +14,8 @@ public abstract class BotProfileBase : IBotProfileStrategy
         IBotCardAction cardAction,
         IBotFlagAction flagAction,
         ISessionLogger sessionLogger,
-        IGameRound round)
+        IGameRound round,
+        MatchCreateOptions matchOptions)
     {
         _config = config;
         _botContext = botContext;
@@ -23,12 +24,14 @@ public abstract class BotProfileBase : IBotProfileStrategy
         _flagAction = flagAction;
         _sessionLogger = sessionLogger;
         _round = round;
+        _matchOptions = matchOptions;
     }
 
     protected readonly IBotConfig _config;
     protected readonly IBotContext _botContext;
     protected readonly ISessionLogger _sessionLogger;
     protected readonly IGameRound _round;
+    protected readonly MatchCreateOptions _matchOptions;
 
     protected readonly IBotCellAction _cellAction;
     protected readonly IBotCardAction _cardAction;
@@ -126,6 +129,9 @@ public abstract class BotProfileBase : IBotProfileStrategy
 
     protected async Task WaitRemainingTime(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
+        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
+            return;
+
         var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
         var remaining = roundTime - elapsed;
 
@@ -133,8 +139,11 @@ public abstract class BotProfileBase : IBotProfileStrategy
             await Delay(remaining, lifetime);
     }
 
-    protected static async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    protected async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
+        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
+            return;
+
         var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
         var remaining = roundTime - elapsed;
 
@@ -148,8 +157,11 @@ public abstract class BotProfileBase : IBotProfileStrategy
         await Delay(delay, lifetime);
     }
 
-    protected static Task Delay(float seconds, IReadOnlyLifetime lifetime)
+    protected Task Delay(float seconds, IReadOnlyLifetime lifetime)
     {
+        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
+            return Task.CompletedTask;
+
         return Task.Delay(TimeSpan.FromSeconds(seconds), lifetime.Token);
     }
 }

@@ -23,7 +23,8 @@ public class GameFlow : Service, IGameFlow
         IRematchAwaiter rematchAwaiter,
         ISessionLogger sessionLogger,
         IBotConfig botConfig,
-        ISnapshotSender snapshotSender) : base("game-flow")
+        ISnapshotSender snapshotSender,
+        IAgentObservationPublisher observationPublisher) : base("game-flow")
     {
         _orleans = orleans;
         _context = context;
@@ -36,6 +37,7 @@ public class GameFlow : Service, IGameFlow
         _sessionLogger = sessionLogger;
         _botConfig = botConfig;
         _snapshotSender = snapshotSender;
+        _observationPublisher = observationPublisher;
     }
 
     private readonly IOrleans _orleans;
@@ -49,6 +51,7 @@ public class GameFlow : Service, IGameFlow
     private readonly ISessionLogger _sessionLogger;
     private readonly IBotConfig _botConfig;
     private readonly ISnapshotSender _snapshotSender;
+    private readonly IAgentObservationPublisher _observationPublisher;
 
     public async Task<MatchTransitionResult> Process()
     {
@@ -76,6 +79,14 @@ public class GameFlow : Service, IGameFlow
         var completionSnapshot = new MoveSnapshot();
         completionSnapshot.RecordGameCompleted(winner);
         _snapshotSender.Send(completionSnapshot);
+
+        foreach (var user in _users)
+        {
+            if (user.IsBot)
+                continue;
+
+            _observationPublisher.Publish(user.Id, "game_over", false, string.Empty);
+        }
 
         await _orleans.InTransaction(() => match.OnComplete(winner));
 

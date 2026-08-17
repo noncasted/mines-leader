@@ -18,5 +18,14 @@
     "RoundTime": 120,
     "TimeGainPerAction": 5,
     "CardMovesCost": 0
+  },
+  "LastManStandingTurnBased": {
+    "$type": "Shared.LastManStandingTurnBasedModeOptions, Shared",
+    "PlayerHealth": 3,
+    "PlayerMoves": 5,
+    "PlayerStartMana": 4,
+    "MaxManaCap": 10,
+    "CardMovesCost": 0,
+    "IncludeOracle": false
   }
 }

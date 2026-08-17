@@ -30,6 +30,9 @@ public static class GameContextServiceExtensions
         services.Add<SnapshotDiffGuard>()
                 .As<ISnapshotDiffGuard>();
 
+        services.Add<AgentObservationPublisher>()
+                .As<IAgentObservationPublisher>();
+
         return services;
     }
 }

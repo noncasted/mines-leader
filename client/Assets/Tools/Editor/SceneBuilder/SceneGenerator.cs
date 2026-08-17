@@ -4,7 +4,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools.SceneBuilder
+namespace Tools
 {
     public static class SceneGenerator
     {

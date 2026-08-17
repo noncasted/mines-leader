@@ -6,12 +6,14 @@ namespace Shared
     {
         public LastManStandingModeOptions LastManStanding { get; set; } = new();
         public TimeLimitedModeOptions TimeLimited { get; set; } = new();
+        public LastManStandingTurnBasedModeOptions LastManStandingTurnBased { get; set; } = new();
 
         public int GetCardMovesCost(GameMatchType type)
         {
             return type switch
             {
                 GameMatchType.TimeLimited => TimeLimited.CardMovesCost,
+                GameMatchType.LastManStandingTurnBased => LastManStandingTurnBased.CardMovesCost,
                 _ => LastManStanding.CardMovesCost,
             };
         }
@@ -36,5 +38,15 @@ namespace Shared
         public int RoundTime { get; set; } = 120;
         public int TimeGainPerAction { get; set; } = 5;
         public int CardMovesCost { get; set; } = 1;
+    }
+
+    public class LastManStandingTurnBasedModeOptions
+    {
+        public int PlayerHealth { get; set; } = 3;
+        public int PlayerMoves { get; set; } = 5;
+        public int PlayerStartMana { get; set; } = 1;
+        public int MaxManaCap { get; set; } = 10;
+        public int CardMovesCost { get; set; } = 0;
+        public bool IncludeOracle { get; set; } = false;
     }
 }

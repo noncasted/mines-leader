@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Tools.PrefabBuilder;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -37,7 +36,7 @@ namespace Tools
                 var returnsVoid = defineMethod.ReturnType == typeof(void);
 
                 if (parameters.Length == 1 &&
-                    parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder) &&
+                    parameters[0].ParameterType == typeof(PrefabBuilder) &&
                     returnsVoid)
                     baseTypes.Add(type);
                 else
@@ -132,12 +131,12 @@ namespace Tools
             }
 
             var parameters = defineMethod.GetParameters();
-            var returnsBuilder = defineMethod.ReturnType == typeof(PrefabBuilder.PrefabBuilder);
+            var returnsBuilder = defineMethod.ReturnType == typeof(PrefabBuilder);
 
             // Support two signatures:
             //   void Define(PrefabBuilder builder)  -- base prefabs (builder created by generator)
             //   PrefabBuilder Define()              -- derived prefabs (builder created by Define itself, e.g. via FromPrefab)
-            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder.PrefabBuilder))
+            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(PrefabBuilder))
             {
                 return GenerateWithProvidedBuilder(type, defineMethod);
             }
@@ -157,7 +156,7 @@ namespace Tools
             Type type,
             MethodInfo defineMethod)
         {
-            var builder = new PrefabBuilder.PrefabBuilder();
+            var builder = new PrefabBuilder();
 
             try
             {
@@ -183,11 +182,11 @@ namespace Tools
             Type type,
             MethodInfo defineMethod)
         {
-            PrefabBuilder.PrefabBuilder builder = null;
+            PrefabBuilder builder = null;
 
             try
             {
-                builder = (PrefabBuilder.PrefabBuilder)defineMethod.Invoke(null, null);
+                builder = (PrefabBuilder)defineMethod.Invoke(null, null);
 
                 if (builder == null)
                 {
