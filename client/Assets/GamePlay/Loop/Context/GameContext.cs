@@ -13,9 +13,10 @@ namespace GamePlay.Loop
         IReadOnlyList<IGamePlayer> All { get; }
         IViewableDelegate Updated { get; }
         bool IsGameStarted { get; }
+        int CardMovesCost { get; }
 
         void AddPlayer(IGamePlayer player);
-        void SetGameStarted();
+        void SetGameStarted(int cardMovesCost);
     }
 
     public class GameContext : IGameContext
@@ -23,6 +24,7 @@ namespace GamePlay.Loop
         private IGamePlayer _self;
         private IGamePlayer _other;
         private bool _isGameStarted;
+        private int _cardMovesCost = 1;
 
         private readonly List<IGamePlayer> _all = new();
         private readonly ViewableDelegate _updated = new();
@@ -32,6 +34,7 @@ namespace GamePlay.Loop
         public IReadOnlyList<IGamePlayer> All => _all;
         public IViewableDelegate Updated => _updated;
         public bool IsGameStarted => _isGameStarted;
+        public int CardMovesCost => _cardMovesCost;
 
         public void AddPlayer(IGamePlayer player)
         {
@@ -44,9 +47,10 @@ namespace GamePlay.Loop
             _updated.Invoke();
         }
 
-        public void SetGameStarted()
+        public void SetGameStarted(int cardMovesCost)
         {
             _isGameStarted = true;
+            _cardMovesCost = cardMovesCost;
         }
     }
 

@@ -1,4 +1,4 @@
-using Internal;
+﻿using Internal;
 using Meta;
 using TMPro;
 using UnityEngine;
@@ -19,7 +19,7 @@ namespace GamePlay.Cards
         private ICardDescriptionProvider _descriptionProvider;
 
         [Inject]
-        private void Construct(ICardDefinition definition, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        internal void Construct(ICardDefinition definition, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
             _definition = definition;

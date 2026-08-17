@@ -78,39 +78,13 @@ namespace GamePlay.Cards
                 return;
             }
 
-            if (_moves.IsAvailable(_gameContext) == false)
+            if (_moves.CanSpend(_gameContext, _gameContext.CardMovesCost) == false)
             {
                 _isAvailable.Set(false);
                 return;
             }
 
             _isAvailable.Set(true);
-        }
-
-        private IBoard SelectTargetBoard(CardType type, IGameContext gameContext)
-        {
-
-
-            return type switch
-            {
-                CardType.Trebuchet => gameContext.Other.Board,
-                CardType.Trebuchet_Max => gameContext.Other.Board,
-                CardType.Bloodhound => gameContext.Self.Board,
-                CardType.Bloodhound_Max => gameContext.Self.Board,
-                CardType.ErosionDozer => gameContext.Self.Board,
-                CardType.ErosionDozer_Max => gameContext.Self.Board,
-                CardType.ZipZap => gameContext.Self.Board,
-                CardType.ZipZap_Max => gameContext.Self.Board,
-                CardType.TrebuchetAimer => null,
-                CardType.TrebuchetAimer_Max => null,
-                CardType.Gravedigger => null,
-                CardType.OpponentBomb => gameContext.Other.Board,
-                CardType.OpponentFlagErase => gameContext.Other.Board,
-                CardType.OpponentFlagErase_Max => gameContext.Other.Board,
-                CardType.OpponentFlagReshuffle => gameContext.Other.Board,
-                CardType.OpponentFlagReshuffle_Max => gameContext.Other.Board,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
         }
     }
 }

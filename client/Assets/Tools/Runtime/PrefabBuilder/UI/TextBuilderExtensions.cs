@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using TMPro;
 using UnityEngine;
@@ -97,4 +96,3 @@ namespace Tools.PrefabBuilder
         }
     }
 }
-#endif

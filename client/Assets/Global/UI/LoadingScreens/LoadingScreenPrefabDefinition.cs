@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using MPUIKIT;
 using Tools.PrefabBuilder;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,17 +48,9 @@ namespace Global.UI
             rootRt.pivot = new Vector2(0.5f, 0.5f);
 
             builder.WithChildObject("Background", bg => {
-                bg.WithComponent<MPImage>(img => {
-                    img.color = Color.white;
+                bg.WithComponent<Image>(img => {
+                    img.color = Color.black;
                     img.raycastTarget = true;
-
-                    img.GradientEffect = new GradientEffect
-                    {
-                        Enabled = true,
-                        GradientType = GradientType.Linear,
-                        Rotation = -118.18f,
-                        Gradient = CreateBackgroundGradient()
-                    };
                 });
 
                 var bgRt = bg.GameObject.GetComponent<RectTransform>();

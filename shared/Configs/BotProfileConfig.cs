@@ -10,6 +10,14 @@ namespace Shared
         public int FlagsPerRound { get; set; } = 3;
         public int CellsOpenPerRound { get; set; } = 3;
         public int CardsUsePerRound { get; set; } = 4;
+
+        /// <summary>
+        /// Ходов боту за раунд. 0 — брать значение режима, как у человека.
+        /// Отдельная ручка нужна потому, что скорость вскрытия поля упирается именно в ходы,
+        /// а не в лимиты профиля.
+        /// </summary>
+        public int MovesPerRound { get; set; }
+
         public int DeckSize { get; set; } = 6;
         public List<BotDeck> Decks { get; set; } = new();
     }

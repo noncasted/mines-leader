@@ -1,4 +1,4 @@
-using GamePlay.UI;
+﻿using GamePlay.UI;
 using Internal;
 using Meta;
 using TMPro;
@@ -27,7 +27,7 @@ namespace Menu.Screens
         public UIElementPointerHandler PointerHandler => _pointerHandler;
 
         [Inject]
-        private void Construct(ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        internal void Construct(ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
             _descriptionProvider = descriptionProvider;

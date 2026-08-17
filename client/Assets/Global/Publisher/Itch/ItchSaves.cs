@@ -31,7 +31,7 @@ namespace Global.Publisher.Itch
             if (_entries.TryGetValue(key, out var rawEntry) == false)
                 return new T();
 
-            return JsonConvert.DeserializeObject<T>(rawEntry);
+            return JsonConvert.DeserializeObject<T>(rawEntry) ?? new T();
         }
 
         public UniTask Save<T>(T data)

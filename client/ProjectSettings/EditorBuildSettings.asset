@@ -24,9 +24,6 @@ EditorBuildSettings:
     path: Assets/Menu/Common/Options/Menu_Services.unity
     guid: 4d21236cc0b1e1146b72afd98396ebb4
   - enabled: 1
-    path: Assets/GamePlay/Scenes/Game_Cheats.unity
-    guid: 0070934dd04b367409ad1814192012ad
-  - enabled: 1
     path: Assets/GamePlay/Scenes/Game_End.unity
     guid: e0fdfc16c2402b84b95cf19dfb3c0dee
   - enabled: 1

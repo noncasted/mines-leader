@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Meta;
@@ -16,7 +16,7 @@ namespace Menu.Screens
         private IViewInjector _injector;
 
         [Inject]
-        private void Construct(IViewInjector injector)
+        internal void Construct(IViewInjector injector)
         {
             _injector = injector;
         }

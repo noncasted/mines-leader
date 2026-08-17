@@ -16,7 +16,7 @@ namespace GamePlay.Cards
         private IViewInjector _viewInjector;
 
         [Inject]
-        private void Construct(IViewInjector viewInjector)
+        internal void Construct(IViewInjector viewInjector)
         {
             _viewInjector = viewInjector;
         }

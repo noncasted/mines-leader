@@ -1,4 +1,4 @@
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using Internal;
 using UnityEngine;
 using VContainer;
@@ -17,7 +17,7 @@ namespace GamePlay.Players.ActiveStatus
         private IGamePlayerInfo _playerInfo;
 
         [Inject]
-        private void Construct(IGameRound round, IGamePlayerInfo playerInfo)
+        internal void Construct(IGameRound round, IGamePlayerInfo playerInfo)
         {
             _round = round;
             _playerInfo = playerInfo;

@@ -36,7 +36,7 @@ namespace GamePlay.Boards
         public CellVisuals Visuals => _visuals;
         public CellEffects Effects => _effects;
 
-        public void ConstructFromBuild(Vector2Int position, Board board)
+        public void Construct(Vector2Int position, Board board)
         {
             _boardPosition = position;
             _board = board;

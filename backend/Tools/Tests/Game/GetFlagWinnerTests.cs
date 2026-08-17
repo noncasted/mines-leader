@@ -357,4 +357,63 @@ public class GetFlagWinnerTests
 
         winner.Should().Be(Guid.Empty);
     }
+
+    [Fact]
+    public void DetonatedMine_NoWinner()
+    {
+        // Оставшаяся мина не отмечена флагом, а подорвана — с поля она исчезла,
+        // но победу по флагам это давать не должно.
+        var (board1, _) = BoardParser.Parse("""
+                                            f f f f _
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        board1.RegisterDetonatedMine();
+
+        var (board2, _) = BoardParser.Parse("""
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        var (context, _, _) = CreateContext(board1, board2);
+        var roundPlayers = new RoundPlayers(context);
+
+        var winner = roundPlayers.GetFlagWinner();
+
+        winner.Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public void AllMinesFlagged_NoDetonations_ReturnsWinnerId()
+    {
+        // Та же доска, но мина отмечена флагом, а не подорвана — победа засчитывается.
+        var (board1, _) = BoardParser.Parse("""
+                                            f f f f f
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        var (board2, _) = BoardParser.Parse("""
+                                            m t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            t t t t t
+                                            """);
+
+        var (context, player1Id, _) = CreateContext(board1, board2);
+        var roundPlayers = new RoundPlayers(context);
+
+        var winner = roundPlayers.GetFlagWinner();
+
+        winner.Should().Be(player1Id);
+    }
 }

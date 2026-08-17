@@ -1,11 +1,14 @@
 {
   "$type": "Shared.UserDeckConfigOptions, Shared",
-  "BaseDeck": [
-    "Bloodhound",
-    "ErosionDozer",
-    "Gravedigger",
-    "Trebuchet",
-    "Sonar",
-    "ZipZap"
-  ]
+  "BaseDeck": {
+    "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+    "$values": [
+      200,
+      400,
+      500,
+      100,
+      2400,
+      600
+    ]
+  }
 }

@@ -19,7 +19,7 @@ namespace Global.Cameras
         public Camera Camera { get; private set; }
 
         [Inject]
-        private void Construct(ICurrentCamera currentCamera)
+        internal void Construct(ICurrentCamera currentCamera)
         {
             _currentCamera = currentCamera;
         }

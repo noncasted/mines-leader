@@ -11,12 +11,6 @@ namespace Global.Systems
                    .As<IScreen>()
                    .As<IApplicationFlow>();
 
-            var broker = new MessageBroker();
-            Msg.Inject(broker);
-
-            builder.RegisterInstance(broker)
-                   .As<IMessageBroker>();
-
             var updaterPrefab = Prefabs.GlobalUpdater.As<Updater>();
             var updater = builder.Instantiate(updaterPrefab);
 

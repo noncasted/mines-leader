@@ -14,7 +14,7 @@ public interface IMoves
 
     void SetCurrent(MoveSnapshot snapshot, int value);
     void SetMax(MoveSnapshot snapshot, int value);
-    void OnUsed(MoveSnapshot snapshot);
+    void OnUsed(MoveSnapshot snapshot, int cost = 1);
     void Restore(MoveSnapshot snapshot);
     void Lock(MoveSnapshot snapshot);
     void Refresh(MoveSnapshot snapshot);
@@ -76,9 +76,12 @@ public class Moves : IMoves
         Record(snapshot);
     }
 
-    public void OnUsed(MoveSnapshot snapshot)
+    public void OnUsed(MoveSnapshot snapshot, int cost = 1)
     {
-        _rawLeft -= 1;
+        if (cost <= 0)
+            return;
+
+        _rawLeft -= cost;
 
         if (Left < 0)
             throw new InvalidOperationException("Turns cannot be less than zero.");

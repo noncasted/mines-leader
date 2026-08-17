@@ -25,7 +25,10 @@ public static class JsonStateSettings
             MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
             PreserveReferencesHandling = PreserveReferencesHandling.None,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            DefaultValueHandling = DefaultValueHandling.Ignore,
+            // Include, не Ignore: с Ignore любое значение, равное дефолту типа (0, false),
+            // выпадало из JSON при записи, а при чтении подменялось инициализатором свойства.
+            // Из-за этого настройку нельзя было выставить в 0 — она молча возвращалась к дефолту класса.
+            DefaultValueHandling = DefaultValueHandling.Include,
             MissingMemberHandling = MissingMemberHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore,
             ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,

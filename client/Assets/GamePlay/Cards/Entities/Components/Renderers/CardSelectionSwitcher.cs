@@ -12,7 +12,7 @@ namespace GamePlay.Cards
         private ICardPointerHandler _pointerHandler;
 
         [Inject]
-        private void Construct(ICardPointerHandler pointerHandler)
+        internal void Construct(ICardPointerHandler pointerHandler)
         {
             _pointerHandler = pointerHandler;
         }

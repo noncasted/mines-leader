@@ -21,7 +21,7 @@ namespace Global.Audio
         public IViewableProperty<bool> IsMuted => _isMuted;
 
         [Inject]
-        private void Construct(ISaves saves)
+        internal void Construct(ISaves saves)
         {
             _saves = saves;
         }
@@ -36,8 +36,8 @@ namespace Global.Audio
         {
             var save = _saves.Get<VolumeSave>();
 
-            _values[AudioLine.Music] = save.Values[AudioLine.Music];
-            _values[AudioLine.SFX] = save.Values[AudioLine.SFX];
+            _values[AudioLine.Music] = save.Music;
+            _values[AudioLine.SFX] = save.SFX;
         }
 
         public void Mute()

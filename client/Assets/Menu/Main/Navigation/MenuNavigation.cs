@@ -25,7 +25,7 @@ namespace Menu.Main
         private ISettings _settingsService;
 
         [Inject]
-        private void Construct(
+        internal void Construct(
             IMenuDecks decks,
             IMenuProgression progressionScreen,
             IUIStateMachine stateMachine,

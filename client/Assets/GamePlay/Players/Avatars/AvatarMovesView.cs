@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GamePlay.Prefabs;
 using Internal;
 using Network;
@@ -20,7 +20,7 @@ namespace GamePlay.Players
         private GamePrefabs _prefabs;
 
         [Inject]
-        private void Construct(IPlayerMoves moves, INetworkEntity playerEntity, GamePrefabs prefabs)
+        internal void Construct(IPlayerMoves moves, INetworkEntity playerEntity, GamePrefabs prefabs)
         {
             _prefabs = prefabs;
             _playerEntity = playerEntity;

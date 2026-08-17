@@ -48,6 +48,11 @@ public class RoundPlayers
             if (board.Cells.Count == 0)
                 continue;
 
+            // Подорванная мина исчезает с поля, поэтому отметить её флагом уже нельзя.
+            // Без этой проверки поле можно было бы "зачистить", просто взорвав оставшиеся мины.
+            if (board.DetonatedMines > 0)
+                continue;
+
             foreach (var (_, cell) in board.Cells)
             {
                 if (cell.Status == CellStatus.Free)

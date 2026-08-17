@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GamePlay.Prefabs;
 using Internal;
@@ -18,7 +18,7 @@ namespace GamePlay.Players
         private GamePrefabs _prefabs;
 
         [Inject]
-        private void Construct(IPlayerMana mana, GamePrefabs prefabs)
+        internal void Construct(IPlayerMana mana, GamePrefabs prefabs)
         {
             _prefabs = prefabs;
             _mana = mana;

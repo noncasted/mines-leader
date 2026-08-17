@@ -13,9 +13,17 @@ public interface IBoard
     IBoardEvents Events { get; }
     Position Size { get; }
 
+    /// <summary>
+    /// Мины, подорванные владельцем доски при открытии клетки. Такая мина исчезает с поля,
+    /// поэтому её нельзя отметить флагом — она остаётся неучтённой и закрывает победу по флагам.
+    /// </summary>
+    int DetonatedMines { get; }
+
     IReadOnlyDictionary<Position, ICell> Cells { get; }
 
     void SetCell(ICell cell);
+
+    void RegisterDetonatedMine();
 }
 
 public class Board : IBoard
@@ -39,11 +47,17 @@ public class Board : IBoard
     public IBoardMinesScanner MinesScanner { get; }
     public IBoardEvents Events { get; }
     public Position Size { get; }
+    public int DetonatedMines { get; private set; }
     public IReadOnlyDictionary<Position, ICell> Cells => _cells;
 
     public void SetCell(ICell cell)
     {
         _cells[cell.Position] = cell;
         Events.SetCell(cell);
+    }
+
+    public void RegisterDetonatedMine()
+    {
+        DetonatedMines++;
     }
 }

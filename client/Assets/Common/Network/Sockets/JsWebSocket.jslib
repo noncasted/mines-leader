@@ -71,8 +71,7 @@ var LibraryJsWebSocket = {
                 }
 
                 if (jsWebSocketState.onOpen) {
-                    const func = Module['asm']['__indirect_function_table'].get(jsWebSocketState.onOpen);
-                    func(id);
+                    {{{ makeDynCall('vi', 'jsWebSocketState.onOpen') }}}(id);
                 }
             };
 
@@ -101,8 +100,7 @@ var LibraryJsWebSocket = {
                 HEAPU8.set(dataBuffer, buffer);
 
                 try {
-                    const func = Module['asm']['__indirect_function_table'].get(jsWebSocketState.onMessage);
-                    func(id, buffer, dataBuffer.length);
+                    {{{ makeDynCall('viii', 'jsWebSocketState.onMessage') }}}(id, buffer, dataBuffer.length);
                 } finally {
                     _free(buffer);
                 }
@@ -120,8 +118,7 @@ var LibraryJsWebSocket = {
                     stringToUTF8(msg, buffer, length);
 
                     try {
-                        const func = Module['asm']['__indirect_function_table'].get(jsWebSocketState.onError);
-                        func(id, buffer);
+                        {{{ makeDynCall('vii', 'jsWebSocketState.onError') }}}(id, buffer);
                     } finally {
                         _free(buffer);
                     }
@@ -134,8 +131,7 @@ var LibraryJsWebSocket = {
                 }
 
                 if (jsWebSocketState.onClose) {
-                    const func = Module['asm']['__indirect_function_table'].get(jsWebSocketState.onClose);
-                    func(id, event.code);
+                    {{{ makeDynCall('vii', 'jsWebSocketState.onClose') }}}(id, event.code);
                 }
 
                 handler.ws = null;
@@ -218,9 +214,17 @@ var LibraryJsWebSocket = {
             return 0;
         }
 
-        // Close connection if still open
-        if (handler.ws && handler.ws.readyState < WebSocket.CLOSING) {
-            handler.ws.close(1000, "Handler freed");
+        if (handler.ws) {
+            // Событие close асинхронное, а C# удаляет инстанс сразу после Free.
+            // Без отцепки колбэк прилетит в уже несуществующий обработчик.
+            handler.ws.onopen = null;
+            handler.ws.onmessage = null;
+            handler.ws.onerror = null;
+            handler.ws.onclose = null;
+
+            if (handler.ws.readyState < WebSocket.CLOSING) {
+                handler.ws.close(1000, "Handler freed");
+            }
         }
 
         delete jsWebSocketState.handlers[id];

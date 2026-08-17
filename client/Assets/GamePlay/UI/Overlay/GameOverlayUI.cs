@@ -18,7 +18,7 @@ namespace GamePlay.UI
         private IGamePause _pause;
 
         [Inject]
-        private void Construct(IGamePause pause)
+        internal void Construct(IGamePause pause)
         {
             _pause = pause;
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
@@ -27,7 +27,7 @@ namespace Menu.Decks
         public RenderTexture PreviewTexture => _previewTexture;
 
         [Inject]
-        private void Construct(IUpdater updater, ICardRandomAnimator randomAnimator)
+        internal void Construct(IUpdater updater, ICardRandomAnimator randomAnimator)
         {
             _randomAnimator = randomAnimator;
             _updater = updater;

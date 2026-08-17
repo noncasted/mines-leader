@@ -4,15 +4,19 @@
     "$type": "Shared.LastManStandingModeOptions, Shared",
     "PlayerHealth": 3,
     "PlayerMoves": 5,
-    "PlayerStartMana": 1,
-    "RoundTime": 30
+    "PlayerStartMana": 4,
+    "MaxManaCap": 10,
+    "RoundTime": 30,
+    "CardMovesCost": 0
   },
   "TimeLimited": {
     "$type": "Shared.TimeLimitedModeOptions, Shared",
     "PlayerHealth": 3,
     "PlayerMoves": 5,
-    "PlayerStartMana": 1,
+    "PlayerStartMana": 4,
+    "MaxManaCap": 10,
     "RoundTime": 120,
-    "TimeGainPerAction": 5
+    "TimeGainPerAction": 5,
+    "CardMovesCost": 0
   }
 }

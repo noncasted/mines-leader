@@ -19,6 +19,7 @@ public class LastManStandingRound : Service, IGameRound
         RoundPlayers players,
         IGameModeConfig modeOptions,
         IPlayerConfig playerConfig,
+        IBotConfig botConfig,
         ILogger<TimeLimitedRound> logger,
         ISessionLogger sessionLogger) : base("game-round")
     {
@@ -31,6 +32,7 @@ public class LastManStandingRound : Service, IGameRound
         _players = players;
         _modeOptions = modeOptions;
         _playerConfig = playerConfig;
+        _botConfig = botConfig;
         _logger = logger;
         _sessionLogger = sessionLogger;
     }
@@ -48,6 +50,7 @@ public class LastManStandingRound : Service, IGameRound
     private readonly IRoundActionService _roundActionService;
     private readonly IGameModeConfig _modeOptions;
     private readonly IPlayerConfig _playerConfig;
+    private readonly IBotConfig _botConfig;
     private readonly ILogger<TimeLimitedRound> _logger;
     private readonly ISessionLogger _sessionLogger;
 
@@ -87,13 +90,13 @@ public class LastManStandingRound : Service, IGameRound
             player.Mana.SetMax(snapshot, ModeOptions.PlayerStartMana);
             player.Mana.Restore(snapshot);
 
-            player.Moves.SetMax(snapshot, ModeOptions.PlayerMoves);
+            player.Moves.SetMax(snapshot, GetMovesMax(player));
         }
 
         foreach (var player in players)
             _players.RestoreCards(player, snapshot);
 
-        snapshot.RecordGameStarted();
+        snapshot.RecordGameStarted(ModeOptions.CardMovesCost);
         snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, _secondsLeft);
 
         if (initPreState != null)
@@ -130,6 +133,7 @@ public class LastManStandingRound : Service, IGameRound
         }
 
         var winner = GetWinner();
+        _sessionLogger.LogGameOver(winner, GetWinReason());
 
         return winner;
 
@@ -175,6 +179,29 @@ public class LastManStandingRound : Service, IGameRound
                 return flagWinner;
 
             return Guid.Empty;
+        }
+
+        string GetWinReason()
+        {
+            foreach (var player in players)
+            {
+                if (player.Health.Current.Value <= 0)
+                    return $"Player {player.User.Id} health reached 0";
+            }
+
+            foreach (var (user, _) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return $"Player {user.Id} disconnected";
+            }
+
+            if (_players.GetFlagWinner() != Guid.Empty)
+                return "All opponent mines flagged";
+
+            if (lifetime.IsTerminated == true)
+                return "Match lifetime terminated";
+
+            return "Unknown";
         }
     }
 
@@ -286,6 +313,20 @@ public class LastManStandingRound : Service, IGameRound
         var snapshot = new MoveSnapshot();
         snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, _secondsLeft);
         _snapshotSender.Send(snapshot);
+    }
+
+    /// <summary>
+    /// Бот может ходить чаще человека: скорость вскрытия поля упирается в ходы,
+    /// и это единственная честная ручка сложности, не меняющая правила для игрока.
+    /// </summary>
+    private int GetMovesMax(IPlayer player)
+    {
+        if (player.User.IsBot == false)
+            return ModeOptions.PlayerMoves;
+
+        var botMoves = _botConfig.Value.CurrentProfileConfig.MovesPerRound;
+
+        return botMoves > 0 ? botMoves : ModeOptions.PlayerMoves;
     }
 
     private void ListenPlayersEvents(IReadOnlyLifetime lifetime)

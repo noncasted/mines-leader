@@ -1,0 +1,13 @@
+{
+  "$type": "Shared.LootProgressionOptions, Shared",
+  "Thresholds": {
+    "$type": "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib]], System.Private.CoreLib",
+    "$values": [
+      200,
+      500,
+      1000,
+      2000,
+      5000
+    ]
+  }
+}

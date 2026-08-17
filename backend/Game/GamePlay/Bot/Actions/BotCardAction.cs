@@ -18,13 +18,17 @@ public class BotCardAction : IBotCardAction
         IBotContext botContext,
         IBotCardStrategies botCardStrategies,
         IBotCommandUtils commandUtils,
-        ISessionLogger sessionLogger)
+        ISessionLogger sessionLogger,
+        IGameModeConfig modeConfigs,
+        MatchCreateOptions matchOptions)
     {
         _cardConfigs = cardConfigs;
         _botContext = botContext;
         _botCardStrategies = botCardStrategies;
         _commandUtils = commandUtils;
         _sessionLogger = sessionLogger;
+        _modeConfigs = modeConfigs;
+        _matchOptions = matchOptions;
     }
 
     private readonly ICardConfigs _cardConfigs;
@@ -32,6 +36,10 @@ public class BotCardAction : IBotCardAction
     private readonly IBotCardStrategies _botCardStrategies;
     private readonly IBotCommandUtils _commandUtils;
     private readonly ISessionLogger _sessionLogger;
+    private readonly IGameModeConfig _modeConfigs;
+    private readonly MatchCreateOptions _matchOptions;
+
+    private int CardMovesCost => _modeConfigs.Value.GetCardMovesCost(_matchOptions.Type);
 
     public bool TryExecute(IReadOnlyLifetime lifetime)
     {
@@ -111,7 +119,7 @@ public class BotCardAction : IBotCardAction
                 snapshot.RecordCardRemove(bot.User.Id, cardId);
 
                 bot.Mana.Use(snapshot, manaCost);
-                bot.Moves.OnUsed(snapshot);
+                bot.Moves.OnUsed(snapshot, CardMovesCost);
 
                 bot.Stash.Add(cardType);
                 snapshot.RecordCardAdd(bot.User.Id, cardId, cardType, isStash: true);

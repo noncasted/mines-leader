@@ -20,7 +20,7 @@ namespace GamePlay.Players
         private IGamePlayerInfo _info;
 
         [Inject]
-        private void Construct(
+        internal void Construct(
             IPlayerMana mana,
             IPlayerHealth health,
             IGamePlayerInfo info,

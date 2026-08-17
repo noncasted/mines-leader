@@ -80,132 +80,42 @@ namespace Shared
             },
             [BotProfile.Hard] = new()
             {
-                FlagsPerRound = 10,
-                CellsOpenPerRound = 3,
-                CardsUsePerRound = 2,
+                FlagsPerRound = 20,
+                CellsOpenPerRound = 8,
+                CardsUsePerRound = 6,
+                MovesPerRound = 8,
                 ActionDelay = 0.3f,
                 MinRoundTime = 5f,
                 MaxRoundTime = 10f,
                 DeckSize = 6,
                 Decks = new List<BotDeck>
                 {
+                    // Куратор: разведка кормит солвер, давление держит противника.
+                    // Случайный выбор из десятка колод раньше решал за нас, будет ли бот вообще опасен.
                     new()
                     {
-                        Name = "Pure Scout",
-                        Cards = new List<CardType>
-                        {
-                            CardType.Bloodhound, CardType.Bloodhound_Max,
-                            CardType.ErosionDozer, CardType.ErosionDozer_Max,
-                            CardType.ZipZap, CardType.ZipZap_Max,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Flag Hunter",
-                        Cards = new List<CardType>
-                        {
-                            CardType.OpponentFlagErase, CardType.OpponentFlagErase_Max,
-                            CardType.OpponentFlagReshuffle, CardType.OpponentFlagReshuffle_Max,
-                            CardType.Trebuchet, CardType.Trebuchet_Max,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Aggro Damage",
-                        Cards = new List<CardType>
-                        {
-                            CardType.OpponentBomb,
-                            CardType.Trebuchet, CardType.Trebuchet_Max,
-                            CardType.ChainReaction,
-                            CardType.MineCluster, CardType.MineCluster_Max,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Control",
-                        Cards = new List<CardType>
-                        {
-                            CardType.FogOfWar, CardType.FogOfWar_Max,
-                            CardType.Smoke, CardType.Smoke_Max,
-                            CardType.Lockdown,
-                            CardType.Embargo,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Survival",
-                        Cards = new List<CardType>
-                        {
-                            CardType.Medic,
-                            CardType.Shield,
-                            CardType.Adrenaline,
-                            CardType.BloodPact,
-                            CardType.CoinToss,
-                            CardType.PowerSurge,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Mana Engine",
-                        Cards = new List<CardType>
-                        {
-                            CardType.ManaSurge,
-                            CardType.ManaFountain,
-                            CardType.Focus,
-                            CardType.Overclock,
-                            CardType.Recycler,
-                            CardType.Scavenger,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Cross-Board Assault",
-                        Cards = new List<CardType>
-                        {
-                            CardType.CarpetBomb, CardType.CarpetBomb_Max,
-                            CardType.FortuneBlast,
-                            CardType.ChaosFog,
-                            CardType.DimensionRift,
-                            CardType.Blackout,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Mixed Balanced",
+                        Name = "Scout Pressure",
                         Cards = new List<CardType>
                         {
                             CardType.Bloodhound,
                             CardType.ErosionDozer,
-                            CardType.Trebuchet,
-                            CardType.Medic,
-                            CardType.ZipZap,
-                            CardType.ManaSurge,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Late Game",
-                        Cards = new List<CardType>
-                        {
-                            CardType.Siphon,
-                            CardType.SoulLink,
-                            CardType.MirrorMatch,
-                            CardType.GamblersRuin,
-                            CardType.Gravedigger,
-                            CardType.Salvage,
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Speed",
-                        Cards = new List<CardType>
-                        {
-                            CardType.Adrenaline,
-                            CardType.Overclock,
                             CardType.ZipZap,
                             CardType.Sonar,
-                            CardType.ManaSurge,
+                            CardType.Trebuchet,
+                            CardType.OpponentFlagErase,
+                        }
+                    },
+                    new()
+                    {
+                        Name = "Scout Tempo",
+                        Cards = new List<CardType>
+                        {
                             CardType.Bloodhound,
+                            CardType.ErosionDozer,
+                            CardType.MinefieldScout,
+                            CardType.Adrenaline,
+                            CardType.ManaSurge,
+                            CardType.Trebuchet,
                         }
                     },
                 },

@@ -25,7 +25,7 @@ namespace GamePlay.Cards
         private readonly Dictionary<ICard, Handle> _cardToHandle = new();
 
         [Inject]
-        private void Construct(IUpdater updater)
+        internal void Construct(IUpdater updater)
         {
             _updater = updater;
         }

@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,9 +49,7 @@ namespace Tools.PrefabBuilder
                                                                   rt.anchoredPosition = new Vector2(0, -4);
                                                               }
                                                           )
-                                                      .WithComponent<CanvasRenderer>()
-                                                      .WithMPImage(InputBgColor)
-                                                      .WithCornerRadius(6);
+                                                      .WithComponent<CanvasRenderer>();
                         capturedRect = inputParent.GameObject.GetComponent<RectTransform>();
 
                         inputParent.WithChildObject("Text Area", textArea => {
@@ -90,4 +87,3 @@ namespace Tools.PrefabBuilder
         }
     }
 }
-#endif

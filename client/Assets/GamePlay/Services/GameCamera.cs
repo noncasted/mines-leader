@@ -32,7 +32,7 @@ namespace GamePlay.Services
         public Camera Camera => _camera;
 
         [Inject]
-        private void Construct(IUpdater updater, ICurrentCamera currentCamera)
+        internal void Construct(IUpdater updater, ICurrentCamera currentCamera)
         {
             _currentCamera = currentCamera;
             _updater = updater;

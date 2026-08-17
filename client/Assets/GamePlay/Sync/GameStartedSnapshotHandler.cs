@@ -21,7 +21,7 @@ namespace GamePlay
 
         public UniTask Handle(GameStartedRecord record)
         {
-            _gameContext.SetGameStarted();
+            _gameContext.SetGameStarted(record.CardMovesCost);
             _connection.OneWay(new MatchActionContexts.PlayerLoaded());
             return UniTask.CompletedTask;
         }

@@ -1,6 +1,4 @@
-#if UNITY_EDITOR
 using System;
-using UnityEditor;
 using UnityEngine;
 
 namespace Tools.PrefabBuilder
@@ -96,7 +94,8 @@ namespace Tools.PrefabBuilder
 
         public static GameObject WithPrefabChild(this PrefabBuilder builder, string assetPath, string name = null)
         {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+#if UNITY_EDITOR
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 
             if (prefab == null)
             {
@@ -104,12 +103,14 @@ namespace Tools.PrefabBuilder
                 return null;
             }
 
-            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            var instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab);
 
             if (name != null)
                 instance.name = name;
             instance.transform.SetParent(builder.GameObject.transform, false);
             return instance;
+#endif
+            return null;
         }
 
         public static PrefabBuilder WithName(this PrefabBuilder builder, string name)
@@ -124,4 +125,3 @@ namespace Tools.PrefabBuilder
         }
     }
 }
-#endif

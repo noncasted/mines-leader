@@ -53,6 +53,7 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
                 context.Snapshot.RecordExplosion(board, neighbour.Position);
                 neighbour.Explode();
                 neighbour.ToFree();
+                board.RegisterDetonatedMine();
                 context.Snapshot.RecordCellFree(board, neighbour.Position);
                 continue;
             }

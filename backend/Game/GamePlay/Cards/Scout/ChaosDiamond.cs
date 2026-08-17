@@ -55,7 +55,7 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
 
         var revealed = board.Revealer.Reveal(toReveal);
 
-        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+        snapshot.RecordBoardStateUpdate(board);
 
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {
