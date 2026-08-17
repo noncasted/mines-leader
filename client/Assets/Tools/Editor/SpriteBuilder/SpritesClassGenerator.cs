@@ -61,7 +61,7 @@ namespace Tools {
             builder.AppendLine("using UnityEngine.AddressableAssets;");
             builder.AppendLine("using UnityEngine.ResourceManagement.AsyncOperations;");
             builder.AppendLine();
-            builder.AppendLine("namespace Tools.SpriteBuilder {");
+            builder.AppendLine("namespace Tools {");
             builder.AppendLine($"    public sealed class {group.ClassName} : SpriteGroup {{");
             builder.AppendLine($"        private const string Address = \"{group.Address}\";");
             builder.AppendLine();

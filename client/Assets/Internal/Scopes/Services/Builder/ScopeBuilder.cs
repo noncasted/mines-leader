@@ -9,7 +9,7 @@
             IServiceScopeBinder binder,
             ILifetime scopeLifetime,
             ILoadedScope parent,
-            IScopeEventListeners events,
+            IEventLoop events,
             bool isMock)
         {
             Services = services;
@@ -27,7 +27,7 @@
         public IAssetEnvironment Assets { get; }
         public ISceneLoader SceneLoader { get; }
         public IServiceScopeBinder Binder { get; }
-        public IScopeEventListeners Events { get; }
+        public IEventLoop Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
         public ILoadedScope Parent { get; }
         public ILifetime ScopeLifetime { get; }

@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: GameUI
+  m_EditorClassIdentifier: Tools.Runtime::Tools.SpriteGroupAsset
+  _entries:
+  - Name: Health
+    Kind: 0
+    Sprites:
+    - {fileID: 9181284263297413272, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaActive
+    Kind: 0
+    Sprites:
+    - {fileID: -2870501604690513232, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaAdditionalActive
+    Kind: 0
+    Sprites:
+    - {fileID: -5201776231663678423, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaAdditionalInactive
+    Kind: 0
+    Sprites:
+    - {fileID: 1804260823031049720, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaInactive
+    Kind: 0
+    Sprites:
+    - {fileID: 8507833815840437696, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Pause
+    Kind: 0
+    Sprites:
+    - {fileID: -1834612389159900878, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: PortraitBody
+    Kind: 0
+    Sprites:
+    - {fileID: 5876986725358620323, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: PortraitOutline
+    Kind: 0
+    Sprites:
+    - {fileID: -606792707917684014, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Rank
+    Kind: 0
+    Sprites:
+    - {fileID: 1639455963687853853, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: RoundButtonOpponent
+    Kind: 0
+    Sprites:
+    - {fileID: 3184018508462816657, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: RoundButtonOwn
+    Kind: 0
+    Sprites:
+    - {fileID: -4227697841525367302, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnActive
+    Kind: 0
+    Sprites:
+    - {fileID: 6738425411654937924, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnAdditionalActive
+    Kind: 0
+    Sprites:
+    - {fileID: -5330516199525697194, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnAdditionalInactive
+    Kind: 0
+    Sprites:
+    - {fileID: -495023063715631947, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnInactive
+    Kind: 0
+    Sprites:
+    - {fileID: 5963860787150260365, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}

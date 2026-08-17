@@ -1,98 +1,114 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using VContainer;
 using VContainer.Internal;
 
 namespace Internal
 {
+    public interface IEventLoop
+    {
+        void AddBeforeBuild(Func<UniTask> callback);
+        void AddBeforeDispose(Func<UniTask> callback);
+
+        UniTask InvokeBeforeBuild();
+        UniTask InvokeBeforeDispose();
+
+        void Bind(IObjectResolver resolver);
+
+        UniTask RunConstruct(IReadOnlyLifetime lifetime);
+        UniTask RunLoaded(IReadOnlyLifetime lifetime);
+        UniTask RunDispose();
+    }
+
     public class EventLoop : IEventLoop
     {
-        public EventLoop(
-            ContainerLocal<IReadOnlyList<IScopeBaseSetup>> baseSetup,
-            ContainerLocal<IReadOnlyList<IScopeBaseSetupAsync>> baseSetupAsync,
-            ContainerLocal<IReadOnlyList<IScopeSetup>> setup,
-            ContainerLocal<IReadOnlyList<IScopeSetupAsync>> setupAsync,
-            ContainerLocal<IReadOnlyList<IScopeSetupCompletion>> setupCompletion,
-            ContainerLocal<IReadOnlyList<IScopeSetupCompletionAsync>> setupCompletionAsync,
-            ContainerLocal<IReadOnlyList<IScopeLoaded>> loaded,
-            ContainerLocal<IReadOnlyList<IScopeLoadedAsync>> loadedAsync,
-            ContainerLocal<IReadOnlyList<IScopeDispose>> dispose,
-            ContainerLocal<IReadOnlyList<IScopeDisposeAsync>> disposeAsync)
+        private readonly List<Func<UniTask>> _beforeBuildCallbacks = new();
+        private readonly List<Func<UniTask>> _beforeDisposeCallbacks = new();
+
+        private IObjectResolver _resolver;
+
+        public void AddBeforeBuild(Func<UniTask> callback)
         {
-            _baseSetup = baseSetup.Value;
-            _baseSetupAsync = baseSetupAsync.Value;
-            _setup = setup.Value;
-            _setupAsync = setupAsync.Value;
-            _setupCompletion = setupCompletion.Value;
-            _setupCompletionAsync = setupCompletionAsync.Value;
-            _loaded = loaded.Value;
-            _loadedAsync = loadedAsync.Value;
-            _dispose = dispose.Value;
-            _disposeAsync = disposeAsync.Value;
+            _beforeBuildCallbacks.Add(callback);
         }
 
-        private readonly IReadOnlyList<IScopeBaseSetup> _baseSetup;
-        private readonly IReadOnlyList<IScopeBaseSetupAsync> _baseSetupAsync;
-        private readonly IReadOnlyList<IScopeSetup> _setup;
-        private readonly IReadOnlyList<IScopeSetupAsync> _setupAsync;
-        private readonly IReadOnlyList<IScopeSetupCompletion> _setupCompletion;
-        private readonly IReadOnlyList<IScopeSetupCompletionAsync> _setupCompletionAsync;
+        public void AddBeforeDispose(Func<UniTask> callback)
+        {
+            _beforeDisposeCallbacks.Add(callback);
+        }
 
-        private readonly IReadOnlyList<IScopeLoaded> _loaded;
-        private readonly IReadOnlyList<IScopeLoadedAsync> _loadedAsync;
+        public async UniTask InvokeBeforeBuild()
+        {
+            await InvokeCallbacks(_beforeBuildCallbacks);
+            _beforeBuildCallbacks.Clear();
+        }
 
-        private readonly IReadOnlyList<IScopeDispose> _dispose;
-        private readonly IReadOnlyList<IScopeDisposeAsync> _disposeAsync;
+        public async UniTask InvokeBeforeDispose()
+        {
+            await InvokeCallbacks(_beforeDisposeCallbacks);
+            _beforeDisposeCallbacks.Clear();
+        }
+
+        public void Bind(IObjectResolver resolver)
+        {
+            _resolver = resolver;
+        }
 
         public async UniTask RunConstruct(IReadOnlyLifetime lifetime)
         {
             await UniTask.SwitchToMainThread();
 
-            Invoke(_baseSetup, l => {
+            Invoke(ResolveList<IScopeBaseSetup>(), l => {
                 l.OnBaseSetup(lifetime);
             });
 
-            await InvokeAsync(_baseSetupAsync, l => {
+            await InvokeAsync(ResolveList<IScopeBaseSetupAsync>(), l => {
                 return l.OnBaseSetupAsync(lifetime);
             });
 
-            Invoke(_setup, l => {
+            Invoke(ResolveList<IScopeSetup>(), l => {
                 l.OnSetup(lifetime);
             });
 
-            await InvokeAsync(_setupAsync, l => {
+            await InvokeAsync(ResolveList<IScopeSetupAsync>(), l => {
                 return l.OnSetupAsync(lifetime);
             });
 
-            Invoke(_setupCompletion, l => {
+            Invoke(ResolveList<IScopeSetupCompletion>(), l => {
                 l.OnSetupCompletion(lifetime);
             });
 
-            await InvokeAsync(_setupCompletionAsync, l => {
+            await InvokeAsync(ResolveList<IScopeSetupCompletionAsync>(), l => {
                 return l.OnSetupCompletionAsync(lifetime);
             });
         }
 
         public async UniTask RunLoaded(IReadOnlyLifetime lifetime)
         {
-            Invoke(_loaded, l => {
+            Invoke(ResolveList<IScopeLoaded>(), l => {
                 l.OnLoaded(lifetime);
             });
 
-            await InvokeAsync(_loadedAsync, l => {
+            await InvokeAsync(ResolveList<IScopeLoadedAsync>(), l => {
                 return l.OnLoadedAsync(lifetime);
             });
         }
 
         public async UniTask RunDispose()
         {
-            Invoke(_dispose, l => {
+            Invoke(ResolveList<IScopeDispose>(), l => {
                 l.OnDispose();
             });
 
-            await InvokeAsync(_disposeAsync, l => {
+            await InvokeAsync(ResolveList<IScopeDisposeAsync>(), l => {
                 return l.OnDisposeAsync();
             });
+        }
+
+        private IReadOnlyList<T> ResolveList<T>()
+        {
+            return _resolver.Resolve<ContainerLocal<IReadOnlyList<T>>>().Value;
         }
 
         private void Invoke<T>(IReadOnlyList<T> listeners, Action<T> invoker)
@@ -108,6 +124,19 @@ namespace Internal
 
             for (var i = 0; i < count; i++)
                 tasks[i] = invoker.Invoke(listeners[i]);
+
+            return UniTask.WhenAll(tasks);
+        }
+
+        private static UniTask InvokeCallbacks(List<Func<UniTask>> callbacks)
+        {
+            if (callbacks.Count == 0)
+                return UniTask.CompletedTask;
+
+            var tasks = new UniTask[callbacks.Count];
+
+            for (var i = 0; i < callbacks.Count; i++)
+                tasks[i] = callbacks[i].Invoke();
 
             return UniTask.WhenAll(tasks);
         }

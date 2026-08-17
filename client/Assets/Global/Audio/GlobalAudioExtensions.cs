@@ -16,7 +16,7 @@ namespace Global.Audio
 
             builder.RegisterComponent(Prefabs.GlobalAudioListener.As<AudioListener>())
                    .As<IAudioListener>()
-                   .AsEventListener<IScopeBaseSetup>();
+                   .As<IScopeBaseSetup>();
 
             return builder;
         }

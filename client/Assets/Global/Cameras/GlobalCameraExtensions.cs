@@ -16,7 +16,7 @@ namespace Global.Cameras
 
             builder.RegisterComponent(camera)
                    .As<IGlobalCamera>()
-                   .AsEventListener<IScopeBaseSetup>();
+                   .As<IScopeBaseSetup>();
 
             builder.Register<CameraUtils>()
                    .As<ICameraUtils>();

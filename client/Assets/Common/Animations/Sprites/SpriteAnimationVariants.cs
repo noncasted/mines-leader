@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Global.Systems;
-using Tools;
+using Internal;
 using UnityEngine;
 using VContainer.Internal;
 

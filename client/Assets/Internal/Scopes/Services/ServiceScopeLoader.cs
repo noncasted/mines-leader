@@ -35,16 +35,17 @@ namespace Internal
             builder.Binder.MoveToModules(container);
 
             await options.ConstructCallback.Invoke(builder);
+            await builder.Events.InvokeBeforeBuild();
 
             BuildContainer();
 
-            var eventLoop = container.Container.Resolve<IEventLoop>();
-            await eventLoop.RunConstruct(builder.ScopeLifetime);
+            builder.Events.Bind(container.Container);
+            await builder.Events.RunConstruct(builder.ScopeLifetime);
 
             var loadResult = new ScopeLoadResult(
                 container,
                 builder.ScopeLifetime,
-                eventLoop,
+                builder.Events,
                 sceneLoader.Results);
 
             return loadResult;
@@ -62,7 +63,7 @@ namespace Internal
                     binder,
                     lifetime,
                     options.Parent,
-                    new ScopeEventListeners(),
+                    new EventLoop(),
                     options.IsMock);
             }
 
@@ -81,9 +82,7 @@ namespace Internal
 
                 void Register(IContainerBuilder containerBuilder)
                 {
-                    builder.AddEvents();
                     builder.Register<IViewInjector, ViewInjector>(VContainer.Lifetime.Scoped);
-                    builder.Events.Register(containerBuilder);
                     builder.ServicesInternal.PassRegistrations(containerBuilder);
                 }
             }

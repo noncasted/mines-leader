@@ -39,7 +39,7 @@ namespace Global.Publisher
 
             builder.Register<ItchSaves>()
                    .As<ISaves>()
-                   .AsEventListener<IScopeBaseSetup>();
+                   .As<IScopeBaseSetup>();
 
             builder.Register<ItchLanguageProvider>()
                    .As<ISystemLanguageProvider>();
