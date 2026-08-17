@@ -1,4 +1,4 @@
-using Animations;
+﻿using Animations;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
 using Internal;
@@ -31,7 +31,7 @@ namespace GamePlay.Cards
         private ForwardSpriteAnimation _diceAnimation;
 
         [Inject]
-        private void Construct(IUpdater updater)
+        internal void Construct(IUpdater updater)
         {
             _coinAnimation = CreateAnimation(_coin);
             _diceAnimation = CreateAnimation(_dice);

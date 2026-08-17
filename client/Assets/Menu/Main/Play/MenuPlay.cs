@@ -39,7 +39,7 @@ namespace Menu.Main
         public IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound => _gameFound;
 
         [Inject]
-        private void Construct(
+        internal void Construct(
             IMatchmaking matchmaking,
             IUpdater updater)
         {

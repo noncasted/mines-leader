@@ -27,32 +27,25 @@ public class OpponentBombStrategy : IBotCardStrategy
 
     public float Evaluate(CardType type)
     {
-        var bot = _context.Bot;
         var opponent = _context.Opponent;
-
-        // Winning by flagging is the primary goal — don't waste mana on damage
-        // while we still have unflagged mines on our own board.
-        var hasUnflaggedMines = bot.Board.Cells.Values
-            .Any(c => c.Status == CellStatus.Taken && c.AsTaken().HasMine && !c.AsTaken().IsFlagged);
-
-        if (hasUnflaggedMines)
-            return 0f;
-
-        // Don't finish off the opponent
-        if (opponent.Health.Current.Value <= 1)
-            return 0f;
 
         if (FindTargetOnOpponentBoard() == new Position(-1, -1))
             return 0f;
 
         var opponentTotalCells = opponent.Board.Cells.Count;
+
+        if (opponentTotalCells == 0)
+            return 0f;
+
+        // Добить противника — лучшее применение карты, а не запрет на неё.
+        if (opponent.Health.Current.Value <= 1)
+            return 9f;
+
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
+        var openRatio = (float)opponentOpenCount / opponentTotalCells;
 
-        // Если противник открыл более 70% поля - высокий приоритет
-        if (opponentOpenCount > opponentTotalCells * 0.7)
-            return 7f;
-
-        return 1f;
+        // Чем больше поля вскрыто, тем выше шанс попасть по мине и снять хп.
+        return 3f + openRatio * 5f;
     }
 
     public bool Execute(Guid cardId, CardType cardType)

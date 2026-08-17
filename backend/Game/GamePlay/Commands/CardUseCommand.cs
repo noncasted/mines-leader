@@ -1,9 +1,14 @@
 using Cluster.Configs;
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
 
-public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs) : GameCommand<SharedGameAction.CardUse>(utils)
+public class CardUseCommand(
+    GameCommandUtils utils,
+    ICardConfigs configs,
+    IGameModeConfig modeConfigs,
+    MatchCreateOptions matchOptions) : GameCommand<SharedGameAction.CardUse>(utils)
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
     {
@@ -48,7 +53,7 @@ public class CardUseCommand(GameCommandUtils utils, ICardConfigs configs) : Game
         using (context.Snapshot.BeginInsertAt(prefixMark))
         {
             player.Mana.Use(context.Snapshot, manaCost);
-            player.Moves.OnUsed(context.Snapshot);
+            player.Moves.OnUsed(context.Snapshot, modeConfigs.Value.GetCardMovesCost(matchOptions.Type));
         }
 
         player.Hand.Remove(request.CardId);

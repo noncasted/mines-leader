@@ -96,6 +96,7 @@
     "$type": "Shared.CardConfigOptions+OpponentBomb, Shared",
     "Type": 0,
     "ManaCost": 2,
+    "Damage": 1,
     "Target": 1
   },
   "OpponentFlagReshuffle_Normal": {
@@ -118,7 +119,7 @@
     "Size": 3,
     "ManaCost": 3,
     "Target": 1,
-    "Duration": 3
+    "TurnsDuration": 3
   },
   "Smoke_Max": {
     "$type": "Shared.CardConfigOptions+Smoke, Shared",
@@ -126,12 +127,13 @@
     "Size": 5,
     "ManaCost": 5,
     "Target": 1,
-    "Duration": 3
+    "TurnsDuration": 3
   },
   "Medic_Normal": {
     "$type": "Shared.CardConfigOptions+Medic, Shared",
     "Type": 0,
     "ManaCost": 4,
+    "Heal": 1,
     "Target": 2
   },
   "MinefieldScout_Normal": {
@@ -177,7 +179,7 @@
     "Size": 4,
     "ManaCost": 3,
     "Target": 1,
-    "Duration": 2
+    "TurnsDuration": 2
   },
   "FogOfWar_Max": {
     "$type": "Shared.CardConfigOptions+FogOfWar, Shared",
@@ -185,7 +187,7 @@
     "Size": 4,
     "ManaCost": 3,
     "Target": 1,
-    "Duration": 2
+    "TurnsDuration": 2
   },
   "Scavenger_Normal": {
     "$type": "Shared.CardConfigOptions+Scavenger, Shared",
@@ -205,7 +207,7 @@
     "Type": 0,
     "ManaCost": 3,
     "Target": 3,
-    "Duration": 2,
+    "TurnsDuration": 2,
     "MovesReduction": 1
   },
   "Sonar_Normal": {
@@ -220,5 +222,275 @@
     "Type": 0,
     "ManaCost": 2,
     "Target": 2
+  },
+  "Adrenaline_Normal": {
+    "$type": "Shared.CardConfigOptions+Adrenaline, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "ExtraMoves": 1
+  },
+  "ManaSurge_Normal": {
+    "$type": "Shared.CardConfigOptions+ManaSurge, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2,
+    "ManaGain": 3
+  },
+  "BloodPact_Normal": {
+    "$type": "Shared.CardConfigOptions+BloodPact, Shared",
+    "Type": 0,
+    "ManaCost": 0,
+    "Target": 2,
+    "HpCost": 1,
+    "ManaGain": 3,
+    "ExtraMoves": 2
+  },
+  "CoinToss_Normal": {
+    "$type": "Shared.CardConfigOptions+CoinToss, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "WinMoves": 2,
+    "LoseMoves": 1
+  },
+  "ManaFountain_Normal": {
+    "$type": "Shared.CardConfigOptions+ManaFountain, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "MinMana": 1,
+    "MaxMana": 5
+  },
+  "Focus_Normal": {
+    "$type": "Shared.CardConfigOptions+Focus, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "Discount": 1
+  },
+  "Shield_Normal": {
+    "$type": "Shared.CardConfigOptions+Shield, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2
+  },
+  "PowerSurge_Normal": {
+    "$type": "Shared.CardConfigOptions+PowerSurge, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 2,
+    "Discount": 1
+  },
+  "Embargo_Normal": {
+    "$type": "Shared.CardConfigOptions+Embargo, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 3,
+    "CostIncrease": 1
+  },
+  "Recycler_Normal": {
+    "$type": "Shared.CardConfigOptions+Recycler, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "DrawCount": 2
+  },
+  "MysticDraw_Normal": {
+    "$type": "Shared.CardConfigOptions+MysticDraw, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "WinDraw": 2,
+    "LoseReturn": 2
+  },
+  "DoubleOrNothing_Normal": {
+    "$type": "Shared.CardConfigOptions+DoubleOrNothing, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2
+  },
+  "GamblersRuin_Normal": {
+    "$type": "Shared.CardConfigOptions+GamblersRuin, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2,
+    "WinDraw": 3,
+    "WinMana": 2,
+    "LoseDiscard": 2
+  },
+  "Excavator_Normal": {
+    "$type": "Shared.CardConfigOptions+Excavator, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 2,
+    "Target": 0
+  },
+  "Excavator_Max": {
+    "$type": "Shared.CardConfigOptions+Excavator, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 5,
+    "Target": 0
+  },
+  "ThermalVision_Normal": {
+    "$type": "Shared.CardConfigOptions+ThermalVision, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 3,
+    "Target": 0
+  },
+  "ThermalVision_Max": {
+    "$type": "Shared.CardConfigOptions+ThermalVision, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 5,
+    "Target": 0
+  },
+  "ChaosDiamond_Normal": {
+    "$type": "Shared.CardConfigOptions+ChaosDiamond, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 0,
+    "MinSize": 2,
+    "MaxSize": 5
+  },
+  "ChaosScout_Normal": {
+    "$type": "Shared.CardConfigOptions+ChaosScout, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 0,
+    "MinLength": 3,
+    "MaxLength": 7
+  },
+  "MineCluster_Normal": {
+    "$type": "Shared.CardConfigOptions+MineCluster, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 2,
+    "Target": 1
+  },
+  "MineCluster_Max": {
+    "$type": "Shared.CardConfigOptions+MineCluster, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Size": 3,
+    "Target": 1
+  },
+  "CarpetBomb_Normal": {
+    "$type": "Shared.CardConfigOptions+CarpetBomb, Shared",
+    "Type": 0,
+    "ManaCost": 5,
+    "Length": 5,
+    "Target": 1
+  },
+  "CarpetBomb_Max": {
+    "$type": "Shared.CardConfigOptions+CarpetBomb, Shared",
+    "Type": 0,
+    "ManaCost": 5,
+    "Length": 7,
+    "Target": 1
+  },
+  "FortuneBlast_Normal": {
+    "$type": "Shared.CardConfigOptions+FortuneBlast, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 1,
+    "MinSize": 1,
+    "MaxSize": 4
+  },
+  "ChaosFog_Normal": {
+    "$type": "Shared.CardConfigOptions+ChaosFog, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 1,
+    "MinSize": 1,
+    "MaxSize": 4,
+    "TurnsDuration": 3
+  },
+  "Frost_Normal": {
+    "$type": "Shared.CardConfigOptions+Frost, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Size": 2,
+    "Target": 1,
+    "TurnsDuration": 1
+  },
+  "Frost_Max": {
+    "$type": "Shared.CardConfigOptions+Frost, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Size": 3,
+    "Target": 1,
+    "TurnsDuration": 2
+  },
+  "Blackout_Normal": {
+    "$type": "Shared.CardConfigOptions+Blackout, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Size": 2,
+    "Target": 1,
+    "TurnsDuration": 1
+  },
+  "Blackout_Max": {
+    "$type": "Shared.CardConfigOptions+Blackout, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Size": 3,
+    "Target": 1,
+    "TurnsDuration": 2
+  },
+  "FortuneCookie_Normal": {
+    "$type": "Shared.CardConfigOptions+FortuneCookie, Shared",
+    "Type": 0,
+    "ManaCost": 1,
+    "Target": 2,
+    "MinMines": 1,
+    "MaxMines": 3
+  },
+  "Salvage_Normal": {
+    "$type": "Shared.CardConfigOptions+Salvage, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 2,
+    "PeekCount": 3
+  },
+  "CardThief_Normal": {
+    "$type": "Shared.CardConfigOptions+CardThief, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 3
+  },
+  "SabotageDeck_Normal": {
+    "$type": "Shared.CardConfigOptions+SabotageDeck, Shared",
+    "Type": 0,
+    "ManaCost": 2,
+    "Target": 3
+  },
+  "Dud_Normal": {
+    "$type": "Shared.CardConfigOptions+Dud, Shared",
+    "Type": 0,
+    "ManaCost": 99,
+    "Target": 2
+  },
+  "SoulLink_Normal": {
+    "$type": "Shared.CardConfigOptions+SoulLink, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 3,
+    "TurnsDuration": 2
+  },
+  "MirrorMatch_Normal": {
+    "$type": "Shared.CardConfigOptions+MirrorMatch, Shared",
+    "Type": 0,
+    "ManaCost": 3,
+    "Target": 2
+  },
+  "DimensionRift_Normal": {
+    "$type": "Shared.CardConfigOptions+DimensionRift, Shared",
+    "Type": 0,
+    "ManaCost": 4,
+    "Size": 2,
+    "Target": 1
   }
 }

@@ -45,6 +45,7 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
             context.Snapshot.RecordExplosion(board, request.Position);
             targetCell.ToTaken().Explode();
             targetCell.ToFree();
+            board.RegisterDetonatedMine();
             context.Snapshot.RecordCellFree(board, request.Position);
         }
 

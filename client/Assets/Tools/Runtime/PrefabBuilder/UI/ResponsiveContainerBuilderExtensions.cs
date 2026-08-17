@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using Exoa.Responsive;
 using UnityEngine;
@@ -241,4 +240,3 @@ namespace Tools.PrefabBuilder
         }
     }
 }
-#endif

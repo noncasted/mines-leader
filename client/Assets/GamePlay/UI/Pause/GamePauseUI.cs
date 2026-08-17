@@ -26,7 +26,7 @@ namespace GamePlay.UI
         private IGameState _gameState;
 
         [Inject]
-        private void Construct(ISettings settings, IGameState gameState)
+        internal void Construct(ISettings settings, IGameState gameState)
         {
             _gameState = gameState;
             _settings = settings;

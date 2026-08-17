@@ -1,4 +1,4 @@
-using Menu.Services;
+﻿using Menu.Services;
 using Meta;
 using Shared;
 using TMPro;
@@ -32,7 +32,7 @@ namespace Menu.Decks
         public string ResolvedDescription { get; private set; }
         
         [Inject]
-        private void Construct(IMenuMoveArea moveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        internal void Construct(IMenuMoveArea moveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
             _descriptionProvider = descriptionProvider;

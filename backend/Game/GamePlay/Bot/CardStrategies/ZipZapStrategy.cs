@@ -26,7 +26,7 @@ public class ZipZapStrategy : IBotCardStrategy
 
     public float Evaluate(CardType type)
     {
-        if (FindMineTarget() == new Position(-1, -1))
+        if (FindMineTargets().Count == 0)
             return 0f;
 
         var bot = _context.Bot;
@@ -46,31 +46,36 @@ public class ZipZapStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = FindMineTarget();
-
-        if (position == new Position(-1, -1))
-            return false;
-
         var bot = _context.Bot;
 
-        var payload = new CardUsePayload.ZipZap
+        // Ромб чётного размера смещён относительно центра, поэтому не любой якорь
+        // с миной по соседству принимается самой картой. Перебираем кандидатов,
+        // а не полагаемся на первый попавшийся — иначе бот залипает на одном и том же.
+        foreach (var position in FindMineTargets())
         {
-            Position = position,
-            Type = cardType,
-            CardId = cardId
-        };
+            var payload = new CardUsePayload.ZipZap
+            {
+                Position = position,
+                Type = cardType,
+                CardId = cardId
+            };
 
-        return _commandUtils.UseCard(bot, cardId, payload);
+            if (_commandUtils.UseCard(bot, cardId, payload) == true)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>
-    /// Find a free cell that has an unflagged mine nearby.
+    /// Free cells that have an unflagged mine nearby, best first.
     /// ZipZap needs a free position as its pattern anchor; the card
     /// then searches for mines within SearchRadius of that anchor.
     /// </summary>
-    private Position FindMineTarget()
+    private IReadOnlyList<Position> FindMineTargets()
     {
         var board = _context.Bot.Board;
+        var candidates = new List<(Position position, int mines)>();
 
         foreach (var (position, cell) in board.Cells)
         {
@@ -91,9 +96,12 @@ public class ZipZapStrategy : IBotCardStrategy
             if (freeCell.MinesAround == flaggedCount)
                 continue; // All mines around this cell are already flagged
 
-            return position;
+            candidates.Add((position, freeCell.MinesAround - flaggedCount));
         }
 
-        return new Position(-1, -1);
+        return candidates
+               .OrderByDescending(c => c.mines)
+               .Select(c => c.position)
+               .ToList();
     }
 }

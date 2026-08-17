@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.Systems;
@@ -49,7 +49,7 @@ namespace Menu.Decks
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         [Inject]
-        private void Construct(
+        internal void Construct(
             IDeckService deckService,
             ICardsRegistry cardsRegistry,
             IViewInjector viewInjector,

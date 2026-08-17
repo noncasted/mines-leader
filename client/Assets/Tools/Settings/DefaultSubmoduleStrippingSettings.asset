@@ -12,7 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3efdd41947995b14ea6378b017ee4784, type: 3}
   m_Name: DefaultSubmoduleStrippingSettings
   m_EditorClassIdentifier: Unity.Web.Stripping.Editor::Unity.Web.Stripping.Editor.SubmoduleStrippingSettings
-  OptimizeCodeAfterStripping: 0
-  RemoveEmbeddedDebugSymbols: 0
+  OptimizeCodeAfterStripping: 1
+  RemoveEmbeddedDebugSymbols: 1
   MissingSubmoduleErrorHandling: 0
-  SubmodulesToStrip: []
+  SubmodulesToStrip:
+  - AndroidJNIModule
+  - Freetype2 Base
+  - Freetype2 CFF
+  - Freetype2 OpenType Validation
+  - Freetype2 Postscript
+  - Freetype2 SFNT
+  - Freetype2 TrueType
+  - PhysX Character Kinematic
+  - PhysX Cloth
+  - PhysX Common
+  - PhysX Cooking
+  - PhysX Extensions
+  - PhysX Foundation
+  - PhysX PvdSDK
+  - PhysX Vehicle
+  - Tilemap
+  - UI Toolkit TextEditingManipulator
+  - UI Toolkit TextSelectingManipulator
+  - UI Toolkit Visual Elements
+  - Unity In-App Purchasing
+  - WebGPU Rendering

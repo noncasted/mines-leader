@@ -1,7 +1,5 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -28,12 +26,15 @@ namespace Tools.PrefabBuilder
 
         public static GameObject Build(this PrefabBuilder builder, string outputPath)
         {
+#if UNITY_EDITOR
             builder.Container.ResolveAll();
             ApplyAllSerializedProperties(builder);
 
-            var prefab = PrefabUtility.SaveAsPrefabAsset(builder.GameObject, outputPath);
+            var prefab = UnityEditor.PrefabUtility.SaveAsPrefabAsset(builder.GameObject, outputPath);
             Object.DestroyImmediate(builder.GameObject);
             return prefab;
+#endif
+            return null;
         }
 
         private static void ApplyAllSerializedProperties(PrefabBuilder builder)
@@ -66,7 +67,8 @@ namespace Tools.PrefabBuilder
 
             foreach (var (component, actions) in grouped)
             {
-                var so = new SerializedObject(component);
+#if UNITY_EDITOR
+                var so = new UnityEditor.SerializedObject(component);
 
                 foreach (var (fieldName, value) in actions)
                 {
@@ -84,49 +86,51 @@ namespace Tools.PrefabBuilder
                 }
 
                 so.ApplyModifiedPropertiesWithoutUndo();
+#endif
             }
         }
 
-        private static void SetPropertyValue(SerializedProperty property, object value)
+#if UNITY_EDITOR
+        private static void SetPropertyValue(UnityEditor.SerializedProperty property, object value)
         {
             switch (property.propertyType)
             {
-                case SerializedPropertyType.String:
+                case UnityEditor.SerializedPropertyType.String:
                     property.stringValue = value as string ?? value.ToString();
                     break;
-                case SerializedPropertyType.Integer:
+                case UnityEditor.SerializedPropertyType.Integer:
                     property.intValue = Convert.ToInt32(value);
                     break;
-                case SerializedPropertyType.Float:
+                case UnityEditor.SerializedPropertyType.Float:
                     property.floatValue = Convert.ToSingle(value);
                     break;
-                case SerializedPropertyType.Boolean:
+                case UnityEditor.SerializedPropertyType.Boolean:
                     property.boolValue = Convert.ToBoolean(value);
                     break;
-                case SerializedPropertyType.Color:
+                case UnityEditor.SerializedPropertyType.Color:
                     if (value is Color color)
                         property.colorValue = color;
                     break;
-                case SerializedPropertyType.Vector2:
+                case UnityEditor.SerializedPropertyType.Vector2:
                     if (value is Vector2 v2)
                         property.vector2Value = v2;
                     break;
-                case SerializedPropertyType.Vector3:
+                case UnityEditor.SerializedPropertyType.Vector3:
                     if (value is Vector3 v3)
                         property.vector3Value = v3;
                     break;
-                case SerializedPropertyType.ObjectReference:
+                case UnityEditor.SerializedPropertyType.ObjectReference:
                     if (value is Object obj)
                         property.objectReferenceValue = obj;
                     break;
-                case SerializedPropertyType.Enum:
+                case UnityEditor.SerializedPropertyType.Enum:
                     property.enumValueIndex = Convert.ToInt32(value);
                     break;
-                case SerializedPropertyType.AnimationCurve:
+                case UnityEditor.SerializedPropertyType.AnimationCurve:
                     if (value is AnimationCurve curve)
                         property.animationCurveValue = curve;
                     break;
-                case SerializedPropertyType.Vector4:
+                case UnityEditor.SerializedPropertyType.Vector4:
                     if (value is Vector4 v4)
                         property.vector4Value = v4;
                     break;
@@ -149,6 +153,7 @@ namespace Tools.PrefabBuilder
                     break;
             }
         }
+#endif
     }
 
     public readonly struct BuilderSerializedAction
@@ -165,4 +170,3 @@ namespace Tools.PrefabBuilder
         public readonly object Value;
     }
 }
-#endif

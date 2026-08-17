@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using GamePlay.Loop;
@@ -26,7 +26,7 @@ namespace GamePlay.UI
         private bool _isSubscribed;
 
         [Inject]
-        private void Construct(IGameContext gameContext)
+        internal void Construct(IGameContext gameContext)
         {
             _gameContext = gameContext;
         }

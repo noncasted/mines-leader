@@ -39,7 +39,12 @@ namespace GamePlay.Players
     {
         public static bool IsAvailable(this IPlayerMoves moves, IGameContext gameContext)
         {
-            return gameContext.IsGameStarted && moves.IsTurn.Value == true && moves.Current.Value > 0;
+            return moves.CanSpend(gameContext, 1);
+        }
+
+        public static bool CanSpend(this IPlayerMoves moves, IGameContext gameContext, int cost)
+        {
+            return gameContext.IsGameStarted && moves.IsTurn.Value == true && moves.Current.Value >= cost;
         }
     }
 }

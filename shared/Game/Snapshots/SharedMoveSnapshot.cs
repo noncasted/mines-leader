@@ -25,6 +25,7 @@ namespace Shared
     [MemoryPackable]
     public partial class GameStartedRecord : IMoveSnapshotRecord
     {
+        public int CardMovesCost { get; set; } = 1;
     }
 
     [MemoryPackable]

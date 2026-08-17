@@ -22,7 +22,7 @@ namespace GamePlay.Cards
         private ICardContext _context;
 
         [Inject]
-        private void Construct(ICardContext context)
+        internal void Construct(ICardContext context)
         {
             _context = context;
         }

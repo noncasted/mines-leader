@@ -15,7 +15,7 @@ namespace GamePlay.Players
         private bool _gameStarted;
 
         [Inject]
-        private void Construct(IBoard board)
+        internal void Construct(IBoard board)
         {
             _board = board;
         }

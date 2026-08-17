@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,4 +38,3 @@ namespace Tools.PrefabBuilder
         public string PrefabName => PrefabPath ?? GameObject.name;
     }
 }
-#endif

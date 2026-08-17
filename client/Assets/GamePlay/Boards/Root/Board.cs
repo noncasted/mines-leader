@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Global.Systems;
 using Internal;
 using Shared;
@@ -8,25 +8,36 @@ using VContainer;
 namespace GamePlay.Boards
 {
     [DisallowMultipleComponent]
+    [RequireComponent(typeof(BoardConstructor))]
     public class Board : MonoBehaviour, IBoard, IScopeSetup, IEntityComponent
     {
-        [SerializeField] private CellView[] _cells;
-        [SerializeField] private BoardConstructionData _constructionData;
-
         private readonly Dictionary<Vector2Int, IBoardCell> _cellsDictionary = new();
         private readonly ViewableProperty<BoardState> _state = new(new BoardState());
 
+        private BoardConstructor _constructor;
+        private CellView[] _cells;
         private IUpdater _updater;
         private IBoardActions _actions;
         private bool _isMine;
 
-        public IBoardConstructionData ConstructionDataData => _constructionData;
+        private BoardConstructor Constructor
+        {
+            get
+            {
+                if (_constructor == null)
+                    _constructor = GetComponent<BoardConstructor>();
+
+                return _constructor;
+            }
+        }
+
+        public IBoardConstructionData ConstructionDataData => Constructor.ConstructionData;
         public IViewableProperty<BoardState> State => _state;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
         public bool IsMine => _isMine;
 
         [Inject]
-        private void Construct(
+        internal void Construct(
             IUpdater updater,
             IBoardActions actions)
         {
@@ -43,6 +54,8 @@ namespace GamePlay.Boards
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
+            _cells ??= Constructor.Build();
+
             _cellsDictionary.Clear();
 
             foreach (var cell in _cells)
@@ -60,12 +73,6 @@ namespace GamePlay.Boards
         public void UpdateState(int mines, int flags)
         {
             _state.Set(new BoardState { Mines = mines, Flags = flags });
-        }
-
-        public void Construct(CellView[] cells, BoardConstructionData constructionData)
-        {
-            _cells = cells;
-            _constructionData = constructionData;
         }
     }
 }

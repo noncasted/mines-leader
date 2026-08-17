@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
@@ -33,7 +33,7 @@ namespace Menu.Screens
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         [Inject]
-        private void Construct(IProgression progression)
+        internal void Construct(IProgression progression)
         {
             _progression = progression;
         }

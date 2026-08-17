@@ -22,7 +22,7 @@ namespace GamePlay.UI
         private IGameRound _round;
 
         [Inject]
-        private void Construct(IGameRound round)
+        internal void Construct(IGameRound round)
         {
             _round = round;
         }

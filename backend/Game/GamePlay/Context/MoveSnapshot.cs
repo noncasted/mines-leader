@@ -48,9 +48,9 @@ public class MoveSnapshot
         });
     }
 
-    public void RecordGameStarted()
+    public void RecordGameStarted(int cardMovesCost)
     {
-        Append(new GameStartedRecord());
+        Append(new GameStartedRecord { CardMovesCost = cardMovesCost });
     }
 
     public void RecordCellTaken(IBoard board, Position position)
@@ -169,13 +169,17 @@ public class MoveSnapshot
         });
     }
 
-    public void RecordBoardStateUpdate(Guid ownerId, int mines, int flags)
+    /// <summary>
+    /// Подорванные мины входят в общее число: их уже нет на поле, но флагом они не закрыты,
+    /// поэтому счётчик оставшихся мин обязан их показывать.
+    /// </summary>
+    public void RecordBoardStateUpdate(IBoard board)
     {
         Append(new PlayerSnapshotRecord.BoardStateUpdate
         {
-            PlayerId = ownerId,
-            Mines = mines,
-            Flags = flags
+            PlayerId = board.OwnerId,
+            Mines = board.MinesScanner.Mines + board.DetonatedMines,
+            Flags = board.MinesScanner.Flags
         });
     }
 

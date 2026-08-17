@@ -1,9 +1,11 @@
 {
   "$type": "Shared.BotConfigOptions, Shared",
   "MatchmakingApplyThreshold": 3.0,
-  "CurrentProfile": "Medium",
+  "CurrentProfile": 2,
   "Profiles": {
+    "$type": "System.Collections.Generic.Dictionary`2[[Shared.BotProfile, Shared],[Shared.BotProfileConfig, Shared]], System.Private.CoreLib",
     "Easy": {
+      "$type": "Shared.BotProfileConfig, Shared",
       "ActionDelay": 1.0,
       "MinRoundTime": 10.0,
       "MaxRoundTime": 15.0,
@@ -11,21 +13,29 @@
       "CellsOpenPerRound": 5,
       "CardsUsePerRound": 1,
       "DeckSize": 6,
-      "Decks": [
-        {
-          "Name": "Scout Pack",
-          "Cards": [
-            "Bloodhound",
-            "ErosionDozer",
-            "MinefieldScout",
-            "Medic",
-            "ManaSurge",
-            "ZipZap"
-          ]
-        }
-      ]
+      "Decks": {
+        "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
+        "$values": [
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pack",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                1100,
+                2700,
+                600
+              ]
+            }
+          }
+        ]
+      }
     },
     "Medium": {
+      "$type": "Shared.BotProfileConfig, Shared",
       "ActionDelay": 0.5,
       "MinRoundTime": 7.0,
       "MaxRoundTime": 12.0,
@@ -33,138 +43,250 @@
       "CellsOpenPerRound": 4,
       "CardsUsePerRound": 2,
       "DeckSize": 6,
-      "Decks": [
-        {
-          "Name": "Balanced",
-          "Cards": [
-            "Bloodhound",
-            "ErosionDozer",
-            "ZipZap",
-            "Trebuchet",
-            "Medic",
-            "ManaSurge"
-          ]
-        },
-        {
-          "Name": "Aggro",
-          "Cards": [
-            "OpponentBomb",
-            "OpponentFlagErase",
-            "Trebuchet",
-            "ZipZap",
-            "Smoke",
-            "Adrenaline"
-          ]
-        }
-      ]
+      "Decks": {
+        "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
+        "$values": [
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Balanced",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                100,
+                1100,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                700,
+                800,
+                100,
+                600,
+                1000,
+                2600
+              ]
+            }
+          }
+        ]
+      }
     },
     "Hard": {
+      "$type": "Shared.BotProfileConfig, Shared",
       "ActionDelay": 0.3,
       "MinRoundTime": 5.0,
       "MaxRoundTime": 10.0,
-      "FlagsPerRound": 10,
-      "CellsOpenPerRound": 3,
-      "CardsUsePerRound": 2,
+      "FlagsPerRound": 20,
+      "CellsOpenPerRound": 8,
+      "CardsUsePerRound": 6,
       "DeckSize": 6,
-      "Decks": [
+      "Decks": {
+        "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
+        "$values": [
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pressure",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2400,
+                100,
+                800
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Tempo",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                2600,
+                2700,
+                100
+              ]
+            }
+          }
+        ]
+      },
+      "MovesPerRound": 8
+    }
+  },
+  "CurrentProfileConfig": {
+    "$type": "Shared.BotProfileConfig, Shared",
+    "ActionDelay": 0.3,
+    "MinRoundTime": 5.0,
+    "MaxRoundTime": 10.0,
+    "FlagsPerRound": 10,
+    "CellsOpenPerRound": 3,
+    "CardsUsePerRound": 2,
+    "DeckSize": 6,
+    "Decks": {
+      "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
+      "$values": [
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Pure Scout",
-          "Cards": [
-            "Bloodhound", "Bloodhound_Max",
-            "ErosionDozer", "ErosionDozer_Max",
-            "ZipZap", "ZipZap_Max"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              210,
+              400,
+              410,
+              600,
+              610
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Flag Hunter",
-          "Cards": [
-            "OpponentFlagErase", "OpponentFlagErase_Max",
-            "OpponentFlagReshuffle", "OpponentFlagReshuffle_Max",
-            "Trebuchet", "Trebuchet_Max"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              800,
+              810,
+              900,
+              910,
+              100,
+              110
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Aggro Damage",
-          "Cards": [
-            "OpponentBomb",
-            "Trebuchet", "Trebuchet_Max",
-            "ChainReaction",
-            "MineCluster", "MineCluster_Max"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              700,
+              100,
+              110,
+              1700,
+              4300,
+              4310
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Control",
-          "Cards": [
-            "FogOfWar", "FogOfWar_Max",
-            "Smoke", "Smoke_Max",
-            "Lockdown",
-            "Embargo"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              1900,
+              1910,
+              1000,
+              1010,
+              2200,
+              3400
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Survival",
-          "Cards": [
-            "Medic",
-            "Shield",
-            "Adrenaline",
-            "BloodPact",
-            "CoinToss",
-            "PowerSurge"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              1100,
+              3200,
+              2600,
+              2800,
+              2900,
+              3300
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Mana Engine",
-          "Cards": [
-            "ManaSurge",
-            "ManaFountain",
-            "Focus",
-            "Overclock",
-            "Recycler",
-            "Scavenger"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              2700,
+              3000,
+              3100,
+              1800,
+              3500,
+              2000
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Cross-Board Assault",
-          "Cards": [
-            "CarpetBomb", "CarpetBomb_Max",
-            "FortuneBlast",
-            "ChaosFog",
-            "DimensionRift",
-            "Blackout"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              4400,
+              4410,
+              4500,
+              4600,
+              5500,
+              4800
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Mixed Balanced",
-          "Cards": [
-            "Bloodhound",
-            "ErosionDozer",
-            "Trebuchet",
-            "Medic",
-            "ZipZap",
-            "ManaSurge"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              100,
+              1100,
+              600,
+              2700
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Late Game",
-          "Cards": [
-            "Siphon",
-            "SoulLink",
-            "MirrorMatch",
-            "GamblersRuin",
-            "Gravedigger",
-            "Salvage"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              1400,
+              5300,
+              5400,
+              3800,
+              500,
+              5000
+            ]
+          }
         },
         {
+          "$type": "Shared.BotDeck, Shared",
           "Name": "Speed",
-          "Cards": [
-            "Adrenaline",
-            "Overclock",
-            "ZipZap",
-            "Sonar",
-            "ManaSurge",
-            "Bloodhound"
-          ]
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              2600,
+              1800,
+              600,
+              2400,
+              2700,
+              200
+            ]
+          }
         }
       ]
     }

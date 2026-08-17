@@ -26,7 +26,7 @@ namespace GamePlay.Cards
         public Vector2 PickPoint => transform.position + Vector3.up * _cardHeight * _cards.Count;
 
         [Inject]
-        private void Construct(GamePrefabs prefabs)
+        internal void Construct(GamePrefabs prefabs)
         {
             _prefabs = prefabs;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,13 +6,25 @@ using System.Text;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace Tools
 {
     public class LinkerGenerator : IPreprocessBuildWithReport
     {
-        private const string _sourcesFolder = "/";
+        private const string _linkXmlFolder = "Tools/Settings";
+
+        /// <summary>
+        /// Сборки вне Assets, которым нужна защита от стриппинга.
+        /// Shared.Game — DTO бэкенда, их создаёт рефлексией Newtonsoft.
+        /// MemoryPack.Core — предсобранная DLL, asmdef у неё нет.
+        /// </summary>
+        private static readonly string[] _additionalAssemblies =
+        {
+            "Shared.Game",
+            "MemoryPack.Core"
+        };
 
         public int callbackOrder { get; }
 
@@ -24,22 +36,18 @@ namespace Tools
         [MenuItem("Tools/Generate link.xml")]
         public static void Generate()
         {
-            var assetsDir = Application.dataPath;
-
-            var linkXmlFilePath = Path.Combine(assetsDir, Application.dataPath + "/Tools/Settings/", "link.xml");
+            var linkXmlFilePath = Path.Combine(Application.dataPath, _linkXmlFolder, "link.xml");
 
             Directory.CreateDirectory(Path.GetDirectoryName(linkXmlFilePath) ??
                                       throw new InvalidOperationException(
                                               $"No directory in file name {linkXmlFilePath}"
                                           ));
 
-            var assembliesToPreserve = Enumerable.Empty<string>()
-                                                 .Concat(GetDllAssemblyNames(assetsDir + _sourcesFolder))
-                                                 .Distinct()
-                                                 .OrderBy(s => s)
-                                                 .ToList();
-
-            assembliesToPreserve.Add("Shared");
+            var assembliesToPreserve = GetProjectAssemblyNames()
+                                       .Concat(_additionalAssemblies)
+                                       .Distinct()
+                                       .OrderBy(s => s, StringComparer.Ordinal)
+                                       .ToList();
 
             var content = Enumerable.Empty<string>()
                                     .Concat("<linker>")
@@ -58,25 +66,31 @@ namespace Tools
             streamWriter.Write(content);
         }
 
-        private static IEnumerable<string> GetDllAssemblyNames(string assetsDir)
+        /// <summary>
+        /// Только собственные сборки проекта: asmdef лежит под Assets и не в Plugins.
+        /// Плагины и пакеты сохранять не нужно — пусть их чистит линкер.
+        /// Имена берутся из компилятора, а не из имён файлов: имя asmdef-файла может
+        /// расходиться с полем name внутри него, и такая запись в link.xml молча игнорируется.
+        /// </summary>
+        private static IEnumerable<string> GetProjectAssemblyNames()
         {
-            var asmdefs = Directory.EnumerateFiles(assetsDir, "*.asmdef", SearchOption.AllDirectories)
-                                   .Distinct()
-                                   .Select(Path.GetFileNameWithoutExtension);
+            return CompilationPipeline.GetAssemblies(AssembliesType.Player)
+                                      .Where(assembly => IsProjectAssembly(assembly.name))
+                                      .Select(assembly => assembly.name);
+        }
 
-            var dlss = Directory.EnumerateFiles(assetsDir, "*.dll", SearchOption.AllDirectories)
-                                .Distinct()
-                                .Select(Path.GetFileNameWithoutExtension);
+        private static bool IsProjectAssembly(string assemblyName)
+        {
+            var definitionPath =
+                    CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
 
-            var all = new List<string>();
+            if (string.IsNullOrEmpty(definitionPath))
+                return false;
 
-            all.AddRange(asmdefs);
-            all.AddRange(dlss);
+            var normalized = definitionPath.Replace('\\', '/');
 
-            return all.Where(t => t.Contains("Editor") == false &&
-                                  t.Contains("Test") == false &&
-                                  t.Contains("Tests") == false &&
-                                  t.Contains("Demo") == false);
+            return normalized.StartsWith("Assets/", StringComparison.Ordinal) &&
+                   normalized.StartsWith("Assets/Plugins/", StringComparison.Ordinal) == false;
         }
     }
 

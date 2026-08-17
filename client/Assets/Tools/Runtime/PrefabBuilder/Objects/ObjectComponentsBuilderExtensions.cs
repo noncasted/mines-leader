@@ -9,9 +9,7 @@ namespace Tools.PrefabBuilder
         {
             component = builder.GameObject.AddComponent<T>();
             builder.Components.Add(typeof(T), component);
-#if UNITY_EDITOR
             builder.Container.AddTarget(component);
-#endif
             return builder;
         }
 
@@ -21,9 +19,7 @@ namespace Tools.PrefabBuilder
             var component = builder.GameObject.AddComponent<T>();
             configure?.Invoke(component);
             builder.Components.Add(typeof(T), component);
-#if UNITY_EDITOR
             builder.Container.AddTarget(component);
-#endif
             return builder;
         }
 
@@ -32,26 +28,20 @@ namespace Tools.PrefabBuilder
         {
             var component = builder.GameObject.AddComponent<T>();
             builder.Components.Add(typeof(T), component);
-#if UNITY_EDITOR
             builder.Container.AddTarget(component);
             builder.Register(component, key);
-#endif
             return builder;
         }
 
         public static PrefabBuilder Register(this PrefabBuilder builder, object value, string key = "")
         {
-#if UNITY_EDITOR
             builder.Container.Register(value, key);
-#endif
             return builder;
         }
 
         public static PrefabBuilder Register<T>(this PrefabBuilder builder, T value, string key = "")
         {
-#if UNITY_EDITOR
             builder.Container.Register(value, typeof(T), key);
-#endif
             return builder;
         }
 

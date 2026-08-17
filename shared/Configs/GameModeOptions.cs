@@ -6,6 +6,15 @@ namespace Shared
     {
         public LastManStandingModeOptions LastManStanding { get; set; } = new();
         public TimeLimitedModeOptions TimeLimited { get; set; } = new();
+
+        public int GetCardMovesCost(GameMatchType type)
+        {
+            return type switch
+            {
+                GameMatchType.TimeLimited => TimeLimited.CardMovesCost,
+                _ => LastManStanding.CardMovesCost,
+            };
+        }
     }
 
     public class LastManStandingModeOptions
@@ -15,6 +24,7 @@ namespace Shared
         public int PlayerStartMana { get; set; } = 1;
         public int MaxManaCap { get; set; } = 10;
         public int RoundTime { get; set; } = 30;
+        public int CardMovesCost { get; set; } = 1;
     }
 
     public class TimeLimitedModeOptions
@@ -25,5 +35,6 @@ namespace Shared
         public int MaxManaCap { get; set; } = 10;
         public int RoundTime { get; set; } = 120;
         public int TimeGainPerAction { get; set; } = 5;
+        public int CardMovesCost { get; set; } = 1;
     }
 }

@@ -28,6 +28,7 @@ namespace Menu.Decks
         public IReadOnlyList<IGamePlayer> All => _all;
         public IViewableDelegate Updated => _updated;
         public bool IsGameStarted => true;
+        public int CardMovesCost => 0;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -37,7 +38,7 @@ namespace Menu.Decks
         {
         }
 
-        public void SetGameStarted()
+        public void SetGameStarted(int cardMovesCost)
         {
         }
     }

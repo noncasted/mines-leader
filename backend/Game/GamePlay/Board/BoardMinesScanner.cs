@@ -64,7 +64,7 @@ public class BoardMinesScanner : IBoardMinesScanner
         Flags = newTotalFlags;
 
         if (stateChanged && snapshot != null)
-            snapshot.RecordBoardStateUpdate(_board.OwnerId, Mines, Flags);
+            snapshot.RecordBoardStateUpdate(_board);
 
         return changed ??
                (IReadOnlyList<BoardSnapshotRecord.MinesAround>)Array.Empty<BoardSnapshotRecord.MinesAround>();

@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -9,7 +7,8 @@ namespace Tools.PrefabBuilder
     {
         public static PrefabBuilder FromPrefab(string assetPath)
         {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+#if UNITY_EDITOR
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 
             if (prefab == null)
             {
@@ -17,7 +16,7 @@ namespace Tools.PrefabBuilder
                 return null;
             }
 
-            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            var instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab);
 
             if (instance == null)
             {
@@ -28,11 +27,14 @@ namespace Tools.PrefabBuilder
             var builder = PrefabBuilder.FromGameObject(instance);
             builder.WithName(instance.name);
             return builder;
+#endif
+            return null;
         }
 
         public static T LoadAsset<T>(string path) where T : Object
         {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+#if UNITY_EDITOR
+            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
 
             if (asset == null)
             {
@@ -40,21 +42,24 @@ namespace Tools.PrefabBuilder
             }
 
             return asset;
+#endif
+            return null;
         }
 
         public static T LoadSubAsset<T>(string path, string subAssetName) where T : Object
         {
-            var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+#if UNITY_EDITOR
+            var allAssets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path);
 
             foreach (var asset in allAssets)
             {
                 if (asset is T typed && asset.name == subAssetName)
                     return typed;
             }
+#endif
 
             Debug.LogWarning($"[PrefabBuilder] Sub-asset '{subAssetName}' not found at '{path}'");
             return null;
         }
     }
 }
-#endif

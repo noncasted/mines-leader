@@ -10,7 +10,6 @@ namespace Menu.Social
 {
     public class MenuPlayerMovement : MonoBehaviour, IEntityComponent, IFixedUpdatable, IScopeSetup
     {
-        [SerializeField] private Rigidbody2D _rb;
         [SerializeField] private float _moveSpeed = 1f;
         [SerializeField] private float _lerpSpeed = 1f;
         [SerializeField] private SpriteRenderer _renderer;
@@ -25,7 +24,7 @@ namespace Menu.Social
         private ForwardSpriteAnimation _currentAnimation;
 
         [Inject]
-        public void Construct(
+        internal void Construct(
             IUpdater updater,
             IMenuPlayerInput input,
             INetworkEntity entity,
@@ -71,30 +70,30 @@ namespace Menu.Social
 
             void Local()
             {
-                _rb.MovePosition(_rb.position + _input.MovementDirection * (_moveSpeed * delta));
-
-                if (_input.MovementDirection.x > 0)
-                    _renderer.flipX = false;
-                else if (_input.MovementDirection.x < 0)
-                    _renderer.flipX = true;
-
-                _state.Set(new MenuPlayerTransformState()
-                {
-                    Position = _rb.position,
-                    FlipX = _renderer.flipX,
-                    IsRunning = _input.MovementDirection != Vector2.zero
-                });
+                // _rb.MovePosition(_rb.position + _input.MovementDirection * (_moveSpeed * delta));
+                //
+                // if (_input.MovementDirection.x > 0)
+                //     _renderer.flipX = false;
+                // else if (_input.MovementDirection.x < 0)
+                //     _renderer.flipX = true;
+                //
+                // _state.Set(new MenuPlayerTransformState()
+                // {
+                //     Position = _rb.position,
+                //     FlipX = _renderer.flipX,
+                //     IsRunning = _input.MovementDirection != Vector2.zero
+                // });
             }
 
             void Remote()
             {
-                if (_state.Value == null)
-                    return;
-
-                var target = _state.Value.Position;
-                var position = Vector2.Lerp(_rb.position, target, _lerpSpeed * delta);
-                _renderer.flipX = _state.Value.FlipX;
-                _rb.MovePosition(position);
+                // if (_state.Value == null)
+                //     return;
+                //
+                // var target = _state.Value.Position;
+                // var position = Vector2.Lerp(_rb.position, target, _lerpSpeed * delta);
+                // _renderer.flipX = _state.Value.FlipX;
+                // _rb.MovePosition(position);
             }
 
             ForwardSpriteAnimation SelectAnimation()

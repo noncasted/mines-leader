@@ -15,6 +15,10 @@ namespace Internal
     [Serializable]
     public class Curve : ICurveDefinition
     {
+        public Curve()
+        {
+        }
+
         public Curve(float time, AnimationCurve curve)
         {
             _time = time;

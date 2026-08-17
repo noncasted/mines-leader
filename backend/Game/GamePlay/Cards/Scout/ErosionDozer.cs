@@ -53,7 +53,7 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
         var revealed = board.Revealer.Reveal(targetPositions);
         revealed.AddRange(minePositions);
 
-        snapshot.RecordBoardStateUpdate(board.OwnerId, board.MinesScanner.Mines, board.MinesScanner.Flags);
+        snapshot.RecordBoardStateUpdate(board);
 
         var openedCells = revealed.Distinct().Select(p => new OpenedCell
         {

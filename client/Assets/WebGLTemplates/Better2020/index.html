@@ -36,11 +36,15 @@
     const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
     
     const config = {
+        #if PROGRESSIVE_ASSET_LOADING
+        primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+        secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+        #else
         dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+        #endif
         frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+        #if USE_WASM
         codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
-        #if MEMORY_FILENAME
-        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
         #endif
         #if SYMBOLS_FILENAME
         symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
