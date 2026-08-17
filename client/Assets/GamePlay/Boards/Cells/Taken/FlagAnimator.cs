@@ -1,6 +1,5 @@
 using Animations;
 using Cysharp.Threading.Tasks;
-using Global.Systems;
 using Internal;
 using Tools;
 using UnityEngine;
@@ -13,20 +12,17 @@ namespace GamePlay.Boards
     {
         [SerializeField] private SpriteRenderer _renderer;
 
-        [SerializeField] private ForwardAnimationAsset _appearData;
-        [SerializeField] private ForwardAnimationAsset _removeData;
-
-        private ForwardSpriteAnimation _appear;
-        private ForwardSpriteAnimation _remove;
+        private ForwardSpriteAnimation _show;
+        private ForwardSpriteAnimation _hide;
 
         public void Construct(IUpdater updater)
         {
-            _appear = Create(_appearData);
-            _remove = Create(_removeData);
+            _show = Create(Sprites.GameCells.GameCellsFlagShow);
+            _hide = Create(Sprites.GameCells.GameCellsFlagHide);
 
             return;
 
-            ForwardSpriteAnimation Create(ForwardAnimationAsset data)
+            ForwardSpriteAnimation Create(ISpriteAnimationData data)
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
@@ -37,16 +33,16 @@ namespace GamePlay.Boards
         public async UniTask PlayAppear(IReadOnlyLifetime lifetime)
         {
             var animationLifetime = lifetime.Child();
-            _appear.OnSetup(animationLifetime);
-            await _appear.PlayAsync(animationLifetime);
+            _show.OnSetup(animationLifetime);
+            await _show.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
         }
 
         public async UniTask PlayRemove(IReadOnlyLifetime lifetime)
         {
             var animationLifetime = lifetime.Child();
-            _remove.OnSetup(animationLifetime);
-            await _remove.PlayAsync(animationLifetime);
+            _hide.OnSetup(animationLifetime);
+            await _hide.PlayAsync(animationLifetime);
             animationLifetime.Terminate();
         }
 

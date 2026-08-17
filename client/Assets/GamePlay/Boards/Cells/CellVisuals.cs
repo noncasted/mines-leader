@@ -13,20 +13,17 @@ namespace GamePlay.Boards
     {
         [SerializeField] private SpriteRenderer _renderer;
 
-        [SerializeField] private ForwardAnimationAsset _cellTargetData;
-        [SerializeField] private ForwardAnimationAsset _cellActionData;
-
-        private ForwardSpriteAnimation _cellTarget;
+        private ForwardSpriteAnimation _selection;
         private ForwardSpriteAnimation _cellAction;
 
         public void Construct(IUpdater updater)
         {
-            _cellTarget = Create(_cellTargetData);
-            _cellAction = Create(_cellActionData);
+            _selection = Create(Sprites.GameCells.GameCellsHighlightSelect);
+            _cellAction = Create(Sprites.GameCells.GameCellsHighlightShow);
 
             return;
 
-            ForwardSpriteAnimation Create(ForwardAnimationAsset data)
+            ForwardSpriteAnimation Create(ISpriteAnimationData data)
             {
                 return new ForwardSpriteAnimation(
                     new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
@@ -34,7 +31,7 @@ namespace GamePlay.Boards
             }
         }
 
-        public async UniTask PlayCellTarget(IReadOnlyLifetime lifetime)
+        public async UniTask PlaySelection(IReadOnlyLifetime lifetime)
         {
             gameObject.SetActive(true);
 
@@ -42,8 +39,8 @@ namespace GamePlay.Boards
 
             try
             {
-                _cellTarget.OnSetup(animationLifetime);
-                await _cellTarget.PlayAsync(animationLifetime);
+                _selection.OnSetup(animationLifetime);
+                await _selection.PlayAsync(animationLifetime);
             }
             finally
             {

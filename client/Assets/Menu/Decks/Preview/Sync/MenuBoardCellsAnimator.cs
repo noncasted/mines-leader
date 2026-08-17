@@ -32,7 +32,7 @@ namespace Menu.Decks
                     continue;
 
                 if (cell is CellView cellView)
-                    tasks.Add(cellView.Visuals.PlayCellTarget(lifetime));
+                    tasks.Add(cellView.Visuals.PlaySelection(lifetime));
             }
 
             if (tasks.Count > 0)

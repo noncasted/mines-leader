@@ -8,28 +8,49 @@ namespace Tools {
     public sealed class CardsSprites : SpriteGroup {
         private const string Address = "74fe2a982e3439414a912d2874879b7a";
 
-        private Sprite _adrenaline;
-        private Sprite _sonar;
+        private Sprite _back;
+        private Sprite _discard0;
+        private Sprite _discard1;
+        private Sprite _front;
+        private Sprite _frontOutline;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
 
-        public Sprite Adrenaline {
-            get { EnsureLoaded(); return _adrenaline; }
+        public Sprite Back {
+            get { EnsureLoaded(); return _back; }
         }
 
-        public Sprite Sonar {
-            get { EnsureLoaded(); return _sonar; }
+        public Sprite Discard0 {
+            get { EnsureLoaded(); return _discard0; }
+        }
+
+        public Sprite Discard1 {
+            get { EnsureLoaded(); return _discard1; }
+        }
+
+        public Sprite Front {
+            get { EnsureLoaded(); return _front; }
+        }
+
+        public Sprite FrontOutline {
+            get { EnsureLoaded(); return _frontOutline; }
         }
 
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
-            _adrenaline = asset.GetSheet("Adrenaline");
-            _sonar = asset.GetSheet("Sonar");
+            _back = asset.GetSheet("Back");
+            _discard0 = asset.GetSheet("Discard0");
+            _discard1 = asset.GetSheet("Discard1");
+            _front = asset.GetSheet("Front");
+            _frontOutline = asset.GetSheet("FrontOutline");
         }
 
         protected override void UnloadGroup() {
-            _adrenaline = null;
-            _sonar = null;
+            _back = null;
+            _discard0 = null;
+            _discard1 = null;
+            _front = null;
+            _frontOutline = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }

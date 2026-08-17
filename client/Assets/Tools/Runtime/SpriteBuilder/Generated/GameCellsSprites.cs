@@ -8,21 +8,63 @@ namespace Tools {
     public sealed class GameCellsSprites : SpriteGroup {
         private const string Address = "8923516856373a901bb8b3dc5f4d04b6";
 
-        private ISpriteAnimationData _gameCellHighlightAppearence;
+        private ISpriteAnimationData _gameCellsExplosionElectric;
+        private ISpriteAnimationData _gameCellsExplosionNormal;
+        private ISpriteAnimationData _gameCellsFlagHide;
+        private ISpriteAnimationData _gameCellsFlagShow;
+        private ISpriteAnimationData _gameCellsHighlightSelect;
+        private ISpriteAnimationData _gameCellsHighlightShow;
+        private ISpriteAnimationData _gameCellsOpen;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
 
-        public ISpriteAnimationData GameCellHighlightAppearence {
-            get { EnsureLoaded(); return _gameCellHighlightAppearence; }
+        public ISpriteAnimationData GameCellsExplosionElectric {
+            get { EnsureLoaded(); return _gameCellsExplosionElectric; }
+        }
+
+        public ISpriteAnimationData GameCellsExplosionNormal {
+            get { EnsureLoaded(); return _gameCellsExplosionNormal; }
+        }
+
+        public ISpriteAnimationData GameCellsFlagHide {
+            get { EnsureLoaded(); return _gameCellsFlagHide; }
+        }
+
+        public ISpriteAnimationData GameCellsFlagShow {
+            get { EnsureLoaded(); return _gameCellsFlagShow; }
+        }
+
+        public ISpriteAnimationData GameCellsHighlightSelect {
+            get { EnsureLoaded(); return _gameCellsHighlightSelect; }
+        }
+
+        public ISpriteAnimationData GameCellsHighlightShow {
+            get { EnsureLoaded(); return _gameCellsHighlightShow; }
+        }
+
+        public ISpriteAnimationData GameCellsOpen {
+            get { EnsureLoaded(); return _gameCellsOpen; }
         }
 
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
-            _gameCellHighlightAppearence = asset.GetAnimation("GameCellHighlightAppearence");
+            _gameCellsExplosionElectric = asset.GetAnimation("GameCellsExplosionElectric");
+            _gameCellsExplosionNormal = asset.GetAnimation("GameCellsExplosionNormal");
+            _gameCellsFlagHide = asset.GetAnimation("GameCellsFlagHide");
+            _gameCellsFlagShow = asset.GetAnimation("GameCellsFlagShow");
+            _gameCellsHighlightSelect = asset.GetAnimation("GameCellsHighlightSelect");
+            _gameCellsHighlightShow = asset.GetAnimation("GameCellsHighlightShow");
+            _gameCellsOpen = asset.GetAnimation("GameCellsOpen");
         }
 
         protected override void UnloadGroup() {
-            _gameCellHighlightAppearence = null;
+            _gameCellsExplosionElectric = null;
+            _gameCellsExplosionNormal = null;
+            _gameCellsFlagHide = null;
+            _gameCellsFlagShow = null;
+            _gameCellsHighlightSelect = null;
+            _gameCellsHighlightShow = null;
+            _gameCellsOpen = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }
