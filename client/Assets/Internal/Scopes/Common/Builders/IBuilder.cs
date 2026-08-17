@@ -4,7 +4,7 @@
     {
         IServiceCollection Services { get; }
         IAssetEnvironment Assets { get; }
-        IScopeEventListeners Events { get; }
+        IEventLoop Events { get; }
         IReadOnlyLifetime Lifetime { get; }
     }
 }

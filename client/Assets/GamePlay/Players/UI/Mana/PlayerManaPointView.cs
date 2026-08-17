@@ -1,3 +1,4 @@
+using Tools;
 using UnityEngine;
 
 namespace GamePlay.Players
@@ -5,10 +6,6 @@ namespace GamePlay.Players
     [DisallowMultipleComponent]
     public class PlayerManaPointView : MonoBehaviour
     {
-        [SerializeField] private Sprite _baseEmpty;
-        [SerializeField] private Sprite _baseFull;
-        [SerializeField] private Sprite _additionalEmpty;
-        [SerializeField] private Sprite _additionalFull;
         [SerializeField] private SpriteRenderer _renderer;
 
         private bool _isBase;
@@ -16,17 +13,17 @@ namespace GamePlay.Players
         public void SetEmpty()
         {
             if (_isBase == true)
-                _renderer.sprite = _baseEmpty;
+                _renderer.sprite = Sprites.GameUI.ManaInactive;
             else
-                _renderer.sprite = _additionalEmpty;
+                _renderer.sprite = Sprites.GameUI.ManaAdditionalInactive;
         }
 
         public void SetFull()
         {
             if (_isBase == true)
-                _renderer.sprite = _baseFull;
+                _renderer.sprite = Sprites.GameUI.ManaActive;
             else
-                _renderer.sprite = _additionalFull;
+                _renderer.sprite = Sprites.GameUI.ManaAdditionalActive;
         }
 
         public void SetBase()

@@ -14,7 +14,7 @@ namespace Tools
             "Assets/GamePlay",
             "Assets/Global",
             "Assets/Internal",
-            "Assets/Loop",
+            "Assets/Flow",
             "Assets/Menu",
             "Assets/Meta",
             "Assets/Startup",

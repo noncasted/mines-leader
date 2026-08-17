@@ -34,6 +34,7 @@ namespace Internal
         public async UniTask Dispose()
         {
             await EventLoop.RunDispose();
+            await EventLoop.InvokeBeforeDispose();
             _scopeLifetime.Terminate();
             await _scenes.InvokeAsync(scene => scene.Unload());
             Container.Dispose();

@@ -2,6 +2,7 @@
 using Global.UI;
 using Internal;
 using TMPro;
+using Tools;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -11,9 +12,6 @@ namespace GamePlay.UI
     [DisallowMultipleComponent]
     public class RoundButton : MonoBehaviour, ISceneService, IScopeSetup
     {
-        [SerializeField] private Sprite _ownRound;
-        [SerializeField] private Sprite _opponentRound;
-
         [SerializeField] private Image _image;
         [SerializeField] private TMP_Text _timeText;
 
@@ -43,9 +41,9 @@ namespace GamePlay.UI
             void Update()
             {
                 if (_round.IsTurnAllowed == true)
-                    _image.sprite = _ownRound;
+                    _image.sprite = Sprites.GameUI.RoundButtonOwn;
                 else
-                    _image.sprite = _opponentRound;
+                    _image.sprite = Sprites.GameUI.RoundButtonOpponent;
             }
         }
     }

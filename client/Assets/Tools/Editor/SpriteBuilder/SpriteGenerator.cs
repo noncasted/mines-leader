@@ -187,28 +187,43 @@ namespace Tools {
                     usedNames.Add(source.Group, new HashSet<string>(StringComparer.Ordinal));
                 }
 
-                if (usedNames[source.Group].Add(source.PropertyName) == false) {
-                    Debug.LogError(
-                        $"[SpriteGenerator] Duplicate identifier '{source.PropertyName}' in group '{source.Group}'. Skipping lower-priority source {source.Path}."
-                    );
-                    continue;
-                }
-
                 var sprites = CollectSprites(source.Path, source.Kind);
                 if (sprites.Length == 0) {
                     Debug.LogError($"[SpriteGenerator] No sprites found at {source.Path}");
-                    usedNames[source.Group].Remove(source.PropertyName);
                     continue;
                 }
 
-                group.Properties.Add(new SpritePropertyDefinition {
-                    PropertyName = source.PropertyName,
-                    FieldName = ToFieldName(source.PropertyName),
-                    Kind = source.Kind,
-                    Sprites = sprites,
-                    Time = source.Time,
-                    Color = source.Color
-                });
+                if (source.Kind == SpriteKind.Animation) {
+                    TryAddProperty(
+                        group,
+                        usedNames[source.Group],
+                        source.PropertyName,
+                        SpriteKind.Animation,
+                        sprites,
+                        source.Time,
+                        source.Color,
+                        source.Path);
+                    continue;
+                }
+
+                for (var i = 0; i < sprites.Length; i++) {
+                    var sprite = sprites[i];
+                    var propertyName = ToSheetPropertyName(source.Path, sprite.name);
+                    if (string.IsNullOrEmpty(propertyName)) {
+                        Debug.LogError($"[SpriteGenerator] Identifier is empty for sprite '{sprite.name}' in {source.Path}");
+                        continue;
+                    }
+
+                    TryAddProperty(
+                        group,
+                        usedNames[source.Group],
+                        propertyName,
+                        SpriteKind.Sheet,
+                        new[] { sprite },
+                        source.Time,
+                        source.Color,
+                        source.Path);
+                }
             }
 
             var result = new List<SpriteGroupDefinition>();
@@ -335,7 +350,7 @@ namespace Tools {
                 return Array.Empty<Sprite>();
 
             if (kind == SpriteKind.Sheet)
-                return new[] { PickSheetSprite(assetPath, sprites) };
+                return ToArray(sprites);
 
             return OrderAnimationSprites(assetPath, sprites);
         }
@@ -352,16 +367,6 @@ namespace Tools {
             }
 
             return sprites;
-        }
-
-        private static Sprite PickSheetSprite(string assetPath, IReadOnlyList<Sprite> sprites) {
-            var fileName = Path.GetFileNameWithoutExtension(assetPath);
-            for (var i = 0; i < sprites.Count; i++) {
-                if (sprites[i].name == fileName)
-                    return sprites[i];
-            }
-
-            return sprites[0];
         }
 
         private static Sprite[] OrderAnimationSprites(string assetPath, IReadOnlyList<Sprite> sprites) {
@@ -486,6 +491,52 @@ namespace Tools {
                 return priority;
 
             return string.Compare(left.Path, right.Path, StringComparison.Ordinal);
+        }
+
+        private static bool TryAddProperty(
+            SpriteGroupDefinition group,
+            HashSet<string> usedNames,
+            string propertyName,
+            SpriteKind kind,
+            Sprite[] sprites,
+            float time,
+            Color color,
+            string sourcePath) {
+            if (usedNames.Add(propertyName) == false) {
+                Debug.LogError(
+                    $"[SpriteGenerator] Duplicate identifier '{propertyName}' in group '{group.Name}'. Skipping lower-priority source {sourcePath}."
+                );
+                return false;
+            }
+
+            group.Properties.Add(new SpritePropertyDefinition {
+                PropertyName = propertyName,
+                FieldName = ToFieldName(propertyName),
+                Kind = kind,
+                Sprites = sprites,
+                Time = time,
+                Color = color
+            });
+            return true;
+        }
+
+        private static string ToSheetPropertyName(string assetPath, string spriteName) {
+            if (string.IsNullOrEmpty(spriteName))
+                return string.Empty;
+
+            var fileName = Path.GetFileNameWithoutExtension(assetPath);
+            var remainder = spriteName;
+            if (string.IsNullOrEmpty(fileName) == false &&
+                remainder.StartsWith(fileName, StringComparison.OrdinalIgnoreCase)) {
+                remainder = remainder.Substring(fileName.Length);
+                if (remainder.StartsWith("_") || remainder.StartsWith("-") || remainder.StartsWith(" "))
+                    remainder = remainder.Substring(1);
+            }
+
+            if (string.IsNullOrWhiteSpace(remainder))
+                remainder = spriteName;
+
+            return SpriteCatalogMetadata.ToGroupName(remainder);
         }
 
         private static string ToFieldName(string propertyName) {
