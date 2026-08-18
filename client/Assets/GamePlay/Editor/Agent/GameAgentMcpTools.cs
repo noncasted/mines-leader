@@ -18,6 +18,11 @@ using VContainer;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
 
+// Unity's MCP window lists these tools with x/y, but Coplay HTTP does not
+// publish parameterized custom tools to tools/list. Agents must call them via
+// execute_custom_tool(tool_name="game_open", parameters={x, y})
+// or the CLI: tools/scripts/game-agent.py open X Y
+
 namespace GamePlay.Editor.Agent {
     public static class GameAgentMcpTools {
         public static async Task<object> Run(UniTask<SharedAgentObservation> task) {
@@ -190,6 +195,11 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_get_state", Description = "Return the last player-visible observation, or request an oracle rebuild when oracle is true.")]
     public static class GameGetStateTool {
+        public sealed class Parameters {
+            [ToolParameter("Rebuild from the server with mines visible. Ignored unless the match IncludeOracle flag is on.", Required = false, DefaultValue = "false")]
+            public bool oracle { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             if (GameAgentMcpTools.GetBool(parameters, "oracle", false))
                 return GameAgentMcpTools.Run(GameAgentBridge.RequestOracleState());
@@ -200,6 +210,11 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_wait_turn", Description = "Wait until it is the human turn or the match is over.")]
     public static class GameWaitTurnTool {
+        public sealed class Parameters {
+            [ToolParameter("Milliseconds to wait.", Required = false, DefaultValue = "60000")]
+            public int timeout_ms { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var timeoutMs = GameAgentMcpTools.GetInt(parameters, "timeout_ms", 60000);
             return GameAgentMcpTools.Run(GameAgentBridge.WaitOwnTurn(timeoutMs));
@@ -208,6 +223,14 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_open", Description = "Open a cell on the player's board.")]
     public static class GameOpenTool {
+        public sealed class Parameters {
+            [ToolParameter("Board X coordinate.")]
+            public int x { get; set; }
+
+            [ToolParameter("Board Y coordinate.")]
+            public int y { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var x = GameAgentMcpTools.GetInt(parameters, "x", 0);
             var y = GameAgentMcpTools.GetInt(parameters, "y", 0);
@@ -217,6 +240,14 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_chord", Description = "Chord-open a cell on the player's board.")]
     public static class GameChordTool {
+        public sealed class Parameters {
+            [ToolParameter("Board X coordinate.")]
+            public int x { get; set; }
+
+            [ToolParameter("Board Y coordinate.")]
+            public int y { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var x = GameAgentMcpTools.GetInt(parameters, "x", 0);
             var y = GameAgentMcpTools.GetInt(parameters, "y", 0);
@@ -226,6 +257,14 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_flag", Description = "Flag a cell. Legal during the opponent turn.")]
     public static class GameFlagTool {
+        public sealed class Parameters {
+            [ToolParameter("Board X coordinate.")]
+            public int x { get; set; }
+
+            [ToolParameter("Board Y coordinate.")]
+            public int y { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var x = GameAgentMcpTools.GetInt(parameters, "x", 0);
             var y = GameAgentMcpTools.GetInt(parameters, "y", 0);
@@ -235,6 +274,14 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_unflag", Description = "Remove a flag. Legal during the opponent turn.")]
     public static class GameUnflagTool {
+        public sealed class Parameters {
+            [ToolParameter("Board X coordinate.")]
+            public int x { get; set; }
+
+            [ToolParameter("Board Y coordinate.")]
+            public int y { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var x = GameAgentMcpTools.GetInt(parameters, "x", 0);
             var y = GameAgentMcpTools.GetInt(parameters, "y", 0);
@@ -244,6 +291,23 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_use_card", Description = "Play a hand card by id.")]
     public static class GameUseCardTool {
+        public sealed class Parameters {
+            [ToolParameter("Hand card id.")]
+            public string card_id { get; set; }
+
+            [ToolParameter("Target X, if the card needs a cell.", Required = false)]
+            public int? x { get; set; }
+
+            [ToolParameter("Target Y, if the card needs a cell.", Required = false)]
+            public int? y { get; set; }
+
+            [ToolParameter("Second card id for ZipZap.", Required = false)]
+            public string extra_card_id { get; set; }
+
+            [ToolParameter("Choice index for cards that pick an option.", Required = false)]
+            public int? chosen_index { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var cardIdText = GameAgentMcpTools.GetString(parameters, "card_id");
             if (Guid.TryParse(cardIdText, out var cardId) == false)
@@ -269,6 +333,11 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_end_turn", Description = "Skip the remaining turn and wait for the next own turn or game over.")]
     public static class GameEndTurnTool {
+        public sealed class Parameters {
+            [ToolParameter("Milliseconds to wait for the next own turn.", Required = false, DefaultValue = "60000")]
+            public int timeout_ms { get; set; }
+        }
+
         public static Task<object> HandleCommand(JObject parameters) {
             var timeoutMs = GameAgentMcpTools.GetInt(parameters, "timeout_ms", 60000);
             return GameAgentMcpTools.Run(GameAgentBridge.EndTurn(timeoutMs));

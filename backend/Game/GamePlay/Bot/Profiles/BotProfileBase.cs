@@ -129,7 +129,7 @@ public abstract class BotProfileBase : IBotProfileStrategy
 
     protected async Task WaitRemainingTime(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
-        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
+        if (BotTurnTiming.ShouldSkipRoundPadding(_matchOptions.Type))
             return;
 
         var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
@@ -141,8 +141,15 @@ public abstract class BotProfileBase : IBotProfileStrategy
 
     protected async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
-        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
+        if (BotTurnTiming.IsTurnBased(_matchOptions.Type))
+        {
+            var delay = _config.Value.CurrentProfileConfig.ActionDelay;
+            if (delay <= 0f)
+                delay = 0.3f;
+
+            await Delay(delay, lifetime);
             return;
+        }
 
         var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
         var remaining = roundTime - elapsed;
@@ -150,18 +157,15 @@ public abstract class BotProfileBase : IBotProfileStrategy
         if (remaining <= 0.5f)
             return;
 
-        var delay = 0.5f + (float)Random.Shared.NextDouble() * 1.5f;
-        delay = Math.Min(delay, remaining * 0.4f);
-        delay = Math.Max(delay, 0.3f);
+        var paced = 0.5f + (float)Random.Shared.NextDouble() * 1.5f;
+        paced = Math.Min(paced, remaining * 0.4f);
+        paced = Math.Max(paced, 0.3f);
 
-        await Delay(delay, lifetime);
+        await Delay(paced, lifetime);
     }
 
     protected Task Delay(float seconds, IReadOnlyLifetime lifetime)
     {
-        if (BotTurnTiming.ShouldSkipDelay(_matchOptions.Type))
-            return Task.CompletedTask;
-
         return Task.Delay(TimeSpan.FromSeconds(seconds), lifetime.Token);
     }
 }

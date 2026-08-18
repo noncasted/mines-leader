@@ -32,12 +32,31 @@ public class LastManStandingTurnBasedRoundTests
     }
 
     [Fact]
-    public void BotDelay_TurnBased_IsInstant()
+    public void ProcessRound_PublishesOpponentTurnAfterRestore()
     {
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.LastManStandingTurnBased).Should().BeTrue();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.LastManStanding).Should().BeFalse();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.TimeLimited).Should().BeFalse();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.Single).Should().BeFalse();
+        var text = File.ReadAllText(FindRoundSource());
+        var processAt = text.IndexOf("private async Task ProcessRound", StringComparison.Ordinal);
+        processAt.Should().BeGreaterThan(0);
+
+        var restoreAt = text.IndexOf("player.Moves.Restore", processAt, StringComparison.Ordinal);
+        var opponentTurnAt = text.IndexOf("\"opponent_turn\"", processAt, StringComparison.Ordinal);
+        restoreAt.Should().BeGreaterThan(processAt);
+        opponentTurnAt.Should().BeGreaterThan(restoreAt);
+
+        var afterRound = text.IndexOf("await ProcessRound(lifetime, nextPlayer)", StringComparison.Ordinal);
+        afterRound.Should().BeGreaterThan(0);
+        afterRound.Should().BeLessThan(processAt);
+        text.Substring(afterRound, processAt - afterRound).Should().NotContain("opponent_turn");
+    }
+
+    [Fact]
+    public void BotDelay_TurnBased_SkipsOnlyRoundPadding()
+    {
+        BotTurnTiming.IsTurnBased(GameMatchType.LastManStandingTurnBased).Should().BeTrue();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.LastManStandingTurnBased).Should().BeTrue();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.LastManStanding).Should().BeFalse();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.TimeLimited).Should().BeFalse();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.Single).Should().BeFalse();
     }
 
     private static string FindRoundSource()
@@ -79,11 +98,11 @@ public class LastManStandingTurnBasedRoundTests
 public class BotTurnTimingTests
 {
     [Fact]
-    public void ShouldSkipDelay_OnlyTurnBased()
+    public void ShouldSkipRoundPadding_OnlyTurnBased()
     {
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.LastManStandingTurnBased).Should().BeTrue();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.LastManStanding).Should().BeFalse();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.TimeLimited).Should().BeFalse();
-        BotTurnTiming.ShouldSkipDelay(GameMatchType.Single).Should().BeFalse();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.LastManStandingTurnBased).Should().BeTrue();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.LastManStanding).Should().BeFalse();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.TimeLimited).Should().BeFalse();
+        BotTurnTiming.ShouldSkipRoundPadding(GameMatchType.Single).Should().BeFalse();
     }
 }

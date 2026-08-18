@@ -65,7 +65,7 @@ MonoBehaviour:
     - {fileID: 8333597315716918675, guid: 139c10854989e228698a7bfc323c177a, type: 3}
     - {fileID: 8712500365343266275, guid: 139c10854989e228698a7bfc323c177a, type: 3}
     - {fileID: 4382765495799619954, guid: 139c10854989e228698a7bfc323c177a, type: 3}
-    Time: 0.15
+    Time: 0.25
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: GameCellsHighlightSelect
     Kind: 1

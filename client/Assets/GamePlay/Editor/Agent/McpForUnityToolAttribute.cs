@@ -17,5 +17,17 @@ namespace MCPForUnity.Editor.Tools {
         public bool AutoRegister { get; set; } = true;
         public string Group { get; set; } = "core";
     }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public sealed class ToolParameterAttribute : Attribute {
+        public ToolParameterAttribute(string description) {
+            Description = description;
+        }
+
+        public string Name { get; }
+        public string Description { get; set; }
+        public bool Required { get; set; } = true;
+        public string DefaultValue { get; set; }
+    }
 }
 #endif

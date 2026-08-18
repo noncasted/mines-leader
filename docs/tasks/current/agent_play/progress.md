@@ -4,7 +4,7 @@
 
 | Slice | Status | Notes |
 |-------|--------|-------|
-| 1 round | done | server LMS turn-based + instant bot |
+| 1 round | done | server LMS turn-based; bot keeps ActionDelay, skips only round padding |
 | 2 observation | done | event buffer + SharedAgentObservation + publisher |
 | 3 client-mcp | done | bridge + MCP protocol tools |
 
@@ -19,7 +19,7 @@
 - Added `config.gameMode.json` section and console card **Last Man Standing (Turn Based)**.
 - New `LastManStandingTurnBasedRound`: copy of LMS with `TimerCountdown` removed; `ProcessRound` awaits `TurnsCountdown()` only; snapshots use `LastManStandingRoundRecord` with `secondsLeft: 0`.
 - `SessionFactory` registers the new round on both `CreateMatch` and `CreateMatchWithBot`.
-- Injected `MatchCreateOptions` into `BotProfileBase` / Easy / Medium / Hard. `Delay`, `DelayForAction`, `WaitRemainingTime` (and therefore the 1.5s start delay) no-op when type is `LastManStandingTurnBased` via `BotTurnTiming.ShouldSkipDelay`.
+- Injected `MatchCreateOptions` into `BotProfileBase` / Easy / Medium / Hard. Turn-based skips only `WaitRemainingTime`. `Delay` still runs. `DelayForAction` uses `BotProfileConfig.ActionDelay` so the bot is watchable, not instant.
 - Live `TimeLimitedRound` / `LastManStandingRound` timers unchanged.
 - Tests: `LastManStandingTurnBasedRoundTests` + `BotTurnTimingTests` — 4 passed (`dotnet test backend/Tools/Tests/Tests.csproj -- --filter-class "*LastManStandingTurnBased*" --filter-class "*BotTurnTiming*"`).
 

@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
-using Global.Systems;
 using Internal;
 using Meta;
 using Network;
@@ -53,18 +52,39 @@ namespace GamePlay.Cards
 
         public async UniTask Enter(ICardLocalIdle idle)
         {
-            var startPosition = _transform.Position;
             var lifetime = _stateLifetime.OccupyLifetime();
+            var startPosition = _transform.Position;
+            var startScale = _transform.Scale;
+            var startRotation = _transform.Rotation;
             var startForce = _transform.HandForce;
             var positionHandle = _handEntryHandle.PositionHandle;
             var useLifetime = lifetime.Child();
+            var transitionCurve = _options.TransitionCurve.CreateInstance();
 
             _moves.IsTurn.Advise(lifetime, isTurn => {
                 if (isTurn == false)
                     useLifetime.Terminate();
             });
 
-            _updater.RunUpdateAction(useLifetime, _ => MoveTowards(startPosition)).Forget();
+            _updater.RunUpdateAction(useLifetime, delta => {
+                var evaluation = transitionCurve.StepForward(delta);
+                var supposedRotation = positionHandle.SupposedRotation;
+
+                var targetRotation = supposedRotation + _options.Rotation;
+                var rotation = Mathf.LerpAngle(startRotation, targetRotation, evaluation);
+                _transform.SetRotation(rotation);
+
+                var force = Mathf.Lerp(startForce, _options.HandForce, evaluation);
+                _transform.SetHandForce(force);
+
+                var direction = new Angle(90 + supposedRotation).ToVector2();
+                var targetPosition = positionHandle.SupposedPosition + direction * _options.MoveDistance;
+                var position = Vector2.Lerp(startPosition, targetPosition, evaluation);
+                _transform.SetPosition(position);
+
+                var scale = Vector2.Lerp(startScale, Vector2.one * _options.Scale, evaluation);
+                _transform.SetScale(scale);
+            }).Forget();
 
             var useResult = await _action.TryUse(useLifetime);
 

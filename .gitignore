@@ -115,3 +115,8 @@ ExportedObj/
 /client/.idea/
 /backend/.idea/
 .omc/
+
+__pycache__/
+*.pyc
+*.pyo
+
