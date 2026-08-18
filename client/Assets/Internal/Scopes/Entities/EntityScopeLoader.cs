@@ -80,6 +80,7 @@ namespace Internal
 
             void Register(IContainerBuilder container)
             {
+                builder.RegisterInstance(builder.Events);
                 builder.Register<IViewInjector, ViewInjector>(VContainer.Lifetime.Scoped);
 
                 builder.InternalServices.PassRegistrations(container);

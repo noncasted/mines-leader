@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77615687fef42b895edab337d70201c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.StashCard
-  _even: {fileID: -7723078105094393389, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
-  _odd: {fileID: 4766513192042372085, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
+  _even: {fileID: 0}
+  _odd: {fileID: 0}
   _renderer: {fileID: 134057211218796616}
 --- !u!212 &134057211218796616
 SpriteRenderer:

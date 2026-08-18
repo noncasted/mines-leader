@@ -231,15 +231,15 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 6342964531549377041, guid: e9f0f559fb4cbce44b9a5702ad6aba67, type: 3}
+  m_Sprite: {fileID: -2847893325727479780, guid: 6211838d194ab3d4596d399255040866, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.37254903}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.12, y: 0.12}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!1 &1941976723330466177
@@ -396,9 +396,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Boards.MineAnimator
   _renderer: {fileID: 939605456478165645}
-  _mineExplosionData: {fileID: 11400000, guid: 5d675a58afceceeb3bcce01c3cf65377, type: 2}
-  _zipZapExplosionData: {fileID: 11400000, guid: a6dce550ad4022fdf8cc6989a32f82db, type: 2}
-  _cellOpenData: {fileID: 11400000, guid: f8d836878c4b3ab75ab23bc3945ad0e5, type: 2}
 --- !u!1 &2459909646189525679
 GameObject:
   m_ObjectHideFlags: 0
@@ -613,7 +610,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5506274326284669537
 RectTransform:
   m_ObjectHideFlags: 0
@@ -854,7 +851,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8855521761072871888
 Transform:
   m_ObjectHideFlags: 0
@@ -901,7 +898,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &548794885799499623
 Transform:
   m_ObjectHideFlags: 0
@@ -1387,7 +1384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4190032050432619923
 Transform:
   m_ObjectHideFlags: 0
@@ -1536,7 +1533,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4240207160099736439
 Transform:
   m_ObjectHideFlags: 0
@@ -1566,8 +1563,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Boards.FlagAnimator
   _renderer: {fileID: 5334658423643175856}
-  _appearData: {fileID: 11400000, guid: 5023365b55a004a08bac8290746bb293, type: 2}
-  _removeData: {fileID: 11400000, guid: 0f347c61252510c15b540c8282e41ed0, type: 2}
 --- !u!1 &7032305348698701417
 GameObject:
   m_ObjectHideFlags: 0
@@ -1674,8 +1669,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Boards.CellVisuals
   _renderer: {fileID: 4084863120452507796}
-  _cellTargetData: {fileID: 11400000, guid: 832cf2d30572de977ae1f207c150c1da, type: 2}
-  _cellActionData: {fileID: 11400000, guid: 0bec15114bcd15938bde465ffcb98c3d, type: 2}
 --- !u!1 &8861436741193000784
 GameObject:
   m_ObjectHideFlags: 0

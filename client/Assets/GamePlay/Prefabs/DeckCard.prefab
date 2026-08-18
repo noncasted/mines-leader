@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7723078105094393389, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
+  m_Sprite: {fileID: 4439843131023120884, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -105,6 +105,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c422dfe5f0fa43ce91b887a5d8c7794e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.DeckCard
-  _even: {fileID: -7723078105094393389, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
-  _odd: {fileID: 4766513192042372085, guid: f1c40487f1bb5d7b5847d6ba473d07d0, type: 3}
   _renderer: {fileID: 1440826769456200579}
