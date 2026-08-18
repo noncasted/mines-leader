@@ -58,6 +58,7 @@ namespace Tools {
         private Sprite _opponentFlagEraseMax;
         private Sprite _opponentFlagReshuffle;
         private Sprite _opponentFlagReshuffleMax;
+        private Sprite _overclock;
         private Sprite _powerSurge;
         private Sprite _purge;
         private Sprite _recycler;
@@ -68,6 +69,7 @@ namespace Tools {
         private Sprite _siphon;
         private Sprite _smoke;
         private Sprite _smokeMax;
+        private Sprite _sonar;
         private Sprite _soulLink;
         private Sprite _thermalVision;
         private Sprite _thermalVisionMax;
@@ -280,6 +282,10 @@ namespace Tools {
             get { EnsureLoaded(); return _opponentFlagReshuffleMax; }
         }
 
+        public Sprite Overclock {
+            get { EnsureLoaded(); return _overclock; }
+        }
+
         public Sprite PowerSurge {
             get { EnsureLoaded(); return _powerSurge; }
         }
@@ -318,6 +324,10 @@ namespace Tools {
 
         public Sprite SmokeMax {
             get { EnsureLoaded(); return _smokeMax; }
+        }
+
+        public Sprite Sonar {
+            get { EnsureLoaded(); return _sonar; }
         }
 
         public Sprite SoulLink {
@@ -413,6 +423,7 @@ namespace Tools {
             _opponentFlagEraseMax = asset.GetSheet("OpponentFlagEraseMax");
             _opponentFlagReshuffle = asset.GetSheet("OpponentFlagReshuffle");
             _opponentFlagReshuffleMax = asset.GetSheet("OpponentFlagReshuffleMax");
+            _overclock = asset.GetSheet("Overclock");
             _powerSurge = asset.GetSheet("PowerSurge");
             _purge = asset.GetSheet("Purge");
             _recycler = asset.GetSheet("Recycler");
@@ -423,6 +434,7 @@ namespace Tools {
             _siphon = asset.GetSheet("Siphon");
             _smoke = asset.GetSheet("Smoke");
             _smokeMax = asset.GetSheet("SmokeMax");
+            _sonar = asset.GetSheet("Sonar");
             _soulLink = asset.GetSheet("SoulLink");
             _thermalVision = asset.GetSheet("ThermalVision");
             _thermalVisionMax = asset.GetSheet("ThermalVisionMax");
@@ -486,6 +498,7 @@ namespace Tools {
             _opponentFlagEraseMax = null;
             _opponentFlagReshuffle = null;
             _opponentFlagReshuffleMax = null;
+            _overclock = null;
             _powerSurge = null;
             _purge = null;
             _recycler = null;
@@ -496,6 +509,7 @@ namespace Tools {
             _siphon = null;
             _smoke = null;
             _smokeMax = null;
+            _sonar = null;
             _soulLink = null;
             _thermalVision = null;
             _thermalVisionMax = null;

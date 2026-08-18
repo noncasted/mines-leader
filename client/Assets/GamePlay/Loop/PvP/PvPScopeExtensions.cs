@@ -48,6 +48,11 @@ namespace GamePlay.Loop
 
         private static UniTask Construct(IScopeBuilder builder, SharedMatchmaking.MatchResult sessionData)
         {
+            builder.LoadSpriteGroup(Sprites.Cards);
+            builder.LoadSpriteGroup(Sprites.GameUI);
+            builder.LoadSpriteGroup(Sprites.GameCells);
+            builder.LoadSpriteGroup(Sprites.GameField);
+            
             builder.AddDefaultGamePlayServices();
             builder.AddGameEndServices();
 

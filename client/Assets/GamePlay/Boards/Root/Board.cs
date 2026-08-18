@@ -54,7 +54,7 @@ namespace GamePlay.Boards
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _cells ??= Constructor.Build();
+            _cells = Constructor.Build();
 
             _cellsDictionary.Clear();
 

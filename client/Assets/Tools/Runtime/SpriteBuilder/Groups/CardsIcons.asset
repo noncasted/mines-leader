@@ -313,6 +313,12 @@ MonoBehaviour:
     - {fileID: 4830068685150472436, guid: a41fd0b34f969f4329aff9325652afc7, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Overclock
+    Kind: 0
+    Sprites:
+    - {fileID: -3339493538583087749, guid: 3ce6251a780b7f62d96a9bb6e746f665, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: PowerSurge
     Kind: 0
     Sprites:
@@ -371,6 +377,12 @@ MonoBehaviour:
     Kind: 0
     Sprites:
     - {fileID: -7877919840302630087, guid: ce4424d0a9abec8b3a6e907ceb30ae1d, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Sonar
+    Kind: 0
+    Sprites:
+    - {fileID: 8834658772494522291, guid: 60c3974668bc19ff7a31eb95af0cfd47, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: SoulLink
