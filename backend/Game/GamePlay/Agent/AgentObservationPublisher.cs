@@ -52,11 +52,7 @@ public class AgentObservationPublisher : IAgentObservationPublisher
         var events = _eventBuffer.TakeAfter(cursor);
         _lastCursor[viewerId] = _eventBuffer.Cursor;
 
-        // opponent_turn is sent to the waiting player after the other side finished.
-        // Treat it as their turn so game_end_turn can complete on this trigger.
-        var currentPlayerId = trigger == "opponent_turn"
-            ? viewerId
-            : _serviceProvider.GetService<IGameRound>()?.CurrentPlayer.Value?.User.Id;
+        var currentPlayerId = _serviceProvider.GetService<IGameRound>()?.CurrentPlayer.Value?.User.Id;
 
         var useOracle = false;
         if (oracle)

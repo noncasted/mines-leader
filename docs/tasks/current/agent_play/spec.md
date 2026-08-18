@@ -19,7 +19,7 @@ This is not a live PvP feature. Do not put the new mode in the production menu.
 5. **Player-visible board by default.** Closed cells must not include `HasMine`. Oracle (`IncludeOracle = true` on the observation) is opt-in and only for post-match analysis tools, not for `game_get_state` / action tools.
 6. **Flags during the opponent turn stay legal.** Same rules as live LMS. Do not add a server turn-check on `SetFlag` / `RemoveFlag`.
 7. **Do not add a server turn-check on `Open` / `CardUse` either** in this task. Live commands do not have one. The MCP tools must refuse off-turn `Open` / `CardUse` / `SkipTurn` on the client bridge. Flags may still be sent off-turn.
-8. **Instant bot in this mode only.** `Delay` / `WaitRemainingTime` / the 1.5s start delay become no-ops when `MatchCreateOptions.Type == LastManStandingTurnBased`. Live TimeLimited / LMS bot timing must not change.
+8. **Turn-based bot keeps per-action delays.** `WaitRemainingTime` is a no-op (no clock to pad). `Delay` and the 1.5s start pause still run. `DelayForAction` uses `BotProfileConfig.ActionDelay` instead of leftover-round pacing. Live TimeLimited / LMS bot timing must not change.
 9. **Unity MCP tools wrap the protocol**, not mouse clicks and not `execute_code`. The runtime API is `GameAgentBridge` (same pattern as `GameCheatsBridge`). Editor `[McpForUnityTool]` methods are thin wrappers.
 10. **Observation is built on the server** from `GameStateCapture` + an in-memory event buffer. Do not assemble the observation from Unity animation state.
 11. **Hide opponent hand `CardType`** in the default (non-oracle) observation. The client currently knows the types; the agent must not.
@@ -112,7 +112,7 @@ Add a third card **Last Man Standing (Turn Based)** with the fields above (no Ro
 
 ---
 
-## Slice 1 — server round + instant bot
+## Slice 1 — server round + bot timing
 
 ### New round
 
@@ -147,16 +147,17 @@ case GameMatchType.LastManStandingTurnBased:
 
 `Single` stays empty. `TimeLimited` / `LastManStanding` stay as they are.
 
-### Instant bot
+### Bot timing
 
 `MatchCreateOptions` is already in the session container. Inject it into `BotProfileBase` (and therefore Easy/Medium/Hard).
 
-In `Delay`, `DelayForAction`, `WaitRemainingTime`, and the 1.5s start delay inside `ExecuteTurn`:
+In turn-based only:
 
-- if `_matchOptions.Type == GameMatchType.LastManStandingTurnBased` → `return Task.CompletedTask` (or skip the `await Delay(...)` call).
-- otherwise keep current timing.
+- `WaitRemainingTime` → no-op (there is no round clock to pad).
+- `Delay` and the 1.5s start pause still wait.
+- `DelayForAction` waits `BotProfileConfig.ActionDelay` (fallback 0.3s) and must not abort just because leftover `Min/MaxRoundTime` ran out.
 
-Do not add a new bot profile. Do not change `MinRoundTime` / `MaxRoundTime` in `config.bot.json`.
+Live TimeLimited / LMS keep the existing remaining-time pacing. Do not add a new bot profile. Do not change `MinRoundTime` / `MaxRoundTime` in `config.bot.json`.
 
 ### Tests (required)
 
@@ -166,7 +167,7 @@ Minimum:
 
 1. `GetCardMovesCost_TurnBased_UsesOwnOptions` — set `LastManStanding.CardMovesCost = 1`, `LastManStandingTurnBased.CardMovesCost = 0`, assert `GetCardMovesCost(LastManStandingTurnBased) == 0`.
 2. `ProcessRound_NoTimerLoop` — the new round file must not contain `TimerCountdown` or `TimeSpan.FromSeconds(1)` used as a turn clock. Critic greps the file. A test that reflects/reads source is optional; the critic will grep.
-3. `BotDelay_TurnBased_IsInstant` — call the delay helper (extract `BotProfileBase` delay to a testable `internal static`/`public` function if needed, e.g. `BotTurnTiming.ShouldSkipDelay(GameMatchType)`) and assert `true` only for `LastManStandingTurnBased`.
+3. `BotDelay_TurnBased_SkipsOnlyRoundPadding` — `BotTurnTiming.ShouldSkipRoundPadding` is `true` only for `LastManStandingTurnBased`. Per-action delays are not skipped.
 
 Run:
 
@@ -517,6 +518,14 @@ Tool names (exact):
 
 Each mutating tool returns the observation as JSON (Newtonsoft or `JsonUtility` + a serializable DTO). Include `hasError`, `error`, `events`, `self`, `opponent` (ascii + hand + resources). Do not return Unity objects.
 
+**Calling from an MCP client:** Coplay's HTTP `tools/list` does not expose parameterized `game_*` tools (empty schema / unknown tool). The Unity MCP window still shows them. Invoke through `execute_custom_tool`:
+
+```
+execute_custom_tool({ tool_name: "game_open", parameters: { x: 3, y: 4 } })
+```
+
+Or use the CLI wrapper (stdlib only): `python3 tools/scripts/game-agent.py open 3 4`.
+
 `game_start_vs_bot`:
 
 - If `GameAgentBridge.IsActive` and a match is running → return current status (do not start a second match).
@@ -576,7 +585,7 @@ Follow `.agents/docs/CODE_STYLE_FULL.md`, `.agents/docs/API_DESIGN_FULL.md`, `.a
 
 | Id | Title | Depends on |
 |----|--------|------------|
-| `round` | Enum, options, console, `LastManStandingTurnBasedRound`, factory, instant bot, tests | — |
+| `round` | Enum, options, console, `LastManStandingTurnBasedRound`, factory, bot timing, tests | — |
 | `observation` | Buffer, DTO, builder, publisher, command/turn hooks, tests | `round` |
 | `client-mcp` | Client switch, bridge, payload factory, MCP tools | `observation` |
 
@@ -594,7 +603,7 @@ Implement **only** the current slice. Do not start a later slice. A critic must 
 | `backend/Game/GamePlay/Commands/Common/GameCommand.cs` | publish after send |
 | `backend/Game/GamePlay/Commands/Common/GameCommandUtils.cs` | inject publisher |
 | `backend/Game/Session/Logging/SessionFileLogger.cs` | buffer append |
-| `backend/Game/GamePlay/Bot/Profiles/BotProfileBase.cs` | instant delay |
+| `backend/Game/GamePlay/Bot/Profiles/BotProfileBase.cs` | turn-based ActionDelay |
 | `backend/Game/GamePlay/Snapshots/GameStateCapture.cs` | builder input |
 | `backend/Game/GamePlay/Snapshots/MoveSnapshotBoardExtensions.cs` | reveal count |
 | `shared/Domain/GameMatchType.cs` | enum |

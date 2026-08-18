@@ -317,8 +317,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0af3dfa8e054072a8c456f27c5c3ca4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ownRound: {fileID: -4227697841525367302, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
-  _opponentRound: {fileID: 3184018508462816657, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
   _image: {fileID: 992633536}
   _timeText: {fileID: 745580492}
   _button: {fileID: 992633534}
@@ -498,8 +496,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 30
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4ce63d92b0fcbfc48a7563a7a0469709, type: 2}
-  m_sharedMaterial: {fileID: -6321643149346304851, guid: 4ce63d92b0fcbfc48a7563a7a0469709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f20a0a776c428a09a8148113398cae3e, type: 2}
+  m_sharedMaterial: {fileID: -429959410150360321, guid: f20a0a776c428a09a8148113398cae3e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -523,12 +521,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 140
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 140
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

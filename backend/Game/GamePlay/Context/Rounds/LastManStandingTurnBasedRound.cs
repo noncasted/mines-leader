@@ -129,8 +129,6 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
             roundsCount++;
             _sessionLogger.LogRoundStart(nextPlayer.User.Id, roundsCount);
             await ProcessRound(lifetime, nextPlayer);
-            var opponent = players.First(p => p != nextPlayer);
-            _observationPublisher.Publish(opponent.User.Id, "opponent_turn", false, string.Empty);
             _currentRound++;
             EmitRoundSnapshot();
             _sessionLogger.LogRoundEnd(nextPlayer.User.Id, roundsCount);
@@ -242,6 +240,9 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         }
 
         _currentPlayer.Set(player);
+        // opponent_turn must go out after Restore, otherwise EndTurn sees IsOwnTurn
+        // with MovesLeft still locked at 0. turn_start follows for waiters.
+        _observationPublisher.Publish(player.User.Id, "opponent_turn", false, string.Empty);
         _observationPublisher.Publish(player.User.Id, "turn_start", false, string.Empty);
 
         try
