@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -49,17 +50,20 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ChaosDiamond>
         {
-            public Snapshot(IBoardCellsAnimator animator, ICardRandomAnimator randomAnimator)
+            public Snapshot(IBoardCellsAnimator animator, IGameRandom random, IGameContext context)
             {
+                _random = random;
+                _context = context;
                 _animator = animator;
-                _randomAnimator = randomAnimator;
             }
 
+            private readonly IGameRandom _random;
+            private readonly IGameContext _context;
             private readonly IBoardCellsAnimator _animator;
-            private readonly ICardRandomAnimator _randomAnimator;
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ChaosDiamond payload)
             {
+
                 // 1. Target animation
                 if (payload.TargetCells.Count > 0)
                     await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
@@ -71,7 +75,8 @@ namespace GamePlay.Cards
                     await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
                 }
 
-                await _randomAnimator.PlayDiceRoll(lifetime, payload.ActualSize);
+                var isOwned = _context.Self.Id == payload.TargetPlayer;
+                await _random.PlayDiceRoll(lifetime, payload.ActualSize, isOwned);
 
                 foreach (var position in payload.FlaggedCells)
                     _animator.FlagCell(payload.TargetPlayer, position);

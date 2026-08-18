@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 0
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639225958988472590
+  platformSettingsDirtyTick: 639226467867351410
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: ZipZap
     originalName: 
-    pivot: {x: 0.44444445, y: -0.9655172}
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 36
-      height: 29
-    spriteID: 94551c36a13096cd0bc90f0399b07d50
+      width: 32
+      height: 21
+    spriteID: c0f104671c1fc41d7acd6299a60f14ad
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -147,7 +147,7 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: -16, y: -28}
+    uvTransform: {x: 0, y: 0}
   spriteSheetImportData: []
   tileSetImportData: []
   asepriteLayers:
@@ -169,9 +169,9 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 64
-        height: 64
-      spriteId: 94551c36a13096cd0bc90f0399b07d50
+        width: 32
+        height: 21
+      spriteId: c0f104671c1fc41d7acd6299a60f14ad
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -216,5 +216,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 64, y: 32}
-  canvasSize: {x: 64, y: 64}
+  previousTextureSize: {x: 32, y: 32}
+  canvasSize: {x: 32, y: 21}

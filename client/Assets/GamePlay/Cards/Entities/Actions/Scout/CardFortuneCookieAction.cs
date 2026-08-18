@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 
@@ -30,13 +31,15 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.FortuneCookie>
         {
-            public Snapshot(ICardRandomAnimator randomAnimator, IBoardCellsAnimator animator)
+            public Snapshot(IBoardCellsAnimator animator, IGameRandom random, IGameContext context)
             {
-                _randomAnimator = randomAnimator;
                 _animator = animator;
+                _random = random;
+                _context = context;
             }
 
-            private readonly ICardRandomAnimator _randomAnimator;
+            private readonly IGameRandom _random;
+            private readonly IGameContext _context;
             private readonly IBoardCellsAnimator _animator;
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.FortuneCookie payload)
@@ -44,7 +47,8 @@ namespace GamePlay.Cards
                 if (payload.TargetCells.Count > 0)
                     await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
 
-                await _randomAnimator.PlayDiceRoll(lifetime, payload.RevealedMines.Count);
+                var isOwned = _context.Self.Id == payload.TargetPlayer;
+                await _random.PlayDiceRoll(lifetime, payload.RevealedMines.Count, isOwned);
 
                 if (payload.AffectedCells == null || payload.AffectedCells.Length == 0)
                     return;

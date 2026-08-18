@@ -4,6 +4,7 @@ namespace Tools {
         public static readonly CardsSprites Cards = new();
         public static readonly CardsIconsSprites CardsIcons = new();
         public static readonly GameCellsSprites GameCells = new();
+        public static readonly GameFieldSprites GameField = new();
         public static readonly GameUISprites GameUI = new();
     }
 }
