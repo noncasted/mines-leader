@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 
@@ -30,18 +31,19 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.GamblersRuin>
         {
-            public Snapshot(IBoardCellsAnimator animator, ICardRandomAnimator randomAnimator)
+            public Snapshot(IGameRandom random, IGameContext context)
             {
-                _animator = animator;
-                _randomAnimator = randomAnimator;
+                _random = random;
+                _context = context;
             }
 
-            private readonly IBoardCellsAnimator _animator;
-            private readonly ICardRandomAnimator _randomAnimator;
+            private readonly IGameRandom _random;
+            private readonly IGameContext _context;
 
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.GamblersRuin payload)
             {
-                return _randomAnimator.PlayCoinFlip(lifetime, payload.IsHeads);
+                var isOwned = _context.Self.Id == payload.TargetPlayer;
+                return _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
             }
         }
     }

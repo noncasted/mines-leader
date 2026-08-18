@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: GameField
+  m_EditorClassIdentifier: Tools.Runtime::Tools.SpriteGroupAsset
+  _entries:
+  - Name: GameActionCoinFlip
+    Kind: 1
+    Sprites:
+    - {fileID: 554903666101871349, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 8492361854086081358, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -5144901431770129032, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -5892316124082152675, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -4885189943469727864, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -3391795371146936858, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -7632406069413024032, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -4948587601910337640, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -914204991948202188, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 4740137196159346912, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 4984640181421403249, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 267168895700224891, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 5028217446345824864, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -5549914490906353113, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 4011485240881310838, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 2890127487653854878, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 7572332201035475523, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameActionDiceRoll
+    Kind: 1
+    Sprites:
+    - {fileID: -8819440653750203871, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 3976524875589606575, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -8706551073114458868, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 1512907928136289883, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -2496934533685271580, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 3381492675623000986, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -7507898807458051235, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 145872888172666467, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -7442949956387766339, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -4160527542119116372, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 9204208409666909096, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -7543522160794584022, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -347172671223765538, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -312682146723824701, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 5756644875260160179, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 1551961361004840601, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -6472110404255085594, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 8047143311424218919, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 2458972931350559164, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: -5472722186175931672, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    - {fileID: 504214935883455387, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}

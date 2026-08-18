@@ -4,6 +4,7 @@ using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
 using Menu.Decks;
+using Tools;
 
 namespace Menu.Common
 {
@@ -11,6 +12,8 @@ namespace Menu.Common
     {
         public static IScopeBuilder AddMenuLoop(this IScopeBuilder builder)
         {
+            builder.LoadSpriteGroup(Sprites.GameCells);
+            
             builder.RegisterAsset<ZipZapOptions>();
             
             builder.Register<MenuLoop>()

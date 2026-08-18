@@ -1,6 +1,7 @@
 using Internal;
 using Network;
 using Shared;
+using Tools;
 
 namespace Meta
 {
@@ -8,6 +9,8 @@ namespace Meta
     {
         public static IScopeBuilder AddMetaServices(this IScopeBuilder builder)
         {
+            builder.LoadSpriteGroup(Sprites.CardsIcons);
+            
             builder.Register<MetaLoop>()
                    .As<IScopeBaseSetupAsync>();
 

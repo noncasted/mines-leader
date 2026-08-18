@@ -43,18 +43,6 @@ MonoBehaviour:
     - {fileID: 7523494014331828580, guid: 35524af549e1f1192b8c284bbe0fa3b3, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: CardBack
-    Kind: 0
-    Sprites:
-    - {fileID: 1403654241105656371, guid: 264cac541f9984c22950b2e84d10a726, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: CardFront
-    Kind: 0
-    Sprites:
-    - {fileID: -2967772391325864282, guid: d2030817df8af69179f38bfc593fe7d7, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: CardThief
     Kind: 0
     Sprites:
@@ -436,12 +424,12 @@ MonoBehaviour:
   - Name: ZipZap
     Kind: 0
     Sprites:
-    - {fileID: -4223780357536892860, guid: fddfd1a3a22c4c3afbc7f9d008ddf903, type: 3}
+    - {fileID: 2076090812150656620, guid: fddfd1a3a22c4c3afbc7f9d008ddf903, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: ZipZapMax
     Kind: 0
     Sprites:
-    - {fileID: -5454168364190206991, guid: 94d29b5e64679e060a6876691ba3ad85, type: 3}
+    - {fileID: 7514295944964072692, guid: 94d29b5e64679e060a6876691ba3ad85, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}

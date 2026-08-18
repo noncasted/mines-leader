@@ -13,8 +13,6 @@ namespace Tools {
         private Sprite _blackoutMax;
         private Sprite _bloodhound;
         private Sprite _bloodhoundMax;
-        private Sprite _cardBack;
-        private Sprite _cardFront;
         private Sprite _cardThief;
         private Sprite _carpetBomb;
         private Sprite _carpetBombMax;
@@ -100,14 +98,6 @@ namespace Tools {
 
         public Sprite BloodhoundMax {
             get { EnsureLoaded(); return _bloodhoundMax; }
-        }
-
-        public Sprite CardBack {
-            get { EnsureLoaded(); return _cardBack; }
-        }
-
-        public Sprite CardFront {
-            get { EnsureLoaded(); return _cardFront; }
         }
 
         public Sprite CardThief {
@@ -378,8 +368,6 @@ namespace Tools {
             _blackoutMax = asset.GetSheet("BlackoutMax");
             _bloodhound = asset.GetSheet("Bloodhound");
             _bloodhoundMax = asset.GetSheet("BloodhoundMax");
-            _cardBack = asset.GetSheet("CardBack");
-            _cardFront = asset.GetSheet("CardFront");
             _cardThief = asset.GetSheet("CardThief");
             _carpetBomb = asset.GetSheet("CarpetBomb");
             _carpetBombMax = asset.GetSheet("CarpetBombMax");
@@ -453,8 +441,6 @@ namespace Tools {
             _blackoutMax = null;
             _bloodhound = null;
             _bloodhoundMax = null;
-            _cardBack = null;
-            _cardFront = null;
             _cardThief = null;
             _carpetBomb = null;
             _carpetBombMax = null;

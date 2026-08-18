@@ -20,16 +20,16 @@ namespace Menu.Decks
 
         private IUpdater _updater;
         private IBoardActions _actions;
-        private ICardRandomAnimator _randomAnimator;
+        private IGameRandom _random;
 
         public IBoard Board => _board;
         public Camera PreviewCamera => _previewCamera;
         public RenderTexture PreviewTexture => _previewTexture;
 
         [Inject]
-        internal void Construct(IUpdater updater, ICardRandomAnimator randomAnimator)
+        internal void Construct(IUpdater updater, IGameRandom random)
         {
-            _randomAnimator = randomAnimator;
+            _random = random;
             _updater = updater;
             _actions = new PreviewBoardActions();
         }
@@ -95,7 +95,6 @@ namespace Menu.Decks
             }
         }
 
-
         public void ResetPreview()
         {
             // Comprehensive reset between preview cards. Three-prong:
@@ -117,7 +116,7 @@ namespace Menu.Decks
                 objectLifetime.gameObject.SetActive(isActive);
             }
 
-            _randomAnimator.Reset();
+            _random.ResetViews();
 
             var cells = _board.GetComponentsInChildren<CellView>(includeInactive: true);
 
