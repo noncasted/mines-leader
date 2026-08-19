@@ -36,7 +36,7 @@ ScriptedImporter:
     spriteMeshType: 1
     alignment: 0
     spritePivot: {x: 0.5, y: 0.5}
-    spritePixelsToUnits: 12
+    spritePixelsToUnits: 26.667
     spriteBorder: {x: 0, y: 0, z: 0, w: 0}
     spriteGenerateFallbackPhysicsShape: 0
     generateCubemap: 6
@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639225866045699240
+  platformSettingsDirtyTick: 639227307876930070
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -157,8 +157,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 4
-      y: 4
+      x: 5
+      y: 5
       width: 27
       height: 19
     spriteID: 7550744cf6dbf59d39a2b5b2dcb0235f
@@ -178,8 +178,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 36
-      y: 4
+      x: 37
+      y: 6
       width: 27
       height: 19
     spriteID: 185c3a90f15b33d28990acfdf4d13cab
@@ -199,8 +199,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 4
-      y: 85
+      x: 5
+      y: 86
       width: 6
       height: 6
     spriteID: d62189747acac2ed49ff332a73daca62
@@ -220,8 +220,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 12
-      y: 85
+      x: 13
+      y: 86
       width: 6
       height: 6
     spriteID: 5f8d021a2e112da13b2802725b656a46
@@ -241,8 +241,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 22
-      y: 85
+      x: 23
+      y: 86
       width: 6
       height: 6
     spriteID: 4adc6e3cb39813944b9a12a6b79446c3
@@ -262,8 +262,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 4
-      y: 51
+      x: 5
+      y: 52
       width: 12
       height: 12
     spriteID: eb82a19c7f817ac0e9a7aab6189cb957
@@ -283,8 +283,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 20
-      y: 51
+      x: 21
+      y: 52
       width: 12
       height: 12
     spriteID: 4504cdd68bd88895d967ac1646c66bac
@@ -304,8 +304,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 37
-      y: 51
+      x: 38
+      y: 52
       width: 11
       height: 11
     spriteID: 68b47e54fcbef185f84075a6d209bf31
@@ -325,8 +325,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 417
-      y: 7
+      x: 418
+      y: 8
       width: 36
       height: 47
     spriteID: fa25f3c647d89dbccbd9e7916cc1bc6d
@@ -346,8 +346,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 466
-      y: 13
+      x: 467
+      y: 14
       width: 30
       height: 31
     spriteID: a9687f04dd1124744b3f83aa9d7eb942
@@ -388,8 +388,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 4
-      y: 67
+      x: 5
+      y: 68
       width: 12
       height: 12
     spriteID: bb1c40897cb6e8da39763ee13b359733
@@ -409,8 +409,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 20
-      y: 67
+      x: 21
+      y: 68
       width: 12
       height: 12
     spriteID: e754ecd8357d0c3578bfc165c3ed10fa
@@ -430,8 +430,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 4
-      y: 93
+      x: 5
+      y: 94
       width: 6
       height: 6
     spriteID: b3aa966da5be06c24b05a468c46ec13b
@@ -451,8 +451,8 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 12
-      y: 93
+      x: 13
+      y: 94
       width: 6
       height: 6
     spriteID: 66abfb8201ebea301a783b7ddd539c38
@@ -482,10 +482,10 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 1
-        y: 1
-        width: 492
-        height: 95
+        x: 0
+        y: 0
+        width: 512
+        height: 512
       spriteId: 4e9301f7096e8d446806798fc78b0c61
     linkedCells: []
     tileCells: []
@@ -496,7 +496,7 @@ ScriptedImporter:
   - name: DefaultTexturePlatform
     overridden: 0
     ignorePlatformSupport: 0
-    maxTextureSize: 512
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -531,5 +531,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 512, y: 128}
+  previousTextureSize: {x: 1024, y: 1024}
   canvasSize: {x: 512, y: 512}
