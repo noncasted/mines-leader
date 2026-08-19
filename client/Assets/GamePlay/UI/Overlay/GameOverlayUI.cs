@@ -1,7 +1,9 @@
-﻿using Global.UI;
+using GamePlay.Services;
+using Global.UI;
 using Internal;
 using UnityEngine;
 using VContainer;
+using Object = UnityEngine.Object;
 
 namespace GamePlay.UI
 {
@@ -14,12 +16,15 @@ namespace GamePlay.UI
     public class GameOverlayUI : MonoBehaviour, ISceneService, IScopeSetup, IGameOverlayUI
     {
         [SerializeField] private DesignButton _pauseButton;
+        [SerializeField] private Canvas _canvas;
 
         private IGamePause _pause;
+        private IGameCamera _camera;
 
         [Inject]
-        internal void Construct(IGamePause pause)
+        internal void Construct(IGamePause pause, IGameCamera camera)
         {
+            _camera = camera;
             _pause = pause;
         }
 
@@ -33,11 +38,25 @@ namespace GamePlay.UI
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _pauseButton.ListenClick(lifetime, () => _pause.Open());
+            _canvas.worldCamera = _camera.Camera;
         }
 
         public void Show()
         {
             gameObject.SetActive(true);
+        }
+
+        private void OnValidate()
+        {
+            if (_canvas.worldCamera != null)
+                return;
+
+            var gameCamera = Object.FindAnyObjectByType<GameCamera>();
+            
+            if (gameCamera == null)
+                return;
+            
+            _canvas.worldCamera = gameCamera.Camera;
         }
     }
 }
