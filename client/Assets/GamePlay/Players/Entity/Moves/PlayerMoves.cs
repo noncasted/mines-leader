@@ -3,17 +3,14 @@ using Internal;
 
 namespace GamePlay.Players
 {
-    public interface IPlayerMoves
+    public interface IPlayerTurns : IPlayerResource
     {
         IViewableProperty<bool> IsTurn { get; }
-        IViewableProperty<int> Current { get; }
-        IViewableProperty<int> BaseMax { get; }
-        IViewableProperty<int> ResultMax { get; }
 
         void Set(int left, int baseMax, int resultMax, bool isAvailable);
     }
 
-    public class PlayerMoves : IPlayerMoves
+    public class PlayerTurns : IPlayerTurns
     {
         private readonly ViewableProperty<bool> _isTurn = new(false);
         private readonly ViewableProperty<int> _current = new();
@@ -37,14 +34,14 @@ namespace GamePlay.Players
 
     public static class PlayerTurnsExtensions
     {
-        public static bool IsAvailable(this IPlayerMoves moves, IGameContext gameContext)
+        public static bool IsAvailable(this IPlayerTurns turns, IGameContext gameContext)
         {
-            return moves.CanSpend(gameContext, 1);
+            return turns.CanSpend(gameContext, 1);
         }
 
-        public static bool CanSpend(this IPlayerMoves moves, IGameContext gameContext, int cost)
+        public static bool CanSpend(this IPlayerTurns turns, IGameContext gameContext, int cost)
         {
-            return gameContext.IsGameStarted && moves.IsTurn.Value == true && moves.Current.Value >= cost;
+            return gameContext.IsGameStarted && turns.IsTurn.Value == true && turns.Current.Value >= cost;
         }
     }
 }

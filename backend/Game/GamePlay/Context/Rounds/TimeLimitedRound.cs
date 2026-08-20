@@ -141,7 +141,7 @@ public class TimeLimitedRound : Service, IGameRound
             if (lifetime.IsTerminated == true)
                 return true;
 
-            if (players.Any(p => p.Health.Current.Value == 0))
+            if (players.Any(p => p.Health.Current == 0))
                 return true;
 
             if (players.Any(p => p.User.Lifetime.IsTerminated == true))
@@ -165,7 +165,7 @@ public class TimeLimitedRound : Service, IGameRound
         {
             foreach (var player in players)
             {
-                if (player.Health.Current.Value <= 0)
+                if (player.Health.Current <= 0)
                     return _gameContext.GetOpponent(player).User.Id;
             }
 
@@ -193,7 +193,7 @@ public class TimeLimitedRound : Service, IGameRound
         {
             foreach (var player in players)
             {
-                if (player.Health.Current.Value <= 0)
+                if (player.Health.Current <= 0)
                     return $"Player {player.User.Id} health reached 0";
             }
 
@@ -370,8 +370,8 @@ public class TimeLimitedRound : Service, IGameRound
     {
         foreach (var player in _gameContext.Players)
         {
-            player.Health.Current.Advise(lifetime, health => {
-                if (health > 0)
+            player.Health.Updated.Advise(lifetime, () => {
+                if (player.Health.Current > 0)
                     return;
 
                 _roundForcedLifetime?.Terminate();

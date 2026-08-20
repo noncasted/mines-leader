@@ -48,7 +48,7 @@ public class ChangeHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatCo
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeHealth request)
     {
-        var current = context.Player.Health.Current.Value;
+        var current = context.Player.Health.Current;
         context.Player.Health.SetCurrent(context.Snapshot, current + request.Value);
         return EmptyResponse.Ok;
     }
@@ -59,8 +59,8 @@ public class ChangeMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameChea
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxHealth request)
     {
         var health = context.Player.Health;
-        health.SetMax(context.Snapshot, health.Max + request.Value);
-        health.SetCurrent(context.Snapshot, health.Max);
+        health.SetMax(context.Snapshot, health.BaseMax + request.Value);
+        health.SetCurrent(context.Snapshot, health.ResultMax);
         return EmptyResponse.Ok;
     }
 }
@@ -129,7 +129,7 @@ public class RestoreHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatC
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreHealth request)
     {
-        context.Player.Health.SetCurrent(context.Snapshot, context.Player.Health.Max);
+        context.Player.Health.SetCurrent(context.Snapshot, context.Player.Health.ResultMax);
         return EmptyResponse.Ok;
     }
 }

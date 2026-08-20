@@ -13,93 +13,219 @@ MonoBehaviour:
   m_Name: GameUI
   m_EditorClassIdentifier: Tools.Runtime::Tools.SpriteGroupAsset
   _entries:
-  - Name: Health
+  - Name: HealthLargeAdditionalEmpty
     Kind: 0
     Sprites:
-    - {fileID: 9181284263297413272, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 4917309500243522536, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: ManaActive
+  - Name: HealthLargeAdditionalFull
     Kind: 0
     Sprites:
-    - {fileID: -2870501604690513232, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -4774383430790238164, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: ManaAdditionalActive
+  - Name: HealthLargeBaseEmpty
     Kind: 0
     Sprites:
-    - {fileID: -5201776231663678423, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 605310996165254132, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: ManaAdditionalInactive
+  - Name: HealthLargeBaseFull
     Kind: 0
     Sprites:
-    - {fileID: 1804260823031049720, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -7310913264775316077, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: ManaInactive
+  - Name: HealthMediumAdditionalEmpty
     Kind: 0
     Sprites:
-    - {fileID: 8507833815840437696, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -3420162928322117301, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: Pause
+  - Name: HealthMediumAdditionalFull
     Kind: 0
     Sprites:
-    - {fileID: -1834612389159900878, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -6502238986660310886, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: PortraitBody
+  - Name: HealthMediumBaseEmpty
     Kind: 0
     Sprites:
-    - {fileID: 5876986725358620323, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -2601245754497244660, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: PortraitOutline
+  - Name: HealthMediumBaseFull
     Kind: 0
     Sprites:
-    - {fileID: -606792707917684014, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 5375152732607642707, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: Rank
+  - Name: HealthSmallAdditionalEmpty
     Kind: 0
     Sprites:
-    - {fileID: 1639455963687853853, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -5623232691064678989, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: RoundButtonOpponent
+  - Name: HealthSmallAdditionalFull
     Kind: 0
     Sprites:
-    - {fileID: 3184018508462816657, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 6740862597538998063, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: RoundButtonOwn
+  - Name: HealthSmallBaseEmpty
     Kind: 0
     Sprites:
-    - {fileID: -4227697841525367302, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -3507101588724497244, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: TurnActive
+  - Name: HealthSmallBaseFull
     Kind: 0
     Sprites:
-    - {fileID: 6738425411654937924, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -6138673860954788805, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: TurnAdditionalActive
+  - Name: ManaLargeAdditionalEmpty
     Kind: 0
     Sprites:
-    - {fileID: -5330516199525697194, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: -3605750546582394834, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: TurnAdditionalInactive
+  - Name: ManaLargeAdditionalFull
     Kind: 0
     Sprites:
-    - {fileID: -495023063715631947, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 668617691154466065, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: TurnInactive
+  - Name: ManaLargeBaseEmpty
     Kind: 0
     Sprites:
-    - {fileID: 5963860787150260365, guid: 6f23fa7baa8b105ad921b36bd8ec17c4, type: 3}
+    - {fileID: 527121647734326427, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaLargeBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 56975545487687991, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaMediumAdditionalEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 7805295637590724852, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaMediumAdditionalFull
+    Kind: 0
+    Sprites:
+    - {fileID: -8553767926611446058, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaMediumBaseEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 7926960566293183521, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaMediumBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 7438681079918729832, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaSmallAdditionalEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: -1317107619830161801, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaSmallAdditionalFull
+    Kind: 0
+    Sprites:
+    - {fileID: 9218341548552573671, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaSmallBaseEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 9068897749368387926, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaSmallBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 2630872309918243536, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnLargeAdditionalEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 1315802193527259076, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnLargeAdditionalFull
+    Kind: 0
+    Sprites:
+    - {fileID: -3006938826615021829, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnLargeBaseEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 1531559035670249209, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnLargeBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 8508699026966773025, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnMediumAdditionalEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 4268521619920481283, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnMediumAdditionalFull
+    Kind: 0
+    Sprites:
+    - {fileID: -2839891779381912785, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnMediumBaseEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 1419380973313502528, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnMediumBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 8887955976013468076, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnSmallAdditionalEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 3761047105996066181, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnSmallAdditionalFull
+    Kind: 0
+    Sprites:
+    - {fileID: 282285881856853723, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnSmallBaseEmpty
+    Kind: 0
+    Sprites:
+    - {fileID: 5456454399950926231, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TurnSmallBaseFull
+    Kind: 0
+    Sprites:
+    - {fileID: 1875769455254051076, guid: bad909d29672006eca4172649ef534b0, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}

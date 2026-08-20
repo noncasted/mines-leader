@@ -48,7 +48,7 @@ public abstract class BotProfileBase : IBotProfileStrategy
         var handCards = string.Join(", ", bot.Hand.Entries.Select(c => c.Type));
 
         _sessionLogger.LogBotAction("State",
-            $"Mana={bot.Mana.Current}/{bot.Mana.ResultMax} Moves={bot.Moves.Left}/{bot.Moves.ResultMax} Hand=[{handCards}] Health={bot.Health.Current.Value}");
+            $"Mana={bot.Mana.Current}/{bot.Mana.ResultMax} Moves={bot.Moves.Left}/{bot.Moves.ResultMax} Hand=[{handCards}] Health={bot.Health.Current}/{bot.Health.ResultMax}");
     }
 
     protected async Task OpenFirstCell(IReadOnlyLifetime lifetime, float delayBefore, float delayAfter)

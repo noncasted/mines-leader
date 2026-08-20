@@ -1,5 +1,6 @@
 ﻿using GamePlay.Loop;
 using Internal;
+using Tools;
 using UnityEngine;
 using VContainer;
 
@@ -9,9 +10,6 @@ namespace GamePlay.Players.ActiveStatus
     public class PlayerActiveStatusView : MonoBehaviour, IEntityComponent, IScopeLoaded
     {
         [SerializeField] private SpriteRenderer _frame;
-        [SerializeField] private SpriteRenderer _counter;
-        [SerializeField] private Color _activeColor = Color.white;
-        [SerializeField] private Color _inactiveColor = new(0.5f, 0.5f, 0.5f, 1f);
 
         private IGameRound _round;
         private IGamePlayerInfo _playerInfo;
@@ -33,9 +31,7 @@ namespace GamePlay.Players.ActiveStatus
         {
             _round.Player.View(lifetime, player => {
                 var isActive = player != null && player.Info.Id == _playerInfo.Id;
-                var color = isActive ? _activeColor : _inactiveColor;
-                _frame.color = color;
-                _counter.color = color;
+                _frame.sprite = isActive == true ? Sprites.GameField.Active : Sprites.GameField.Invactive;
             });
         }
     }

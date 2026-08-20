@@ -38,7 +38,7 @@ public class OpponentBombStrategy : IBotCardStrategy
             return 0f;
 
         // Добить противника — лучшее применение карты, а не запрет на неё.
-        if (opponent.Health.Current.Value <= 1)
+        if (opponent.Health.Current <= 1)
             return 9f;
 
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);

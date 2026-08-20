@@ -17,7 +17,7 @@ namespace GamePlay
         public UniTask Handle(PlayerSnapshotRecord.MovesUpdate record)
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
-            player.Moves.Set(record.Left, record.BaseMax, record.ResultMax, record.IsAvailable);
+            player.Turns.Set(record.Left, record.BaseMax, record.ResultMax, record.IsAvailable);
 
             return UniTask.CompletedTask;
         }

@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
@@ -7,7 +6,7 @@ using Shared;
 namespace GamePlay.Cards
 {
     /// <summary>
-    /// Flips a coin: heads +2 moves, tails -1 move.
+    /// Flips a coin: heads +2 turns, tails -1 move.
     /// </summary>
     public class CardCoinTossAction : ICardAction
     {

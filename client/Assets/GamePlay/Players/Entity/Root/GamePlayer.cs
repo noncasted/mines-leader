@@ -12,9 +12,9 @@ namespace GamePlay.Players
         LifetimeScope Scope { get; }
         IPlayerMana Mana { get; }
         IPlayerHealth Health { get; }
+        IPlayerTurns Turns { get; }
         IDeck Deck { get; }
         IStash Stash { get; }
-        IPlayerMoves Moves { get; }
         IHand Hand { get; }
         IBoard Board { get; }
         IPlayerModifiers Modifiers { get; }
@@ -28,7 +28,7 @@ namespace GamePlay.Players
             IBoard board,
             IPlayerMana mana,
             IPlayerHealth health,
-            IPlayerMoves moves,
+            IPlayerTurns turns,
             IGamePlayerInfo info,
             IDeck deck,
             IStash stash,
@@ -39,7 +39,7 @@ namespace GamePlay.Players
             Scope = scope;
             Hand = hand;
             Board = board;
-            Moves = moves;
+            Turns = turns;
             Info = info;
             Deck = deck;
             Stash = stash;
@@ -53,7 +53,7 @@ namespace GamePlay.Players
         public IPlayerHealth Health { get; }
         public IDeck Deck { get; }
         public IStash Stash { get; }
-        public IPlayerMoves Moves { get; }
+        public IPlayerTurns Turns { get; }
         public IGamePlayerInfo Info { get; }
         public IHand Hand { get; }
         public IBoard Board { get; }

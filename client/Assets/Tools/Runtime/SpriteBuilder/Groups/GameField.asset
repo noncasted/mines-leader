@@ -13,6 +13,12 @@ MonoBehaviour:
   m_Name: GameField
   m_EditorClassIdentifier: Tools.Runtime::Tools.SpriteGroupAsset
   _entries:
+  - Name: Active
+    Kind: 0
+    Sprites:
+    - {fileID: -6489036992117407450, guid: 98dc90c8d0c90b755adba7de6a79521f, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: GameActionCoinFlip
     Kind: 1
     Sprites:
@@ -59,5 +65,11 @@ MonoBehaviour:
     - {fileID: 2458972931350559164, guid: 21b26141ac227679d86b321357e71165, type: 3}
     - {fileID: -5472722186175931672, guid: 21b26141ac227679d86b321357e71165, type: 3}
     - {fileID: 504214935883455387, guid: 21b26141ac227679d86b321357e71165, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Invactive
+    Kind: 0
+    Sprites:
+    - {fileID: -7850927630809940298, guid: 98dc90c8d0c90b755adba7de6a79521f, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}

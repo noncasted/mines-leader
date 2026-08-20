@@ -5,8 +5,9 @@ namespace Game.GamePlay;
 
 public interface IHealth
 {
-    IViewableProperty<int> Current { get; }
-    int Max { get; }
+    int Current { get; }
+    int BaseMax { get; }
+    int ResultMax { get; }
 
     IViewableDelegate Updated { get; }
 
@@ -34,8 +35,9 @@ public class Health : IHealth
     private readonly ViewableDelegate _updated = new();
 
     public IViewableDelegate Updated => _updated;
-    public IViewableProperty<int> Current => _current;
-    public int Max => _max + Bonus;
+    public int Current => _current.Value;
+    public int BaseMax => _max;
+    public int ResultMax => _max + Bonus;
 
     public void BindOwner(IPlayer owner)
     {
@@ -44,8 +46,8 @@ public class Health : IHealth
 
     public void SetCurrent(MoveSnapshot snapshot, int value)
     {
-        if (value > Max)
-            value = Max;
+        if (value > ResultMax)
+            value = ResultMax;
 
         if (value < 0)
             value = 0;
@@ -58,6 +60,10 @@ public class Health : IHealth
     public void SetMax(MoveSnapshot snapshot, int value)
     {
         _max = value;
+
+        if (_current.Value > ResultMax)
+            _current.Set(ResultMax);
+
         _updated.Invoke();
         Record(snapshot);
     }
@@ -84,8 +90,8 @@ public class Health : IHealth
 
         var newHealth = _current.Value + amount;
 
-        if (newHealth > Max)
-            newHealth = Max;
+        if (newHealth > ResultMax)
+            newHealth = ResultMax;
 
         _current.Set(newHealth);
         _updated.Invoke();

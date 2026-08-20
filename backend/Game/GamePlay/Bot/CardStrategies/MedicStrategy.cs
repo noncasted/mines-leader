@@ -22,8 +22,8 @@ public class MedicStrategy : IBotCardStrategy
     public float Evaluate(CardType type)
     {
         var bot = _context.Bot;
-        var health = bot.Health.Current.Value;
-        var maxHealth = bot.Health.Max;
+        var health = bot.Health.Current;
+        var maxHealth = bot.Health.ResultMax;
 
         if (health >= maxHealth)
             return 0f;

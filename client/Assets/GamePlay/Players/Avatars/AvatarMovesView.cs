@@ -14,16 +14,16 @@ namespace GamePlay.Players
 
         private readonly List<AvatarTurnPointView> _points = new();
 
-        private IPlayerMoves _moves;
+        private IPlayerTurns _turns;
         private INetworkEntity _playerEntity;
         private GamePrefabs _prefabs;
 
         [Inject]
-        internal void Construct(IPlayerMoves moves, INetworkEntity playerEntity, GamePrefabs prefabs)
+        internal void Construct(IPlayerTurns turns, INetworkEntity playerEntity, GamePrefabs prefabs)
         {
             _prefabs = prefabs;
             _playerEntity = playerEntity;
-            _moves = moves;
+            _turns = turns;
         }
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
@@ -35,15 +35,15 @@ namespace GamePlay.Players
 
             transform.localPosition = viewPosition;
 
-            _moves.Current.View(lifetime, Recalculate);
-            _moves.BaseMax.View(lifetime, Recalculate);
-            _moves.ResultMax.View(lifetime, Recalculate);
+            _turns.Current.View(lifetime, Recalculate);
+            _turns.BaseMax.View(lifetime, Recalculate);
+            _turns.ResultMax.View(lifetime, Recalculate);
 
             void Recalculate()
             {
-                var resultMax = _moves.ResultMax.Value;
-                var current = _moves.Current.Value;
-                var baseMax = _moves.BaseMax.Value;
+                var resultMax = _turns.ResultMax.Value;
+                var current = _turns.Current.Value;
+                var baseMax = _turns.BaseMax.Value;
 
                 CheckObjects();
                 SetPointTypes();

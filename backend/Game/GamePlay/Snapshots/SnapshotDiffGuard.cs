@@ -109,10 +109,12 @@ public static class SnapshotDiffCalculator
                      $"got {actual.ManaCurrent}/{actual.ManaBaseMax}/{actual.ManaResultMax}");
         }
 
-        if (expected.HealthCurrent != actual.HealthCurrent || expected.HealthMax != actual.HealthMax)
+        if (expected.HealthCurrent != actual.HealthCurrent ||
+            expected.HealthBaseMax != actual.HealthBaseMax ||
+            expected.HealthResultMax != actual.HealthResultMax)
         {
-            diff.Add($"Player {id} Health: expected {expected.HealthCurrent}/{expected.HealthMax}, " +
-                     $"got {actual.HealthCurrent}/{actual.HealthMax}");
+            diff.Add($"Player {id} Health: expected {expected.HealthCurrent}/{expected.HealthBaseMax}/{expected.HealthResultMax}, " +
+                     $"got {actual.HealthCurrent}/{actual.HealthBaseMax}/{actual.HealthResultMax}");
         }
 
         if (expected.MovesLeft != actual.MovesLeft ||

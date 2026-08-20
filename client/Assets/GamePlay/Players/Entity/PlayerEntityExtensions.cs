@@ -14,8 +14,8 @@ namespace GamePlay.Players
             builder.Register<PlayerHealth>()
                    .As<IPlayerHealth>();
 
-            builder.Register<PlayerMoves>()
-                   .As<IPlayerMoves>();
+            builder.Register<PlayerTurns>()
+                   .As<IPlayerTurns>();
 
             builder.Register<PlayerModifiers>()
                    .As<IPlayerModifiers>();

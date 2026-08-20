@@ -21,7 +21,7 @@ public class SoulLinkStrategy : IBotCardStrategy
 
     public float Evaluate(CardType type)
     {
-        var hp = _context.Bot.Health.Current.Value;
+        var hp = _context.Bot.Health.Current;
 
         if (hp < 2)
             return 0f;

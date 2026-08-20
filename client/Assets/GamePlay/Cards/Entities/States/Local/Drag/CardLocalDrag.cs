@@ -23,7 +23,7 @@ namespace GamePlay.Cards
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
             ICardAction action,
-            IPlayerMoves moves,
+            IPlayerTurns turns,
             ICardDefinition definition,
             CardDragOptions options)
         {
@@ -34,7 +34,7 @@ namespace GamePlay.Cards
             _transform = transform;
             _stateLifetime = stateLifetime;
             _action = action;
-            _moves = moves;
+            _turns = turns;
             _definition = definition;
             _options = options;
         }
@@ -46,7 +46,7 @@ namespace GamePlay.Cards
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
-        private readonly IPlayerMoves _moves;
+        private readonly IPlayerTurns _turns;
         private readonly ICardDefinition _definition;
         private readonly CardDragOptions _options;
 
@@ -61,7 +61,7 @@ namespace GamePlay.Cards
             var useLifetime = lifetime.Child();
             var transitionCurve = _options.TransitionCurve.CreateInstance();
 
-            _moves.IsTurn.Advise(lifetime, isTurn => {
+            _turns.IsTurn.Advise(lifetime, isTurn => {
                 if (isTurn == false)
                     useLifetime.Terminate();
             });
