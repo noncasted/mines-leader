@@ -126,8 +126,9 @@ public class MoveSnapshot
         Append(new PlayerSnapshotRecord.HealthUpdate
         {
             PlayerId = player.User.Id,
-            Current = health.Current.Value,
-            Max = health.Max
+            Current = health.Current,
+            BaseMax = health.BaseMax,
+            ResultMax = health.ResultMax
         });
     }
 

@@ -10,7 +10,7 @@ namespace GamePlay.Editor {
         private VisualElement _tabContent;
         private Button[] _tabButtons;
 
-        private static readonly string[] TabNames = { "Health", "Mana", "Moves", "Cards" };
+        private static readonly string[] TabNames = { "Health", "Mana", "Turns", "Cards" };
 
         [MenuItem("Tools/Game Cheats %t")]
         public static void ToggleWindow() {
@@ -183,10 +183,10 @@ namespace GamePlay.Editor {
                 ("= 20", () => GameCheatsBridge.SetMaxMana(20), BtnColor.Blue)));
         }
 
-        // --- Moves Tab ---
+        // --- Turns Tab ---
 
         private void BuildMovesTab() {
-            _tabContent.Add(SectionLabel("Current Moves"));
+            _tabContent.Add(SectionLabel("Current Turns"));
             _tabContent.Add(ButtonRow(
                 ("Zero", () => GameCheatsBridge.ChangeMoves(-10000), BtnColor.Red),
                 ("-1", () => GameCheatsBridge.ChangeMoves(-1), BtnColor.Orange),
@@ -194,7 +194,7 @@ namespace GamePlay.Editor {
                 ("Full", GameCheatsBridge.RestoreMoves, BtnColor.Blue)));
 
             _tabContent.Add(Separator());
-            _tabContent.Add(SectionLabel("Max Moves"));
+            _tabContent.Add(SectionLabel("Max Turns"));
             _tabContent.Add(ButtonRow(
                 ("-1", () => GameCheatsBridge.ChangeMaxMoves(-1), BtnColor.Orange),
                 ("+1", () => GameCheatsBridge.ChangeMaxMoves(1), BtnColor.Green),

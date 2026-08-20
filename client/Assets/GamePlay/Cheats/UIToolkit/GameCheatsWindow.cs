@@ -63,7 +63,7 @@ namespace GamePlay.Cheats {
         public static void SetMaxMana(int value) => Send(new GameCheatContexts.SetMaxMana { Value = value });
         public static void RestoreMana() => Send(new GameCheatContexts.RestoreMana());
 
-        // Moves
+        // Turns
         public static void ChangeMoves(int delta) => Send(new GameCheatContexts.ChangeMoves { Value = delta });
         public static void ChangeMaxMoves(int delta) => Send(new GameCheatContexts.ChangeMaxMoves { Value = delta });
         public static void SetMaxMoves(int value) => Send(new GameCheatContexts.SetMaxMoves { Value = value });

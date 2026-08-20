@@ -2,12 +2,8 @@ using Internal;
 
 namespace GamePlay.Players
 {
-    public interface IPlayerMana
+    public interface IPlayerMana : IPlayerResource
     {
-        IViewableProperty<int> Current { get; }
-        IViewableProperty<int> BaseMax { get; }
-        IViewableProperty<int> ResultMax { get; }
-
         void Set(int current, int baseMax, int resultMax);
     }
 

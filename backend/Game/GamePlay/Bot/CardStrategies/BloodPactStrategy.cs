@@ -19,7 +19,7 @@ public class BloodPactStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
 
-        if (bot.Health.Current.Value <= 1)
+        if (bot.Health.Current <= 1)
             return 0f;
 
         if (bot.Mana.Current <= 1 && bot.Moves.Left <= 1)

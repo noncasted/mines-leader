@@ -60,7 +60,8 @@ public static class SnapshotApplier
                 if (state.Players.TryGetValue(health.PlayerId, out var healthPlayer) == true)
                 {
                     healthPlayer.HealthCurrent = health.Current;
-                    healthPlayer.HealthMax = health.Max;
+                    healthPlayer.HealthBaseMax = health.BaseMax;
+                    healthPlayer.HealthResultMax = health.ResultMax;
                 }
 
                 break;

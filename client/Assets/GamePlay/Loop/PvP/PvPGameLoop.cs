@@ -22,6 +22,7 @@ namespace GamePlay.Loop
             IGameState gameState,
             INetworkConnection connection,
             IGameEnd gameEnd,
+            IEventLoop eventLoop,
             GameServicesInitializer servicesInitializer)
         {
             _user = user;
@@ -30,6 +31,7 @@ namespace GamePlay.Loop
             _gameState = gameState;
             _connection = connection;
             _gameEnd = gameEnd;
+            _eventLoop = eventLoop;
             _servicesInitializer = servicesInitializer;
         }
 
@@ -40,6 +42,7 @@ namespace GamePlay.Loop
 
         private readonly IGameState _gameState;
         private readonly IGameEnd _gameEnd;
+        private readonly IEventLoop _eventLoop;
         private readonly GameServicesInitializer _servicesInitializer;
 
         public async UniTask<IGameEndTransition> Process(
@@ -51,7 +54,17 @@ namespace GamePlay.Loop
             await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
 
             await UniTask.WaitUntil(() => _gameContext.All.Count == 2, cancellationToken: lifetime.Token);
+            var localPlayer = _gameContext.Self;
+            var remotePlayer = _gameContext.Other;
 
+            _eventLoop.RunCustom<ILocalPlayerCreated>(lifetime, l => l.OnLocalPlayer(lifetime, localPlayer));
+            _eventLoop.RunCustom<IRemotePlayerCreated>(lifetime, l => l.OnRemotePlayer(lifetime, remotePlayer));
+
+            _eventLoop.RunCustom<IPlayersCreated>(lifetime,
+                l => l.OnPlayersCreated(lifetime, localPlayer, remotePlayer));
+
+            _eventLoop.RunCustom<IGameStarted>(lifetime, l => l.OnGameStarted(lifetime));
+            
             _servicesInitializer.Init(lifetime);
 
             Debug.Log("[Game] All players connected. Starting the match...");

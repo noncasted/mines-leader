@@ -27,7 +27,8 @@ public class PlayerStateSnapshot
     public int ManaBaseMax { get; set; }
     public int ManaResultMax { get; set; }
     public int HealthCurrent { get; set; }
-    public int HealthMax { get; set; }
+    public int HealthBaseMax { get; set; }
+    public int HealthResultMax { get; set; }
     public int MovesLeft { get; set; }
     public int MovesBaseMax { get; set; }
     public int MovesResultMax { get; set; }
@@ -44,7 +45,8 @@ public class PlayerStateSnapshot
             ManaBaseMax = ManaBaseMax,
             ManaResultMax = ManaResultMax,
             HealthCurrent = HealthCurrent,
-            HealthMax = HealthMax,
+            HealthBaseMax = HealthBaseMax,
+            HealthResultMax = HealthResultMax,
             MovesLeft = MovesLeft,
             MovesBaseMax = MovesBaseMax,
             MovesResultMax = MovesResultMax,

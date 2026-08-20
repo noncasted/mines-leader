@@ -22,14 +22,14 @@ namespace GamePlay.Cards
             IGameContext gameContext,
             IPlayerMana mana,
             IGameRound gameRound,
-            IPlayerMoves moves,
+            IPlayerTurns turns,
             ICardDefinition definition,
             ICardConfig config)
         {
             _gameContext = gameContext;
             _mana = mana;
             _gameRound = gameRound;
-            _moves = moves;
+            _turns = turns;
             _definition = definition;
             Config = config;
 
@@ -46,7 +46,7 @@ namespace GamePlay.Cards
         private readonly IGameContext _gameContext;
         private readonly IPlayerMana _mana;
         private readonly IGameRound _gameRound;
-        private readonly IPlayerMoves _moves;
+        private readonly IPlayerTurns _turns;
         private readonly ICardDefinition _definition;
 
         private readonly ViewableProperty<bool> _isAvailable = new();
@@ -60,8 +60,8 @@ namespace GamePlay.Cards
         {
             _mana.Current.View(lifetime, Recalculate);
             _gameRound.Player.Advise(lifetime, Recalculate);
-            _moves.IsTurn.Advise(lifetime, Recalculate);
-            _moves.Current.Advise(lifetime, Recalculate);
+            _turns.IsTurn.Advise(lifetime, Recalculate);
+            _turns.Current.Advise(lifetime, Recalculate);
         }
 
         private void Recalculate()
@@ -78,7 +78,7 @@ namespace GamePlay.Cards
                 return;
             }
 
-            if (_moves.CanSpend(_gameContext, _gameContext.CardMovesCost) == false)
+            if (_turns.CanSpend(_gameContext, _gameContext.CardMovesCost) == false)
             {
                 _isAvailable.Set(false);
                 return;

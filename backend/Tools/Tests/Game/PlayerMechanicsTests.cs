@@ -23,7 +23,37 @@ public class HealthTests
 
         health.SetMax(new MoveSnapshot(), 100);
 
-        health.Max.Should().Be(100);
+        health.BaseMax.Should().Be(100);
+        health.ResultMax.Should().Be(100);
+    }
+
+    [Fact]
+    public void SetMax_ClampsCurrent_WhenCurrentExceedsNewMax()
+    {
+        var health = Create();
+        health.SetMax(new MoveSnapshot(), 100);
+        health.SetCurrent(new MoveSnapshot(), 100);
+
+        health.SetMax(new MoveSnapshot(), 40);
+
+        health.Current.Should().Be(40);
+        health.BaseMax.Should().Be(40);
+        health.ResultMax.Should().Be(40);
+    }
+
+    [Fact]
+    public void AdditionalHealth_IncreasesResultMaxNotBaseMax()
+    {
+        var modifiers = new Modifiers();
+        var health = new Health(modifiers);
+        health.SetMax(new MoveSnapshot(), 3);
+        health.SetCurrent(new MoveSnapshot(), 3);
+
+        modifiers.Add(new MoveSnapshot(), new DurationModifierSource(PlayerModifier.AdditionalHealth, 2f, "", -1));
+
+        health.Current.Should().Be(3);
+        health.BaseMax.Should().Be(3);
+        health.ResultMax.Should().Be(5);
     }
 
     [Fact]
@@ -34,7 +64,7 @@ public class HealthTests
 
         health.SetCurrent(new MoveSnapshot(), 999);
 
-        health.Current.Value.Should().Be(50);
+        health.Current.Should().Be(50);
     }
 
     [Fact]
@@ -45,7 +75,7 @@ public class HealthTests
 
         health.SetCurrent(new MoveSnapshot(), -10);
 
-        health.Current.Value.Should().Be(0);
+        health.Current.Should().Be(0);
     }
 
     [Fact]
@@ -56,7 +86,7 @@ public class HealthTests
 
         health.SetCurrent(new MoveSnapshot(), 42);
 
-        health.Current.Value.Should().Be(42);
+        health.Current.Should().Be(42);
     }
 
     [Fact]
@@ -68,7 +98,7 @@ public class HealthTests
 
         health.TakeDamage(new MoveSnapshot(), 30);
 
-        health.Current.Value.Should().Be(70);
+        health.Current.Should().Be(70);
     }
 
     [Fact]
@@ -80,7 +110,7 @@ public class HealthTests
 
         health.TakeDamage(new MoveSnapshot(), 50);
 
-        health.Current.Value.Should().Be(0);
+        health.Current.Should().Be(0);
     }
 
     [Fact]
@@ -104,7 +134,7 @@ public class HealthTests
 
         health.Heal(new MoveSnapshot(), 20);
 
-        health.Current.Value.Should().Be(70);
+        health.Current.Should().Be(70);
     }
 
     [Fact]
@@ -116,7 +146,7 @@ public class HealthTests
 
         health.Heal(new MoveSnapshot(), 50);
 
-        health.Current.Value.Should().Be(100);
+        health.Current.Should().Be(100);
     }
 
     [Fact]
@@ -138,7 +168,7 @@ public class HealthTests
 
         health.TakeDamage(new MoveSnapshot(), 50);
 
-        health.Current.Value.Should().Be(0);
+        health.Current.Should().Be(0);
     }
 
     [Fact]
@@ -153,8 +183,9 @@ public class HealthTests
         health.SetCurrent(new MoveSnapshot(), 45);
 
         fireCount.Should().Be(2);
-        health.Max.Should().Be(80);
-        health.Current.Value.Should().Be(45);
+        health.BaseMax.Should().Be(80);
+        health.ResultMax.Should().Be(80);
+        health.Current.Should().Be(45);
         lifetime.Terminate();
     }
 }

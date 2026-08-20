@@ -2,26 +2,26 @@
 
 namespace GamePlay.Players
 {
-    public interface IPlayerHealth
+    public interface IPlayerHealth : IPlayerResource
     {
-        IViewableProperty<int> Current { get; }
-        IViewableProperty<int> Max { get; }
-
-        void Set(int current, int max);
+        void Set(int current, int baseMax, int resultMax);
     }
 
     public class PlayerHealth : IPlayerHealth
     {
         private readonly ViewableProperty<int> _current = new();
-        private readonly ViewableProperty<int> _max = new();
+        private readonly ViewableProperty<int> _baseMax = new();
+        private readonly ViewableProperty<int> _resultMax = new();
 
         public IViewableProperty<int> Current => _current;
-        public IViewableProperty<int> Max => _max;
+        public IViewableProperty<int> BaseMax => _baseMax;
+        public IViewableProperty<int> ResultMax => _resultMax;
 
-        public void Set(int current, int max)
+        public void Set(int current, int baseMax, int resultMax)
         {
             _current.Set(current);
-            _max.Set(max);
+            _baseMax.Set(baseMax);
+            _resultMax.Set(resultMax);
         }
     }
 }

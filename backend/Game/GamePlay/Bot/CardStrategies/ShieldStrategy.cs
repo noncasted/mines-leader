@@ -19,7 +19,7 @@ public class ShieldStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
 
-        if (bot.Health.Current.Value <= 1)
+        if (bot.Health.Current <= 1)
             return 8f;
         return 3f;
     }

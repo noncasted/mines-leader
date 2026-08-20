@@ -4,7 +4,7 @@ ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 2
-  userData: "{\n  \"spriteCatalog\": {\n    \"group\": \"GameField\",\n    \"kind\": \"Sheet\",\n    \"time\": 0.8,\n    \"color\": {\n      \"r\": 1.0,\n      \"g\": 1.0,\n      \"b\": 1.0,\n      \"a\": 1.0\n    }\n  }\n}"
+  userData: "{\n  \"spriteCatalog\": {\n    \"included\": true,\n    \"group\": \"GameField\",\n    \"kind\": \"Sheet\",\n    \"time\": 0.8,\n    \"color\": {\n      \"r\": 1.0,\n      \"g\": 1.0,\n      \"b\": 1.0,\n      \"a\": 1.0\n    }\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639225540292338950
+  platformSettingsDirtyTick: 639228456306290760
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -149,7 +149,7 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 4, y: 4}
   spriteSheetImportData:
-  - name: Game_Field_Outline_0
+  - name: Game_Field_Outline_Invactive
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -157,11 +157,32 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 196
-      height: 196
+      x: 24
+      y: 20
+      width: 200
+      height: 200
     spriteID: 09d84f19851635528ac66c062ca4266f
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_Field_Outline_Active
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 263
+      y: 20
+      width: 200
+      height: 200
+    spriteID: 3b11d4cb021c818caa4da08f65a926b3
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -190,8 +211,8 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 196
-        height: 196
+        width: 463
+        height: 220
       spriteId: bdbfcf48158eae30fa0c7036e6f86ade
     linkedCells: []
     tileCells: []
@@ -202,7 +223,7 @@ ScriptedImporter:
   - name: DefaultTexturePlatform
     overridden: 0
     ignorePlatformSupport: 0
-    maxTextureSize: 256
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -237,5 +258,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 256, y: 256}
-  canvasSize: {x: 196, y: 196}
+  previousTextureSize: {x: 512, y: 256}
+  canvasSize: {x: 512, y: 512}

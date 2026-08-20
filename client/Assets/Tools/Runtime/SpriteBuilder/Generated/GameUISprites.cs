@@ -8,119 +8,266 @@ namespace Tools {
     public sealed class GameUISprites : SpriteGroup {
         private const string Address = "af583db52f790598b91bd61d5d28d1a2";
 
-        private Sprite _health;
-        private Sprite _manaActive;
-        private Sprite _manaAdditionalActive;
-        private Sprite _manaAdditionalInactive;
-        private Sprite _manaInactive;
-        private Sprite _pause;
-        private Sprite _portraitBody;
-        private Sprite _portraitOutline;
-        private Sprite _rank;
-        private Sprite _roundButtonOpponent;
-        private Sprite _roundButtonOwn;
-        private Sprite _turnActive;
-        private Sprite _turnAdditionalActive;
-        private Sprite _turnAdditionalInactive;
-        private Sprite _turnInactive;
+        private Sprite _healthLargeAdditionalEmpty;
+        private Sprite _healthLargeAdditionalFull;
+        private Sprite _healthLargeBaseEmpty;
+        private Sprite _healthLargeBaseFull;
+        private Sprite _healthMediumAdditionalEmpty;
+        private Sprite _healthMediumAdditionalFull;
+        private Sprite _healthMediumBaseEmpty;
+        private Sprite _healthMediumBaseFull;
+        private Sprite _healthSmallAdditionalEmpty;
+        private Sprite _healthSmallAdditionalFull;
+        private Sprite _healthSmallBaseEmpty;
+        private Sprite _healthSmallBaseFull;
+        private Sprite _manaLargeAdditionalEmpty;
+        private Sprite _manaLargeAdditionalFull;
+        private Sprite _manaLargeBaseEmpty;
+        private Sprite _manaLargeBaseFull;
+        private Sprite _manaMediumAdditionalEmpty;
+        private Sprite _manaMediumAdditionalFull;
+        private Sprite _manaMediumBaseEmpty;
+        private Sprite _manaMediumBaseFull;
+        private Sprite _manaSmallAdditionalEmpty;
+        private Sprite _manaSmallAdditionalFull;
+        private Sprite _manaSmallBaseEmpty;
+        private Sprite _manaSmallBaseFull;
+        private Sprite _turnLargeAdditionalEmpty;
+        private Sprite _turnLargeAdditionalFull;
+        private Sprite _turnLargeBaseEmpty;
+        private Sprite _turnLargeBaseFull;
+        private Sprite _turnMediumAdditionalEmpty;
+        private Sprite _turnMediumAdditionalFull;
+        private Sprite _turnMediumBaseEmpty;
+        private Sprite _turnMediumBaseFull;
+        private Sprite _turnSmallAdditionalEmpty;
+        private Sprite _turnSmallAdditionalFull;
+        private Sprite _turnSmallBaseEmpty;
+        private Sprite _turnSmallBaseFull;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
 
-        public Sprite Health {
-            get { EnsureLoaded(); return _health; }
+        public Sprite HealthLargeAdditionalEmpty {
+            get { EnsureLoaded(); return _healthLargeAdditionalEmpty; }
         }
 
-        public Sprite ManaActive {
-            get { EnsureLoaded(); return _manaActive; }
+        public Sprite HealthLargeAdditionalFull {
+            get { EnsureLoaded(); return _healthLargeAdditionalFull; }
         }
 
-        public Sprite ManaAdditionalActive {
-            get { EnsureLoaded(); return _manaAdditionalActive; }
+        public Sprite HealthLargeBaseEmpty {
+            get { EnsureLoaded(); return _healthLargeBaseEmpty; }
         }
 
-        public Sprite ManaAdditionalInactive {
-            get { EnsureLoaded(); return _manaAdditionalInactive; }
+        public Sprite HealthLargeBaseFull {
+            get { EnsureLoaded(); return _healthLargeBaseFull; }
         }
 
-        public Sprite ManaInactive {
-            get { EnsureLoaded(); return _manaInactive; }
+        public Sprite HealthMediumAdditionalEmpty {
+            get { EnsureLoaded(); return _healthMediumAdditionalEmpty; }
         }
 
-        public Sprite Pause {
-            get { EnsureLoaded(); return _pause; }
+        public Sprite HealthMediumAdditionalFull {
+            get { EnsureLoaded(); return _healthMediumAdditionalFull; }
         }
 
-        public Sprite PortraitBody {
-            get { EnsureLoaded(); return _portraitBody; }
+        public Sprite HealthMediumBaseEmpty {
+            get { EnsureLoaded(); return _healthMediumBaseEmpty; }
         }
 
-        public Sprite PortraitOutline {
-            get { EnsureLoaded(); return _portraitOutline; }
+        public Sprite HealthMediumBaseFull {
+            get { EnsureLoaded(); return _healthMediumBaseFull; }
         }
 
-        public Sprite Rank {
-            get { EnsureLoaded(); return _rank; }
+        public Sprite HealthSmallAdditionalEmpty {
+            get { EnsureLoaded(); return _healthSmallAdditionalEmpty; }
         }
 
-        public Sprite RoundButtonOpponent {
-            get { EnsureLoaded(); return _roundButtonOpponent; }
+        public Sprite HealthSmallAdditionalFull {
+            get { EnsureLoaded(); return _healthSmallAdditionalFull; }
         }
 
-        public Sprite RoundButtonOwn {
-            get { EnsureLoaded(); return _roundButtonOwn; }
+        public Sprite HealthSmallBaseEmpty {
+            get { EnsureLoaded(); return _healthSmallBaseEmpty; }
         }
 
-        public Sprite TurnActive {
-            get { EnsureLoaded(); return _turnActive; }
+        public Sprite HealthSmallBaseFull {
+            get { EnsureLoaded(); return _healthSmallBaseFull; }
         }
 
-        public Sprite TurnAdditionalActive {
-            get { EnsureLoaded(); return _turnAdditionalActive; }
+        public Sprite ManaLargeAdditionalEmpty {
+            get { EnsureLoaded(); return _manaLargeAdditionalEmpty; }
         }
 
-        public Sprite TurnAdditionalInactive {
-            get { EnsureLoaded(); return _turnAdditionalInactive; }
+        public Sprite ManaLargeAdditionalFull {
+            get { EnsureLoaded(); return _manaLargeAdditionalFull; }
         }
 
-        public Sprite TurnInactive {
-            get { EnsureLoaded(); return _turnInactive; }
+        public Sprite ManaLargeBaseEmpty {
+            get { EnsureLoaded(); return _manaLargeBaseEmpty; }
+        }
+
+        public Sprite ManaLargeBaseFull {
+            get { EnsureLoaded(); return _manaLargeBaseFull; }
+        }
+
+        public Sprite ManaMediumAdditionalEmpty {
+            get { EnsureLoaded(); return _manaMediumAdditionalEmpty; }
+        }
+
+        public Sprite ManaMediumAdditionalFull {
+            get { EnsureLoaded(); return _manaMediumAdditionalFull; }
+        }
+
+        public Sprite ManaMediumBaseEmpty {
+            get { EnsureLoaded(); return _manaMediumBaseEmpty; }
+        }
+
+        public Sprite ManaMediumBaseFull {
+            get { EnsureLoaded(); return _manaMediumBaseFull; }
+        }
+
+        public Sprite ManaSmallAdditionalEmpty {
+            get { EnsureLoaded(); return _manaSmallAdditionalEmpty; }
+        }
+
+        public Sprite ManaSmallAdditionalFull {
+            get { EnsureLoaded(); return _manaSmallAdditionalFull; }
+        }
+
+        public Sprite ManaSmallBaseEmpty {
+            get { EnsureLoaded(); return _manaSmallBaseEmpty; }
+        }
+
+        public Sprite ManaSmallBaseFull {
+            get { EnsureLoaded(); return _manaSmallBaseFull; }
+        }
+
+        public Sprite TurnLargeAdditionalEmpty {
+            get { EnsureLoaded(); return _turnLargeAdditionalEmpty; }
+        }
+
+        public Sprite TurnLargeAdditionalFull {
+            get { EnsureLoaded(); return _turnLargeAdditionalFull; }
+        }
+
+        public Sprite TurnLargeBaseEmpty {
+            get { EnsureLoaded(); return _turnLargeBaseEmpty; }
+        }
+
+        public Sprite TurnLargeBaseFull {
+            get { EnsureLoaded(); return _turnLargeBaseFull; }
+        }
+
+        public Sprite TurnMediumAdditionalEmpty {
+            get { EnsureLoaded(); return _turnMediumAdditionalEmpty; }
+        }
+
+        public Sprite TurnMediumAdditionalFull {
+            get { EnsureLoaded(); return _turnMediumAdditionalFull; }
+        }
+
+        public Sprite TurnMediumBaseEmpty {
+            get { EnsureLoaded(); return _turnMediumBaseEmpty; }
+        }
+
+        public Sprite TurnMediumBaseFull {
+            get { EnsureLoaded(); return _turnMediumBaseFull; }
+        }
+
+        public Sprite TurnSmallAdditionalEmpty {
+            get { EnsureLoaded(); return _turnSmallAdditionalEmpty; }
+        }
+
+        public Sprite TurnSmallAdditionalFull {
+            get { EnsureLoaded(); return _turnSmallAdditionalFull; }
+        }
+
+        public Sprite TurnSmallBaseEmpty {
+            get { EnsureLoaded(); return _turnSmallBaseEmpty; }
+        }
+
+        public Sprite TurnSmallBaseFull {
+            get { EnsureLoaded(); return _turnSmallBaseFull; }
         }
 
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
-            _health = asset.GetSheet("Health");
-            _manaActive = asset.GetSheet("ManaActive");
-            _manaAdditionalActive = asset.GetSheet("ManaAdditionalActive");
-            _manaAdditionalInactive = asset.GetSheet("ManaAdditionalInactive");
-            _manaInactive = asset.GetSheet("ManaInactive");
-            _pause = asset.GetSheet("Pause");
-            _portraitBody = asset.GetSheet("PortraitBody");
-            _portraitOutline = asset.GetSheet("PortraitOutline");
-            _rank = asset.GetSheet("Rank");
-            _roundButtonOpponent = asset.GetSheet("RoundButtonOpponent");
-            _roundButtonOwn = asset.GetSheet("RoundButtonOwn");
-            _turnActive = asset.GetSheet("TurnActive");
-            _turnAdditionalActive = asset.GetSheet("TurnAdditionalActive");
-            _turnAdditionalInactive = asset.GetSheet("TurnAdditionalInactive");
-            _turnInactive = asset.GetSheet("TurnInactive");
+            _healthLargeAdditionalEmpty = asset.GetSheet("HealthLargeAdditionalEmpty");
+            _healthLargeAdditionalFull = asset.GetSheet("HealthLargeAdditionalFull");
+            _healthLargeBaseEmpty = asset.GetSheet("HealthLargeBaseEmpty");
+            _healthLargeBaseFull = asset.GetSheet("HealthLargeBaseFull");
+            _healthMediumAdditionalEmpty = asset.GetSheet("HealthMediumAdditionalEmpty");
+            _healthMediumAdditionalFull = asset.GetSheet("HealthMediumAdditionalFull");
+            _healthMediumBaseEmpty = asset.GetSheet("HealthMediumBaseEmpty");
+            _healthMediumBaseFull = asset.GetSheet("HealthMediumBaseFull");
+            _healthSmallAdditionalEmpty = asset.GetSheet("HealthSmallAdditionalEmpty");
+            _healthSmallAdditionalFull = asset.GetSheet("HealthSmallAdditionalFull");
+            _healthSmallBaseEmpty = asset.GetSheet("HealthSmallBaseEmpty");
+            _healthSmallBaseFull = asset.GetSheet("HealthSmallBaseFull");
+            _manaLargeAdditionalEmpty = asset.GetSheet("ManaLargeAdditionalEmpty");
+            _manaLargeAdditionalFull = asset.GetSheet("ManaLargeAdditionalFull");
+            _manaLargeBaseEmpty = asset.GetSheet("ManaLargeBaseEmpty");
+            _manaLargeBaseFull = asset.GetSheet("ManaLargeBaseFull");
+            _manaMediumAdditionalEmpty = asset.GetSheet("ManaMediumAdditionalEmpty");
+            _manaMediumAdditionalFull = asset.GetSheet("ManaMediumAdditionalFull");
+            _manaMediumBaseEmpty = asset.GetSheet("ManaMediumBaseEmpty");
+            _manaMediumBaseFull = asset.GetSheet("ManaMediumBaseFull");
+            _manaSmallAdditionalEmpty = asset.GetSheet("ManaSmallAdditionalEmpty");
+            _manaSmallAdditionalFull = asset.GetSheet("ManaSmallAdditionalFull");
+            _manaSmallBaseEmpty = asset.GetSheet("ManaSmallBaseEmpty");
+            _manaSmallBaseFull = asset.GetSheet("ManaSmallBaseFull");
+            _turnLargeAdditionalEmpty = asset.GetSheet("TurnLargeAdditionalEmpty");
+            _turnLargeAdditionalFull = asset.GetSheet("TurnLargeAdditionalFull");
+            _turnLargeBaseEmpty = asset.GetSheet("TurnLargeBaseEmpty");
+            _turnLargeBaseFull = asset.GetSheet("TurnLargeBaseFull");
+            _turnMediumAdditionalEmpty = asset.GetSheet("TurnMediumAdditionalEmpty");
+            _turnMediumAdditionalFull = asset.GetSheet("TurnMediumAdditionalFull");
+            _turnMediumBaseEmpty = asset.GetSheet("TurnMediumBaseEmpty");
+            _turnMediumBaseFull = asset.GetSheet("TurnMediumBaseFull");
+            _turnSmallAdditionalEmpty = asset.GetSheet("TurnSmallAdditionalEmpty");
+            _turnSmallAdditionalFull = asset.GetSheet("TurnSmallAdditionalFull");
+            _turnSmallBaseEmpty = asset.GetSheet("TurnSmallBaseEmpty");
+            _turnSmallBaseFull = asset.GetSheet("TurnSmallBaseFull");
         }
 
         protected override void UnloadGroup() {
-            _health = null;
-            _manaActive = null;
-            _manaAdditionalActive = null;
-            _manaAdditionalInactive = null;
-            _manaInactive = null;
-            _pause = null;
-            _portraitBody = null;
-            _portraitOutline = null;
-            _rank = null;
-            _roundButtonOpponent = null;
-            _roundButtonOwn = null;
-            _turnActive = null;
-            _turnAdditionalActive = null;
-            _turnAdditionalInactive = null;
-            _turnInactive = null;
+            _healthLargeAdditionalEmpty = null;
+            _healthLargeAdditionalFull = null;
+            _healthLargeBaseEmpty = null;
+            _healthLargeBaseFull = null;
+            _healthMediumAdditionalEmpty = null;
+            _healthMediumAdditionalFull = null;
+            _healthMediumBaseEmpty = null;
+            _healthMediumBaseFull = null;
+            _healthSmallAdditionalEmpty = null;
+            _healthSmallAdditionalFull = null;
+            _healthSmallBaseEmpty = null;
+            _healthSmallBaseFull = null;
+            _manaLargeAdditionalEmpty = null;
+            _manaLargeAdditionalFull = null;
+            _manaLargeBaseEmpty = null;
+            _manaLargeBaseFull = null;
+            _manaMediumAdditionalEmpty = null;
+            _manaMediumAdditionalFull = null;
+            _manaMediumBaseEmpty = null;
+            _manaMediumBaseFull = null;
+            _manaSmallAdditionalEmpty = null;
+            _manaSmallAdditionalFull = null;
+            _manaSmallBaseEmpty = null;
+            _manaSmallBaseFull = null;
+            _turnLargeAdditionalEmpty = null;
+            _turnLargeAdditionalFull = null;
+            _turnLargeBaseEmpty = null;
+            _turnLargeBaseFull = null;
+            _turnMediumAdditionalEmpty = null;
+            _turnMediumAdditionalFull = null;
+            _turnMediumBaseEmpty = null;
+            _turnMediumBaseFull = null;
+            _turnSmallAdditionalEmpty = null;
+            _turnSmallAdditionalFull = null;
+            _turnSmallBaseEmpty = null;
+            _turnSmallBaseFull = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }

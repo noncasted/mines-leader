@@ -115,7 +115,7 @@ public static class AgentObservationBuilder
     {
         foreach (var player in context.Players)
         {
-            if (player.Health?.Current != null && player.Health.Current.Value == 0)
+            if (player.Health != null && player.Health.Current == 0)
                 return player;
         }
 
@@ -153,8 +153,8 @@ public static class AgentObservationBuilder
         var view = new AgentPlayerView
         {
             Id = player.User.Id,
-            Health = player.Health?.Current?.Value ?? 0,
-            HealthMax = player.Health?.Max ?? 0,
+            Health = player.Health?.Current ?? 0,
+            HealthMax = player.Health?.ResultMax ?? 0,
             Mana = player.Mana?.Current ?? 0,
             ManaMax = player.Mana?.ResultMax ?? 0,
             MovesLeft = player.Moves?.Left ?? 0,

@@ -16,6 +16,8 @@ namespace Internal
 
         void Bind(IObjectResolver resolver);
 
+        void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker);
+        UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, UniTask> invoker);
         UniTask RunConstruct(IReadOnlyLifetime lifetime);
         UniTask RunLoaded(IReadOnlyLifetime lifetime);
         UniTask RunDispose();
@@ -53,6 +55,16 @@ namespace Internal
         public void Bind(IObjectResolver resolver)
         {
             _resolver = resolver;
+        }
+
+        public void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker)
+        {
+            Invoke(ResolveList<T>(), invoker);
+        }
+
+        public UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, UniTask> invoker)
+        {
+            return InvokeAsync(ResolveList<T>(), invoker);
         }
 
         public async UniTask RunConstruct(IReadOnlyLifetime lifetime)

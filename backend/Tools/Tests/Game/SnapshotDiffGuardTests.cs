@@ -23,7 +23,8 @@ public class SnapshotApplierTests
                         ManaBaseMax = 5,
                         ManaResultMax = 5,
                         HealthCurrent = 10,
-                        HealthMax = 10,
+                        HealthBaseMax = 10,
+                        HealthResultMax = 10,
                         MovesLeft = 2,
                         MovesBaseMax = 2,
                         MovesResultMax = 2,
@@ -89,13 +90,15 @@ public class SnapshotApplierTests
         {
             PlayerId = playerId,
             Current = 5,
-            Max = 15
+            BaseMax = 15,
+            ResultMax = 15
         });
 
         var post = SnapshotApplier.Apply(pre, records);
 
         post.Players[playerId].HealthCurrent.Should().Be(5);
-        post.Players[playerId].HealthMax.Should().Be(15);
+        post.Players[playerId].HealthBaseMax.Should().Be(15);
+        post.Players[playerId].HealthResultMax.Should().Be(15);
     }
 
     [Fact]

@@ -17,7 +17,7 @@ namespace GamePlay
         public UniTask Handle(PlayerSnapshotRecord.HealthUpdate record)
         {
             var player = _gameContext.GetPlayer(record.PlayerId);
-            player.Health.Set(record.Current, record.Max);
+            player.Health.Set(record.Current, record.BaseMax, record.ResultMax);
 
             return UniTask.CompletedTask;
         }

@@ -6,7 +6,7 @@ using Shared;
 namespace GamePlay.Cards
 {
     /// <summary>
-    /// Sacrifices 1 HP to gain +3 temporary mana and +2 extra moves.
+    /// Sacrifices 1 HP to gain +3 temporary mana and +2 extra turns.
     /// </summary>
     public class CardBloodPactAction : ICardAction
     {

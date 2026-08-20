@@ -48,7 +48,7 @@ namespace GamePlay.Boards
 
             _lastClickTime = Time.time;
 
-            if (_gameContext.Self.Moves.IsAvailable(_gameContext) == false)
+            if (_gameContext.Self.Turns.IsAvailable(_gameContext) == false)
                 return;
 
             var cell = _selection.Selected.Value;
