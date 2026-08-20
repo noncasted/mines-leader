@@ -247,6 +247,12 @@ pointing directly at the card/command that forgot a `Record*` call.
 
 ### Snapshot Handlers (Client)
 
+`SnapshotReceiver` plays most records through an animation queue. These records skip the queue and apply immediately:
+
+- `TimeLimitedRoundRecord` / `LastManStandingRoundRecord` — turn owner and timer
+- `PlayerSnapshotRecord.MovesUpdate` — move counter (round start Restore must not wait for leftover opponent animations)
+- `BoardSnapshotRecord.Flag` — flag toggle
+
 | Handler | Triggers on |
 |---------|------------|
 | `BoardSnapshotHandler` | Cell state changes (revealed, flagged) |

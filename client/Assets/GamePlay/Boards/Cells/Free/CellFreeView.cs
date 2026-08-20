@@ -1,5 +1,6 @@
 ﻿using Internal;
 using TMPro;
+using Tools;
 using UnityEngine;
 
 namespace GamePlay.Boards
@@ -24,6 +25,19 @@ namespace GamePlay.Boards
 
                 _count.gameObject.SetActive(true);
                 _count.text = count.ToString();
+return;
+                _count.color = count switch
+                {
+                    1 => Colors.MinesAround.C1,
+                    2 => Colors.MinesAround.C2,
+                    3 => Colors.MinesAround.C3,
+                    4 => Colors.MinesAround.C4,
+                    5 => Colors.MinesAround.C5,
+                    6 => Colors.MinesAround.C6,
+                    7 => Colors.MinesAround.C7,
+                    8 => Colors.MinesAround.C8,
+                    _ => Color.black
+                };
             });
         }
     }
