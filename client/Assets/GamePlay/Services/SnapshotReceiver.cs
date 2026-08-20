@@ -38,7 +38,9 @@ namespace GamePlay.Services
                     continue;
                 }
 
-                if (record is TimeLimitedRoundRecord || record is LastManStandingRoundRecord)
+                if (record is TimeLimitedRoundRecord ||
+                    record is LastManStandingRoundRecord ||
+                    record is PlayerSnapshotRecord.MovesUpdate)
                 {
                     HandleRecordImmediately(record);
                     continue;

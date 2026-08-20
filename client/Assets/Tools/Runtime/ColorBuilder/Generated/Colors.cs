@@ -4,10 +4,22 @@ using UnityEngine;
 namespace Tools {
     public static class Colors {
         public static readonly GameColors Game = new();
+        public static readonly MinesAroundColors MinesAround = new();
     }
 
     public sealed class GameColors {
         public readonly Color TextActive = new Color(0.9098039f, 0.75686276f, 0.4392157f, 1f);
         public readonly Color TextInactive = new Color(0.141176477f, 0.08235294f, 0.152941182f, 1f);
+    }
+
+    public sealed class MinesAroundColors {
+        public readonly Color C1 = new Color(0.309803933f, 0.56078434f, 0.7294118f, 1f);
+        public readonly Color C2 = new Color(0.274509817f, 0.509803951f, 0.196078435f, 1f);
+        public readonly Color C3 = new Color(0.8117647f, 0.34117648f, 0.235294119f, 1f);
+        public readonly Color C4 = new Color(0.09019608f, 0.1254902f, 0.219607845f, 1f);
+        public readonly Color C5 = new Color(0.458823532f, 0.141176477f, 0.219607845f, 1f);
+        public readonly Color C6 = new Color(0.145098045f, 0.3372549f, 0.180392161f, 1f);
+        public readonly Color C7 = new Color(0.08235294f, 0.113725491f, 0.156862751f, 1f);
+        public readonly Color C8 = new Color(0.5058824f, 0.5921569f, 0.5882353f, 1f);
     }
 }

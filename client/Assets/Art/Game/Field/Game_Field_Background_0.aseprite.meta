@@ -127,7 +127,7 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: Frame_0
+  - name: Game_Field_Background_0
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 9
@@ -139,7 +139,7 @@ ScriptedImporter:
       y: 0
       width: 512
       height: 288
-    spriteID: 218857238d6a0593ea3805be12f54c6f
+    spriteID: d4e1ede4392d4c643b1d24bfa08b355a
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -171,7 +171,7 @@ ScriptedImporter:
         y: 0
         width: 512
         height: 288
-      spriteId: 218857238d6a0593ea3805be12f54c6f
+      spriteId: d4e1ede4392d4c643b1d24bfa08b355a
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
