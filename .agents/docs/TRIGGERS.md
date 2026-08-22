@@ -110,6 +110,25 @@
 
 ---
 
+## SPRITES, CARDS, MODIFIERS
+
+**Keywords:** sprite catalog, LoadSpriteGroup, Sprites.Cards, SpriteGroup, IBoardCellsAnimator, ICardActionSync, card preview, modifier overlay, IModifierSource, DurationalModifierOverview, LastManStandingTurnBased, agent play, DeploymentState
+
+### Recommended Reading Order
+1. **Sprites:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md) — `LoadSpriteGroup`
+2. **Card animations / preview:** [GAMEPLAY.md](GAMEPLAY.md) — `ICardActionSync` + `IBoardCellsAnimator`
+3. **Card numbers in descriptions:** [CARD_EFFECTS.md](CARD_EFFECTS.md)
+4. **Modifiers / rounds / agent play:** [GAMEPLAY.md](GAMEPLAY.md)
+5. **Terms:** [VOCABULARY.md](VOCABULARY.md)
+
+### Common Mistakes
+- ❌ Getter on `Sprites.X.Y` without `LoadSpriteGroup` → throw
+- ❌ Animations in `CardActionSnapshotHandler` instead of `ICardActionSync` → skipped / duplicated
+- ❌ Hardcoded `_Normal` card config → `_Max` uses the wrong size/duration
+- ❌ `RemoveAt` + `Add` on `ViewableList` to update a field → flicker / lifetime exception
+
+---
+
 ## DECISION MAKING & ERROR LOOKUP
 
 ### Quick Decision Making

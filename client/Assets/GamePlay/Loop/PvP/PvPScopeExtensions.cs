@@ -52,6 +52,7 @@ namespace GamePlay.Loop
             builder.LoadSpriteGroup(Sprites.GameUI);
             builder.LoadSpriteGroup(Sprites.GameCells);
             builder.LoadSpriteGroup(Sprites.GameField);
+            builder.LoadPrefabGroup(Prefabs.GamePlay);
             
             builder.AddDefaultGamePlayServices();
             builder.AddGameEndServices();

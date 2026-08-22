@@ -46,11 +46,15 @@ namespace Meta
             return backend.ExecuteCommand(new SharedMatchmaking.Create());
         }
 
-        public static UniTask CreateGameWithBot(this IMetaBackend backend, GameMatchType type)
+        public static UniTask CreateGameWithBot(
+            this IMetaBackend backend,
+            GameMatchType type,
+            AgentMatchFixture fixture = null)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.CreateWithBot()
                     {
-                        Type = type
+                        Type = type,
+                        Fixture = fixture
                     }
                 );
         }

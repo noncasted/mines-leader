@@ -309,6 +309,7 @@ Implementation lives in `backend/Infrastructure/Orleans/State/GrainStateStorage.
 | `backend/Infrastructure/Orleans/State/StateExtensions.cs` | `Update()`, `Write()`, `ReadValue()`, `Read()` helpers |
 | `backend/Infrastructure/Data/Collections/StateCollection.cs` | `StateCollection<TKey, TValue>` base |
 | `backend/Infrastructure/Orleans/Utils/OrleansUtils.cs` | `IOrleans` implementation + extension methods |
+| `backend/Cluster/Deploy/DeploymentState.cs` | Deploy-scoped persistent `IViewableProperty<T>` (table `cluster` + channel) |
 | `backend/Meta/Bots/BotEntity.cs` | Grain + State<T> example |
 | `backend/Meta/Users/Entities/User.cs` | Grain + State<T> example |
 | `backend/Meta/Bots/BotCollection.cs` | StateCollection example |

@@ -7,6 +7,7 @@ namespace GamePlay.Cards
 {
     public interface ICardRenderer
     {
+        void SetSortingLayer(string layer);
         void SetSortingOrder(int order);
         void SetAllColor(Color color);
         void SetNameTextColor(Color color);
@@ -30,6 +31,11 @@ namespace GamePlay.Cards
 
             builder.RegisterComponent(this)
                    .As<ICardRenderer>();
+        }
+
+        public void SetSortingLayer(string layer)
+        {
+            _sortingGroup.sortingLayerName = layer;
         }
 
         public void SetSortingOrder(int order)

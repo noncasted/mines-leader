@@ -221,7 +221,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 228
-      y: 180
+      y: 194
       width: 60
       height: 20
     spriteID: 6fe30c2221a467fd395c3b4f88d76dcc
@@ -242,7 +242,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 228
-      y: 144
+      y: 171
       width: 60
       height: 20
     spriteID: a6dd2cfea5c3982858eec78ef74f9379
@@ -263,7 +263,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 300
-      y: 180
+      y: 194
       width: 60
       height: 20
     spriteID: f7249ee6418c945aeb01c4aa4839e82f
@@ -284,10 +284,73 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 300
-      y: 144
+      y: 171
       width: 60
       height: 20
     spriteID: 01dc056d6a6b2bd3e8891b7ff8725217
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Plate_Card
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 83
+      y: 142
+      width: 60
+      height: 87
+    spriteID: 080a99da6032c6b07873bc744a4a1e20
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Plate_Deck
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 183
+      y: 180
+      width: 24
+      height: 28
+    spriteID: c2e93008035100e0cbd183b4753ec8f3
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Plate_Stash
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 150
+      y: 180
+      width: 25
+      height: 40
+    spriteID: ccfde26b2ee2819a088ebe099f8e40b5
     spriteBone: []
     spriteOutline: []
     vertices: []

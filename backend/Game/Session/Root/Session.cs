@@ -24,6 +24,7 @@ public class LobbyCreateOptions
 public class MatchCreateOptions
 {
     public required GameMatchType Type { get; init; }
+    public AgentMatchFixture? Fixture { get; init; }
 }
 
 public class SessionContainerData

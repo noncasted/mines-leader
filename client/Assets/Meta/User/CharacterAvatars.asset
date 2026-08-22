@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 976f0b0908c14c568ff07787459920b4, type: 3}
   m_Name: CharacterAvatars
   m_EditorClassIdentifier: Meta::Meta.CharacterAvatars
-  _assetId: 121
+  _assetId: 124
   _value:
     _keys: 00000000010000000200000003000000i
     _values:

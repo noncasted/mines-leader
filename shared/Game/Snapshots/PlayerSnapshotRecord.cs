@@ -11,6 +11,9 @@ namespace Shared
             public Guid PlayerId { get; set; }
             public ICardActionData Data { get; set; }
             public Guid CardId { get; set; }
+            public bool HasDropPosition { get; set; }
+            public float DropX { get; set; }
+            public float DropY { get; set; }
         }
 
         [MemoryPackable]

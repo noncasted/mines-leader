@@ -32,6 +32,22 @@ public class LastManStandingTurnBasedRoundTests
     }
 
     [Fact]
+    public void Process_AppliesFixtureAfterRestoreCards()
+    {
+        var text = File.ReadAllText(FindRoundSource());
+        var decksAt = text.IndexOf("AgentMatchFixtureApplier.ApplyDecks", StringComparison.Ordinal);
+        var restoreAt = text.IndexOf("_players.RestoreCards(player, snapshot)", StringComparison.Ordinal);
+        var applyAt = text.IndexOf("AgentMatchFixtureApplier.Apply(_gameContext", StringComparison.Ordinal);
+        var startedAt = text.IndexOf("snapshot.RecordGameStarted", StringComparison.Ordinal);
+
+        decksAt.Should().BeGreaterThan(0);
+        restoreAt.Should().BeGreaterThan(decksAt);
+        applyAt.Should().BeGreaterThan(restoreAt);
+        startedAt.Should().BeGreaterThan(applyAt);
+        text.Should().Contain("ResolvePreviousPlayer");
+    }
+
+    [Fact]
     public void ProcessRound_PublishesOpponentTurnAfterRestore()
     {
         var text = File.ReadAllText(FindRoundSource());

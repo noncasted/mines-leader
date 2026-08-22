@@ -85,7 +85,7 @@
 | Deploy identity pipe | DeployIdPipe | RuntimePipe used by services to query current DeployId before init |
 | Scoped epoch lifetime | DeployLifetime | Rotated child lifetime inside IDeployContext; terminates on epoch change |
 | Epoch-aware component | IDeployAware | Interface with OnDeployChanged(newId, lifetime); re-subscribes to new grain/channel |
-| Live ephemeral sync | LiveState\<T\> | Replacement for DynamicState\<T\>; channel id includes DeployId, scoped to DeployLifetime |
+| Deploy-scoped persistent sync | DeploymentState\<T\> | Replaces LiveState; writes to table `cluster`, publishes `AddressableStateValue` on a DeployId-scoped channel |
 | Epoch health watchdog | DeployHealthChecker | Hosted service polling pipe + heartbeat staleness |
 | Old-deploy garbage removal | IDeployCleanup | Deletes DeployId-keyed state rows for every DeployId ≠ current |
 
@@ -101,6 +101,35 @@
 | Constraint-solving depth | `ConstraintDepth` | 1 = single-cell logic; 2 = overlapping subset reasoning |
 | Phase-based turn | Flags → Cards → Cells | All profiles use same phase order; differ in limits and depth |
 
+## Player Modifiers
+
+| Concept | Term | Description |
+|---------|------|-------------|
+| Modifier source | `IModifierSource` | Backend unit with Guid, type, value, key, remaining turns |
+| Computed modifiers | `Modifiers.Values` | Sum of all sources as `Dictionary<PlayerModifier, float>` |
+| Client overview | `DurationalModifierOverview` | Synced struct: Type, Value, Key, TurnsToEnd, SourceId |
+| Round tick | `IRoundAction.Tick()` | Returns true when the action should be removed |
+
+Do not mix: `Values` (computed totals) vs `Overviews` (per-source list shown in UI). `TurnsToEnd == 0` means remove; `-1` means infinite.
+
+## Sprite Catalog
+
+| Concept | Term | Description |
+|---------|------|-------------|
+| Generated catalog | `Sprites` | Static handles: `Sprites.Cards.Trebuchet` |
+| Group handle | `SpriteGroup` | Refcounted Addressables load; getters throw if not loaded |
+| Scope load | `LoadSpriteGroup` | `builder.LoadSpriteGroup(Sprites.Cards)` — only load path |
+
+Do not mix: `EnsureLoaded()` (throw only) vs `Retain()` / `LoadSpriteGroup` (actual load).
+
+## Card Animations
+
+| Concept | Term | Description |
+|---------|------|-------------|
+| Cell animator | `IBoardCellsAnimator` | Target/action/open/flag animations for card sync |
+| Card action payload | `ICardActionData` | Only `TargetPlayer`; cell lists live on concrete snapshot types |
+| Menu preview | `MenuCardPreviewPlayer` | Replays `ICardActionSync` on `Menu_Board` into a RenderTexture |
+
 ## Rules (DO NOT USE SYNONYMS)
 
 - ❌ Do NOT mix: "Lifetime" + "Token" (token is part of lifetime, not synonym)
@@ -110,4 +139,6 @@
 - ❌ Do NOT mix: "Scheme" + "Runtime" (different layers, converted via ParseTracks)
 - ❌ Do NOT mix: "Timeline" + "Track" (timeline is UI, track is data structure)
 - ❌ Do NOT mix: "CardPool" + "BotDeck" (CardPool was abandoned; BotDeck is the current pattern)
+- ❌ Do NOT mix: "LiveState" + "DeploymentState" (LiveState was renamed; use DeploymentState)
+- ❌ Do NOT mix: "ICardActionData.TargetCells" + concrete snapshot fields (cell lists are not on the interface)
 - ✅ Do use: One term consistently throughout your response

@@ -19,6 +19,7 @@ namespace GamePlay.Cards
             IHand hand,
             ICardTransform transform,
             ICardRemoteDrop drop,
+            ICardStash stash,
             ICardDefinition definition,
             ICardRevealView revealView)
         {
@@ -30,6 +31,7 @@ namespace GamePlay.Cards
             Hand = hand;
             Transform = transform;
             _drop = drop;
+            _stash = stash;
             Definition = definition;
             Lifetime = containerLifetime;
             _revealView = revealView;
@@ -39,6 +41,7 @@ namespace GamePlay.Cards
         private readonly ILifetime _containerLifetime;
         private readonly ICardActionSync _actionSync;
         private readonly ICardRemoteDrop _drop;
+        private readonly ICardStash _stash;
         private readonly ICardRevealView _revealView;
 
         public Guid Id { get; }
@@ -48,6 +51,7 @@ namespace GamePlay.Cards
         public ICardTransform Transform { get; }
         public IReadOnlyLifetime Lifetime { get; }
         public ICardRemoteDrop Drop => _drop;
+        public ICardStash Stash => _stash;
 
         public void Reveal()
         {

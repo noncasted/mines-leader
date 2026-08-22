@@ -69,7 +69,83 @@ public static class BoardLayoutParser
 
         var options = Options.Create(new BoardOptions { Size = size, Mines = mines.Count });
         var board = new Board(ownerId ?? Guid.NewGuid(), options);
+        WriteCells(board, size, mines, freeCells, flaggedCells);
 
+        return (board, target);
+    }
+
+    /// <summary>
+    /// Write a visual layout onto an existing board without replacing the <see cref="IBoard"/> instance.
+    /// Short rows/missing rows are padded with <c>t</c>. Rows or columns wider than <see cref="IBoard.Size"/> throw.
+    /// <c>x</c> is treated as <c>t</c> (target marker is tests-only).
+    /// </summary>
+    public static void Apply(IBoard board, string layout)
+    {
+        var rows = ParseRows(layout);
+
+        if (rows.Count == 0)
+            throw new ArgumentException("Layout is empty", nameof(layout));
+
+        var size = board.Size.x;
+
+        if (rows.Count > size)
+            throw new ArgumentException($"Layout height {rows.Count} exceeds board size {size}", nameof(layout));
+
+        for (var y = 0; y < rows.Count; y++)
+        {
+            if (rows[y].Length > size)
+                throw new ArgumentException($"Layout width {rows[y].Length} exceeds board size {size}", nameof(layout));
+        }
+
+        var mines = new HashSet<Position>();
+        var freeCells = new HashSet<Position>();
+        var flaggedCells = new HashSet<Position>();
+
+        for (var y = 0; y < size; y++)
+        {
+            for (var x = 0; x < size; x++)
+            {
+                var ch = 't';
+
+                if (y < rows.Count && x < rows[y].Length)
+                    ch = rows[y][x];
+
+                var pos = new Position(x, y);
+
+                switch (ch)
+                {
+                    case 't':
+                    case 'x':
+                        break;
+                    case 'm':
+                        mines.Add(pos);
+                        break;
+                    case 'f':
+                        mines.Add(pos);
+                        flaggedCells.Add(pos);
+                        break;
+                    case 'g':
+                        flaggedCells.Add(pos);
+                        break;
+                    case '_':
+                        freeCells.Add(pos);
+                        break;
+                    default:
+                        throw new ArgumentException($"Unknown layout char '{ch}' at ({x},{y})");
+                }
+            }
+        }
+
+        WriteCells(board, size, mines, freeCells, flaggedCells);
+    }
+
+    private static void WriteCells(
+        IBoard board,
+        int size,
+        HashSet<Position> mines,
+        HashSet<Position> freeCells,
+        HashSet<Position> flaggedCells)
+    {
         for (var x = 0; x < size; x++)
         {
             for (var y = 0; y < size; y++)
@@ -98,8 +174,6 @@ public static class BoardLayoutParser
 
         board.MinesScanner.Recalculate();
         board.MinesScanner.Recalculate();
-
-        return (board, target);
     }
 
     /// <summary>

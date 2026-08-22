@@ -110,7 +110,8 @@ _items.View(sceneLifetime, item => {
 ```
 new ViewableList<T>()
 list.Add(item)                          // Returns item lifetime
-list.Remove(item)                       // Terminates item lifetime
+list.Remove(item)                       // Terminates item lifetime + drops internal lifetime key
+list.NotifyChangedAt(index)             // Inplace field update — does not recreate item lifetime
 list.View(lifetime, handler)            // Iterate existing + listen
 list.Advise(lifetime, handler)          // Listen for future only
 ```
@@ -125,6 +126,20 @@ dict.AddLifetimed(scopeLt, key, value)  // Auto-remove
 ```
 
 ## Gotchas & Edge Cases
+
+### Inplace Update — Do Not RemoveAt + Add
+
+Updating a field on an existing item (e.g. `TurnsToEnd` on a modifier overview) must not `RemoveAt` + `Add`. That terminates the item lifetime, recreates UI, and can throw if `Remove` does not drop the internal lifetime key before the next `Add`.
+
+```csharp
+// WRONG — flicker + ArgumentException on re-add
+overviews.RemoveAt(index);
+overviews.Add(updated);
+
+// CORRECT — mutate fields, then notify
+existing.TurnsToEnd = next;
+overviews.NotifyChangedAt(index);
+```
 
 ### Remove During View Iteration
 

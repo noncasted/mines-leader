@@ -36,6 +36,50 @@ namespace GamePlay.Boards
         public CellVisuals Visuals => _visuals;
         public CellEffects Effects => _effects;
 
+        public bool IsAnimating => AnimatorKind != null;
+
+        public string AnimatorKind
+        {
+            get
+            {
+                if (_cellAnimator != null && _cellAnimator.IsPlaying)
+                    return _cellAnimator.PlayingKind;
+
+                if (_takenView != null && _takenView.FlagAnimator != null && _takenView.FlagAnimator.IsPlaying)
+                    return "flag";
+
+                return null;
+            }
+        }
+
+        public CellInspect Inspect()
+        {
+            var inspect = new CellInspect
+            {
+                X = _boardPosition.x,
+                Y = _boardPosition.y,
+                Exists = true,
+                Active = isActiveAndEnabled,
+                Flagged = false,
+                MinesAround = null,
+                Effects = new System.Collections.Generic.List<string>(),
+                Animator = AnimatorKind
+            };
+
+            if (_state.Value is ICellFreeState free)
+            {
+                inspect.State = "free";
+                inspect.MinesAround = free.MinesAround.Value;
+                return inspect;
+            }
+
+            inspect.State = "taken";
+            if (_state.Value is ICellTakenState taken)
+                inspect.Flagged = taken.IsFlagged.Value;
+
+            return inspect;
+        }
+
         public void Construct(Vector2Int position, Board board)
         {
             _boardPosition = position;

@@ -8,16 +8,12 @@ namespace Tools {
     public sealed class CardsSprites : SpriteGroup {
         private const string Address = "74fe2a982e3439414a912d2874879b7a";
 
-        private Sprite _back;
         private Sprite _discard0;
         private Sprite _discard1;
         private Sprite _front;
-        private Sprite _frontOutline;
+        private Sprite _opponentBack;
+        private Sprite _ownBack;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
-
-        public Sprite Back {
-            get { EnsureLoaded(); return _back; }
-        }
 
         public Sprite Discard0 {
             get { EnsureLoaded(); return _discard0; }
@@ -31,26 +27,30 @@ namespace Tools {
             get { EnsureLoaded(); return _front; }
         }
 
-        public Sprite FrontOutline {
-            get { EnsureLoaded(); return _frontOutline; }
+        public Sprite OpponentBack {
+            get { EnsureLoaded(); return _opponentBack; }
+        }
+
+        public Sprite OwnBack {
+            get { EnsureLoaded(); return _ownBack; }
         }
 
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
-            _back = asset.GetSheet("Back");
             _discard0 = asset.GetSheet("Discard0");
             _discard1 = asset.GetSheet("Discard1");
             _front = asset.GetSheet("Front");
-            _frontOutline = asset.GetSheet("FrontOutline");
+            _opponentBack = asset.GetSheet("OpponentBack");
+            _ownBack = asset.GetSheet("OwnBack");
         }
 
         protected override void UnloadGroup() {
-            _back = null;
             _discard0 = null;
             _discard1 = null;
             _front = null;
-            _frontOutline = null;
+            _opponentBack = null;
+            _ownBack = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }

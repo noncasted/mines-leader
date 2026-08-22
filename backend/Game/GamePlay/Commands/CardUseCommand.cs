@@ -45,6 +45,10 @@ public class CardUseCommand(
 
         var prefixMark = context.Snapshot.Count;
 
+        context.Snapshot.HasDropPosition = request.HasDropPosition;
+        context.Snapshot.DropX = request.DropX;
+        context.Snapshot.DropY = request.DropY;
+
         var use = Utils.ServiceProvider.Use(cardContext, request.Payload);
 
         if (use.Result.HasError == true)

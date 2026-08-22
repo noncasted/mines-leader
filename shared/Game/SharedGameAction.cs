@@ -34,6 +34,9 @@ namespace Shared
         {
             public Guid CardId { get; set; }
             public ICardUsePayload Payload { get; set; }
+            public bool HasDropPosition { get; set; }
+            public float DropX { get; set; }
+            public float DropY { get; set; }
         }
 
         [MemoryPackable]

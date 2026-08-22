@@ -79,7 +79,7 @@ public class MatchmakingCommands
 
         protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.CreateWithBot request)
         {
-            return _matchmaking.CreateWithBot(session.UserId, request.Type).FromResult();
+            return _matchmaking.CreateWithBot(session.UserId, request.Type, request.Fixture).FromResult();
         }
     }
 }

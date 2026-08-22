@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639225958796304550
+  platformSettingsDirtyTick: 639229306594910650
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -149,7 +149,7 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   spriteSheetImportData:
-  - name: Card_Plates_Back
+  - name: Card_Plates_Own_Back
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -170,27 +170,6 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Card_Plates_Front_Outline
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 66
-      y: 7
-      width: 44
-      height: 50
-    spriteID: a5397bc4611c1442d8dd4d42f9eb2a3e
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
   - name: Card_Plates_Front
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -199,7 +178,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 131
+      x: 51
       y: 8
       width: 42
       height: 48
@@ -243,9 +222,30 @@ ScriptedImporter:
       serializedVersion: 2
       x: 250
       y: 14
-      width: 30
+      width: 6
       height: 37
     spriteID: 9814c7a9a3c284350a9885e5ba953894
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Card_Plates_Opponent_Back
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 3
+      y: 72
+      width: 42
+      height: 48
+    spriteID: 819c8b72303df0f6b910b09350dfd34d
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -295,8 +295,8 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 280
-        height: 57
+        width: 259
+        height: 165
       spriteId: c93bb25767c2edb4e8fc24a580afca8f
     linkedCells: []
     tileCells: []
@@ -310,7 +310,7 @@ ScriptedImporter:
     maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     forceMaximumCompressionQuality_BC6H_BC7: 0
     crunchedCompression: 1
@@ -342,5 +342,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 512, y: 64}
+  previousTextureSize: {x: 512, y: 256}
   canvasSize: {x: 512, y: 512}

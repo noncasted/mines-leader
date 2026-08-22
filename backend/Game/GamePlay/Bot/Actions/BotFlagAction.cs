@@ -15,18 +15,21 @@ public class BotFlagAction : IBotFlagAction
         IBotConfig config,
         IBotCommandUtils commandUtils,
         IBotContext context,
-        ISessionLogger sessionLogger)
+        ISessionLogger sessionLogger,
+        MatchCreateOptions matchOptions)
     {
         _config = config;
         _commandUtils = commandUtils;
         _context = context;
         _sessionLogger = sessionLogger;
+        _matchOptions = matchOptions;
     }
 
     private readonly IBotConfig _config;
     private readonly IBotCommandUtils _commandUtils;
     private readonly IBotContext _context;
     private readonly ISessionLogger _sessionLogger;
+    private readonly MatchCreateOptions _matchOptions;
 
     public bool TryExecute()
     {
@@ -62,7 +65,7 @@ public class BotFlagAction : IBotFlagAction
 
     private int GetConstraintDepth()
     {
-        return _config.Value.CurrentProfile == BotProfile.Easy ? 1 : 2;
+        return MatchBotProfile.Resolve(_matchOptions, _config) == BotProfile.Easy ? 1 : 2;
     }
 
     private bool TryGetMineToFlag(int depth, out Position target, out string reason)

@@ -77,6 +77,18 @@ Tokens in `cards-info.json` descriptions are replaced by `CardDescriptionProvide
 4. If matched, it performs `string.Replace` on the template with the config value
 5. UI consumers call `GetDescription(CardType)` instead of reading `ICardDefinition.Description` directly
 
+## `_Normal` vs `_Max` config selection
+
+Card `Use()` must pick the config by `payload.Type`. Never hardcode `_Normal`:
+
+```csharp
+var config = payload.Type == CardType.Blackout_Max
+    ? _configs.Value.Blackout_Max
+    : _configs.Value.Blackout_Normal;
+```
+
+`Smoke` / `Frost` / `FogOfWar` still hardcode `_Normal` — do not copy that pattern.
+
 ## Adding New Effect Types
 
 1. Add a new interface in `shared/Configs/CardConfigOptions.cs`

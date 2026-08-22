@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Players;
+using GamePlay.Services;
 using Internal;
 using Meta;
 using Network;
@@ -18,6 +19,7 @@ namespace GamePlay.Cards
         public CardLocalDrag(
             INetworkConnection connection,
             IUpdater updater,
+            IGameInput input,
             ILocalCard card,
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
@@ -29,6 +31,7 @@ namespace GamePlay.Cards
         {
             _connection = connection;
             _updater = updater;
+            _input = input;
             _card = card;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
@@ -41,6 +44,7 @@ namespace GamePlay.Cards
 
         private readonly INetworkConnection _connection;
         private readonly IUpdater _updater;
+        private readonly IGameInput _input;
         private readonly ILocalCard _card;
         private readonly IHandEntryHandle _handEntryHandle;
         private readonly ICardTransform _transform;
@@ -92,10 +96,14 @@ namespace GamePlay.Cards
             {
                 useResult.Payload.Type = _definition.Type;
 
+                var dropPosition = _input.World;
                 var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                 {
                     CardId = _card.Id,
-                    Payload = useResult.Payload
+                    Payload = useResult.Payload,
+                    HasDropPosition = true,
+                    DropX = dropPosition.x,
+                    DropY = dropPosition.y
                 });
 
                 if (requestResult.HasError == false)

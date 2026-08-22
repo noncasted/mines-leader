@@ -17,6 +17,7 @@ namespace GamePlay.Cards
             IHand hand,
             ICardTransform transform,
             ICardLocalDrop drop,
+            ICardStash stash,
             ICardView view,
             ICardDefinition definition,
             ICardPointerHandler pointerHandler)
@@ -26,6 +27,7 @@ namespace GamePlay.Cards
             _containerLifetime = containerLifetime;
             _actionSync = actionSync;
             _drop = drop;
+            _stash = stash;
             _view = view;
             Definition = definition;
             Hand = hand;
@@ -37,6 +39,7 @@ namespace GamePlay.Cards
         private readonly ILifetime _containerLifetime;
         private readonly ICardActionSync _actionSync;
         private readonly ICardLocalDrop _drop;
+        private readonly ICardStash _stash;
         private readonly ICardView _view;
         private readonly ViewableDelegate _used = new();
         private readonly ViewableProperty<bool> _isInSpawnAnimation = new();
@@ -50,6 +53,7 @@ namespace GamePlay.Cards
 
         public IViewableDelegate Used => _used;
         public ICardLocalDrop Drop => _drop;
+        public ICardStash Stash => _stash;
         public ICardPointerHandler PointerHandler { get; }
         public IViewableProperty<bool> IsInSpawnAnimation => _isInSpawnAnimation;
 

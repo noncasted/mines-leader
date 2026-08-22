@@ -9,6 +9,9 @@ public class MoveSnapshot
     private int? _insertAt;
 
     public ISessionLogger? SessionLogger { get; set; }
+    public bool HasDropPosition { get; set; }
+    public float DropX { get; set; }
+    public float DropY { get; set; }
 
     public int Count => _records.Count;
 
@@ -27,7 +30,10 @@ public class MoveSnapshot
         {
             PlayerId = playerId,
             CardId = cardId,
-            Data = data
+            Data = data,
+            HasDropPosition = HasDropPosition,
+            DropX = DropX,
+            DropY = DropY
         });
     }
 

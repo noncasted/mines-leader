@@ -15,6 +15,8 @@
             builder.Add<MatchActionContexts.PlayerLoaded>();
             builder.Add<SharedAgentObservation>();
             builder.Add<SharedAgentObservationRequest>();
+            builder.Add<SharedAgentLegalPlaysRequest>();
+            builder.Add<SharedAgentLegalPlaysResponse>();
 
             return builder;
         }
