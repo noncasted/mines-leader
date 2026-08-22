@@ -729,3 +729,59 @@ byte[] bytes = readable.EncodeToPNG();
 2. **Use `sprite.rect`** to read only the specific sprite region from the atlas texture.
 3. **Never call `EncodeToPNG` on imported textures directly** — they are not readable. Use `RenderTexture` + `ReadPixels` to create a readable copy.
 4. **For `.aseprite` files**, `LoadAssetAtPath<Sprite>` may return null; fall back to `LoadAllAssetsAtPath` and find the first `Sprite` sub-asset.
+
+---
+
+## Lesson 17: EventState.Append() Must Be Async — Sync Wait Deadlocks Reentrant Grains
+
+### Mistake Made
+```csharp
+// WRONG — blocks the Orleans thread pool
+public void Append(IEvent evt)
+{
+    _lock.Wait(); // sync wait inside [Reentrant] grain
+    try { ... }
+    finally { _lock.Release(); }
+}
+```
+
+Ten concurrent standalone appends on a `[Reentrant]` grain stalled: each call held a thread while waiting for the same `SemaphoreSlim`.
+
+### Correct Pattern
+```csharp
+public async Task Append(IEvent evt)
+{
+    await _lock.WaitAsync();
+    try { ... }
+    finally { _lock.Release(); }
+}
+```
+
+### Rule
+Never call `_lock.Wait()` (sync) on a grain hot path. `Append()` is `async Task` and uses `WaitAsync()`.
+
+→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+
+---
+
+## Lesson 18: Card Use Must Select Config by payload.Type — Never Hardcode `_Normal`
+
+### Mistake Made
+```csharp
+// WRONG — Blackout_Max uses the Normal size
+var config = _configs.Value.Blackout_Normal;
+```
+
+Menu preview of Blackout and BlackoutMax looked identical. Same bug still exists in `Smoke.cs`, `Frost.cs`, `FogOfWar.cs`.
+
+### Correct Pattern
+```csharp
+var config = payload.Type == CardType.Blackout_Max
+    ? _configs.Value.Blackout_Max
+    : _configs.Value.Blackout_Normal;
+```
+
+### Rule
+Every card with a `_Max` variant must branch on `payload.Type`. Do not copy `_configs.Value.X_Normal` as a default.
+
+→ [CARD_EFFECTS.md](CARD_EFFECTS.md)

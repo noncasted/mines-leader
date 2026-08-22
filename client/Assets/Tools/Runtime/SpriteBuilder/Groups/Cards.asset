@@ -13,12 +13,6 @@ MonoBehaviour:
   m_Name: Cards
   m_EditorClassIdentifier: Tools.SpriteBuilder::Tools.SpriteBuilder.SpriteGroupAsset
   _entries:
-  - Name: Back
-    Kind: 0
-    Sprites:
-    - {fileID: -4586633856482884092, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: Discard0
     Kind: 0
     Sprites:
@@ -37,9 +31,15 @@ MonoBehaviour:
     - {fileID: 2130047457299849726, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: FrontOutline
+  - Name: OpponentBack
     Kind: 0
     Sprites:
-    - {fileID: -1585396488669363286, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
+    - {fileID: -4126753681195034333, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: OwnBack
+    Kind: 0
+    Sprites:
+    - {fileID: -4586633856482884092, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}

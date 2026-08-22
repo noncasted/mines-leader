@@ -71,7 +71,7 @@ public class GameFlow : Service, IGameFlow
         _sessionLogger.LogGameStarted(playerIds);
 
         foreach (var user in _users.Where(u => u.IsBot))
-            _sessionLogger.LogBotProfile(user.Id, _botConfig.Value.CurrentProfile.ToString());
+            _sessionLogger.LogBotProfile(user.Id, MatchBotProfile.Resolve(_matchOptions, _botConfig).ToString());
 
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);

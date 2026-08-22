@@ -18,7 +18,8 @@ public class BotRunner : IBotRunner
         IBotContext botContext,
         IGameContext context,
         IBotProfileStrategyProvider profileProvider,
-        ISessionLogger sessionLogger)
+        ISessionLogger sessionLogger,
+        MatchCreateOptions matchOptions)
     {
         _config = config;
         _round = round;
@@ -26,6 +27,7 @@ public class BotRunner : IBotRunner
         _context = context;
         _profileProvider = profileProvider;
         _sessionLogger = sessionLogger;
+        _matchOptions = matchOptions;
     }
 
     private readonly IBotConfig _config;
@@ -34,6 +36,7 @@ public class BotRunner : IBotRunner
     private readonly IBotContext _botContext;
     private readonly ISessionLogger _sessionLogger;
     private readonly IBotProfileStrategyProvider _profileProvider;
+    private readonly MatchCreateOptions _matchOptions;
 
     public async Task Run(IUser user)
     {
@@ -52,7 +55,7 @@ public class BotRunner : IBotRunner
             if (player.Moves.IsAvailable == false)
                 return;
 
-            var profile = _profileProvider.GetStrategy(_config.Value.CurrentProfile);
+            var profile = _profileProvider.GetStrategy(MatchBotProfile.Resolve(_matchOptions, _config));
             Task.Run(() => profile.ExecuteTurn(roundLifetime));
         });
     }

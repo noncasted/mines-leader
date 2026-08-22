@@ -14,6 +14,7 @@ namespace GamePlay.Cards
         IHand Hand { get; }
         ICardTransform Transform { get; }
         IReadOnlyLifetime Lifetime { get; }
+        ICardStash Stash { get; }
 
         UniTask Use(IReadOnlyLifetime lifetime, ICardActionData payload);
         UniTask Destroy();

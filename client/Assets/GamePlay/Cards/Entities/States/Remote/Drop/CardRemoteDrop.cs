@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GamePlay.Cards;
 using Global.Systems;
 using Internal;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace GamePlay.Cards.Drop
 {
     public interface ICardRemoteDrop
     {
-        UniTask Enter(IReadOnlyLifetime lifetime);
+        UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition);
     }
 
     public class CardRemoteDrop : ICardRemoteDrop
@@ -15,36 +16,44 @@ namespace GamePlay.Cards.Drop
         public CardRemoteDrop(
             IUpdater updater,
             ICardTransform transform,
-            CardDropOptions options)
+            ICardRenderer renderer,
+            ICardStateLifetime stateLifetime,
+            ICardDropTarget target,
+            CardRemoteDropOptions options)
         {
             _updater = updater;
             _transform = transform;
+            _renderer = renderer;
+            _stateLifetime = stateLifetime;
+            _target = target;
             _options = options;
         }
 
         private readonly IUpdater _updater;
         private readonly ICardTransform _transform;
-        private readonly CardDropOptions _options;
+        private readonly ICardRenderer _renderer;
+        private readonly ICardStateLifetime _stateLifetime;
+        private readonly ICardDropTarget _target;
+        private readonly CardRemoteDropOptions _options;
 
-        public async UniTask Enter(IReadOnlyLifetime lifetime)
+        public UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition)
         {
-            var startPosition = _transform.Position;
-            var direction = (_transform.Rotation + 90f).ToAngle().ToVector2();
-            var targetPosition = startPosition + direction * _options.MoveDistance;
+            _stateLifetime.OccupyLifetime();
 
-            var timer = 0f;
+            var stackIndex = _target.DroppedCount;
+            var endPosition = _target.ReservePosition();
+            var twistAngle = Random.Range(_options.TwistAngleRange.x, _options.TwistAngleRange.y);
 
-            await _updater.RunUpdateAction(lifetime, _options.Time, delta => {
-                timer += delta;
-                var progress = Mathf.Clamp01(timer / _options.Time);
-
-                var xScale = _options.XScaleCurve.Evaluate(progress);
-                var moveFactor = _options.MoveCurve.Evaluate(progress);
-                var position = Vector2.Lerp(startPosition, targetPosition, moveFactor);
-
-                _transform.SetScale(new Vector2(xScale, 1f));
-                _transform.SetPosition(position);
-            });
+            return CardDropMotion.Play(
+                _updater,
+                lifetime,
+                _transform,
+                _renderer,
+                endPosition,
+                twistAngle,
+                stackIndex,
+                _options,
+                dropPosition);
         }
     }
 }

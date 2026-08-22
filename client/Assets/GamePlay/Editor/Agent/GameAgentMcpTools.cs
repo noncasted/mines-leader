@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -51,12 +52,20 @@ namespace GamePlay.Editor.Agent {
             };
         }
 
-        public static async Task<object> StartVsBot() {
+        public static async Task<object> StartVsBot(JObject parameters) {
             if (GameAgentBridge.IsActive)
                 return Status();
 
             if (EditorApplication.isPlaying == false)
                 return Error("Enter play mode with GameMock (mode LastManStandingTurnBased) and a running cluster");
+
+            AgentMatchFixture fixture = null;
+            try {
+                fixture = TryBuildFixture(parameters);
+            }
+            catch (ArgumentException exception) {
+                return Error(exception.Message);
+            }
 
             try {
                 using var cancel = new CancellationTokenSource(TimeSpan.FromSeconds(30));
@@ -66,7 +75,7 @@ namespace GamePlay.Editor.Agent {
                     if (matchmaking != null) {
                         var lifetime = new Internal.Lifetime();
                         var sessionData = await matchmaking
-                            .CreateGameWithBot(lifetime, GameMatchType.LastManStandingTurnBased)
+                            .CreateGameWithBot(lifetime, GameMatchType.LastManStandingTurnBased, fixture)
                             .AttachExternalCancellation(cancel.Token);
                         await LoadCreatedMatch(sessionData);
                     }
@@ -114,6 +123,75 @@ namespace GamePlay.Editor.Agent {
         public static string GetString(JObject parameters, string name) {
             var token = Token(parameters, name);
             return token?.Type == JTokenType.Null ? null : token?.ToString();
+        }
+
+        public static List<string> GetStringList(JObject parameters, string name) {
+            var token = Token(parameters, name);
+            if (token == null || token.Type == JTokenType.Null)
+                return null;
+
+            var list = new List<string>();
+            if (token is JArray array) {
+                foreach (var item in array)
+                    list.Add(item.ToString());
+                return list;
+            }
+
+            list.Add(token.ToString());
+            return list;
+        }
+
+        private static AgentMatchFixture TryBuildFixture(JObject parameters) {
+            var board = GetString(parameters, "board");
+            var hand = GetStringList(parameters, "hand");
+            var deck = GetStringList(parameters, "deck");
+            var botDeck = GetStringList(parameters, "bot_deck");
+            var bot = GetString(parameters, "bot");
+            var hasHumanGoesFirst = Token(parameters, "human_goes_first") != null;
+            var mana = GetNullableInt(parameters, "mana");
+            var moves = GetNullableInt(parameters, "moves");
+
+            if (board == null &&
+                hand == null &&
+                deck == null &&
+                botDeck == null &&
+                string.IsNullOrWhiteSpace(bot) &&
+                hasHumanGoesFirst == false &&
+                mana == null &&
+                moves == null)
+                return null;
+
+            var fixture = new AgentMatchFixture {
+                SelfBoardLayout = board ?? string.Empty,
+                HumanGoesFirst = GetBool(parameters, "human_goes_first", true),
+                Mana = mana,
+                Moves = moves
+            };
+
+            AddCardTypes(fixture.SelfHand, hand, "hand");
+            AddCardTypes(fixture.SelfDeck, deck, "deck");
+            AddCardTypes(fixture.BotDeck, botDeck, "bot_deck");
+
+            if (string.IsNullOrWhiteSpace(bot) == false) {
+                if (Enum.TryParse(bot, out BotProfile profile) == false)
+                    throw new ArgumentException($"Invalid bot profile {bot}. Use Easy, Medium, or Hard.");
+
+                fixture.BotProfile = profile;
+            }
+
+            return fixture;
+        }
+
+        private static void AddCardTypes(List<CardType> target, List<string> names, string field) {
+            if (names == null)
+                return;
+
+            foreach (var name in names) {
+                if (Enum.TryParse(name, out CardType type) == false)
+                    throw new ArgumentException($"Invalid {field} card type {name}");
+
+                target.Add(type);
+            }
         }
 
         private static async UniTask LoadCreatedMatch(SharedMatchmaking.MatchResult sessionData) {
@@ -181,8 +259,34 @@ namespace GamePlay.Editor.Agent {
 
     [McpForUnityTool("game_start_vs_bot", Description = "Start a LastManStandingTurnBased vs-bot match, or return current status if one is already running.")]
     public static class GameStartVsBotTool {
-        public static Task<object> HandleCommand(JObject _) {
-            return GameAgentMcpTools.StartVsBot();
+        public sealed class Parameters {
+            [ToolParameter("Board layout DSL, same alphabet as BoardParser.", Required = false)]
+            public string board { get; set; }
+
+            [ToolParameter("CardType names for the human hand, e.g. Bloodhound.", Required = false)]
+            public string[] hand { get; set; }
+
+            [ToolParameter("Human acts first. Used when any fixture field is set. Default true.", Required = false)]
+            public bool? human_goes_first { get; set; }
+
+            [ToolParameter("Override starting mana.", Required = false)]
+            public int? mana { get; set; }
+
+            [ToolParameter("Override starting moves.", Required = false)]
+            public int? moves { get; set; }
+
+            [ToolParameter("Bot difficulty: Easy, Medium, or Hard.", Required = false)]
+            public string bot { get; set; }
+
+            [ToolParameter("CardType names for the human draw pile.", Required = false)]
+            public string[] deck { get; set; }
+
+            [ToolParameter("CardType names for the bot draw pile.", Required = false)]
+            public string[] bot_deck { get; set; }
+        }
+
+        public static Task<object> HandleCommand(JObject parameters) {
+            return GameAgentMcpTools.StartVsBot(parameters);
         }
     }
 
@@ -289,11 +393,14 @@ namespace GamePlay.Editor.Agent {
         }
     }
 
-    [McpForUnityTool("game_use_card", Description = "Play a hand card by id.")]
+    [McpForUnityTool("game_use_card", Description = "Play a hand card by id or CardType name.")]
     public static class GameUseCardTool {
         public sealed class Parameters {
-            [ToolParameter("Hand card id.")]
+            [ToolParameter("Hand card id. Wins over type when both are set.", Required = false)]
             public string card_id { get; set; }
+
+            [ToolParameter("CardType name, e.g. Bloodhound. First matching hand card is used.", Required = false)]
+            public string type { get; set; }
 
             [ToolParameter("Target X, if the card needs a cell.", Required = false)]
             public int? x { get; set; }
@@ -309,9 +416,14 @@ namespace GamePlay.Editor.Agent {
         }
 
         public static Task<object> HandleCommand(JObject parameters) {
+            Guid? cardId = null;
             var cardIdText = GameAgentMcpTools.GetString(parameters, "card_id");
-            if (Guid.TryParse(cardIdText, out var cardId) == false)
-                return Task.FromResult<object>(GameAgentMcpTools.Error("Invalid card_id"));
+            if (string.IsNullOrWhiteSpace(cardIdText) == false) {
+                if (Guid.TryParse(cardIdText, out var parsedCard) == false)
+                    return Task.FromResult<object>(GameAgentMcpTools.Error("Invalid card_id"));
+
+                cardId = parsedCard;
+            }
 
             Guid? extraCardId = null;
             var extraText = GameAgentMcpTools.GetString(parameters, "extra_card_id");
@@ -324,10 +436,57 @@ namespace GamePlay.Editor.Agent {
 
             return GameAgentMcpTools.Run(GameAgentBridge.UseCard(
                 cardId,
+                GameAgentMcpTools.GetString(parameters, "type"),
                 GameAgentMcpTools.GetNullableInt(parameters, "x"),
                 GameAgentMcpTools.GetNullableInt(parameters, "y"),
                 extraCardId,
                 GameAgentMcpTools.GetNullableInt(parameters, "chosen_index")));
+        }
+    }
+
+    [McpForUnityTool("game_legal_plays", Description = "Ask the server which hand cards can be played and which cells they can target.")]
+    public static class GameLegalPlaysTool {
+        public static async Task<object> HandleCommand(JObject _) {
+            try {
+                return await GameAgentBridge.LegalPlays();
+            }
+            catch (Exception exception) {
+                return GameAgentMcpTools.Error(exception.Message);
+            }
+        }
+    }
+
+    [McpForUnityTool("game_inspect_cell", Description = "Read the live Unity cell view (state, flag, minesAround, animator). Does not hit the network.")]
+    public static class GameInspectCellTool {
+        public sealed class Parameters {
+            [ToolParameter("Board X coordinate.")]
+            public int x { get; set; }
+
+            [ToolParameter("Board Y coordinate.")]
+            public int y { get; set; }
+
+            [ToolParameter("Inspect the opponent board instead of self.", Required = false, DefaultValue = "false")]
+            public bool opponent { get; set; }
+        }
+
+        public static object HandleCommand(JObject parameters) {
+            return GameAgentBridge.InspectCell(
+                GameAgentMcpTools.GetInt(parameters, "x", 0),
+                GameAgentMcpTools.GetInt(parameters, "y", 0),
+                GameAgentMcpTools.GetBool(parameters, "opponent", false));
+        }
+    }
+
+    [McpForUnityTool("game_wait_visual", Description = "Wait until no own-board cell animation is playing.")]
+    public static class GameWaitVisualTool {
+        public sealed class Parameters {
+            [ToolParameter("Milliseconds to wait.", Required = false, DefaultValue = "5000")]
+            public int timeout_ms { get; set; }
+        }
+
+        public static Task<object> HandleCommand(JObject parameters) {
+            var timeoutMs = GameAgentMcpTools.GetInt(parameters, "timeout_ms", 5000);
+            return GameAgentMcpTools.Run(GameAgentBridge.WaitVisual(timeoutMs));
         }
     }
 

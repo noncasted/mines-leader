@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using GamePlay.Cards;
+using Internal;
 using Network;
 using Shared;
 
@@ -19,6 +20,12 @@ namespace GamePlay.Players
 
             builder.Register<PlayerModifiers>()
                    .As<IPlayerModifiers>();
+
+            builder.Register<Deck>()
+                   .As<IDeck>();
+
+            builder.Register<Stash>()
+                   .As<IStash>();
 
             return builder;
         }

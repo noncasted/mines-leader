@@ -58,6 +58,7 @@ GameFlow.Process()
 **GameRound** (`backend/Game/GamePlay/Context/Rounds/`):
 - `TimeLimitedRound` — round ends after time limit
 - `LastManStandingRound` — elimination round
+- `LastManStandingTurnBasedRound` — same LMS rules without a wall-clock timer (`GameMatchType.LastManStandingTurnBased = 31`). Client reuses `LastManStandingRound`. Used by agent play, not in the production menu.
 
 **RoundActionService** (`backend/Game/GamePlay/Context/RoundActionService.cs`):
 - Executes single player's turn actions
@@ -174,14 +175,16 @@ This ordering guarantees the client-side playback matches visual choreography: c
 
 `CardUseResult` carries only `EmptyResponse Result`. Cards that need an `ICardActionData` payload call `context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.X(...))` **inside** `Use()`. Cards must validate before any mutation — if they return `Fail`, the snapshot must remain empty of side-effects.
 
-**Reveal cards** (Bloodhound, ChaosDiamond, ChaosScout, ErosionDozer, Excavator, ZipZap, MinefieldScout, OpponentBomb) call `board.Revealer.Reveal(positions)` directly — the reveal is **not** recorded as `CellFree`/`MinesAround`, and the card does **not** call `snapshot.RecordMines(...)`. The opened cells travel to the client through two parallel fields on `CardActionSnapshot.X`: `OpenedCells` — strictly cells that became Free (including former mine tiles the card cleared), used by `CardActionSnapshotHandler.PlayActionAnimation` for `PlayCellAction`; `UpdatedFreeCells` — `OpenedCells` ∪ free neighbours whose `MinesAround` changed, used by `ICardActionSync` to call `cell.EnsureFree().OnMinesUpdated(opened.MinesAround)`. For cards without neighbour side-effects (OpponentBomb, MinefieldScout, Excavator, ChaosDiamond, ChaosScout) `UpdatedFreeCells = OpenedCells`. Only Bloodhound / ErosionDozer / ZipZap add `board.GetFreeNeighbours(...)` into `UpdatedFreeCells`. `SnapshotApplier.ApplyCardUseReveals` reads `data.UpdatedFreeCells ?? data.OpenedCells` (fallback for older snapshots) to mirror the write for diff-guard validation.
+**Reveal cards** (Bloodhound, ChaosDiamond, ChaosScout, ErosionDozer, Excavator, ZipZap, MinefieldScout, OpponentBomb) call `board.Revealer.Reveal(positions)` directly — the reveal is **not** recorded as `CellFree`/`MinesAround`, and the card does **not** call `snapshot.RecordMines(...)`. The opened cells travel to the client through two parallel fields on the concrete `CardActionSnapshot.X` (not on `ICardActionData`, which only has `TargetPlayer`): `OpenedCells` — cells that became Free (including former mine tiles the card cleared); `UpdatedFreeCells` — `OpenedCells` ∪ free neighbours whose `MinesAround` changed. Each `ICardActionSync` drives animations itself via `IBoardCellsAnimator` (`PlayTargetAnimation` / `PlayActionAnimation` / `OpenCells` / `FlagCell` / …). For cards without neighbour side-effects (OpponentBomb, MinefieldScout, Excavator, ChaosDiamond, ChaosScout) `UpdatedFreeCells = OpenedCells`. Only Bloodhound / ErosionDozer / ZipZap add `board.GetFreeNeighbours(...)` into `UpdatedFreeCells`. `SnapshotApplier.ApplyCardUseReveals` reads `UpdatedFreeCells` / `OpenedCells` by reflection on the concrete snapshot type.
 
 ### Card Lifecycle (Client)
 
 ```
 CardAddSnapshotHandler    → CardFactory.Create(lifetime, isLocal, cardId, type)
-CardActionSnapshotHandler → card.Use() → card.Drop.Enter()   # cleanup animation
+CardActionSnapshotHandler → card.Use() → ICardActionSync.Sync()  # animator + VFX, then Drop
 ```
+
+`CardActionSnapshotHandler` does **not** play cell animations. `ICardActionSync` owns the full sequence through injected `IBoardCellsAnimator` (`BoardCellsAnimator` in gameplay, `MenuBoardCellsAnimator` in menu preview).
 
 Client card classes:
 - `LocalCard` — own cards, drag+drop interaction
@@ -225,7 +228,7 @@ use this to choreograph animations (flash → explosion → cell open → mana r
 | `RecordExplosion(board, pos)` | Visual-only (no state change) |
 | `RecordEffectAdded/Removed(board, pos, ...)` | Cell effect add/remove |
 | `RecordManaUpdate(player)` / `RecordHealthUpdate` / `RecordMovesUpdate` | Resource change |
-| `RecordModifierUpdate(player, modifier, value)` | Modifier change — **required** when a modifier affects derived `Max` |
+| `RecordModifierUpdate(player, overview)` | Modifier source add/update/remove (`DurationalModifierOverview`) — **required** when a modifier affects derived `Max` |
 | `RecordCardAdd(playerId, cardId, type, isStash)` | Card lands in hand (default) or stash (`isStash: true`) |
 | `RecordCardRemove / RecordCardUse(...)` | Card leaves hand / card-use notification with `ICardActionData` |
 | `BeginInsertAt(index)` *(IDisposable)* | Redirects subsequent `Record*` calls to insert at `index` instead of appending — used by `CardUseCommand` to place CardRemove/Mana/Moves before the card's own records |
@@ -257,8 +260,8 @@ pointing directly at the card/command that forgot a `Record*` call.
 |---------|------------|
 | `BoardSnapshotHandler` | Cell state changes (revealed, flagged) |
 | `CardAddSnapshotHandler` | New card added to hand |
-| `CardActionSnapshotHandler` | Card used — applies effect, then Drop animation |
-| `PlayerModifierSnapshotHandler` | Modifier update (currently no-op, required for MemoryPack union dispatch) |
+| `CardActionSnapshotHandler` | Card used — `card.Use()` → `ICardActionSync` (animations + VFX), then Drop |
+| `PlayerModifierSnapshotHandler` | Applies `DurationalModifierOverview` into `PlayerModifiers.Overviews` |
 
 **CardActionSnapshotHandler** calls `card.Drop.Enter()` after effect — this is how card is removed visually.
 
@@ -463,7 +466,9 @@ BoardParser.AssertBoard(board, """
 | File | Purpose |
 |------|---------|
 | `backend/Game/GamePlay/Context/GameFlow.cs` | Match orchestrator |
-| `backend/Game/GamePlay/Context/RoundActionService.cs` | Turn execution |
+| `backend/Game/GamePlay/Context/RoundActionService.cs` | Turn execution + `IRoundAction.Tick()` |
+| `backend/Game/GamePlay/Context/Rounds/LastManStandingTurnBasedRound.cs` | LMS without timer (agent play) |
+| `backend/Game/GamePlay/Players/Modifiers.cs` | Modifier sources (`IModifierSource`) |
 | `backend/Game/GamePlay/Board/Board.cs` | Board state + events |
 | `backend/Game/GamePlay/Board/BoardRevealer.cs` | Flood-fill reveal algorithm |
 | `backend/Game/GamePlay/Cards/ICard.cs` | Card interface |
@@ -485,6 +490,8 @@ BoardParser.AssertBoard(board, """
 | `client/Assets/GamePlay/Boards/Root/Board.cs` | Client board representation |
 | `client/Assets/GamePlay/Boards/Cells/CellView.cs` | Cell visual component |
 | `client/Assets/GamePlay/Boards/Cells/CellAnimator.cs` | Cell reveal/flag animations |
+| `client/Assets/GamePlay/Boards/Cells/IBoardCellsAnimator.cs` | Card-driven cell animations (`PlayTargetAnimation` / `PlayActionAnimation`) |
+| `client/Assets/GamePlay/UI/Overlay/PlayerModifiersView.cs` | Active modifier icons + tooltips |
 | `client/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs` | Creates card visuals |
 | `client/Assets/GamePlay/Cards/Entities/View/CardView.cs` | Card visual component |
 | `client/Assets/GamePlay/Sync/BoardSnapshotHandler.cs` | Syncs board state |

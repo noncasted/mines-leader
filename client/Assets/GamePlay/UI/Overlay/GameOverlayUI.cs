@@ -1,6 +1,7 @@
 using GamePlay.Services;
 using Global.UI;
 using Internal;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using Object = UnityEngine.Object;
@@ -46,6 +47,7 @@ namespace GamePlay.UI
             gameObject.SetActive(true);
         }
 
+        [Button]
         private void OnValidate()
         {
             if (_canvas.worldCamera != null)

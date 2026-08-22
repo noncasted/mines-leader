@@ -9,19 +9,19 @@ namespace GamePlay.Cards
 
     public class CardStateLifetime : ICardStateLifetime
     {
-        public CardStateLifetime(ICard card)
+        public CardStateLifetime(IReadOnlyLifetime lifetime)
         {
-            _card = card;
+            _lifetime = lifetime;
         }
 
-        private readonly ICard _card;
+        private readonly IReadOnlyLifetime _lifetime;
 
         private ILifetime _current;
 
         public ILifetime OccupyLifetime()
         {
             _current?.Terminate();
-            _current = _card.Lifetime.Child();
+            _current = _lifetime.Child();
             return _current;
         }
     }

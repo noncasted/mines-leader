@@ -8,6 +8,7 @@ public interface IDeck
     int Count { get; }
 
     void Init(int size);
+    void Replace(IReadOnlyList<CardType> cards);
     void AddCard(CardType card);
     void InsertTop(CardType card);
     void RemoveCard(CardType card);
@@ -48,6 +49,14 @@ public class Deck : IDeck
 
         foreach (var card in cards)
             AddCard(card);
+    }
+
+    public void Replace(IReadOnlyList<CardType> cards)
+    {
+        _queue.Clear();
+
+        foreach (var card in cards)
+            _queue.Add(card);
     }
 
     public void AddCard(CardType card)

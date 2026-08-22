@@ -1,0 +1,7 @@
+{
+  "bot": "Easy",
+  "human_goes_first": true,
+  "hand": ["Bloodhound", "Sonar"],
+  "deck": ["Bloodhound", "Sonar", "MinefieldScout", "Excavator", "Medic", "Shield"],
+  "bot_deck": ["Dud", "Dud", "Medic"]
+}

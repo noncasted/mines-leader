@@ -143,7 +143,7 @@ public abstract class BotProfileBase : IBotProfileStrategy
     {
         if (BotTurnTiming.IsTurnBased(_matchOptions.Type))
         {
-            var delay = _config.Value.CurrentProfileConfig.ActionDelay;
+            var delay = MatchBotProfile.ResolveConfig(_matchOptions, _config).ActionDelay;
             if (delay <= 0f)
                 delay = 0.3f;
 

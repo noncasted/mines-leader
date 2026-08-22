@@ -1,0 +1,7 @@
+{
+  "bot": "Hard",
+  "human_goes_first": true,
+  "hand": ["Trebuchet", "OpponentBomb"],
+  "deck": ["Trebuchet", "OpponentBomb", "Smoke", "ChainReaction", "Medic"],
+  "bot_deck": ["Bloodhound", "Shield", "Medic", "Sonar"]
+}

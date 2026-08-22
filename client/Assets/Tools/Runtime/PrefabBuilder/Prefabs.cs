@@ -2,7 +2,7 @@
 
 namespace Tools
 {
-    public static class Prefabs
+    public static partial class Prefabs
     {
         public static readonly StaticPrefab GlobalAudioListener = new("Global/Global_Audio_Listener");
         public static readonly StaticPrefab GlobalAudioPlayer = new("Global/Global_Audio_Player");

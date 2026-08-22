@@ -70,6 +70,7 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
             var id = _sessionFactory.CreateMatchWithBot(request.BotId, new MatchCreateOptions
             {
                 Type = request.Type,
+                Fixture = request.Fixture?.ToShared(),
             });
 
             return Task.FromResult(new MatchPayloads.Match.Response

@@ -118,6 +118,21 @@ public void OnSetup(IReadOnlyLifetime lifetime) {
 }
 ```
 
+## Loading Sprite Groups
+
+Art under `Assets/Art` is generated into `Sprites.{Group}.{Name}`. Getters throw if the group is not loaded. The only load path is the scope builder:
+
+```csharp
+builder.LoadSpriteGroup(Sprites.Cards);
+builder.LoadSpriteGroup(Sprites.GameCells);
+```
+
+`LoadSpriteGroup` retains on `AddBeforeBuild` and releases on `AddBeforeDispose`. Do not call `Addressables.LoadAssetAsync` or `group.Retain()` from gameplay code. `EnsureLoaded()` never loads.
+
+→ `client/Assets/Tools/Runtime/SpriteBuilder/SpriteBuilderExtensions.cs`
+
+---
+
 ## VContainer Flow
 
 ```csharp

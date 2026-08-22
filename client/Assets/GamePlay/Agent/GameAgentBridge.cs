@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using Internal;
@@ -108,8 +109,18 @@ namespace GamePlay.Agent {
                 () => new SharedGameAction.RemoveFlag { Position = new Position(x, y) });
         }
 
-        public static async UniTask<SharedAgentObservation> UseCard(
+        public static UniTask<SharedAgentObservation> UseCard(
             Guid cardId,
+            int? x,
+            int? y,
+            Guid? extraCardId,
+            int? chosenIndex) {
+            return UseCard(cardId, typeName: null, x, y, extraCardId, chosenIndex);
+        }
+
+        public static async UniTask<SharedAgentObservation> UseCard(
+            Guid? cardId,
+            string typeName,
             int? x,
             int? y,
             Guid? extraCardId,
@@ -120,7 +131,15 @@ namespace GamePlay.Agent {
             if (ShouldRefuseOffTurn())
                 return ErrorObservation("Not your turn");
 
-            if (TryGetCardType(cardId, out var type) == false)
+            if (cardId.HasValue == false || cardId.Value == Guid.Empty) {
+                var resolved = ResolveCardIdByType(typeName);
+                if (resolved.HasError)
+                    return resolved.Error;
+
+                cardId = resolved.CardId;
+            }
+
+            if (TryGetCardType(cardId.Value, out var type) == false)
                 return ErrorObservation("Card not found");
 
             Position? position = null;
@@ -142,9 +161,72 @@ namespace GamePlay.Agent {
             return await SendAction(
                 refuseOffTurn: false,
                 () => new SharedGameAction.CardUse {
-                    CardId = cardId,
+                    CardId = cardId.Value,
                     Payload = payload
                 });
+        }
+
+        public static async UniTask<SharedAgentLegalPlaysResponse> LegalPlays() {
+            if (IsActive == false || _connection == null) {
+                return new SharedAgentLegalPlaysResponse {
+                    Cards = new List<AgentLegalCardView>()
+                };
+            }
+
+            try {
+                return await _connection.Request<SharedAgentLegalPlaysResponse>(
+                    new SharedAgentLegalPlaysRequest());
+            }
+            catch (Exception exception) {
+                Debug.LogError($"[GameAgent] Legal plays failed: {exception}");
+                return new SharedAgentLegalPlaysResponse {
+                    Cards = new List<AgentLegalCardView>()
+                };
+            }
+        }
+
+        public static CellInspect InspectCell(int x, int y, bool opponent) {
+            var missing = new CellInspect {
+                X = x,
+                Y = y,
+                Exists = false,
+                State = string.Empty,
+                Effects = new List<string>()
+            };
+
+            if (IsActive == false || _gameContext == null)
+                return missing;
+
+            var player = opponent ? _gameContext.Other : _gameContext.Self;
+            if (player?.Board == null)
+                return missing;
+
+            if (player.Board.Cells.TryGetValue(new Vector2Int(x, y), out var cell) == false)
+                return missing;
+
+            if (cell is CellView view)
+                return view.Inspect();
+
+            return missing;
+        }
+
+        public static async UniTask<SharedAgentObservation> WaitVisual(int timeoutMs) {
+            if (timeoutMs <= 0)
+                timeoutMs = 5000;
+
+            if (IsActive == false)
+                return ErrorObservation("Agent bridge is not active");
+
+            var deadline = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+
+            while (DateTime.UtcNow < deadline) {
+                if (AnyOwnCellAnimating() == false)
+                    return LastObservation ?? new SharedAgentObservation();
+
+                await UniTask.Delay(50);
+            }
+
+            return ErrorObservation("Timed out waiting for visuals");
         }
 
         public static async UniTask<SharedAgentObservation> EndTurn(int timeoutMs) {
@@ -264,6 +346,49 @@ namespace GamePlay.Agent {
                 return true;
 
             return _gameState != null && _gameState.Value.Value == GameStateType.Completed;
+        }
+
+        private static (bool HasError, SharedAgentObservation Error, Guid CardId) ResolveCardIdByType(string typeName) {
+            if (string.IsNullOrWhiteSpace(typeName))
+                return (true, ErrorObservation("card_id or type required"), Guid.Empty);
+
+            if (Enum.TryParse(typeName, out CardType parsed) == false)
+                return (true, ErrorObservation("Invalid type"), Guid.Empty);
+
+            var hand = _gameContext?.Self?.Hand;
+            if (hand != null) {
+                foreach (ICard card in hand.Entries) {
+                    if (card.Type != parsed)
+                        continue;
+
+                    return (false, null, card.Id);
+                }
+            }
+
+            var cards = LastObservation?.Self?.Hand;
+            if (cards != null) {
+                foreach (var card in cards) {
+                    if (string.Equals(card.Type, parsed.ToString(), StringComparison.Ordinal) == false)
+                        continue;
+
+                    return (false, null, card.Id);
+                }
+            }
+
+            return (true, ErrorObservation("Card type not in hand"), Guid.Empty);
+        }
+
+        private static bool AnyOwnCellAnimating() {
+            var board = _gameContext?.Self?.Board;
+            if (board?.Cells == null)
+                return false;
+
+            foreach (var cell in board.Cells.Values) {
+                if (cell is CellView view && view.IsAnimating)
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool TryGetCardType(Guid cardId, out CardType type) {

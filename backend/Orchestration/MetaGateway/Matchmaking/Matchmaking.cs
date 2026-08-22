@@ -30,7 +30,7 @@ public interface IMatchmaking
     Task SearchMatch(Guid userId, GameMatchType type);
     Task CancelMatchSearch(Guid userId);
     Task Create(Guid userId, GameMatchType type);
-    Task CreateWithBot(Guid userId, GameMatchType type);
+    Task CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null);
     MatchmakingStatsDto GetStats();
 }
 
@@ -133,11 +133,11 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         return _matchFactory.Create(new[] { userId }, type);
     }
 
-    public Task CreateWithBot(Guid userId, GameMatchType type)
+    public Task CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null)
     {
         _logger.LogInformation("[Matchmaking] {UserID} is creating a match with bot", userId);
 
-        return _matchFactory.CreateWithBot(userId, type);
+        return _matchFactory.CreateWithBot(userId, type, fixture);
     }
 
     public MatchmakingStatsDto GetStats()

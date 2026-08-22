@@ -11,8 +11,13 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardLocalStates(this IEntityBuilder builder)
         {
             builder.Register<CardLocalDrop>()
-                   .WithAsset<CardDropOptions>()
+                   .WithAsset<CardLocalDropOptions>()
                    .As<ICardLocalDrop>();
+
+            builder.Register<CardLocalStash>()
+                   .WithAsset<CardLocalStashOptions>()
+                   .As<ICardLocalStash>()
+                   .As<ICardStash>();
 
             builder.Register<CardLocalIdle>()
                    .WithAsset<CardIdleOptions>()
@@ -33,8 +38,13 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardRemoteStates(this IEntityBuilder builder)
         {
             builder.Register<CardRemoteDrop>()
-                   .WithAsset<CardDropOptions>()
+                   .WithAsset<CardRemoteDropOptions>()
                    .As<ICardRemoteDrop>();
+
+            builder.Register<CardRemoteStash>()
+                   .WithAsset<CardRemoteStashOptions>()
+                   .As<ICardRemoteStash>()
+                   .As<ICardStash>();
 
             builder.Register<CardRemoteIdle>()
                    .WithAsset<CardRemoteIdleOptions>()

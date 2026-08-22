@@ -26,7 +26,7 @@ public class EasyBotProfile : BotProfileBase
     public override async Task ExecuteTurn(IReadOnlyLifetime lifetime)
     {
         var bot = _botContext.Bot;
-        var profileConfig = _config.Value.CurrentProfileConfig;
+        var profileConfig = MatchBotProfile.ResolveConfig(_matchOptions, _config);
 
         var roundTime = profileConfig.MinRoundTime +
                         (float)Random.Shared.NextDouble() * (profileConfig.MaxRoundTime - profileConfig.MinRoundTime);

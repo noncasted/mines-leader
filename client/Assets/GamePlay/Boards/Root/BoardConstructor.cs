@@ -1,6 +1,8 @@
 using Sirenix.OdinInspector;
+using Tools;
 using UnityEngine;
 #if UNITY_EDITOR
+using System;
 using UnityEditor;
 #endif
 
@@ -9,7 +11,6 @@ namespace GamePlay.Boards
     [DisallowMultipleComponent]
     public class BoardConstructor : MonoBehaviour
     {
-        [SerializeField] private CellView _cellPrefab;
         [SerializeField] private Board _board;
 
         [SerializeField] private Vector2Int _size;
@@ -31,7 +32,7 @@ namespace GamePlay.Boards
             {
                 for (var y = 0; y < _size.y; y++)
                 {
-                    var cell = Instantiate(_cellPrefab, transform);
+                    var cell = Instantiate(Prefabs.GamePlay.Cell, transform);
                     var position = new Vector2Int(x, y);
 
                     cell.transform.localPosition = GetLocalPosition(position, origin);
@@ -80,13 +81,14 @@ namespace GamePlay.Boards
         {
             Clear();
 
+            var cellPrefab = LoadEditorCellPrefab();
             var origin = GetOrigin();
 
             for (var x = 0; x < _size.x; x++)
             {
                 for (var y = 0; y < _size.y; y++)
                 {
-                    var cell = (CellView)PrefabUtility.InstantiatePrefab(_cellPrefab, transform);
+                    var cell = (CellView)PrefabUtility.InstantiatePrefab(cellPrefab, transform);
                     var position = new Vector2Int(x, y);
 
                     cell.transform.localPosition = GetLocalPosition(position, origin);
@@ -94,6 +96,20 @@ namespace GamePlay.Boards
                     cell.Construct(position, _board);
                 }
             }
+        }
+
+        private static CellView LoadEditorCellPrefab()
+        {
+            if (Prefabs.GamePlay.IsLoaded)
+                return Prefabs.GamePlay.Cell;
+
+            var asset = AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(
+                "Assets/Tools/Runtime/PrefabCatalog/Groups/GamePlay.asset");
+            if (asset == null)
+                throw new InvalidOperationException(
+                    "GamePlay prefab group asset is missing. Run Tools/GeneratePrefabsCatalog.");
+
+            return asset.Get<CellView>("Cell");
         }
 
         [Button("Clear")]

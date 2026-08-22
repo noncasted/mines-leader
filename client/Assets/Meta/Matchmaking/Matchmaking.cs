@@ -10,7 +10,10 @@ namespace Meta
         UniTask CancelSearch(IReadOnlyLifetime lifetime);
         UniTask<SharedMatchmaking.LobbyResult> SearchLobby(IReadOnlyLifetime lifetime);
         UniTask<SharedMatchmaking.MatchResult> CreateGame(IReadOnlyLifetime lifetime);
-        UniTask<SharedMatchmaking.MatchResult> CreateGameWithBot(IReadOnlyLifetime lifetime, GameMatchType type);
+        UniTask<SharedMatchmaking.MatchResult> CreateGameWithBot(
+            IReadOnlyLifetime lifetime,
+            GameMatchType type,
+            AgentMatchFixture fixture = null);
     }
 
     public class Matchmaking : IMatchmaking
@@ -52,10 +55,11 @@ namespace Meta
 
         public async UniTask<SharedMatchmaking.MatchResult> CreateGameWithBot(
             IReadOnlyLifetime lifetime,
-            GameMatchType type)
+            GameMatchType type,
+            AgentMatchFixture fixture = null)
         {
             var resultAwait = _gameResultProjection.WaitOnce(lifetime);
-            await _backend.CreateGameWithBot(type);
+            await _backend.CreateGameWithBot(type, fixture);
             var result = await resultAwait;
             return result;
         }

@@ -22,7 +22,8 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         IBotConfig botConfig,
         ILogger<LastManStandingTurnBasedRound> logger,
         ISessionLogger sessionLogger,
-        IAgentObservationPublisher observationPublisher) : base("game-round")
+        IAgentObservationPublisher observationPublisher,
+        MatchCreateOptions matchOptions) : base("game-round")
     {
         _gameContext = gameContext;
         _readyAwaiter = readyAwaiter;
@@ -37,6 +38,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         _logger = logger;
         _sessionLogger = sessionLogger;
         _observationPublisher = observationPublisher;
+        _matchOptions = matchOptions;
     }
 
     private Guid _currentPlayerId;
@@ -55,6 +57,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
     private readonly ILogger<LastManStandingTurnBasedRound> _logger;
     private readonly ISessionLogger _sessionLogger;
     private readonly IAgentObservationPublisher _observationPublisher;
+    private readonly MatchCreateOptions _matchOptions;
 
     private readonly ViewableProperty<IPlayer> _currentPlayer = new(null!);
 
@@ -95,8 +98,19 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
             player.Moves.SetMax(snapshot, GetMovesMax(player));
         }
 
+        if (_matchOptions.Fixture != null)
+            AgentMatchFixtureApplier.ApplyDecks(_gameContext, _matchOptions.Fixture, snapshot);
+
         foreach (var player in players)
+        {
+            if (AgentMatchFixtureApplier.ShouldSkipRestore(player, _matchOptions.Fixture))
+                continue;
+
             _players.RestoreCards(player, snapshot);
+        }
+
+        if (_matchOptions.Fixture != null)
+            AgentMatchFixtureApplier.Apply(_gameContext, _matchOptions.Fixture, snapshot);
 
         snapshot.RecordGameStarted(ModeOptions.CardMovesCost);
         snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, secondsLeft: 0);
@@ -116,10 +130,9 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
 
         await _playersReadyAwaiter.Await(playersReadyLifetime);
 
-        var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
-
-        if (botPlayer != null)
-            _currentPlayer.Set(botPlayer);
+        var previousPlayer = ResolvePreviousPlayer(players);
+        if (previousPlayer != null)
+            _currentPlayer.Set(previousPlayer);
 
         var roundsCount = 0;
 
@@ -306,6 +319,22 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
     }
 
     /// <summary>
+    /// The turn loop plays <c>First(p != current)</c>, so this sets the previous player.
+    /// Fixture-null and HumanGoesFirst keep the bot as previous (human acts first).
+    /// HumanGoesFirst=false sets the human as previous (bot acts first).
+    /// </summary>
+    private IPlayer? ResolvePreviousPlayer(IReadOnlyList<IPlayer> players)
+    {
+        var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
+        var humanPlayer = players.FirstOrDefault(p => p.User.IsBot == false);
+
+        if (_matchOptions.Fixture != null && _matchOptions.Fixture.HumanGoesFirst == false)
+            return humanPlayer;
+
+        return botPlayer;
+    }
+
+    /// <summary>
     /// Бот может ходить чаще человека: скорость вскрытия поля упирается в ходы,
     /// и это единственная честная ручка сложности, не меняющая правила для игрока.
     /// </summary>
@@ -314,7 +343,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         if (player.User.IsBot == false)
             return ModeOptions.PlayerMoves;
 
-        var botMoves = _botConfig.Value.CurrentProfileConfig.MovesPerRound;
+        var botMoves = MatchBotProfile.ResolveConfig(_matchOptions, _botConfig).MovesPerRound;
 
         return botMoves > 0 ? botMoves : ModeOptions.PlayerMoves;
     }

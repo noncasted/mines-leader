@@ -40,6 +40,13 @@ namespace Shared
             return payload;
         }
 
+        public static ICardUsePayload CreateDefault(CardType type)
+        {
+            var payload = CreatePayload(type);
+            payload.Type = type;
+            return payload;
+        }
+
         private static ICardUsePayload CreatePayload(CardType type)
         {
             return type switch

@@ -28,6 +28,7 @@ namespace Shared
         public partial class CreateWithBot : INetworkContext
         {
             public GameMatchType Type { get; set; }
+            public AgentMatchFixture Fixture { get; set; }
         }
 
         [MemoryPackable]

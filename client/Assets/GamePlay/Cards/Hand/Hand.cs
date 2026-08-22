@@ -8,6 +8,7 @@ namespace GamePlay.Cards
         IViewableList<ICard> Entries { get; }
 
         void Add(ICard card);
+        void Remove(ICard card);
     }
 
     public class Hand : IHand
@@ -29,6 +30,11 @@ namespace GamePlay.Cards
             Positions.AddCard(entryLifetime, card);
 
             card.Lifetime.Listen(() => _entries.Remove(card));
+        }
+
+        public void Remove(ICard card)
+        {
+            _entries.Remove(card);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Meta.Matches;
 public interface IMatchFactory
 {
     Task Create(IReadOnlyList<Guid> participants, GameMatchType type);
-    Task CreateWithBot(Guid participant, GameMatchType type);
+    Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null);
 }
 
 public class MatchFactory : IMatchFactory
@@ -65,7 +65,7 @@ public class MatchFactory : IMatchFactory
             await _messaging.SendOneTimeProjection(participant, result);
     }
 
-    public async Task CreateWithBot(Guid participant, GameMatchType type)
+    public async Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null)
     {
         var botId = GetRandomBotId();
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
@@ -76,7 +76,8 @@ public class MatchFactory : IMatchFactory
         var request = new MatchPayloads.Match.RequestWithBot
         {
             Type = type,
-            BotId = botId
+            BotId = botId,
+            Fixture = MatchPayloads.Match.FixturePayload.From(fixture)
         };
 
         var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());

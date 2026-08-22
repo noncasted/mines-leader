@@ -17,6 +17,26 @@ namespace GamePlay.Boards
         private ForwardSpriteAnimation _zipZapExplosion;
         private ForwardSpriteAnimation _cellOpen;
 
+        public bool IsPlaying =>
+            PlayingKind != null;
+
+        public string PlayingKind
+        {
+            get
+            {
+                if (_mineExplosion != null && _mineExplosion.IsPlaying)
+                    return "explosion";
+
+                if (_zipZapExplosion != null && _zipZapExplosion.IsPlaying)
+                    return "explosion";
+
+                if (_cellOpen != null && _cellOpen.IsPlaying)
+                    return "open";
+
+                return null;
+            }
+        }
+
         public void Construct(IUpdater updater)
         {
             _mineExplosion = Create(Sprites.GameCells.GameCellsExplosionNormal);

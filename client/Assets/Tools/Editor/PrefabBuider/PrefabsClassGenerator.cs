@@ -18,7 +18,7 @@ namespace Tools
 			sb.AppendLine();
             sb.AppendLine("namespace Tools");
             sb.AppendLine("{");
-            sb.AppendLine("    public static class Prefabs");
+            sb.AppendLine("    public static partial class Prefabs");
             sb.AppendLine("    {");
 
             foreach (var (_, prefabName, prefabPath) in prefabs.OrderBy(p => p.prefabName))

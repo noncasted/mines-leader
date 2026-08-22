@@ -16,18 +16,21 @@ public class BotCellAction : IBotCellAction
         IBotConfig config,
         IBotCommandUtils commandUtils,
         IBotContext context,
-        ISessionLogger sessionLogger)
+        ISessionLogger sessionLogger,
+        MatchCreateOptions matchOptions)
     {
         _config = config;
         _commandUtils = commandUtils;
         _context = context;
         _sessionLogger = sessionLogger;
+        _matchOptions = matchOptions;
     }
 
     private readonly IBotConfig _config;
     private readonly IBotCommandUtils _commandUtils;
     private readonly IBotContext _context;
     private readonly ISessionLogger _sessionLogger;
+    private readonly MatchCreateOptions _matchOptions;
 
     private readonly record struct OpenPlan(IReadOnlyList<Position> Seeds, int Gain, string Reason);
 
@@ -69,7 +72,7 @@ public class BotCellAction : IBotCellAction
         if (plan != null)
             return Open(plan.Value);
 
-        if (_config.Value.CurrentProfile == BotProfile.Hard &&
+        if (MatchBotProfile.Resolve(_matchOptions, _config) == BotProfile.Hard &&
             TryProbabilisticSafeCell(out var target, out var reason))
         {
             return Open(new OpenPlan([target], 1, reason));
@@ -119,7 +122,7 @@ public class BotCellAction : IBotCellAction
 
     private int GetConstraintDepth()
     {
-        return _config.Value.CurrentProfile == BotProfile.Easy ? 1 : 2;
+        return MatchBotProfile.Resolve(_matchOptions, _config) == BotProfile.Easy ? 1 : 2;
     }
 
     /// <summary>
