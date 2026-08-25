@@ -67,6 +67,16 @@ namespace GamePlay.Cards
                     await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
                 }
 
+                if (payload.ExplodedCells is { Count: > 0 })
+                {
+                    var explosions = new List<UniTask>(payload.ExplodedCells.Count);
+
+                    foreach (var position in payload.ExplodedCells)
+                        explosions.Add(_animator.ExplodeCell(payload.TargetPlayer, position, CellExplosionType.Mine));
+
+                    await UniTask.WhenAll(explosions);
+                }
+
                 await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
         }

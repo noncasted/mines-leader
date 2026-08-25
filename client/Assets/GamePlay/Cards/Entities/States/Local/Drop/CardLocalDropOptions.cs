@@ -10,7 +10,7 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time;
 
-        [SerializeField] [Sirenix.OdinInspector.MinMaxSlider(0f, 720f)]
+        [SerializeField] [Sirenix.OdinInspector.MinMaxSlider(300, 400)]
         private Vector2 _twistAngleRange = new(350f, 370f);
 
         [SerializeField] [CurveRange] private AnimationCurve _moveCurve;

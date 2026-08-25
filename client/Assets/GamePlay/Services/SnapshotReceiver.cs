@@ -17,6 +17,7 @@ namespace GamePlay.Services
     {
         private readonly Dictionary<Type, Func<IMoveSnapshotRecord, UniTask>> _handlers = new();
         private readonly Queue<IMoveSnapshotRecord> _queue = new();
+        private Guid _roundPlayerId;
 
         public void Add(Type type, Func<IMoveSnapshotRecord, UniTask> handler)
         {
@@ -38,9 +39,22 @@ namespace GamePlay.Services
                     continue;
                 }
 
-                if (record is TimeLimitedRoundRecord ||
-                    record is LastManStandingRoundRecord ||
-                    record is PlayerSnapshotRecord.MovesUpdate)
+                if (record is TimeLimitedRoundRecord timeLimited)
+                {
+                    DispatchRound(record, timeLimited.CurrentPlayer);
+                    continue;
+                }
+
+                if (record is LastManStandingRoundRecord lastManStanding)
+                {
+                    DispatchRound(record, lastManStanding.CurrentPlayer);
+                    continue;
+                }
+
+                // Keep the move counter live, but delay turn locks until card
+                // drop visuals have finished so remote cards can pile up.
+                if (record is PlayerSnapshotRecord.MovesUpdate moves &&
+                    moves.IsAvailable == true)
                 {
                     HandleRecordImmediately(record);
                     continue;
@@ -50,12 +64,25 @@ namespace GamePlay.Services
             }
         }
 
+        private void DispatchRound(IMoveSnapshotRecord record, Guid currentPlayer)
+        {
+            if (currentPlayer == _roundPlayerId)
+            {
+                HandleRecordImmediately(record);
+                return;
+            }
+
+            // Player switches wait for drop/stash visuals so the pile is not reset mid-turn.
+            _queue.Enqueue(record);
+        }
+
         private void HandleRecordImmediately(IMoveSnapshotRecord record)
         {
             if (_handlers.TryGetValue(record.GetType(), out var handler) == false)
                 return;
 
             handler.Invoke(record);
+            RememberRoundPlayer(record);
         }
 
         private void ProcessBoardSnapshot(SharedBoardSnapshot boardSnapshot)
@@ -115,12 +142,26 @@ namespace GamePlay.Services
                             throw new ArgumentException($"No handler found for record type {type.Name}.");
 
                         await handler.Invoke(record);
+                        RememberRoundPlayer(record);
                     }
                 }
                 catch (Exception e)
                 {
                     Debug.LogError($"Exception occurred while processing move snapshot records: {e}");
                 }
+            }
+        }
+
+        private void RememberRoundPlayer(IMoveSnapshotRecord record)
+        {
+            switch (record)
+            {
+                case TimeLimitedRoundRecord timeLimited:
+                    _roundPlayerId = timeLimited.CurrentPlayer;
+                    break;
+                case LastManStandingRoundRecord lastManStanding:
+                    _roundPlayerId = lastManStanding.CurrentPlayer;
+                    break;
             }
         }
     }

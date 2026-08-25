@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: CardBuffs
+  m_EditorClassIdentifier: Tools.Runtime::Tools.SpriteGroupAsset
+  _entries:
+  - Name: Adrenaline
+    Kind: 0
+    Sprites:
+    - {fileID: 1365659317472750495, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: BloodPact
+    Kind: 0
+    Sprites:
+    - {fileID: 7149180949090911545, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: CoinToss
+    Kind: 0
+    Sprites:
+    - {fileID: 1154114719188978909, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: DoubleOrNothing
+    Kind: 0
+    Sprites:
+    - {fileID: -5684028749931059428, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Embargo
+    Kind: 0
+    Sprites:
+    - {fileID: 3970035582453811547, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Focus
+    Kind: 0
+    Sprites:
+    - {fileID: 5411315005484030243, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GamblersRuin
+    Kind: 0
+    Sprites:
+    - {fileID: 1716273413914827193, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Lockdown
+    Kind: 0
+    Sprites:
+    - {fileID: 1130560317105568598, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaFountain
+    Kind: 0
+    Sprites:
+    - {fileID: 841729468022369744, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: ManaSurge
+    Kind: 0
+    Sprites:
+    - {fileID: -4019818103788464989, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Overclock
+    Kind: 0
+    Sprites:
+    - {fileID: -9110993043387037193, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: PowerSurge
+    Kind: 0
+    Sprites:
+    - {fileID: 8128135623590527435, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: SoulLink
+    Kind: 0
+    Sprites:
+    - {fileID: -1821062947675746259, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}

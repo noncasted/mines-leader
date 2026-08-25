@@ -111,30 +111,35 @@ public static class SnapshotApplier
 
     private static void ApplyCardUseReveals(GameStateSnapshot state, PlayerSnapshotRecord.CardUse cardUse)
     {
-        var data = cardUse.Data;
+        ApplyOpenedCells(state, cardUse.Data);
+    }
 
+    private static void ApplyOpenedCells(GameStateSnapshot state, ICardActionData? data)
+    {
         if (data == null)
             return;
 
         var openedCells = GetOpenedCells(data);
 
-        if (openedCells == null || openedCells.Count == 0)
-            return;
-
-        if (state.Boards.TryGetValue(data.TargetPlayer, out var board) == false)
-            return;
-
-        foreach (var opened in openedCells)
+        if (openedCells != null &&
+            openedCells.Count > 0 &&
+            state.Boards.TryGetValue(data.TargetPlayer, out var board) == true)
         {
-            var hasMine = board.Cells.TryGetValue(opened.Position, out var existing) == true && existing.HasMine;
-
-            board.Cells[opened.Position] = new CellStateSnapshot
+            foreach (var opened in openedCells)
             {
-                Status = CellStatus.Free,
-                MinesAround = opened.MinesAround,
-                HasMine = hasMine
-            };
+                var hasMine = board.Cells.TryGetValue(opened.Position, out var existing) == true && existing.HasMine;
+
+                board.Cells[opened.Position] = new CellStateSnapshot
+                {
+                    Status = CellStatus.Free,
+                    MinesAround = opened.MinesAround,
+                    HasMine = hasMine
+                };
+            }
         }
+
+        if (data is CardActionSnapshot.MirrorMatch { CopiedAction: { } copied })
+            ApplyOpenedCells(state, copied);
     }
 
     private static IReadOnlyList<OpenedCell>? GetOpenedCells(ICardActionData data)

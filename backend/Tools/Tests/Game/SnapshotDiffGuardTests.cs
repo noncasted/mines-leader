@@ -210,6 +210,43 @@ public class SnapshotApplierTests
     }
 
     [Fact]
+    public void Apply_MirrorMatchCopiedAction_OpensNestedCells()
+    {
+        var playerId = Guid.NewGuid();
+        var pre = CreateBaseState(playerId);
+        var opened = new Position(0, 0);
+
+        var records = ToRecords(new PlayerSnapshotRecord.CardUse
+        {
+            PlayerId = playerId,
+            CardId = Guid.NewGuid(),
+            Data = new CardActionSnapshot.MirrorMatch
+            {
+                TargetPlayer = playerId,
+                CopiedCard = CardType.Bloodhound,
+                CopiedAction = new CardActionSnapshot.Bloodhound
+                {
+                    TargetPlayer = playerId,
+                    TargetCells = new List<Position> { opened },
+                    OpenedCells = new List<OpenedCell>
+                    {
+                        new() { Position = opened, MinesAround = 1 }
+                    },
+                    UpdatedFreeCells = new List<OpenedCell>
+                    {
+                        new() { Position = opened, MinesAround = 1 }
+                    }
+                }
+            }
+        });
+
+        var post = SnapshotApplier.Apply(pre, records);
+
+        post.Boards[playerId].Cells[opened].Status.Should().Be(CellStatus.Free);
+        post.Boards[playerId].Cells[opened].MinesAround.Should().Be(1);
+    }
+
+    [Fact]
     public void Apply_CellTaken_ResetsCellState()
     {
         var playerId = Guid.NewGuid();

@@ -8,6 +8,12 @@ namespace GamePlay.Cards
         {
             builder.Register<CardFactory>();
 
+            builder.RegisterAsset<ZipZapOptions>();
+            builder.AddAllCardActionSyncs();
+            builder.Register<CardActionSyncDispatcher>()
+                   .As<ICardActionSyncDispatcher>()
+                   .As<IScopeSetup>();
+
             return builder;
         }
     }

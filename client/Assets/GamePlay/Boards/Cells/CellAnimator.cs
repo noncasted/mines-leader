@@ -55,6 +55,7 @@ namespace GamePlay.Boards
 
         public async UniTask PlayExplosion(IReadOnlyLifetime lifetime, CellExplosionType type)
         {
+            Debug.Log("Explode");
             ForwardSpriteAnimation anim = type switch
             {
                 CellExplosionType.ZipZap => _zipZapExplosion,

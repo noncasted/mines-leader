@@ -64,14 +64,12 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
             TargetPlayer = board.OwnerId,
             TargetCells = new List<Position> { cell.Position },
             OpenedCells = openedCells,
-            UpdatedFreeCells = openedCells
+            UpdatedFreeCells = openedCells,
+            ExplodedCells = hadMine ? new List<Position> { cell.Position } : new List<Position>()
         });
 
         if (hadMine == true)
-        {
-            snapshot.RecordExplosion(board, cell.Position);
             opponent.Health.TakeDamage(snapshot, 1);
-        }
 
         return new CardUseResult
         {

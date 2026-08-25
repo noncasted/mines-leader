@@ -44,7 +44,6 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
             if (taken.HasMine == false)
                 continue;
 
-            snapshot.RecordExplosion(board, taken.Position);
             taken.Explode();
             taken.ToFree();
             minePositions.Add(taken.Position);
@@ -74,7 +73,8 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
             TargetPlayer = board.OwnerId,
             TargetCells = targetPositions,
             OpenedCells = openedCells,
-            UpdatedFreeCells = updatedFreeCells
+            UpdatedFreeCells = updatedFreeCells,
+            ExplodedCells = minePositions
         });
 
         return new CardUseResult

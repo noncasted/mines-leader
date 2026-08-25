@@ -52,7 +52,7 @@ namespace GamePlay.Cards
 
                 transform.SetPosition(position);
                 transform.SetRotation(rotation);
-                transform.SetScale(startScale * scaleFactor);
+                transform.SetScale(Vector2.one * scaleFactor);
             });
         }
 

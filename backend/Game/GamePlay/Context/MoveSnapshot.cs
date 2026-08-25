@@ -37,6 +37,22 @@ public class MoveSnapshot
         });
     }
 
+    public ICardActionData? TakeCardUseFrom(int startIndex)
+    {
+        ICardActionData? data = null;
+
+        for (var i = _records.Count - 1; i >= startIndex; i--)
+        {
+            if (_records[i] is not PlayerSnapshotRecord.CardUse cardUse)
+                continue;
+
+            data = cardUse.Data;
+            _records.RemoveAt(i);
+        }
+
+        return data;
+    }
+
     public void RecordCardAdd(Guid playerId, Guid cardId, CardType type, bool isStash = false)
     {
         Append(new PlayerSnapshotRecord.CardAdd()
