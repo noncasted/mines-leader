@@ -88,6 +88,7 @@ namespace Shared
             public IReadOnlyList<Position> TargetCells { get; set; }
             public IReadOnlyList<OpenedCell> OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell> UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position> ExplodedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -97,6 +98,7 @@ namespace Shared
             public IReadOnlyList<Position> TargetCells { get; set; }
             public IReadOnlyList<OpenedCell> OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell> UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position> ExplodedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -127,6 +129,7 @@ namespace Shared
             public IReadOnlyList<Position> TargetCells { get; set; }
             public IReadOnlyList<OpenedCell> OpenedCells { get; set; }
             public IReadOnlyList<OpenedCell> UpdatedFreeCells { get; set; }
+            public IReadOnlyList<Position> ExplodedCells { get; set; }
         }
 
         [MemoryPackable]
@@ -470,6 +473,7 @@ namespace Shared
         {
             public Guid TargetPlayer { get; set; }
             public CardType CopiedCard { get; set; }
+            public ICardActionData? CopiedAction { get; set; }
         }
 
         [MemoryPackable]

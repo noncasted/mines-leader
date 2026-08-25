@@ -42,10 +42,11 @@ namespace Menu.Common
             builder.Register<MenuBoardCellsAnimator>()
                    .As<IBoardCellsAnimator>();
 
-            builder.Register<MenuCardActionSyncRegistry>()
+            builder.Register<CardActionSyncDispatcher>()
+                   .As<ICardActionSyncDispatcher>()
                    .As<IScopeSetup>();
 
-            builder.AddMenuCardActionSyncs();
+            builder.AddAllCardActionSyncs();
 
             return builder;
         }

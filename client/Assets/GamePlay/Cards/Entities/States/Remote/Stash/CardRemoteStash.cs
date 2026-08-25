@@ -36,11 +36,12 @@ namespace GamePlay.Cards
 
         public async UniTask Enter(IReadOnlyLifetime lifetime)
         {
-            var stateLifetime = _stateLifetime.OccupyLifetime();
             await _player.Turns.IsTurn.WaitFalse(lifetime);
 
-            if (stateLifetime.IsTerminated == true)
+            if (lifetime.IsTerminated == true)
                 return;
+
+            var stateLifetime = _stateLifetime.OccupyLifetime();
 
             await CardStashMotion.Play(
                 _updater,

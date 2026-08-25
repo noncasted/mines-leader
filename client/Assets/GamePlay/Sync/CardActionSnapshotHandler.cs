@@ -14,14 +14,17 @@ namespace GamePlay
     {
         public CardActionSnapshotHandler(
             IReadOnlyLifetime lifetime,
-            IGameContext gameContext)
+            IGameContext gameContext,
+            ICardActionSyncDispatcher actionSyncDispatcher)
         {
             _lifetime = lifetime;
             _gameContext = gameContext;
+            _actionSyncDispatcher = actionSyncDispatcher;
         }
 
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
+        private readonly ICardActionSyncDispatcher _actionSyncDispatcher;
 
         public async UniTask Handle(PlayerSnapshotRecord.CardUse record)
         {
@@ -49,6 +52,11 @@ namespace GamePlay
             }
 
             await card.Use(_lifetime, record.Data);
+
+            if (record.Data is CardActionSnapshot.MirrorMatch mirrorMatch &&
+                mirrorMatch.CopiedAction != null)
+                await _actionSyncDispatcher.Dispatch(_lifetime, mirrorMatch.CopiedAction);
+
             StashThenDestroy(card).NoAwait();
         }
 

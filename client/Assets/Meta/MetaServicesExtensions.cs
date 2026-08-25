@@ -10,6 +10,7 @@ namespace Meta
         public static IScopeBuilder AddMetaServices(this IScopeBuilder builder)
         {
             builder.LoadSpriteGroup(Sprites.CardsIcons);
+            builder.LoadSpriteGroup(Sprites.CardBuffs);
             
             builder.Register<MetaLoop>()
                    .As<IScopeBaseSetupAsync>();

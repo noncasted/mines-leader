@@ -50,9 +50,9 @@ namespace GamePlay.Players.Resource
                 smallAdditionalFull: Sprites.GameUI.HealthMediumAdditionalFull,
                 smallAdditionalEmpty: Sprites.GameUI.HealthMediumAdditionalEmpty);
 
-            _manaRow.Setup(lifetime, player.Mana, manaOptions);
-            _turnsRow.Setup(lifetime, player.Turns, turnsOptions);
-            _healthRow.Setup(lifetime, player.Health, healthOptions);
+            _manaRow.Setup(lifetime, player.Mana, manaOptions, reverse: false);
+            _turnsRow.Setup(lifetime, player.Turns, turnsOptions, reverse: false);
+            _healthRow.Setup(lifetime, player.Health, healthOptions, reverse: false);
         }
     }
 }

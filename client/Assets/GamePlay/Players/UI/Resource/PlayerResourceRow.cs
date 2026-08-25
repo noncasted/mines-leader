@@ -10,26 +10,35 @@ namespace GamePlay.Players.Resource
         [SerializeField] private PlayerResourceEntry[] _upperSmall;
         [SerializeField] private PlayerResourceEntry[] _bottomSmall;
 
-        public void Setup(IReadOnlyLifetime lifetime, IPlayerResource resource, PlayerResourceOptions options)
+        public void Setup(
+            IReadOnlyLifetime lifetime,
+            IPlayerResource resource,
+            PlayerResourceOptions options,
+            bool reverse)
         {
-            resource.Current.View(lifetime, _ => Recalculate(resource, options));
-            resource.BaseMax.View(lifetime, _ => Recalculate(resource, options));
-            resource.ResultMax.View(lifetime, _ => Recalculate(resource, options));
+            resource.Current.View(lifetime, _ => Recalculate(resource, options, reverse));
+            resource.BaseMax.View(lifetime, _ => Recalculate(resource, options, reverse));
+            resource.ResultMax.View(lifetime, _ => Recalculate(resource, options, reverse));
         }
 
-        private void Recalculate(IPlayerResource resource, PlayerResourceOptions options)
+        private void Recalculate(IPlayerResource resource, PlayerResourceOptions options, bool reverse)
         {
             var current = resource.Current.Value;
             var baseMax = resource.BaseMax.Value;
             var resultMax = resource.ResultMax.Value;
 
             if (resultMax > _large.Length)
-                ApplySmall(current, baseMax, resultMax, options);
+                ApplySmall(current, baseMax, resultMax, options, reverse);
             else
-                ApplyLarge(current, baseMax, resultMax, options);
+                ApplyLarge(current, baseMax, resultMax, options, reverse);
         }
 
-        private void ApplyLarge(int current, int baseMax, int resultMax, PlayerResourceOptions options)
+        private void ApplyLarge(
+            int current,
+            int baseMax,
+            int resultMax,
+            PlayerResourceOptions options,
+            bool reverse)
         {
             HideAll(_upperSmall);
             HideAll(_bottomSmall);
@@ -45,9 +54,10 @@ namespace GamePlay.Players.Resource
                 {
                     entry.gameObject.SetActive(true);
 
-                    var isBase = i >= additional;
+                    var slot = SlotIndex(i, resultMax, reverse);
+                    var isBase = slot >= additional;
 
-                    if (i < spent)
+                    if (slot < spent)
                         entry.SetEmpty(options, true, isBase);
                     else
                         entry.SetFull(options, true, isBase);
@@ -55,12 +65,16 @@ namespace GamePlay.Players.Resource
                 else
                 {
                     entry.gameObject.SetActive(false);
-
                 }
             }
         }
 
-        private void ApplySmall(int current, int baseMax, int resultMax, PlayerResourceOptions options)
+        private void ApplySmall(
+            int current,
+            int baseMax,
+            int resultMax,
+            PlayerResourceOptions options,
+            bool reverse)
         {
             HideAll(_large);
             HideAll(_upperSmall);
@@ -80,13 +94,22 @@ namespace GamePlay.Players.Resource
                 var entry = row[index];
                 entry.gameObject.SetActive(true);
 
-                var isBase = i >= additional;
+                var slot = SlotIndex(i, resultMax, reverse);
+                var isBase = slot >= additional;
 
-                if (i < spent)
+                if (slot < spent)
                     entry.SetEmpty(options, false, isBase);
                 else
                     entry.SetFull(options, false, isBase);
             }
+        }
+
+        private static int SlotIndex(int i, int resultMax, bool reverse)
+        {
+            if (reverse == true)
+                return resultMax - 1 - i;
+
+            return i;
         }
 
         private static void HideAll(PlayerResourceEntry[] entries)

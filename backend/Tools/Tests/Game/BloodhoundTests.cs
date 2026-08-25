@@ -145,7 +145,7 @@ public class BloodhoundTests : PlayerCardTestsBase
     }
 
     [Fact]
-    public void Use_MineInPattern_RecordsExplosion()
+    public void Use_MineInPattern_RecordsExplodedCellsOnCardSnapshot()
     {
         var (board, target) = BoardParser.Parse("""
                                                 t t t t t t t
@@ -160,14 +160,15 @@ public class BloodhoundTests : PlayerCardTestsBase
         var card = new Bloodhound(MockConfigs());
         var (_, moveSnapshot) = card.UseCapture(invoker, new CardUsePayload.Bloodhound { Position = target });
 
-        var explosions = moveSnapshot.Collect().Records
-                                     .OfType<SharedBoardSnapshot>()
-                                     .SelectMany(b => b.Records)
-                                     .OfType<BoardSnapshotRecord.Explosion>()
-                                     .ToList();
+        var snapshot = moveSnapshot.GetLastCardAction<CardActionSnapshot.Bloodhound>();
+        snapshot.Should().NotBeNull();
+        snapshot!.ExplodedCells.Should().ContainSingle().Which.Should().Be(new Position(4, 3));
 
-        explosions.Should().ContainSingle();
-        explosions[0].Position.Should().Be(new Position(4, 3));
+        moveSnapshot.Collect().Records
+                    .OfType<SharedBoardSnapshot>()
+                    .SelectMany(b => b.Records)
+                    .OfType<BoardSnapshotRecord.Explosion>()
+                    .Should().BeEmpty();
     }
 
     [Fact]

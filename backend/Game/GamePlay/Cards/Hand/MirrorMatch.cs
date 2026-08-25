@@ -31,13 +31,30 @@ public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
             };
         }
 
+        if (lastCard.Value == CardType.MirrorMatch)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("Cannot copy Mirror Match")
+            };
+        }
+
         var copiedType = lastCard.Value;
+        var prefix = context.Snapshot.Count;
         var copiedUse = _serviceProvider.Use(context, lastPayload);
+
+        if (copiedUse.Result.HasError == true)
+            return copiedUse;
+
+        // Inner card records CardUse against this card id. Fold it into MirrorMatch so the
+        // client receives one CardUse whose payload type matches the card in hand.
+        var copiedAction = context.Snapshot.TakeCardUseFrom(prefix);
 
         context.Snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.MirrorMatch()
         {
             TargetPlayer = invoker.User.Id,
-            CopiedCard = copiedType
+            CopiedCard = copiedType,
+            CopiedAction = copiedAction
         });
 
         return new CardUseResult

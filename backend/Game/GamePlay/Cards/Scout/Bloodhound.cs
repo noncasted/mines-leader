@@ -42,7 +42,6 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
             if (cell.HasMine == false)
                 continue;
 
-            snapshot.RecordExplosion(board, cell.Position);
             cell.Explode();
             cell.ToFree();
             minePositions.Add(cell.Position);
@@ -72,7 +71,8 @@ public class Bloodhound : ICard<CardUsePayload.Bloodhound>
             TargetPlayer = board.OwnerId,
             TargetCells = targetPositions,
             OpenedCells = openedCells,
-            UpdatedFreeCells = updatedFreeCells
+            UpdatedFreeCells = updatedFreeCells,
+            ExplodedCells = minePositions
         });
 
         return new CardUseResult

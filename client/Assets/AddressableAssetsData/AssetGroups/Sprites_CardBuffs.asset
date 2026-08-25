@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites_CardBuffs
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Sprites_CardBuffs
+  m_GUID: 5e8bcc4603b4636b09df3bb29ba2aa4c
+  m_SerializeEntries:
+  - m_GUID: 9524432527fa4f11ebe0752c18a910d1
+    m_Address: 9524432527fa4f11ebe0752c18a910d1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 6bfcfc9688ce507a69a1a8c94a6d2cbf, type: 2}
+    - {fileID: 11400000, guid: 34ce292e57aa68785a585838547a6f1b, type: 2}
+    m_SchemaDisplayOrder:
+    - Sprites_CardBuffs_BundledAssetGroupSchema
+    - Sprites_CardBuffs_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

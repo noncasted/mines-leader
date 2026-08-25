@@ -1,24 +1,24 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using GamePlay.Cards;
 using Internal;
 using Shared;
 
-namespace Menu.Decks
+namespace GamePlay.Cards
 {
-    /// <summary>
-    /// Dispatches <see cref="ICardActionData"/> to the matching <see cref="ICardActionSync"/> resolver
-    /// registered in menu scope. Reuses the exact gameplay action sync classes (so ZipZap lightning,
-    /// Smoke fog, Blackout overlay etc. render the same way as during a real match).
-    ///
-    /// The resolver is the nested <c>Resolver&lt;TImpl, TData&gt;</c> inside
-    /// <see cref="CardActionExtensions"/>. We inspect its generic argument at setup time to build
-    /// <c>payload-type -&gt; sync</c> map, so dispatch is a single dictionary lookup.
-    /// </summary>
-    public sealed class MenuCardActionSyncRegistry : IScopeSetup
+    public interface ICardActionSyncDispatcher
     {
-        public MenuCardActionSyncRegistry(IReadOnlyList<ICardActionSync> resolvers)
+        UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data);
+    }
+
+    /// <summary>
+    /// Maps <see cref="ICardActionData"/> runtime types to the matching
+    /// <see cref="ICardActionSync"/> resolver. Used for menu previews and for
+    /// nested copied actions (MirrorMatch).
+    /// </summary>
+    public sealed class CardActionSyncDispatcher : ICardActionSyncDispatcher, IScopeSetup
+    {
+        public CardActionSyncDispatcher(IReadOnlyList<ICardActionSync> resolvers)
         {
             _resolvers = resolvers;
         }
@@ -41,16 +41,16 @@ namespace Menu.Decks
 
         public async UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data)
         {
-            if (_byPayload.TryGetValue(data.GetType(), out var sync) == false)
-                return;
+            if (_byPayload.TryGetValue(data.GetType(), out var sync) == true)
+                await sync.Sync(lifetime, data);
 
-            await sync.Sync(lifetime, data);
+            if (data is CardActionSnapshot.MirrorMatch mirrorMatch &&
+                mirrorMatch.CopiedAction != null)
+                await Dispatch(lifetime, mirrorMatch.CopiedAction);
         }
 
         private static Type ExtractPayloadType(ICardActionSync sync)
         {
-            // Resolvers registered via AddCardActionSyncResolver<TImpl, TData> are the nested
-            // CardActionExtensions.Resolver<,> — TData (second generic arg) is the payload type.
             var type = sync.GetType();
 
             if (type.IsGenericType == false)

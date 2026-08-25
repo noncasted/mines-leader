@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GamePlay.Cards;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -37,12 +38,12 @@ namespace Menu.Decks
         public MenuCardPreviewPlayer(
             IMenuBoard menuBoard,
             IMenuCardPreviewCache cache,
-            MenuCardActionSyncRegistry syncRegistry,
+            ICardActionSyncDispatcher syncDispatcher,
             MenuPreviewVfxFactory vfxFactory)
         {
             _menuBoard = menuBoard;
             _cache = cache;
-            _syncRegistry = syncRegistry;
+            _syncDispatcher = syncDispatcher;
             _vfxFactory = vfxFactory;
         }
 
@@ -51,7 +52,7 @@ namespace Menu.Decks
 
         private readonly IMenuBoard _menuBoard;
         private readonly IMenuCardPreviewCache _cache;
-        private readonly MenuCardActionSyncRegistry _syncRegistry;
+        private readonly ICardActionSyncDispatcher _syncDispatcher;
         private readonly MenuPreviewVfxFactory _vfxFactory;
 
         public RenderTexture PreviewTexture => _menuBoard?.PreviewTexture;
@@ -87,7 +88,7 @@ namespace Menu.Decks
                     if (lifetime.IsTerminated == true)
                         return;
 
-                    await _syncRegistry.Dispatch(lifetime, action);
+                    await _syncDispatcher.Dispatch(lifetime, action);
 
                     if (lifetime.IsTerminated == true)
                         return;

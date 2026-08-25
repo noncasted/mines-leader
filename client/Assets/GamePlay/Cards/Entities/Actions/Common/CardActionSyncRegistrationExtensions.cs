@@ -1,12 +1,11 @@
-using GamePlay.Cards;
 using Internal;
 using Shared;
 
-namespace Menu.Decks
+namespace GamePlay.Cards
 {
-    public static class MenuCardActionSyncExtensions
+    public static class CardActionSyncRegistrationExtensions
     {
-        public static void AddMenuCardActionSyncs(this IBuilder builder)
+        public static void AddAllCardActionSyncs(this IBuilder builder)
         {
             builder.AddCardActionSyncResolver<CardTrebuchetAction.Snapshot, CardActionSnapshot.Trebuchet>();
             builder.AddCardActionSyncResolver<CardBloodhoundAction.Snapshot, CardActionSnapshot.Bloodhound>();
