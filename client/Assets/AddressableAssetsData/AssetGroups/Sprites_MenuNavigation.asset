@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites_MenuNavigation
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Sprites_MenuNavigation
+  m_GUID: 68e1909e7c16cbdb1b9630cf4d945068
+  m_SerializeEntries:
+  - m_GUID: e374f2dc9c0a48e4c85c521ef7e1b124
+    m_Address: e374f2dc9c0a48e4c85c521ef7e1b124
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: caf40d6a88bf93f1387d4d74e6f76240, type: 2}
+    - {fileID: 11400000, guid: 1a85bd9012bdddd5289e69ae3c2e9aca, type: 2}
+    m_SchemaDisplayOrder:
+    - Sprites_MenuNavigation_BundledAssetGroupSchema
+    - Sprites_MenuNavigation_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

@@ -4,6 +4,7 @@ using Global.UI;
 using Internal;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace Global.Settings
 {
@@ -13,12 +14,11 @@ namespace Global.Settings
         Cancel
     }
 
-    public interface ISettingsView
+    public interface ISettingsView : IUIState
     {
-        UniTask<SettingsViewResult> Show(SettingsSave data, Action pushCallback);
     }
 
-    public class SettingsView : MonoBehaviour, ISettingsView
+    public class SettingsView : MonoBehaviour, ISettingsView, IUIStateAsyncEnterHandler
     {
         [SerializeField] private DesignButton _applyButton;
         [SerializeField] private DesignButton _cancelButton;
@@ -31,49 +31,67 @@ namespace Global.Settings
 
         [SerializeField] private DesignGroupSelection _vsyncSelection;
 
-        private void Awake()
+        private ISettings _settings;
+
+        public IUIConstraints Constraints { get; } = UIConstraints.Game;
+
+        [Inject]
+        internal void Construct(ISettings settings)
         {
-            gameObject.SetActive(false);
+            _settings = settings;
         }
 
-        public async UniTask<SettingsViewResult> Show(SettingsSave data, Action pushCallback)
+        public async UniTask OnEntered(IUIStateHandle handle)
         {
-            gameObject.SetActive(true);
+            handle.AttachGameObject(gameObject);
 
-            var lifetime = this.GetObjectLifetime();
+            var lifetime = handle.InnerLifetime;
+            var saveCopy = _settings.Copy();
 
-            _masterVolumeSlider.value = data.MasterVolume;
-            _soundsVolumeSlider.value = data.SoundsVolume;
-            _musicVolumeSlider.value = data.MusicVolume;
+            _masterVolumeSlider.value = saveCopy.MasterVolume;
+            _soundsVolumeSlider.value = saveCopy.SoundsVolume;
+            _musicVolumeSlider.value = saveCopy.MusicVolume;
 
-            _shakeIntensitySlider.value = data.ShakeIntensity;
-            _vsyncSelection.Set(data.VSync ? SelectionGroupValue.On : SelectionGroupValue.Off);
+            _shakeIntensitySlider.value = saveCopy.ShakeIntensity;
+            _vsyncSelection.Set(saveCopy.VSync ? SelectionGroupValue.On : SelectionGroupValue.Off);
 
-            var completionSource = new UniTaskCompletionSource<SettingsViewResult>();
+            var completion = new UniTaskCompletionSource<SettingsViewResult>();
 
-            _applyButton.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Apply));
-            _cancelButton.ListenClick(lifetime, () => completionSource.TrySetResult(SettingsViewResult.Cancel));
+            lifetime.Listen(() => completion.TrySetResult(SettingsViewResult.Cancel));
+
+            _applyButton.ListenClick(lifetime, () => completion.TrySetResult(SettingsViewResult.Apply));
+            _cancelButton.ListenClick(lifetime, () => completion.TrySetResult(SettingsViewResult.Cancel));
 
             _masterVolumeSlider.onValueChanged.Listen(lifetime, Push);
             _soundsVolumeSlider.onValueChanged.Listen(lifetime, Push);
             _musicVolumeSlider.onValueChanged.Listen(lifetime, Push);
 
-            _shakeIntensitySlider.onValueChanged.Listen(lifetime, value => data.ShakeIntensity = value);
-            _vsyncSelection.Value.Advise(lifetime, value => data.VSync = value == SelectionGroupValue.On);
+            _shakeIntensitySlider.onValueChanged.Listen(lifetime, value => saveCopy.ShakeIntensity = value);
+            _vsyncSelection.Value.Advise(lifetime, value => saveCopy.VSync = value == SelectionGroupValue.On);
 
-            var result = await completionSource.Task;
+            var result = await completion.Task;
 
-            gameObject.SetActive(false);
+            switch (result)
+            {
+                case SettingsViewResult.Apply:
+                    await _settings.Apply(saveCopy);
+                    break;
+                case SettingsViewResult.Cancel:
+                    _settings.Revert();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-            return result;
+            return;
 
             void Push()
             {
-                data.MasterVolume = _masterVolumeSlider.value;
-                data.SoundsVolume = _soundsVolumeSlider.value;
-                data.MusicVolume = _musicVolumeSlider.value;
+                saveCopy.MasterVolume = _masterVolumeSlider.value;
+                saveCopy.SoundsVolume = _soundsVolumeSlider.value;
+                saveCopy.MusicVolume = _musicVolumeSlider.value;
 
-                pushCallback?.Invoke();
+                _settings.Push(saveCopy);
             }
         }
     }

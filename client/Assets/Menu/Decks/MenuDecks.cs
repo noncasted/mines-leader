@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Global.Systems;
 using Global.UI;
 using Internal;
 using Meta;
@@ -21,8 +20,6 @@ namespace Menu.Decks
     [DisallowMultipleComponent]
     public class MenuDecks : MonoBehaviour, IMenuDecks, IScopeSetup, ISceneService, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private DesignButton _backButton;
-
         [SerializeField] private MenuDeckCard _deckPrefab;
         [SerializeField] private MenuDeckPoolSpot _poolPrefab;
         [SerializeField] private MenuDeckIndexButton _indexPrefab;
@@ -268,7 +265,6 @@ namespace Menu.Decks
         {
             handle.AttachGameObject(gameObject);
             ResizePoolRoot();
-            await _backButton.WaitClick(handle);
             _deckService.SendUpdate().Forget();
         }
 

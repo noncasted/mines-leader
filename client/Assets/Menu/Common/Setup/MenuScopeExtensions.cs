@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using Internal;
-using Menu.Social;
 using Network;
 using Tools;
 
@@ -28,8 +27,7 @@ namespace Menu.Common
             {
                 builder
                     .AddMenuLoop()
-                    .AddSessionServices()
-                    .AddMenuSocial();
+                    .AddSessionServices();
 
                 return UniTask.WhenAll(builder.AddScene());
             }
@@ -50,13 +48,11 @@ namespace Menu.Common
 
             return scope;
 
-
             UniTask Construct(IScopeBuilder builder)
             {
                 builder
                     .AddMenuLoop()
-                    .AddSessionServices()
-                    .AddMenuSocial();
+                    .AddSessionServices();
 
                 return UniTask.WhenAll(builder.AddScene());
             }

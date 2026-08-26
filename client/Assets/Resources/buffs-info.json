@@ -1,0 +1,69 @@
+{
+  "buffs": [
+    {
+      "type": "Adrenaline",
+      "name": "Adrenaline",
+      "description": "Дополнительные ходы от Адреналина. Действует 1 ход."
+    },
+    {
+      "type": "Overclock",
+      "name": "Overclock",
+      "description": "Дополнительные ходы от Разгона. Действует 1 ход."
+    },
+    {
+      "type": "CoinToss",
+      "name": "Coin Toss",
+      "description": "Дополнительные ходы от Орла и Решки. Действует 1 ход."
+    },
+    {
+      "type": "Focus",
+      "name": "Focus",
+      "description": "Скидка на следующую карту от Фокуса. Действует 1 ход."
+    },
+    {
+      "type": "PowerSurge",
+      "name": "Power Surge",
+      "description": "Скидка на все карты от Энерговсплеска. Действует 1 ход."
+    },
+    {
+      "type": "ManaSurge",
+      "name": "Mana Surge",
+      "description": "Дополнительная мана от Прилива маны. Действует 1 ход."
+    },
+    {
+      "type": "ManaFountain",
+      "name": "Mana Fountain",
+      "description": "Дополнительная мана от Фонтана маны. Действует 1 ход."
+    },
+    {
+      "type": "BloodPact",
+      "name": "Blood Pact",
+      "description": "Мана и ходы от Кровавого договора. Действует 1 ход."
+    },
+    {
+      "type": "DoubleOrNothing",
+      "name": "Double or Nothing",
+      "description": "Дополнительная мана от Всё или ничего. Действует 1 ход."
+    },
+    {
+      "type": "GamblersRuin",
+      "name": "Gambler's Ruin",
+      "description": "Дополнительная мана от Пагубной страсти. Действует 1 ход."
+    },
+    {
+      "type": "Embargo",
+      "name": "Embargo",
+      "description": "Штраф к стоимости карт от Эмбарго. Действует 1 ход."
+    },
+    {
+      "type": "Lockdown",
+      "name": "Lockdown",
+      "description": "Снижение ходов от Блокировки."
+    },
+    {
+      "type": "SoulLink",
+      "name": "Soul Link",
+      "description": "Связь душ. Урон от мин отражается на противнике."
+    }
+  ]
+}

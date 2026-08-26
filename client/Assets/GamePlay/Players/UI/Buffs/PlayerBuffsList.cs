@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using GamePlay.Services;
-using GamePlay.UI;
 using Internal;
 using Meta;
 using Shared;
@@ -16,17 +15,15 @@ namespace GamePlay.Players.Buffs
             RectTransform container,
             PlayerBuffView viewPrefab,
             PlayerBuffInfo info,
-            ICardsRegistry cards,
+            IModifiersRegistry modifiers,
             IGameInput input,
-            ModifierDescriptionsConfig descriptions,
             bool showOnRight)
         {
             _container = container;
             _viewPrefab = viewPrefab;
             _info = info;
-            _cards = cards;
+            _modifiers = modifiers;
             _input = input;
-            _descriptions = descriptions;
             _showOnRight = showOnRight;
 
             HidePlaceholders();
@@ -35,9 +32,8 @@ namespace GamePlay.Players.Buffs
         private readonly RectTransform _container;
         private readonly PlayerBuffView _viewPrefab;
         private readonly PlayerBuffInfo _info;
-        private readonly ICardsRegistry _cards;
+        private readonly IModifiersRegistry _modifiers;
         private readonly IGameInput _input;
-        private readonly ModifierDescriptionsConfig _descriptions;
         private readonly bool _showOnRight;
         private readonly Dictionary<Guid, PlayerBuffView> _views = new();
 
@@ -53,8 +49,9 @@ namespace GamePlay.Players.Buffs
                     return;
                 }
 
+                _modifiers.TryGet(overview.Key, out var definition);
                 var view = Object.Instantiate(_viewPrefab, _container);
-                view.Setup(overview, _cards.GetModifierSprite(overview.Type));
+                view.Setup(overview, definition?.Image);
                 _views[overview.SourceId] = view;
 
                 view.PointerHandler.IsHovered.View(itemLifetime, hovered =>
@@ -80,7 +77,7 @@ namespace GamePlay.Players.Buffs
         private void ShowInfo(DurationalModifierOverview overview)
         {
             _hoveredId = overview.SourceId;
-            _info.Show(GetDescription(overview));
+            _info.Show(GetDescription(overview.Key));
             _info.Follow(_input.Screen, _showOnRight);
         }
 
@@ -90,12 +87,12 @@ namespace GamePlay.Players.Buffs
             _info.Hide();
         }
 
-        private string GetDescription(DurationalModifierOverview overview)
+        private string GetDescription(string key)
         {
-            if (_descriptions == null)
-                return overview.Key;
+            if (_modifiers.TryGet(key, out var definition) == false)
+                return key;
 
-            return _descriptions.GetDescription(overview.Key);
+            return definition.Description;
         }
 
         private void HidePlaceholders()

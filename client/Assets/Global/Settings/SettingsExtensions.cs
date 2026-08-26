@@ -1,4 +1,5 @@
 using Internal;
+using UnityEngine;
 
 namespace Global.Settings
 {
@@ -12,6 +13,7 @@ namespace Global.Settings
                    .As<IScopeSetupAsync>();
 
             var view = builder.Instantiate(builder.GetAsset<SettingsOptions>().ViewPrefab);
+            view.gameObject.SetActive(false);
 
             builder.RegisterComponent(view)
                    .As<ISettingsView>();

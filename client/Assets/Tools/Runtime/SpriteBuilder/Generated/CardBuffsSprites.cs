@@ -21,6 +21,7 @@ namespace Tools {
         private Sprite _overclock;
         private Sprite _powerSurge;
         private Sprite _soulLink;
+        private Sprite _trebuchetAimer;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
 
         public Sprite Adrenaline {
@@ -75,6 +76,10 @@ namespace Tools {
             get { EnsureLoaded(); return _soulLink; }
         }
 
+        public Sprite TrebuchetAimer {
+            get { EnsureLoaded(); return _trebuchetAimer; }
+        }
+
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
@@ -91,6 +96,7 @@ namespace Tools {
             _overclock = asset.GetSheet("Overclock");
             _powerSurge = asset.GetSheet("PowerSurge");
             _soulLink = asset.GetSheet("SoulLink");
+            _trebuchetAimer = asset.GetSheet("TrebuchetAimer");
         }
 
         protected override void UnloadGroup() {
@@ -107,6 +113,7 @@ namespace Tools {
             _overclock = null;
             _powerSurge = null;
             _soulLink = null;
+            _trebuchetAimer = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }

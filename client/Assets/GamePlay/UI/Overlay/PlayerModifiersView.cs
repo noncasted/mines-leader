@@ -4,6 +4,7 @@ using System.Linq;
 using GamePlay.Loop;
 using GamePlay.Players;
 using Internal;
+using Meta;
 using Shared;
 using UnityEngine;
 using VContainer;
@@ -15,20 +16,21 @@ namespace GamePlay.UI
     public class PlayerModifiersView : MonoBehaviour, ISceneService, IScopeSetup
     {
         [SerializeField] private Transform _container;
-        [SerializeField] private ModifierDescriptionsConfig _descriptionsConfig;
         [SerializeField] private PlayerModifierTooltipView _tooltipPrefab;
         [SerializeField] private PlayerModifierEntryView _entryPrefab;
         [SerializeField] private Vector2 _tooltipOffset;
 
         private IGameContext _gameContext;
+        private IModifiersRegistry _modifiers;
         private readonly Dictionary<Guid, EntryData> _entries = new();
         private PlayerModifierTooltipView _tooltip;
         private bool _isSubscribed;
 
         [Inject]
-        internal void Construct(IGameContext gameContext)
+        internal void Construct(IGameContext gameContext, IModifiersRegistry modifiers)
         {
             _gameContext = gameContext;
+            _modifiers = modifiers;
         }
 
         public void Create(IScopeBuilder builder)
@@ -102,7 +104,7 @@ namespace GamePlay.UI
             if (_tooltip == null)
                 _tooltip = Instantiate(_tooltipPrefab, _container.parent);
 
-            var description = _descriptionsConfig.GetDescription(key);
+            var description = GetDescription(key);
             var position = entry.transform.position;
             position.x += _tooltipOffset.x;
             position.y += _tooltipOffset.y;
@@ -117,7 +119,18 @@ namespace GamePlay.UI
 
         private Sprite GetIconForKey(string key)
         {
-            return _descriptionsConfig?.GetIcon(key);
+            if (_modifiers.TryGet(key, out var definition) == false)
+                return null;
+
+            return definition.Image;
+        }
+
+        private string GetDescription(string key)
+        {
+            if (_modifiers.TryGet(key, out var definition) == false)
+                return key;
+
+            return definition.Description;
         }
 
         private class EntryData

@@ -7,5 +7,6 @@ namespace Tools {
         public static readonly GameCellsSprites GameCells = new();
         public static readonly GameFieldSprites GameField = new();
         public static readonly GameUISprites GameUI = new();
+        public static readonly MenuNavigationSprites MenuNavigation = new();
     }
 }

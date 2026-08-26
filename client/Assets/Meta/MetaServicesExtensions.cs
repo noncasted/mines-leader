@@ -38,6 +38,9 @@ namespace Meta
             builder.Register<CardsRegistry>()
                    .As<ICardsRegistry>();
 
+            builder.Register<ModifiersRegistry>()
+                   .As<IModifiersRegistry>();
+
             builder.Register<CardDescriptionProvider>()
                    .As<ICardDescriptionProvider>();
 
