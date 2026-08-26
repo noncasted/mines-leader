@@ -126,21 +126,9 @@ namespace GamePlay.UI.Editor
             tooltipView.GetType().GetField("_descriptionText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tooltipView, descText);
             tooltipView.GetType().GetField("_rectTransform", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(tooltipView, tooltipRect);
 
-            // Create or load config
-            var configPath = "Assets/GamePlay/UI/Overlay/ModifierDescriptionsConfig.asset";
-            var config = AssetDatabase.LoadAssetAtPath<ModifierDescriptionsConfig>(configPath);
-            if (config == null)
-            {
-                config = ScriptableObject.CreateInstance<ModifierDescriptionsConfig>();
-                AssetDatabase.CreateAsset(config, configPath);
-                AssetDatabase.SaveAssets();
-            }
-
-            // Wire up view
             view.GetType().GetField("_container", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(view, viewGo.transform);
             view.GetType().GetField("_entryPrefab", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(view, entryView);
             view.GetType().GetField("_tooltipPrefab", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(view, tooltipView);
-            view.GetType().GetField("_descriptionsConfig", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(view, config);
             view.GetType().GetField("_tooltipOffset", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(view, new Vector2(70f, 0f));
 
             EditorSceneManager.MarkSceneDirty(scene);

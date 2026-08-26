@@ -14,6 +14,7 @@
     <ItemGroup>
         <PackageReference Include="Npgsql"/>
         <PackageReference Include="Marten"/>
+        <PackageReference Include="Marten.Newtonsoft"/>
         <PackageReference Include="Microsoft.Diagnostics.Runtime"/>
     </ItemGroup>
 

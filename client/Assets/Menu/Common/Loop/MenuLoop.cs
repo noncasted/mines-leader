@@ -2,8 +2,7 @@
 using Global.Cameras;
 using Global.UI;
 using Internal;
-using Menu.Main;
-using Menu.Social;
+using Menu.Play;
 using Shared;
 
 namespace Menu.Common
@@ -18,27 +17,22 @@ namespace Menu.Common
         public MenuLoop(
             IGlobalCamera globalCamera,
             ILoadingScreen loadingScreen,
-            IMenuPlay play,
-            IMenuSocialLoop socialLoop)
+            IMenuPlay play)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
             _play = play;
-            _socialLoop = socialLoop;
         }
 
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
         private readonly IMenuPlay _play;
-        private readonly IMenuSocialLoop _socialLoop;
 
         private IReadOnlyLifetime _lifetime;
 
         public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
             var completion = new UniTaskCompletionSource<SharedMatchmaking.MatchResult>();
-
-            await _socialLoop.Start(lifetime);
 
             _loadingScreen.Hide();
             _globalCamera.Disable();

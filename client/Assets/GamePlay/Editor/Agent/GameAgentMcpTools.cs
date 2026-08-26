@@ -1,22 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Flow;
 using GamePlay.Agent;
-using GamePlay.Loop;
-using Internal;
 using MCPForUnity.Editor.Tools;
-using Menu.Common;
-using Menu.Main;
-using Meta;
 using Newtonsoft.Json.Linq;
 using Shared;
 using UnityEditor;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Object = UnityEngine.Object;
 
 // Unity's MCP window lists these tools with x/y, but Coplay HTTP does not
@@ -52,35 +44,18 @@ namespace GamePlay.Editor.Agent {
             };
         }
 
-        public static async Task<object> StartVsBot(JObject parameters) {
+        public static async Task<object> StartVsBot() {
             if (GameAgentBridge.IsActive)
                 return Status();
 
             if (EditorApplication.isPlaying == false)
                 return Error("Enter play mode with GameMock (mode LastManStandingTurnBased) and a running cluster");
 
-            AgentMatchFixture fixture = null;
-            try {
-                fixture = TryBuildFixture(parameters);
-            }
-            catch (ArgumentException exception) {
-                return Error(exception.Message);
-            }
+            if (HasGameMock() == false)
+                return Error("Game agent only runs in GameMock play mode on the game field");
 
             try {
                 using var cancel = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-
-                if (HasGameMock() == false) {
-                    var matchmaking = TryResolve<IMatchmaking>();
-                    if (matchmaking != null) {
-                        var lifetime = new Internal.Lifetime();
-                        var sessionData = await matchmaking
-                            .CreateGameWithBot(lifetime, GameMatchType.LastManStandingTurnBased, fixture)
-                            .AttachExternalCancellation(cancel.Token);
-                        await LoadCreatedMatch(sessionData);
-                    }
-                }
-
                 await UniTask.WaitUntil(() => GameAgentBridge.IsActive, cancellationToken: cancel.Token);
             }
             catch (OperationCanceledException) {
@@ -125,97 +100,6 @@ namespace GamePlay.Editor.Agent {
             return token?.Type == JTokenType.Null ? null : token?.ToString();
         }
 
-        public static List<string> GetStringList(JObject parameters, string name) {
-            var token = Token(parameters, name);
-            if (token == null || token.Type == JTokenType.Null)
-                return null;
-
-            var list = new List<string>();
-            if (token is JArray array) {
-                foreach (var item in array)
-                    list.Add(item.ToString());
-                return list;
-            }
-
-            list.Add(token.ToString());
-            return list;
-        }
-
-        private static AgentMatchFixture TryBuildFixture(JObject parameters) {
-            var board = GetString(parameters, "board");
-            var hand = GetStringList(parameters, "hand");
-            var deck = GetStringList(parameters, "deck");
-            var botDeck = GetStringList(parameters, "bot_deck");
-            var bot = GetString(parameters, "bot");
-            var hasHumanGoesFirst = Token(parameters, "human_goes_first") != null;
-            var mana = GetNullableInt(parameters, "mana");
-            var moves = GetNullableInt(parameters, "moves");
-
-            if (board == null &&
-                hand == null &&
-                deck == null &&
-                botDeck == null &&
-                string.IsNullOrWhiteSpace(bot) &&
-                hasHumanGoesFirst == false &&
-                mana == null &&
-                moves == null)
-                return null;
-
-            var fixture = new AgentMatchFixture {
-                SelfBoardLayout = board ?? string.Empty,
-                HumanGoesFirst = GetBool(parameters, "human_goes_first", true),
-                Mana = mana,
-                Moves = moves
-            };
-
-            AddCardTypes(fixture.SelfHand, hand, "hand");
-            AddCardTypes(fixture.SelfDeck, deck, "deck");
-            AddCardTypes(fixture.BotDeck, botDeck, "bot_deck");
-
-            if (string.IsNullOrWhiteSpace(bot) == false) {
-                if (Enum.TryParse(bot, out BotProfile profile) == false)
-                    throw new ArgumentException($"Invalid bot profile {bot}. Use Easy, Medium, or Hard.");
-
-                fixture.BotProfile = profile;
-            }
-
-            return fixture;
-        }
-
-        private static void AddCardTypes(List<CardType> target, List<string> names, string field) {
-            if (names == null)
-                return;
-
-            foreach (var name in names) {
-                if (Enum.TryParse(name, out CardType type) == false)
-                    throw new ArgumentException($"Invalid {field} card type {name}");
-
-                target.Add(type);
-            }
-        }
-
-        private static async UniTask LoadCreatedMatch(SharedMatchmaking.MatchResult sessionData) {
-            var play = TryResolve<IMenuPlay>();
-            if (play?.MatchFound is EventSource<SharedMatchmaking.MatchResult> matchFound) {
-                matchFound.Invoke(sessionData);
-                return;
-            }
-
-            var gamePlayLoader = TryResolve<IGamePlayLoader>();
-            if (gamePlayLoader != null) {
-                gamePlayLoader.Load(new GameLoadData { Result = sessionData }).Forget();
-                return;
-            }
-
-            var loopScopeLoader = TryResolve<IGameLoopScopeLoader>();
-            if (loopScopeLoader == null)
-                return;
-
-            var gameScope = await loopScopeLoader.Load((loader, parent) => loader.LoadPvp(parent, sessionData));
-            var loop = gameScope.Resolve<IPvPGameLoop>();
-            loop.Process(gameScope.Lifetime, sessionData).Forget();
-        }
-
         private static JToken Token(JObject parameters, string name) {
             if (parameters == null)
                 return null;
@@ -227,66 +111,14 @@ namespace GamePlay.Editor.Agent {
         }
 
         private static bool HasGameMock() {
-            var behaviours = Object.FindObjectsByType<MonoBehaviour>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-
-            foreach (var behaviour in behaviours) {
-                if (behaviour.GetType().Name == "GameMock")
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static T TryResolve<T>() where T : class {
-            var scopes = Object.FindObjectsByType<LifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-
-            foreach (var scope in scopes) {
-                var container = scope.Container;
-                if (container == null)
-                    continue;
-
-                if (container.TryResolve<T>(out var resolved) && resolved != null)
-                    return resolved;
-            }
-
-            return null;
+            return Object.FindFirstObjectByType<GameMock>(FindObjectsInactive.Include) != null;
         }
     }
 
-    [McpForUnityTool("game_start_vs_bot", Description = "Start a LastManStandingTurnBased vs-bot match, or return current status if one is already running.")]
+    [McpForUnityTool("game_start_vs_bot", Description = "Wait until a GameMock LastManStandingTurnBased match is active, or return current status if one is already running.")]
     public static class GameStartVsBotTool {
-        public sealed class Parameters {
-            [ToolParameter("Board layout DSL, same alphabet as BoardParser.", Required = false)]
-            public string board { get; set; }
-
-            [ToolParameter("CardType names for the human hand, e.g. Bloodhound.", Required = false)]
-            public string[] hand { get; set; }
-
-            [ToolParameter("Human acts first. Used when any fixture field is set. Default true.", Required = false)]
-            public bool? human_goes_first { get; set; }
-
-            [ToolParameter("Override starting mana.", Required = false)]
-            public int? mana { get; set; }
-
-            [ToolParameter("Override starting moves.", Required = false)]
-            public int? moves { get; set; }
-
-            [ToolParameter("Bot difficulty: Easy, Medium, or Hard.", Required = false)]
-            public string bot { get; set; }
-
-            [ToolParameter("CardType names for the human draw pile.", Required = false)]
-            public string[] deck { get; set; }
-
-            [ToolParameter("CardType names for the bot draw pile.", Required = false)]
-            public string[] bot_deck { get; set; }
-        }
-
-        public static Task<object> HandleCommand(JObject parameters) {
-            return GameAgentMcpTools.StartVsBot(parameters);
+        public static Task<object> HandleCommand(JObject _) {
+            return GameAgentMcpTools.StartVsBot();
         }
     }
 

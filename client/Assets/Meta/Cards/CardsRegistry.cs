@@ -9,7 +9,6 @@ namespace Meta
     public interface ICardsRegistry
     {
         IReadOnlyDictionary<CardType, ICardDefinition> Entries { get; }
-        Sprite GetModifierSprite(PlayerModifier modifier);
     }
 
     public class CardsRegistry : ICardsRegistry
@@ -22,11 +21,6 @@ namespace Meta
         private readonly Dictionary<CardType, ICardDefinition> _cards = new();
 
         public IReadOnlyDictionary<CardType, ICardDefinition> Entries => _cards;
-
-        public Sprite GetModifierSprite(PlayerModifier modifier)
-        {
-            return ModifierToSprite(modifier);
-        }
 
         private void Load()
         {
@@ -114,23 +108,6 @@ namespace Meta
                 CardType.MirrorMatch => Sprites.CardsIcons.MirrorMatch,
                 CardType.DimensionRift => Sprites.CardsIcons.DimensionRift,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-        }
-
-        private Sprite ModifierToSprite(PlayerModifier modifier)
-        {
-            return modifier switch
-            {
-                PlayerModifier.TrebuchetBoost => Sprites.CardsIcons.TrebuchetAimer,
-                PlayerModifier.AdditionalMana => Sprites.CardBuffs.ManaSurge,
-                PlayerModifier.AdditionalMoves => Sprites.CardBuffs.Adrenaline,
-                PlayerModifier.AdditionalHealth => Sprites.CardsIcons.Medic,
-                PlayerModifier.NextCardDiscount => Sprites.CardBuffs.Focus,
-                PlayerModifier.AllCardsDiscount => Sprites.CardBuffs.PowerSurge,
-                PlayerModifier.ManaCostPenalty => Sprites.CardBuffs.Embargo,
-                PlayerModifier.Shield => Sprites.CardsIcons.Shield,
-                PlayerModifier.SoulLink => Sprites.CardBuffs.SoulLink,
-                _ => throw new ArgumentOutOfRangeException(nameof(modifier), modifier, null)
             };
         }
     }

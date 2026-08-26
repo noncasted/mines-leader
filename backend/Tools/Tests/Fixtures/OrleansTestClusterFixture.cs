@@ -11,6 +11,7 @@ using Infrastructure.Startup;
 using Infrastructure.State;
 using JasperFx;
 using JasperFx.Events;
+using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
 using Marten.Services;

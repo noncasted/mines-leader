@@ -1,5 +1,4 @@
-﻿using System;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Global.Publisher;
 using Internal;
 
@@ -14,20 +13,21 @@ namespace Global.Settings
         IViewableProperty<float> ShakeIntensity { get; }
         IViewableProperty<bool> VSync { get; }
 
-        void Open();
+        SettingsSave Copy();
+        void Push(SettingsSave save);
+        UniTask Apply(SettingsSave save);
+        void Revert();
     }
 
     public class Settings : ISettings, IScopeSetupAsync
     {
-        public Settings(ISaves saves, ISettingsView view, SettingsOptions options)
+        public Settings(ISaves saves, SettingsOptions options)
         {
             _saves = saves;
-            _view = view;
             _options = options;
         }
 
         private readonly ISaves _saves;
-        private readonly ISettingsView _view;
         private readonly SettingsOptions _options;
 
         private readonly ViewableProperty<float> _masterVolume = new();
@@ -44,44 +44,24 @@ namespace Global.Settings
         public IViewableProperty<float> ShakeIntensity => _shakeIntensity;
         public IViewableProperty<bool> VSync => _vSync;
 
-        public async UniTask OnSetupAsync(IReadOnlyLifetime lifetime)
+        public UniTask OnSetupAsync(IReadOnlyLifetime lifetime)
         {
             _save = _saves.Get<SettingsSave>();
 
             if (_save.WasChanged == false)
                 _save.CopyFrom(_options.DefaultValues);
 
-            PushValues(_save);
+            Push(_save);
+
+            return UniTask.CompletedTask;
         }
 
-        public void Open()
+        public SettingsSave Copy()
         {
-            Process().Forget();
+            return _save.Copy();
         }
 
-        private async UniTask Process()
-        {
-            var saveCopy = _save.Copy();
-
-            var result = await _view.Show(saveCopy, () => PushValues(saveCopy));
-
-            switch (result)
-            {
-                case SettingsViewResult.Apply:
-                    saveCopy.WasChanged = true;
-                    await _saves.Save(saveCopy);
-                    _save = saveCopy;
-                    PushValues(saveCopy);
-                    break;
-                case SettingsViewResult.Cancel:
-                    PushValues(_save);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void PushValues(SettingsSave save)
+        public void Push(SettingsSave save)
         {
             _masterVolume.Set(save.MasterVolume);
             _soundsVolume.Set(save.SoundsVolume);
@@ -90,6 +70,19 @@ namespace Global.Settings
             _shakeIntensity.Set(save.ShakeIntensity);
 
             _vSync.Set(save.VSync);
+        }
+
+        public async UniTask Apply(SettingsSave save)
+        {
+            save.WasChanged = true;
+            await _saves.Save(save);
+            _save = save;
+            Push(save);
+        }
+
+        public void Revert()
+        {
+            Push(_save);
         }
     }
 }

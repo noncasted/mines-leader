@@ -1,5 +1,4 @@
 ﻿using Internal;
-using Menu.Social;
 using Network;
 using Shared;
 
@@ -17,9 +16,6 @@ namespace Flow
                 .Add<MenuPlayerPayload>()
                 .Add<CardCreatePayload>()
                 .Add<PlayerCreatePayload>();
-
-            eventPayloads
-                .Add<MenuChatMessagePayload>();
 
             contexts
                 .Add<EmptyResponse>()

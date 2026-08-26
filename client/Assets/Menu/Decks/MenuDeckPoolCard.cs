@@ -1,5 +1,4 @@
-﻿using Menu.Services;
-using Meta;
+﻿using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
@@ -20,7 +19,7 @@ namespace Menu.Decks
         private ICardDefinition _cardDefinition;
         private MenuDeckPoolSpot _parentPoolSpot;
         private RectTransform _rectTransform;
-        private IMenuMoveArea _moveArea;
+        private IMenuDeckMoveArea _deckMoveArea;
         private ICardConfigs _configs;
         private ICardConfig _config;
         private ICardDescriptionProvider _descriptionProvider;
@@ -32,11 +31,11 @@ namespace Menu.Decks
         public string ResolvedDescription { get; private set; }
         
         [Inject]
-        internal void Construct(IMenuMoveArea moveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        internal void Construct(IMenuDeckMoveArea deckMoveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
             _descriptionProvider = descriptionProvider;
-            _moveArea = moveArea;
+            _deckMoveArea = deckMoveArea;
             _rectTransform = GetComponent<RectTransform>();
         }
 
@@ -56,7 +55,7 @@ namespace Menu.Decks
         public void BeginDrag()
         {
             _raycastImage.raycastTarget = false;
-            _rectTransform.SetParent(_moveArea.Transform, true);
+            _rectTransform.SetParent(_deckMoveArea.Transform, true);
         }
 
         public void ForceMoveToDeck(MenuDeckCard deckCard)

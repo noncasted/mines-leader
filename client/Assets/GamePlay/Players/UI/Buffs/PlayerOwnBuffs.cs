@@ -1,6 +1,5 @@
 using GamePlay.Loop;
 using GamePlay.Services;
-using GamePlay.UI;
 using Internal;
 using Meta;
 using UnityEngine;
@@ -14,17 +13,16 @@ namespace GamePlay.Players.Buffs
         [SerializeField] private RectTransform _container;
         [SerializeField] private PlayerBuffView _viewPrefab;
         [SerializeField] private PlayerBuffInfo _infoPrefab;
-        [SerializeField] private ModifierDescriptionsConfig _descriptions;
 
-        private ICardsRegistry _cards;
+        private IModifiersRegistry _modifiers;
         private IGameInput _input;
         private IUpdater _updater;
         private PlayerBuffsList _list;
 
         [Inject]
-        internal void Construct(ICardsRegistry cards, IGameInput input, IUpdater updater)
+        internal void Construct(IModifiersRegistry modifiers, IGameInput input, IUpdater updater)
         {
-            _cards = cards;
+            _modifiers = modifiers;
             _input = input;
             _updater = updater;
         }
@@ -39,7 +37,7 @@ namespace GamePlay.Players.Buffs
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             var info = SpawnInfo();
-            _list = new PlayerBuffsList(_container, _viewPrefab, info, _cards, _input, _descriptions, showOnRight: true);
+            _list = new PlayerBuffsList(_container, _viewPrefab, info, _modifiers, _input, showOnRight: true);
             _updater.Add(lifetime, _list);
         }
 
