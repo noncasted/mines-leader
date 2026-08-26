@@ -2,6 +2,25 @@
 
 PvP-режим с общим таймером на раунд и тактическим фокусом. Реализация — `backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs`.
 
+## Menu card
+
+Player-facing copy for the mode-select card. Pixel font is wide — keep the title and tagline as-is; pick **short** or **long** body depending on how much room the card has. If the full title wraps, use **Last Stand**.
+
+| Field | Copy |
+|-------|------|
+| **Title** | Last Man Standing |
+| **Short title** | Last Stand |
+| **Tagline** | Thirty seconds. No extras. |
+| **Short** | Each turn a fresh 30-second clock. No refunds. Mana climbs every round — clear early, detonate late. |
+| **Long** | Every turn you get a clean 30-second clock — no bonuses, no leftover time. Mana grows after each of your turns, so the match starts as a clearing race and ends as a card war. Survive the burst. Be the last miner standing. |
+| **At a glance** | 30s per turn · no time bonus · mana +1 each turn |
+
+### Icon
+
+`64 × 64` item icon. Steel mine with a red flag on the same flat navy tile as Time Limited.
+
+PixelLab prompt and settings: [[mode-icons|Mode icons]] (icon + empty card frame).
+
 ## Параметры
 
 | Параметр | Значение | Источник |

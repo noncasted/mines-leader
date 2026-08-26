@@ -36,7 +36,7 @@ ScriptedImporter:
     spriteMeshType: 1
     alignment: 0
     spritePivot: {x: 0.5, y: 0.5}
-    spritePixelsToUnits: 12
+    spritePixelsToUnits: 26.66667
     spriteBorder: {x: 0, y: 0, z: 0, w: 0}
     spriteGenerateFallbackPhysicsShape: 0
     generateCubemap: 6
@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639233778876471960
+  platformSettingsDirtyTick: 639233859900229800
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -136,11 +136,32 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 11
-      y: 31
-      width: 26
-      height: 26
+      x: 12
+      y: 8
+      width: 36
+      height: 36
     spriteID: 14646469dcf3a65c589823780331f7e5
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Menu_Backgrounds_1
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 12
+      y: 56
+      width: 36
+      height: 36
+    spriteID: 29f08179bc5bddd04a00da9970353988
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -157,11 +178,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 11
-      y: 67
-      width: 26
-      height: 26
-    spriteID: 29f08179bc5bddd04a00da9970353988
+      x: 12
+      y: 104
+      width: 36
+      height: 36
+    spriteID: cfb6352d06722c6008490b7bbde378d4
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -178,11 +199,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 11
-      y: 103
-      width: 26
-      height: 26
-    spriteID: cfb6352d06722c6008490b7bbde378d4
+      x: 12
+      y: 152
+      width: 36
+      height: 36
+    spriteID: c10b2c403ce6c2312baed002e4978045
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -199,31 +220,10 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 11
-      y: 139
-      width: 26
-      height: 26
-    spriteID: c10b2c403ce6c2312baed002e4978045
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
-  - name: Menu_Backgrounds_5
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 11
-      y: 175
-      width: 26
-      height: 26
+      x: 12
+      y: 200
+      width: 36
+      height: 36
     spriteID: 3816b554d9541753bb7606a7033a5bd6
     spriteBone: []
     spriteOutline: []
@@ -253,8 +253,8 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 73
-        height: 201
+        width: 49
+        height: 237
       spriteId: 2c75c597f6acea7e9834ca3d718b05c1
     linkedCells: []
     tileCells: []
@@ -300,5 +300,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 128, y: 256}
+  previousTextureSize: {x: 64, y: 256}
   canvasSize: {x: 512, y: 512}

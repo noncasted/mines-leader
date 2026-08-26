@@ -184,6 +184,7 @@ namespace Menu.Decks
 
         private void RegisterPreviewHover(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)
         {
+            return;
             spot.PointerHandler.IsHovered.Advise(lifetime, isHovered => {
                 if (spot.Card.gameObject.activeInHierarchy == false)
                     return;

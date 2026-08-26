@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28efcb9d1a5e4c7f8b0d234567881b03, type: 3}
+  m_Name: Menu
+  m_EditorClassIdentifier: Tools.Runtime::Tools.PrefabGroupAsset
+  _entries:
+  - Name: GameModeEntry
+    Prefab: {fileID: 6640460366586368445, guid: b6a7f5b42ffbf95a4be73535aa8515c9, type: 3}
+    ComponentType: Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

@@ -67,7 +67,9 @@ namespace Menu.Navigation
             _playButton.Button.ListenClick(lifetime, () => OnClicked(_playButton, _play));
             _statsButton.Button.ListenClick(lifetime, () => OnClicked(_statsButton, _progression));
             _settingsButton.Button.ListenClick(lifetime, () => OnClicked(_settingsButton, _settings));
+            
             gameObject.SetActive(true);
+            OnClicked(_playButton, _play);
 
             return;
 
