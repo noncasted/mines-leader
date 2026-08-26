@@ -23,6 +23,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         IMessaging messaging,
         ICardConfigs cardConfigs,
         ILootProgressionConfig lootProgressionConfig,
+        IMatchMakingConfig matchMakingConfig,
         ICardPreviewGenerator cardPreviewGenerator,
         ILogger<UserConnectionEntryPoint> logger)
     {
@@ -31,6 +32,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         _messaging = messaging;
         _cardConfigs = cardConfigs;
         _lootProgressionConfig = lootProgressionConfig;
+        _matchMakingConfig = matchMakingConfig;
         _cardPreviewGenerator = cardPreviewGenerator;
         _logger = logger;
         _commandsDispatcher = commandsDispatcher;
@@ -43,6 +45,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
     private readonly ILootProgressionConfig _lootProgressionConfig;
+    private readonly IMatchMakingConfig _matchMakingConfig;
     private readonly ICardPreviewGenerator _cardPreviewGenerator;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
@@ -80,6 +83,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
             _cardConfigs.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
             _lootProgressionConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
+            _matchMakingConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
 
             var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();
             await writer.WriteOneWay(new InitialCardPreviews { Bundles = cardPreviews }.ToProjection());

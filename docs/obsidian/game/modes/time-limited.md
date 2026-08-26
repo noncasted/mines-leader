@@ -2,6 +2,24 @@
 
 Основной PvP-режим: у каждого игрока свой банк времени на весь матч, действия его пополняют. Реализация — `backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs`.
 
+## Menu card
+
+Player-facing copy for the mode-select card. Pixel font is wide — keep the title and tagline as-is; pick **short** or **long** body depending on how much room the card has.
+
+| Field | Copy |
+|-------|------|
+| **Title** | Time Limited |
+| **Tagline** | Every move buys time. |
+| **Short** | 120 seconds for the whole match. Opens and cards refund +5s. Empty the bank, and you lose. |
+| **Long** | Your clock is a bank of 120 seconds — it never resets between turns. Every cell you open and every card you play steals +5 seconds back from the fuse. Stall and the bank hits zero: match over. Play aggressive, bank the extra, and bury the other miner with their own time. |
+| **At a glance** | 120s bank · +5s per open/card · timeout = loss |
+
+### Icon
+
+`64 × 64` item icon. Brass hourglass on a flat navy tile. One object, no scene.
+
+PixelLab prompt and settings: [[mode-icons|Mode icons]] (icon + empty card frame).
+
 ## Параметры
 
 | Параметр | Значение | Источник |

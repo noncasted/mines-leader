@@ -18,6 +18,9 @@ public static class ConfigsExtensions
         builder.AddAddressableState<GameModeConfigState>()
                .As<IGameModeConfig>();
 
+        builder.AddAddressableState<MatchMakingConfigState>()
+               .As<IMatchMakingConfig>();
+
         builder.AddAddressableState<RatingConfigState>()
                .As<IRatingConfig>();
 

@@ -1,0 +1,14 @@
+{
+  "modes": [
+    {
+      "type": "TimeLimited",
+      "name": "Time Limited",
+      "description": "No turn time limit, each player has a timer\nGame end when timer reaches 0 or all mines are flagged"
+    },
+    {
+      "type": "LastManStanding",
+      "name": "Classic",
+      "description": "Only 30 seconds per turn, infinite turns\nWho first flag all mines - wins"
+    }
+  ]
+}

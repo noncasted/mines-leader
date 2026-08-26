@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639229306594910650
+  platformSettingsDirtyTick: 639233987500792870
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -191,48 +191,6 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Card_Plates_Discard_0
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 202
-      y: 14
-      width: 30
-      height: 37
-    spriteID: 20431f0a0cda48e77858d46eb1c4fe88
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
-  - name: Card_Plates_Discard_1
-    originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 250
-      y: 14
-      width: 6
-      height: 37
-    spriteID: 9814c7a9a3c284350a9885e5ba953894
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 0, y: 0}
   - name: Card_Plates_Opponent_Back
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -246,6 +204,27 @@ ScriptedImporter:
       width: 42
       height: 48
     spriteID: 819c8b72303df0f6b910b09350dfd34d
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Card_Plates_Outline
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 157
+      y: 7
+      width: 38
+      height: 50
+    spriteID: f3b8c56eeda8484a7862ac175282d76e
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -289,14 +268,14 @@ ScriptedImporter:
     layerType: 0
     blendMode: 0
     cells:
-    - name: Card_Plates
+    - name: Game_Cards
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
         x: 0
         y: 0
-        width: 259
-        height: 165
+        width: 194
+        height: 120
       spriteId: c93bb25767c2edb4e8fc24a580afca8f
     linkedCells: []
     tileCells: []
@@ -342,5 +321,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 512, y: 256}
+  previousTextureSize: {x: 256, y: 128}
   canvasSize: {x: 512, y: 512}

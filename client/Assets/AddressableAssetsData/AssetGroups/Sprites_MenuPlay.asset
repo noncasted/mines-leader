@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites_MenuPlay
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Sprites_MenuPlay
+  m_GUID: a7ed376911ba7ccda88cda4c2a36b925
+  m_SerializeEntries:
+  - m_GUID: 1b37e564ad267ffebbbe5957e0144b9a
+    m_Address: 1b37e564ad267ffebbbe5957e0144b9a
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1d39afb5fbf4294daa069d24a53261ff, type: 2}
+    - {fileID: 11400000, guid: 34c2662e690331d818fa74fea631dd19, type: 2}
+    m_SchemaDisplayOrder:
+    - Sprites_MenuPlay_BundledAssetGroupSchema
+    - Sprites_MenuPlay_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

@@ -247,6 +247,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         RegisterConfig<ICardConfigs, CardConfigOptions>(services, "config.cards");
         RegisterConfig<IBotConfig, BotConfigOptions>(services, "config.bot");
         RegisterConfig<IGameModeConfig, GameModeOptions>(services, "config.gameMode");
+        RegisterConfig<IMatchMakingConfig, MatchMakingOptions>(services, "config.matchMaking");
         RegisterConfig<IRatingConfig, RatingOptions>(services, "config.rating");
         RegisterConfig<IUserDeckConfig, UserDeckConfigOptions>(services, "config.userDeck");
         RegisterConfig<IPlayerConfig, PlayerConfigOptions>(services, "config.player");

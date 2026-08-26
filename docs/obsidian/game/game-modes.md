@@ -22,6 +22,8 @@
 - [[time-limited|TimeLimited]] — личный банк времени, пополняемый действиями
 - [[last-man-standing|LastManStanding]] — общий таймер раунда, рост маны
 
+Английский текст карточек выбора режима и промпт иконок: в каждой заметке секция **Menu card**, общий рецепт — [[modes/mode-icons|Mode icons]].
+
 ---
 
 ## Single (Training)
@@ -76,6 +78,16 @@ PvP-режим с таймером в 30 секунд на каждый ход �
 }
 ```
 
+Список режимов, доступных в матчмейкинге, хранится в `config.matchMaking.json` и загружается через `MatchMakingOptions`. На клиент уходит той же projection, что и остальные конфиги:
+
+```json
+{
+  "Available": [20, 30]
+}
+```
+
+`20` — TimeLimited, `30` — LastManStanding.
+
 Параметры игрока (размер руки и колоды) хранятся в `config.player.json` и загружаются через `PlayerConfigOptions`:
 
 ```json
@@ -91,9 +103,11 @@ PvP-режим с таймером в 30 секунд на каждый ход �
 |------|----------|
 | `shared/Domain/GameMatchType.cs` | Enum режимов |
 | `shared/Configs/GameModeOptions.cs` | Параметры режимов |
+| `shared/Configs/MatchMakingOptions.cs` | Доступные для матчмейкинга режимы |
 | `shared/Configs/PlayerConfigOptions.cs` | Параметры игрока |
 | `backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs` | Реализация TimeLimited |
 | `backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs` | Реализация LastManStanding |
 | `backend/Game/Global/SessionFactory.cs` | Выбор режима при создании сессии |
 | `backend/Orchestration/Coordinator/config.gameMode.json` | JSON-конфиг режимов |
+| `backend/Orchestration/Coordinator/config.matchMaking.json` | JSON-конфиг доступных режимов матчмейкинга |
 | `backend/Orchestration/Coordinator/config.player.json` | JSON-конфиг игрока |

@@ -11,6 +11,7 @@ namespace Meta
         {
             builder.LoadSpriteGroup(Sprites.CardsIcons);
             builder.LoadSpriteGroup(Sprites.CardBuffs);
+            builder.LoadSpriteGroup(Sprites.MenuPlay);
             
             builder.Register<MetaLoop>()
                    .As<IScopeBaseSetupAsync>();
@@ -37,6 +38,9 @@ namespace Meta
 
             builder.Register<CardsRegistry>()
                    .As<ICardsRegistry>();
+
+            builder.Register<GameModesRegistry>()
+                   .As<IGameModesRegistry>();
 
             builder.Register<ModifiersRegistry>()
                    .As<IModifiersRegistry>();
@@ -71,6 +75,11 @@ namespace Meta
                    .As<IBackendProjection<LootProgressionOptions>>()
                    .As<IBackendProjection>()
                    .As<ILootProgressionConfigs>();
+
+            builder.Register<MatchMakingConfigs>()
+                   .As<IBackendProjection<MatchMakingOptions>>()
+                   .As<IBackendProjection>()
+                   .As<IMatchMakingConfigs>();
 
             builder.Register<ProgressionService>()
                    .As<IProgression>()

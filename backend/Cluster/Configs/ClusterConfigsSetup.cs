@@ -13,6 +13,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         ICardConfigs cards,
         IBotConfig bots,
         IGameModeConfig gameMode,
+        IMatchMakingConfig matchMaking,
         IRatingConfig rating,
         ISideEffectsConfig sideEffects,
         IDurableQueueConfig messageQueue,
@@ -28,6 +29,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _cards = cards;
         _bots = bots;
         _gameMode = gameMode;
+        _matchMaking = matchMaking;
         _rating = rating;
         _sideEffects = sideEffects;
         _durableQueue = messageQueue;
@@ -44,6 +46,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly ICardConfigs _cards;
     private readonly IBotConfig _bots;
     private readonly IGameModeConfig _gameMode;
+    private readonly IMatchMakingConfig _matchMaking;
     private readonly IRatingConfig _rating;
     private readonly ISideEffectsConfig _sideEffects;
     private readonly IDurableQueueConfig _durableQueue;
@@ -61,6 +64,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitConfig("config.cards", _cards);
         await InitConfig("config.bot", _bots);
         await InitConfig("config.gameMode", _gameMode);
+        await InitConfigWithDefault("config.matchMaking", _matchMaking, MatchMakingOptions.CreateDefault());
         await InitConfig("config.rating", _rating);
         await InitConfig("config.sideEffects", _sideEffects);
         await InitConfig("config.durableQueue", _durableQueue);
