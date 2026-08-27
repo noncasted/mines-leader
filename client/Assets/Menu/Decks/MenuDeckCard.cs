@@ -1,7 +1,10 @@
+using System;
 using GamePlay.UI;
 using Internal;
 using Meta;
+using Shared;
 using TMPro;
+using Tools;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,7 +18,7 @@ namespace Menu.Decks
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _description;
         [SerializeField] private TMP_Text _manaCost;
-        [SerializeField] private CardSelectionHighlight _selectionHighlight;
+        [SerializeField] private Image _outline;
         [SerializeField] private UIElementPointerHandler _pointerHandler;
 
         private readonly ViewableDelegate _changed = new();
@@ -32,7 +35,7 @@ namespace Menu.Decks
             _spot?.ReturnToSpot();
             _spot = stop;
             UpdateDisplay(CurrentDefinition);
-            _selectionHighlight.OnDeselected();
+            UpdateOutline(false);
 
             _changed.Invoke();
         }
@@ -42,25 +45,44 @@ namespace Menu.Decks
             _spot?.ReturnToSpot();
             _spot = stop;
             UpdateDisplay(CurrentDefinition);
-            _selectionHighlight.OnDeselected();
+            UpdateOutline(false);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            _selectionHighlight.OnSelected();
+            UpdateOutline(true);
         }
-        
+
         public void OnPointerExit(PointerEventData eventData)
         {
-            _selectionHighlight.OnDeselected();
+            UpdateOutline(false);
         }
-        
+
         private void UpdateDisplay(ICardDefinition definition)
         {
             _image.sprite = definition.Image;
             _name.text = definition.Name;
             _description.text = CurrentCard.ResolvedDescription;
             _manaCost.text = CurrentCard.Config.ManaCost.ToString();
+        }
+
+        private void UpdateOutline(bool isSelected)
+        {
+            if (isSelected == true)
+            {
+                _outline.color = Color.white;
+                return;
+            }
+
+            _outline.color = CurrentDefinition.Group switch
+            {
+                CardGroup.Scout => Colors.Deck.Scout,
+                CardGroup.Defense => Colors.Deck.Defense,
+                CardGroup.Attack => Colors.Deck.Attack,
+                CardGroup.Buff => Colors.Deck.Buff,
+                CardGroup.Debuff => Colors.Deck.Debuff,
+                _ => Color.black
+            };
         }
     }
 }

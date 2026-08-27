@@ -179,7 +179,7 @@ namespace Menu.Decks
                 return;
             }
 
-            card.ReturnToSpot();
+            spot.ReturnToSpot();
         }
 
         private void RegisterPreviewHover(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)

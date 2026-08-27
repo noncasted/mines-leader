@@ -34,11 +34,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 210
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 240
+      value: 243.75
       objectReference: {fileID: 0}
     - target: {fileID: 437172212839888053, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_LocalPosition.x
@@ -94,7 +94,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2866535747521795447, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4834922920066657292, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+      propertyPath: m_fontSize
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 5218193368551727119, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+      propertyPath: m_fontSize
+      value: 30.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6074616293687902046, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -2.7802734
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -103,9 +115,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2235368909299336258, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5319802931747128359}
-    - targetCorrespondingSourceObject: {fileID: 2235368909299336258, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4338758576018201916}
   m_SourcePrefab: {fileID: 100100000, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
 --- !u!114 &766353073403630267 stripped
 MonoBehaviour:
@@ -121,6 +130,17 @@ MonoBehaviour:
 --- !u!114 &2187430432719140682 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7303148363140659821, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+  m_PrefabInstance: {fileID: 8863839283243584807}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3067080116904721826 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5878002082663362693, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
   m_PrefabInstance: {fileID: 8863839283243584807}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -162,11 +182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &6684843567990298704 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2866535747521795447, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
-  m_PrefabInstance: {fileID: 8863839283243584807}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7207746154654484837 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2235368909299336258, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
@@ -188,18 +203,5 @@ MonoBehaviour:
   _name: {fileID: 3704230369733651752}
   _description: {fileID: 4043025317325218091}
   _manaCost: {fileID: 5209062581403504595}
-  _selectionHighlight: {fileID: 4338758576018201916}
+  _outline: {fileID: 3067080116904721826}
   _pointerHandler: {fileID: 766353073403630267}
---- !u!114 &4338758576018201916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7207746154654484837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79338f8d3087451e86e22dd12b1ff46d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _outline: {fileID: 6684843567990298704}

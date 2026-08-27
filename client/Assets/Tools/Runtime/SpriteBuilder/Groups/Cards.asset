@@ -13,31 +13,25 @@ MonoBehaviour:
   m_Name: Cards
   m_EditorClassIdentifier: Tools.SpriteBuilder::Tools.SpriteBuilder.SpriteGroupAsset
   _entries:
-  - Name: Discard0
-    Kind: 0
-    Sprites:
-    - {fileID: -2266972897462626378, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: Discard1
-    Kind: 0
-    Sprites:
-    - {fileID: 4439843131023120884, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: Front
+  - Name: CardPlatesFront
     Kind: 0
     Sprites:
     - {fileID: 2130047457299849726, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: OpponentBack
+  - Name: CardPlatesOpponentBack
     Kind: 0
     Sprites:
     - {fileID: -4126753681195034333, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: OwnBack
+  - Name: CardPlatesOutline
+    Kind: 0
+    Sprites:
+    - {fileID: -5471999550923209853, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: CardPlatesOwnBack
     Kind: 0
     Sprites:
     - {fileID: -4586633856482884092, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}

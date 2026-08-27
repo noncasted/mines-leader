@@ -8,49 +8,42 @@ namespace Tools {
     public sealed class CardsSprites : SpriteGroup {
         private const string Address = "74fe2a982e3439414a912d2874879b7a";
 
-        private Sprite _discard0;
-        private Sprite _discard1;
-        private Sprite _front;
-        private Sprite _opponentBack;
-        private Sprite _ownBack;
+        private Sprite _cardPlatesFront;
+        private Sprite _cardPlatesOpponentBack;
+        private Sprite _cardPlatesOutline;
+        private Sprite _cardPlatesOwnBack;
         private AsyncOperationHandle<SpriteGroupAsset> _handle;
 
-        public Sprite Discard0 {
-            get { EnsureLoaded(); return _discard0; }
+        public Sprite CardPlatesFront {
+            get { EnsureLoaded(); return _cardPlatesFront; }
         }
 
-        public Sprite Discard1 {
-            get { EnsureLoaded(); return _discard1; }
+        public Sprite CardPlatesOpponentBack {
+            get { EnsureLoaded(); return _cardPlatesOpponentBack; }
         }
 
-        public Sprite Front {
-            get { EnsureLoaded(); return _front; }
+        public Sprite CardPlatesOutline {
+            get { EnsureLoaded(); return _cardPlatesOutline; }
         }
 
-        public Sprite OpponentBack {
-            get { EnsureLoaded(); return _opponentBack; }
-        }
-
-        public Sprite OwnBack {
-            get { EnsureLoaded(); return _ownBack; }
+        public Sprite CardPlatesOwnBack {
+            get { EnsureLoaded(); return _cardPlatesOwnBack; }
         }
 
         protected override async UniTask LoadGroup() {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
-            _discard0 = asset.GetSheet("Discard0");
-            _discard1 = asset.GetSheet("Discard1");
-            _front = asset.GetSheet("Front");
-            _opponentBack = asset.GetSheet("OpponentBack");
-            _ownBack = asset.GetSheet("OwnBack");
+            _cardPlatesFront = asset.GetSheet("CardPlatesFront");
+            _cardPlatesOpponentBack = asset.GetSheet("CardPlatesOpponentBack");
+            _cardPlatesOutline = asset.GetSheet("CardPlatesOutline");
+            _cardPlatesOwnBack = asset.GetSheet("CardPlatesOwnBack");
         }
 
         protected override void UnloadGroup() {
-            _discard0 = null;
-            _discard1 = null;
-            _front = null;
-            _opponentBack = null;
-            _ownBack = null;
+            _cardPlatesFront = null;
+            _cardPlatesOpponentBack = null;
+            _cardPlatesOutline = null;
+            _cardPlatesOwnBack = null;
             if (_handle.IsValid())
                 Addressables.Release(_handle);
         }
