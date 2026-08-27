@@ -9,6 +9,9 @@ namespace Tools {
         private const string Address = "9524432527fa4f11ebe0752c18a910d1";
 
         private Sprite _adrenaline;
+        private Sprite _baseHealth;
+        private Sprite _baseMana;
+        private Sprite _baseTurns;
         private Sprite _bloodPact;
         private Sprite _coinToss;
         private Sprite _doubleOrNothing;
@@ -26,6 +29,18 @@ namespace Tools {
 
         public Sprite Adrenaline {
             get { EnsureLoaded(); return _adrenaline; }
+        }
+
+        public Sprite BaseHealth {
+            get { EnsureLoaded(); return _baseHealth; }
+        }
+
+        public Sprite BaseMana {
+            get { EnsureLoaded(); return _baseMana; }
+        }
+
+        public Sprite BaseTurns {
+            get { EnsureLoaded(); return _baseTurns; }
         }
 
         public Sprite BloodPact {
@@ -84,6 +99,9 @@ namespace Tools {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
             _adrenaline = asset.GetSheet("Adrenaline");
+            _baseHealth = asset.GetSheet("BaseHealth");
+            _baseMana = asset.GetSheet("BaseMana");
+            _baseTurns = asset.GetSheet("BaseTurns");
             _bloodPact = asset.GetSheet("BloodPact");
             _coinToss = asset.GetSheet("CoinToss");
             _doubleOrNothing = asset.GetSheet("DoubleOrNothing");
@@ -101,6 +119,9 @@ namespace Tools {
 
         protected override void UnloadGroup() {
             _adrenaline = null;
+            _baseHealth = null;
+            _baseMana = null;
+            _baseTurns = null;
             _bloodPact = null;
             _coinToss = null;
             _doubleOrNothing = null;

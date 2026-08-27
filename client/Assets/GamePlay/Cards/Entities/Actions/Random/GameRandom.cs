@@ -2,6 +2,7 @@ using System;
 using Animations;
 using Cysharp.Threading.Tasks;
 using Internal;
+using NaughtyAttributes;
 using Tools;
 using UnityEngine;
 using VContainer;
@@ -51,15 +52,15 @@ namespace GamePlay.Cards
         {
             if (isOwned == true)
             {
-                _renderer.flipX = false;
-                await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
+                _renderer.flipX = true;
+                await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionCoinFlip);
             }
             else
             {
-                _renderer.flipX = true;
+                _renderer.flipX = false;
                 await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
             }
-            
+
             _renderer.gameObject.SetActive(false);
         }
 
@@ -67,20 +68,21 @@ namespace GamePlay.Cards
         {
             if (isOwned == true)
             {
-                _renderer.flipX = false;
+                _renderer.flipX = true;
                 await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
             }
             else
             {
-                _renderer.flipX = true;
-                await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
+                _renderer.flipX = false;
+                await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionDiceRoll);
             }
-            
+
             _renderer.gameObject.SetActive(false);
         }
 
         private async UniTask Animate(IReadOnlyLifetime lifetime, Path path, ISpriteAnimationData animation)
         {
+            _renderer.gameObject.SetActive(true);
             var startPosition = path.From.position;
             var endPosition = path.To.position;
             var objectTransform = _renderer.transform;
@@ -91,10 +93,10 @@ namespace GamePlay.Cards
                 var progress = time / duration;
 
                 var spriteIndex = Mathf.FloorToInt(progress * animation.Sprites.Count);
-                
+
                 if (spriteIndex >= animation.Sprites.Count)
                     spriteIndex = animation.Sprites.Count - 1;
-                
+
                 _renderer.sprite = animation.Sprites[spriteIndex];
 
                 var moveProgress = path.MoveCurve.Evaluate(progress);
@@ -107,13 +109,25 @@ namespace GamePlay.Cards
             });
         }
 
+        [Sirenix.OdinInspector.Button]
+        private void DebugDice()
+        {
+            PlayDiceRoll(this.GetObjectLifetime(), 3, true).Forget();
+        }
+
+        [Sirenix.OdinInspector.Button]
+        private void DebugCoin()
+        {
+            PlayCoinFlip(this.GetObjectLifetime(), true, false).Forget();
+        }
+
         [Serializable]
         public class Path
         {
             [SerializeField] private Transform _from;
             [SerializeField] private Transform _to;
-            [SerializeField] private AnimationCurve _moveCurve;
-            [SerializeField] private AnimationCurve _heightCurve;
+            [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
+            [SerializeField] [CurveRange] private AnimationCurve _heightCurve;
             [SerializeField] private float _maxHeight;
 
             public Transform From => _from;

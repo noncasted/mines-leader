@@ -15,6 +15,9 @@ namespace Shared
         ManaCostPenalty = 6,
         Shield = 7,
         SoulLink = 8,
+        BaseHealth = 9,
+        BaseMoves = 10,
+        BaseMana = 11,
     }
 
     public static class PlayerModifierExtensions

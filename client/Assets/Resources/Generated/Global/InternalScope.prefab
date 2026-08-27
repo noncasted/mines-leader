@@ -43,7 +43,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e52c069b99b674847969b77975cc5efb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Startup::Startup.InternalScope
+  m_EditorClassIdentifier: Loop::Flow.InternalScope
   parentReference:
     TypeName: 
   autoRun: 1

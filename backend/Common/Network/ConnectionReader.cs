@@ -47,6 +47,11 @@ public class ConnectionReader : IConnectionReader
             {
                 receiveResult = await _webSocket.ReceiveAsync(buffer, lifetime.Token);
             }
+            catch (WebSocketException e) when (e.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
+            {
+                _logger.LogInformation("[Connection] Client disconnected without close handshake — closing connection");
+                break;
+            }
             catch (WebSocketException e)
             {
                 _logger.LogError(e, "[Connection] WebSocket receive error — closing connection");

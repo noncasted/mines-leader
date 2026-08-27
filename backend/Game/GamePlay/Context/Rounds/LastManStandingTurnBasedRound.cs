@@ -89,13 +89,12 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
 
         foreach (var player in _gameContext.Players)
         {
-            player.Health.SetMax(snapshot, ModeOptions.PlayerHealth);
-            player.Health.SetCurrent(snapshot, ModeOptions.PlayerHealth);
-
-            player.Mana.SetMax(snapshot, ModeOptions.PlayerStartMana);
-            player.Mana.Restore(snapshot);
-
-            player.Moves.SetMax(snapshot, GetMovesMax(player));
+            PlayerBaseBuffs.Grant(
+                player,
+                snapshot,
+                health: ModeOptions.PlayerHealth,
+                moves: GetMovesMax(player),
+                mana: ModeOptions.PlayerStartMana);
         }
 
         if (_matchOptions.Fixture != null)

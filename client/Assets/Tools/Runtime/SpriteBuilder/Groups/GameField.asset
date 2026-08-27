@@ -22,24 +22,24 @@ MonoBehaviour:
   - Name: GameActionCoinFlip
     Kind: 1
     Sprites:
-    - {fileID: 554903666101871349, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 8492361854086081358, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -5144901431770129032, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -5892316124082152675, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -4885189943469727864, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -3391795371146936858, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -7632406069413024032, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -4948587601910337640, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -914204991948202188, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 4740137196159346912, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 4984640181421403249, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 267168895700224891, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 5028217446345824864, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: -5549914490906353113, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 4011485240881310838, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 2890127487653854878, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    - {fileID: 7572332201035475523, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
-    Time: 0.8
+    - {fileID: -4328459486812451720, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 5240952941043027548, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 3544790076334028522, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 3657314969239374869, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 7280615230234276523, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -2571226381890638249, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -1739349188844801888, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -3927934146812469708, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -4855408257375784019, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -5967860303410582475, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 2120469203753528570, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -37104656279410504, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -5589688321324147938, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 151026046466598094, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: 2677714673691426535, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -7963544989166970772, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    - {fileID: -6282191516964196175, guid: 6c527aa5d73a17c1395be0042cf4cb3f, type: 3}
+    Time: 1.2
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: GameActionDiceRoll
     Kind: 1
@@ -65,7 +65,7 @@ MonoBehaviour:
     - {fileID: 2458972931350559164, guid: 21b26141ac227679d86b321357e71165, type: 3}
     - {fileID: -5472722186175931672, guid: 21b26141ac227679d86b321357e71165, type: 3}
     - {fileID: 504214935883455387, guid: 21b26141ac227679d86b321357e71165, type: 3}
-    Time: 0.8
+    Time: 1.2
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: Invactive
     Kind: 0

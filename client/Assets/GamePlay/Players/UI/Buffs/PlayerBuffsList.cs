@@ -77,7 +77,7 @@ namespace GamePlay.Players.Buffs
         private void ShowInfo(DurationalModifierOverview overview)
         {
             _hoveredId = overview.SourceId;
-            _info.Show(GetDescription(overview.Key));
+            _info.Show(GetDescription(overview));
             _info.Follow(_input.Screen, _showOnRight);
         }
 
@@ -87,12 +87,12 @@ namespace GamePlay.Players.Buffs
             _info.Hide();
         }
 
-        private string GetDescription(string key)
+        private string GetDescription(DurationalModifierOverview overview)
         {
-            if (_modifiers.TryGet(key, out var definition) == false)
-                return key;
+            if (_modifiers.TryGet(overview.Key, out var definition) == false)
+                return overview.Key;
 
-            return definition.Description;
+            return definition.Describe(overview.Value);
         }
 
         private void HidePlaceholders()

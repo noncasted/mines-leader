@@ -8,6 +8,12 @@ namespace Meta
         string Name { get; }
         string Description { get; }
         Sprite Image { get; }
+
+        /// <summary>
+        /// Описание с подставленным размером эффекта: направление ("+" или "-") зашито
+        /// в текст, поэтому в него уходит модуль значения модификатора.
+        /// </summary>
+        string Describe(float value);
     }
 
     public class ModifierDefinition : IModifierDefinition
@@ -24,5 +30,12 @@ namespace Meta
         public string Name { get; }
         public string Description { get; }
         public Sprite Image { get; }
+
+        public string Describe(float value)
+        {
+            var amount = Mathf.RoundToInt(Mathf.Abs(value));
+
+            return string.Format(Description, amount);
+        }
     }
 }

@@ -4,11 +4,11 @@
     "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
     "$values": [
       200,
-      400,
-      500,
       100,
       2400,
-      600
+      600,
+      2900,
+      1700
     ]
   }
 }
