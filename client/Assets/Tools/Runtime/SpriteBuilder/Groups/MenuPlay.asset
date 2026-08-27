@@ -19,12 +19,6 @@ MonoBehaviour:
     - {fileID: -6884490784760626805, guid: 74016c7665c4dd9909b208565a51a408, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
-  - Name: G1
-    Kind: 0
-    Sprites:
-    - {fileID: 7901962540986186621, guid: 74016c7665c4dd9909b208565a51a408, type: 3}
-    Time: 0.8
-    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: ModeLastManStanding
     Kind: 0
     Sprites:

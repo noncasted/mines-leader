@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: 6f14ec24c6a2afc2a21c96634d0e9f4a
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Unlocks.MenuUnlockEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"9c570a3ea443a7f2c78f1ed0c4f10b60\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

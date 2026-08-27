@@ -14,6 +14,7 @@ public class GameCommandUtils
         ISnapshotDiffGuard diffGuard,
         ILogger<GameCommandUtils> logger,
         ISessionLogger sessionLogger,
+        IMatchStatsTracker stats,
         IAgentObservationPublisher? observationPublisher = null)
     {
         GameContext = gameContext;
@@ -23,6 +24,7 @@ public class GameCommandUtils
         DiffGuard = diffGuard;
         Logger = logger;
         SessionLogger = sessionLogger;
+        Stats = stats;
         ObservationPublisher = observationPublisher;
     }
 
@@ -33,5 +35,6 @@ public class GameCommandUtils
     public ISnapshotDiffGuard DiffGuard { get; }
     public ILogger Logger { get; }
     public ISessionLogger SessionLogger { get; }
+    public IMatchStatsTracker Stats { get; }
     public IAgentObservationPublisher? ObservationPublisher { get; }
 }

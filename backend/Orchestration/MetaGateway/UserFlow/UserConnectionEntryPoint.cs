@@ -22,7 +22,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         IOrleans orleans,
         IMessaging messaging,
         ICardConfigs cardConfigs,
-        ILootProgressionConfig lootProgressionConfig,
+        IInGameAchievementConfig achievementConfig,
         IMatchMakingConfig matchMakingConfig,
         ICardPreviewGenerator cardPreviewGenerator,
         ILogger<UserConnectionEntryPoint> logger)
@@ -31,7 +31,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         _orleans = orleans;
         _messaging = messaging;
         _cardConfigs = cardConfigs;
-        _lootProgressionConfig = lootProgressionConfig;
+        _achievementConfig = achievementConfig;
         _matchMakingConfig = matchMakingConfig;
         _cardPreviewGenerator = cardPreviewGenerator;
         _logger = logger;
@@ -44,7 +44,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
-    private readonly ILootProgressionConfig _lootProgressionConfig;
+    private readonly IInGameAchievementConfig _achievementConfig;
     private readonly IMatchMakingConfig _matchMakingConfig;
     private readonly ICardPreviewGenerator _cardPreviewGenerator;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
@@ -82,7 +82,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             await Task.WhenAll(projections.Select(projection => writer.WriteOneWay(projection).AsTask()));
 
             _cardConfigs.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
-            _lootProgressionConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
+            _achievementConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
             _matchMakingConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
 
             var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();

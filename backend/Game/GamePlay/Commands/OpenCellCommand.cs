@@ -51,6 +51,17 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 
         Utils.SessionLogger.LogCellOpened(context.Player.User.Id, request.Position, hasMine, shieldConsumed);
 
+        var userId = context.Player.User.Id;
+        Utils.Stats.Add(userId, UserStatType.CellsOpened);
+
+        if (hasMine)
+        {
+            Utils.Stats.Add(userId, UserStatType.MinesDetonated);
+
+            if (shieldConsumed == false)
+                Utils.Stats.Add(userId, UserStatType.DamageTaken);
+        }
+
         context.Player.Actions.OnCellOpened();
         context.Player.Moves.OnUsed(context.Snapshot);
 

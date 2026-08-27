@@ -62,7 +62,8 @@ public class TestCleanup
     {
         Track<UserState>(userId);
         Track<UserAuthState>(userId);
-        Track<UserProgressionState>(userId);
+        Track<UserStatsState>(userId);
+        Track<UserInGameAchievementsState>(userId);
         Track<UserRatingState>(userId);
         Track<UserMatchHistoryAggregate>(userId);
         Track<UserDeckState>(userId);

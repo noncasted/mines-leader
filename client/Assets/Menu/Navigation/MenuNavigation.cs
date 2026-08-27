@@ -3,7 +3,7 @@ using Global.UI;
 using Internal;
 using Menu.Decks;
 using Menu.Play;
-using Menu.Progression;
+using Menu.Unlocks;
 using UnityEngine;
 using VContainer;
 
@@ -16,7 +16,7 @@ namespace Menu.Navigation
     [DisallowMultipleComponent]
     public class MenuNavigation : MonoBehaviour, IMenuNavigation, ISceneService, IScopeSetup
     {
-        [SerializeField] private MenuNavigationButton _progressionButton;
+        [SerializeField] private MenuNavigationButton _unlocksButton;
         [SerializeField] private MenuNavigationButton _deckButton;
         [SerializeField] private MenuNavigationButton _playButton;
         [SerializeField] private MenuNavigationButton _statsButton;
@@ -24,7 +24,7 @@ namespace Menu.Navigation
 
         private IMenuDecks _decks;
         private IMenuPlay _play;
-        private IMenuProgression _progression;
+        private IMenuUnlocks _unlocks;
         private IUIStateMachine _stateMachine;
         private ISettingsView _settings;
         private IUIStateHandle _current;
@@ -33,13 +33,13 @@ namespace Menu.Navigation
         internal void Construct(
             IMenuDecks decks,
             IMenuPlay play,
-            IMenuProgression progressionScreen,
+            IMenuUnlocks unlocksScreen,
             IUIStateMachine stateMachine,
             ISettingsView settings)
         {
             _settings = settings;
             _stateMachine = stateMachine;
-            _progression = progressionScreen;
+            _unlocks = unlocksScreen;
             _decks = decks;
             _play = play;
         }
@@ -55,17 +55,17 @@ namespace Menu.Navigation
         {
             var allButtons = new[]
             {
-                _progressionButton,
+                _unlocksButton,
                 _deckButton,
                 _playButton,
                 _statsButton,
                 _settingsButton
             };
 
-            _progressionButton.Button.ListenClick(lifetime, () => OnClicked(_progressionButton, _progression));
+            _unlocksButton.Button.ListenClick(lifetime, () => OnClicked(_unlocksButton, _unlocks));
             _deckButton.Button.ListenClick(lifetime, () => OnClicked(_deckButton, _decks));
             _playButton.Button.ListenClick(lifetime, () => OnClicked(_playButton, _play));
-            _statsButton.Button.ListenClick(lifetime, () => OnClicked(_statsButton, _progression));
+            _statsButton.Button.ListenClick(lifetime, () => OnClicked(_statsButton, _unlocks));
             _settingsButton.Button.ListenClick(lifetime, () => OnClicked(_settingsButton, _settings));
             
             gameObject.SetActive(true);

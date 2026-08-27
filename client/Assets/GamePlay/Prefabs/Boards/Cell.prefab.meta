@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: 6cdfa7e62ddb3ec4cbf453da16073cfe
 PrefabImporter:
   externalObjects: {}
-  userData: '{"prefabCatalog":{"included":true,"group":"GamePlay","componentType":"GamePlay.Boards.CellView, GamePlay"}}' 
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"GamePlay\",\n    \"componentType\": \"GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"dd46b0d1261c4a9793f17eda97da8de0\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

@@ -65,8 +65,8 @@
             <RatingConfigEditor Value="_ratingValue" />
             break;
 
-        case ConfigSection.Loot:
-            <LootProgressionConfigEditor Value="_lootProgressionValue" />
+        case ConfigSection.Achievements:
+            <InGameAchievementConfigEditor Value="_achievementValue" />
             break;
 
         case ConfigSection.Player:
@@ -227,7 +227,7 @@
     [Inject] public IBotConfig BotConfig { get; set; } = null!;
     [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
     [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
-    [Inject] public ILootProgressionConfig LootProgressionConfig { get; set; } = null!;
+    [Inject] public IInGameAchievementConfig AchievementConfig { get; set; } = null!;
     [Inject] public IUserDeckConfig UserDeckConfig { get; set; } = null!;
     [Inject] public IPlayerConfig PlayerConfig { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
@@ -237,7 +237,7 @@
     private BotConfigOptions _botValue = new();
     private GameModeOptions _gameModeValue = new();
     private RatingOptions _ratingValue = new();
-    private LootProgressionOptions _lootProgressionValue = new();
+    private InGameAchievementOptions _achievementValue = new();
     private UserDeckConfigOptions _userDeckValue = new();
     private PlayerConfigOptions _playerConfigValue = new();
     private bool _isUpdatingJson;
@@ -248,7 +248,7 @@
         (ConfigSection.Bot,       "bot",      "Bot"),
         (ConfigSection.GameMode,  "sword",    "Game Mode"),
         (ConfigSection.Rating,    "star",     "Rating"),
-        (ConfigSection.Loot,      "package",  "Loot"),
+        (ConfigSection.Achievements, "trophy", "Achievements"),
         (ConfigSection.Player,    "user",     "Player"),
         (ConfigSection.UserDeck,  "library",  "User Deck"),
         (ConfigSection.Cards,     "zap",      "Cards"),
@@ -347,7 +347,7 @@
         ReloadField(BotConfig.Value, ref _botValue);
         ReloadField(GameModeConfig.Value, ref _gameModeValue);
         ReloadField(RatingConfig.Value, ref _ratingValue);
-        ReloadField(LootProgressionConfig.Value, ref _lootProgressionValue);
+        ReloadField(AchievementConfig.Value, ref _achievementValue);
         ReloadField(UserDeckConfig.Value, ref _userDeckValue);
         ReloadField(PlayerConfig.Value, ref _playerConfigValue);
         InvokeAsync(StateHasChanged);
@@ -367,10 +367,10 @@
         await BotConfig.SetValue(_botValue);
         await GameModeConfig.SetValue(_gameModeValue);
         await RatingConfig.SetValue(_ratingValue);
-        await LootProgressionConfig.SetValue(_lootProgressionValue);
+        await AchievementConfig.SetValue(_achievementValue);
         await UserDeckConfig.SetValue(_userDeckValue);
         await PlayerConfig.SetValue(_playerConfigValue);
-        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, LootProgression, Player, UserDeck)");
+        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, Achievements, Player, UserDeck)");
         ToastService.Success("Configs saved", "Saved");
     }
 
@@ -386,7 +386,7 @@
             await SaveConfig("config.bot", _botValue);
             await SaveConfig("config.gameMode", _gameModeValue);
             await SaveConfig("config.rating", _ratingValue);
-            await SaveConfig("config.lootProgression", _lootProgressionValue);
+            await SaveConfig("config.achievements", _achievementValue);
             await SaveConfig("config.userDeck", _userDeckValue);
             await SaveConfig("config.player", _playerConfigValue);
             ToastService.Success("Configs saved to JSON", "Saved");
@@ -416,7 +416,7 @@
         Bot,
         GameMode,
         Rating,
-        Loot,
+        Achievements,
         Player,
         UserDeck,
         Cards,

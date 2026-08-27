@@ -11,6 +11,9 @@ public static class GameContextServiceExtensions
     {
         services.Add<IGameContext, GameContext>();
 
+        services.Add<MatchStatsTracker>()
+                .As<IMatchStatsTracker>();
+
         services.Add<GameRandom>()
                 .As<IGameRandom>();
 

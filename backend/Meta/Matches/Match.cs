@@ -3,7 +3,6 @@ using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Meta.Users;
-using Microsoft.Extensions.Options;
 using Shared;
 
 namespace Meta.Matches;
@@ -14,7 +13,7 @@ public interface IMatch : IGrainWithGuidKey
     Task Setup(GameMatchType type, IReadOnlyList<Guid> participants);
 
     [Transaction]
-    Task OnComplete(Guid winnerId);
+    Task OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats);
 
     [Transaction]
     Task<MatchState> GetState();
@@ -84,18 +83,15 @@ public class Match : Grain, IMatch
     public Match(
         [EventState] EventState<MatchState> state,
         IOrleans orleans,
-        IOptions<ProgressionOptions> options,
         IRatingConfig ratingConfig)
     {
         _state = state;
         _orleans = orleans;
-        _options = options;
         _ratingConfig = ratingConfig;
     }
 
     private readonly EventState<MatchState> _state;
     private readonly IOrleans _orleans;
-    private readonly IOptions<ProgressionOptions> _options;
     private readonly IRatingConfig _ratingConfig;
 
     public async Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
@@ -110,21 +106,9 @@ public class Match : Grain, IMatch
         await _state.Apply(new MatchSetup(type, DateTime.UtcNow, participants, decks));
     }
 
-    public async Task OnComplete(Guid winnerId)
+    public async Task OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats)
     {
         var endDate = DateTime.UtcNow;
-        
-        var winRecord = new UserProgressionRecords.Win
-        {
-            Date = endDate,
-            Experience = _options.Value.WinExperience
-        };
-
-        var lossRecord = new UserProgressionRecords.Loss
-        {
-            Date = endDate,
-            Experience = _options.Value.LossExperience
-        };
 
         var ratingOptions = _ratingConfig.Value;
 
@@ -139,7 +123,7 @@ public class Match : Grain, IMatch
             Date = endDate,
             Rating = ratingOptions.LossRating
         };
-        
+
         var state = await _state.Read();
         var loserId = state.Participants.First(p => p != winnerId);
         var startTime = state.StartDate;
@@ -150,20 +134,44 @@ public class Match : Grain, IMatch
                 [winnerId] = winRatingRecord.GetRating(),
                 [loserId] = lossRatingRecord.GetRating()
             }));
-        
+
         await _state.Write();
 
         var overview = state.CreateOverview(this.GetPrimaryKey());
-        
+
         var winner = _orleans.CreateUserHandle(winnerId);
         var loser = _orleans.CreateUserHandle(loserId);
-        
+
+        RegisterStatsSideEffect(matchStats, winnerId, won: true);
+        RegisterStatsSideEffect(matchStats, loserId, won: false);
+
         await Task.WhenAll(winner.MatchHistory.Add(overview),
-            winner.Progression.AddRecord(winRecord),
             winner.Rating.AddRecord(winRatingRecord),
             loser.MatchHistory.Add(overview),
-            loser.Progression.AddRecord(lossRecord),
             loser.Rating.AddRecord(lossRatingRecord));
+    }
+
+    /// <summary>
+    /// Статы уезжают в грейн игрока отдельным сайд-эффектом — по одному на участника,
+    /// чтобы завершение матча не зависело от их обработки.
+    /// </summary>
+    private static void RegisterStatsSideEffect(
+        Dictionary<Guid, UserStatsDelta>? matchStats,
+        Guid userId,
+        bool won)
+    {
+        var delta = matchStats != null && matchStats.TryGetValue(userId, out var collected)
+            ? collected
+            : new UserStatsDelta();
+
+        delta.Add(UserStatType.MatchesPlayed);
+        delta.Add(won ? UserStatType.MatchesWon : UserStatType.MatchesLost);
+
+        new UserStatsSideEffect
+        {
+            UserId = userId,
+            Delta = delta
+        }.AddToTransaction();
     }
 
     public Task<MatchState> GetState()

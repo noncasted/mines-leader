@@ -64,21 +64,6 @@ namespace Meta
             return backend.ExecuteCommand(new SharedMatchmaking.SearchLobby());
         }
 
-        public static UniTask<SharedBackendUser.LootOpenResponse> OpenLootBox(this IMetaBackend backend, Guid lootBoxId)
-        {
-            return backend.Connection.Writer.WriteRequest<SharedBackendUser.LootOpenResponse>(
-                new SharedBackendUser.LootOpenRequest { LootBoxId = lootBoxId });
-        }
-
-        public static UniTask ChooseLootReward(this IMetaBackend backend, Guid lootBoxId, CardType chosenCard)
-        {
-            return backend.ExecuteCommand(new SharedBackendUser.LootChooseRequest
-            {
-                LootBoxId = lootBoxId,
-                ChosenCard = chosenCard
-            });
-        }
-
         public static UniTask<SharedBackendUser.MatchHistoryResponse> GetMatchHistory(
             this IMetaBackend backend,
             int count)
@@ -93,6 +78,39 @@ namespace Meta
         {
             return backend.Connection.Writer.WriteRequest<SharedBackendUser.MatchDetailsResponse>(
                 new SharedBackendUser.MatchDetailsRequest { MatchId = matchId });
+        }
+
+        public static UniTask<SharedBackendUser.AchievementRewardOptionsResponse> GetAchievementRewardOptions(
+            this IMetaBackend backend,
+            InGameAchievementType type,
+            int tier)
+        {
+            return backend.Connection.Writer.WriteRequest<SharedBackendUser.AchievementRewardOptionsResponse>(
+                new SharedBackendUser.AchievementRewardOptionsRequest
+                {
+                    Type = type,
+                    Tier = tier
+                });
+        }
+
+        public static async UniTask<bool> ClaimAchievementReward(
+            this IMetaBackend backend,
+            InGameAchievementType type,
+            int tier,
+            CardType card)
+        {
+            var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(
+                new SharedBackendUser.ClaimAchievementRewardRequest
+                {
+                    Type = type,
+                    Tier = tier,
+                    Card = card
+                });
+
+            if (response.HasError == true)
+                Debug.LogError($"Claim achievement reward failed: {response.Message}");
+
+            return response.HasError == false;
         }
 
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)

@@ -9,7 +9,6 @@ namespace Tools {
         private const string Address = "1b37e564ad267ffebbbe5957e0144b9a";
 
         private Sprite _cancel;
-        private Sprite _g1;
         private Sprite _modeLastManStanding;
         private Sprite _modeTimeLimited;
         private Sprite _plateBase;
@@ -19,10 +18,6 @@ namespace Tools {
 
         public Sprite Cancel {
             get { EnsureLoaded(); return _cancel; }
-        }
-
-        public Sprite G1 {
-            get { EnsureLoaded(); return _g1; }
         }
 
         public Sprite ModeLastManStanding {
@@ -49,7 +44,6 @@ namespace Tools {
             _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);
             var asset = await _handle.ToUniTask();
             _cancel = asset.GetSheet("Cancel");
-            _g1 = asset.GetSheet("G1");
             _modeLastManStanding = asset.GetSheet("ModeLastManStanding");
             _modeTimeLimited = asset.GetSheet("ModeTimeLimited");
             _plateBase = asset.GetSheet("PlateBase");
@@ -59,7 +53,6 @@ namespace Tools {
 
         protected override void UnloadGroup() {
             _cancel = null;
-            _g1 = null;
             _modeLastManStanding = null;
             _modeTimeLimited = null;
             _plateBase = null;

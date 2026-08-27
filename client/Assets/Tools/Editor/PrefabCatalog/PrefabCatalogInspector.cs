@@ -211,8 +211,11 @@ namespace Tools {
             EditorGUILayout.EndHorizontal();
 
             if (changed && nextIndex >= 0 && nextIndex < options.Count) {
-                var componentType = options[nextIndex].ComponentType;
-                Apply(importers, metadata => metadata.ComponentType = componentType);
+                var option = options[nextIndex];
+                Apply(importers, metadata => {
+                    metadata.ComponentType = option.ComponentType;
+                    metadata.ComponentGuid = option.ComponentGuid;
+                });
             }
         }
 
@@ -247,7 +250,7 @@ namespace Tools {
 
         private static List<RootOption> GetRootOptions(AssetImporter importer, string currentType) {
             var options = new List<RootOption> {
-                new RootOption(GameObjectOption, string.Empty)
+                new RootOption(GameObjectOption, string.Empty, string.Empty)
             };
             var seen = new HashSet<string>(StringComparer.Ordinal) { string.Empty };
 
@@ -263,24 +266,29 @@ namespace Tools {
                     if (string.IsNullOrEmpty(qualified) || seen.Add(qualified) == false)
                         continue;
 
-                    options.Add(new RootOption(type.Name, qualified));
+                    options.Add(new RootOption(type.Name, qualified, PrefabCatalogMetadata.ToScriptGuid(behaviour)));
                 }
             }
 
             if (string.IsNullOrEmpty(currentType) == false && seen.Add(currentType))
-                options.Add(new RootOption(PrefabCatalogMetadata.ToDisplayName(currentType), currentType));
+                options.Add(new RootOption(
+                    PrefabCatalogMetadata.ToDisplayName(currentType),
+                    currentType,
+                    string.Empty));
 
             return options;
         }
 
         private readonly struct RootOption {
-            public RootOption(string display, string componentType) {
+            public RootOption(string display, string componentType, string componentGuid) {
                 Display = display;
                 ComponentType = componentType;
+                ComponentGuid = componentGuid;
             }
 
             public string Display { get; }
             public string ComponentType { get; }
+            public string ComponentGuid { get; }
         }
 
         private readonly struct CatalogStates {
