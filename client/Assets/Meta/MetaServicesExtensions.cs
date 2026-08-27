@@ -57,11 +57,11 @@ namespace Meta
 
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
-                .RegisterBackendProjection<SharedBackendUser.ProgressionProjection>()
+                .RegisterBackendProjection<SharedBackendUser.UserStatsProjection>()
+                .RegisterBackendProjection<SharedBackendUser.InGameAchievementsProjection>()
                 .RegisterBackendProjection<SharedBackendUser.RatingProjection>()
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
                 .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
-                .RegisterBackendProjection<SharedBackendUser.LootProjection>()
                 .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
                 .RegisterBackendProjection<SharedMatchmaking.LobbyResult>()
                 .RegisterBackendProjection<InitialCardPreviews>();
@@ -71,19 +71,22 @@ namespace Meta
                    .As<IBackendProjection>()
                    .As<ICardConfigs>();
 
-            builder.Register<LootProgressionConfigs>()
-                   .As<IBackendProjection<LootProgressionOptions>>()
+            builder.Register<InGameAchievementConfigs>()
+                   .As<IBackendProjection<InGameAchievementOptions>>()
                    .As<IBackendProjection>()
-                   .As<ILootProgressionConfigs>();
+                   .As<IInGameAchievementConfigs>();
 
             builder.Register<MatchMakingConfigs>()
                    .As<IBackendProjection<MatchMakingOptions>>()
                    .As<IBackendProjection>()
                    .As<IMatchMakingConfigs>();
 
-            builder.Register<ProgressionService>()
-                   .As<IProgression>()
+            builder.Register<AchievementsService>()
+                   .As<IAchievements>()
                    .As<IScopeSetup>();
+
+            builder.Register<AchievementRewards>()
+                   .As<IAchievementRewards>();
 
             return builder;
         }

@@ -317,7 +317,7 @@ ScriptedImporter:
         x: 0
         y: 0
         width: 324
-        height: 376
+        height: 188
       spriteId: 3f2b87cf4e663338cac7343b655a4bac
     linkedCells: []
     tileCells: []
@@ -363,5 +363,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 512, y: 512}
+  previousTextureSize: {x: 512, y: 256}
   canvasSize: {x: 512, y: 512}

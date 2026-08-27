@@ -14,12 +14,12 @@ public class UserHandle
     private readonly Guid _id;
 
     public IUser Entity => _orleans.GetGrain<IUser>(_id);
-    public IUserProgression Progression => _orleans.GetGrain<IUserProgression>(_id);
+    public IUserStats Stats => _orleans.GetGrain<IUserStats>(_id);
+    public IUserInGameAchievements Achievements => _orleans.GetGrain<IUserInGameAchievements>(_id);
     public IUserRating Rating => _orleans.GetGrain<IUserRating>(_id);
     public IUserMatchHistory MatchHistory => _orleans.GetGrain<IUserMatchHistory>(_id);
     public IUserDeck Deck => _orleans.GetGrain<IUserDeck>(_id);
     public IUserCards Cards => _orleans.GetGrain<IUserCards>(_id);
-    public IUserLoot Loot => _orleans.GetGrain<IUserLoot>(_id);
     public IUserAuth Auth => _orleans.GetGrain<IUserAuth>(_id);
 }
 

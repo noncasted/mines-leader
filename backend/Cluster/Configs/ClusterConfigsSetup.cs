@@ -21,7 +21,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         IRuntimePipeConfig runtimePipe,
         IRuntimeChannelConfig runtimeChannel,
         ITransactionConfig transactionConfig,
-        ILootProgressionConfig lootProgression,
+        IInGameAchievementConfig achievements,
         IUserDeckConfig userDeckConfig,
         IPlayerConfig playerConfig,
         ILogger<ClusterConfigsSetup> logger)
@@ -37,7 +37,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         _runtimePipe = runtimePipe;
         _runtimeChannel = runtimeChannel;
         _transactionConfig = transactionConfig;
-        _lootProgression = lootProgression;
+        _achievements = achievements;
         _userDeckConfig = userDeckConfig;
         _playerConfig = playerConfig;
         _logger = logger;
@@ -54,7 +54,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
     private readonly IRuntimePipeConfig _runtimePipe;
     private readonly IRuntimeChannelConfig _runtimeChannel;
     private readonly ITransactionConfig _transactionConfig;
-    private readonly ILootProgressionConfig _lootProgression;
+    private readonly IInGameAchievementConfig _achievements;
     private readonly IUserDeckConfig _userDeckConfig;
     private readonly IPlayerConfig _playerConfig;
     private readonly ILogger<ClusterConfigsSetup> _logger;
@@ -72,7 +72,7 @@ public class ClusterConfigsSetup : ICoordinatorSetupCompleted
         await InitConfig("config.runtimePipe", _runtimePipe);
         await InitConfig("config.runtimeChannel", _runtimeChannel);
         await InitConfig("config.transaction", _transactionConfig);
-        await InitConfigWithDefault("config.lootProgression", _lootProgression, LootProgressionOptions.CreateDefault());
+        await InitConfigWithDefault("config.achievements", _achievements, InGameAchievementOptions.CreateDefault());
         await InitConfig("config.userDeck", _userDeckConfig);
         await InitConfig("config.player", _playerConfig);
 

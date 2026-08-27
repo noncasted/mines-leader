@@ -3,7 +3,6 @@ using Meta.Matches;
 using Meta.Users;
 using MetaGateway.UserFlow.Commands;
 using MetaGateway.UserFlow.Connection;
-using Microsoft.Extensions.Options;
 using Shared;
 
 namespace MetaGateway.UserFlow;
@@ -52,14 +51,12 @@ public static class MatchCommands
 
     public class GetDetails : UserCommand<SharedBackendUser.MatchDetailsRequest>
     {
-        public GetDetails(IOrleans orleans, IOptions<ProgressionOptions> progressionOptions)
+        public GetDetails(IOrleans orleans)
         {
             _orleans = orleans;
-            _progressionOptions = progressionOptions;
         }
 
         private readonly IOrleans _orleans;
-        private readonly IOptions<ProgressionOptions> _progressionOptions;
 
         protected override async Task<INetworkContext> Execute(
             IUserSession session,
@@ -83,10 +80,6 @@ public static class MatchCommands
             var won = state.Winner == userId;
             var ratingChange = state.RatingChanges.TryGetValue(userId, out var rating) ? rating : 0;
 
-            var progressionChange = won
-                ? _progressionOptions.Value.WinExperience
-                : _progressionOptions.Value.LossExperience;
-
             return new SharedBackendUser.MatchDetailsResponse
             {
                 MatchId = request.MatchId,
@@ -94,7 +87,6 @@ public static class MatchCommands
                 OpponentCards = opponentCards,
                 Time = state.Time,
                 RatingChange = ratingChange,
-                ProgressionChange = progressionChange,
                 Won = won
             };
         }

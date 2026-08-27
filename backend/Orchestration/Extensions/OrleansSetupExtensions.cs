@@ -10,6 +10,12 @@ public static class OrleansSetupExtensions
 {
     public static readonly TimeSpan ReplyTimeoutSeconds = TimeSpan.FromSeconds(5);
 
+    // Dev-only localhost clustering ports. Orleans' defaults are 11111/30000, but 30000 is
+    // routinely taken by Rider's embedded JCEF browser (cef_server), which kills the silo's
+    // gateway listener on startup — keep the gateway well clear of it.
+    public const int LocalSiloPort = 11111;
+    public const int LocalGatewayPort = 30010;
+
     extension(IHostApplicationBuilder builder)
     {
         public IHostApplicationBuilder AddOrleansClient()
@@ -25,7 +31,7 @@ public static class OrleansSetupExtensions
 
                 if (builder.Environment.IsDevelopment() == true)
                 {
-                    clientBuilder.UseLocalhostClustering();
+                    clientBuilder.UseLocalhostClustering(LocalGatewayPort);
                 }
                 else
                 {
@@ -55,7 +61,7 @@ public static class OrleansSetupExtensions
 
                 if (builder.Environment.IsDevelopment() == true)
                 {
-                    siloBuilder.UseLocalhostClustering();
+                    siloBuilder.UseLocalhostClustering(LocalSiloPort, LocalGatewayPort);
                 }
                 else
                 {

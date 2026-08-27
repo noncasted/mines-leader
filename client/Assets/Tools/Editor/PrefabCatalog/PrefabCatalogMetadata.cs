@@ -10,6 +10,9 @@ namespace Tools {
         public string Group { get; set; } = string.Empty;
         public string ComponentType { get; set; } = string.Empty;
 
+        // The script GUID survives type and namespace renames; ComponentType is only a readable mirror.
+        public string ComponentGuid { get; set; } = string.Empty;
+
         public static bool TryRead(AssetImporter importer, out PrefabCatalogMetadata metadata) {
             metadata = null;
 
@@ -28,7 +31,8 @@ namespace Tools {
                 metadata = new PrefabCatalogMetadata {
                     Included = catalog["included"] != null && catalog.Value<bool>("included"),
                     Group = catalog.Value<string>("group") ?? string.Empty,
-                    ComponentType = catalog.Value<string>("componentType") ?? string.Empty
+                    ComponentType = catalog.Value<string>("componentType") ?? string.Empty,
+                    ComponentGuid = catalog.Value<string>("componentGuid") ?? string.Empty
                 };
                 return true;
             }
@@ -70,6 +74,35 @@ namespace Tools {
             }
         }
 
+        public static Type ResolveType(string componentGuid, string componentType) {
+            if (string.IsNullOrEmpty(componentGuid) == false) {
+                var scriptPath = AssetDatabase.GUIDToAssetPath(componentGuid);
+                if (string.IsNullOrEmpty(scriptPath) == false) {
+                    var script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
+                    var scriptType = script == null ? null : script.GetClass();
+                    if (scriptType != null)
+                        return scriptType;
+                }
+            }
+
+            if (string.IsNullOrEmpty(componentType))
+                return null;
+
+            return Type.GetType(componentType, false);
+        }
+
+        public static string ToScriptGuid(MonoBehaviour behaviour) {
+            var script = MonoScript.FromMonoBehaviour(behaviour);
+            if (script == null)
+                return string.Empty;
+
+            var scriptPath = AssetDatabase.GetAssetPath(script);
+            if (string.IsNullOrEmpty(scriptPath))
+                return string.Empty;
+
+            return AssetDatabase.AssetPathToGUID(scriptPath);
+        }
+
         public static string ToDisplayName(string componentType) {
             if (string.IsNullOrEmpty(componentType))
                 return "(GameObject)";
@@ -90,7 +123,8 @@ namespace Tools {
             var catalog = new JObject {
                 ["included"] = metadata.Included,
                 ["group"] = metadata.Group ?? string.Empty,
-                ["componentType"] = metadata.ComponentType ?? string.Empty
+                ["componentType"] = metadata.ComponentType ?? string.Empty,
+                ["componentGuid"] = metadata.ComponentGuid ?? string.Empty
             };
 
             JObject root;

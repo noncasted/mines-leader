@@ -4,6 +4,7 @@
 @using global::Infrastructure.State
 @using Marten
 @using Meta.Matches
+@using Cluster.Configs
 @using Meta.Users
 @using Shared
 
@@ -52,8 +53,8 @@
                 </div>
                 <div class="flex gap-6 shrink-0">
                     <div class="flex flex-col items-end gap-1">
-                        <span class="text-2xl font-bold">@_xp</span>
-                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Experience</span>
+                        <span class="text-2xl font-bold">@_achievements.Count</span>
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Achievements</span>
                     </div>
                     <div class="flex flex-col items-end gap-1">
                         <span class="text-2xl font-bold">@_rating</span>
@@ -85,24 +86,110 @@
             </div>
         </div>
 
-        @* Progression Management *@
+        @* Achievements & Stats *@
         <div class="flex flex-col gap-3">
-            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Progression Management</h2>
+            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Achievements &amp; Stats</h2>
             <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
-                <p class="text-sm text-muted-foreground">Current: <span class="font-bold text-foreground">@_xp</span> XP</p>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs text-muted-foreground w-16 shrink-0">Adjust by</span>
-                    <input type="number" @bind="_progressionDelta"
-                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
-                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
-                              Disabled="_isSaving" @onclick="AdjustProgression">Apply</BbButton>
+                <p class="text-sm text-muted-foreground">
+                    Unlocked: <span class="font-bold text-foreground">@_achievements.Count</span>
+                </p>
+
+                @if (_achievements.Count > 0)
+                {
+                    <div class="flex flex-wrap gap-1">
+                        @foreach (var entry in _achievements.OrderBy(a => a.Type).ThenBy(a => a.Tier))
+                        {
+                            <span class="rounded bg-amber-500/15 text-amber-400 px-1.5 py-0.5 text-xs font-semibold">
+                                @entry.Type T@entry.Tier
+                            </span>
+                        }
+                    </div>
+                }
+
+                <div class="flex flex-wrap gap-x-6 gap-y-1">
+                    @foreach (var counter in _stats.Counters.OrderBy(c => c.Key.ToString()))
+                    {
+                        <span class="text-xs text-muted-foreground">
+                            @counter.Key: <span class="text-foreground font-semibold">@counter.Value</span>
+                        </span>
+                    }
+                    @foreach (var counter in _stats.CardsPlayedByGroup.OrderBy(c => c.Key.ToString()))
+                    {
+                        <span class="text-xs text-muted-foreground">
+                            @counter.Key cards: <span class="text-foreground font-semibold">@counter.Value</span>
+                        </span>
+                    }
                 </div>
+
+                <div class="flex items-center gap-2 border-t pt-3 cursor-pointer select-none"
+                     @onclick="@(() => _achievementsExpanded = !_achievementsExpanded)">
+                    <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        All achievements (@AchievementGroups.Count)
+                    </span>
+                    <LucideIcon Name="@(_achievementsExpanded ? "chevron-up" : "chevron-down")" Size="14"
+                                class="text-muted-foreground"/>
+                </div>
+
+                @if (_achievementsExpanded)
+                {
+                    @if (AchievementGroups.Count == 0)
+                    {
+                        <p class="text-sm text-muted-foreground py-2">Achievement config is empty</p>
+                    }
+                    else
+                    {
+                        <div class="overflow-x-auto">
+                            <div class="flex flex-col gap-1.5 min-w-max">
+                                @foreach (var group in AchievementGroups)
+                                {
+                                    var currentGroup = group;
+
+                                    <div class="flex items-stretch gap-1.5" @key="currentGroup.Type">
+                                        <div class="w-44 shrink-0 rounded border bg-muted/40 px-2 py-1.5 flex flex-col justify-center">
+                                            <span class="text-xs font-semibold">@currentGroup.Name</span>
+                                            <span class="text-[11px] text-muted-foreground">@ConditionLabel(currentGroup)</span>
+                                        </div>
+
+                                        <div class="w-28 shrink-0 flex items-center gap-1">
+                                            <input type="number" value="@GetGroupProgress(currentGroup)"
+                                                   disabled="@_isSaving"
+                                                   @onchange="@(e => SetGroupProgress(currentGroup, e.Value?.ToString()))"
+                                                   class="h-8 w-full rounded border border-input bg-background px-2 text-sm"/>
+                                        </div>
+
+                                        @foreach (var tier in currentGroup.Tiers.OrderBy(t => t.Tier))
+                                        {
+                                            var currentTier = tier;
+                                            var target = currentTier.Condition?.GetTarget() ?? 0;
+
+                                            <button type="button" disabled="@_isSaving"
+                                                    title="Set progress to @target"
+                                                    @onclick="@(() => SetProgress(currentGroup, target))"
+                                                    class="w-36 shrink-0 rounded border px-2 py-1.5 text-left transition-colors @TierClass(ResolveTierStatus(currentGroup, currentTier))">
+                                                <span class="block text-[11px] font-semibold truncate">
+                                                    @(string.IsNullOrEmpty(currentTier.Description)
+                                                        ? $"Tier {currentTier.Tier}"
+                                                        : currentTier.Description)
+                                                </span>
+                                                <span class="block text-[11px] opacity-80">
+                                                    @GetTierProgress(currentTier)/@target
+                                                </span>
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs text-muted-foreground w-16 shrink-0">Set to</span>
-                    <input type="number" @bind="_progressionTarget"
-                           class="h-8 w-28 rounded border border-input bg-background px-2 text-sm"/>
                     <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
-                              Disabled="_isSaving" @onclick="SetProgression">Set</BbButton>
+                              Disabled="_isSaving" @onclick="EvaluateAchievements">Re-evaluate</BbButton>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="ResetAchievements">Reset achievements</BbButton>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              Disabled="_isSaving" @onclick="ResetStats">Reset stats</BbButton>
                 </div>
             </div>
         </div>
@@ -342,13 +429,13 @@
     [Inject] public IClipboard Clipboard { get; set; } = null!;
     [Inject] public IDocumentStore DocumentStore { get; set; } = null!;
     [Inject] public IStateSerializer StateSerializer { get; set; } = null!;
+    [Inject] public IInGameAchievementConfig AchievementConfig { get; set; } = null!;
 
 
     private const int MatchPageSize = 10;
 
     private UserState? _user;
     private Guid _userId;
-    private int _xp;
     private int _rating;
     private DateTime? _registeredAt;
     private UserDeckState? _deckState;
@@ -361,10 +448,11 @@
 
     private int _ratingDelta;
     private int _ratingTarget;
-    private int _progressionDelta;
-    private int _progressionTarget;
+    private UserStatsState _stats = new();
+    private IReadOnlyList<InGameAchievementEntry> _achievements = new List<InGameAchievementEntry>();
     private HashSet<CardType> _ownedCards = new();
     private bool _cardsExpanded;
+    private bool _achievementsExpanded;
     private bool _statesExpanded;
     private List<GrainStateInfo> _userStates = new();
     private string? _selectedStateTable;
@@ -422,7 +510,8 @@
 
         await Orleans.InTransaction(async () =>
             {
-                _xp = await handle.Progression.GetTotal();
+                _stats = await handle.Stats.GetState();
+                _achievements = await handle.Achievements.GetUnlocked();
                 _rating = await handle.Rating.GetTotal();
                 _deckState = await handle.Deck.GetState();
                 _allMatches = (await handle.MatchHistory.GetBlock(100)).Reverse().ToList();
@@ -433,7 +522,6 @@
         );
 
         _ratingTarget = _rating;
-        _progressionTarget = _xp;
 
         _matchTotalPages = _allMatches.Count == 0 ? 1 : (_allMatches.Count + MatchPageSize - 1) / MatchPageSize;
         _matchCurrentPage = 0;
@@ -495,20 +583,121 @@
         }
     }
 
-    private async Task AdjustProgression()
+    private async Task EvaluateAchievements()
+    {
+        await RunAchievementAction(handle => handle.Achievements.Evaluate(), "Achievements re-evaluated");
+    }
+
+    private async Task ResetAchievements()
+    {
+        await RunAchievementAction(handle => handle.Achievements.Reset(), "Achievements reset");
+    }
+
+    private async Task ResetStats()
+    {
+        await RunAchievementAction(handle => handle.Stats.Reset(), "Stats reset");
+    }
+
+    private List<InGameAchievementGroupConfig> AchievementGroups =>
+        AchievementConfig.Value?.Groups ?? new List<InGameAchievementGroupConfig>();
+
+    private long GetTierProgress(InGameAchievementTierConfig tier)
+    {
+        return tier.Condition?.GetProgress(_stats) ?? 0;
+    }
+
+    /// <summary>Все тиры ряда считают один и тот же стат, поэтому прогресс берётся с первого.</summary>
+    private long GetGroupProgress(InGameAchievementGroupConfig group)
+    {
+        return GroupCondition(group)?.GetProgress(_stats) ?? 0;
+    }
+
+    private string ConditionLabel(InGameAchievementGroupConfig group)
+    {
+        return GroupCondition(group) switch
+        {
+            StatThresholdCondition stat => stat.Stat.ToString(),
+            CardGroupPlayedCondition cards => $"{cards.Group} cards played",
+            _ => "no condition"
+        };
+    }
+
+    private AchievementTierStatus ResolveTierStatus(
+        InGameAchievementGroupConfig group,
+        InGameAchievementTierConfig tier)
+    {
+        var entry = _achievements.FirstOrDefault(e => e.Type == group.Type && e.Tier == tier.Tier);
+
+        if (entry != null)
+            return entry.Claimed ? AchievementTierStatus.Taken : AchievementTierStatus.Available;
+
+        // Ряд открывается по порядку: в работе всегда первый неоткрытый тир, остальные закрыты.
+        var next = group.Tiers
+                        .OrderBy(t => t.Tier)
+                        .FirstOrDefault(t => _achievements.Any(e => e.Type == group.Type && e.Tier == t.Tier) == false);
+
+        return next?.Tier == tier.Tier ? AchievementTierStatus.InProgress : AchievementTierStatus.Locked;
+    }
+
+    private static string TierClass(AchievementTierStatus status)
+    {
+        return status switch
+        {
+            AchievementTierStatus.Taken => "border-amber-500/40 bg-amber-500/15 text-amber-400 hover:bg-amber-500/25",
+            AchievementTierStatus.Available => "border-emerald-500/40 bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25",
+            AchievementTierStatus.InProgress => "border-primary/50 bg-primary/10 text-primary hover:bg-primary/20",
+            _ => "border-border bg-muted text-muted-foreground hover:bg-muted/70"
+        };
+    }
+
+    private Task SetGroupProgress(InGameAchievementGroupConfig group, string? raw)
+    {
+        if (long.TryParse(raw, out var value) == false)
+            return Task.CompletedTask;
+
+        return SetProgress(group, value);
+    }
+
+    /// <summary>
+    /// Статы копятся дельтами, поэтому «поставить прогресс» — это применить разницу
+    /// с текущим значением и тут же пересчитать ачивки.
+    /// </summary>
+    private async Task SetProgress(InGameAchievementGroupConfig group, long value)
     {
         if (_isSaving) return;
+
+        var condition = GroupCondition(group);
+
+        if (condition == null)
+        {
+            ToastService.Error($"{group.Name} has no condition to set", "Error");
+            return;
+        }
+
+        var delta = BuildProgressDelta(condition, value);
+
+        if (delta == null)
+        {
+            ToastService.Error($"Condition {condition.GetType().Name} is not supported", "Error");
+            return;
+        }
+
         _isSaving = true;
+
         try
         {
             var handle = Orleans.CreateUserHandle(_userId);
+
+            await Orleans.InTransaction(() => handle.Stats.Apply(delta));
+
             await Orleans.InTransaction(async () =>
             {
-                await handle.Progression.AdjustProgression(_progressionDelta);
-                _xp = await handle.Progression.GetTotal();
+                await handle.Achievements.Evaluate();
+                _stats = await handle.Stats.GetState();
+                _achievements = await handle.Achievements.GetUnlocked();
             });
-            _progressionTarget = _xp;
-            ToastService.Success($"Progression adjusted by {_progressionDelta:+#;-#;0}", "Done");
+
+            ToastService.Success($"{group.Name} progress set to {value}", "Done");
         }
         catch (Exception ex)
         {
@@ -520,7 +709,37 @@
         }
     }
 
-    private async Task SetProgression()
+    private UserStatsDelta? BuildProgressDelta(IInGameAchievementCondition condition, long value)
+    {
+        var delta = new UserStatsDelta();
+
+        switch (condition)
+        {
+            case StatThresholdCondition stat:
+                delta.Add(stat.Stat, value - _stats.Get(stat.Stat));
+                return delta;
+            case CardGroupPlayedCondition cards:
+                delta.AddCardPlayed(cards.Group, value - _stats.GetCardsPlayed(cards.Group));
+                return delta;
+            default:
+                return null;
+        }
+    }
+
+    private static IInGameAchievementCondition? GroupCondition(InGameAchievementGroupConfig group)
+    {
+        return group.Tiers.FirstOrDefault(tier => tier.Condition != null)?.Condition;
+    }
+
+    private enum AchievementTierStatus
+    {
+        Locked,
+        InProgress,
+        Available,
+        Taken
+    }
+
+    private async Task RunAchievementAction(Func<UserHandle, Task> action, string message)
     {
         if (_isSaving) return;
         _isSaving = true;
@@ -529,11 +748,11 @@
             var handle = Orleans.CreateUserHandle(_userId);
             await Orleans.InTransaction(async () =>
             {
-                await handle.Progression.SetProgression(_progressionTarget);
-                _xp = await handle.Progression.GetTotal();
+                await action(handle);
+                _stats = await handle.Stats.GetState();
+                _achievements = await handle.Achievements.GetUnlocked();
             });
-            _progressionTarget = _xp;
-            ToastService.Success($"Progression set to {_xp}", "Done");
+            ToastService.Success(message, "Done");
         }
         catch (Exception ex)
         {

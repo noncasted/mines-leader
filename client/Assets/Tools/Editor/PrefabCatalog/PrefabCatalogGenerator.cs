@@ -11,6 +11,8 @@ namespace Tools {
 
         private const float DebounceSeconds = 0.5f;
 
+        private static readonly List<MetadataFix> _metadataFixes = new();
+
         private static bool _isGenerating;
         private static bool _isScheduled;
         private static double _scheduledTime;
@@ -79,6 +81,7 @@ namespace Tools {
 
         private static void GenerateInternal() {
             var groups = new List<PrefabGroupDefinition>();
+            _metadataFixes.Clear();
             AssetDatabase.StartAssetEditing();
             try {
                 groups = BuildGroups(CollectSources());
@@ -87,6 +90,8 @@ namespace Tools {
             finally {
                 AssetDatabase.StopAssetEditing();
             }
+
+            ApplyMetadataFixes();
 
             PrefabAddressablesSync.Sync(groups);
             PrefabsCatalogClassGenerator.Generate(groups);
@@ -155,11 +160,80 @@ namespace Tools {
                     Group = groupName,
                     PropertyName = propertyName,
                     Prefab = prefab,
-                    ComponentType = metadata.ComponentType ?? string.Empty
+                    ComponentType = ResolveComponentType(path, prefab, metadata)
                 });
             }
 
             return sources;
+        }
+
+        // userData cannot hold a live type reference, so the root component is stored as a script GUID
+        // with a readable name beside it. The GUID survives renames; the name is re-derived every run.
+        private static string ResolveComponentType(string path, GameObject prefab, PrefabCatalogMetadata metadata) {
+            var componentType = metadata.ComponentType ?? string.Empty;
+            var componentGuid = metadata.ComponentGuid ?? string.Empty;
+            if (string.IsNullOrEmpty(componentType) && string.IsNullOrEmpty(componentGuid))
+                return string.Empty;
+
+            var resolved = PrefabCatalogMetadata.ResolveType(componentGuid, componentType);
+            var behaviour = FindBehaviour(prefab, resolved, componentType);
+            if (behaviour == null) {
+                Debug.LogError(
+                    $"[PrefabCatalogGenerator] Root type '{PrefabCatalogMetadata.ToDisplayName(componentType)}' is missing on {path}. Falling back to GameObject, reassign the root in the inspector."
+                );
+                return string.Empty;
+            }
+
+            var actualType = behaviour.GetType().AssemblyQualifiedName ?? string.Empty;
+            var actualGuid = PrefabCatalogMetadata.ToScriptGuid(behaviour);
+            if (actualType == componentType && actualGuid == componentGuid)
+                return componentType;
+
+            _metadataFixes.Add(new MetadataFix {
+                Path = path,
+                ComponentType = actualType,
+                ComponentGuid = actualGuid
+            });
+
+            if (string.IsNullOrEmpty(componentType) == false && actualType != componentType)
+                Debug.Log($"[PrefabCatalogGenerator] Root type moved: '{componentType}' -> '{actualType}' for {path}.");
+
+            return actualType;
+        }
+
+        private static MonoBehaviour FindBehaviour(GameObject prefab, Type resolved, string componentType) {
+            if (resolved != null)
+                return prefab.GetComponent(resolved) as MonoBehaviour;
+
+            // Legacy metadata without a GUID: the type moved namespaces but kept its name.
+            var shortName = PrefabCatalogMetadata.ToDisplayName(componentType);
+            MonoBehaviour matched = null;
+            foreach (var behaviour in prefab.GetComponents<MonoBehaviour>()) {
+                if (behaviour == null || behaviour.GetType().Name != shortName)
+                    continue;
+
+                if (matched != null)
+                    return null;
+
+                matched = behaviour;
+            }
+
+            return matched;
+        }
+
+        private static void ApplyMetadataFixes() {
+            foreach (var fix in _metadataFixes) {
+                var importer = AssetImporter.GetAtPath(fix.Path);
+                if (importer == null)
+                    continue;
+
+                var metadata = PrefabCatalogMetadata.ReadOrDefault(importer);
+                metadata.ComponentType = fix.ComponentType;
+                metadata.ComponentGuid = fix.ComponentGuid;
+                PrefabCatalogMetadata.Write(importer, metadata);
+            }
+
+            _metadataFixes.Clear();
         }
 
         private static void WarnIfIncluded(string path) {
@@ -430,6 +504,12 @@ namespace Tools {
 
                 current = next;
             }
+        }
+
+        private struct MetadataFix {
+            public string Path;
+            public string ComponentType;
+            public string ComponentGuid;
         }
 
         private sealed class PrefabSource {

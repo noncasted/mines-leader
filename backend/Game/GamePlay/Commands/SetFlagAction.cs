@@ -25,6 +25,7 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
         context.Snapshot.RecordMines(board, board.MinesScanner.Recalculate(context.Snapshot));
 
         Utils.SessionLogger.LogFlagSet(context.Player.User.Id, request.Position);
+        Utils.Stats.Add(context.Player.User.Id, UserStatType.FlagsSet);
 
         return EmptyResponse.Ok;
     }

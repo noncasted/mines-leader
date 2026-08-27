@@ -25,6 +25,7 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
         context.Snapshot.RecordMines(board, board.MinesScanner.Recalculate(context.Snapshot));
 
         Utils.SessionLogger.LogFlagRemoved(context.Player.User.Id, request.Position);
+        Utils.Stats.Add(context.Player.User.Id, UserStatType.FlagsRemoved);
 
         return EmptyResponse.Ok;
     }

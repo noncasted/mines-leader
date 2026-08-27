@@ -19,7 +19,7 @@
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Name</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Rating</th>
-                <th class="h-10 px-4 text-left font-medium text-muted-foreground">XP</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Achievements</th>
                 <th class="h-10 px-4 w-10"></th>
             </tr>
             </thead>
@@ -39,7 +39,7 @@
                         @(_rating.TryGetValue(user.UserId, out var rating) ? rating.ToString() : "—")
                     </td>
                     <td class="px-4 py-2.5 text-muted-foreground text-xs">
-                        @(_xp.TryGetValue(user.UserId, out var xp) ? xp.ToString() : "—")
+                        @(_achievements.TryGetValue(user.UserId, out var unlocked) ? unlocked.ToString() : "—")
                     </td>
                     <td class="px-4 py-2.5">
                         <div class="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
@@ -95,7 +95,7 @@
     private List<UserState> _filteredUsers = new();
     private List<UserState> _pageUsers = new();
     private Dictionary<Guid, int> _rating = new();
-    private Dictionary<Guid, int> _xp = new();
+    private Dictionary<Guid, int> _achievements = new();
     private string _search = string.Empty;
     private int _page;
     private int _totalPages;
@@ -147,27 +147,27 @@
     {
         if (_pageUsers.Count == 0)
         {
-            _xp = new Dictionary<Guid, int>();
+            _achievements = new Dictionary<Guid, int>();
             _rating = new Dictionary<Guid, int>();
             return;
         }
 
         var tasks = _pageUsers.Select(async user => {
             var rating = 0;
-            var xp = 0;
+            var unlocked = 0;
 
             await Orleans.InTransaction(async () => {
-                var xpTask = Orleans.GetGrain<IUserProgression>(user.UserId).GetTotal();
+                var achievementsTask = Orleans.GetGrain<IUserInGameAchievements>(user.UserId).GetUnlocked();
                 var ratingTask = Orleans.GetGrain<IUserRating>(user.UserId).GetTotal();
-                xp = await xpTask;
+                unlocked = (await achievementsTask).Count;
                 rating = await ratingTask;
             });
 
-            return (user.UserId, xp, rating);
+            return (user.UserId, unlocked, rating);
         });
 
         var results = await Task.WhenAll(tasks);
-        _xp = results.ToDictionary(r => r.UserId, r => r.xp);
+        _achievements = results.ToDictionary(r => r.UserId, r => r.unlocked);
         _rating = results.ToDictionary(r => r.UserId, r => r.rating);
     }
 

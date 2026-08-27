@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: b6a7f5b42ffbf95a4be73535aa8515c9
 PrefabImporter:
   externalObjects: {}
-  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\"\n  }\n}"
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"e81a78959873425b89195db25aeae9cf\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

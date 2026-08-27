@@ -134,108 +134,254 @@ public class UserRatingTests
 }
 
 [Collection(nameof(OrleansIntegrationCollection))]
-public class UserProgressionTests
+public class UserStatsTests
     (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
 {
     [Fact]
-    public async Task AddRecord_WinRecord_AddsExperience()
+    public async Task Apply_SingleDelta_AccumulatesCounter()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
+        var grain = GetGrain<IUserStats>(id);
 
-        await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-            { Date = DateTime.UtcNow, Experience = 100 }));
-        var total = 0;
+        await RunTransaction(() => grain.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
 
+        UserStatsState? state = null;
         await RunTransaction(async () => {
-            total = await grain.GetTotal();
+            state = await grain.GetState();
         });
-        total.Should().Be(100);
+
+        state!.Get(UserStatType.FlagsSet).Should().Be(10);
     }
 
     [Fact]
-    public async Task AddRecord_LossRecord_AddsPositiveExperience()
+    public async Task Apply_MultipleDeltas_SumUp()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
+        var grain = GetGrain<IUserStats>(id);
 
-        await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-            { Date = DateTime.UtcNow, Experience = 30 }));
-        var total = 0;
+        await RunTransaction(() => grain.Apply(UserStatsDelta.Single(UserStatType.CellsOpened, 5)));
+        await RunTransaction(() => grain.Apply(UserStatsDelta.Single(UserStatType.CellsOpened, 7)));
 
+        UserStatsState? state = null;
         await RunTransaction(async () => {
-            total = await grain.GetTotal();
+            state = await grain.GetState();
         });
-        total.Should().Be(30);
+
+        state!.Get(UserStatType.CellsOpened).Should().Be(12);
     }
 
     [Fact]
-    public async Task AddRecord_WinAndLoss_BothAccumulate()
+    public async Task Apply_CardGroups_TrackedSeparately()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
+        var grain = GetGrain<IUserStats>(id);
 
-        await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-            { Date = DateTime.UtcNow, Experience = 100 }));
+        var delta = new UserStatsDelta();
+        delta.AddCardPlayed(CardGroup.Attack);
+        delta.AddCardPlayed(CardGroup.Attack);
+        delta.AddCardPlayed(CardGroup.Scout);
 
-        await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-            { Date = DateTime.UtcNow, Experience = 30 }));
-        var total = 0;
+        await RunTransaction(() => grain.Apply(delta));
 
+        UserStatsState? state = null;
         await RunTransaction(async () => {
-            total = await grain.GetTotal();
+            state = await grain.GetState();
         });
-        total.Should().Be(130);
+
+        state!.GetCardsPlayed(CardGroup.Attack).Should().Be(2);
+        state.GetCardsPlayed(CardGroup.Scout).Should().Be(1);
+        state.GetCardsPlayed(CardGroup.Buff).Should().Be(0);
     }
 
     [Fact]
-    public async Task GetTotal_NoRecords_ReturnsZero()
+    public async Task GetState_NoStats_ReturnsZero()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
-        var total = 0;
+        var grain = GetGrain<IUserStats>(id);
 
+        UserStatsState? state = null;
         await RunTransaction(async () => {
-            total = await grain.GetTotal();
+            state = await grain.GetState();
         });
-        total.Should().Be(0);
+
+        state!.Get(UserStatType.FlagsSet).Should().Be(0);
     }
 
     [Fact]
-    public async Task GetProjection_NoRecords_ReturnsZeroExperience()
+    public async Task Reset_ClearsCounters()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
-        IProjectionPayload? projection = null;
+        var grain = GetGrain<IUserStats>(id);
 
+        await RunTransaction(() => grain.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 3)));
+        await RunTransaction(() => grain.Reset());
+
+        UserStatsState? state = null;
         await RunTransaction(async () => {
-            projection = await grain.GetProjection();
+            state = await grain.GetState();
         });
 
-        projection.Should().NotBeNull();
-        var context = projection!.ToContext();
-        var progressionProjection = context.Should().BeOfType<SharedBackendUser.ProgressionProjection>().Subject;
-        progressionProjection.Experience.Should().Be(0);
+        state!.Get(UserStatType.FlagsSet).Should().Be(0);
     }
+}
+
+[Collection(nameof(OrleansIntegrationCollection))]
+public class UserInGameAchievementsTests
+    (OrleansTestClusterFixture fixture) : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
     [Fact]
-    public async Task AddRecord_MultipleRecords_SumAll()
+    public async Task Evaluate_BelowThreshold_UnlocksNothing()
     {
         var id = Guid.NewGuid();
-        var grain = GetGrain<IUserProgression>(id);
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
 
-        for (var i = 0; i < 3; i++)
-            await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Win
-                { Date = DateTime.UtcNow, Experience = 100 }));
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 1)));
+        await RunTransaction(() => grain.Evaluate());
 
-        for (var i = 0; i < 2; i++)
-            await RunTransaction(() => grain.AddRecord(new UserProgressionRecords.Loss
-                { Date = DateTime.UtcNow, Experience = 30 }));
-        var total = 0;
+        IReadOnlyList<InGameAchievementEntry>? unlocked = null;
+        await RunTransaction(async () => {
+            unlocked = await grain.GetUnlocked();
+        });
+
+        unlocked!.Any(e => e.Type == InGameAchievementType.FlagsSet).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Evaluate_CrossesFirstTier_UnlocksOnce()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
+        await RunTransaction(() => grain.Evaluate());
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 1)));
+        await RunTransaction(() => grain.Evaluate());
+
+        IReadOnlyList<InGameAchievementEntry>? unlocked = null;
+        await RunTransaction(async () => {
+            unlocked = await grain.GetUnlocked();
+        });
+
+        unlocked!.Count(e => e.Type == InGameAchievementType.FlagsSet).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetRewardOptions_AfterUnlock_IsFixedAndNotClaimed()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
+        await RunTransaction(() => grain.Evaluate());
+
+        IReadOnlyList<CardType>? first = null;
+        IReadOnlyList<CardType>? second = null;
 
         await RunTransaction(async () => {
-            total = await grain.GetTotal();
+            first = await grain.GetRewardOptions(InGameAchievementType.FlagsSet, 1);
         });
-        total.Should().Be(360);
+
+        await RunTransaction(async () => {
+            second = await grain.GetRewardOptions(InGameAchievementType.FlagsSet, 1);
+        });
+
+        first!.Should().NotBeEmpty();
+        second.Should().Equal(first);
+
+        IReadOnlyList<InGameAchievementEntry>? unlocked = null;
+        await RunTransaction(async () => {
+            unlocked = await grain.GetUnlocked();
+        });
+
+        unlocked!.Single(e => e.Type == InGameAchievementType.FlagsSet).Claimed.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ClaimReward_OfferedCard_GrantsCardAndClosesAchievement()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
+        var cards = GetGrain<IUserCards>(id);
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
+        await RunTransaction(() => grain.Evaluate());
+
+        IReadOnlyList<CardType>? options = null;
+        await RunTransaction(async () => {
+            options = await grain.GetRewardOptions(InGameAchievementType.FlagsSet, 1);
+        });
+
+        var picked = options!.First();
+        var claimed = false;
+
+        await RunTransaction(async () => {
+            claimed = await grain.ClaimReward(InGameAchievementType.FlagsSet, 1, picked);
+        });
+
+        claimed.Should().BeTrue();
+
+        IReadOnlyList<CardType>? owned = null;
+        IReadOnlyList<InGameAchievementEntry>? unlocked = null;
+
+        await RunTransaction(async () => {
+            owned = await cards.GetAll();
+            unlocked = await grain.GetUnlocked();
+        });
+
+        owned!.Should().Contain(picked);
+
+        var entry = unlocked!.Single(e => e.Type == InGameAchievementType.FlagsSet);
+        entry.Claimed.Should().BeTrue();
+        entry.UnlockedCard.Should().Be(picked);
+    }
+
+    [Fact]
+    public async Task ClaimReward_CardOutsideOptions_IsRejected()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
+        await RunTransaction(() => grain.Evaluate());
+
+        IReadOnlyList<CardType>? options = null;
+        await RunTransaction(async () => {
+            options = await grain.GetRewardOptions(InGameAchievementType.FlagsSet, 1);
+        });
+
+        var foreign = CardTypeExtensions.All.First(card => options!.Contains(card) == false);
+        var claimed = true;
+
+        await RunTransaction(async () => {
+            claimed = await grain.ClaimReward(InGameAchievementType.FlagsSet, 1, foreign);
+        });
+
+        claimed.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Reset_ClearsUnlocked()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<IUserInGameAchievements>(id);
+        var stats = GetGrain<IUserStats>(id);
+
+        await RunTransaction(() => stats.Apply(UserStatsDelta.Single(UserStatType.FlagsSet, 10)));
+        await RunTransaction(() => grain.Evaluate());
+        await RunTransaction(() => grain.Reset());
+
+        IReadOnlyList<InGameAchievementEntry>? unlocked = null;
+        await RunTransaction(async () => {
+            unlocked = await grain.GetUnlocked();
+        });
+
+        unlocked!.Should().BeEmpty();
     }
 }
 
@@ -566,7 +712,7 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var matchId = Guid.NewGuid();
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
+        await RunTransaction(() => match.OnComplete(user1, new Dictionary<Guid, UserStatsDelta>()));
         MatchState? state = null;
 
         await RunTransaction(async () => {
@@ -577,45 +723,13 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
     }
 
     [Fact]
-    public async Task OnComplete_UpdatesWinnerProgression()
-    {
-        var (user1, user2) = await SetupUsers();
-        var matchId = Guid.NewGuid();
-        var match = GetGrain<IMatch>(matchId);
-        await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
-        var total = 0;
-
-        await RunTransaction(async () => {
-            total = await GetGrain<IUserProgression>(user1).GetTotal();
-        });
-        total.Should().Be(100);
-    }
-
-    [Fact]
-    public async Task OnComplete_UpdatesLoserProgression()
-    {
-        var (user1, user2) = await SetupUsers();
-        var matchId = Guid.NewGuid();
-        var match = GetGrain<IMatch>(matchId);
-        await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
-        var total = 0;
-
-        await RunTransaction(async () => {
-            total = await GetGrain<IUserProgression>(user2).GetTotal();
-        });
-        total.Should().Be(30);
-    }
-
-    [Fact]
     public async Task OnComplete_UpdatesWinnerRating()
     {
         var (user1, user2) = await SetupUsers();
         var matchId = Guid.NewGuid();
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
+        await RunTransaction(() => match.OnComplete(user1, new Dictionary<Guid, UserStatsDelta>()));
         var total = 0;
 
         await RunTransaction(async () => {
@@ -631,7 +745,7 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var matchId = Guid.NewGuid();
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
+        await RunTransaction(() => match.OnComplete(user1, new Dictionary<Guid, UserStatsDelta>()));
         var total = 0;
 
         await RunTransaction(async () => {
@@ -647,7 +761,7 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var matchId = Guid.NewGuid();
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
+        await RunTransaction(() => match.OnComplete(user1, new Dictionary<Guid, UserStatsDelta>()));
         MatchState? state = null;
 
         await RunTransaction(async () => {
@@ -667,7 +781,7 @@ public class MatchTests(OrleansTestClusterFixture fixture) : IntegrationTestBase
         var matchId = Guid.NewGuid();
         var match = GetGrain<IMatch>(matchId);
         await RunTransaction(() => match.Setup(GameMatchType.Single, new List<Guid> { user1, user2 }));
-        await RunTransaction(() => match.OnComplete(user1));
+        await RunTransaction(() => match.OnComplete(user1, new Dictionary<Guid, UserStatsDelta>()));
         IReadOnlyList<MatchOverview>? history1 = null;
         IReadOnlyList<MatchOverview>? history2 = null;
 

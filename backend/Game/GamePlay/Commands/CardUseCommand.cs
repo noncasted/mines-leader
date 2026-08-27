@@ -45,6 +45,11 @@ public class CardUseCommand(
 
         var prefixMark = context.Snapshot.Count;
 
+        var opponent = Utils.GameContext.GetOpponent(player);
+        var opponentTakenBefore = CountTakenCells(opponent.Board);
+        var modifiersBefore = player.Modifiers.Sources.Count;
+        var opponentModifiersBefore = opponent.Modifiers.Sources.Count;
+
         context.Snapshot.HasDropPosition = request.HasDropPosition;
         context.Snapshot.DropX = request.DropX;
         context.Snapshot.DropY = request.DropY;
@@ -71,6 +76,56 @@ public class CardUseCommand(
 
         Utils.SessionLogger.LogCardUsed(player.User.Id, handCard.Type, manaCost, use.Result.HasError == false);
 
+        RecordStats(player, opponent, config, manaCost, opponentTakenBefore, modifiersBefore, opponentModifiersBefore);
+
         return use.Result;
+    }
+
+    private void RecordStats(
+        IPlayer player,
+        IPlayer opponent,
+        ICardConfig config,
+        int manaCost,
+        int opponentTakenBefore,
+        int modifiersBefore,
+        int opponentModifiersBefore)
+    {
+        var userId = player.User.Id;
+        var stats = Utils.Stats;
+
+        stats.Add(userId, UserStatType.CardsPlayed);
+        stats.AddCardPlayed(userId, config.Group);
+        stats.Add(userId, UserStatType.ManaSpent, manaCost);
+
+        if (config.Target == CardTarget.OpponentBoard || config.Target == CardTarget.Opponent)
+            stats.Add(userId, UserStatType.CrossBoardCardsPlayed);
+
+        var planted = CountTakenCells(opponent.Board) - opponentTakenBefore;
+
+        if (planted > 0)
+            stats.Add(userId, UserStatType.EnemyCellsPlanted, planted);
+
+        var gained = player.Modifiers.Sources.Count - modifiersBefore;
+
+        if (gained > 0)
+            stats.Add(userId, UserStatType.BuffsReceived, gained);
+
+        var opponentGained = opponent.Modifiers.Sources.Count - opponentModifiersBefore;
+
+        if (opponentGained > 0)
+            stats.Add(opponent.User.Id, UserStatType.DebuffsReceived, opponentGained);
+    }
+
+    private static int CountTakenCells(IBoard board)
+    {
+        var count = 0;
+
+        foreach (var cell in board.Cells.Values)
+        {
+            if (cell.Status == CellStatus.Taken)
+                count++;
+        }
+
+        return count;
     }
 }

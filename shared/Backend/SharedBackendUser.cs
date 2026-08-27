@@ -16,9 +16,68 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ProgressionProjection : INetworkContext
+        public partial class UserStatsProjection : INetworkContext, IUserStatsState
         {
-            public int Experience { get; set; }
+            public Dictionary<UserStatType, long> Counters { get; set; } = new();
+            public Dictionary<CardGroup, long> CardsPlayedByGroup { get; set; } = new();
+
+            public long Get(UserStatType type)
+            {
+                if (Counters == null)
+                    return 0;
+
+                return Counters.TryGetValue(type, out var value) ? value : 0;
+            }
+
+            public long GetCardsPlayed(CardGroup group)
+            {
+                if (CardsPlayedByGroup == null)
+                    return 0;
+
+                return CardsPlayedByGroup.TryGetValue(group, out var value) ? value : 0;
+            }
+        }
+
+        [MemoryPackable]
+        public partial class InGameAchievementsProjection : INetworkContext
+        {
+            public List<UnlockedAchievement> Unlocked { get; set; } = new();
+
+            [MemoryPackable]
+            public partial class UnlockedAchievement
+            {
+                public InGameAchievementType Type { get; set; }
+                public int Tier { get; set; }
+                public DateTime Date { get; set; }
+
+                /// <summary>Награда уже выбрана игроком, ачивку больше нельзя открыть.</summary>
+                public bool Claimed { get; set; }
+
+                public CardType? RewardCard { get; set; }
+            }
+        }
+
+        [MemoryPackable]
+        public partial class AchievementRewardOptionsRequest : INetworkContext
+        {
+            public InGameAchievementType Type { get; set; }
+            public int Tier { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class AchievementRewardOptionsResponse : INetworkContext
+        {
+            public InGameAchievementType Type { get; set; }
+            public int Tier { get; set; }
+            public List<CardType> Options { get; set; } = new();
+        }
+
+        [MemoryPackable]
+        public partial class ClaimAchievementRewardRequest : INetworkContext
+        {
+            public InGameAchievementType Type { get; set; }
+            public int Tier { get; set; }
+            public CardType Card { get; set; }
         }
 
         [MemoryPackable]
@@ -65,39 +124,6 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class LootProjection : INetworkContext
-        {
-            public int AwardedCount { get; set; }
-            public List<LootEntry> Boxes { get; set; } = new();
-
-            [MemoryPackable]
-            public partial class LootEntry
-            {
-                public Guid Id { get; set; }
-            }
-        }
-
-        [MemoryPackable]
-        public partial class LootOpenRequest : INetworkContext
-        {
-            public Guid LootBoxId { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class LootOpenResponse : INetworkContext
-        {
-            public Guid LootBoxId { get; set; }
-            public List<CardType> Choices { get; set; } = new();
-        }
-
-        [MemoryPackable]
-        public partial class LootChooseRequest : INetworkContext
-        {
-            public Guid LootBoxId { get; set; }
-            public CardType ChosenCard { get; set; }
-        }
-
-        [MemoryPackable]
         public partial class MatchHistoryRequest : INetworkContext
         {
             public int Count { get; set; }
@@ -123,7 +149,6 @@ namespace Shared
             public List<CardType> OwnCards { get; set; } = new();
             public TimeSpan Time { get; set; }
             public int RatingChange { get; set; }
-            public int ProgressionChange { get; set; }
             public bool Won { get; set; }
         }
 
@@ -131,16 +156,16 @@ namespace Shared
         {
             return builder
                    .Add<ProfileProjection>()
-                   .Add<ProgressionProjection>()
+                   .Add<UserStatsProjection>()
+                   .Add<InGameAchievementsProjection>()
+                   .Add<AchievementRewardOptionsRequest>()
+                   .Add<AchievementRewardOptionsResponse>()
+                   .Add<ClaimAchievementRewardRequest>()
                    .Add<UpdateDeckRequest>()
                    .Add<DeckProjection>()
                    .Add<Match>()
                    .Add<RatingProjection>()
                    .Add<CardsProjection>()
-                   .Add<LootProjection>()
-                   .Add<LootOpenRequest>()
-                   .Add<LootOpenResponse>()
-                   .Add<LootChooseRequest>()
                    .Add<MatchHistoryRequest>()
                    .Add<MatchHistoryResponse>()
                    .Add<MatchDetailsRequest>()

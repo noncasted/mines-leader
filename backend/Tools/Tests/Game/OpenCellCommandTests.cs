@@ -35,7 +35,8 @@ public class OpenCellCommandTests
         var utils = new GameCommandUtils(
             ctx, Substitute.For<IGameRound>(), Substitute.For<IServiceProvider>(),
             Substitute.For<ISnapshotSender>(), Substitute.For<ISnapshotDiffGuard>(),
-            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>());
+            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>(),
+            new MatchStatsTracker());
 
         var cmd = new TestableOpenCellCommand(utils);
         var snapshot = new MoveSnapshot();
@@ -75,7 +76,8 @@ public class OpenCellCommandTests
         var utils = new GameCommandUtils(
             ctx, Substitute.For<IGameRound>(), Substitute.For<IServiceProvider>(),
             Substitute.For<ISnapshotSender>(), Substitute.For<ISnapshotDiffGuard>(),
-            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>());
+            Substitute.For<ILogger<GameCommandUtils>>(), Substitute.For<ISessionLogger>(),
+            new MatchStatsTracker());
 
         var cmd = new TestableOpenCellCommand(utils);
         var snapshot = new MoveSnapshot();

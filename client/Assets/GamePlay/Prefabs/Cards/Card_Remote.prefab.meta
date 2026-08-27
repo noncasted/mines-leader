@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: 31b7b026bb3ecd47fb52d58ca1e3f05f
 PrefabImporter:
   externalObjects: {}
-  userData: '{"prefabCatalog":{"included":true,"group":"GamePlay","componentType":"GamePlay.Cards.CardScopeEntity, GamePlay"}}' 
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"GamePlay\",\n    \"componentType\": \"GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"3eec27d7f4614c7a9d3bab5f2135e9b0\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 
