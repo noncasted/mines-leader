@@ -43,4 +43,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2b67d3309d64a1fa2431d95c7db63d7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Global::Global.Systems.Updater
+  m_EditorClassIdentifier: Internal::Internal.Updater

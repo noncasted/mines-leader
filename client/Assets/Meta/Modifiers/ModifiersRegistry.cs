@@ -48,6 +48,9 @@ namespace Meta
         {
             return type switch
             {
+                "BaseHealth" => Sprites.CardBuffs.BaseHealth,
+                "BaseMoves" => Sprites.CardBuffs.BaseTurns,
+                "BaseMana" => Sprites.CardBuffs.BaseMana,
                 "Adrenaline" => Sprites.CardBuffs.Adrenaline,
                 "BloodPact" => Sprites.CardBuffs.BloodPact,
                 "CoinToss" => Sprites.CardBuffs.CoinToss,
@@ -69,6 +72,9 @@ namespace Meta
         {
             return type switch
             {
+                "BaseHealth" => "base_health",
+                "BaseMoves" => "base_moves",
+                "BaseMana" => "base_mana",
                 "Adrenaline" => "adrenaline",
                 "BloodPact" => "blood_pact",
                 "CoinToss" => "cointoss",

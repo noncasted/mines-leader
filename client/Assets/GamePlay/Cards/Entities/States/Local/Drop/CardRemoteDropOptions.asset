@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _assetId: 122
   _time: 0.7
-  _twistAngleRange: {x: 370, y: 370}
+  _twistAngleRange: {x: 323.54428, y: 373.6709}
   _moveCurve:
     serializedVersion: 2
     m_Curve:

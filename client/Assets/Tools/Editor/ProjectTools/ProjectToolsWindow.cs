@@ -5,6 +5,7 @@ using Internal;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Tools
@@ -21,6 +22,7 @@ namespace Tools
 
         private readonly List<VisualElement> _tabContents = new();
         private readonly List<Button> _tabButtons = new();
+        private readonly Dictionary<string, Button> _sceneButtons = new();
 
         [MenuItem("Tools/Project Tools %g")]
         public static void ToggleWindow()
@@ -53,6 +55,22 @@ namespace Tools
             _options = OptionsContainer.Load();
             BuildUI();
         }
+
+        private void OnEnable()
+        {
+            EditorSceneManager.sceneOpened += OnSceneOpened;
+            EditorSceneManager.sceneClosed += OnSceneClosed;
+        }
+
+        private void OnDisable()
+        {
+            EditorSceneManager.sceneOpened -= OnSceneOpened;
+            EditorSceneManager.sceneClosed -= OnSceneClosed;
+        }
+
+        private void OnSceneOpened(Scene scene, OpenSceneMode mode) => RefreshSceneButtons();
+
+        private void OnSceneClosed(Scene scene) => RefreshSceneButtons();
 
         private void BuildUI()
         {
@@ -191,16 +209,40 @@ namespace Tools
             foreach (var scene in scenes)
             {
                 var sceneName = Path.GetFileNameWithoutExtension(scene);
-                var button = new Button(() => OpenScene(scene)) { text = sceneName };
+                var scenePath = scene;
+                var button = new Button { text = sceneName };
                 button.AddToClassList("scene-button");
+                button.tooltip = "Click to open, Ctrl+Click to open additively";
 
-                if (IsActiveScene(scene))
-                    button.AddToClassList("scene-button--active");
+                button.RegisterCallback<ClickEvent>(evt =>
+                {
+                    if (evt.ctrlKey || evt.actionKey)
+                        OpenSceneAdditive(scenePath);
+                    else
+                        OpenScene(scenePath);
 
+                    RefreshSceneButtons();
+                });
+
+                _sceneButtons[scenePath] = button;
                 grid.Add(button);
             }
 
+            RefreshSceneButtons();
+
             return grid;
+        }
+
+        private void RefreshSceneButtons()
+        {
+            foreach (var pair in _sceneButtons)
+            {
+                if (pair.Value == null)
+                    continue;
+
+                pair.Value.EnableInClassList("scene-button--active", IsActiveScene(pair.Key));
+                pair.Value.EnableInClassList("scene-button--loaded", IsLoadedScene(pair.Key) && !IsActiveScene(pair.Key));
+            }
         }
 
         private void BuildOptionsSection(VisualElement parent)
@@ -429,10 +471,39 @@ namespace Tools
             return active.path == scenePath;
         }
 
+        private static bool IsLoadedScene(string scenePath)
+        {
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                if (SceneManager.GetSceneAt(i).path == scenePath)
+                    return true;
+            }
+
+            return false;
+        }
+
         private static void OpenScene(string scenePath)
         {
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 EditorSceneManager.OpenScene(scenePath);
+        }
+
+        private static void OpenSceneAdditive(string scenePath)
+        {
+            if (IsLoadedScene(scenePath))
+            {
+                var scene = SceneManager.GetSceneByPath(scenePath);
+
+                if (scene == EditorSceneManager.GetActiveScene() && SceneManager.sceneCount <= 1)
+                    return;
+
+                if (EditorSceneManager.SaveModifiedScenesIfUserWantsTo(new[] { scene }))
+                    EditorSceneManager.CloseScene(scene, true);
+
+                return;
+            }
+
+            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
         }
     }
 }

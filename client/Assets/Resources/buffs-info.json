@@ -1,69 +1,84 @@
 {
   "buffs": [
     {
+      "type": "BaseHealth",
+      "name": "Base Health",
+      "description": "+{0} max health. Lasts the whole game."
+    },
+    {
+      "type": "BaseMoves",
+      "name": "Base Moves",
+      "description": "+{0} moves per round. Lasts the whole game."
+    },
+    {
+      "type": "BaseMana",
+      "name": "Base Mana",
+      "description": "+{0} max mana. Lasts the whole game."
+    },
+    {
       "type": "Adrenaline",
       "name": "Adrenaline",
-      "description": "Дополнительные ходы от Адреналина. Действует 1 ход."
+      "description": "+{0} moves from Adrenaline. Lasts 1 turn."
     },
     {
       "type": "Overclock",
       "name": "Overclock",
-      "description": "Дополнительные ходы от Разгона. Действует 1 ход."
+      "description": "+{0} moves from Overclock. Lasts 1 turn."
     },
     {
       "type": "CoinToss",
       "name": "Coin Toss",
-      "description": "Дополнительные ходы от Орла и Решки. Действует 1 ход."
+      "description": "+{0} moves from Coin Toss. Lasts 1 turn."
     },
     {
       "type": "Focus",
       "name": "Focus",
-      "description": "Скидка на следующую карту от Фокуса. Действует 1 ход."
+      "description": "-{0} mana cost for the next card from Focus. Lasts 1 turn."
     },
     {
       "type": "PowerSurge",
       "name": "Power Surge",
-      "description": "Скидка на все карты от Энерговсплеска. Действует 1 ход."
+      "description": "-{0} mana cost for every card from Power Surge. Lasts 1 turn."
     },
     {
       "type": "ManaSurge",
       "name": "Mana Surge",
-      "description": "Дополнительная мана от Прилива маны. Действует 1 ход."
+      "description": "+{0} mana from Mana Surge. Lasts 1 turn."
     },
     {
       "type": "ManaFountain",
       "name": "Mana Fountain",
-      "description": "Дополнительная мана от Фонтана маны. Действует 1 ход."
+      "description": "+{0} mana from Mana Fountain. Lasts 1 turn."
     },
     {
       "type": "BloodPact",
       "name": "Blood Pact",
-      "description": "Мана и ходы от Кровавого договора. Действует 1 ход."
+      "description": "+{0} mana or moves from Blood Pact. Lasts 1 turn."
     },
     {
       "type": "DoubleOrNothing",
       "name": "Double or Nothing",
-      "description": "Дополнительная мана от Всё или ничего. Действует 1 ход."
+      "description": "+{0} mana from Double or Nothing. Lasts 1 turn."
     },
     {
       "type": "GamblersRuin",
       "name": "Gambler's Ruin",
-      "description": "Дополнительная мана от Пагубной страсти. Действует 1 ход."
+      "description": "+{0} mana from Gambler's Ruin. Lasts 1 turn."
     },
     {
       "type": "Embargo",
       "name": "Embargo",
-      "description": "Штраф к стоимости карт от Эмбарго. Действует 1 ход."
+      "description": "+{0} mana cost for every card from Embargo. Lasts 1 turn."
     },
     {
       "type": "Lockdown",
       "name": "Lockdown",
-      "description": "Снижение ходов от Блокировки."
+      "description": "-{0} moves from Lockdown."
     },
     {
       "type": "SoulLink",
       "name": "Soul Link",
-      "description": "Связь душ. Урон от мин отражается на противнике."
+      "description": "Soul Link. Mine damage is mirrored onto the opponent."
     }
   ]
 }

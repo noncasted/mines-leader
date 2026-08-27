@@ -138,6 +138,12 @@
     color: white;
 }
 
+.scene-button--loaded {
+    background-color: rgb(50, 75, 115);
+    border-color: rgb(70, 105, 165);
+    color: rgb(215, 225, 240);
+}
+
 .assets-button-row {
     flex-direction: row;
     flex-wrap: wrap;

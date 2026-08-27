@@ -19,6 +19,24 @@ MonoBehaviour:
     - {fileID: 1365659317472750495, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: BaseHealth
+    Kind: 0
+    Sprites:
+    - {fileID: -5986128617850206841, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: BaseMana
+    Kind: 0
+    Sprites:
+    - {fileID: 2066611187615205865, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: BaseTurns
+    Kind: 0
+    Sprites:
+    - {fileID: 9207926024667271078, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: BloodPact
     Kind: 0
     Sprites:
