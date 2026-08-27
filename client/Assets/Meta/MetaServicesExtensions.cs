@@ -88,6 +88,10 @@ namespace Meta
             builder.Register<AchievementRewards>()
                    .As<IAchievementRewards>();
 
+            builder.Register<ProfileService>()
+                   .As<IProfile>()
+                   .As<IScopeSetup>();
+
             return builder;
         }
     }

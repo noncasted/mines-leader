@@ -109,6 +109,9 @@ namespace Shared
             public Guid Winner { get; set; }
             public TimeSpan Time { get; set; }
             public GameMatchType Type { get; set; }
+
+            /// <summary>Заполняется под запрашивающего игрока: имя второго участника матча.</summary>
+            public string OpponentName { get; set; } = string.Empty;
         }
 
         [MemoryPackable]
@@ -150,6 +153,9 @@ namespace Shared
             public TimeSpan Time { get; set; }
             public int RatingChange { get; set; }
             public bool Won { get; set; }
+            public string OpponentName { get; set; } = string.Empty;
+            public DateTime Date { get; set; }
+            public GameMatchType Type { get; set; }
         }
 
         public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)

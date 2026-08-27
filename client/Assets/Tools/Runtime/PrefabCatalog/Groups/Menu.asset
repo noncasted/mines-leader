@@ -16,6 +16,12 @@ MonoBehaviour:
   - Name: GameModeEntry
     Prefab: {fileID: 6640460366586368445, guid: b6a7f5b42ffbf95a4be73535aa8515c9, type: 3}
     ComponentType: Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuProfileCard
+    Prefab: {fileID: 6472876225539858506, guid: fefeef39e29a33af5a63b86cf82b19c9, type: 3}
+    ComponentType: Menu.Profile.MenuProfileCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuProfileHistoryEntry
+    Prefab: {fileID: 6041518109402094182, guid: f4a2e6559d486dea0ba206839a3f93aa, type: 3}
+    ComponentType: Menu.Profile.MenuProfileHistoryEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: MenuUnlocksEntry
     Prefab: {fileID: 7251289763218641513, guid: 6f14ec24c6a2afc2a21c96634d0e9f4a, type: 3}
     ComponentType: Menu.Unlocks.MenuUnlockEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
