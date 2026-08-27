@@ -1,5 +1,6 @@
 {
   "groups": [
-    "CardBuffs"
+    "CardBuffs",
+    "Settings"
   ]
 }

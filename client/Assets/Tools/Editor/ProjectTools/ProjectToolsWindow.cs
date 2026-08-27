@@ -12,7 +12,7 @@ namespace Tools
     public class ProjectToolsWindow : EditorWindow
     {
         private static readonly string UssPath = "Assets/Tools/Editor/ProjectTools/ProjectToolsWindow.uss";
-        private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field" };
+        private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field", "Startup" };
 
         private OptionsContainer _options;
         private VisualElement _root;
@@ -415,12 +415,7 @@ namespace Tools
 
         private static List<string> FindAllScenes()
         {
-            var guids = AssetDatabase.FindAssets("t:Scene", new[]
-            {
-                "Assets/Common", "Assets/GamePlay", "Assets/Global",
-                "Assets/Internal", "Assets/Loop", "Assets/Menu",
-                "Assets/Meta", "Assets/Startup", "Assets/Tools"
-            });
+            var guids = AssetDatabase.FindAssets("t:Scene", new[] { "Assets" });
 
             return guids
                    .Select(AssetDatabase.GUIDToAssetPath)

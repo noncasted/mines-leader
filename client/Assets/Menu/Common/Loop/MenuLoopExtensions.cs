@@ -19,6 +19,7 @@ namespace Menu.Common
             builder.LoadSpriteGroup(Sprites.MenuNavigation);
             builder.LoadSpriteGroup(Sprites.MenuUnlocks);
             builder.LoadSpriteGroup(Sprites.GameField);
+            builder.LoadSpriteGroup(Sprites.Settings);
             
             builder.RegisterAsset<ZipZapOptions>();
             

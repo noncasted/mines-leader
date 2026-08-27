@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: fefeef39e29a33af5a63b86cf82b19c9
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Profile.MenuProfileCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"9df4f9b0931c35298b164c6ce7b58088\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: f4a2e6559d486dea0ba206839a3f93aa
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Profile.MenuProfileHistoryEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"5d9151a33d70f0701bc17c25585b3a62\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

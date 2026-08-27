@@ -10,5 +10,6 @@ namespace Tools {
         public static readonly MenuNavigationSprites MenuNavigation = new();
         public static readonly MenuPlaySprites MenuPlay = new();
         public static readonly MenuUnlocksSprites MenuUnlocks = new();
+        public static readonly SettingsSprites Settings = new();
     }
 }

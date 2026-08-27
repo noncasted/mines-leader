@@ -6,12 +6,22 @@ namespace Tools {
         private const string Address = "8d453af8c586a03119ed2b77db1f5c13";
 
         private global::Menu.Play.MenuPlayGameMode _gameModeEntry;
+        private global::Menu.Profile.MenuProfileCard _menuProfileCard;
+        private global::Menu.Profile.MenuProfileHistoryEntry _menuProfileHistoryEntry;
         private global::Menu.Unlocks.MenuUnlockEntry _menuUnlocksEntry;
         private global::Menu.Unlocks.MenuUnlockOption _menuUnlocksOption;
         private global::UnityEngine.GameObject _menuUnlocksRow;
 
         public global::Menu.Play.MenuPlayGameMode GameModeEntry {
             get { EnsureLoaded(); return _gameModeEntry; }
+        }
+
+        public global::Menu.Profile.MenuProfileCard MenuProfileCard {
+            get { EnsureLoaded(); return _menuProfileCard; }
+        }
+
+        public global::Menu.Profile.MenuProfileHistoryEntry MenuProfileHistoryEntry {
+            get { EnsureLoaded(); return _menuProfileHistoryEntry; }
         }
 
         public global::Menu.Unlocks.MenuUnlockEntry MenuUnlocksEntry {
@@ -29,6 +39,8 @@ namespace Tools {
         protected override async UniTask LoadGroup() {
             await LoadAsset(Address);
             _gameModeEntry = Asset.Get<global::Menu.Play.MenuPlayGameMode>("GameModeEntry");
+            _menuProfileCard = Asset.Get<global::Menu.Profile.MenuProfileCard>("MenuProfileCard");
+            _menuProfileHistoryEntry = Asset.Get<global::Menu.Profile.MenuProfileHistoryEntry>("MenuProfileHistoryEntry");
             _menuUnlocksEntry = Asset.Get<global::Menu.Unlocks.MenuUnlockEntry>("MenuUnlocksEntry");
             _menuUnlocksOption = Asset.Get<global::Menu.Unlocks.MenuUnlockOption>("MenuUnlocksOption");
             _menuUnlocksRow = Asset.GetGameObject("MenuUnlocksRow");
@@ -36,6 +48,8 @@ namespace Tools {
 
         protected override void UnloadGroup() {
             _gameModeEntry = null;
+            _menuProfileCard = null;
+            _menuProfileHistoryEntry = null;
             _menuUnlocksEntry = null;
             _menuUnlocksOption = null;
             _menuUnlocksRow = null;

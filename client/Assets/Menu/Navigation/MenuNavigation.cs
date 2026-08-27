@@ -1,8 +1,9 @@
-using Global.Settings;
 using Global.UI;
 using Internal;
 using Menu.Decks;
 using Menu.Play;
+using Menu.Profile;
+using Menu.Settings;
 using Menu.Unlocks;
 using UnityEngine;
 using VContainer;
@@ -19,14 +20,15 @@ namespace Menu.Navigation
         [SerializeField] private MenuNavigationButton _unlocksButton;
         [SerializeField] private MenuNavigationButton _deckButton;
         [SerializeField] private MenuNavigationButton _playButton;
-        [SerializeField] private MenuNavigationButton _statsButton;
+        [SerializeField] private MenuNavigationButton _profileButton;
         [SerializeField] private MenuNavigationButton _settingsButton;
 
         private IMenuDecks _decks;
         private IMenuPlay _play;
+        private IMenuProfile _profile;
         private IMenuUnlocks _unlocks;
         private IUIStateMachine _stateMachine;
-        private ISettingsView _settings;
+        private IMenuSettings _settings;
         private IUIStateHandle _current;
 
         [Inject]
@@ -34,9 +36,11 @@ namespace Menu.Navigation
             IMenuDecks decks,
             IMenuPlay play,
             IMenuUnlocks unlocksScreen,
+            IMenuProfile profile,
             IUIStateMachine stateMachine,
-            ISettingsView settings)
+            IMenuSettings settings)
         {
+            _profile = profile;
             _settings = settings;
             _stateMachine = stateMachine;
             _unlocks = unlocksScreen;
@@ -58,14 +62,14 @@ namespace Menu.Navigation
                 _unlocksButton,
                 _deckButton,
                 _playButton,
-                _statsButton,
+                _profileButton,
                 _settingsButton
             };
 
             _unlocksButton.Button.ListenClick(lifetime, () => OnClicked(_unlocksButton, _unlocks));
             _deckButton.Button.ListenClick(lifetime, () => OnClicked(_deckButton, _decks));
             _playButton.Button.ListenClick(lifetime, () => OnClicked(_playButton, _play));
-            _statsButton.Button.ListenClick(lifetime, () => OnClicked(_statsButton, _unlocks));
+            _profileButton.Button.ListenClick(lifetime, () => OnClicked(_profileButton, _profile));
             _settingsButton.Button.ListenClick(lifetime, () => OnClicked(_settingsButton, _settings));
             
             gameObject.SetActive(true);

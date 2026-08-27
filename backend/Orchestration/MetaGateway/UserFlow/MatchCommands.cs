@@ -37,15 +37,36 @@ public static class MatchCommands
 
             var matches = await _orleans.Transactions.Run(() => user.MatchHistory.GetBlock(count));
 
-            var response = new SharedBackendUser.MatchHistoryResponse
-            {
-                Matches = matches
-                          .Select(m => (SharedBackendUser.Match)m.ToContext())
-                          .OrderByDescending(m => m.Date)
-                          .ToList()
-            };
+            var contexts = matches
+                           .Select(m => (SharedBackendUser.Match)m.ToContext())
+                           .OrderByDescending(m => m.Date)
+                           .ToList();
 
-            return response;
+            var names = await ResolveNames(contexts.Select(m => OpponentOf(m.Participants, session.UserId)));
+
+            foreach (var match in contexts)
+                match.OpponentName = names.GetValueOrDefault(OpponentOf(match.Participants, session.UserId), string.Empty);
+
+            return new SharedBackendUser.MatchHistoryResponse
+            {
+                Matches = contexts
+            };
+        }
+
+        /// <summary>Имена соперников читаются одной пачкой: в истории они повторяются.</summary>
+        private async Task<Dictionary<Guid, string>> ResolveNames(IEnumerable<Guid> ids)
+        {
+            var unique = ids.Where(id => id != Guid.Empty).Distinct().ToList();
+
+            if (unique.Count == 0)
+                return new Dictionary<Guid, string>();
+
+            var states = await _orleans.Transactions.Run(() => Task.WhenAll(
+                unique.Select(id => _orleans.CreateUserHandle(id).Entity.GetState())));
+
+            return unique
+                   .Zip(states, (id, state) => (id, state.Name))
+                   .ToDictionary(entry => entry.id, entry => entry.Name);
         }
     }
 
@@ -71,11 +92,21 @@ public static class MatchCommands
                 ? own.ToList()
                 : new List<CardType>();
 
-            var opponentId = state.Participants.FirstOrDefault(p => p != userId);
+            var opponentId = OpponentOf(state.Participants, userId);
 
             var opponentCards = state.ParticipantDecks.TryGetValue(opponentId, out var opp)
                 ? opp.ToList()
                 : new List<CardType>();
+
+            var opponentName = string.Empty;
+
+            if (opponentId != Guid.Empty)
+            {
+                var opponentState = await _orleans.Transactions.Run(
+                    () => _orleans.CreateUserHandle(opponentId).Entity.GetState());
+
+                opponentName = opponentState.Name;
+            }
 
             var won = state.Winner == userId;
             var ratingChange = state.RatingChanges.TryGetValue(userId, out var rating) ? rating : 0;
@@ -87,8 +118,16 @@ public static class MatchCommands
                 OpponentCards = opponentCards,
                 Time = state.Time,
                 RatingChange = ratingChange,
-                Won = won
+                Won = won,
+                OpponentName = opponentName,
+                Date = state.StartDate,
+                Type = state.Type
             };
         }
+    }
+
+    private static Guid OpponentOf(IReadOnlyList<Guid>? participants, Guid userId)
+    {
+        return participants == null ? Guid.Empty : participants.FirstOrDefault(p => p != userId);
     }
 }
