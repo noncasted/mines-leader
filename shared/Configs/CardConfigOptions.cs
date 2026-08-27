@@ -60,9 +60,11 @@ namespace Shared
     public partial interface ICardConfig
     {
         CardType Type { get; set; }
+        CardGroup Group { get; }
         int ManaCost { get; set; }
         CardTarget Target { get; }
     }
+
     public interface IDurationalCardConfig
     {
         int TurnsDuration { get; }
@@ -440,6 +442,7 @@ namespace Shared
         public partial class Bloodhound : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int Size { get; set; } = 4;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -449,6 +452,7 @@ namespace Shared
         public partial class Trebuchet : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int Size { get; set; } = 4;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -458,6 +462,7 @@ namespace Shared
         public partial class TrebuchetAimer : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int Size { get; set; } = 1;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -467,6 +472,7 @@ namespace Shared
         public partial class ErosionDozer : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int Size { get; set; } = 5;
             public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -476,6 +482,7 @@ namespace Shared
         public partial class Gravedigger : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.Self;
         }
@@ -484,6 +491,7 @@ namespace Shared
         public partial class ZipZap : ICardConfig, IAreaSizeCardConfig, ISearchRadiusCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -494,6 +502,7 @@ namespace Shared
         public partial class OpponentFlagErase : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -503,6 +512,7 @@ namespace Shared
         public partial class OpponentFlagReshuffle : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -512,6 +522,7 @@ namespace Shared
         public partial class OpponentBomb : ICardConfig, IDamageCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 2;
             public int Damage { get; set; } = 1;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -521,6 +532,7 @@ namespace Shared
         public partial class Smoke : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int Size { get; set; } = 3;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -531,6 +543,7 @@ namespace Shared
         public partial class Medic : ICardConfig, IHealCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Defense;
             public int ManaCost { get; set; } = 4;
             public int Heal { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
@@ -540,6 +553,7 @@ namespace Shared
         public partial class MinefieldScout : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int Size { get; set; } = 5;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -549,6 +563,7 @@ namespace Shared
         public partial class Siphon : ICardConfig, IDrainAmountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 2;
             public int DrainAmount { get; set; } = 1;
             public CardTarget Target => CardTarget.Opponent;
@@ -558,6 +573,7 @@ namespace Shared
         public partial class ChainReaction : ICardConfig, IChainCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 4;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int MaxChain { get; set; } = 3;
@@ -569,6 +585,7 @@ namespace Shared
         public partial class Overclock : ICardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Self;
             public int ExtraMoves { get; set; } = 2;
@@ -578,6 +595,7 @@ namespace Shared
         public partial class FogOfWar : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int Size { get; set; } = 4;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -588,6 +606,7 @@ namespace Shared
         public partial class Scavenger : ICardConfig, IDrawCountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
             public int DrawCount { get; set; } = 2;
@@ -597,6 +616,7 @@ namespace Shared
         public partial class HandScramble : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
         }
@@ -605,6 +625,7 @@ namespace Shared
         public partial class Lockdown : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
             public int TurnsDuration { get; set; } = 2;
@@ -615,6 +636,7 @@ namespace Shared
         public partial class Sonar : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int Size { get; set; } = 4;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -624,6 +646,7 @@ namespace Shared
         public partial class Purge : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Defense;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
         }
@@ -632,6 +655,7 @@ namespace Shared
         public partial class ManaSurge : ICardConfig, IManaGainCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
             public int ManaGain { get; set; } = 3;
@@ -641,6 +665,7 @@ namespace Shared
         public partial class Adrenaline : ICardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int ExtraMoves { get; set; } = 1;
@@ -650,6 +675,7 @@ namespace Shared
         public partial class BloodPact : ICardConfig, IHpCostCardConfig, IManaGainCardConfig, IExtraMovesCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 0;
             public CardTarget Target => CardTarget.Self;
             public int HpCost { get; set; } = 1;
@@ -661,6 +687,7 @@ namespace Shared
         public partial class CoinToss : ICardConfig, ICoinTossCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int WinMoves { get; set; } = 2;
@@ -671,6 +698,7 @@ namespace Shared
         public partial class ManaFountain : ICardConfig, IManaRangeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int MinMana { get; set; } = 1;
@@ -681,6 +709,7 @@ namespace Shared
         public partial class Focus : ICardConfig, IDiscountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int Discount { get; set; } = 1;
@@ -690,6 +719,7 @@ namespace Shared
         public partial class Shield : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Defense;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
         }
@@ -698,6 +728,7 @@ namespace Shared
         public partial class PowerSurge : ICardConfig, IDiscountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Self;
             public int Discount { get; set; } = 1;
@@ -707,6 +738,7 @@ namespace Shared
         public partial class Embargo : ICardConfig, ICostIncreaseCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
             public int CostIncrease { get; set; } = 1;
@@ -716,6 +748,7 @@ namespace Shared
         public partial class Recycler : ICardConfig, IDrawCountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int DrawCount { get; set; } = 2;
@@ -725,6 +758,7 @@ namespace Shared
         public partial class MysticDraw : ICardConfig, IWinLoseDrawCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int WinDraw { get; set; } = 2;
@@ -735,6 +769,7 @@ namespace Shared
         public partial class DoubleOrNothing : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
         }
@@ -743,6 +778,7 @@ namespace Shared
         public partial class GamblersRuin : ICardConfig, IGamblersRuinCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
             public int WinDraw { get; set; } = 3;
@@ -754,6 +790,7 @@ namespace Shared
         public partial class Excavator : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int ManaCost { get; set; } = 3;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -763,6 +800,7 @@ namespace Shared
         public partial class ThermalVision : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int ManaCost { get; set; } = 3;
             public int Size { get; set; } = 3;
             public CardTarget Target => CardTarget.OwnBoard;
@@ -772,6 +810,7 @@ namespace Shared
         public partial class ChaosDiamond : ICardConfig, IRandomSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
             public int MinSize { get; set; } = 2;
@@ -782,6 +821,7 @@ namespace Shared
         public partial class ChaosScout : ICardConfig, IRandomLengthCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OwnBoard;
             public int MinLength { get; set; } = 3;
@@ -792,6 +832,7 @@ namespace Shared
         public partial class MineCluster : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 3;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -801,6 +842,7 @@ namespace Shared
         public partial class CarpetBomb : ICardConfig, ILengthCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 5;
             public int Length { get; set; } = 5;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -810,6 +852,7 @@ namespace Shared
         public partial class FortuneBlast : ICardConfig, IRandomSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int MinSize { get; set; } = 1;
@@ -820,6 +863,7 @@ namespace Shared
         public partial class ChaosFog : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
             public int MinSize { get; set; } = 1;
@@ -831,6 +875,7 @@ namespace Shared
         public partial class Frost : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 2;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -841,6 +886,7 @@ namespace Shared
         public partial class Blackout : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 2;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;
@@ -851,6 +897,7 @@ namespace Shared
         public partial class FortuneCookie : ICardConfig, IMinesRangeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Scout;
             public int ManaCost { get; set; } = 1;
             public CardTarget Target => CardTarget.Self;
             public int MinMines { get; set; } = 1;
@@ -861,6 +908,7 @@ namespace Shared
         public partial class Salvage : ICardConfig, IPeekCountCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Self;
             public int PeekCount { get; set; } = 3;
@@ -870,6 +918,7 @@ namespace Shared
         public partial class CardThief : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
         }
@@ -878,6 +927,7 @@ namespace Shared
         public partial class SabotageDeck : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 2;
             public CardTarget Target => CardTarget.Opponent;
         }
@@ -886,6 +936,7 @@ namespace Shared
         public partial class Dud : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 99;
             public CardTarget Target => CardTarget.Self;
         }
@@ -894,6 +945,7 @@ namespace Shared
         public partial class SoulLink : ICardConfig, IDurationalCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Debuff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Opponent;
             public int TurnsDuration { get; set; } = 2;
@@ -903,6 +955,7 @@ namespace Shared
         public partial class MirrorMatch : ICardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Buff;
             public int ManaCost { get; set; } = 3;
             public CardTarget Target => CardTarget.Self;
         }
@@ -911,6 +964,7 @@ namespace Shared
         public partial class DimensionRift : ICardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
+            public CardGroup Group => CardGroup.Attack;
             public int ManaCost { get; set; } = 4;
             public int Size { get; set; } = 2;
             public CardTarget Target => CardTarget.OpponentBoard;

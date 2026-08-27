@@ -17,24 +17,28 @@ namespace Meta
         {
             Load();
         }
-        
+
         private readonly Dictionary<CardType, ICardDefinition> _cards = new();
 
         public IReadOnlyDictionary<CardType, ICardDefinition> Entries => _cards;
 
         private void Load()
         {
+            var options = new CardConfigOptions();
             var textAsset = Resources.Load<TextAsset>("cards-info");
             var payload = JsonUtility.FromJson<CardsInfoPayload>(textAsset.text);
 
             foreach (var entry in payload.cards)
             {
                 var type = (CardType)Enum.Parse(typeof(CardType), entry.type);
-                var definition = new CardDefinition(type, entry.name, entry.description, TypeToSprite(type));
+                var group = options.All[type].Group;
+                var sprite = TypeToSprite(type);
+                
+                var definition = new CardDefinition(type, group, entry.name, entry.description, sprite);
                 _cards[type] = definition;
             }
         }
-        
+
         private Sprite TypeToSprite(CardType type)
         {
             return type switch

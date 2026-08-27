@@ -3,9 +3,18 @@ using UnityEngine;
 
 namespace Tools {
     public static class Colors {
+        public static readonly DeckColors Deck = new();
         public static readonly GameColors Game = new();
         public static readonly MenuColors Menu = new();
         public static readonly MinesAroundColors MinesAround = new();
+    }
+
+    public sealed class DeckColors {
+        public readonly Color Attack = new Color(0.647058845f, 0.1882353f, 0.1882353f, 1f);
+        public readonly Color Buff = new Color(0.458823532f, 0.654902f, 0.2627451f, 1f);
+        public readonly Color Debuff = new Color(0.635294139f, 0.243137255f, 0.549019635f, 1f);
+        public readonly Color Defense = new Color(0.235294119f, 0.368627459f, 0.545098066f, 1f);
+        public readonly Color Scout = new Color(0.745098054f, 0.466666669f, 0.168627456f, 1f);
     }
 
     public sealed class GameColors {

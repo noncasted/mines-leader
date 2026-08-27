@@ -1,6 +1,7 @@
 ﻿using Meta;
 using Shared;
 using TMPro;
+using Tools;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -12,6 +13,7 @@ namespace Menu.Decks
     {
         [SerializeField] private Image _raycastImage;
         [SerializeField] private Image _image;
+        [SerializeField] private Image _outline;
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _description;
         [SerializeField] private TMP_Text _manaCost;
@@ -29,9 +31,12 @@ namespace Menu.Decks
         public RectTransform Transform => _rectTransform;
 
         public string ResolvedDescription { get; private set; }
-        
+
         [Inject]
-        internal void Construct(IMenuDeckMoveArea deckMoveArea, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        internal void Construct(
+            IMenuDeckMoveArea deckMoveArea,
+            ICardConfigs configs,
+            ICardDescriptionProvider descriptionProvider)
         {
             _configs = configs;
             _descriptionProvider = descriptionProvider;
@@ -50,6 +55,7 @@ namespace Menu.Decks
             ResolvedDescription = _description.text;
             _config = _configs.Value.All[definition.Type];
             _manaCost.text = _config.ManaCost.ToString();
+            UpdateOutline();
         }
 
         public void BeginDrag()
@@ -71,6 +77,19 @@ namespace Menu.Decks
             _rectTransform.SetParent(_parentPoolSpot.Transform, true);
             _rectTransform.localPosition = Vector3.zero;
             gameObject.SetActive(true);
+        }
+        
+        private void UpdateOutline()
+        {
+            _outline.color = _cardDefinition.Group switch
+            {
+                CardGroup.Scout => Colors.Deck.Scout,
+                CardGroup.Defense => Colors.Deck.Defense,
+                CardGroup.Attack => Colors.Deck.Attack,
+                CardGroup.Buff => Colors.Deck.Buff,
+                CardGroup.Debuff => Colors.Deck.Debuff,
+                _ => Color.black
+            };
         }
     }
 }

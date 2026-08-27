@@ -126,6 +126,15 @@ namespace Shared
         DimensionRift = 5500,
     }
 
+    public enum CardGroup
+    {
+        Scout = 100,
+        Defense = 200,
+        Attack = 300,
+        Buff = 400,
+        Debuff = 500,
+    }
+
     public enum CardTarget
     {
         OwnBoard,

@@ -38,6 +38,8 @@ namespace Menu.Decks
         public void ReturnToSpot()
         {
             _card.ReturnToSpot();
+            _block.transform.SetAsLastSibling();
+            _pointerHandler.transform.SetAsLastSibling();
         }
     }
 }
