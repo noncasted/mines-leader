@@ -1,87 +1,64 @@
 ﻿using System;
-using Cysharp.Threading.Tasks;
 using Internal;
-using Shared;
 using UnityEngine;
 
 namespace Meta
 {
     public interface IAuthentication
     {
-        UniTask<Guid> Execute();
+        Guid? Load();
+        void Save(Guid id);
     }
 
+    /// <summary>
+    /// Хранит id юзера между запусками. Самой авторизации здесь больше нет: она уехала
+    /// в хендшейк сокета, поэтому лишнего похода в сеть на старте не остаётся.
+    /// </summary>
     public class Authentication : IAuthentication
     {
-        public Authentication(IMetaBackend backend)
+        private const string UserIdKey = "userId";
+
+        public Guid? Load()
         {
-            _backend = backend;
-        }
-
-        private readonly IMetaBackend _backend;
-
-        public async UniTask<Guid> Execute()
-        {
-            Debug.Log("[Meta] Authenticating user...");
-
-            bool hasUserId;
-            Guid userId;
-
             using (GameProfiler.Scope("Saved user id"))
-                hasUserId = TryGetUserId(out userId);
-
-            if (hasUserId == true)
             {
-                using (GameProfiler.Scope("Log in"))
-                    await _backend.LogIn(userId);
+                var key = GetKey();
 
-                Debug.Log("[Meta] User authenticated with existing ID: " + userId);
+                if (PlayerPrefs.HasKey(key) == false)
+                    return null;
+
+                if (Guid.TryParse(PlayerPrefs.GetString(key), out var userId) == false)
+                {
+                    Debug.LogWarning("[Meta] Saved user id is malformed, a new user will be created");
+                    return null;
+                }
+
                 return userId;
             }
+        }
 
-            Debug.Log("[Meta] No existing user ID found. Signing up new user...");
-
-            SharedBackendUserSignUp.Response response;
-
-            using (GameProfiler.Scope("Sign up"))
-                response = await _backend.SignUp();
-
+        public void Save(Guid id)
+        {
             using (GameProfiler.Scope("Save user id"))
             {
+                PlayerPrefs.SetString(GetKey(), id.ToString());
+
 #if UNITY_EDITOR
-                var pathHash = Application.dataPath.GetHashCode();
-                PlayerPrefs.SetString($"userId:{pathHash}", response.Id.ToString());
+                PlayerPrefs.SetString(UserIdKey, id.ToString());
 #endif
-
-                PlayerPrefs.SetString("userId", response.Id.ToString());
             }
+        }
 
-            return response.Id;
-
-            bool TryGetUserId(out Guid userId)
-            {
+        private static string GetKey()
+        {
 #if UNITY_EDITOR
-                var pathHash = Application.dataPath.GetHashCode();
-
-                if (PlayerPrefs.HasKey($"userId:{pathHash}") == true)
-                {
-                    userId = Guid.Parse(PlayerPrefs.GetString("userId"));
-                    return true;
-                }
-
-                userId = Guid.Empty;
-                return false;
+            // Копии проекта на диске не должны делить одного юзера, поэтому в редакторе
+            // ключ разводится по пути.
+            var pathHash = Application.dataPath.GetHashCode();
+            return $"{UserIdKey}:{pathHash}";
+#else
+            return UserIdKey;
 #endif
-
-                if (PlayerPrefs.HasKey("userId") == true)
-                {
-                    userId = Guid.Parse(PlayerPrefs.GetString("userId"));
-                    return true;
-                }
-
-                userId = Guid.Empty;
-                return false;
-            }
         }
     }
 }
