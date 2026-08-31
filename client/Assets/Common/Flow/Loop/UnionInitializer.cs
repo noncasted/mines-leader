@@ -1,0 +1,30 @@
+﻿using Internal;
+using Shared;
+
+namespace Flow.Loop
+{
+    public class UnionInitializer : EnvPreprocessor
+    {
+        public override void Execute()
+        {
+            var entityPayloads = new UnionBuilder<IEntityPayload>();
+            var eventPayloads = new UnionBuilder<IEventPayload>();
+            var contexts = new UnionBuilder<INetworkContext>();
+
+            entityPayloads
+                .Add<MenuPlayerPayload>()
+                .Add<CardCreatePayload>()
+                .Add<PlayerCreatePayload>();
+
+            contexts
+                .Add<EmptyResponse>()
+                .AddSharedBackend()
+                .AddSharedGame()
+                .AddSharedSession();
+
+            contexts.Build();
+            eventPayloads.Build();
+            entityPayloads.Build();
+        }
+    }
+}

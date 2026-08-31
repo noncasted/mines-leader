@@ -1,4 +1,4 @@
-using Network;
+using Internal;
 using Shared;
 using UnityEngine;
 

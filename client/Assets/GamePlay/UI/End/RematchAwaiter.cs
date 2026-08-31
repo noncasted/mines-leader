@@ -2,7 +2,6 @@
 using GamePlay.Loop;
 using Internal;
 using Meta;
-using Network;
 using Shared;
 
 namespace GamePlay.UI

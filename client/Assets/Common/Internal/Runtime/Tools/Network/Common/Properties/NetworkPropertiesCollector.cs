@@ -1,0 +1,66 @@
+﻿using System.Collections.Generic;
+using Shared;
+
+namespace Internal
+{
+    public class NetworkPropertiesCollector : IUpdatable, IScopeSetup
+    {
+        public NetworkPropertiesCollector(
+            INetworkConnection connection,
+            IUpdater updater,
+            INetworkObjectsCollection objects)
+        {
+            _connection = connection;
+            _updater = updater;
+            _objects = objects;
+        }
+
+        private readonly INetworkConnection _connection;
+        private readonly IUpdater _updater;
+        private readonly INetworkObjectsCollection _objects;
+
+        private float _updateInterval = 0.1f;
+        private float _timer = 0f;
+
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
+            _updater.Add(lifetime, this);
+        }
+
+        public void OnUpdate(float delta)
+        {
+            _timer += delta;
+
+            if (_timer < _updateInterval)
+                return;
+
+            _timer = 0f;
+
+            var contexts = new List<SharedSessionObject.SetProperty>();
+
+            foreach (var (_, networkObject) in _objects.Entries)
+            {
+                foreach (var (id, property) in networkObject.Properties)
+                {
+                    if (property.IsDirty == false)
+                        continue;
+
+                    contexts.Add(new SharedSessionObject.SetProperty()
+                    {
+                        ObjectId = networkObject.Id,
+                        PropertyId = id,
+                        Value = property.Collect()
+                    });
+                }
+            }
+
+            Send(contexts);
+        }
+
+        private void Send(IReadOnlyList<SharedSessionObject.SetProperty> requests)
+        {
+            foreach (var request in requests)
+                _connection.OneWay(request);
+        }
+    }
+}
