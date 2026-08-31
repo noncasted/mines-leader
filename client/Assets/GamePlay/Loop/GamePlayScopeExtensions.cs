@@ -1,7 +1,10 @@
 using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Agent;
+using GamePlay.Boards;
+using GamePlay.Cards;
 using GamePlay.Cheats;
+using GamePlay.Players;
 using GamePlay.Services;
 using GamePlay.UI;
 using Internal;
@@ -9,7 +12,7 @@ using Shared;
 
 namespace GamePlay.Loop
 {
-    public static class PvPScopeExtensions
+    public static class GamePlayScopeExtensions
     {
         public static async UniTask<ILoadedScope> LoadPvp(
             this IServiceScopeLoader loader,
@@ -18,7 +21,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.GameServices.Value,
+                "Game_Services",
                 builder => Construct(builder, sessionData),
                 false);
 
@@ -35,7 +38,7 @@ namespace GamePlay.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.GameServices.Value,
+                "Game_Services",
                 builder => Construct(builder, sessionData),
                 true);
 
@@ -53,13 +56,23 @@ namespace GamePlay.Loop
             builder.LoadSpriteGroup(Sprites.GameField);
             builder.LoadPrefabGroup(Prefabs.GamePlay);
             
-            builder.AddDefaultGamePlayServices();
+            builder
+                .AddGamePlayServices()
+                .AddPlayerServices()
+                .AddBoardServices()
+                .AddCardServices()
+                .AddSessionServices()
+                .AddSnapshotSync();
+
+            builder.Register<GameContext>()
+                   .As<IGameContext>();
+            
             builder.AddGameEndServices();
 
             builder.Register<GameServicesInitializer>();
 
-            builder.Register<PvPGameLoop>()
-                   .As<IPvPGameLoop>();
+            builder.Register<GamePlayLoop>()
+                   .As<IGamePlayLoop>();
 
             builder.Register<GameState>()
                    .As<IGameState>();

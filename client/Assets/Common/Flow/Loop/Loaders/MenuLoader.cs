@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Global.Cameras;
 using Global.UI;
+using Internal;
 using Menu.Common;
 using VContainer;
 
@@ -26,10 +27,26 @@ namespace Flow.Loop
 
         public async UniTask<GameLoadData> Load()
         {
-            _globalCamera.Enable();
-            await _loadingScreen.Show();
+            // На старте меню грузится веткой, отпущенной из GameLoop, поэтому этап
+            // кладётся в корень трассы. При возврате из матча трассы нет — открываем свою.
+            if (GameProfiler.IsRunning == false)
+                GameProfiler.Begin("Menu");
 
-            var scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
+            ILoadedScope scope;
+
+            using (GameProfiler.Branch("Menu load"))
+            {
+                _globalCamera.Enable();
+
+                using (GameProfiler.Scope("Loading screen"))
+                    await _loadingScreen.Show();
+
+                scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
+            }
+
+            // Меню загружено и дальше ждёт игрока: замерять больше нечего.
+            GameProfiler.Finish();
+
             var loop = scope.Container.Container.Resolve<IMenuLoop>();
             var result = await loop.Process(scope.Lifetime);
 

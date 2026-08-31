@@ -9,12 +9,16 @@ namespace Flow.Loop
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.GameLoopServices.Value,
+                "GameLoop_Services",
                 Construct,
                 false);
 
+            using var stage = GameProfiler.Scope("Game loop");
+
             var scope = await loader.Load(options);
-            await scope.Initialize();
+
+            using (GameProfiler.Scope("Loaded"))
+                await scope.Initialize();
 
             return scope;
 

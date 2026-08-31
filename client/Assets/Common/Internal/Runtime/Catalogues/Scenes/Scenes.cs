@@ -5,15 +5,10 @@ namespace Internal
     {
         public static readonly StaticScene GameEnd = new("e0fdfc16c2402b84b95cf19dfb3c0dee");
         public static readonly StaticScene GameField = new("4b636264c7ac7224aa40de5dc5ec86f3");
-        public static readonly StaticScene GameLoopServices = new("76a5a435461b3bc44991fe8c8cde3571");
         public static readonly StaticScene GameOverlay = new("a40f8b3a93a368543998dcebf0c0d2a0");
         public static readonly StaticScene GamePause = new("ae7402daa45d16947a14e8a81e0cd4c0");
-        public static readonly StaticScene GameServices = new("d8cf087558b3f9d4f9791bd93ed518af");
-        public static readonly StaticScene GlobalServices = new("fa9902c71b5f7cd4f98e1a5c19e15def");
         public static readonly StaticScene Menu = new("b072020bf5a8f9c44a8f48ef9ae3fe23");
         public static readonly StaticScene MenuBoard = new("158e8abf9b3fab5f8bfe001dc4baf959");
-        public static readonly StaticScene MenuServices = new("4d21236cc0b1e1146b72afd98396ebb4");
-        public static readonly StaticScene MetaServices = new("b70b56507d8b176409f686c0c5e39968");
         public static readonly StaticScene Startup = new("e192e966f28f2434fad44cfad9dbeca2");
     }
 }

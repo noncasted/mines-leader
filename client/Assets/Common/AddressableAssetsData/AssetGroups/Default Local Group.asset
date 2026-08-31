@@ -25,16 +25,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4d21236cc0b1e1146b72afd98396ebb4
-    m_Address: Assets/Menu/Common/Options/Menu_Services.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 76a5a435461b3bc44991fe8c8cde3571
-    m_Address: Assets/Loop/Setup/GameLoop_Services.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a40f8b3a93a368543998dcebf0c0d2a0
     m_Address: Assets/GamePlay/Scenes/Game_Overlay.unity
     m_ReadOnly: 0
@@ -50,16 +40,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: b70b56507d8b176409f686c0c5e39968
-    m_Address: Assets/Meta/Setup/Meta_Services.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d8cf087558b3f9d4f9791bd93ed518af
-    m_Address: Assets/GamePlay/Loop/Options/GamePlay_Services.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e0fdfc16c2402b84b95cf19dfb3c0dee
     m_Address: Assets/GamePlay/Scenes/Game_End.unity
     m_ReadOnly: 0
@@ -67,11 +47,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e192e966f28f2434fad44cfad9dbeca2
     m_Address: Assets/Loop/Startup/Startup.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: fa9902c71b5f7cd4f98e1a5c19e15def
-    m_Address: Assets/Global/Setup/Global_Services.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

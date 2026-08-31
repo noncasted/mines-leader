@@ -9,18 +9,24 @@ namespace Meta
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.MetaServices.Value,
+                "Meta_Services",
                 Construct,
                 false);
 
+            using var stage = GameProfiler.Scope("Meta");
+
             var scope = await loader.Load(options);
-            await scope.Initialize();
+
+            using (GameProfiler.Scope("Loaded"))
+                await scope.Initialize();
 
             return scope;
 
             UniTask Construct(IScopeBuilder builder)
             {
-                builder.AddMetaServices();
+                using (GameProfiler.Scope("Services"))
+                    builder.AddMetaServices();
+
                 return UniTask.CompletedTask;
             }
         }

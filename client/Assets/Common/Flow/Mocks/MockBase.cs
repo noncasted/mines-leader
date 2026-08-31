@@ -17,6 +17,8 @@ namespace Flow.Mocks
 
         protected async UniTask<ILoadedScope> Bootstrap()
         {
+            GameProfiler.Begin("Mock");
+
             var assets = AssetsExtensions.FindAsset<AssetsStorage>();
             assets.Cache();
             var internalScopeLoader = new InternalScopeLoader(assets);

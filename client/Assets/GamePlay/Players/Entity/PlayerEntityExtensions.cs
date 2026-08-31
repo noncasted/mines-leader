@@ -20,12 +20,6 @@ namespace GamePlay.Players
             builder.Register<PlayerModifiers>()
                    .As<IPlayerModifiers>();
 
-            builder.Register<Deck>()
-                   .As<IDeck>();
-
-            builder.Register<Stash>()
-                   .As<IStash>();
-
             return builder;
         }
 

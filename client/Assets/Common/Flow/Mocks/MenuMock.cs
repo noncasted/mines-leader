@@ -14,6 +14,9 @@ namespace Flow.Mocks
             var scopeLoaderFactory = global.Container.Container.Resolve<IServiceScopeLoader>();
 
             var menuResult = await scopeLoaderFactory.LoadMenuMock(global);
+
+            GameProfiler.Finish();
+
             var main = menuResult.Container.Container.Resolve<IMenuLoop>();
             main.Process(menuResult.Lifetime).Forget();
         }

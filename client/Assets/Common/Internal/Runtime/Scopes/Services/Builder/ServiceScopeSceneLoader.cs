@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
+using UnityEngine.SceneManagement;
 
 namespace Internal
 {
@@ -19,6 +20,19 @@ namespace Internal
         public async UniTask<ILoadedScene> Load(AssetReference scene, bool isMain = false)
         {
             var result = await _sceneLoader.Load(scene, isMain);
+
+            _results.Add(result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Пустой контейнер под объекты скоупа: сцену-ассет для него грузить незачем,
+        /// выгружается она вместе с остальными сценами скоупа.
+        /// </summary>
+        public ILoadedScene Create(string name)
+        {
+            var result = new CreatedScene(SceneManager.CreateScene(name));
 
             _results.Add(result);
 

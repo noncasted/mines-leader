@@ -18,6 +18,8 @@ namespace Global.Backend
     {
         public async UniTask<T> Post<T>(IReadOnlyLifetime lifetime, IPostRequest request)
         {
+            using var trace = GameProfiler.Concurrent($"POST {request.Uri}");
+
             using var downloadHandlerBuffer = new DownloadHandlerBuffer();
             UploadHandlerRaw uploadHandler = null;
 
@@ -45,6 +47,8 @@ namespace Global.Backend
 
         public async UniTask Post(IReadOnlyLifetime lifetime, IPostRequest request)
         {
+            using var trace = GameProfiler.Concurrent($"POST {request.Uri}");
+
             using var downloadHandlerBuffer = new DownloadHandlerBuffer();
             UploadHandlerRaw uploadHandler = null;
 

@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 
 namespace Internal
@@ -67,6 +68,26 @@ namespace Internal
             return scope;
         }
 
+        /// <summary>
+        /// Отрезок, открытый на текущем этапе. Нужен коду, который замеряет свои шаги уже
+        /// после первого await: стека там нет, а родителя взять неоткуда.
+        /// </summary>
+        public static IProfilerScope CurrentScope => _stack.Count > 0 ? _stack[^1] : NullProfilerScope.Instance;
+
+        /// <summary>
+        /// Делает уже открытый отрезок текущим. Нужен для параллельных веток: пока идёт их
+        /// синхронный пролог, вложенные замеры должны попадать в свою ветку, а не в соседнюю.
+        /// </summary>
+        public static IDisposable Ambient(IProfilerScope scope)
+        {
+            if (Current == null || scope is NullProfilerScope)
+                return NullAmbient.Instance;
+
+            _stack.Add(scope);
+
+            return new AmbientHandle(scope);
+        }
+
         /// <summary>Скоуп в корне трассы: для веток, которые идут параллельно основной цепочке.</summary>
         public static IProfilerScope Branch(string name)
         {
@@ -105,6 +126,29 @@ namespace Internal
 
             if (index >= 0)
                 _stack.RemoveAt(index);
+        }
+
+        /// <summary>Снимает отрезок со стека, не останавливая его: останавливает его владелец.</summary>
+        private class AmbientHandle : IDisposable
+        {
+            public AmbientHandle(IProfilerScope scope)
+            {
+                _scope = scope;
+            }
+
+            private readonly IProfilerScope _scope;
+
+            public void Dispose()
+            {
+                Close(_scope);
+            }
+        }
+
+        private class NullAmbient : IDisposable
+        {
+            public static readonly NullAmbient Instance = new();
+
+            public void Dispose() { }
         }
 
         /// <summary>

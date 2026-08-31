@@ -118,24 +118,70 @@ namespace Internal
             });
         }
 
+        /// <summary>
+        /// Резолв списка — это ещё и создание всех сервисов этапа, поэтому он меряется
+        /// отдельно от их собственных колбэков: иначе стоимость конструирования растворяется.
+        /// </summary>
         private IReadOnlyList<T> ResolveList<T>()
         {
-            return _resolver.Resolve<ContainerLocal<IReadOnlyList<T>>>().Value;
+            using (GameProfiler.Scope($"Resolve: {typeof(T).Name}"))
+                return _resolver.Resolve<ContainerLocal<IReadOnlyList<T>>>().Value;
         }
 
+        /// <summary>
+        /// Синхронные слушатели идут строго по очереди, поэтому каждый ложится в трассу
+        /// отдельным этапом и его собственные замеры вкладываются внутрь. Асинхронные
+        /// стартуют пачкой через WhenAll: их вложенность по стеку не строится, и те,
+        /// у кого есть что замерять, открывают свой отрезок сами (см. <see cref="GameProfiler.Concurrent"/>).
+        /// </summary>
         private void Invoke<T>(IReadOnlyList<T> listeners, Action<T> invoker)
         {
+            if (GameProfiler.IsRunning == false)
+            {
+                foreach (var listener in listeners)
+                    invoker.Invoke(listener);
+
+                return;
+            }
+
             foreach (var listener in listeners)
-                invoker.Invoke(listener);
+            {
+                using (GameProfiler.Scope(listener.GetType().Name))
+                    invoker.Invoke(listener);
+            }
         }
 
+        /// <summary>
+        /// Асинхронные слушатели стартуют пачкой, поэтому отрезок каждого берётся параллельным
+        /// и на стек не встаёт. На время синхронного пролога он всё же делается текущим: до
+        /// первого await слушатель успевает забрать его через <see cref="GameProfiler.CurrentScope"/>
+        /// и повесить на него свои шаги.
+        /// </summary>
         private UniTask InvokeAsync<T>(IReadOnlyList<T> listeners, Func<T, UniTask> invoker)
         {
             var count = listeners.Count;
             var tasks = new UniTask[count];
 
+            if (GameProfiler.IsRunning == false)
+            {
+                for (var i = 0; i < count; i++)
+                    tasks[i] = invoker.Invoke(listeners[i]);
+
+                return UniTask.WhenAll(tasks);
+            }
+
             for (var i = 0; i < count; i++)
-                tasks[i] = invoker.Invoke(listeners[i]);
+            {
+                var listener = listeners[i];
+                var scope = GameProfiler.Concurrent(listener.GetType().Name);
+
+                UniTask task;
+
+                using (GameProfiler.Ambient(scope))
+                    task = invoker.Invoke(listener);
+
+                tasks[i] = scope.Track(task);
+            }
 
             return UniTask.WhenAll(tasks);
         }

@@ -3,9 +3,9 @@ using Shared;
 
 namespace Flow.Loop
 {
-    public class UnionInitializer : EnvPreprocessor
+    public static class UnionInitializer
     {
-        public override void Execute()
+        public static void Execute()
         {
             var entityPayloads = new UnionBuilder<IEntityPayload>();
             var eventPayloads = new UnionBuilder<IEventPayload>();

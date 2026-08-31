@@ -16,6 +16,8 @@ namespace Global.Backend
     {
         public async UniTask<AudioClip> GetAudio(IReadOnlyLifetime lifetime, IGetRequest request, AudioType audioType)
         {
+            using var trace = GameProfiler.Concurrent($"GET audio {request.Uri}");
+
             using var downloadHandlerAudioClip = new DownloadHandlerAudioClip(request.Uri, audioType);
             using var webRequest = new UnityWebRequest(request.Uri, "GET", downloadHandlerAudioClip, null);
 
@@ -32,6 +34,8 @@ namespace Global.Backend
 
         public async UniTask<Texture2D> GetImage(IReadOnlyLifetime lifetime, IGetRequest request)
         {
+            using var trace = GameProfiler.Concurrent($"GET image {request.Uri}");
+
             using var downloadHandler = new DownloadHandlerTexture(true);
             using var webRequest = new UnityWebRequest(request.Uri, "GET", downloadHandler, null);
             await webRequest.SendWebRequest().ToUniTask(cancellationToken: lifetime.Token);

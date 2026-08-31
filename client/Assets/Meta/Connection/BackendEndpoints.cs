@@ -8,32 +8,29 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
-        public static UniTask<SharedBackendUserSignUp.Response> SignUp(this IMetaBackend backend, string name)
+        public static UniTask<SharedBackendUserSignUp.Response> SignUp(this IMetaBackend backend)
         {
             return backend.Post<SharedBackendUserSignUp.Response, SharedBackendUserSignUp.Request>(
-                    SharedBackendUserSignUp.Endpoint,
-                    new SharedBackendUserSignUp.Request()
-                );
+                SharedBackendUserSignUp.Endpoint,
+                new SharedBackendUserSignUp.Request());
         }
 
         public static UniTask<SharedBackendUserLogin.Response> LogIn(this IMetaBackend backend, Guid id)
         {
             return backend.Post<SharedBackendUserLogin.Response, SharedBackendUserLogin.Request>(
-                    SharedBackendUserLogin.Endpoint,
-                    new SharedBackendUserLogin.Request()
-                    {
-                        Id = id
-                    }
-                );
+                SharedBackendUserLogin.Endpoint,
+                new SharedBackendUserLogin.Request()
+                {
+                    Id = id
+                });
         }
 
         public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.SearchMatch()
-                    {
-                        Type = type
-                    }
-                );
+            {
+                Type = type
+            });
         }
 
         public static UniTask CancelSearch(this IMetaBackend backend)
@@ -52,11 +49,10 @@ namespace Meta
             AgentMatchFixture fixture = null)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.CreateWithBot()
-                    {
-                        Type = type,
-                        Fixture = fixture
-                    }
-                );
+            {
+                Type = type,
+                Fixture = fixture
+            });
         }
 
         public static UniTask SearchLobby(this IMetaBackend backend)
