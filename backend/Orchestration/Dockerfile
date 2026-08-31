@@ -10,11 +10,13 @@
 #   - runtime stages just copy their service's publish output, selected via ASSEMBLY_NAME.
 
 ARG DOTNET_VERSION=10.0
-# SDK 10.0.202 in the latest tag was producing publish output without
-# wwwroot/_framework/blazor.web.js for Web SDK projects after the first one
-# in publish-all (Blazor console got 404 on its own framework JS).
-# Pin a known-good tag until the regression is bisected.
-ARG DOTNET_SDK_TAG=10.0.201
+# Pinned rather than floating on `latest`: 10.0.202 shipped a regression that dropped
+# wwwroot/_framework/blazor.web.js from Web SDK projects published after the first one
+# in publish-all (Blazor console got 404 on its own framework JS). 10.0.400 is verified
+# clean for that, and its Roslyn (5.9) matches Microsoft.CodeAnalysis.CSharp in
+# backend/Directory.Packages.props — an older SDK silently disables Generators.dll
+# (CS9057) and the build then fails on the code it should have generated.
+ARG DOTNET_SDK_TAG=10.0.400
 
 # Stage 1: restore. Cache key = project/graph metadata only.
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_TAG} AS restore
