@@ -1,7 +1,6 @@
 using System;
 using GamePlay.Players;
 using Internal;
-using Network;
 using Shared;
 
 namespace GamePlay.Loop

@@ -1,6 +1,5 @@
 ﻿using GamePlay.Cards;
 using Internal;
-using Network;
 using Shared;
 
 namespace GamePlay.Players

@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using GamePlay.Services;
-using Network;
+using Internal;
 using Shared;
 
 namespace GamePlay

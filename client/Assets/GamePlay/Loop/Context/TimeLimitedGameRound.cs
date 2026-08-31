@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using GamePlay.Players;
 using Internal;
-using Network;
 using Shared;
 
 namespace GamePlay.Loop
