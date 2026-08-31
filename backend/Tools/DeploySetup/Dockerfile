@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7-labs
-FROM mcr.microsoft.com/dotnet/sdk:10.0.201 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.400 AS build
 WORKDIR /src
 
 # Restore layer
