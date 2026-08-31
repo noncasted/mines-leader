@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: 89348e658ff17be35ab79a9c054f89a0
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"componentType\": \"Global.Audio.AudioPlayer, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"832c11eef7da42629fd1f2578e804626\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

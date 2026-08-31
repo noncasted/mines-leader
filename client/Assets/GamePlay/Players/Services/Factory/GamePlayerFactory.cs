@@ -57,7 +57,6 @@ namespace GamePlay.Players
 
             return loadResult.Get<INetworkEntity>();
 
-
             void Build(IEntityBuilder builder)
             {
                 builder.AddRemoteEntity(data);

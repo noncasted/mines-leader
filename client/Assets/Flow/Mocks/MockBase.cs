@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
+using Flow.Startup;
 using Global.Setup;
 using Internal;
 using Meta;
 using UnityEngine;
 using VContainer;
 
-namespace Flow
+namespace Flow.Mocks
 {
     [DisallowMultipleComponent]
     public abstract class MockBase : MonoBehaviour
@@ -19,7 +20,7 @@ namespace Flow
             var assets = AssetsExtensions.FindAsset<AssetsStorage>();
             assets.Cache();
             var internalScopeLoader = new InternalScopeLoader(assets);
-            _internalScope = internalScopeLoader.Load();
+            _internalScope = await internalScopeLoader.Load();
             var scopeLoader = _internalScope.Container.Container.Resolve<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(_internalScope);

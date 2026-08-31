@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 
-namespace Flow
+namespace Flow.Loop
 {
     public interface IGameLoopScopeLoader
     {

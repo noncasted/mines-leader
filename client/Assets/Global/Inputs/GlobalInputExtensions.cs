@@ -1,7 +1,5 @@
 ﻿using Internal;
-using Tools;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 
 namespace Global.Inputs
 {
@@ -12,7 +10,7 @@ namespace Global.Inputs
             builder.Register<InputConstraintsStorage>()
                    .As<IInputConstraintsStorage>();
 
-            var eventSystemPrefab = Prefabs.GlobalEvents.As<EventSystem>();
+            var eventSystemPrefab = Prefabs.Global.GlobalEvents.GetComponent<EventSystem>();
             builder.Instantiate(eventSystemPrefab);
 
             builder.Register<GlobalControls>()
@@ -20,18 +18,6 @@ namespace Global.Inputs
                    .As<IScopeSetup>();
 
             return builder;
-        }
-    }
-
-    [PrefabDefinition]
-    public static class GlobalEventSystemPrefab
-    {
-        public static void Define(PrefabBuilder builder)
-        {
-            builder
-                .WithName("Global/Global_Events")
-                .WithComponent<EventSystem>()
-                .WithComponent<InputSystemUIInputModule>();
         }
     }
 }

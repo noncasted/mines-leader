@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28efcb9d1a5e4c7f8b0d234567881b03, type: 3}
+  m_Name: GamePlay
+  m_EditorClassIdentifier: Internal::Internal.PrefabGroupAsset
+  _entries:
+  - Name: CardLocal
+    Prefab: {fileID: 8380813882818688417, guid: 75d1c8300d3c973968f9e706af7a36aa, type: 3}
+    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: CardRemote
+    Prefab: {fileID: 962353957333419632, guid: 31b7b026bb3ecd47fb52d58ca1e3f05f, type: 3}
+    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: Cell
+    Prefab: {fileID: 3637014477302833439, guid: 6cdfa7e62ddb3ec4cbf453da16073cfe, type: 3}
+    ComponentType: GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: PlayerTurnPoint
+    Prefab: {fileID: 4776406414613929613, guid: a71c072fec4b4190eb57f648c0ff9f6b, type: 3}
+    ComponentType: 

@@ -1,7 +1,5 @@
 using Cysharp.Threading.Tasks;
 using Internal;
-using Network;
-using Tools;
 
 namespace Menu.Common
 {
@@ -26,8 +24,7 @@ namespace Menu.Common
             UniTask Construct(IScopeBuilder builder)
             {
                 builder
-                    .AddMenuLoop()
-                    .AddSessionServices();
+                    .AddMenuLoop();
 
                 return UniTask.WhenAll(builder.AddScene());
             }
@@ -51,8 +48,7 @@ namespace Menu.Common
             UniTask Construct(IScopeBuilder builder)
             {
                 builder
-                    .AddMenuLoop()
-                    .AddSessionServices();
+                    .AddMenuLoop();
 
                 return UniTask.WhenAll(builder.AddScene());
             }

@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: 0c2ea8f96344edce6838e358c8a664b9
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"componentType\": \"Global.UI.LoadingScreen, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"2c2c9ef28cef4ac598fb1214f919ec8e\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

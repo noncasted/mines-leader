@@ -2,7 +2,7 @@
 using Internal;
 using VContainer.Unity;
 
-namespace Flow
+namespace Flow.Startup
 {
     public class InternalLoadedScope : ILoadedScope
     {

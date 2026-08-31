@@ -2,7 +2,7 @@
 using Network;
 using Shared;
 
-namespace Flow
+namespace Flow.Loop
 {
     public class UnionInitializer : EnvPreprocessor
     {

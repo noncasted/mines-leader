@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28efcb9d1a5e4c7f8b0d234567881b03, type: 3}
+  m_Name: Menu
+  m_EditorClassIdentifier: Internal::Internal.PrefabGroupAsset
+  _entries:
+  - Name: GameModeEntry
+    Prefab: {fileID: 6640460366586368445, guid: b6a7f5b42ffbf95a4be73535aa8515c9, type: 3}
+    ComponentType: Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuProfileCard
+    Prefab: {fileID: 6472876225539858506, guid: fefeef39e29a33af5a63b86cf82b19c9, type: 3}
+    ComponentType: Menu.Profile.MenuProfileCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuProfileHistoryEntry
+    Prefab: {fileID: 6041518109402094182, guid: f4a2e6559d486dea0ba206839a3f93aa, type: 3}
+    ComponentType: Menu.Profile.MenuProfileHistoryEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuUnlocksEntry
+    Prefab: {fileID: 7251289763218641513, guid: 6f14ec24c6a2afc2a21c96634d0e9f4a, type: 3}
+    ComponentType: Menu.Unlocks.MenuUnlockEntry, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuUnlocksOption
+    Prefab: {fileID: 8213056658363087498, guid: b4514df7335951ec6b203f7c26025c2c, type: 3}
+    ComponentType: Menu.Unlocks.MenuUnlockOption, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuUnlocksRow
+    Prefab: {fileID: 1485364110942706555, guid: a60df40231913707396ba26143f2c064, type: 3}
+    ComponentType: 

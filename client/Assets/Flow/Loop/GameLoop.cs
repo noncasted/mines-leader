@@ -4,7 +4,7 @@ using Internal;
 using Menu.Common;
 using Shared;
 
-namespace Flow
+namespace Flow.Loop
 {
     public class GameLoop : IScopeLoaded
     {

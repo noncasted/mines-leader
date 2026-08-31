@@ -2,7 +2,7 @@
 using UnityEngine;
 using VContainer.Unity;
 
-namespace Flow
+namespace Flow.Startup
 {
     [DisallowMultipleComponent]
     public class InternalScope : LifetimeScope

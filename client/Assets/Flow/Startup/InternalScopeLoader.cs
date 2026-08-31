@@ -1,11 +1,12 @@
-﻿using Internal;
-using Tools;
+﻿using Cysharp.Threading.Tasks;
+using Internal;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using GlobalAssets = Global.Prefabs;
 using Lifetime = Internal.Lifetime;
 
-namespace Flow
+namespace Flow.Startup
 {
     public class InternalScopeLoader
     {
@@ -16,9 +17,13 @@ namespace Flow
 
         private readonly AssetsStorage _assets;
 
-        public ILoadedScope Load()
+        public async UniTask<ILoadedScope> Load()
         {
-            var scopeObject = Object.Instantiate(Prefabs.InternalScope.As<InternalScope>());
+            // The whole Global prefab group lives for the application lifetime, so it is retained once here.
+            await GlobalAssets.Global.Retain();
+
+            var scopeObject = Object.Instantiate(GlobalAssets.Global.InternalScope)
+                                    .GetComponent<InternalScope>();
             scopeObject.name = "Internal_Scope";
 
             Object.DontDestroyOnLoad(scopeObject);

@@ -4,7 +4,7 @@ using Global.UI;
 using Menu.Common;
 using VContainer;
 
-namespace Flow
+namespace Flow.Loop
 {
     public interface IMenuLoader
     {
