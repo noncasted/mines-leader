@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Global.Backend;
 using Internal;
 using Shared;
@@ -13,7 +14,7 @@ namespace Meta
         INetworkConnection Connection { get; }
         IReadOnlyLifetime Lifetime { get; }
 
-        UniTask<bool> Connect(IReadOnlyLifetime lifetime);
+        UniTask Connect(IReadOnlyLifetime lifetime, Guid? userId);
     }
 
     public class MetaBackend : IMetaBackend
@@ -40,35 +41,27 @@ namespace Meta
         public INetworkConnection Connection => _connection;
         public IReadOnlyLifetime Lifetime { get; }
 
-        public async UniTask<bool> Connect(IReadOnlyLifetime lifetime)
+        /// <summary>
+        /// Поднимает сокет и авторизуется тем же запросом: id уезжает в query апгрейда.
+        /// <paramref name="userId"/> = null означает, что сохранённого юзера нет — сервер
+        /// заведёт нового, и его id приедет в профильной проекции.
+        /// </summary>
+        public async UniTask Connect(IReadOnlyLifetime lifetime, Guid? userId)
         {
-            Debug.Log("[Meta] Connecting to backend...");
+            Debug.Log("[Meta] Connecting to backend as: " + userId);
+
+            var url = BuildUrl(userId);
 
             using (GameProfiler.Scope("Socket"))
-                await _connection.Run(lifetime, _options.SocketUrl);
+                await _connection.Run(lifetime, url);
+        }
 
-            var authRequest = new SharedBackendSocketAuth.Request()
-            {
-                UserId = User.Id
-            };
+        private string BuildUrl(Guid? userId)
+        {
+            if (userId.HasValue == false)
+                return _options.SocketUrl;
 
-            Debug.Log("[Meta] Authenticating with backend...");
-
-            SharedBackendSocketAuth.Response authResponse;
-
-            using (GameProfiler.Scope("Socket auth"))
-                authResponse = await _connection.Request<SharedBackendSocketAuth.Response>(authRequest);
-
-            if (authResponse.IsSuccess == false)
-            {
-                Debug.LogError($"[Projection] Failed to authenticate");
-            }
-            else
-            {
-                Debug.Log("[Meta] Successfully authenticated with backend");
-            }
-
-            return authResponse.IsSuccess;
+            return $"{_options.SocketUrl}?{SharedBackendSocketAuth.UserIdQueryKey}={userId.Value}";
         }
     }
 }

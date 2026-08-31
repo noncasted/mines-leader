@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace Meta
@@ -10,18 +11,21 @@ namespace Meta
             IAuthentication authentication,
             IMetaBackend backend,
             IUser user,
-            IMetaConnectionAwaiter connectionAwaiter)
+            IMetaConnectionAwaiter connectionAwaiter,
+            IBackendProjection<SharedBackendUser.ProfileProjection> profile)
         {
             _authentication = authentication;
             _backend = backend;
             _user = user;
             _connectionAwaiter = connectionAwaiter;
+            _profile = profile;
         }
 
         private readonly IAuthentication _authentication;
         private readonly IMetaBackend _backend;
         private readonly IUser _user;
         private readonly IMetaConnectionAwaiter _connectionAwaiter;
+        private readonly IBackendProjection<SharedBackendUser.ProfileProjection> _profile;
 
         public async UniTask OnBaseSetupAsync(IReadOnlyLifetime lifetime)
         {
@@ -31,43 +35,36 @@ namespace Meta
             // пачкой, и по стеку такая вложенность не построилась бы.
             var stage = GameProfiler.CurrentScope;
 
-            Debug.Log("[Meta] [Loop] Executing authentication");
-            var userId = await stage.MeasureNested("Auth", _authentication.Execute);
-            Debug.Log("[Meta] [Loop] User authenticated: " + userId);
-
-            Debug.Log("[Meta] [Loop] Initializing user with ID: " + userId);
-            _user.Init(userId);
-
-            Debug.Log("[Meta] [Loop] Connecting to backend");
+            // Авторизация уехала в query запроса на апгрейд сокета: отдельного http-запроса
+            // и отдельного кадра с хендшейком на старте больше нет.
+            var savedUserId = _authentication.Load();
             var connectionLifetime = lifetime.Child();
-            var isSuccess = await stage.MeasureNested("Connect", () => _backend.Connect(connectionLifetime));
 
-            if (isSuccess == false)
-            {
-                connectionLifetime.Terminate();
-                Debug.Log("[Meta] [Loop] Backend connection failed, signing up new user");
-
-                await stage.MeasureNested("Sign up", SignUp);
-            }
-
-            Debug.Log("[Meta] [Loop] Backend connection established");
+            await stage.MeasureNested("Connect", () => _backend.Connect(connectionLifetime, savedUserId));
 
             Debug.Log("[Meta] [Loop] Waiting for connection completion");
 
             // Проекции приезжают с бэкенда пачкой после коннекта: этот отрезок и есть
             // ожидание данных, без которых меню открывать нечем.
             await stage.Measure("Projections", () => _connectionAwaiter.CompleteTask);
-            Debug.Log("[Meta] [Loop] Meta loop initialization completed successfully");
 
-            return;
+            // Кто мы такие, говорит профильная проекция: сохранённого id могло не быть
+            // вовсе, и тогда сервер завёл нового юзера прямо на коннекте.
+            var profile = _profile.Value;
 
-            async UniTask SignUp()
+            if (profile == null)
             {
-                var response = await _backend.SignUp();
-                PlayerPrefs.SetString("userId", response.Id.ToString());
-                _user.Init(response.Id);
-                await _backend.Connect(lifetime);
+                connectionLifetime.Terminate();
+                Debug.LogError("[Meta] [Loop] Profile projection is missing, user is not initialized");
+                return;
             }
+
+            _user.Init(profile.Id);
+
+            if (profile.Id != savedUserId)
+                _authentication.Save(profile.Id);
+
+            Debug.Log("[Meta] [Loop] Meta loop initialization completed successfully: " + profile.Id);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
-using Global.Backend;
 using Shared;
 using UnityEngine;
 
@@ -8,23 +7,6 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
-        public static UniTask<SharedBackendUserSignUp.Response> SignUp(this IMetaBackend backend)
-        {
-            return backend.Post<SharedBackendUserSignUp.Response, SharedBackendUserSignUp.Request>(
-                SharedBackendUserSignUp.Endpoint,
-                new SharedBackendUserSignUp.Request());
-        }
-
-        public static UniTask<SharedBackendUserLogin.Response> LogIn(this IMetaBackend backend, Guid id)
-        {
-            return backend.Post<SharedBackendUserLogin.Response, SharedBackendUserLogin.Request>(
-                SharedBackendUserLogin.Endpoint,
-                new SharedBackendUserLogin.Request()
-                {
-                    Id = id
-                });
-        }
-
         public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.SearchMatch()
@@ -116,15 +98,6 @@ namespace Meta
 
             if (response.HasError == true)
                 Debug.LogError($"Request {typeof(TRequest).Name} executed with error: {response.Message}");
-        }
-
-        private static UniTask<TResponse> Post<TResponse, TRequest>(
-            this IMetaBackend backend,
-            string uri,
-            TRequest body)
-        {
-            var backendUrl = backend.Client.Options.Url + uri;
-            return backend.Client.PostJson<TResponse, TRequest>(backend.Lifetime, backendUrl, body);
         }
     }
 }

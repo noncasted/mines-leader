@@ -1,27 +1,13 @@
-﻿using System;
-using MemoryPack;
-
-namespace Shared
+﻿namespace Shared
 {
-    public partial class SharedBackendSocketAuth
+    public static class SharedBackendSocketAuth
     {
-        [MemoryPackable]
-        public partial class Request : INetworkContext
-        {
-            public Guid UserId { get; set; }
-        }
-
-        [MemoryPackable]
-        public partial class Response : INetworkContext
-        {
-            public bool IsSuccess { get; set; }
-        }
-
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<Request>()
-                   .Add<Response>();
-        }
+        /// <summary>
+        /// Id юзера уезжает в query запроса на апгрейд сокета: отдельного кадра с
+        /// авторизацией нет, поэтому старт не тратит лишнее плечо до сервера.
+        /// Пустое значение означает, что сохранённого юзера у клиента нет и сервер
+        /// заведёт нового — его id приедет в профильной проекции.
+        /// </summary>
+        public const string UserIdQueryKey = "userId";
     }
 }

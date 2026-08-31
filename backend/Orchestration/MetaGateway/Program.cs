@@ -16,7 +16,6 @@ builder
 
 var app = builder.Build();
 
-app.AddIdentityEndpoints();
 app.AddBackendMiddleware();
 
 app.AddMonitorEndpoints();

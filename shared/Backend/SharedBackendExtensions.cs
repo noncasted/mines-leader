@@ -8,7 +8,6 @@
             builder.Add<SharedConnectionCompleted>();
             builder.Add<InitialCardPreviews>();
 
-            SharedBackendSocketAuth.Register(builder);
             SharedBackendUser.Register(builder);
             SharedMatchmaking.Register(builder);
 
