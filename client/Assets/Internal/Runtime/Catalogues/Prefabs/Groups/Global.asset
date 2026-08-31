@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28efcb9d1a5e4c7f8b0d234567881b03, type: 3}
+  m_Name: Global
+  m_EditorClassIdentifier: Internal::Internal.PrefabGroupAsset
+  _entries:
+  - Name: GlobalAudioListener
+    Prefab: {fileID: 2710705731569964538, guid: 509500ab5133ebcca841bdeae2ab1d9a, type: 3}
+    ComponentType: Global.Audio.AudioListener, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: GlobalAudioPlayer
+    Prefab: {fileID: 4289144717901505836, guid: 89348e658ff17be35ab79a9c054f89a0, type: 3}
+    ComponentType: Global.Audio.AudioPlayer, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: GlobalCamera
+    Prefab: {fileID: 8264638717701220664, guid: 2cb3e1ce0294b93c49182f7c727889f8, type: 3}
+    ComponentType: Global.Cameras.GlobalCamera, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: GlobalEvents
+    Prefab: {fileID: 5454134000541643517, guid: 615a1ac5539cb2db99283183d5ee5fc6, type: 3}
+    ComponentType: 
+  - Name: GlobalUpdater
+    Prefab: {fileID: 2349648713380631089, guid: 6abff8ba98839729d8cd8cf4abf87829, type: 3}
+    ComponentType: 
+  - Name: InternalScope
+    Prefab: {fileID: 7358682785312978771, guid: 64be6d17a90f1f464a3d24e4765aede6, type: 3}
+    ComponentType: 
+  - Name: LoadingScreen
+    Prefab: {fileID: 350223868609941234, guid: 0c2ea8f96344edce6838e358c8a664b9, type: 3}
+    ComponentType: Global.UI.LoadingScreen, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

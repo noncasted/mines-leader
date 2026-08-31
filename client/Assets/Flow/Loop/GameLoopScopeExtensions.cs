@@ -1,8 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
-using Tools;
 
-namespace Flow
+namespace Flow.Loop
 {
     public static class GameLoopScopeExtensions
     {

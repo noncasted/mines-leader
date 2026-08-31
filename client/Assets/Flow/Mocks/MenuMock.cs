@@ -3,7 +3,7 @@ using Internal;
 using Menu.Common;
 using VContainer;
 
-namespace Flow
+namespace Flow.Mocks
 {
     public class MenuMock : MockBase
     {

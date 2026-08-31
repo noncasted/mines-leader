@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: 2cb3e1ce0294b93c49182f7c727889f8
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"componentType\": \"Global.Cameras.GlobalCamera, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"83bfcc8c7562488ebdb6dc0a0736508a\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 

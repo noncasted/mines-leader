@@ -1,5 +1,5 @@
 using Sirenix.OdinInspector;
-using Tools;
+using Internal;
 using UnityEngine;
 #if UNITY_EDITOR
 using System;
@@ -104,7 +104,7 @@ namespace GamePlay.Boards
                 return Prefabs.GamePlay.Cell;
 
             var asset = AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(
-                "Assets/Tools/Runtime/PrefabCatalog/Groups/GamePlay.asset");
+                "Assets/Internal/Runtime/Catalogues/Prefabs/Groups/GamePlay.asset");
             if (asset == null)
                 throw new InvalidOperationException(
                     "GamePlay prefab group asset is missing. Run Tools/GeneratePrefabsCatalog.");

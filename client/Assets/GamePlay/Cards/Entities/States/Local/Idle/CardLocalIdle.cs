@@ -69,6 +69,7 @@ namespace GamePlay.Cards
 
                 var scale = _options.ScaleCurve.Evaluate(selectionCurve.Progress);
                 _transform.SetScale(Vector2.one * scale);
+                return;
 
                 float GetRotationEvaluation()
                 {

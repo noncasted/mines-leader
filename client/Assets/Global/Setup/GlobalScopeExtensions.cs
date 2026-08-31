@@ -8,7 +8,6 @@ using Global.Settings;
 using Global.Systems;
 using Global.UI;
 using Internal;
-using Tools;
 
 namespace Global.Setup
 {
@@ -27,8 +26,10 @@ namespace Global.Setup
 
             return scope;
 
-            UniTask Construct(IScopeBuilder builder)
+            async UniTask Construct(IScopeBuilder builder)
             {
+                await builder.LoadPrefabGroupNow(Prefabs.Global);
+
                 builder
                     .AddAudio()
                     .AddCamera()
@@ -38,8 +39,6 @@ namespace Global.Setup
                     .AddSettings()
                     .AddPublisher()
                     .AddUI();
-
-                return UniTask.CompletedTask;
             }
         }
     }

@@ -111,7 +111,6 @@ ExportedObj/
 /client/[Aa]ssets/[Ss]treamingAssets/aa.meta
 /client/[Aa]ssets/[Ss]treamingAssets/aa/
 /client/[Aa]ssets/_Recovery/
-/client/[Aa]ssets/[Ss]creenshots/
 /client/.idea/
 /backend/.idea/
 .omc/
@@ -120,3 +119,4 @@ __pycache__/
 *.pyc
 *.pyo
 
+/client/traces/

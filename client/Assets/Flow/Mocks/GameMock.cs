@@ -5,7 +5,7 @@ using Meta;
 using Shared;
 using UnityEngine;
 
-namespace Flow
+namespace Flow.Mocks
 {
     public class GameMock : MockBase
     {

@@ -1,7 +1,7 @@
 using Meta;
 using Shared;
 using TMPro;
-using Tools;
+using Internal;
 using UnityEngine;
 using UnityEngine.UI;
 

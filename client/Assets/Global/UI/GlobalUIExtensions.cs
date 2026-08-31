@@ -1,5 +1,4 @@
 ﻿using Internal;
-using Tools;
 
 namespace Global.UI
 {
@@ -11,7 +10,7 @@ namespace Global.UI
                    .WithScopeLifetime()
                    .As<IUIStateMachine>();
 
-            var loadingScreen = builder.Instantiate(Prefabs.LoadingScreen.As<LoadingScreen>());
+            var loadingScreen = builder.Instantiate(Prefabs.Global.LoadingScreen);
 
             builder.Inject(loadingScreen);
 

@@ -4,7 +4,6 @@ using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
 using Menu.Decks;
-using Tools;
 
 namespace Menu.Common
 {

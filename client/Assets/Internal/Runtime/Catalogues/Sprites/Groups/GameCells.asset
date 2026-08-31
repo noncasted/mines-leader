@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: GameCells
+  m_EditorClassIdentifier: Internal::Internal.SpriteGroupAsset
+  _entries:
+  - Name: GameCellsExplosionElectric
+    Kind: 1
+    Sprites:
+    - {fileID: -4906253212963465891, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: 3213442871455544258, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: 1591660224192826415, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: -2737288434972266030, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: 1198993323487635117, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: 2886267368830331226, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: -8729718504053149886, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    - {fileID: 8723028164873452117, guid: eacbbebb1061be971938f90213cf4e3b, type: 3}
+    Time: 0.5
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameCellsExplosionNormal
+    Kind: 1
+    Sprites:
+    - {fileID: -8822228927233775836, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: -5335499621224217732, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: -3682271011102877960, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: 2147325244447220009, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: 8146394549419690725, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: -6094553272488564857, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: 8957316723221738308, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    - {fileID: -3478228261717378244, guid: e3a26a7bb7bc504c186a4c6f1bcf8243, type: 3}
+    Time: 0.5
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameCellsFlagHide
+    Kind: 1
+    Sprites:
+    - {fileID: -4838839799801735378, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: -3399159420423803269, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: -6838068120830375169, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: 1613401925453138938, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: -2744434750092700438, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: 5909028918100966667, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: -5495871963803720702, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: 7109911734185062830, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    - {fileID: 1482675619473003188, guid: e0588ff391a303ebda19496cee43c87e, type: 3}
+    Time: 0.15
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameCellsFlagShow
+    Kind: 1
+    Sprites:
+    - {fileID: -8225310527045789180, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 8059820028794935434, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 287682533832053, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: -5548860590850620520, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 1488629761470039971, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 2252937157583380698, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 8333597315716918675, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 8712500365343266275, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    - {fileID: 4382765495799619954, guid: 139c10854989e228698a7bfc323c177a, type: 3}
+    Time: 0.25
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameCellsHighlightSelect
+    Kind: 1
+    Sprites:
+    - {fileID: -2651381972233126300, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: -5557226449514928645, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: -6697784591775466806, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: -3946814741928616337, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: -6141836769293933997, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: 8977606677742784903, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: 1563182262890424830, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    - {fileID: -2847893325727479780, guid: 6211838d194ab3d4596d399255040866, type: 3}
+    Time: 0.3
+    Color: {r: 0.98974735, g: 1, b: 0.21698111, a: 1}
+  - Name: GameCellsHighlightShow
+    Kind: 1
+    Sprites:
+    - {fileID: -5897720344775131331, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: 7365892486675560733, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: 1373128577749855713, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: -6904730677200525188, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: 1465429431113205989, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: -2889384631929167737, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: 1242241163503626846, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    - {fileID: -7839791069609271787, guid: e6475eb1195ab1b0f859ea6863e681da, type: 3}
+    Time: 0.3
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: GameCellsOpen
+    Kind: 1
+    Sprites:
+    - {fileID: -3769662348342528726, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: 2714060337601533705, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: -4022299178722178802, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: 6771365449861968697, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: 8419252137343304062, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: 5352495838829006750, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: -7553979817980829024, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: -3207966664940819690, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    - {fileID: 8150585292296195894, guid: 2d139f9569ac0929c865cc7b448190a7, type: 3}
+    Time: 0.1
+    Color: {r: 1, g: 1, b: 1, a: 1}

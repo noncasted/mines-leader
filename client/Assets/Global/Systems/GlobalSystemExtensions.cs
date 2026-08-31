@@ -1,5 +1,4 @@
 ﻿using Internal;
-using Tools;
 
 namespace Global.Systems
 {
@@ -11,7 +10,7 @@ namespace Global.Systems
                    .As<IScreen>()
                    .As<IApplicationFlow>();
 
-            var updaterPrefab = Prefabs.GlobalUpdater.As<Updater>();
+            var updaterPrefab = Prefabs.Global.GlobalUpdater.GetComponent<Updater>();
             var updater = builder.Instantiate(updaterPrefab);
 
             builder.RegisterComponent(updater)
@@ -22,17 +21,6 @@ namespace Global.Systems
                    .As<IDelayRunner>();
 
             return builder;
-        }
-    }
-
-    [PrefabDefinition]
-    public static class GlobalUpdaterPrefab
-    {
-        public static void Define(PrefabBuilder builder)
-        {
-            builder
-                .WithName("Global/GlobalUpdater")
-                .WithComponent<Updater>();
         }
     }
 }
