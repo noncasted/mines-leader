@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
@@ -21,7 +21,9 @@ namespace Flow.Mocks
             var sessionData = await matchmaking.CreateGameWithBot(scope.Lifetime, _mode);
             var gameScope = await scopeLoaderFactory.LoadPvPMock(scope, sessionData);
 
-            var loop = gameScope.Resolve<IPvPGameLoop>();
+            GameProfiler.Finish();
+
+            var loop = gameScope.Resolve<IGamePlayLoop>();
             await loop.Process(gameScope.Lifetime, sessionData);
         }
     }

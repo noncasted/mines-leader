@@ -1,5 +1,7 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Internal;
+using Shared;
 using UnityEngine;
 
 namespace Meta
@@ -22,22 +24,37 @@ namespace Meta
         {
             Debug.Log("[Meta] Authenticating user...");
 
-            if (TryGetUserId(out var userId) == true)
+            bool hasUserId;
+            Guid userId;
+
+            using (GameProfiler.Scope("Saved user id"))
+                hasUserId = TryGetUserId(out userId);
+
+            if (hasUserId == true)
             {
-                await _backend.LogIn(userId);
+                using (GameProfiler.Scope("Log in"))
+                    await _backend.LogIn(userId);
+
                 Debug.Log("[Meta] User authenticated with existing ID: " + userId);
                 return userId;
             }
 
             Debug.Log("[Meta] No existing user ID found. Signing up new user...");
-            var response = await _backend.SignUp("HUESOS");
 
+            SharedBackendUserSignUp.Response response;
+
+            using (GameProfiler.Scope("Sign up"))
+                response = await _backend.SignUp();
+
+            using (GameProfiler.Scope("Save user id"))
+            {
 #if UNITY_EDITOR
-            var pathHash = Application.dataPath.GetHashCode();
-            PlayerPrefs.SetString($"userId:{pathHash}", response.Id.ToString());
+                var pathHash = Application.dataPath.GetHashCode();
+                PlayerPrefs.SetString($"userId:{pathHash}", response.Id.ToString());
 #endif
 
-            PlayerPrefs.SetString("userId", response.Id.ToString());
+                PlayerPrefs.SetString("userId", response.Id.ToString());
+            }
 
             return response.Id;
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Internal;
@@ -45,7 +45,6 @@ namespace Internal
         private ToolbarButton _copyPath;
         private Label _summary;
         private VisualElement _axis;
-        private VisualElement _overview;
         private ScrollView _rows;
 
         [MenuItem("Tools/Startup Profiler")]
@@ -102,28 +101,6 @@ namespace Internal
             };
 
             root.Add(_summary);
-
-            _overview = new VisualElement
-            {
-                style =
-                {
-                    height = 46f,
-                    marginLeft = 8f,
-                    marginRight = 8f,
-                    marginBottom = 6f,
-                    backgroundColor = new Color(0.13f, 0.14f, 0.16f),
-                    borderTopWidth = 1f,
-                    borderBottomWidth = 1f,
-                    borderLeftWidth = 1f,
-                    borderRightWidth = 1f,
-                    borderTopColor = new Color(0.26f, 0.27f, 0.3f),
-                    borderBottomColor = new Color(0.26f, 0.27f, 0.3f),
-                    borderLeftColor = new Color(0.26f, 0.27f, 0.3f),
-                    borderRightColor = new Color(0.26f, 0.27f, 0.3f)
-                }
-            };
-
-            root.Add(_overview);
 
             _axis = new VisualElement
             {
@@ -239,7 +216,7 @@ namespace Internal
 
             RebuildTracesMenu();
             RebuildAxis();
-            RebuildOverview();
+            CollapseSpans();
             RebuildRows();
 
             // Трасса из ProfilerTraceStorage.Last живёт в памяти и файла за собой не имеет.
@@ -372,43 +349,6 @@ namespace Internal
                     backgroundColor = new Color(1f, 1f, 1f, alpha)
                 }
             };
-        }
-
-        private void RebuildOverview()
-        {
-            _overview.Clear();
-
-            if (_trace == null || _trace.Spans.Count == 0)
-                return;
-
-            var duration = System.Math.Max(_trace.DurationMs, 0.001d);
-            var lanes = _trace.Spans.Where(span => span.Depth <= 2)
-                                    .ToList();
-
-            foreach (var span in lanes)
-            {
-                var lane = Mathf.Min(span.Depth, 2);
-
-                var bar = new VisualElement
-                {
-                    tooltip = $"{span.Name} — {FormatDuration(span.DurationMs)}",
-                    style =
-                    {
-                        position = Position.Absolute,
-                        left = Length.Percent((float)(span.StartMs / duration * 100d)),
-                        width = Length.Percent(Mathf.Max(0.3f, (float)(span.DurationMs / duration * 100d))),
-                        top = 6f + lane * 12f,
-                        height = 8f,
-                        backgroundColor = ColorFor(span.Depth),
-                        borderTopLeftRadius = 2f,
-                        borderTopRightRadius = 2f,
-                        borderBottomLeftRadius = 2f,
-                        borderBottomRightRadius = 2f
-                    }
-                };
-
-                _overview.Add(bar);
-            }
         }
 
         private void RebuildRows()
@@ -654,6 +594,18 @@ namespace Internal
 
         private void CollapseAll()
         {
+            CollapseSpans();
+            RebuildRows();
+        }
+
+        /// <summary>
+        /// Состояние по умолчанию: трасса открывается свёрнутой, дальше её разворачивают
+        /// по тем этапам, которые оказались долгими.
+        /// </summary>
+        private void CollapseSpans()
+        {
+            _collapsed.Clear();
+
             if (_trace == null)
                 return;
 
@@ -662,8 +614,6 @@ namespace Internal
                 if (span.Depth >= 1)
                     _collapsed.Add(span.Id);
             }
-
-            RebuildRows();
         }
 
         private static Color ColorFor(int depth)

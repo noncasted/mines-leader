@@ -21,7 +21,13 @@ namespace Flow.Startup
 
         private async UniTask Setup()
         {
+            // Трасса старта закрывается на входе в меню: там загрузка и заканчивается,
+            // а сюда управление уже не возвращается (см. MenuLoader).
+            GameProfiler.Begin("Startup");
+
             var internalScopeLoader = new InternalScopeLoader(_internal);
+
+            UnionInitializer.Execute();
 
             var internalScope = await internalScopeLoader.Load();
             var scopeLoader = internalScope.Resolve<IServiceScopeLoader>();
@@ -30,8 +36,11 @@ namespace Flow.Startup
             var globalCamera = globalScope.Resolve<IGlobalCamera>();
             var loadingScreen = globalScope.Resolve<ILoadingScreen>();
 
-            globalCamera.Enable();
-            loadingScreen.ShowInstantly();
+            using (GameProfiler.Scope("Loading screen"))
+            {
+                globalCamera.Enable();
+                loadingScreen.ShowInstantly();
+            }
 
             var metaScope = await scopeLoader.LoadMeta(globalScope);
 

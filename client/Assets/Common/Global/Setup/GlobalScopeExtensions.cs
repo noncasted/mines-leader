@@ -17,28 +17,36 @@ namespace Global.Setup
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.GlobalServices.Value,
+                "Global_Services",
                 Construct,
                 false);
 
+            using var stage = GameProfiler.Scope("Global");
+
             var scope = await loader.Load(options);
-            await scope.Initialize();
+
+            using (GameProfiler.Scope("Loaded"))
+                await scope.Initialize();
 
             return scope;
 
             async UniTask Construct(IScopeBuilder builder)
             {
+                // Отрезок на группу открывает сам LoadPrefabGroupNow.
                 await builder.LoadPrefabGroupNow(Prefabs.Global);
 
-                builder
-                    .AddAudio()
-                    .AddCamera()
-                    .AddInput()
-                    .AddSystemUtils()
-                    .AddBackend()
-                    .AddSettings()
-                    .AddPublisher()
-                    .AddUI();
+                // Модули меряются поимённо: половина из них инстанцирует префабы, и по
+                // трассе сразу видно, какой именно из них стоит кадров.
+                using var services = GameProfiler.Scope("Services");
+
+                services.Measure("Audio", () => builder.AddAudio());
+                services.Measure("Camera", () => builder.AddCamera());
+                services.Measure("Input", () => builder.AddInput());
+                services.Measure("System", () => builder.AddSystemUtils());
+                services.Measure("Backend", () => builder.AddBackend());
+                services.Measure("Settings", () => builder.AddSettings());
+                services.Measure("Publisher", () => builder.AddPublisher());
+                services.Measure("UI", () => builder.AddUI());
             }
         }
     }

@@ -16,8 +16,6 @@ namespace GamePlay
 
         public UniTask Handle(PlayerSnapshotRecord.DeckUpdate record)
         {
-            var player = _gameContext.GetPlayer(record.PlayerId);
-            player.Deck.SetCount(record.Count);
             return UniTask.CompletedTask;
         }
     }

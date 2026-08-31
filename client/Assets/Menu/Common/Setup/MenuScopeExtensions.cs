@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Internal;
 
 namespace Menu.Common
@@ -11,22 +11,26 @@ namespace Menu.Common
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.MenuServices.Value,
+                "Menu_Services",
                 Construct,
                 false);
 
+            using var stage = GameProfiler.Scope("Menu");
+
             var scope = await loader.Load(options);
-            await scope.Initialize();
+
+            using (GameProfiler.Scope("Loaded"))
+                await scope.Initialize();
 
             return scope;
 
 
             UniTask Construct(IScopeBuilder builder)
             {
-                builder
-                    .AddMenuLoop();
+                using (GameProfiler.Scope("Services"))
+                    builder.AddMenuLoop();
 
-                return UniTask.WhenAll(builder.AddScene());
+                return builder.AddScene();
             }
         }
 
@@ -36,29 +40,37 @@ namespace Menu.Common
         {
             var options = new ScopeLoadOptions(
                 parent,
-                Scenes.MenuServices.Value,
+                "Menu_Services",
                 Construct,
                 true);
 
+            using var stage = GameProfiler.Scope("Menu mock");
+
             var scope = await loader.Load(options);
-            await scope.Initialize();
+
+            using (GameProfiler.Scope("Loaded"))
+                await scope.Initialize();
 
             return scope;
 
             UniTask Construct(IScopeBuilder builder)
             {
-                builder
-                    .AddMenuLoop();
+                using (GameProfiler.Scope("Services"))
+                    builder.AddMenuLoop();
 
-                return UniTask.WhenAll(builder.AddScene());
+                return builder.AddScene();
             }
         }
 
-        private static UniTask AddScene(this IScopeBuilder builder)
+        private static async UniTask AddScene(this IScopeBuilder builder)
         {
-            return UniTask.WhenAll(
-                builder.FindOrLoadSceneWithServices(Scenes.Menu.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value));
+            // Сцены грузятся параллельно, поэтому каждая меряется своим отрезком на общем
+            // родителе: по стеку такая вложенность не построилась бы.
+            using var scenes = GameProfiler.Scope("Scenes");
+
+            await UniTask.WhenAll(
+                scenes.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
+                scenes.Measure("Scene: MenuBoard", () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Internal
         {
             var result = await loader.Load(scene);
 
-            var rootObjects = result.Instance.Scene.GetRootGameObjects();
+            var rootObjects = result.Scene.GetRootGameObjects();
 
             foreach (var rootObject in rootObjects)
             {
@@ -30,7 +30,7 @@ namespace Internal
         {
             var result = await loader.Load(scene, isMain);
 
-            var rootObjects = result.Instance.Scene.GetRootGameObjects();
+            var rootObjects = result.Scene.GetRootGameObjects();
 
             foreach (var rootObject in rootObjects)
             {

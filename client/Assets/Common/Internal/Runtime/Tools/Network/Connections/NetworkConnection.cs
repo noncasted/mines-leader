@@ -36,7 +36,8 @@ namespace Internal
         {
             _webSocket = CreateWebSocket();
 
-            await _webSocket.Connect();
+            using (GameProfiler.Scope("Socket connect"))
+                await _webSocket.Connect();
 
             _dispatcher.Run(lifetime);
             _reader.Run(lifetime, _webSocket);

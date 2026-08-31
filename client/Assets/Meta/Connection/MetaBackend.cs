@@ -43,7 +43,9 @@ namespace Meta
         public async UniTask<bool> Connect(IReadOnlyLifetime lifetime)
         {
             Debug.Log("[Meta] Connecting to backend...");
-            await _connection.Run(lifetime, _options.SocketUrl);
+
+            using (GameProfiler.Scope("Socket"))
+                await _connection.Run(lifetime, _options.SocketUrl);
 
             var authRequest = new SharedBackendSocketAuth.Request()
             {
@@ -51,7 +53,11 @@ namespace Meta
             };
 
             Debug.Log("[Meta] Authenticating with backend...");
-            var authResponse = await _connection.Request<SharedBackendSocketAuth.Response>(authRequest);
+
+            SharedBackendSocketAuth.Response authResponse;
+
+            using (GameProfiler.Scope("Socket auth"))
+                authResponse = await _connection.Request<SharedBackendSocketAuth.Response>(authRequest);
 
             if (authResponse.IsSuccess == false)
             {

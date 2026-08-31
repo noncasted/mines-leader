@@ -25,8 +25,23 @@ namespace Internal
 
         public async UniTask<ILoadedScope> Load(ScopeLoadOptions options)
         {
+            // Этапы одинаковы для всех скоупов, поэтому замер живёт здесь, а не в каждом
+            // расширении: в трассу они ложатся под тем этапом, который скоуп и открыл.
+            using var stage = GameProfiler.Scope($"Scope: {options.ServiceSceneName ?? "Services"}");
+
             var sceneLoader = new ServiceScopeSceneLoader(_sceneLoader);
-            var servicesScene = await sceneLoader.Load(options.ServiceScene);
+
+            ILoadedScene servicesScene;
+
+            // Сцена сервисов нужна только как контейнер для объектов скоупа. Если ассета
+            // нет, она создаётся на ходу: пустая сцена в бандле стоит открытия файла и
+            // пары кадров на async-загрузке, а полезной нагрузки в ней ноль.
+            using (GameProfiler.Scope("Services scene"))
+            {
+                servicesScene = options.ServiceScene == null
+                    ? sceneLoader.Create(options.ServiceSceneName)
+                    : await sceneLoader.Load(options.ServiceScene);
+            }
 
             var builder = CreateBuilder();
 
@@ -34,13 +49,19 @@ namespace Internal
             var container = containerObject.AddComponent<LifetimeScope>();
             builder.Binder.MoveToModules(container);
 
-            await options.ConstructCallback.Invoke(builder);
-            await builder.Events.InvokeBeforeBuild();
+            using (GameProfiler.Scope("Construct"))
+                await options.ConstructCallback.Invoke(builder);
 
-            BuildContainer();
+            using (GameProfiler.Scope("Assets"))
+                await builder.Events.InvokeBeforeBuild();
+
+            using (GameProfiler.Scope("Container"))
+                BuildContainer();
 
             builder.Events.Bind(container.Container);
-            await builder.Events.RunConstruct(builder.ScopeLifetime);
+
+            using (GameProfiler.Scope("Setup"))
+                await builder.Events.RunConstruct(builder.ScopeLifetime);
 
             var loadResult = new ScopeLoadResult(
                 container,
@@ -52,7 +73,7 @@ namespace Internal
 
             ScopeBuilder CreateBuilder()
             {
-                var binder = new ServiceScopeBinder(servicesScene.Instance);
+                var binder = new ServiceScopeBinder(servicesScene.Scene);
                 var lifetime = options.Parent.Lifetime.Child();
                 var services = new ServiceCollection();
 

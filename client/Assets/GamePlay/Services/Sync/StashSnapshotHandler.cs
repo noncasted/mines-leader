@@ -16,8 +16,6 @@ namespace GamePlay
 
         public UniTask Handle(PlayerSnapshotRecord.StashUpdate record)
         {
-            var player = _gameContext.GetPlayer(record.PlayerId);
-            player.Stash.SetCount(record.Count);
             return UniTask.CompletedTask;
         }
     }

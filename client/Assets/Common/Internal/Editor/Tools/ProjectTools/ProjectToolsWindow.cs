@@ -14,9 +14,15 @@ namespace Internal
     {
         private static readonly string UssPath = "Assets/Common/Internal/Editor/Tools/ProjectTools/ProjectToolsWindow.uss";
         private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field", "Startup" };
+        private const string UserIdKey = "userId";
+        private const string EmptyUserId = "<none>";
+
+        private static string EditorUserIdKey => $"userId:{Application.dataPath.GetHashCode()}";
 
         private OptionsContainer _options;
         private VisualElement _root;
+        private Label _userIdValueLabel;
+        private Label _userIdEditorValueLabel;
         private Label _statusLabel;
         private ProgressBar _progressBar;
 
@@ -110,7 +116,7 @@ namespace Internal
             var tabBar = new VisualElement();
             tabBar.AddToClassList("tab-bar");
 
-            var tabNames = new[] { "Scenes", "Options", "Assets" };
+            var tabNames = new[] { "Scenes", "Options", "Assets", "User" };
 
             for (int i = 0; i < tabNames.Length; i++)
             {
@@ -146,6 +152,12 @@ namespace Internal
             BuildAssetsSection(assetsTab);
             scroll.Add(assetsTab);
             _tabContents.Add(assetsTab);
+
+            var userTab = new VisualElement();
+            userTab.AddToClassList("tab-content");
+            BuildUserSection(userTab);
+            scroll.Add(userTab);
+            _tabContents.Add(userTab);
 
             _root.Add(scroll);
             SelectTab(0);
@@ -422,6 +434,99 @@ namespace Internal
                 UpdateStatus("Run All failed", true);
                 Debug.LogError($"[ProjectTools] Run All failed: {ex}");
             }
+        }
+
+        private void BuildUserSection(VisualElement parent)
+        {
+            var section = BuildSubSection("Local User");
+
+            _userIdEditorValueLabel = BuildUserIdRow(section, $"Editor ({EditorUserIdKey})");
+            _userIdValueLabel = BuildUserIdRow(section, $"Shared ({UserIdKey})");
+
+            var buttonRow = new VisualElement();
+            buttonRow.AddToClassList("assets-button-row");
+
+            var copyButton = new Button(OnCopyUserIdClicked) { text = "Copy" };
+            copyButton.AddToClassList("assets-button");
+            buttonRow.Add(copyButton);
+
+            var refreshButton = new Button(RefreshUserId) { text = "Refresh" };
+            refreshButton.AddToClassList("assets-button");
+            buttonRow.Add(refreshButton);
+
+            var clearButton = new Button(OnClearUserIdClicked) { text = "Clear" };
+            clearButton.AddToClassList("assets-button");
+            buttonRow.Add(clearButton);
+
+            section.Add(buttonRow);
+            parent.Add(section);
+
+            RefreshUserId();
+        }
+
+        private static Label BuildUserIdRow(VisualElement parent, string title)
+        {
+            var label = new Label(title);
+            label.AddToClassList("user-id-title");
+            parent.Add(label);
+
+            var value = new Label(EmptyUserId) { selection = { isSelectable = true } };
+            value.AddToClassList("user-id-value");
+            parent.Add(value);
+
+            return value;
+        }
+
+        private void RefreshUserId()
+        {
+            if (_userIdValueLabel == null)
+                return;
+
+            _userIdEditorValueLabel.text = ReadUserId(EditorUserIdKey);
+            _userIdValueLabel.text = ReadUserId(UserIdKey);
+        }
+
+        private void OnCopyUserIdClicked()
+        {
+            var userId = ReadUserId(EditorUserIdKey);
+
+            if (userId == EmptyUserId)
+                userId = ReadUserId(UserIdKey);
+
+            if (userId == EmptyUserId)
+            {
+                UpdateStatus("No saved user id", true);
+                return;
+            }
+
+            EditorGUIUtility.systemCopyBuffer = userId;
+            UpdateStatus("User id copied", false);
+        }
+
+        private void OnClearUserIdClicked()
+        {
+            var confirmed = EditorUtility.DisplayDialog(
+                "Clear User Id",
+                "Delete the saved local user id? A new user will be created on the next authentication.",
+                "Clear",
+                "Cancel");
+
+            if (confirmed == false)
+                return;
+
+            PlayerPrefs.DeleteKey(EditorUserIdKey);
+            PlayerPrefs.DeleteKey(UserIdKey);
+            PlayerPrefs.Save();
+
+            RefreshUserId();
+            UpdateStatus("User id cleared", false);
+            Debug.Log("[ProjectTools] Saved user id cleared");
+        }
+
+        private static string ReadUserId(string key)
+        {
+            var value = PlayerPrefs.GetString(key, string.Empty);
+            return string.IsNullOrEmpty(value) ? EmptyUserId : value;
         }
 
         private void BuildFooter()

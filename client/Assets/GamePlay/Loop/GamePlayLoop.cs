@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace GamePlay.Loop
 {
-    public interface IPvPGameLoop
+    public interface IGamePlayLoop
     {
         UniTask<IGameEndTransition> Process(IReadOnlyLifetime lifetime, SharedMatchmaking.MatchResult sessionData);
     }
 
-    public class PvPGameLoop : IPvPGameLoop
+    public class GamePlayLoop : IGamePlayLoop
     {
-        public PvPGameLoop(
+        public GamePlayLoop(
             IUser user,
             INetworkSession session,
             IGameContext gameContext,

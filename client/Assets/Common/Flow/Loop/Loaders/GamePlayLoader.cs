@@ -2,6 +2,7 @@
 using GamePlay.Loop;
 using Global.Cameras;
 using Global.UI;
+using Internal;
 using Menu.Common;
 using VContainer;
 
@@ -30,11 +31,25 @@ namespace Flow.Loop
 
         public async UniTask<IGameEndTransition> Load(GameLoadData gameLoadData)
         {
-            await _loadingScreen.Show();
-            _globalCamera.Enable();
+            // Своя трасса на переход из меню в матч: трасса старта к этому моменту закрыта.
+            GameProfiler.Begin("GamePlay");
 
-            var scope = await _scopeLoader.Load((loader, parent) => loader.LoadPvp(parent, gameLoadData.Result));
-            var loop = scope.Container.Container.Resolve<IPvPGameLoop>();
+            ILoadedScope scope;
+
+            using (GameProfiler.Scope("Load"))
+            {
+                using (GameProfiler.Scope("Loading screen"))
+                    await _loadingScreen.Show();
+
+                _globalCamera.Enable();
+
+                scope = await _scopeLoader.Load((loader, parent) => loader.LoadPvp(parent, gameLoadData.Result));
+            }
+
+            // Дальше начинается сам матч, а он живёт вне загрузки.
+            GameProfiler.Finish();
+
+            var loop = scope.Container.Container.Resolve<IGamePlayLoop>();
             var transitionData = await loop.Process(scope.Lifetime, gameLoadData.Result);
 
             return transitionData;

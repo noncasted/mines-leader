@@ -19,17 +19,28 @@ namespace Flow.Startup
 
         public async UniTask<ILoadedScope> Load()
         {
+            using var stage = GameProfiler.Scope("Startup");
+
             // The whole Global prefab group lives for the application lifetime, so it is retained once here.
-            await GlobalAssets.Global.Retain();
+            using (GameProfiler.Scope("Prefabs: Global"))
+                await GlobalAssets.Global.Retain();
 
-            var scopeObject = Object.Instantiate(GlobalAssets.Global.InternalScope)
+            InternalScope scopeObject;
+
+            using (GameProfiler.Scope("Scope object"))
+            {
+                scopeObject = Object.Instantiate(GlobalAssets.Global.InternalScope)
                                     .GetComponent<InternalScope>();
-            scopeObject.name = "Internal_Scope";
+                scopeObject.name = "Internal_Scope";
 
-            Object.DontDestroyOnLoad(scopeObject);
+                Object.DontDestroyOnLoad(scopeObject);
+            }
 
-            using (LifetimeScope.Enqueue(Register))
-                scopeObject.Build();
+            using (GameProfiler.Scope("Container"))
+            {
+                using (LifetimeScope.Enqueue(Register))
+                    scopeObject.Build();
+            }
 
             var result = new InternalLoadedScope(scopeObject, new Lifetime());
             scopeObject.AttachScope(result);
@@ -38,14 +49,10 @@ namespace Flow.Startup
 
             void Register(IContainerBuilder container)
             {
-                _assets.Cache();
+                using (GameProfiler.Scope("Assets cache"))
+                    _assets.Cache();
 
                 var assets = new AssetEnvironment(_assets);
-
-                var preprocessors = assets.GetAssets<EnvPreprocessor>();
-
-                foreach (var preprocessor in preprocessors)
-                    preprocessor.Execute();
 
                 container.Register<SceneLoader>(VContainer.Lifetime.Singleton)
                                      .As<ISceneLoader>();

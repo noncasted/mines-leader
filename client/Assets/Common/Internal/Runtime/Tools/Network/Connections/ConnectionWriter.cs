@@ -64,6 +64,9 @@ namespace Internal
 
         public async UniTask<T> WriteRequest<T>(INetworkContext commandContext)
         {
+            // Запрос уходит в очередь и ждёт ответа параллельно с чем угодно ещё.
+            using var trace = GameProfiler.Concurrent($"Request: {Describe(commandContext)}");
+
             _requestCounter++;
 
             var request = new RequestMessageFromClient()
@@ -109,6 +112,17 @@ namespace Internal
             {
                 throw new InvalidOperationException($"No pending request found for request ID: {requestId}");
             }
+        }
+
+        /// <summary>
+        /// Контексты объявлены вложенными типами, и у них Name — это голое "Request":
+        /// без владельца в трассе не понять, какой именно запрос ждали.
+        /// </summary>
+        private static string Describe(INetworkContext context)
+        {
+            var type = context.GetType();
+
+            return type.DeclaringType == null ? type.Name : $"{type.DeclaringType.Name}.{type.Name}";
         }
 
         public async UniTask ForceSendAll()

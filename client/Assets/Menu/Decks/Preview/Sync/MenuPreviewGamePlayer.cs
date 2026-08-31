@@ -29,8 +29,6 @@ namespace Menu.Decks
 
         public IPlayerMana Mana => throw new NotSupportedException("MenuPreviewGamePlayer has no mana");
         public IPlayerHealth Health => throw new NotSupportedException("MenuPreviewGamePlayer has no health");
-        public IDeck Deck => throw new NotSupportedException("MenuPreviewGamePlayer has no deck");
-        public IStash Stash => throw new NotSupportedException("MenuPreviewGamePlayer has no stash");
         public IPlayerTurns Turns => throw new NotSupportedException("MenuPreviewGamePlayer has no turns");
         public IHand Hand => throw new NotSupportedException("MenuPreviewGamePlayer has no hand");
         public IPlayerModifiers Modifiers => throw new NotSupportedException("MenuPreviewGamePlayer has no modifiers");
