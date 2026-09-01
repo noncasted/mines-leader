@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards.Effects;
-using Global.Systems;
 using Internal;
 using UnityEngine;
 

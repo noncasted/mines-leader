@@ -1,5 +1,4 @@
-﻿using Global.Systems;
-using Internal;
+﻿using Internal;
 
 namespace GamePlay.Cards
 {
@@ -15,15 +14,13 @@ namespace GamePlay.Cards
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
-            ICardRenderer renderer,
-            CardRemoteIdleOptions options)
+            ICardRenderer renderer)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _stateLifetime = stateLifetime;
             _renderer = renderer;
-            _options = options;
         }
 
         private readonly IUpdater _updater;
@@ -31,12 +28,13 @@ namespace GamePlay.Cards
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardRenderer _renderer;
-        private readonly CardRemoteIdleOptions _options;
 
         public void Enter()
         {
+            var options = GamePlayAssets.CardRemoteIdleOptions;
+
             var lifetime = _stateLifetime.OccupyLifetime();
-            var selectionCurve = _options.SelectionCurve.CreateInstance();
+            var selectionCurve = options.SelectionCurve.CreateInstance();
             var positionHandle = _handEntryHandle.PositionHandle;
 
             _updater.RunUpdateAction(lifetime, delta => {
@@ -44,11 +42,11 @@ namespace GamePlay.Cards
                 _transform.SetRotation(rotation);
 
                 var rotationEvaluation = selectionCurve.StepForward(delta);
-                var force = _options.SelectionForce * rotationEvaluation;
+                var force = options.SelectionForce * rotationEvaluation;
                 _transform.SetHandForce(force);
 
                 var direction = new Angle(90 + rotation).ToVector2();
-                var move = direction * (_options.SelectionDistance * rotationEvaluation);
+                var move = direction * (options.SelectionDistance * rotationEvaluation);
                 var position = positionHandle.SupposedPosition;
                 _transform.SetPosition(position + move);
 

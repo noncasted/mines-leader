@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Players;
-using Global.Systems;
 using Internal;
 
 namespace GamePlay.Cards
@@ -16,15 +15,13 @@ namespace GamePlay.Cards
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
             ICardTargets targets,
-            IGamePlayer player,
-            CardLocalStashOptions options)
+            IGamePlayer player)
         {
             _updater = updater;
             _transform = transform;
             _stateLifetime = stateLifetime;
             _targets = targets;
             _player = player;
-            _options = options;
         }
 
         private readonly IUpdater _updater;
@@ -32,10 +29,11 @@ namespace GamePlay.Cards
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardTargets _targets;
         private readonly IGamePlayer _player;
-        private readonly CardLocalStashOptions _options;
 
         public async UniTask Enter(IReadOnlyLifetime lifetime)
         {
+            var options = GamePlayAssets.CardLocalStashOptions;
+
             await _player.Turns.IsTurn.WaitFalse(lifetime);
 
             if (lifetime.IsTerminated == true)
@@ -48,7 +46,7 @@ namespace GamePlay.Cards
                 stateLifetime,
                 _transform,
                 _targets.LocalStash,
-                _options);
+                options);
         }
     }
 }

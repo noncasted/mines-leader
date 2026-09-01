@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Global.Audio
 {
+    public interface IAudioListener
+    {
+        void Enable();
+        void Disable();
+    }
+    
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioListener))]
     public class AudioListener :

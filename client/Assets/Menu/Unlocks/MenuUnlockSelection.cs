@@ -121,7 +121,7 @@ namespace Menu.Unlocks
                 if (_cards.Entries.TryGetValue(card, out var definition) == false)
                     continue;
 
-                var option = Instantiate(Prefabs.Menu.MenuUnlocksOption, _optionsRoot);
+                var option = Instantiate(MenuPrefabs.MenuUnlocksOption, _optionsRoot);
                 option.Setup(definition, _descriptions.GetDescription(card));
                 option.ListenClick(lifetime, picked => Claim(lifetime, picked, completion).Forget());
                 _options.Add(option);

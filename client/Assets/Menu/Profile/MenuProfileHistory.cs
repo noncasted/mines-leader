@@ -38,7 +38,7 @@ namespace Menu.Profile
 
             foreach (var match in matches)
             {
-                var view = Instantiate(Prefabs.Menu.MenuProfileHistoryEntry, _root);
+                var view = Instantiate(MenuPrefabs.MenuProfileHistoryEntry, _root);
                 view.name = $"Match_{match.Id:N}";
                 view.Setup(match, modeName.Invoke(match));
                 view.Bind(lifetime, entry => selected.Invoke(entry.Match));

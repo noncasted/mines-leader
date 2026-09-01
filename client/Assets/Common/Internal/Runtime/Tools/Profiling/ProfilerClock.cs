@@ -1,3 +1,5 @@
+using Unity.Profiling.LowLevel.Unsafe;
+
 namespace Internal
 {
     /// <summary>
@@ -11,8 +13,8 @@ namespace Internal
         public static long NowNs()
         {
 #if ENABLE_PROFILER
-            var ratio = Unity.Profiling.LowLevel.Unsafe.ProfilerUnsafeUtility.TimestampToNanosecondsConversionRatio;
-            var timestamp = Unity.Profiling.LowLevel.Unsafe.ProfilerUnsafeUtility.Timestamp;
+            var ratio = ProfilerUnsafeUtility.TimestampToNanosecondsConversionRatio;
+            var timestamp = ProfilerUnsafeUtility.Timestamp;
 
             if (ratio.Denominator <= 0L)
                 return 0L;

@@ -85,7 +85,7 @@ namespace Menu.Play
                 if (_gameModesRegistry.Entries.TryGetValue(type, out var definition) == false)
                     continue;
 
-                var view = Instantiate(Prefabs.Menu.GameModeEntry, _modesRoot);
+                var view = Instantiate(MenuPrefabs.GameModeEntry, _modesRoot);
                 view.Setup(definition);
                 view.ListenClick(lifetime, () => Select(type));
                 _modes.Add(view);

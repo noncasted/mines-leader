@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using UnityEditor;
-using UnityEngine;
 
 namespace Internal {
     public static class SpritesClassGenerator {
         public const string GeneratedFolder = "Assets/Common/Internal/Runtime/Catalogues/Sprites/Generated";
 
-        internal static void Generate(IReadOnlyList<SpriteGroupDefinition> groups) {
-            EnsureFolder(GeneratedFolder);
+        private const string LogTag = "SpritesClassGenerator";
 
-            WriteIfChanged($"{GeneratedFolder}/Sprites.cs", BuildSpritesClass(groups));
+        internal static void Generate(IReadOnlyList<SpriteGroupDefinition> groups) {
+            CatalogPaths.EnsureFolder(GeneratedFolder);
+
+            GeneratedFile.WriteIfChanged(LogTag, $"{GeneratedFolder}/Sprites.cs", BuildSpritesClass(groups));
 
             var written = new HashSet<string>(StringComparer.Ordinal) {
                 "Sprites.cs"
@@ -21,10 +20,10 @@ namespace Internal {
             foreach (var group in groups) {
                 var fileName = group.ClassName + ".cs";
                 written.Add(fileName);
-                WriteIfChanged($"{GeneratedFolder}/{fileName}", BuildGroupClass(group));
+                GeneratedFile.WriteIfChanged(LogTag, $"{GeneratedFolder}/{fileName}", BuildGroupClass(group));
             }
 
-            DeleteStale(written);
+            GeneratedFile.DeleteStale(LogTag, GeneratedFolder, written, ".cs");
         }
 
         private static string BuildSpritesClass(IReadOnlyList<SpriteGroupDefinition> groups) {
@@ -53,8 +52,6 @@ namespace Internal {
             builder.AppendLine("using Cysharp.Threading.Tasks;");
             if (hasSheet)
                 builder.AppendLine("using UnityEngine;");
-            builder.AppendLine("using UnityEngine.AddressableAssets;");
-            builder.AppendLine("using UnityEngine.ResourceManagement.AsyncOperations;");
             builder.AppendLine();
             builder.AppendLine("namespace Internal {");
             builder.AppendLine($"    public sealed class {group.ClassName} : SpriteGroup {{");
@@ -64,7 +61,6 @@ namespace Internal {
             foreach (var property in group.Properties)
                 builder.AppendLine($"        private {FieldType(property.Kind)} {property.FieldName};");
 
-            builder.AppendLine("        private AsyncOperationHandle<SpriteGroupAsset> _handle;");
             builder.AppendLine();
 
             foreach (var property in group.Properties) {
@@ -75,12 +71,11 @@ namespace Internal {
             }
 
             builder.AppendLine("        protected override async UniTask LoadGroup() {");
-            builder.AppendLine("            _handle = Addressables.LoadAssetAsync<SpriteGroupAsset>(Address);");
-            builder.AppendLine("            var asset = await _handle.ToUniTask();");
+            builder.AppendLine("            await LoadAsset(Address);");
 
             foreach (var property in group.Properties) {
                 var getter = property.Kind == SpriteKind.Animation ? "GetAnimation" : "GetSheet";
-                builder.AppendLine($"            {property.FieldName} = asset.{getter}(\"{property.PropertyName}\");");
+                builder.AppendLine($"            {property.FieldName} = Asset.{getter}(\"{property.PropertyName}\");");
             }
 
             builder.AppendLine("        }");
@@ -90,66 +85,11 @@ namespace Internal {
             foreach (var property in group.Properties)
                 builder.AppendLine($"            {property.FieldName} = null;");
 
-            builder.AppendLine("            if (_handle.IsValid())");
-            builder.AppendLine("                Addressables.Release(_handle);");
+            builder.AppendLine("            UnloadAsset();");
             builder.AppendLine("        }");
             builder.AppendLine("    }");
             builder.AppendLine("}");
             return builder.ToString();
-        }
-
-        private static void WriteIfChanged(string assetPath, string content) {
-            try {
-                var fullPath = ToFullPath(assetPath);
-                if (File.Exists(fullPath)) {
-                    var existing = File.ReadAllText(fullPath);
-                    if (existing == content)
-                        return;
-                }
-
-                var directory = Path.GetDirectoryName(fullPath);
-                if (string.IsNullOrEmpty(directory) == false && Directory.Exists(directory) == false)
-                    Directory.CreateDirectory(directory);
-
-                File.WriteAllText(fullPath, content);
-                AssetDatabase.ImportAsset(assetPath);
-                Debug.Log($"[SpritesClassGenerator] Generated {assetPath}");
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[SpritesClassGenerator] Failed to write {assetPath}: {exception}");
-            }
-        }
-
-        private static void DeleteStale(HashSet<string> writtenNames) {
-            if (AssetDatabase.IsValidFolder(GeneratedFolder) == false)
-                return;
-
-            string[] files;
-            try {
-                files = Directory.GetFiles(ToFullPath(GeneratedFolder), "*.cs", SearchOption.TopDirectoryOnly);
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[SpritesClassGenerator] Failed to scan {GeneratedFolder}: {exception}");
-                return;
-            }
-
-            foreach (var file in files) {
-                var fileName = Path.GetFileName(file);
-                if (writtenNames.Contains(fileName))
-                    continue;
-
-                var assetPath = $"{GeneratedFolder}/{fileName}";
-                if (AssetDatabase.DeleteAsset(assetPath) == false) {
-                    try {
-                        File.Delete(file);
-                    }
-                    catch (Exception exception) {
-                        Debug.LogError($"[SpritesClassGenerator] Failed to delete {assetPath}: {exception}");
-                    }
-                }
-
-                Debug.Log($"[SpritesClassGenerator] Deleted stale file: {assetPath}");
-            }
         }
 
         private static string PropertyType(SpriteKind kind) {
@@ -158,26 +98,6 @@ namespace Internal {
 
         private static string FieldType(SpriteKind kind) {
             return PropertyType(kind);
-        }
-
-        private static void EnsureFolder(string folderPath) {
-            if (AssetDatabase.IsValidFolder(folderPath))
-                return;
-
-            var parts = folderPath.Split('/');
-            var current = parts[0];
-            for (var i = 1; i < parts.Length; i++) {
-                var next = current + "/" + parts[i];
-                if (AssetDatabase.IsValidFolder(next) == false)
-                    AssetDatabase.CreateFolder(current, parts[i]);
-
-                current = next;
-            }
-        }
-
-        private static string ToFullPath(string assetPath) {
-            var projectRoot = Path.GetDirectoryName(Application.dataPath);
-            return Path.Combine(projectRoot, assetPath);
         }
     }
 }

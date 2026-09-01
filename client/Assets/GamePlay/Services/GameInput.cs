@@ -1,6 +1,5 @@
 ﻿using Global.Cameras;
 using Global.Inputs;
-using Global.Systems;
 using Internal;
 using UnityEngine;
 using UnityEngine.InputSystem;

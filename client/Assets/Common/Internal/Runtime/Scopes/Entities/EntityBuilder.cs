@@ -9,14 +9,12 @@ namespace Internal
             ServiceCollection services,
             IScopeEntityView view,
             ILifetime scopeLifetime,
-            IAssetEnvironment assets,
             IEventLoop events)
         {
             Services = services;
             InternalServices = services;
             Scope = view.Scope;
             ScopeLifetime = scopeLifetime;
-            Assets = assets;
             Events = events;
             View = view;
         }
@@ -25,7 +23,6 @@ namespace Internal
         public ServiceCollection InternalServices { get; }
         public LifetimeScope Scope { get; }
         public ILifetime ScopeLifetime { get; }
-        public IAssetEnvironment Assets { get; }
         public IEventLoop Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
         public IScopeEntityView View { get; }

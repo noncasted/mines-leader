@@ -5,7 +5,6 @@ using Global.Cameras;
 using Global.Inputs;
 using Global.Publisher;
 using Global.Settings;
-using Global.Systems;
 using Global.UI;
 using Internal;
 
@@ -33,16 +32,16 @@ namespace Global.Setup
             async UniTask Construct(IScopeBuilder builder)
             {
                 // Отрезок на группу открывает сам LoadPrefabGroupNow.
-                await builder.LoadPrefabGroupNow(Prefabs.Global);
+                await builder.LoadPrefabGroupNow(GlobalPrefabs.Group);
 
                 // Модули меряются поимённо: половина из них инстанцирует префабы, и по
                 // трассе сразу видно, какой именно из них стоит кадров.
                 using var services = GameProfiler.Scope("Services");
 
+                services.Measure("Updater", () => builder.AddUpdater());
                 services.Measure("Audio", () => builder.AddAudio());
                 services.Measure("Camera", () => builder.AddCamera());
                 services.Measure("Input", () => builder.AddInput());
-                services.Measure("System", () => builder.AddSystemUtils());
                 services.Measure("Backend", () => builder.AddBackend());
                 services.Measure("Settings", () => builder.AddSettings());
                 services.Measure("Publisher", () => builder.AddPublisher());

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -11,6 +10,7 @@ namespace Internal {
         public const string GeneratedFolder = "Assets/Common/Internal/Runtime/Catalogues/Colors/Generated";
 
         private const string GeneratedFileName = "Colors.cs";
+        private const string LogTag = "ColorGenerator";
 
         [MenuItem("Tools/GenerateColors")]
         public static void Generate() {
@@ -46,9 +46,8 @@ namespace Internal {
                 throw new ArgumentNullException(nameof(catalog));
 
             var groups = BuildGroups(catalog);
-            var content = BuildColorsClass(groups);
-            WriteIfChanged($"{GeneratedFolder}/{GeneratedFileName}", content);
-            AssetDatabase.ImportAsset($"{GeneratedFolder}/{GeneratedFileName}");
+            CatalogPaths.EnsureFolder(GeneratedFolder);
+            GeneratedFile.WriteIfChanged(LogTag, $"{GeneratedFolder}/{GeneratedFileName}", BuildColorsClass(groups));
             Debug.Log($"[ColorGenerator] Generated {groups.Count} color group(s).");
         }
 
@@ -200,49 +199,6 @@ namespace Internal {
                 return "C" + builder;
 
             return builder.ToString();
-        }
-
-        private static void WriteIfChanged(string assetPath, string content) {
-            try {
-                EnsureFolder(GeneratedFolder);
-
-                var fullPath = ToFullPath(assetPath);
-                if (File.Exists(fullPath)) {
-                    var existing = File.ReadAllText(fullPath);
-                    if (existing == content)
-                        return;
-                }
-
-                var directory = Path.GetDirectoryName(fullPath);
-                if (string.IsNullOrEmpty(directory) == false && Directory.Exists(directory) == false)
-                    Directory.CreateDirectory(directory);
-
-                File.WriteAllText(fullPath, content);
-                Debug.Log($"[ColorGenerator] Wrote {assetPath}");
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[ColorGenerator] Failed to write {assetPath}: {exception}");
-            }
-        }
-
-        private static void EnsureFolder(string folderPath) {
-            if (AssetDatabase.IsValidFolder(folderPath))
-                return;
-
-            var parts = folderPath.Split('/');
-            var current = parts[0];
-            for (var i = 1; i < parts.Length; i++) {
-                var next = current + "/" + parts[i];
-                if (AssetDatabase.IsValidFolder(next) == false)
-                    AssetDatabase.CreateFolder(current, parts[i]);
-
-                current = next;
-            }
-        }
-
-        private static string ToFullPath(string assetPath) {
-            var projectRoot = Path.GetDirectoryName(Application.dataPath);
-            return Path.Combine(projectRoot, assetPath);
         }
 
         private sealed class ColorGroupDefinition {

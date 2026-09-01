@@ -25,8 +25,7 @@ namespace GamePlay.Cards
             ICardStateLifetime stateLifetime,
             ICardAction action,
             IPlayerTurns turns,
-            ICardDefinition definition,
-            CardDragOptions options)
+            ICardDefinition definition)
         {
             _connection = connection;
             _updater = updater;
@@ -38,7 +37,6 @@ namespace GamePlay.Cards
             _action = action;
             _turns = turns;
             _definition = definition;
-            _options = options;
         }
 
         private readonly INetworkConnection _connection;
@@ -51,10 +49,11 @@ namespace GamePlay.Cards
         private readonly ICardAction _action;
         private readonly IPlayerTurns _turns;
         private readonly ICardDefinition _definition;
-        private readonly CardDragOptions _options;
 
         public async UniTask Enter(ICardLocalIdle idle)
         {
+            var options = GamePlayAssets.CardDragOptions;
+
             var lifetime = _stateLifetime.OccupyLifetime();
             var startPosition = _transform.Position;
             var startScale = _transform.Scale;
@@ -62,7 +61,7 @@ namespace GamePlay.Cards
             var startForce = _transform.HandForce;
             var positionHandle = _handEntryHandle.PositionHandle;
             var useLifetime = lifetime.Child();
-            var transitionCurve = _options.TransitionCurve.CreateInstance();
+            var transitionCurve = options.TransitionCurve.CreateInstance();
 
             _turns.IsTurn.Advise(lifetime, isTurn => {
                 if (isTurn == false)
@@ -73,19 +72,19 @@ namespace GamePlay.Cards
                 var evaluation = transitionCurve.StepForward(delta);
                 var supposedRotation = positionHandle.SupposedRotation;
 
-                var targetRotation = supposedRotation + _options.Rotation;
+                var targetRotation = supposedRotation + options.Rotation;
                 var rotation = Mathf.LerpAngle(startRotation, targetRotation, evaluation);
                 _transform.SetRotation(rotation);
 
-                var force = Mathf.Lerp(startForce, _options.HandForce, evaluation);
+                var force = Mathf.Lerp(startForce, options.HandForce, evaluation);
                 _transform.SetHandForce(force);
 
                 var direction = new Angle(90 + supposedRotation).ToVector2();
-                var targetPosition = positionHandle.SupposedPosition + direction * _options.MoveDistance;
+                var targetPosition = positionHandle.SupposedPosition + direction * options.MoveDistance;
                 var position = Vector2.Lerp(startPosition, targetPosition, evaluation);
                 _transform.SetPosition(position);
 
-                var scale = Vector2.Lerp(startScale, Vector2.one * _options.Scale, evaluation);
+                var scale = Vector2.Lerp(startScale, Vector2.one * options.Scale, evaluation);
                 _transform.SetScale(scale);
             }).Forget();
 
@@ -125,7 +124,7 @@ namespace GamePlay.Cards
             void MoveTowards(Vector2 target)
             {
                 var distanceToStart = Vector2.Distance(target, startPosition);
-                var addForce = Mathf.Lerp(0, _options.HandForce, distanceToStart / _options.MaxForceDistance);
+                var addForce = Mathf.Lerp(0, options.HandForce, distanceToStart / options.MaxForceDistance);
                 var force = startForce + addForce;
                 _transform.SetHandForce(force);
                 _transform.SetPosition(target);

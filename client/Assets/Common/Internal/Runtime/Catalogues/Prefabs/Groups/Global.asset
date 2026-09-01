@@ -27,10 +27,7 @@ MonoBehaviour:
     ComponentType: 
   - Name: GlobalUpdater
     Prefab: {fileID: 2349648713380631089, guid: 6abff8ba98839729d8cd8cf4abf87829, type: 3}
-    ComponentType: 
-  - Name: InternalScope
-    Prefab: {fileID: 7358682785312978771, guid: 64be6d17a90f1f464a3d24e4765aede6, type: 3}
-    ComponentType: 
+    ComponentType: Internal.Updater, Internal, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: LoadingScreen
     Prefab: {fileID: 350223868609941234, guid: 0c2ea8f96344edce6838e358c8a664b9, type: 3}
     ComponentType: Global.UI.LoadingScreen, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

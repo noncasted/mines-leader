@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: Portraits
+  m_EditorClassIdentifier: Internal::Internal.SpriteGroupAsset
+  _entries:
+  - Name: DefaultOpponent
+    Kind: 0
+    Sprites:
+    - {fileID: -3365373865099245529, guid: b2d42bd21ed84f10cbef0b2c831b6888, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: DefaultOwn
+    Kind: 0
+    Sprites:
+    - {fileID: -3694039496229455066, guid: b2d42bd21ed84f10cbef0b2c831b6888, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}

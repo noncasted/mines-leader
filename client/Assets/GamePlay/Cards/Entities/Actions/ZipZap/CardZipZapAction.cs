@@ -55,24 +55,23 @@ namespace GamePlay.Cards
                 IBoardCellsAnimator animator,
                 IGameCamera camera,
                 IGameContext context,
-                ICardVfxFactory vfxFactory,
-                ZipZapOptions options)
+                ICardVfxFactory vfxFactory)
             {
                 _animator = animator;
                 _camera = camera;
                 _context = context;
                 _vfxFactory = vfxFactory;
-                _options = options;
             }
 
             private readonly IBoardCellsAnimator _animator;
             private readonly IGameCamera _camera;
             private readonly IGameContext _context;
             private readonly ICardVfxFactory _vfxFactory;
-            private readonly ZipZapOptions _options;
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ZipZap payload)
             {
+                var options = GamePlayAssets.ZipZapOptions;
+
                 // 1. Target animation
                 if (payload.TargetCells.Count > 0)
                     await _animator.PlayTargetAnimation(lifetime, payload.TargetPlayer, payload.TargetCells);
@@ -103,7 +102,7 @@ namespace GamePlay.Cards
                     var start = targets[index - 1];
                     var target = targets[index];
 
-                    var line = _vfxFactory.Create(_options.LinePrefab, Vector2.zero);
+                    var line = _vfxFactory.Create(options.LinePrefab, Vector2.zero);
                     await line.Show(lifetime, start, target);
                     _animator.ExplodeCell(payload.TargetPlayer, payload.TargetCells[index], CellExplosionType.ZipZap).Forget();
                     _camera.BaseShake();

@@ -4,7 +4,6 @@
     {
         public ScopeBuilder(
             ServiceCollection services,
-            IAssetEnvironment assets,
             ISceneLoader sceneLoader,
             IServiceScopeBinder binder,
             ILifetime scopeLifetime,
@@ -14,7 +13,6 @@
         {
             Services = services;
             ServicesInternal = services;
-            Assets = assets;
             SceneLoader = sceneLoader;
             Binder = binder;
             ScopeLifetime = scopeLifetime;
@@ -24,7 +22,6 @@
         }
 
         public IServiceCollection Services { get; }
-        public IAssetEnvironment Assets { get; }
         public ISceneLoader SceneLoader { get; }
         public IServiceScopeBinder Binder { get; }
         public IEventLoop Events { get; }

@@ -4,19 +4,21 @@ namespace Global.UI
 {
     public static class GlobalUIExtensions
     {
-        public static void AddUI(this IScopeBuilder builder)
+        public static IScopeBuilder AddUI(this IScopeBuilder builder)
         {
             builder.Register<UIStateMachine>()
                    .WithScopeLifetime()
                    .As<IUIStateMachine>();
 
-            var loadingScreen = builder.Instantiate(Prefabs.Global.LoadingScreen);
+            var loadingScreen = builder.Instantiate(GlobalPrefabs.LoadingScreen);
 
             builder.Inject(loadingScreen);
 
             builder.RegisterInstance(loadingScreen)
                    .As<ILoadingScreen>()
                    .As<IScopeSetup>();
+            
+            return builder;
         }
     }
 }

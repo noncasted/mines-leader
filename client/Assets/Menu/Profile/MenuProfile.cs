@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
 using Meta;
+using Shared;
 using UnityEngine;
 using VContainer;
 
@@ -23,15 +24,13 @@ namespace Menu.Profile
         [SerializeField] private MenuProfileStats _stats;
         [SerializeField] private MenuProfileHistory _history;
         [SerializeField] private MenuProfileMatch _match;
-        [SerializeField] private int _historyCount = ProfileService.DefaultHistoryCount;
+        [SerializeField] private int _historyCount = Meta.Profile.DefaultHistoryCount;
 
         private IProfile _profile;
-        private IUser _user;
         private IGameModesRegistry _gameModes;
         private ICardsRegistry _cardsRegistry;
         private ICardDescriptionProvider _descriptions;
         private ICardConfigs _configs;
-        private CharacterAvatars _avatars;
 
         private ILifetime _requestLifetime;
         private Guid _selectedMatch;
@@ -41,20 +40,16 @@ namespace Menu.Profile
         [Inject]
         internal void Construct(
             IProfile profile,
-            IUser user,
             IGameModesRegistry gameModes,
             ICardsRegistry cardsRegistry,
             ICardDescriptionProvider descriptions,
-            ICardConfigs configs,
-            CharacterAvatars avatars)
+            ICardConfigs configs)
         {
             _profile = profile;
-            _user = user;
             _gameModes = gameModes;
             _cardsRegistry = cardsRegistry;
             _descriptions = descriptions;
             _configs = configs;
-            _avatars = avatars;
         }
 
         public void Create(IScopeBuilder builder)
@@ -73,8 +68,13 @@ namespace Menu.Profile
 
             _stats.Bind(lifetime, _profile);
 
-            if (_avatars.Value.TryGetValue(_user.Character, out var avatar) == true)
-                _stats.SetAvatar(avatar);
+            var avatar = _profile.Character switch
+            {
+                CharacterType.BIBA or CharacterType.BOBA => Sprites.Portraits.DefaultOwn,
+                _ => null
+            };
+
+            _stats.SetAvatar(avatar);
         }
 
         /// <summary>

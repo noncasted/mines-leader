@@ -19,9 +19,7 @@ namespace Flow.Mocks
         {
             GameProfiler.Begin("Mock");
 
-            var assets = AssetsExtensions.FindAsset<AssetsStorage>();
-            assets.Cache();
-            var internalScopeLoader = new InternalScopeLoader(assets);
+            var internalScopeLoader = new InternalScopeLoader();
             _internalScope = await internalScopeLoader.Load();
             var scopeLoader = _internalScope.Container.Container.Resolve<IServiceScopeLoader>();
 

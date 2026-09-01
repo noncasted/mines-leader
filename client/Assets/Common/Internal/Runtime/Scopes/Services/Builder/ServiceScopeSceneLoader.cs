@@ -32,7 +32,8 @@ namespace Internal
         /// </summary>
         public ILoadedScene Create(string name)
         {
-            var result = new CreatedScene(SceneManager.CreateScene(name));
+            var scene = SceneManager.CreateScene(name, new CreateSceneParameters(LocalPhysicsMode.None));
+            var result = new CreatedScene(scene);
 
             _results.Add(result);
 

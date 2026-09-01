@@ -11,24 +11,19 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardLocalStates(this IEntityBuilder builder)
         {
             builder.Register<CardLocalDrop>()
-                   .WithAsset<CardLocalDropOptions>()
                    .As<ICardLocalDrop>();
 
             builder.Register<CardLocalStash>()
-                   .WithAsset<CardLocalStashOptions>()
                    .As<ICardLocalStash>()
                    .As<ICardStash>();
 
             builder.Register<CardLocalIdle>()
-                   .WithAsset<CardIdleOptions>()
                    .As<ICardLocalIdle>();
 
             builder.Register<CardLocalDrag>()
-                   .WithAsset<CardDragOptions>()
                    .As<ICardLocalDrag>();
 
             builder.Register<CardLocalSpawn>()
-                   .WithAsset<CardLocalSpawnOptions>()
                    .WithParameter(builder.Lifetime)
                    .As<ICardLocalSpawn>();
 
@@ -38,20 +33,16 @@ namespace GamePlay.Cards
         public static IEntityBuilder AddCardRemoteStates(this IEntityBuilder builder)
         {
             builder.Register<CardRemoteDrop>()
-                   .WithAsset<CardRemoteDropOptions>()
                    .As<ICardRemoteDrop>();
 
             builder.Register<CardRemoteStash>()
-                   .WithAsset<CardRemoteStashOptions>()
                    .As<ICardRemoteStash>()
                    .As<ICardStash>();
 
             builder.Register<CardRemoteIdle>()
-                   .WithAsset<CardRemoteIdleOptions>()
                    .As<ICardRemoteIdle>();
 
             builder.Register<CardRemoteSpawn>()
-                   .WithAsset<CardRemoteSpawnOptions>()
                    .As<ICardRemoteSpawn>();
 
             return builder;
@@ -236,10 +227,8 @@ namespace GamePlay.Cards
                 CardType.ErosionDozer => Sync<CardErosionDozerAction.Snapshot, CardActionSnapshot.ErosionDozer>(),
                 CardType.ErosionDozer_Max => Sync<CardErosionDozerAction.Snapshot, CardActionSnapshot.ErosionDozer>(),
                 CardType.Gravedigger => Sync<CardGravediggerAction.Snapshot, CardActionSnapshot.Gravedigger>(),
-                CardType.ZipZap => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>()
-                    .WithAsset<ZipZapOptions>(),
-                CardType.ZipZap_Max => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>()
-                    .WithAsset<ZipZapOptions>(),
+                CardType.ZipZap => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>(),
+                CardType.ZipZap_Max => Sync<CardZipZapAction.Snapshot, CardActionSnapshot.ZipZap>(),
                 CardType.OpponentBomb => Sync<CardOpponentBombAction.Snapshot, CardActionSnapshot.OpponentBomb>(),
                 CardType.OpponentFlagErase =>
                     Sync<CardOpponentFlagEraseAction.Snapshot, CardActionSnapshot.OpponentFlagErase>(),

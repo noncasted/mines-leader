@@ -42,7 +42,7 @@ namespace GamePlay.Cards
             var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
             var definition = _registry.Entries[cardType];
 
-            var prefab = isLocal ? Prefabs.GamePlay.CardLocal : Prefabs.GamePlay.CardRemote;
+            var prefab = isLocal ? GamePlayPrefabs.CardLocal : GamePlayPrefabs.CardRemote;
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _cardTargets.LocalSpawn : _cardTargets.RemoteSpawn;
 

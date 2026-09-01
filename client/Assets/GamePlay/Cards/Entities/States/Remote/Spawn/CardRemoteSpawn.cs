@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.Systems;
 using Internal;
 using UnityEngine;
 
@@ -17,15 +16,13 @@ namespace GamePlay.Cards
             IHandEntryHandle handEntryHandle,
             ICardTransform transform,
             ICardStateLifetime stateLifetime,
-            ICardRemoteIdle idle,
-            CardRemoteSpawnOptions options)
+            ICardRemoteIdle idle)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
             _transform = transform;
             _stateLifetime = stateLifetime;
             _idle = idle;
-            _options = options;
         }
 
         private readonly IUpdater _updater;
@@ -33,29 +30,30 @@ namespace GamePlay.Cards
         private readonly ICardTransform _transform;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardRemoteIdle _idle;
-        private readonly CardRemoteSpawnOptions _options;
 
         public async UniTask Execute()
         {
+            var options = GamePlayAssets.CardRemoteSpawnOptions;
+
             _handEntryHandle.AddToHand();
             var positionHandle = _handEntryHandle.PositionHandle;
 
-            var moveCurve = _options.MoveCurve.CreateInstance();
-            var heightCurve = _options.HeightCurve.CreateInstance();
-            var rotationCurve = _options.RotationCurve.CreateInstance();
+            var moveCurve = options.MoveCurve.CreateInstance();
+            var heightCurve = options.HeightCurve.CreateInstance();
+            var rotationCurve = options.RotationCurve.CreateInstance();
 
             var startRotation = _transform.Rotation;
             var startPosition = _transform.Position;
 
             var lifetime = _stateLifetime.OccupyLifetime();
 
-            await _updater.RunUpdateAction(lifetime, _options.Time, delta => {
+            await _updater.RunUpdateAction(lifetime, options.Time, delta => {
                 var moveFactor = moveCurve.StepForward(delta);
                 var heightFactor = heightCurve.StepForward(delta);
                 var rotationFactor = rotationCurve.StepForward(delta);
 
                 var position = Vector2.Lerp(startPosition, positionHandle.SupposedPosition, moveFactor);
-                position.y += heightFactor * _options.AddHeight;
+                position.y += heightFactor * options.AddHeight;
 
                 var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
                 _transform.SetPosition(position);

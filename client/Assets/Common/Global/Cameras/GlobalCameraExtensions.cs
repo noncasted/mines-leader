@@ -10,7 +10,7 @@ namespace Global.Cameras
             builder.Register<CurrentCamera>()
                    .As<ICurrentCamera>();
 
-            var camera = builder.Instantiate(Prefabs.Global.GlobalCamera, new Vector3(0f, 0f, -10f));
+            var camera = builder.Instantiate(GlobalPrefabs.GlobalCamera, new Vector3(0f, 0f, -10f));
             camera.gameObject.SetActive(false);
 
             builder.RegisterComponent(camera)
