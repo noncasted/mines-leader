@@ -1,6 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.Cameras;
-using Global.UI;
 using Internal;
 using Menu.Common;
 using VContainer;
@@ -14,16 +12,12 @@ namespace Flow.Loop
 
     public class MenuLoader : IMenuLoader
     {
-        public MenuLoader(IGameLoopScopeLoader scopeLoader, IGlobalCamera globalCamera, ILoadingScreen loadingScreen)
+        public MenuLoader(IGameLoopScopeLoader scopeLoader)
         {
             _scopeLoader = scopeLoader;
-            _globalCamera = globalCamera;
-            _loadingScreen = loadingScreen;
         }
 
         private readonly IGameLoopScopeLoader _scopeLoader;
-        private readonly IGlobalCamera _globalCamera;
-        private readonly ILoadingScreen _loadingScreen;
 
         public async UniTask<GameLoadData> Load()
         {
@@ -35,14 +29,7 @@ namespace Flow.Loop
             ILoadedScope scope;
 
             using (GameProfiler.Branch("Menu load"))
-            {
-                _globalCamera.Enable();
-
-                using (GameProfiler.Scope("Loading screen"))
-                    await _loadingScreen.Show();
-
                 scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
-            }
 
             // Меню загружено и дальше ждёт игрока: замерять больше нечего.
             GameProfiler.Finish();

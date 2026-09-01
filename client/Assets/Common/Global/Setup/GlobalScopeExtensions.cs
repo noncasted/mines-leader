@@ -31,8 +31,8 @@ namespace Global.Setup
 
             async UniTask Construct(IScopeBuilder builder)
             {
-                // Отрезок на группу открывает сам LoadPrefabGroupNow.
-                await builder.LoadPrefabGroupNow(GlobalPrefabs.Group);
+                // Отрезок на группу открывает сам LoadPrefabGroup.
+                await builder.LoadPrefabGroup(GlobalPrefabs.Group);
 
                 // Модули меряются поимённо: половина из них инстанцирует префабы, и по
                 // трассе сразу видно, какой именно из них стоит кадров.
