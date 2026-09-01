@@ -1,15 +1,15 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.UI;
 using Internal;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GamePlay.UI
 {
     [DisallowMultipleComponent]
-    public class PauseLeaveMenu : MonoBehaviour
+    public class GamePauseLeave : MonoBehaviour
     {
-        [SerializeField] private DesignButton _acceptButton;
-        [SerializeField] private DesignButton _cancelButton;
+        [SerializeField] private Button _acceptButton;
+        [SerializeField] private Button _cancelButton;
 
         public async UniTask<bool> Process(IReadOnlyLifetime lifetime)
         {
