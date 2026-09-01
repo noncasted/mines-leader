@@ -34,11 +34,8 @@ namespace Flow.Startup
             var globalCamera = globalScope.Resolve<IGlobalCamera>();
             var loadingScreen = globalScope.Resolve<ILoadingScreen>();
 
-            using (GameProfiler.Scope("Loading screen"))
-            {
-                globalCamera.Enable();
-                loadingScreen.ShowInstantly();
-            }
+            globalCamera.Enable();
+            loadingScreen.ShowInstantly();
 
             var metaScope = await scopeLoader.LoadMeta(globalScope);
 

@@ -25,9 +25,10 @@ namespace Meta
 
             UniTask Construct(IScopeBuilder builder)
             {
-                builder.LoadSpriteGroup(Sprites.CardsIcons);
-                builder.LoadSpriteGroup(Sprites.CardBuffs);
-                builder.LoadSpriteGroup(Sprites.MenuPlay);
+                builder.RequestSpriteGroup(Sprites.CardsIcons);
+                builder.RequestSpriteGroup(Sprites.CardBuffs);
+                builder.RequestSpriteGroup(Sprites.MenuPlay);
+                builder.RequestSpriteGroup(Sprites.Portraits);
 
                 builder.Register<MetaLoop>()
                        .As<IScopeBaseSetupAsync>();

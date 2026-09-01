@@ -3,8 +3,8 @@ namespace Internal {
     public static class InternalAssets {
         private const string Group = "Internal";
 
-        public static OptionsContainer OptionsContainer =>
-            AssetCatalog.Get<OptionsContainer>(Group, "OptionsContainer");
+        public static global::Internal.OptionsContainer OptionsContainer =>
+            global::Internal.AssetCatalog.Get<global::Internal.OptionsContainer>(Group, "OptionsContainer");
 
     }
 }
