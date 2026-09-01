@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 24c0efd63d8720104acc303cf303ea82
+guid: 4f4c200e15ed2b9c5993ae177af5a29e
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 2
-  userData: "{\n  \"spriteCatalog\": {\n    \"group\": \"GameUI\",\n    \"kind\": \"Animation\",\n    \"time\": 0.8,\n    \"color\": {\n      \"r\": 1.0,\n      \"g\": 1.0,\n      \"b\": 1.0,\n      \"a\": 1.0\n    }\n  }\n}"
+  userData: 
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
@@ -36,7 +36,7 @@ ScriptedImporter:
     spriteMeshType: 1
     alignment: 0
     spritePivot: {x: 0.5, y: 0.5}
-    spritePixelsToUnits: 12
+    spritePixelsToUnits: 26.66667
     spriteBorder: {x: 0, y: 0, z: 0, w: 0}
     spriteGenerateFallbackPhysicsShape: 0
     generateCubemap: 6
@@ -80,7 +80,7 @@ ScriptedImporter:
     defaultPivotSpace: 0
     defaultPivotAlignment: 7
     customPivotPosition: {x: 0.5, y: 0.5}
-    mosaicPadding: 4
+    mosaicPadding: 0
     spritePadding: 0
     generateModelPrefab: 1
     generateAnimationClips: 1
@@ -95,7 +95,7 @@ ScriptedImporter:
     defaultPivotSpace: 0
     defaultPivotAlignment: 7
     customPivotPosition: {x: 0.5, y: 0.5}
-    mosaicPadding: 4
+    mosaicPadding: 0
     spritePadding: 0
     generateModelPrefab: 1
     generateAnimationClips: 1
@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639225506938916710
+  platformSettingsDirtyTick: 639238537202516280
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -127,9 +127,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: after_game
+  - name: Game_UI_Pause
     originalName: 
-    pivot: {x: 0.5, y: -0.01010101}
+    pivot: {x: 2.0333335, y: -0.22222222}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 175
-      height: 99
-    spriteID: d3a6120a6e3cc05dca666c17dcd5235a
+      width: 120
+      height: 36
+    spriteID: 3d0584d5951f32adfb93c7d4c192ac2b
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -147,9 +147,9 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: 3, y: 3}
+    uvTransform: {x: 4, y: 4}
   spriteSheetImportData:
-  - name: Game_UI_GameResults_Win
+  - name: Game_UI_Pause_0
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -157,11 +157,11 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 5
-      y: 4
-      width: 86
-      height: 99
-    spriteID: 24742569f4bd896a4b151ed0fa1a29d5
+      x: 12
+      y: 8
+      width: 204
+      height: 72
+    spriteID: d216e9c9120adad08bbfff384e94cb08
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -170,7 +170,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_UI_GameResults_Lose
+  - name: Game_UI_Pause_1
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -178,11 +178,95 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 92
-      y: 4
-      width: 87
-      height: 99
-    spriteID: 8059ef95bdf7cd935a3e1be35c2a6e6f
+      x: 12
+      y: 92
+      width: 204
+      height: 72
+    spriteID: 3f2fb9af963d2a0298b88587723ac121
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Pause_2
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 12
+      y: 176
+      width: 204
+      height: 72
+    spriteID: 0a70fe9b03ef7f8039caba07be6d4e86
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Pause_Leave_Menu
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 263
+      y: 69
+      width: 204
+      height: 144
+    spriteID: c770039da521de83c817c3a92c482821
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Pause_Leave_No
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 271
+      y: 32
+      width: 89
+      height: 20
+    spriteID: 605a1aa1297f9d78f81250960187427b
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Pause_Leave_Yes
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 384
+      y: 32
+      width: 89
+      height: 20
+    spriteID: a8040ff4db6b01c1b942dd566e71b380
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -195,25 +279,25 @@ ScriptedImporter:
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 3105506105
+      value0: 3472057846
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: after_game
+    name: Game_UI_Pause
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: Game_UI_GameResults
+    - name: Game_UI_Pause
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 4
-        y: 3
-        width: 175
-        height: 99
-      spriteId: d3a6120a6e3cc05dca666c17dcd5235a
+        x: 0
+        y: 0
+        width: 473
+        height: 246
+      spriteId: 3d0584d5951f32adfb93c7d4c192ac2b
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -226,7 +310,7 @@ ScriptedImporter:
     maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     forceMaximumCompressionQuality_BC6H_BC7: 0
     crunchedCompression: 0
@@ -258,5 +342,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 256, y: 128}
-  canvasSize: {x: 512, y: 288}
+  previousTextureSize: {x: 512, y: 256}
+  canvasSize: {x: 512, y: 512}
