@@ -1,11 +1,13 @@
 using System;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
     public sealed class PrefabCatalogMetadata {
+        private const string UserDataKey = "prefabCatalog";
+        private const string LogTag = "PrefabCatalogMetadata";
+
         public bool Included { get; set; }
         public string Group { get; set; } = string.Empty;
         public string ComponentType { get; set; } = string.Empty;
@@ -15,31 +17,16 @@ namespace Internal {
 
         public static bool TryRead(AssetImporter importer, out PrefabCatalogMetadata metadata) {
             metadata = null;
-
-            if (importer == null)
-                throw new ArgumentNullException(nameof(importer));
-
-            var userData = importer.userData;
-            if (string.IsNullOrWhiteSpace(userData))
+            if (AssetUserData.TryRead(importer, UserDataKey, LogTag, out var catalog) == false)
                 return false;
 
-            try {
-                var root = JObject.Parse(userData);
-                if (root["prefabCatalog"] is not JObject catalog)
-                    return false;
-
-                metadata = new PrefabCatalogMetadata {
-                    Included = catalog["included"] != null && catalog.Value<bool>("included"),
-                    Group = catalog.Value<string>("group") ?? string.Empty,
-                    ComponentType = catalog.Value<string>("componentType") ?? string.Empty,
-                    ComponentGuid = catalog.Value<string>("componentGuid") ?? string.Empty
-                };
-                return true;
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[PrefabCatalogMetadata] Failed to read userData at {importer.assetPath}: {exception}");
-                return false;
-            }
+            metadata = new PrefabCatalogMetadata {
+                Included = catalog["included"] != null && catalog.Value<bool>("included"),
+                Group = catalog.Value<string>("group") ?? string.Empty,
+                ComponentType = catalog.Value<string>("componentType") ?? string.Empty,
+                ComponentGuid = catalog.Value<string>("componentGuid") ?? string.Empty
+            };
+            return true;
         }
 
         public static PrefabCatalogMetadata ReadOrDefault(AssetImporter importer) {
@@ -54,24 +41,18 @@ namespace Internal {
         }
 
         public static void Write(AssetImporter importer, PrefabCatalogMetadata metadata) {
-            if (importer == null)
-                throw new ArgumentNullException(nameof(importer));
             if (metadata == null)
                 throw new ArgumentNullException(nameof(metadata));
 
-            try {
-                var nextUserData = MergeUserData(importer.userData, metadata);
-                if (importer.userData == nextUserData)
-                    return;
+            var catalog = new JObject {
+                ["included"] = metadata.Included,
+                ["group"] = metadata.Group ?? string.Empty,
+                ["componentType"] = metadata.ComponentType ?? string.Empty,
+                ["componentGuid"] = metadata.ComponentGuid ?? string.Empty
+            };
 
-                importer.userData = nextUserData;
-                EditorUtility.SetDirty(importer);
-                AssetDatabase.WriteImportSettingsIfDirty(importer.assetPath);
-                PrefabGroupsRegistry.Invalidate();
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[PrefabCatalogMetadata] Failed to write userData at {importer.assetPath}: {exception}");
-            }
+            if (AssetUserData.Write(importer, UserDataKey, LogTag, catalog))
+                PrefabGroupsRegistry.Instance.Invalidate();
         }
 
         public static Type ResolveType(string componentGuid, string componentType) {
@@ -117,30 +98,6 @@ namespace Internal {
                 display = display.Substring(lastDot + 1);
 
             return display;
-        }
-
-        private static string MergeUserData(string userData, PrefabCatalogMetadata metadata) {
-            var catalog = new JObject {
-                ["included"] = metadata.Included,
-                ["group"] = metadata.Group ?? string.Empty,
-                ["componentType"] = metadata.ComponentType ?? string.Empty,
-                ["componentGuid"] = metadata.ComponentGuid ?? string.Empty
-            };
-
-            JObject root;
-            if (string.IsNullOrWhiteSpace(userData)) {
-                root = new JObject();
-            }
-            else {
-                var parsed = JToken.Parse(userData);
-                if (parsed is not JObject parsedObject)
-                    throw new InvalidOperationException("userData is not a JSON object");
-
-                root = parsedObject;
-            }
-
-            root["prefabCatalog"] = catalog;
-            return root.ToString(Formatting.Indented);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using VContainer;
 using VContainer.Internal;
 using VContainer.Unity;
@@ -100,37 +99,11 @@ namespace Internal
             builder.Services.Inject(component);
         }
 
-        public static T GetAsset<T>(this IBuilder builder) where T : ScriptableObject
-        {
-            return builder.Assets.GetAsset<T>();
-        }
-
-        public static IRegistration RegisterAsset<T>(this IBuilder builder) where T : ScriptableObject
-        {
-            var asset = builder.GetAsset<T>();
-            return builder.RegisterInstance(asset);
-        }
-
-        public static IRegistration WithAsset<T>(this IRegistration registration) where T : EnvAsset
-        {
-            var asset = registration.Builder.GetAsset<T>();
-            registration.WithParameter(asset);
-            return registration;
-        }
-
         public static IRegistration WithScopeLifetime(this IRegistration registration)
         {
             registration.Registration.WithParameter(registration.Builder.Lifetime);
             return registration;
         }
 
-        public static IRegistration WithScriptableRegistry<T1, T2>(this IRegistration registration)
-            where T2 : EnvAsset
-            where T1 : ScriptableRegistry<T2>
-        {
-            var asset = registration.Builder.GetAsset<T1>();
-            registration.WithParameter(asset.Objects);
-            return registration;
-        }
     }
 }

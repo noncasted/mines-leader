@@ -12,8 +12,6 @@ namespace Flow.Startup
     [DisallowMultipleComponent]
     public class GameStartup : MonoBehaviour
     {
-        [SerializeField] private AssetsStorage _internal;
-
         private void Awake()
         {
             Setup().Forget();
@@ -25,7 +23,7 @@ namespace Flow.Startup
             // а сюда управление уже не возвращается (см. MenuLoader).
             GameProfiler.Begin("Startup");
 
-            var internalScopeLoader = new InternalScopeLoader(_internal);
+            var internalScopeLoader = new InternalScopeLoader();
 
             UnionInitializer.Execute();
 

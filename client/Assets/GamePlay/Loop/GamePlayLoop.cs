@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GamePlay.UI;
 using Internal;
 using Meta;
@@ -15,7 +15,7 @@ namespace GamePlay.Loop
     public class GamePlayLoop : IGamePlayLoop
     {
         public GamePlayLoop(
-            IUser user,
+            IProfile profile,
             INetworkSession session,
             IGameContext gameContext,
             IGameState gameState,
@@ -24,7 +24,7 @@ namespace GamePlay.Loop
             IEventLoop eventLoop,
             GameServicesInitializer servicesInitializer)
         {
-            _user = user;
+            _profile = profile;
             _session = session;
             _gameContext = gameContext;
             _gameState = gameState;
@@ -34,7 +34,7 @@ namespace GamePlay.Loop
             _servicesInitializer = servicesInitializer;
         }
 
-        private readonly IUser _user;
+        private readonly IProfile _profile;
         private readonly INetworkSession _session;
         private readonly INetworkConnection _connection;
         private readonly IGameContext _gameContext;
@@ -50,7 +50,7 @@ namespace GamePlay.Loop
         {
             _gameState.Set(GameStateType.WaitingFoPlayers);
 
-            await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _user.Id);
+            await _session.Start(lifetime, sessionData.ServerUrl, sessionData.SessionId, _profile.Id);
 
             await UniTask.WaitUntil(() => _gameContext.All.Count == 2, cancellationToken: lifetime.Token);
             var localPlayer = _gameContext.Self;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Internal
 {
@@ -64,7 +65,7 @@ namespace Internal
                 if (_startFrame < 0)
                     return 0;
 
-                var end = _endFrame < 0 ? UnityEngine.Time.frameCount : _endFrame;
+                var end = _endFrame < 0 ? Time.frameCount : _endFrame;
 
                 return end - _startFrame;
             }
@@ -96,7 +97,7 @@ namespace Internal
                 return;
 
             _startMs = _profiler.ElapsedMs;
-            _startFrame = UnityEngine.Time.frameCount;
+            _startFrame = Time.frameCount;
             _startNs = ProfilerClock.NowNs();
         }
 
@@ -106,7 +107,7 @@ namespace Internal
                 return;
 
             _endMs = _profiler.ElapsedMs;
-            _endFrame = UnityEngine.Time.frameCount;
+            _endFrame = Time.frameCount;
             _endNs = ProfilerClock.NowNs();
         }
 

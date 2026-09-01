@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Internal;
 using Meta;
 using Shared;
 using TMPro;
@@ -101,7 +102,7 @@ namespace Menu.Profile
 
                 var manaCost = configs != null && configs.TryGetValue(type, out var config) ? config.ManaCost : 0;
 
-                var view = Instantiate(Prefabs.Menu.MenuProfileCard, root);
+                var view = Instantiate(MenuPrefabs.MenuProfileCard, root);
                 view.Setup(definition, _descriptions.GetDescription(type), manaCost);
                 _cards.Add(view);
             }

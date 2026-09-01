@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Internal
 {
@@ -81,7 +82,7 @@ namespace Internal
 
                 Texture2D readable = MakeReadable(sprite);
                 byte[] bytes = readable.EncodeToPNG();
-                UnityEngine.Object.DestroyImmediate(readable);
+                Object.DestroyImmediate(readable);
 
                 string outputPath = Path.Combine(outputDir, $"{card.type}.png");
                 File.WriteAllBytes(outputPath, bytes);

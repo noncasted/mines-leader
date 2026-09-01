@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Internal
@@ -11,7 +12,7 @@ namespace Internal
         {
             Name = name;
             _startedAt = DateTime.Now;
-            _startFrame = UnityEngine.Time.frameCount;
+            _startFrame = Time.frameCount;
             _startNs = ProfilerClock.NowNs();
             _watch = Stopwatch.StartNew();
         }
@@ -32,7 +33,7 @@ namespace Internal
         public int StartFrame => _startFrame;
 
         /// <summary>Кадров с начала трассы. По ним видно, ждал отрезок кадры или считал.</summary>
-        public int ElapsedFrames => UnityEngine.Time.frameCount - _startFrame;
+        public int ElapsedFrames => Time.frameCount - _startFrame;
 
         public IProfilerScope CreateScope(string name)
         {
@@ -69,7 +70,7 @@ namespace Internal
                 DurationMs = _watch.Elapsed.TotalMilliseconds,
                 Frames = ElapsedFrames,
                 StartFrame = _startFrame,
-                EndFrame = UnityEngine.Time.frameCount,
+                EndFrame = Time.frameCount,
                 StartNs = _startNs,
                 EndNs = ProfilerClock.NowNs(),
                 Cold = ProfilerTraceStorage.ColdDomain,

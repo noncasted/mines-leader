@@ -12,22 +12,20 @@ namespace Internal
     
     public class ServiceScopeLoader : IServiceScopeLoader
     {
-        public ServiceScopeLoader(
-            IAssetEnvironment assets,
-            ISceneLoader sceneLoader)
+        public ServiceScopeLoader(ISceneLoader sceneLoader)
         {
-            _assets = assets;
             _sceneLoader = sceneLoader;
         }
 
-        private readonly IAssetEnvironment _assets;
         private readonly ISceneLoader _sceneLoader;
 
         public async UniTask<ILoadedScope> Load(ScopeLoadOptions options)
         {
+            var sceneName = options.ServiceSceneName ?? "Services";
+
             // Этапы одинаковы для всех скоупов, поэтому замер живёт здесь, а не в каждом
             // расширении: в трассу они ложатся под тем этапом, который скоуп и открыл.
-            using var stage = GameProfiler.Scope($"Scope: {options.ServiceSceneName ?? "Services"}");
+            using var stage = GameProfiler.Scope($"Scope: {sceneName}");
 
             var sceneLoader = new ServiceScopeSceneLoader(_sceneLoader);
 
@@ -39,13 +37,15 @@ namespace Internal
             using (GameProfiler.Scope("Services scene"))
             {
                 servicesScene = options.ServiceScene == null
-                    ? sceneLoader.Create(options.ServiceSceneName)
+                    ? sceneLoader.Create(sceneName)
                     : await sceneLoader.Load(options.ServiceScene);
             }
 
             var builder = CreateBuilder();
 
-            var containerObject = new GameObject("ScopeLifetime");
+            // Иерархия показывает рантайм-сцены как "Untitled", поэтому скоуп опознаётся
+            // по имени корневого объекта.
+            var containerObject = new GameObject($"{sceneName} (ScopeLifetime)");
             var container = containerObject.AddComponent<LifetimeScope>();
             builder.Binder.MoveToModules(container);
 
@@ -79,7 +79,6 @@ namespace Internal
 
                 return new ScopeBuilder(
                     services,
-                    _assets,
                     sceneLoader,
                     binder,
                     lifetime,

@@ -8,8 +8,9 @@ namespace Internal {
     public static class SpriteGenerator {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Sprites/Groups";
 
+        private const string GroupPrefix = "Sprites_";
+
         private const string ArtFolder = "Assets/Art";
-        private const float DebounceSeconds = 0.5f;
 
         private static readonly string[] SourceExtensions = {
             ".aseprite",
@@ -17,60 +18,20 @@ namespace Internal {
             ".png"
         };
 
-        private static bool _isGenerating;
-        private static bool _isScheduled;
-        private static double _scheduledTime;
+        private static readonly CatalogGenerationRunner Runner = new("SpriteGenerator", GenerateInternal);
 
         [InitializeOnLoadMethod]
         private static void OnEditorReload() {
-            EditorApplication.delayCall += Generate;
+            Runner.RunDelayed();
         }
 
         [MenuItem("Tools/GenerateSprites")]
         public static void Generate() {
-            if (_isGenerating)
-                return;
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
-            if (EditorApplication.isCompiling)
-                return;
-
-            if (EditorApplication.isUpdating) {
-                EditorApplication.delayCall += Generate;
-                return;
-            }
-
-            _isGenerating = true;
-
-            try {
-                GenerateInternal();
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[SpriteGenerator] Generate failed: {exception}");
-            }
-            finally {
-                _isGenerating = false;
-            }
+            Runner.Run();
         }
 
         public static void ScheduleGenerate() {
-            _scheduledTime = EditorApplication.timeSinceStartup + DebounceSeconds;
-            if (_isScheduled)
-                return;
-
-            _isScheduled = true;
-            EditorApplication.update += TickSchedule;
-        }
-
-        private static void TickSchedule() {
-            if (EditorApplication.timeSinceStartup < _scheduledTime)
-                return;
-
-            EditorApplication.update -= TickSchedule;
-            _isScheduled = false;
-            Generate();
+            Runner.Schedule();
         }
 
         private static void GenerateInternal() {
@@ -87,7 +48,7 @@ namespace Internal {
                 AssetDatabase.StopAssetEditing();
             }
 
-            SpriteAddressablesSync.Sync(groups);
+            CatalogAddressablesSync.Sync("SpriteGenerator", GroupPrefix, GroupsFolder, groups);
             SpritesClassGenerator.Generate(groups);
             AssetDatabase.SaveAssets();
 
@@ -114,7 +75,7 @@ namespace Internal {
                 if (IsSourceFile(file) == false)
                     continue;
 
-                var path = ToAssetPath(projectRoot, file);
+                var path = CatalogPaths.ToAssetPath(projectRoot, file);
                 if (IsSourcePath(path) == false)
                     continue;
 
@@ -126,11 +87,11 @@ namespace Internal {
                 if (metadata == null)
                     continue;
 
-                var groupName = SpriteCatalogMetadata.ToGroupName(metadata.Group);
+                var groupName = CatalogNaming.ToGroupName(metadata.Group);
                 if (string.IsNullOrEmpty(groupName))
                     continue;
 
-                var propertyName = SpriteCatalogMetadata.ToGroupName(Path.GetFileNameWithoutExtension(path));
+                var propertyName = CatalogNaming.ToGroupName(Path.GetFileNameWithoutExtension(path));
                 if (string.IsNullOrEmpty(propertyName)) {
                     Debug.LogError($"[SpriteGenerator] Identifier is empty for {path}");
                     continue;
@@ -241,7 +202,7 @@ namespace Internal {
         }
 
         private static void WriteGroupAssets(IReadOnlyList<SpriteGroupDefinition> groups) {
-            EnsureFolder(GroupsFolder);
+            CatalogPaths.EnsureFolder(GroupsFolder);
 
             var writtenPaths = new HashSet<string>(StringComparer.Ordinal);
             foreach (var group in groups) {
@@ -458,15 +419,6 @@ namespace Internal {
                    IsSourceFile(path);
         }
 
-        private static string ToAssetPath(string projectRoot, string fullPath) {
-            var normalized = Path.GetFullPath(fullPath).Replace('\\', '/');
-            var root = projectRoot.Replace('\\', '/');
-            if (normalized.StartsWith(root, StringComparison.OrdinalIgnoreCase) == false)
-                return normalized;
-
-            return normalized.Substring(root.Length).TrimStart('/');
-        }
-
         private static int GetPriority(string path) {
             var extension = Path.GetExtension(path);
             if (extension.Equals(".aseprite", StringComparison.OrdinalIgnoreCase))
@@ -536,26 +488,11 @@ namespace Internal {
             if (string.IsNullOrWhiteSpace(remainder))
                 remainder = spriteName;
 
-            return SpriteCatalogMetadata.ToGroupName(remainder);
+            return CatalogNaming.ToGroupName(remainder);
         }
 
         private static string ToFieldName(string propertyName) {
             return "_" + char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
-        }
-
-        private static void EnsureFolder(string folderPath) {
-            if (AssetDatabase.IsValidFolder(folderPath))
-                return;
-
-            var parts = folderPath.Split('/');
-            var current = parts[0];
-            for (var i = 1; i < parts.Length; i++) {
-                var next = current + "/" + parts[i];
-                if (AssetDatabase.IsValidFolder(next) == false)
-                    AssetDatabase.CreateFolder(current, parts[i]);
-
-                current = next;
-            }
         }
 
         private sealed class SpriteSource {
@@ -569,10 +506,10 @@ namespace Internal {
         }
     }
 
-    internal sealed class SpriteGroupDefinition {
-        public string Name;
+    internal sealed class SpriteGroupDefinition : ICatalogGroupDefinition {
+        public string Name { get; set; }
+        public string Address { get; set; }
         public string ClassName;
-        public string Address;
         public List<SpritePropertyDefinition> Properties = new();
     }
 

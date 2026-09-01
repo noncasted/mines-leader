@@ -6,6 +6,22 @@ using VContainer;
 
 namespace Global.Audio
 {
+    public interface IAudioPlayer
+    {
+        void PlaySound(AudioClip clip);
+        void PlayLoopMusic(AudioClip clip);
+    }
+    
+    public interface IAudioVolume
+    {
+        IReadOnlyDictionary<AudioLine, float> Values { get; }
+        IViewableProperty<bool> IsMuted { get; }
+
+        void Mute();
+        void Unmute();
+        void SetVolume(AudioLine line, float volume);
+    }
+    
     [DisallowMultipleComponent]
     public class AudioPlayer : MonoBehaviour, IAudioVolume, IAudioPlayer, IScopeSetup
     {

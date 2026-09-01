@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: 6abff8ba98839729d8cd8cf4abf87829
 PrefabImporter:
   externalObjects: {}
-  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"componentType\": \"\",\n    \"componentGuid\": \"\"\n  }\n}"
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"componentType\": \"Internal.Updater, Internal, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"f2b67d3309d64a1fa2431d95c7db63d7\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

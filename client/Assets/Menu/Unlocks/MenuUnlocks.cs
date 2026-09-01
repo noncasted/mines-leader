@@ -76,14 +76,14 @@ namespace Menu.Unlocks
             var lifetime = rowLifetime.Child();
             screenLifetime.Listen(lifetime.Terminate);
 
-            var rowObject = Instantiate(Prefabs.Menu.MenuUnlocksRow, _rowsRoot);
+            var rowObject = Instantiate(MenuPrefabs.MenuUnlocksRow, _rowsRoot);
             rowObject.name = $"Row_{row.Type}";
             var rowTransform = (RectTransform)rowObject.transform;
             rowTransform.SetParent(_rowsRoot, false);
 
             foreach (var tier in row.Tiers)
             {
-                var view = Instantiate(Prefabs.Menu.MenuUnlocksEntry, rowTransform);
+                var view = Instantiate(MenuPrefabs.MenuUnlocksEntry, rowTransform);
                 view.Setup(row, tier);
 
                 var entry = new EntryView(view, lifetime);

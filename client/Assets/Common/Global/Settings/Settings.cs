@@ -21,14 +21,12 @@ namespace Global.Settings
 
     public class Settings : ISettings, IScopeSetupAsync
     {
-        public Settings(ISaves saves, SettingsOptions options)
+        public Settings(ISaves saves)
         {
             _saves = saves;
-            _options = options;
         }
 
         private readonly ISaves _saves;
-        private readonly SettingsOptions _options;
 
         private readonly ViewableProperty<float> _masterVolume = new();
         private readonly ViewableProperty<float> _soundsVolume = new();
@@ -46,10 +44,12 @@ namespace Global.Settings
 
         public UniTask OnSetupAsync(IReadOnlyLifetime lifetime)
         {
+            var options = GlobalAssets.SettingsOptions;
+
             _save = _saves.Get<SettingsSave>();
 
             if (_save.WasChanged == false)
-                _save.CopyFrom(_options.DefaultValues);
+                _save.CopyFrom(options.DefaultValues);
 
             Push(_save);
 

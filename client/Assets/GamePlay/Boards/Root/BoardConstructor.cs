@@ -32,7 +32,7 @@ namespace GamePlay.Boards
             {
                 for (var y = 0; y < _size.y; y++)
                 {
-                    var cell = Instantiate(Prefabs.GamePlay.Cell, transform);
+                    var cell = Instantiate(GamePlayPrefabs.Cell, transform);
                     var position = new Vector2Int(x, y);
 
                     cell.transform.localPosition = GetLocalPosition(position, origin);
@@ -100,8 +100,8 @@ namespace GamePlay.Boards
 
         private static CellView LoadEditorCellPrefab()
         {
-            if (Prefabs.GamePlay.IsLoaded)
-                return Prefabs.GamePlay.Cell;
+            if (GamePlayPrefabs.IsLoaded)
+                return GamePlayPrefabs.Cell;
 
             var asset = AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(
                 "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups/GamePlay.asset");

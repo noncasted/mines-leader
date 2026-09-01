@@ -8,7 +8,7 @@ namespace GamePlay.Services
         public static IScopeBuilder AddGamePlayServices(this IScopeBuilder builder)
         {
             builder.LoadSpriteGroup(Sprites.GameUI);
-            builder.LoadPrefabGroup(Prefabs.GamePlay);
+            builder.LoadPrefabGroup(GamePlayPrefabs.Group);
             
             builder.Register<GameInput>()
                    .As<IGameInput>()

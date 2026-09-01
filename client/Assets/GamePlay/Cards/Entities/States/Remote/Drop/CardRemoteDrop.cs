@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
-using Global.Systems;
 using Internal;
 using UnityEngine;
 
@@ -18,15 +17,13 @@ namespace GamePlay.Cards.Drop
             ICardTransform transform,
             ICardRenderer renderer,
             ICardStateLifetime stateLifetime,
-            ICardDropTarget target,
-            CardRemoteDropOptions options)
+            ICardDropTarget target)
         {
             _updater = updater;
             _transform = transform;
             _renderer = renderer;
             _stateLifetime = stateLifetime;
             _target = target;
-            _options = options;
         }
 
         private readonly IUpdater _updater;
@@ -34,15 +31,16 @@ namespace GamePlay.Cards.Drop
         private readonly ICardRenderer _renderer;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardDropTarget _target;
-        private readonly CardRemoteDropOptions _options;
 
         public UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition)
         {
+            var options = GamePlayAssets.CardRemoteDropOptions;
+
             _stateLifetime.OccupyLifetime();
 
             var stackIndex = _target.DroppedCount;
             var endPosition = _target.ReservePosition();
-            var twistAngle = Random.Range(_options.TwistAngleRange.x, _options.TwistAngleRange.y);
+            var twistAngle = Random.Range(options.TwistAngleRange.x, options.TwistAngleRange.y);
 
             return CardDropMotion.Play(
                 _updater,
@@ -52,7 +50,7 @@ namespace GamePlay.Cards.Drop
                 endPosition,
                 twistAngle,
                 stackIndex,
-                _options,
+                options,
                 dropPosition);
         }
     }

@@ -7,13 +7,6 @@ namespace Internal
 {
     public class EntityScopeLoader : IEntityScopeLoader
     {
-        public EntityScopeLoader(IAssetEnvironment assets)
-        {
-            _assets = assets;
-        }
-
-        private readonly IAssetEnvironment _assets;
-
         public async UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
             LifetimeScope parent,
@@ -59,7 +52,7 @@ namespace Internal
         {
             var lifetime = parentLifetime.Child();
             var services = new ServiceCollection();
-            var builder = new EntityBuilder(services, view, lifetime, _assets, new EventLoop());
+            var builder = new EntityBuilder(services, view, lifetime, new EventLoop());
 
             return builder;
         }

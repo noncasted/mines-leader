@@ -19,8 +19,7 @@ namespace GamePlay.Cards
             ICardPointerHandler pointerHandler,
             ICardLocalDrag drag,
             ICardRenderer renderer,
-            ICardContext context,
-            CardIdleOptions options)
+            ICardContext context)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
@@ -30,7 +29,6 @@ namespace GamePlay.Cards
             _drag = drag;
             _renderer = renderer;
             _context = context;
-            _options = options;
         }
 
         private readonly IUpdater _updater;
@@ -41,12 +39,13 @@ namespace GamePlay.Cards
         private readonly ICardLocalDrag _drag;
         private readonly ICardRenderer _renderer;
         private readonly ICardContext _context;
-        private readonly CardIdleOptions _options;
 
         public void Enter()
         {
+            var options = GamePlayAssets.CardIdleOptions;
+
             var lifetime = _stateLifetime.OccupyLifetime();
-            var selectionCurve = _options.SelectionCurve.CreateInstance();
+            var selectionCurve = options.SelectionCurve.CreateInstance();
             var positionHandle = _handEntryHandle.PositionHandle;
 
             _updater.RunUpdateAction(lifetime, delta => {
@@ -54,11 +53,11 @@ namespace GamePlay.Cards
                 _transform.SetRotation(rotation);
 
                 var rotationEvaluation = GetRotationEvaluation();
-                var force = _options.SelectionForce * rotationEvaluation;
+                var force = options.SelectionForce * rotationEvaluation;
                 _transform.SetHandForce(force);
 
                 var direction = new Angle(90 + rotation).ToVector2();
-                var move = direction * (_options.SelectionDistance * rotationEvaluation);
+                var move = direction * (options.SelectionDistance * rotationEvaluation);
                 var position = positionHandle.SupposedPosition;
                 _transform.SetPosition(position + move);
 
@@ -67,7 +66,7 @@ namespace GamePlay.Cards
                 else
                     _renderer.SetSortingOrder(positionHandle.SupposedRenderOrder);
 
-                var scale = _options.ScaleCurve.Evaluate(selectionCurve.Progress);
+                var scale = options.ScaleCurve.Evaluate(selectionCurve.Progress);
                 _transform.SetScale(Vector2.one * scale);
                 return;
 

@@ -6,12 +6,12 @@ namespace Global.Audio
     {
         public static IScopeBuilder AddAudio(this IScopeBuilder builder)
         {
-            builder.RegisterComponent(Prefabs.Global.GlobalAudioPlayer)
+            builder.RegisterComponent(GlobalPrefabs.GlobalAudioPlayer)
                    .As<IAudioVolume>()
                    .As<IAudioPlayer>()
                    .As<IScopeSetup>();
 
-            builder.RegisterComponent(Prefabs.Global.GlobalAudioListener)
+            builder.RegisterComponent(GlobalPrefabs.GlobalAudioListener)
                    .As<IAudioListener>()
                    .As<IScopeBaseSetup>();
 

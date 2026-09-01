@@ -11,16 +11,14 @@ namespace Menu.Common
     {
         public static IScopeBuilder AddMenuLoop(this IScopeBuilder builder)
         {
-            builder.LoadPrefabGroup(Prefabs.Menu);
-            builder.LoadPrefabGroup(GamePlay.Prefabs.GamePlay);
+            builder.LoadPrefabGroup(MenuPrefabs.Group);
+            builder.LoadPrefabGroup(GamePlayPrefabs.Group);
             builder.LoadSpriteGroup(Sprites.GameCells);
             builder.LoadSpriteGroup(Sprites.MenuPlay);
             builder.LoadSpriteGroup(Sprites.MenuNavigation);
             builder.LoadSpriteGroup(Sprites.MenuUnlocks);
             builder.LoadSpriteGroup(Sprites.GameField);
             builder.LoadSpriteGroup(Sprites.Settings);
-            
-            builder.RegisterAsset<ZipZapOptions>();
             
             builder.Register<MenuLoop>()
                    .As<IMenuLoop>();

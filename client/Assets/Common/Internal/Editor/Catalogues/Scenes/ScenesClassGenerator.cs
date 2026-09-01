@@ -1,13 +1,12 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace Internal
 {
     public static class ScenesClassGenerator
     {
+        private const string LogTag = "ScenesClassGenerator";
         private const string OutputPath = "Assets/Common/Internal/Runtime/Catalogues/Scenes/Scenes.cs";
 
         public static void Generate(List<(string sceneName, string sceneGuid)> scenes)
@@ -28,22 +27,7 @@ namespace Internal
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            var newContent = sb.ToString();
-
-            if (File.Exists(OutputPath))
-            {
-                var existingContent = File.ReadAllText(OutputPath);
-
-                if (existingContent == newContent)
-                    return;
-            }
-
-            var directory = Path.GetDirectoryName(OutputPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            File.WriteAllText(OutputPath, newContent);
-            Debug.Log($"[ScenesClassGenerator] Generated {OutputPath}");
+            GeneratedFile.WriteIfChanged(LogTag, OutputPath, sb.ToString());
         }
 
         private static string SanitizeIdentifier(string name)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 #if UNITY_EDITOR
 using Sirenix.OdinInspector;
@@ -27,7 +28,7 @@ namespace Internal {
 #if UNITY_EDITOR
         [Button("Refresh")]
         private void Refresh() {
-            UnityEditor.EditorApplication.ExecuteMenuItem("Tools/GenerateColors");
+            EditorApplication.ExecuteMenuItem("Tools/GenerateColors");
         }
 #endif
     }

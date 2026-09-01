@@ -10,7 +10,7 @@ namespace Global.Inputs
             builder.Register<InputConstraintsStorage>()
                    .As<IInputConstraintsStorage>();
 
-            var eventSystemPrefab = Prefabs.Global.GlobalEvents.GetComponent<EventSystem>();
+            var eventSystemPrefab = GlobalPrefabs.GlobalEvents.GetComponent<EventSystem>();
             builder.Instantiate(eventSystemPrefab);
 
             builder.Register<GlobalControls>()

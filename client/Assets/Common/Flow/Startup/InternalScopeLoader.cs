@@ -3,35 +3,31 @@ using Internal;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using GlobalAssets = Global.Prefabs;
 using Lifetime = Internal.Lifetime;
 
 namespace Flow.Startup
 {
     public class InternalScopeLoader
     {
-        public InternalScopeLoader(AssetsStorage assets)
-        {
-            _assets = assets;
-        }
-
-        private readonly AssetsStorage _assets;
-
         public async UniTask<ILoadedScope> Load()
         {
             using var stage = GameProfiler.Scope("Startup");
 
+            // Каталог ассетов лежит в Resources целиком, поэтому грузится один раз здесь,
+            // до первого обращения к любой группе.
+            using (GameProfiler.Scope("Assets catalog"))
+                AssetCatalog.Load();
+
             // The whole Global prefab group lives for the application lifetime, so it is retained once here.
             using (GameProfiler.Scope("Prefabs: Global"))
-                await GlobalAssets.Global.Retain();
+                await GlobalPrefabs.Group.Retain();
 
-            InternalScope scopeObject;
+            LifetimeScope scopeObject;
 
             using (GameProfiler.Scope("Scope object"))
             {
-                scopeObject = Object.Instantiate(GlobalAssets.Global.InternalScope)
-                                    .GetComponent<InternalScope>();
-                scopeObject.name = "Internal_Scope";
+                var containerObject = new GameObject("Startup (ScopeLifetime)");
+                scopeObject = containerObject.AddComponent<LifetimeScope>();
 
                 Object.DontDestroyOnLoad(scopeObject);
             }
@@ -43,17 +39,15 @@ namespace Flow.Startup
             }
 
             var result = new InternalLoadedScope(scopeObject, new Lifetime());
-            scopeObject.AttachScope(result);
+            scopeObject.GetObjectLifetime().Listen(() => {
+                Debug.Log($"Internal scope lifetime terminated, disposing loaded scope.");
+                result.Dispose();
+            });
 
             return result;
 
             void Register(IContainerBuilder container)
             {
-                using (GameProfiler.Scope("Assets cache"))
-                    _assets.Cache();
-
-                var assets = new AssetEnvironment(_assets);
-
                 container.Register<SceneLoader>(VContainer.Lifetime.Singleton)
                                      .As<ISceneLoader>();
                 
@@ -62,11 +56,8 @@ namespace Flow.Startup
 
                 container.Register<EntityScopeLoader>(VContainer.Lifetime.Singleton)
                                      .As<IEntityScopeLoader>();
-                
-                container.RegisterInstance(assets)
-                         .As<IAssetEnvironment>();
 
-                OptionsContainer.Load().Register(container);
+                InternalAssets.OptionsContainer.Register(container);
             }
         }
     }

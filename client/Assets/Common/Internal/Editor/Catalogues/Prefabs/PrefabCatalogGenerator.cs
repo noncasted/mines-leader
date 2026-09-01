@@ -8,66 +8,24 @@ namespace Internal {
     public static class PrefabCatalogGenerator {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups";
 
-        private const float DebounceSeconds = 0.5f;
+        private const string GroupPrefix = "Prefabs_";
 
         private static readonly List<MetadataFix> _metadataFixes = new();
 
-        private static bool _isGenerating;
-        private static bool _isScheduled;
-        private static double _scheduledTime;
+        private static readonly CatalogGenerationRunner Runner = new("PrefabCatalogGenerator", GenerateInternal);
 
         [InitializeOnLoadMethod]
         private static void OnEditorReload() {
-            EditorApplication.delayCall += Generate;
+            Runner.RunDelayed();
         }
 
         [MenuItem("Tools/GeneratePrefabsCatalog")]
         public static void Generate() {
-            if (_isGenerating)
-                return;
-
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
-            if (EditorApplication.isCompiling) {
-                ScheduleGenerate();
-                return;
-            }
-
-            if (EditorApplication.isUpdating) {
-                EditorApplication.delayCall += Generate;
-                return;
-            }
-
-            _isGenerating = true;
-
-            try {
-                GenerateInternal();
-            }
-            catch (Exception exception) {
-                Debug.LogError($"[PrefabCatalogGenerator] Generate failed: {exception}");
-            }
-            finally {
-                _isGenerating = false;
-            }
+            Runner.Run();
         }
 
         public static void ScheduleGenerate() {
-            _scheduledTime = EditorApplication.timeSinceStartup + DebounceSeconds;
-            if (_isScheduled)
-                return;
-
-            _isScheduled = true;
-            EditorApplication.update += TickSchedule;
-        }
-
-        private static void TickSchedule() {
-            if (EditorApplication.timeSinceStartup < _scheduledTime)
-                return;
-
-            EditorApplication.update -= TickSchedule;
-            _isScheduled = false;
-            Generate();
+            Runner.Schedule();
         }
 
         private static void GenerateInternal() {
@@ -84,9 +42,9 @@ namespace Internal {
 
             ApplyMetadataFixes();
 
-            PrefabAddressablesSync.Sync(groups);
+            CatalogAddressablesSync.Sync("PrefabCatalogGenerator", GroupPrefix, GroupsFolder, groups);
             PrefabsCatalogClassGenerator.Generate(groups);
-            PrefabGroupsRegistry.Invalidate();
+            PrefabGroupsRegistry.Instance.Invalidate();
             AssetDatabase.SaveAssets();
 
             Debug.Log($"[PrefabCatalogGenerator] Generated {groups.Count} prefab group(s).");
@@ -109,7 +67,7 @@ namespace Internal {
 
             var projectRoot = Path.GetDirectoryName(Application.dataPath);
             foreach (var file in files) {
-                var path = ToAssetPath(projectRoot, file);
+                var path = CatalogPaths.ToAssetPath(projectRoot, file);
                 if (string.IsNullOrEmpty(path))
                     continue;
 
@@ -123,13 +81,13 @@ namespace Internal {
                 if (metadata.Included == false)
                     continue;
 
-                var groupName = SpriteCatalogMetadata.ToGroupName(metadata.Group);
+                var groupName = CatalogNaming.ToGroupName(metadata.Group);
                 if (string.IsNullOrEmpty(groupName)) {
                     Debug.LogError($"[PrefabCatalogGenerator] Included prefab has empty group: {path}");
                     continue;
                 }
 
-                var propertyName = SpriteCatalogMetadata.ToGroupName(Path.GetFileNameWithoutExtension(path));
+                var propertyName = CatalogNaming.ToGroupName(Path.GetFileNameWithoutExtension(path));
                 if (string.IsNullOrEmpty(propertyName)) {
                     Debug.LogError($"[PrefabCatalogGenerator] Identifier is empty for {path}");
                     continue;
@@ -281,7 +239,7 @@ namespace Internal {
                 var assemblies = new SortedSet<string>(StringComparer.Ordinal);
                 foreach (var property in group.Properties) {
                     FillPropertyType(property);
-                    if (IsConsumerAssembly(property.TypeAssembly))
+                    if (CatalogAssemblies.IsConsumerAssembly(property.TypeAssembly))
                         assemblies.Add(property.TypeAssembly);
                 }
 
@@ -293,16 +251,9 @@ namespace Internal {
                     continue;
                 }
 
-                if (assemblies.Count == 1) {
-                    group.TargetNamespace = assemblies.Min;
-                    group.GeneratedFolder = PrefabsCatalogClassGenerator.GetAssemblyGeneratedFolder(assemblies.Min);
-                    group.EmitInternalPartial = false;
-                    continue;
-                }
-
-                group.TargetNamespace = "Internal";
-                group.GeneratedFolder = PrefabsCatalogClassGenerator.InternalGeneratedFolder;
-                group.EmitInternalPartial = true;
+                group.GeneratedFolder = assemblies.Count == 1
+                    ? PrefabsCatalogClassGenerator.GetAssemblyGeneratedFolder(assemblies.Min)
+                    : PrefabsCatalogClassGenerator.InternalGeneratedFolder;
             }
         }
 
@@ -315,49 +266,15 @@ namespace Internal {
                 return;
             }
 
-            ParseTypeName(property.ComponentType, out var fullName, out var assemblyName);
+            CatalogAssemblies.ParseTypeName(property.ComponentType, out var fullName, out var assemblyName);
             property.IsGameObject = false;
             property.TypeFullName = fullName.Replace('+', '.');
             property.TypeAssembly = assemblyName;
             property.CodeTypeName = "global::" + property.TypeFullName;
         }
 
-        private static void ParseTypeName(string componentType, out string fullName, out string assemblyName) {
-            var comma = componentType.IndexOf(',');
-            if (comma < 0) {
-                fullName = componentType.Trim();
-                assemblyName = string.Empty;
-                return;
-            }
-
-            fullName = componentType.Substring(0, comma).Trim();
-            assemblyName = componentType.Substring(comma + 1).Trim();
-            var assemblyComma = assemblyName.IndexOf(',');
-            if (assemblyComma > 0)
-                assemblyName = assemblyName.Substring(0, assemblyComma).Trim();
-        }
-
-        private static bool IsConsumerAssembly(string assemblyName) {
-            if (string.IsNullOrEmpty(assemblyName))
-                return false;
-
-            if (assemblyName.StartsWith("Unity", StringComparison.Ordinal))
-                return false;
-
-            if (assemblyName.StartsWith("System", StringComparison.Ordinal))
-                return false;
-
-            if (assemblyName == "mscorlib" || assemblyName == "netstandard")
-                return false;
-
-            if (assemblyName == "Internal" || assemblyName == "Internal.Editor")
-                return false;
-
-            return true;
-        }
-
         private static void WriteGroupAssets(IReadOnlyList<PrefabGroupDefinition> groups) {
-            EnsureFolder(GroupsFolder);
+            CatalogPaths.EnsureFolder(GroupsFolder);
 
             var writtenPaths = new HashSet<string>(StringComparer.Ordinal);
             foreach (var group in groups) {
@@ -440,15 +357,6 @@ namespace Internal {
             }
         }
 
-        private static string ToAssetPath(string projectRoot, string fullPath) {
-            var normalized = Path.GetFullPath(fullPath).Replace('\\', '/');
-            var root = projectRoot.Replace('\\', '/');
-            if (normalized.StartsWith(root, StringComparison.OrdinalIgnoreCase) == false)
-                return normalized;
-
-            return normalized.Substring(root.Length).TrimStart('/');
-        }
-
         private static string ToFieldName(string propertyName) {
             return "_" + char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
         }
@@ -463,21 +371,6 @@ namespace Internal {
                 display = display.Substring(0, comma).Trim();
 
             return display;
-        }
-
-        private static void EnsureFolder(string folderPath) {
-            if (AssetDatabase.IsValidFolder(folderPath))
-                return;
-
-            var parts = folderPath.Split('/');
-            var current = parts[0];
-            for (var i = 1; i < parts.Length; i++) {
-                var next = current + "/" + parts[i];
-                if (AssetDatabase.IsValidFolder(next) == false)
-                    AssetDatabase.CreateFolder(current, parts[i]);
-
-                current = next;
-            }
         }
 
         private struct MetadataFix {
@@ -495,13 +388,11 @@ namespace Internal {
         }
     }
 
-    internal sealed class PrefabGroupDefinition {
-        public string Name;
+    internal sealed class PrefabGroupDefinition : ICatalogGroupDefinition {
+        public string Name { get; set; }
+        public string Address { get; set; }
         public string ClassName;
-        public string Address;
-        public string TargetNamespace;
         public string GeneratedFolder;
-        public bool EmitInternalPartial;
         public bool SkipCodegen;
         public List<PrefabPropertyDefinition> Properties = new();
     }

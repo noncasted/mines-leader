@@ -35,7 +35,7 @@ namespace Menu.Decks
         private readonly List<MenuDeckIndexButton> _indexButtons = new();
         private readonly Dictionary<CardType, MenuDeckPoolSpot> _typeToPoolSpot = new();
 
-        private IDeckService _deckService;
+        private IDecks _decks;
         private ICardsRegistry _cardsRegistry;
         private IViewInjector _viewInjector;
         private ICardConfigs _configs;
@@ -47,7 +47,7 @@ namespace Menu.Decks
 
         [Inject]
         internal void Construct(
-            IDeckService deckService,
+            IDecks decks,
             ICardsRegistry cardsRegistry,
             IViewInjector viewInjector,
             ICardConfigs configs,
@@ -58,7 +58,7 @@ namespace Menu.Decks
             _configs = configs;
             _viewInjector = viewInjector;
             _cardsRegistry = cardsRegistry;
-            _deckService = deckService;
+            _decks = decks;
             _cardsProjection = cardsProjection;
             _previewPlayer = previewPlayer;
             _updater = updater;
@@ -75,8 +75,8 @@ namespace Menu.Decks
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            if (_deckService.Configurations.Count == 0)
-                _deckService.Updated.Advise(lifetime, () => OnInitialized(lifetime));
+            if (_decks.Configurations.Count == 0)
+                _decks.Updated.Advise(lifetime, () => OnInitialized(lifetime));
             else
                 OnInitialized(lifetime);
         }
@@ -86,7 +86,7 @@ namespace Menu.Decks
             if (_deckCards.Count != 0)
                 return;
 
-            var decksCount = _deckService.Configurations.Count;
+            var decksCount = _decks.Configurations.Count;
 
             for (var i = 0; i < decksCount; i++)
             {
@@ -105,7 +105,7 @@ namespace Menu.Decks
                 });
             }
 
-            _indexButtons[_deckService.SelectedIndex.Value].Activate();
+            _indexButtons[_decks.SelectedIndex.Value].Activate();
 
             foreach (var (type, definition) in _cardsRegistry.Entries)
             {
@@ -117,7 +117,7 @@ namespace Menu.Decks
                 RegisterDrag(view, lifetime);
             }
 
-            var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
+            var selected = _decks.Configurations[_decks.SelectedIndex.Value];
 
             foreach (var cardDefinition in selected.Cards)
             {
@@ -129,7 +129,7 @@ namespace Menu.Decks
             }
 
             RecalculateMana();
-            UpdateDeck(_deckService.SelectedIndex.Value);
+            UpdateDeck(_decks.SelectedIndex.Value);
             ResizePoolRoot();
 
             _cardsProjection.Listen(lifetime, OnCardsUpdated);
@@ -266,17 +266,17 @@ namespace Menu.Decks
         {
             handle.AttachGameObject(gameObject);
             ResizePoolRoot();
-            _deckService.SendUpdate().Forget();
+            _decks.SendUpdate().Forget();
         }
 
         private void UpdateDeck(int index)
         {
-            _deckService.SetIndex(index);
+            _decks.SetIndex(index);
 
             foreach (var spot in _typeToPoolSpot.Values)
                 spot.ReturnToSpot();
 
-            var selected = _deckService.Configurations[index];
+            var selected = _decks.Configurations[index];
 
             for (var i = 0; i < selected.Cards.Count; i++)
             {
@@ -294,7 +294,7 @@ namespace Menu.Decks
             foreach (var cardView in _deckCards)
                 cards.Add(cardView.CurrentDefinition);
 
-            var selected = _deckService.Configurations[_deckService.SelectedIndex.Value];
+            var selected = _decks.Configurations[_decks.SelectedIndex.Value];
             selected.Update(cards);
 
             RecalculateMana();

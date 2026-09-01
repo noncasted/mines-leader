@@ -22,6 +22,3 @@ MonoBehaviour:
   - Name: Cell
     Prefab: {fileID: 3637014477302833439, guid: 6cdfa7e62ddb3ec4cbf453da16073cfe, type: 3}
     ComponentType: GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - Name: PlayerTurnPoint
-    Prefab: {fileID: 4776406414613929613, guid: a71c072fec4b4190eb57f648c0ff9f6b, type: 3}
-    ComponentType: 

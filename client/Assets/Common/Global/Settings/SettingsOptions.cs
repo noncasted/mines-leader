@@ -13,10 +13,7 @@ namespace Global.Settings
             ShakeIntensity = 0.5f,
             VSync = true
         };
-        
-        [SerializeField] private SettingsView _viewPrefab;
 
         public SettingsSave DefaultValues => _defaultValues;
-        public SettingsView ViewPrefab => _viewPrefab;
     }
 }

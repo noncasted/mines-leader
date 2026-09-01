@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using Global.Backend;
 using Internal;
@@ -9,7 +9,6 @@ namespace Meta
 {
     public interface IMetaBackend
     {
-        IUser User { get; }
         IBackendClient Client { get; }
         INetworkConnection Connection { get; }
         IReadOnlyLifetime Lifetime { get; }
@@ -20,7 +19,6 @@ namespace Meta
     public class MetaBackend : IMetaBackend
     {
         public MetaBackend(
-            IUser user,
             NetworkConnection connection,
             IBackendClient client,
             IReadOnlyLifetime lifetime,
@@ -28,7 +26,6 @@ namespace Meta
         {
             _options = options;
             _connection = connection;
-            User = user;
             Client = client;
             Lifetime = lifetime;
         }
@@ -36,7 +33,6 @@ namespace Meta
         private readonly BackendOptions _options;
         private readonly NetworkConnection _connection;
 
-        public IUser User { get; }
         public IBackendClient Client { get; }
         public INetworkConnection Connection => _connection;
         public IReadOnlyLifetime Lifetime { get; }

@@ -1,34 +1,37 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Internal;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Internal
 {
-    public class ProjectToolsWindow : EditorWindow
+    public interface IProjectToolsHost
     {
-        private static readonly string UssPath = "Assets/Common/Internal/Editor/Tools/ProjectTools/ProjectToolsWindow.uss";
-        private static readonly string[] FavoriteSceneNames = { "Menu", "Game_Field", "Startup" };
-        private const string UserIdKey = "userId";
-        private const string EmptyUserId = "<none>";
+        OptionsContainer Options { get; }
 
-        private static string EditorUserIdKey => $"userId:{Application.dataPath.GetHashCode()}";
+        void SetStatus(string message, bool isError);
+    }
+    
+    public class ProjectToolsWindow : EditorWindow, IProjectToolsHost
+    {
+        private const string UssPath = "Assets/Common/Internal/Editor/Tools/ProjectTools/ProjectToolsWindow.uss";
 
-        private OptionsContainer _options;
-        private VisualElement _root;
-        private Label _userIdValueLabel;
-        private Label _userIdEditorValueLabel;
-        private Label _statusLabel;
-        private ProgressBar _progressBar;
+        private readonly List<ProjectToolsTab> _tabs = new()
+        {
+            new ScenesTab(),
+            new OptionsTab(),
+            new AssetsTab(),
+            new UserTab()
+        };
 
         private readonly List<VisualElement> _tabContents = new();
         private readonly List<Button> _tabButtons = new();
-        private readonly Dictionary<string, Button> _sceneButtons = new();
+
+        private OptionsContainer _options;
+        private VisualElement _root;
+        private Label _statusLabel;
+
+        public OptionsContainer Options => _options;
 
         [MenuItem("Tools/Project Tools %g")]
         public static void ToggleWindow()
@@ -58,28 +61,39 @@ namespace Internal
 
         public void CreateGUI()
         {
-            _options = OptionsContainer.Load();
+            _options = LoadOptions();
             BuildUI();
+        }
+
+        public void SetStatus(string message, bool isError)
+        {
+            if (_statusLabel == null)
+                return;
+
+            _statusLabel.text = message;
+
+            _statusLabel.style.color = isError
+                ? new Color(1f, 0.3f, 0.3f)
+                : new Color(0.7f, 0.7f, 0.7f);
         }
 
         private void OnEnable()
         {
-            EditorSceneManager.sceneOpened += OnSceneOpened;
-            EditorSceneManager.sceneClosed += OnSceneClosed;
+            foreach (var tab in _tabs)
+                tab.OnEnable();
         }
 
         private void OnDisable()
         {
-            EditorSceneManager.sceneOpened -= OnSceneOpened;
-            EditorSceneManager.sceneClosed -= OnSceneClosed;
+            foreach (var tab in _tabs)
+                tab.OnDisable();
         }
-
-        private void OnSceneOpened(Scene scene, OpenSceneMode mode) => RefreshSceneButtons();
-
-        private void OnSceneClosed(Scene scene) => RefreshSceneButtons();
 
         private void BuildUI()
         {
+            _tabButtons.Clear();
+            _tabContents.Clear();
+
             _root = new VisualElement();
             _root.AddToClassList("project-tools-root");
             rootVisualElement.Add(_root);
@@ -93,6 +107,8 @@ namespace Internal
             BuildTabBar();
             BuildTabContents();
             BuildFooter();
+
+            SelectTab(0);
         }
 
         private void BuildHeader()
@@ -116,12 +132,10 @@ namespace Internal
             var tabBar = new VisualElement();
             tabBar.AddToClassList("tab-bar");
 
-            var tabNames = new[] { "Scenes", "Options", "Assets", "User" };
-
-            for (int i = 0; i < tabNames.Length; i++)
+            for (int i = 0; i < _tabs.Count; i++)
             {
                 int index = i;
-                var button = new Button(() => SelectTab(index)) { text = tabNames[i] };
+                var button = new Button(() => SelectTab(index)) { text = _tabs[i].Title };
                 button.AddToClassList("tab-button");
                 tabBar.Add(button);
                 _tabButtons.Add(button);
@@ -135,398 +149,14 @@ namespace Internal
             var scroll = new ScrollView(ScrollViewMode.Vertical);
             scroll.AddToClassList("tab-content-wrapper");
 
-            var scenesTab = new VisualElement();
-            scenesTab.AddToClassList("tab-content");
-            BuildScenesSection(scenesTab);
-            scroll.Add(scenesTab);
-            _tabContents.Add(scenesTab);
-
-            var optionsTab = new VisualElement();
-            optionsTab.AddToClassList("tab-content");
-            BuildOptionsSection(optionsTab);
-            scroll.Add(optionsTab);
-            _tabContents.Add(optionsTab);
-
-            var assetsTab = new VisualElement();
-            assetsTab.AddToClassList("tab-content");
-            BuildAssetsSection(assetsTab);
-            scroll.Add(assetsTab);
-            _tabContents.Add(assetsTab);
-
-            var userTab = new VisualElement();
-            userTab.AddToClassList("tab-content");
-            BuildUserSection(userTab);
-            scroll.Add(userTab);
-            _tabContents.Add(userTab);
+            foreach (var tab in _tabs)
+            {
+                var content = tab.Build(this);
+                scroll.Add(content);
+                _tabContents.Add(content);
+            }
 
             _root.Add(scroll);
-            SelectTab(0);
-        }
-
-        private void SelectTab(int index)
-        {
-            for (int i = 0; i < _tabButtons.Count; i++)
-            {
-                if (i == index)
-                    _tabButtons[i].AddToClassList("tab-button--active");
-                else
-                    _tabButtons[i].RemoveFromClassList("tab-button--active");
-            }
-
-            for (int i = 0; i < _tabContents.Count; i++)
-            {
-                _tabContents[i].style.display = i == index ? DisplayStyle.Flex : DisplayStyle.None;
-            }
-        }
-
-        private void BuildScenesSection(VisualElement parent)
-        {
-            var scenes = FindAllScenes();
-            var favorites = new List<string>();
-            var others = new List<string>();
-
-            foreach (var scene in scenes)
-            {
-                var sceneName = Path.GetFileNameWithoutExtension(scene);
-
-                if (FavoriteSceneNames.Contains(sceneName))
-                    favorites.Add(scene);
-                else
-                    others.Add(scene);
-            }
-
-            favorites = favorites
-                        .OrderBy(s => System.Array.IndexOf(FavoriteSceneNames, Path.GetFileNameWithoutExtension(s)))
-                        .ToList();
-
-            if (favorites.Count > 0)
-            {
-                var favoritesGrid = BuildSceneGrid(favorites);
-                parent.Add(favoritesGrid);
-
-                var separator = new VisualElement();
-                separator.AddToClassList("scene-separator");
-                parent.Add(separator);
-            }
-
-            var othersGrid = BuildSceneGrid(others);
-            parent.Add(othersGrid);
-        }
-
-        private VisualElement BuildSceneGrid(IEnumerable<string> scenes)
-        {
-            var grid = new VisualElement();
-            grid.AddToClassList("scene-grid");
-
-            foreach (var scene in scenes)
-            {
-                var sceneName = Path.GetFileNameWithoutExtension(scene);
-                var scenePath = scene;
-                var button = new Button { text = sceneName };
-                button.AddToClassList("scene-button");
-                button.tooltip = "Click to open, Ctrl+Click to open additively";
-
-                button.RegisterCallback<ClickEvent>(evt =>
-                {
-                    if (evt.ctrlKey || evt.actionKey)
-                        OpenSceneAdditive(scenePath);
-                    else
-                        OpenScene(scenePath);
-
-                    RefreshSceneButtons();
-                });
-
-                _sceneButtons[scenePath] = button;
-                grid.Add(button);
-            }
-
-            RefreshSceneButtons();
-
-            return grid;
-        }
-
-        private void RefreshSceneButtons()
-        {
-            foreach (var pair in _sceneButtons)
-            {
-                if (pair.Value == null)
-                    continue;
-
-                pair.Value.EnableInClassList("scene-button--active", IsActiveScene(pair.Key));
-                pair.Value.EnableInClassList("scene-button--loaded", IsLoadedScene(pair.Key) && !IsActiveScene(pair.Key));
-            }
-        }
-
-        private void BuildOptionsSection(VisualElement parent)
-        {
-            var assetsSection = BuildSubSection("Assets Options");
-            var toggle = new Toggle("Use Addressables") { value = _options.AssetsOptions.UseAddressables };
-            toggle.RegisterValueChangedCallback(e => _options.AssetsOptions.UseAddressables = e.newValue);
-            assetsSection.Add(toggle);
-            parent.Add(assetsSection);
-
-            var debugSection = BuildSubSection("Debug Options");
-            var gizmos = new Toggle("Enable Gizmos") { value = _options.DebugOptions.EnableGizmos };
-            gizmos.RegisterValueChangedCallback(e => _options.DebugOptions.EnableGizmos = e.newValue);
-            debugSection.Add(gizmos);
-
-            var logs = new Toggle("Enable Logs") { value = _options.DebugOptions.EnableLogs };
-            logs.RegisterValueChangedCallback(e => _options.DebugOptions.EnableLogs = e.newValue);
-            debugSection.Add(logs);
-            parent.Add(debugSection);
-
-            var versionSection = BuildSubSection("Version Options");
-            var field = new TextField("Version") { value = _options.VersionOptions.Value };
-            field.RegisterValueChangedCallback(e => _options.VersionOptions.Value = e.newValue);
-            versionSection.Add(field);
-            parent.Add(versionSection);
-
-            var backendSection = BuildSubSection("Backend Options");
-            var envField = new EnumField("Environment", _options.BackendOptions.Environment);
-
-            envField.RegisterValueChangedCallback(e =>
-                _options.BackendOptions.Environment = (BackendEnvironment)e.newValue);
-            backendSection.Add(envField);
-
-            var prodUrl = new TextField("Production URL") { value = _options.BackendOptions.ProductionApiUrl };
-            prodUrl.RegisterValueChangedCallback(e => _options.BackendOptions.ProductionApiUrl = e.newValue);
-            backendSection.Add(prodUrl);
-
-            var localUrl = new TextField("Local URL") { value = _options.BackendOptions.LocalApiUrl };
-            localUrl.RegisterValueChangedCallback(e => _options.BackendOptions.LocalApiUrl = e.newValue);
-            backendSection.Add(localUrl);
-            parent.Add(backendSection);
-
-            var platformSection = BuildSubSection("Platform Options");
-            var platformField = new EnumField("Platform Type", _options.PlatformOptions.PlatformType);
-
-            platformField.RegisterValueChangedCallback(e =>
-                _options.PlatformOptions.PlatformType = (PlatformType)e.newValue);
-            platformSection.Add(platformField);
-            parent.Add(platformSection);
-        }
-
-        private static VisualElement BuildSubSection(string title)
-        {
-            var section = new VisualElement();
-            section.AddToClassList("section");
-
-            var label = new Label(title);
-            label.AddToClassList("section-title");
-            section.Add(label);
-
-            return section;
-        }
-
-        private void BuildAssetsSection(VisualElement parent)
-        {
-            var buttonRow = new VisualElement();
-            buttonRow.AddToClassList("assets-button-row");
-
-            var generatePrefabsButton = new Button(OnGeneratePrefabsClicked) { text = "Generate Prefabs" };
-            generatePrefabsButton.AddToClassList("assets-button");
-            buttonRow.Add(generatePrefabsButton);
-
-            var generateScenesButton = new Button(OnGenerateScenesClicked) { text = "Generate Scenes" };
-            generateScenesButton.AddToClassList("assets-button");
-            buttonRow.Add(generateScenesButton);
-
-            var generateSpritesButton = new Button(OnGenerateSpritesClicked) { text = "Generate Sprites" };
-            generateSpritesButton.AddToClassList("assets-button");
-            buttonRow.Add(generateSpritesButton);
-
-            var exportIconsButton = new Button(OnExportCardIconsClicked) { text = "Export Card Icons" };
-            exportIconsButton.AddToClassList("assets-button");
-            buttonRow.Add(exportIconsButton);
-
-            parent.Add(buttonRow);
-
-            _progressBar = new ProgressBar { lowValue = 0, highValue = 100, value = 0 };
-            _progressBar.AddToClassList("assets-progress");
-            parent.Add(_progressBar);
-
-            var runAllButton = new Button(OnRunAllClicked) { text = "Run All" };
-            runAllButton.AddToClassList("assets-run-all-button");
-            parent.Add(runAllButton);
-        }
-
-        private void OnGeneratePrefabsClicked()
-        {
-            try
-            {
-                UpdateStatus("Generating prefabs...", false);
-                PrefabCatalogGenerator.Generate();
-                UpdateStatus("Prefabs generated", false);
-            }
-            catch (System.Exception ex)
-            {
-                UpdateStatus("Prefab generation failed", true);
-                Debug.LogError($"[ProjectTools] Prefab generation failed: {ex}");
-            }
-        }
-
-        private void OnGenerateScenesClicked()
-        {
-            try
-            {
-                UpdateStatus("Generating scenes...", false);
-                SceneGenerator.Generate();
-                UpdateStatus("Scenes generated", false);
-            }
-            catch (System.Exception ex)
-            {
-                UpdateStatus("Scene generation failed", true);
-                Debug.LogError($"[ProjectTools] Scene generation failed: {ex}");
-            }
-        }
-
-        private void OnGenerateSpritesClicked()
-        {
-            try
-            {
-                UpdateStatus("Generating sprites...", false);
-                SpriteGenerator.Generate();
-                UpdateStatus("Sprites generated", false);
-            }
-            catch (System.Exception ex)
-            {
-                UpdateStatus("Sprite generation failed", true);
-                Debug.LogError($"[ProjectTools] Sprite generation failed: {ex}");
-            }
-        }
-
-        private void OnExportCardIconsClicked()
-        {
-            try
-            {
-                UpdateStatus("Exporting card icons...", false);
-                CardIconsExporter.Export();
-                UpdateStatus("Card icons exported", false);
-            }
-            catch (System.Exception ex)
-            {
-                UpdateStatus("Card icons export failed", true);
-                Debug.LogError($"[ProjectTools] Card icons export failed: {ex}");
-            }
-        }
-
-        private void OnRunAllClicked()
-        {
-            try
-            {
-                UpdateStatus("Running all generators...", false);
-                _progressBar.value = 0;
-
-                _progressBar.value = 25;
-                PrefabCatalogGenerator.Generate();
-
-                _progressBar.value = 50;
-                SceneGenerator.Generate();
-
-                _progressBar.value = 75;
-                SpriteGenerator.Generate();
-
-                _progressBar.value = 100;
-                UpdateStatus("All generators completed", false);
-            }
-            catch (System.Exception ex)
-            {
-                UpdateStatus("Run All failed", true);
-                Debug.LogError($"[ProjectTools] Run All failed: {ex}");
-            }
-        }
-
-        private void BuildUserSection(VisualElement parent)
-        {
-            var section = BuildSubSection("Local User");
-
-            _userIdEditorValueLabel = BuildUserIdRow(section, $"Editor ({EditorUserIdKey})");
-            _userIdValueLabel = BuildUserIdRow(section, $"Shared ({UserIdKey})");
-
-            var buttonRow = new VisualElement();
-            buttonRow.AddToClassList("assets-button-row");
-
-            var copyButton = new Button(OnCopyUserIdClicked) { text = "Copy" };
-            copyButton.AddToClassList("assets-button");
-            buttonRow.Add(copyButton);
-
-            var refreshButton = new Button(RefreshUserId) { text = "Refresh" };
-            refreshButton.AddToClassList("assets-button");
-            buttonRow.Add(refreshButton);
-
-            var clearButton = new Button(OnClearUserIdClicked) { text = "Clear" };
-            clearButton.AddToClassList("assets-button");
-            buttonRow.Add(clearButton);
-
-            section.Add(buttonRow);
-            parent.Add(section);
-
-            RefreshUserId();
-        }
-
-        private static Label BuildUserIdRow(VisualElement parent, string title)
-        {
-            var label = new Label(title);
-            label.AddToClassList("user-id-title");
-            parent.Add(label);
-
-            var value = new Label(EmptyUserId) { selection = { isSelectable = true } };
-            value.AddToClassList("user-id-value");
-            parent.Add(value);
-
-            return value;
-        }
-
-        private void RefreshUserId()
-        {
-            if (_userIdValueLabel == null)
-                return;
-
-            _userIdEditorValueLabel.text = ReadUserId(EditorUserIdKey);
-            _userIdValueLabel.text = ReadUserId(UserIdKey);
-        }
-
-        private void OnCopyUserIdClicked()
-        {
-            var userId = ReadUserId(EditorUserIdKey);
-
-            if (userId == EmptyUserId)
-                userId = ReadUserId(UserIdKey);
-
-            if (userId == EmptyUserId)
-            {
-                UpdateStatus("No saved user id", true);
-                return;
-            }
-
-            EditorGUIUtility.systemCopyBuffer = userId;
-            UpdateStatus("User id copied", false);
-        }
-
-        private void OnClearUserIdClicked()
-        {
-            var confirmed = EditorUtility.DisplayDialog(
-                "Clear User Id",
-                "Delete the saved local user id? A new user will be created on the next authentication.",
-                "Clear",
-                "Cancel");
-
-            if (confirmed == false)
-                return;
-
-            PlayerPrefs.DeleteKey(EditorUserIdKey);
-            PlayerPrefs.DeleteKey(UserIdKey);
-            PlayerPrefs.Save();
-
-            RefreshUserId();
-            UpdateStatus("User id cleared", false);
-            Debug.Log("[ProjectTools] Saved user id cleared");
-        }
-
-        private static string ReadUserId(string key)
-        {
-            var value = PlayerPrefs.GetString(key, string.Empty);
-            return string.IsNullOrEmpty(value) ? EmptyUserId : value;
         }
 
         private void BuildFooter()
@@ -541,74 +171,43 @@ namespace Internal
             _root.Add(footer);
         }
 
+        private void SelectTab(int index)
+        {
+            for (int i = 0; i < _tabButtons.Count; i++)
+                _tabButtons[i].EnableInClassList("tab-button--active", i == index);
+
+            for (int i = 0; i < _tabContents.Count; i++)
+                _tabContents[i].style.display = i == index ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         private void OnSaveClicked()
         {
-            _options.Save();
-            UpdateStatus("Settings saved", false);
+            if (_options == null)
+            {
+                SetStatus("Options asset is missing", true);
+                return;
+            }
+
+            EditorUtility.SetDirty(_options);
+            AssetDatabase.SaveAssets();
+            SetStatus("Settings saved", false);
             Debug.Log("[ProjectTools] Settings saved");
         }
 
-        private void UpdateStatus(string message, bool isError)
+        private OptionsContainer LoadOptions()
         {
-            if (_statusLabel == null)
-                return;
+            var guids = AssetDatabase.FindAssets($"t:{nameof(OptionsContainer)}");
 
-            _statusLabel.text = message;
-
-            _statusLabel.style.color = isError
-                ? new Color(1f, 0.3f, 0.3f)
-                : new Color(0.7f, 0.7f, 0.7f);
-        }
-
-        private static List<string> FindAllScenes()
-        {
-            var guids = AssetDatabase.FindAssets("t:Scene", new[] { "Assets" });
-
-            return guids
-                   .Select(AssetDatabase.GUIDToAssetPath)
-                   .OrderBy(Path.GetFileNameWithoutExtension)
-                   .ToList();
-        }
-
-        private static bool IsActiveScene(string scenePath)
-        {
-            var active = EditorSceneManager.GetActiveScene();
-            return active.path == scenePath;
-        }
-
-        private static bool IsLoadedScene(string scenePath)
-        {
-            for (int i = 0; i < SceneManager.sceneCount; i++)
+            if (guids.Length == 0)
             {
-                if (SceneManager.GetSceneAt(i).path == scenePath)
-                    return true;
+                Debug.LogError("[ProjectTools] OptionsContainer asset is missing");
+                return null;
             }
 
-            return false;
-        }
+            if (guids.Length > 1)
+                Debug.LogWarning($"[ProjectTools] Found {guids.Length} OptionsContainer assets, using the first one");
 
-        private static void OpenScene(string scenePath)
-        {
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-                EditorSceneManager.OpenScene(scenePath);
-        }
-
-        private static void OpenSceneAdditive(string scenePath)
-        {
-            if (IsLoadedScene(scenePath))
-            {
-                var scene = SceneManager.GetSceneByPath(scenePath);
-
-                if (scene == EditorSceneManager.GetActiveScene() && SceneManager.sceneCount <= 1)
-                    return;
-
-                if (EditorSceneManager.SaveModifiedScenesIfUserWantsTo(new[] { scene }))
-                    EditorSceneManager.CloseScene(scene, true);
-
-                return;
-            }
-
-            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+            return AssetDatabase.LoadAssetAtPath<OptionsContainer>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Internal {
     [InitializeOnLoad]
@@ -12,96 +11,34 @@ namespace Internal {
             Editor.finishedDefaultHeaderGUI += Draw;
         }
 
-        private const float LabelWidth = 50f;
-        private const float AddButtonWidth = 22f;
-        private const float OkButtonWidth = 32f;
-        private const float CancelButtonWidth = 52f;
         private const string GameObjectOption = "(GameObject)";
 
-        private static bool _isCreatingGroup;
-        private static string _newGroupName = string.Empty;
-
         private static void Draw(Editor editor) {
-            if (TryCollectImporters(editor, out var importers) == false)
+            if (CatalogInspectorGUI.TryCollectImporters(editor, IsCatalogTarget, out var importers) == false)
                 return;
 
-            var wasEnabled = GUI.enabled;
-            GUI.enabled = true;
+            using (CatalogInspectorGUI.BeginSection()) {
+                var states = ResolveStates(importers);
+                DrawIncluded(importers, states);
 
-            var previousLabelWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = LabelWidth;
+                if (states.Included == false || states.IncludedMixed)
+                    return;
 
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                CatalogGroupField.Draw(
+                    PrefabGroupsRegistry.Instance,
+                    states.Group,
+                    states.GroupMixed,
+                    group => Apply(importers, metadata => metadata.Group = group));
 
-            var states = ResolveStates(importers);
-            DrawIncluded(importers, states);
-
-            if (states.Included && states.IncludedMixed == false) {
-                DrawGroup(importers, states);
                 DrawRoot(importers, states);
             }
-
-            EditorGUILayout.EndVertical();
-
-            EditorGUIUtility.labelWidth = previousLabelWidth;
-            GUI.enabled = wasEnabled;
-        }
-
-        private static bool TryCollectImporters(Editor editor, out List<AssetImporter> importers) {
-            importers = null;
-            if (editor == null || editor.targets == null || editor.targets.Length == 0)
-                return false;
-
-            var collected = new List<AssetImporter>(editor.targets.Length);
-            foreach (var target in editor.targets) {
-                if (TryGetImporter(target, out var importer) == false)
-                    return false;
-
-                if (IsCatalogTarget(importer) == false)
-                    return false;
-
-                collected.Add(importer);
-            }
-
-            importers = collected;
-            return true;
-        }
-
-        private static bool TryGetImporter(Object target, out AssetImporter importer) {
-            importer = null;
-
-            // PrefabImporter is internal in this Unity version; AssetImporter covers it.
-            if (target is AssetImporter assetImporter) {
-                importer = assetImporter;
-                return true;
-            }
-
-            if (target is not GameObject gameObject)
-                return false;
-
-            if (EditorUtility.IsPersistent(gameObject) == false)
-                return false;
-
-            if (PrefabUtility.IsPartOfPrefabAsset(gameObject) == false)
-                return false;
-
-            if (gameObject.transform.parent != null)
-                return false;
-
-            var path = AssetDatabase.GetAssetPath(gameObject);
-            if (string.IsNullOrEmpty(path))
-                return false;
-
-            importer = AssetImporter.GetAtPath(path);
-            return importer != null;
         }
 
         private static bool IsCatalogTarget(AssetImporter importer) {
             if (string.IsNullOrEmpty(importer.assetPath))
                 return false;
 
-            var extension = Path.GetExtension(importer.assetPath);
-            return extension.Equals(".prefab", StringComparison.OrdinalIgnoreCase);
+            return Path.GetExtension(importer.assetPath).Equals(".prefab", StringComparison.OrdinalIgnoreCase);
         }
 
         private static CatalogStates ResolveStates(IReadOnlyList<AssetImporter> importers) {
@@ -130,89 +67,28 @@ namespace Internal {
         }
 
         private static void DrawIncluded(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
-            EditorGUI.showMixedValue = states.IncludedMixed;
-            EditorGUI.BeginChangeCheck();
-            var included = EditorGUILayout.ToggleLeft("Prefab Catalog", states.Included, EditorStyles.boldLabel);
-            var changed = EditorGUI.EndChangeCheck();
-            EditorGUI.showMixedValue = false;
-
-            if (changed)
+            if (CatalogInspectorGUI.TryDrawToggle("Prefab Catalog", states.Included, states.IncludedMixed, out var included))
                 Apply(importers, metadata => metadata.Included = included);
-        }
-
-        private static void DrawGroup(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel("Group");
-
-            if (_isCreatingGroup) {
-                _newGroupName = EditorGUILayout.TextField(_newGroupName);
-
-                if (GUILayout.Button("OK", EditorStyles.miniButton, GUILayout.Width(OkButtonWidth))) {
-                    if (PrefabGroupsRegistry.TryAddGroup(_newGroupName, out var groupName)) {
-                        Apply(importers, metadata => metadata.Group = groupName);
-                        _isCreatingGroup = false;
-                        _newGroupName = string.Empty;
-                    }
-                }
-
-                if (GUILayout.Button("Cancel", EditorStyles.miniButton, GUILayout.Width(CancelButtonWidth))) {
-                    _isCreatingGroup = false;
-                    _newGroupName = string.Empty;
-                }
-            }
-            else {
-                var groups = GetPopupGroups(states.Group);
-                var index = IndexOfGroup(groups, states.Group);
-
-                EditorGUI.showMixedValue = states.GroupMixed;
-                EditorGUI.BeginChangeCheck();
-                var nextIndex = groups.Count == 0
-                    ? -1
-                    : EditorGUILayout.Popup(Mathf.Max(index, 0), groups.ToArray());
-                var groupChanged = EditorGUI.EndChangeCheck();
-                EditorGUI.showMixedValue = false;
-
-                if (groupChanged && nextIndex >= 0 && nextIndex < groups.Count)
-                    Apply(importers, metadata => metadata.Group = groups[nextIndex]);
-
-                if (GUILayout.Button("+", EditorStyles.miniButton, GUILayout.Width(AddButtonWidth))) {
-                    _isCreatingGroup = true;
-                    _newGroupName = string.Empty;
-                    GUI.FocusControl(null);
-                }
-            }
-
-            EditorGUILayout.EndHorizontal();
         }
 
         private static void DrawRoot(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
             var options = GetRootOptions(importers[0], states.ComponentType);
-            var labels = new string[options.Count];
+            var labels = new List<string>(options.Count);
             var index = 0;
             for (var i = 0; i < options.Count; i++) {
-                labels[i] = options[i].Display;
+                labels.Add(options[i].Display);
                 if (string.Equals(options[i].ComponentType, states.ComponentType, StringComparison.Ordinal))
                     index = i;
             }
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel("Root");
+            if (CatalogInspectorGUI.TryDrawPopup("Root", labels, index, states.ComponentMixed, out var nextIndex) == false)
+                return;
 
-            EditorGUI.showMixedValue = states.ComponentMixed;
-            EditorGUI.BeginChangeCheck();
-            var nextIndex = EditorGUILayout.Popup(index, labels);
-            var changed = EditorGUI.EndChangeCheck();
-            EditorGUI.showMixedValue = false;
-
-            EditorGUILayout.EndHorizontal();
-
-            if (changed && nextIndex >= 0 && nextIndex < options.Count) {
-                var option = options[nextIndex];
-                Apply(importers, metadata => {
-                    metadata.ComponentType = option.ComponentType;
-                    metadata.ComponentGuid = option.ComponentGuid;
-                });
-            }
+            var option = options[nextIndex];
+            Apply(importers, metadata => {
+                metadata.ComponentType = option.ComponentType;
+                metadata.ComponentGuid = option.ComponentGuid;
+            });
         }
 
         private static void Apply(IReadOnlyList<AssetImporter> importers, Action<PrefabCatalogMetadata> mutate) {
@@ -224,24 +100,6 @@ namespace Internal {
             }
 
             PrefabCatalogGenerator.ScheduleGenerate();
-        }
-
-        private static List<string> GetPopupGroups(string currentGroup) {
-            var groups = new List<string>(PrefabGroupsRegistry.GetGroups());
-            if (string.IsNullOrEmpty(currentGroup) == false &&
-                IndexOfGroup(groups, currentGroup) < 0)
-                groups.Add(currentGroup);
-
-            return groups;
-        }
-
-        private static int IndexOfGroup(IReadOnlyList<string> groups, string group) {
-            for (var i = 0; i < groups.Count; i++) {
-                if (string.Equals(groups[i], group, StringComparison.Ordinal))
-                    return i;
-            }
-
-            return -1;
         }
 
         private static List<RootOption> GetRootOptions(AssetImporter importer, string currentType) {
