@@ -15,5 +15,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/Scripts/Editor/FuzzyString/OverlapCoefficient.cs
+  assetPath: Assets/BuildReport/Scripts/Editor/FuzzyString/OverlapCoefficient.cs
   uploadId: 911194

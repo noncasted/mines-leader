@@ -49,5 +49,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkin/Dark/BigToolbar-Button-Right-OnNormal.png
+  assetPath: Assets/BuildReport/GUI/NativeSkin/Dark/BigToolbar-Button-Right-OnNormal.png
   uploadId: 911194

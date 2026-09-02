@@ -11,5 +11,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/CustomBuildScriptExample.txt
+  assetPath: Assets/BuildReport/CustomBuildScriptExample.txt
   uploadId: 911194

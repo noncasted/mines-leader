@@ -58,5 +58,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkin/Light/TextField-Search-Clear.png
+  assetPath: Assets/BuildReport/GUI/NativeSkin/Light/TextField-Search-Clear.png
   uploadId: 911194

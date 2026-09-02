@@ -36,5 +36,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkin/Light/Tab-Mid-Normal.png
+  assetPath: Assets/BuildReport/GUI/NativeSkin/Light/Tab-Mid-Normal.png
   uploadId: 911194

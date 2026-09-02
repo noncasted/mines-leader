@@ -47,7 +47,7 @@ services:
     labels:
       - "traefik.docker.network=mines-leader-production"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/healthz || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5

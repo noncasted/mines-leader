@@ -49,5 +49,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkinExtraIcons/Dark/Up.png
+  assetPath: Assets/BuildReport/GUI/NativeSkinExtraIcons/Dark/Up.png
   uploadId: 911194
