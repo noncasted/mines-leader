@@ -8,6 +8,7 @@ namespace Internal {
         private static global::GamePlay.Cards.CardScopeEntity _cardLocal;
         private static global::GamePlay.Cards.CardScopeEntity _cardRemote;
         private static global::GamePlay.Boards.CellView _cell;
+        private static global::GamePlay.Services.GameFloatingTextView _floatingText;
 
         public static PrefabGroup Group { get; } = new Loader();
 
@@ -25,6 +26,10 @@ namespace Internal {
             get { Group.EnsureLoaded(); return _cell; }
         }
 
+        public static global::GamePlay.Services.GameFloatingTextView FloatingText {
+            get { Group.EnsureLoaded(); return _floatingText; }
+        }
+
         private sealed class Loader : PrefabGroup {
             public override string Name => nameof(GamePlayPrefabs);
 
@@ -33,12 +38,14 @@ namespace Internal {
                 _cardLocal = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardLocal");
                 _cardRemote = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardRemote");
                 _cell = Asset.Get<global::GamePlay.Boards.CellView>("Cell");
+                _floatingText = Asset.Get<global::GamePlay.Services.GameFloatingTextView>("FloatingText");
             }
 
             protected override void UnloadGroup() {
                 _cardLocal = null;
                 _cardRemote = null;
                 _cell = null;
+                _floatingText = null;
                 UnloadAsset();
             }
         }

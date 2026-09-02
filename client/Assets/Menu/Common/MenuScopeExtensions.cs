@@ -66,6 +66,7 @@ namespace Menu.Common
                 builder.LoadSpriteGroup(Sprites.MenuNavigation),
                 builder.LoadSpriteGroup(Sprites.MenuUnlocks),
                 builder.LoadSpriteGroup(Sprites.GameField),
+                builder.LoadSpriteGroup(Sprites.GameUI),
                 builder.LoadSpriteGroup(Sprites.Settings));
 
             builder.Register<MenuLoop>()
@@ -97,6 +98,9 @@ namespace Menu.Common
             builder.Register<CardActionSyncDispatcher>()
                    .As<ICardActionSyncDispatcher>()
                    .As<IScopeSetup>();
+
+            builder.Register<CardResourceFloatingText>()
+                   .As<ICardResourceFloatingText>();
 
             builder.AddAllCardActionSyncs();
 

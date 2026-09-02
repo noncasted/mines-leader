@@ -68,6 +68,7 @@ namespace Meta
                 "Adrenaline" => Sprites.CardBuffs.Adrenaline,
                 "BloodPact" => Sprites.CardBuffs.BloodPact,
                 "CoinToss" => Sprites.CardBuffs.CoinToss,
+                "CoinTossTails" => Sprites.CardBuffs.CoinToss,
                 "DoubleOrNothing" => Sprites.CardBuffs.DoubleOrNothing,
                 "Embargo" => Sprites.CardBuffs.Embargo,
                 "Focus" => Sprites.CardBuffs.Focus,
@@ -78,7 +79,10 @@ namespace Meta
                 "Overclock" => Sprites.CardBuffs.Overclock,
                 "PowerSurge" => Sprites.CardBuffs.PowerSurge,
                 "SoulLink" => Sprites.CardBuffs.SoulLink,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                "TrebuchetAimer" => Sprites.CardBuffs.TrebuchetAimer,
+                // Иконки может не быть — тогда баф всё равно попадает в список с именем
+                // и описанием, а не роняет весь реестр вместе с HUD бафов.
+                _ => null
             };
         }
 
@@ -92,6 +96,7 @@ namespace Meta
                 "Adrenaline" => "adrenaline",
                 "BloodPact" => "blood_pact",
                 "CoinToss" => "cointoss",
+                "CoinTossTails" => "cointoss_tails",
                 "DoubleOrNothing" => "double_or_nothing",
                 "Embargo" => "embargo",
                 "Focus" => "focus",
@@ -102,6 +107,8 @@ namespace Meta
                 "Overclock" => "overclock",
                 "PowerSurge" => "powersurge",
                 "SoulLink" => "soul_link",
+                "Shield" => "shield",
+                "TrebuchetAimer" => "trebuchet_aimer",
                 _ => type
             };
         }

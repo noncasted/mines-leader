@@ -19,6 +19,9 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
     private readonly IGameRandom _gameRandom;
     private readonly IRoundActionService _roundActionService;
 
+    public const string HeadsKey = "cointoss";
+    public const string TailsKey = "cointoss_tails";
+
     public CardUseResult Use(CardUseContext context, CardUsePayload.CoinToss payload)
     {
         var invoker = context.Invoker;
@@ -33,21 +36,15 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
                 IsHeads = isHeads
             });
 
-        if (isHeads)
-        {
-            var source = new DurationModifierSource(PlayerModifier.AdditionalMoves, config.WinMoves, "cointoss", 1);
-            invoker.Modifiers.Add(snapshot, source);
+        // Обе стороны монетки — модификатор на максимум ходов: решка это дебафф,
+        // а не разовое списание текущих ходов. Ключи источников разные, чтобы
+        // орёл и решка показывались в баффах отдельными записями.
+        var source = isHeads
+            ? new DurationModifierSource(PlayerModifier.AdditionalMoves, config.WinMoves, HeadsKey, 1)
+            : new DurationModifierSource(PlayerModifier.AdditionalMoves, -config.LoseMoves, TailsKey, 1);
 
-            _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
-        }
-        else
-        {
-            var newMoves = invoker.Moves.Left - config.LoseMoves;
-
-            if (newMoves < 0)
-                newMoves = 0;
-            invoker.Moves.SetCurrent(snapshot, newMoves);
-        }
+        invoker.Modifiers.Add(snapshot, source);
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
 
         return new CardUseResult
         {

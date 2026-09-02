@@ -90,6 +90,8 @@ public class SmokeDisposeAction : IRoundAction
     private readonly List<ICell> _affectedCells;
     private int _roundsLeft;
 
+    public Guid OwnerId => _board.OwnerId;
+
     public bool Tick(MoveSnapshot snapshot)
     {
         _roundsLeft--;

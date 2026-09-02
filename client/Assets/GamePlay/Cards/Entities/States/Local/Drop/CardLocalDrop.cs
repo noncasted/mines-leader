@@ -1,12 +1,13 @@
 using Cysharp.Threading.Tasks;
 using Internal;
+using Shared;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
     public interface ICardLocalDrop
     {
-        UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition);
+        UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition, ICardActionData data);
     }
 
     public class CardLocalDrop : ICardLocalDrop
@@ -16,13 +17,15 @@ namespace GamePlay.Cards
             ICardTransform transform,
             ICardRenderer renderer,
             ICardStateLifetime stateLifetime,
-            ICardDropTarget target)
+            ICardDropTarget target,
+            ICardActionSync actionSync)
         {
             _updater = updater;
             _transform = transform;
             _renderer = renderer;
             _stateLifetime = stateLifetime;
             _target = target;
+            _actionSync = actionSync;
         }
 
         private readonly IUpdater _updater;
@@ -30,27 +33,28 @@ namespace GamePlay.Cards
         private readonly ICardRenderer _renderer;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardDropTarget _target;
+        private readonly ICardActionSync _actionSync;
 
-        public UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition)
+        public async UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition, ICardActionData data)
         {
-            _stateLifetime.OccupyLifetime();
+            var stateLifetime = _stateLifetime.OccupyLifetime();
 
             var options = GamePlayAssets.CardLocalDropOptions;
-            
-            var stackIndex = _target.DroppedCount;
-            var endPosition = _target.ReservePosition();
+
+            var slot = _target.Reserve();
             var twistAngle = Random.Range(options.TwistAngleRange.x, options.TwistAngleRange.y);
 
-            return CardDropMotion.Play(
+            await CardDropMotion.Play(
                 _updater,
-                lifetime,
+                stateLifetime,
                 _transform,
                 _renderer,
-                endPosition,
+                slot,
                 twistAngle,
-                stackIndex,
                 options,
                 dropPosition);
+
+            await _actionSync.Sync(lifetime, data);
         }
     }
 }

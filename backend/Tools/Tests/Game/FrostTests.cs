@@ -73,7 +73,7 @@ public class FrostTests : PlayerCardTestsBase
 
         Use(board, new CardUsePayload.Frost { Position = new Position(2, 2) }, roundService, configs);
 
-        roundService.Tick(new MoveSnapshot());
+        roundService.Tick(new MoveSnapshot(), board.OwnerId);
 
         var center = board.Cells[new Position(2, 2)];
         center.Effects.Should().NotContain(e => e.Type == CellEffectType.Frost);

@@ -40,10 +40,10 @@ namespace GamePlay.Cards
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MysticDraw payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MysticDraw payload)
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
-                return _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
             }
         }
     }

@@ -9,18 +9,39 @@ namespace GamePlay.Cards
     public interface ICardDropTarget
     {
         Vector2 Position { get; }
-        int DroppedCount { get; }
 
-        Vector2 ReservePosition();
+        CardDropSlot Reserve();
+    }
+
+    /// <summary>
+    /// A place in the dropped pile: where the card lands and how it is layered
+    /// over the cards already lying there.
+    /// </summary>
+    public readonly struct CardDropSlot
+    {
+        public CardDropSlot(Vector2 position, int sortingOrder)
+        {
+            Position = position;
+            SortingOrder = sortingOrder;
+        }
+
+        public Vector2 Position { get; }
+        public int SortingOrder { get; }
     }
 
     [DisallowMultipleComponent]
     public class CardDropTarget : MonoBehaviour, ICardDropTarget, ISceneService, IScopeSetup
     {
+        private const int BaseSortingOrder = 100;
+
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private IGameRound _round;
         private int _count;
+
+        // Never reset: cards of the previous turn may still be flying into the stash
+        // while the next ones are already landing, and those have to lie on top.
+        private int _sortingOrder;
 
         public Vector2 Position
         {
@@ -32,8 +53,6 @@ namespace GamePlay.Cards
                 return transform.position;
             }
         }
-
-        public int DroppedCount => _count;
 
         [Inject]
         internal void Construct(IGameRound round)
@@ -53,11 +72,13 @@ namespace GamePlay.Cards
             _round.Player.Advise(lifetime, ResetCount);
         }
 
-        public Vector2 ReservePosition()
+        public CardDropSlot Reserve()
         {
             var position = Position + Vector2.up * _cardHeight * _count;
             _count++;
-            return position;
+            _sortingOrder++;
+
+            return new CardDropSlot(position, BaseSortingOrder + _sortingOrder);
         }
 
         private void ResetCount()

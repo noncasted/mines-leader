@@ -16,7 +16,9 @@ public static class PgBouncerFactory
 {
     public static PgBouncerResult Create(IDistributedApplicationBuilder builder, DbUpstream db)
     {
-        var pgbouncerPort = db.Port + 1;
+        // Host-side port, next to the published Postgres port (9432 -> 9433), so two AppHosts on one machine
+        // do not both claim 5433. db.Port is the in-network port and stays 5432 for databases.ini below.
+        var pgbouncerPort = db.HostPort + 1;
         var pgbouncerDir = Path.Combine(builder.AppHostDirectory, "ContainersData/PgBouncer");
         var pgbouncerConfigPath = Path.Combine(pgbouncerDir, "pgbouncer.ini");
         var pgbouncerUserlistPath = Path.Combine(pgbouncerDir, "userlist.txt");

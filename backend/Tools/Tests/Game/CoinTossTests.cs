@@ -24,24 +24,36 @@ public class CoinTossTests : PlayerCardTestsBase
 
         result.Result.HasError.Should().BeFalse();
 
-        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Is<IModifierSource>(s =>
+            s.Type == PlayerModifier.AdditionalMoves &&
+            s.Key == CoinToss.HeadsKey &&
+            s.Value == CardConfigs.CoinToss.WinMoves));
         roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]
-    public void Use_Tails_RemovesLoseMoves()
+    public void Use_Tails_SetsNegativeAdditionalMovesModifier()
     {
         var owner = MockPlayer();
-        owner.Moves.Left.Returns(3);
+
+        owner.Modifiers.Values.Returns(new Dictionary<PlayerModifier, float>
+            { { PlayerModifier.AdditionalMoves, 0f } });
         var gameRandom = Substitute.For<IGameRandom>();
         gameRandom.FlipCoin(owner).Returns(false);
+        var roundService = Substitute.For<IRoundActionService>();
 
-        var card = new CoinToss(MockConfigs(), gameRandom, Substitute.For<IRoundActionService>());
+        var card = new CoinToss(MockConfigs(), gameRandom, roundService);
 
         var result = card.Use(owner, new CardUsePayload.CoinToss { Type = CardType.CoinToss });
 
         result.Result.HasError.Should().BeFalse();
-        owner.Moves.Received(1).SetCurrent(Arg.Any<MoveSnapshot>(), 3 - CardConfigs.CoinToss.LoseMoves);
+
+        owner.Moves.DidNotReceive().SetCurrent(Arg.Any<MoveSnapshot>(), Arg.Any<int>());
+        owner.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Is<IModifierSource>(s =>
+            s.Type == PlayerModifier.AdditionalMoves &&
+            s.Key == CoinToss.TailsKey &&
+            s.Value == -CardConfigs.CoinToss.LoseMoves));
+        roundService.Received(1).Schedule(Arg.Any<ModifierRoundAction>());
     }
 
     [Fact]

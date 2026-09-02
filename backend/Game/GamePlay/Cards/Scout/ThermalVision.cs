@@ -83,6 +83,8 @@ public class MineHighlightDisposeAction : IRoundAction
     private readonly List<ICell> _cells;
     private int _roundsLeft;
 
+    public Guid OwnerId => _board.OwnerId;
+
     public bool Tick(MoveSnapshot snapshot)
     {
         _roundsLeft--;

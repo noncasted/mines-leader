@@ -101,6 +101,7 @@ public static class SnapshotApplier
 
             case PlayerSnapshotRecord.DeckUpdate:
             case PlayerSnapshotRecord.StashUpdate:
+            case PlayerSnapshotRecord.CardsStashed:
             case PlayerSnapshotRecord.BoardStateUpdate:
             case GameCompletedRecord:
             case TimeLimitedRoundRecord:

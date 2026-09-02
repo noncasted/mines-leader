@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
+using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -14,21 +15,23 @@ namespace GamePlay.Cards
     /// <summary>
     /// Maps <see cref="ICardActionData"/> runtime types to the matching
     /// <see cref="ICardActionSync"/> resolver. Used for menu previews and for
-    /// nested copied actions (MirrorMatch).
+    /// cards whose sync plays a nested action (MirrorMatch).
     /// </summary>
     public sealed class CardActionSyncDispatcher : ICardActionSyncDispatcher, IScopeSetup
     {
-        public CardActionSyncDispatcher(IReadOnlyList<ICardActionSync> resolvers)
+        public CardActionSyncDispatcher(IObjectResolver resolver)
         {
-            _resolvers = resolvers;
+            _resolver = resolver;
         }
 
-        private readonly IReadOnlyList<ICardActionSync> _resolvers;
+        private readonly IObjectResolver _resolver;
         private readonly Dictionary<Type, ICardActionSync> _byPayload = new();
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            foreach (var sync in _resolvers)
+            // Resolvers are pulled here rather than injected through the constructor:
+            // MirrorMatch's resolver depends back on this dispatcher to play its copied action.
+            foreach (var sync in _resolver.Resolve<IReadOnlyList<ICardActionSync>>())
             {
                 var payloadType = ExtractPayloadType(sync);
 
@@ -43,10 +46,6 @@ namespace GamePlay.Cards
         {
             if (_byPayload.TryGetValue(data.GetType(), out var sync) == true)
                 await sync.Sync(lifetime, data);
-
-            if (data is CardActionSnapshot.MirrorMatch mirrorMatch &&
-                mirrorMatch.CopiedAction != null)
-                await Dispatch(lifetime, mirrorMatch.CopiedAction);
         }
 
         private static Type ExtractPayloadType(ICardActionSync sync)

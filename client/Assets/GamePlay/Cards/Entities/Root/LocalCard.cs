@@ -13,11 +13,11 @@ namespace GamePlay.Cards
             Guid id,
             CardType type,
             ILifetime containerLifetime,
-            ICardActionSync actionSync,
             IHand hand,
             ICardTransform transform,
             ICardLocalDrop drop,
             ICardStash stash,
+            ICardDropped dropped,
             ICardView view,
             ICardDefinition definition,
             ICardPointerHandler pointerHandler)
@@ -25,9 +25,9 @@ namespace GamePlay.Cards
             Id = id;
             Type = type;
             _containerLifetime = containerLifetime;
-            _actionSync = actionSync;
             _drop = drop;
             _stash = stash;
+            _dropped = dropped;
             _view = view;
             Definition = definition;
             Hand = hand;
@@ -37,9 +37,9 @@ namespace GamePlay.Cards
         }
 
         private readonly ILifetime _containerLifetime;
-        private readonly ICardActionSync _actionSync;
         private readonly ICardLocalDrop _drop;
         private readonly ICardStash _stash;
+        private readonly ICardDropped _dropped;
         private readonly ICardView _view;
         private readonly ViewableDelegate _used = new();
         private readonly ViewableProperty<bool> _isInSpawnAnimation = new();
@@ -54,6 +54,7 @@ namespace GamePlay.Cards
         public IViewableDelegate Used => _used;
         public ICardLocalDrop Drop => _drop;
         public ICardStash Stash => _stash;
+        public ICardDropped Dropped => _dropped;
         public ICardPointerHandler PointerHandler { get; }
         public IViewableProperty<bool> IsInSpawnAnimation => _isInSpawnAnimation;
 
@@ -69,11 +70,6 @@ namespace GamePlay.Cards
             _view.Destroy();
 
             return UniTask.CompletedTask;
-        }
-
-        public UniTask Use(IReadOnlyLifetime lifetime, ICardActionData data)
-        {
-            return _actionSync.Sync(lifetime, data);
         }
     }
 }

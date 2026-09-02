@@ -51,7 +51,7 @@ public class PowerSurgeTests : PlayerCardTestsBase
         var card = new PowerSurge(MockConfigs(), roundService);
 
         card.Use(owner, new CardUsePayload.PowerSurge { Type = CardType.PowerSurge });
-        roundService.Tick(new MoveSnapshot());
+        roundService.Tick(new MoveSnapshot(), owner.User.Id);
 
         owner.Modifiers.Received(1).Remove(Arg.Any<MoveSnapshot>(), Arg.Any<Guid>());
     }

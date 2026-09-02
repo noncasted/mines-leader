@@ -8,7 +8,7 @@ using Internal;
 using Shared;
 using UnityEngine;
 
-namespace GamePlay.Agent {
+namespace GamePlay.Services {
     public static class GameAgentBridge {
         public static bool IsActive { get; private set; }
         public static SharedAgentObservation LastObservation { get; private set; }

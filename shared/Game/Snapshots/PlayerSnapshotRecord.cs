@@ -74,6 +74,16 @@ namespace Shared
             public int Count { get; set; }
         }
 
+        /// <summary>
+        /// Карты, отыгранные игроком и лежащие на столе, уезжают в стеш.
+        /// Момент определяет сервер, клиент до него держит карты в dropped-состоянии.
+        /// </summary>
+        [MemoryPackable]
+        public partial class CardsStashed : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+        }
+
         [MemoryPackable]
         public partial class StashUpdate : IMoveSnapshotRecord
         {

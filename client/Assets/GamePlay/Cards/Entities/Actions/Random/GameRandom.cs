@@ -10,8 +10,15 @@ namespace GamePlay.Cards
     public interface IGameRandom
     {
         void ResetViews();
-        UniTask PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads, bool isOwned);
-        UniTask PlayDiceRoll(IReadOnlyLifetime lifetime, int result, bool isOwned);
+
+        /// <summary>
+        /// Position where the dice/coin lands. Used by cards that show
+        /// their effect without playing a roll.
+        /// </summary>
+        Vector2 GetLandingPosition(bool isOwned);
+
+        UniTask<Vector2> PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads, bool isOwned);
+        UniTask<Vector2> PlayDiceRoll(IReadOnlyLifetime lifetime, int result, bool isOwned);
     }
 
     [DisallowMultipleComponent]
@@ -37,6 +44,7 @@ namespace GamePlay.Cards
                    .As<IGameRandom>();
 
             _lifetime = this.GetObjectLifetime().Child();
+            _renderer.sprite = null;
         }
 
         public void ResetViews()
@@ -46,39 +54,60 @@ namespace GamePlay.Cards
             _lifetime = this.GetObjectLifetime().Child();
         }
 
-        public async UniTask PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads, bool isOwned)
+        public Vector2 GetLandingPosition(bool isOwned)
         {
+            var path = isOwned == true ? _ownPath : _opponentPath;
+
+            return path.To.position;
+        }
+
+        public async UniTask<Vector2> PlayCoinFlip(IReadOnlyLifetime lifetime, bool isHeads, bool isOwned)
+        {
+            _renderer.sprite = null;
+            Vector2 landing;
+
             if (isOwned == true)
             {
                 _renderer.flipX = true;
-                await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionCoinFlip);
+                landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionCoinFlip);
             }
             else
             {
                 _renderer.flipX = false;
-                await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
+                landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
             }
 
+            await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
+
             _renderer.gameObject.SetActive(false);
+
+            return landing;
         }
 
-        public async UniTask PlayDiceRoll(IReadOnlyLifetime lifetime, int result, bool isOwned)
+        public async UniTask<Vector2> PlayDiceRoll(IReadOnlyLifetime lifetime, int result, bool isOwned)
         {
+            _renderer.sprite = null;
+            Vector2 landing;
+
             if (isOwned == true)
             {
                 _renderer.flipX = true;
-                await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
+                landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
             }
             else
             {
                 _renderer.flipX = false;
-                await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionDiceRoll);
+                landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionDiceRoll);
             }
 
+            await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
+
             _renderer.gameObject.SetActive(false);
+
+            return landing;
         }
 
-        private async UniTask Animate(IReadOnlyLifetime lifetime, Path path, ISpriteAnimationData animation)
+        private async UniTask<Vector2> Animate(IReadOnlyLifetime lifetime, Path path, ISpriteAnimationData animation)
         {
             _renderer.gameObject.SetActive(true);
             var startPosition = path.From.position;
@@ -87,7 +116,7 @@ namespace GamePlay.Cards
             var duration = animation.Time;
             var time = 0f;
 
-            await _updater.RunUpdateAction(lifetime, delta => {
+            await _updater.RunUpdateAction(lifetime, () => time < duration, delta => {
                 var progress = time / duration;
 
                 var spriteIndex = Mathf.FloorToInt(progress * animation.Sprites.Count);
@@ -105,6 +134,8 @@ namespace GamePlay.Cards
                 objectTransform.position = currentPosition;
                 time += delta;
             });
+
+            return endPosition;
         }
 
         [Sirenix.OdinInspector.Button]

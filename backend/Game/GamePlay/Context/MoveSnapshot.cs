@@ -8,7 +8,13 @@ namespace Game.GamePlay;
 public class MoveSnapshot
 {
     private readonly List<IMoveSnapshotRecord> _records = new();
-    private int? _insertAt;
+
+    // Ресурсы игрока (мана, здоровье, ходы) не попадают в общий поток в момент мутации:
+    // клиент применил бы их до того, как отыграется анимация карты. Вместо этого копим
+    // по одной актуальной записи на игрока и ресурс, а отдаём их в Collect() последними —
+    // строго после записи о действии, которое их изменило.
+    private readonly List<ResourceKey> _resourceOrder = new();
+    private readonly Dictionary<ResourceKey, IMoveSnapshotRecord> _resources = new();
 
     public ISessionLogger? SessionLogger { get; set; }
     public bool HasDropPosition { get; set; }
@@ -16,15 +22,6 @@ public class MoveSnapshot
     public float DropY { get; set; }
 
     public int Count => _records.Count;
-
-    public IDisposable BeginInsertAt(int index)
-    {
-        if (index < 0 || index > _records.Count)
-            throw new ArgumentOutOfRangeException(nameof(index));
-
-        _insertAt = index;
-        return new InsertScope(this);
-    }
 
     public void RecordCardUse(Guid playerId, Guid cardId, ICardActionData data)
     {
@@ -134,7 +131,7 @@ public class MoveSnapshot
     {
         var mana = player.Mana;
 
-        Append(new PlayerSnapshotRecord.ManaUpdate
+        AppendResource(player.User.Id, ResourceKind.Mana, new PlayerSnapshotRecord.ManaUpdate
         {
             PlayerId = player.User.Id,
             Current = mana.Current,
@@ -147,7 +144,7 @@ public class MoveSnapshot
     {
         var health = player.Health;
 
-        Append(new PlayerSnapshotRecord.HealthUpdate
+        AppendResource(player.User.Id, ResourceKind.Health, new PlayerSnapshotRecord.HealthUpdate
         {
             PlayerId = player.User.Id,
             Current = health.Current,
@@ -160,7 +157,7 @@ public class MoveSnapshot
     {
         var moves = player.Moves;
 
-        Append(new PlayerSnapshotRecord.MovesUpdate
+        AppendResource(player.User.Id, ResourceKind.Moves, new PlayerSnapshotRecord.MovesUpdate
         {
             PlayerId = player.User.Id,
             Left = moves.Left,
@@ -185,6 +182,14 @@ public class MoveSnapshot
         {
             PlayerId = player.User.Id,
             Count = player.Deck.Count
+        });
+    }
+
+    public void RecordCardsStashed(IPlayer player)
+    {
+        Append(new PlayerSnapshotRecord.CardsStashed
+        {
+            PlayerId = player.User.Id
         });
     }
 
@@ -267,40 +272,40 @@ public class MoveSnapshot
 
     public SharedMoveSnapshot Collect()
     {
+        var records = new List<IMoveSnapshotRecord>(_records.Count + _resourceOrder.Count);
+
+        records.AddRange(_records);
+
+        foreach (var key in _resourceOrder)
+            records.Add(_resources[key]);
+
         return new SharedMoveSnapshot
         {
-            Records = _records.AsReadOnly()
+            Records = records
         };
     }
 
     private void Append(IMoveSnapshotRecord record)
     {
-        if (_insertAt.HasValue == true)
-        {
-            _records.Insert(_insertAt.Value, record);
-            _insertAt = _insertAt.Value + 1;
-        }
-        else
-        {
-            _records.Add(record);
-        }
+        _records.Add(record);
+    }
+
+    /// <summary>
+    /// Последняя запись по ресурсу и есть его финальное состояние, поэтому промежуточные
+    /// значения перетираются: клиенту уходит один унифицированный апдейт на игрока.
+    /// </summary>
+    private void AppendResource(Guid playerId, ResourceKind kind, IMoveSnapshotRecord record)
+    {
+        var key = new ResourceKey(playerId, kind);
+
+        if (_resources.ContainsKey(key) == false)
+            _resourceOrder.Add(key);
+
+        _resources[key] = record;
     }
 
     private void AppendBoardRecord(IBoard board, IBoardSnapshotRecord record)
     {
-        if (_insertAt.HasValue == true)
-        {
-            var container = new SharedBoardSnapshot
-            {
-                BoardOwnerId = board.OwnerId,
-                Records = new List<IBoardSnapshotRecord> { record }
-            };
-
-            _records.Insert(_insertAt.Value, container);
-            _insertAt = _insertAt.Value + 1;
-            return;
-        }
-
         if (_records.Count == 0 ||
             _records[^1] is not SharedBoardSnapshot boardRecord ||
             boardRecord.BoardOwnerId != board.OwnerId)
@@ -317,18 +322,12 @@ public class MoveSnapshot
         boardRecord.Records.Add(record);
     }
 
-    private sealed class InsertScope : IDisposable
+    private enum ResourceKind
     {
-        public InsertScope(MoveSnapshot owner)
-        {
-            _owner = owner;
-        }
-
-        private readonly MoveSnapshot _owner;
-
-        public void Dispose()
-        {
-            _owner._insertAt = null;
-        }
+        Mana,
+        Health,
+        Moves
     }
+
+    private readonly record struct ResourceKey(Guid PlayerId, ResourceKind Kind);
 }

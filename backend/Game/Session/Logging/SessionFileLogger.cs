@@ -129,6 +129,38 @@ public class SessionFileLogger : ISessionLogger, IDisposable
         Write($"[Board] Revealed | Player={Label(playerId)} | Count={positions.Count} | Positions={formatted}");
     }
 
+    public void LogModifierApplied(Guid playerId, DurationalModifierOverview overview, float total)
+    {
+        WriteModifier("Applied", playerId, overview, total, effect: null);
+    }
+
+    public void LogModifierTicked(Guid playerId, DurationalModifierOverview overview, float total)
+    {
+        WriteModifier("Active", playerId, overview, total, effect: null);
+    }
+
+    public void LogModifierEnded(Guid playerId, DurationalModifierOverview overview, float total, ModifierEndReason reason)
+    {
+        var effect = $"{ModifierLogDescriptions.ExplainEnd(overview.Type, reason)}; " +
+                     $"loses [{ModifierLogDescriptions.Explain(overview.Type, overview.Value)}]";
+
+        WriteModifier($"Ended({reason})", playerId, overview, total, effect);
+    }
+
+    private void WriteModifier(string stage, Guid playerId, DurationalModifierOverview overview, float total, string? effect)
+    {
+        var kind = ModifierLogDescriptions.Kind(overview.Type, overview.Value);
+        var name = ModifierLogDescriptions.EffectName(overview.Type);
+        var amount = ModifierLogDescriptions.Amount(overview.Value);
+        var source = ModifierLogDescriptions.Source(overview.Key);
+        var duration = ModifierLogDescriptions.Duration(overview.TurnsToEnd);
+        var totalText = ModifierLogDescriptions.Amount(total);
+        var meaning = effect ?? ModifierLogDescriptions.Explain(overview.Type, overview.Value);
+
+        Write($"[{kind}] {stage} | Player={Label(playerId)} | Effect={name} | Value={amount} | " +
+              $"TotalOnPlayer={totalText} | Source={source} | Duration={duration} | Meaning: {meaning}");
+    }
+
     public void Log(string message)
     {
         Write(message);
@@ -187,7 +219,9 @@ public class SessionFileLogger : ISessionLogger, IDisposable
 
     private static StreamWriter CreateWriter(Guid sessionId)
     {
-        var date = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var now = DateTime.UtcNow;
+        var date = now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var time = now.ToString("HH:mm", CultureInfo.InvariantCulture);
         var dir = TelemetryPaths.GetTelemetryDir("logs-games");
 
         var directory = dir != null
@@ -195,7 +229,7 @@ public class SessionFileLogger : ISessionLogger, IDisposable
             : Path.Combine(AppContext.BaseDirectory, "logs", "sessions", date);
         Directory.CreateDirectory(directory);
 
-        var filePath = Path.Combine(directory, $"{sessionId}.log");
+        var filePath = Path.Combine(directory, $"{time}_{sessionId}.log");
         var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
         return new StreamWriter(stream) { AutoFlush = true };
     }

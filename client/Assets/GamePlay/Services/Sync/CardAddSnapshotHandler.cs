@@ -2,12 +2,11 @@ using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
-using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public class CardAddSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardAdd>
     {

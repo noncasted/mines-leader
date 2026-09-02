@@ -1,8 +1,7 @@
-﻿using GamePlay.Services;
-using Internal;
+﻿using Internal;
 using Shared;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public static class GamePlaySyncExtensions
     {
@@ -19,6 +18,7 @@ namespace GamePlay
             builder.AddSnapshotHandler<PlayerModifierSnapshotHandler, PlayerSnapshotRecord.ModifierUpdate>();
             builder.AddSnapshotHandler<DeckSnapshotHandler, PlayerSnapshotRecord.DeckUpdate>();
             builder.AddSnapshotHandler<StashSnapshotHandler, PlayerSnapshotRecord.StashUpdate>();
+            builder.AddSnapshotHandler<CardsStashedSnapshotHandler, PlayerSnapshotRecord.CardsStashed>();
             builder.AddSnapshotHandler<BoardStateUpdateSnapshotHandler, PlayerSnapshotRecord.BoardStateUpdate>();
             builder.AddSnapshotHandler<GameCompletedSnapshotHandler, GameCompletedRecord>();
 

@@ -8,6 +8,9 @@ namespace GamePlay.Cards
         {
             builder.Register<CardFactory>();
 
+            builder.Register<CardResourceFloatingText>()
+                   .As<ICardResourceFloatingText>();
+
             builder.AddAllCardActionSyncs();
             builder.Register<CardActionSyncDispatcher>()
                    .As<ICardActionSyncDispatcher>()

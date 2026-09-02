@@ -43,8 +43,6 @@ public class CardUseCommand(
             CardId = request.CardId
         };
 
-        var prefixMark = context.Snapshot.Count;
-
         var opponent = Utils.GameContext.GetOpponent(player);
         var opponentTakenBefore = CountTakenCells(opponent.Board);
         var modifiersBefore = player.Modifiers.Sources.Count;
@@ -59,11 +57,8 @@ public class CardUseCommand(
         if (use.Result.HasError == true)
             return use.Result;
 
-        using (context.Snapshot.BeginInsertAt(prefixMark))
-        {
-            player.Mana.Use(context.Snapshot, manaCost);
-            player.Moves.OnUsed(context.Snapshot, modeConfigs.Value.GetCardMovesCost(matchOptions.Type));
-        }
+        player.Mana.Use(context.Snapshot, manaCost);
+        player.Moves.OnUsed(context.Snapshot, modeConfigs.Value.GetCardMovesCost(matchOptions.Type));
 
         player.Hand.Remove(request.CardId);
         context.Snapshot.RecordCardRemove(player.User.Id, request.CardId);

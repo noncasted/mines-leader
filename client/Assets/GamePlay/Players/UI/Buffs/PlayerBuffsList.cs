@@ -49,7 +49,16 @@ namespace GamePlay.Players.Buffs
                     return;
                 }
 
-                _modifiers.TryGet(overview.Key, out var definition);
+                if (_modifiers.TryGet(overview.Key, out var definition) == false)
+                {
+                    Debug.LogWarning(
+                        $"[Buffs] No modifier definition for source key '{overview.Key}' " +
+                        $"({overview.Type}) — the icon will be empty. Add it to buffs-info.json.");
+                }
+
+                Debug.Log($"[Buffs] {(_showOnRight ? "own" : "opponent")} add '{overview.Key}' " +
+                          $"value={overview.Value} turns={overview.TurnsToEnd}");
+
                 var view = Object.Instantiate(_viewPrefab, _container);
                 view.Setup(overview, definition?.Image);
                 _views[overview.SourceId] = view;

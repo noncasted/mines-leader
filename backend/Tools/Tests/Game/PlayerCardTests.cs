@@ -732,7 +732,7 @@ public class LockdownTests : PlayerCardTestsBase
 
         // Tick duration times to trigger the scheduled action
         for (var i = 0; i < duration; i++)
-            roundActionService.Tick(new MoveSnapshot());
+            roundActionService.Tick(new MoveSnapshot(), opponent.User.Id);
 
         // Dec sets -(movesReduction*2), then dispose restores to 0
         opponent.Modifiers.Received(1)
@@ -785,7 +785,7 @@ public class LockdownTests : PlayerCardTestsBase
         opponent.Modifiers.Received(1).Add(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
 
         // Only tick once — action should not fire yet (duration = 2)
-        roundActionService.Tick(new MoveSnapshot());
+        roundActionService.Tick(new MoveSnapshot(), opponent.User.Id);
 
         // Source is still active, Update was called but not Remove
         opponent.Modifiers.Received(1).Update(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
