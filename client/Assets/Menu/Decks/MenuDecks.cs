@@ -102,6 +102,7 @@ namespace Menu.Decks
 
                     indexButton.Activate();
                     UpdateDeck(index);
+                    _decks.SendUpdate().Forget();
                 });
             }
 
@@ -266,7 +267,6 @@ namespace Menu.Decks
         {
             handle.AttachGameObject(gameObject);
             ResizePoolRoot();
-            _decks.SendUpdate().Forget();
         }
 
         private void UpdateDeck(int index)
@@ -298,6 +298,7 @@ namespace Menu.Decks
             selected.Update(cards);
 
             RecalculateMana();
+            _decks.SendUpdate().Forget();
         }
 
         private void ResizePoolRoot()

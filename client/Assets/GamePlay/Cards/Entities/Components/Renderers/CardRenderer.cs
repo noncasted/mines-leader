@@ -42,8 +42,10 @@ namespace GamePlay.Cards
 
         public void Register(IEntityBuilder builder)
         {
-            _all = GetComponentsInChildren<SpriteRenderer>();
-            _textComponents = GetComponentsInChildren<TMP_Text>();
+            // Include inactive children: a remote card keeps its front side disabled
+            // until it is revealed, and those renderers still have to be tinted.
+            _all = GetComponentsInChildren<SpriteRenderer>(true);
+            _textComponents = GetComponentsInChildren<TMP_Text>(true);
 
             if (_all.Length > 0)
                 SpritesColor = _all[0].color;

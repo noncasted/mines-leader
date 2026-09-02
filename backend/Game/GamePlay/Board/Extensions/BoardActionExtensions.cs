@@ -1,14 +1,15 @@
-using Shared;
+﻿using Shared;
 
 namespace Game.GamePlay;
 
 public static class BoardActionExtensions
 {
-    public static void EnsureGenerated(this IBoard board, Position position)
+    public static void EnsureGenerated(this IBoard board, MoveSnapshot snapshot, Position position)
     {
-        if (board.Cells.Count != 0)
+        if (board.IsGenerated == true)
             return;
 
         board.Generator.Generate(position);
+        snapshot.RecordBoardGenerated(board);
     }
 }

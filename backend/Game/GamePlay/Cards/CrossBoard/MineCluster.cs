@@ -23,7 +23,7 @@ public class MineCluster : ICard<CardUsePayload.MineCluster>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.MineCluster_Normal;
         var pattern = PatternShapes.Cross(config.Size);

@@ -32,8 +32,6 @@ namespace GamePlay.Cards
     [DisallowMultipleComponent]
     public class CardDropTarget : MonoBehaviour, ICardDropTarget, ISceneService, IScopeSetup
     {
-        private const int BaseSortingOrder = 100;
-
         [SerializeField] private float _cardHeight = GameConstants.PixelSize;
 
         private IGameRound _round;
@@ -78,7 +76,7 @@ namespace GamePlay.Cards
             _count++;
             _sortingOrder++;
 
-            return new CardDropSlot(position, BaseSortingOrder + _sortingOrder);
+            return new CardDropSlot(position, CardSorting.DroppedOrder + _sortingOrder);
         }
 
         private void ResetCount()

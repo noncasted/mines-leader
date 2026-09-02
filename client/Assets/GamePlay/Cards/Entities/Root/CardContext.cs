@@ -62,11 +62,22 @@ namespace GamePlay.Cards
             _gameRound.Player.Advise(lifetime, Recalculate);
             _turns.IsTurn.Advise(lifetime, Recalculate);
             _turns.Current.Advise(lifetime, Recalculate);
+
+            if (Config.Target == CardTarget.OpponentBoard)
+                TargetBoard.IsGenerated.Advise(lifetime, Recalculate);
         }
 
         private void Recalculate()
         {
             if (_gameRound.IsTurnAllowed == false)
+            {
+                _isAvailable.Set(false);
+                return;
+            }
+
+            // Доска противника появляется только после его первого хода: пока её нет,
+            // атакующие карты играть нельзя.
+            if (Config.Target == CardTarget.OpponentBoard && TargetBoard.IsGenerated.Value == false)
             {
                 _isAvailable.Set(false);
                 return;

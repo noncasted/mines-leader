@@ -36,6 +36,7 @@ namespace GamePlay.Services
         {
             public PlayerRecordResolver(IBoard board)
             {
+                _board = board;
                 _cellTaken = new CellTaken(board);
                 _cellFree = new CellFree(board);
                 _flag = new Flag(board);
@@ -45,6 +46,7 @@ namespace GamePlay.Services
                 _effectRemoved = new EffectRemoved(board);
             }
 
+            private readonly IBoard _board;
             private readonly CellTaken _cellTaken;
             private readonly CellFree _cellFree;
             private readonly Flag _flag;
@@ -57,6 +59,9 @@ namespace GamePlay.Services
             {
                 switch (record)
                 {
+                    case BoardSnapshotRecord.Generated:
+                        _board.OnGenerated();
+                        break;
                     case BoardSnapshotRecord.CellTaken cellTaken:
                         _cellTaken.Execute(cellTaken);
                         break;

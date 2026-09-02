@@ -25,7 +25,7 @@ public class Frost : ICard<CardUsePayload.Frost>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.Frost_Normal;
         var pattern = PatternShapes.Rhombus(config.Size);

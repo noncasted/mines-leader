@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Shared;
 
 namespace Game.GamePlay;
@@ -12,6 +12,12 @@ public interface IBoard
     IBoardMinesScanner MinesScanner { get; }
     IBoardEvents Events { get; }
     Position Size { get; }
+
+    /// <summary>
+    /// Доска существует только после первого хода владельца: до генерации клеток нет,
+    /// и играть по ней карты нельзя.
+    /// </summary>
+    bool IsGenerated { get; }
 
     /// <summary>
     /// Мины, подорванные владельцем доски при открытии клетки. Такая мина исчезает с поля,
@@ -48,6 +54,7 @@ public class Board : IBoard
     public IBoardEvents Events { get; }
     public Position Size { get; }
     public int DetonatedMines { get; private set; }
+    public bool IsGenerated => _cells.Count != 0;
     public IReadOnlyDictionary<Position, ICell> Cells => _cells;
 
     public void SetCell(ICell cell)

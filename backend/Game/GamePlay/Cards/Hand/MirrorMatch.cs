@@ -1,3 +1,4 @@
+﻿using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;
@@ -7,14 +8,16 @@ namespace Game.GamePlay;
 /// </summary>
 public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
 {
-    public MirrorMatch(IGameContext gameContext, IServiceProvider serviceProvider)
+    public MirrorMatch(IGameContext gameContext, IServiceProvider serviceProvider, ICardConfigs configs)
     {
         _gameContext = gameContext;
         _serviceProvider = serviceProvider;
+        _configs = configs;
     }
 
     private readonly IGameContext _gameContext;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ICardConfigs _configs;
 
     public CardUseResult Use(CardUseContext context, CardUsePayload.MirrorMatch payload)
     {
@@ -40,6 +43,19 @@ public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
         }
 
         var copiedType = lastCard.Value;
+
+        // Скопированная атака бьёт уже по доске оппонента: если её ещё нет, карта
+        // сгенерировала бы поле за него.
+        if (_configs.Value.All.TryGetValue(copiedType, out var copiedConfig) == true &&
+            copiedConfig.Target == CardTarget.OpponentBoard &&
+            opponent.Board.IsGenerated == false)
+        {
+            return new CardUseResult
+            {
+                Result = EmptyResponse.Fail("Opponent board is not generated yet")
+            };
+        }
+
         var prefix = context.Snapshot.Count;
         var copiedUse = _serviceProvider.Use(context, lastPayload);
 

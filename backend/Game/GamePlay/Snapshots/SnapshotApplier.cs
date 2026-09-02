@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Shared;
 
@@ -198,6 +198,7 @@ public static class SnapshotApplier
                 break;
 
             case BoardSnapshotRecord.Explosion:
+            case BoardSnapshotRecord.Generated:
                 break;
 
             case BoardSnapshotRecord.EffectAdded added:

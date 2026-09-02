@@ -1,6 +1,9 @@
+using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using GamePlay.Cards;
 using GamePlay.Loop;
+using Internal;
 using Shared;
 
 namespace GamePlay.Services
@@ -22,7 +25,30 @@ namespace GamePlay.Services
             if (card == null)
                 return;
 
-            await card.Destroy();
+            if (record.IsStash == false)
+            {
+                await card.Destroy();
+                return;
+            }
+
+            // The card is discarded from hand: it leaves the layout right away and
+            // flies off the screen into the stash before being destroyed.
+            card.Hand.Remove(card);
+            StashThenDestroy(card).NoAwait();
+        }
+
+        private async UniTask StashThenDestroy(ICard card)
+        {
+            try
+            {
+                await card.Stash.Enter(card.Lifetime);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            if (card.Lifetime.IsTerminated == false)
+                await card.Destroy();
         }
     }
 }

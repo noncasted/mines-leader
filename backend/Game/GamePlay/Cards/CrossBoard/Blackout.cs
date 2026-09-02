@@ -25,7 +25,7 @@ public class Blackout : ICard<CardUsePayload.Blackout>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = payload.Type == CardType.Blackout_Max ? _configs.Value.Blackout_Max : _configs.Value.Blackout_Normal;
         var pattern = PatternShapes.Rhombus(config.Size);

@@ -8,7 +8,7 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
     protected override EmptyResponse Execute(Context context, SharedGameAction.Open request)
     {
         var board = context.Player.Board;
-        board.EnsureGenerated(request.Position);
+        board.EnsureGenerated(context.Snapshot, request.Position);
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)

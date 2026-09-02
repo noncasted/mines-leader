@@ -12,6 +12,7 @@ namespace GamePlay.Boards
     {
         private readonly Dictionary<Vector2Int, IBoardCell> _cellsDictionary = new();
         private readonly ViewableProperty<BoardState> _state = new(new BoardState());
+        private readonly ViewableProperty<bool> _isGenerated = new(false);
 
         private BoardConstructor _constructor;
         private CellView[] _cells;
@@ -34,6 +35,7 @@ namespace GamePlay.Boards
         public IViewableProperty<BoardState> State => _state;
         public IReadOnlyDictionary<Vector2Int, IBoardCell> Cells => _cellsDictionary;
         public bool IsMine => _isMine;
+        public IViewableProperty<bool> IsGenerated => _isGenerated;
 
         [Inject]
         internal void Construct(
@@ -64,9 +66,15 @@ namespace GamePlay.Boards
         public void Setup(bool isMine)
         {
             _isMine = isMine;
+            _isGenerated.Set(false);
 
             foreach (var cell in _cells)
                 cell.Setup(_updater, _actions);
+        }
+
+        public void OnGenerated()
+        {
+            _isGenerated.Set(true);
         }
 
         public void UpdateState(int mines, int flags)

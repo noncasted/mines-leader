@@ -8,11 +8,17 @@ namespace GamePlay.Cards
     {
         Health,
         Moves,
-        Mana
+        Mana,
+        Cards
     }
 
     public interface ICardResourceFloatingText
     {
+        /// <summary>
+        /// Delay between lines when a card changes more than one parameter at once.
+        /// </summary>
+        float StepDelay { get; }
+
         void Show(Vector2 position, CardResource resource, int amount, float delay = 0f);
         void Show(Vector2 position, CardResource resource, string text, bool isPositive, float delay = 0f);
     }
@@ -29,6 +35,8 @@ namespace GamePlay.Cards
         }
 
         private readonly IGameFloatingText _floatingText;
+
+        public float StepDelay => 0.25f;
 
         public void Show(Vector2 position, CardResource resource, int amount, float delay = 0f)
         {
@@ -58,6 +66,7 @@ namespace GamePlay.Cards
                 CardResource.Health => Sprites.GameUI.HealthLargeBaseFull,
                 CardResource.Moves => Sprites.GameUI.TurnLargeBaseFull,
                 CardResource.Mana => Sprites.GameUI.ManaLargeBaseFull,
+                CardResource.Cards => Sprites.GameUI.Card,
                 _ => null
             };
         }

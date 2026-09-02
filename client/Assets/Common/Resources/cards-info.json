@@ -338,7 +338,7 @@
     {
       "type": "DimensionRift",
       "name": "Dimension Rift",
-      "description": "Shuffles enemy open cells"
+      "description": "Swaps a {SIZE} area with the enemy field"
     }
   ]
 }

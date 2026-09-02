@@ -15,8 +15,6 @@ namespace GamePlay.Cards
 
     public static class CardDropMotion
     {
-        private const string OverlaySortingLayer = "UI";
-
         public static UniTask Play(
             IUpdater updater,
             IReadOnlyLifetime lifetime,
@@ -27,7 +25,7 @@ namespace GamePlay.Cards
             ICardDropOptions options,
             Vector2? dropPosition)
         {
-            renderer.SetSortingLayer(OverlaySortingLayer);
+            renderer.SetSortingLayer(CardSorting.OverlayLayer);
             renderer.SetSortingOrder(slot.SortingOrder);
 
             var endPosition = slot.Position;

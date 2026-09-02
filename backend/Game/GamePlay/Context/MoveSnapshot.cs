@@ -1,4 +1,4 @@
-using Game.Session;
+﻿using Game.Session;
 using Meta.Matches;
 using Meta.Users;
 using Shared;
@@ -63,18 +63,24 @@ public class MoveSnapshot
         });
     }
 
-    public void RecordCardRemove(Guid playerId, Guid cardId)
+    public void RecordCardRemove(Guid playerId, Guid cardId, bool isStash = false)
     {
         Append(new PlayerSnapshotRecord.CardRemove()
         {
             PlayerId = playerId,
-            CardId = cardId
+            CardId = cardId,
+            IsStash = isStash
         });
     }
 
     public void RecordGameStarted(int cardMovesCost)
     {
         Append(new GameStartedRecord { CardMovesCost = cardMovesCost });
+    }
+
+    public void RecordBoardGenerated(IBoard board)
+    {
+        AppendBoardRecord(board, new BoardSnapshotRecord.Generated());
     }
 
     public void RecordCellTaken(IBoard board, Position position)

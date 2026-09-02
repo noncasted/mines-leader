@@ -26,7 +26,7 @@ public class AgentMatchFixtureApplierTests
         board.Cells[new Position(1, 0)].Status.Should().Be(CellStatus.Taken);
         board.Cells[new Position(2, 0)].AsTaken().HasMine.Should().BeFalse();
 
-        board.EnsureGenerated(new Position(1, 1));
+        board.EnsureGenerated(new MoveSnapshot(), new Position(1, 1));
 
         board.Cells[new Position(0, 0)].AsTaken().HasMine.Should().BeTrue();
         board.Cells.Count.Should().Be(9);
@@ -161,9 +161,9 @@ public class AgentMatchFixtureApplierTests
             CurrentProfile = BotProfile.Medium,
             Profiles = new Dictionary<BotProfile, BotProfileConfig>
             {
-                [BotProfile.Easy] = new() { MovesPerRound = 2 },
-                [BotProfile.Medium] = new() { MovesPerRound = 4 },
-                [BotProfile.Hard] = new() { MovesPerRound = 8 }
+                [BotProfile.Easy] = new() { CellsOpenPerRound = 2 },
+                [BotProfile.Medium] = new() { CellsOpenPerRound = 4 },
+                [BotProfile.Hard] = new() { CellsOpenPerRound = 8 }
             }
         });
 
@@ -188,7 +188,7 @@ public class AgentMatchFixtureApplierTests
                     Fixture = new AgentMatchFixture { BotProfile = BotProfile.Easy }
                 },
                 config)
-            .MovesPerRound.Should().Be(2);
+            .CellsOpenPerRound.Should().Be(2);
     }
 
     private static PlayersFixture CreatePlayers(int boardSize)

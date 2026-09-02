@@ -55,7 +55,7 @@ public class HandScramble : ICard<CardUsePayload.HandScramble>
         });
 
         foreach (var id in removedIds)
-            snapshot.RecordCardRemove(opponent.User.Id, id);
+            snapshot.RecordCardRemove(opponent.User.Id, id, isStash: true);
 
         foreach (var added in addedCards)
             snapshot.RecordCardAdd(opponent.User.Id, added.Id, added.Type);

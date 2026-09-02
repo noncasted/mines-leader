@@ -23,7 +23,7 @@ public class CarpetBomb : ICard<CardUsePayload.CarpetBomb>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.CarpetBomb_Normal;
         var horizontalPattern = PatternShapes.Line(config.Length, horizontal: true);

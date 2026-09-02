@@ -1,4 +1,4 @@
-using Shared;
+﻿using Shared;
 
 namespace Game.GamePlay;
 
@@ -46,7 +46,16 @@ public static class AgentLegalPlaysBuilder
         };
 
         if (cardConfigs != null && cardConfigs.All.TryGetValue(card.Type, out var config))
+        {
             view.ManaCost = config.ManaCost;
+
+            // Пока противник не сделал первый ход, его доски нет и карты по ней запрещены.
+            if (config.Target == CardTarget.OpponentBoard && opponent?.Board.IsGenerated == false)
+            {
+                view.Error = "Opponent board is not generated yet";
+                return view;
+            }
+        }
 
         ICardUsePayload payload;
         try

@@ -17,7 +17,7 @@ public class ErosionDozer : ICard<CardUsePayload.ErosionDozer>
         var invoker = context.Invoker;
         var snapshot = context.Snapshot;
         var board = invoker.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var size = _configs.Value.ErosionDozer_Normal.Size;
 

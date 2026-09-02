@@ -6,6 +6,7 @@ namespace Internal {
     public sealed class GameUISprites : SpriteGroup {
         private const string Address = "af583db52f790598b91bd61d5d28d1a2";
 
+        private Sprite _card;
         private Sprite _healthLargeAdditionalEmpty;
         private Sprite _healthLargeAdditionalFull;
         private Sprite _healthLargeBaseEmpty;
@@ -42,6 +43,10 @@ namespace Internal {
         private Sprite _turnSmallAdditionalFull;
         private Sprite _turnSmallBaseEmpty;
         private Sprite _turnSmallBaseFull;
+
+        public Sprite Card {
+            get { EnsureLoaded(); return _card; }
+        }
 
         public Sprite HealthLargeAdditionalEmpty {
             get { EnsureLoaded(); return _healthLargeAdditionalEmpty; }
@@ -189,6 +194,7 @@ namespace Internal {
 
         protected override async UniTask LoadGroup() {
             await LoadAsset(Address);
+            _card = Asset.GetSheet("Card");
             _healthLargeAdditionalEmpty = Asset.GetSheet("HealthLargeAdditionalEmpty");
             _healthLargeAdditionalFull = Asset.GetSheet("HealthLargeAdditionalFull");
             _healthLargeBaseEmpty = Asset.GetSheet("HealthLargeBaseEmpty");
@@ -228,6 +234,7 @@ namespace Internal {
         }
 
         protected override void UnloadGroup() {
+            _card = null;
             _healthLargeAdditionalEmpty = null;
             _healthLargeAdditionalFull = null;
             _healthLargeBaseEmpty = null;

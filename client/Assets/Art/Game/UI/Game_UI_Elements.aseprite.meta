@@ -905,6 +905,27 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
+  - name: Game_UI_Elements_Card
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 157
+      y: 9
+      width: 10
+      height: 10
+    spriteID: fbfa3533aabfabf5481e72467fac5dce
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
   tileSetImportData: []
   asepriteLayers:
   - layerIndex: 0
@@ -925,7 +946,7 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 143
+        width: 167
         height: 75
       spriteId: 930ccb357f2d1d6bdb8ba517a345f540
     linkedCells: []

@@ -1,10 +1,9 @@
 <linker>
 
-    <assembly fullname="Common.Network" preserve="all" />
+    <assembly fullname="Flow" preserve="all" />
     <assembly fullname="GamePlay" preserve="all" />
     <assembly fullname="Global" preserve="all" />
     <assembly fullname="Internal" preserve="all" />
-    <assembly fullname="Loop" preserve="all" />
     <assembly fullname="MemoryPack.Core" preserve="all" />
     <assembly fullname="Menu" preserve="all" />
     <assembly fullname="Meta" preserve="all" />
