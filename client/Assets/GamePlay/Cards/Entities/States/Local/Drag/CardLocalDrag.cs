@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using GamePlay.Loop;
 using GamePlay.Players;
 using GamePlay.Services;
 using Internal;
@@ -25,7 +26,8 @@ namespace GamePlay.Cards
             ICardStateLifetime stateLifetime,
             ICardAction action,
             IPlayerTurns turns,
-            ICardDefinition definition)
+            ICardDefinition definition,
+            IGameContext gameContext)
         {
             _connection = connection;
             _updater = updater;
@@ -37,6 +39,7 @@ namespace GamePlay.Cards
             _action = action;
             _turns = turns;
             _definition = definition;
+            _gameContext = gameContext;
         }
 
         private readonly INetworkConnection _connection;
@@ -49,6 +52,7 @@ namespace GamePlay.Cards
         private readonly ICardAction _action;
         private readonly IPlayerTurns _turns;
         private readonly ICardDefinition _definition;
+        private readonly IGameContext _gameContext;
 
         public async UniTask Enter(ICardLocalIdle idle)
         {
@@ -69,6 +73,9 @@ namespace GamePlay.Cards
             });
 
             _updater.RunUpdateAction(useLifetime, delta => {
+                if (_gameContext.IsPaused == true)
+                    return;
+
                 var evaluation = transitionCurve.StepForward(delta);
                 var supposedRotation = positionHandle.SupposedRotation;
 
@@ -90,7 +97,7 @@ namespace GamePlay.Cards
 
             var useResult = await _action.TryUse(useLifetime);
 
-            if (useResult.IsSuccess == true)
+            if (useResult.IsSuccess == true && _gameContext.IsPaused == false)
             {
                 useResult.Payload.Type = _definition.Type;
 

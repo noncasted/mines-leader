@@ -1,5 +1,7 @@
-﻿using Internal;
+﻿using GamePlay.Loop;
+using Internal;
 using UnityEngine;
+using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -15,8 +17,16 @@ namespace GamePlay.Cards
         private readonly ViewableProperty<bool> _isHovered = new();
         private readonly ViewableProperty<bool> _isPressed = new();
 
+        private IGameContext _gameContext;
+
         public IViewableProperty<bool> IsHovered => _isHovered;
         public IViewableProperty<bool> IsPressed => _isPressed;
+
+        [Inject]
+        internal void Construct(IGameContext gameContext)
+        {
+            _gameContext = gameContext;
+        }
 
         public void Register(IEntityBuilder builder)
         {
@@ -26,6 +36,17 @@ namespace GamePlay.Cards
 
         private void OnMouseEnter()
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
+            _isHovered.Set(true);
+        }
+
+        private void OnMouseOver()
+        {
+            if (_gameContext.IsPaused == true)
+                return;
+
             _isHovered.Set(true);
         }
 
@@ -36,6 +57,9 @@ namespace GamePlay.Cards
 
         private void OnMouseDown()
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
             _isPressed.Set(true);
         }
 

@@ -33,6 +33,9 @@ namespace GamePlay.Boards
 
         private void Perform()
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
             if (_gameContext.Self.Turns.IsAvailable(_gameContext) == false)
                 return;
 

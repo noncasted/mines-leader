@@ -1,8 +1,8 @@
 using GamePlay.Services;
-using Global.UI;
 using Internal;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 using Object = UnityEngine.Object;
 
@@ -16,7 +16,7 @@ namespace GamePlay.UI
     [DisallowMultipleComponent]
     public class GameOverlayUI : MonoBehaviour, ISceneService, IScopeSetup, IGameOverlayUI
     {
-        [SerializeField] private DesignButton _pauseButton;
+        [SerializeField] private Button _pauseButton;
         [SerializeField] private Canvas _canvas;
 
         private IGamePause _pause;

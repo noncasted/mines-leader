@@ -54,6 +54,9 @@ namespace GamePlay.Cards
                 stateLifetime,
                 () => selectionLifetime.IsTerminated == false,
                 _ => {
+                    if (_gameContext.IsPaused == true)
+                        return;
+
                     var board = GetSelectedBoard();
 
                     if (board == null || _context.TargetBoard != board)

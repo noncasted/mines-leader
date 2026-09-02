@@ -54,6 +54,7 @@ namespace GamePlay.Loop
             builder.RequestSpriteGroup(Sprites.GameUI);
             builder.RequestSpriteGroup(Sprites.GameCells);
             builder.RequestSpriteGroup(Sprites.GameField);
+            builder.RequestSpriteGroup(Sprites.Settings);
             builder.RequestPrefabGroup(GamePlayPrefabs.Group);
             
             builder
