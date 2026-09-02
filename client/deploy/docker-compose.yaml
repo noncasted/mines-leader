@@ -1,0 +1,54 @@
+# Static host for the Unity WebGL client, deployed via Coolify.
+#
+# Coolify → New Resource → Docker Compose
+#   Compose Location: /client/deploy/docker-compose.yaml
+#   Destination:      mines-leader-production (same as the backend)
+#
+# Nothing is built here and the container never needs a redeploy for a new game
+# build: it serves /srv/current, and tools/scripts/deploy-webgl.sh rsyncs a new
+# release into the host directory and flips that symlink. Redeploy only when
+# nginx.conf or this file changes.
+
+name: mines-leader-web
+
+networks:
+  # Same external Coolify Destination as the backend compose, so Traefik has a
+  # single deterministic network to pick the backend IP from.
+  # See backend/Tools/deploy/docker-compose.yaml for the full reasoning.
+  mines-leader-production:
+    external: true
+
+services:
+  web:
+    image: nginx:1.27-alpine
+    environment:
+      # Coolify magic var: generates a domain automatically. Override in the
+      # Coolify UI with e.g. SERVICE_FQDN_WEB_80=https://play.minesleader.xyz
+      SERVICE_FQDN_WEB_80: /
+    volumes:
+      # Both paths live in the host directory owned by tools/scripts/deploy-webgl.sh:
+      # releases/<tag>, the `current` symlink, and nginx.conf itself.
+      #
+      # nginx.conf is uploaded by the deploy script rather than mounted from the
+      # repo on purpose: this is a UI-defined Coolify service, so there is no
+      # repository checkout next to the compose file — a relative `./nginx.conf`
+      # resolves to a path that does not exist and Docker silently bind-mounts an
+      # empty DIRECTORY over /etc/nginx/conf.d/default.conf, and the container
+      # refuses to start ("not a directory").
+      #
+      # Run the deploy script at least once BEFORE deploying this service.
+      - /data/mines-leader-web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /data/mines-leader-web:/srv:ro
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - mines-leader-production
+    labels:
+      - "traefik.docker.network=mines-leader-production"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

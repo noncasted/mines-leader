@@ -480,6 +480,20 @@ namespace Shared
         public partial class DimensionRift : ICardActionData
         {
             public Guid TargetPlayer { get; set; }
+            public Guid OwnerPlayer { get; set; }
+            public IReadOnlyList<Position> TargetCells { get; set; }
+
+            public IReadOnlyList<Position> OwnerTakenCells { get; set; }
+            public IReadOnlyList<Position> OwnerFlaggedCells { get; set; }
+            public IReadOnlyList<Position> OwnerUnflaggedCells { get; set; }
+            public IReadOnlyList<OpenedCell> OwnerOpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell> OwnerUpdatedFreeCells { get; set; }
+
+            public IReadOnlyList<Position> TargetTakenCells { get; set; }
+            public IReadOnlyList<Position> TargetFlaggedCells { get; set; }
+            public IReadOnlyList<Position> TargetUnflaggedCells { get; set; }
+            public IReadOnlyList<OpenedCell> TargetOpenedCells { get; set; }
+            public IReadOnlyList<OpenedCell> TargetUpdatedFreeCells { get; set; }
         }
     }
 }

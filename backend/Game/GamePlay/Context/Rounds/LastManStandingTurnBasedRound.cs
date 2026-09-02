@@ -19,7 +19,6 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         RoundPlayers players,
         IGameModeConfig modeOptions,
         IPlayerConfig playerConfig,
-        IBotConfig botConfig,
         ILogger<LastManStandingTurnBasedRound> logger,
         ISessionLogger sessionLogger,
         IAgentObservationPublisher observationPublisher,
@@ -34,7 +33,6 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         _players = players;
         _modeOptions = modeOptions;
         _playerConfig = playerConfig;
-        _botConfig = botConfig;
         _logger = logger;
         _sessionLogger = sessionLogger;
         _observationPublisher = observationPublisher;
@@ -53,7 +51,6 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
     private readonly IRoundActionService _roundActionService;
     private readonly IGameModeConfig _modeOptions;
     private readonly IPlayerConfig _playerConfig;
-    private readonly IBotConfig _botConfig;
     private readonly ILogger<LastManStandingTurnBasedRound> _logger;
     private readonly ISessionLogger _sessionLogger;
     private readonly IAgentObservationPublisher _observationPublisher;
@@ -93,7 +90,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
                 player,
                 snapshot,
                 health: ModeOptions.PlayerHealth,
-                moves: GetMovesMax(player),
+                moves: ModeOptions.PlayerMoves,
                 mana: ModeOptions.PlayerStartMana);
         }
 
@@ -334,20 +331,6 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
             return humanPlayer;
 
         return botPlayer;
-    }
-
-    /// <summary>
-    /// Бот может ходить чаще человека: скорость вскрытия поля упирается в ходы,
-    /// и это единственная честная ручка сложности, не меняющая правила для игрока.
-    /// </summary>
-    private int GetMovesMax(IPlayer player)
-    {
-        if (player.User.IsBot == false)
-            return ModeOptions.PlayerMoves;
-
-        var botMoves = MatchBotProfile.ResolveConfig(_matchOptions, _botConfig).MovesPerRound;
-
-        return botMoves > 0 ? botMoves : ModeOptions.PlayerMoves;
     }
 
     private void ListenPlayersEvents(IReadOnlyLifetime lifetime)

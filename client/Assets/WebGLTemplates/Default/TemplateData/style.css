@@ -1,0 +1,71 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+html, body {
+    height: 100%;
+}
+canvas {
+    display: block;
+}
+body {
+    margin: 0;
+    background: #000;
+}
+#unity-container {
+    width: 100%;
+    height: 100%;
+}
+#unity-canvas {
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+#loading-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: calc(6px * var(--scale, 3));
+}
+
+/* Pixel-art sprite sheet animation: frames laid out in a single horizontal row.
+   The sheet url, the concrete pixel sizes and the @keyframes rule are injected
+   at runtime by index.html, once the sheet's natural size is known. */
+#loading-sprite {
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+#unity-progress-bar-empty {
+    width: calc(var(--frame-width, 64px) * var(--scale, 3));
+    height: calc(6px * var(--scale, 3));
+    padding: calc(1px * var(--scale, 3));
+    border: calc(1px * var(--scale, 3)) solid #fff;
+    text-align: left;
+}
+#unity-progress-bar-full {
+    width: 0%;
+    height: 100%;
+    background: #fff;
+}
+
+#unity-fullscreen-button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 38px;
+    height: 38px;
+    background-size: contain;
+}

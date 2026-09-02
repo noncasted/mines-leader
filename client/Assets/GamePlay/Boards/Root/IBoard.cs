@@ -15,7 +15,14 @@ namespace GamePlay.Boards
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }
 
+        /// <summary>
+        /// Доска сгенерирована на сервере — до первого хода владельца её ещё нет,
+        /// и играть по ней карты нельзя.
+        /// </summary>
+        IViewableProperty<bool> IsGenerated { get; }
+
         void Setup(bool isMine);
+        void OnGenerated();
         void UpdateState(int mines, int flags);
     }
 

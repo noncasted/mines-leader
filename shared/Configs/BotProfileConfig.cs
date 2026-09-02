@@ -12,11 +12,15 @@ namespace Shared
         public int CardsUsePerRound { get; set; } = 4;
 
         /// <summary>
-        /// Ходов боту за раунд. 0 — брать значение режима, как у человека.
-        /// Отдельная ручка нужна потому, что скорость вскрытия поля упирается именно в ходы,
-        /// а не в лимиты профиля.
+        /// Пауза между разыгрыванием карт, чтобы игрок успел разглядеть, что бот выложил.
         /// </summary>
-        public int MovesPerRound { get; set; }
+        public float CardPlayDelay { get; set; } = 4f;
+
+        /// <summary>
+        /// Пауза после всех действий бота перед завершением хода.
+        /// Если раунд заканчивается раньше — ожидание обрывается вместе с раундом.
+        /// </summary>
+        public float EndTurnDelay { get; set; } = 4f;
 
         public int DeckSize { get; set; } = 6;
         public List<BotDeck> Decks { get; set; } = new();

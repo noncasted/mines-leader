@@ -51,7 +51,7 @@ public class HardBotProfile : BotProfileBase
             // Phase 3: Open cells — only if moves remain and no unflagged mines.
             await RunCellPhase(profileConfig.CellsOpenPerRound, startTime, roundTime, lifetime);
 
-            await WaitRemainingTime(startTime, roundTime, lifetime);
+            await WaitBeforeEndTurn(startTime, roundTime, lifetime);
             EndTurn(startTime, roundTime);
         }
         catch (OperationCanceledException)

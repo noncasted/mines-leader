@@ -69,9 +69,9 @@ namespace GamePlay.Cards
                 _transform.SetPosition(position + move);
 
                 if (_pointerHandler.IsHovered.Value == true)
-                    _renderer.SetSortingOrder(100);
+                    _renderer.SetSortingOrder(CardSorting.SelectedOrder);
                 else
-                    _renderer.SetSortingOrder(positionHandle.SupposedRenderOrder);
+                    _renderer.SetSortingOrder(CardSorting.HandOrder + positionHandle.SupposedRenderOrder);
 
                 var scale = options.ScaleCurve.Evaluate(selectionCurve.Progress);
                 _transform.SetScale(Vector2.one * scale);

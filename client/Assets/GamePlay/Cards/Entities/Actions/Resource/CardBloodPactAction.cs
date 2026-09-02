@@ -43,8 +43,6 @@ namespace GamePlay.Cards
                 _floatingText = floatingText;
             }
 
-            private const float StepDelay = 0.25f;
-
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
             private readonly ICardConfigs _configs;
@@ -56,9 +54,11 @@ namespace GamePlay.Cards
                 var position = _random.GetLandingPosition(isOwned);
                 var config = _configs.Value.BloodPact_Normal;
 
+                var step = _floatingText.StepDelay;
+
                 _floatingText.Show(position, CardResource.Health, -config.HpCost);
-                _floatingText.Show(position, CardResource.Mana, config.ManaGain, StepDelay);
-                _floatingText.Show(position, CardResource.Moves, config.ExtraMoves, StepDelay * 2f);
+                _floatingText.Show(position, CardResource.Mana, config.ManaGain, step);
+                _floatingText.Show(position, CardResource.Moves, config.ExtraMoves, step * 2f);
 
                 return UniTask.CompletedTask;
             }

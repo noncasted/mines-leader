@@ -17,7 +17,7 @@ public class ZipZap : ICard<CardUsePayload.ZipZap>
         var invoker = context.Invoker;
         var snapshot = context.Snapshot;
         var board = invoker.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.ZipZap_Normal;
         var size = config.Size + (int)invoker.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;

@@ -1,4 +1,4 @@
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Game.Session;
 using Shared;
 
@@ -19,6 +19,13 @@ public class CardUseCommand(
             return EmptyResponse.Fail($"Card {request.CardId} not found in hand");
 
         var config = configs.Value.All[handCard.Type];
+        var opponent = Utils.GameContext.GetOpponent(player);
+
+        // Доска противника появляется только после его первого хода: пока её нет, атакующие
+        // карты сгенерировали бы её за него, поэтому отыгрывать их нельзя.
+        if (config.Target == CardTarget.OpponentBoard && opponent.Board.IsGenerated == false)
+            return EmptyResponse.Fail("Opponent board is not generated yet");
+
         var manaCost = config.ManaCost;
         var nextDiscount = (int)player.Modifiers.Get(PlayerModifier.NextCardDiscount);
         var allDiscount = (int)player.Modifiers.Get(PlayerModifier.AllCardsDiscount);
@@ -43,7 +50,6 @@ public class CardUseCommand(
             CardId = request.CardId
         };
 
-        var opponent = Utils.GameContext.GetOpponent(player);
         var opponentTakenBefore = CountTakenCells(opponent.Board);
         var modifiersBefore = player.Modifiers.Sources.Count;
         var opponentModifiersBefore = opponent.Modifiers.Sources.Count;

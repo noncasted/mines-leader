@@ -20,7 +20,7 @@ public class Excavator : ICard<CardUsePayload.Excavator>
         var invoker = context.Invoker;
         var snapshot = context.Snapshot;
         var board = invoker.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var pattern = PatternShapes.Cross(_configs.Value.Excavator_Normal.Size);
         var selected = pattern.SelectTaken(board, payload.Position);

@@ -51,7 +51,7 @@ public class MediumBotProfile : BotProfileBase
             // Phase 3: Open cells — proven-safe via deeper constraint-solving.
             await RunCellPhase(profileConfig.CellsOpenPerRound, startTime, roundTime, lifetime);
 
-            await WaitRemainingTime(startTime, roundTime, lifetime);
+            await WaitBeforeEndTurn(startTime, roundTime, lifetime);
             EndTurn(startTime, roundTime);
         }
         catch (OperationCanceledException)

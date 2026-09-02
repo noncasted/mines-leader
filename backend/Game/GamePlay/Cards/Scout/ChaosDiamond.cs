@@ -22,7 +22,7 @@ public class ChaosDiamond : ICard<CardUsePayload.ChaosDiamond>
         var invoker = context.Invoker;
         var snapshot = context.Snapshot;
         var board = invoker.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.ChaosDiamond_Normal;
         var actualSize = _gameRandom.Range(invoker, config.MinSize, config.MaxSize);

@@ -64,7 +64,7 @@ public class Recycler : ICard<CardUsePayload.Recycler>
         });
 
         if (removedCardId.HasValue == true)
-            snapshot.RecordCardRemove(invoker.User.Id, removedCardId.Value);
+            snapshot.RecordCardRemove(invoker.User.Id, removedCardId.Value, isStash: true);
 
         foreach (var added in addedCards)
             snapshot.RecordCardAdd(invoker.User.Id, added.Id, added.Type);

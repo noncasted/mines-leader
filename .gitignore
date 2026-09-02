@@ -120,3 +120,6 @@ __pycache__/
 *.pyo
 
 /client/traces/
+
+# SSH password for tools/scripts/deploy-webgl.sh — never commit.
+/tools/scripts/.deploy-password

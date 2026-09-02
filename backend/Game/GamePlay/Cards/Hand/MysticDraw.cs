@@ -57,7 +57,7 @@ public class MysticDraw : ICard<CardUsePayload.MysticDraw>
                 invoker.Hand.Remove(entry.Id);
                 invoker.Deck.AddCard(entry.Type);
                 deckChanged = true;
-                snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
+                snapshot.RecordCardRemove(invoker.User.Id, entry.Id, isStash: true);
             }
         }
 

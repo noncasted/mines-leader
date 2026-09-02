@@ -413,7 +413,7 @@ namespace Internal {
             return false;
         }
 
-        private static bool IsSourcePath(string path) {
+        internal static bool IsSourcePath(string path) {
             return string.IsNullOrEmpty(path) == false &&
                    path.StartsWith(ArtFolder + "/", StringComparison.OrdinalIgnoreCase) &&
                    IsSourceFile(path);

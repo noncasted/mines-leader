@@ -17,7 +17,7 @@ public class OpponentBomb : ICard<CardUsePayload.OpponentBomb>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         if (board.Cells.Count == 0)
         {

@@ -262,9 +262,12 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
-    m_PostInfinity: 1
+    m_PostInfinity: 8
     m_RotationOrder: 4
   _cardXSize: 1
   _magnitude: -0.66
   _angeRange: -13.4
   _moveSpeed: 10
+  _clampToScreen: 1
+  _screenPadding: 0.5
+  _maxWidth: 15

@@ -12,7 +12,8 @@
       "FlagsPerRound": 3,
       "CellsOpenPerRound": 5,
       "CardsUsePerRound": 1,
-      "MovesPerRound": 0,
+      "CardPlayDelay": 4.0,
+      "EndTurnDelay": 4.0,
       "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
@@ -43,7 +44,8 @@
       "FlagsPerRound": 7,
       "CellsOpenPerRound": 4,
       "CardsUsePerRound": 2,
-      "MovesPerRound": 0,
+      "CardPlayDelay": 4.0,
+      "EndTurnDelay": 4.0,
       "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
@@ -89,7 +91,8 @@
       "FlagsPerRound": 10,
       "CellsOpenPerRound": 3,
       "CardsUsePerRound": 2,
-      "MovesPerRound": 8,
+      "CardPlayDelay": 4.0,
+      "EndTurnDelay": 4.0,
       "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
@@ -826,7 +829,8 @@
     "FlagsPerRound": 10,
     "CellsOpenPerRound": 3,
     "CardsUsePerRound": 2,
-    "MovesPerRound": 8,
+    "CardPlayDelay": 4.0,
+    "EndTurnDelay": 4.0,
     "DeckSize": 6,
     "Decks": {
       "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",

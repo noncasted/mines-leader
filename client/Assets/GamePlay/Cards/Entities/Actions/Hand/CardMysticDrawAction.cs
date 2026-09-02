@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
+using Meta;
 using Shared;
 
 namespace GamePlay.Cards
@@ -31,19 +31,31 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.MysticDraw>
         {
-            public Snapshot(IGameRandom random, IGameContext context)
+            public Snapshot(
+                IGameRandom random,
+                IGameContext context,
+                ICardConfigs configs,
+                ICardResourceFloatingText floatingText)
             {
                 _random = random;
                 _context = context;
+                _configs = configs;
+                _floatingText = floatingText;
             }
 
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
+            private readonly ICardConfigs _configs;
+            private readonly ICardResourceFloatingText _floatingText;
 
             public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MysticDraw payload)
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
-                await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                var position = await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                var config = _configs.Value.MysticDraw_Normal;
+                var cards = payload.IsHeads == true ? config.WinDraw : -config.LoseReturn;
+
+                _floatingText.Show(position, CardResource.Cards, cards);
             }
         }
     }

@@ -74,7 +74,7 @@ public class GamblersRuin : ICard<CardUsePayload.GamblersRuin>
                 invoker.Hand.Remove(entry.Id);
                 invoker.Stash.Add(entry.Type);
                 stashChanged = true;
-                snapshot.RecordCardRemove(invoker.User.Id, entry.Id);
+                snapshot.RecordCardRemove(invoker.User.Id, entry.Id, isStash: true);
                 candidates.RemoveAt(index);
             }
 

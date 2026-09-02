@@ -22,7 +22,7 @@ public class ChaosScout : ICard<CardUsePayload.ChaosScout>
         var invoker = context.Invoker;
         var snapshot = context.Snapshot;
         var board = invoker.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.ChaosScout_Normal;
         var actualLength = _gameRandom.Range(invoker, config.MinLength, config.MaxLength);

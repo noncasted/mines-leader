@@ -42,7 +42,7 @@ public class CardThief : ICard<CardUsePayload.CardThief>
             });
 
         opponent.Hand.Remove(entry.Id);
-        snapshot.RecordCardRemove(opponent.User.Id, entry.Id);
+        snapshot.RecordCardRemove(opponent.User.Id, entry.Id, isStash: true);
 
         var activeCard = invoker.Hand.Add(entry.Type);
         snapshot.RecordCardAdd(invoker.User.Id, activeCard.Id, activeCard.Type);

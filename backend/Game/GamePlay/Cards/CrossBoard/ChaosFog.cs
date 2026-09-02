@@ -31,7 +31,7 @@ public class ChaosFog : ICard<CardUsePayload.ChaosFog>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         var config = _configs.Value.ChaosFog_Normal;
         var actualSize = _gameRandom.Range(invoker, config.MinSize, config.MaxSize);

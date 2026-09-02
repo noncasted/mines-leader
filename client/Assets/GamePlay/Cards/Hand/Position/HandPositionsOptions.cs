@@ -29,6 +29,10 @@ namespace GamePlay.Cards
         [SerializeField] private float _angeRange;
         [SerializeField] [Min(0f)] private float _moveSpeed;
 
+        [SerializeField] private bool _clampToScreen = true;
+        [SerializeField] [Min(0f)] private float _screenPadding;
+        [SerializeField] [Min(0f)] private float _maxWidth;
+
         public AnimationCurve EvaluationCurve => _evaluationCurve;
         public AnimationCurve ForceCurve => _forceCurve;
 
@@ -41,5 +45,11 @@ namespace GamePlay.Cards
         public float Magnitude => _magnitude;
         public float AngleRange => _angeRange;
         public float MoveSpeed => _moveSpeed;
+
+        public bool ClampToScreen => _clampToScreen;
+        public float ScreenPadding => _screenPadding;
+
+        /// <summary>Hard limit for the hand width in world units. Zero means no limit.</summary>
+        public float MaxWidth => _maxWidth;
     }
 }

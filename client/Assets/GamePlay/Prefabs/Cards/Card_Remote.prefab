@@ -174,7 +174,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 1503071599
   m_SortingLayer: 4
-  m_SortingOrder: 10
+  m_SortingOrder: 10000
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
 --- !u!114 &463000134743301336

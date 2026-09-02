@@ -1,4 +1,4 @@
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Game.Session;
 using Shared;
 
@@ -39,7 +39,7 @@ public class BotFlagAction : IBotFlagAction
         if (board.Cells.Count == 0)
         {
             var randomPosition = _context.Bot.Board.RandomPosition();
-            board.EnsureGenerated(randomPosition);
+            _commandUtils.WithSnapshot(snapshot => board.EnsureGenerated(snapshot, randomPosition));
             _sessionLogger.LogBotAction("Flag", $"Board empty, generated at {randomPosition}");
             return true;
         }

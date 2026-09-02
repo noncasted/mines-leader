@@ -25,11 +25,16 @@ namespace Shared
             public bool IsStash { get; set; }
         }
 
+        /// <summary>
+        /// Карта уходит из руки. IsStash означает, что карта не просто исчезает,
+        /// а улетает в стеш за край экрана (сброс из руки, а не разыгрывание).
+        /// </summary>
         [MemoryPackable]
         public partial class CardRemove : IMoveSnapshotRecord
         {
             public Guid PlayerId { get; set; }
             public Guid CardId { get; set; }
+            public bool IsStash { get; set; }
         }
 
         [MemoryPackable]

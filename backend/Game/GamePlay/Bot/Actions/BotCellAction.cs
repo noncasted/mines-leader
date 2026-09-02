@@ -1,4 +1,4 @@
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Game.GamePlay.Snapshots;
 using Game.Session;
 using Shared;
@@ -52,7 +52,7 @@ public class BotCellAction : IBotCellAction
             _commandUtils.WithSnapshot(snapshot => {
                 _context.Bot.Moves.OnUsed(snapshot);
 
-                board.Generator.Generate(randomPosition);
+                board.EnsureGenerated(snapshot, randomPosition);
                 snapshot.RecordReveal(board, randomPosition);
 
                 _context.Bot.Actions.OnCellOpened();

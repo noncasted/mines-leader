@@ -52,10 +52,17 @@ namespace GamePlay.Cards
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
                 var position = await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                var config = _configs.Value.GamblersRuin_Normal;
 
-                // Tails only discards cards, so there is no resource change to show.
                 if (payload.IsHeads == true)
-                    _floatingText.Show(position, CardResource.Mana, _configs.Value.GamblersRuin_Normal.WinMana);
+                {
+                    _floatingText.Show(position, CardResource.Cards, config.WinDraw);
+                    _floatingText.Show(position, CardResource.Mana, config.WinMana, _floatingText.StepDelay);
+                }
+                else
+                {
+                    _floatingText.Show(position, CardResource.Cards, -config.LoseDiscard);
+                }
             }
         }
     }

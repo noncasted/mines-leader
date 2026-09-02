@@ -57,9 +57,15 @@
                            class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
                 </div>
                 <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-                    <LucideIcon Name="footprints" Size="12" class="text-muted-foreground shrink-0" />
-                    <span class="text-sm flex-1">Moves Per Round (0 = same as player)</span>
-                    <input type="number" @bind="config.MovesPerRound" min="0"
+                    <LucideIcon Name="hourglass" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">Card Play Delay (sec)</span>
+                    <input type="number" @bind="config.CardPlayDelay" step="0.1" min="0"
+                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+                    <LucideIcon Name="hourglass" Size="12" class="text-muted-foreground shrink-0" />
+                    <span class="text-sm flex-1">End Turn Delay (sec)</span>
+                    <input type="number" @bind="config.EndTurnDelay" step="0.1" min="0"
                            class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
                 </div>
                 <div class="flex items-center gap-3 py-1.5 border-b border-border/60">

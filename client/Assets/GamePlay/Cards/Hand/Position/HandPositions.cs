@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Global.Cameras;
 using Internal;
 using UnityEngine;
 using VContainer;
@@ -20,13 +21,15 @@ namespace GamePlay.Cards
         [SerializeField] private List<Handle> _handles = new();
 
         private IUpdater _updater;
+        private ICurrentCamera _camera;
 
         private readonly Dictionary<ICard, Handle> _cardToHandle = new();
 
         [Inject]
-        internal void Construct(IUpdater updater)
+        internal void Construct(IUpdater updater, ICurrentCamera camera)
         {
             _updater = updater;
+            _camera = camera;
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
@@ -113,6 +116,7 @@ namespace GamePlay.Cards
             {
                 var center = (Vector2)_center.position;
                 var length = _handles.Count * _options.XSizeCurve.Evaluate(_handles.Count) * _options.CardXSize;
+                length = Mathf.Min(length, GetMaxLength(center));
 
                 var start = new Vector2(center.x - length / 2f, center.y);
 
@@ -135,6 +139,31 @@ namespace GamePlay.Cards
                 for (var i = 0; i < _handles.Count; i++)
                     _handles[i].RenderOrder = i;
             }
+        }
+
+        private float GetMaxLength(Vector2 center)
+        {
+            var maxLength = _options.MaxWidth > 0f ? _options.MaxWidth : float.PositiveInfinity;
+
+            if (_options.ClampToScreen == false)
+                return maxLength;
+
+            var camera = _camera?.Current;
+
+            if (camera == null || camera.orthographic == false)
+                return maxLength;
+
+            var cameraX = camera.transform.position.x;
+            var halfViewWidth = camera.orthographicSize * camera.aspect;
+
+            var toLeftEdge = center.x - (cameraX - halfViewWidth);
+            var toRightEdge = cameraX + halfViewWidth - center.x;
+
+            var halfLength = Mathf.Min(toLeftEdge, toRightEdge)
+                             - _options.ScreenPadding
+                             - _options.CardXSize / 2f;
+
+            return Mathf.Min(maxLength, Mathf.Max(0f, halfLength * 2f));
         }
 
         [Serializable]

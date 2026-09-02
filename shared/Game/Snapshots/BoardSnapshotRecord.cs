@@ -5,6 +5,15 @@ namespace Shared
 {
     public partial class BoardSnapshotRecord
     {
+        /// <summary>
+        /// Доска противника сгенерирована — до этого момента она пустая, и карты по ней
+        /// играть нельзя. Клиент держит по этой записи флаг доступности таких карт.
+        /// </summary>
+        [MemoryPackable]
+        public partial class Generated : IBoardSnapshotRecord
+        {
+        }
+
         [MemoryPackable]
         public partial class CellTaken : IBoardSnapshotRecord
         {
@@ -65,6 +74,7 @@ namespace Shared
     [MemoryPackUnion(4, typeof(BoardSnapshotRecord.Explosion))]
     [MemoryPackUnion(5, typeof(BoardSnapshotRecord.EffectAdded))]
     [MemoryPackUnion(6, typeof(BoardSnapshotRecord.EffectRemoved))]
+    [MemoryPackUnion(7, typeof(BoardSnapshotRecord.Generated))]
     public partial interface IBoardSnapshotRecord
     {
     }

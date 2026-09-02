@@ -176,6 +176,6 @@ public class MirrorMatchTests : PlayerCardTestsBase
         services.AddSingleton<ICard<CardUsePayload.Medic>, Medic>();
         var provider = services.BuildServiceProvider();
 
-        return (new MirrorMatch(gameContext, provider), invoker, opponent);
+        return (new MirrorMatch(gameContext, provider, MockConfigs()), invoker, opponent);
     }
 }

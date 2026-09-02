@@ -12,29 +12,32 @@
     <link rel="stylesheet" href="TemplateData/style.css">
 </head>
 
-<body class="{{{ SPLASH_SCREEN_STYLE.toLowerCase() }}}">
+<body>
 
 <div id="unity-container" class="unity-desktop">
     <canvas id="unity-canvas"></canvas>
 </div>
 
 <div id="loading-cover" style="display:none;">
-    <div id="unity-loading-bar">
-        <div id="unity-logo"><img src="logo.png"></div>
-        <div id="unity-progress-bar-empty" style="display: none;">
-            <div id="unity-progress-bar-full"></div>
-        </div>
-        <div class="spinner"></div>
+    <div id="loading-sprite"></div>
+    <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
     </div>
 </div>
 
 <div id="unity-fullscreen-button" style="display: none;"></div>
 
 <script>
+    // Loading animation: the sheet is a single horizontal strip of FRAME_COUNT
+    // equally sized frames. Change these constants if the sheet changes.
+    const SHEET_URL = "Loading_Animation-Sheet.png";
+    const FRAME_COUNT = 6;
+    const FRAME_DURATION = 0.6; // seconds for one full loop
+
     const hideFullScreenButton = "{{{ HIDE_FULL_SCREEN_BUTTON }}}";
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
-    
+
     const config = {
         #if PROGRESSIVE_ASSET_LOADING
         primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
@@ -58,27 +61,58 @@
     const container = document.querySelector("#unity-container");
     const canvas = document.querySelector("#unity-canvas");
     const loadingCover = document.querySelector("#loading-cover");
+    const loadingSprite = document.querySelector("#loading-sprite");
     const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
     const progressBarFull = document.querySelector("#unity-progress-bar-full");
     const fullscreenButton = document.querySelector("#unity-fullscreen-button");
-    const spinner = document.querySelector('.spinner');
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
         container.className = "unity-mobile";
-      
-    #if BACKGROUND_FILENAME
-    canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
-    #endif
+
+    // Pick an integer scale so the pixel art stays crisp and fits comfortably on screen.
+    function setupSprite(frameWidth, frameHeight) {
+        const apply = () => {
+            const scale = Math.max(1, Math.floor(Math.min(
+                (window.innerWidth * 0.5) / frameWidth,
+                (window.innerHeight * 0.25) / frameHeight)));
+            const width = frameWidth * scale;
+            const height = frameHeight * scale;
+            document.documentElement.style.setProperty("--scale", scale);
+            document.documentElement.style.setProperty("--frame-width", frameWidth + "px");
+            loadingSprite.style.backgroundImage = `url("${SHEET_URL}")`;
+            loadingSprite.style.width = width + "px";
+            loadingSprite.style.height = height + "px";
+            loadingSprite.style.backgroundSize = (width * FRAME_COUNT) + "px " + height + "px";
+            loadingSprite.style.animation = "none";
+            // Force a reflow so the restarted animation picks up the new keyframes.
+            void loadingSprite.offsetWidth;
+            style.textContent =
+                "@keyframes loading-sprite {" +
+                "from { background-position-x: 0px; }" +
+                "to { background-position-x: -" + (width * FRAME_COUNT) + "px; }" +
+                "}";
+            loadingSprite.style.animation =
+                "loading-sprite " + FRAME_DURATION + "s steps(" + FRAME_COUNT + ") infinite";
+        };
+        const style = document.createElement("style");
+        document.head.appendChild(style);
+        apply();
+        window.addEventListener("resize", apply);
+    }
+
+    const sheet = new Image();
+    sheet.onload = () => setupSprite(sheet.naturalWidth / FRAME_COUNT, sheet.naturalHeight);
+    sheet.onerror = () => loadingSprite.style.display = "none";
+    sheet.src = SHEET_URL;
+
     loadingCover.style.display = "";
 
     const script = document.createElement("script");
     script.src = loaderUrl;
     document.body.appendChild(script);
-    
+
     script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-            spinner.style.display = "none";
-            progressBarEmpty.style.display = "";
             progressBarFull.style.width = `${100 * progress}%`;
         }).then((unityInstance) => {
             loadingCover.style.display = "none";

@@ -1,4 +1,4 @@
-using Common.Reactive;
+﻿using Common.Reactive;
 using FluentAssertions;
 using Game.GamePlay;
 using Game.Session;
@@ -281,7 +281,7 @@ public class BoardCommandTests
         var cellCountBefore = board.Cells.Count;
         cellCountBefore.Should().Be(25);
 
-        board.EnsureGenerated(new Position(2, 2));
+        board.EnsureGenerated(new MoveSnapshot(), new Position(2, 2));
 
         // Cells unchanged — no regeneration
         board.Cells.Count.Should().Be(cellCountBefore);
@@ -302,7 +302,7 @@ public class BoardCommandTests
         board.Cells.Count.Should().Be(0, "board starts empty");
 
         var start = new Position(4, 4);
-        board.EnsureGenerated(start);
+        board.EnsureGenerated(new MoveSnapshot(), start);
 
         // After EnsureGenerated: board is populated with all cells
         board.Cells.Count.Should().Be(64, "8x8 board generated");
@@ -321,6 +321,29 @@ public class BoardCommandTests
     }
 
     [Fact]
+    public void EnsureGenerated_EmptyBoard_RecordsGeneratedOnce()
+    {
+        var options = Options.Create(new BoardOptions { Size = 6, Mines = 5 });
+        var board = new Board(Guid.NewGuid(), options);
+        var snapshot = new MoveSnapshot();
+
+        board.IsGenerated.Should().BeFalse("board starts empty");
+
+        board.EnsureGenerated(snapshot, new Position(3, 3));
+        board.EnsureGenerated(snapshot, new Position(0, 0));
+
+        board.IsGenerated.Should().BeTrue();
+
+        var generated = snapshot.Collect()
+                                .Records.OfType<SharedBoardSnapshot>()
+                                .SelectMany(r => r.Records)
+                                .OfType<BoardSnapshotRecord.Generated>()
+                                .ToList();
+
+        generated.Should().HaveCount(1, "only the first call generates the board");
+    }
+
+    [Fact]
     public void EnsureGenerated_CalledTwice_SecondCallIsNoOp()
     {
         var options = Options.Create(new BoardOptions { Size = 6, Mines = 5 });
@@ -331,14 +354,14 @@ public class BoardCommandTests
         board.MinesScanner.Recalculate();
 
         var start = new Position(3, 3);
-        board.EnsureGenerated(start);
+        board.EnsureGenerated(new MoveSnapshot(), start);
 
         // Snapshot the board state after first generation
         var cellsBefore = board.Cells.ToDictionary(kvp => kvp.Key,
             kvp => kvp.Value.Status);
 
         // Second call — should be no-op since Cells.Count > 0
-        board.EnsureGenerated(new Position(0, 0));
+        board.EnsureGenerated(new MoveSnapshot(), new Position(0, 0));
 
         // Board state unchanged
         foreach (var (pos, status) in cellsBefore)

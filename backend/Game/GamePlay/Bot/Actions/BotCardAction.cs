@@ -1,4 +1,4 @@
-using Cluster.Configs;
+﻿using Cluster.Configs;
 using Common.Extensions;
 using Common.Reactive;
 using Game.Session;
@@ -51,13 +51,24 @@ public class BotCardAction : IBotCardAction
 
         var cardsWithUtility = new List<(float utility, Guid id, CardType type)>();
 
+        var opponentBoard = _botContext.Opponent.Board;
+
         var skippedNoMana = new List<(CardType type, int cost)>();
+        var skippedNoBoard = new List<CardType>();
         var skippedNoStrategy = new List<CardType>();
         var skippedZeroUtility = new List<(CardType type, float utility)>();
 
         foreach (var activeCard in entries)
         {
             var config = _cardConfigs.Value.All[activeCard.Type];
+
+            // Доска противника не сгенерирована — атаковать нечего, карта только создала бы
+            // поле за него.
+            if (config.Target == CardTarget.OpponentBoard && opponentBoard.IsGenerated == false)
+            {
+                skippedNoBoard.Add(activeCard.Type);
+                continue;
+            }
 
             if (currentMana < config.ManaCost)
             {
@@ -95,7 +106,8 @@ public class BotCardAction : IBotCardAction
 
         _sessionLogger.LogBotAction("CardEval",
             $"Mana={currentMana} | Candidates=[{string.Join(", ", evaluations)}] | NoMana=[{string.Join(", ", manaSkips)}] | ZeroUtility=[{string.Join(", ", utilitySkips)}]" +
-            (skippedNoStrategy.Count > 0 ? $" | NoStrategy=[{string.Join(", ", skippedNoStrategy)}]" : ""));
+            (skippedNoStrategy.Count > 0 ? $" | NoStrategy=[{string.Join(", ", skippedNoStrategy)}]" : "") +
+            (skippedNoBoard.Count > 0 ? $" | NoOpponentBoard=[{string.Join(", ", skippedNoBoard)}]" : ""));
 
         if (cardsWithUtility.Count == 0)
             return false;

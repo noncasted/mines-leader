@@ -50,7 +50,7 @@ namespace GamePlay.Cards
                 var position = positionHandle.SupposedPosition;
                 _transform.SetPosition(position + move);
 
-                _renderer.SetSortingOrder(positionHandle.SupposedRenderOrder);
+                _renderer.SetSortingOrder(CardSorting.HandOrder + positionHandle.SupposedRenderOrder);
             });
         }
     }

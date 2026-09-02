@@ -13,6 +13,12 @@ MonoBehaviour:
   m_Name: GameUI
   m_EditorClassIdentifier: Internal::Internal.SpriteGroupAsset
   _entries:
+  - Name: Card
+    Kind: 0
+    Sprites:
+    - {fileID: -7096838069951606366, guid: bad909d29672006eca4172649ef534b0, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: HealthLargeAdditionalEmpty
     Kind: 0
     Sprites:

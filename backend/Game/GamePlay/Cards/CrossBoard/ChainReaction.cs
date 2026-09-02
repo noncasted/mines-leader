@@ -20,7 +20,7 @@ public class ChainReaction : ICard<CardUsePayload.ChainReaction>
         var snapshot = context.Snapshot;
         var opponent = _gameContext.GetOpponent(invoker);
         var board = opponent.Board;
-        board.EnsureGenerated(payload.Position);
+        board.EnsureGenerated(context.Snapshot, payload.Position);
 
         if (board.Cells.TryGetValue(payload.Position, out var cell) == false)
         {

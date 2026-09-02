@@ -42,6 +42,8 @@ public abstract class BotProfileBase : IBotProfileStrategy
 
     public abstract Task ExecuteTurn(IReadOnlyLifetime lifetime);
 
+    protected BotProfileConfig ProfileConfig => MatchBotProfile.ResolveConfig(_matchOptions, _config);
+
     protected void LogTurnStart()
     {
         var bot = _botContext.Bot;
@@ -91,7 +93,7 @@ public abstract class BotProfileBase : IBotProfileStrategy
                 break;
 
             cardsUsed++;
-            await DelayForAction(startTime, roundTime, lifetime);
+            await DelayForCard(startTime, roundTime, lifetime);
         }
 
         if (cardsUsed > 0)
@@ -127,23 +129,54 @@ public abstract class BotProfileBase : IBotProfileStrategy
         _round.SkipTurn();
     }
 
-    protected async Task WaitRemainingTime(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    /// <summary>
+    /// Пауза перед завершением хода, чтобы игрок успел увидеть последние действия бота.
+    /// Раунд может закончиться раньше — тогда ожидание обрывается вместе с lifetime.
+    /// </summary>
+    protected async Task WaitBeforeEndTurn(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
-        if (BotTurnTiming.ShouldSkipRoundPadding(_matchOptions.Type))
+        var wait = Math.Max(0f, ProfileConfig.EndTurnDelay);
+
+        if (BotTurnTiming.ShouldSkipRoundPadding(_matchOptions.Type) == false)
+        {
+            var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
+            wait = Math.Max(wait, roundTime - elapsed);
+        }
+
+        if (wait > 0.5f)
+            await Delay(wait, lifetime);
+    }
+
+    /// <summary>
+    /// Пауза между картами: разыгранная карта должна повисеть на столе,
+    /// а не улететь в стеш одновременно со следующей.
+    /// </summary>
+    protected async Task DelayForCard(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    {
+        var delay = Math.Max(0f, ProfileConfig.CardPlayDelay);
+
+        if (delay <= 0f)
             return;
 
-        var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
-        var remaining = roundTime - elapsed;
+        if (BotTurnTiming.IsTurnBased(_matchOptions.Type) == false)
+        {
+            var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
+            var remaining = roundTime - elapsed;
 
-        if (remaining > 0.5f)
-            await Delay(remaining, lifetime);
+            if (remaining <= 0.5f)
+                return;
+
+            delay = Math.Min(delay, remaining);
+        }
+
+        await Delay(delay, lifetime);
     }
 
     protected async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
         if (BotTurnTiming.IsTurnBased(_matchOptions.Type))
         {
-            var delay = MatchBotProfile.ResolveConfig(_matchOptions, _config).ActionDelay;
+            var delay = ProfileConfig.ActionDelay;
             if (delay <= 0f)
                 delay = 0.3f;
 
