@@ -21,5 +21,8 @@ public interface ISessionLogger
     void LogTurnSkipped(Guid playerId);
     void LogGameOver(Guid winnerId, string reason);
     void LogBoardRevealed(Guid playerId, IReadOnlyList<Position> positions);
+    void LogModifierApplied(Guid playerId, DurationalModifierOverview overview, float total);
+    void LogModifierTicked(Guid playerId, DurationalModifierOverview overview, float total);
+    void LogModifierEnded(Guid playerId, DurationalModifierOverview overview, float total, ModifierEndReason reason);
     void Log(string message);
 }

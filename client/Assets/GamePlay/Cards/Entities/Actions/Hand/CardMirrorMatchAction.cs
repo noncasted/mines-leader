@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using Internal;
 using Shared;
 
@@ -30,16 +29,23 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.MirrorMatch>
         {
-            public Snapshot(IBoardCellsAnimator animator)
+            public Snapshot(ICardActionSyncDispatcher syncDispatcher)
             {
-                _animator = animator;
+                _syncDispatcher = syncDispatcher;
             }
 
-            private readonly IBoardCellsAnimator _animator;
+            private readonly ICardActionSyncDispatcher _syncDispatcher;
 
+            /// <summary>
+            /// The backend folds the copied card's own CardUse record into this payload, so the
+            /// visuals of the copied action have to be played from here.
+            /// </summary>
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MirrorMatch payload)
             {
-                return UniTask.CompletedTask;
+                if (payload.CopiedAction == null)
+                    return UniTask.CompletedTask;
+
+                return _syncDispatcher.Dispatch(lifetime, payload.CopiedAction);
             }
         }
     }

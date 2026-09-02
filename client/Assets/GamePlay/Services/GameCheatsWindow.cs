@@ -5,7 +5,7 @@ using Meta;
 using Shared;
 using UnityEngine;
 
-namespace GamePlay.Cheats {
+namespace GamePlay.Services {
     public struct CheatCardInfo {
         public int TypeId;
         public string Name;

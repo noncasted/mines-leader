@@ -3,11 +3,17 @@ using UnityEngine;
 
 namespace Internal {
     public static class Colors {
+        public static readonly BuffsColors Buffs = new();
         public static readonly DeckColors Deck = new();
         public static readonly GameColors Game = new();
         public static readonly GameEndColors GameEnd = new();
         public static readonly MenuColors Menu = new();
         public static readonly MinesAroundColors MinesAround = new();
+    }
+
+    public sealed class BuffsColors {
+        public readonly Color Add = new Color(0.458823532f, 0.654902f, 0.2627451f, 1f);
+        public readonly Color Remove = new Color(0.647058845f, 0.1882353f, 0.1882353f, 1f);
     }
 
     public sealed class DeckColors {

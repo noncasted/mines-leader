@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
@@ -31,19 +30,28 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.DoubleOrNothing>
         {
-            public Snapshot(IGameRandom random, IGameContext context)
+            public Snapshot(IGameRandom random, IGameContext context, ICardResourceFloatingText floatingText)
             {
                 _random = random;
                 _context = context;
+                _floatingText = floatingText;
             }
 
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
+            private readonly ICardResourceFloatingText _floatingText;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.DoubleOrNothing payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.DoubleOrNothing payload)
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
-                return _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                var position = await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+
+                // Heads doubles the current mana, tails zeroes it: the exact delta is
+                // only known on the server, so the multiplier is shown instead.
+                if (payload.IsHeads == true)
+                    _floatingText.Show(position, CardResource.Mana, "x2", true);
+                else
+                    _floatingText.Show(position, CardResource.Mana, "x0", false);
             }
         }
     }

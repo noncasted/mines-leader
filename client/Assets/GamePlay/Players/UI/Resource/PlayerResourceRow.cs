@@ -43,10 +43,13 @@ namespace GamePlay.Players.Resource
             HideAll(_upperSmall);
             HideAll(_bottomSmall);
             
+            // Пипсы рисуются по resultMax, поэтому и потраченные считаются от него:
+            // при бонусе current больше baseMax, и baseMax - current уходил в минус,
+            // из-за чего ни один пипс не гасился и бафф выглядел на ход щедрее.
             var additional = resultMax - baseMax;
-            var spent = baseMax - current;
+            var spent = resultMax - current;
 
-            for (var i = 0; i < _large.Length - 1; i++)
+            for (var i = 0; i < _large.Length; i++)
             {
                 var entry = _large[i];
                 
@@ -81,7 +84,7 @@ namespace GamePlay.Players.Resource
             HideAll(_bottomSmall);
 
             var additional = resultMax - baseMax;
-            var spent = baseMax - current;
+            var spent = resultMax - current;
 
             for (var i = 0; i < resultMax; i++)
             {

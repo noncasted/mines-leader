@@ -1,13 +1,10 @@
-﻿using System;
-using GamePlay.Boards;
-using GamePlay.Services;
+﻿using GamePlay.Boards;
 using GamePlay.UI;
 using Global.Cameras;
 using Global.UI;
 using Internal;
-using UnityEngine;
 
-namespace GamePlay.Loop
+namespace GamePlay.Services
 {
     public class GameServicesInitializer
     {

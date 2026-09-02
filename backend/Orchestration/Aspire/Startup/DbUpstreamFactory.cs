@@ -6,7 +6,12 @@ namespace Aspire;
 public record DbUpstream
 {
     public required string Host { get; init; }
+
+    /// <summary>Port inside the container network (what pgbouncer's databases.ini points at).</summary>
     public required int Port { get; init; }
+
+    /// <summary>Port published on the developer machine (the "db" connection string); pgbouncer takes the next one.</summary>
+    public required int HostPort { get; init; }
     public required string Database { get; init; }
     public required string User { get; init; }
     public required string Password { get; init; }
@@ -41,6 +46,7 @@ public static class DbUpstreamFactory
         {
             Host = "postgres",
             Port = 5432,
+            HostPort = port,
             Database = database,
             User = user,
             Password = password,

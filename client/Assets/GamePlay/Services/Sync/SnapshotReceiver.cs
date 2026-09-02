@@ -16,6 +16,7 @@ namespace GamePlay.Services
     {
         private readonly Dictionary<Type, Func<IMoveSnapshotRecord, UniTask>> _handlers = new();
         private readonly Queue<IMoveSnapshotRecord> _queue = new();
+
         private Guid _roundPlayerId;
 
         public void Add(Type type, Func<IMoveSnapshotRecord, UniTask> handler)
@@ -50,16 +51,10 @@ namespace GamePlay.Services
                     continue;
                 }
 
-                // Keep the move counter live, but delay turn locks until card
-                // drop visuals have finished so remote cards can pile up.
-                if (record is PlayerSnapshotRecord.MovesUpdate moves &&
-                    moves.IsAvailable == true)
-                {
-                    HandleRecordImmediately(record);
-                    continue;
-                }
-
-                _queue.Enqueue(record);
+                // Ресурсы игрока идут через очередь наравне со всем остальным: сервер
+                // присылает их после записи о действии, и счётчики обязаны меняться
+                // только когда анимация карты или вскрытия уже отыграла.
+                Enqueue(record);
             }
         }
 
@@ -72,6 +67,11 @@ namespace GamePlay.Services
             }
 
             // Player switches wait for drop/stash visuals so the pile is not reset mid-turn.
+            Enqueue(record);
+        }
+
+        private void Enqueue(IMoveSnapshotRecord record)
+        {
             _queue.Enqueue(record);
         }
 
@@ -102,7 +102,7 @@ namespace GamePlay.Services
 
             if (queued != null)
             {
-                _queue.Enqueue(new SharedBoardSnapshot
+                Enqueue(new SharedBoardSnapshot
                 {
                     BoardOwnerId = boardSnapshot.BoardOwnerId,
                     Records = queued

@@ -61,3 +61,9 @@ MonoBehaviour:
       Value: {r: 0.65882355, g: 0.7921569, b: 0.34509805, a: 1}
     - Name: lose
       Value: {r: 0.64705884, g: 0.1882353, b: 0.1882353, a: 1}
+  - Name: buffs
+    Entries:
+    - Name: add
+      Value: {r: 0.45882353, g: 0.654902, b: 0.2627451, a: 1}
+    - Name: remove
+      Value: {r: 0.64705884, g: 0.1882353, b: 0.1882353, a: 1}

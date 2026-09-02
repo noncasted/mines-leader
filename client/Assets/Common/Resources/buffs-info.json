@@ -31,6 +31,11 @@
       "description": "+{0} moves from Coin Toss. Lasts 1 turn."
     },
     {
+      "type": "CoinTossTails",
+      "name": "Coin Toss",
+      "description": "-{0} moves from Coin Toss. Lasts 1 turn."
+    },
+    {
       "type": "Focus",
       "name": "Focus",
       "description": "-{0} mana cost for the next card from Focus. Lasts 1 turn."
@@ -79,6 +84,16 @@
       "type": "SoulLink",
       "name": "Soul Link",
       "description": "Soul Link. Mine damage is mirrored onto the opponent."
+    },
+    {
+      "type": "Shield",
+      "name": "Shield",
+      "description": "Shield. Blocks the next mine explosion."
+    },
+    {
+      "type": "TrebuchetAimer",
+      "name": "Trebuchet Aimer",
+      "description": "+{0} Trebuchet blast size."
     }
   ]
 }

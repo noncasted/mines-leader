@@ -1,30 +1,23 @@
-using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
-using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public class CardActionSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardUse>
     {
-        public CardActionSnapshotHandler(
-            IReadOnlyLifetime lifetime,
-            IGameContext gameContext,
-            ICardActionSyncDispatcher actionSyncDispatcher)
+        public CardActionSnapshotHandler(IReadOnlyLifetime lifetime, IGameContext gameContext)
         {
             _lifetime = lifetime;
             _gameContext = gameContext;
-            _actionSyncDispatcher = actionSyncDispatcher;
         }
 
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
-        private readonly ICardActionSyncDispatcher _actionSyncDispatcher;
 
         public async UniTask Handle(PlayerSnapshotRecord.CardUse record)
         {
@@ -44,34 +37,17 @@ namespace GamePlay
             {
                 case IRemoteCard remoteCard:
                     remoteCard.Reveal();
-                    await remoteCard.Drop.Enter(card.Lifetime, dropPosition);
+                    await remoteCard.Drop.Enter(_lifetime, dropPosition, record.Data);
                     break;
                 case ILocalCard localCard:
-                    await localCard.Drop.Enter(card.Lifetime, dropPosition);
+                    await localCard.Drop.Enter(_lifetime, dropPosition, record.Data);
                     break;
             }
 
-            await card.Use(_lifetime, record.Data);
-
-            if (record.Data is CardActionSnapshot.MirrorMatch mirrorMatch &&
-                mirrorMatch.CopiedAction != null)
-                await _actionSyncDispatcher.Dispatch(_lifetime, mirrorMatch.CopiedAction);
-
-            StashThenDestroy(card).NoAwait();
-        }
-
-        private async UniTask StashThenDestroy(ICard card)
-        {
-            try
-            {
-                await card.Stash.Enter(card.Lifetime);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-
-            if (card.Lifetime.IsTerminated == false)
-                await card.Destroy();
+            // The card stays on the table in the dropped state; the flight into the
+            // stash is driven by the server (PlayerSnapshotRecord.CardsStashed).
+            player.Table.Add(card);
+            card.Dropped.Enter(card.Lifetime).NoAwait();
         }
     }
 }

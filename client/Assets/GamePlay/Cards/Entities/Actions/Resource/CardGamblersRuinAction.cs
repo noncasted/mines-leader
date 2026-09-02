@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
+using Meta;
 using Shared;
 
 namespace GamePlay.Cards
@@ -31,19 +31,31 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.GamblersRuin>
         {
-            public Snapshot(IGameRandom random, IGameContext context)
+            public Snapshot(
+                IGameRandom random,
+                IGameContext context,
+                ICardConfigs configs,
+                ICardResourceFloatingText floatingText)
             {
                 _random = random;
                 _context = context;
+                _configs = configs;
+                _floatingText = floatingText;
             }
 
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
+            private readonly ICardConfigs _configs;
+            private readonly ICardResourceFloatingText _floatingText;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.GamblersRuin payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.GamblersRuin payload)
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
-                return _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+                var position = await _random.PlayCoinFlip(lifetime, payload.IsHeads, isOwned);
+
+                // Tails only discards cards, so there is no resource change to show.
+                if (payload.IsHeads == true)
+                    _floatingText.Show(position, CardResource.Mana, _configs.Value.GamblersRuin_Normal.WinMana);
             }
         }
     }

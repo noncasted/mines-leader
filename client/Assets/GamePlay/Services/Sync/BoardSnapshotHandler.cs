@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
-using GamePlay.Services;
 using Shared;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public class BoardSnapshotHandler : ISnapshotHandler<SharedBoardSnapshot>
     {

@@ -320,10 +320,13 @@
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">/home/noncasted/.local/share/mise/installs/dotnet/9.0.305/sdk/9.0.305/MSBuild.dll</s:String>
 	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114126</s:Int64>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9ebc434c_002Dcb96_002D4ace_002Db9e7_002D0b56eb68286c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;And&gt;
-    &lt;Namespace&gt;Tests.Messaging&lt;/Namespace&gt;
-    &lt;Project Location="/projects/mines-leader/backend/Tools/Tests" Presentation="&amp;lt;Tools&amp;gt;\&amp;lt;Tests&amp;gt;" /&gt;
-  &lt;/And&gt;
+  &lt;Or&gt;
+    &lt;And&gt;
+      &lt;Namespace&gt;Tests.Messaging&lt;/Namespace&gt;
+      &lt;Project Location="/projects/mines-leader/backend/Tools/Tests" Presentation="&amp;lt;Tools&amp;gt;\&amp;lt;Tests&amp;gt;" /&gt;
+    &lt;/And&gt;
+    &lt;ProjectFolder&gt;A86DCBC8-1CC7-A940-8F37-70C2F3B15BCF/d:Game&lt;/ProjectFolder&gt;
+  &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	

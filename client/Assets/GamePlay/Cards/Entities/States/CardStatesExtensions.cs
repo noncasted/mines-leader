@@ -1,5 +1,4 @@
 ﻿using System;
-using GamePlay.Cards.Drop;
 using Internal;
 using Meta;
 using Shared;
@@ -16,6 +15,9 @@ namespace GamePlay.Cards
             builder.Register<CardLocalStash>()
                    .As<ICardLocalStash>()
                    .As<ICardStash>();
+
+            builder.Register<CardDropped>()
+                   .As<ICardDropped>();
 
             builder.Register<CardLocalIdle>()
                    .As<ICardLocalIdle>();
@@ -38,6 +40,9 @@ namespace GamePlay.Cards
             builder.Register<CardRemoteStash>()
                    .As<ICardRemoteStash>()
                    .As<ICardStash>();
+
+            builder.Register<CardDropped>()
+                   .As<ICardDropped>();
 
             builder.Register<CardRemoteIdle>()
                    .As<ICardRemoteIdle>();

@@ -11,6 +11,8 @@ public class ModifierRoundAction : IRoundAction
     private readonly IPlayer _player;
     private readonly IModifierSource _source;
 
+    public Guid OwnerId => _player.User.Id;
+
     public bool Tick(MoveSnapshot snapshot)
     {
         var expired = _source.Tick();

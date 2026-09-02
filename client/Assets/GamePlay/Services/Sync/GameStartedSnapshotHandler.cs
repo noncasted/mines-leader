@@ -1,10 +1,9 @@
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using GamePlay.Services;
 using Internal;
 using Shared;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public class GameStartedSnapshotHandler : ISnapshotHandler<GameStartedRecord>
     {

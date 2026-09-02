@@ -81,7 +81,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
 
         var players = _gameContext.Players;
 
-        var snapshot = new MoveSnapshot();
+        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
 
         var initPreState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)
@@ -233,7 +233,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         _currentPlayerId = player.User.Id;
 
         {
-            var startSnapshot = new MoveSnapshot();
+            var startSnapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
 
             var startPreState = _diffGuard.IsEnabled == true
                 ? GameStateCapture.Capture(_gameContext)
@@ -270,7 +270,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
             _logger.LogError(e, "Error in round timer");
         }
 
-        var endSnapshot = new MoveSnapshot();
+        var endSnapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
 
         var endPreState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)
@@ -284,9 +284,12 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
         player.Mana.Restore(endSnapshot);
         _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.ResultMax);
 
+        // Отыгранные карты лежат на столе до конца хода — здесь сервер отправляет их в стеш.
+        endSnapshot.RecordCardsStashed(player);
+
         _players.RestoreCards(player, endSnapshot);
 
-        _roundActionService.Tick(endSnapshot);
+        _roundActionService.Tick(endSnapshot, player.User.Id);
         player.Moves.Lock(endSnapshot);
 
         if (endPreState != null)
@@ -312,7 +315,7 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
 
     private void EmitRoundSnapshot()
     {
-        var snapshot = new MoveSnapshot();
+        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
         snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, secondsLeft: 0);
         _snapshotSender.Send(snapshot);
     }

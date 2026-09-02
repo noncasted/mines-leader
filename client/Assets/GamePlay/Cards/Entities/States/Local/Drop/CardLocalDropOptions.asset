@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84e7355b4c8f4a3280347cef73f38ac3, type: 3}
   m_Name: CardLocalDropOptions
   m_EditorClassIdentifier: 
-  _assetId: 106
   _time: 0.7
   _twistAngleRange: {x: 330.37973, y: 390.82278}
   _moveCurve:
@@ -95,12 +94,12 @@ MonoBehaviour:
       outWeight: 0.25311205
     - serializedVersion: 3
       time: 1
-      value: 1.3581526
-      inSlope: -0.3097863
-      outSlope: -0.3097863
+      value: 1.0430018
+      inSlope: -0.7896764
+      outSlope: -0.7896764
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.1825726
+      inWeight: 0.15560168
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

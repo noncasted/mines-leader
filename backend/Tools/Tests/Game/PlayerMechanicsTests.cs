@@ -710,10 +710,13 @@ public class RoundActionServiceTests
         private int _roundsLeft;
         public int ExecuteCount { get; private set; }
 
-        public TestAction(int roundsLeft = 1)
+        public TestAction(int roundsLeft = 1, Guid ownerId = default)
         {
             _roundsLeft = roundsLeft;
+            OwnerId = ownerId;
         }
+
+        public Guid OwnerId { get; }
 
         public bool Tick(MoveSnapshot snapshot)
         {
@@ -736,11 +739,11 @@ public class RoundActionServiceTests
 
         service.Schedule(action);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action.ExecuteCount.Should().Be(0);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action.ExecuteCount.Should().Be(0);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action.ExecuteCount.Should().Be(1);
     }
 
@@ -751,7 +754,7 @@ public class RoundActionServiceTests
         var action = new TestAction(1);
 
         service.Schedule(action);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
 
         action.ExecuteCount.Should().Be(1);
     }
@@ -763,7 +766,7 @@ public class RoundActionServiceTests
         var action = new TestAction(0);
 
         service.Schedule(action);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
 
         action.ExecuteCount.Should().Be(1);
     }
@@ -775,7 +778,7 @@ public class RoundActionServiceTests
         var action = new TestAction(-5);
 
         service.Schedule(action);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
 
         action.ExecuteCount.Should().Be(0);
     }
@@ -785,19 +788,37 @@ public class RoundActionServiceTests
     {
         var service = new RoundActionService();
 
-        var act = () => service.Tick(new MoveSnapshot());
+        var act = () => service.Tick(new MoveSnapshot(), Guid.Empty);
 
         act.Should().NotThrow();
 
         // Verify idempotency — ticking twice with no actions is also safe
-        service.Tick(new MoveSnapshot());
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
+        service.Tick(new MoveSnapshot(), Guid.Empty);
 
         // Schedule an action after empty ticks to confirm service is still functional
         var action = new TestAction(1);
         service.Schedule(action);
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action.ExecuteCount.Should().Be(1, "service should still work after empty ticks");
+    }
+
+    [Fact]
+    public void Tick_OtherPlayersTurn_DoesNotTickAction()
+    {
+        var service = new RoundActionService();
+        var owner = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var action = new TestAction(1, owner);
+
+        service.Schedule(action);
+
+        // Ход закончил не владелец действия — длительность не должна сгорать.
+        service.Tick(new MoveSnapshot(), other);
+        action.ExecuteCount.Should().Be(0);
+
+        service.Tick(new MoveSnapshot(), owner);
+        action.ExecuteCount.Should().Be(1);
     }
 
     [Fact]
@@ -810,11 +831,11 @@ public class RoundActionServiceTests
         service.Schedule(action1);
         service.Schedule(action2);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action1.ExecuteCount.Should().Be(0);
         action2.ExecuteCount.Should().Be(0);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         action1.ExecuteCount.Should().Be(1);
         action2.ExecuteCount.Should().Be(1);
     }
@@ -826,8 +847,8 @@ public class RoundActionServiceTests
         var action = new TestAction(1);
 
         service.Schedule(action);
-        service.Tick(new MoveSnapshot());
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
+        service.Tick(new MoveSnapshot(), Guid.Empty);
 
         action.ExecuteCount.Should().Be(1);
     }
@@ -842,14 +863,14 @@ public class RoundActionServiceTests
         service.Schedule(early);
         service.Schedule(late);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         early.ExecuteCount.Should().Be(1);
         late.ExecuteCount.Should().Be(0);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         late.ExecuteCount.Should().Be(0);
 
-        service.Tick(new MoveSnapshot());
+        service.Tick(new MoveSnapshot(), Guid.Empty);
         late.ExecuteCount.Should().Be(1);
     }
 }

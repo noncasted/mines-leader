@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7b4c1a92d5e4f6a8b3c0d1e5f7a9b2c, type: 3}
   m_Name: CardRemoteDropOptions
   m_EditorClassIdentifier: 
-  _assetId: 122
   _time: 0.7
   _twistAngleRange: {x: 323.54428, y: 373.6709}
   _moveCurve:
@@ -77,12 +76,12 @@ MonoBehaviour:
       outWeight: 0.22821577
     - serializedVersion: 3
       time: 1
-      value: 1.3083564
-      inSlope: -0.3097863
-      outSlope: -0.3097863
+      value: 1.0405781
+      inSlope: -0.46864334
+      outSlope: -0.46864334
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.1825726
+      inWeight: 0.17634857
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

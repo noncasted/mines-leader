@@ -15,8 +15,8 @@ namespace GamePlay.Cards
         ICardTransform Transform { get; }
         IReadOnlyLifetime Lifetime { get; }
         ICardStash Stash { get; }
+        ICardDropped Dropped { get; }
 
-        UniTask Use(IReadOnlyLifetime lifetime, ICardActionData payload);
         UniTask Destroy();
     }
 }

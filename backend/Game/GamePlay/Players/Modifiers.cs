@@ -1,3 +1,4 @@
+using Game.Session;
 using Shared;
 
 namespace Game.GamePlay;
@@ -39,6 +40,7 @@ public class Modifiers : IModifiers
     {
         _sources[source.Id] = source;
         Recalculate(snapshot);
+        LogApplied(snapshot, source);
     }
 
     public void Update(MoveSnapshot snapshot, IModifierSource source)
@@ -48,6 +50,7 @@ public class Modifiers : IModifiers
 
         _sources[source.Id] = source;
         Recalculate(snapshot);
+        LogTicked(snapshot, source);
     }
 
     public void Remove(MoveSnapshot snapshot, Guid sourceId)
@@ -64,6 +67,9 @@ public class Modifiers : IModifiers
             return;
 
         Recalculate(snapshot);
+
+        if (source != null)
+            LogEnded(snapshot, source, ModifierEndReason.Expired);
     }
 
     public void Remove(MoveSnapshot snapshot, PlayerModifier type)
@@ -79,8 +85,13 @@ public class Modifiers : IModifiers
             _sources.Remove(source.Id);
         }
 
-        if (toRemove.Count > 0)
-            Recalculate(snapshot);
+        if (toRemove.Count == 0)
+            return;
+
+        Recalculate(snapshot);
+
+        foreach (var source in toRemove)
+            LogEnded(snapshot, source, ModifierEndReason.Consumed);
     }
 
     public void RemoveOne(MoveSnapshot snapshot, PlayerModifier type)
@@ -95,11 +106,36 @@ public class Modifiers : IModifiers
             snapshot.RecordModifierUpdate(_owner, removalOverview);
         _sources.Remove(source.Id);
         Recalculate(snapshot);
+        LogEnded(snapshot, source, ModifierEndReason.Consumed);
     }
 
     public void Reset(MoveSnapshot snapshot, PlayerModifier type)
     {
         Remove(snapshot, type);
+    }
+
+    private void LogApplied(MoveSnapshot snapshot, IModifierSource source)
+    {
+        if (_owner == null)
+            return;
+
+        snapshot.SessionLogger?.LogModifierApplied(_owner.User.Id, source.GetOverview(), _values[source.Type]);
+    }
+
+    private void LogTicked(MoveSnapshot snapshot, IModifierSource source)
+    {
+        if (_owner == null)
+            return;
+
+        snapshot.SessionLogger?.LogModifierTicked(_owner.User.Id, source.GetOverview(), _values[source.Type]);
+    }
+
+    private void LogEnded(MoveSnapshot snapshot, IModifierSource source, ModifierEndReason reason)
+    {
+        if (_owner == null)
+            return;
+
+        snapshot.SessionLogger?.LogModifierEnded(_owner.User.Id, source.GetOverview(), _values[source.Type], reason);
     }
 
     private void Recalculate(MoveSnapshot snapshot)

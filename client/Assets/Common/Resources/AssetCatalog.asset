@@ -17,6 +17,9 @@ MonoBehaviour:
     Name: CardDragOptions
     Asset: {fileID: 11400000, guid: 6f14e9ddf4ffcf24bb68ddee51d7047f, type: 2}
   - Group: GamePlay
+    Name: CardDroppedOptions
+    Asset: {fileID: 11400000, guid: 3b77c24cde3e4885bbaa588dce57994f, type: 2}
+  - Group: GamePlay
     Name: CardIdleOptions
     Asset: {fileID: 11400000, guid: 061a4a0ab7bb3fb44acf1cb6bca981e0, type: 2}
   - Group: GamePlay

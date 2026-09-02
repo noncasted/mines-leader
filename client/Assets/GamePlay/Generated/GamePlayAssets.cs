@@ -6,6 +6,9 @@ namespace GamePlay {
         public static global::GamePlay.Cards.CardDragOptions CardDragOptions =>
             global::Internal.AssetCatalog.Get<global::GamePlay.Cards.CardDragOptions>(Group, "CardDragOptions");
 
+        public static global::GamePlay.Cards.CardDroppedOptions CardDroppedOptions =>
+            global::Internal.AssetCatalog.Get<global::GamePlay.Cards.CardDroppedOptions>(Group, "CardDroppedOptions");
+
         public static global::GamePlay.Cards.CardIdleOptions CardIdleOptions =>
             global::Internal.AssetCatalog.Get<global::GamePlay.Cards.CardIdleOptions>(Group, "CardIdleOptions");
 

@@ -36,12 +36,19 @@ public class Moves : IMoves
 
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMoves);
 
+    /// <summary>
+    /// Положительный модификатор докидывает ходы поверх остатка, отрицательный только
+    /// урезает потолок: дебафф забирает запас, а не уже доступный ход. При максимуме 5
+    /// и остатке 4 после -1 остаётся 4 из 4, а не 3 из 4.
+    /// </summary>
+    private int Gain => Bonus > 0 ? Bonus : 0;
+
     private readonly ViewableDelegate _updated = new();
 
     public IViewableDelegate Updated => _updated;
-    public int Left => _rawLeft + Bonus;
+    public int Left => Math.Min(_rawLeft + Gain, ResultMax);
     public int BaseMax => _maxTurns;
-    public int ResultMax => _maxTurns + Bonus;
+    public int ResultMax => Math.Max(0, _maxTurns + Bonus);
     public bool IsAvailable => _isAvailable;
 
     public void BindOwner(IPlayer owner)
@@ -57,7 +64,11 @@ public class Moves : IMoves
         if (value > ResultMax)
             value = ResultMax;
 
-        _rawLeft = value - Bonus;
+        _rawLeft = value - Gain;
+
+        if (_rawLeft > _maxTurns)
+            _rawLeft = _maxTurns;
+
         _updated.Invoke();
         Record(snapshot);
     }

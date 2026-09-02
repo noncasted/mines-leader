@@ -31,6 +31,7 @@ namespace Menu.Decks
         public IPlayerHealth Health => throw new NotSupportedException("MenuPreviewGamePlayer has no health");
         public IPlayerTurns Turns => throw new NotSupportedException("MenuPreviewGamePlayer has no turns");
         public IHand Hand => throw new NotSupportedException("MenuPreviewGamePlayer has no hand");
+        public ICardTable Table => throw new NotSupportedException("MenuPreviewGamePlayer has no table");
         public IPlayerModifiers Modifiers => throw new NotSupportedException("MenuPreviewGamePlayer has no modifiers");
     }
 

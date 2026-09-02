@@ -44,6 +44,7 @@ namespace Shared
     [MemoryPackUnion(12, typeof(GameCompletedRecord))]
     [MemoryPackUnion(13, typeof(TimeLimitedRoundRecord))]
     [MemoryPackUnion(14, typeof(LastManStandingRoundRecord))]
+    [MemoryPackUnion(15, typeof(PlayerSnapshotRecord.CardsStashed))]
     public partial interface IMoveSnapshotRecord
     {
     }

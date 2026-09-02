@@ -2,13 +2,20 @@ namespace Game.GamePlay;
 
 public interface IRoundAction
 {
+    /// <summary>
+    /// Игрок, по чьим ходам отсчитывается длительность: для модификаторов это их носитель,
+    /// для эффектов на клетках — владелец доски. Иначе дебаф на оппонента сгорал бы
+    /// ещё на ходу кастера, не дожив до хода цели.
+    /// </summary>
+    Guid OwnerId { get; }
+
     bool Tick(MoveSnapshot snapshot);
 }
 
 public interface IRoundActionService
 {
     void Schedule(IRoundAction action);
-    void Tick(MoveSnapshot snapshot);
+    void Tick(MoveSnapshot snapshot, Guid ownerId);
 }
 
 public class RoundActionService : IRoundActionService
@@ -20,13 +27,18 @@ public class RoundActionService : IRoundActionService
         _scheduledActions.Add(action);
     }
 
-    public void Tick(MoveSnapshot snapshot)
+    public void Tick(MoveSnapshot snapshot, Guid ownerId)
     {
         var toRemove = new List<int>();
 
         for (var i = 0; i < _scheduledActions.Count; i++)
         {
-            var remove = _scheduledActions[i].Tick(snapshot);
+            var action = _scheduledActions[i];
+
+            if (action.OwnerId != ownerId)
+                continue;
+
+            var remove = action.Tick(snapshot);
             if (remove)
                 toRemove.Add(i);
         }

@@ -13,7 +13,7 @@ internal sealed class PreviewRoundActionService : IRoundActionService
     {
     }
 
-    public void Tick(MoveSnapshot snapshot)
+    public void Tick(MoveSnapshot snapshot, Guid ownerId)
     {
     }
 }

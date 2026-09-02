@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
@@ -31,19 +30,23 @@ namespace GamePlay.Cards
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ManaFountain>
         {
-            public Snapshot(IGameRandom random, IGameContext context)
+            public Snapshot(IGameRandom random, IGameContext context, ICardResourceFloatingText floatingText)
             {
                 _random = random;
                 _context = context;
+                _floatingText = floatingText;
             }
 
             private readonly IGameRandom _random;
             private readonly IGameContext _context;
+            private readonly ICardResourceFloatingText _floatingText;
 
-            public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ManaFountain payload)
+            public async UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.ManaFountain payload)
             {
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
-                return _random.PlayDiceRoll(lifetime, payload.RolledAmount, isOwned);
+                var position = await _random.PlayDiceRoll(lifetime, payload.RolledAmount, isOwned);
+
+                _floatingText.Show(position, CardResource.Mana, payload.RolledAmount);
             }
         }
     }

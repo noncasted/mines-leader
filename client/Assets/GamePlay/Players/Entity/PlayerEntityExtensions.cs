@@ -20,6 +20,9 @@ namespace GamePlay.Players
             builder.Register<PlayerModifiers>()
                    .As<IPlayerModifiers>();
 
+            builder.Register<CardTable>()
+                   .As<ICardTable>();
+
             return builder;
         }
 

@@ -1,10 +1,9 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
-using GamePlay.Services;
 using Shared;
 
-namespace GamePlay
+namespace GamePlay.Services
 {
     public class CardRemoveSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardRemove>
     {

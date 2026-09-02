@@ -16,25 +16,23 @@ namespace GamePlay.Cards
     public static class CardDropMotion
     {
         private const string OverlaySortingLayer = "UI";
-        private const int OverlaySortingOrder = 100;
 
         public static UniTask Play(
             IUpdater updater,
             IReadOnlyLifetime lifetime,
             ICardTransform transform,
             ICardRenderer renderer,
-            Vector2 endPosition,
+            CardDropSlot slot,
             float twistAngle,
-            int stackIndex,
             ICardDropOptions options,
             Vector2? dropPosition)
         {
             renderer.SetSortingLayer(OverlaySortingLayer);
-            renderer.SetSortingOrder(OverlaySortingOrder + stackIndex);
+            renderer.SetSortingOrder(slot.SortingOrder);
 
+            var endPosition = slot.Position;
             var startPosition = transform.Position;
             var startRotation = transform.Rotation;
-            var startScale = transform.Scale;
             var control = dropPosition ?? Vector2.Lerp(startPosition, endPosition, 0.5f);
 
             var moveCurve = options.MoveCurve.CreateInstance();
