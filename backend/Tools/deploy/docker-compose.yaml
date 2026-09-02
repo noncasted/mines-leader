@@ -277,9 +277,10 @@ services:
       DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:-dev-otlp-key}
       DASHBOARD__OTLP__ENDPOINTURL: http://0.0.0.0:18889
       DASHBOARD__FRONTEND__ENDPOINTURLS: http://0.0.0.0:18888
-      # Fetch resource list (Resources tab) from the standalone resource service over Docker socket.
-      DASHBOARD__RESOURCESERVICECLIENT__AUTHMODE: Unsecured
-      DASHBOARD__RESOURCESERVICECLIENT__URL: http://resource-service:80
+      # No DASHBOARD__RESOURCESERVICECLIENT__*: we do not run a resource service,
+      # so the dashboard's Resources tab stays empty by design. Structured logs,
+      # Traces and Metrics (the surfaces we actually use) come over OTLP and work
+      # without it.
       SERVICE_FQDN_ASPIREDASHBOARD_18888: /
     expose:
       - "18888"
@@ -293,9 +294,6 @@ services:
       # `user: root` is required because the aspire-dashboard image runs as a
       # non-root user by default and cannot write to /root/.aspnet/.
       - aspire-dashboard-keys:/root/.aspnet/DataProtection-Keys
-    depends_on:
-      resource-service:
-        condition: service_started
     restart: unless-stopped
     networks:
       - mines-leader-production
@@ -305,28 +303,6 @@ services:
       # otherwise selects a backend IP arbitrarily — sometimes from a
       # network where the proxy is not a member.
       - "traefik.docker.network=mines-leader-production"
-
-  # Third-party standalone resource server — populates the dashboard Resources tab
-  # by reading the host Docker socket. MIT-licensed upstream, pinned to a commit.
-  # Source: https://github.com/kiapanahi/Aspire.ResourceServer.Standalone
-  resource-service:
-    build:
-      # Fork adds optional COMPOSE_PROJECT_FILTER env to scope resources to one compose project.
-      # Upstream: https://github.com/kiapanahi/Aspire.ResourceServer.Standalone
-      context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#6d9cba465a25bd16bc941163da2283590e5f8581
-    image: mines-leader/resource-service:6d9cba4
-    environment:
-      ASPNETCORE_URLS: http://0.0.0.0:80
-      ResourceProvider: docker
-      COMPOSE_PROJECT_FILTER: ${COMPOSE_PROJECT_NAME:-mines-leader}
-    volumes:
-      # Read-only docker socket is enough: provider only lists/watches/reads logs.
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    expose:
-      - "80"
-    restart: unless-stopped
-    networks:
-      - mines-leader-production
 
 volumes:
   aspire-dashboard-keys:

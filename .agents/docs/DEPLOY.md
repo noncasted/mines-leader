@@ -11,7 +11,7 @@ Two parallel deployment models that **do not share a runtime**:
 | Postgres | Aspire-managed container | External Coolify-managed resource |
 | PgBouncer | Aspire `AddContainer` sidecar | First-class compose service |
 | Dashboard | AppHost-spawned dashboard | Standalone `mcr.microsoft.com/dotnet/aspire-dashboard` container |
-| Resources tab | Native AppHost resource service | Third-party `kiapanahi/Aspire.ResourceServer.Standalone` (forked) |
+| Resources tab | Native AppHost resource service | Not available (no resource service — see below) |
 | TLS / routing | `localhost:<port>` | Coolify Traefik + Let's Encrypt |
 || Migrations | `PostResourcesSetup.Run` via `--migrate` mode | `migrator` init-container (`Aspire.AppHost --migrate`) |
 
@@ -172,10 +172,7 @@ meta / game / console (three parallel leaves)
 
 aspire-dashboard (mcr.microsoft.com/dotnet/aspire-dashboard:9.0)
   - publishes OTLP endpoint on :18889 for every service
-  - reads resources from resource-service over gRPC
-resource-service (noncasted fork, pinned SHA)
-  - mounts /var/run/docker.sock read-only
-  - filters containers by COMPOSE_PROJECT_FILTER=mines-leader
+  - telemetry only; Resources tab is empty (no resource service)
 ```
 
 Dependencies use `depends_on.condition: service_healthy` — matches the old AppHost `WaitFor(...)` semantics without needing AppHost.
@@ -191,7 +188,6 @@ All services declare `expose:` (internal) — no `ports:` mapped to host. TLS / 
 | coordinator | 8080 | same |
 | meta / game / console | 8080 | same, plus user traffic via Traefik |
 | aspire-dashboard | 18888 (frontend), 18889 (OTLP gRPC), 18890 (OTLP HTTP) | 18888 user, 18889 app→dashboard |
-| resource-service | 80 (gRPC) | dashboard→resource-service |
 
 When a container exposes **more than one** port, Coolify cannot guess which one Traefik should forward to. The UI Domain field must include `:port` in those cases (currently only `aspire-dashboard` — `https://aspire.<domain>:18888`).
 
@@ -236,7 +232,7 @@ docker run --rm <image> ls /app/wwwroot/_framework/
 
 ### Profiles (or lack of)
 
-Earlier we used `profiles: [with-dashboard]` on dashboard + resource-service so they were optional. That felt wrong because the dashboard is the primary observability surface and we always want it up. The profiles were dropped; both containers boot on every deploy.
+Earlier we used `profiles: [with-dashboard]` on the dashboard (and the since-removed resource-service) so they were optional. That felt wrong because the dashboard is the primary observability surface and we always want it up. The profiles were dropped; the dashboard boots on every deploy.
 
 If you ever want to make a service optional again:
 1. Add `profiles: [some-name]` back to the service block.
@@ -288,17 +284,19 @@ Checks registered:
 
 Console has an auth middleware that redirects everything except `/login` and `/_/css/*` to the login screen. Explicit allowlist was added for `/health`, `/alive`, `/ready` — without it Docker healthcheck saw 302 redirects and marked the container unhealthy.
 
-## Resource service (Aspire Dashboard Resources tab)
+## Resources tab: not wired up (removed 2026-09-03)
 
-Aspire's standalone dashboard only shows telemetry (Structured logs / Traces / Metrics) by default — the Resources tab is empty unless `DASHBOARD__RESOURCESERVICECLIENT__URL` points at a gRPC server implementing the Aspire resource service contract.
+Aspire's standalone dashboard only shows telemetry (Structured logs / Traces / Metrics) by default — the Resources tab stays empty unless `DASHBOARD__RESOURCESERVICECLIENT__URL` points at a gRPC server implementing the Aspire resource service contract.
 
-We ship a third-party implementation pinned by commit SHA: `https://github.com/noncasted/Aspire.ResourceServer.Standalone` (fork of `kiapanahi/Aspire.ResourceServer.Standalone`, MIT-licensed). Our fork adds three patches on top of upstream:
+We used to ship one: a `resource-service` container built straight from `https://github.com/noncasted/Aspire.ResourceServer.Standalone` (fork of the MIT-licensed `kiapanahi/...`) pinned by commit SHA, mounting `/var/run/docker.sock:ro`.
 
-1. `COMPOSE_PROJECT_FILTER` env — filter listed containers by `com.docker.compose.project` label so we only see `mines-leader-*`, not every container on the host.
-2. Docker container state (`running`, `exited`, …) mapped to Aspire `KnownResourceStates` (`Running`, `Exited`, …) so the icon colour is correct.
-3. Display name comes from `com.docker.compose.service` label; exit code parsed from `Status` string so `migrator` (exit 0) shows as `Finished` not `Failed`.
+It is gone. Reasons:
 
-`resource-service` container mounts `/var/run/docker.sock:ro`. Coolify allows read-only socket mounts by default. Without the mount the Resources tab shows no data but the dashboard itself still works.
+- The remote git build context made **every** deploy depend on GitHub being reachable and willing to serve an anonymous fetch from the VPS IP. When GitHub answered 401 (rate limit / abuse heuristics) BuildKit died with `could not read Username for 'https://github.com'` and the whole compose build — app services included — failed. That took prod deploys down for a cosmetic tab.
+- The tab is cosmetic: `docker ps` / `docker logs` on the VPS and Coolify's own UI cover the same ground, and the telemetry surfaces we actually use ride OTLP.
+- Keeping the fork alive cost real maintenance (see the resource-service entries in DEPLOY_TROUBLESHOOTING.md: net10 `CS0718`, `NU1902`, log lookup by service label, image tag drift).
+
+If the Resources tab is ever wanted back, do **not** reintroduce a remote git build context — build the fork once, push the image to a registry, and reference it by tag from compose.
 
 ## Memory footprint (apples to apples)
 
@@ -307,7 +305,7 @@ We ship a third-party implementation pinned by commit SHA: `https://github.com/n
 | 5 game services | 870 MB Debug | 576 MiB Release | 940 MiB Release |
 | └── of which silo | — | 113 MiB | **531 MiB** ← benchmark-driven grain caches |
 | Aspire host + dashboard + dcp + 6× dotnet run | ~1.6 GB | — | — |
-| aspire-dashboard + resource-service | — | 156 MiB | 197 MiB |
+| aspire-dashboard (+ resource-service, since removed) | — | 156 MiB | 197 MiB |
 | pgbouncer | 3 MB | 1.7 MiB | 1.9 MiB |
 | migrator (runs then exits) | N/A | 0 MiB | 0 MiB |
 | **Total project footprint** | ~2.47 GB | **~734 MiB** | ~1.14 GiB |
@@ -323,7 +321,6 @@ Coolify itself adds ~660 MiB (orchestrator + db + redis + proxy + sentinel + rea
 | Stage | Warm | Cold |
 |---|---|---|
 | git clone | 5-10s | 5-10s |
-| resource-service build (pinned SHA) | 0s (CACHED) | ~30s |
 | app build (restore + publish-all + 6 runtime stages) | ~30-60s | ~2m |
 | Stop old + start new containers | ~10s | ~10s |
 | Healthchecks (interval 2s) until all healthy | ~10-15s | ~15-20s |

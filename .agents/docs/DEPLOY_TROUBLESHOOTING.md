@@ -90,7 +90,7 @@ networks:
     external: true            # single network for the whole stack
 
 services:
-  pgbouncer / silo / coordinator / meta / game / console / aspire-dashboard / resource-service / migrator:
+  pgbouncer / silo / coordinator / meta / game / console / aspire-dashboard / migrator:
     networks: [mines-leader-production]
 
   meta / game / console / aspire-dashboard:
@@ -252,18 +252,21 @@ Double-check with `psql` against the actual managed Postgres after a deploy: `\d
 
 Verify: edit a `.cs` file, rerun `docker build` locally, confirm the `restore` step shows `CACHED`. If not, the `COPY --parents` glob is wrong.
 
-## Aspire Dashboard Resources tab is empty
+## Aspire Dashboard Resources tab is empty (and Console Logs tab is dead)
 
-**Symptom.** Telemetry tabs (Logs, Traces, Metrics) work; Resources tab shows no entries.
+**Symptom.** Telemetry tabs (Structured logs, Traces, Metrics) work; Resources and Console Logs show nothing.
 
-**Cause.** The standalone `mcr.microsoft.com/dotnet/aspire-dashboard` image only renders Resources when `DASHBOARD__RESOURCESERVICECLIENT__URL` points at a gRPC server implementing the resource contract. Stock dashboard ships none.
+**Cause.** Expected — this is by design since 2026-09-03. The standalone `mcr.microsoft.com/dotnet/aspire-dashboard` image only renders those tabs when `DASHBOARD__RESOURCESERVICECLIENT__URL` points at a gRPC server implementing the Aspire resource contract, and we no longer run one.
 
-**Fix.** `resource-service` container (forked `noncasted/Aspire.ResourceServer.Standalone`) provides this. Required pieces:
-- `DASHBOARD__RESOURCESERVICECLIENT__URL=http://resource-service:80` on `aspire-dashboard`.
-- `resource-service` mounts `/var/run/docker.sock:ro`.
-- `COMPOSE_PROJECT_FILTER=mines-leader` env on `resource-service` so it filters our containers out of the entire Docker host.
+**Why it was removed.** The `resource-service` container was built from a remote git context (`context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#<sha>`), so every deploy needed GitHub to serve an anonymous fetch from the VPS IP. When GitHub answered 401 the whole compose build died before touching app code:
+```
+#5 [resource-service internal] load git source https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#6d9cba46...
+fatal: could not read Username for 'https://github.com': terminal prompts disabled
+target resource-service: failed to solve: failed to read dockerfile
+```
+A cosmetic tab was taking prod deploys down, so the service, its `depends_on`, and the dashboard's `DASHBOARD__RESOURCESERVICECLIENT__*` env were dropped.
 
-If the tab is still empty, check `docker logs <resource-service>` — most failures are permission-related on the socket mount or label-filter typos.
+**Fix.** Use `docker ps` / `docker logs <container>` on the VPS or the Coolify UI for container state and logs. If the tabs are ever wanted back, build the fork once and push the image to a registry — never reintroduce a remote git build context in compose.
 
 ## Console healthcheck fails with 302 redirects
 
@@ -337,19 +340,6 @@ https://aspire.minesleader.xyz:18888
 ```
 Single-port services (meta/game/console on 8080) can omit the port — Traefik picks the only option. Affects `aspire-dashboard` (18888 / 18889 / 18890). If you expose a second port on any other service, add `:port` to its Domain entry.
 
-## Resource-service image tag out of sync with fork SHA
-
-**Symptom.** After pushing a fix to the fork, rebuild pulls new code but the container keeps running the old behaviour. `docker inspect` shows the old short-SHA in the image tag.
-
-**Cause.** Compose pins the fork by `build.context: https://github.com/noncasted/Aspire.ResourceServer.Standalone.git#<sha>` and tags the image `mines-leader/resource-service:<short-sha>`. BuildKit caches the git clone by URL+ref. If we bump only the `context:` ref but leave the `image:` tag unchanged, docker may still use the cached image layer under the old tag.
-
-**Fix.** When you update the fork:
-1. Bump the full SHA in `build.context`.
-2. Bump the short-SHA in `image:` to match.
-3. If still stale: `docker compose build --no-cache resource-service` on the host (Coolify Redeploy sometimes does this automatically, sometimes not).
-
-Keep both fields in lock-step — grep the compose for the old SHA and replace both occurrences when updating.
-
 ## Dev: Aspire persistent container stuck on wrong network
 
 **Symptom.** `aspire run` locally boots OK, but pgbouncer logs `DNS lookup failed: postgres: result=-2` forever. Services cannot reach Postgres. Happens after a config or Aspire version change.
@@ -395,16 +385,6 @@ volumes:
 ```
 
 After the next deploy the keyring is stable across restarts. Existing browser cookies stay invalid forever (their key is gone) — clear cookies for the dashboard host once and the loop ends.
-
-## Aspire Dashboard Console Logs tab throws `Status(StatusCode="Unknown", Detail="Exception was thrown by handler.")`
-
-**Symptom.** Any Console Logs view in the dashboard immediately fails. Server logs show `Grpc.Core.RpcException: Status(StatusCode="Unknown", Detail="Exception was thrown by handler.")` from `Aspire.Dashboard.Model.DashboardClient.SubscribeConsoleLogs`.
-
-**Cause.** Our forked `resource-service` (`noncasted/Aspire.ResourceServer.Standalone`) was looking up the target container in `GetResourceLogs` by raw Docker container name (`<project>-<service>-<N>`). After fork patch #3 (display name from `com.docker.compose.service` label), `Resource.Name` sent by the dashboard is the service label (`silo`, `migrator`, …) — they never match, `Single(...)` throws `InvalidOperationException`, gRPC wraps it as Unknown.
-
-**Fix.** Patched in fork commit `31272a1`: `GetResourceLogs` mirrors the same precedence as `Resource.FromDockerContainer` (compose-service label first, container name fallback) and degrades gracefully (`SingleOrDefault` + warn log + empty stream) when no container matches.
-
-If you bump the fork further, keep this invariant: the lookup key in `GetResourceLogs` must match whatever `FromDockerContainer` writes into `Resource.Name`.
 
 ## Console: `Failed to load resource: 404` for `_framework/blazor.web.js` (Blazor admin dead)
 
@@ -474,7 +454,7 @@ Apply this to **every** Blazor Server-rendered service that uses cookies / antif
 
 ## Compose `git+sha` references must use the FULL commit SHA
 
-**Symptom.** Coolify build aborts immediately on the resource-service stage:
+**Symptom.** (Historical — compose no longer has any git build context. Applies only if one is reintroduced.) Coolify build aborts immediately on the stage using a git context:
 ```
 ERROR: failed to read dockerfile: failed to load cache key:
        repository does not contain ref b2f751c, output: ""
@@ -487,42 +467,10 @@ Even though the SHA exists on `origin` and `git rev-parse b2f751c` resolves loca
 ```yaml
 build:
   context: https://github.com/<owner>/<repo>.git#ba56b364bfb7d56262e984c476071a811af07c5a
-image: mines-leader/resource-service:ba56b36
+image: mines-leader/<some-service>:ba56b36
 ```
 
-When you bump the fork, copy the full SHA into `context:` (`git rev-parse HEAD` in the fork worktree), then truncate it for the image tag.
-
-## Resource-service fork: `CS0718 'static type cannot be used as type argument'` after .NET 10 bump
-
-**Symptom.** Building the standalone resource-service fork on net10 fails on `Services/DashboardService.cs`:
-```
-CS1520: Method must have a return type
-CS0718: 'DashboardService': static types cannot be used as type arguments
-```
-on every `ILogger<DashboardService>` and on the constructor.
-
-**Cause.** `Grpc.Tools` generates a static container class `DashboardService` in the proto's namespace (`Aspire.ResourceService.Proto.V1`). Our wrapper class is also called `DashboardService` and inherits from `Proto.V1.DashboardService.DashboardServiceBase`. C# 14 / .NET 10 name resolution started preferring the inherited (proto-generated) static type when an unqualified `DashboardService` is referenced inside the class body — the wrapper class becomes inaccessible to itself.
-
-**Fix.** Rename the wrapper to something that does not collide. Our fork uses `ContainerDashboardService` (commit `b2f751c`). Inheritance line stays fully qualified:
-```csharp
-internal sealed class ContainerDashboardService : Proto.V1.DashboardService.DashboardServiceBase
-```
-`Program.cs` uses `app.MapGrpcService<ContainerDashboardService>()`. Test assemblies have to be updated in lock-step (CS0234) — our fork commit `ba56b36` did this.
-
-If you regenerate the gRPC bindings or rename the proto service, re-evaluate the collision.
-
-## Resource-service fork: `NU1902` for OpenTelemetry packages
-
-**Symptom.** Restore fails (treated as error) with:
-```
-NU1902: Package 'OpenTelemetry.Api' 1.10.0 has a known moderate severity vulnerability
-```
-
-**Cause.** `Directory.Build.props` in the fork sets `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`. Upstream pinned OpenTelemetry to 1.10.0; later advisories upgraded that to NU1902.
-
-**Fix.** Bump every OpenTelemetry.* package in `src/Aspire.ResourceService.Standalone.ServiceDefaults/*.csproj` to ≥ 1.15.3 (we use 1.15.3 stable + 1.15.0-beta.1 for the GrpcNetClient/Process instrumentations). Fork commit `6d9cba4`.
-
-Future advisories will need the same kind of bump; do not turn off `TreatWarningsAsErrors` to dodge it.
+Copy the full SHA into `context:` (`git rev-parse HEAD` in the source worktree), then truncate it for the image tag.
 
 ## `BaseIntermediateOutputPath` per service breaks ProjectReference resolution
 
@@ -553,30 +501,6 @@ app.MapStaticAssets();
 ```
 Done in `ConsoleGateway/Program.cs`. Apply the same change to any other Web SDK service that mixes the two.
 
-## Aspire Dashboard takes ~2 minutes to become reachable after deploy
-
-**Symptom.** Right after a successful redeploy, `https://aspire.minesleader.xyz/` hangs / 504s for 1-3 minutes, then suddenly works. Console and game services are responsive immediately.
-
-**Cause.** `aspire-dashboard` is wired with `depends_on: resource-service condition: service_started`. `service_started` waits only until Docker has booted the container, **not** until its gRPC port is actually accepting connections. The dashboard kicks off `WatchResources` immediately, the call fails (port not yet listening), and the gRPC channel goes into exponential back-off. Each retry doubles the delay; after a few rounds the back-off window happens to land just past the moment resource-service is ready, and the next call succeeds.
-
-**Fix.** Replace `service_started` with `service_healthy` and add a TCP healthcheck to `resource-service`:
-
-```yaml
-resource-service:
-  healthcheck:
-    test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/80 && echo ok >&3"]
-    interval: 1s
-    retries: 30
-    start_period: 2s
-
-aspire-dashboard:
-  depends_on:
-    resource-service:
-      condition: service_healthy
-```
-
-Without `start_period`, the first failed checks during the ~3-second cold start mark the container unhealthy and Coolify may flap it. With it, the dashboard waits the real ~5s instead of the back-off ~120s.
-
 ## "Login to the dashboard at http://localhost:18888" startup log line
 
 **Symptom.** Aspire dashboard logs `Login to the dashboard at http://localhost:1...` (truncated). Looks alarming.
@@ -598,16 +522,12 @@ Without `start_period`, the first failed checks during the ~3-second cold start 
 | Migrator fails | `docker logs <migrator>` for Npgsql error | both `postgres` and `ConnectionStrings__postgres` set |
 | Silo never goes healthy | `docker logs <silo>` for `OrleansQuery` errors | `OrleansClusteringSetup` ran (migrator logs) |
 | Service unreachable via HTTPS | `coolify-proxy` access logs for the host | Traefik routers API for stale entries |
-| Resources tab empty | `docker logs <resource-service>` | socket mount + project filter env |
-| Resource-service stuck on old SHA | `image:` tag matches `context:` SHA? | `docker compose build --no-cache resource-service` |
+| Dashboard Resources / Console Logs tab empty | expected — no resource service is deployed | use `docker ps` / `docker logs` on the VPS |
 | Dev: pgbouncer `DNS lookup failed: postgres` | `docker ps` persistent postgres/pgbouncer still around? | `docker rm -f` them, rerun `aspire run` |
 | Dev: Aspire postgres `Ports=map[]` | other Postgres on 9432? | `docker stop ml-pg` before `aspire run` |
 | RAM blew up after deploy | `docker stats --no-stream` filtered by project prefix | a service stuck in restart loop |
 | Blazor `_framework/blazor.web.js` 404 | `Microsoft.AspNetCore.App.Internal.Assets` in csproj? | version matches SDK pack `Microsoft.AspNetCore.App.Ref/<ver>` |
 | Blazor buttons silently dead | server logs for `AntiforgeryValidationException` | persistent DataProtection volume + `user: root` |
 | `repository does not contain ref <sha>` | `context:` uses **full** 40-char SHA, not abbreviated | `git rev-parse <ref>` to get full SHA |
-| Resource-service `CS0718 / CS0234` after rename | static class collision with proto-generated `DashboardService` | wrapper renamed everywhere incl. tests |
-| `NU1902` advisory for OTel | bump OpenTelemetry.* to ≥ 1.15.3 in fork's ServiceDefaults csproj | do not disable TreatWarningsAsErrors |
 | `CS0246` flood after Dockerfile tweak | per-service `BaseIntermediateOutputPath` was added? | revert — it breaks transitive ProjectReferences |
-| Aspire dashboard 504 for first ~2 min | `depends_on: resource-service` is still `service_started`? | switch to `service_healthy` + TCP healthcheck on resource-service |
 | `_blazor/negotiate` 502/503/504 then container is `Up healthy` | Traefik pool holding the previous container ID | `docker restart coolify-proxy` (kicks all sites for ~10 s) |
