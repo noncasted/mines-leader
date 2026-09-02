@@ -58,5 +58,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/BRTSkin/Border1.png
+  assetPath: Assets/BuildReport/GUI/BRTSkin/Border1.png
   uploadId: 911194

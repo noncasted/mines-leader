@@ -89,5 +89,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/BRTSkin/IconValid.png
+  assetPath: Assets/BuildReport/GUI/BRTSkin/IconValid.png
   uploadId: 911194

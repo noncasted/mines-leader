@@ -72,7 +72,7 @@ case "${1:-}" in
     --rollback)
         target="${2:?usage: --rollback <tag>}"
         remote "test -d '$DEPLOY_PATH/releases/$target'"
-        remote "ln -sfn '$DEPLOY_PATH/releases/$target' '$DEPLOY_PATH/current.tmp' && mv -Tf '$DEPLOY_PATH/current.tmp' '$DEPLOY_PATH/current'"
+        remote "cd '$DEPLOY_PATH' && ln -sfn 'releases/$target' current.tmp && mv -Tf current.tmp current"
         echo "Rolled back to $target"
         exit 0
         ;;
@@ -120,10 +120,14 @@ rsync -az --delete --chmod=D755,F644 \
     --link-dest="$DEPLOY_PATH/current" \
     "$BUILD_DIR/" "$DEPLOY_HOST:$RELEASE/"
 
+# The link target is RELATIVE on purpose: the container mounts $DEPLOY_PATH at
+# /srv, so an absolute host path inside the symlink dangles there and nginx 404s
+# on everything.
+#
 # ln -sfn + mv -T: `ln -sfn` alone would drop the new link *inside* the existing
 # `current` directory-symlink instead of replacing it. mv -T is the atomic swap.
 echo "==> Switching current -> $TAG"
-remote "ln -sfn '$RELEASE' '$DEPLOY_PATH/current.tmp' && mv -Tf '$DEPLOY_PATH/current.tmp' '$DEPLOY_PATH/current'"
+remote "cd '$DEPLOY_PATH' && ln -sfn 'releases/$TAG' current.tmp && mv -Tf current.tmp current"
 
 echo "==> Pruning old releases (keeping $KEEP_RELEASES)"
 remote "cd '$DEPLOY_PATH/releases' && ls -1t | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf"

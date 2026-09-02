@@ -14,5 +14,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/Scripts/Editor/ReportGeneration/BRT_PrefabDataGenerator.cs
+  assetPath: Assets/BuildReport/Scripts/Editor/ReportGeneration/BRT_PrefabDataGenerator.cs
   uploadId: 911194

@@ -58,5 +58,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkin/Dark/Tooltip1.psd
+  assetPath: Assets/BuildReport/GUI/NativeSkin/Dark/Tooltip1.psd
   uploadId: 911194

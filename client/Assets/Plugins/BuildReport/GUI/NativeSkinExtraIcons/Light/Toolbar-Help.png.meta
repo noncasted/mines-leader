@@ -36,5 +36,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/GUI/NativeSkinExtraIcons/Light/Toolbar-Help.png
+  assetPath: Assets/BuildReport/GUI/NativeSkinExtraIcons/Light/Toolbar-Help.png
   uploadId: 911194

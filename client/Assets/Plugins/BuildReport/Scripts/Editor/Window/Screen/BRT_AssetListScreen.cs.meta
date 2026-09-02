@@ -10,5 +10,5 @@ AssetOrigin:
   productId: 8162
   packageName: Build Report Tool
   packageVersion: 3.13.7
-  assetPath: Assets/Plugins/BuildReport/Scripts/Editor/Window/Screen/BRT_AssetListScreen.cs
+  assetPath: Assets/BuildReport/Scripts/Editor/Window/Screen/BRT_AssetListScreen.cs
   uploadId: 911194
