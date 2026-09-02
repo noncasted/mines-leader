@@ -1,4 +1,5 @@
 ﻿using System;
+using Shared;
 
 namespace GamePlay.Loop
 {
@@ -15,5 +16,8 @@ namespace GamePlay.Loop
         public TimeSpan Duration { get; set; }
         public int RatingChange { get; set; }
         public int CurrentRating { get; set; }
+
+        /// <summary>Статистика локального игрока за матч. Пустая, если матч закончился выходом.</summary>
+        public IUserStatsState Stats { get; set; } = new MatchPlayerStats();
     }
 }

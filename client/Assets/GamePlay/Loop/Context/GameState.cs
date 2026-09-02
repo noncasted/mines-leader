@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Internal;
+using Shared;
 
 namespace GamePlay.Loop
 {
@@ -17,7 +19,7 @@ namespace GamePlay.Loop
         IViewableProperty<MatchCompletedData> CompletedData { get; }
 
         void Set(GameStateType type);
-        void SetWinner(Guid winner);
+        void SetWinner(GameCompletedRecord record);
         UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime);
         void OnLeave();
     }
@@ -43,17 +45,30 @@ namespace GamePlay.Loop
             _value.Set(type);
         }
 
-        public void SetWinner(Guid winner)
+        public void SetWinner(GameCompletedRecord record)
         {
-            if (winner == Guid.Empty)
+            if (record.Winner == Guid.Empty)
                 return;
 
-            var player = _context.GetPlayer(winner);
+            var player = _context.GetPlayer(record.Winner);
+            var self = SelectSelfResult(record);
 
             _completion.TrySetResult(new MatchCompletedData()
             {
-                Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose
+                Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose,
+                Duration = record.Duration,
+                RatingChange = self.RatingChange,
+                CurrentRating = self.Rating,
+                Stats = self.Stats
             });
+        }
+
+        private MatchPlayerResult SelectSelfResult(GameCompletedRecord record)
+        {
+            if (record.Players == null)
+                return new MatchPlayerResult();
+
+            return record.Players.FirstOrDefault(t => t.PlayerId == _context.Self.Id) ?? new MatchPlayerResult();
         }
 
         public async UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime)

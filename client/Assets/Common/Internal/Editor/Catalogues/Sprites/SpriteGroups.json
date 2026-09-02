@@ -2,6 +2,7 @@
   "groups": [
     "CardBuffs",
     "Settings",
-    "Portraits"
+    "Portraits",
+    "GameResults"
   ]
 }

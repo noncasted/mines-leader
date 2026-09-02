@@ -55,3 +55,9 @@ MonoBehaviour:
       Value: {r: 0.45882353, g: 0.654902, b: 0.2627451, a: 1}
     - Name: debuff
       Value: {r: 0.63529414, g: 0.24313726, b: 0.54901963, a: 1}
+  - Name: game_end
+    Entries:
+    - Name: win
+      Value: {r: 0.65882355, g: 0.7921569, b: 0.34509805, a: 1}
+    - Name: lose
+      Value: {r: 0.64705884, g: 0.1882353, b: 0.1882353, a: 1}

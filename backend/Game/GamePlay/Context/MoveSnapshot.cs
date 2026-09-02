@@ -1,4 +1,6 @@
 using Game.Session;
+using Meta.Matches;
+using Meta.Users;
 using Shared;
 
 namespace Game.GamePlay;
@@ -209,12 +211,39 @@ public class MoveSnapshot
         });
     }
 
-    public void RecordGameCompleted(Guid winner)
+    public void RecordGameCompleted(
+        Guid winner,
+        IReadOnlyList<Guid> players,
+        IReadOnlyDictionary<Guid, UserStatsDelta> stats,
+        MatchCompletionSummary? summary)
     {
         Append(new GameCompletedRecord
         {
-            Winner = winner
+            Winner = winner,
+            Duration = summary?.Duration ?? TimeSpan.Zero,
+            Players = players.Select(id => CreatePlayerResult(id, stats.GetValueOrDefault(id), summary))
+                             .ToList()
         });
+    }
+
+    private static MatchPlayerResult CreatePlayerResult(
+        Guid id,
+        UserStatsDelta? delta,
+        MatchCompletionSummary? summary)
+    {
+        delta ??= new UserStatsDelta();
+
+        return new MatchPlayerResult
+        {
+            PlayerId = id,
+            RatingChange = summary?.RatingChanges.GetValueOrDefault(id) ?? 0,
+            Rating = summary?.Ratings.GetValueOrDefault(id) ?? 0,
+            Stats = new MatchPlayerStats
+            {
+                Counters = new Dictionary<UserStatType, long>(delta.Counters),
+                CardsPlayedByGroup = new Dictionary<CardGroup, long>(delta.CardsPlayedByGroup)
+            }
+        };
     }
 
     public void RecordTimeLimitedRound(Guid currentPlayer, Dictionary<Guid, long> secondsLeft)

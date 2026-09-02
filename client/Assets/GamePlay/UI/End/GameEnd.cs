@@ -13,14 +13,14 @@ namespace GamePlay.UI
 
     public class GameEnd : IGameEnd
     {
-        public GameEnd(IGameEndUI ui, IRematchAwaiter rematchAwaiter, INetworkConnection connection)
+        public GameEnd(IGameResults ui, IRematchAwaiter rematchAwaiter, INetworkConnection connection)
         {
             _ui = ui;
             _rematchAwaiter = rematchAwaiter;
             _connection = connection;
         }
 
-        private readonly IGameEndUI _ui;
+        private readonly IGameResults _ui;
         private readonly IRematchAwaiter _rematchAwaiter;
         private readonly INetworkConnection _connection;
 
@@ -32,7 +32,10 @@ namespace GamePlay.UI
             var selectedType = await _ui.Show(lifetime, matchData);
 
             if (selectedType == GameEndMenuResult.Menu)
+            {
+                _ui.SetNotification("back to menu");
                 return new GameEndTransition.Exit();
+            }
 
             _connection.OneWay(new RematchContexts.Request());
             _ui.SetNotification("waiting for opponent");

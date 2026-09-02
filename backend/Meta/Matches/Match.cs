@@ -13,7 +13,7 @@ public interface IMatch : IGrainWithGuidKey
     Task Setup(GameMatchType type, IReadOnlyList<Guid> participants);
 
     [Transaction]
-    Task OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats);
+    Task<MatchCompletionSummary> OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats);
 
     [Transaction]
     Task<MatchState> GetState();
@@ -78,6 +78,15 @@ public record MatchCompleted(Guid Winner, TimeSpan Time);
 
 public record MatchRatingCalculated(Dictionary<Guid, int> Changes);
 
+/// <summary>Итоги матча для экрана результатов: считаются здесь же, где применяются к грейнам игроков.</summary>
+[GenerateSerializer]
+public class MatchCompletionSummary
+{
+    [Id(0)] public TimeSpan Duration { get; set; }
+    [Id(1)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
+    [Id(2)] public Dictionary<Guid, int> Ratings { get; set; } = new();
+}
+
 public class Match : Grain, IMatch
 {
     public Match(
@@ -106,7 +115,7 @@ public class Match : Grain, IMatch
         await _state.Apply(new MatchSetup(type, DateTime.UtcNow, participants, decks));
     }
 
-    public async Task OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats)
+    public async Task<MatchCompletionSummary> OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats)
     {
         var endDate = DateTime.UtcNow;
 
@@ -149,6 +158,24 @@ public class Match : Grain, IMatch
             winner.Rating.AddRecord(winRatingRecord),
             loser.MatchHistory.Add(overview),
             loser.Rating.AddRecord(lossRatingRecord));
+
+        var winnerRating = await winner.Rating.GetTotal();
+        var loserRating = await loser.Rating.GetTotal();
+
+        return new MatchCompletionSummary
+        {
+            Duration = endDate - startTime,
+            RatingChanges = new Dictionary<Guid, int>
+            {
+                [winnerId] = winRatingRecord.GetRating(),
+                [loserId] = lossRatingRecord.GetRating()
+            },
+            Ratings = new Dictionary<Guid, int>
+            {
+                [winnerId] = winnerRating,
+                [loserId] = loserRating
+            }
+        };
     }
 
     /// <summary>
