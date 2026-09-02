@@ -49,7 +49,7 @@ BuildProfilePlayerSettings:
   defaultScreenHeight: 1080
   defaultScreenWidthWeb: 1920
   defaultScreenHeightWeb: 1080
-  webProgressiveAssetLoading: 1
+  webProgressiveAssetLoading: 0
   m_StereoRenderingPath: 0
   m_ActiveColorSpace: 1
   unsupportedMSAAFallback: 0

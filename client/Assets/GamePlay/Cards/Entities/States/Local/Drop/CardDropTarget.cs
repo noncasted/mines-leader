@@ -1,4 +1,4 @@
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using Global.Constants;
 using Internal;
 using UnityEngine;
@@ -46,7 +46,19 @@ namespace GamePlay.Cards
             get
             {
                 if (transform is RectTransform rectTransform)
-                    return rectTransform.TransformPoint(rectTransform.rect.center);
+                {
+                    var point = rectTransform.TransformPoint(rectTransform.rect.center);
+
+                    // TEMP DEBUG: chasing the editor/build mismatch of the drop landing point.
+                    var canvas = GetComponentInParent<Canvas>();
+                    Debug.Log($"[DropTarget] point={point} lossyScale={rectTransform.lossyScale} " +
+                              $"rect={rectTransform.rect} screen={Screen.width}x{Screen.height} " +
+                              $"canvas={(canvas == null ? "null" : canvas.name)} " +
+                              $"mode={(canvas == null ? "-" : canvas.renderMode.ToString())} " +
+                              $"worldCamera={(canvas == null || canvas.worldCamera == null ? "null" : canvas.worldCamera.name)}");
+
+                    return point;
+                }
 
                 return transform.position;
             }
