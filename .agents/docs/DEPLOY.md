@@ -170,7 +170,7 @@ coordinator (ASSEMBLY_NAME=Coordinator)
   ▼
 meta / game / console (three parallel leaves)
 
-aspire-dashboard (mcr.microsoft.com/dotnet/aspire-dashboard:9.0)
+aspire-dashboard (mcr.microsoft.com/dotnet/aspire-dashboard:13.5)
   - publishes OTLP endpoint on :18889 for every service
   - telemetry only; Resources tab is empty (no resource service)
 ```
