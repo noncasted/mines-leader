@@ -83,34 +83,54 @@ namespace GamePlay.Cards
                     await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
                 }
                 
-                var targets = new List<IBoardCell>();
                 var board = _context.GetPlayer(payload.TargetPlayer).Board;
+                var targets = new List<(Position Position, IBoardCell Cell)>();
 
                 foreach (var position in payload.TargetCells)
                 {
-                    var boardPosition = position.ToVector();
-                    var cell = board.Cells[boardPosition];
-                    targets.Add(cell);
+                    if (board.Cells.TryGetValue(position.ToVector(), out var cell) == false)
+                        continue;
+
+                    targets.Add((position, cell));
                 }
 
-                _animator.ExplodeCell(payload.TargetPlayer, payload.TargetCells[0], CellExplosionType.ZipZap).Forget();
-                _camera.BaseShake();
-                var lines = new List<ZipZapLine>();
-
-                for (var index = 1; index < targets.Count; index++)
+                if (targets.Count > 0)
                 {
-                    var start = targets[index - 1];
-                    var target = targets[index];
-
-                    var line = _vfxFactory.Create(options.LinePrefab, Vector2.zero);
-                    await line.Show(lifetime, start, target);
-                    _animator.ExplodeCell(payload.TargetPlayer, payload.TargetCells[index], CellExplosionType.ZipZap).Forget();
+                    _animator.ExplodeCell(payload.TargetPlayer, targets[0].Position, CellExplosionType.ZipZap).Forget();
                     _camera.BaseShake();
-                    lines.Add(line);
-                }
 
-                foreach (var line in lines)
-                    Object.Destroy(line.gameObject);
+                    // Lines stay alive until the whole chain is played, so they are tracked and
+                    // destroyed in a finally: a terminated lifetime cancels the awaits below and
+                    // would otherwise leave the lightning VFX hanging on the board forever.
+                    var lines = new List<ZipZapLine>();
+
+                    try
+                    {
+                        for (var index = 1; index < targets.Count; index++)
+                        {
+                            if (lifetime.IsTerminated == true)
+                                break;
+
+                            var start = targets[index - 1].Cell;
+                            var target = targets[index].Cell;
+
+                            var line = _vfxFactory.Create(options.LinePrefab, Vector2.zero);
+                            lines.Add(line);
+
+                            await line.Show(lifetime, start, target);
+                            _animator.ExplodeCell(payload.TargetPlayer, targets[index].Position, CellExplosionType.ZipZap).Forget();
+                            _camera.BaseShake();
+                        }
+                    }
+                    finally
+                    {
+                        foreach (var line in lines)
+                        {
+                            if (line != null)
+                                Object.Destroy(line.gameObject);
+                        }
+                    }
+                }
 
                 await _animator.OpenCells(lifetime, payload.TargetPlayer, payload.UpdatedFreeCells);
             }
