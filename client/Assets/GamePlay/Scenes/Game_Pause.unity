@@ -184,7 +184,7 @@ MonoBehaviour:
   _soundsVolume: {fileID: 1591221775}
   _shakeIntensity: {fileID: 236617905}
   _vSync: {fileID: 1184717501}
-  _backButton: {fileID: 0}
+  _backButton: {fileID: 1982218513}
 --- !u!1 &126911550
 GameObject:
   m_ObjectHideFlags: 0
@@ -3444,7 +3444,7 @@ GameObject:
   - component: {fileID: 1982218514}
   - component: {fileID: 1982218513}
   m_Layer: 5
-  m_Name: No
+  m_Name: Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

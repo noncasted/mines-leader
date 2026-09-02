@@ -41,6 +41,9 @@ namespace GamePlay.Boards
 
         private void Perform()
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
             var timeSinceLastClick = Time.time - _lastClickTime;
 
             if (timeSinceLastClick < Threshold)

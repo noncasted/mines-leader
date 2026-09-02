@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using GamePlay.Loop;
 using Internal;
 using UnityEngine;
 
@@ -19,7 +20,8 @@ namespace GamePlay.Cards
             ICardPointerHandler pointerHandler,
             ICardLocalDrag drag,
             ICardRenderer renderer,
-            ICardContext context)
+            ICardContext context,
+            IGameContext gameContext)
         {
             _updater = updater;
             _handEntryHandle = handEntryHandle;
@@ -29,6 +31,7 @@ namespace GamePlay.Cards
             _drag = drag;
             _renderer = renderer;
             _context = context;
+            _gameContext = gameContext;
         }
 
         private readonly IUpdater _updater;
@@ -39,6 +42,7 @@ namespace GamePlay.Cards
         private readonly ICardLocalDrag _drag;
         private readonly ICardRenderer _renderer;
         private readonly ICardContext _context;
+        private readonly IGameContext _gameContext;
 
         public void Enter()
         {
@@ -49,6 +53,9 @@ namespace GamePlay.Cards
             var positionHandle = _handEntryHandle.PositionHandle;
 
             _updater.RunUpdateAction(lifetime, delta => {
+                if (_gameContext.IsPaused == true)
+                    return;
+
                 var rotation = positionHandle.SupposedRotation;
                 _transform.SetRotation(rotation);
 
@@ -80,6 +87,9 @@ namespace GamePlay.Cards
             });
 
             _pointerHandler.IsPressed.AdviseTrue(lifetime, () => {
+                if (_gameContext.IsPaused == true)
+                    return;
+
                 if (_context.IsAvailable.Value == false)
                     return;
 

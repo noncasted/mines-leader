@@ -37,6 +37,9 @@ namespace GamePlay.Boards
 
         public void OnUpdate(float delta)
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
             IBoardCell target = null;
 
             foreach (var player in _gameContext.All)

@@ -11,10 +11,12 @@ namespace GamePlay.Loop
         IGamePlayer Other { get; }
         IReadOnlyList<IGamePlayer> All { get; }
         bool IsGameStarted { get; }
+        bool IsPaused { get; }
         int CardMovesCost { get; }
 
         void AddPlayer(IGamePlayer player);
         void SetGameStarted(int cardMovesCost);
+        void SetPaused(bool isPaused);
     }
 
     public class GameContext : IGameContext
@@ -22,6 +24,7 @@ namespace GamePlay.Loop
         private IGamePlayer _self;
         private IGamePlayer _other;
         private bool _isGameStarted;
+        private bool _isPaused;
         private int _cardMovesCost = 1;
 
         private readonly List<IGamePlayer> _all = new();
@@ -30,6 +33,7 @@ namespace GamePlay.Loop
         public IGamePlayer Other => _other;
         public IReadOnlyList<IGamePlayer> All => _all;
         public bool IsGameStarted => _isGameStarted;
+        public bool IsPaused => _isPaused;
         public int CardMovesCost => _cardMovesCost;
 
         public void AddPlayer(IGamePlayer player)
@@ -46,6 +50,11 @@ namespace GamePlay.Loop
         {
             _isGameStarted = true;
             _cardMovesCost = cardMovesCost;
+        }
+
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
         }
     }
 

@@ -25,13 +25,19 @@ namespace GamePlay.UI
         private IUIStateMachine _stateMachine;
         private IGameState _gameState;
         private IGamePauseSettings _settings;
+        private IGameContext _gameContext;
 
         [Inject]
-        internal void Construct(IUIStateMachine stateMachine, IGameState gameState, IGamePauseSettings settings)
+        internal void Construct(
+            IUIStateMachine stateMachine,
+            IGameState gameState,
+            IGamePauseSettings settings,
+            IGameContext gameContext)
         {
             _gameState = gameState;
             _stateMachine = stateMachine;
             _settings = settings;
+            _gameContext = gameContext;
 
             gameObject.SetActive(false);
             _gamePauseLeave.gameObject.SetActive(false);
@@ -46,12 +52,13 @@ namespace GamePlay.UI
 
         public void Open()
         {
+            _gameContext.SetPaused(true);
             gameObject.SetActive(true);
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _continueButton.ListenClick(lifetime, () => gameObject.SetActive(false));
+            _continueButton.ListenClick(lifetime, Close);
             _settingsButton.ListenClick(lifetime, () => ProcessSettings(lifetime).Forget());
             _leaveButton.ListenClick(lifetime, () => ProcessLeaveMenu(lifetime).Forget());
         }
@@ -75,7 +82,14 @@ namespace GamePlay.UI
                 return;
             }
 
+            _gameContext.SetPaused(false);
             _gameState.OnLeave();
+        }
+
+        private void Close()
+        {
+            gameObject.SetActive(false);
+            _gameContext.SetPaused(false);
         }
     }
 }

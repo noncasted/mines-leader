@@ -29,6 +29,9 @@ namespace GamePlay.Boards
 
         private void Perform()
         {
+            if (_gameContext.IsPaused == true)
+                return;
+
             var own = _selection.Selected.Value;
 
             if (own == null)
