@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites_GameResults
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Sprites_GameResults
+  m_GUID: 6704e2e96dea7dbe09e2cb2536557fc2
+  m_SerializeEntries:
+  - m_GUID: 0921adc74a0667a19a23bc4443fa546c
+    m_Address: 0921adc74a0667a19a23bc4443fa546c
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 7aa5b9f53b8a77ec2b2401d16e02665a, type: 2}
+    - {fileID: 11400000, guid: daa9aae9ab0987b1d92361de62fb76f4, type: 2}
+    m_SchemaDisplayOrder:
+    - Sprites_GameResults_BundledAssetGroupSchema
+    - Sprites_GameResults_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

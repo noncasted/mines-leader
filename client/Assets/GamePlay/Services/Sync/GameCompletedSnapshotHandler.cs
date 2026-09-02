@@ -16,7 +16,7 @@ namespace GamePlay
 
         public UniTask Handle(GameCompletedRecord record)
         {
-            _gameState.SetWinner(record.Winner);
+            _gameState.SetWinner(record);
             return UniTask.CompletedTask;
         }
     }

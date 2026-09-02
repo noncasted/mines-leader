@@ -79,8 +79,16 @@ public class GameFlow : Service, IGameFlow
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
 
+        var matchStats = _statsTracker.Collect();
+
+        // Итоги матча считает грейн, а клиенту они нужны на экране результатов,
+        // поэтому завершаем матч до отправки снапшота о конце игры.
+        var summary = winner != Guid.Empty
+            ? await _orleans.InTransaction(() => match.OnComplete(winner, matchStats))
+            : null;
+
         var completionSnapshot = new MoveSnapshot();
-        completionSnapshot.RecordGameCompleted(winner);
+        completionSnapshot.RecordGameCompleted(winner, playerIds, matchStats, summary);
         _snapshotSender.Send(completionSnapshot);
 
         foreach (var user in _users)
@@ -90,9 +98,6 @@ public class GameFlow : Service, IGameFlow
 
             _observationPublisher.Publish(user.Id, "game_over", false, string.Empty);
         }
-
-        var matchStats = _statsTracker.Collect();
-        await _orleans.InTransaction(() => match.OnComplete(winner, matchStats));
 
         var shouldRematch = await _rematchAwaiter.ShouldRematch(_sessionData.Lifetime, TimeSpan.FromSeconds(30));
 
