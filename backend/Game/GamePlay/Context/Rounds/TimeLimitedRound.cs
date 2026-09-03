@@ -205,8 +205,10 @@ public class TimeLimitedRound : Service, IGameRound
                     return $"Player {id} ran out of time";
             }
 
-            if (_players.GetFlagWinner() != Guid.Empty)
-                return "All opponent mines flagged";
+            var flagWinner = _players.GetFlagWinner();
+
+            if (flagWinner != Guid.Empty)
+                return $"Player {flagWinner} flagged every mine on own board";
 
             return "Unknown";
         }

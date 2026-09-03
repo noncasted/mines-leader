@@ -16,19 +16,23 @@ namespace Menu.Unlocks
         [SerializeField] private Image _outline;
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _description;
+        [SerializeField] private TMP_Text _manaCost;
         [SerializeField] private UIElementPointerHandler _pointerHandler;
 
         private bool _isLocked;
         
         public CardType Card { get; private set; }
 
-        public void Setup(ICardDefinition definition, string description)
+        public void Setup(ICardDefinition definition, string description, int manaCost)
         {
             Card = definition.Type;
 
             _icon.sprite = definition.Image;
             _name.text = definition.Name;
             _description.text = description;
+
+            if (_manaCost != null)
+                _manaCost.text = manaCost.ToString();
 
             if (_outline != null)
                 _outline.color = ToGroupColor(definition.Group);

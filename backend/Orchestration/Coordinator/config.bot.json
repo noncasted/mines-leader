@@ -6,15 +6,12 @@
     "$type": "System.Collections.Generic.Dictionary`2[[Shared.BotProfile, Shared],[Shared.BotProfileConfig, Shared]], System.Private.CoreLib",
     "Easy": {
       "$type": "Shared.BotProfileConfig, Shared",
-      "ActionDelay": 1.0,
+      "ActionDelay": 1.5,
       "MinRoundTime": 10.0,
       "MaxRoundTime": 15.0,
       "FlagsPerRound": 3,
-      "CellsOpenPerRound": 5,
-      "CardsUsePerRound": 1,
       "CardPlayDelay": 4.0,
       "EndTurnDelay": 4.0,
-      "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
         "$values": [
@@ -38,15 +35,12 @@
     },
     "Medium": {
       "$type": "Shared.BotProfileConfig, Shared",
-      "ActionDelay": 0.5,
+      "ActionDelay": 1.2,
       "MinRoundTime": 7.0,
       "MaxRoundTime": 12.0,
-      "FlagsPerRound": 7,
-      "CellsOpenPerRound": 4,
-      "CardsUsePerRound": 2,
+      "FlagsPerRound": 6,
       "CardPlayDelay": 4.0,
       "EndTurnDelay": 4.0,
-      "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
         "$values": [
@@ -71,11 +65,11 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
+                200,
+                600,
                 700,
                 800,
                 100,
-                600,
-                1000,
                 2600
               ]
             }
@@ -85,15 +79,12 @@
     },
     "Hard": {
       "$type": "Shared.BotProfileConfig, Shared",
-      "ActionDelay": 0.3,
+      "ActionDelay": 0.8,
       "MinRoundTime": 5.0,
       "MaxRoundTime": 10.0,
-      "FlagsPerRound": 10,
-      "CellsOpenPerRound": 3,
-      "CardsUsePerRound": 2,
+      "FlagsPerRound": 20,
       "CardPlayDelay": 4.0,
       "EndTurnDelay": 4.0,
-      "DeckSize": 6,
       "Decks": {
         "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
         "$values": [
@@ -129,136 +120,16 @@
           },
           {
             "$type": "Shared.BotDeck, Shared",
-            "Name": "Pure Scout",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                200,
-                210,
-                400,
-                410,
-                600,
-                610
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Flag Hunter",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                800,
-                810,
-                900,
-                910,
-                100,
-                110
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Aggro Damage",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                700,
-                100,
-                110,
-                1700,
-                4300,
-                4310
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Control",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1900,
-                1910,
-                1000,
-                1010,
-                2200,
-                3400
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Survival",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1100,
-                3200,
-                2600,
-                2800,
-                2900,
-                3300
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Mana Engine",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                2700,
-                3000,
-                3100,
-                1800,
-                3500,
-                2000
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Cross-Board Assault",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                4400,
-                4410,
-                4500,
-                4600,
-                5500,
-                4800
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
             "Name": "Mixed Balanced",
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
                 200,
                 400,
+                600,
                 100,
                 1100,
-                600,
                 2700
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Late Game",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1400,
-                5300,
-                5400,
-                3800,
-                500,
-                5000
               ]
             }
           },
@@ -268,12 +139,87 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
-                2600,
-                1800,
+                200,
                 600,
                 2400,
-                2700,
-                200
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
               ]
             }
           },
@@ -309,136 +255,16 @@
           },
           {
             "$type": "Shared.BotDeck, Shared",
-            "Name": "Pure Scout",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                200,
-                210,
-                400,
-                410,
-                600,
-                610
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Flag Hunter",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                800,
-                810,
-                900,
-                910,
-                100,
-                110
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Aggro Damage",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                700,
-                100,
-                110,
-                1700,
-                4300,
-                4310
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Control",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1900,
-                1910,
-                1000,
-                1010,
-                2200,
-                3400
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Survival",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1100,
-                3200,
-                2600,
-                2800,
-                2900,
-                3300
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Mana Engine",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                2700,
-                3000,
-                3100,
-                1800,
-                3500,
-                2000
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Cross-Board Assault",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                4400,
-                4410,
-                4500,
-                4600,
-                5500,
-                4800
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
             "Name": "Mixed Balanced",
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
                 200,
                 400,
+                600,
                 100,
                 1100,
-                600,
                 2700
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Late Game",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1400,
-                5300,
-                5400,
-                3800,
-                500,
-                5000
               ]
             }
           },
@@ -448,12 +274,87 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
-                2600,
-                1800,
+                200,
                 600,
                 2400,
-                2700,
-                200
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
               ]
             }
           },
@@ -489,136 +390,16 @@
           },
           {
             "$type": "Shared.BotDeck, Shared",
-            "Name": "Pure Scout",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                200,
-                210,
-                400,
-                410,
-                600,
-                610
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Flag Hunter",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                800,
-                810,
-                900,
-                910,
-                100,
-                110
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Aggro Damage",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                700,
-                100,
-                110,
-                1700,
-                4300,
-                4310
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Control",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1900,
-                1910,
-                1000,
-                1010,
-                2200,
-                3400
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Survival",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1100,
-                3200,
-                2600,
-                2800,
-                2900,
-                3300
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Mana Engine",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                2700,
-                3000,
-                3100,
-                1800,
-                3500,
-                2000
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Cross-Board Assault",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                4400,
-                4410,
-                4500,
-                4600,
-                5500,
-                4800
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
             "Name": "Mixed Balanced",
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
                 200,
                 400,
+                600,
                 100,
                 1100,
-                600,
                 2700
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Late Game",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1400,
-                5300,
-                5400,
-                3800,
-                500,
-                5000
               ]
             }
           },
@@ -628,12 +409,87 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
-                2600,
-                1800,
+                200,
                 600,
                 2400,
-                2700,
-                200
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
               ]
             }
           },
@@ -669,16 +525,31 @@
           },
           {
             "$type": "Shared.BotDeck, Shared",
-            "Name": "Pure Scout",
+            "Name": "Mixed Balanced",
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
                 200,
-                210,
                 400,
-                410,
                 600,
-                610
+                100,
+                1100,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Speed",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                2600,
+                1800,
+                2700
               ]
             }
           },
@@ -688,12 +559,12 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
+                200,
+                600,
+                1200,
                 800,
-                810,
                 900,
-                910,
-                100,
-                110
+                100
               ]
             }
           },
@@ -703,72 +574,87 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
+                200,
+                400,
+                600,
                 700,
-                100,
-                110,
                 1700,
-                4300,
-                4310
+                100
               ]
             }
           },
           {
             "$type": "Shared.BotDeck, Shared",
-            "Name": "Control",
+            "Name": "Rift Control",
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
-                1900,
-                1910,
-                1000,
-                1010,
-                2200,
-                3400
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Survival",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1100,
-                3200,
-                2600,
-                2800,
-                2900,
-                3300
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Mana Engine",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                2700,
-                3000,
-                3100,
-                1800,
-                3500,
-                2000
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Cross-Board Assault",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                4400,
-                4410,
-                4500,
-                4600,
+                200,
+                600,
+                2400,
                 5500,
-                4800
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pressure",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2400,
+                100,
+                800
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Tempo",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                2600,
+                2700,
+                100
               ]
             }
           },
@@ -780,25 +666,10 @@
               "$values": [
                 200,
                 400,
+                600,
                 100,
                 1100,
-                600,
                 2700
-              ]
-            }
-          },
-          {
-            "$type": "Shared.BotDeck, Shared",
-            "Name": "Late Game",
-            "Cards": {
-              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-              "$values": [
-                1400,
-                5300,
-                5400,
-                3800,
-                500,
-                5000
               ]
             }
           },
@@ -808,12 +679,492 @@
             "Cards": {
               "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
               "$values": [
-                2600,
-                1800,
+                200,
                 600,
                 2400,
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pressure",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2400,
+                100,
+                800
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Tempo",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                2600,
                 2700,
-                200
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Mixed Balanced",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                100,
+                1100,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Speed",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pressure",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2400,
+                100,
+                800
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Tempo",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                2600,
+                2700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Mixed Balanced",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                100,
+                1100,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Speed",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Pressure",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2400,
+                100,
+                800
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Tempo",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                1200,
+                2600,
+                2700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Mixed Balanced",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                100,
+                1100,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Speed",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                2600,
+                1800,
+                2700
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Flag Hunter",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                1200,
+                800,
+                900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Aggro Damage",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                700,
+                1700,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Rift Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                600,
+                2400,
+                5500,
+                4800,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Scout Control",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                200,
+                400,
+                600,
+                2200,
+                1900,
+                100
+              ]
+            }
+          },
+          {
+            "$type": "Shared.BotDeck, Shared",
+            "Name": "Heavy Scout",
+            "Cards": {
+              "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+              "$values": [
+                210,
+                410,
+                600,
+                1200,
+                110,
+                2700
               ]
             }
           }
@@ -823,15 +1174,12 @@
   },
   "CurrentProfileConfig": {
     "$type": "Shared.BotProfileConfig, Shared",
-    "ActionDelay": 0.3,
+    "ActionDelay": 0.8,
     "MinRoundTime": 5.0,
     "MaxRoundTime": 10.0,
-    "FlagsPerRound": 10,
-    "CellsOpenPerRound": 3,
-    "CardsUsePerRound": 2,
+    "FlagsPerRound": 20,
     "CardPlayDelay": 4.0,
     "EndTurnDelay": 4.0,
-    "DeckSize": 6,
     "Decks": {
       "$type": "System.Collections.Generic.List`1[[Shared.BotDeck, Shared]], System.Private.CoreLib",
       "$values": [
@@ -867,136 +1215,16 @@
         },
         {
           "$type": "Shared.BotDeck, Shared",
-          "Name": "Pure Scout",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              200,
-              210,
-              400,
-              410,
-              600,
-              610
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Flag Hunter",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              800,
-              810,
-              900,
-              910,
-              100,
-              110
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Aggro Damage",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              700,
-              100,
-              110,
-              1700,
-              4300,
-              4310
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Control",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1900,
-              1910,
-              1000,
-              1010,
-              2200,
-              3400
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Survival",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1100,
-              3200,
-              2600,
-              2800,
-              2900,
-              3300
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Mana Engine",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              2700,
-              3000,
-              3100,
-              1800,
-              3500,
-              2000
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Cross-Board Assault",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              4400,
-              4410,
-              4500,
-              4600,
-              5500,
-              4800
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
           "Name": "Mixed Balanced",
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
               200,
               400,
+              600,
               100,
               1100,
-              600,
               2700
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Late Game",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1400,
-              5300,
-              5400,
-              3800,
-              500,
-              5000
             ]
           }
         },
@@ -1006,12 +1234,87 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
-              2600,
-              1800,
+              200,
               600,
               2400,
-              2700,
-              200
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
             ]
           }
         },
@@ -1047,136 +1350,16 @@
         },
         {
           "$type": "Shared.BotDeck, Shared",
-          "Name": "Pure Scout",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              200,
-              210,
-              400,
-              410,
-              600,
-              610
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Flag Hunter",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              800,
-              810,
-              900,
-              910,
-              100,
-              110
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Aggro Damage",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              700,
-              100,
-              110,
-              1700,
-              4300,
-              4310
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Control",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1900,
-              1910,
-              1000,
-              1010,
-              2200,
-              3400
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Survival",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1100,
-              3200,
-              2600,
-              2800,
-              2900,
-              3300
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Mana Engine",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              2700,
-              3000,
-              3100,
-              1800,
-              3500,
-              2000
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Cross-Board Assault",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              4400,
-              4410,
-              4500,
-              4600,
-              5500,
-              4800
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
           "Name": "Mixed Balanced",
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
               200,
               400,
+              600,
               100,
               1100,
-              600,
               2700
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Late Game",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1400,
-              5300,
-              5400,
-              3800,
-              500,
-              5000
             ]
           }
         },
@@ -1186,12 +1369,87 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
-              2600,
-              1800,
+              200,
               600,
               2400,
-              2700,
-              200
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
             ]
           }
         },
@@ -1227,136 +1485,16 @@
         },
         {
           "$type": "Shared.BotDeck, Shared",
-          "Name": "Pure Scout",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              200,
-              210,
-              400,
-              410,
-              600,
-              610
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Flag Hunter",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              800,
-              810,
-              900,
-              910,
-              100,
-              110
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Aggro Damage",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              700,
-              100,
-              110,
-              1700,
-              4300,
-              4310
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Control",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1900,
-              1910,
-              1000,
-              1010,
-              2200,
-              3400
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Survival",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1100,
-              3200,
-              2600,
-              2800,
-              2900,
-              3300
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Mana Engine",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              2700,
-              3000,
-              3100,
-              1800,
-              3500,
-              2000
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Cross-Board Assault",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              4400,
-              4410,
-              4500,
-              4600,
-              5500,
-              4800
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
           "Name": "Mixed Balanced",
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
               200,
               400,
+              600,
               100,
               1100,
-              600,
               2700
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Late Game",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1400,
-              5300,
-              5400,
-              3800,
-              500,
-              5000
             ]
           }
         },
@@ -1366,12 +1504,87 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
-              2600,
-              1800,
+              200,
               600,
               2400,
-              2700,
-              200
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
             ]
           }
         },
@@ -1407,16 +1620,31 @@
         },
         {
           "$type": "Shared.BotDeck, Shared",
-          "Name": "Pure Scout",
+          "Name": "Mixed Balanced",
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
               200,
-              210,
               400,
-              410,
               600,
-              610
+              100,
+              1100,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Speed",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              2600,
+              1800,
+              2700
             ]
           }
         },
@@ -1426,12 +1654,12 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
+              200,
+              600,
+              1200,
               800,
-              810,
               900,
-              910,
-              100,
-              110
+              100
             ]
           }
         },
@@ -1441,72 +1669,87 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
+              200,
+              400,
+              600,
               700,
-              100,
-              110,
               1700,
-              4300,
-              4310
+              100
             ]
           }
         },
         {
           "$type": "Shared.BotDeck, Shared",
-          "Name": "Control",
+          "Name": "Rift Control",
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
-              1900,
-              1910,
-              1000,
-              1010,
-              2200,
-              3400
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Survival",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1100,
-              3200,
-              2600,
-              2800,
-              2900,
-              3300
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Mana Engine",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              2700,
-              3000,
-              3100,
-              1800,
-              3500,
-              2000
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Cross-Board Assault",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              4400,
-              4410,
-              4500,
-              4600,
+              200,
+              600,
+              2400,
               5500,
-              4800
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Pressure",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2400,
+              100,
+              800
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Tempo",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              1200,
+              2600,
+              2700,
+              100
             ]
           }
         },
@@ -1518,25 +1761,10 @@
             "$values": [
               200,
               400,
+              600,
               100,
               1100,
-              600,
               2700
-            ]
-          }
-        },
-        {
-          "$type": "Shared.BotDeck, Shared",
-          "Name": "Late Game",
-          "Cards": {
-            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
-            "$values": [
-              1400,
-              5300,
-              5400,
-              3800,
-              500,
-              5000
             ]
           }
         },
@@ -1546,12 +1774,492 @@
           "Cards": {
             "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
             "$values": [
-              2600,
-              1800,
+              200,
               600,
               2400,
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Pressure",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2400,
+              100,
+              800
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Tempo",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              1200,
+              2600,
               2700,
-              200
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Mixed Balanced",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              100,
+              1100,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Speed",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Pressure",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2400,
+              100,
+              800
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Tempo",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              1200,
+              2600,
+              2700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Mixed Balanced",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              100,
+              1100,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Speed",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Pressure",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2400,
+              100,
+              800
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Tempo",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              1200,
+              2600,
+              2700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Mixed Balanced",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              100,
+              1100,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Speed",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              2600,
+              1800,
+              2700
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Flag Hunter",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              1200,
+              800,
+              900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Aggro Damage",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              700,
+              1700,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Rift Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              600,
+              2400,
+              5500,
+              4800,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Scout Control",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              200,
+              400,
+              600,
+              2200,
+              1900,
+              100
+            ]
+          }
+        },
+        {
+          "$type": "Shared.BotDeck, Shared",
+          "Name": "Heavy Scout",
+          "Cards": {
+            "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+            "$values": [
+              210,
+              410,
+              600,
+              1200,
+              110,
+              2700
             ]
           }
         }

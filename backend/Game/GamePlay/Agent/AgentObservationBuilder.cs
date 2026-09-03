@@ -163,7 +163,7 @@ public static class AgentObservationBuilder
             DeckCount = player.Deck?.Count ?? 0,
             StashCount = player.Stash?.Count ?? 0,
             Modifiers = CollectModifiers(player.Modifiers),
-            Hand = CollectHand(player.Hand, hideHand, cardConfigs)
+            Hand = CollectHand(player, hideHand, cardConfigs)
         };
 
         FillBoard(view, player.Board, oracle);
@@ -198,12 +198,16 @@ public static class AgentObservationBuilder
         return result;
     }
 
-    private static List<AgentCardView> CollectHand(IHand? hand, bool hideHand, CardConfigOptions? cardConfigs)
+    private static List<AgentCardView> CollectHand(IPlayer player, bool hideHand, CardConfigOptions? cardConfigs)
     {
         var result = new List<AgentCardView>();
+        var hand = player.Hand;
 
         if (hand?.Entries == null)
             return result;
+
+        // CardConfigOptions.All строит новый словарь при каждом обращении.
+        var configs = cardConfigs?.All;
 
         foreach (var card in hand.Entries)
         {
@@ -218,15 +222,21 @@ public static class AgentObservationBuilder
                 continue;
             }
 
-            var manaCost = 0;
-            if (cardConfigs != null && cardConfigs.All.TryGetValue(card.Type, out var config))
-                manaCost = config.ManaCost;
+            ICardConfig? config = null;
+            configs?.TryGetValue(card.Type, out config);
+
+            var info = AgentCardCatalog.Get(card.Type);
 
             result.Add(new AgentCardView
             {
                 Id = card.Id,
                 Type = card.Type.ToString(),
-                ManaCost = manaCost
+                ManaCost = config == null ? 0 : CardManaCost.Resolve(player, config),
+                Target = (config?.Target ?? CardTarget.Self).ToString(),
+                Shape = info.Shape,
+                Size = AgentCardCatalog.ResolveSize(card.Type, config),
+                NeedsPosition = CardUsePayloadFactory.CreateDefault(card.Type) is IBoardCardUsePayload,
+                Summary = info.Summary
             });
         }
 

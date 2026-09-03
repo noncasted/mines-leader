@@ -15,20 +15,35 @@ public class StatePageResult<TKey, TValue>
 
 public interface IStateStorageReader
 {
-    Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(int offset, int limit)
-        where TValue : IStateValue, new();
+    /// <summary>
+    /// Читает страницу состояний. Для event-sourced состояний данные берутся из Marten-снапшотов,
+    /// для остальных — напрямую из таблицы грейн-состояний.
+    /// </summary>
+    /// <param name="orderByProperty">
+    /// Имя свойства для сортировки. Учитывается только для event-sourced состояний;
+    /// прямое хранилище всегда сортируется по ключу.
+    /// </param>
+    Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(
+        int offset,
+        int limit,
+        string? orderByProperty = null,
+        bool descending = true)
+        where TKey : notnull
+        where TValue : class, IStateValue, new();
 }
 
 public class StateStorageReader : IStateStorageReader
 {
     public StateStorageReader(
         IGrainStatesRegistry statesRegistry,
+        IEventStorage eventStorage,
         IDbSource dbSource,
         IStateSerializer serializer,
         IStateMigrations migrations,
         ILogger<StateStorageReader> logger)
     {
         _statesRegistry = statesRegistry;
+        _eventStorage = eventStorage;
         _dbSource = dbSource;
         _serializer = serializer;
         _migrations = migrations;
@@ -36,19 +51,37 @@ public class StateStorageReader : IStateStorageReader
     }
 
     private readonly IGrainStatesRegistry _statesRegistry;
+    private readonly IEventStorage _eventStorage;
     private readonly IDbSource _dbSource;
     private readonly IStateSerializer _serializer;
     private readonly IStateMigrations _migrations;
     private readonly ILogger<StateStorageReader> _logger;
 
-    public async Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(int offset, int limit)
-        where TValue : IStateValue, new()
+    public async Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(
+        int offset,
+        int limit,
+        string? orderByProperty = null,
+        bool descending = true)
+        where TKey : notnull
+        where TValue : class, IStateValue, new()
     {
         var stateInfo = _statesRegistry.Get<TValue>();
         var latestVersion = _migrations.GetLatestVersion<TValue>();
 
         try
         {
+            // Event-sourced состояния лежат не в таблице грейн-состояний, а в снапшотах Marten.
+            if (typeof(TValue).IsAssignableTo(typeof(IEventStateValue)))
+            {
+                return await _eventStorage.ReadPage<TKey, TValue>(
+                    stateInfo.Name + ":",
+                    stateInfo.KeyType,
+                    offset,
+                    limit,
+                    orderByProperty,
+                    descending);
+            }
+
             await using var connection = await _dbSource.Value.OpenConnectionAsync();
 
             await using var countCmd = connection.CreateCommand();

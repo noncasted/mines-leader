@@ -63,6 +63,42 @@ public class AgentObservationBuilderTests
         observation.Opponent.Hand[0].Id.Should().Be(fixture.OpponentCardId);
         observation.Opponent.Hand[0].Type.Should().Be("?");
         observation.Opponent.Hand[0].ManaCost.Should().Be(0);
+        observation.Opponent.Hand[0].Target.Should().BeEmpty();
+        observation.Opponent.Hand[0].Shape.Should().BeEmpty();
+        observation.Opponent.Hand[0].Size.Should().Be(0);
+        observation.Opponent.Hand[0].NeedsPosition.Should().BeFalse();
+        observation.Opponent.Hand[0].Summary.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SelfHand_Medic_DescribesSelfTargetWithoutPosition()
+    {
+        var fixture = CreateFixture();
+
+        var observation = Build(fixture, oracle: false);
+        var card = observation.Self.Hand.Should().ContainSingle().Subject;
+
+        card.Target.Should().Be(nameof(CardTarget.Self));
+        card.Shape.Should().Be(AgentCardCatalog.ShapeNone);
+        card.Size.Should().Be(0);
+        card.NeedsPosition.Should().BeFalse();
+        card.Summary.Should().Be(AgentCardCatalog.Get(CardType.Medic).Summary);
+    }
+
+    [Fact]
+    public void SelfHand_Trebuchet_DescribesOpponentBoardRhombus()
+    {
+        var fixture = CreateFixture(selfCardType: CardType.Trebuchet);
+
+        var observation = Build(fixture, oracle: false);
+        var card = observation.Self.Hand.Should().ContainSingle().Subject;
+
+        card.Type.Should().Be(nameof(CardType.Trebuchet));
+        card.Target.Should().Be(nameof(CardTarget.OpponentBoard));
+        card.Shape.Should().Be(AgentCardCatalog.ShapeRhombus);
+        card.Size.Should().Be(CardConfigs.All.Trebuchet_Normal.Size);
+        card.NeedsPosition.Should().BeTrue();
+        card.Summary.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -168,7 +204,8 @@ public class AgentObservationBuilderTests
 
     private static Fixture CreateFixture(
         (int x, int y)[]? selfMines = null,
-        (int x, int y)[]? selfFree = null)
+        (int x, int y)[]? selfFree = null,
+        CardType selfCardType = CardType.Medic)
     {
         var selfId = Guid.NewGuid();
         var opponentId = Guid.NewGuid();
@@ -184,7 +221,7 @@ public class AgentObservationBuilderTests
             .Build();
 
         var selfHand = new Hand();
-        var selfCard = selfHand.Add(CardType.Medic);
+        var selfCard = selfHand.Add(selfCardType);
 
         var opponentHand = new Hand();
         var opponentCard = opponentHand.Add(CardType.Bloodhound);

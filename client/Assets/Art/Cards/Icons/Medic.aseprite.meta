@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 0
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639239983573197640
+  platformSettingsDirtyTick: 639240113553682410
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -137,8 +137,8 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 64
-      height: 64
+      width: 32
+      height: 21
     spriteID: 15ae7fe7a7b68f546a2aff930790b92a
     spriteBone: []
     spriteOutline: []
@@ -169,8 +169,8 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 64
-        height: 64
+        width: 32
+        height: 21
       spriteId: 15ae7fe7a7b68f546a2aff930790b92a
     linkedCells: []
     tileCells: []
@@ -181,7 +181,7 @@ ScriptedImporter:
   - name: DefaultTexturePlatform
     overridden: 0
     ignorePlatformSupport: 0
-    maxTextureSize: 32
+    maxTextureSize: 64
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -216,5 +216,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 64, y: 64}
-  canvasSize: {x: 64, y: 64}
+  previousTextureSize: {x: 32, y: 32}
+  canvasSize: {x: 32, y: 21}

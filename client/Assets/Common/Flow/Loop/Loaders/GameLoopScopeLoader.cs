@@ -23,13 +23,30 @@ namespace Flow.Loop
         private readonly ILoadedScope _parentScope;
 
         private ILoadedScope _currentScope;
+        private UniTask _unloading;
 
         public async UniTask<ILoadedScope> Load(Func<IServiceScopeLoader, ILoadedScope, UniTask<ILoadedScope>> action)
         {
-            _currentScope?.Dispose().Forget();
+            // Скоупы делят имена сервисных сцен, поэтому предыдущий выгружается полностью
+            // до начала загрузки нового: иначе SceneManager.CreateScene падает на дубликате
+            // имени, а сцены старого скоупа остаются висеть поверх нового.
+            await Unload();
+
             var currentScope = await action(_serviceScopeLoader, _parentScope);
             _currentScope = currentScope;
-            return _currentScope;
+            return currentScope;
+        }
+
+        private UniTask Unload()
+        {
+            if (_currentScope == null)
+                return _unloading;
+
+            var scope = _currentScope;
+            _currentScope = null;
+            _unloading = scope.Dispose();
+
+            return _unloading;
         }
     }
 }

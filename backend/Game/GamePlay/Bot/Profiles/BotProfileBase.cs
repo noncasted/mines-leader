@@ -61,31 +61,54 @@ public abstract class BotProfileBase : IBotProfileStrategy
         await Delay(delayAfter, lifetime);
     }
 
-    protected async Task RunFlagPhase(int limit, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    /// <summary>
+    /// Лимит флагов на ход. Один бюджет живёт весь ход, чтобы проходы между открытиями
+    /// клеток суммарно не превышали FlagsPerRound профиля.
+    /// </summary>
+    protected sealed class FlagBudget
+    {
+        public FlagBudget(int limit)
+        {
+            Left = limit;
+        }
+
+        public int Left { get; private set; }
+
+        public void Use()
+        {
+            Left--;
+        }
+    }
+
+    protected async Task<int> RunFlagPhase(FlagBudget budget, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
         var flagsPlaced = 0;
 
-        while (flagsPlaced < limit)
+        while (budget.Left > 0)
         {
             var placed = _flagAction.TryExecute();
 
             if (placed == false)
                 break;
 
+            budget.Use();
             flagsPlaced++;
             await DelayForAction(startTime, roundTime, lifetime);
         }
 
         if (flagsPlaced > 0)
             _sessionLogger.LogBotAction("Flags", $"Placed {flagsPlaced} flags");
+
+        return flagsPlaced;
     }
 
-    protected async Task RunCardPhase(int limit, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    protected async Task RunCardPhase(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
         var bot = _botContext.Bot;
         var cardsUsed = 0;
 
-        while (cardsUsed < limit && bot.Moves.Left > 0)
+        // Лимита на количество карт нет: бот играет, пока есть подходящие карты, мана и ходы.
+        while (bot.Moves.Left > 0)
         {
             var usedCard = _cardAction.TryExecute(lifetime);
 
@@ -100,12 +123,24 @@ public abstract class BotProfileBase : IBotProfileStrategy
             _sessionLogger.LogBotAction("Cards", $"Used {cardsUsed} cards");
     }
 
-    protected async Task RunCellPhase(int limit, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
+    /// <summary>
+    /// Цикл «флаги, открытие, флаги»: каждая открытая клетка даёт новые цифры, по ним сразу
+    /// ставятся флаги, а флаги открывают аккорды. Первый проход флагов подхватывает клетки,
+    /// открытые картами. Цикл идёт, пока есть ходы и логически выводимые клетки.
+    /// </summary>
+    protected async Task RunSolveLoop(FlagBudget budget, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
+        var bot = _botContext.Bot;
         var cellsOpened = 0;
+        var flagsPlaced = 0;
 
-        while (cellsOpened < limit && _botContext.Bot.Moves.Left > 0)
+        while (true)
         {
+            flagsPlaced += await RunFlagPhase(budget, startTime, roundTime, lifetime);
+
+            if (bot.Moves.Left <= 0)
+                break;
+
             var opened = _cellAction.TryExecute();
 
             if (opened == false)
@@ -115,8 +150,8 @@ public abstract class BotProfileBase : IBotProfileStrategy
             await DelayForAction(startTime, roundTime, lifetime);
         }
 
-        if (cellsOpened > 0)
-            _sessionLogger.LogBotAction("Cells", $"Opened {cellsOpened} cells");
+        _sessionLogger.LogBotAction("Solve",
+            $"Opened {cellsOpened} cells, placed {flagsPlaced} flags between opens | MovesLeft={bot.Moves.Left} FlagBudgetLeft={budget.Left}");
     }
 
     protected void EndTurn(DateTime startTime, float roundTime)
@@ -149,52 +184,54 @@ public abstract class BotProfileBase : IBotProfileStrategy
 
     /// <summary>
     /// Пауза между картами: разыгранная карта должна повисеть на столе,
-    /// а не улететь в стеш одновременно со следующей.
+    /// а не улететь в стеш одновременно со следующей. Когда бюджет раунда выбран,
+    /// пауза сжимается до ActionDelay, но не до нуля.
     /// </summary>
     protected async Task DelayForCard(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
         var delay = Math.Max(0f, ProfileConfig.CardPlayDelay);
 
-        if (delay <= 0f)
-            return;
-
         if (BotTurnTiming.IsTurnBased(_matchOptions.Type) == false)
         {
             var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
-            var remaining = roundTime - elapsed;
+            var remaining = Math.Max(0f, roundTime - elapsed);
 
-            if (remaining <= 0.5f)
-                return;
-
-            delay = Math.Min(delay, remaining);
+            delay = Math.Max(Math.Min(delay, remaining), ActionDelay);
         }
 
-        await Delay(delay, lifetime);
+        if (delay > 0f)
+            await Delay(delay, lifetime);
     }
 
+    /// <summary>
+    /// Пауза между флагами и открытиями. Пока бюджет раунда не выбран, темп плавает,
+    /// чтобы бот не выглядел метрономом; когда выбран, действия идут ровно через ActionDelay.
+    /// Мгновенных серий быть не должно: игрок должен видеть каждый флаг.
+    /// </summary>
     protected async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
         if (BotTurnTiming.IsTurnBased(_matchOptions.Type))
         {
-            var delay = ProfileConfig.ActionDelay;
-            if (delay <= 0f)
-                delay = 0.3f;
-
-            await Delay(delay, lifetime);
+            await Delay(ActionDelay, lifetime);
             return;
         }
 
         var elapsed = (float)(DateTime.UtcNow - startTime).TotalSeconds;
-        var remaining = roundTime - elapsed;
-
-        if (remaining <= 0.5f)
-            return;
+        var remaining = Math.Max(0f, roundTime - elapsed);
 
         var paced = 0.5f + (float)Random.Shared.NextDouble() * 1.5f;
         paced = Math.Min(paced, remaining * 0.4f);
-        paced = Math.Max(paced, 0.3f);
 
-        await Delay(paced, lifetime);
+        await Delay(Math.Max(paced, ActionDelay), lifetime);
+    }
+
+    private float ActionDelay
+    {
+        get
+        {
+            var delay = ProfileConfig.ActionDelay;
+            return delay <= 0f ? 0.3f : delay;
+        }
     }
 
     protected Task Delay(float seconds, IReadOnlyLifetime lifetime)

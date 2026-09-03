@@ -1,37 +1,31 @@
+using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;
 
 /// <summary>
 /// Стратегия Сонара (Sonar) - автоматически флажит мины в области своего поля.
-/// Высокий приоритет когда много закрытых клеток с минами без флагов.
+/// Приоритет и цель считаются только по видимым цифрам: сколько мин ещё не отмечено
+/// и где по ограничениям их ожидается больше всего.
 /// </summary>
 public class SonarStrategy : IBotCardStrategy
 {
-    public SonarStrategy(IBotContext context, BotBoardUtils boardUtils, IBotCommandUtils commandUtils)
+    public SonarStrategy(IBotContext context, ICardConfigs cardConfigs, IBotCommandUtils commandUtils)
     {
         _context = context;
-        _boardUtils = boardUtils;
+        _cardConfigs = cardConfigs;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly BotBoardUtils _boardUtils;
+    private readonly ICardConfigs _cardConfigs;
     private readonly IBotCommandUtils _commandUtils;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Sonar];
 
     public float Evaluate(CardType type)
     {
-        var bot = _context.Bot;
-
-        var unflaggedMines = bot.Board.Cells.Values
-                                .Count(c => {
-                                    if (c.Status != CellStatus.Taken)
-                                        return false;
-                                    var taken = c.AsTaken();
-                                    return taken.HasMine && !taken.IsFlagged;
-                                });
+        var unflaggedMines = BotCardTargeting.UnresolvedMinesByNumbers(_context.Bot.Board);
 
         if (unflaggedMines >= 5)
             return 8f;
@@ -47,9 +41,10 @@ public class SonarStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = _boardUtils.FindRandomTakenPosition(opponent: false);
+        var size = _cardConfigs.Value.Sonar_Normal.Size;
+        var position = BotCardTargeting.BestSonarCentre(_context.Bot.Board, size);
 
-        if (position == new Position(-1, -1))
+        if (position == BotCardTargeting.None)
             return false;
 
         var bot = _context.Bot;

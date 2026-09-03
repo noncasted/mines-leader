@@ -286,7 +286,38 @@ namespace GamePlay.Services {
             if (sendError != null)
                 return sendError;
 
-            return await WaitObservation(afterSequence, 10000);
+            return ConsumeError(await WaitObservation(afterSequence, 10000));
+        }
+
+        /// <summary>
+        /// Серверная ошибка действия (например, карта без цели) приходит как observation с HasError
+        /// и оседает в LastObservation. Она относится только к этому действию: вызывающий получает её
+        /// один раз, а state / wait дальше видят тот же кадр уже без флага. Иначе game-agent.py state
+        /// выходит с ошибкой до следующего кадра с сервера и ломает board-solver.py --from-agent.
+        /// </summary>
+        private static SharedAgentObservation ConsumeError(SharedAgentObservation observation) {
+            if (observation == null || observation.HasError == false)
+                return observation;
+
+            if (ReferenceEquals(observation, LastObservation) == false)
+                return observation;
+
+            LastObservation = new SharedAgentObservation {
+                Sequence = observation.Sequence,
+                EventCursor = observation.EventCursor,
+                IsOwnTurn = observation.IsOwnTurn,
+                GameOver = observation.GameOver,
+                WinnerId = observation.WinnerId,
+                WinReason = observation.WinReason,
+                Trigger = observation.Trigger,
+                HasError = false,
+                Error = string.Empty,
+                Events = observation.Events,
+                Self = observation.Self,
+                Opponent = observation.Opponent
+            };
+
+            return observation;
         }
 
         private static async UniTask<SharedAgentObservation> SendRequest(INetworkContext request) {

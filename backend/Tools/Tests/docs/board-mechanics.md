@@ -134,7 +134,7 @@ Flag placement and removal on cells.
 - [x] Board owner ID configuration
 - [x] + additional edge cases (23 total)
 
-### GetFlagWinner — `Game/GetFlagWinnerTests.cs` (11 tests)
+### GetFlagWinner — `Game/GetFlagWinnerTests.cs` (13 tests)
 - [x] All opponent mines flagged — returns winner ID
 - [x] Some mines unflagged — returns Guid.Empty
 - [x] No mines on board (vacuous truth) — returns winner
@@ -142,7 +142,8 @@ Flag placement and removal on cells.
 - [x] Empty board (0 cells) — skipped
 - [x] Extra flag on safe cell prevents win (negative counter bug)
 - [x] Free cells skipped in check
-- [x] + additional edge cases (11 total)
+- [x] Detonated mine (remaining mines flagged) — still a winner
+- [x] + additional edge cases
 
 ## Todo
 

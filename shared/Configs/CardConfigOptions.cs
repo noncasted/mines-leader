@@ -529,7 +529,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Smoke : ICardConfig, IDurationalCardConfig
+        public partial class Smoke : ICardConfig, IDurationalCardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public CardGroup Group => CardGroup.Attack;
@@ -592,7 +592,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class FogOfWar : ICardConfig, IDurationalCardConfig
+        public partial class FogOfWar : ICardConfig, IDurationalCardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public CardGroup Group => CardGroup.Attack;
@@ -860,7 +860,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class ChaosFog : ICardConfig, IDurationalCardConfig
+        public partial class ChaosFog : ICardConfig, IDurationalCardConfig, IRandomSizeCardConfig
         {
             public CardType Type { get; set; }
             public CardGroup Group => CardGroup.Attack;
@@ -872,7 +872,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Frost : ICardConfig, IDurationalCardConfig
+        public partial class Frost : ICardConfig, IDurationalCardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public CardGroup Group => CardGroup.Attack;
@@ -883,7 +883,7 @@ namespace Shared
         }
 
         [MemoryPackable]
-        public partial class Blackout : ICardConfig, IDurationalCardConfig
+        public partial class Blackout : ICardConfig, IDurationalCardConfig, IAreaSizeCardConfig
         {
             public CardType Type { get; set; }
             public CardGroup Group => CardGroup.Attack;

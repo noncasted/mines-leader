@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc8add47cea4536b9a02d20c756b55c, type: 3}
   m_Name: CardDroppedOptions
   m_EditorClassIdentifier: 
-  _assetId: 125
   _time: 0.25
   _fadeCurve:
     serializedVersion: 2
@@ -39,5 +38,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   _spritesColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-  _nameColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-  _descriptionColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  _nameColor: {r: 0.14117648, g: 0.08235294, b: 0.15294118, a: 1}
+  _descriptionColor: {r: 0.14117648, g: 0.08235294, b: 0.15294118, a: 1}

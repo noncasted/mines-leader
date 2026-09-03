@@ -14,6 +14,6 @@ public class RematchRequestCommand : Command<RematchContexts.Request>
 
     protected override void Execute(IUser user, RematchContexts.Request context)
     {
-        _rematchAwaiter.OnRematchAccepted();
+        _rematchAwaiter.OnRematchAccepted(user);
     }
 }

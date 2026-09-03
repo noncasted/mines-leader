@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;
@@ -11,16 +12,16 @@ public class TrebuchetStrategy : IBotCardStrategy
 {
     public TrebuchetStrategy(
         IBotContext context,
-        BotBoardUtils boardUtils,
+        ICardConfigs cardConfigs,
         IBotCommandUtils commandUtils)
     {
         _context = context;
-        _boardUtils = boardUtils;
+        _cardConfigs = cardConfigs;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly BotBoardUtils _boardUtils;
+    private readonly ICardConfigs _cardConfigs;
     private readonly IBotCommandUtils _commandUtils;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Trebuchet, CardType.Trebuchet_Max];
@@ -53,12 +54,16 @@ public class TrebuchetStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = _boardUtils.FindRandomFreePosition(opponent: true);
-
-        if (position == new Position(-1, -1))
-            return false;
-
         var bot = _context.Bot;
+
+        // Тот же размер, что посчитает карта: базовый ромб плюс усиление TrebuchetAimer.
+        var size = _cardConfigs.Value.Trebuchet_Normal.Size +
+                   (int)bot.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
+
+        var position = BotCardTargeting.BestTrebuchetCentre(_context.Opponent.Board, size);
+
+        if (position == BotCardTargeting.None)
+            return false;
 
         var payload = new CardUsePayload.Trebuchet
         {

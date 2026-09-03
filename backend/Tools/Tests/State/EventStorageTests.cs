@@ -106,4 +106,54 @@ public class EventStorageTests
 
         results.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task ReadPage_ReturnsOrderedPageAndTotalCount()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var prefix = $"page_test_{Guid.NewGuid():N}:";
+
+        var amounts = new[] { 10, 30, 20 };
+        foreach (var amount in amounts)
+            await eventStorage.Append($"{prefix}{Guid.NewGuid():D}", new CounterIncremented { Amount = amount });
+
+        var page = await eventStorage.ReadPage<Guid, EventTestAggregate>(
+            prefix, GrainKeyType.Guid, offset: 0, limit: 2, orderByProperty: nameof(EventTestAggregate.Counter));
+
+        page.TotalCount.Should().Be(3);
+        page.Entries.Select(e => e.Value.Counter).Should().Equal(30, 20);
+
+        var second = await eventStorage.ReadPage<Guid, EventTestAggregate>(
+            prefix, GrainKeyType.Guid, offset: 2, limit: 2, orderByProperty: nameof(EventTestAggregate.Counter));
+
+        second.TotalCount.Should().Be(3);
+        second.Entries.Select(e => e.Value.Counter).Should().Equal(10);
+    }
+
+    [Fact]
+    public async Task ReadPage_UnknownOrderProperty_FallsBackToId()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+        var prefix = $"page_test_{Guid.NewGuid():N}:";
+
+        await eventStorage.Append($"{prefix}{Guid.NewGuid():D}", new CounterIncremented { Amount = 1 });
+
+        var page = await eventStorage.ReadPage<Guid, EventTestAggregate>(
+            prefix, GrainKeyType.Guid, offset: 0, limit: 10, orderByProperty: "NotAProperty");
+
+        page.TotalCount.Should().Be(1);
+        page.Entries.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task ReadPage_EmptyPrefix_ReturnsEmpty()
+    {
+        var eventStorage = GetSiloService<IEventStorage>();
+
+        var page = await eventStorage.ReadPage<Guid, EventTestAggregate>(
+            $"nonexistent_{Guid.NewGuid():N}:", GrainKeyType.Guid, offset: 0, limit: 10);
+
+        page.TotalCount.Should().Be(0);
+        page.Entries.Should().BeEmpty();
+    }
 }

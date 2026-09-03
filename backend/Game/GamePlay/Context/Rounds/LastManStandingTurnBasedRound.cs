@@ -206,8 +206,10 @@ public class LastManStandingTurnBasedRound : Service, IGameRound
                     return $"Player {user.Id} disconnected";
             }
 
-            if (_players.GetFlagWinner() != Guid.Empty)
-                return "All opponent mines flagged";
+            var flagWinner = _players.GetFlagWinner();
+
+            if (flagWinner != Guid.Empty)
+                return $"Player {flagWinner} flagged every mine on own board";
 
             if (lifetime.IsTerminated == true)
                 return "Match lifetime terminated";

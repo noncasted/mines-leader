@@ -7,12 +7,15 @@ public class OpenCellCommand(GameCommandUtils utils) : GameCommand<SharedGameAct
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.Open request)
     {
+        if (RequireMove(context) is { } refused)
+            return refused;
+
         var board = context.Player.Board;
         board.EnsureGenerated(context.Snapshot, request.Position);
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Cell is already open");
 
         if (targetCell.Effects.Any(e => e.Type == CellEffectType.Frost))
             return EmptyResponse.Fail("Cell is frozen");

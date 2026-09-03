@@ -48,6 +48,20 @@ namespace Shared
         public Guid Id { get; set; }
         public string Type { get; set; } = string.Empty;
         public int ManaCost { get; set; }
+
+        /// <summary>OwnBoard | OpponentBoard | Self | Opponent.</summary>
+        public string Target { get; set; } = string.Empty;
+
+        /// <summary>Rhombus | Line | Cross | Chain | Single | None. See <see cref="AgentCardCatalog"/>.</summary>
+        public string Shape { get; set; } = string.Empty;
+
+        /// <summary>Pattern size from config; 0 when Shape is None. Random sizes report the maximum.</summary>
+        public int Size { get; set; }
+
+        public bool NeedsPosition { get; set; }
+
+        /// <summary>One English line describing the effect and the required target cells.</summary>
+        public string Summary { get; set; } = string.Empty;
     }
 
     [MemoryPackable]

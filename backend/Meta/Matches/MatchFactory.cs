@@ -21,12 +21,14 @@ public class MatchFactory : IMatchFactory
         IMessaging messaging,
         IServiceDiscovery serviceDiscovery,
         IBotCollection botCollection,
+        IBotFactory botFactory,
         ILogger<MatchFactory> logger)
     {
         _orleans = orleans;
         _messaging = messaging;
         _serviceDiscovery = serviceDiscovery;
         _botCollection = botCollection;
+        _botFactory = botFactory;
         _logger = logger;
     }
 
@@ -34,6 +36,7 @@ public class MatchFactory : IMatchFactory
     private readonly IMessaging _messaging;
     private readonly IServiceDiscovery _serviceDiscovery;
     private readonly IBotCollection _botCollection;
+    private readonly IBotFactory _botFactory;
     private readonly ILogger<MatchFactory> _logger;
 
     public async Task Create(IReadOnlyList<Guid> participants, GameMatchType type)
@@ -68,6 +71,11 @@ public class MatchFactory : IMatchFactory
     public async Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null)
     {
         var botId = GetRandomBotId();
+
+        // Колода бота перевыдаётся из актуального конфига перед каждым матчем.
+        if (botId != Guid.Empty)
+            await _botFactory.AssignDeck(botId);
+
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
         await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, new[] { participant, botId }));
 

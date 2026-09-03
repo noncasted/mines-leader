@@ -79,7 +79,7 @@ public class AgentObservationPublisher : IAgentObservationPublisher
             {
                 observation.WinnerId = flagWinner;
                 if (string.IsNullOrEmpty(observation.WinReason))
-                    observation.WinReason = "All opponent mines flagged";
+                    observation.WinReason = $"Player {flagWinner} flagged every mine on own board";
             }
         }
 

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using UnityEngine;
+using VContainer;
 
 namespace GamePlay.UI
 {
@@ -25,6 +26,14 @@ namespace GamePlay.UI
 
         private GameResultsView _current;
 
+        private IGameContext _gameContext;
+
+        [Inject]
+        internal void Construct(IGameContext gameContext)
+        {
+            _gameContext = gameContext;
+        }
+
         public void Create(IScopeBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -35,6 +44,8 @@ namespace GamePlay.UI
 
         public UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result)
         {
+            _gameContext.SetPaused(true);
+
             gameObject.SetActive(true);
             _current = result.Type == MatchResultType.Win ? _win : _lose;
 

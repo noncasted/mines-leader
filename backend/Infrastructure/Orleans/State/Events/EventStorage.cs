@@ -36,6 +36,16 @@ public interface IEventStorage
     IAsyncEnumerable<(TKey Key, TValue Aggregate)> ReadAll<TKey, TValue>(string streamPrefix, GrainKeyType keyType)
         where TKey : notnull
         where TValue : class, new();
+
+    Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(
+        string streamPrefix,
+        GrainKeyType keyType,
+        int offset,
+        int limit,
+        string? orderByProperty = null,
+        bool descending = true)
+        where TKey : notnull
+        where TValue : class, new();
 }
 
 public class EventStorage : IEventStorage
@@ -196,6 +206,80 @@ public class EventStorage : IEventStorage
 	            yield return (key, aggregate);
 	        }
 	    }
+
+    public async Task<StatePageResult<TKey, TValue>> ReadPage<TKey, TValue>(
+        string streamPrefix,
+        GrainKeyType keyType,
+        int offset,
+        int limit,
+        string? orderByProperty = null,
+        bool descending = true)
+        where TKey : notnull
+        where TValue : class, new()
+    {
+        await using var session = _store.QuerySession();
+
+        var query = session.Query<TValue>().Where(BuildPrefixPredicate<TValue>(streamPrefix));
+
+        var totalCount = await query.CountAsync();
+
+        var ordered = ApplyOrder(query, orderByProperty, descending);
+
+        var aggregates = await ordered.Skip(offset).Take(limit).ToListAsync();
+
+        var entries = new List<(TKey Key, TValue Value)>(aggregates.Count);
+
+        foreach (var aggregate in aggregates)
+        {
+            try
+            {
+                var id = ((IEventStateValue)aggregate).Id;
+                var key = ParseKey<TKey>(ExtractGrainKey(id), keyType);
+                entries.Add((key, aggregate));
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "[EventStorage] Failed to map aggregate {Type}, skipping", typeof(TValue).Name);
+            }
+        }
+
+        return new StatePageResult<TKey, TValue>
+        {
+            Entries = entries,
+            TotalCount = totalCount
+        };
+    }
+
+    private static Expression<Func<TValue, bool>> BuildPrefixPredicate<TValue>(string streamPrefix)
+    {
+        var parameter = Expression.Parameter(typeof(TValue), "x");
+        var idProperty = Expression.Property(parameter, "Id");
+        var startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!;
+        var body = Expression.Call(idProperty, startsWithMethod, Expression.Constant(streamPrefix));
+        return Expression.Lambda<Func<TValue, bool>>(body, parameter);
+    }
+
+    private static IQueryable<TValue> ApplyOrder<TValue>(IQueryable<TValue> query, string? property, bool descending)
+    {
+        var parameter = Expression.Parameter(typeof(TValue), "x");
+
+        // Сортировка по Id — единственная гарантированно доступная: она есть у любого IEventStateValue.
+        var member = property != null && typeof(TValue).GetProperty(property) != null
+            ? Expression.Property(parameter, property)
+            : Expression.Property(parameter, "Id");
+
+        var lambda = Expression.Lambda(member, parameter);
+        var method = descending ? "OrderByDescending" : "OrderBy";
+
+        var call = Expression.Call(
+            typeof(Queryable),
+            method,
+            [typeof(TValue), member.Type],
+            query.Expression,
+            Expression.Quote(lambda));
+
+        return query.Provider.CreateQuery<TValue>(call);
+    }
 
     private object Deserialize(EventPayload payload)
     {
