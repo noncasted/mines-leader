@@ -56,6 +56,19 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
             catch (Exception e)
             {
                 _logger.LogError(e, "[User] [Command] Error handling request command: {CommandType}", type.Name);
+
+                // Клиент ждёт ответ на каждый запрос: без ошибки он висит в загрузке до таймаута.
+                try
+                {
+                    await writer.WriteResponse(EmptyResponse.Fail($"Command {type.Name} failed"), request.RequestId);
+                }
+                catch (Exception writeError)
+                {
+                    _logger.LogError(
+                        writeError,
+                        "[User] [Command] Failed to send error response: {CommandType}",
+                        type.Name);
+                }
             }
         }
 

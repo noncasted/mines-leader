@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Global.UI;
@@ -99,6 +100,13 @@ namespace Menu.Unlocks
             if (lifetime.IsTerminated == true)
                 return;
 
+            // Запрос не дошёл: держать окно в загрузке бессмысленно, закрываем — тир останется незабранным.
+            if (options == null)
+            {
+                Debug.LogError($"[MenuUnlockSelection] Failed to load rewards for {_tier.Type} tier {_tier.Tier}");
+                return;
+            }
+
             // Выйти без выбора нельзя, поэтому пустой пул — единственный способ закрыть окно без карты.
             if (options.Count == 0)
             {
@@ -144,7 +152,17 @@ namespace Menu.Unlocks
             SetOptionsInteractable(false);
             _status.text = "Unlocking...";
 
-            var claimed = await _rewards.Claim(_tier, picked.Card);
+            var claimed = false;
+
+            try
+            {
+                claimed = await _rewards.Claim(_tier, picked.Card);
+            }
+            catch (Exception e)
+            {
+                // Claim вызывается через Forget, и без перехвата окно навсегда осталось бы в "Unlocking...".
+                Debug.LogError($"[MenuUnlockSelection] Claim failed: {e}");
+            }
 
             if (lifetime.IsTerminated == true)
                 return;

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Shared;
 
@@ -30,7 +30,9 @@ namespace Meta
         public async UniTask<IReadOnlyList<CardType>> GetOptions(IAchievementTier tier)
         {
             var response = await _backend.GetAchievementRewardOptions(tier.Type, tier.Tier);
-            return response.Options;
+
+            // null — запрос не дошёл или упал на сервере: вызывающий отличит это от пустого пула.
+            return response?.Options;
         }
 
         public UniTask<bool> Claim(IAchievementTier tier, CardType card)

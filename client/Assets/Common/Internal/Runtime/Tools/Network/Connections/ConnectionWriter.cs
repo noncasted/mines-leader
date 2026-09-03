@@ -22,6 +22,9 @@ namespace Internal
         private readonly Dictionary<int, UniTaskCompletionSource<INetworkContext>> _pendingRequests = new();
         private readonly List<IMessageFromClient> _writeQueue = new();
 
+        private const float RequestTimeoutSeconds = 20f;
+        private const int TimeoutIndex = 1;
+
         private int _requestCounter;
         private ILifetime _lifetime;
 
@@ -46,8 +49,17 @@ namespace Internal
                 var request = _writeQueue[0];
                 _writeQueue.RemoveAt(0);
 
-                var payload = MemoryPackSerializer.Serialize(request);
-                await _webSocket.Send(payload);
+                try
+                {
+                    var payload = MemoryPackSerializer.Serialize(request);
+                    await _webSocket.Send(payload);
+                }
+                catch (Exception e)
+                {
+                    // Упавший цикл отправки молча вешает все последующие запросы, поэтому продолжаем.
+                    UnityEngine.Debug.LogError($"Failed to send message to server: {e}");
+                }
+
                 await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
             }
         }
@@ -81,13 +93,32 @@ namespace Internal
 
             _writeQueue.Add(request);
 
-            _lifetime.Listen(() => completion.TrySetCanceled());
+            // Обрыв соединения не должен вешать вызывающего: он получит null и покажет ошибку сам.
+            _lifetime.Listen(() => completion.TrySetResult(null));
 
-            var context = await completion.Task;
+            var (winner, context, _) = await UniTask.WhenAny(completion.Task, AwaitTimeout());
 
             _pendingRequests.Remove(request.RequestId);
 
-            return (T)context;
+            if (context is T typed)
+                return typed;
+
+            var reason = winner == TimeoutIndex ? "timed out" : "got no response";
+
+            UnityEngine.Debug.LogError(
+                $"Request {Describe(commandContext)} {reason} after {RequestTimeoutSeconds}s, expected {typeof(T).Name}");
+
+            return default;
+        }
+
+        /// <summary>
+        /// Ответ может не прийти вовсе: сервер уронил обработчик, сокет переподключился, пакет потерялся.
+        /// Без таймаута такой запрос висит вечно, и UI остаётся в состоянии загрузки.
+        /// </summary>
+        private static async UniTask<INetworkContext> AwaitTimeout()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(RequestTimeoutSeconds), ignoreTimeScale: true);
+            return null;
         }
 
         public void WriteResponse(INetworkContext commandContext, int requestId)
