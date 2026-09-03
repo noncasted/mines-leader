@@ -85,6 +85,12 @@ namespace Meta
                     Card = card
                 });
 
+            if (response == null)
+            {
+                Debug.LogError("Claim achievement reward failed: no response from server");
+                return false;
+            }
+
             if (response.HasError == true)
                 Debug.LogError($"Claim achievement reward failed: {response.Message}");
 
@@ -95,6 +101,12 @@ namespace Meta
             where TRequest : INetworkContext
         {
             var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(request);
+
+            if (response == null)
+            {
+                Debug.LogError($"Request {typeof(TRequest).Name} got no response from server");
+                return;
+            }
 
             if (response.HasError == true)
                 Debug.LogError($"Request {typeof(TRequest).Name} executed with error: {response.Message}");
