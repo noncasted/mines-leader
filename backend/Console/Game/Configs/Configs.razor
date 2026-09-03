@@ -21,6 +21,32 @@
             <LucideIcon Name="file-json" Size="16" class="mr-2" />
             Write JSON
         </BbButton>
+        <BbAlertDialog @bind-Open="_isResetDialogOpen">
+            <BbAlertDialogTrigger>
+                <BbButton Variant="ButtonVariant.Destructive" Disabled="_isResetting">
+                    <LucideIcon Name="rotate-ccw" Size="16" class="mr-2" />
+                    Reset to defaults
+                </BbButton>
+            </BbAlertDialogTrigger>
+            <BbAlertDialogContent>
+                <BbAlertDialogHeader>
+                    <BbAlertDialogTitle>Reset configs to defaults?</BbAlertDialogTitle>
+                    <BbAlertDialogDescription>
+                        All configurations (Cards, Bot, Game Mode, Rating, Achievements, Player, User Deck)
+                        will be reloaded from the JSON files and applied to the live cluster.
+                        Current values are lost and this cannot be undone.
+                    </BbAlertDialogDescription>
+                </BbAlertDialogHeader>
+                <BbAlertDialogFooter>
+                    <BbAlertDialogCancel>
+                        <BbButton Variant="ButtonVariant.Outline">Cancel</BbButton>
+                    </BbAlertDialogCancel>
+                    <BbAlertDialogAction>
+                        <BbButton Variant="ButtonVariant.Destructive" @onclick="ResetToDefaults">Reset to defaults</BbButton>
+                    </BbAlertDialogAction>
+                </BbAlertDialogFooter>
+            </BbAlertDialogContent>
+        </BbAlertDialog>
     </div>
 
     <div class="flex gap-2 overflow-x-auto pb-1">
@@ -241,6 +267,8 @@
     private UserDeckConfigOptions _userDeckValue = new();
     private PlayerConfigOptions _playerConfigValue = new();
     private bool _isUpdatingJson;
+    private bool _isResetting;
+    private bool _isResetDialogOpen;
     private ConfigSection _activeSection = ConfigSection.Bot;
     private string _searchQuery = "";
 
@@ -374,11 +402,90 @@
         ToastService.Success("Configs saved", "Saved");
     }
 
+    private async Task ResetToDefaults()
+    {
+        _isResetting = true;
+
+        try
+        {
+            var restored = new List<string>();
+
+            await RestoreConfig("config.cards", CardConfigs, v => _cardsValue = v);
+            await RestoreConfig("config.bot", BotConfig, v => _botValue = v);
+            await RestoreConfig("config.gameMode", GameModeConfig, v => _gameModeValue = v);
+            await RestoreConfig("config.rating", RatingConfig, v => _ratingValue = v);
+            await RestoreConfig("config.achievements", AchievementConfig, v => _achievementValue = v);
+            await RestoreConfig("config.userDeck", UserDeckConfig, v => _userDeckValue = v);
+            await RestoreConfig("config.player", PlayerConfig, v => _playerConfigValue = v);
+
+            if (restored.Count == 0)
+            {
+                ToastService.Error("[Configs] No JSON config files found", "Error");
+                return;
+            }
+
+            await AuditLog.Write("ConfigReset", $"Configs reset to JSON defaults ({string.Join(", ", restored)})");
+            ToastService.Success($"Reset {restored.Count} configs to JSON defaults", "Reset");
+
+            return;
+
+            async Task RestoreConfig<T>(string jsonPath, IAddressableState<T> storage, Action<T> assign)
+                where T : class, new()
+            {
+                var configPath = ResolveConfigPath(jsonPath);
+                if (configPath == null)
+                    return;
+
+                var json = await File.ReadAllTextAsync(configPath);
+                var value = JsonUtils.Deserialize<T>(json);
+                if (value == null)
+                    return;
+
+                assign(value);
+                await storage.SetValue(value);
+                restored.Add(jsonPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[Configs] Failed to reset configs: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isResetting = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// JSON configs live next to the Coordinator project during local runs and are copied
+    /// next to the running binary in deployed builds — probe both.
+    /// </summary>
+    private static string? ResolveConfigPath(string jsonPath)
+    {
+        var candidates = new[]
+        {
+            Path.GetFullPath(Path.Combine(CoordinatorFolder, $"{jsonPath}.json")),
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"{jsonPath}.json")),
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (File.Exists(candidate))
+                return candidate;
+        }
+
+        return null;
+    }
+
+    private static string CoordinatorFolder =>
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+
     private async Task UpdateJson()
     {
         _isUpdatingJson = true;
 
-        var coordinatorFolder = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+        var coordinatorFolder = CoordinatorFolder;
 
         try
         {

@@ -8,18 +8,29 @@ public static class AgentMatchFixtureApplier
     public static void ApplyDecks(IGameContext context, AgentMatchFixture fixture, MoveSnapshot snapshot)
     {
         if (fixture.SelfDeck != null && fixture.SelfDeck.Count > 0)
-        {
-            var human = FindHuman(context);
-            human.Deck.Replace(fixture.SelfDeck);
-            snapshot.RecordDeckUpdate(human);
-        }
+            ReplaceDeck(FindHuman(context), fixture.SelfDeck, snapshot);
 
         if (fixture.BotDeck != null && fixture.BotDeck.Count > 0)
+            ReplaceDeck(FindBot(context), fixture.BotDeck, snapshot);
+    }
+
+    /// <summary>
+    /// Колода фикстуры короче руки — обычная ситуация для сценария («бот играет вот этими картами»).
+    /// RestoreCards добирает до Hand.Size и падает на пустой колоде, поэтому список
+    /// повторяется по кругу, как это делает Deck.Init, пока карт не хватит на полную руку.
+    /// </summary>
+    private static void ReplaceDeck(IPlayer player, IReadOnlyList<CardType> cards, MoveSnapshot snapshot)
+    {
+        player.Deck.Replace(cards);
+
+        var index = 0;
+        while (player.Deck.Count < player.Hand.Size)
         {
-            var bot = FindBot(context);
-            bot.Deck.Replace(fixture.BotDeck);
-            snapshot.RecordDeckUpdate(bot);
+            player.Deck.AddCard(cards[index]);
+            index = (index + 1) % cards.Count;
         }
+
+        snapshot.RecordDeckUpdate(player);
     }
 
     public static void Apply(IGameContext context, AgentMatchFixture fixture, MoveSnapshot snapshot)

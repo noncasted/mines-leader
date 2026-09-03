@@ -109,7 +109,35 @@ public class AgentMatchFixtureApplierTests
     }
 
     [Fact]
-    public void SelfHandAndDeck_SkipRestore_LeavesDeckIntact()
+    public void ApplyDecks_ShortBotDeck_CyclesToHandSize_SoRestoreDoesNotThrow()
+    {
+        // Сценарий cross_vs_hard: bot_deck из 4 карт при HandSize 6 ронял RestoreCards на DrawCard.
+        var players = CreatePlayers(boardSize: 3);
+        players.Opponent.Hand.SetSize(6);
+        players.Opponent.Deck.Init(3);
+
+        var match = new AgentMatchFixture
+        {
+            BotDeck = { CardType.Bloodhound, CardType.Shield, CardType.Medic, CardType.Sonar }
+        };
+
+        var snapshot = new MoveSnapshot();
+        AgentMatchFixtureApplier.ApplyDecks(players.Context, match, snapshot);
+
+        players.Opponent.Deck.Count.Should().Be(6);
+        players.Opponent.Deck.Peek(4).Should().Be(CardType.Bloodhound);
+        players.Opponent.Deck.Peek(5).Should().Be(CardType.Shield);
+
+        var restore = () => new RoundPlayers(players.Context).RestoreCards(players.Opponent, snapshot);
+
+        restore.Should().NotThrow();
+        players.Opponent.Hand.Entries.Should().HaveCount(6);
+        players.Opponent.Hand.Entries.Select(card => card.Type)
+               .Should().Equal(CardType.Bloodhound, CardType.Shield, CardType.Medic, CardType.Sonar, CardType.Bloodhound, CardType.Shield);
+    }
+
+    [Fact]
+    public void SelfHandAndDeck_SkipRestore_KeepsDeckOrderAndPadsToHandSize()
     {
         var players = CreatePlayers(boardSize: 3);
         players.Self.Hand.SetSize(5);
@@ -128,8 +156,13 @@ public class AgentMatchFixtureApplierTests
         AgentMatchFixtureApplier.Apply(players.Context, match, snapshot);
 
         players.Self.Hand.Entries.Should().ContainSingle(card => card.Type == CardType.Sonar);
-        players.Self.Deck.Count.Should().Be(3);
+        // 3 карты фикстуры идут первыми, дальше список повторяется до Hand.Size = 5,
+        // иначе RestoreCards в конце первого хода упадёт на пустой колоде.
+        players.Self.Deck.Count.Should().Be(5);
         players.Self.Deck.Peek(0).Should().Be(CardType.Bloodhound);
+        players.Self.Deck.Peek(1).Should().Be(CardType.Medic);
+        players.Self.Deck.Peek(2).Should().Be(CardType.Shield);
+        players.Self.Deck.Peek(3).Should().Be(CardType.Bloodhound);
     }
 
     [Fact]
@@ -161,9 +194,9 @@ public class AgentMatchFixtureApplierTests
             CurrentProfile = BotProfile.Medium,
             Profiles = new Dictionary<BotProfile, BotProfileConfig>
             {
-                [BotProfile.Easy] = new() { CellsOpenPerRound = 2 },
-                [BotProfile.Medium] = new() { CellsOpenPerRound = 4 },
-                [BotProfile.Hard] = new() { CellsOpenPerRound = 8 }
+                [BotProfile.Easy] = new() { FlagsPerRound = 2 },
+                [BotProfile.Medium] = new() { FlagsPerRound = 4 },
+                [BotProfile.Hard] = new() { FlagsPerRound = 8 }
             }
         });
 
@@ -188,7 +221,7 @@ public class AgentMatchFixtureApplierTests
                     Fixture = new AgentMatchFixture { BotProfile = BotProfile.Easy }
                 },
                 config)
-            .CellsOpenPerRound.Should().Be(2);
+            .FlagsPerRound.Should().Be(2);
     }
 
     private static PlayersFixture CreatePlayers(int boardSize)

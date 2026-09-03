@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;
@@ -10,16 +11,16 @@ public class BloodhoundStrategy : IBotCardStrategy
 {
     public BloodhoundStrategy(
         IBotContext context,
-        BotBoardUtils boardUtils,
+        ICardConfigs cardConfigs,
         IBotCommandUtils commandUtils)
     {
         _context = context;
-        _boardUtils = boardUtils;
+        _cardConfigs = cardConfigs;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly BotBoardUtils _boardUtils;
+    private readonly ICardConfigs _cardConfigs;
     private readonly IBotCommandUtils _commandUtils;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.Bloodhound, CardType.Bloodhound_Max];
@@ -44,9 +45,13 @@ public class BloodhoundStrategy : IBotCardStrategy
     public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
-        var position = _boardUtils.FindRandomTakenPosition();
+        var config = cardType == CardType.Bloodhound_Max
+            ? _cardConfigs.Value.BloodHound_Max
+            : _cardConfigs.Value.BloodHound_Normal;
 
-        if (position == new Position(-1, -1))
+        var position = BotCardTargeting.BestBloodhoundCentre(bot.Board, config.Size);
+
+        if (position == BotCardTargeting.None)
             return false;
 
         var payload = new CardUsePayload.Bloodhound

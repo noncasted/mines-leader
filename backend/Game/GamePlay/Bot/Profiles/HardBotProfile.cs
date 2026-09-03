@@ -42,14 +42,16 @@ public class HardBotProfile : BotProfileBase
             if (bot.Board.Cells.Count == 0)
                 await OpenFirstCell(lifetime, 2f, 1f);
 
+            var flagBudget = new FlagBudget(profileConfig.FlagsPerRound);
+
             // Phase 1: Flags — deep constraint-solving, maximum flags per round.
-            await RunFlagPhase(profileConfig.FlagsPerRound, startTime, roundTime, lifetime);
+            await RunFlagPhase(flagBudget, startTime, roundTime, lifetime);
 
             // Phase 2: Cards — full pool, optimal selection.
-            await RunCardPhase(profileConfig.CardsUsePerRound, startTime, roundTime, lifetime);
+            await RunCardPhase(startTime, roundTime, lifetime);
 
-            // Phase 3: Open cells — only if moves remain and no unflagged mines.
-            await RunCellPhase(profileConfig.CellsOpenPerRound, startTime, roundTime, lifetime);
+            // Phase 3: Flags after cards, then open cells and re-flag after each open.
+            await RunSolveLoop(flagBudget, startTime, roundTime, lifetime);
 
             await WaitBeforeEndTurn(startTime, roundTime, lifetime);
             EndTurn(startTime, roundTime);

@@ -176,4 +176,16 @@ MonoBehaviour:
   _outline: {fileID: 4570547144942538317}
   _name: {fileID: 2780335677547290311}
   _description: {fileID: 3307361138490577604}
+  _manaCost: {fileID: 1912443508267715490}
   _pointerHandler: {fileID: 2260542558960460116}
+--- !u!114 &1912443508267715490 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3695449837051233012, guid: 6c90c7eea53ea2e4db2c0462379abb69, type: 3}
+  m_PrefabInstance: {fileID: 7998115491197370056}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

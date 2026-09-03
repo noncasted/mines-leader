@@ -1,3 +1,4 @@
+using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;
@@ -8,15 +9,15 @@ namespace Game.GamePlay;
 /// </summary>
 public class MinefieldScoutStrategy : IBotCardStrategy
 {
-    public MinefieldScoutStrategy(IBotContext context, BotBoardUtils boardUtils, IBotCommandUtils commandUtils)
+    public MinefieldScoutStrategy(IBotContext context, ICardConfigs cardConfigs, IBotCommandUtils commandUtils)
     {
         _context = context;
-        _boardUtils = boardUtils;
+        _cardConfigs = cardConfigs;
         _commandUtils = commandUtils;
     }
 
     private readonly IBotContext _context;
-    private readonly BotBoardUtils _boardUtils;
+    private readonly ICardConfigs _cardConfigs;
     private readonly IBotCommandUtils _commandUtils;
 
     public IReadOnlyList<CardType> TargetCards { get; } = [CardType.MinefieldScout, CardType.MinefieldScout_Max];
@@ -35,9 +36,11 @@ public class MinefieldScoutStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        var position = _boardUtils.FindRandomTakenPosition();
+        // Карта всегда берёт размер Normal, даже для Max: повторяем это при прицеливании.
+        var size = _cardConfigs.Value.MinefieldScout_Normal.Size;
+        var position = BotCardTargeting.BestMinefieldScoutCentre(_context.Bot.Board, size);
 
-        if (position == new Position(-1, -1))
+        if (position == BotCardTargeting.None)
             return false;
 
         var bot = _context.Bot;

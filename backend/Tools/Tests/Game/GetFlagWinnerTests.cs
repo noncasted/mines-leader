@@ -359,10 +359,10 @@ public class GetFlagWinnerTests
     }
 
     [Fact]
-    public void DetonatedMine_NoWinner()
+    public void DetonatedMine_RemainingMinesFlagged_ReturnsWinnerId()
     {
-        // Оставшаяся мина не отмечена флагом, а подорвана — с поля она исчезла,
-        // но победу по флагам это давать не должно.
+        // Подорванная мина стала Free и с поля исчезла. Оставшиеся мины отмечены —
+        // доска считается зачищенной, победа по флагам засчитывается.
         var (board1, _) = BoardParser.Parse("""
                                             f f f f _
                                             t t t t t
@@ -381,18 +381,18 @@ public class GetFlagWinnerTests
                                             t t t t t
                                             """);
 
-        var (context, _, _) = CreateContext(board1, board2);
+        var (context, player1Id, _) = CreateContext(board1, board2);
         var roundPlayers = new RoundPlayers(context);
 
         var winner = roundPlayers.GetFlagWinner();
 
-        winner.Should().Be(Guid.Empty);
+        winner.Should().Be(player1Id);
     }
 
     [Fact]
     public void AllMinesFlagged_NoDetonations_ReturnsWinnerId()
     {
-        // Та же доска, но мина отмечена флагом, а не подорвана — победа засчитывается.
+        // Все мины на поле отмечены флагами, взрывов не было.
         var (board1, _) = BoardParser.Parse("""
                                             f f f f f
                                             t t t t t

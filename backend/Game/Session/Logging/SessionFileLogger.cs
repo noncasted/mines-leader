@@ -83,6 +83,11 @@ public class SessionFileLogger : ISessionLogger, IDisposable
         Write($"[Card] Used | Player={Label(playerId)} | Type={cardType} | ManaCost={manaCost} | Success={success}");
     }
 
+    public void LogCardEffect(Guid playerId, string card, string details)
+    {
+        Write($"[Card] Effect | Player={Label(playerId)} | Card={card} | {details}");
+    }
+
     public void LogHealthChanged(Guid playerId, int oldHealth, int newHealth)
     {
         var delta = newHealth - oldHealth;

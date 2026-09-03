@@ -16,14 +16,11 @@ namespace Shared
             [BotProfile.Easy] = new()
             {
                 FlagsPerRound = 3,
-                CellsOpenPerRound = 5,
-                CardsUsePerRound = 1,
                 CardPlayDelay = 4f,
                 EndTurnDelay = 4f,
                 ActionDelay = 1.0f,
                 MinRoundTime = 10f,
                 MaxRoundTime = 15f,
-                DeckSize = 6,
                 Decks = new List<BotDeck>
                 {
                     new()
@@ -44,14 +41,11 @@ namespace Shared
             [BotProfile.Medium] = new()
             {
                 FlagsPerRound = 7,
-                CellsOpenPerRound = 4,
-                CardsUsePerRound = 2,
                 CardPlayDelay = 4f,
                 EndTurnDelay = 4f,
                 ActionDelay = 0.5f,
                 MinRoundTime = 7f,
                 MaxRoundTime = 12f,
-                DeckSize = 6,
                 Decks = new List<BotDeck>
                 {
                     new()
@@ -85,14 +79,11 @@ namespace Shared
             [BotProfile.Hard] = new()
             {
                 FlagsPerRound = 20,
-                CellsOpenPerRound = 8,
-                CardsUsePerRound = 6,
                 CardPlayDelay = 4f,
                 EndTurnDelay = 4f,
                 ActionDelay = 0.3f,
                 MinRoundTime = 5f,
                 MaxRoundTime = 10f,
-                DeckSize = 6,
                 Decks = new List<BotDeck>
                 {
                     // Куратор: разведка кормит солвер, давление держит противника.

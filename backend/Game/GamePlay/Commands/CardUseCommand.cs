@@ -12,6 +12,9 @@ public class CardUseCommand(
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.CardUse request)
     {
+        if (RequireOwnTurn(context) is { } refused)
+            return refused;
+
         var player = context.Player;
         var handCard = player.Hand.Entries.FirstOrDefault(c => c.Id == request.CardId);
 
@@ -26,22 +29,15 @@ public class CardUseCommand(
         if (config.Target == CardTarget.OpponentBoard && opponent.Board.IsGenerated == false)
             return EmptyResponse.Fail("Opponent board is not generated yet");
 
-        var manaCost = config.ManaCost;
-        var nextDiscount = (int)player.Modifiers.Get(PlayerModifier.NextCardDiscount);
-        var allDiscount = (int)player.Modifiers.Get(PlayerModifier.AllCardsDiscount);
-        var penalty = (int)player.Modifiers.Get(PlayerModifier.ManaCostPenalty);
+        var manaCost = CardManaCost.Resolve(player, config);
 
-        if (nextDiscount > 0)
-        {
-            manaCost -= nextDiscount;
+        // Mana.Use обрезает остаток до нуля: без этой проверки любая карта играется на пустом
+        // пуле. UI клиента такую карту прячет, мост агента нет.
+        if (player.Mana.Current < manaCost)
+            return EmptyResponse.Fail(CardManaCost.NotEnough(manaCost, player.Mana.Current));
+
+        if ((int)player.Modifiers.Get(PlayerModifier.NextCardDiscount) > 0)
             player.Modifiers.Reset(context.Snapshot, PlayerModifier.NextCardDiscount);
-        }
-
-        manaCost -= allDiscount;
-        manaCost += penalty;
-
-        if (manaCost < 0)
-            manaCost = 0;
 
         var cardContext = new CardUseContext
         {

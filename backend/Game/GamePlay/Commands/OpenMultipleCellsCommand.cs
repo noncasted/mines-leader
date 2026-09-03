@@ -7,12 +7,15 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
 {
     protected override EmptyResponse Execute(Context context, SharedGameAction.OpenMultiple request)
     {
+        if (RequireMove(context) is { } refused)
+            return refused;
+
         var board = context.Player.Board;
         board.EnsureGenerated(context.Snapshot, request.Position);
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status != CellStatus.Free)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Chord needs an open cell");
 
         var free = targetCell.AsFree();
         var around = free.MinesAround;
@@ -36,8 +39,13 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
             placedFlags++;
         });
 
+        // Аккорд стоит ход. Если открывать нечего, ход не списываем: агент и UI получают
+        // отказ, а не молчаливое "ok" с минусом в счётчике ходов.
         if (around != placedFlags)
-            return EmptyResponse.Ok;
+            return EmptyResponse.Fail($"Chord needs {around} flag(s) around, {placedFlags} placed");
+
+        if (takenNeighbours.Count == flaggedNeighbours.Count)
+            return EmptyResponse.Fail("Chord reveals nothing: every neighbour is open or flagged");
 
         var toReveal = new List<Position>();
 

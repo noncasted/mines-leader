@@ -56,23 +56,6 @@ public class BotBoardUtils
         return takenCells[randomIndex];
     }
 
-    public Position FindClosestUnflaggedMine()
-    {
-        var board = _context.Bot.Board;
-
-        var unflaggedMines = board.Cells
-                                  .Where(kvp => kvp.Value.Status == CellStatus.Taken)
-                                  .Where(kvp => !kvp.Value.AsTaken().IsFlagged)
-                                  .Where(kvp => kvp.Value.AsTaken().HasMine)
-                                  .Select(kvp => kvp.Key)
-                                  .ToList();
-
-        if (unflaggedMines.Count == 0)
-            return new Position(-1, -1);
-
-        return unflaggedMines[0];
-    }
-
     public Position FindRandomFlaggedPosition(bool opponent = false)
     {
         var board = opponent ? _context.Opponent.Board : _context.Bot.Board;

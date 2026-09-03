@@ -44,10 +44,18 @@ public class MatchHandle
                 return;
             }
 
-            var sessionId = _sessionFactory.CreateMatch(new MatchCreateOptions
+            // Матч с ботом нужно пересоздавать тоже с ботом,
+            // иначе новая сессия будет вечно ждать второго живого игрока.
+            var botId = _users.FirstOrDefault(t => t.IsBot)?.Id;
+
+            var rematchOptions = new MatchCreateOptions
             {
                 Type = _createOptions.Type
-            });
+            };
+
+            var sessionId = botId.HasValue
+                ? _sessionFactory.CreateMatchWithBot(botId.Value, rematchOptions)
+                : _sessionFactory.CreateMatch(rematchOptions);
 
             var serviceOverview = _serviceDiscovery.Self as GameServerOverview;
 

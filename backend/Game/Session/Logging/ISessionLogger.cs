@@ -13,6 +13,7 @@ public interface ISessionLogger
     void LogFlagSet(Guid playerId, Position position);
     void LogFlagRemoved(Guid playerId, Position position);
     void LogCardUsed(Guid playerId, CardType cardType, int manaCost, bool success);
+    void LogCardEffect(Guid playerId, string card, string details);
     void LogHealthChanged(Guid playerId, int oldHealth, int newHealth);
     void LogManaChanged(Guid playerId, int current, int max);
     void LogBotTurnStart(Guid botId);

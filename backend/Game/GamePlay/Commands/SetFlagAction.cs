@@ -10,7 +10,7 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Cell is already open");
 
         if (targetCell.Effects.Any(e => e.Type == CellEffectType.Frost))
             return EmptyResponse.Fail("Cell is frozen");
@@ -18,7 +18,7 @@ public class SetFlagAction(GameCommandUtils utils) : GameCommand<SharedGameActio
         var taken = targetCell.ToTaken();
 
         if (taken.IsFlagged == true)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Cell is already flagged");
 
         taken.SetFlag();
         context.Snapshot.RecordFlag(board, request.Position, true);

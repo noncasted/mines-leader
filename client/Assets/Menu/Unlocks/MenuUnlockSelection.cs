@@ -33,6 +33,7 @@ namespace Menu.Unlocks
         private IAchievementRewards _rewards;
         private ICardsRegistry _cards;
         private ICardDescriptionProvider _descriptions;
+        private ICardConfigs _configs;
         private IUIStateMachine _stateMachine;
         private IAchievementTier _tier;
         private bool _isOpen;
@@ -44,11 +45,13 @@ namespace Menu.Unlocks
             IAchievementRewards rewards,
             ICardsRegistry cards,
             ICardDescriptionProvider descriptions,
+            ICardConfigs configs,
             IUIStateMachine stateMachine)
         {
             _rewards = rewards;
             _cards = cards;
             _descriptions = descriptions;
+            _configs = configs;
             _stateMachine = stateMachine;
         }
 
@@ -116,13 +119,18 @@ namespace Menu.Unlocks
         {
             ClearOptions();
 
+            // All каждый раз собирает новый словарь, поэтому берём его один раз на раскладку.
+            var configs = _configs.Value?.All;
+
             foreach (var card in cards)
             {
                 if (_cards.Entries.TryGetValue(card, out var definition) == false)
                     continue;
 
+                var manaCost = configs != null && configs.TryGetValue(card, out var config) ? config.ManaCost : 0;
+
                 var option = Instantiate(MenuPrefabs.MenuUnlocksOption, _optionsRoot);
-                option.Setup(definition, _descriptions.GetDescription(card));
+                option.Setup(definition, _descriptions.GetDescription(card), manaCost);
                 option.ListenClick(lifetime, picked => Claim(lifetime, picked, completion).Forget());
                 _options.Add(option);
             }

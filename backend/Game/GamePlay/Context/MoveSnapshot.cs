@@ -25,6 +25,11 @@ public class MoveSnapshot
 
     public void RecordCardUse(Guid playerId, Guid cardId, ICardActionData data)
     {
+        var effect = CardActionLog.Describe(data);
+
+        if (effect != null)
+            SessionLogger?.LogCardEffect(playerId, data.GetType().Name, effect);
+
         Append(new PlayerSnapshotRecord.CardUse()
         {
             PlayerId = playerId,

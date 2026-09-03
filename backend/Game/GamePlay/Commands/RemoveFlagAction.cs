@@ -10,7 +10,7 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
         var targetCell = board.Cells[request.Position];
 
         if (targetCell.Status == CellStatus.Free)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Cell is already open");
 
         if (targetCell.Effects.Any(e => e.Type == CellEffectType.Frost))
             return EmptyResponse.Fail("Cell is frozen");
@@ -18,7 +18,7 @@ public class RemoveFlagAction(GameCommandUtils utils) : GameCommand<SharedGameAc
         var taken = targetCell.ToTaken();
 
         if (taken.IsFlagged == false)
-            return EmptyResponse.Failed;
+            return EmptyResponse.Fail("Cell is not flagged");
 
         taken.RemoveFlag();
         context.Snapshot.RecordFlag(board, request.Position, false);

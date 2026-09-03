@@ -75,7 +75,7 @@ public class BotFactoryWorkflowTests
         var id = Guid.NewGuid();
         var botConfig = GetSiloService<IBotConfig>().Value;
         var profileConfig = botConfig.CurrentProfileConfig;
-        var deckSize = profileConfig.DeckSize;
+        var deckSize = DeckOptions.DeckSize;
         var decks = profileConfig.Decks;
 
         decks.Should().NotBeEmpty("profile should have at least one deck configured");
@@ -115,7 +115,7 @@ public class BotFactoryWorkflowTests
         var id = Guid.NewGuid();
         var botConfig = GetSiloService<IBotConfig>().Value;
         var profileConfig = botConfig.CurrentProfileConfig;
-        var deckSize = profileConfig.DeckSize;
+        var deckSize = DeckOptions.DeckSize;
         var decks = profileConfig.Decks;
 
         decks.Should().NotBeEmpty("profile should have at least one deck configured");

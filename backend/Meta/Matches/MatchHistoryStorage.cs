@@ -37,7 +37,10 @@ public class MatchHistoryStorage : IMatchHistoryStorage
 
     public async Task<MatchHistoryResult> GetPage(int offset, int limit, string? typeFilter = null)
     {
-        var page = await _storageReader.ReadPage<Guid, MatchState>(offset, limit);
+        var page = await _storageReader.ReadPage<Guid, MatchState>(
+            offset,
+            limit,
+            nameof(MatchState.StartDate));
 
         var entries = new List<MatchHistoryEntry>(page.Entries.Count);
 

@@ -1,12 +1,13 @@
 ﻿using Common.Extensions;
 using Common.Reactive;
+using Game.Session;
 
 namespace Game.GamePlay;
 
 public interface IRematchAwaiter
 {
     Task<bool> ShouldRematch(IReadOnlyLifetime lifetime, TimeSpan timeout);
-    void OnRematchAccepted();
+    void OnRematchAccepted(IUser user);
 }
 
 public class RematchAwaiter : IRematchAwaiter
@@ -18,12 +19,19 @@ public class RematchAwaiter : IRematchAwaiter
 
     private readonly IGameContext _context;
     private readonly TaskCompletionSource<bool> _completion = new();
-
-    private int _acceptCount;
+    private readonly HashSet<Guid> _accepted = new();
 
     public async Task<bool> ShouldRematch(IReadOnlyLifetime lifetime, TimeSpan timeout)
     {
-        foreach (var player in _context.Players)
+        // Боты всегда согласны на реванш, ждём решения только живых игроков.
+        var humans = _context.Players
+                             .Where(t => t.User.IsBot == false)
+                             .ToList();
+
+        if (humans.Count == 0)
+            return false;
+
+        foreach (var player in humans)
         {
             if (player.User.Lifetime.IsTerminated == true)
                 return false;
@@ -39,6 +47,8 @@ public class RematchAwaiter : IRematchAwaiter
         lifetime.Listen(() => _completion.TrySetResult(false));
         TimeoutAwaiter().NoAwait();
 
+        TryComplete();
+
         return await _completion.Task;
 
         async Task TimeoutAwaiter()
@@ -48,11 +58,24 @@ public class RematchAwaiter : IRematchAwaiter
         }
     }
 
-    public void OnRematchAccepted()
+    public void OnRematchAccepted(IUser user)
     {
-        _acceptCount++;
+        if (user.IsBot)
+            return;
 
-        if (_acceptCount >= _context.Players.Count)
+        _accepted.Add(user.Id);
+
+        TryComplete();
+    }
+
+    private void TryComplete()
+    {
+        var required = _context.Players.Count(t => t.User.IsBot == false);
+
+        if (required == 0)
+            return;
+
+        if (_accepted.Count >= required)
             _completion.TrySetResult(true);
     }
 }

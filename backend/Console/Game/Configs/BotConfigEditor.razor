@@ -1,4 +1,5 @@
 @using Shared
+@using Meta.Users
 <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
     <div class="flex items-center gap-2">
         <div class="rounded-md bg-blue-500/15 p-1.5">
@@ -26,7 +27,7 @@
         {
             <BotDeckEditor
                 Deck="config.Decks[deckIndex]"
-                DeckSize="config.DeckSize"
+                DeckSize="DeckOptions.DeckSize"
                 OnBack="() => _editingDeckIndex = null" />
         }
         else
@@ -45,18 +46,6 @@
                            class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
                 </div>
                 <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-                    <LucideIcon Name="grid-2x2" Size="12" class="text-muted-foreground shrink-0" />
-                    <span class="text-sm flex-1">Cells Open Per Round</span>
-                    <input type="number" @bind="config.CellsOpenPerRound"
-                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-                </div>
-                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-                    <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
-                    <span class="text-sm flex-1">Cards Use Per Round</span>
-                    <input type="number" @bind="config.CardsUsePerRound"
-                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-                </div>
-                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
                     <LucideIcon Name="hourglass" Size="12" class="text-muted-foreground shrink-0" />
                     <span class="text-sm flex-1">Card Play Delay (sec)</span>
                     <input type="number" @bind="config.CardPlayDelay" step="0.1" min="0"
@@ -66,12 +55,6 @@
                     <LucideIcon Name="hourglass" Size="12" class="text-muted-foreground shrink-0" />
                     <span class="text-sm flex-1">End Turn Delay (sec)</span>
                     <input type="number" @bind="config.EndTurnDelay" step="0.1" min="0"
-                           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-                </div>
-                <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
-                    <LucideIcon Name="database" Size="12" class="text-muted-foreground shrink-0" />
-                    <span class="text-sm flex-1">Deck Size</span>
-                    <input type="number" @bind="config.DeckSize"
                            class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
                 </div>
                 <div class="flex items-center gap-3 py-1.5 border-b border-border/60">

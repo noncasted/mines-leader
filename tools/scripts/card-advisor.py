@@ -35,6 +35,9 @@ MODEL_ALIASES = {
 AUTH_PATH = Path.home() / ".local/share/opencode/auth.json"
 USER_AGENT = "mines-leader-card-advisor/1.0"
 
+# Fallback only. Since agent_card_play the observation carries Target / Shape / Size /
+# NeedsPosition / Summary per hand card (shared/Game/Agent/AgentCardCatalog.cs); those
+# fields win when present. This table covers observations from older builds.
 # target: own_board | opponent_board | self | opponent
 # needs_cell is true only for board targets
 CARDS: dict[str, dict] = {
@@ -168,11 +171,12 @@ def build_prompt(observation: dict) -> str:
         name = card.get("Type") or card.get("type") or "?"
         card_id = card.get("Id") or card.get("id")
         cost = int(card.get("ManaCost") or card.get("manaCost") or CARDS.get(name, {}).get("mana") or 0)
-        info = CARDS.get(name, {"target": "self", "summary": "Unknown card. If unsure, skip."})
-        needs = info.get("target") in {"own_board", "opponent_board"}
+        info = _card_info(card, name)
+        needs = info["needs_cell"]
+        shape = f" shape={info['shape']} size={info['size']}" if info.get("shape") else ""
         mark = "AFFORDABLE" if isinstance(mana, int) and mana >= cost else "TOO EXPENSIVE"
         lines.append(
-            f"- {name} id={card_id} cost={cost} target={info.get('target')} needs_cell={needs} [{mark}] {info.get('summary')}"
+            f"- {name} id={card_id} cost={cost} target={info['target']} needs_cell={needs}{shape} [{mark}] {info['summary']}"
         )
         if mark == "AFFORDABLE":
             affordable.append(name)
@@ -186,6 +190,37 @@ def build_prompt(observation: dict) -> str:
     lines.append("")
     lines.append("Pick one JSON action now.")
     return "\n".join(lines)
+
+
+_TARGET_NAMES = {
+    "OwnBoard": "own_board",
+    "OpponentBoard": "opponent_board",
+    "Self": "self",
+    "Opponent": "opponent",
+}
+
+
+def _card_info(card: dict, name: str) -> dict:
+    """Observation fields first (AgentCardView), CARDS table as fallback."""
+    summary = card.get("Summary") or card.get("summary")
+    if summary:
+        target = _TARGET_NAMES.get(str(card.get("Target") or card.get("target")), "self")
+        return {
+            "target": target,
+            "needs_cell": bool(card.get("NeedsPosition", card.get("needsPosition", False))),
+            "shape": card.get("Shape") or card.get("shape") or "",
+            "size": card.get("Size", card.get("size", 0)),
+            "summary": summary,
+        }
+
+    fallback = CARDS.get(name, {"target": "self", "summary": "Unknown card. If unsure, skip."})
+    return {
+        "target": fallback.get("target", "self"),
+        "needs_cell": fallback.get("target") in {"own_board", "opponent_board"},
+        "shape": "",
+        "size": 0,
+        "summary": fallback.get("summary", ""),
+    }
 
 
 def resolve_model(name: str) -> str:
@@ -267,10 +302,10 @@ def parse_advice(raw: str, observation: dict) -> dict:
         }
 
     name = card.get("Type") or card.get("type") or name
-    info = CARDS.get(str(name), {})
+    info = _card_info(card, str(name))
     x = data.get("x")
     y = data.get("y")
-    if info.get("target") in {"own_board", "opponent_board"} and (x is None or y is None):
+    if info["needs_cell"] and (x is None or y is None):
         return {
             "action": "skip",
             "card": name,
@@ -343,7 +378,7 @@ def _load_observation(source: str | None, from_agent: bool) -> dict:
 
 def _from_agent() -> dict:
     completed = subprocess.run(
-        [sys.executable, str(SCRIPT_DIR / "game-agent.py"), "state"],
+        [sys.executable, str(SCRIPT_DIR / "game-agent.py"), "--json", "state"],
         check=False,
         capture_output=True,
         text=True,

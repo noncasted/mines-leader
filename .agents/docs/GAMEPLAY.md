@@ -289,19 +289,22 @@ public interface IBotProfileStrategy {
 }
 ```
 
-**Phase-based turn** (Flags → Cards → Cells):
+**Phase-based turn** (Flags → Cards → Solve loop):
 ```csharp
+var flagBudget = new FlagBudget(profileConfig.FlagsPerRound); // one budget for the whole turn
+
 // Phase 1: Flags — constraint-solving (free, limited by FlagsPerRound)
-await RunFlagPhase(profileConfig.FlagsPerRound, ...);
+await RunFlagPhase(flagBudget, ...);
 
-// Phase 2: Cards — utility-based selection (uses Moves)
-await RunCardPhase(profileConfig.CardsUsePerRound, ...);
+// Phase 2: Cards — utility-based selection, no per-round cap: limited only by mana and Moves
+await RunCardPhase(...);
 
-// Phase 3: Cells — proven-safe opening (uses Moves)
-await RunCellPhase(profileConfig.CellsOpenPerRound, ...);
+// Phase 3: Solve loop — flags after cards, then open a proven-safe cell / chord (uses Moves)
+// and re-run the flag solver after every open, until Moves run out or nothing is provable
+await RunSolveLoop(flagBudget, ...);
 ```
 
-Profile selection: `BotProfileStrategyProvider` resolves strategy from `IBotConfig.CurrentProfile`. Config holds `Dictionary<BotProfile, BotProfileConfig>` — each profile has its own `FlagsPerRound`, `CellsOpenPerRound`, `CardsUsePerRound`, `Min/MaxRoundTime`, and `List<BotDeck> Decks`.
+Profile selection: `BotProfileStrategyProvider` resolves strategy from `IBotConfig.CurrentProfile`. Config holds `Dictionary<BotProfile, BotProfileConfig>` — each profile has its own `FlagsPerRound`, `Min/MaxRoundTime`, and `List<BotDeck> Decks`.
 
 ### BotRunner (Orchestrator)
 
@@ -394,7 +397,7 @@ Stateless board analysis (injected into strategies via constructor):
 ### Console Config Editors
 
 Blazor editors in `backend/Console/Game/Configs/`:
-- **`BotConfigEditor.razor`** — Tabs Easy/Medium/Hard with numeric fields (FlagsPerRound, CellsOpenPerRound, CardsUsePerRound, Min/MaxRoundTime) + deck builder
+- **`BotConfigEditor.razor`** — Tabs Easy/Medium/Hard with numeric fields (FlagsPerRound, CellsOpenPerRound, Min/MaxRoundTime) + deck builder
 - **`BotDeckBuilder.razor`** — List of decks per profile, Add/Delete/Edit
 - **`BotDeckEditor.razor`** — Deck name + card grid (green border toggle for inclusion), validates count == DeckSize
 

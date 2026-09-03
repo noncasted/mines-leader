@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
+using GamePlay.Loop;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -17,24 +18,27 @@ namespace GamePlay.Cards
             ICardDropArea dropArea,
             ICardPointerHandler pointerHandler,
             ICardContext context,
+            IGameContext gameContext,
             CardConfigOptions.DimensionRift config)
         {
             _dropArea = dropArea;
             _pointerHandler = pointerHandler;
             _context = context;
+            _gameContext = gameContext;
             _config = config;
         }
 
         private readonly ICardDropArea _dropArea;
         private readonly ICardPointerHandler _pointerHandler;
         private readonly ICardContext _context;
+        private readonly IGameContext _gameContext;
         private readonly CardConfigOptions.DimensionRift _config;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var selectionLifetime = _pointerHandler.GetUpAwaiterLifetime(lifetime);
 
-            var pattern = new Pattern(_context.TargetBoard, _config.Size);
+            var pattern = new Pattern(_context.TargetBoard, _gameContext.Self.Board, _config.Size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
             return new CardActionResult()
@@ -47,20 +51,38 @@ namespace GamePlay.Cards
             };
         }
 
+        /// <summary>
+        /// Превью подсвечивает ромб сразу на обеих досках: обмен идёт по одинаковым координатам,
+        /// поэтому в выборку попадают только позиции, существующие и у цели, и у владельца.
+        /// </summary>
         public class Pattern : ICardDropPattern
         {
-            public Pattern(IBoard board, int size)
+            public Pattern(IBoard targetBoard, IBoard ownerBoard, int size)
             {
-                _board = board;
+                _targetBoard = targetBoard;
+                _ownerBoard = ownerBoard;
                 _shape = PatternShapes.Rhombus(size);
             }
 
-            private readonly IBoard _board;
+            private readonly IBoard _targetBoard;
+            private readonly IBoard _ownerBoard;
             private readonly IPattenShape _shape;
 
             public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
             {
-                return _shape.All(_board, pointer);
+                var targetCells = _shape.All(_targetBoard, pointer);
+                var selected = new List<IBoardCell>(targetCells.Count * 2);
+
+                foreach (var targetCell in targetCells)
+                {
+                    if (_ownerBoard.Cells.TryGetValue(targetCell.BoardPosition, out var ownerCell) == false)
+                        continue;
+
+                    selected.Add(targetCell);
+                    selected.Add(ownerCell);
+                }
+
+                return selected;
             }
         }
 
