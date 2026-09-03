@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -12,8 +13,8 @@ namespace Internal
         }
 
         private readonly IReadOnlyLifetime _parent;
-        private readonly ModifiableList<Action> _listeners = new();
 
+        private List<Action> _listeners;
         private CancellationTokenSource _cancellation;
         private bool _isTerminated;
 
@@ -21,6 +22,10 @@ namespace Internal
         {
             get
             {
+                // После терминации источник не создаётся: отменённый токен и так есть.
+                if (_isTerminated == true && _cancellation == null)
+                    return new CancellationToken(canceled: true);
+
                 _cancellation ??= new CancellationTokenSource();
                 return _cancellation.Token;
             }
@@ -30,19 +35,25 @@ namespace Internal
 
         public void Listen(Action callback)
         {
+            if (callback == null)
+                return;
+
+            // Сюда же попадает подписка, сделанная слушателем во время Terminate:
+            // список к этому моменту уже забран, поэтому колбэк вызывается сразу.
             if (_isTerminated == true)
             {
                 Debug.LogError("Trying to listen terminated lifetime");
-                callback?.Invoke();
+                callback.Invoke();
                 return;
             }
 
+            _listeners ??= new List<Action>();
             _listeners.Add(callback);
         }
 
         public void RemoveListener(Action callback)
         {
-            _listeners.Remove(callback);
+            _listeners?.Remove(callback);
         }
 
         public void Terminate()
@@ -51,12 +62,31 @@ namespace Internal
                 return;
 
             _isTerminated = true;
+
             _cancellation?.Cancel();
 
-            foreach (var listener in _listeners)
-                listener.Invoke();
+            // Проход одноразовый: список забирается целиком, чтобы Listen/RemoveListener
+            // из слушателей не трогали итерируемую коллекцию.
+            var listeners = _listeners;
+            _listeners = null;
 
-            _listeners.Clear();
+            if (listeners != null)
+            {
+                foreach (var listener in listeners)
+                {
+                    // Слушатели освобождают ресурсы, поэтому один упавший не должен
+                    // блокировать остальные.
+                    try
+                    {
+                        listener.Invoke();
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogException(exception);
+                    }
+                }
+            }
+
             _parent?.RemoveListener(Terminate);
         }
     }

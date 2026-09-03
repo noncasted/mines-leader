@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using UnityEngine;
 
 namespace Internal
 {
@@ -16,6 +17,15 @@ namespace Internal
         {
             Listeners.Clear();
         }
+
+        /// <summary>
+        /// Один упавший обработчик не должен обрывать рассылку остальным: исключение
+        /// логируется, рассылка продолжается.
+        /// </summary>
+        protected static void Report(Exception exception)
+        {
+            Debug.LogException(exception);
+        }
     }
 
     public class EventSource : EventSourceBase<Action>, IEventSource
@@ -23,7 +33,16 @@ namespace Internal
         public void Invoke()
         {
             foreach (var listener in Listeners)
-                listener.Invoke();
+            {
+                try
+                {
+                    listener.Invoke();
+                }
+                catch (Exception exception)
+                {
+                    Report(exception);
+                }
+            }
         }
     }
 
@@ -32,7 +51,16 @@ namespace Internal
         public void Invoke(T value)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value);
+            {
+                try
+                {
+                    listener.Invoke(value);
+                }
+                catch (Exception exception)
+                {
+                    Report(exception);
+                }
+            }
         }
     }
 
@@ -41,7 +69,16 @@ namespace Internal
         public void Invoke(T1 value1, T2 value2)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value1, value2);
+            {
+                try
+                {
+                    listener.Invoke(value1, value2);
+                }
+                catch (Exception exception)
+                {
+                    Report(exception);
+                }
+            }
         }
     }
 
@@ -50,7 +87,16 @@ namespace Internal
         public void Invoke(T1 value1, T2 value2, T3 value3)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value1, value2, value3);
+            {
+                try
+                {
+                    listener.Invoke(value1, value2, value3);
+                }
+                catch (Exception exception)
+                {
+                    Report(exception);
+                }
+            }
         }
     }
 }

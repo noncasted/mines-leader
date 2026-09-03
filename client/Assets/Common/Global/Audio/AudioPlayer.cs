@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Global.Publisher;
+using Global.Settings;
 using Internal;
 using UnityEngine;
 using VContainer;
@@ -42,18 +43,12 @@ namespace Global.Audio
             _saves = saves;
         }
 
-        public void Configure(AudioSource musicSource, AudioSource[] soundSources)
-        {
-            _musicSource = musicSource;
-            _soundSources = soundSources;
-        }
-
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            var save = _saves.Get<VolumeSave>();
+            var save = _saves.Get<SettingsSave>();
 
-            _values[AudioLine.Music] = save.Music;
-            _values[AudioLine.SFX] = save.SFX;
+            _values[AudioLine.Music] = save.MusicVolume * save.MasterVolume;
+            _values[AudioLine.SFX] = save.SoundsVolume * save.MasterVolume;
         }
 
         public void Mute()

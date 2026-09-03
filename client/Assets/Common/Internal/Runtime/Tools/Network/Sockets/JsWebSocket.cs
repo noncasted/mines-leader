@@ -18,6 +18,7 @@ namespace Internal
         private static bool _callbacksInitialized;
 
         private readonly ViewableDelegate<byte[]> _received = new();
+        private readonly ViewableDelegate<string> _closed = new();
         private readonly IReadOnlyLifetime _lifetime;
         private readonly int _handlerId;
 
@@ -25,6 +26,7 @@ namespace Internal
         private bool _isDisposed;
 
         public IViewableDelegate<byte[]> Received => _received;
+        public IViewableDelegate<string> Closed => _closed;
 
         public JsWebSocket(string url, IReadOnlyLifetime lifetime)
         {
@@ -128,6 +130,7 @@ namespace Internal
 
             // Clear event listeners
             _received.Dispose();
+            _closed.Dispose();
 
             Debug.Log($"[Network] [JsWebSocket] Disposed: id={_handlerId}");
         }
@@ -243,7 +246,15 @@ namespace Internal
             if (Instances.TryGetValue(handlerId, out var instance))
             {
                 Debug.Log($"[Network] [JsWebSocket] OnClose: id={handlerId}, code={code}");
+
+                var wasConnected = instance._isConnected;
                 instance._isConnected = false;
+
+                // Браузер шлёт onclose и после onerror, поэтому обрыв сообщается только отсюда.
+                // Dispose удаляет инстанс из Instances до JsWebSocketClose, так что локальное
+                // закрытие сюда не попадает.
+                if (wasConnected == true && instance._isDisposed == false)
+                    instance._closed.Invoke($"closed by browser: code={code}");
             }
             else
             {

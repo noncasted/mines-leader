@@ -23,6 +23,15 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.singularitygroup.hotreload": {
+      "version": "file:com.singularitygroup.hotreload",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "16.0.0",
       "depth": 0,
@@ -106,7 +115,9 @@
       "source": "builtin",
       "dependencies": {
         "com.unity.modules.tilemap": "1.0.0",
-        "com.unity.modules.uielements": "1.0.0"
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.burst": "1.8.30",
+        "com.unity.collections": "2.6.8"
       }
     },
     "com.unity.2d.tilemap.extras": {
@@ -156,7 +167,7 @@
     },
     "com.unity.burst": {
       "version": "2.0.0",
-      "depth": 2,
+      "depth": 1,
       "source": "builtin",
       "dependencies": {}
     },
@@ -209,13 +220,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.20.0",
+      "version": "6.7.0",
       "depth": 0,
-      "source": "registry",
+      "source": "builtin",
       "dependencies": {
         "com.unity.modules.uielements": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
+      }
     },
     "com.unity.mathematics": {
       "version": "1.4.0",
@@ -341,7 +351,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
-      "version": "1.8.0",
+      "version": "1.9.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -350,7 +360,7 @@
       }
     },
     "com.unity.test-framework.performance": {
-      "version": "6.6.0",
+      "version": "6.7.0",
       "depth": 2,
       "source": "builtin",
       "dependencies": {
@@ -579,7 +589,8 @@
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.hierarchycore": "1.0.0",
         "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.animation": "1.0.0"
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.accessibility": "1.0.0"
       }
     },
     "com.unity.modules.umbra": {

@@ -9,6 +9,12 @@ namespace Internal
         IConnectionReader Reader { get; }
         IConnectionWriter Writer { get; }
 
+        /// <summary>
+        /// Соединение оборвалось не по нашей инициативе. Переподключения нет: ожидающие
+        /// запросы уже завершены с null, дальше решает вызывающий код.
+        /// </summary>
+        IViewableDelegate<string> Closed { get; }
+
         UniTask Run(IReadOnlyLifetime lifetime, string url);
     }
 
@@ -28,9 +34,11 @@ namespace Internal
         private readonly ConnectionReader _reader;
         private readonly ConnectionWriter _writer;
         private readonly PlatformOptions _platformOptions;
+        private readonly ViewableDelegate<string> _closed = new();
 
         public IConnectionReader Reader => _reader;
         public IConnectionWriter Writer => _writer;
+        public IViewableDelegate<string> Closed => _closed;
 
         public async UniTask Run(IReadOnlyLifetime lifetime, string url)
         {
@@ -42,6 +50,10 @@ namespace Internal
             _dispatcher.Run(lifetime);
             _reader.Run(lifetime, _webSocket);
             _writer.Run(lifetime, _webSocket);
+
+            // Writer подписан раньше: к моменту, когда обрыв дойдёт до игрового кода,
+            // ожидающие запросы уже завершены.
+            _webSocket.Closed.Advise(lifetime, reason => _closed.Invoke(reason));
 
             return;
 
