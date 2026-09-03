@@ -74,22 +74,10 @@ MonoBehaviour:
       - rid: 5949064273534386176
       - rid: 5949064273534386177
       - rid: 5949064273534386178
+      - rid: 736913667030515712
     m_RuntimeSettings:
-      m_List:
-      - rid: 7752762179098771456
-      - rid: 7752762179098771457
-      - rid: 7752762179098771459
-      - rid: 7752762179098771464
-      - rid: 7752762179098771466
-      - rid: 7752762179098771468
-      - rid: 7752762179098771472
-      - rid: 7752762179098771476
-      - rid: 8023775858706087940
-      - rid: 8023775858706087941
-      - rid: 3973153618615074817
-      - rid: 7748248679036223490
-      - rid: 5949064273534386177
-  m_AssetVersion: 11
+      m_List: []
+  m_AssetVersion: 12
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
   - Default
@@ -145,6 +133,11 @@ MonoBehaviour:
         _sixFaceSkyBoxMesh: {fileID: 4300000, guid: a80925ceebd011741b42509226cefc74, type: 2}
         _buildLightGridShader: {fileID: 7200000, guid: 16e47c1641bd0104e92b624601457bb0, type: 3}
         _solidColorShader: {fileID: 4800000, guid: 3765a7ac691541038de4d587b94ae768, type: 3}
+    - rid: 736913667030515712
+      type: {class: URPExposureSettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
+      data:
+        version: 1
+        m_UseExposure: 0
     - rid: 3973153618615074816
       type: {class: RayTracingRenderPipelineResources, ns: UnityEngine.Rendering.UnifiedRayTracing, asm: Unity.UnifiedRayTracing.Runtime}
       data:
@@ -178,6 +171,7 @@ MonoBehaviour:
         m_ScreenResolveUpsamplingShader: {fileID: 7200000, guid: 7c302ee1d7410a6458981a5f329520b4, type: 3}
         m_DebugShader: {fileID: 7200000, guid: 4d40202dfa5473d44bcdc97e00d74703, type: 3}
         m_FlatNormalResolutionShader: {fileID: 7200000, guid: 134e9451a58aaba43ba713adbd103d92, type: 3}
+        m_ScreenResolveDenoisingShader: {fileID: 7200000, guid: 9aaca22ca1855764983a8f22970677a9, type: 3}
     - rid: 5949064273534386177
       type: {class: RenderingCapabilitiesSettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
@@ -418,6 +412,7 @@ MonoBehaviour:
         easuPS: {fileID: 4800000, guid: 562b7ae4f629f144aa97780546fce7c6, type: 3}
         uberPostPS: {fileID: 4800000, guid: e7857e9d0c934dc4f83f270f8447b006, type: 3}
         finalPostPassPS: {fileID: 4800000, guid: c49e63ed1bbcb334780a3bd19dfed403, type: 3}
+        reactiveMaskPS: {fileID: 4800000, guid: a32e79e9a0e86a14894684c864a169a3, type: 3}
         m_ShaderResourcesVersion: 0
     - rid: 8023775858706087937
       type: {class: ScreenSpaceAmbientOcclusionCoreResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}

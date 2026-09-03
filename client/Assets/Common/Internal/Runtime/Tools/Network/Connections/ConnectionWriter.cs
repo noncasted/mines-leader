@@ -27,18 +27,38 @@ namespace Internal
 
         private int _requestCounter;
         private ILifetime _lifetime;
+        private bool _isClosed;
 
         public void Run(IReadOnlyLifetime lifetime, IWebSocket webSocket)
         {
             _webSocket = webSocket;
             _lifetime = lifetime.Child();
 
+            webSocket.Closed.Advise(lifetime, OnClosed);
+
             Loop(lifetime).Forget();
+        }
+
+        /// <summary>
+        /// Обрыв соединения: ответов больше не будет, поэтому ожидающие запросы завершаются
+        /// сразу, а не по таймауту. Очередь отправки останавливается, в сокет писать некуда.
+        /// </summary>
+        private void OnClosed(string reason)
+        {
+            _isClosed = true;
+            _writeQueue.Clear();
+
+            // Копия: TrySetResult синхронно будит ожидающих, а они снимают себя из словаря.
+            var pending = new List<UniTaskCompletionSource<INetworkContext>>(_pendingRequests.Values);
+            _pendingRequests.Clear();
+
+            foreach (var completion in pending)
+                completion.TrySetResult(null);
         }
 
         private async UniTask Loop(IReadOnlyLifetime lifetime)
         {
-            while (lifetime.IsTerminated == false)
+            while (lifetime.IsTerminated == false && _isClosed == false)
             {
                 if (_writeQueue.Count == 0)
                 {
@@ -59,8 +79,6 @@ namespace Internal
                     // Упавший цикл отправки молча вешает все последующие запросы, поэтому продолжаем.
                     UnityEngine.Debug.LogError($"Failed to send message to server: {e}");
                 }
-
-                await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
             }
         }
 
@@ -141,7 +159,8 @@ namespace Internal
             }
             else
             {
-                throw new InvalidOperationException($"No pending request found for request ID: {requestId}");
+                // Штатная ситуация: ответ пришёл после таймаута или обрыва, запрос уже снят.
+                UnityEngine.Debug.LogWarning($"Response for unknown request {requestId} ignored");
             }
         }
 

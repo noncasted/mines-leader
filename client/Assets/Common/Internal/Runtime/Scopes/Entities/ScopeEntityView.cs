@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 using VContainer.Unity;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Internal
 {

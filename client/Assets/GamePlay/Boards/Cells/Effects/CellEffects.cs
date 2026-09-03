@@ -9,7 +9,7 @@ namespace GamePlay.Boards.Effects
     [DisallowMultipleComponent]
     public class CellEffects : MonoBehaviour
     {
-        [SerializeField] private CellEffectsDictionary _effects;
+        [SerializeField] private Dictionary<CellEffectType, CellEffect> _effects;
 
         private readonly Dictionary<Guid, ILifetime> _active = new();
 
