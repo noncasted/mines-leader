@@ -133,7 +133,7 @@ namespace Menu.Decks
             UpdateDeck(_decks.SelectedIndex.Value);
             ResizePoolRoot();
 
-            _cardsProjection.Listen(lifetime, OnCardsUpdated);
+            _cardsProjection.View(lifetime, OnCardsUpdated);
         }
 
         private void RegisterDrag(MenuDeckPoolSpot spot, IReadOnlyLifetime lifetime)

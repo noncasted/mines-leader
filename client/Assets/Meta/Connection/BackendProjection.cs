@@ -45,17 +45,6 @@ namespace Meta
 
     public static class BackendProjectionExtensions
     {
-        public static void Listen<T>(
-            this IBackendProjection<T> projection,
-            IReadOnlyLifetime lifetime,
-            Action<T> listener) where T : class, INetworkContext
-        {
-            projection.Advise(lifetime, listener.Invoke);
-
-            if (projection.Value != null)
-                listener.Invoke(projection.Value);
-        }
-
         public static UniTask<T> WaitOnce<T>(
             this IBackendProjection<T> projection,
             IReadOnlyLifetime lifetime) where T : class, INetworkContext

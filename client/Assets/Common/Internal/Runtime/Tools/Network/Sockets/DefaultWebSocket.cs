@@ -49,7 +49,7 @@ namespace Internal
             await UniTask.SwitchToMainThread(_cancellation);
 
             _lifetime.Listen(() => Shutdown().Forget());
-            Receive().Forget();
+            Receive(_lifetime).Forget();
         }
 
         public async UniTask Send(byte[] bytes)
@@ -64,14 +64,14 @@ namespace Internal
         /// в Aborted, и корректно закрыться после этого уже нельзя. Цикл завершается либо
         /// Close-кадром, либо Dispose сокета из <see cref="Shutdown"/>.
         /// </summary>
-        private async UniTask Receive()
+        private async UniTask Receive(IReadOnlyLifetime lifetime)
         {
             var buffer = new ArraySegment<byte>(new byte[8192]);
-            string closeReason;
+            var closeReason = "unknown";
 
             try
             {
-                while (true)
+                while (lifetime.IsTerminated == false)
                 {
                     using var stream = new MemoryStream();
 

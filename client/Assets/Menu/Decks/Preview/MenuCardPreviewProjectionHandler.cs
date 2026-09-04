@@ -23,7 +23,7 @@ namespace Menu.Decks
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _projection.Listen(lifetime, value =>
+            _projection.View(lifetime, value =>
             {
                 if (value?.Bundles == null)
                     return;

@@ -12,12 +12,13 @@ namespace Meta
 
     public class DeckConfiguration : IDeckConfiguration
     {
-        public DeckConfiguration(int index)
+        public DeckConfiguration(int index, IReadOnlyList<ICardDefinition> cards)
         {
             Index = index;
+            _cards = new List<ICardDefinition>(cards);
         }
 
-        private readonly List<ICardDefinition> _cards = new();
+        private readonly List<ICardDefinition> _cards;
 
         public int Index { get; }
         public IReadOnlyList<ICardDefinition> Cards => _cards;

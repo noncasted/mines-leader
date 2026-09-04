@@ -28,11 +28,11 @@ namespace Internal
 
             reader.OneWay.Advise(lifetime, response => {
                 var context = response.Context;
-                var commands = _commands.Get(context);
+                var command = _commands.Get(context);
 
                 try
                 {
-                    commands.Execute(lifetime, context);
+                    command.Execute(lifetime, context);
                 }
                 catch (Exception e)
                 {
