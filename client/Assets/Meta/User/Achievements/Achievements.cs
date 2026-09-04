@@ -30,7 +30,6 @@ namespace Meta
 
         private readonly ViewableList<AchievementRow, IAchievementRow> _rows = new();
 
-        /// <summary>Тиры по рядам и по возрастанию: статус зависит от соседей сверху.</summary>
         private readonly List<List<AchievementTier>> _rowTiers = new();
         private readonly ViewableProperty<int> _unlockedCount = new(0);
 
@@ -42,9 +41,9 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _configs.Listen(lifetime, OnConfigReceived);
-            _statsProjection.Listen(lifetime, OnStatsReceived);
-            _achievementsProjection.Listen(lifetime, OnAchievementsReceived);
+            _configs.View(lifetime, OnConfigReceived);
+            _statsProjection.View(lifetime, OnStatsReceived);
+            _achievementsProjection.View(lifetime, OnAchievementsReceived);
         }
 
         private void OnConfigReceived(InGameAchievementOptions options)
@@ -85,9 +84,8 @@ namespace Meta
 
         private void Refresh()
         {
-            var unlockedEntries =
-                new Dictionary<(InGameAchievementType, int),
-                    SharedBackendUser.InGameAchievementsProjection.UnlockedAchievement>();
+            var unlockedEntries = new Dictionary<(InGameAchievementType, int),
+                SharedBackendUser.InGameAchievementsProjection.UnlockedAchievement>();
 
             if (_unlocked != null)
             {

@@ -84,13 +84,14 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _profileProjection.Listen(lifetime, projection => {
+            _profileProjection.View(lifetime, projection => {
                 Id = projection.Id;
                 _name.Set(projection.Name);
             });
-            _ratingProjection.Listen(lifetime, projection => _rating.Set(projection.Rating));
+            
+            _ratingProjection.View(lifetime, projection => _rating.Set(projection.Rating));
 
-            _statsProjection.Listen(lifetime, projection => {
+            _statsProjection.View(lifetime, projection => {
                 _wins.Set((int)projection.Get(UserStatType.MatchesWon));
                 _loses.Set((int)projection.Get(UserStatType.MatchesLost));
             });

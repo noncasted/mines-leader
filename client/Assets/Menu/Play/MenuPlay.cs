@@ -63,7 +63,7 @@ namespace Menu.Play
         {
             _searchView.SearchButton.ListenClick(lifetime, () => OnSearchClicked(lifetime));
             _searchView.CancelButton.ListenClick(lifetime, StopSearch);
-            _matchMakingConfigs.Listen(lifetime, options => BuildModes(lifetime, options));
+            _matchMakingConfigs.View(lifetime, options => BuildModes(lifetime, options));
         }
 
         public UniTask OnEntered(IUIStateHandle handle)

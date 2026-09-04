@@ -42,25 +42,41 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _projection.Listen(lifetime, data => {
-                        foreach (var (index, entry) in data.Entries)
-                        {
-                            var configuration = GetOrCreateConfiguration(index);
-                            var cards = new List<ICardDefinition>();
+            _projection.View(lifetime, data => {
+                foreach (var (index, entry) in data.Entries)
+                {
+                    var cards = GetDefinitions(entry.Cards);
 
-                            foreach (var cardType in entry.Cards)
-                            {
-                                var definition = _cardsRegistry.Entries[cardType];
-                                cards.Add(definition);
-                            }
-
-                            configuration.Update(cards);
-                        }
-
-                        _selectedIndex.Set(data.SelectedIndex);
-                        _updated.Invoke();
+                    if (_configurations.TryGetValue(index, out var configuration) == true)
+                    {
+                        configuration.Update(cards);
                     }
-                );
+                    else
+                    {
+                        configuration = new DeckConfiguration(index, cards);
+
+                        _configurations[index] = configuration;
+                    }
+                }
+
+                _selectedIndex.Set(data.SelectedIndex);
+                _updated.Invoke();
+            });
+
+            return;
+
+            IReadOnlyList<ICardDefinition> GetDefinitions(IReadOnlyList<CardType> cardTypes)
+            {
+                var cards = new List<ICardDefinition>();
+
+                foreach (var cardType in cardTypes)
+                {
+                    var definition = _cardsRegistry.Entries[cardType];
+                    cards.Add(definition);
+                }
+
+                return cards;
+            }
         }
 
         public UniTask SendUpdate()
@@ -87,18 +103,6 @@ namespace Meta
         public void SetIndex(int selectedIndex)
         {
             _selectedIndex.Set(selectedIndex);
-        }
-
-        private IDeckConfiguration GetOrCreateConfiguration(int index)
-        {
-            if (_configurations.TryGetValue(index, out var configuration))
-                return configuration;
-
-            configuration = new DeckConfiguration(index);
-
-            _configurations[index] = configuration;
-
-            return configuration;
         }
     }
 }
