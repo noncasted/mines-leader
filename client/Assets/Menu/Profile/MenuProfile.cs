@@ -6,7 +6,6 @@ using Internal;
 using Meta;
 using Shared;
 using UnityEngine;
-using VContainer;
 
 namespace Menu.Profile
 {
@@ -14,52 +13,48 @@ namespace Menu.Profile
     {
     }
 
-    [DisallowMultipleComponent]
-    public class MenuProfile : MonoBehaviour,
-                               IMenuProfile,
-                               ISceneService,
-                               IScopeSetup,
-                               IUIStateAsyncEnterHandler
+    public class MenuProfile : IMenuProfile, IScopeSetup, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private MenuProfileStats _stats;
-        [SerializeField] private MenuProfileHistory _history;
-        [SerializeField] private MenuProfileMatch _match;
-        [SerializeField] private int _historyCount = Meta.Profile.DefaultHistoryCount;
-
-        private IProfile _profile;
-        private IGameModesRegistry _gameModes;
-        private ICardsRegistry _cardsRegistry;
-        private ICardDescriptionProvider _descriptions;
-        private ICardConfigs _configs;
-
-        private ILifetime _requestLifetime;
-        private Guid _selectedMatch;
-
-        public IUIConstraints Constraints { get; } = UIConstraints.Game;
-
-        [Inject]
-        internal void Construct(
+        public MenuProfile(
             IProfile profile,
             IGameModesRegistry gameModes,
             ICardsRegistry cardsRegistry,
             ICardDescriptionProvider descriptions,
-            ICardConfigs configs)
+            ICardConfigs configs,
+            MenuProfileBindings bindings)
         {
             _profile = profile;
             _gameModes = gameModes;
             _cardsRegistry = cardsRegistry;
             _descriptions = descriptions;
             _configs = configs;
+
+            _stats = bindings.Top.MenuProfileStats;
+            _history = bindings.Matches.MenuProfileHistory;
+            _match = bindings.Matches.View.MenuProfileMatch;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
+        // Глубина истории раньше правилась в инспекторе, но так её никто и не трогал.
+        private const int HistoryCount = Meta.Profile.DefaultHistoryCount;
 
-            builder.RegisterComponent(this)
-                   .As<IMenuProfile>()
-                   .As<IScopeSetup>();
-        }
+        private readonly MenuProfileStats _stats;
+        private readonly MenuProfileHistory _history;
+        private readonly MenuProfileMatch _match;
+        private readonly GameObject _gameObject;
+
+        private readonly IProfile _profile;
+        private readonly IGameModesRegistry _gameModes;
+        private readonly ICardsRegistry _cardsRegistry;
+        private readonly ICardDescriptionProvider _descriptions;
+        private readonly ICardConfigs _configs;
+
+        private ILifetime _requestLifetime;
+        private Guid _selectedMatch;
+
+        public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -83,7 +78,7 @@ namespace Menu.Profile
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
-            handle.AttachGameObject(gameObject);
+            handle.AttachGameObject(_gameObject);
 
             _requestLifetime?.Terminate();
             _requestLifetime = handle.InnerLifetime.Child();
@@ -105,7 +100,7 @@ namespace Menu.Profile
 
             try
             {
-                matches = await _profile.LoadHistory(_historyCount);
+                matches = await _profile.LoadHistory(HistoryCount);
             }
             catch (OperationCanceledException)
             {

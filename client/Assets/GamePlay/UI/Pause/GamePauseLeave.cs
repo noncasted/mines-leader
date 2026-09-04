@@ -5,15 +5,33 @@ using UnityEngine.UI;
 
 namespace GamePlay.UI
 {
-    [DisallowMultipleComponent]
-    public class GamePauseLeave : MonoBehaviour
+    public interface IGamePauseLeave
     {
-        [SerializeField] private Button _acceptButton;
-        [SerializeField] private Button _cancelButton;
+        /// <summary>
+        /// Показывает подтверждение выхода и ждёт ответа игрока.
+        /// </summary>
+        UniTask<bool> Process(IReadOnlyLifetime lifetime);
+    }
+
+    public class GamePauseLeave : IGamePauseLeave
+    {
+        public GamePauseLeave(GamePauseLeaveAttentionBindings bindings)
+        {
+            var buttons = bindings.Plate.Buttons;
+            _acceptButton = buttons.Yes.Button;
+            _cancelButton = buttons.No.Button;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
+        }
+
+        private readonly Button _acceptButton;
+        private readonly Button _cancelButton;
+        private readonly GameObject _gameObject;
 
         public async UniTask<bool> Process(IReadOnlyLifetime lifetime)
         {
-            gameObject.SetActive(true);
+            _gameObject.SetActive(true);
 
             var menuLifetime = lifetime.Child();
             var completion = new UniTaskCompletionSource<bool>();
@@ -24,7 +42,7 @@ namespace GamePlay.UI
             var result = await completion.Task;
 
             menuLifetime.Terminate();
-            gameObject.SetActive(false);
+            _gameObject.SetActive(false);
 
             return result;
         }

@@ -1,34 +1,27 @@
 using GamePlay.Loop;
 using Internal;
 using TMPro;
-using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace GamePlay.UI
 {
-    [DisallowMultipleComponent]
-    public class RoundTimer : MonoBehaviour, ISceneService, IGameStarted
+    public class RoundTimer : IGameStarted
     {
-        [SerializeField] private Image _image;
-        [SerializeField] private TMP_Text _ownTimeText;
-        [SerializeField] private TMP_Text _opponentTimeText;
-        [SerializeField] private Sprite _ownSprite;
-        [SerializeField] private Sprite _opponentSprite;
-
-        private IGameRound _round;
-
-        [Inject]
-        internal void Construct(IGameRound round)
+        public RoundTimer(IGameRound round, RoundOverlayUIBindings roundOverlay)
         {
             _round = round;
+
+            var bindings = roundOverlay.Center.Timer;
+            _image = bindings.Image;
+            _ownTimeText = bindings.Own.TextMeshProUGUI;
+            _opponentTimeText = bindings.Opponent.TextMeshProUGUI;
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IGameStarted>();
-        }
+        private readonly Image _image;
+        private readonly TMP_Text _ownTimeText;
+        private readonly TMP_Text _opponentTimeText;
+
+        private readonly IGameRound _round;
 
         public void OnGameStarted(IReadOnlyLifetime lifetime)
         {
@@ -36,12 +29,12 @@ namespace GamePlay.UI
             _round.RoundTime.View(lifetime, UpdateTime);
 
             return;
-            
+
             void UpdateTurn()
             {
                 var isOwnTurn = _round.IsTurnAllowed == true;
 
-                _image.sprite = isOwnTurn == true ? _ownSprite : _opponentSprite;
+                _image.sprite = isOwnTurn == true ? Sprites.GameUIPlate.TimerOwn : Sprites.GameUIPlate.TimerOpponent;
                 _ownTimeText.color = isOwnTurn == true ? Colors.Game.TextActive : Colors.Game.TextInactive;
                 _opponentTimeText.color = isOwnTurn == true ? Colors.Game.TextInactive : Colors.Game.TextActive;
             }

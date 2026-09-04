@@ -3,6 +3,7 @@
     "CardBuffs",
     "Settings",
     "Portraits",
-    "GameResults"
+    "GameResults",
+    "GameUIPlate"
   ]
 }

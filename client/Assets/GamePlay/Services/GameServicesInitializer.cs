@@ -12,7 +12,7 @@ namespace GamePlay.Services
             IGlobalCamera globalCamera,
             ILoadingScreen loadingScreen,
             IGameCamera gameCamera,
-            IGameOverlayUI overlayUI,
+            IGameOverlay overlay,
             ICellsSelection cellsSelection,
             ICellFlagAction cellFlagAction,
             ICellOpenAction cellOpenAction,
@@ -21,7 +21,7 @@ namespace GamePlay.Services
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
             _gameCamera = gameCamera;
-            _overlayUI = overlayUI;
+            _overlay = overlay;
             _cellsSelection = cellsSelection;
             _cellFlagAction = cellFlagAction;
             _cellOpenAction = cellOpenAction;
@@ -33,7 +33,7 @@ namespace GamePlay.Services
         private readonly ICellOpenAction _cellOpenAction;
         private readonly ICellMultipleOpenAction _cellMultipleOpenAction;
 
-        private readonly IGameOverlayUI _overlayUI;
+        private readonly IGameOverlay _overlay;
 
         private readonly IGameCamera _gameCamera;
         private readonly IGlobalCamera _globalCamera;
@@ -46,7 +46,7 @@ namespace GamePlay.Services
             _cellOpenAction.Start(lifetime);
             _cellMultipleOpenAction.Start(lifetime);
 
-            _overlayUI.Show();
+            _overlay.Show();
 
             _gameCamera.Enable();
             _globalCamera.Disable();

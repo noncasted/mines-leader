@@ -4,6 +4,22 @@ using UnityEngine;
 
 namespace Menu.Unlocks {
     // Structure: 6da85668c611bbda8b3f3166f107340a
+    // Unlocks
+    //   - Background
+    //   - Rows
+    //       - Viewport
+    //           - Content
+    //       - Scrollbar Horizontal
+    //           - Sliding Area
+    //               - Handle
+    //       - Scrollbar Vertical
+    //           - Sliding Area
+    //               - Handle
+    //   - Selection
+    //       - Background
+    //       - Cards
+    //       - Title
+    //       - Status
     [DisallowMultipleComponent]
     public class MenuUnlocksBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -39,6 +55,15 @@ namespace Menu.Unlocks {
         }
 
         // Unlocks/Rows
+        // Rows
+        //   - Viewport
+        //       - Content
+        //   - Scrollbar Horizontal
+        //       - Sliding Area
+        //           - Handle
+        //   - Scrollbar Vertical
+        //       - Sliding Area
+        //           - Handle
         [Serializable]
         public sealed class RowsBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -60,6 +85,8 @@ namespace Menu.Unlocks {
             public ScrollbarVerticalBindings ScrollbarVertical => _scrollbarVertical;
 
             // Unlocks/Rows/Viewport
+            // Viewport
+            //   - Content
             [Serializable]
             public sealed class ViewportBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -90,6 +117,9 @@ namespace Menu.Unlocks {
             }
 
             // Unlocks/Rows/Scrollbar Horizontal
+            // Scrollbar Horizontal
+            //   - Sliding Area
+            //       - Handle
             [Serializable]
             public sealed class ScrollbarHorizontalBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -107,6 +137,8 @@ namespace Menu.Unlocks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Unlocks/Rows/Scrollbar Horizontal/Sliding Area
+                // Sliding Area
+                //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -134,6 +166,9 @@ namespace Menu.Unlocks {
             }
 
             // Unlocks/Rows/Scrollbar Vertical
+            // Scrollbar Vertical
+            //   - Sliding Area
+            //       - Handle
             [Serializable]
             public sealed class ScrollbarVerticalBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -151,6 +186,8 @@ namespace Menu.Unlocks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Unlocks/Rows/Scrollbar Vertical/Sliding Area
+                // Sliding Area
+                //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -179,6 +216,11 @@ namespace Menu.Unlocks {
         }
 
         // Unlocks/Selection
+        // Selection
+        //   - Background
+        //   - Cards
+        //   - Title
+        //   - Status
         [Serializable]
         public sealed class SelectionBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

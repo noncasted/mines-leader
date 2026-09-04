@@ -3,10 +3,10 @@ namespace Internal
 {
     public static class Scenes
     {
-        public static readonly StaticScene GameEnd = new("e0fdfc16c2402b84b95cf19dfb3c0dee");
         public static readonly StaticScene GameField = new("4b636264c7ac7224aa40de5dc5ec86f3");
         public static readonly StaticScene GameOverlay = new("a40f8b3a93a368543998dcebf0c0d2a0");
         public static readonly StaticScene GamePause = new("ae7402daa45d16947a14e8a81e0cd4c0");
+        public static readonly StaticScene GameResult = new("e0fdfc16c2402b84b95cf19dfb3c0dee");
         public static readonly StaticScene Menu = new("b072020bf5a8f9c44a8f48ef9ae3fe23");
         public static readonly StaticScene MenuBoard = new("158e8abf9b3fab5f8bfe001dc4baf959");
         public static readonly StaticScene Startup = new("e192e966f28f2434fad44cfad9dbeca2");

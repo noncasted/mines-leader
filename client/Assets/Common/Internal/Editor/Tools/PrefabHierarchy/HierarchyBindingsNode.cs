@@ -14,6 +14,9 @@ namespace Internal {
         public string PropertyName;
         public string FieldName;
 
+        // На объекте висит HierarchyBindingsIgnoreChildren: дети в зеркало не попали.
+        public bool IgnoreChildren;
+
         public readonly List<HierarchyBindingsField> Fields = new();
         public readonly List<HierarchyBindingsNode> Children = new();
     }

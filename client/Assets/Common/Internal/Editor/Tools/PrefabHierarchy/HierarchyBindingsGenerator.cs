@@ -65,22 +65,39 @@ namespace Internal {
             string namespaceName,
             bool isSceneService,
             bool isEntityComponent) {
+            if (Prepare(root, bindingsName, namespaceName, isSceneService, isEntityComponent, out var changed) == false)
+                return;
+
+            Flush(changed);
+        }
+
+        // Код пишем отдельно от перезапуска компиляции: пакетная перегенерация складывает все
+        // классы, и только потом один раз дёргает Refresh — иначе домен поедет посреди обхода.
+        public static bool Prepare(
+            GameObject root,
+            string bindingsName,
+            string namespaceName,
+            bool isSceneService,
+            bool isEntityComponent,
+            out bool changed) {
+            changed = false;
+
             var typeName = ToTypeName(bindingsName);
             if (string.IsNullOrEmpty(typeName)) {
                 Debug.LogError($"[{LogTag}] '{bindingsName}' is not a C# identifier.");
-                return;
+                return false;
             }
 
             if (HierarchyBindingsTarget.TryDescribe(root, out var assetPath, out var objectPath, out var isPrefab, out var describeError) == false) {
                 Debug.LogError($"[{LogTag}] {describeError}", root);
-                return;
+                return false;
             }
 
             var errors = new List<string>();
             var node = HierarchyBindingsScanner.Scan(root, typeName, errors);
             if (node == null) {
                 Report(errors, root);
-                return;
+                return false;
             }
 
             var folder = HierarchyBindingsPaths.ResolveGeneratedFolder(root, assetPath);
@@ -93,7 +110,7 @@ namespace Internal {
                 isEntityComponent
             );
 
-            HierarchyBindingsRequest.Save(new HierarchyBindingsRequest {
+            HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest {
                 AssetPath = assetPath,
                 ObjectPath = objectPath,
                 TypeName = typeName,
@@ -103,12 +120,15 @@ namespace Internal {
                 IsEntityComponent = isEntityComponent
             });
 
-            var changed = HasChanged(filePath, code);
+            changed = HasChanged(filePath, code);
             CatalogPaths.EnsureFolder(folder);
             GeneratedFile.WriteIfChanged(LogTag, filePath, code);
+            return true;
+        }
 
-            // Без изменений в коде компиляции не будет, а значит и DidReloadScripts не сработает,
-            // поэтому связываем сразу.
+        // Без изменений в коде компиляции не будет, а значит и DidReloadScripts не сработает,
+        // поэтому связываем сразу.
+        public static void Flush(bool changed) {
             if (changed)
                 AssetDatabase.Refresh();
             else
@@ -117,40 +137,51 @@ namespace Internal {
 
         [DidReloadScripts]
         private static void OnScriptsReloaded() {
-            if (HierarchyBindingsRequest.Load() == null)
+            if (HierarchyBindingsQueue.IsEmpty())
                 return;
 
             EditorApplication.delayCall += ProcessPending;
         }
 
         private static void ProcessPending() {
-            var request = HierarchyBindingsRequest.Load();
-            if (request == null)
+            var requests = HierarchyBindingsQueue.Take();
+            if (requests.Count == 0)
                 return;
 
-            HierarchyBindingsRequest.Clear();
+            var bound = 0;
+            foreach (var request in requests) {
+                if (Process(request))
+                    bound++;
+            }
 
+            if (bound == 0)
+                return;
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[{LogTag}] Bound {bound} of {requests.Count} bindings.");
+        }
+
+        private static bool Process(HierarchyBindingsRequest request) {
             var type = FindType(request);
             if (type == null) {
                 Debug.LogError($"[{LogTag}] Generated type '{request.TypeName}' not found. Fix compilation errors and generate again.");
-                return;
+                return false;
             }
 
             using var target = HierarchyBindingsTarget.Resolve(request, out var resolveError);
             if (target == null) {
                 Debug.LogError($"[{LogTag}] {resolveError}");
-                return;
+                return false;
             }
 
             var errors = new List<string>();
             if (HierarchyBindingsBinder.Bind(target.Root, type, request, errors) == false) {
                 Report(errors, target.Root);
-                return;
+                return false;
             }
 
             target.Commit();
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[{LogTag}] Bound {request.TypeName} on '{request.ObjectPath}' in {request.AssetPath}.");
+            return true;
         }
 
         private static Type FindType(HierarchyBindingsRequest request) {

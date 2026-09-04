@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae493b45a6c4638239e28966eb08a3f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Menu::Menu.Navigation.MenuNavigationBindings
-  _structureHash: 13057bd536df585e7322036b79acb1ec
+  _structureHash: 0fd6e4c0e13f2069f74758a5569228e0
   _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 25050549}
@@ -4591,7 +4591,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000991369}
+  m_AnchoredPosition: {x: 0, y: 0.00019683236}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1012203308
@@ -5780,7 +5780,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1177676126}
-  - component: {fileID: 1177676127}
   - component: {fileID: 1177676128}
   m_Layer: 5
   m_Name: Unlocks
@@ -5812,19 +5811,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -37.5}
   m_SizeDelta: {x: 0, y: -75}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1177676127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1177676125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97ea15ef4b9a4a980a4f9c01b8f2d07e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Menu::Menu.Unlocks.MenuUnlocks
-  _rowsRoot: {fileID: 1003513393}
 --- !u!114 &1177676128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5842,7 +5828,6 @@ MonoBehaviour:
   _isEntityComponent: 0
   _gameObject: {fileID: 1177676125}
   _rectTransform: {fileID: 1177676126}
-  _menuUnlocks: {fileID: 1177676127}
   _background:
     _gameObject: {fileID: 1630362305}
     _rectTransform: {fileID: 1630362306}
@@ -6183,14 +6168,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _services:
   - {fileID: 1466720406}
-  - {fileID: 1177676127}
   - {fileID: 1177676128}
   - {fileID: 2082731739}
-  - {fileID: 1395409728}
+  - {fileID: 1395409729}
   - {fileID: 856383339}
-  - {fileID: 1668947739}
   - {fileID: 1668947740}
-  - {fileID: 1851188168}
   - {fileID: 1851188169}
   - {fileID: 1290330320}
   - {fileID: 25050554}
@@ -6348,7 +6330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fbec42c8f03cf1c9ba6c758296ff71d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Menu::Menu.Settings.MenuSettingsBindings
-  _structureHash: 43ed0cf65c89d3d55296b25c5df7584c
+  _structureHash: 4bc4a27e42e39add2653c91d81f9a60e
   _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 1290330317}
@@ -6979,7 +6961,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1395409727}
-  - component: {fileID: 1395409728}
   - component: {fileID: 1395409729}
   m_Layer: 5
   m_Name: Decks
@@ -7016,24 +6997,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -37.5}
   m_SizeDelta: {x: 0, y: -75}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1395409728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1395409726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21d569b5a8d143b7a3122f86e0df6517, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _indexPrefab: {fileID: 6816718498761162676, guid: 9df995d040aab6a419ad0e218f91ae61, type: 3}
-  _deckRoot: {fileID: 2088864197}
-  _poolRoot: {fileID: 1682420656}
-  _indexRoot: {fileID: 795523238}
-  _avgManaText: {fileID: 1398438991}
-  _previewPopup: {fileID: 2000114142}
 --- !u!114 &1395409729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7046,12 +7009,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4033e0578d606f17a317edacd1d08a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Menu::Menu.Decks.MenuDecksBindings
-  _structureHash: 68456ba1bb6487021bae58edda6297fb
-  _isSceneService: 0
+  _structureHash: 0abce9068aa59c6b1c971658f1ef9654
+  _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 1395409726}
   _rectTransform: {fileID: 1395409727}
-  _menuDecks: {fileID: 1395409728}
   _background:
     _gameObject: {fileID: 1515911499}
     _rectTransform: {fileID: 1515911500}
@@ -8810,7 +8772,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1668947738}
-  - component: {fileID: 1668947739}
   - component: {fileID: 1668947740}
   m_Layer: 5
   m_Name: Play
@@ -8842,20 +8803,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -37.5}
   m_SizeDelta: {x: 0, y: -75}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1668947739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1668947737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04056a8c37f24da2b6e41a672aedc833, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Menu::Menu.Play.MenuPlay
-  _modesRoot: {fileID: 665802138}
-  _searchView: {fileID: 2118947703}
 --- !u!114 &1668947740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8873,7 +8820,6 @@ MonoBehaviour:
   _isEntityComponent: 0
   _gameObject: {fileID: 1668947737}
   _rectTransform: {fileID: 1668947738}
-  _menuPlay: {fileID: 1668947739}
   _background:
     _gameObject: {fileID: 1014409752}
     _rectTransform: {fileID: 1014409753}
@@ -10396,7 +10342,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1851188167}
-  - component: {fileID: 1851188168}
   - component: {fileID: 1851188169}
   m_Layer: 5
   m_Name: Profile
@@ -10429,22 +10374,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -37.5}
   m_SizeDelta: {x: 0, y: -75}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1851188168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1851188166}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9169465b2c6b090dd938187ee02d7a8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Menu::Menu.Profile.MenuProfile
-  _stats: {fileID: 990316338}
-  _history: {fileID: 1841487147}
-  _match: {fileID: 508534197}
-  _historyCount: 30
 --- !u!114 &1851188169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10462,7 +10391,6 @@ MonoBehaviour:
   _isEntityComponent: 0
   _gameObject: {fileID: 1851188166}
   _rectTransform: {fileID: 1851188167}
-  _menuProfile: {fileID: 1851188168}
   _background:
     _gameObject: {fileID: 451289381}
     _rectTransform: {fileID: 451289382}

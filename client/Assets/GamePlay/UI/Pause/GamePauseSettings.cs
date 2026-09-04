@@ -3,7 +3,6 @@ using Global.Settings;
 using Internal;
 using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace GamePlay.UI
 {
@@ -18,31 +17,33 @@ namespace GamePlay.UI
     /// <summary>
     /// Экран настроек в паузе: кнопок применения нет, каждое изменение сразу уезжает в сейв.
     /// </summary>
-    [DisallowMultipleComponent]
-    public class GamePauseSettings : MonoBehaviour, IGamePauseSettings, ISceneService
+    public class GamePauseSettings : IGamePauseSettings
     {
-        [SerializeField] private Slider _masterVolume;
-        [SerializeField] private Slider _musicVolume;
-        [SerializeField] private Slider _soundsVolume;
-        [SerializeField] private Slider _shakeIntensity;
-        [SerializeField] private GamePauseSettingsSwitch _vSync;
-        [SerializeField] private Button _backButton;
-
-        private ISettings _settings;
-
-        [Inject]
-        internal void Construct(ISettings settings)
+        public GamePauseSettings(ISettings settings, GamePauseSettingsBindings bindings)
         {
             _settings = settings;
+
+            var content = bindings.Plate.Content;
+            _masterVolume = content.Master.Slider.Slider;
+            _musicVolume = content.Music.Slider.Slider;
+            _soundsVolume = content.Sounds.Slider.Slider;
+            _shakeIntensity = content.Shake.Slider.Slider;
+            _vSync = content.Vsync.Setting.GamePauseSettingsSwitch;
+            _backButton = bindings.Plate.Back.Button;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
+        private readonly Slider _masterVolume;
+        private readonly Slider _musicVolume;
+        private readonly Slider _soundsVolume;
+        private readonly Slider _shakeIntensity;
+        private readonly GamePauseSettingsSwitch _vSync;
+        private readonly Button _backButton;
+        private readonly GameObject _gameObject;
 
-            builder.RegisterComponent(this)
-                   .As<IGamePauseSettings>();
-        }
+        private readonly ISettings _settings;
 
         /// <summary>
         /// Копия сейва живёт ровно столько, сколько открыт экран: значения в неё пишутся
@@ -50,7 +51,7 @@ namespace GamePlay.UI
         /// </summary>
         public async UniTask Process(IReadOnlyLifetime lifetime)
         {
-            gameObject.SetActive(true);
+            _gameObject.SetActive(true);
 
             var screenLifetime = lifetime.Child();
             var completion = new UniTaskCompletionSource();
@@ -91,7 +92,7 @@ namespace GamePlay.UI
             await completion.Task;
 
             screenLifetime.Terminate();
-            gameObject.SetActive(false);
+            _gameObject.SetActive(false);
         }
 
         private void Apply(SettingsSave save)

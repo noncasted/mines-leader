@@ -3,12 +3,36 @@ using System;
 using UnityEngine;
 
 namespace Menu.Decks {
-    // Structure: 68456ba1bb6487021bae58edda6297fb
+    // Structure: 0abce9068aa59c6b1c971658f1ef9654
+    // Decks
+    //   - Background
+    //   - Cards
+    //   - Line
+    //   - Indexes
+    //   - Pool
+    //       - Viewport
+    //           - Content
+    //       - Scrollbar Horizontal
+    //           - Sliding Area
+    //               - Handle
+    //       - Scrollbar Vertical
+    //           - Sliding Area
+    //               - Handle
+    //   - Menu_CardPreviewPopup
+    //       - Frame
+    //       - Texture
+    //   - Average
+    //       - Top
+    //           - Mana
+    //           - Value
+    //       - Line
+    //       - Bottom
+    //           - Text (TMP)
+    //   - MoveArea
     [DisallowMultipleComponent]
-    public class MenuDecksBindings : global::Internal.ObjectBindings {
+    public class MenuDecksBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::Menu.Decks.MenuDecks _menuDecks;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -22,7 +46,6 @@ namespace Menu.Decks {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::Menu.Decks.MenuDecks MenuDecks => _menuDecks;
         public BackgroundBindings Background => _background;
         public CardsBindings Cards => _cards;
         public LineBindings Line => _line;
@@ -31,6 +54,10 @@ namespace Menu.Decks {
         public MenuCardPreviewPopupBindings MenuCardPreviewPopup => _menuCardPreviewPopup;
         public AverageBindings Average => _average;
         public MoveAreaBindings MoveArea => _moveArea;
+
+        public virtual void Create(global::Internal.IScopeBuilder builder) {
+            global::Internal.BuilderExtensions.RegisterComponent(builder, this);
+        }
 
         // Decks/Background
         [Serializable]
@@ -81,6 +108,14 @@ namespace Menu.Decks {
         }
 
         // Decks/Pool
+        //   - Viewport
+        //       - Content
+        //   - Scrollbar Horizontal
+        //       - Sliding Area
+        //           - Handle
+        //   - Scrollbar Vertical
+        //       - Sliding Area
+        //           - Handle
         [Serializable]
         public sealed class PoolBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -102,6 +137,7 @@ namespace Menu.Decks {
             public ScrollbarVerticalBindings ScrollbarVertical => _scrollbarVertical;
 
             // Decks/Pool/Viewport
+            //   - Content
             [Serializable]
             public sealed class ViewportBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -132,6 +168,8 @@ namespace Menu.Decks {
             }
 
             // Decks/Pool/Scrollbar Horizontal
+            //   - Sliding Area
+            //       - Handle
             [Serializable]
             public sealed class ScrollbarHorizontalBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -149,6 +187,7 @@ namespace Menu.Decks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Decks/Pool/Scrollbar Horizontal/Sliding Area
+                //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -176,6 +215,8 @@ namespace Menu.Decks {
             }
 
             // Decks/Pool/Scrollbar Vertical
+            //   - Sliding Area
+            //       - Handle
             [Serializable]
             public sealed class ScrollbarVerticalBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -193,6 +234,7 @@ namespace Menu.Decks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Decks/Pool/Scrollbar Vertical/Sliding Area
+                //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -221,6 +263,8 @@ namespace Menu.Decks {
         }
 
         // Decks/Menu_CardPreviewPopup
+        //   - Frame
+        //   - Texture
         [Serializable]
         public sealed class MenuCardPreviewPopupBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -265,6 +309,12 @@ namespace Menu.Decks {
         }
 
         // Decks/Average
+        //   - Top
+        //       - Mana
+        //       - Value
+        //   - Line
+        //   - Bottom
+        //       - Text (TMP)
         [Serializable]
         public sealed class AverageBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -284,6 +334,8 @@ namespace Menu.Decks {
             public BottomBindings Bottom => _bottom;
 
             // Decks/Average/Top
+            //   - Mana
+            //   - Value
             [Serializable]
             public sealed class TopBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -336,6 +388,7 @@ namespace Menu.Decks {
             }
 
             // Decks/Average/Bottom
+            //   - Text (TMP)
             [Serializable]
             public sealed class BottomBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

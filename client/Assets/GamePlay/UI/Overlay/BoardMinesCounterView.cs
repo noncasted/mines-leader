@@ -2,30 +2,24 @@ using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using TMPro;
-using UnityEngine;
-using VContainer;
 
 namespace GamePlay.UI
 {
-    [DisallowMultipleComponent]
-    public class BoardMinesCounterView : MonoBehaviour, ISceneService, IGameStarted
+    public class BoardMinesCounterView : IGameStarted
     {
-        [SerializeField] private TMP_Text _ownText;
-        [SerializeField] private TMP_Text _opponentText;
-
-        private IGameContext _context;
-
-        [Inject]
-        internal void Construct(IGameContext context)
+        public BoardMinesCounterView(IGameContext context, RoundOverlayUIBindings roundOverlay)
         {
             _context = context;
+
+            var bindings = roundOverlay.Center.Mines;
+            _ownText = bindings.Own.TextMeshProUGUI;
+            _opponentText = bindings.Opponent.TextMeshProUGUI;
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IGameStarted>();
-        }
+        private readonly TMP_Text _ownText;
+        private readonly TMP_Text _opponentText;
+
+        private readonly IGameContext _context;
 
         public void OnGameStarted(IReadOnlyLifetime lifetime)
         {

@@ -3,13 +3,13 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
+using Menu.Common;
 using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using VContainer;
 
 namespace Menu.Decks
 {
@@ -17,41 +17,18 @@ namespace Menu.Decks
     {
     }
 
-    [DisallowMultipleComponent]
-    public class MenuDecks : MonoBehaviour, IMenuDecks, IScopeSetup, ISceneService, IUIStateAsyncEnterHandler
+    public class MenuDecks : IMenuDecks, IScopeSetup, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private MenuDeckIndexButton _indexPrefab;
-
-        [SerializeField] private RectTransform _deckRoot;
-        [SerializeField] private RectTransform _poolRoot;
-        [SerializeField] private RectTransform _indexRoot;
-
-        [SerializeField] private TMP_Text _avgManaText;
-        [SerializeField] private MenuCardPreviewPopup _previewPopup;
-
-        private readonly List<MenuDeckCard> _deckCards = new();
-        private readonly List<MenuDeckIndexButton> _indexButtons = new();
-        private readonly Dictionary<CardType, MenuDeckPoolSpot> _typeToPoolSpot = new();
-
-        private IDecks _decks;
-        private ICardsRegistry _cardsRegistry;
-        private IViewInjector _viewInjector;
-        private ICardConfigs _configs;
-        private IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
-        private IMenuCardPreviewPlayer _previewPlayer;
-        private IUpdater _updater;
-
-        public IUIConstraints Constraints { get; } = UIConstraints.Game;
-
-        [Inject]
-        internal void Construct(
+        public MenuDecks(
             IDecks decks,
             ICardsRegistry cardsRegistry,
             IViewInjector viewInjector,
             ICardConfigs configs,
             IBackendProjection<SharedBackendUser.CardsProjection> cardsProjection,
             IMenuCardPreviewPlayer previewPlayer,
-            IUpdater updater)
+            IUpdater updater,
+            MenuDecksBindings bindings,
+            MenuCanvasBindings canvasBindings)
         {
             _configs = configs;
             _viewInjector = viewInjector;
@@ -60,16 +37,43 @@ namespace Menu.Decks
             _cardsProjection = cardsProjection;
             _previewPlayer = previewPlayer;
             _updater = updater;
+
+            _deckRoot = bindings.Cards.RectTransform;
+            _poolRoot = bindings.Pool.Viewport.Content.RectTransform;
+            _indexRoot = bindings.Indexes.RectTransform;
+            _avgManaText = bindings.Average.Top.Value.TextMeshProUGUI;
+            _previewPopup = bindings.MenuCardPreviewPopup.MenuCardPreviewPopup;
+            _previewPopupRect = bindings.MenuCardPreviewPopup.RectTransform;
+            _gameObject = bindings.GameObject;
+            _canvas = canvasBindings.Canvas;
+            _canvasRect = canvasBindings.RectTransform;
+
+            _gameObject.SetActive(false);
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
+        private readonly RectTransform _deckRoot;
+        private readonly RectTransform _poolRoot;
+        private readonly RectTransform _indexRoot;
+        private readonly TMP_Text _avgManaText;
+        private readonly MenuCardPreviewPopup _previewPopup;
+        private readonly RectTransform _previewPopupRect;
+        private readonly GameObject _gameObject;
+        private readonly Canvas _canvas;
+        private readonly RectTransform _canvasRect;
 
-            builder.RegisterComponent(this)
-                   .As<IMenuDecks>()
-                   .As<IScopeSetup>();
-        }
+        private readonly List<MenuDeckCard> _deckCards = new();
+        private readonly List<MenuDeckIndexButton> _indexButtons = new();
+        private readonly Dictionary<CardType, MenuDeckPoolSpot> _typeToPoolSpot = new();
+
+        private readonly IDecks _decks;
+        private readonly ICardsRegistry _cardsRegistry;
+        private readonly IViewInjector _viewInjector;
+        private readonly ICardConfigs _configs;
+        private readonly IBackendProjection<SharedBackendUser.CardsProjection> _cardsProjection;
+        private readonly IMenuCardPreviewPlayer _previewPlayer;
+        private readonly IUpdater _updater;
+
+        public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -88,7 +92,7 @@ namespace Menu.Decks
 
             for (var i = 0; i < decksCount; i++)
             {
-                var indexButton = Instantiate(MenuPrefabs.MenuDeckIndex, _indexRoot);
+                var indexButton = Object.Instantiate(MenuPrefabs.MenuDeckIndex, _indexRoot);
                 indexButton.Setup(i);
                 _indexButtons.Add(indexButton);
 
@@ -108,7 +112,7 @@ namespace Menu.Decks
 
             foreach (var (type, definition) in _cardsRegistry.Entries)
             {
-                var view = Instantiate(MenuPrefabs.MenuPoolSpot, _poolRoot);
+                var view = Object.Instantiate(MenuPrefabs.MenuPoolSpot, _poolRoot);
                 _viewInjector.Inject(view.Card);
                 view.Setup(definition);
                 _typeToPoolSpot.Add(type, view);
@@ -120,7 +124,7 @@ namespace Menu.Decks
 
             foreach (var cardDefinition in selected.Cards)
             {
-                var view = Instantiate(MenuPrefabs.MenuDeckCard, _deckRoot);
+                var view = Object.Instantiate(MenuPrefabs.MenuDeckCard, _deckRoot);
                 _deckCards.Add(view);
                 var poolSpot = _typeToPoolSpot[cardDefinition.Type];
                 poolSpot.ForceMoveToDeck(view);
@@ -143,12 +147,11 @@ namespace Menu.Decks
         {
             if (spot.IsOwned == false)
                 return;
-            
+
             if (spot.Card.gameObject.activeInHierarchy == false)
                 return;
 
             var card = spot.Card;
-            var canvas = GetComponentInParent<Canvas>();
 
             card.BeginDrag();
             spot.PointerHandler.gameObject.SetActive(false);
@@ -162,7 +165,7 @@ namespace Menu.Decks
                 () => Mouse.current.leftButton.isPressed,
                 _ => {
                     var pointer = Mouse.current.position.ReadValue();
-                    var delta = (pointer - startPointer) / canvas.scaleFactor;
+                    var delta = (pointer - startPointer) / _canvas.scaleFactor;
                     cardTransform.anchoredPosition = startPosition + delta;
                 });
 
@@ -216,16 +219,14 @@ namespace Menu.Decks
         private void PositionPreview(MenuDeckPoolSpot spot)
         {
             var spotRect = spot.Transform;
-            var popupRect = _previewPopup.GetComponent<RectTransform>();
+            var popupRect = _previewPopupRect;
 
             Vector3[] corners = new Vector3[4];
             spotRect.GetWorldCorners(corners);
 
             var worldRightCenter = (corners[2] + corners[3]) * 0.5f;
 
-            var canvas = GetComponentInParent<Canvas>();
-            var canvasScale = 1f;
-            canvasScale = ((RectTransform)canvas.transform).localScale.x;
+            var canvasScale = _canvasRect.localScale.x;
 
             worldRightCenter.x += 100f / canvasScale;
 
@@ -263,7 +264,7 @@ namespace Menu.Decks
 
         public async UniTask OnEntered(IUIStateHandle handle)
         {
-            handle.AttachGameObject(gameObject);
+            handle.AttachGameObject(_gameObject);
             ResizePoolRoot();
         }
 
