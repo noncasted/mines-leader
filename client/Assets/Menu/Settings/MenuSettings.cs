@@ -4,7 +4,6 @@ using Global.UI;
 using Internal;
 using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace Menu.Settings
 {
@@ -15,32 +14,31 @@ namespace Menu.Settings
     /// <summary>
     /// Экран настроек в меню: кнопок применения нет, каждое изменение сразу уезжает в сейв.
     /// </summary>
-    [DisallowMultipleComponent]
-    public class MenuSettings : MonoBehaviour, IMenuSettings, ISceneService, IUIStateAsyncEnterHandler
+    public class MenuSettings : IMenuSettings, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private Slider _masterVolume;
-        [SerializeField] private Slider _musicVolume;
-        [SerializeField] private Slider _soundsVolume;
-        [SerializeField] private Slider _shakeIntensity;
-        [SerializeField] private MenuSettingsSwitch _vSync;
-
-        private ISettings _settings;
-
-        public IUIConstraints Constraints { get; } = UIConstraints.Game;
-
-        [Inject]
-        internal void Construct(ISettings settings)
+        public MenuSettings(ISettings settings, MenuSettingsBindings bindings)
         {
             _settings = settings;
+            _masterVolume = bindings.Content.Master.Slider.Slider;
+            _musicVolume = bindings.Content.Music.Slider.Slider;
+            _soundsVolume = bindings.Content.Sounds.Slider.Slider;
+            _shakeIntensity = bindings.Content.Shake.Slider.Slider;
+            _vSync = bindings.Content.Vsync.Setting.MenuSettingsSwitch;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
+        private readonly Slider _masterVolume;
+        private readonly Slider _musicVolume;
+        private readonly Slider _soundsVolume;
+        private readonly Slider _shakeIntensity;
+        private readonly MenuSettingsSwitch _vSync;
+        private readonly GameObject _gameObject;
 
-            builder.RegisterComponent(this)
-                   .As<IMenuSettings>();
-        }
+        private readonly ISettings _settings;
+
+        public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         /// <summary>
         /// Копия сейва живёт ровно столько, сколько открыт экран: значения в неё пишутся
@@ -48,7 +46,7 @@ namespace Menu.Settings
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
-            handle.AttachGameObject(gameObject);
+            handle.AttachGameObject(_gameObject);
 
             var lifetime = handle.InnerLifetime;
             var save = _settings.Copy();

@@ -6,6 +6,9 @@ namespace GamePlay.Cards
     {
         public static IEntityBuilder AddCardLocalComponents(this IEntityBuilder builder)
         {
+            builder.Register<CardTransform>()
+                   .As<ICardTransform>();
+            
             builder.Register<CardDropDetector>()
                    .As<ICardDropDetector>();
 
@@ -25,6 +28,9 @@ namespace GamePlay.Cards
 
         public static IEntityBuilder AddCardRemoteComponents(this IEntityBuilder builder)
         {
+            builder.Register<CardTransform>()
+                   .As<ICardTransform>();
+            
             builder.Register<CardDropArea>()
                    .As<ICardDropArea>();
 

@@ -6,6 +6,9 @@ namespace Internal {
         private const string Address = "8d453af8c586a03119ed2b77db1f5c13";
 
         private static global::Menu.Play.MenuPlayGameMode _gameModeEntry;
+        private static global::Menu.Decks.MenuDeckCard _menuDeckCard;
+        private static global::Menu.Decks.MenuDeckIndexButton _menuDeckIndex;
+        private static global::Menu.Decks.MenuDeckPoolSpot _menuPoolSpot;
         private static global::Menu.Profile.MenuProfileCard _menuProfileCard;
         private static global::Menu.Profile.MenuProfileHistoryEntry _menuProfileHistoryEntry;
         private static global::Menu.Unlocks.MenuUnlockEntry _menuUnlocksEntry;
@@ -18,6 +21,18 @@ namespace Internal {
 
         public static global::Menu.Play.MenuPlayGameMode GameModeEntry {
             get { Group.EnsureLoaded(); return _gameModeEntry; }
+        }
+
+        public static global::Menu.Decks.MenuDeckCard MenuDeckCard {
+            get { Group.EnsureLoaded(); return _menuDeckCard; }
+        }
+
+        public static global::Menu.Decks.MenuDeckIndexButton MenuDeckIndex {
+            get { Group.EnsureLoaded(); return _menuDeckIndex; }
+        }
+
+        public static global::Menu.Decks.MenuDeckPoolSpot MenuPoolSpot {
+            get { Group.EnsureLoaded(); return _menuPoolSpot; }
         }
 
         public static global::Menu.Profile.MenuProfileCard MenuProfileCard {
@@ -46,6 +61,9 @@ namespace Internal {
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
                 _gameModeEntry = Asset.Get<global::Menu.Play.MenuPlayGameMode>("GameModeEntry");
+                _menuDeckCard = Asset.Get<global::Menu.Decks.MenuDeckCard>("MenuDeckCard");
+                _menuDeckIndex = Asset.Get<global::Menu.Decks.MenuDeckIndexButton>("MenuDeckIndex");
+                _menuPoolSpot = Asset.Get<global::Menu.Decks.MenuDeckPoolSpot>("MenuPoolSpot");
                 _menuProfileCard = Asset.Get<global::Menu.Profile.MenuProfileCard>("MenuProfileCard");
                 _menuProfileHistoryEntry = Asset.Get<global::Menu.Profile.MenuProfileHistoryEntry>("MenuProfileHistoryEntry");
                 _menuUnlocksEntry = Asset.Get<global::Menu.Unlocks.MenuUnlockEntry>("MenuUnlocksEntry");
@@ -55,6 +73,9 @@ namespace Internal {
 
             protected override void UnloadGroup() {
                 _gameModeEntry = null;
+                _menuDeckCard = null;
+                _menuDeckIndex = null;
+                _menuPoolSpot = null;
                 _menuProfileCard = null;
                 _menuProfileHistoryEntry = null;
                 _menuUnlocksEntry = null;

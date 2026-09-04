@@ -1,55 +1,67 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
-using TMPro;
+using Shared;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GamePlay.UI
 {
     [DisallowMultipleComponent]
     public class GameResultsView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _rating;
-        [SerializeField] private TMP_Text _time;
-        [SerializeField] private TMP_Text _notification;
-        
-        [SerializeField] private GameResultsStats _stats;
-        
-        [SerializeField] private Button _menuButton;
-        [SerializeField] private Button _rematchButton;
+        [SerializeField] private GameUIResultsBindings _bindings;
 
         public async UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result)
         {
-            _stats.Show(result.Stats);
-            _rating.text = result.RatingChange > 0
-                ? $"+{result.RatingChange}"
-                : result.RatingChange.ToString();
-            _time.text = result.Duration.ToString(@"mm\:ss");
-            
+            var stats = result.Stats;
+
+            var resultDataBindings = _bindings.ResultData;
+            var buttonsBindings = _bindings.Buttons;
+            var ratingText = resultDataBindings.Rating.Text.TextMeshProUGUI;
+            var timeText = resultDataBindings.Time.Text.TextMeshProUGUI;
+            var menuButton = buttonsBindings.Menu;
+            var rematchButton = buttonsBindings.Rematch;
+            var stats1 = resultDataBindings.Stats0;
+            var stats2 = resultDataBindings.Stats1;
+
+            ratingText.text = result.RatingChange > 0 ? $"+{result.RatingChange}" : result.RatingChange.ToString();
+            timeText.text = result.Duration.ToString(@"mm\:ss");
+
+            stats1.Flags.TextMeshProUGUI.text = Format("flags", stats, UserStatType.FlagsSet);
+            stats1.Cards.TextMeshProUGUI.text = Format("cards", stats, UserStatType.CardsPlayed);
+            stats2.Reveal.TextMeshProUGUI.text = Format("reveal", stats, UserStatType.CellsOpened);
+            stats2.Taken.TextMeshProUGUI.text = Format("attack", stats, UserStatType.EnemyCellsPlanted);
+
             if (result.Type == MatchResultType.Leave)
-                _rematchButton.gameObject.SetActive(false);
+                menuButton.GameObject.SetActive(false);
             else
-                _rematchButton.gameObject.SetActive(true);
+                menuButton.GameObject.SetActive(true);
 
             gameObject.SetActive(true);
 
             var completion = new UniTaskCompletionSource<GameEndMenuResult>();
 
-            _menuButton.ListenClick(lifetime, () => completion.TrySetResult(GameEndMenuResult.Menu));
-            _rematchButton.ListenClick(lifetime, () => completion.TrySetResult(GameEndMenuResult.Rematch));
+            menuButton.Button.ListenClick(lifetime, () => completion.TrySetResult(GameEndMenuResult.Menu));
+            rematchButton.Button.ListenClick(lifetime, () => completion.TrySetResult(GameEndMenuResult.Rematch));
 
             var selection = await completion.Task;
 
-            _menuButton.gameObject.SetActive(false);
-            _rematchButton.gameObject.SetActive(false);
+            menuButton.GameObject.SetActive(false);
+            rematchButton.GameObject.SetActive(false);
 
             return selection;
         }
 
         public void SetNotification(string message)
         {
-            _notification.text = message;
+            _bindings.Buttons.Notification.TextMeshProUGUI.text = message;
+        }
+
+        private static string Format(string label, IUserStatsState stats, UserStatType type)
+        {
+            var amount = stats?.Get(type) ?? 0;
+
+            return $"{label}: {amount}";
         }
     }
 }

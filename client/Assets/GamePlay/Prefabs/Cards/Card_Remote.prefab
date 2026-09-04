@@ -162,8 +162,8 @@ MonoBehaviour:
   _autoDetected:
   - {fileID: 463000134743301336}
   - {fileID: 7427944596090194488}
-  - {fileID: 3909931153277576041}
   - {fileID: 3352518985461670471}
+  - {fileID: 7304585168477460037}
 --- !u!210 &9155634812543338571
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -490,8 +490,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3725119393414510814}
-  - component: {fileID: 3909931153277576041}
   - component: {fileID: 3352518985461670471}
+  - component: {fileID: 7304585168477460037}
   m_Layer: 0
   m_Name: View
   m_TagString: Untagged
@@ -516,18 +516,6 @@ Transform:
   - {fileID: 484543821864468653}
   m_Father: {fileID: 3378627474651183533}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3909931153277576041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3778974207107986574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e61ba7d8d5d54a639f61d3c983706c3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardTransform
 --- !u!114 &3352518985461670471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -545,6 +533,18 @@ MonoBehaviour:
   _image: {fileID: 1267189916692694228}
   _name: {fileID: 6920144299053208158}
   _description: {fileID: 7298301078988443157}
+--- !u!114 &7304585168477460037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3778974207107986574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e61ba7d8d5d54a639f61d3c983706c3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardTransform
 --- !u!1 &6645695765666828562
 GameObject:
   m_ObjectHideFlags: 0

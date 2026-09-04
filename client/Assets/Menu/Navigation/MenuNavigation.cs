@@ -1,12 +1,11 @@
 using Global.UI;
 using Internal;
+using Menu.Common;
 using Menu.Decks;
 using Menu.Play;
 using Menu.Profile;
 using Menu.Settings;
 using Menu.Unlocks;
-using UnityEngine;
-using VContainer;
 
 namespace Menu.Navigation
 {
@@ -14,46 +13,47 @@ namespace Menu.Navigation
     {
     }
 
-    [DisallowMultipleComponent]
-    public class MenuNavigation : MonoBehaviour, IMenuNavigation, ISceneService, IScopeSetup
+    public class MenuNavigation : IMenuNavigation, IScopeSetup
     {
-        [SerializeField] private MenuNavigationButton _unlocksButton;
-        [SerializeField] private MenuNavigationButton _deckButton;
-        [SerializeField] private MenuNavigationButton _playButton;
-        [SerializeField] private MenuNavigationButton _profileButton;
-        [SerializeField] private MenuNavigationButton _settingsButton;
-
-        private IMenuDecks _decks;
-        private IMenuPlay _play;
-        private IMenuProfile _profile;
-        private IMenuUnlocks _unlocks;
-        private IUIStateMachine _stateMachine;
-        private IMenuSettings _settings;
-        private IUIStateHandle _current;
-
-        [Inject]
-        internal void Construct(
+        public MenuNavigation(
             IMenuDecks decks,
             IMenuPlay play,
             IMenuUnlocks unlocksScreen,
             IMenuProfile profile,
             IUIStateMachine stateMachine,
-            IMenuSettings settings)
+            IMenuSettings settings,
+            MenuCanvasBindings canvasBindings)
         {
             _profile = profile;
             _settings = settings;
+            _canvasBindings = canvasBindings;
             _stateMachine = stateMachine;
             _unlocks = unlocksScreen;
             _decks = decks;
             _play = play;
+            
+            _unlocksButton = canvasBindings.Navigation.Unlocks.MenuNavigationButton;
+            _deckButton = canvasBindings.Navigation.Deck.MenuNavigationButton;
+            _playButton = canvasBindings.Navigation.Play.MenuNavigationButton;
+            _profileButton = canvasBindings.Navigation.Profile.MenuNavigationButton;
+            _settingsButton = canvasBindings.Navigation.Settings.MenuNavigationButton;
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IMenuNavigation>()
-                   .As<IScopeSetup>();
-        }
+        private readonly MenuNavigationButton _unlocksButton;
+        private readonly MenuNavigationButton _deckButton;
+        private readonly MenuNavigationButton _playButton;
+        private readonly MenuNavigationButton _profileButton;
+        private readonly MenuNavigationButton _settingsButton;
+
+        private readonly IMenuDecks _decks;
+        private readonly IMenuPlay _play;
+        private readonly IMenuProfile _profile;
+        private readonly IMenuUnlocks _unlocks;
+        private readonly IUIStateMachine _stateMachine;
+        private readonly IMenuSettings _settings;
+        private readonly MenuCanvasBindings _canvasBindings;
+        
+        private IUIStateHandle _current;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -71,8 +71,8 @@ namespace Menu.Navigation
             _playButton.Button.ListenClick(lifetime, () => OnClicked(_playButton, _play));
             _profileButton.Button.ListenClick(lifetime, () => OnClicked(_profileButton, _profile));
             _settingsButton.Button.ListenClick(lifetime, () => OnClicked(_settingsButton, _settings));
-            
-            gameObject.SetActive(true);
+
+            _canvasBindings.Navigation.GameObject.SetActive(true);
             OnClicked(_playButton, _play);
 
             return;
