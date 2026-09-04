@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: fae1624e276812827084c9ae01604c2f
+    // Structure: 0f026cd02ebb05bc6f43d77c9764ff0f
     // UI_Center
     //   - Pause_Button
     //   - Center
@@ -91,7 +91,6 @@ namespace GamePlay.UI {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                 [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
-                [SerializeField, HideInInspector] private global::GamePlay.UI.BoardMinesCounterView _boardMinesCounterView;
 
                 // Child objects
                 [SerializeField, HideInInspector] private OpponentBindings _opponent;
@@ -100,7 +99,6 @@ namespace GamePlay.UI {
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                 public global::UnityEngine.UI.Image Image => _image;
-                public global::GamePlay.UI.BoardMinesCounterView BoardMinesCounterView => _boardMinesCounterView;
                 public OpponentBindings Opponent => _opponent;
                 public OwnBindings Own => _own;
 
@@ -137,7 +135,6 @@ namespace GamePlay.UI {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                 [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
-                [SerializeField, HideInInspector] private global::GamePlay.UI.RoundTimer _roundTimer;
 
                 // Child objects
                 [SerializeField, HideInInspector] private OpponentBindings _opponent;
@@ -146,7 +143,6 @@ namespace GamePlay.UI {
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                 public global::UnityEngine.UI.Image Image => _image;
-                public global::GamePlay.UI.RoundTimer RoundTimer => _roundTimer;
                 public OpponentBindings Opponent => _opponent;
                 public OwnBindings Own => _own;
 
@@ -183,7 +179,6 @@ namespace GamePlay.UI {
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                 [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
                 [SerializeField, HideInInspector] private global::UnityEngine.UI.Button _button;
-                [SerializeField, HideInInspector] private global::GamePlay.UI.RoundSkipButton _roundSkipButton;
 
                 // Child objects
                 [SerializeField, HideInInspector] private TextTMPBindings _textTMP;
@@ -192,7 +187,6 @@ namespace GamePlay.UI {
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                 public global::UnityEngine.UI.Image Image => _image;
                 public global::UnityEngine.UI.Button Button => _button;
-                public global::GamePlay.UI.RoundSkipButton RoundSkipButton => _roundSkipButton;
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // UI_Center/Center/Skip/Text (TMP)
@@ -215,12 +209,10 @@ namespace GamePlay.UI {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
             [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
-            [SerializeField, HideInInspector] private global::GamePlay.UI.CardDropTarget _cardDropTarget;
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
             public global::UnityEngine.UI.Image Image => _image;
-            public global::GamePlay.UI.CardDropTarget CardDropTarget => _cardDropTarget;
         }
     }
 }

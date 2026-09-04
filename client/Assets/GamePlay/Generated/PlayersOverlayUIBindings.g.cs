@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: 40d115b9f70ca467424198bbb5ee6c67
+    // Structure: 6ab3a01eb2c96b8a2d40e3d07f5fd5a2
     // UI_Players
     //   - Player (own bindings)
     //   - Opponent (own bindings)
@@ -14,7 +14,6 @@ namespace GamePlay.UI {
         [SerializeField, HideInInspector] private global::UnityEngine.Canvas _canvas;
         [SerializeField, HideInInspector] private global::UnityEngine.UI.CanvasScaler _canvasScaler;
         [SerializeField, HideInInspector] private global::UnityEngine.UI.GraphicRaycaster _graphicRaycaster;
-        [SerializeField, HideInInspector] private global::GamePlay.UI.GameOverlay _gameOverlay;
         // UI_Players/Player (own bindings)
         [SerializeField, HideInInspector] private global::GamePlay.Players.PlayerUIBindings _player;
         // UI_Players/Opponent (own bindings)
@@ -25,7 +24,6 @@ namespace GamePlay.UI {
         public global::UnityEngine.Canvas Canvas => _canvas;
         public global::UnityEngine.UI.CanvasScaler CanvasScaler => _canvasScaler;
         public global::UnityEngine.UI.GraphicRaycaster GraphicRaycaster => _graphicRaycaster;
-        public global::GamePlay.UI.GameOverlay GameOverlay => _gameOverlay;
         public global::GamePlay.Players.PlayerUIBindings Player => _player;
         public global::GamePlay.Players.OpponentUIBindings Opponent => _opponent;
 
