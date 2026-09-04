@@ -1,4 +1,5 @@
 using System.Text;
+using UnityEngine;
 
 namespace Internal {
     // Класс биндингов сам является MonoBehaviour: отдельной вьюхи-обёртки нет, поэтому
@@ -28,6 +29,7 @@ namespace Internal {
             }
 
             builder.AppendLine($"{indent}// Structure: {structureHash}");
+            AppendHierarchy(builder, root, indent, true);
             builder.AppendLine($"{indent}[DisallowMultipleComponent]");
             var bases = "global::Internal.ObjectBindings";
             if (isSceneService)
@@ -101,10 +103,70 @@ namespace Internal {
             builder.AppendLine($"{indent}}}");
         }
 
+        // Карта иерархии в комментарии: поля класса плоские, а зеркало — нет, и без неё
+        // непонятно, какой объект стоит за каким свойством. Порядок берём у самих трансформов,
+        // чтобы комментарий читался так же, как окно Hierarchy.
+        private static void AppendHierarchy(
+            StringBuilder builder,
+            HierarchyBindingsNode node,
+            string indent,
+            bool withHeader) {
+            if (node.Target == null || node.Target.transform.childCount == 0)
+                return;
+
+            // Ветку обрубили маркером — показывать нечего, в зеркале детей нет.
+            if (node.IgnoreChildren == true)
+                return;
+
+            // У вложенных классов имя объекта уже стоит строкой выше — путём от корня.
+            if (withHeader)
+                builder.AppendLine($"{indent}// {node.Target.name}");
+
+            AppendHierarchyChildren(builder, node, indent, 1);
+        }
+
+        private static void AppendHierarchyChildren(
+            StringBuilder builder,
+            HierarchyBindingsNode node,
+            string indent,
+            int depth) {
+            var transform = node.Target.transform;
+            var padding = new string(' ', depth * 4 - 2);
+
+            for (var index = 0; index < transform.childCount; index++) {
+                var child = transform.GetChild(index).gameObject;
+                var childNode = FindChild(node, child);
+
+                if (childNode == null) {
+                    // Ребёнка нет в зеркале — значит у него свои биндинги и внутрь мы не заходим.
+                    builder.AppendLine($"{indent}// {padding}- {child.name} (own bindings)");
+                    continue;
+                }
+
+                if (childNode.IgnoreChildren == true && child.transform.childCount > 0) {
+                    builder.AppendLine($"{indent}// {padding}- {child.name} (children ignored)");
+                    continue;
+                }
+
+                builder.AppendLine($"{indent}// {padding}- {child.name}");
+                AppendHierarchyChildren(builder, childNode, indent, depth + 1);
+            }
+        }
+
+        private static HierarchyBindingsNode FindChild(HierarchyBindingsNode node, GameObject child) {
+            foreach (var candidate in node.Children) {
+                if (candidate.Target == child)
+                    return candidate;
+            }
+
+            return null;
+        }
+
         private static void AppendNestedClasses(StringBuilder builder, HierarchyBindingsNode node, string indent) {
             foreach (var child in node.Children) {
                 builder.AppendLine();
                 builder.AppendLine($"{indent}// {child.HierarchyPath}");
+                AppendHierarchy(builder, child, indent, false);
                 builder.AppendLine($"{indent}[Serializable]");
                 builder.AppendLine($"{indent}public sealed class {child.TypeName} {{");
 

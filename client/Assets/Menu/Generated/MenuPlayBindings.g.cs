@@ -4,6 +4,16 @@ using UnityEngine;
 
 namespace Menu.Play {
     // Structure: 4c795206582975af7a5616c278cf8e33
+    // Play
+    //   - Background
+    //   - Modes
+    //   - SearchView
+    //       - Idle
+    //           - Text
+    //       - Searching
+    //           - Timer
+    //           - Cancel
+    //               - Text
     [DisallowMultipleComponent]
     public class MenuPlayBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -51,6 +61,13 @@ namespace Menu.Play {
         }
 
         // Play/SearchView
+        // SearchView
+        //   - Idle
+        //       - Text
+        //   - Searching
+        //       - Timer
+        //       - Cancel
+        //           - Text
         [Serializable]
         public sealed class SearchViewBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -68,6 +85,8 @@ namespace Menu.Play {
             public SearchingBindings Searching => _searching;
 
             // Play/SearchView/Idle
+            // Idle
+            //   - Text
             [Serializable]
             public sealed class IdleBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -98,6 +117,10 @@ namespace Menu.Play {
             }
 
             // Play/SearchView/Searching
+            // Searching
+            //   - Timer
+            //   - Cancel
+            //       - Text
             [Serializable]
             public sealed class SearchingBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -127,6 +150,8 @@ namespace Menu.Play {
                 }
 
                 // Play/SearchView/Searching/Cancel
+                // Cancel
+                //   - Text
                 [Serializable]
                 public sealed class CancelBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a8d3e21c9f047b6a4e2d1c0b8f73615, type: 3}
+  m_Name: GameUIPlate
+  m_EditorClassIdentifier: Internal::Internal.SpriteGroupAsset
+  _entries:
+  - Name: BuffInfo
+    Kind: 0
+    Sprites:
+    - {fileID: -1295838705276941811, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Card
+    Kind: 0
+    Sprites:
+    - {fileID: -2905451856503881090, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Mines
+    Kind: 0
+    Sprites:
+    - {fileID: 2177211677427701667, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Opponent
+    Kind: 0
+    Sprites:
+    - {fileID: 5167805358099471545, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Pause
+    Kind: 0
+    Sprites:
+    - {fileID: -6031600736041250699, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Player
+    Kind: 0
+    Sprites:
+    - {fileID: 7148280181796108372, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: SkipOpponent
+    Kind: 0
+    Sprites:
+    - {fileID: 6986355492410116720, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: SkipOwn
+    Kind: 0
+    Sprites:
+    - {fileID: -3088901305303500348, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TimerOpponent
+    Kind: 0
+    Sprites:
+    - {fileID: 8276380424644488290, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: TimerOwn
+    Kind: 0
+    Sprites:
+    - {fileID: 8889882267910334701, guid: a978c9d600cc5dc888b2cd80435f2ab5, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}

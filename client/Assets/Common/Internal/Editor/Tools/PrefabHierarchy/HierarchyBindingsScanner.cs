@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Internal {
-    // Полное зеркало иерархии без маркеров: генератор обходит объект сверху донизу, включая
-    // содержимое вложенных префабов. Единственная граница — объект со своими биндингами:
-    // за его внутренности отвечает собственный класс, и ссылка на него обнуляет глубину
-    // сериализации, которой у Unity всего семь уровней.
+    // Полное зеркало иерархии: генератор обходит объект сверху донизу, включая содержимое
+    // вложенных префабов. Границ всего две — объект со своими биндингами (за его внутренности
+    // отвечает собственный класс, и ссылка на него обнуляет глубину сериализации, которой у Unity
+    // всего семь уровней) и HierarchyBindingsIgnoreChildren, которым обрубают ненужные ветки.
     internal static class HierarchyBindingsScanner {
         // Unity обрывает сериализацию вложенных не-Object типов глубже семи уровней, поэтому
         // дальше по дереву спускаться бессмысленно: поля просто не сохранятся.
         public const int MaxNestingDepth = 7;
 
         private static readonly HashSet<Type> SkippedComponents = new() {
-            typeof(CanvasRenderer)
+            typeof(CanvasRenderer),
+            typeof(HierarchyBindingsIgnoreChildren)
         };
 
         public static HierarchyBindingsNode Scan(GameObject root, string rootTypeName, List<string> errors) {
@@ -38,10 +39,15 @@ namespace Internal {
                 HierarchyPath = hierarchyPath
             };
 
+            node.IgnoreChildren = target.GetComponent<HierarchyBindingsIgnoreChildren>() != null;
+
             var used = new HashSet<string>(StringComparer.Ordinal);
             CollectGameObject(node, used);
             CollectComponents(node, used, depth, errors);
-            CollectChildren(node, used, depth, errors);
+
+            if (node.IgnoreChildren == false)
+                CollectChildren(node, used, depth, errors);
+
             return node;
         }
 

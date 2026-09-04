@@ -50,6 +50,7 @@ namespace GamePlay.Loop
         {
             builder.RequestSpriteGroup(Sprites.Cards);
             builder.RequestSpriteGroup(Sprites.GameUI);
+            builder.RequestSpriteGroup(Sprites.GameUIPlate);
             builder.RequestSpriteGroup(Sprites.GameCells);
             builder.RequestSpriteGroup(Sprites.GameField);
             builder.RequestSpriteGroup(Sprites.Settings);
@@ -57,6 +58,8 @@ namespace GamePlay.Loop
             
             builder
                 .AddGamePlayServices()
+                .AddGameOverlayServices()
+                .AddGamePauseServices()
                 .AddPlayerServices()
                 .AddBoardServices()
                 .AddCardServices()
@@ -113,7 +116,7 @@ namespace GamePlay.Loop
                 builder.FindOrLoadSceneWithServices(Scenes.GameField.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GameOverlay.Value),
                 builder.FindOrLoadSceneWithServices(Scenes.GamePause.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameEnd.Value));
+                builder.FindOrLoadSceneWithServices(Scenes.GameResult.Value));
         }
     }
 }

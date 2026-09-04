@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace Menu.Common {
     // Structure: edc890f4aa02d16fed44451a36f3bdb6
+    // Canvas
+    //   - Unlocks (own bindings)
+    //   - Decks (own bindings)
+    //   - Play (own bindings)
+    //   - Profile (own bindings)
+    //   - Settings (own bindings)
+    //   - Navigation (own bindings)
     [DisallowMultipleComponent]
     public class MenuCanvasBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

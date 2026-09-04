@@ -4,7 +4,6 @@ using Global.UI;
 using Internal;
 using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace GamePlay.UI
 {
@@ -13,47 +12,46 @@ namespace GamePlay.UI
         void Open();
     }
 
-    [DisallowMultipleComponent]
-    public class GamePause : MonoBehaviour, IScopeSetup, ISceneService, IGamePause
+    public class GamePause : IScopeSetup, IGamePause
     {
-        [SerializeField] private Button _continueButton;
-        [SerializeField] private Button _settingsButton;
-        [SerializeField] private Button _leaveButton;
-
-        [SerializeField] private GamePauseLeave _gamePauseLeave;
-
-        private IUIStateMachine _stateMachine;
-        private IGameState _gameState;
-        private IGamePauseSettings _settings;
-        private IGameContext _gameContext;
-
-        [Inject]
-        internal void Construct(
+        public GamePause(
             IUIStateMachine stateMachine,
             IGameState gameState,
             IGamePauseSettings settings,
-            IGameContext gameContext)
+            IGamePauseLeave leave,
+            IGameContext gameContext,
+            GamePauseMenuBindings bindings)
         {
             _gameState = gameState;
             _stateMachine = stateMachine;
             _settings = settings;
+            _leave = leave;
             _gameContext = gameContext;
 
-            gameObject.SetActive(false);
-            _gamePauseLeave.gameObject.SetActive(false);
+            var buttons = bindings.Menu.Plate.Buttons;
+            _continueButton = buttons.GamePauseContinue.Button;
+            _settingsButton = buttons.GamePauseSettings.Button;
+            _leaveButton = buttons.GamePauseExit.Button;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
         }
 
-        public void Create(IScopeBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IGamePause>()
-                   .As<IScopeSetup>();
-        }
+        private readonly Button _continueButton;
+        private readonly Button _settingsButton;
+        private readonly Button _leaveButton;
+        private readonly GameObject _gameObject;
+
+        private readonly IUIStateMachine _stateMachine;
+        private readonly IGameState _gameState;
+        private readonly IGamePauseSettings _settings;
+        private readonly IGamePauseLeave _leave;
+        private readonly IGameContext _gameContext;
 
         public void Open()
         {
             _gameContext.SetPaused(true);
-            gameObject.SetActive(true);
+            _gameObject.SetActive(true);
         }
 
         public void OnSetup(IReadOnlyLifetime lifetime)
@@ -65,20 +63,20 @@ namespace GamePlay.UI
 
         private async UniTask ProcessSettings(IReadOnlyLifetime lifetime)
         {
-            gameObject.SetActive(false);
+            _gameObject.SetActive(false);
             await _settings.Process(lifetime);
-            gameObject.SetActive(true);
+            _gameObject.SetActive(true);
         }
 
         private async UniTask ProcessLeaveMenu(IReadOnlyLifetime lifetime)
         {
-            gameObject.SetActive(false);
+            _gameObject.SetActive(false);
 
-            var result = await _gamePauseLeave.Process(lifetime);
+            var result = await _leave.Process(lifetime);
 
             if (result == false)
             {
-                gameObject.SetActive(true);
+                _gameObject.SetActive(true);
                 return;
             }
 
@@ -88,7 +86,7 @@ namespace GamePlay.UI
 
         private void Close()
         {
-            gameObject.SetActive(false);
+            _gameObject.SetActive(false);
             _gameContext.SetPaused(false);
         }
     }

@@ -3,13 +3,29 @@ using System;
 using UnityEngine;
 
 namespace Menu.Navigation {
-    // Structure: 13057bd536df585e7322036b79acb1ec
+    // Structure: 0fd6e4c0e13f2069f74758a5569228e0
+    // Navigation
+    //   - Menu_Navigation_Separator
+    //   - Unlocks
+    //       - Text (TMP)
+    //   - Menu_Navigation_Separator_1
+    //   - Deck
+    //       - Text (TMP)
+    //   - Menu_Navigation_Separator_2
+    //   - Play
+    //       - Text (TMP)
+    //   - Menu_Navigation_Separator_3
+    //   - Profile
+    //       - Text (TMP)
+    //   - Menu_Navigation_Separator_4
+    //   - Settings
+    //       - Text (TMP)
+    //   - Menu_Navigation_Separator_5
     [DisallowMultipleComponent]
     public class MenuNavigationBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
         [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
-        [SerializeField, HideInInspector] private global::Menu.Navigation.MenuNavigation _menuNavigation;
         [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
 
         // Child objects
@@ -28,7 +44,6 @@ namespace Menu.Navigation {
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
         public global::UnityEngine.UI.Image Image => _image;
-        public global::Menu.Navigation.MenuNavigation MenuNavigation => _menuNavigation;
         public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
         public MenuNavigationSeparatorBindings MenuNavigationSeparator => _menuNavigationSeparator;
         public UnlocksBindings Unlocks => _unlocks;
@@ -59,6 +74,8 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Unlocks
+        // Unlocks
+        //   - Text (TMP)
         [Serializable]
         public sealed class UnlocksBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -103,6 +120,8 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Deck
+        // Deck
+        //   - Text (TMP)
         [Serializable]
         public sealed class DeckBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -147,6 +166,8 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Play
+        // Play
+        //   - Text (TMP)
         [Serializable]
         public sealed class PlayBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -191,6 +212,8 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Profile
+        // Profile
+        //   - Text (TMP)
         [Serializable]
         public sealed class ProfileBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -235,6 +258,8 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Settings
+        // Settings
+        //   - Text (TMP)
         [Serializable]
         public sealed class SettingsBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

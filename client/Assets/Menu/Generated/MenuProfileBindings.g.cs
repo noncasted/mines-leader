@@ -4,6 +4,61 @@ using UnityEngine;
 
 namespace Menu.Profile {
     // Structure: 8edf81dba88a01d779395ef60cee82bb
+    // Profile
+    //   - Background
+    //   - Line
+    //   - Matches
+    //       - Plate
+    //       - Entries
+    //           - Viewport
+    //               - Content
+    //           - Scrollbar Horizontal
+    //               - Sliding Area
+    //                   - Handle
+    //           - Scrollbar Vertical
+    //               - Sliding Area
+    //                   - Handle
+    //       - View
+    //           - Center
+    //               - Back
+    //               - Image
+    //               - Result
+    //                   - Win
+    //                       - Opponent_Name
+    //                   - Lose
+    //                       - Opponent_Name
+    //               - Timer
+    //                   - Header
+    //                   - Value
+    //               - Rating
+    //                   - Header
+    //                   - Value
+    //           - Top
+    //               - Opponent_Name
+    //               - Cards
+    //           - Bottom
+    //               - You
+    //               - Cards
+    //   - Top
+    //       - Avatar
+    //           - View
+    //           - InputField (TMP)
+    //               - Text Area
+    //                   - Placeholder
+    //                   - Text
+    //       - Stats
+    //           - Menu_Stats_Lose
+    //               - Icon
+    //               - Count
+    //               - Name
+    //           - Menu_Stats_Win
+    //               - Icon
+    //               - Count
+    //               - Name
+    //           - Menu_Stats_Rating
+    //               - Icon
+    //               - Count
+    //               - Name
     [DisallowMultipleComponent]
     public class MenuProfileBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -53,6 +108,38 @@ namespace Menu.Profile {
         }
 
         // Profile/Matches
+        // Matches
+        //   - Plate
+        //   - Entries
+        //       - Viewport
+        //           - Content
+        //       - Scrollbar Horizontal
+        //           - Sliding Area
+        //               - Handle
+        //       - Scrollbar Vertical
+        //           - Sliding Area
+        //               - Handle
+        //   - View
+        //       - Center
+        //           - Back
+        //           - Image
+        //           - Result
+        //               - Win
+        //                   - Opponent_Name
+        //               - Lose
+        //                   - Opponent_Name
+        //           - Timer
+        //               - Header
+        //               - Value
+        //           - Rating
+        //               - Header
+        //               - Value
+        //       - Top
+        //           - Opponent_Name
+        //           - Cards
+        //       - Bottom
+        //           - You
+        //           - Cards
         [Serializable]
         public sealed class MatchesBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -84,6 +171,15 @@ namespace Menu.Profile {
             }
 
             // Profile/Matches/Entries
+            // Entries
+            //   - Viewport
+            //       - Content
+            //   - Scrollbar Horizontal
+            //       - Sliding Area
+            //           - Handle
+            //   - Scrollbar Vertical
+            //       - Sliding Area
+            //           - Handle
             [Serializable]
             public sealed class EntriesBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -105,6 +201,8 @@ namespace Menu.Profile {
                 public ScrollbarVerticalBindings ScrollbarVertical => _scrollbarVertical;
 
                 // Profile/Matches/Entries/Viewport
+                // Viewport
+                //   - Content
                 [Serializable]
                 public sealed class ViewportBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -135,6 +233,9 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/Entries/Scrollbar Horizontal
+                // Scrollbar Horizontal
+                //   - Sliding Area
+                //       - Handle
                 [Serializable]
                 public sealed class ScrollbarHorizontalBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -152,6 +253,8 @@ namespace Menu.Profile {
                     public SlidingAreaBindings SlidingArea => _slidingArea;
 
                     // Profile/Matches/Entries/Scrollbar Horizontal/Sliding Area
+                    // Sliding Area
+                    //   - Handle
                     [Serializable]
                     public sealed class SlidingAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -179,6 +282,9 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/Entries/Scrollbar Vertical
+                // Scrollbar Vertical
+                //   - Sliding Area
+                //       - Handle
                 [Serializable]
                 public sealed class ScrollbarVerticalBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -196,6 +302,8 @@ namespace Menu.Profile {
                     public SlidingAreaBindings SlidingArea => _slidingArea;
 
                     // Profile/Matches/Entries/Scrollbar Vertical/Sliding Area
+                    // Sliding Area
+                    //   - Handle
                     [Serializable]
                     public sealed class SlidingAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -224,6 +332,27 @@ namespace Menu.Profile {
             }
 
             // Profile/Matches/View
+            // View
+            //   - Center
+            //       - Back
+            //       - Image
+            //       - Result
+            //           - Win
+            //               - Opponent_Name
+            //           - Lose
+            //               - Opponent_Name
+            //       - Timer
+            //           - Header
+            //           - Value
+            //       - Rating
+            //           - Header
+            //           - Value
+            //   - Top
+            //       - Opponent_Name
+            //       - Cards
+            //   - Bottom
+            //       - You
+            //       - Cards
             [Serializable]
             public sealed class ViewBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -245,6 +374,20 @@ namespace Menu.Profile {
                 public BottomBindings Bottom => _bottom;
 
                 // Profile/Matches/View/Center
+                // Center
+                //   - Back
+                //   - Image
+                //   - Result
+                //       - Win
+                //           - Opponent_Name
+                //       - Lose
+                //           - Opponent_Name
+                //   - Timer
+                //       - Header
+                //       - Value
+                //   - Rating
+                //       - Header
+                //       - Value
                 [Serializable]
                 public sealed class CenterBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -290,6 +433,11 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Result
+                    // Result
+                    //   - Win
+                    //       - Opponent_Name
+                    //   - Lose
+                    //       - Opponent_Name
                     [Serializable]
                     public sealed class ResultBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -305,6 +453,8 @@ namespace Menu.Profile {
                         public LoseBindings Lose => _lose;
 
                         // Profile/Matches/View/Center/Result/Win
+                        // Win
+                        //   - Opponent_Name
                         [Serializable]
                         public sealed class WinBindings {
                             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -333,6 +483,8 @@ namespace Menu.Profile {
                         }
 
                         // Profile/Matches/View/Center/Result/Lose
+                        // Lose
+                        //   - Opponent_Name
                         [Serializable]
                         public sealed class LoseBindings {
                             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -362,6 +514,9 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Timer
+                    // Timer
+                    //   - Header
+                    //   - Value
                     [Serializable]
                     public sealed class TimerBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -402,6 +557,9 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Rating
+                    // Rating
+                    //   - Header
+                    //   - Value
                     [Serializable]
                     public sealed class RatingBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -443,6 +601,9 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/View/Top
+                // Top
+                //   - Opponent_Name
+                //   - Cards
                 [Serializable]
                 public sealed class TopBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -483,6 +644,9 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/View/Bottom
+                // Bottom
+                //   - You
+                //   - Cards
                 [Serializable]
                 public sealed class BottomBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -525,6 +689,26 @@ namespace Menu.Profile {
         }
 
         // Profile/Top
+        // Top
+        //   - Avatar
+        //       - View
+        //       - InputField (TMP)
+        //           - Text Area
+        //               - Placeholder
+        //               - Text
+        //   - Stats
+        //       - Menu_Stats_Lose
+        //           - Icon
+        //           - Count
+        //           - Name
+        //       - Menu_Stats_Win
+        //           - Icon
+        //           - Count
+        //           - Name
+        //       - Menu_Stats_Rating
+        //           - Icon
+        //           - Count
+        //           - Name
         [Serializable]
         public sealed class TopBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -542,6 +726,12 @@ namespace Menu.Profile {
             public StatsBindings Stats => _stats;
 
             // Profile/Top/Avatar
+            // Avatar
+            //   - View
+            //   - InputField (TMP)
+            //       - Text Area
+            //           - Placeholder
+            //           - Text
             [Serializable]
             public sealed class AvatarBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -569,6 +759,10 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Avatar/InputField (TMP)
+                // InputField (TMP)
+                //   - Text Area
+                //       - Placeholder
+                //       - Text
                 [Serializable]
                 public sealed class InputFieldTMPBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -586,6 +780,9 @@ namespace Menu.Profile {
                     public TextAreaBindings TextArea => _textArea;
 
                     // Profile/Top/Avatar/InputField (TMP)/Text Area
+                    // Text Area
+                    //   - Placeholder
+                    //   - Text
                     [Serializable]
                     public sealed class TextAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -632,6 +829,19 @@ namespace Menu.Profile {
             }
 
             // Profile/Top/Stats
+            // Stats
+            //   - Menu_Stats_Lose
+            //       - Icon
+            //       - Count
+            //       - Name
+            //   - Menu_Stats_Win
+            //       - Icon
+            //       - Count
+            //       - Name
+            //   - Menu_Stats_Rating
+            //       - Icon
+            //       - Count
+            //       - Name
             [Serializable]
             public sealed class StatsBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -651,6 +861,10 @@ namespace Menu.Profile {
                 public MenuStatsRatingBindings MenuStatsRating => _menuStatsRating;
 
                 // Profile/Top/Stats/Menu_Stats_Lose
+                // Menu_Stats_Lose
+                //   - Icon
+                //   - Count
+                //   - Name
                 [Serializable]
                 public sealed class MenuStatsLoseBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -707,6 +921,10 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Stats/Menu_Stats_Win
+                // Menu_Stats_Win
+                //   - Icon
+                //   - Count
+                //   - Name
                 [Serializable]
                 public sealed class MenuStatsWinBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -763,6 +981,10 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Stats/Menu_Stats_Rating
+                // Menu_Stats_Rating
+                //   - Icon
+                //   - Count
+                //   - Name
                 [Serializable]
                 public sealed class MenuStatsRatingBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

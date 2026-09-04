@@ -3,12 +3,55 @@ using System;
 using UnityEngine;
 
 namespace Menu.Settings {
-    // Structure: 43ed0cf65c89d3d55296b25c5df7584c
+    // Structure: 4bc4a27e42e39add2653c91d81f9a60e
+    // Settings
+    //   - Background
+    //   - Content
+    //       - Header_Audio
+    //       - Master
+    //           - Slider
+    //               - Fill Area
+    //                   - Fill
+    //               - Background
+    //               - Handle Slide Area
+    //                   - Handle
+    //           - Text (TMP)
+    //       - Music
+    //           - Slider
+    //               - Fill Area
+    //                   - Fill
+    //               - Background
+    //               - Handle Slide Area
+    //                   - Handle
+    //           - Text (TMP)
+    //       - Sounds
+    //           - Slider
+    //               - Fill Area
+    //                   - Fill
+    //               - Background
+    //               - Handle Slide Area
+    //                   - Handle
+    //           - Text (TMP)
+    //       - Header_Game
+    //       - Shake
+    //           - Slider
+    //               - Fill Area
+    //                   - Fill
+    //               - Background
+    //               - Handle Slide Area
+    //                   - Handle
+    //           - Text (TMP)
+    //       - Vsync
+    //           - Text (TMP)
+    //           - Setting
+    //               - On
+    //                   - Text (TMP)
+    //               - Off
+    //                   - Text (TMP)
     [DisallowMultipleComponent]
     public class MenuSettingsBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::Menu.Settings.MenuSettings _menuSettings;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -16,7 +59,6 @@ namespace Menu.Settings {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::Menu.Settings.MenuSettings MenuSettings => _menuSettings;
         public BackgroundBindings Background => _background;
         public ContentBindings Content => _content;
 
@@ -37,6 +79,48 @@ namespace Menu.Settings {
         }
 
         // Settings/Content
+        // Content
+        //   - Header_Audio
+        //   - Master
+        //       - Slider
+        //           - Fill Area
+        //               - Fill
+        //           - Background
+        //           - Handle Slide Area
+        //               - Handle
+        //       - Text (TMP)
+        //   - Music
+        //       - Slider
+        //           - Fill Area
+        //               - Fill
+        //           - Background
+        //           - Handle Slide Area
+        //               - Handle
+        //       - Text (TMP)
+        //   - Sounds
+        //       - Slider
+        //           - Fill Area
+        //               - Fill
+        //           - Background
+        //           - Handle Slide Area
+        //               - Handle
+        //       - Text (TMP)
+        //   - Header_Game
+        //   - Shake
+        //       - Slider
+        //           - Fill Area
+        //               - Fill
+        //           - Background
+        //           - Handle Slide Area
+        //               - Handle
+        //       - Text (TMP)
+        //   - Vsync
+        //       - Text (TMP)
+        //       - Setting
+        //           - On
+        //               - Text (TMP)
+        //           - Off
+        //               - Text (TMP)
         [Serializable]
         public sealed class ContentBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -76,6 +160,14 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Master
+            // Master
+            //   - Slider
+            //       - Fill Area
+            //           - Fill
+            //       - Background
+            //       - Handle Slide Area
+            //           - Handle
+            //   - Text (TMP)
             [Serializable]
             public sealed class MasterBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -91,6 +183,12 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Master/Slider
+                // Slider
+                //   - Fill Area
+                //       - Fill
+                //   - Background
+                //   - Handle Slide Area
+                //       - Handle
                 [Serializable]
                 public sealed class SliderBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -110,6 +208,8 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Master/Slider/Fill Area
+                    // Fill Area
+                    //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -148,6 +248,8 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Master/Slider/Handle Slide Area
+                    // Handle Slide Area
+                    //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -188,6 +290,14 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Music
+            // Music
+            //   - Slider
+            //       - Fill Area
+            //           - Fill
+            //       - Background
+            //       - Handle Slide Area
+            //           - Handle
+            //   - Text (TMP)
             [Serializable]
             public sealed class MusicBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -203,6 +313,12 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Music/Slider
+                // Slider
+                //   - Fill Area
+                //       - Fill
+                //   - Background
+                //   - Handle Slide Area
+                //       - Handle
                 [Serializable]
                 public sealed class SliderBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -222,6 +338,8 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Music/Slider/Fill Area
+                    // Fill Area
+                    //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -260,6 +378,8 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Music/Slider/Handle Slide Area
+                    // Handle Slide Area
+                    //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -300,6 +420,14 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Sounds
+            // Sounds
+            //   - Slider
+            //       - Fill Area
+            //           - Fill
+            //       - Background
+            //       - Handle Slide Area
+            //           - Handle
+            //   - Text (TMP)
             [Serializable]
             public sealed class SoundsBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -315,6 +443,12 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Sounds/Slider
+                // Slider
+                //   - Fill Area
+                //       - Fill
+                //   - Background
+                //   - Handle Slide Area
+                //       - Handle
                 [Serializable]
                 public sealed class SliderBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -334,6 +468,8 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Sounds/Slider/Fill Area
+                    // Fill Area
+                    //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -372,6 +508,8 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Sounds/Slider/Handle Slide Area
+                    // Handle Slide Area
+                    //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -424,6 +562,14 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Shake
+            // Shake
+            //   - Slider
+            //       - Fill Area
+            //           - Fill
+            //       - Background
+            //       - Handle Slide Area
+            //           - Handle
+            //   - Text (TMP)
             [Serializable]
             public sealed class ShakeBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -439,6 +585,12 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Shake/Slider
+                // Slider
+                //   - Fill Area
+                //       - Fill
+                //   - Background
+                //   - Handle Slide Area
+                //       - Handle
                 [Serializable]
                 public sealed class SliderBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -458,6 +610,8 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Shake/Slider/Fill Area
+                    // Fill Area
+                    //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -496,6 +650,8 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Shake/Slider/Handle Slide Area
+                    // Handle Slide Area
+                    //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -536,6 +692,13 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Vsync
+            // Vsync
+            //   - Text (TMP)
+            //   - Setting
+            //       - On
+            //           - Text (TMP)
+            //       - Off
+            //           - Text (TMP)
             [Serializable]
             public sealed class VsyncBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -563,6 +726,11 @@ namespace Menu.Settings {
                 }
 
                 // Settings/Content/Vsync/Setting
+                // Setting
+                //   - On
+                //       - Text (TMP)
+                //   - Off
+                //       - Text (TMP)
                 [Serializable]
                 public sealed class SettingBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -580,6 +748,8 @@ namespace Menu.Settings {
                     public OffBindings Off => _off;
 
                     // Settings/Content/Vsync/Setting/On
+                    // On
+                    //   - Text (TMP)
                     [Serializable]
                     public sealed class OnBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -610,6 +780,8 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Vsync/Setting/Off
+                    // Off
+                    //   - Text (TMP)
                     [Serializable]
                     public sealed class OffBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

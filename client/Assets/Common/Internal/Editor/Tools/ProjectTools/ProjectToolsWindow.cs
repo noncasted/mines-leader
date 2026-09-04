@@ -19,6 +19,7 @@ namespace Internal
         private readonly List<ProjectToolsTab> _tabs = new()
         {
             new ScenesTab(),
+            new CurrentSceneTab(),
             new OptionsTab(),
             new AssetsTab(),
             new UserTab()

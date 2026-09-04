@@ -6,7 +6,10 @@ using GamePlay.Services;
 using Internal;
 using Menu.Decks;
 using Menu.Navigation;
+using Menu.Play;
+using Menu.Profile;
 using Menu.Settings;
+using Menu.Unlocks;
 
 namespace Menu.Common
 {
@@ -80,6 +83,22 @@ namespace Menu.Common
 
             builder.Register<MenuSettings>()
                    .As<IMenuSettings>();
+
+            builder.Register<MenuDecks>()
+                   .As<IMenuDecks>()
+                   .As<IScopeSetup>();
+
+            builder.Register<MenuPlay>()
+                   .As<IMenuPlay>()
+                   .As<IScopeSetup>();
+
+            builder.Register<MenuProfile>()
+                   .As<IMenuProfile>()
+                   .As<IScopeSetup>();
+
+            builder.Register<MenuUnlocks>()
+                   .As<IMenuUnlocks>()
+                   .As<IScopeSetup>();
             
             builder.Register<MenuCardPreviewPlayer>()
                    .As<IMenuCardPreviewPlayer>();

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Sprites_GameUIPlate
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Sprites_GameUIPlate
+  m_GUID: a15d52c9e5100213fae021d63d2493c6
+  m_SerializeEntries:
+  - m_GUID: adb62675007362afab59ec24b2d0124d
+    m_Address: adb62675007362afab59ec24b2d0124d
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 43e7cccc0b5a5182aa9e618b0d60f7ab, type: 2}
+    - {fileID: 11400000, guid: 1073ce20ff592e1159f05b9285fff1ad, type: 2}
+    m_SchemaDisplayOrder:
+    - Sprites_GameUIPlate_BundledAssetGroupSchema
+    - Sprites_GameUIPlate_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

@@ -6,7 +6,7 @@ using Internal;
 using Meta;
 using Shared;
 using UnityEngine;
-using VContainer;
+using Object = UnityEngine.Object;
 
 namespace Menu.Play
 {
@@ -15,19 +15,41 @@ namespace Menu.Play
         IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound { get; }
     }
 
-    [DisallowMultipleComponent]
-    public class MenuPlay : MonoBehaviour, IMenuPlay, ISceneService, IScopeSetup, IUIStateAsyncEnterHandler
+    public class MenuPlay : IMenuPlay, IScopeSetup, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private RectTransform _modesRoot;
-        [SerializeField] private MenuPlaySearchView _searchView;
+        public MenuPlay(
+            IMatchmaking matchmaking,
+            IMatchMakingConfigs matchMakingConfigs,
+            IGameModesRegistry gameModesRegistry,
+            IUpdater updater,
+            MenuPlayBindings bindings)
+        {
+            _updater = updater;
+            _matchmaking = matchmaking;
+            _matchMakingConfigs = matchMakingConfigs;
+            _gameModesRegistry = gameModesRegistry;
+
+            _modesRoot = bindings.Modes.RectTransform;
+            _searchView = bindings.SearchView.MenuPlaySearchView;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
+            _searchView.ShowIdle();
+        }
+
+        private readonly RectTransform _modesRoot;
+        private readonly MenuPlaySearchView _searchView;
+        private readonly GameObject _gameObject;
 
         private readonly ViewableDelegate<SharedMatchmaking.MatchResult> _gameFound = new();
         private readonly List<MenuPlayGameMode> _modes = new();
 
-        private IMatchmaking _matchmaking;
-        private IMatchMakingConfigs _matchMakingConfigs;
-        private IGameModesRegistry _gameModesRegistry;
-        private IUpdater _updater;
+        private readonly IMatchmaking _matchmaking;
+        private readonly IMatchMakingConfigs _matchMakingConfigs;
+        private readonly IGameModesRegistry _gameModesRegistry;
+        private readonly IUpdater _updater;
+
+        private IReadOnlyLifetime _lifetime;
         private ILifetime _searchLifetime;
         private bool _isInSearch;
         private GameMatchType _selectedType;
@@ -36,31 +58,10 @@ namespace Menu.Play
         public IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound => _gameFound;
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
-        [Inject]
-        internal void Construct(
-            IMatchmaking matchmaking,
-            IMatchMakingConfigs matchMakingConfigs,
-            IGameModesRegistry gameModesRegistry,
-            IUpdater updater)
-        {
-            _updater = updater;
-            _matchmaking = matchmaking;
-            _matchMakingConfigs = matchMakingConfigs;
-            _gameModesRegistry = gameModesRegistry;
-        }
-
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
-            _searchView.ShowIdle();
-
-            builder.RegisterComponent(this)
-                   .As<IMenuPlay>()
-                   .As<IScopeSetup>();
-        }
-
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
+            _lifetime = lifetime;
+
             _searchView.SearchButton.ListenClick(lifetime, () => OnSearchClicked(lifetime));
             _searchView.CancelButton.ListenClick(lifetime, StopSearch);
             _matchMakingConfigs.View(lifetime, options => BuildModes(lifetime, options));
@@ -68,7 +69,7 @@ namespace Menu.Play
 
         public UniTask OnEntered(IUIStateHandle handle)
         {
-            handle.AttachGameObject(gameObject);
+            handle.AttachGameObject(_gameObject);
             handle.InnerLifetime.Listen(StopSearch);
             return UniTask.CompletedTask;
         }
@@ -76,7 +77,7 @@ namespace Menu.Play
         private void BuildModes(IReadOnlyLifetime lifetime, MatchMakingOptions options)
         {
             while (_modesRoot.childCount > 0)
-                DestroyImmediate(_modesRoot.GetChild(0).gameObject);
+                Object.DestroyImmediate(_modesRoot.GetChild(0).gameObject);
 
             _modes.Clear();
 
@@ -85,7 +86,7 @@ namespace Menu.Play
                 if (_gameModesRegistry.Entries.TryGetValue(type, out var definition) == false)
                     continue;
 
-                var view = Instantiate(MenuPrefabs.GameModeEntry, _modesRoot);
+                var view = Object.Instantiate(MenuPrefabs.GameModeEntry, _modesRoot);
                 view.Setup(definition);
                 view.ListenClick(lifetime, () => Select(type));
                 _modes.Add(view);
@@ -143,7 +144,7 @@ namespace Menu.Play
             _isInSearch = false;
             _searchLifetime?.Terminate();
             _searchView.ShowIdle();
-            _matchmaking.CancelSearch(this.GetObjectLifetime());
+            _matchmaking.CancelSearch(_lifetime);
         }
 
         private async UniTask Search(IReadOnlyLifetime lifetime, GameMatchType type)

@@ -4,7 +4,6 @@ using Global.UI;
 using Internal;
 using Meta;
 using UnityEngine;
-using VContainer;
 
 namespace Menu.Unlocks
 {
@@ -12,39 +11,33 @@ namespace Menu.Unlocks
     {
     }
 
-    [DisallowMultipleComponent]
-    public class MenuUnlocks : MonoBehaviour,
-                               IMenuUnlocks,
-                               ISceneService,
-                               IScopeSetup,
-                               IUIStateAsyncEnterHandler
+    public class MenuUnlocks : IMenuUnlocks, IScopeSetup, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private RectTransform _rowsRoot;
+        public MenuUnlocks(
+            IAchievements achievements,
+            IMenuUnlockSelection selection,
+            MenuUnlocksBindings bindings)
+        {
+            _achievements = achievements;
+            _selection = selection;
+
+            _rowsRoot = bindings.Rows.Viewport.Content.RectTransform;
+            _gameObject = bindings.GameObject;
+
+            _gameObject.SetActive(false);
+        }
+
+        private readonly RectTransform _rowsRoot;
+        private readonly GameObject _gameObject;
 
         private readonly List<EntryView> _entries = new();
 
-        private IAchievements _achievements;
-        private IMenuUnlockSelection _selection;
+        private readonly IAchievements _achievements;
+        private readonly IMenuUnlockSelection _selection;
 
         private IReadOnlyLifetime _screenLifetime;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
-
-        [Inject]
-        internal void Construct(IAchievements achievements, IMenuUnlockSelection selection)
-        {
-            _achievements = achievements;
-            _selection = selection;
-        }
-
-        public void Create(IScopeBuilder builder)
-        {
-            gameObject.SetActive(false);
-
-            builder.RegisterComponent(this)
-                   .As<IMenuUnlocks>()
-                   .As<IScopeSetup>();
-        }
 
         /// <summary>
         /// Ряды собираются один раз на старте сцены и живут вместе с ней.
@@ -59,7 +52,7 @@ namespace Menu.Unlocks
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
-            handle.AttachGameObject(gameObject);
+            handle.AttachGameObject(_gameObject);
 
             _screenLifetime = handle.InnerLifetime;
             handle.InnerLifetime.Listen(() => _screenLifetime = null);
@@ -76,14 +69,14 @@ namespace Menu.Unlocks
             var lifetime = rowLifetime.Child();
             screenLifetime.Listen(lifetime.Terminate);
 
-            var rowObject = Instantiate(MenuPrefabs.MenuUnlocksRow, _rowsRoot);
+            var rowObject = Object.Instantiate(MenuPrefabs.MenuUnlocksRow, _rowsRoot);
             rowObject.name = $"Row_{row.Type}";
             var rowTransform = (RectTransform)rowObject.transform;
             rowTransform.SetParent(_rowsRoot, false);
 
             foreach (var tier in row.Tiers)
             {
-                var view = Instantiate(MenuPrefabs.MenuUnlocksEntry, rowTransform);
+                var view = Object.Instantiate(MenuPrefabs.MenuUnlocksEntry, rowTransform);
                 view.Setup(row, tier);
 
                 var entry = new EntryView(view, lifetime);
@@ -95,7 +88,7 @@ namespace Menu.Unlocks
                 _entries.RemoveAll(entry => entry.Lifetime == lifetime);
 
                 if (rowObject != null)
-                    Destroy(rowObject);
+                    Object.Destroy(rowObject);
             });
         }
 
