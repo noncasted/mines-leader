@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: c80675be23d7f7c30ae8b8d67bd22d9a
 PrefabImporter:
   externalObjects: {}
-  userData: 
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"Menu\",\n    \"componentType\": \"Menu.Decks.MenuDeckCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"46aabccafb954ad7b2671ce89feb6ee7\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

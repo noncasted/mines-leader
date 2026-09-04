@@ -16,6 +16,15 @@ MonoBehaviour:
   - Name: GameModeEntry
     Prefab: {fileID: 6640460366586368445, guid: b6a7f5b42ffbf95a4be73535aa8515c9, type: 3}
     ComponentType: Menu.Play.MenuPlayGameMode, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuDeckCard
+    Prefab: {fileID: 7207746154654484837, guid: c80675be23d7f7c30ae8b8d67bd22d9a, type: 3}
+    ComponentType: Menu.Decks.MenuDeckCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuDeckIndex
+    Prefab: {fileID: 1884627076154455836, guid: 9df995d040aab6a419ad0e218f91ae61, type: 3}
+    ComponentType: Menu.Decks.MenuDeckIndexButton, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: MenuPoolSpot
+    Prefab: {fileID: 6373264332970362775, guid: 2dd546af83b322941b3a218077251ab0, type: 3}
+    ComponentType: Menu.Decks.MenuDeckPoolSpot, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: MenuProfileCard
     Prefab: {fileID: 6472876225539858506, guid: fefeef39e29a33af5a63b86cf82b19c9, type: 3}
     ComponentType: Menu.Profile.MenuProfileCard, Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

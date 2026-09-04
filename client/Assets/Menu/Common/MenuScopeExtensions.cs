@@ -5,6 +5,8 @@ using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
 using Menu.Decks;
+using Menu.Navigation;
+using Menu.Settings;
 
 namespace Menu.Common
 {
@@ -72,6 +74,13 @@ namespace Menu.Common
             builder.Register<MenuLoop>()
                    .As<IMenuLoop>();
 
+            builder.Register<MenuNavigation>()
+                   .As<IMenuNavigation>()
+                   .As<IScopeSetup>();
+
+            builder.Register<MenuSettings>()
+                   .As<IMenuSettings>();
+            
             builder.Register<MenuCardPreviewPlayer>()
                    .As<IMenuCardPreviewPlayer>();
 

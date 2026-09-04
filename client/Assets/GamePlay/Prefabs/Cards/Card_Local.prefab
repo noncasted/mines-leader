@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7398509035755307158}
-  - component: {fileID: 5022509730473022935}
   - component: {fileID: 5558460372064277824}
+  - component: {fileID: 1622604140980578577}
   m_Layer: 0
   m_Name: View
   m_TagString: Untagged
@@ -35,18 +35,6 @@ Transform:
   - {fileID: 997722825810225465}
   m_Father: {fileID: 3489992034619174887}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5022509730473022935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 464870838408160874}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e61ba7d8d5d54a639f61d3c983706c3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardTransform
 --- !u!114 &5558460372064277824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,6 +54,18 @@ MonoBehaviour:
   _availableDescriptionColor: {r: 0.518, g: 0.263, b: 0.169, a: 1}
   _lockedNameColor: {r: 0.435, g: 0.341, b: 0.275, a: 1}
   _lockedDescriptionColor: {r: 0.227, g: 0.09, b: 0.051, a: 1}
+--- !u!114 &1622604140980578577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464870838408160874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e61ba7d8d5d54a639f61d3c983706c3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardTransform
 --- !u!1 &1571809548522524884
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,6 +915,7 @@ GameObject:
   - component: {fileID: 2960147582565009607}
   - component: {fileID: 8566372423432436414}
   - component: {fileID: 3281365899715077984}
+  - component: {fileID: 5923015788505121212}
   m_Layer: 0
   m_Name: Card_Local
   m_TagString: Untagged
@@ -952,7 +953,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardScope
   parentReference:
     TypeName: 
-  autoRun: 1
+  autoRun: 0
   autoInjectGameObjects: []
 --- !u!114 &2527661011492477406
 MonoBehaviour:
@@ -971,8 +972,9 @@ MonoBehaviour:
   _autoDetected:
   - {fileID: 8566372423432436414}
   - {fileID: 3281365899715077984}
-  - {fileID: 5022509730473022935}
+  - {fileID: 5923015788505121212}
   - {fileID: 5558460372064277824}
+  - {fileID: 1622604140980578577}
   - {fileID: 716203269307082128}
   - {fileID: 2125691106692696257}
   - {fileID: 2438728688072884657}
@@ -1015,6 +1017,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardView
   _scope: {fileID: 5019902290563632992}
+--- !u!114 &5923015788505121212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8380813882818688417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6996fd75de9a3c99980f63ba1e0baf8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardLocalBindings
+  _structureHash: dda4cd9b302264fbe630eb7b3845a4d5
+  _isSceneService: 0
+  _isEntityComponent: 0
+  _transform: {fileID: 3489992034619174887}
+  _cardScope: {fileID: 5019902290563632992}
+  _cardScopeEntity: {fileID: 2527661011492477406}
+  _sortingGroup: {fileID: 2960147582565009607}
+  _cardRenderer: {fileID: 8566372423432436414}
+  _cardView: {fileID: 3281365899715077984}
+  _view:
+    _transform: {fileID: 7398509035755307158}
+    _cardTransform: {fileID: 0}
+    _cardAvailabilityView: {fileID: 5558460372064277824}
+    _body:
+      _transform: {fileID: 3438948126770059707}
+      _spriteRenderer: {fileID: 6531179401695087120}
+      _cardDataView: {fileID: 716203269307082128}
+      _image:
+        _transform: {fileID: 2136714267125951823}
+        _spriteRenderer: {fileID: 857225421706608960}
+      _selectionHighlight:
+        _transform: {fileID: 4776647738622123271}
+        _spriteRenderer: {fileID: 7636224066815896207}
+        _cardSelectionSwitcher: {fileID: 2125691106692696257}
+      _name:
+        _rectTransform: {fileID: 1721763328584719005}
+        _meshRenderer: {fileID: 3500058903090876303}
+        _textMeshPro: {fileID: 832523490803062442}
+        _meshFilter: {fileID: 0}
+      _description:
+        _rectTransform: {fileID: 2754211779984324142}
+        _meshRenderer: {fileID: 9114147764152179572}
+        _textMeshPro: {fileID: 2992509607737957562}
+        _meshFilter: {fileID: 0}
+      _manaCost:
+        _rectTransform: {fileID: 5792207361319961746}
+        _meshRenderer: {fileID: 7389279882966561882}
+        _textMeshPro: {fileID: 748791307638762992}
+        _meshFilter: {fileID: 0}
+    _pointerHandler:
+      _transform: {fileID: 997722825810225465}
+      _boxCollider2D: {fileID: 1821146144050594860}
+      _cardPointerHandler: {fileID: 2438728688072884657}
 --- !u!1 &9178208512234866962
 GameObject:
   m_ObjectHideFlags: 0

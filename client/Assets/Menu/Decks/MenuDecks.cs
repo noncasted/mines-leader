@@ -20,8 +20,6 @@ namespace Menu.Decks
     [DisallowMultipleComponent]
     public class MenuDecks : MonoBehaviour, IMenuDecks, IScopeSetup, ISceneService, IUIStateAsyncEnterHandler
     {
-        [SerializeField] private MenuDeckCard _deckPrefab;
-        [SerializeField] private MenuDeckPoolSpot _poolPrefab;
         [SerializeField] private MenuDeckIndexButton _indexPrefab;
 
         [SerializeField] private RectTransform _deckRoot;
@@ -90,7 +88,7 @@ namespace Menu.Decks
 
             for (var i = 0; i < decksCount; i++)
             {
-                var indexButton = Instantiate(_indexPrefab, _indexRoot);
+                var indexButton = Instantiate(MenuPrefabs.MenuDeckIndex, _indexRoot);
                 indexButton.Setup(i);
                 _indexButtons.Add(indexButton);
 
@@ -110,7 +108,7 @@ namespace Menu.Decks
 
             foreach (var (type, definition) in _cardsRegistry.Entries)
             {
-                var view = Instantiate(_poolPrefab, _poolRoot);
+                var view = Instantiate(MenuPrefabs.MenuPoolSpot, _poolRoot);
                 _viewInjector.Inject(view.Card);
                 view.Setup(definition);
                 _typeToPoolSpot.Add(type, view);
@@ -122,7 +120,7 @@ namespace Menu.Decks
 
             foreach (var cardDefinition in selected.Cards)
             {
-                var view = Instantiate(_deckPrefab, _deckRoot);
+                var view = Instantiate(MenuPrefabs.MenuDeckCard, _deckRoot);
                 _deckCards.Add(view);
                 var poolSpot = _typeToPoolSpot[cardDefinition.Type];
                 poolSpot.ForceMoveToDeck(view);
