@@ -15,7 +15,6 @@ namespace GamePlay.UI
     public class GamePause : IScopeSetup, IGamePause
     {
         public GamePause(
-            IUIStateMachine stateMachine,
             IGameState gameState,
             IGamePauseSettings settings,
             IGamePauseLeave leave,
@@ -23,7 +22,6 @@ namespace GamePlay.UI
             GamePauseMenuBindings bindings)
         {
             _gameState = gameState;
-            _stateMachine = stateMachine;
             _settings = settings;
             _leave = leave;
             _gameContext = gameContext;
@@ -42,7 +40,6 @@ namespace GamePlay.UI
         private readonly Button _leaveButton;
         private readonly GameObject _gameObject;
 
-        private readonly IUIStateMachine _stateMachine;
         private readonly IGameState _gameState;
         private readonly IGamePauseSettings _settings;
         private readonly IGamePauseLeave _leave;
