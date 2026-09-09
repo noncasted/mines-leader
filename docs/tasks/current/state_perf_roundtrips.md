@@ -503,3 +503,49 @@ pg_stat_activity: `transactions-state` idle in transaction 58% (31/53) при BE
 - Изменение протокола транзакций (4b) совместимо только при одновременном деплое console и silo: `TransactionContext` получил поле `[Id(3)] Results`, `TransactionHandlerResult` поле `[Id(2)] Sequence`. Старый console со старым silo продолжает работать через RPC `CollectResult`, смешанные версии не проверялись.
 - Локальные особенности окружения см. «Этап 0»: роль `mslead-root`/БД `mslead` в локальном контейнере, логин консоли по токену, очистка таблиц бенчмарков перед прогоном (`TRUNCATE state_test_*`, `DELETE ... LIKE 'event_bench:%'`).
 - Не сделано / вне задачи: `OnSuccess` остаётся отдельным RPC на участника (по постановке); BEGIN/COMMIT остаются отдельными обращениями; `TestCleanup` для event-стейтов не удаляет снапшоты и события.
+
+## Итоговое сравнение до/после — 2026-09-10
+
+Все группы бенчмарков (Infrastructure, Messaging, State), локально, `synchronous_commit=off`, по одному прогону каждой группы на коммите до правок (`c577e5b8`) и после (`c84413f1`), таблицы бенчмарков очищены перед каждым прогоном. Разброс между прогонами одного кода 5–15%.
+
+| группа | бенчмарк | метрика | до (c577e5b8) | после (c84413f1) | % |
+|---|---|---|---|---|---|
+| Infrastructure | side-effect-dead-letter-throughput | ops/s | 1244.6 | 1241.9 | -0.2% |
+| Infrastructure | side-effect-throughput | ops/s | 1042.3 | 989.0 | -5.1% |
+| Infrastructure | task-balancer-concurrency | ops/s | 1995.6 | 2007.6 | +0.6% |
+| Infrastructure | task-balancer-exception-penalty | ops/s | 1002.2 | 1006.6 | +0.4% |
+| Infrastructure | task-balancer-priority | ops/s | 1999.6 | 2013.7 | +0.7% |
+| Infrastructure | task-queue-collect | ops/s | 423369.1 | 431901.8 | +2.0% |
+| Infrastructure | task-queue-deduplication | ops/s | 1771185.5 | 2053006.2 | +15.9% |
+| Infrastructure | task-queue-delay | ops/s | 550617.0 | 546878.1 | -0.7% |
+| Messaging | Broadcast throughput | msg/s | 22187.2 | 19529.2 | -12.0% |
+| Messaging | Catch-up stress (disconnect/reconnect) | msg/s | 2220.5 | 2164.7 | -2.5% |
+| Messaging | Delivery throughput | msg/s | 977.6 | 977.5 | -0.0% |
+| Messaging | Delivery timeout (slow observers) | msg/s | 1871.6 | 1868.9 | -0.1% |
+| Messaging | Direct push throughput | msg/s | 975.0 | 972.1 | -0.3% |
+| Messaging | Distributed send throughput | msg/s | 22881.0 | 23252.2 | +1.6% |
+| Messaging | Request-response throughput | msg/s | 29711.0 | 32803.4 | +10.4% |
+| Messaging | Retry stress (intermittent failures) | req/s | 19756.1 | 18202.4 | -7.9% |
+| Messaging | StateCollection update throughput | update/s | 981.4 | 982.2 | +0.1% |
+| Messaging | Transactional push throughput | msg/s | 974.3 | 966.8 | -0.8% |
+| State | event-state | ops/s | 5288.5 | 6221.2 | +17.6% |
+| State | event-state-transaction | ops/s | 1983.3 | 2365.0 | +19.2% |
+| State | event-state-transaction-chained | ops/s | 917.3 | 1153.0 | +25.7% |
+| State | event-state-transaction-concurrent | ops/s | 248.6 | 242.7 | -2.4% |
+| State | event-storage | ops/s | 5585.2 | 6216.9 | +11.3% |
+| State | state | ops/s | 11382.1 | 14336.3 | +26.0% |
+| State | state-migration-concurrent | ops/s | 8249.3 | 9174.0 | +11.2% |
+| State | state-warm | ops/s | – | 24640.9 | – |
+| State | transactions-concurrent-value | ops/s | 1735.0 | 2232.7 | +28.7% |
+| State | transactions-cross-path-read | ops/s | 3585.7 | 4081.8 | +13.8% |
+| State | transactions-large-batch | ops/s | 507.5 | 463.7 | -8.6% |
+| State | transactions-single-chain | ops/s | 1551.0 | 2087.6 | +34.6% |
+| State | transactions-single-target | ops/s | 703.3 | 851.0 | +21.0% |
+| State | transactions-state | ops/s | 3903.4 | 4426.3 | +13.4% |
+| State | transactions-state-chained | ops/s | 1939.9 | 2076.6 | +7.0% |
+| State | transactions-state-chained-fail | ops/s | 955.2 | 1125.5 | +17.8% |
+| State | transactions-state-overlapping | ops/s | 1016.1 | 1125.9 | +10.8% |
+| State | transactions-state-value | ops/s | 8429.7 | 7006.1 | -16.9% |
+| State | transactions-state-warm | ops/s | – | 4529.5 | – |
+
+Перепроверка выбросов на новом коде (по два повтора, sync=off): `transactions-large-batch` 612 / 588 (в таблице 464, до правок 508), `transactions-state-value` 9435 / 9349 (в таблице 7006, до правок 8430), `Broadcast throughput` 20896 / 22914 (в таблице 19529, до правок 22187, код Messaging не менялся). Все три значения в таблице это разовые просадки внутри группового прогона, а не регрессии.
