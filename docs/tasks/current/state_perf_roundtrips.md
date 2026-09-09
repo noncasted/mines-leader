@@ -549,3 +549,119 @@ pg_stat_activity: `transactions-state` idle in transaction 58% (31/53) при BE
 | State | transactions-state-warm | ops/s | – | 4529.5 | – |
 
 Перепроверка выбросов на новом коде (по два повтора, sync=off): `transactions-large-batch` 612 / 588 (в таблице 464, до правок 508), `transactions-state-value` 9435 / 9349 (в таблице 7006, до правок 8430), `Broadcast throughput` 20896 / 22914 (в таблице 19529, до правок 22187, код Messaging не менялся). Все три значения в таблице это разовые просадки внутри группового прогона, а не регрессии.
+
+## Orleans 10.2.2 → 10.3.1 — 2026-09-10
+
+Тот же код (`c84413f1`), только версия Orleans. Все группы, sync=off, чистые таблицы. Колонки: до правок (`c577e5b8`, 10.2.2), после правок (10.2.2), после правок на 10.3.1, последняя колонка это 10.3.1 к 10.2.2 на одном коде.
+
+| группа | бенчмарк | до правок | после (10.2.2) | Orleans 10.3.1 | 10.3.1 к 10.2.2 |
+|---|---|---|---|---|---|
+| Infrastructure | side-effect-dead-letter-throughput | 1244.6 | 1241.9 | 1238.5 | -0.3% |
+| Infrastructure | side-effect-throughput | 1042.3 | 989.0 | 1039.8 | +5.1% |
+| Infrastructure | task-balancer-concurrency | 1995.6 | 2007.6 | 2030.7 | +1.1% |
+| Infrastructure | task-balancer-exception-penalty | 1002.2 | 1006.6 | 1016.6 | +1.0% |
+| Infrastructure | task-balancer-priority | 1999.6 | 2013.7 | 2007.5 | -0.3% |
+| Infrastructure | task-queue-collect | 423369.1 | 431901.8 | 424094.0 | -1.8% |
+| Infrastructure | task-queue-deduplication | 1771185.5 | 2053006.2 | 1909329.0 | -7.0% |
+| Infrastructure | task-queue-delay | 550617.0 | 546878.1 | 536448.7 | -1.9% |
+| Messaging | Broadcast throughput | 22187.2 | 19529.2 | 22012.8 | +12.7% |
+| Messaging | Catch-up stress (disconnect/reconnect) | 2220.5 | 2164.7 | 2210.4 | +2.1% |
+| Messaging | Delivery throughput | 977.6 | 977.5 | 978.6 | +0.1% |
+| Messaging | Delivery timeout (slow observers) | 1871.6 | 1868.9 | 1862.3 | -0.4% |
+| Messaging | Direct push throughput | 975.0 | 972.1 | 972.7 | +0.1% |
+| Messaging | Distributed send throughput | 22881.0 | 23252.2 | 23203.7 | -0.2% |
+| Messaging | Request-response throughput | 29711.0 | 32803.4 | 28541.8 | -13.0% |
+| Messaging | Retry stress (intermittent failures) | 19756.1 | 18202.4 | 7777.2 | -57.3% |
+| Messaging | StateCollection update throughput | 981.4 | 982.2 | 979.0 | -0.3% |
+| Messaging | Transactional push throughput | 974.3 | 966.8 | 976.0 | +1.0% |
+| State | event-state | 5288.5 | 6221.2 | 5107.0 | -17.9% |
+| State | event-state-transaction | 1983.3 | 2365.0 | 2037.3 | -13.9% |
+| State | event-state-transaction-chained | 917.3 | 1153.0 | 975.8 | -15.4% |
+| State | event-state-transaction-concurrent | 248.6 | 242.7 | 242.6 | -0.0% |
+| State | event-storage | 5585.2 | 6216.9 | 5303.4 | -14.7% |
+| State | state | 11382.1 | 14336.3 | 10429.6 | -27.3% |
+| State | state-migration-concurrent | 8249.3 | 9174.0 | 6629.5 | -27.7% |
+| State | state-warm | – | 24640.9 | 21725.6 | -11.8% |
+| State | transactions-concurrent-value | 1735.0 | 2232.7 | 2008.6 | -10.0% |
+| State | transactions-cross-path-read | 3585.7 | 4081.8 | 3417.5 | -16.3% |
+| State | transactions-large-batch | 507.5 | 463.7 | 473.5 | +2.1% |
+| State | transactions-single-chain | 1551.0 | 2087.6 | 1742.1 | -16.6% |
+| State | transactions-single-target | 703.3 | 851.0 | 811.4 | -4.7% |
+| State | transactions-state | 3903.4 | 4426.3 | 4035.8 | -8.8% |
+| State | transactions-state-chained | 1939.9 | 2076.6 | 1554.4 | -25.1% |
+| State | transactions-state-chained-fail | 955.2 | 1125.5 | 961.4 | -14.6% |
+| State | transactions-state-overlapping | 1016.1 | 1125.9 | 1052.3 | -6.5% |
+| State | transactions-state-value | 8429.7 | 7006.1 | 8289.2 | +18.3% |
+| State | transactions-state-warm | – | 4529.5 | 4219.6 | -6.8% |
+
+Повторы на 10.3.1 (группа State второй раз и одиночные прогоны):
+
+| бенчмарк | 10.2.2 (группа) | 10.3.1 группа 1 | 10.3.1 группа 2 | 10.3.1 одиночные ×3 |
+|---|---|---|---|---|
+| state | 14336 | 10430 | 11297 | 11585 / 11460 / 11343 |
+| state-warm | 24641 | 21726 | 24061 | 24463 / 24922 / 24751 |
+| state-migration-concurrent | 9174 | 6630 | 7525 | – |
+| event-state | 6221 | 5107 | 5742 | – |
+| event-state-transaction | 2365 | 2037 | 1916 | – |
+| transactions-state | 4426 | 4036 | 4044 | 2714 / 2746 / 2738 (одиночный прогон этого бенчмарка всегда ниже группового, и на 10.2.2 тоже: 2847–3273) |
+| transactions-state-warm | 4530 | 4220 | 4395 | – |
+| Retry stress (Messaging) | 18202 | 7777 | – | 17767 / 22727 |
+
+Вывод: на 10.3.1 устойчиво (-18…-21% в трёх и более прогонах) просели бенчмарки, которые активируют новый грейн на каждую операцию (`state`, `state-migration-concurrent`, `event-state`, `event-state-transaction`), а `state-warm`/`transactions-state-warm` на прогретых грейнах не изменились. По разнице `state` и `state-warm` стоимость активации выросла с ~0.29 мс до ~0.47 мс на операцию при Concurrent=10. `Retry stress` -57% в первом прогоне не воспроизвёлся (повторы 17767 / 22727). Ошибок и предупреждений в логах silo/console за время прогонов нет.
+
+
+## Orleans 10.3.1: причина просадки и фикс — 2026-09-10
+
+**Причина.** Orleans 10.3.0 (PR dotnet/orleans#9819) оборачивает placement каждого нового грейна в Polly-пайплайн (`OrleansRuntimeResiliencePolicies`, internal, выключить нельзя). Телеметрия Polly.Extensions пишет на каждую активацию два лога уровня Information: «Resilience pipeline executed» и «Execution attempt». В silo логи идут в файл с AutoFlush, консоль и OTLP, поэтому каждая активация дорожала на ~0.18 мс. В `.telemetry/logs/silo.log` за ночь набралось 1.5 млн строк `[Polly]`.
+
+Сама активация не подорожала: отдельный микробенчмарк (silo без логов, 10.2.2 / 10.3.0 / 10.3.1) показывает 10–15 мкс на новую активацию на всех версиях. Изменения 10.3 в directory (cancellation tokens в `DistributedGrainDirectory`, lock в `CachedVersionSelectorManager`, сам Polly-пайплайн) стоят единицы микросекунд. Upstream issue про шум Polly-логов на момент проверки нет.
+
+**Фикс.** `builder.Logging.AddFilter("Polly", LogLevel.Warning)` в `OrleansSetupExtensions.ConfigureSilo`. После фикса за прогон всех групп в лог попало 10 строк Polly вместо ~130k.
+
+Прогон всех групп на чистых таблицах, sync=off, код `c84413f1` + фильтр:
+
+| группа | бенчмарк | метрика | 10.2.2 | 10.3.1 | 10.3.1 + фильтр Polly | фильтр vs 10.2.2 |
+|---|---|---|---|---|---|---|
+| Infrastructure | side-effect-dead-letter-throughput | ops/s | 1242 | 1238 | 1241 | -0% |
+| Infrastructure | side-effect-throughput | ops/s | 989 | 1040 | 988 | -0% |
+| Infrastructure | task-balancer-concurrency | ops/s | 2008 | 2031 | 1991 | -1% |
+| Infrastructure | task-balancer-exception-penalty | ops/s | 1007 | 1017 | 990 | -2% |
+| Infrastructure | task-balancer-priority | ops/s | 2014 | 2007 | 1986 | -1% |
+| Infrastructure | task-queue-collect | ops/s | 431902 | 424094 | 432175 | +0% |
+| Infrastructure | task-queue-deduplication | ops/s | 2053006 | 1909329 | 2033400 | -1% |
+| Infrastructure | task-queue-delay | ops/s | 546878 | 536449 | 536648 | -2% |
+| Messaging | Delivery throughput | msg/s | 978 | 979 | 978 | +0% |
+| Messaging | Direct push throughput | msg/s | 972 | 973 | 978 | +1% |
+| Messaging | Transactional push throughput | msg/s | 967 | 976 | 976 | +1% |
+| Messaging | Catch-up stress (disconnect/reconnect) | msg/s | 2165 | 2210 | 2230 | +3% |
+| Messaging | Delivery timeout (slow observers) | msg/s | 1869 | 1862 | 1874 | +0% |
+| Messaging | Distributed send throughput | msg/s | 23252 | 23204 | 22448 | -3% |
+| Messaging | Broadcast throughput | msg/s | 19529 | 22013 | 20105 | +3% |
+| Messaging | Retry stress (intermittent failures) | req/s | 18202 | 7777 | 11059 | -39% |
+| Messaging | Request-response throughput | msg/s | 32803 | 28542 | 31398 | -4% |
+| Messaging | StateCollection update throughput | update/s | 982 | 979 | 982 | -0% |
+| State | event-state | ops/s | 6221 | 5107 | 6045 | -3% |
+| State | event-state-transaction-chained | ops/s | 1153 | 976 | 1080 | -6% |
+| State | event-state-transaction-concurrent | ops/s | 243 | 243 | 257 | +6% |
+| State | event-state-transaction | ops/s | 2365 | 2037 | 2266 | -4% |
+| State | event-storage | ops/s | 6217 | 5303 | 6143 | -1% |
+| State | state-migration-concurrent | ops/s | 9174 | 6629 | 9057 | -1% |
+| State | state | ops/s | 14336 | 10430 | 13887 | -3% |
+| State | state-warm | ops/s | 24641 | 21726 | 24074 | -2% |
+| State | transactions-concurrent-value | ops/s | 2233 | 2009 | 2152 | -4% |
+| State | transactions-cross-path-read | ops/s | 4082 | 3418 | 3712 | -9% |
+| State | transactions-large-batch | ops/s | 464 | 473 | 548 | +18% |
+| State | transactions-single-target | ops/s | 851 | 811 | 880 | +3% |
+| State | transactions-single-chain | ops/s | 2088 | 1742 | 1802 | -14% |
+| State | transactions-state-chained-fail | ops/s | 1126 | 961 | 1013 | -10% |
+| State | transactions-state-chained | ops/s | 2077 | 1554 | 1881 | -9% |
+| State | transactions-state-overlapping | ops/s | 1126 | 1052 | 1013 | -10% |
+| State | transactions-state | ops/s | 4426 | 4036 | 4143 | -6% |
+| State | transactions-state-value | ops/s | 7006 | 8289 | 9100 | +30% |
+| State | transactions-state-warm | ops/s | 4529 | 4220 | 4023 | -11% |
+
+Повторы одиночных бенчмарков после фикса на чистых таблицах: `state` 12296, `transactions-single-chain` 1809, `transactions-state-chained` 1949, `transactions-cross-path-read` 3524, `transactions-state-warm` 4036, `Retry stress` 9791 / 27005.
+
+**Вывод.** Холодные бенчмарки (`state`, `state-migration-concurrent`, `event-state`, `event-storage`) вернулись к уровню 10.2.2 в пределах шума. Транзакционные бенчмарки в этом прогоне на 6–14% ниже 10.2.2, что укладывается в наблюдаемый разброс между прогонами (5–15%), но полностью остаточное влияние 10.3 не исключено; `Retry stress` колеблется от 7.7k до 27k и для сравнения непригоден. Окончательную оценку даст прод-прогон после мержа.
+
+Заметка: вместе с Orleans в `Directory.Packages.props` обновились Marten 9.29→9.33, Http.Resilience/ServiceDiscovery 10.9→10.10 и другие пакеты; на путь `state` они не влияют (DirectStorage работает через собственный `NpgsqlDataSource`, Npgsql 10.0.3 не менялся).

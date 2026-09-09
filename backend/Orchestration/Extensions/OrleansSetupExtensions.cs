@@ -2,6 +2,7 @@
 using Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
 
 namespace Orchestration;
@@ -50,6 +51,11 @@ public static class OrleansSetupExtensions
         public IHostApplicationBuilder ConfigureSilo()
         {
             var configuration = builder.Configuration;
+
+            // Orleans 10.3 wraps grain placement in a Polly pipeline whose telemetry logs two Information
+            // records per new activation ("Resilience pipeline executed", "Execution attempt"). With file,
+            // console and OTLP log providers this costs ~0.2 ms per activation, so keep only warnings.
+            builder.Logging.AddFilter("Polly", LogLevel.Warning);
 
             builder.UseOrleans(siloBuilder => {
                 var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres).ThrowIfNull();
