@@ -47,6 +47,20 @@ public static class StateStorageExtensions
 
         public Task Write(NpgsqlTransaction transaction, IReadOnlyList<GrainStateRecord> records)
         {
+            return storage.Write(new StateWriteRequest
+            {
+                Records = storage.ToIdentityMap(records),
+                Transaction = transaction
+            });
+        }
+
+        public IReadOnlyList<NpgsqlBatchCommand> BuildWriteCommands(IReadOnlyList<GrainStateRecord> records)
+        {
+            return storage.BuildWriteCommands(storage.ToIdentityMap(records));
+        }
+
+        private Dictionary<StateIdentity, IStateValue> ToIdentityMap(IReadOnlyList<GrainStateRecord> records)
+        {
             var identityToRecord = new Dictionary<StateIdentity, IStateValue>();
 
             foreach (var record in records)
@@ -57,11 +71,7 @@ public static class StateStorageExtensions
                 identityToRecord.Add(identity, record.Value);
             }
 
-            return storage.Write(new StateWriteRequest
-            {
-                Records = identityToRecord,
-                Transaction = transaction
-            });
+            return identityToRecord;
         }
 
         public Task Delete(StateIdentity identity)

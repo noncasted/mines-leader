@@ -44,7 +44,7 @@ public class TransactionStateOverlappingTest
 
             async Task Process(int chainLength)
             {
-                var ids = TestParticipants.Create(_orleans, chainLength);
+                var ids = TestParticipants.Create(_orleans, chainLength).Track<TransactionTestState>(Cleanup);
 
                 var taskA = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
                 var taskB = _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));

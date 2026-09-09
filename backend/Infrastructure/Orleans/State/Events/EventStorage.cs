@@ -23,6 +23,12 @@ public class GrainEventRecord
 public interface IEventStorage
 {
     Task<T> Read<T>(string streamId) where T : class, IEventStateValue, new();
+
+    // Explicit aggregation over mt_events, bypassing the inline snapshot. Not on the hot path:
+    // the snapshot is an inline projection updated in the same transaction as every Append,
+    // so Read trusts it. Use Rebuild only when the snapshot may be stale (manual DB recovery).
+    Task<T> Rebuild<T>(string streamId) where T : class, IEventStateValue, new();
+
     Task Append(string streamId, params object[] events);
     Task Write(DbTransaction transaction, IReadOnlyList<GrainEventRecord> records);
     Task Delete(string streamId);
@@ -65,17 +71,28 @@ public class EventStorage : IEventStorage
     {
         await using var session = _store.QuerySession();
 
+        // Snapshot is an inline projection (see MartenSetupExtensions): missing snapshot = missing stream,
+        // so no second round trip to aggregate mt_events for a new stream.
         var aggregate = await TryLoadAsync<T>(session, streamId);
+
         if (aggregate == null)
-            aggregate = await session.Events.AggregateStreamAsync<T>(streamId);
+            return new T();
 
-        if (aggregate != null)
-        {
-            SetIdFromStream(aggregate, streamId);
-            return aggregate;
-        }
+        SetIdFromStream(aggregate, streamId);
+        return aggregate;
+    }
 
-		return new T();
+    public async Task<T> Rebuild<T>(string streamId) where T : class, IEventStateValue, new()
+    {
+        await using var session = _store.QuerySession();
+
+        var aggregate = await session.Events.AggregateStreamAsync<T>(streamId);
+
+        if (aggregate == null)
+            return new T();
+
+        SetIdFromStream(aggregate, streamId);
+        return aggregate;
     }
 
     public async Task Append(string streamId, params object[] events)
@@ -163,18 +180,17 @@ public class EventStorage : IEventStorage
 
         await using var session = _store.QuerySession();
 
-        foreach (var streamId in streamIds)
-        {
-            var aggregate = await TryLoadAsync<TValue>(session, streamId);
-            if (aggregate == null)
-                aggregate = await session.Events.AggregateStreamAsync<TValue>(streamId);
+        // One query for all snapshots. Missing snapshot = missing stream (same rule as Read).
+        var aggregates = await session.LoadManyAsync<TValue>(streamIds);
 
-            if (aggregate != null)
-            {
-                SetIdFromStream(aggregate, streamId);
-                var key = ParseStreamKey<TKey>(streamId);
-                result[key] = aggregate;
-            }
+        foreach (var aggregate in aggregates)
+        {
+            if (aggregate is not IEventStateValue esv)
+                continue;
+
+            var streamId = esv.Id;
+            SetIdFromStream(aggregate, streamId);
+            result[ParseStreamKey<TKey>(streamId)] = aggregate;
         }
 
         return result;

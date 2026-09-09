@@ -12,6 +12,10 @@ public class TransactionHandlerResult
 
     [Id(1)]
     public required List<GrainEventRecord> Events { get; init; }
+
+    // Monotonic per handler: a later CollectResult on the same participant has a bigger Sequence.
+    [Id(2)]
+    public long Sequence { get; init; }
 }
 
 public interface IGrainTransactionHandler : IGrainExtension
@@ -78,6 +82,8 @@ public class GrainTransactionHandler : IGrainTransactionHandler
     // Refreshed on every Join() call (including idempotent re-joins).
     // Used to detect stuck transactions eligible for takeover.
     private DateTime _currentTransactionTime;
+
+    private long _resultSequence;
 
     private readonly HashSet<IGrainStateTransactionParticipant> _states = new();
     private readonly HashSet<IGrainEventTransactionParticipant> _events = new();
@@ -213,7 +219,8 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         return Task.FromResult(new TransactionHandlerResult
         {
             States = states,
-            Events = _eventRecords
+            Events = _eventRecords.ToList(),
+            Sequence = ++_resultSequence
         });
     }
 

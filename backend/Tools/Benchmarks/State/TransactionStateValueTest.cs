@@ -43,6 +43,7 @@ public class TransactionStateValueTest
             {
                 var id = Guid.NewGuid();
                 var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+                Cleanup.Track<TransactionTestState>(id);
 
                 var result = await _transactions.Run(() => grain.Increment());
 

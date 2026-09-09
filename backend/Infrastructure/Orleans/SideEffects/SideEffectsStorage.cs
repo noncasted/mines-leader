@@ -38,6 +38,9 @@ public interface ISideEffectsStorage
     // Write new side effects into side_effects_queue (called within Transactions.Process() pgTransaction)
     Task Write(NpgsqlTransaction transaction, IReadOnlyList<ISideEffect> effects);
 
+    // Same insert as Write(transaction, effects) but not executed: Transactions.Process puts it into one batch.
+    NpgsqlBatchCommand BuildWriteCommand(IReadOnlyList<ISideEffect> effects);
+
     // Atomically move up to `count` oldest entries from queue → processing. Returns them.
     Task<IReadOnlyList<SideEffectEntry>> Read(int count);
 
@@ -122,9 +125,14 @@ public class SideEffectsStorage : ISideEffectsStorage
         if (effects.Count == 0)
             return;
 
-        await using var command = transaction.Connection!.CreateCommand();
-        command.Transaction = transaction;
+        await using var batch = new NpgsqlBatch(transaction.Connection!, transaction);
+        batch.BatchCommands.Add(BuildWriteCommand(effects));
+        await batch.ExecuteNonQueryAsync();
+    }
 
+    public NpgsqlBatchCommand BuildWriteCommand(IReadOnlyList<ISideEffect> effects)
+    {
+        var command = new NpgsqlBatchCommand();
         var values = new List<string>(effects.Count);
 
         for (var i = 0; i < effects.Count; i++)
@@ -146,7 +154,7 @@ public class SideEffectsStorage : ISideEffectsStorage
             VALUES {string.Join(", ", values)}
         ";
 
-        await command.ExecuteNonQueryAsync();
+        return command;
     }
 
     // Atomically move oldest `count` entries from queue to processing and return them.

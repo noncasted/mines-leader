@@ -8,8 +8,8 @@ MODE="${1:-group}"
 TARGET="${2:-Messaging}"
 
 if [ "$MODE" = "group" ]; then
-  curl -s "http://localhost:5000/api/benchmarks/group/${TARGET}/history"
+  curl -s "${CONSOLE_URL:-http://localhost:7103}/api/benchmarks/group/${TARGET}/history"
 elif [ "$MODE" = "single" ]; then
   ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${TARGET}'))")
-  curl -s "http://localhost:5000/api/benchmarks/${ENCODED}/history"
+  curl -s "${CONSOLE_URL:-http://localhost:7103}/api/benchmarks/${ENCODED}/history"
 fi

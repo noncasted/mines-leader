@@ -46,6 +46,7 @@ public class TransactionConcurrentValueTest
             {
                 var id = Guid.NewGuid();
                 var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+                Cleanup.Track<TransactionTestState>(id);
 
                 var tasks = new List<Task<TransactionResult>>();
 

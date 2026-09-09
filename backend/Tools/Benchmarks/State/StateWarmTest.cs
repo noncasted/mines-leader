@@ -4,7 +4,9 @@ using Infrastructure;
 
 namespace Benchmarks;
 
-public class TransactionStateTest
+// Same operation as `state`, but on a fixed set of already activated grains:
+// measures the state read/write path without Orleans activation cost per iteration.
+public class StateWarmTest
 {
     [GenerateSerializer]
     [method: SetsRequiredMembers]
@@ -14,26 +16,38 @@ public class TransactionStateTest
         public int Iterations { get; set; } = 3300;
 
         [Id(1)]
-        public int Concurrent { get; set; } = 3;
+        public int Concurrent { get; set; } = 10;
+
+        [Id(2)]
+        public int GrainCount { get; set; } = 100;
     }
 
     public class Root : BenchmarkRoot<StartPayload>
     {
-        public Root(ClusterTestUtils utils, IOrleans orleans, ITransactions transactions) : base(utils)
+        public Root(ClusterTestUtils utils, IOrleans orleans) : base(utils)
         {
             _orleans = orleans;
-            _transactions = transactions;
         }
 
         private readonly IOrleans _orleans;
-        private readonly ITransactions _transactions;
 
         public override string Group => TestGroups.State;
-        public override string Title => "transactions-state";
+        public override string Title => "state-warm";
         public override string MetricName => "ops/s";
 
         protected override async Task Run(BenchmarkNodeHandle handle, StartPayload payload)
         {
+            var keys = new string[payload.GrainCount];
+
+            for (var i = 0; i < keys.Length; i++)
+            {
+                keys[i] = Guid.NewGuid().ToString();
+                Cleanup.Track<StateTest.TestState>(keys[i]);
+                await _orleans.GetGrain<StateTest.IGrain>(keys[i]).Test();
+            }
+
+            var next = -1;
+
             handle.Progress.SetStatus(OperationStatus.InProgress);
             await handle.RunConcurrentIterations(payload, Process);
 
@@ -41,13 +55,8 @@ public class TransactionStateTest
 
             async Task Process()
             {
-                var id = Guid.NewGuid();
-                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
-                var result = await _transactions.Run(() => grain.Increment());
-                Cleanup.Track<TransactionTestState>(id);
-
-                if (!result.IsSuccess)
-                    throw new Exception("Transaction failed");
+                var key = keys[(int)((uint)Interlocked.Increment(ref next) % (uint)keys.Length)];
+                await _orleans.GetGrain<StateTest.IGrain>(key).Test();
 
                 handle.Metrics.Inc();
             }

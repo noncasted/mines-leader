@@ -35,8 +35,13 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
 
     async Task IOutgoingGrainCallFilter.Invoke(IOutgoingGrainCallContext context)
     {
-        if (Context == null)
-            Context = TransactionContextProvider.Current;
+        var currentContext = Context ?? TransactionContextProvider.Current;
+
+        // The target only needs the transaction id: it registers its own participant, side effects and
+        // snapshot into the context it receives and sends that back. Sending the caller's accumulated
+        // participants/snapshots would grow every request with the number of grains already visited.
+        if (currentContext != null && Context == null)
+            Context = new TransactionContext { Id = currentContext.Id };
 
         try
         {
@@ -49,13 +54,16 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         {
             if (context.Response is TransactionResponse response)
             {
-                var currentContext = Context.ThrowIfNull();
+                var target = currentContext.ThrowIfNull();
 
                 foreach (var (id, participants) in response.Context.Participants)
-                    currentContext.Participants.TryAdd(id, participants);
+                    target.Participants.TryAdd(id, participants);
 
                 foreach (var (id, sideEffect) in response.Context.SideEffects)
-                    currentContext.SideEffects.TryAdd(id, sideEffect);
+                    target.SideEffects.TryAdd(id, sideEffect);
+
+                foreach (var (id, result) in response.Context.Results)
+                    target.AddResult(id, result);
 
                 if (response.GetException() is { } exception)
                 {
@@ -70,11 +78,15 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
         if (Context == null)
             return Response.FromException(new Exception("TransactionContext is required for TransactionRequestBase."));
 
+        IGrainTransactionHandler handler;
+        Guid participantId;
+
         try
         {
             TransactionContextProvider.SetCurrent(Context);
             var castedTarget = Target.AsReference<IGrainTransactionHandler>();
-            var participantId = await castedTarget.Join(Context.Id);
+            handler = ResolveHandler(castedTarget);
+            participantId = await handler.Join(Context.Id);
             Context.Participants.TryAdd(participantId, castedTarget);
         }
         catch (Exception e)
@@ -89,6 +101,8 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
 
             if (response.Exception != null)
                 Context.ExceptionMessage = response.Exception.Message;
+            else
+                Context.AddResult(participantId, await handler.CollectResult(Context.Id));
 
             return TransactionResponse.Create(response, Context);
         }
@@ -104,6 +118,19 @@ public abstract class TransactionRequestBase : RequestBase, IOutgoingGrainCallFi
     }
 
     protected abstract ValueTask<Response> BaseInvoke();
+
+    // Invoke already runs inside the target activation, so Join and CollectResult are in-memory calls
+    // on the grain's IGrainTransactionHandler extension instead of separate RPCs to the same grain.
+    // The handler's [AlwaysInterleave] OnSuccess/OnFailure of a previous transaction can still run
+    // while Join waits for the lock, exactly as when Join arrived as a message.
+    // Falls back to the reference when the target is not a grain (should not happen for [Transaction] methods).
+    private IGrainTransactionHandler ResolveHandler(IGrainTransactionHandler reference)
+    {
+        if (GetTarget() is IGrainBase grain)
+            return grain.GrainContext.GetGrainExtension<IGrainTransactionHandler>();
+
+        return reference;
+    }
 
     void IOnDeserialized.OnDeserialized(DeserializationContext context)
     {

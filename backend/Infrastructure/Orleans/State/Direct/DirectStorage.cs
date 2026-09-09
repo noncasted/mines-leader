@@ -170,26 +170,14 @@ public class DirectStorage
 
         var records = request.Records;
 
-        if (request.Transaction != null)
-        {
-            await WriteBatch(request.Transaction, records);
-            BackendMetrics.StateWriteTotal.Add(1);
-            BackendMetrics.StateWriteBatchSize.Record(records.Count);
-            return;
-        }
-
-        await using var connection = await _dbSource.Value.OpenConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
-
         try
         {
-            await WriteBatch(transaction, records);
-            await transaction.CommitAsync();
+            var commands = BuildWriteCommands(records);
+            await Execute(request.Transaction, commands);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[DirectStorage] Failed to write {Count} records", records.Count);
-            await transaction.RollbackAsync();
             throw;
         }
         finally
@@ -199,84 +187,190 @@ public class DirectStorage
         }
     }
 
-	public async Task Delete(StateDeleteRequest request)
-	{
-		var identities = request.Identities;
+    public async Task Delete(StateDeleteRequest request)
+    {
+        var identities = request.Identities;
 
-		if (identities.Count == 0)
-			return;
+        if (identities.Count == 0)
+            return;
 
-		using var watch = MetricWatch.Start(BackendMetrics.StateDeleteDuration);
+        using var watch = MetricWatch.Start(BackendMetrics.StateDeleteDuration);
 
-		try
-		{
-			if (request.Transaction != null)
-			{
-				await DeleteBatch(request.Transaction, identities);
-			}
-			else
-			{
-				await using var connection = await _dbSource.Value.OpenConnectionAsync();
-				await using var transaction = await connection.BeginTransactionAsync();
-				await DeleteBatch(transaction, identities);
-				await transaction.CommitAsync();
-			}
-		}
-		catch (Exception e)
-		{
-			_logger.LogError(e, "[DirectStorage] Failed to delete {Count} records", identities.Count);
-			throw;
-		}
-		finally
-		{
-			BackendMetrics.StateDeleteTotal.Add(1);
-		}
-	}
+        try
+        {
+            var commands = BuildDeleteCommands(identities);
+            await Execute(request.Transaction, commands);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[DirectStorage] Failed to delete {Count} records", identities.Count);
+            throw;
+        }
+        finally
+        {
+            BackendMetrics.StateDeleteTotal.Add(1);
+        }
+    }
 
-	private static async Task DeleteBatch(NpgsqlTransaction transaction, IReadOnlyList<StateIdentity> identities)
-	{
-		var groups = new Dictionary<(string TableName, bool HasExtension), List<StateIdentity>>();
+    // One command per (table, extension) group. A single INSERT ... ON CONFLICT is atomic on its own,
+    // so a single command runs without BEGIN/COMMIT (one round trip instead of three).
+    // Several commands (several tables) still need an explicit transaction for cross-table atomicity.
+    private async Task Execute(NpgsqlTransaction? transaction, IReadOnlyList<NpgsqlBatchCommand> commands)
+    {
+        if (commands.Count == 0)
+            return;
 
-		foreach (var identity in identities)
-		{
-			var key = (identity.TableName, identity.Extension != null);
+        if (transaction != null)
+        {
+            await ExecuteBatch(transaction.Connection!, transaction, commands);
+            return;
+        }
 
-			if (!groups.TryGetValue(key, out var list))
-			{
-				list = new List<StateIdentity>();
-				groups[key] = list;
-			}
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
 
-			list.Add(identity);
-		}
+        if (commands.Count == 1)
+        {
+            await ExecuteBatch(connection, null, commands);
+            return;
+        }
 
-		foreach (var ((tableName, hasExtension), entries) in groups)
-		{
-			await using var command = transaction.Connection!.CreateCommand();
-			command.Transaction = transaction;
+        await using var localTransaction = await connection.BeginTransactionAsync();
 
-			var conditions = new List<string>(entries.Count);
+        try
+        {
+            await ExecuteBatch(connection, localTransaction, commands);
+            await localTransaction.CommitAsync();
+        }
+        catch
+        {
+            await localTransaction.RollbackAsync();
+            throw;
+        }
+    }
 
-			for (var i = 0; i < entries.Count; i++)
-			{
-				command.Parameters.AddWithValue($"key{i}", entries[i].Key);
-				command.Parameters.AddWithValue($"type{i}", entries[i].Type);
+    private static async Task ExecuteBatch(
+        NpgsqlConnection connection,
+        NpgsqlTransaction? transaction,
+        IReadOnlyList<NpgsqlBatchCommand> commands)
+    {
+        await using var batch = new NpgsqlBatch(connection, transaction);
 
-				if (hasExtension)
-				{
-					command.Parameters.AddWithValue($"ext{i}", entries[i].Extension!);
-					conditions.Add($"(key = @key{i} AND type = @type{i} AND extension = @ext{i})");
-				}
-				else
-				{
-					conditions.Add($"(key = @key{i} AND type = @type{i})");
-				}
-			}
+        foreach (var command in commands)
+            batch.BatchCommands.Add(command);
 
-			command.CommandText = $"DELETE FROM {tableName} WHERE {string.Join(" OR ", conditions)}";
-			await command.ExecuteNonQueryAsync();
-		}
-	}
+        await batch.ExecuteNonQueryAsync();
+    }
+
+    public IReadOnlyList<NpgsqlBatchCommand> BuildWriteCommands(IReadOnlyDictionary<StateIdentity, IStateValue> records)
+    {
+        var groups =
+            new Dictionary<(string TableName, bool HasExtension), List<(StateIdentity Identity, IStateValue Value)>>();
+
+        foreach (var (identity, value) in records)
+        {
+            var key = (identity.TableName, identity.Extension != null);
+
+            if (groups.TryGetValue(key, out var list) == false)
+            {
+                list = new List<(StateIdentity, IStateValue)>();
+                groups[key] = list;
+            }
+
+            list.Add((identity, value));
+        }
+
+        var commands = new List<NpgsqlBatchCommand>(groups.Count);
+
+        foreach (var ((tableName, hasExtension), entries) in groups)
+        {
+            var command = new NpgsqlBatchCommand();
+            var values = new List<string>(entries.Count);
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var (identity, value) = entries[i];
+                var json = _serializer.Serialize(value);
+
+                command.Parameters.AddWithValue($"key{i}", identity.Key);
+                command.Parameters.AddWithValue($"type{i}", identity.Type);
+                command.Parameters.AddWithValue($"version{i}", value.Version);
+
+                var p = command.Parameters.AddWithValue($"value{i}", json);
+                p.NpgsqlDbType = NpgsqlDbType.Jsonb;
+
+                if (hasExtension)
+                {
+                    command.Parameters.AddWithValue($"ext{i}", identity.Extension!);
+                    values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb, @ext{i})");
+                }
+                else
+                {
+                    values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb)");
+                }
+            }
+
+            var extensionCol = hasExtension ? ", extension" : "";
+            var conflictCol = hasExtension ? ", extension" : "";
+
+            command.CommandText = $@"
+                INSERT INTO {tableName} (key, type, version, value{extensionCol})
+                VALUES {string.Join(", ", values)}
+                ON CONFLICT (key, type{conflictCol})
+                DO UPDATE SET value = EXCLUDED.value, version = EXCLUDED.version
+            ";
+
+            commands.Add(command);
+        }
+
+        return commands;
+    }
+
+    public static IReadOnlyList<NpgsqlBatchCommand> BuildDeleteCommands(IReadOnlyList<StateIdentity> identities)
+    {
+        var groups = new Dictionary<(string TableName, bool HasExtension), List<StateIdentity>>();
+
+        foreach (var identity in identities)
+        {
+            var key = (identity.TableName, identity.Extension != null);
+
+            if (!groups.TryGetValue(key, out var list))
+            {
+                list = new List<StateIdentity>();
+                groups[key] = list;
+            }
+
+            list.Add(identity);
+        }
+
+        var commands = new List<NpgsqlBatchCommand>(groups.Count);
+
+        foreach (var ((tableName, hasExtension), entries) in groups)
+        {
+            var command = new NpgsqlBatchCommand();
+            var conditions = new List<string>(entries.Count);
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                command.Parameters.AddWithValue($"key{i}", entries[i].Key);
+                command.Parameters.AddWithValue($"type{i}", entries[i].Type);
+
+                if (hasExtension)
+                {
+                    command.Parameters.AddWithValue($"ext{i}", entries[i].Extension!);
+                    conditions.Add($"(key = @key{i} AND type = @type{i} AND extension = @ext{i})");
+                }
+                else
+                {
+                    conditions.Add($"(key = @key{i} AND type = @type{i})");
+                }
+            }
+
+            command.CommandText = $"DELETE FROM {tableName} WHERE {string.Join(" OR ", conditions)}";
+            commands.Add(command);
+        }
+
+        return commands;
+    }
 
     private async Task<(string, int)> ReadRaw(StateIdentity stateIdentity)
     {
@@ -321,80 +415,6 @@ public class DirectStorage
     {
         var (raw, _) = await ReadRaw(identity);
         return raw;
-    }
-
-    private async Task WriteBatch(
-        NpgsqlTransaction transaction,
-        IReadOnlyDictionary<StateIdentity, IStateValue> records)
-    {
-        var groups =
-            new Dictionary<(string TableName, bool HasExtension), List<(StateIdentity Identity, IStateValue Value)>>();
-
-        foreach (var (identity, value) in records)
-        {
-            var key = (identity.TableName, identity.Extension != null);
-
-            if (groups.TryGetValue(key, out var list) == false)
-            {
-                list = new List<(StateIdentity, IStateValue)>();
-                groups[key] = list;
-            }
-
-            list.Add((identity, value));
-        }
-
-        foreach (var ((tableName, hasExtension), entries) in groups)
-        {
-            try
-            {
-                await using var command = transaction.Connection!.CreateCommand();
-                command.Transaction = transaction;
-
-                var values = new List<string>(entries.Count);
-
-                for (var i = 0; i < entries.Count; i++)
-                {
-                    var (identity, value) = entries[i];
-                    var json = _serializer.Serialize(value);
-
-                    command.Parameters.AddWithValue($"key{i}", identity.Key);
-                    command.Parameters.AddWithValue($"type{i}", identity.Type);
-                    command.Parameters.AddWithValue($"version{i}", value.Version);
-
-                    var p = command.Parameters.AddWithValue($"value{i}", json);
-                    p.NpgsqlDbType = NpgsqlDbType.Jsonb;
-
-                    if (hasExtension)
-                    {
-                        command.Parameters.AddWithValue($"ext{i}", identity.Extension!);
-                        values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb, @ext{i})");
-                    }
-                    else
-                    {
-                        values.Add($"(@key{i}, @type{i}, @version{i}, @value{i}::jsonb)");
-                    }
-                }
-
-                var extensionCol = hasExtension ? ", extension" : "";
-                var conflictCol = hasExtension ? ", extension" : "";
-
-                command.CommandText = $@"
-                    INSERT INTO {tableName} (key, type, version, value{extensionCol})
-                    VALUES {string.Join(", ", values)}
-                    ON CONFLICT (key, type{conflictCol})
-                    DO UPDATE SET value = EXCLUDED.value, version = EXCLUDED.version
-                ";
-
-                await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "[DirectStorage] Failed to batch write {Count} records to {Table}",
-                    entries.Count, tableName);
-
-                throw;
-            }
-        }
     }
 
     private static TKey ReadKeyFromReader<TKey>(NpgsqlDataReader reader, GrainStateInfo info) => info.KeyType switch
