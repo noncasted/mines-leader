@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Common.Extensions;
 using Infrastructure.State;
@@ -123,14 +124,13 @@ public class Transactions : ITransactions
 
             try
             {
-                if (result.States.Count != 0)
-                    await _stateStorage.Write(transaction, result.States);
+                // Direct states and side effects go to Postgres as one NpgsqlBatch: one round trip
+                // for the whole transaction instead of one per table group plus one for side effects.
+                await WriteBatch(connection, transaction, result.States, context.SideEffects);
 
+                // Marten runs its own pipeline inside the same transaction; it cannot join the batch.
                 if (result.Events.Count != 0)
                     await _eventStorage.Write(transaction, result.Events);
-
-                if (context.SideEffects.Count != 0)
-                    await _sideEffectsStorage.Write(transaction, context.SideEffects.Values.ToList());
 
                 foreach (var callback in parameters.Callbacks)
                     await callback(transaction);
@@ -180,7 +180,7 @@ public class Transactions : ITransactions
             var states = new List<GrainStateRecord>();
             var events = new List<GrainEventRecord>();
 
-            var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Value)));
+            var collections = await Task.WhenAll(context.Participants.Select(p => Collect(p.Key, p.Value)));
 
             foreach (var collection in collections)
             {
@@ -194,12 +194,16 @@ public class Transactions : ITransactions
                 Events = events
             };
 
-            async Task<TransactionCommitResult> Collect(IGrainTransactionHandler handler)
+            async Task<TransactionCommitResult> Collect(Guid handlerId, IGrainTransactionHandler handler)
             {
                 var grainStates = new List<GrainStateRecord>();
                 var grainEvents = new List<GrainEventRecord>();
 
-                var result = await handler.CollectResult(context.Id);
+                // The snapshot normally arrives inside TransactionResponse (TransactionRequestBase.Invoke);
+                // the RPC is only for participants whose response did not reach this context.
+                var result = context.Results.TryGetValue(handlerId, out var snapshot)
+                    ? snapshot
+                    : await handler.CollectResult(context.Id);
                 var participantId = handler.GetGrainId();
 
                 foreach (var state in result.States)
@@ -218,6 +222,46 @@ public class Transactions : ITransactions
                     States = grainStates,
                     Events = grainEvents
                 };
+            }
+        }
+    }
+
+    private async Task WriteBatch(
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        IReadOnlyList<GrainStateRecord> states,
+        ConcurrentDictionary<Guid, ISideEffect> sideEffects)
+    {
+        var commands = new List<NpgsqlBatchCommand>();
+
+        if (states.Count != 0)
+            commands.AddRange(_stateStorage.BuildWriteCommands(states));
+
+        if (sideEffects.Count != 0)
+            commands.Add(_sideEffectsStorage.BuildWriteCommand(sideEffects.Values.ToList()));
+
+        if (commands.Count == 0)
+            return;
+
+        // Same metrics DirectStorage.Write would have recorded for the transactional write.
+        var start = Stopwatch.GetTimestamp();
+
+        try
+        {
+            await using var batch = new NpgsqlBatch(connection, transaction);
+
+            foreach (var command in commands)
+                batch.BatchCommands.Add(command);
+
+            await batch.ExecuteNonQueryAsync();
+        }
+        finally
+        {
+            if (states.Count != 0)
+            {
+                BackendMetrics.StateWriteDuration.Record(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+                BackendMetrics.StateWriteTotal.Add(1);
+                BackendMetrics.StateWriteBatchSize.Record(states.Count);
             }
         }
     }

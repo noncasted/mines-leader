@@ -44,7 +44,7 @@ public class TransactionStateChainedTest
 
             async Task Process(int chainLength)
             {
-                var ids = TestParticipants.Create(_orleans, chainLength);
+                var ids = TestParticipants.Create(_orleans, chainLength).Track<TransactionTestState>(Cleanup);
                 var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
 
                 if (result.IsSuccess == false)

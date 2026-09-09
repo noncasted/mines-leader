@@ -47,6 +47,11 @@ public interface IStateStorage
         where TValue : class, IStateValue, new();
 
     Task Write(StateWriteRequest request);
+
+    // Builds the direct-state upsert commands without executing them, so a caller owning a transaction
+    // (Transactions.Process) can put them into one NpgsqlBatch together with other writes.
+    IReadOnlyList<NpgsqlBatchCommand> BuildWriteCommands(IReadOnlyDictionary<StateIdentity, IStateValue> records);
+
     Task Delete(StateDeleteRequest request);
 
     Task<string> ReadRawJson(StateIdentity identity);
@@ -141,9 +146,32 @@ public class StateStorage : IStateStorage
 
     public async Task Write(StateWriteRequest request)
     {
+        var directRecords = FilterDirect(request.Records);
+
+        if (directRecords.Count != 0)
+        {
+            await _directStorage.Write(new StateWriteRequest
+            {
+                Records = directRecords,
+                Transaction = request.Transaction
+            });
+        }
+    }
+
+    public IReadOnlyList<NpgsqlBatchCommand> BuildWriteCommands(IReadOnlyDictionary<StateIdentity, IStateValue> records)
+    {
+        var directRecords = FilterDirect(records);
+
+        return directRecords.Count != 0
+            ? _directStorage.BuildWriteCommands(directRecords)
+            : [];
+    }
+
+    private static Dictionary<StateIdentity, IStateValue> FilterDirect(IReadOnlyDictionary<StateIdentity, IStateValue> records)
+    {
         var directRecords = new Dictionary<StateIdentity, IStateValue>();
 
-        foreach (var (identity, value) in request.Records)
+        foreach (var (identity, value) in records)
         {
             if (value is IDirectStateValue)
             {
@@ -161,14 +189,7 @@ public class StateStorage : IStateStorage
             }
         }
 
-        if (directRecords.Count != 0)
-        {
-            await _directStorage.Write(new StateWriteRequest
-            {
-                Records = directRecords,
-                Transaction = request.Transaction
-            });
-        }
+        return directRecords;
     }
 
 	public async Task Delete(StateDeleteRequest request)

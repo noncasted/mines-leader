@@ -36,6 +36,7 @@ public class TransactionSingleTargetTest
         {
             handle.Progress.SetStatus(OperationStatus.InProgress);
             var id = Guid.NewGuid();
+            Cleanup.Track<TransactionTestState>(id);
             await handle.RunConcurrentIterations(payload, () => Process(id));
 
             return;

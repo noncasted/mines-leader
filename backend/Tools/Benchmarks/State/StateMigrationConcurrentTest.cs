@@ -40,6 +40,7 @@ public class StateMigrationConcurrentTest
             async Task Process()
             {
                 var key = Guid.NewGuid().ToString();
+                Cleanup.Track<StateMigrationTest.MigrationTestState_1>(key);
                 const int writtenValue = 77;
 
                 // Write as V0

@@ -1,4 +1,5 @@
 using Infrastructure;
+using Infrastructure.State;
 
 namespace Benchmarks;
 
@@ -31,6 +32,14 @@ public class TestParticipants
             var grain = Orleans.GetGrain<TGrain>(id);
             await func(grain);
         }
+    }
+
+    public TestParticipants Track<TState>(TestCleanup cleanup) where TState : IStateValue, new()
+    {
+        foreach (var id in Entries)
+            cleanup.Track<TState>(id);
+
+        return this;
     }
 
     public static TestParticipants Create(IOrleans orlens, int count)

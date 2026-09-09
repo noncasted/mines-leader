@@ -102,8 +102,10 @@ public class StateTest
 
             async Task Process()
             {
-                var grain = _orleans.GetGrain<IGrain>(Guid.NewGuid().ToString());
+                var key = Guid.NewGuid().ToString();
+                var grain = _orleans.GetGrain<IGrain>(key);
                 await grain.Test();
+                Cleanup.Track<TestState>(key);
 
                 handle.Metrics.Inc();
             }

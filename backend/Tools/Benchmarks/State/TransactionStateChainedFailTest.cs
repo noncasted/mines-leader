@@ -44,7 +44,7 @@ public class TransactionStateChainedFailTest
 
             async Task Process(int chainLength)
             {
-                var ids = TestParticipants.Create(_orleans, chainLength);
+                var ids = TestParticipants.Create(_orleans, chainLength).Track<TransactionTestState>(Cleanup);
                 var initialState = await ids.Get<int, ITransactionTestGrain>(grain => grain.Get());
 
                 var failResult = await _transactions.Run(async () => {

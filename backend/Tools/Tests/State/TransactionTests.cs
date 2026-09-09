@@ -410,6 +410,44 @@ public class TransactionTests
     }
 
     [Fact]
+    public async Task Transaction_SameGrainTwice_LastSnapshotPersisted()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<ITxTestGrain>(id);
+        var other = GetGrain<ITxTestGrain>(Guid.NewGuid());
+
+        // Snapshot of `grain` is taken on every [Transaction] return; the second call must win in the DB.
+        await RunTransaction(async () => {
+            await grain.Increment();
+            await other.Increment();
+            await grain.Increment();
+        });
+
+        await grain.Deactivate();
+        await Task.Delay(100);
+
+        var value = await grain.Get();
+        value.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Transaction_ParallelCallsSameGrain_LastSnapshotPersisted()
+    {
+        var id = Guid.NewGuid();
+        var grain = GetGrain<ITxTestGrain>(id);
+
+        // Two parallel branches hit the same grain; the slower branch returns last with an older or newer
+        // snapshot depending on scheduling. Either way the DB must end up with both increments.
+        await RunTransaction(() => Task.WhenAll(grain.IncrementWithDelay(200), grain.Increment()));
+
+        await grain.Deactivate();
+        await Task.Delay(100);
+
+        var value = await grain.Get();
+        value.Should().Be(2);
+    }
+
+    [Fact]
     public async Task Transaction_RollbackError_ContainsException()
     {
         var id = Guid.NewGuid();

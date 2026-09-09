@@ -43,6 +43,7 @@ public class TransactionCrossPathReadTest
             {
                 var id = Guid.NewGuid();
                 var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
+                Cleanup.Track<TransactionTestState>(id);
 
                 // Write via transaction
                 var result = await _transactions.Run(() => grain.Increment());

@@ -44,7 +44,7 @@ public class TransactionLargeBatchTest
 
             async Task Process(int grainCount)
             {
-                var ids = TestParticipants.Create(_orleans, grainCount);
+                var ids = TestParticipants.Create(_orleans, grainCount).Track<TransactionTestState>(Cleanup);
 
                 var result = await _transactions.Run(() => ids.Run<ITransactionTestGrain>(grain => grain.Increment()));
 

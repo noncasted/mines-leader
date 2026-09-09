@@ -41,8 +41,10 @@ public class TransactionStateTest
 
             async Task Process()
             {
-                var grain = _orleans.GetGrain<ITransactionTestGrain>(Guid.NewGuid());
+                var id = Guid.NewGuid();
+                var grain = _orleans.GetGrain<ITransactionTestGrain>(id);
                 var result = await _transactions.Run(() => grain.Increment());
+                Cleanup.Track<TransactionTestState>(id);
 
                 if (!result.IsSuccess)
                     throw new Exception("Transaction failed");
