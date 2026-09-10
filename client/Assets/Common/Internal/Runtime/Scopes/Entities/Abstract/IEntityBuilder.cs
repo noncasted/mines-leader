@@ -1,4 +1,4 @@
-namespace Internal
+﻿namespace Internal
 {
     public interface IEntityBuilder : IBuilder
     {

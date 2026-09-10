@@ -3,7 +3,9 @@ using System.Text;
 
 namespace Internal {
     internal static class ContainerGraphAssetWriter {
-        public const string OutputPath = "Assets/Common/Internal/Runtime/Tools/Container/Generated/ContainerGraph.Assets.cs";
+        // Имя не должно кончаться на Assets.cs: такие файлы в папках Generated считает своими
+        // AssetsCatalogClassGenerator и удаляет как устаревшие.
+        public const string OutputPath = "Assets/Common/Internal/Runtime/Tools/Container/Generated/ContainerGraph.AssetMap.cs";
 
         public static void Write(IReadOnlyList<ContainerGraphAsset> assets) {
             var prefabs = new List<ContainerGraphAsset>();
