@@ -69,7 +69,10 @@ namespace Internal.Tests
             using (GeneratedContainerBenchmarkHost.RegisterScopes())
             {
                 GeneratedContainerBenchmarkHost.OpenSession().Dispose();
-                Log(GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
+                Log("Diagnostics on\n" + GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
+
+                using (GeneratedContainerBenchmarkHost.WithoutDiagnostics())
+                    Log("Diagnostics off\n" + GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
             }
         }
 

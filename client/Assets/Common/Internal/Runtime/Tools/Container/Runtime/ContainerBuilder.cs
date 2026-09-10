@@ -27,13 +27,15 @@ namespace Internal
         private readonly IReadOnlyLifetime _hostLifetime;
         private readonly IReadOnlyLifetime _scopeLifetime;
         private readonly List<ServiceRegistration> _registrations = new();
-        private readonly List<object> _injections = new();
+        private List<object> _injections;
 
         private bool _built;
 
         public string Name { get; }
 
         internal IContainer Parent { get; }
+
+        internal bool IsBuilt => _built;
 
         // Lifetime, который видит installer через IBuilder.Lifetime.
         internal IReadOnlyLifetime ScopeLifetime => _scopeLifetime ?? _hostLifetime;
@@ -42,6 +44,7 @@ namespace Internal
         // (WithScopeLifetime, AsSessionCallback).
         internal IBuilder Builder { get; private set; }
 
+        // lifetime читает генератор из вызова; сгенерированный класс уже знает его, рантайм не хранит.
         public IServiceRegistration Add(Type implementation, ServiceLifetime lifetime)
         {
             ContainerThread.Assert();
@@ -50,7 +53,7 @@ namespace Internal
             if (implementation == null)
                 throw new ArgumentNullException(nameof(implementation));
 
-            var registration = new ServiceRegistration(Builder, implementation, lifetime);
+            var registration = new ServiceRegistration(this, implementation);
             _registrations.Add(registration);
             return registration;
         }
@@ -66,9 +69,8 @@ namespace Internal
             if (instance == null)
                 throw new ArgumentNullException(nameof(instance));
 
-            var registration = new ServiceRegistration(Builder, instance.GetType(), ServiceLifetime.Singleton);
+            var registration = new ServiceRegistration(this, instance.GetType());
             registration.ExistingInstance = instance;
-            registration.IsExisting = true;
             registration.AddServiceType(serviceType);
             _registrations.Add(registration);
             return registration;
@@ -88,9 +90,8 @@ namespace Internal
             if (component == null)
                 throw new ArgumentNullException(nameof(component));
 
-            var registration = new ServiceRegistration(Builder, component.GetType(), lifetime);
+            var registration = new ServiceRegistration(this, component.GetType());
             registration.ExistingInstance = component;
-            registration.IsExisting = true;
             registration.AddServiceType(serviceType);
             _registrations.Add(registration);
             return registration;
@@ -116,6 +117,7 @@ namespace Internal
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
+            _injections ??= new List<object>();
             _injections.Add(target);
         }
 
@@ -136,9 +138,6 @@ namespace Internal
         internal void MarkBuilt()
         {
             _built = true;
-
-            for (var i = 0; i < _registrations.Count; i++)
-                _registrations[i].Freeze();
         }
 
         internal bool HasRegistration(Type implementation)
@@ -181,7 +180,7 @@ namespace Internal
             }
 
             // builder.Inject(x): сгенерированный класс получает экземпляр дыркой и зовёт Construct сам.
-            for (var i = _injections.Count - 1; i >= 0; i--)
+            for (var i = (_injections?.Count ?? 0) - 1; i >= 0; i--)
             {
                 if (type.IsInstanceOfType(_injections[i]) == true)
                 {

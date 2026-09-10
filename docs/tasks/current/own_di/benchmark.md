@@ -4,7 +4,8 @@ Status: two columns, VContainer and the generated scope classes, measured in the
 
 | Field | Value |
 |---|---|
-| Date measured | 2026-09-10 17:24:21 UTC (Generated), 2026-09-10 17:24:24 UTC (VContainer) |
+| Date measured | 2026-09-10 17:44:07 UTC (Generated), 2026-09-10 17:44:10 UTC (VContainer); a second pass at 17:43 is within harness noise |
+| Diagnostics | Generated runs with `ContainerRegistryDebug.IsEnabled = false` (`GeneratedContainerBenchmarkHost.WithoutDiagnostics`), the same as a release build. VContainer diagnostics are off too. |
 | Unity | `6000.7.0a6`, Mono 6.13.0, incremental GC |
 | Hardware | AMD Ryzen 9 7900X 12-Core Processor (24 cores), 63383 MB, Linux 7.1 Omarchy 4.0.1 64bit |
 | Warmup | 1 discarded full pass (Build + resolve every service + 12 ResolveAll from the deepest scope + 10k singleton + 10k transient + Dispose). JIT / domain reload is not in the numbers. |
@@ -31,56 +32,60 @@ First ResolveAll item count is **not the same**: VContainer 16 (`ContainerLocal<
 
 | Metric | VContainer time (ms) | Generated time (ms) | VContainer allocated (bytes) | Generated allocated (bytes) |
 |---|---|---|---|---|
-| Build | 0.2041 (0.1933 - 0.2211) | 0.0874 (0.0816 - 0.0927) | 32352 | 11056 |
-| Build + resolve all 32 services | 0.3670 (0.3535 - 0.3699) | 0.0932 (0.0857 - 0.0964) | 45012 | 11240 |
-| First ResolveAll of 12 marker phases | 0.3913 (0.3771 - 0.4140) | 0.0194 (0.0161 - 0.0241) | 29892 | 360 |
-| 10k Resolve singleton from deepest | 4.0081 (3.9792 - 7.3427) | 1.4373 (1.4169 - 1.4572) | 520 | 520 |
-| 10k Transient | 20.5934 (20.4529 - 20.9859) | 0.9780 (0.9590 - 1.0267) | 400568 | 400424 |
+| Build | 0.1950 (0.1910 - 0.2260) | 0.0658 (0.0599 - 0.0839) | 32352 | 7524 |
+| Build + resolve all 32 services | 0.3500 (0.3454 - 0.3817) | 0.0726 (0.0681 - 0.0880) | 45060 | 7708 |
+| First ResolveAll of 12 marker phases | 0.3797 (0.3711 - 0.3960) | 0.0167 (0.0143 - 0.0211) | 31860 | 360 |
+| 10k Resolve singleton from deepest | 4.0571 (4.0185 - 4.1300) | 1.5098 (1.5062 - 1.5517) | 520 | 568 |
+| 10k Transient | 20.6153 (20.4995 - 20.9487) | 0.9599 (0.9537 - 1.0109) | 400568 | 400568 |
 
 Reading the rows:
 
-- **Build.** VContainer is lazy and creates no instances here; Generated creates all 27 singleton/scoped instances eagerly and still allocates 2.9x less.
-- **Build + resolve all.** The fair "everything exists" comparison: 45.0 KB vs 11.2 KB (4.0x), 3.9x faster. Generated resolve after Build adds 184 bytes (transients created by the resolve).
-- **10k singleton.** Both are 0 bytes per resolve; ~520 bytes is a fixed cost of the loop, the same on both sides.
+- **Build.** VContainer is lazy and creates no instances here; Generated creates all 27 singleton/scoped instances eagerly and still allocates 4.3x less.
+- **Build + resolve all.** The fair "everything exists" comparison: 45.1 KB vs 7.7 KB (5.8x), 4.8x faster. Generated resolve after Build adds 184 bytes (transients created by the resolve).
+- **10k singleton.** Both are 0 bytes per resolve; the 288–568 bytes are a fixed cost of the loop, the same on both sides. Generated got ~5% slower than with the per-instance dictionary (1.44 → 1.51 ms): a lookup in the static table plus the `GetExport` switch.
 - **10k Transient.** Both allocate only the object itself: 40 bytes x 10k (`BenchCardAction`, 3 refs). The difference is time only (21x).
+
+Previous run (2026-09-10 17:24 UTC, per-instance `_exports`, diagnostics on): Generated Build 11056, Build + resolve 11240, singleton 1.4373 ms.
 
 ## Where Generated Build bytes go
 
-Manual replay of `OpenSession` step by step through the public API (no harness), minimum of 9 runs per step; byte-exact, matches the sum of object sizes.
+First column: manual replay of `OpenSession` step by step through the public API (no harness), minimum of 9 runs, byte-exact. Last two columns: `GeneratedContainer_BuildAllocations_ByStep`, minimum over two passes of 11 runs. The harness adds up to 48 bytes on some steps that the manual replay does not have (see above), so small differences between the first column and the others are not real.
 
-| Step | Lazy registration collections (bytes) | Without `ContainerRegistration` (bytes) |
-|---|---|---|
-| Session: Lifetime | 48 | 48 |
-| Root: ContainerBuilder | 152 | 160 |
-| Root: RootBuilder + ServiceCollection / Registry + EventLoop | 192 | 160 |
-| Root: installer (12 registrations) | 1472 | 1184 |
-| Root: RegisterInstance(Events) | 200 | 176 |
-| Root: ScopeContainer.Create | 2065 | 2120 |
-| Match: ContainerBuilder | 152 | 160 |
-| Match: RootBuilder + ServiceCollection / Registry + EventLoop | 192 | 160 |
-| Match: installer (12 registrations) | 1472 | 1184 |
-| Match: RegisterInstance(Events) | 200 | 176 |
-| Match: ScopeContainer.Create | 2109 | 2268 |
-| Card: ContainerBuilder | 152 | 160 |
-| Card: RootBuilder + ServiceCollection / Registry + EventLoop | 192 | 160 |
-| Card: installer (8 registrations) | 928 | 736 |
-| Card: RegisterInstance(Events) | 360 | 336 |
-| Card: ScopeContainer.Create | 1141 | 1300 |
-| Session: Dispose | 384 | 384 |
-| **Build (sum without Dispose)** | **11027** | **10488** |
+| Step | Before: per-instance `_exports`, diagnostics on (bytes) | Now, diagnostics on (bytes) | Now, diagnostics off (bytes) |
+|---|---|---|---|
+| Session: Lifetime | 48 | 48 | 48 |
+| Root: ContainerBuilder | 160 | 120 | 120 |
+| Root: RootBuilder + Registry + EventLoop | 160 | 160 | 160 |
+| Root: installer (12 registrations) | 1184 | 1040 | 1040 |
+| Root: RegisterInstance(Events) | 176 | 160 | 160 |
+| Root: ScopeContainer.Create | 2120 | 1420 | 1116 |
+| Match: ContainerBuilder | 160 | 120 | 120 |
+| Match: RootBuilder + Registry + EventLoop | 160 | 160 | 160 |
+| Match: installer (12 registrations) | 1184 | 992 | 1040 |
+| Match: RegisterInstance(Events) | 176 | 160 | 160 |
+| Match: ScopeContainer.Create | 2268 | 1616 | 1312 |
+| Card: ContainerBuilder | 160 | 120 | 120 |
+| Card: RootBuilder + Registry + EventLoop | 160 | 160 | 160 |
+| Card: installer (8 registrations) | 736 | 608 | 656 |
+| Card: RegisterInstance(Events) | 336 | 320 | 368 |
+| Card: ScopeContainer.Create | 1300 | 1144 | 744 |
+| Session: Dispose | 384 | 432 | 432 |
+| **Build (sum without Dispose)** | **10488** | **8348** | **7484** |
 
-Changes between the two columns (−539 in total):
+What changed:
 
 | Change | Bytes |
 |---|---|
-| `ContainerRegistration` wrapper removed, `ServiceRegistration` keeps `IBuilder` (64 → 72): −24 x 35 registrations | −840 |
-| `ContainerBuilder.Builder` field: +8 x 3 scopes | +24 |
-| `ServiceCollection` removed: −32 x 3 scopes | −96 |
-| `ContainerDiagnostics` in `ScopeContainer.Create` (loaded assets, children) | +373 |
+| `_exports` is a static `Dictionary<Type, int>` per generated class plus a `GetExport(int)` switch over the fields; the scope no longer allocates its own `Dictionary<Type, object>` (788 / 788 / 340) | ≈ −1500 |
+| Diagnostics off: no `ContainerDiagnostics`, no `ContainerRegistryDebug` entry, no lifetime listener closure (304 / 304 / 400 per scope) | ≈ −1000 |
+| `ServiceRegistration` 72 → 56: keeps `ContainerBuilder` (the builder and the "built" flag come from it); `Lifetime`, `IsExisting` and `_frozen` removed. −16 x 35 registrations | −560 |
+| `ContainerBuilder._injections` is lazy: −40 x 3 scopes | −120 |
 
-History of the installer cost: ~310 bytes per `Register<T>()` at first (eager `List<Type>` 104 + empty `Dictionary<Type, object>` 80 + `ContainerRegistration` 32 + `ServiceRegistration` 64 + list growth), now ~96: `ServiceRegistration` (72) and growth of `ContainerBuilder._registrations` (320 bytes per scope for 9–16 registrations).
+In a release build (no `UNITY_EDITOR`, no `DEBUG`) the generated classes do not create diagnostics, and the static `_registrationInfos` / `_buildOrder` tables are not compiled in.
 
-`ScopeContainer.Create`: the instances, the `_exports` dictionary (Dictionary<Type, object> with 20 entries = 788 bytes), marker arrays, child `Lifetime` + listener delegate and list, `GeneratedScopeRequest`, `GeneratedViewInjector`, diagnostics attached to `ContainerRegistryDebug` with a lifetime listener closure.
+History of the installer cost: ~310 bytes per `Register<T>()` at first (eager `List<Type>` 104 + empty `Dictionary<Type, object>` 80 + `ContainerRegistration` 32 + `ServiceRegistration` 64 + list growth), now ~80: `ServiceRegistration` (56) and growth of `ContainerBuilder._registrations` (320 bytes per scope for 9–16 registrations).
+
+`ScopeContainer.Create` with diagnostics off: the instances (~764 over three scopes), marker arrays, child `Lifetime` + listener delegate and list, `GeneratedScopeRequest`, `GeneratedViewInjector`.
 
 `Session: Dispose` allocates: `Lifetime.Terminate` calls `_parent.RemoveListener(Terminate)`, which creates a new delegate (128 bytes) per scope just to compare it.
 

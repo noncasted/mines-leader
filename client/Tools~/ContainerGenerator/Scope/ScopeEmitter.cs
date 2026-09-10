@@ -111,13 +111,17 @@ namespace ContainerGenerator {
             }
 
             WriteMarkers(writer, plan, graph, body);
-            WriteExports(writer, plan, graph, body);
             if (plan.HasContainerDiagnostics) {
-                writer.AppendLine(body + "_diagnostics = new global::Internal.ContainerDiagnostics(");
-                writer.AppendLine(body + "    " + Literal(plan.ClassName) + ",");
-                writer.AppendLine(body + "    " + plan.ParentField + " != null ? " + plan.ParentField + ".Diagnostics : null,");
-                writer.AppendLine(body + "    _registrationInfos,");
-                writer.AppendLine(body + "    _buildOrder);");
+                // Диагностика есть только в редакторе и dev-билде; бенчмарк выключает её флагом.
+                writer.AppendLine("#if UNITY_EDITOR || DEBUG");
+                writer.AppendLine(body + "if (global::Internal.ContainerRegistryDebug.IsEnabled == true) {");
+                writer.AppendLine(body + "    _diagnostics = new global::Internal.ContainerDiagnostics(");
+                writer.AppendLine(body + "        " + Literal(plan.ClassName) + ",");
+                writer.AppendLine(body + "        " + plan.ParentField + " != null ? " + plan.ParentField + ".Diagnostics : null,");
+                writer.AppendLine(body + "        _registrationInfos,");
+                writer.AppendLine(body + "        _buildOrder);");
+                writer.AppendLine(body + "}");
+                writer.AppendLine("#endif");
             }
 
             writer.AppendLine(indent + "}");
@@ -401,19 +405,50 @@ namespace ContainerGenerator {
             return "new " + marker.ElementType + "[] { " + string.Join(", ", items) + " }";
         }
 
-        private static void WriteExports(CodeWriter writer, ScopePlan plan, ScopeGraph graph, string indent) {
-            var count = plan.Exports.Count;
-            writer.AppendLine(indent + "_exports = new global::System.Collections.Generic.Dictionary<global::System.Type, object>(" +
-                              count.ToString() + ") {");
+        // Тип → номер экземпляра в GetExport. Таблица статическая, общая для всех экземпляров класса:
+        // экземпляры и так лежат в полях, и скоуп не платит за свой словарь (340–790 байт).
+        private static void WriteExportTable(CodeWriter writer, ScopePlan plan, string indent) {
+            var values = ExportValues(plan);
+            writer.AppendLine(indent + "private static readonly global::System.Collections.Generic.Dictionary<global::System.Type, int> _exports =");
+            writer.AppendLine(indent + "    new global::System.Collections.Generic.Dictionary<global::System.Type, int>(" +
+                              plan.Exports.Count.ToString() + ") {");
             for (var i = 0; i < plan.Exports.Count; i++) {
                 var export = plan.Exports[i];
-                var slot = plan.Slots[export.Slot];
-                var value = string.IsNullOrEmpty(slot.FieldName) ? "this" : slot.FieldName;
+                var index = values.IndexOf(ExportValue(plan, export.Slot));
                 var comma = i + 1 < plan.Exports.Count ? "," : "";
-                writer.AppendLine(indent + "    { typeof(" + export.ServiceType + "), " + value + " }" + comma);
+                writer.AppendLine(indent + "        { typeof(" + export.ServiceType + "), " + index.ToString() + " }" + comma);
             }
 
-            writer.AppendLine(indent + "};");
+            writer.AppendLine(indent + "    };");
+        }
+
+        private static void WriteGetExport(CodeWriter writer, ScopePlan plan, string indent, string body) {
+            var values = ExportValues(plan);
+            writer.AppendLine(indent + "private object GetExport(int index) {");
+            writer.AppendLine(body + "switch (index) {");
+            for (var i = 0; i < values.Count; i++)
+                writer.AppendLine(body + "    case " + i.ToString() + ": return " + values[i] + ";");
+            writer.AppendLine(body + "    default: return null;");
+            writer.AppendLine(body + "}");
+            writer.AppendLine(indent + "}");
+            writer.AppendLine();
+        }
+
+        // Несколько сервисных типов одного экземпляра делят один case.
+        private static List<string> ExportValues(ScopePlan plan) {
+            var values = new List<string>();
+            for (var i = 0; i < plan.Exports.Count; i++) {
+                var value = ExportValue(plan, plan.Exports[i].Slot);
+                if (values.Contains(value) == false)
+                    values.Add(value);
+            }
+
+            return values;
+        }
+
+        private static string ExportValue(ScopePlan plan, int slotIndex) {
+            var slot = plan.Slots[slotIndex];
+            return string.IsNullOrEmpty(slot.FieldName) ? "this" : slot.FieldName;
         }
 
         private static void WriteFields(CodeWriter writer, ScopePlan plan, string indent) {
@@ -422,7 +457,7 @@ namespace ContainerGenerator {
                 writer.AppendLine(indent + "private readonly " + field.Type + " " + field.Name + ";");
             }
 
-            writer.AppendLine(indent + "private readonly global::System.Collections.Generic.Dictionary<global::System.Type, object> _exports;");
+            WriteExportTable(writer, plan, indent);
             if (plan.HasContainerDiagnostics)
                 writer.AppendLine(indent + "private readonly global::Internal.ContainerDiagnostics _diagnostics;");
             writer.AppendLine(indent + "private bool _disposed;");
@@ -443,8 +478,8 @@ namespace ContainerGenerator {
             writer.AppendLine(indent + "public global::Internal.IReadOnlyLifetime Lifetime => " + plan.LifetimeField + ";");
             writer.AppendLine();
             writer.AppendLine(indent + "public object Resolve(global::System.Type type) {");
-            writer.AppendLine(body + "if (_exports.TryGetValue(type, out var instance) == true)");
-            writer.AppendLine(body + "    return instance;");
+            writer.AppendLine(body + "if (_exports.TryGetValue(type, out var export) == true)");
+            writer.AppendLine(body + "    return GetExport(export);");
             WriteTransientResolve(writer, plan, body, false);
             writer.AppendLine(body + "if (" + plan.ParentField + " != null)");
             writer.AppendLine(body + "    return " + plan.ParentField + ".Resolve(type);");
@@ -460,8 +495,10 @@ namespace ContainerGenerator {
             writer.AppendLine(body + "    instance = null;");
             writer.AppendLine(body + "    return false;");
             writer.AppendLine(body + "}");
-            writer.AppendLine(body + "if (_exports.TryGetValue(type, out instance) == true)");
+            writer.AppendLine(body + "if (_exports.TryGetValue(type, out var export) == true) {");
+            writer.AppendLine(body + "    instance = GetExport(export);");
             writer.AppendLine(body + "    return true;");
+            writer.AppendLine(body + "}");
             WriteTransientResolve(writer, plan, body, true);
             writer.AppendLine(body + "if (" + plan.ParentField + " != null)");
             writer.AppendLine(body + "    return " + plan.ParentField + ".TryResolve(type, out instance);");
@@ -469,6 +506,7 @@ namespace ContainerGenerator {
             writer.AppendLine(body + "return false;");
             writer.AppendLine(indent + "}");
             writer.AppendLine();
+            WriteGetExport(writer, plan, indent, body);
             WriteResolveAll(writer, plan, indent, body);
             writer.AppendLine(indent + "public void Inject(object target) {");
             writer.AppendLine(body + "if (target == null)");
@@ -575,7 +613,7 @@ namespace ContainerGenerator {
 
             // Тип с единственной регистрацией маркерного массива не получает.
             writer.AppendLine(body + "if (_exports.TryGetValue(typeof(T), out var single) == true)");
-            writer.AppendLine(body + "    return new T[] { (T)single };");
+            writer.AppendLine(body + "    return new T[] { (T)GetExport(single) };");
             writer.AppendLine(body + "return global::System.Array.Empty<T>();");
             writer.AppendLine(indent + "}");
             writer.AppendLine();
@@ -745,6 +783,7 @@ namespace ContainerGenerator {
             if (plan.HasContainerDiagnostics == false)
                 return;
 
+            writer.AppendLine("#if UNITY_EDITOR || DEBUG");
             writer.AppendLine(indent + "private static readonly global::Internal.RegistrationInfo[] _registrationInfos = {");
             for (var i = 0; i < plan.DiagnosticRegistrations.Count; i++) {
                 var entry = plan.DiagnosticRegistrations[i];
@@ -765,6 +804,7 @@ namespace ContainerGenerator {
             writer.AppendLine(indent + "};");
             writer.AppendLine();
             writer.AppendLine(indent + "private static readonly int[] _buildOrder = " + IntArray(graph.ConstructionOrder) + ";");
+            writer.AppendLine("#endif");
         }
 
         private static string TypeArray(List<string> types) {

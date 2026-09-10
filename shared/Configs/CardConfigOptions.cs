@@ -314,9 +314,19 @@ namespace Shared
 
         public DimensionRift DimensionRift_Normal { get; set; } = new();
 
+        // Словарь строится при первом обращении и дальше переиспользуется: раньше каждое обращение
+        // создавало новый (68 записей, ~4.7 КБ), а зовут его на каждую карту клиента и в командах бэкенда.
+        // Конфиг, заменённый сеттером после первого обращения, All не увидит.
+        // Гонка первого обращения безопасна: оба словаря одинаковые, присваивание ссылки атомарно.
         [JsonIgnore]
         [MemoryPackIgnore]
-        public IReadOnlyDictionary<CardType, ICardConfig> All => new Dictionary<CardType, ICardConfig>()
+        public IReadOnlyDictionary<CardType, ICardConfig> All => _all ??= CreateAll();
+
+        [JsonIgnore]
+        [MemoryPackIgnore]
+        private Dictionary<CardType, ICardConfig> _all;
+
+        private Dictionary<CardType, ICardConfig> CreateAll() => new Dictionary<CardType, ICardConfig>()
         {
             { CardType.Bloodhound, BloodHound_Normal },
             { CardType.Bloodhound_Max, BloodHound_Max },

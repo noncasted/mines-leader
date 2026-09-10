@@ -1239,7 +1239,6 @@ namespace Internal {
     public interface IServiceRegistration {
         IBuilder Builder { get; }
         System.Type ImplementationType { get; }
-        ServiceLifetime Lifetime { get; }
         IServiceRegistration AddServiceType(System.Type serviceType);
         IServiceRegistration SetParameter(System.Type type, object value);
     }
@@ -1274,6 +1273,9 @@ namespace Internal {
         public System.Collections.Generic.IReadOnlyList<ResolveRecord> History => null;
     }
     public readonly struct ResolveRecord {}
+    public static class ContainerRegistryDebug {
+        public static bool IsEnabled { get; set; } = true;
+    }
     public interface IContainer : System.IDisposable {
         IContainerDiagnostics Diagnostics { get; }
         IReadOnlyLifetime Lifetime { get; }

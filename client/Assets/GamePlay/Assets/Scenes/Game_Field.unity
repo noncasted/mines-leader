@@ -1977,7 +1977,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f4680af45e47a1b8f89682b3acc030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.LocalPlayerView
-  _register: []
   _autoDetected:
   - {fileID: 694874235}
   - {fileID: 694874236}
@@ -2012,7 +2011,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f2232ff68784cf39e42c64e54d559e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.RemotePlayerView
-  _register: []
   _autoDetected:
   - {fileID: 1006014972}
   - {fileID: 1006014973}

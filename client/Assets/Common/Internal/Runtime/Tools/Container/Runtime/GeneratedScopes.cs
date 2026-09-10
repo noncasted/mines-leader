@@ -11,6 +11,12 @@ namespace Internal
         private static readonly Dictionary<string, Func<GeneratedScopeRequest, IContainer>> _factories =
             new Dictionary<string, Func<GeneratedScopeRequest, IContainer>>(StringComparer.Ordinal);
 
+        // Загрузчик сущностей спрашивает id на каждую карту, а для метода и типа вьюхи он не меняется:
+        // строки собираются один раз (было ~470 + ~300 байт на загрузку). Ключ корня — хэндл метода:
+        // объект MethodInfo у разных делегатов одного метода может быть разным.
+        private static readonly Dictionary<IntPtr, string> _rootIds = new Dictionary<IntPtr, string>();
+        private static readonly Dictionary<(string, Type), string> _variantKeys = new Dictionary<(string, Type), string>();
+
         public static void Register(string rootId, Func<GeneratedScopeRequest, IContainer> factory)
         {
             if (string.IsNullOrEmpty(rootId) == true)
@@ -55,7 +61,13 @@ namespace Internal
 
         public static string VariantKey(string rootId, Type viewType)
         {
-            return rootId + "@" + TypeName(viewType);
+            if (_variantKeys.TryGetValue((rootId, viewType), out var key) == false)
+            {
+                key = rootId + "@" + TypeName(viewType);
+                _variantKeys.Add((rootId, viewType), key);
+            }
+
+            return key;
         }
 
         /// <summary>
@@ -68,6 +80,18 @@ namespace Internal
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
 
+            var handle = method.MethodHandle.Value;
+            if (_rootIds.TryGetValue(handle, out var id) == false)
+            {
+                id = BuildRootId(method);
+                _rootIds.Add(handle, id);
+            }
+
+            return id;
+        }
+
+        private static string BuildRootId(MethodInfo method)
+        {
             var type = method.DeclaringType;
             var name = method.Name;
             if (name.Length == 0 || name[0] != '<')
@@ -143,17 +167,21 @@ namespace Internal
 
         private static void AttachDebug(IContainer created, ContainerBuilder builder)
         {
+#if UNITY_EDITOR || DEBUG
+            // LoadAssetGroup пишет по lifetime билдера скоупа, а не по дочернему lifetime контейнера.
+            // Забираем и без диагностики, иначе записи копились бы, пока она выключена.
+            var loadedAssets = ContainerRegistryDebug.TakeLoadedAssets(builder.ScopeLifetime);
             var diagnostics = created.Diagnostics;
             if (diagnostics == null)
                 return;
 
-            // LoadAssetGroup пишет по lifetime билдера скоупа, а не по дочернему lifetime контейнера.
             if (diagnostics is ContainerDiagnostics own)
-                own.SetLoadedAssets(ContainerRegistryDebug.TakeLoadedAssets(builder.ScopeLifetime));
+                own.SetLoadedAssets(loadedAssets);
 
             ContainerRegistryDebug.Add(diagnostics);
             if (created.Lifetime != null)
                 created.Lifetime.Listen(() => ContainerRegistryDebug.Remove(diagnostics));
+#endif
         }
     }
 
