@@ -32,6 +32,9 @@ namespace Shared
     /// Единственный источник правды для observation и legal plays. Размер паттерна
     /// берётся из конфига через <see cref="ResolveSize"/>.
     /// </summary>
+#if UNITY_5_3_OR_NEWER
+    [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
     public static class AgentCardCatalog
     {
         public const string ShapeRhombus = "Rhombus";

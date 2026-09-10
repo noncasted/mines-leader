@@ -92,7 +92,7 @@ namespace Internal
                 Add(value);
         }
 
-        public new void RemoveRange(IEnumerable<TSource> collection)
+        public void RemoveRange(IEnumerable<TSource> collection)
         {
             foreach (var value in collection)
                 Remove(value);

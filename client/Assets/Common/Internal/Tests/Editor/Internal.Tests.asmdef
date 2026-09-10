@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "Internal",
+        "VContainer",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

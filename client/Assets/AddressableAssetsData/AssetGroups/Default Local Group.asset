@@ -16,32 +16,32 @@ MonoBehaviour:
   m_GUID: fdc78b9c6bdff184e9f37d59bfb8ab38
   m_SerializeEntries:
   - m_GUID: 158e8abf9b3fab5f8bfe001dc4baf959
-    m_Address: Assets/Menu/Common/Options/Menu_Board.unity
+    m_Address: Assets/Menu/Assets/Scenes/Menu_Board.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4b636264c7ac7224aa40de5dc5ec86f3
-    m_Address: Assets/GamePlay/Loop/Options/GamePlay.unity
+    m_Address: Assets/GamePlay/Assets/Scenes/Game_Field.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a40f8b3a93a368543998dcebf0c0d2a0
-    m_Address: Assets/GamePlay/Scenes/Game_Overlay.unity
+    m_Address: Assets/GamePlay/Assets/Scenes/Game_Overlay.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ae7402daa45d16947a14e8a81e0cd4c0
-    m_Address: Assets/GamePlay/Scenes/Game_Pause.unity
+    m_Address: Assets/GamePlay/Assets/Scenes/Game_Pause.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b072020bf5a8f9c44a8f48ef9ae3fe23
-    m_Address: Assets/Menu/Common/Options/Menu.unity
+    m_Address: Assets/Menu/Assets/Scenes/Menu.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e0fdfc16c2402b84b95cf19dfb3c0dee
-    m_Address: Assets/GamePlay/Scenes/Game_End.unity
+    m_Address: Assets/GamePlay/Assets/Scenes/Game_Result.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -51,7 +51,7 @@ namespace Internal
             if (utils.IsMock != true || SceneManager.GetSceneByName(scene.editorAsset.name).IsValid() != true)
                 return await utils.SceneLoader.LoadTyped<T>(scene, isMain);
 
-            var targets = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var targets = Object.FindObjectsByType<T>(FindObjectsInactive.Include);
 
             foreach (var target in targets)
             {
@@ -61,7 +61,7 @@ namespace Internal
                 return target;
             }
 
-            return Object.FindFirstObjectByType<T>();
+            return Object.FindAnyObjectByType<T>();
 #else
             return await utils.SceneLoader.LoadTyped<T>(scene, isMain);
 #endif

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
+    [NoAutoStaticsCleanup]
     public static class PrefabCatalogGenerator {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups";
 

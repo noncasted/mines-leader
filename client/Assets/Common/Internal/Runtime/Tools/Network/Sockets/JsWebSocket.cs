@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Cysharp.Threading.Tasks;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace Internal
@@ -11,7 +12,8 @@ namespace Internal
     /// WebSocket implementation for WebGL platform using JavaScript interop.
     /// Uses handler-based architecture with unique IDs for each connection.
     /// </summary>
-    public class JsWebSocket : IWebSocket
+    [AutoStaticsCleanup]
+    public partial class JsWebSocket : IWebSocket
     {
         // Static dictionary to map handler IDs to C# instances for callbacks
         private static readonly Dictionary<int, JsWebSocket> Instances = new();

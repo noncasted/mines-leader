@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
     // Список групп каталога: то, что явно заведено руками (json), плюс то, что найдено
     // в уже размеченных ассетах. Json нужен, чтобы пустая группа не исчезала до первого ассета.
+    [NoAutoStaticsCleanup]
     public abstract class CatalogGroupsRegistry {
         private static readonly JsonSerializerSettings JsonSettings = new() {
             Formatting = Formatting.Indented

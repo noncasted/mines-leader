@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace Internal {
     // Каталог грузится один раз на старте: он целиком лежит в Resources, отдельных
     // единиц загрузки у групп нет — группа задаёт только пространство имён.
-    public static class AssetCatalog {
+    [AutoStaticsCleanup]
+    public static partial class AssetCatalog {
         public const string ResourcesPath = "AssetCatalog";
 
         private static readonly Dictionary<string, EnvAsset> Entries = new(StringComparer.Ordinal);

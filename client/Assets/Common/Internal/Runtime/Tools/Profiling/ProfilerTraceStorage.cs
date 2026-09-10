@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace Internal
@@ -9,6 +10,7 @@ namespace Internal
     /// Трассы кладём на диск: замер идёт в плей-моде, а смотрим мы его в окне редактора
     /// уже после выхода, когда доменные объекты уже мертвы.
     /// </summary>
+    [NoAutoStaticsCleanup]
     public static class ProfilerTraceStorage
     {
         private const int MaxTraces = 20;

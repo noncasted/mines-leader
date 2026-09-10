@@ -20,7 +20,7 @@ namespace Internal
                 var newObject = ScriptableObject.CreateInstance(script.GetClass());
                 var name = path.Split("/")[^1].Replace(".cs", string.Empty);
                 newObject.name = name;
-                var destination = path.Replace(path.Split("/")[^1], "") + name + ".asset";
+                var destination = ResolveAssetPath(path, name);
                 destination = AssetDatabase.GenerateUniqueAssetPath(destination);
 
                 AssetDatabase.CreateAsset(newObject, destination);
@@ -28,6 +28,18 @@ namespace Internal
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
+        }
+
+        private static string ResolveAssetPath(string scriptPath, string name)
+        {
+            if (ModuleAssetLayout.TryGetRoot(scriptPath, out var moduleRoot))
+            {
+                var optionsFolder = ModuleAssetLayout.GetOptionsFolder(moduleRoot);
+                CatalogPaths.EnsureFolder(optionsFolder);
+                return $"{optionsFolder}/{name}.asset";
+            }
+
+            return scriptPath.Replace(scriptPath.Split("/")[^1], "") + name + ".asset";
         }
     }
 }

@@ -5,6 +5,9 @@ using MemoryPack;
 namespace Shared
 {
     [MemoryPackable]
+#if UNITY_5_3_OR_NEWER
+    [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
     public partial class EmptyResponse : INetworkContext
     {
         [MemoryPackIgnore] public static readonly EmptyResponse Ok = new();
