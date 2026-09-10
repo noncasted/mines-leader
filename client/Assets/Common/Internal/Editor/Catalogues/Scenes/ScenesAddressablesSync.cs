@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
-using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 
 namespace Internal
 {
-    // Все найденные сцены лежат в addressable-группе `Scenes`: StaticScene грузит их по GUID,
-    // поэтому сцена без записи в Addressables падает с InvalidKeyException на старте.
+    // StaticScene грузит сцены по GUID, поэтому сцена без записи в Addressables падает с InvalidKeyException.
+    // Сцены одного домена (папка под Assets/) всегда грузятся вместе и лежат в одной группе `Scenes_<домен>`.
+    // Сцены из Build Settings уже входят в плеер: в Addressables они попали бы в билд второй раз вместе с зависимостями.
     public static class ScenesAddressablesSync
     {
         private const string LogTag = "ScenesAddressablesSync";
-        private const string GroupName = "Scenes";
+        private const string GroupPrefix = "Scenes_";
+        private const string LegacyGroupName = "Scenes";
 
         public static void Sync(IReadOnlyList<(string sceneName, string sceneGuid)> scenes)
         {
@@ -25,15 +26,29 @@ namespace Internal
                 return;
             }
 
-            var group = GetOrCreateGroup(settings);
+            var builtIn = CollectBuiltInScenes();
             var used = new HashSet<string>(StringComparer.Ordinal);
+            var usedGroups = new HashSet<string>(StringComparer.Ordinal);
             var changed = false;
 
             foreach (var (_, guid) in scenes)
             {
-                used.Add(guid);
+                if (builtIn.Contains(guid))
+                    continue;
 
                 var address = AssetDatabase.GUIDToAssetPath(guid);
+                var groupName = GroupPrefix + GetDomain(address);
+                var group = CatalogAddressablesSync.GetOrCreatePackedGroup(settings, groupName);
+
+                if (group == null)
+                {
+                    Debug.LogError($"[{LogTag}] Failed to create group '{groupName}'.");
+                    continue;
+                }
+
+                used.Add(guid);
+                usedGroups.Add(groupName);
+
                 var entry = settings.FindAssetEntry(guid);
 
                 if (entry == null || entry.parentGroup != group)
@@ -55,43 +70,80 @@ namespace Internal
                 }
             }
 
-            var stale = new List<AddressableAssetEntry>();
+            changed |= RemoveStale(settings, used, usedGroups);
 
-            foreach (var entry in group.entries)
-            {
-                if (entry != null && used.Contains(entry.guid) == false)
-                    stale.Add(entry);
-            }
-
-            foreach (var entry in stale)
-            {
-                settings.RemoveAssetEntry(entry.guid, false);
-                changed = true;
-            }
+            // Сцены — корни зависимостей, поэтому общие ассеты пересчитываются после них.
+            SharedAddressablesSync.ScheduleSync();
 
             if (changed == false)
                 return;
 
             settings.SetDirty(AddressableAssetSettings.ModificationEvent.BatchModification, null, true, true);
-            Debug.Log($"[{LogTag}] Synced {scenes.Count} scene(s) into '{GroupName}' group.");
+            Debug.Log($"[{LogTag}] Synced {used.Count} scene(s) into {usedGroups.Count} group(s).");
         }
 
-        private static AddressableAssetGroup GetOrCreateGroup(AddressableAssetSettings settings)
+        private static HashSet<string> CollectBuiltInScenes()
         {
-            var group = settings.FindGroup(GroupName);
+            var result = new HashSet<string>(StringComparer.Ordinal);
 
-            if (group != null)
-                return group;
+            foreach (var scene in EditorBuildSettings.scenes)
+            {
+                if (scene.enabled)
+                    result.Add(scene.guid.ToString());
+            }
 
-            return settings.CreateGroup(
-                GroupName,
-                false,
-                false,
-                false,
-                null,
-                typeof(BundledAssetGroupSchema),
-                typeof(ContentUpdateGroupSchema)
-            );
+            return result;
+        }
+
+        private static string GetDomain(string assetPath)
+        {
+            var parts = assetPath.Split('/');
+            return parts.Length > 2 ? parts[1] : "Common";
+        }
+
+        private static bool RemoveStale(
+            AddressableAssetSettings settings,
+            HashSet<string> used,
+            HashSet<string> usedGroups)
+        {
+            var changed = false;
+            var staleGroups = new List<AddressableAssetGroup>();
+
+            foreach (var group in settings.groups)
+            {
+                if (group == null || IsSceneGroup(group.Name) == false)
+                    continue;
+
+                var staleEntries = new List<AddressableAssetEntry>();
+
+                foreach (var entry in group.entries)
+                {
+                    if (entry != null && used.Contains(entry.guid) == false)
+                        staleEntries.Add(entry);
+                }
+
+                foreach (var entry in staleEntries)
+                {
+                    settings.RemoveAssetEntry(entry.guid, false);
+                    changed = true;
+                }
+
+                if (usedGroups.Contains(group.Name) == false)
+                    staleGroups.Add(group);
+            }
+
+            foreach (var group in staleGroups)
+            {
+                settings.RemoveGroup(group);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool IsSceneGroup(string groupName)
+        {
+            return groupName == LegacyGroupName || groupName.StartsWith(GroupPrefix, StringComparison.Ordinal);
         }
     }
 }

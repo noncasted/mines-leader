@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5d17a21594effb4e9591490b009e7aa, type: 3}
-  m_Name: Sprites_GameResults_BundledAssetGroupSchema
+  m_Name: Shared_Common_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
-  m_Group: {fileID: 11400000, guid: a015d57c6df56585d8ef9ef856ef6fe9, type: 2}
+  m_Group: {fileID: 11400000, guid: b8140c10e8961e3e58815a1d166273af, type: 2}
   m_SchemaIsEnabled: 1
   m_InternalBundleIdMode: 1
   m_Compression: 1

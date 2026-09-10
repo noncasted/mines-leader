@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5d17a21594effb4e9591490b009e7aa, type: 3}
-  m_Name: Scenes_BundledAssetGroupSchema
+  m_Name: Scenes_GamePlay_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
-  m_Group: {fileID: 11400000, guid: cd343003bffc3bc968be1d87907994fa, type: 2}
+  m_Group: {fileID: 11400000, guid: f8051ce319c0a9dadb26534af38bc53b, type: 2}
   m_SchemaIsEnabled: 1
   m_InternalBundleIdMode: 1
   m_Compression: 1
