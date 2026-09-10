@@ -3,7 +3,6 @@ using GamePlay.Services;
 using Internal;
 using Meta;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Players.Buffs
 {
@@ -19,7 +18,6 @@ namespace GamePlay.Players.Buffs
         private IUpdater _updater;
         private PlayerBuffsList _list;
 
-        [Inject]
         internal void Construct(IModifiersRegistry modifiers, IGameInput input, IUpdater updater)
         {
             _modifiers = modifiers;

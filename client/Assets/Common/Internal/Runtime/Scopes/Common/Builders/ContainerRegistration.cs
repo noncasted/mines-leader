@@ -1,17 +1,15 @@
-﻿using VContainer;
-
 namespace Internal
 {
     public class ContainerRegistration : IRegistration
     {
-        public ContainerRegistration(IBuilder builder, RegistrationBuilder registrationBuilder)
+        public ContainerRegistration(IBuilder builder, IServiceRegistration registration)
         {
-            Registration = registrationBuilder;
+            Registration = registration;
             Builder = builder;
         }
 
         public IServiceCollection ServiceCollection => Builder.Services;
-        public RegistrationBuilder Registration { get; }
+        public IServiceRegistration Registration { get; }
         public IBuilder Builder { get; }
     }
 }

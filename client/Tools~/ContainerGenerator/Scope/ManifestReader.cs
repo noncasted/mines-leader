@@ -18,7 +18,7 @@ namespace ContainerGenerator {
                     if (IsInstallerAttribute(attribute) == false)
                         continue;
 
-                    var method = Read(attribute, compilation);
+                    var method = Read(attribute, compilation, assembly.Name);
                     if (method == null || string.IsNullOrEmpty(method.Id))
                         continue;
                     if (existing.TryGetValue(method.Id, out var local)) {
@@ -26,12 +26,21 @@ namespace ContainerGenerator {
                             local.Registrations.AddRange(method.Registrations);
                             local.Calls.AddRange(method.Calls);
                             local.CallOrdinals.AddRange(method.CallOrdinals);
+                            local.CallTypeArguments.AddRange(method.CallTypeArguments);
+                            local.CallAsServices.AddRange(method.CallAsServices);
+                            local.CallHoles.AddRange(method.CallHoles);
+                            if (local.ReturnedOrdinal < 0)
+                                local.ReturnedOrdinal = method.ReturnedOrdinal;
                             if (string.IsNullOrEmpty(local.File))
                                 local.File = method.File;
                             if (local.Line == 0)
                                 local.Line = method.Line;
                         }
 
+                        if (string.IsNullOrEmpty(local.ParentHint) && string.IsNullOrEmpty(method.ParentId) == false)
+                            local.ParentHint = method.ParentId;
+                        if (string.IsNullOrEmpty(local.ParentId) && string.IsNullOrEmpty(method.ParentId) == false)
+                            local.ParentId = method.ParentId;
                         continue;
                     }
 
@@ -79,7 +88,7 @@ namespace ContainerGenerator {
             return ns == "Internal";
         }
 
-        private static GraphMethod? Read(AttributeData attribute, Compilation compilation) {
+        private static GraphMethod? Read(AttributeData attribute, Compilation compilation, string assemblyName) {
             if (attribute.ConstructorArguments.Length < 8)
                 return null;
 
@@ -97,6 +106,7 @@ namespace ContainerGenerator {
                 IsRoot = isRoot,
                 File = file,
                 Line = line,
+                AssemblyName = assemblyName ?? "",
             };
             method.Calls.AddRange(calls);
             ParseBlob(method, blob, implementations, services);
@@ -115,6 +125,12 @@ namespace ContainerGenerator {
             if (lines[0] != GraphEmitter.BlobVersion)
                 return;
             index = 1;
+            if (index < lines.Length && lines[index].StartsWith("parent:", StringComparison.Ordinal)) {
+                method.ParentId = lines[index].Substring("parent:".Length);
+                method.ParentHint = method.ParentId;
+                index++;
+            }
+
             if (index < lines.Length && lines[index].StartsWith("calls:", StringComparison.Ordinal)) {
                 var raw = lines[index].Substring("calls:".Length);
                 if (string.IsNullOrEmpty(raw) == false) {
@@ -125,6 +141,26 @@ namespace ContainerGenerator {
                     }
                 }
 
+                index++;
+            }
+
+            if (index < lines.Length && lines[index].StartsWith("return:", StringComparison.Ordinal)) {
+                method.ReturnedOrdinal = ParseInt(lines[index].Substring("return:".Length));
+                index++;
+            }
+
+            if (index < lines.Length && lines[index].StartsWith("calltypes:", StringComparison.Ordinal)) {
+                SplitCallField(method.CallTypeArguments, lines[index].Substring("calltypes:".Length));
+                index++;
+            }
+
+            if (index < lines.Length && lines[index].StartsWith("callas:", StringComparison.Ordinal)) {
+                SplitCallField(method.CallAsServices, lines[index].Substring("callas:".Length));
+                index++;
+            }
+
+            if (index < lines.Length && lines[index].StartsWith("callholes:", StringComparison.Ordinal)) {
+                SplitCallField(method.CallHoles, lines[index].Substring("callholes:".Length));
                 index++;
             }
 
@@ -159,7 +195,14 @@ namespace ContainerGenerator {
                     File = GraphEmitter.Unescape(fields[8]),
                     Line = ParseInt(fields[9]),
                     ImplementationType = implementation,
+                    TypeMap = fields.Length > 11 ? GraphEmitter.Unescape(fields[11]) : "",
                 };
+
+                if (fields.Length > 12) {
+                    var maps = GraphEmitter.Unescape(fields[12]).Split(';');
+                    for (var m = 0; m < maps.Length; m++)
+                        registration.ServiceMaps.Add(maps[m]);
+                }
 
                 for (var s = 0; s < serviceCount; s++) {
                     var service = "";
@@ -231,6 +274,14 @@ namespace ContainerGenerator {
             if (int.TryParse(GraphEmitter.Unescape(value), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
                 return parsed;
             return 0;
+        }
+
+        private static void SplitCallField(List<string> target, string raw) {
+            if (string.IsNullOrEmpty(raw))
+                return;
+            var parts = raw.Split('|');
+            for (var i = 0; i < parts.Length; i++)
+                target.Add(GraphEmitter.Unescape(parts[i]));
         }
 
     }

@@ -1,35 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ContainerGenerator {
+    // Что нужно типу: параметры конструктора и Construct. Рёбра по ним строит EdgeResolver.
     internal static class TypeAnalyzer {
-        public static bool IsClassCandidate(SyntaxNode node) {
-            if (node is not ClassDeclarationSyntax declaration)
-                return false;
-
-            foreach (var modifier in declaration.Modifiers) {
-                var kind = modifier.Text;
-                if (kind == "abstract" || kind == "static")
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool IsRegisterCandidate(SyntaxNode node) {
-            if (node is not InvocationExpressionSyntax invocation)
-                return false;
-
-            if (invocation.Expression is MemberAccessExpressionSyntax member)
-                return IsRegisterName(member.Name);
-
-            if (invocation.Expression is MemberBindingExpressionSyntax binding)
-                return IsRegisterName(binding.Name);
-
-            return false;
-        }
-
         public static InjectorModel? Analyze(
             INamedTypeSymbol type,
             ReferenceSymbols references,
@@ -41,13 +15,7 @@ namespace ContainerGenerator {
                 return null;
             if (type.IsImplicitClass)
                 return null;
-            if (type.Implements(references.Injector))
-                return null;
             if (InheritsAttribute(type))
-                return null;
-            if (type.Name.EndsWith("GeneratedInjector"))
-                return null;
-            if (type.Name.StartsWith("ContainerInjectors_"))
                 return null;
 
             var constructMethods = new List<IMethodSymbol>();
@@ -55,8 +23,6 @@ namespace ContainerGenerator {
                 if (member is not IMethodSymbol method)
                     continue;
                 if (method.MethodKind != MethodKind.Ordinary || method.IsStatic)
-                    continue;
-                if (IsInjectorConstruct(method, references))
                     continue;
 
                 constructMethods.Add(method);
@@ -103,13 +69,6 @@ namespace ContainerGenerator {
                 location);
         }
 
-        private static bool IsRegisterName(SimpleNameSyntax name) {
-            var identifier = name.Identifier.ValueText;
-            return identifier == "Register" ||
-                   identifier == "RegisterInstance" ||
-                   identifier == "RegisterComponent";
-        }
-
         private static bool InheritsAttribute(INamedTypeSymbol type) {
             var current = type;
             while (current != null) {
@@ -120,15 +79,6 @@ namespace ContainerGenerator {
             }
 
             return false;
-        }
-
-        private static bool IsInjectorConstruct(IMethodSymbol method, ReferenceSymbols _) {
-            if (method.Parameters.Length != 2)
-                return false;
-            if (method.Parameters[0].Type.SpecialType != SpecialType.System_Object)
-                return false;
-
-            return method.Parameters[1].Type.Name == "IResolvePlan";
         }
 
         private static IMethodSymbol? SelectConstructor(INamedTypeSymbol type) {

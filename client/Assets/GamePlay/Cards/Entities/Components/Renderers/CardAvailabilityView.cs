@@ -1,6 +1,5 @@
 ﻿using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -21,7 +20,6 @@ namespace GamePlay.Cards
 
         private ICardContext _context;
 
-        [Inject]
         internal void Construct(ICardContext context)
         {
             _context = context;

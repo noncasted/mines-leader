@@ -2,7 +2,6 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace Global.UI
 {
@@ -24,7 +23,6 @@ namespace Global.UI
         private CurveInstance _curveInstance;
         private Direction2 _direction;
 
-        [Inject]
         internal void Construct(IUpdater updater)
         {
             _updater = updater;

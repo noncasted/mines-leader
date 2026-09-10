@@ -15,7 +15,5 @@ namespace Internal
 
         void Inject(object target);
         void InjectGameObject(UnityEngine.GameObject target);
-
-        IContainerBuilderScope CreateChild();
     }
 }

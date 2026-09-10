@@ -1,12 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-using VContainer;
-using VContainer.Unity;
+using Cysharp.Threading.Tasks;
 
 namespace Internal
 {
     public interface ILoadedScope
     {
-        LifetimeScope Container { get; }
+        IContainer Container { get; }
         IReadOnlyLifetime Lifetime { get; }
 
         UniTask Initialize();
@@ -17,7 +15,7 @@ namespace Internal
     {
         public static T Resolve<T>(this ILoadedScope loadResult)
         {
-            return loadResult.Container.Container.Resolve<T>();
+            return loadResult.Container.Resolve<T>();
         }
     }
 }

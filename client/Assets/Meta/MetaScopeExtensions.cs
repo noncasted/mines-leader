@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.Setup;
 using Internal;
 using Shared;
 
@@ -22,9 +23,11 @@ namespace Meta
                 await scope.Initialize();
 
             return scope;
+        }
 
-            UniTask Construct(IScopeBuilder builder)
-            {
+        [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
+        public static UniTask Construct(IScopeBuilder builder)
+        {
                 builder.RequestSpriteGroup(Sprites.CardsIcons);
                 builder.RequestSpriteGroup(Sprites.CardBuffs);
                 builder.RequestSpriteGroup(Sprites.MenuPlay);
@@ -105,7 +108,6 @@ namespace Meta
                        .As<IScopeSetup>();
 
                 return UniTask.CompletedTask;
-            }
         }
     }
 }

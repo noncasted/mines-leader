@@ -17,8 +17,13 @@ namespace Internal
                 throw new ArgumentException("Root id is required.", nameof(rootId));
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
+            if (_factories.ContainsKey(rootId) == true)
+            {
+                throw new InvalidOperationException(
+                    "Generated scope '" + rootId + "' is already registered.");
+            }
 
-            _factories[rootId] = factory;
+            _factories.Add(rootId, factory);
         }
 
         public static bool IsRegistered(string rootId)
@@ -37,6 +42,63 @@ namespace Internal
             return _factories.Remove(rootId);
         }
 
+        public static void RegisterVariant(
+            string rootId,
+            Type viewType,
+            Func<GeneratedScopeRequest, IContainer> factory)
+        {
+            if (viewType == null)
+                throw new ArgumentNullException(nameof(viewType));
+
+            Register(VariantKey(rootId, viewType), factory);
+        }
+
+        public static string VariantKey(string rootId, Type viewType)
+        {
+            return rootId + "@" + TypeName(viewType);
+        }
+
+        /// <summary>
+        /// Id корня в том виде, в каком его пишет генератор: тип через точки и метод,
+        /// у локальной функции — "+Имя" после внешнего метода. Лямбда корнем быть не может:
+        /// по ней не найти класс скоупа.
+        /// </summary>
+        public static string RootId(MethodInfo method)
+        {
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            var type = method.DeclaringType;
+            var name = method.Name;
+            if (name.Length == 0 || name[0] != '<')
+                return TypeName(type) + "." + name;
+
+            var close = name.IndexOf('>');
+            var marker = close < 0 ? -1 : name.IndexOf("g__", close, StringComparison.Ordinal);
+            var bar = marker < 0 ? -1 : name.IndexOf('|', marker);
+            if (close < 0 || marker != close + 1 || bar < 0)
+            {
+                throw new ArgumentException(
+                    "Scope root must be a method group or a local function, not a lambda: " + name,
+                    nameof(method));
+            }
+
+            var outer = name.Substring(1, close - 1);
+            var local = name.Substring(marker + 3, bar - marker - 3);
+            while (type != null && type.Name.Length > 0 && type.Name[0] == '<')
+                type = type.DeclaringType;
+
+            return TypeName(type) + "." + outer + "+" + local;
+        }
+
+        private static string TypeName(Type type)
+        {
+            if (type == null)
+                return string.Empty;
+
+            return (type.FullName ?? type.Name).Replace('+', '.');
+        }
+
         internal static IContainer Create(string rootId, ContainerBuilder builder)
         {
             if (builder == null)
@@ -44,7 +106,7 @@ namespace Internal
             if (_factories.TryGetValue(rootId, out var factory) == false)
             {
                 throw new InvalidOperationException(
-                    $"No generated container for '{rootId}'.");
+                    $"No generated container for '{rootId}'. Check generator diagnostics (CINGR00*) for this root.");
             }
 
             var lifetime = builder.CreateLifetime();
@@ -60,7 +122,7 @@ namespace Internal
                 }
 
                 builder.MarkBuilt();
-                AttachCreated(created, builder.Parent);
+                AttachDebug(created);
                 return created;
             }
             catch
@@ -79,39 +141,9 @@ namespace Internal
             _factories.Clear();
         }
 
-        internal static Dictionary<Type, object> ReadExports(IContainer container)
+        private static void AttachDebug(IContainer created)
         {
-            if (container == null)
-                return null;
-
-            if (container is GeneratedContainer generated)
-                return generated.Exports;
-
-            var field = container.GetType().GetField(
-                "_exports",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            if (field == null)
-                return null;
-
-            return field.GetValue(container) as Dictionary<Type, object>;
-        }
-
-        internal static void AttachCreated(IContainer created, IContainer parent)
-        {
-            if (created == null)
-                return;
-            if (created is GeneratedContainer)
-                return;
-
             var diagnostics = created.Diagnostics;
-            if (parent is IContainerTree tree)
-            {
-                tree.AttachChild(created);
-                if (created.Lifetime != null)
-                    created.Lifetime.Listen(() => tree.DetachChild(created));
-                return;
-            }
-
             if (diagnostics == null)
                 return;
 
@@ -154,6 +186,15 @@ namespace Internal
             return (T)instance;
         }
 
+        // Какая из альтернатив installer'а (ветка if/switch) реально попала в этот скоуп.
+        public bool IsRegistered(Type implementation)
+        {
+            if (implementation == null)
+                throw new ArgumentNullException(nameof(implementation));
+
+            return _builder != null && _builder.HasRegistration(implementation);
+        }
+
         public bool TryGet(Type type, out object instance)
         {
             if (type == null)
@@ -167,14 +208,6 @@ namespace Internal
 
             instance = null;
             return false;
-        }
-
-        internal IReadOnlyList<LoadedAssetInfo> TakeLoadedAssets()
-        {
-            if (_builder == null)
-                return Array.Empty<LoadedAssetInfo>();
-
-            return _builder.TakeLoadedAssets(Lifetime);
         }
     }
 }

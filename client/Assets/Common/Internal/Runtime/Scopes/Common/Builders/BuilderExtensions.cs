@@ -1,7 +1,4 @@
-﻿using System;
-using VContainer;
-using VContainer.Internal;
-using VContainer.Unity;
+using System;
 using Object = UnityEngine.Object;
 
 namespace Internal
@@ -10,28 +7,22 @@ namespace Internal
     {
         public static IRegistration Register<T>(
             this IBuilder builder,
-            VContainer.Lifetime lifetime = VContainer.Lifetime.Singleton)
+            ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
-            var type = typeof(T);
-            var registrationBuilder = new RegistrationBuilder(type, lifetime);
-            registrationBuilder.AsSelf();
-            var registration = new ContainerRegistration(builder, registrationBuilder);
-            builder.Services.AddBuilder(registrationBuilder);
+            var registration = builder.Services.Registry.Add(typeof(T), lifetime);
+            registration.AsSelf();
 
-            return registration;
+            return new ContainerRegistration(builder, registration);
         }
 
         public static IRegistration Register<TInterface, TImplementation>(
             this IBuilder builder,
-            VContainer.Lifetime lifetime = VContainer.Lifetime.Singleton)
+            ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
-            var type = typeof(TImplementation);
-            var registrationBuilder = new RegistrationBuilder(type, lifetime);
-            registrationBuilder.As(typeof(TInterface));
-            var registration = new ContainerRegistration(builder, registrationBuilder);
-            builder.Services.AddBuilder(registrationBuilder);
+            var registration = builder.Services.Registry.Add(typeof(TImplementation), lifetime);
+            registration.As(typeof(TInterface));
 
-            return registration;
+            return new ContainerRegistration(builder, registration);
         }
 
         public static IRegistration RegisterInstance<T>(
@@ -41,32 +32,28 @@ namespace Internal
             if (instance == null)
                 throw new NullReferenceException();
 
-            var registrationBuilder = new InstanceRegistrationBuilder(instance).As(typeof(T));
-            var registration = new ContainerRegistration(builder, registrationBuilder);
-            builder.Services.AddBuilder(registrationBuilder);
+            var registration = builder.Services.Registry.AddInstance(typeof(T), instance);
 
-            return registration;
+            return new ContainerRegistration(builder, registration);
         }
 
         public static IRegistration RegisterComponent<T>(
             this IBuilder builder,
             T component,
-            VContainer.Lifetime lifetime = VContainer.Lifetime.Singleton) where T : Object
+            ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : Object
         {
             if (component == null)
                 throw new NullReferenceException($"Missing {typeof(T).Name} component");
 
-            var registrationBuilder = new ComponentRegistrationBuilder(component, lifetime).As(typeof(T));
-            registrationBuilder.AsSelf();
-            var registration = new ContainerRegistration(builder, registrationBuilder);
-            builder.Services.AddBuilder(registrationBuilder);
+            var registration = builder.Services.Registry.AddComponent(typeof(T), component, lifetime);
+            registration.AsSelf();
 
-            return registration;
+            return new ContainerRegistration(builder, registration);
         }
 
         public static IRegistration As<T>(this IRegistration registration)
         {
-            registration.Registration.As<T>();
+            registration.Registration.As(typeof(T));
             return registration;
         }
 
@@ -78,7 +65,7 @@ namespace Internal
 
         public static IRegistration WithParameter<T>(this IRegistration registration, T parameter)
         {
-            registration.Registration.WithParameter(parameter);
+            registration.Registration.WithParameter(typeof(T), parameter);
             return registration;
         }
 
@@ -90,20 +77,22 @@ namespace Internal
 
         public static IRegistration AsSelfResolvable(this IRegistration registration)
         {
-            registration.ServiceCollection.AddSelfResolvable(registration.Registration);
+            registration.ServiceCollection.Registry.AddSelfResolvable(registration.Registration);
             return registration;
         }
 
         public static void Inject<T>(this IBuilder builder, T component)
         {
-            builder.Services.Inject(component);
+            if (component == null)
+                throw new NullReferenceException("No component provided");
+
+            builder.Services.Registry.AddInjection(component);
         }
 
         public static IRegistration WithScopeLifetime(this IRegistration registration)
         {
-            registration.Registration.WithParameter(registration.Builder.Lifetime);
+            registration.Registration.WithParameter(typeof(IReadOnlyLifetime), registration.Builder.Lifetime);
             return registration;
         }
-
     }
 }

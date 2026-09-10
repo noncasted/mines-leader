@@ -1,6 +1,5 @@
 ﻿using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace Global.Cameras
 {
@@ -18,7 +17,6 @@ namespace Global.Cameras
 
         public Camera Camera { get; private set; }
 
-        [Inject]
         internal void Construct(ICurrentCamera currentCamera)
         {
             _currentCamera = currentCamera;

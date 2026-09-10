@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.UI
 {
@@ -28,7 +27,6 @@ namespace GamePlay.UI
 
         private IGameContext _gameContext;
 
-        [Inject]
         internal void Construct(IGameContext gameContext)
         {
             _gameContext = gameContext;

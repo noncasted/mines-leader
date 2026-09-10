@@ -2,8 +2,7 @@ using System.Collections.Generic;
 
 namespace Internal.Tests
 {
-    // Isolated roots for scope-class emit tests. Complete graphs, no holes.
-    // LoadGenerated must emit a class; LoadRuntime must not (pointwise opt-out).
+    // Isolated root for scope-class emit tests. Complete graph, no holes.
     public static class ScopeCodegenRoots
     {
         [ContainerGraphRoot]
@@ -13,18 +12,11 @@ namespace Internal.Tests
             builder.Register<ScopeCodegenSecondSetup>().As<IScopeSetup>();
             builder.Register<ScopeCodegenThirdSetup>().As<IScopeSetup>();
             builder.Register<ScopeCodegenSingleton>();
-            builder.Register<ScopeCodegenScoped>(VContainer.Lifetime.Scoped);
-            builder.Register<ScopeCodegenTransient>(VContainer.Lifetime.Transient);
+            builder.Register<ScopeCodegenScoped>(ServiceLifetime.Scoped);
+            builder.Register<ScopeCodegenTransient>(ServiceLifetime.Transient);
             builder.Register<ScopeCodegenBronze>().As<IScopeCodegenTier>();
             builder.Register<ScopeCodegenGold>().As<IScopeCodegenTier>();
             builder.Register<ScopeCodegenRow>();
-        }
-
-        [ContainerGraphRoot]
-        [ContainerRuntimeScope]
-        public static void LoadRuntime(IScopeBuilder builder)
-        {
-            builder.Register<ScopeCodegenRuntimeOnly>();
         }
     }
 
@@ -102,9 +94,5 @@ namespace Internal.Tests
         }
 
         public IReadOnlyList<IScopeCodegenTier> Tiers { get; }
-    }
-
-    public sealed class ScopeCodegenRuntimeOnly
-    {
     }
 }

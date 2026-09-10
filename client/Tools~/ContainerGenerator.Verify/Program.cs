@@ -15,25 +15,36 @@ namespace ContainerGenerator.Verify {
             Run("LoadGlobal graph", TestLoadGlobal);
             Run("CardFactory.Build graph", TestCardFactoryBuild);
             Run("CINGR003 missing parameter name", TestMissingRegistration);
+            Run("CINGR003 missing interface in own scope", TestMissingInterface);
+            Run("parent export is typed hole not error", TestParentExportHole);
+            Run("missing on self and parent is CINGR003", TestMissingOnSelfAndParent);
+            Run("parent in other assembly via manifest", TestParentViaManifest);
+            Run("generator driver Internal→Global→Menu", TestGeneratorDriverParentChain);
+            Run("generator driver missing parent is CINGR007", TestGeneratorDriverMissingParent);
             Run("CINGR004 cycle path", TestCycle);
             Run("IReadOnlyList FullyQualifiedFormat", TestCollectionTypeKey);
-            Run("LoadGlobal emit compiles without IResolvePlan", TestLoadGlobalEmit);
+            Run("LoadGlobal emit compiles", TestLoadGlobalEmit);
             Run("Marker array order matches registration", TestMarkerOrderEmit);
             Run("Transient has method not field", TestTransientEmit);
-            Run("ContainerRuntimeScope disables emit", TestRuntimeScopeEmit);
             Run("CINGR003 does not emit class", TestMissingDoesNotEmit);
             Run("CINGR001 uncovered syntax", TestUncoveredSyntax);
             Run("Marker collection order", TestMarkerCollectionOrder);
             Run("1b manifest uses assembly attributes", TestManifestEmitsAttributes);
             Run("1b cross-assembly installer no CINGR002", TestCrossAssemblyManifest);
             Run("1b harvested local functions keep order", TestHarvestLocalFunctionOrder);
+            Run("harvest keeps repeated generic installer calls", TestHarvestRepeatedGenericInstaller);
             Run("1c entity Load splits CardFactory variants", TestEntityCardVariants);
-            Run("1c entity emit two classes without IResolvePlan", TestEntityCardEmit);
+            Run("1c entity emit two classes", TestEntityCardEmit);
             Run("1c GamePlayer variants bind stripped Board", TestEntityPlayerStrippedBoard);
             Run("1c CINGR006 duplicate view type names both paths", TestCingr006DuplicateView);
             Run("1c CINGR006 skips base view type", TestCingr006BaseViewSkipped);
             Run("1c CINGR006 skips SceneServicesFactory", TestCingr006SceneFactorySkipped);
             Run("1c CINGR005 non-enumerable variant condition", TestCingr005Unenumerable);
+            Run("generic installer in same assembly", TestGenericInstallerSameAssembly);
+            Run("generic installer via manifest", TestGenericInstallerViaManifest);
+            Run(".As on installer return from other assembly", TestGenericInstallerReturnAs);
+            Run("generic installer emit with nested type args", TestGenericInstallerNestedEmit);
+            Run("generic RegisterCommand nested emit", TestGenericRegisterCommandEmit);
             if (_failed == 0)
                 Console.WriteLine("ALL PASSED");
             else
@@ -123,6 +134,116 @@ namespace ContainerGenerator.Verify {
             Console.WriteLine("      " + message);
         }
 
+        private static void TestMissingInterface() {
+            var graph = ResolveRoot(MissingInterfaceSource, "MissingInterfaceRoot");
+            var diagnostic = RequireDiagnostic(graph, "CINGR003");
+            var message = diagnostic.ToDiagnostic().GetMessage();
+            Require(message.IndexOf("missing", StringComparison.Ordinal) >= 0, "CINGR003 parameter: " + message);
+            Require(message.IndexOf("IUnregisteredService", StringComparison.Ordinal) >= 0, "CINGR003 type: " + message);
+        }
+
+        private static void TestParentExportHole() {
+            var graph = ResolveRoot(ParentHitSource, "ChildRoot");
+            RequireNo(graph, "CINGR003");
+            var edge = RequireEdge(graph, "NeedsParent", "dep");
+            Require(edge.Kind == "Hole", "parent dep kind " + edge.Kind);
+            Require(edge.ParentRootId.IndexOf("ParentRoot", StringComparison.Ordinal) >= 0,
+                "parent source " + edge.ParentRootId);
+        }
+
+        private static void TestMissingOnSelfAndParent() {
+            var graph = ResolveRoot(ParentMissSource, "ChildMissRoot");
+            var diagnostic = RequireDiagnostic(graph, "CINGR003");
+            var message = diagnostic.ToDiagnostic().GetMessage();
+            Require(message.IndexOf("absent", StringComparison.Ordinal) >= 0, "CINGR003 parameter: " + message);
+            Require(message.IndexOf("IAbsent", StringComparison.Ordinal) >= 0, "CINGR003 type: " + message);
+        }
+
+        private static void TestParentViaManifest() {
+            var shared = EmitStubs("ParentHoleStubs");
+            var parentCompilation = Compile(ParentManifestLibSource, "ParentLib", extra: new[] { shared }, includeStubs: false);
+            var parentDocument = WalkDocument(parentCompilation, harvest: false);
+            EdgeResolver.BindParents(parentDocument);
+            var parentEmit = GraphEmitter.Emit(parentDocument, parentCompilation);
+            var parentReference = EmitAssembly(parentCompilation, parentEmit, "ParentLib");
+
+            var childCompilation = Compile(
+                ParentManifestChildSource,
+                "ChildLib",
+                extra: new[] { shared, parentReference },
+                includeStubs: false);
+            var childDocument = WalkDocument(childCompilation, harvest: false);
+            ManifestReader.Merge(childDocument, childCompilation);
+            var references = ReferenceSymbols.Create(childCompilation);
+            Require(references != null, "child ReferenceSymbols");
+            var graph = EdgeResolver.ResolveByHint(childDocument, childCompilation, references!, "ChildManifestRoot");
+            Require(graph != null, "ChildManifestRoot missing; roots=" + Roots(childDocument));
+            RequireNo(graph!, "CINGR003");
+            var edge = RequireEdge(graph!, "NeedsExported", "dep");
+            Require(edge.Kind == "Hole", "manifest parent kind " + edge.Kind);
+            Require(edge.ParentRootId.IndexOf("ParentManifestRoot", StringComparison.Ordinal) >= 0,
+                "manifest parent source " + edge.ParentRootId);
+        }
+
+        private static void TestGeneratorDriverParentChain() {
+            var internalCompilation = Compile(DriverInternalSource, "Internal");
+            var internalRun = RunGenerator(internalCompilation, "Internal");
+            RequireNoId(internalRun.Diagnostics, "CINGR001");
+            RequireGeneratedContains(internalRun.Output, "[assembly: global::Internal.ContainerInstaller(");
+            RequireGeneratedContains(internalRun.Output, "OptionsContainer");
+
+            var globalCompilation = Compile(
+                DriverGlobalSource,
+                "Global",
+                extra: new[] { internalRun.Reference },
+                includeStubs: false);
+            var globalRun = RunGenerator(globalCompilation, "Global");
+            RequireNoId(globalRun.Diagnostics, "CINGR001");
+            RequireNoId(globalRun.Diagnostics, "CINGR003");
+            RequireNoId(globalRun.Diagnostics, "CINGR007");
+            RequireGeneratedContains(internalRun.Output, "OptionsContainerRegisterContainer");
+            RequireGeneratedContains(globalRun.Output, "Global.Setup.GlobalScopeExtensions.Construct");
+            RequireGeneratedContains(globalRun.Output, "[assembly: global::Internal.ContainerInstaller(");
+            RequireGeneratedMissing(globalRun.Output, "OptionsContainerRegisterContainer");
+
+            var menuCompilation = Compile(
+                DriverMenuSource,
+                "Menu",
+                extra: new[] { internalRun.Reference, globalRun.Reference },
+                includeStubs: false);
+            var menuRun = RunGenerator(menuCompilation, "Menu");
+            RequireNoId(menuRun.Diagnostics, "CINGR001");
+            RequireNoId(menuRun.Diagnostics, "CINGR003");
+            RequireNoId(menuRun.Diagnostics, "CINGR007");
+            RequireGeneratedContains(menuRun.Output, "MenuScopeExtensionsConstructContainer");
+            Console.WriteLine("      Internal→Global→Menu through ContainerGraphGenerator");
+        }
+
+        private static void TestGeneratorDriverMissingParent() {
+            var internalCompilation = Compile(DriverInternalSource, "Internal");
+            var internalRun = RunGenerator(internalCompilation, "Internal");
+            var globalCompilation = Compile(
+                DriverGlobalSource,
+                "Global",
+                extra: new[] { internalRun.Reference },
+                includeStubs: false);
+            var globalBare = EmitPe(globalCompilation, "GlobalBare");
+
+            var menuCompilation = Compile(
+                DriverMenuSource,
+                "Menu",
+                extra: new[] { internalRun.Reference, globalBare },
+                includeStubs: false);
+            var menuRun = RunGenerator(menuCompilation, "MenuMissingParent", requireEmit: false);
+            var cingr007 = RequireId(menuRun.Diagnostics, "CINGR007");
+            var message = cingr007.GetMessage();
+            Require(message.IndexOf("Global.Setup.GlobalScopeExtensions.Construct", StringComparison.Ordinal) >= 0,
+                "CINGR007 parent id: " + message);
+            Require(message.IndexOf("Global", StringComparison.Ordinal) >= 0, "CINGR007 assembly: " + message);
+            RequireNoId(menuRun.Diagnostics, "CINGR003");
+            Console.WriteLine("      " + message);
+        }
+
         private static void TestCycle() {
             var graph = ResolveRoot(CycleSource, "CycleRoot");
             var diagnostic = RequireDiagnostic(graph, "CINGR004");
@@ -142,14 +263,12 @@ namespace ContainerGenerator.Verify {
 
         private static void TestLoadGlobalEmit() {
             var emitted = EmitRoot(LoadGlobalSource, "LoadGlobal", out var graph);
-            Require(emitted.IndexOf("IResolvePlan", StringComparison.Ordinal) < 0, "generated class must not use IResolvePlan");
             Require(emitted.IndexOf("Container", StringComparison.Ordinal) >= 0, "missing container class");
             Require(emitted.IndexOf("LoadGlobalContainer", StringComparison.Ordinal) >= 0,
                 "class name must follow {RootType}{RootMethod}Container; got snippet:\n" + Head(emitted));
             Require(emitted.IndexOf("internal sealed class GlobalScopeExtensionsLoadGlobalContainer", StringComparison.Ordinal) >= 0,
                 "expected GlobalScopeExtensionsLoadGlobalContainer:\n" + Head(emitted));
-            Require(emitted.IndexOf("IsGenerated => true", StringComparison.Ordinal) >= 0, "IsGenerated must be true");
-            Require(emitted.IndexOf("alternative0", StringComparison.Ordinal) >= 0, "alternative must be a constructor parameter");
+            Require(emitted.IndexOf("request.IsRegistered(typeof(", StringComparison.Ordinal) >= 0, "alternative must be chosen by the registered implementation");
             Require(emitted.IndexOf("ItchLanguageDebugAPI", StringComparison.Ordinal) >= 0, "alternative true branch missing");
             Require(emitted.IndexOf("ItchLanguageExternAPI", StringComparison.Ordinal) >= 0, "alternative false branch missing");
             Require(emitted.IndexOf("CreatePopup", StringComparison.Ordinal) < 0, "LoadGlobal has no transients");
@@ -168,7 +287,6 @@ namespace ContainerGenerator.Verify {
             var bronze = emitted.IndexOf("BronzeTier", marker, StringComparison.Ordinal);
             var gold = emitted.IndexOf("GoldTier", marker, StringComparison.Ordinal);
             Require(bronze >= 0 && gold > bronze, "marker order must be Bronze then Gold");
-            Require(emitted.IndexOf("IResolvePlan", StringComparison.Ordinal) < 0, "marker emit used IResolvePlan");
             RequireCompiles(emitted, CollectionSource);
         }
 
@@ -177,20 +295,7 @@ namespace ContainerGenerator.Verify {
             Require(emitted.IndexOf("CreatePopup", StringComparison.Ordinal) >= 0, "missing CreatePopup method:\n" + Head(emitted));
             Require(emitted.IndexOf("private readonly global::Sample.Popup _popup", StringComparison.Ordinal) < 0,
                 "Transient must not have a field");
-            Require(emitted.IndexOf("IResolvePlan", StringComparison.Ordinal) < 0, "transient emit used IResolvePlan");
             RequireCompiles(emitted, TransientSource);
-        }
-
-        private static void TestRuntimeScopeEmit() {
-            var compilation = Compile(RuntimeScopeSource);
-            var references = ReferenceSymbols.Create(compilation);
-            Require(references != null, "ReferenceSymbols.Create returned null");
-            var document = new GraphWalker(compilation, references!).Walk();
-            var graph = EdgeResolver.ResolveByHint(document, compilation, references!, "RuntimeRoot");
-            Require(graph != null, "no RuntimeRoot");
-            Require(ScopeEmitter.IsRuntimeScope(compilation, references!, graph!.RootId), "attribute must be detected");
-            var emitted = ScopeEmitter.TryEmit(graph, document, compilation, references!, out _, out var source);
-            Require(emitted == false, "runtime scope must not emit; got:\n" + source);
         }
 
         private static void TestMissingDoesNotEmit() {
@@ -224,6 +329,9 @@ namespace ContainerGenerator.Verify {
             Require(references != null, "ReferenceSymbols.Create returned null");
             var document = new GraphWalker(compilation, references!).Walk();
             var diagnostic = RequireDocumentDiagnostic(document, "CINGR001");
+            Require(
+                diagnostic.Descriptor.DefaultSeverity == DiagnosticSeverity.Error,
+                "CINGR001 severity " + diagnostic.Descriptor.DefaultSeverity);
             var message = diagnostic.ToDiagnostic().GetMessage();
             Require(message.IndexOf("LockStatement", StringComparison.Ordinal) >= 0, "CINGR001 message: " + message);
             Console.WriteLine("      " + message);
@@ -237,9 +345,10 @@ namespace ContainerGenerator.Verify {
                 "expected assembly ContainerInstaller attributes:\n" + Head(emitted));
             Require(emitted.IndexOf("static readonly ContainerGraphMethod[]", StringComparison.Ordinal) < 0,
                 "GraphEmitter must not emit static readonly method arrays");
-            var attributeClass = GraphEmitter.EmitAttributeClass(compilation);
-            Require(attributeClass != null && attributeClass.IndexOf("class ContainerInstallerAttribute", StringComparison.Ordinal) >= 0,
-                "attribute class must be generated when missing");
+            Require(emitted.IndexOf("class ContainerInstallerAttribute", StringComparison.Ordinal) < 0,
+                "ContainerInstallerAttribute must not be emitted:\n" + Head(emitted));
+            Require(compilation.GetTypeByMetadataName("Internal.ContainerInstallerAttribute") != null,
+                "ContainerInstallerAttribute must already exist in the compilation");
         }
 
         private static void TestCrossAssemblyManifest() {
@@ -307,6 +416,17 @@ namespace ContainerGenerator.Verify {
                 string.Join(",", session.Calls));
         }
 
+        // AddSessionServices: локальные функции зовут RegisterCommand<T> несколько раз. Слияние harvest
+        // сравнивало вызовы только по id и оставляло первый — остальные команды молча пропадали.
+        private static void TestHarvestRepeatedGenericInstaller() {
+            var shared = EmitStubs("HarvestGenericStubs");
+            var compilation = Compile(HarvestGenericLibSource, "HarvestGenericLib", extra: new[] { shared }, includeStubs: false);
+            var document = WalkDocument(compilation, harvest: true);
+            var installer = FindMethod(document, "AddCommands");
+            var calls = installer.Calls.FindAll(c => c.IndexOf("RegisterItem", StringComparison.Ordinal) >= 0).Count;
+            Require(calls == 3, "harvest must keep every RegisterItem<T> call; got " + calls + " calls=" + string.Join(",", installer.Calls));
+        }
+
         private static void TestMarkerCollectionOrder() {
             var graph = ResolveRoot(MarkerSource, "MarkerRoot");
             RequireNo(graph, "CINGR003");
@@ -331,6 +451,13 @@ namespace ContainerGenerator.Verify {
             var remote = RequireRoot(document, "+Remote");
             Require(local.ViewType.IndexOf("CardLocalScopeEntity", StringComparison.Ordinal) >= 0, "local view " + local.ViewType);
             Require(remote.ViewType.IndexOf("CardRemoteScopeEntity", StringComparison.Ordinal) >= 0, "remote view " + remote.ViewType);
+            for (var i = 0; i < document.Methods.Count; i++) {
+                if (document.Methods[i].Id.IndexOf("CardPointerHandler.Register", StringComparison.Ordinal) < 0)
+                    continue;
+                Require(document.Methods[i].IsRoot == false,
+                    "IEntityComponent.Register must not be a root: " + document.Methods[i].Id);
+            }
+
             Require(local.Calls.Exists(c => c.IndexOf("CardPointerHandler.Register", StringComparison.Ordinal) >= 0),
                 "local must call CardPointerHandler.Register; calls=" + string.Join(",", local.Calls));
             Require(remote.Calls.Exists(c => c.IndexOf("CardPointerHandler.Register", StringComparison.Ordinal) >= 0) == false,
@@ -364,7 +491,6 @@ namespace ContainerGenerator.Verify {
             for (var i = 0; i < graphs.Count; i++) {
                 if (ScopeEmitter.TryEmit(graphs[i], document, compilation, references!, out _, out var source) == false)
                     continue;
-                Require(source.IndexOf("IResolvePlan", StringComparison.Ordinal) < 0, "entity class used IResolvePlan");
                 emitted.Add(source);
                 if (source.IndexOf("CardFactoryBuildLocalContainer", StringComparison.Ordinal) >= 0)
                     localClass = source;
@@ -377,8 +503,20 @@ namespace ContainerGenerator.Verify {
             Require(localClass.IndexOf("CardPointerHandler", StringComparison.Ordinal) >= 0, "local class missing CardPointerHandler");
             Require(remoteClass.IndexOf("CardRevealView", StringComparison.Ordinal) >= 0, "remote class missing CardRevealView");
             Require(localClass.IndexOf("GeneratedScopes.Register", StringComparison.Ordinal) >= 0, "local must register");
-            Require(localClass.IndexOf("+Local", StringComparison.Ordinal) >= 0, "local rootId must include variant");
-            Require(remoteClass.IndexOf("+Remote", StringComparison.Ordinal) >= 0, "remote rootId must include variant");
+            Require(localClass.IndexOf("GeneratedScopes.RegisterVariant(", StringComparison.Ordinal) >= 0, "local must register as a variant");
+            Require(ViewTypeOf(localClass).IndexOf("Local", StringComparison.Ordinal) >= 0, "local variant must key on its view type: " + ViewTypeOf(localClass));
+            Require(ViewTypeOf(remoteClass).IndexOf("Remote", StringComparison.Ordinal) >= 0, "remote variant must key on its view type: " + ViewTypeOf(remoteClass));
+        }
+
+        private static string ViewTypeOf(string source) {
+            var anchor = source.IndexOf("RegisterVariant(", StringComparison.Ordinal);
+            if (anchor < 0)
+                return "";
+            var start = source.IndexOf("typeof(global::", anchor, StringComparison.Ordinal);
+            if (start < 0)
+                return "";
+            var end = source.IndexOf(')', start);
+            return end < 0 ? "" : source.Substring(start, end - start);
         }
 
         private static void TestEntityPlayerStrippedBoard() {
@@ -434,7 +572,125 @@ namespace ContainerGenerator.Verify {
             var diagnostic = RequireDocumentDiagnostic(document, "CINGR005");
             var message = diagnostic.ToDiagnostic().GetMessage();
             Require(message.IndexOf("cardId", StringComparison.Ordinal) >= 0, "CINGR005 condition: " + message);
-            Require(message.IndexOf("ContainerRuntimeScope", StringComparison.Ordinal) >= 0, "CINGR005 must mention attribute: " + message);
+            Require(message.IndexOf("Simplify the condition", StringComparison.Ordinal) >= 0, "CINGR005 must say what to do: " + message);
+        }
+
+        private static void TestGenericInstallerSameAssembly() {
+            var graph = ResolveRoot(GenericLocalSource, "GenericLocalRoot");
+            RequireNo(graph, "CINGR003");
+            var widget = FindRegistration(graph, "Widget");
+            Require(
+                widget.ImplementationType.IndexOf("Widget<", StringComparison.Ordinal) >= 0 &&
+                widget.ImplementationType.IndexOf("Alpha", StringComparison.Ordinal) >= 0,
+                "generic installer must close Widget<Alpha>: " + widget.ImplementationType);
+            Require(
+                widget.ServiceTypes.Exists(s => s.IndexOf("IWidget", StringComparison.Ordinal) >= 0 &&
+                                               s.IndexOf("Alpha", StringComparison.Ordinal) >= 0),
+                "generic installer must register IWidget<Alpha>: " + string.Join(",", widget.ServiceTypes));
+            FindRegistration(graph, "NeedsWidget");
+        }
+
+        private static void TestGenericInstallerViaManifest() {
+            var shared = EmitStubs("GenericManifestStubs");
+            var libCompilation = Compile(GenericInstallerLibSource, "GenericLib", extra: new[] { shared }, includeStubs: false);
+            var libDocument = WalkDocument(libCompilation, harvest: false);
+            var libEmit = GraphEmitter.Emit(libDocument, libCompilation);
+            Require(libEmit.IndexOf("RegisterItem", StringComparison.Ordinal) >= 0,
+                "manifest must export generic installer:\n" + Head(libEmit));
+            var libReference = EmitAssembly(libCompilation, libEmit, "GenericLib");
+
+            var consumerCompilation = Compile(
+                GenericManifestConsumerSource,
+                "GenericConsumer",
+                extra: new[] { shared, libReference },
+                includeStubs: false);
+            var consumerDocument = WalkDocument(consumerCompilation, harvest: false);
+            ManifestReader.Merge(consumerDocument, consumerCompilation);
+            ManifestReader.ReportUnresolved(consumerDocument);
+            RequireNoDocument(consumerDocument, "CINGR002");
+
+            var references = ReferenceSymbols.Create(consumerCompilation);
+            Require(references != null, "consumer ReferenceSymbols");
+            var graph = EdgeResolver.ResolveByHint(consumerDocument, consumerCompilation, references!, "GenericManifestRoot");
+            Require(graph != null, "GenericManifestRoot missing; roots=" + Roots(consumerDocument));
+            RequireNo(graph!, "CINGR003");
+            var box = FindRegistration(graph!, "Box");
+            Require(
+                box.ImplementationType.IndexOf("Cargo", StringComparison.Ordinal) >= 0,
+                "manifest generic installer must close Box<Cargo>: " + box.ImplementationType);
+            FindRegistration(graph!, "Cargo");
+
+            var twoCompilation = Compile(
+                GenericManifestTwoConsumerSource,
+                "GenericTwoConsumer",
+                extra: new[] { shared, libReference },
+                includeStubs: false);
+            var twoDocument = WalkDocument(twoCompilation, harvest: false);
+            ManifestReader.Merge(twoDocument, twoCompilation);
+            var twoGraph = EdgeResolver.ResolveByHint(twoDocument, twoCompilation, references!, "GenericTwoRoot");
+            Require(twoGraph != null, "GenericTwoRoot missing");
+            RequireNo(twoGraph!, "CINGR003");
+            Require(
+                ScopeEmitter.TryEmit(twoGraph!, twoDocument, twoCompilation, references!, out _, out var twoSource),
+                "two instantiations must emit");
+            Require(
+                twoSource.IndexOf("Box<>", StringComparison.Ordinal) < 0,
+                "manifest service types must close, not leave Box<>:\n" + Head(twoSource, 2500));
+        }
+
+        private static void TestGenericInstallerReturnAs() {
+            var shared = EmitStubs("GenericAsStubs");
+            var libCompilation = Compile(GenericInstallerLibSource, "GenericAsLib", extra: new[] { shared }, includeStubs: false);
+            var libDocument = WalkDocument(libCompilation, harvest: false);
+            var libReference = EmitAssembly(libCompilation, GraphEmitter.Emit(libDocument, libCompilation), "GenericAsLib");
+
+            var consumerCompilation = Compile(
+                GenericReturnAsConsumerSource,
+                "GenericAsConsumer",
+                extra: new[] { shared, libReference },
+                includeStubs: false);
+            var consumerDocument = WalkDocument(consumerCompilation, harvest: false);
+            ManifestReader.Merge(consumerDocument, consumerCompilation);
+            var references = ReferenceSymbols.Create(consumerCompilation);
+            Require(references != null, "as-consumer ReferenceSymbols");
+            var graph = EdgeResolver.ResolveByHint(consumerDocument, consumerCompilation, references!, "GenericAsRoot");
+            Require(graph != null, "GenericAsRoot missing");
+            RequireNo(graph!, "CINGR003");
+            var cargo = graph!.Registrations.Find(r =>
+                r.ImplementationType.IndexOf("Cargo", StringComparison.Ordinal) >= 0 &&
+                r.ImplementationType.IndexOf("Box", StringComparison.Ordinal) < 0);
+            Require(cargo != null, "returned Register<T> must close to Cargo; have " +
+                                   string.Join(",", graph.Registrations.ConvertAll(r => r.ImplementationType)));
+            Require(
+                cargo!.ServiceTypes.Exists(s => s.IndexOf("ICargo", StringComparison.Ordinal) >= 0),
+                ".As on returned installer registration must add ICargo; services=" +
+                string.Join(",", cargo.ServiceTypes) + " impl=" + cargo.ImplementationType);
+            FindRegistration(graph, "NeedsCargo");
+        }
+
+        private static void TestGenericInstallerNestedEmit() {
+            var emitted = EmitRoot(GenericNestedSource, "NestedGenericRoot", out var graph);
+            RequireNo(graph, "CINGR003");
+            Require(
+                emitted.IndexOf("<>", StringComparison.Ordinal) < 0,
+                "generated class must not use unbound generics:\n" + Head(emitted, 4000));
+            Require(
+                emitted.IndexOf("BackendProjection<", StringComparison.Ordinal) >= 0 &&
+                emitted.IndexOf("ProfileProjection", StringComparison.Ordinal) >= 0,
+                "must close BackendProjection<ProfileProjection>:\n" + Head(emitted, 2000));
+        }
+
+        private static void TestGenericRegisterCommandEmit() {
+            var emitted = EmitRoot(GenericRegisterCommandSource, "CommandRoot", out var graph);
+            RequireNo(graph, "CINGR003");
+            Console.WriteLine("      impls=" + string.Join(" | ", graph.Registrations.ConvertAll(r => r.ImplementationType)));
+            Require(
+                emitted.IndexOf("CommandResolver<", StringComparison.Ordinal) >= 0,
+                "must emit CommandResolver:\n" + Head(emitted, 2500));
+            Require(
+                emitted.IndexOf("CommandResolver<>", StringComparison.Ordinal) < 0,
+                "must not emit unbound CommandResolver<>:\n" + Head(emitted, 2500));
+            RequireCompiles(emitted, GenericRegisterCommandSource);
         }
 
         private static GraphDocument WalkBound(Compilation compilation) {
@@ -550,6 +806,92 @@ namespace ContainerGenerator.Verify {
             return MetadataReference.CreateFromStream(stream);
         }
 
+        private sealed class GeneratorRun {
+            public MetadataReference Reference = null!;
+            public Compilation Output = null!;
+            public Diagnostic[] Diagnostics = Array.Empty<Diagnostic>();
+        }
+
+        private static GeneratorRun RunGenerator(
+            Compilation compilation,
+            string assemblyName,
+            bool requireEmit = true) {
+            var parse = compilation.SyntaxTrees.First().Options as CSharpParseOptions
+                        ?? new CSharpParseOptions(LanguageVersion.Latest);
+            var driver = CSharpGeneratorDriver.Create(
+                new[] { new ContainerGraphGenerator().AsSourceGenerator() },
+                parseOptions: parse);
+            driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out var generatorDiagnostics);
+            var diagnostics = generatorDiagnostics
+                .Concat(output.GetDiagnostics())
+                .ToArray();
+            var stream = new MemoryStream();
+            var emit = output.Emit(stream);
+            if (requireEmit) {
+                var failures = emit.Diagnostics
+                    .Where(d => d.Severity == DiagnosticSeverity.Error)
+                    .Select(d => d.ToString())
+                    .Concat(diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()))
+                    .ToArray();
+                Require(emit.Success, assemblyName + " generator emit failed:\n" + string.Join("\n", failures));
+            }
+
+            return new GeneratorRun {
+                Reference = MetadataReference.CreateFromImage(stream.ToArray()),
+                Output = output,
+                Diagnostics = diagnostics,
+            };
+        }
+
+        private static MetadataReference EmitPe(Compilation compilation, string assemblyName) {
+            var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Require(result.Success, assemblyName + " emit failed:\n" +
+                                    string.Join("\n", result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
+            return MetadataReference.CreateFromImage(stream.ToArray());
+        }
+
+        private static void RequireGeneratedMissing(Compilation compilation, string fragment) {
+            foreach (var tree in compilation.SyntaxTrees) {
+                if (tree.FilePath != null && tree.FilePath.IndexOf("ContainerGraph", StringComparison.Ordinal) < 0 &&
+                    tree.FilePath.EndsWith(".g.cs", StringComparison.Ordinal) == false)
+                    continue;
+                var text = tree.GetText().ToString();
+                if (text.IndexOf(fragment, StringComparison.Ordinal) >= 0)
+                    throw new Exception("generated source must not contain '" + fragment + "'; tree=" + tree.FilePath);
+            }
+        }
+
+        private static void RequireGeneratedContains(Compilation compilation, string fragment) {
+            foreach (var tree in compilation.SyntaxTrees) {
+                if (tree.FilePath != null && tree.FilePath.IndexOf("ContainerGraph", StringComparison.Ordinal) < 0 &&
+                    tree.FilePath.EndsWith(".g.cs", StringComparison.Ordinal) == false)
+                    continue;
+                if (tree.GetText().ToString().IndexOf(fragment, StringComparison.Ordinal) >= 0)
+                    return;
+            }
+
+            var names = string.Join(", ", compilation.SyntaxTrees.Select(t => t.FilePath));
+            throw new Exception("generated source missing '" + fragment + "'; trees=" + names);
+        }
+
+        private static void RequireNoId(IEnumerable<Diagnostic> diagnostics, string id) {
+            foreach (var diagnostic in diagnostics) {
+                if (diagnostic.Id == id)
+                    throw new Exception("unexpected " + id + ": " + diagnostic.GetMessage());
+            }
+        }
+
+        private static Diagnostic RequireId(IEnumerable<Diagnostic> diagnostics, string id) {
+            foreach (var diagnostic in diagnostics) {
+                if (diagnostic.Id == id)
+                    return diagnostic;
+            }
+
+            throw new Exception("missing " + id + "; diagnostics: " +
+                                string.Join(", ", diagnostics.Select(d => d.Id + " " + d.GetMessage())));
+        }
+
         private static Compilation Compile(
             string source,
             string assemblyName = "VerifyAssembly",
@@ -590,8 +932,10 @@ namespace ContainerGenerator.Verify {
             if (harvest) {
                 harvested = ManifestHarvest.TryBuild(compilation, references!);
                 if (harvested != null && string.IsNullOrEmpty(harvested.Source) == false) {
+                    var parse = compilation.SyntaxTrees.First().Options as CSharpParseOptions
+                                ?? new CSharpParseOptions(LanguageVersion.Latest);
                     walkCompilation = compilation.AddSyntaxTrees(
-                        CSharpSyntaxTree.ParseText(harvested.Source, path: "ContainerInstallerHarvest.g.cs"));
+                        CSharpSyntaxTree.ParseText(harvested.Source, parse, path: "ContainerInstallerHarvest.g.cs"));
                     walkReferences = ReferenceSymbols.Create(walkCompilation) ?? references!;
                 }
             }
@@ -606,9 +950,6 @@ namespace ContainerGenerator.Verify {
             var trees = new List<SyntaxTree> {
                 CSharpSyntaxTree.ParseText(generated, path: "ContainerGraph.g.cs"),
             };
-            var attributeClass = GraphEmitter.EmitAttributeClass(compilation);
-            if (attributeClass != null)
-                trees.Add(CSharpSyntaxTree.ParseText(attributeClass, path: "ContainerInstallerAttribute.g.cs"));
             var withGenerated = compilation.AddSyntaxTrees(trees);
             var failures = withGenerated.GetDiagnostics()
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
@@ -768,8 +1109,6 @@ using System;
 using System.Collections.Generic;
 
 namespace Internal {
-    public interface IInjector {}
-    public interface IResolvePlan {}
     public interface IReadOnlyLifetime {}
     public interface ILifetime : IReadOnlyLifetime { void Terminate(); }
     public interface IServiceRegistration {
@@ -785,13 +1124,8 @@ namespace Internal {
         void AddInjection(object target);
         void AddSelfResolvable(IServiceRegistration registration);
     }
-    public interface IContainerBuilderScope : IContainerRegistry {
-        IContainer Build();
-        void AddLoadedAsset(string label, string groupName);
-    }
     public interface IContainerDiagnostics {
         string Name { get; }
-        bool IsGenerated { get; }
         IContainerDiagnostics Parent { get; }
         System.Collections.Generic.IReadOnlyList<IContainerDiagnostics> Children { get; }
         System.Collections.Generic.IReadOnlyList<RegistrationInfo> Registrations { get; }
@@ -812,7 +1146,6 @@ namespace Internal {
         System.Collections.Generic.IReadOnlyList<T> ResolveAll<T>();
         void Inject(object target);
         void InjectGameObject(UnityEngine.GameObject target);
-        IContainerBuilderScope CreateChild();
     }
     public interface IBuilder {
         IReadOnlyLifetime Lifetime { get; }
@@ -836,19 +1169,39 @@ namespace Internal {
     }
     public enum ServiceLifetime { Transient, Scoped, Singleton }
     [System.AttributeUsage(System.AttributeTargets.Method)]
-    public sealed class ContainerRuntimeScopeAttribute : System.Attribute {}
-    [System.AttributeUsage(System.AttributeTargets.Method)]
     public sealed class ContainerGraphRootAttribute : System.Attribute {}
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
+    public sealed class ContainerInstallerAttribute : System.Attribute {
+        public ContainerInstallerAttribute(
+            string methodId,
+            bool isRoot,
+            string file,
+            int line,
+            System.Type[] implementations,
+            System.Type[] services,
+            string[] calls,
+            string blob) {}
+    }
+    [System.AttributeUsage(System.AttributeTargets.Method)]
+    public sealed class ContainerScopeParentAttribute : System.Attribute {
+        public ContainerScopeParentAttribute(System.Type rootType, string rootMethod) {}
+    }
+    public interface IEventLoop {}
+    public class EventLoop : IEventLoop {}
+    public interface IViewInjector {}
+    public class GeneratedViewInjector {
+        public GeneratedViewInjector(IContainer container) {}
+    }
     public sealed class GeneratedScopeRequest {
         public ILifetime Lifetime { get; }
+        public IContainer Parent { get; }
+        public bool IsRegistered(System.Type implementation) { return false; }
         public T Get<T>() { return default(T); }
     }
     public static class GeneratedScopes {
         public static void Register(string rootId, System.Func<GeneratedScopeRequest, IContainer> factory) {}
+        public static void RegisterVariant(string rootId, System.Type viewType, System.Func<GeneratedScopeRequest, IContainer> factory) {}
         public static bool IsRegistered(string rootId) { return false; }
-    }
-    public static class ScopeContainer {
-        public static IContainerBuilderScope CreateChild(IContainer parent) { return null; }
     }
 
     public static class BuilderExtensions {
@@ -1075,6 +1428,141 @@ namespace GamePlay.Cards {
 }
 ";
 
+        private const string MissingInterfaceSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IUnregisteredService {}
+    public class NeedsMissingInterface {
+        public NeedsMissingInterface(IUnregisteredService missing) {}
+    }
+    public static class MissingInterfaceRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<NeedsMissingInterface>();
+        }
+    }
+}
+";
+
+        private const string ParentHitSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IParentDep {}
+    public class ParentDep : IParentDep {}
+    public class NeedsParent {
+        public NeedsParent(IParentDep dep) {}
+    }
+    public static class ParentRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<ParentDep>().As<IParentDep>();
+        }
+    }
+    public static class ChildRoot {
+        [ContainerScopeParent(typeof(ParentRoot), nameof(ParentRoot.Construct))]
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<NeedsParent>();
+        }
+    }
+}
+";
+
+        private const string ParentMissSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IAbsent {}
+    public class NeedsAbsent {
+        public NeedsAbsent(IAbsent absent) {}
+    }
+    public static class EmptyParentRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+        }
+    }
+    public static class ChildMissRoot {
+        [ContainerScopeParent(typeof(EmptyParentRoot), nameof(EmptyParentRoot.Construct))]
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<NeedsAbsent>();
+        }
+    }
+}
+";
+
+        private const string ParentManifestLibSource = @"
+using Internal;
+
+namespace ParentLib {
+    public interface IExportedDep {}
+    public class ExportedDep : IExportedDep {}
+    public static class ParentManifestRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<ExportedDep>().As<IExportedDep>();
+        }
+    }
+}
+";
+
+        private const string ParentManifestChildSource = @"
+using Internal;
+using ParentLib;
+
+namespace ChildLib {
+    public class NeedsExported {
+        public NeedsExported(IExportedDep dep) {}
+    }
+    public static class ChildManifestRoot {
+        [ContainerScopeParent(typeof(ParentManifestRoot), nameof(ParentManifestRoot.Construct))]
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<NeedsExported>();
+        }
+    }
+}
+";
+
+        private const string DriverInternalSource = @"
+namespace Internal {
+    public class BackendOptions {}
+    public class OptionsContainer {
+        [ContainerGraphRoot]
+        public void Register(IScopeBuilder builder) {
+            builder.RegisterInstance(new BackendOptions());
+        }
+    }
+}
+";
+
+        private const string DriverGlobalSource = @"
+using Internal;
+
+namespace Global.Setup {
+    public interface IUpdater {}
+    public class Updater : IUpdater {}
+    public static class GlobalScopeExtensions {
+        [ContainerScopeParent(typeof(OptionsContainer), nameof(OptionsContainer.Register))]
+        public static void Construct(IScopeBuilder builder) {
+            builder.Register<Updater>().As<IUpdater>();
+        }
+    }
+}
+";
+
+        private const string DriverMenuSource = @"
+using Internal;
+using Global.Setup;
+
+namespace Menu.Common {
+    public class NeedsUpdater {
+        public NeedsUpdater(IUpdater updater) {}
+    }
+    public static class MenuScopeExtensions {
+        [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
+        public static void Construct(IScopeBuilder builder) {
+            builder.Register<NeedsUpdater>();
+        }
+    }
+}
+";
+
         private const string MissingSource = @"
 using Internal;
 
@@ -1103,6 +1591,197 @@ namespace Sample {
             builder.Register<CycleA>();
             builder.Register<CycleB>();
             builder.Register<CycleC>();
+        }
+    }
+}
+";
+
+        private const string GenericRegisterCommandSource = @"
+using Internal;
+
+namespace Internal {
+    public interface INetworkCommandsCollection { void Add(object command); }
+    public class NetworkCommandsCollection : INetworkCommandsCollection {
+        public void Add(object command) {}
+    }
+    public class CommandHost {
+        public static IRegistration RegisterCommand<T>(IScopeBuilder builder) {
+            builder.Register<CommandResolver<T>>();
+            return builder.Register<T>();
+        }
+        public class CommandResolver<T> {
+            public CommandResolver(T command, INetworkCommandsCollection collection) {}
+        }
+    }
+}
+
+namespace Meta {
+    public interface IMetaConnectionAwaiter {}
+    public class ConnectionCompletedCommand {}
+    public static class CommandRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<NetworkCommandsCollection>().As<INetworkCommandsCollection>();
+            CommandHost.RegisterCommand<ConnectionCompletedCommand>(builder).As<IMetaConnectionAwaiter>();
+        }
+    }
+}
+";
+
+        private const string GenericNestedSource = @"
+using Internal;
+
+namespace Shared {
+    public class SharedBackendUser {
+        public class ProfileProjection {}
+        public class StatsProjection {}
+    }
+}
+
+namespace Meta {
+    public class BackendProjection<T> {}
+    public interface IBackendProjection<T> {}
+    public interface IBackendProjection {}
+    public class NeedsProjection {
+        public NeedsProjection(IBackendProjection<Shared.SharedBackendUser.ProfileProjection> projection) {}
+    }
+    public static class BackendProjectionExtensions {
+        public static IScopeBuilder RegisterBackendProjection<T>(this IScopeBuilder builder) {
+            builder.Register<BackendProjection<T>>()
+                   .As<IBackendProjection<T>>()
+                   .As<IBackendProjection>();
+            return builder;
+        }
+    }
+    public static class NestedGenericRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.RegisterBackendProjection<Shared.SharedBackendUser.ProfileProjection>();
+            builder.RegisterBackendProjection<Shared.SharedBackendUser.StatsProjection>();
+            builder.Register<NeedsProjection>();
+        }
+    }
+}
+";
+
+        private const string GenericLocalSource = @"
+using Internal;
+
+namespace Sample {
+    public class Alpha {}
+    public class Widget<T> {}
+    public interface IWidget<T> {}
+    public class NeedsWidget {
+        public NeedsWidget(IWidget<Alpha> widget) {}
+    }
+    public static class WidgetInstaller {
+        public static IScopeBuilder RegisterWidget<T>(this IScopeBuilder builder) {
+            builder.Register<Widget<T>>().As<IWidget<T>>();
+            return builder;
+        }
+    }
+    public static class GenericLocalRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.RegisterWidget<Alpha>();
+            builder.Register<NeedsWidget>();
+        }
+    }
+}
+";
+
+        private const string HarvestGenericLibSource = @"
+using Internal;
+
+namespace HarvestGeneric {
+    public class Box<T> {
+        public Box(T item) {}
+    }
+    public class A {}
+    public class B {}
+    public class C {}
+    public static class ItemInstaller {
+        public static IRegistration RegisterItem<T>(this IScopeBuilder builder) {
+            builder.Register<Box<T>>();
+            return builder.Register<T>();
+        }
+    }
+    public static class CommandsInstaller {
+        public static IScopeBuilder AddCommands(this IScopeBuilder builder) {
+            AddFirst();
+            AddRest();
+            return builder;
+
+            void AddFirst() {
+                builder.RegisterItem<A>();
+            }
+
+            void AddRest() {
+                builder.RegisterItem<B>();
+                builder.RegisterItem<C>();
+            }
+        }
+    }
+}
+";
+
+        private const string GenericInstallerLibSource = @"
+using Internal;
+
+namespace GenericLib {
+    public class Box<T> {
+        public Box(T item) {}
+    }
+    public static class ItemInstaller {
+        public static IRegistration RegisterItem<T>(this IScopeBuilder builder) {
+            builder.Register<Box<T>>();
+            return builder.Register<T>();
+        }
+    }
+}
+";
+
+        private const string GenericManifestTwoConsumerSource = @"
+using Internal;
+using GenericLib;
+
+namespace Sample {
+    public class Cargo {}
+    public class Other {}
+    public static class GenericTwoRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.RegisterItem<Cargo>();
+            builder.RegisterItem<Other>();
+        }
+    }
+}
+";
+
+        private const string GenericManifestConsumerSource = @"
+using Internal;
+using GenericLib;
+
+namespace Sample {
+    public class Cargo {}
+    public static class GenericManifestRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.RegisterItem<Cargo>();
+        }
+    }
+}
+";
+
+        private const string GenericReturnAsConsumerSource = @"
+using Internal;
+using GenericLib;
+
+namespace Sample {
+    public interface ICargo {}
+    public class Cargo : ICargo {}
+    public class NeedsCargo {
+        public NeedsCargo(ICargo cargo) {}
+    }
+    public static class GenericAsRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.RegisterItem<Cargo>().As<ICargo>();
+            builder.Register<NeedsCargo>();
         }
     }
 }
@@ -1205,20 +1884,6 @@ namespace Sample {
         public static void Construct(Internal.IScopeBuilder builder) {
             builder.Register<CameraUtils>();
             builder.Register<Popup>(Internal.ServiceLifetime.Transient);
-        }
-    }
-}
-";
-
-        private const string RuntimeScopeSource = @"
-using Internal;
-
-namespace Sample {
-    public class RuntimeService {}
-    public static class RuntimeRoot {
-        [ContainerRuntimeScope]
-        public static void Construct(Internal.IScopeBuilder builder) {
-            builder.Register<RuntimeService>();
         }
     }
 }

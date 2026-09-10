@@ -12,27 +12,6 @@ namespace Internal
             ServiceLifetime lifetime,
             IReadOnlyList<int> dependencies,
             bool isInstantiated,
-            bool isGenerated)
-            : this(
-                slot,
-                implementationType,
-                serviceTypes,
-                lifetime,
-                dependencies,
-                isInstantiated,
-                isGenerated,
-                isExternal: false)
-        {
-        }
-
-        public RegistrationInfo(
-            int slot,
-            Type implementationType,
-            IReadOnlyList<Type> serviceTypes,
-            ServiceLifetime lifetime,
-            IReadOnlyList<int> dependencies,
-            bool isInstantiated,
-            bool isGenerated,
             bool isExternal)
         {
             Slot = slot;
@@ -41,7 +20,6 @@ namespace Internal
             Lifetime = lifetime;
             Dependencies = dependencies;
             IsInstantiated = isInstantiated;
-            IsGenerated = isGenerated;
             IsExternal = isExternal;
         }
 
@@ -51,7 +29,6 @@ namespace Internal
         public readonly ServiceLifetime Lifetime;
         public readonly IReadOnlyList<int> Dependencies;
         public readonly bool IsInstantiated;
-        public readonly bool IsGenerated;
         public readonly bool IsExternal;
     }
 }

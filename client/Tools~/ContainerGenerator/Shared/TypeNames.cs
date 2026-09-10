@@ -3,14 +3,29 @@ using Microsoft.CodeAnalysis;
 namespace ContainerGenerator {
     internal static class TypeNames {
         public static string ForCode(ITypeSymbol type) {
-            return type.WithNullableAnnotation(NullableAnnotation.None)
-                       .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return Display(type, true);
         }
 
         public static string ForMetadata(ITypeSymbol type) {
-            return type.WithNullableAnnotation(NullableAnnotation.None)
-                       .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                       .Replace("global::", "");
+            return Display(type, false);
+        }
+
+        private static string Display(ITypeSymbol type, bool fullyQualified) {
+            if (type == null)
+                return "";
+
+            ITypeSymbol display = type;
+            try {
+                display = type.WithNullableAnnotation(NullableAnnotation.None);
+            }
+            catch (System.NotSupportedException) {
+                display = type;
+            }
+
+            var text = display.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (fullyQualified)
+                return text;
+            return text.Replace("global::", "");
         }
 
         public static string SafeHint(string fullTypeName) {

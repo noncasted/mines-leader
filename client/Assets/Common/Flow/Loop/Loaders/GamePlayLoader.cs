@@ -4,7 +4,6 @@ using Global.Cameras;
 using Global.UI;
 using Internal;
 using Menu.Common;
-using VContainer;
 
 namespace Flow.Loop
 {
@@ -49,7 +48,7 @@ namespace Flow.Loop
             // Дальше начинается сам матч, а он живёт вне загрузки.
             GameProfiler.Finish();
 
-            var loop = scope.Container.Container.Resolve<IGamePlayLoop>();
+            var loop = scope.Container.Resolve<IGamePlayLoop>();
             var transitionData = await loop.Process(scope.Lifetime, gameLoadData.Result);
 
             return transitionData;

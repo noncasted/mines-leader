@@ -1,6 +1,5 @@
 ﻿using Internal;
 using UnityEngine;
-using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
@@ -12,8 +11,6 @@ namespace GamePlay.Cards
     [DisallowMultipleComponent]
     public class CardView : MonoBehaviour, ICardView, IEntityComponent
     {
-        [SerializeField] private LifetimeScope _scope;
-
         public void Register(IEntityBuilder builder)
         {
             builder.RegisterComponent(this)
@@ -22,7 +19,7 @@ namespace GamePlay.Cards
 
         public void Destroy()
         {
-            _scope.DisposeCore();
+            GetComponentInParent<ScopeEntityView>()?.Dispose();
 
             if (gameObject != null)
                 Destroy(gameObject);

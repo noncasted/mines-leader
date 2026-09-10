@@ -1,20 +1,19 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using VContainer.Unity;
 
 namespace Internal
 {
     public class ScopeLoadResult : ILoadedScope
     {
         public ScopeLoadResult(
-            LifetimeScope scope,
+            IContainer container,
             ILifetime lifetime,
             IEventLoop eventLoop,
             IReadOnlyList<ILoadedScene> scenes)
         {
             _scopeLifetime = lifetime;
             _scenes = scenes;
-            Container = scope;
+            Container = container;
             Lifetime = lifetime;
             EventLoop = eventLoop;
         }
@@ -22,7 +21,7 @@ namespace Internal
         private readonly ILifetime _scopeLifetime;
         private readonly IReadOnlyList<ILoadedScene> _scenes;
 
-        public LifetimeScope Container { get; }
+        public IContainer Container { get; }
         public IReadOnlyLifetime Lifetime { get; }
         public IEventLoop EventLoop { get; }
 

@@ -9,7 +9,7 @@ namespace ContainerGenerator {
             title: "Uncovered container graph syntax",
             messageFormat: "Container graph walker cannot understand {0} in installer '{1}'. File {2} line {3}.",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor UnresolvedInstaller = new DiagnosticDescriptor(
@@ -17,7 +17,7 @@ namespace ContainerGenerator {
             title: "Unresolved installer invocation",
             messageFormat: "Container graph walker cannot resolve installer call '{0}' in '{1}'. File {2} line {3}.",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor MissingRegistration = new DiagnosticDescriptor(
@@ -39,7 +39,15 @@ namespace ContainerGenerator {
         public static readonly DiagnosticDescriptor UnenumerableVariant = new DiagnosticDescriptor(
             id: "CINGR005",
             title: "Cannot enumerate entity scope variants",
-            messageFormat: "Cannot enumerate scope variants from '{0}' in '{1}'. Only bool and closed enum parameters may change the graph. Mark the root with [ContainerRuntimeScope] or simplify the condition. File {2} line {3}.",
+            messageFormat: "Cannot enumerate scope variants from '{0}' in '{1}'. Only bool and closed enum parameters may change the graph. Simplify the condition or split the root. File {2} line {3}.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor UnresolvedParent = new DiagnosticDescriptor(
+            id: "CINGR007",
+            title: "Cannot resolve declared parent scope",
+            messageFormat: "Parent scope manifest '{0}' from assembly '{1}' was not found (declared on '{2}')",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);

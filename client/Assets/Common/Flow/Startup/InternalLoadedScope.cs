@@ -1,12 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Internal;
-using VContainer.Unity;
 
 namespace Flow.Startup
 {
     public class InternalLoadedScope : ILoadedScope
     {
-        public InternalLoadedScope(LifetimeScope container, ILifetime lifetime)
+        public InternalLoadedScope(IContainer container, ILifetime lifetime)
         {
             _lifetime = lifetime;
             Container = container;
@@ -14,7 +13,7 @@ namespace Flow.Startup
 
         private readonly ILifetime _lifetime;
 
-        public LifetimeScope Container { get; }
+        public IContainer Container { get; }
         public IReadOnlyLifetime Lifetime => _lifetime;
 
         public UniTask Initialize()

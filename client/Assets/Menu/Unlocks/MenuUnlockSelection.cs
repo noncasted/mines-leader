@@ -7,7 +7,6 @@ using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
-using VContainer;
 
 namespace Menu.Unlocks
 {
@@ -41,7 +40,6 @@ namespace Menu.Unlocks
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
-        [Inject]
         internal void Construct(
             IAchievementRewards rewards,
             ICardsRegistry cards,

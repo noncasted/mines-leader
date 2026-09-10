@@ -19,7 +19,7 @@ namespace GamePlay.Cards
             ICardRenderer renderer,
             ICardStateLifetime stateLifetime,
             ICardDropTarget target,
-            ICardActionSync actionSync)
+            ICardActionSyncDispatcher actionSync)
         {
             _updater = updater;
             _transform = transform;
@@ -34,7 +34,7 @@ namespace GamePlay.Cards
         private readonly ICardRenderer _renderer;
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardDropTarget _target;
-        private readonly ICardActionSync _actionSync;
+        private readonly ICardActionSyncDispatcher _actionSync;
 
         public async UniTask Enter(IReadOnlyLifetime lifetime, Vector2? dropPosition, ICardActionData data)
         {
@@ -55,7 +55,7 @@ namespace GamePlay.Cards
                 options,
                 dropPosition);
 
-            await _actionSync.Sync(lifetime, data);
+            await _actionSync.Dispatch(lifetime, data);
         }
     }
 }

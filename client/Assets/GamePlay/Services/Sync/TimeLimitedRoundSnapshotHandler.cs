@@ -6,16 +6,16 @@ namespace GamePlay.Services
 {
     public class TimeLimitedRoundSnapshotHandler : ISnapshotHandler<TimeLimitedRoundRecord>
     {
-        public TimeLimitedRoundSnapshotHandler(ITimeLimitedGameRound round)
+        public TimeLimitedRoundSnapshotHandler(IGameRound round)
         {
             _round = round;
         }
 
-        private readonly ITimeLimitedGameRound _round;
+        private readonly IGameRound _round;
 
         public UniTask Handle(TimeLimitedRoundRecord record)
         {
-            _round.Apply(record.CurrentPlayer, record.SecondsLeft);
+            ((ITimeLimitedGameRound)_round).Apply(record.CurrentPlayer, record.SecondsLeft);
             return UniTask.CompletedTask;
         }
     }

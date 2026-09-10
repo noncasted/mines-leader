@@ -28,25 +28,26 @@ namespace Global.Setup
                 await scope.Initialize();
 
             return scope;
+        }
 
-            async UniTask Construct(IScopeBuilder builder)
-            {
-                // Отрезок на группу открывает сам LoadPrefabGroup.
-                await builder.LoadPrefabGroup(GlobalPrefabs.Group);
+        [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
+        public static async UniTask Construct(IScopeBuilder builder)
+        {
+            // Отрезок на группу открывает сам LoadPrefabGroup.
+            await builder.LoadPrefabGroup(GlobalPrefabs.Group);
 
-                // Модули меряются поимённо: половина из них инстанцирует префабы, и по
-                // трассе сразу видно, какой именно из них стоит кадров.
-                using var services = GameProfiler.Scope("Services");
+            // Модули меряются поимённо: половина из них инстанцирует префабы, и по
+            // трассе сразу видно, какой именно из них стоит кадров.
+            using var services = GameProfiler.Scope("Services");
 
-                services.Measure("Updater", () => builder.AddUpdater());
-                services.Measure("Audio", () => builder.AddAudio());
-                services.Measure("Camera", () => builder.AddCamera());
-                services.Measure("Input", () => builder.AddInput());
-                services.Measure("Backend", () => builder.AddBackend());
-                services.Measure("Settings", () => builder.AddSettings());
-                services.Measure("Publisher", () => builder.AddPublisher());
-                services.Measure("UI", () => builder.AddUI());
-            }
+            services.Measure("Updater", () => builder.AddUpdater());
+            services.Measure("Audio", () => builder.AddAudio());
+            services.Measure("Camera", () => builder.AddCamera());
+            services.Measure("Input", () => builder.AddInput());
+            services.Measure("Backend", () => builder.AddBackend());
+            services.Measure("Settings", () => builder.AddSettings());
+            services.Measure("Publisher", () => builder.AddPublisher());
+            services.Measure("UI", () => builder.AddUI());
         }
     }
 }

@@ -5,7 +5,6 @@ using Global.Setup;
 using Internal;
 using Meta;
 using UnityEngine;
-using VContainer;
 
 namespace Flow.Mocks
 {
@@ -23,7 +22,7 @@ namespace Flow.Mocks
             UnionInitializer.Execute();
             var internalScopeLoader = new InternalScopeLoader();
             _internalScope = await internalScopeLoader.Load();
-            var scopeLoader = _internalScope.Container.Container.Resolve<IServiceScopeLoader>();
+            var scopeLoader = _internalScope.Container.Resolve<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(_internalScope);
             var metaScope = await scopeLoader.LoadMeta(globalScope);

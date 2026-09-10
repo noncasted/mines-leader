@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using VContainer;
-using VContainer.Internal;
 
 namespace Internal
 {
@@ -14,7 +12,7 @@ namespace Internal
         UniTask InvokeBeforeBuild();
         UniTask InvokeBeforeDispose();
 
-        void Bind(IObjectResolver resolver);
+        void Bind(IContainer container);
 
         void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker);
         UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, UniTask> invoker);
@@ -28,7 +26,7 @@ namespace Internal
         private readonly List<Func<UniTask>> _beforeBuildCallbacks = new();
         private readonly List<Func<UniTask>> _beforeDisposeCallbacks = new();
 
-        private IObjectResolver _resolver;
+        private IContainer _container;
 
         public void AddBeforeBuild(Func<UniTask> callback)
         {
@@ -52,9 +50,9 @@ namespace Internal
             _beforeDisposeCallbacks.Clear();
         }
 
-        public void Bind(IObjectResolver resolver)
+        public void Bind(IContainer container)
         {
-            _resolver = resolver;
+            _container = container;
         }
 
         public void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker)
@@ -125,7 +123,7 @@ namespace Internal
         private IReadOnlyList<T> ResolveList<T>()
         {
             using (GameProfiler.Scope($"Resolve: {typeof(T).Name}"))
-                return _resolver.Resolve<ContainerLocal<IReadOnlyList<T>>>().Value;
+                return _container.ResolveAll<T>();
         }
 
         /// <summary>

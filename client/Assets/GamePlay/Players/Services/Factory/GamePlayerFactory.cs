@@ -3,7 +3,6 @@ using GamePlay.Boards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
-using VContainer.Unity;
 
 namespace GamePlay.Players
 {
@@ -13,7 +12,7 @@ namespace GamePlay.Players
             INetworkEntityFactory entityFactory,
             IEntityScopeLoader entityScopeLoader,
             IGameContext gameContext,
-            LifetimeScope parentScope,
+            IContainer parentScope,
             LocalPlayerView local,
             RemotePlayerView remote)
         {
@@ -28,7 +27,7 @@ namespace GamePlay.Players
         private readonly INetworkEntityFactory _entityFactory;
         private readonly IEntityScopeLoader _entityScopeLoader;
         private readonly IGameContext _gameContext;
-        private readonly LifetimeScope _parentScope;
+        private readonly IContainer _parentScope;
         private readonly LocalPlayerView _local;
         private readonly RemotePlayerView _remote;
 
@@ -58,6 +57,7 @@ namespace GamePlay.Players
 
             return loadResult.Get<INetworkEntity>();
 
+            [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
             void Build(IEntityBuilder builder)
             {
                 builder.AddRemoteEntity(data);

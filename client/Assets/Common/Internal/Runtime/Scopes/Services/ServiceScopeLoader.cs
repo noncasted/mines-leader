@@ -1,7 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using UnityEngine;
-using VContainer;
-using VContainer.Unity;
+using Cysharp.Threading.Tasks;
 
 namespace Internal
 {
@@ -9,7 +6,7 @@ namespace Internal
     {
         UniTask<ILoadedScope> Load(ScopeLoadOptions options);
     }
-    
+
     public class ServiceScopeLoader : IServiceScopeLoader
     {
         public ServiceScopeLoader(ISceneLoader sceneLoader)
@@ -43,22 +40,21 @@ namespace Internal
 
             var builder = CreateBuilder();
 
-            // Иерархия показывает рантайм-сцены как "Untitled", поэтому скоуп опознаётся
-            // по имени корневого объекта.
-            var containerObject = new GameObject($"{sceneName} (ScopeLifetime)");
-            var container = containerObject.AddComponent<LifetimeScope>();
-            builder.Binder.MoveToModules(container);
-
             using (GameProfiler.Scope("Construct"))
                 await options.ConstructCallback.Invoke(builder);
 
             using (GameProfiler.Scope("Assets"))
                 await builder.Events.InvokeBeforeBuild();
 
-            using (GameProfiler.Scope("Container"))
-                BuildContainer();
+            IContainer container;
 
-            builder.Events.Bind(container.Container);
+            using (GameProfiler.Scope("Container"))
+            {
+                builder.RegisterInstance(builder.Events);
+                container = ScopeContainer.Create(options.RootId, builder.ServicesInternal.Builder);
+            }
+
+            builder.Events.Bind(container);
 
             using (GameProfiler.Scope("Setup"))
                 await builder.Events.RunConstruct(builder.ScopeLifetime);
@@ -75,7 +71,8 @@ namespace Internal
             {
                 var binder = new ServiceScopeBinder(servicesScene.Scene);
                 var lifetime = options.Parent.Lifetime.Child();
-                var services = new ServiceCollection();
+                var containerBuilder = new ContainerBuilder(sceneName, options.Parent.Container, lifetime);
+                var services = new ServiceCollection(containerBuilder);
 
                 return new ScopeBuilder(
                     services,
@@ -85,27 +82,6 @@ namespace Internal
                     options.Parent,
                     new EventLoop(),
                     options.IsMock);
-            }
-
-            void BuildContainer()
-            {
-                using (LifetimeScope.EnqueueParent(options.Parent.Container))
-                {
-                    using (LifetimeScope.Enqueue(Register))
-                    {
-                        container.Build();
-                    }
-                }
-
-                builder.ServicesInternal.Resolve(container.Container);
-                return;
-
-                void Register(IContainerBuilder containerBuilder)
-                {
-                    builder.RegisterInstance(builder.Events);
-                    builder.Register<IViewInjector, ViewInjector>(VContainer.Lifetime.Scoped);
-                    builder.ServicesInternal.PassRegistrations(containerBuilder);
-                }
             }
         }
     }

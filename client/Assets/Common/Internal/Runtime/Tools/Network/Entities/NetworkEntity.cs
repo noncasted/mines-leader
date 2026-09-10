@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using VContainer.Internal;
 
 namespace Internal
 {
@@ -19,7 +18,7 @@ namespace Internal
             INetworkEntityDestroyer destroyer,
             INetworkUser owner,
             int id,
-            ContainerLocal<IReadOnlyList<INetworkProperty>> properties)
+            IReadOnlyList<INetworkProperty> properties)
         {
             _destroyer = destroyer;
             Id = id;
@@ -27,7 +26,7 @@ namespace Internal
             _lifetime = owner.Lifetime.Child();
             Events = new NetworkEvents(connection, this);
 
-            Properties = properties.Value.ToDictionary(t => t.Id);
+            Properties = properties.ToDictionary(t => t.Id);
         }
 
         private readonly INetworkEntityDestroyer _destroyer;

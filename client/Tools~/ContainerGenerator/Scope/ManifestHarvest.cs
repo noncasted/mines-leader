@@ -62,6 +62,9 @@ namespace ContainerGenerator {
                     var block = new StringBuilder();
                     if (string.IsNullOrEmpty(ns) == false)
                         block.AppendLine("namespace " + ns + " {");
+                    else
+                        block.AppendLine("namespace ContainerInstallerHarvestGlobal {");
+                    AppendUsings(syntax, block);
                     block.AppendLine("    public static class " + harvestType + " {");
                     block.AppendLine("        [global::Internal.ContainerGraphRoot]");
                     block.Append("        public static void " + harvestName + "(");
@@ -70,8 +73,7 @@ namespace ContainerGenerator {
                     block.Append(Inline(syntax));
                     block.AppendLine("        }");
                     block.AppendLine("    }");
-                    if (string.IsNullOrEmpty(ns) == false)
-                        block.AppendLine("}");
+                    block.AppendLine("}");
                     blocks.Add(block.ToString());
                 }
             }
@@ -104,10 +106,10 @@ namespace ContainerGenerator {
 
                 remove.Add(harvested.Id);
                 if (byId.TryGetValue(mapping.OriginalId, out var original)) {
-                    if (original.Registrations.Count == 0 && harvested.Registrations.Count > 0) {
-                        original.Registrations.AddRange(CloneRegistrations(harvested));
-                        MergeCalls(original, harvested);
-                    }
+                    // Копия с инлайном локальных функций видит больше обхода оригинала — тогда тело метода берётся из неё
+                    // целиком. Слияние теряло повторные дженерик-вызовы (RegisterCommand<A>, <B>) и вызовы без регистраций.
+                    if (Size(harvested) > Size(original))
+                        ReplaceBody(original, harvested);
 
                     continue;
                 }
@@ -117,10 +119,9 @@ namespace ContainerGenerator {
                     IsRoot = false,
                     File = harvested.File,
                     Line = harvested.Line,
+                    AssemblyName = document.AssemblyName,
                 };
-                copy.Registrations.AddRange(CloneRegistrations(harvested));
-                copy.Calls.AddRange(harvested.Calls);
-                copy.CallOrdinals.AddRange(harvested.CallOrdinals);
+                ReplaceBody(copy, harvested);
                 document.Methods.Add(copy);
                 byId[copy.Id] = copy;
             }
@@ -151,14 +152,25 @@ namespace ContainerGenerator {
             return list;
         }
 
-        private static void MergeCalls(GraphMethod original, GraphMethod harvested) {
-            for (var i = 0; i < harvested.Calls.Count; i++) {
-                if (original.Calls.Contains(harvested.Calls[i]))
-                    continue;
-                original.Calls.Add(harvested.Calls[i]);
-                var ordinal = i < harvested.CallOrdinals.Count ? harvested.CallOrdinals[i] : original.CallOrdinals.Count;
-                original.CallOrdinals.Add(ordinal);
-            }
+        private static int Size(GraphMethod method) {
+            return method.Registrations.Count + method.Calls.Count;
+        }
+
+        private static void ReplaceBody(GraphMethod target, GraphMethod harvested) {
+            harvested.PadCallLists();
+            target.Registrations.Clear();
+            target.Registrations.AddRange(CloneRegistrations(harvested));
+            target.Calls.Clear();
+            target.CallOrdinals.Clear();
+            target.CallTypeArguments.Clear();
+            target.CallAsServices.Clear();
+            target.CallHoles.Clear();
+            target.Calls.AddRange(harvested.Calls);
+            target.CallOrdinals.AddRange(harvested.CallOrdinals);
+            target.CallTypeArguments.AddRange(harvested.CallTypeArguments);
+            target.CallAsServices.AddRange(harvested.CallAsServices);
+            target.CallHoles.AddRange(harvested.CallHoles);
+            target.ReturnedOrdinal = harvested.ReturnedOrdinal;
         }
 
         private static bool HasBuilderParameter(IMethodSymbol method, ReferenceSymbols references) {
@@ -171,6 +183,32 @@ namespace ContainerGenerator {
             }
 
             return false;
+        }
+
+        // Копия тела резолвится в том же окружении, что оригинал: using'и файла и объемлющих
+        // namespace. Внутри namespace-блока пишутся через global::, чтобы не цеплять вложенные имена.
+        private static void AppendUsings(MethodDeclarationSyntax method, StringBuilder block) {
+            var directives = new List<UsingDirectiveSyntax>();
+            if (method.SyntaxTree.GetRoot() is CompilationUnitSyntax unit)
+                directives.AddRange(unit.Usings);
+            foreach (var ancestor in method.Ancestors()) {
+                if (ancestor is NamespaceDeclarationSyntax declaration)
+                    directives.AddRange(declaration.Usings);
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var directive in directives) {
+                var name = directive.Name.ToString();
+                if (name.StartsWith("global::", StringComparison.Ordinal) == false)
+                    name = "global::" + name;
+
+                var text = "    using " +
+                           (directive.StaticKeyword.IsKind(SyntaxKind.None) ? "" : "static ") +
+                           (directive.Alias == null ? "" : directive.Alias.Name.ToString() + " = ") +
+                           name + ";";
+                if (seen.Add(text))
+                    block.AppendLine(text);
+            }
         }
 
         private static string Parameters(IMethodSymbol method) {

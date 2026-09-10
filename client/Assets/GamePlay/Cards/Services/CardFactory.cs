@@ -6,7 +6,6 @@ using Internal;
 using Meta;
 using Shared;
 using UnityEngine;
-using VContainer.Unity;
 
 namespace GamePlay.Cards
 {
@@ -19,7 +18,7 @@ namespace GamePlay.Cards
             ICardConfigs configs,
             ICardsRegistry registry,
             ICardTargets cardTargets,
-            LifetimeScope parentScope)
+            IContainer parentScope)
         {
             _entityScopeLoader = entityScopeLoader;
             _cardViewFactory = cardViewFactory;
@@ -36,7 +35,7 @@ namespace GamePlay.Cards
         private readonly ICardConfigs _configs;
         private readonly ICardsRegistry _registry;
         private readonly ICardTargets _cardTargets;
-        private readonly LifetimeScope _parentScope;
+        private readonly IContainer _parentScope;
 
         public async UniTask Create(IReadOnlyLifetime lifetime, bool isLocal, Guid cardId, CardType cardType)
         {
@@ -63,6 +62,7 @@ namespace GamePlay.Cards
                 await loadResult.Get<ICardRemoteSpawn>().Execute();
             }
 
+            [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
             void Build(IEntityBuilder builder)
             {
                 builder.RegisterInstance(cardId);
@@ -82,10 +82,14 @@ namespace GamePlay.Cards
                            .As<IGamePlayer>();
                     builder.RegisterInstance(_gameContext.Self.Hand);
 
+                    // Скоуп локальной карты — ребёнок скоупа игрока, но граф проверяется от игрового скоупа:
+                    // то, что карта берёт у игрока, регистрируется явно.
+                    builder.RegisterInstance(_gameContext.Self.Mana);
+                    builder.RegisterInstance(_gameContext.Self.Turns);
+                    builder.RegisterInstance(_gameContext.Self.Modifiers);
+
                     builder.Register<HandEntryHandle>()
                            .As<IHandEntryHandle>();
-
-                    builder.AddCardActionSync(definition);
                     builder.AddCardAction(_configs.Value, definition);
 
                     builder.RegisterInstance(definition);
@@ -96,8 +100,6 @@ namespace GamePlay.Cards
                         .AddCardRemoteComponents()
                         .AddCardRemoteRoot()
                         .AddCardRemoteStates();
-
-                    builder.AddCardActionSync(definition);
 
                     builder.RegisterInstance(definition.Type);
                     builder.RegisterInstance(gamePlayer)

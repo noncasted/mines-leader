@@ -11,6 +11,12 @@ namespace ContainerGenerator {
         public string LifetimeType = "global::Internal.ILifetime";
         public string LifetimeParam = "lifetime";
         public string LifetimeField = "_lifetime";
+        public string ParentType = "global::Internal.IContainer";
+        public string ParentParam = "parent";
+        public string ParentField = "_parent";
+        public string OriginRootId = "";
+        public string ViewType = "";
+        public bool NeedsRequest;
         public bool HasContainerInterface;
         public bool HasUnityGameObject;
         public bool HasProvides;
@@ -18,7 +24,6 @@ namespace ContainerGenerator {
         public bool HasRegistrationInfo;
         public bool HasServiceLifetime;
         public bool HasRuntimeInitialize;
-        public bool HasScopeContainer;
         public INamedTypeSymbol? ProvidesDefinition;
         public List<CtorParam> CtorParams = new List<CtorParam>();
         public List<Field> Fields = new List<Field>();
@@ -35,7 +40,10 @@ namespace ContainerGenerator {
             public string Type = "";
             public string Name = "";
             public int Slot = -1;
+            public string FieldName = "";
             public bool IsLifetime;
+            public bool IsParent;
+            public bool IsRequest;
             public bool IsAlternative;
             public int AlternativeGroup = -1;
         }
@@ -119,7 +127,7 @@ namespace ContainerGenerator {
 
             var lookupId = string.IsNullOrEmpty(root.OriginId) ? graph.RootId : root.OriginId;
             var method = MethodIds.Find(compilation, lookupId) ?? MethodIds.Find(compilation, graph.RootId);
-            if (MethodIds.HasRuntimeScope(method, references.RuntimeScopeAttribute))
+            if (method == null)
                 return null;
 
             var plan = new ScopePlan { RootId = graph.RootId };
@@ -130,13 +138,17 @@ namespace ContainerGenerator {
             }
 
             plan.HintName = plan.ClassName + ".g.cs";
+            plan.ViewType = graph.ViewType ?? "";
+            plan.OriginRootId = graph.RootId;
+            if (string.IsNullOrEmpty(graph.Variant) == false &&
+                graph.RootId.EndsWith("+" + graph.Variant, StringComparison.Ordinal))
+                plan.OriginRootId = graph.RootId.Substring(0, graph.RootId.Length - graph.Variant.Length - 1);
             plan.HasContainerInterface = compilation.GetTypeByMetadataName("Internal.IContainer") != null;
             plan.HasUnityGameObject = compilation.GetTypeByMetadataName("UnityEngine.GameObject") != null;
             plan.HasDiagnosticsType = compilation.GetTypeByMetadataName("Internal.IContainerDiagnostics") != null;
             plan.HasRegistrationInfo = compilation.GetTypeByMetadataName("Internal.RegistrationInfo") != null;
             plan.HasServiceLifetime = compilation.GetTypeByMetadataName("Internal.ServiceLifetime") != null;
             plan.HasRuntimeInitialize = references.RuntimeInitialize != null;
-            plan.HasScopeContainer = compilation.GetTypeByMetadataName("Internal.ScopeContainer") != null;
             plan.ProvidesDefinition = compilation.GetTypeByMetadataName("Internal.IProvides`1");
             plan.HasProvides = plan.ProvidesDefinition != null;
 
@@ -144,6 +156,8 @@ namespace ContainerGenerator {
             var used = new HashSet<string>(StringComparer.Ordinal);
             used.Add(plan.LifetimeField);
             used.Add(plan.LifetimeParam);
+            used.Add(plan.ParentField);
+            used.Add(plan.ParentParam);
             used.Add("_exports");
             used.Add("_diagnostics");
             used.Add("_disposed");
@@ -180,7 +194,8 @@ namespace ContainerGenerator {
         public static bool HasEmitBlockingDiagnostic(ScopeGraph graph, GraphDocument document, GraphMethod root) {
             for (var i = 0; i < graph.Diagnostics.Count; i++) {
                 var id = graph.Diagnostics[i].Descriptor.Id;
-                if (id == "CINGR003" || id == "CINGR004" || id == "CINGR001" || id == "CINGR002" || id == "CINGR005")
+                if (id == "CINGR003" || id == "CINGR004" || id == "CINGR001" || id == "CINGR002" ||
+                    id == "CINGR005" || id == "CINGR007")
                     return true;
             }
 
@@ -189,6 +204,8 @@ namespace ContainerGenerator {
             for (var i = 0; i < document.Diagnostics.Count; i++) {
                 var diagnostic = document.Diagnostics[i];
                 var id = diagnostic.Descriptor.Id;
+                if (id == "CINGR007")
+                    return true;
                 if (id != "CINGR001" && id != "CINGR002" && id != "CINGR005")
                     continue;
                 if (diagnostic.MessageArgs.Count < 2)
@@ -210,6 +227,7 @@ namespace ContainerGenerator {
             void Walk(GraphMethod method) {
                 if (output.Add(method.Id) == false)
                     return;
+                method.PadCallLists();
                 for (var i = 0; i < method.Calls.Count; i++) {
                     if (map.TryGetValue(method.Calls[i], out var callee))
                         Walk(callee);
@@ -317,10 +335,14 @@ namespace ContainerGenerator {
                 Name = plan.LifetimeField,
                 IsLifetime = true,
             });
+            plan.Fields.Add(new Field {
+                Type = plan.ParentType,
+                Name = plan.ParentField,
+            });
 
             for (var i = 0; i < plan.Slots.Count; i++) {
                 var slot = plan.Slots[i];
-                if (slot.SkipEmit || slot.IsTransient || slot.IsSwitch)
+                if (slot.SkipEmit || slot.IsTransient)
                     continue;
                 if (slot.IsAlternative && slot.IsGroupPrimary == false)
                     continue;
@@ -364,6 +386,22 @@ namespace ContainerGenerator {
                 Name = plan.LifetimeParam,
                 IsLifetime = true,
             });
+            plan.CtorParams.Add(new CtorParam {
+                Type = plan.ParentType,
+                Name = plan.ParentParam,
+                IsParent = true,
+            });
+
+            // Параметры веток switch берутся из запроса в момент построения выбранной ветки.
+            plan.NeedsRequest = HasArmParameters(graph) || plan.AlternativeGroups.Count > 0;
+            if (plan.NeedsRequest) {
+                used.Add("request");
+                plan.CtorParams.Add(new CtorParam {
+                    Type = "global::Internal.GeneratedScopeRequest",
+                    Name = "request",
+                    IsRequest = true,
+                });
+            }
 
             for (var i = 0; i < plan.Slots.Count; i++) {
                 var slot = plan.Slots[i];
@@ -394,24 +432,34 @@ namespace ContainerGenerator {
                     if (HasCtorParam(plan, edge.ParameterType, edge.ParameterName))
                         continue;
 
+                    // Дырка ребра (экспорт родителя, WithParameter) — своё поле: Construct компонента
+                    // зовётся и из конструктора, и из Inject / IProvides.
                     var name = ScopeNames.Parameter(edge.ParameterName, edge.ParameterType, used);
+                    var field = ScopeNames.Unique("_" + name.TrimStart('@'), used);
+                    plan.Fields.Add(new Field {
+                        Type = edge.ParameterType,
+                        Name = field,
+                    });
                     plan.CtorParams.Add(new CtorParam {
                         Type = edge.ParameterType,
                         Name = name,
-                        Slot = slot.Index,
+                        FieldName = field,
                     });
                 }
             }
 
-            for (var g = 0; g < plan.AlternativeGroups.Count; g++) {
-                var name = ScopeNames.Unique("alternative" + g.ToString(), used);
-                plan.CtorParams.Add(new CtorParam {
-                    Type = "bool",
-                    Name = name,
-                    IsAlternative = true,
-                    AlternativeGroup = g,
-                });
+        }
+
+        private static bool HasArmParameters(ScopeGraph graph) {
+            for (var i = 0; i < graph.Registrations.Count; i++) {
+                var dependencies = graph.Registrations[i].Dependencies;
+                for (var e = 0; e < dependencies.Count; e++) {
+                    if (dependencies[e].Kind == "ArmParameter")
+                        return true;
+                }
             }
+
+            return false;
         }
 
         private static bool HasCtorParam(ScopePlan plan, string type, string name) {
@@ -429,7 +477,7 @@ namespace ContainerGenerator {
             for (var i = 0; i < graph.Registrations.Count; i++) {
                 var registration = graph.Registrations[i];
                 var slot = plan.Slots[i];
-                if (slot.SkipEmit || slot.IsSwitch)
+                if (slot.SkipEmit)
                     continue;
                 if (slot.IsTransient)
                     continue;
@@ -510,7 +558,7 @@ namespace ContainerGenerator {
             var last = new Dictionary<string, int>(StringComparer.Ordinal);
             for (var i = 0; i < graph.Registrations.Count; i++) {
                 var slot = plan.Slots[i];
-                if (slot.SkipEmit || slot.IsTransient || slot.IsSwitch)
+                if (slot.SkipEmit || slot.IsTransient)
                     continue;
                 if (slot.IsAlternative && slot.IsGroupPrimary == false)
                     continue;
@@ -566,7 +614,7 @@ namespace ContainerGenerator {
             }
         }
 
-        private static string InferDiscriminantType(GraphRegistration registration) {
+        internal static string InferDiscriminantType(GraphRegistration registration) {
             if (registration.Arms.Count == 0)
                 return "object";
 
@@ -605,6 +653,17 @@ namespace ContainerGenerator {
                 }
 
                 if (hasConstruct == false)
+                    continue;
+
+                var duplicate = false;
+                for (var p = 0; p < plan.Provides.Count; p++) {
+                    if (plan.Provides[p].TargetType == slot.ImplementationType) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+
+                if (duplicate)
                     continue;
 
                 plan.Provides.Add(new Provide {

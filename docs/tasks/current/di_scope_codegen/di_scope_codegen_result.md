@@ -1,6 +1,6 @@
 ## Scope codegen — Результат
 
-### Статус: 0, 1, 1b закрыты; 1c кодом есть, плей-мод нет; шаг 4 не начат
+### Статус: дженерик-installer’ы и лишние классы закрыты по Verify и dll Internal/Global/Meta; GamePlay красный (CINGR003 + эмит entity); плей-мод не гонял; шаг 4 не начат
 
 ### Что сделано
 
@@ -13,6 +13,7 @@
 - Abstract: `IProvides<T>`, `ContainerInstallerAttribute`.
 - Шаг 1 (G): `GlobalScopeExtensionsLoadGlobalContainer`, ноль IResolvePlan.
 - Шаг 1b (G): assembly-манифест, три кросс-сборочных installer’а в Verify.
+- Generic installer: подстановка T в месте вызова; манифест `typeof(Open<>)` + индексы; `.As` на возвращённой регистрации. `GeneratedScopes.Register` — исключение на дубликат rootId. Эмит только корней текущей сборки; `IEntityComponent.Register` / `ISceneService.Create` не корни.
 
 ### Измененные файлы
 

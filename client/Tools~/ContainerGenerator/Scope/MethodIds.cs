@@ -40,22 +40,5 @@ namespace ContainerGenerator {
 
             return null;
         }
-
-        public static bool HasRuntimeScope(IMethodSymbol? method, INamedTypeSymbol? attribute) {
-            if (method == null || attribute == null)
-                return false;
-
-            var current = method;
-            while (current != null) {
-                foreach (var data in current.GetAttributes()) {
-                    if (SymbolEqualityComparer.Default.Equals(data.AttributeClass, attribute))
-                        return true;
-                }
-
-                current = current.ContainingSymbol as IMethodSymbol;
-            }
-
-            return false;
-        }
     }
 }

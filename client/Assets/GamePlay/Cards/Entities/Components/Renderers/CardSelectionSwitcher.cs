@@ -1,6 +1,5 @@
 ﻿using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -11,7 +10,6 @@ namespace GamePlay.Cards
 
         private ICardPointerHandler _pointerHandler;
 
-        [Inject]
         internal void Construct(ICardPointerHandler pointerHandler)
         {
             _pointerHandler = pointerHandler;

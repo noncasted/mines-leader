@@ -1,7 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
-using VContainer.Internal;
 
 namespace GamePlay.Boards
 {
@@ -23,7 +22,7 @@ namespace GamePlay.Boards
             ForwardSpriteAnimation Create(ISpriteAnimationData data)
             {
                 return new ForwardSpriteAnimation(
-                    new ForwardSpriteAnimation.Utils(updater, new ContainerLocal<ISpriteAnimationRenderer>(this)),
+                    new ForwardSpriteAnimation.Utils(updater, this),
                     new SpriteAnimationData(data.Sprites, data.Time, data.Color));
             }
         }

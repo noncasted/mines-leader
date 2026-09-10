@@ -5,7 +5,9 @@ using GamePlay.Cards;
 using GamePlay.Players;
 using GamePlay.Services;
 using GamePlay.UI;
+using Global.Setup;
 using Internal;
+using Meta;
 using Shared;
 
 namespace GamePlay.Loop
@@ -17,10 +19,11 @@ namespace GamePlay.Loop
             ILoadedScope parent,
             SharedMatchmaking.MatchResult sessionData)
         {
-            var options = new ScopeLoadOptions(
+            var options = ScopeLoadOptions.Create(
                 parent,
                 "Game_Services",
-                builder => Construct(builder, sessionData),
+                Construct,
+                sessionData,
                 false);
 
             var scope = await loader.Load(options);
@@ -34,10 +37,11 @@ namespace GamePlay.Loop
             ILoadedScope parent,
             SharedMatchmaking.MatchResult sessionData)
         {
-            var options = new ScopeLoadOptions(
+            var options = ScopeLoadOptions.Create(
                 parent,
                 "Game_Services",
-                builder => Construct(builder, sessionData),
+                Construct,
+                sessionData,
                 true);
 
             var scope = await loader.Load(options);
@@ -46,7 +50,8 @@ namespace GamePlay.Loop
             return scope;
         }
 
-        private static UniTask Construct(IScopeBuilder builder, SharedMatchmaking.MatchResult sessionData)
+        [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]
+        public static UniTask Construct(IScopeBuilder builder, SharedMatchmaking.MatchResult sessionData)
         {
             builder.RequestSpriteGroup(Sprites.Cards);
             builder.RequestSpriteGroup(Sprites.GameUI);
@@ -82,24 +87,25 @@ namespace GamePlay.Loop
             builder.Register<MatchEventLoop>()
                    .As<IScopeSetup>();
 
+            // Раунд — альтернатива одного сервиса: класс скоупа строит тот, что зарегистрирован.
             switch (sessionData.Type)
             {
                 case GameMatchType.TimeLimited:
                     builder.Register<TimeLimitedGameRound>()
-                           .As<IGameRound>()
-                           .As<ITimeLimitedGameRound>();
-                    builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
+                           .As<IGameRound>();
                     break;
                 case GameMatchType.LastManStanding:
                 case GameMatchType.LastManStandingTurnBased:
                     builder.Register<LastManStandingRound>()
-                           .As<IGameRound>()
-                           .As<ILastManStandingRound>();
-                    builder.AddSnapshotHandler<LastManStandingRoundSnapshotHandler, LastManStandingRoundRecord>();
+                           .As<IGameRound>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            // Обработчики общие: записи режима приходят только в матче этого режима.
+            builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
+            builder.AddSnapshotHandler<LastManStandingRoundSnapshotHandler, LastManStandingRoundRecord>();
 
             builder.Register<GameCheatsService>()
                    .As<IScopeSetup>();

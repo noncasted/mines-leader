@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using GamePlay.Players;
 using Internal;
-using VContainer.Internal;
 
 namespace GamePlay.Loop
 {
@@ -26,15 +25,15 @@ namespace GamePlay.Loop
         public MatchEventLoop(
             IGameState state,
             IGameContext context,
-            ContainerLocal<IReadOnlyList<IWaitingForPlayers>> waitingForPlayers,
-            ContainerLocal<IReadOnlyList<IMatchStarted>> matchStarted,
-            ContainerLocal<IReadOnlyList<IMatchCompleted>> matchCompleted)
+            IReadOnlyList<IWaitingForPlayers> waitingForPlayers,
+            IReadOnlyList<IMatchStarted> matchStarted,
+            IReadOnlyList<IMatchCompleted> matchCompleted)
         {
             _state = state;
             _context = context;
-            _waitingForPlayers = waitingForPlayers.Value;
-            _matchStarted = matchStarted.Value;
-            _matchCompleted = matchCompleted.Value;
+            _waitingForPlayers = waitingForPlayers;
+            _matchStarted = matchStarted;
+            _matchCompleted = matchCompleted;
         }
 
         private readonly IGameState _state;

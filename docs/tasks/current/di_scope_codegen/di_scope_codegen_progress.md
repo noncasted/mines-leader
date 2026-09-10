@@ -43,6 +43,74 @@ updated: 2026-09-10
 
 ## Журнал
 
+### [2026-09-10] A+B: дженерик-installer’ы и лишние классы. Таблица из dll
+
+A. Подстановка аргументов-типов метода в месте вызова (локальный обход и манифест). Манифест: `typeof` открытого generic + индексы в blob (`TypeMap` / `ServiceMaps`). Installer помечает возвращённую регистрацию (`ReturnedOrdinal`); `.As<>` / `.WithParameter` на вызове ложатся на неё. Meta не трогали.
+
+B. Класс эмитится только если метод корня в текущей сборке. `IEntityComponent.Register` / `ISceneService.Create` — не корни, вливаются якорем. `GeneratedScopes.Register` на повторный rootId бросает.
+
+Verify ALL PASSED: same-asm generic, manifest generic, `.As` на возврате из другой сборки, Internal→Global класс Internal только в Internal, два инстанса через манифест не оставляют `Box<>`.
+
+Классы **из собранных dll** (`*Container` в IL):
+
+| Сборка | dll | Классы скоупа |
+|---|---|---|
+| Internal | 13:14, 365568 B | `OptionsContainerRegisterContainer`. Нет `IEntityComponentRegisterContainer` / `ISceneServiceCreateContainer` / `SpriteAnimationRendererRegisterContainer` |
+| Global | 13:14, 151040 B | `GlobalScopeExtensionsConstructContainer`. Нет `OptionsContainerRegisterContainer` |
+| Meta | 13:25, 89600 B | `MetaScopeExtensionsConstructContainer`. CINGR003 на `IBackendProjection<>` / `IMetaConnectionAwaiter` / `CommandResolver<T>` сняты |
+| GamePlay | нет dll | CINGR003 ×67 на боевом Construct/карточных Snapshot; плюс CS0103/CS0266 в эмите `GamePlayerFactoryBuild*Container` (дырки `updater`/`actions`/`round`/`camera`) |
+| Menu | нет dll | не собрана (ждёт GamePlay) |
+| Flow | нет dll | класс `GameLoopScopeExtensionsConstructContainer` эмитился в прогоне 13:19; в ScriptAssemblies после сбоя GamePlay dll нет |
+
+Плей-мод не гонял: нет всех шести dll. Шаг 4 не начат.
+
+#### CINGR003 после A (только GamePlay; Meta/Menu/Flow в этом прогоне — 0)
+
+67 уникальных, не «нет Register». Группы:
+
+1. **Форма, которую генератор не читает (VContainer, 5):** `LifetimeScope` у `CardFactory`/`GamePlayerFactory`; `IObjectResolver` у `CardActionSyncDispatcher`; `ContainerLocal<IReadOnlyList<IWaitingForPlayers|IMatchStarted|IMatchCompleted>>` у `MatchEventLoop`. Это не own_di-регистрации.
+2. **Родитель / сцена, не дырка (остальное):** `ICardConfigs`, `ICardsRegistry`, `IProfile`, `IGameCamera`, `IEntityScopeLoader`, `IGameRandom`, `ICardTargets`, `IPlayerMana`, `IPlayerTurns`, `ICardViewFactory`, `ICardVfxFactory`, `IGameFloatingText`, `IGameResults`, UI bindings (`RoundOverlayUIBindings`, `PlayersOverlayUIBindings`, `GamePause*Bindings`). Либо родительский экспорт не доходит до ребра, либо `ISceneService.Create` не влился в граф корня.
+3. **Вложенный `ICardAction.Snapshot`:** пачка `random`/`configs`/`camera`/`vfxFactory` на `ICardAction.cs:39` — вложенный тип из switch/фабрики, не отдельная недостающая `Register` в MetaScope.
+
+CINGR002 ×4 — harvest-копия без usings: `RegisterCommand<RematchCommands.*>` / `SnapshotReceiver` / `AgentObservationHandler` в `ContainerInstallerHarvest*`. Сам `RegisterCommand` из Internal в Meta уже закрыт.
+
+### [2026-09-10] П.0: молчаливый фолбэк закрыт. Классы из dll, не из плей-мода
+
+CINGR001 и CINGR002 — `Error` (locked 5, 11). `ScopeContainer.Create`: нет сгенерированного класса — `InvalidOperationException` с rootId; `builder.Build()` только если `GeneratedScopes.IsRuntimeAllowed` (`[ContainerRuntimeScope]`). Тихого перехода на рантайм-план больше нет.
+
+Полная пересборка. Сгенерированные классы **из собранных dll** (`RegisterGenerated` в IL):
+
+| Сборка | dll | Классы скоупа |
+|---|---|---|
+| Internal | 12:32, 364544 B, `RegisterGenerated`×4 | `OptionsContainerRegisterContainer`; плюс harvest-корни `IEntityComponentRegisterContainer`, `ISceneServiceCreateContainer`, `SpriteAnimationRendererRegisterContainer` |
+| Global | 12:39, 171520 B, `RegisterGenerated`×5 | `GlobalScopeExtensionsConstructContainer` |
+| Meta | нет dll | CINGR003: `IBackendProjection<…>`, `IMetaConnectionAwaiter` (RegisterCommand / RegisterBackendProjection не дают сервис в графе); `CommandResolver<T>` |
+| GamePlay | нет dll | не собрана в этом прогоне (после красной Meta пайплайн остановился; в Bee лежит stale post-processed 12:18) |
+| Menu | нет dll | нет |
+| Flow | нет dll | нет |
+
+Плей-мод не гонял: без Menu/GamePlay.dll это не проверка покрытия. Шаг 4 не начат.
+
+### [2026-09-10] П.1–3: почему не было манифеста. Что откатили в резолвере — отдельно
+
+1. `EmitAttributeClass` удалён. `ContainerInstallerAttribute` — обычный тип в Internal. Дубликат в Flow.dll давал `GetTypeByMetadataName` = null, но **это не главная причина пустого манифеста**.
+2. Реальная причина красного Menu / пустого Global: `CINGR001 Warning` + `catch` в `ContainerGraphGenerator`. Unity log: 91× `generator exception: ArgumentException Inconsistent language versions (Parameter 'syntaxTrees')` на Internal/Global — harvest `ParseText` без parse options сборки, весь вывод сборки пропускался, сборка зелёная. Второй удар: `NotSupportedException` `TypeSymbol.WithNullableAnnotation` в `TypeNames.ForCode` на `TypeIndex.EnsureIndexed` (CS8785, генератор молча отваливался).
+3. Полная пересборка после фикса parse options + TypeNames: Internal и Global **впервые** эмитят классы. Выводы по dll до 11:45/12:11 недействительны.
+
+Родитель: строковая форма снята; `MatchParent` — только точный id; нет манифеста родителя — одна CINGR007. `IViewInjector`/`IEventLoop` — `LoaderServices`, не дырки. Verify: `CSharpGeneratorDriver` Internal→Global→Menu ALL PASSED.
+
+### [2026-09-10] Откат IsExternalHole. Родитель объявлен статически
+
+`IsExternalHole` (интерфейс / чужая сборка / `symbol == null` → дырка) откатан: это меняло locked 4, а не применяло locked 7. Почти все зависимости — интерфейсы, CINGR003 схлопывался; рантайм падал в `request.Get<T>()`.
+
+Форма родителя: `[ContainerScopeParent(typeof(T), nameof(T.LoadX))]` на корне. Резолв ребра: своя регистрация → экспорт родителя по цепочке вверх (ближайший побеждает) → иначе CINGR003. Найденное у родителя — `GraphEdge.Kind=Hole` + `ParentRootId`. `symbol == null` на implementation — CINGR003, никогда дырка. `HoleParam`/`Argument` больше не эмитят `default(T)` — исключение генератора.
+
+Манифест 1b: blob `parent:<id>`. Internal — `[ContainerGraphRoot]` на `InternalScopeLoader.Load+Register` (VContainer `IContainerBuilder` принят как builder-like по имени).
+
+Verify: снятый интерфейс; родитель экспортирует — не ошибка; нет ни у себя ни у родителя — CINGR003; родитель в другой сборке через манифест. ALL PASSED.
+
+Плей-мод после этого — отдельно, шаг 4 не начат.
+
 ### [2026-09-10] 1c сдан кодом, плей-мод не зелёный. CINGR003 на родителе
 
 E: `CardLocalScopeEntity` / `CardRemoteScopeEntity` на префабах, `Create<T>`, точка выбора рядом с префабом. Verify 1c ALL PASSED: два класса карты (8 и 4 компонента), два класса игрока со stripped Board, CINGR006 оба пути + «subtype», база не попадает.

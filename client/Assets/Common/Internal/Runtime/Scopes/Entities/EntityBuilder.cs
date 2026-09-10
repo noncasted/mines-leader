@@ -1,6 +1,3 @@
-﻿using VContainer;
-using VContainer.Unity;
-
 namespace Internal
 {
     public class EntityBuilder : IEntityBuilder
@@ -13,7 +10,6 @@ namespace Internal
         {
             Services = services;
             InternalServices = services;
-            Scope = view.Scope;
             ScopeLifetime = scopeLifetime;
             Events = events;
             View = view;
@@ -21,7 +17,6 @@ namespace Internal
 
         public IServiceCollection Services { get; }
         public ServiceCollection InternalServices { get; }
-        public LifetimeScope Scope { get; }
         public ILifetime ScopeLifetime { get; }
         public IEventLoop Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
@@ -32,7 +27,7 @@ namespace Internal
     {
         public static T Get<T>(this IEntityScopeResult result)
         {
-            return result.Scope.Container.Resolve<T>();
+            return result.Container.Resolve<T>();
         }
     }
 }

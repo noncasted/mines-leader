@@ -1,7 +1,7 @@
 ﻿using System;
 using GamePlay.Boards;
 using GamePlay.Cards;
-using VContainer.Unity;
+using Internal;
 
 namespace GamePlay.Players
 {
@@ -9,7 +9,7 @@ namespace GamePlay.Players
     {
         Guid Id { get; }
         IGamePlayerInfo Info { get; }
-        LifetimeScope Scope { get; }
+        IContainer Scope { get; }
         IPlayerMana Mana { get; }
         IPlayerHealth Health { get; }
         IPlayerTurns Turns { get; }
@@ -22,7 +22,7 @@ namespace GamePlay.Players
     public class GamePlayer : IGamePlayer
     {
         public GamePlayer(
-            LifetimeScope scope,
+            IContainer scope,
             IHand hand,
             ICardTable table,
             IBoard board,
@@ -45,7 +45,7 @@ namespace GamePlay.Players
         }
 
         public Guid Id => Info.Id;
-        public LifetimeScope Scope { get; }
+        public IContainer Scope { get; }
         public IPlayerMana Mana { get; }
         public IPlayerHealth Health { get; }
         public IPlayerTurns Turns { get; }

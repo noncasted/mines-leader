@@ -247,7 +247,6 @@ namespace Internal
             columns.Add(MakeRegistrationColumn("services", "Service types", 240, true, info => FormatServiceTypes(info.ServiceTypes)));
             columns.Add(MakeRegistrationColumn("lifetime", "Lifetime", 90, false, info => info.Lifetime.ToString()));
             columns.Add(MakeRegistrationColumn("instantiated", "Instantiated", 90, false, info => FormatFlag(info.IsInstantiated)));
-            columns.Add(MakeRegistrationColumn("generated", "Generated", 90, false, info => FormatFlag(info.IsGenerated)));
 
             _registrationsView = new MultiColumnListView(columns)
             {
@@ -473,11 +472,8 @@ namespace Internal
             try
             {
                 var diagnostics = _treeView.GetItemDataForIndex<IContainerDiagnostics>(index);
-                var generated = IsGenerated(diagnostics);
                 label.text = FormatContainerLabel(diagnostics);
-                label.tooltip = $"{FormatPath(diagnostics)} ({FormatContainerKind(generated)})";
-                label.EnableInClassList("tree-item--generated", generated);
-                label.EnableInClassList("tree-item--runtime", generated == false);
+                label.tooltip = FormatPath(diagnostics);
             }
             catch (Exception exception)
             {
@@ -535,8 +531,7 @@ namespace Internal
                 return;
             }
 
-            _containerTitle.text =
-                $"{FormatPath(_selectedContainer)}  [{FormatContainerKind(IsGenerated(_selectedContainer))}]";
+            _containerTitle.text = FormatPath(_selectedContainer);
             _containerTitle.tooltip = _containerTitle.text;
 
             _registrations.Clear();
@@ -756,7 +751,7 @@ namespace Internal
             {
                 button.tooltip =
                     $"Slot {slot}\n{FormatType(info.ImplementationType)}\n{FormatServiceTypes(info.ServiceTypes)}\n" +
-                    $"Lifetime {info.Lifetime}\nInstantiated {FormatFlag(info.IsInstantiated)}\nGenerated {FormatFlag(info.IsGenerated)}";
+                    $"Lifetime {info.Lifetime}\nInstantiated {FormatFlag(info.IsInstantiated)}";
             }
             else
             {
@@ -885,29 +880,7 @@ namespace Internal
         {
             var name = ContainerName(diagnostics);
             var count = SafeList(() => diagnostics.Registrations).Count;
-            var kind = FormatContainerKind(IsGenerated(diagnostics));
-            return $"{name}  ({count})  [{kind}]";
-        }
-
-        private static string FormatContainerKind(bool generated)
-        {
-            return generated ? "generated" : "runtime";
-        }
-
-        private static bool IsGenerated(IContainerDiagnostics diagnostics)
-        {
-            if (diagnostics == null)
-                return false;
-
-            try
-            {
-                return diagnostics.IsGenerated;
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                return false;
-            }
+            return $"{name}  ({count})";
         }
 
         private static string FormatPath(IContainerDiagnostics diagnostics)

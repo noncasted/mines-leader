@@ -2,8 +2,8 @@ using System;
 using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Players;
+using Internal;
 using Shared;
-using VContainer.Unity;
 
 namespace Menu.Decks
 {
@@ -25,7 +25,7 @@ namespace Menu.Decks
         public IGamePlayerInfo Info { get; }
         public IBoard Board { get; }
 
-        public LifetimeScope Scope => null;
+        public IContainer Scope => null;
 
         public IPlayerMana Mana => throw new NotSupportedException("MenuPreviewGamePlayer has no mana");
         public IPlayerHealth Health => throw new NotSupportedException("MenuPreviewGamePlayer has no health");

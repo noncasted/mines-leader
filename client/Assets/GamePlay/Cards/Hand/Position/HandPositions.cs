@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Global.Cameras;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -25,7 +24,6 @@ namespace GamePlay.Cards
 
         private readonly Dictionary<ICard, Handle> _cardToHandle = new();
 
-        [Inject]
         internal void Construct(IUpdater updater, ICurrentCamera camera)
         {
             _updater = updater;

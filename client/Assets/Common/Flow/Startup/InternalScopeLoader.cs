@@ -1,8 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
+using System;
+using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Lifetime = Internal.Lifetime;
 
 namespace Flow.Startup
@@ -22,43 +21,30 @@ namespace Flow.Startup
             using (GameProfiler.Scope("Prefabs: Global"))
                 await GlobalPrefabs.Group.Retain();
 
-            LifetimeScope scopeObject;
-
-            using (GameProfiler.Scope("Scope object"))
-            {
-                var containerObject = new GameObject("Startup (ScopeLifetime)");
-                scopeObject = containerObject.AddComponent<LifetimeScope>();
-
-                Object.DontDestroyOnLoad(scopeObject);
-            }
+            var lifetime = new Lifetime();
+            IContainer container;
 
             using (GameProfiler.Scope("Container"))
             {
-                using (LifetimeScope.Enqueue(Register))
-                    scopeObject.Build();
+                Action<IBuilder> construct = InternalScopeExtensions.Construct;
+                var rootId = GeneratedScopes.RootId(construct.Method);
+                var services = new ServiceCollection(new ContainerBuilder(rootId, lifetime));
+                var builder = new RootBuilder(services, new EventLoop(), lifetime);
+
+                construct.Invoke(builder);
+                builder.RegisterInstance(builder.Events);
+
+                container = ScopeContainer.Create(rootId, services.Builder);
+                builder.Events.Bind(container);
             }
 
-            var result = new InternalLoadedScope(scopeObject, new Lifetime());
-            scopeObject.GetObjectLifetime().Listen(() => {
-                Debug.Log($"Internal scope lifetime terminated, disposing loaded scope.");
+            var result = new InternalLoadedScope(container, lifetime);
+            Application.quitting += () => {
+                Debug.Log("Internal scope lifetime terminated, disposing loaded scope.");
                 result.Dispose();
-            });
+            };
 
             return result;
-
-            void Register(IContainerBuilder container)
-            {
-                container.Register<SceneLoader>(VContainer.Lifetime.Singleton)
-                                     .As<ISceneLoader>();
-                
-                container.Register<ServiceScopeLoader>(VContainer.Lifetime.Singleton)
-                                     .As<IServiceScopeLoader>();
-
-                container.Register<EntityScopeLoader>(VContainer.Lifetime.Singleton)
-                                     .As<IEntityScopeLoader>();
-
-                InternalAssets.OptionsContainer.Register(container);
-            }
         }
     }
 }
