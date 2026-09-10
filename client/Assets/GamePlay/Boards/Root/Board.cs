@@ -36,6 +36,7 @@ namespace GamePlay.Boards
         public bool IsMine => _isMine;
         public IViewableProperty<bool> IsGenerated => _isGenerated;
 
+        [Inject]
         internal void Construct(
             IUpdater updater,
             IBoardActions actions)

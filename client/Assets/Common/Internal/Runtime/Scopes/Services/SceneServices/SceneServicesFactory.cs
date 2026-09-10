@@ -2,6 +2,11 @@
 
 namespace Internal
 {
+    public interface ISceneReloadListener
+    {
+        bool OnReload();
+    }
+    
     public class SceneServicesFactory : MonoBehaviour, ISceneReloadListener
     {
         [SerializeField] private MonoBehaviour[] _services;

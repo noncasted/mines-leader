@@ -12,6 +12,7 @@ namespace GamePlay.Boards
         private ForwardSpriteAnimation _selection;
         private ForwardSpriteAnimation _cellAction;
 
+        [Inject]
         public void Construct(IUpdater updater)
         {
             _selection = Create(Sprites.GameCells.GameCellsHighlightSelect);

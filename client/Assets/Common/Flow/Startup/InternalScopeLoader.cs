@@ -28,13 +28,13 @@ namespace Flow.Startup
             {
                 Action<IBuilder> construct = InternalScopeExtensions.Construct;
                 var rootId = GeneratedScopes.RootId(construct.Method);
-                var services = new ServiceCollection(new ContainerBuilder(rootId, lifetime));
-                var builder = new RootBuilder(services, new EventLoop(), lifetime);
+                var containerBuilder = new ContainerBuilder(rootId, lifetime);
+                var builder = new RootBuilder(containerBuilder, new EventLoop(), lifetime);
 
                 construct.Invoke(builder);
                 builder.RegisterInstance(builder.Events);
 
-                container = ScopeContainer.Create(rootId, services.Builder);
+                container = ScopeContainer.Create(rootId, containerBuilder);
                 builder.Events.Bind(container);
             }
 

@@ -73,6 +73,9 @@ namespace GamePlay.Loop
 
             builder.Register<GameContext>()
                    .As<IGameContext>();
+
+            // CardVfxFactory инжектит VFX, созданные в рантайме.
+            builder.Injectable<ZipZapLine>();
             
             builder.AddGameEndServices();
 

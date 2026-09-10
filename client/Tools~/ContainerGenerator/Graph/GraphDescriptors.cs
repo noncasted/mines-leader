@@ -59,5 +59,13 @@ namespace ContainerGenerator {
             category: Category,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor InjectableWithoutInject = new DiagnosticDescriptor(
+            id: "CINGR008",
+            title: "Injectable type has no [Inject] method",
+            messageFormat: "'{0}' is declared with builder.Injectable but has no [Inject] method visible here (internal methods of other assemblies are not visible). File {1} line {2}.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
     }
 }

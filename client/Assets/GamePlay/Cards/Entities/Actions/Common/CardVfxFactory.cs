@@ -14,6 +14,7 @@ namespace GamePlay.Cards
         private int _index;
         private IViewInjector _viewInjector;
 
+        [Inject]
         internal void Construct(IViewInjector viewInjector)
         {
             _viewInjector = viewInjector;

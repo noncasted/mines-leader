@@ -153,7 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d8a6b4c9e174f3aa1c5e0b8d736f492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardRemoteScopeEntity
-  _register: []
   _autoDetected:
   - {fileID: 463000134743301336}
   - {fileID: 7427944596090194488}

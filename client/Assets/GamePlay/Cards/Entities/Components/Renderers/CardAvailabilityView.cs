@@ -20,6 +20,7 @@ namespace GamePlay.Cards
 
         private ICardContext _context;
 
+        [Inject]
         internal void Construct(ICardContext context)
         {
             _context = context;

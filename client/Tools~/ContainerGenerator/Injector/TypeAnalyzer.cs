@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace ContainerGenerator {
-    // Что нужно типу: параметры конструктора и Construct. Рёбра по ним строит EdgeResolver.
+    // Что нужно типу: параметры конструктора и метода с [Inject]. Рёбра по ним строит EdgeResolver.
+    // Метод инжекта ищется только по атрибуту Internal.InjectAttribute, имя метода не важно.
     internal static class TypeAnalyzer {
         public static InjectorModel? Analyze(
             INamedTypeSymbol type,
@@ -19,10 +20,12 @@ namespace ContainerGenerator {
                 return null;
 
             var constructMethods = new List<IMethodSymbol>();
-            foreach (var member in type.GetMembers("Construct")) {
+            foreach (var member in type.GetMembers()) {
                 if (member is not IMethodSymbol method)
                     continue;
                 if (method.MethodKind != MethodKind.Ordinary || method.IsStatic)
+                    continue;
+                if (HasInjectAttribute(method, references) == false)
                     continue;
 
                 constructMethods.Add(method);
@@ -66,7 +69,24 @@ namespace ContainerGenerator {
                 constructor != null && constructor.CanCallFromSameAssembly(),
                 constructorParameters,
                 constructParameters,
+                construct != null ? construct.Name : "",
                 location);
+        }
+
+        private static bool HasInjectAttribute(IMethodSymbol method, ReferenceSymbols references) {
+            foreach (var attribute in method.GetAttributes()) {
+                var attributeClass = attribute.AttributeClass;
+                if (attributeClass == null)
+                    continue;
+                if (references.InjectAttribute != null &&
+                    SymbolEqualityComparer.Default.Equals(attributeClass, references.InjectAttribute))
+                    return true;
+                if (attributeClass.Name == "InjectAttribute" &&
+                    attributeClass.ContainingNamespace?.ToDisplayString() == "Internal")
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool InheritsAttribute(INamedTypeSymbol type) {

@@ -2,7 +2,7 @@
 {
     public interface IBuilder
     {
-        IServiceCollection Services { get; }
+        IContainerRegistry Registry { get; }
         IEventLoop Events { get; }
         IReadOnlyLifetime Lifetime { get; }
     }

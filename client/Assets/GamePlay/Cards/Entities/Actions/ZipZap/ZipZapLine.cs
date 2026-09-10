@@ -13,7 +13,8 @@ namespace GamePlay.Cards
 
         private IUpdater _updater;
 
-        internal void Construct(IUpdater updater)
+        [Inject]
+        public void Construct(IUpdater updater)
         {
             _updater = updater;
         }

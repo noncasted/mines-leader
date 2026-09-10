@@ -1,23 +1,31 @@
 ﻿namespace Internal
 {
+    public interface IEntityBuilder : IBuilder
+    {
+        ILifetime ScopeLifetime { get; }
+        IScopeEntityView View { get; }
+    }
+    
     public class EntityBuilder : IEntityBuilder
     {
         public EntityBuilder(
-            ServiceCollection services,
+            ContainerBuilder containerBuilder,
             IScopeEntityView view,
             ILifetime scopeLifetime,
             IEventLoop events)
         {
-            Services = services;
-            InternalServices = services;
+            ContainerBuilder = containerBuilder;
             ScopeLifetime = scopeLifetime;
             Events = events;
             View = view;
+
+            containerBuilder.AttachBuilder(this);
         }
 
-        public IServiceCollection Services { get; }
-        public ServiceCollection InternalServices { get; }
+
+        public ContainerBuilder ContainerBuilder { get; }
         public ILifetime ScopeLifetime { get; }
+        public IContainerRegistry Registry => ContainerBuilder;
         public IEventLoop Events { get; }
         public IReadOnlyLifetime Lifetime => ScopeLifetime;
         public IScopeEntityView View { get; }

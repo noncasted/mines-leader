@@ -209,7 +209,7 @@ namespace GamePlay.Cards
 
             registration.As<ICardAction>();
 
-            IRegistration Register<T, TConfig>(TConfig config)
+            IServiceRegistration Register<T, TConfig>(TConfig config)
             {
                 return builder.Register<T>()
                               .WithParameter(config);

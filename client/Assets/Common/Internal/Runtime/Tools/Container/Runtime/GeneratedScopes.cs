@@ -122,7 +122,7 @@ namespace Internal
                 }
 
                 builder.MarkBuilt();
-                AttachDebug(created);
+                AttachDebug(created, builder);
                 return created;
             }
             catch
@@ -141,15 +141,19 @@ namespace Internal
             _factories.Clear();
         }
 
-        private static void AttachDebug(IContainer created)
+        private static void AttachDebug(IContainer created, ContainerBuilder builder)
         {
             var diagnostics = created.Diagnostics;
             if (diagnostics == null)
                 return;
 
-            ContainerRegistryDebug.AddRoot(diagnostics);
+            // LoadAssetGroup пишет по lifetime билдера скоупа, а не по дочернему lifetime контейнера.
+            if (diagnostics is ContainerDiagnostics own)
+                own.SetLoadedAssets(ContainerRegistryDebug.TakeLoadedAssets(builder.ScopeLifetime));
+
+            ContainerRegistryDebug.Add(diagnostics);
             if (created.Lifetime != null)
-                created.Lifetime.Listen(() => ContainerRegistryDebug.RemoveRoot(diagnostics));
+                created.Lifetime.Listen(() => ContainerRegistryDebug.Remove(diagnostics));
         }
     }
 

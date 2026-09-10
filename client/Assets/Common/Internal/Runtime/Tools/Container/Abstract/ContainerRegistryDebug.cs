@@ -16,24 +16,35 @@ namespace Internal
         private static readonly ViewableDelegate _changed = new();
         private static readonly Dictionary<IReadOnlyLifetime, List<LoadedAssetInfo>> _pendingAssets = new();
 
-        internal static void AddRoot(IContainerDiagnostics root)
+        // Контейнер с родителем висит в его Children, в Roots попадают только корни дерева.
+        internal static void Add(IContainerDiagnostics diagnostics)
         {
 #if UNITY_EDITOR || DEBUG
-            if (root == null)
+            if (diagnostics == null)
                 return;
 
-            if (_roots.Contains(root))
+            if (diagnostics.Parent is ContainerDiagnostics parent)
+                parent.AddChild(diagnostics);
+            else if (_roots.Contains(diagnostics) == false)
+                _roots.Add(diagnostics);
+            else
                 return;
 
-            _roots.Add(root);
             _changed.Invoke();
 #endif
         }
 
-        internal static void RemoveRoot(IContainerDiagnostics root)
+        internal static void Remove(IContainerDiagnostics diagnostics)
         {
 #if UNITY_EDITOR || DEBUG
-            if (_roots.Remove(root) == false)
+            if (diagnostics == null)
+                return;
+
+            var removed = diagnostics.Parent is ContainerDiagnostics parent
+                ? parent.RemoveChild(diagnostics)
+                : _roots.Remove(diagnostics);
+
+            if (removed == false)
                 return;
 
             _changed.Invoke();

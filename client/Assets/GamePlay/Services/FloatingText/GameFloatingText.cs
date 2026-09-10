@@ -32,6 +32,7 @@ namespace GamePlay.Services
 
         private int _index;
 
+        [Inject]
         internal void Construct(IUpdater updater, IDelayRunner delayRunner)
         {
             _updater = updater;

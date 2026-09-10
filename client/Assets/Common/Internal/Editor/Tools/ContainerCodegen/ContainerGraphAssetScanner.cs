@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
@@ -18,11 +19,11 @@ namespace Internal {
                 return results;
 
             var projectRoot = Path.GetDirectoryName(assetsRoot);
-            var guidToType = BuildGuidMap(assetsRoot);
+            var scriptTypes = new ScriptTypes();
             var guidToPrefab = BuildPrefabMap(assetsRoot);
             var prefabCache = new Dictionary<string, Dictionary<string, YamlBlock>>(StringComparer.OrdinalIgnoreCase);
-            ScanFiles(results, assetsRoot, projectRoot, guidToType, guidToPrefab, prefabCache, "*.prefab", true);
-            ScanFiles(results, assetsRoot, projectRoot, guidToType, guidToPrefab, prefabCache, "*.unity", false);
+            ScanFiles(results, assetsRoot, projectRoot, scriptTypes, guidToPrefab, prefabCache, "*.prefab", true);
+            ScanFiles(results, assetsRoot, projectRoot, scriptTypes, guidToPrefab, prefabCache, "*.unity", false);
             results.Sort((a, b) => {
                 var path = string.CompareOrdinal(a.AssetPath, b.AssetPath);
                 return path != 0 ? path : string.CompareOrdinal(a.HolderType, b.HolderType);
@@ -34,7 +35,7 @@ namespace Internal {
             List<ContainerGraphAsset> results,
             string assetsRoot,
             string projectRoot,
-            Dictionary<string, string> guidToType,
+            ScriptTypes scriptTypes,
             Dictionary<string, string> guidToPrefab,
             Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
             string pattern,
@@ -52,7 +53,7 @@ namespace Internal {
                 if (file.IndexOf($"{Path.DirectorySeparatorChar}Plugins{Path.DirectorySeparatorChar}", StringComparison.Ordinal) >= 0)
                     continue;
 
-                ParseFile(results, file, projectRoot, guidToType, guidToPrefab, prefabCache, prefabs);
+                ParseFile(results, file, projectRoot, scriptTypes, guidToPrefab, prefabCache, prefabs);
             }
         }
 
@@ -60,7 +61,7 @@ namespace Internal {
             List<ContainerGraphAsset> results,
             string fullPath,
             string projectRoot,
-            Dictionary<string, string> guidToType,
+            ScriptTypes scriptTypes,
             Dictionary<string, string> guidToPrefab,
             Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
             bool prefab) {
@@ -84,9 +85,9 @@ namespace Internal {
                     if (IsEntityHolder(block) == false)
                         continue;
 
-                    var types = Resolve(byId, block.AutoDetected, guidToType, guidToPrefab, prefabCache, false);
-                    AppendUnique(types, Resolve(byId, block.Register, guidToType, guidToPrefab, prefabCache, false));
-                    AddAsset(results, path, TypeName(block, guidToType), types);
+                    var types = Resolve(byId, block.AutoDetected, scriptTypes, guidToPrefab, prefabCache, false);
+                    AppendUnique(types, Resolve(byId, block.Register, scriptTypes, guidToPrefab, prefabCache, false));
+                    AddAsset(results, path, TypeName(block, scriptTypes), types);
                     continue;
                 }
 
@@ -94,17 +95,17 @@ namespace Internal {
                     AddAsset(
                         results,
                         path,
-                        TypeName(block, guidToType),
-                        Resolve(byId, block.Services, guidToType, guidToPrefab, prefabCache, true));
+                        TypeName(block, scriptTypes),
+                        Resolve(byId, block.Services, scriptTypes, guidToPrefab, prefabCache, true));
                     continue;
                 }
 
                 if (IsEntityHolder(block) == false)
                     continue;
 
-                var entityTypes = Resolve(byId, block.AutoDetected, guidToType, guidToPrefab, prefabCache, false);
-                AppendUnique(entityTypes, Resolve(byId, block.Register, guidToType, guidToPrefab, prefabCache, false));
-                AddAsset(results, path, TypeName(block, guidToType), entityTypes);
+                var entityTypes = Resolve(byId, block.AutoDetected, scriptTypes, guidToPrefab, prefabCache, false);
+                AppendUnique(entityTypes, Resolve(byId, block.Register, scriptTypes, guidToPrefab, prefabCache, false));
+                AddAsset(results, path, TypeName(block, scriptTypes), entityTypes);
             }
         }
 
@@ -123,9 +124,9 @@ namespace Internal {
             return string.Equals(block.ScriptGuid, SceneServicesFactoryGuid, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string TypeName(YamlBlock block, Dictionary<string, string> guidToType) {
+        private static string TypeName(YamlBlock block, ScriptTypes scriptTypes) {
             if (string.IsNullOrEmpty(block.ScriptGuid) == false &&
-                guidToType.TryGetValue(block.ScriptGuid, out var mapped))
+                scriptTypes.TryGet(block.ScriptGuid, out var mapped))
                 return mapped;
 
             var identifier = block.ClassIdentifier;
@@ -139,7 +140,7 @@ namespace Internal {
         private static List<string> Resolve(
             Dictionary<string, YamlBlock> byId,
             List<string> fileIds,
-            Dictionary<string, string> guidToType,
+            ScriptTypes scriptTypes,
             Dictionary<string, string> guidToPrefab,
             Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
             bool sort) {
@@ -149,7 +150,7 @@ namespace Internal {
                 if (byId.TryGetValue(id, out var block) == false)
                     continue;
 
-                var type = ResolveBlockType(block, guidToType, guidToPrefab, prefabCache);
+                var type = ResolveBlockType(block, scriptTypes, guidToPrefab, prefabCache);
                 if (string.IsNullOrEmpty(type) || seen.Add(type) == false)
                     continue;
 
@@ -163,10 +164,10 @@ namespace Internal {
 
         private static string ResolveBlockType(
             YamlBlock block,
-            Dictionary<string, string> guidToType,
+            ScriptTypes scriptTypes,
             Dictionary<string, string> guidToPrefab,
             Dictionary<string, Dictionary<string, YamlBlock>> prefabCache) {
-            var type = TypeName(block, guidToType);
+            var type = TypeName(block, scriptTypes);
             if (string.IsNullOrEmpty(type) == false)
                 return type;
             if (string.IsNullOrEmpty(block.CorrespondingGuid) || string.IsNullOrEmpty(block.CorrespondingFileId))
@@ -177,7 +178,7 @@ namespace Internal {
             var prefabBlocks = PrefabBlocks(prefabPath, prefabCache);
             if (prefabBlocks.TryGetValue(block.CorrespondingFileId, out var source) == false)
                 return "";
-            return TypeName(source, guidToType);
+            return TypeName(source, scriptTypes);
         }
 
         private static void AddAsset(List<ContainerGraphAsset> results, string path, string holder, List<string> types) {
@@ -303,75 +304,6 @@ namespace Internal {
                 target.Add(match.Groups[1].Value);
         }
 
-        private static Dictionary<string, string> BuildGuidMap(string assetsRoot) {
-            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            string[] metas;
-            try {
-                metas = Directory.GetFiles(assetsRoot, "*.cs.meta", SearchOption.AllDirectories);
-            }
-            catch (Exception exception) {
-                Debug.LogError("[ContainerGraph] Failed to index script GUIDs: " + exception);
-                return map;
-            }
-
-            var guidLine = new Regex(@"^guid: ([a-f0-9]{32})", RegexOptions.Compiled);
-            var namespaceLine = new Regex(@"namespace\s+([A-Za-z0-9_.]+)", RegexOptions.Compiled);
-            var classLine = new Regex(@"\bclass\s+([A-Za-z0-9_]+)", RegexOptions.Compiled);
-
-            foreach (var meta in metas) {
-                string guid = null;
-                try {
-                    foreach (var line in File.ReadLines(meta)) {
-                        var match = guidLine.Match(line.Trim());
-                        if (match.Success == false)
-                            continue;
-                        guid = match.Groups[1].Value;
-                        break;
-                    }
-                }
-                catch {
-                    continue;
-                }
-
-                if (string.IsNullOrEmpty(guid))
-                    continue;
-
-                var script = meta.Substring(0, meta.Length - ".meta".Length);
-                if (File.Exists(script) == false)
-                    continue;
-
-                try {
-                    string ns = "";
-                    string type = "";
-                    foreach (var line in File.ReadLines(script)) {
-                        if (string.IsNullOrEmpty(ns)) {
-                            var nsMatch = namespaceLine.Match(line);
-                            if (nsMatch.Success)
-                                ns = nsMatch.Groups[1].Value;
-                        }
-
-                        if (string.IsNullOrEmpty(type)) {
-                            var classMatch = classLine.Match(line);
-                            if (classMatch.Success)
-                                type = classMatch.Groups[1].Value;
-                        }
-
-                        if (string.IsNullOrEmpty(ns) == false && string.IsNullOrEmpty(type) == false)
-                            break;
-                    }
-
-                    if (string.IsNullOrEmpty(type))
-                        continue;
-
-                    map[guid] = string.IsNullOrEmpty(ns) ? type : ns + "." + type;
-                }
-                catch {
-                }
-            }
-
-            return map;
-        }
-
         private static Dictionary<string, string> BuildPrefabMap(string assetsRoot) {
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             string[] metas;
@@ -458,6 +390,61 @@ namespace Internal {
             public List<string> AutoDetected = new List<string>();
             public List<string> Register = new List<string>();
             public List<string> Services = new List<string>();
+        }
+
+        // GUID скрипта → полное имя класса. Unity привязывает скрипт к классу с именем файла, а не к
+        // первому классу в нём, поэтому истина — MonoScript.GetClass(). Разбор текста — только для
+        // скрипта, которого ещё нет в скомпилированных сборках.
+        private sealed class ScriptTypes {
+            private static readonly Regex NamespaceDeclaration = new Regex(@"\bnamespace\s+([A-Za-z0-9_.]+)", RegexOptions.Compiled);
+
+            private readonly Dictionary<string, string> _cache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            public bool TryGet(string guid, out string type) {
+                if (_cache.TryGetValue(guid, out type) == false) {
+                    type = Find(guid);
+                    _cache[guid] = type;
+                }
+
+                return string.IsNullOrEmpty(type) == false;
+            }
+
+            private static string Find(string guid) {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(path) || path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) == false)
+                    return "";
+
+                var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
+                var compiled = script != null ? script.GetClass() : null;
+                if (compiled != null)
+                    return compiled.FullName;
+
+                return FromSource(path);
+            }
+
+            private static string FromSource(string path) {
+                string source;
+                try {
+                    source = File.ReadAllText(path);
+                }
+                catch {
+                    return "";
+                }
+
+                var name = Path.GetFileNameWithoutExtension(path);
+                var declaration = Regex.Match(source, @"\bclass\s+" + Regex.Escape(name) + @"\b");
+                if (declaration.Success == false)
+                    return "";
+
+                var ns = "";
+                foreach (Match match in NamespaceDeclaration.Matches(source)) {
+                    if (match.Index > declaration.Index)
+                        break;
+                    ns = match.Groups[1].Value;
+                }
+
+                return string.IsNullOrEmpty(ns) ? name : ns + "." + name;
+            }
         }
     }
 }

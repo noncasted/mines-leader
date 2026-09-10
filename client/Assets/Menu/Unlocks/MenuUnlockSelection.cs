@@ -40,6 +40,7 @@ namespace Menu.Unlocks
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
+        [Inject]
         internal void Construct(
             IAchievementRewards rewards,
             ICardsRegistry cards,

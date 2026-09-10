@@ -37,7 +37,7 @@ namespace Internal
 
     public static class NetworkCommandExtensions
     {
-        public static IRegistration RegisterCommand<T>(this IScopeBuilder builder) where T : INetworkCommand
+        public static IServiceRegistration RegisterCommand<T>(this IScopeBuilder builder) where T : INetworkCommand
         {
             var registration = builder.Register<CommandResolver<T>>();
             registration.AsSelfResolvable();

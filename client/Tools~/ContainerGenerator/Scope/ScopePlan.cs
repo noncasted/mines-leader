@@ -24,7 +24,9 @@ namespace ContainerGenerator {
         public bool HasRegistrationInfo;
         public bool HasServiceLifetime;
         public bool HasRuntimeInitialize;
+        public bool HasContainerDiagnostics;
         public INamedTypeSymbol? ProvidesDefinition;
+        public List<DiagnosticRegistration> DiagnosticRegistrations = new List<DiagnosticRegistration>();
         public List<CtorParam> CtorParams = new List<CtorParam>();
         public List<Field> Fields = new List<Field>();
         public List<Slot> Slots = new List<Slot>();
@@ -102,6 +104,16 @@ namespace ContainerGenerator {
             public int Slot;
         }
 
+        // Строка таблицы Internal.RegistrationInfo; пустой тип — typeof из сборки скоупа не написать.
+        public sealed class DiagnosticRegistration {
+            public string ImplementationType = "";
+            public List<string> ServiceTypes = new List<string>();
+            public string Lifetime = "Singleton";
+            public List<int> Dependencies = new List<int>();
+            public bool IsInstantiated;
+            public bool IsExternal;
+        }
+
         public static ScopePlan? Build(
             ScopeGraph graph,
             GraphDocument document,
@@ -151,6 +163,8 @@ namespace ContainerGenerator {
             plan.HasRegistrationInfo = compilation.GetTypeByMetadataName("Internal.RegistrationInfo") != null;
             plan.HasServiceLifetime = compilation.GetTypeByMetadataName("Internal.ServiceLifetime") != null;
             plan.HasRuntimeInitialize = references.RuntimeInitialize != null;
+            plan.HasContainerDiagnostics = plan.HasDiagnosticsType && plan.HasRegistrationInfo && plan.HasServiceLifetime &&
+                                           compilation.GetTypeByMetadataName("Internal.ContainerDiagnostics") != null;
             plan.ProvidesDefinition = compilation.GetTypeByMetadataName("Internal.IProvides`1");
             plan.HasProvides = plan.ProvidesDefinition != null;
 
@@ -162,6 +176,8 @@ namespace ContainerGenerator {
             used.Add(plan.ParentParam);
             used.Add("_exports");
             used.Add("_diagnostics");
+            used.Add("_registrationInfos");
+            used.Add("_buildOrder");
             used.Add("_disposed");
 
             BuildSlots(plan, graph, types, used);
@@ -173,7 +189,92 @@ namespace ContainerGenerator {
             BuildFactories(plan, graph, used);
             BuildProvides(plan, graph);
             CollectDisposable(plan, graph, types);
+            if (plan.HasContainerDiagnostics)
+                BuildDiagnostics(plan, compilation, types);
             return plan;
+        }
+
+        // Таблица для графа контейнеров: свои регистрации по слотам, затем дырки рёбер — то, что
+        // скоуп берёт у родителя или из WithParameter.
+        private static void BuildDiagnostics(ScopePlan plan, Compilation compilation, TypeIndex types) {
+            for (var i = 0; i < plan.Slots.Count; i++) {
+                var slot = plan.Slots[i];
+                var registration = slot.Registration;
+                var entry = new DiagnosticRegistration {
+                    ImplementationType = DiagnosticType(compilation, types, slot.ImplementationType),
+                    Lifetime = registration.Lifetime,
+                    IsInstantiated = slot.IsTransient == false && registration.Origin != "Injectable",
+                };
+
+                for (var s = 0; s < registration.ServiceTypes.Count; s++)
+                    AddDistinct(entry.ServiceTypes, DiagnosticType(compilation, types, registration.ServiceTypes[s]));
+
+                for (var e = 0; e < registration.Dependencies.Count; e++) {
+                    var edge = registration.Dependencies[e];
+                    if (edge.Kind == "Registration")
+                        AddDependency(plan, entry.Dependencies, edge.TargetIndex);
+                    else if (edge.Kind == "Collection") {
+                        for (var c = 0; c < edge.CollectionIndices.Count; c++)
+                            AddDependency(plan, entry.Dependencies, edge.CollectionIndices[c]);
+                    }
+                }
+
+                plan.DiagnosticRegistrations.Add(entry);
+            }
+
+            for (var i = 0; i < plan.CtorParams.Count; i++) {
+                var param = plan.CtorParams[i];
+                if (string.IsNullOrEmpty(param.FieldName))
+                    continue;
+
+                var type = DiagnosticType(compilation, types, param.Type);
+                var entry = new DiagnosticRegistration {
+                    ImplementationType = type,
+                    IsInstantiated = true,
+                    IsExternal = true,
+                };
+                AddDistinct(entry.ServiceTypes, type);
+                plan.DiagnosticRegistrations.Add(entry);
+            }
+        }
+
+        private static string DiagnosticType(Compilation compilation, TypeIndex types, string type) {
+            if (string.IsNullOrEmpty(type) || type.IndexOf('{') >= 0)
+                return "";
+
+            var symbol = types.Find(type);
+            if (symbol == null || symbol.IsUnboundGenericType || ContainsTypeParameter(symbol))
+                return "";
+            if (compilation.IsSymbolAccessibleWithin(symbol, compilation.Assembly) == false)
+                return "";
+            return TypeNames.ForCode(symbol);
+        }
+
+        private static bool ContainsTypeParameter(ITypeSymbol type) {
+            if (type is ITypeParameterSymbol)
+                return true;
+            if (type is IArrayTypeSymbol array)
+                return ContainsTypeParameter(array.ElementType);
+            if (type is INamedTypeSymbol named) {
+                for (var i = 0; i < named.TypeArguments.Length; i++) {
+                    if (ContainsTypeParameter(named.TypeArguments[i]))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddDependency(ScopePlan plan, List<int> dependencies, int index) {
+            if (index < 0 || index >= plan.Slots.Count || dependencies.Contains(index))
+                return;
+            dependencies.Add(index);
+        }
+
+        private static void AddDistinct(List<string> list, string value) {
+            if (string.IsNullOrEmpty(value) || list.Contains(value))
+                return;
+            list.Add(value);
         }
 
         private static string ConstructMethodName(string rootId, string fallback) {
@@ -265,7 +366,10 @@ namespace ContainerGenerator {
                     IsHole = IsHoleOrigin(registration.Origin),
                     IsAlternative = registration.Origin == "Alternative",
                     IsSwitch = registration.Origin == "SwitchFactory",
-                    SkipEmit = registration.Origin == "SceneServices" || registration.Origin == "ExternalInstaller",
+                    // Injectable: без поля, экспорта и конструирования — только ветка в Inject().
+                    SkipEmit = registration.Origin == "SceneServices" ||
+                               registration.Origin == "ExternalInstaller" ||
+                               registration.Origin == "Injectable",
                 };
 
                 var symbol = types.Find(registration.ImplementationType);
@@ -498,8 +602,6 @@ namespace ContainerGenerator {
                 var slot = plan.Slots[i];
                 if (slot.SkipEmit)
                     continue;
-                if (slot.IsTransient)
-                    continue;
 
                 var added = false;
                 for (var s = 0; s < registration.ServiceTypes.Count; s++) {
@@ -524,8 +626,10 @@ namespace ContainerGenerator {
                 }
             }
 
+            // Transient не лежит в _exports, поэтому даже одиночный получает список: иначе
+            // ResolveAll молча вернёт пустоту.
             foreach (var pair in byType) {
-                if (pair.Value.Count > 1)
+                if (pair.Value.Count > 1 || HasTransientSlot(plan, pair.Value))
                     wanted.Add(pair.Key);
             }
 
@@ -539,12 +643,24 @@ namespace ContainerGenerator {
                 };
                 marker.Slots.AddRange(slots);
                 plan.Markers.Add(marker);
+                if (HasTransientSlot(plan, slots))
+                    continue;
+
                 plan.Fields.Add(new Field {
                     Type = type + "[]",
                     Name = marker.FieldName,
                     IsMarker = true,
                 });
             }
+        }
+
+        public static bool HasTransientSlot(ScopePlan plan, List<int> slots) {
+            for (var i = 0; i < slots.Count; i++) {
+                if (plan.Slots[slots[i]].IsTransient)
+                    return true;
+            }
+
+            return false;
         }
 
         private static void AddKnownMarkers(HashSet<string> wanted) {

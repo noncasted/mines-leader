@@ -24,8 +24,10 @@ namespace Internal
 
         private const float OriginX = 40f;
         private const float OriginY = 40f;
-        private const float ColumnWidth = 420f;
-        private const float RowHeight = 240f;
+        // Дерево растёт слева направо, как идут связи Children → Parent: колонка — глубина скоупа.
+        private const float ColumnWidth = 480f;
+        private const float SiblingGap = 24f;
+        private const float RootGap = 64f;
 
         [NonSerialized]
         private Lifetime _lifetime;
@@ -162,7 +164,9 @@ namespace Internal
                         continue;
 
                     var height = AddTree(root, null, OriginX, cursorY, nodes, visited);
-                    cursorY += Math.Max(height, RowHeight) + 24f;
+
+                    if (height > 0f)
+                        cursorY += height + RootGap;
                 }
 
                 ConnectParents(nodes);
@@ -204,25 +208,20 @@ namespace Internal
 
             var children = ContainerGraphRead.List(() => diagnostics.Children);
             var childY = y;
-            var hasChild = false;
 
             foreach (var child in children)
             {
                 if (child == null)
                     continue;
 
-                if (hasChild)
-                    childY += 16f;
-
                 var height = AddTree(child, diagnostics, x + ColumnWidth, childY, nodes, visited);
-                childY += Math.Max(height, RowHeight);
-                hasChild = true;
+
+                if (height > 0f)
+                    childY += height + SiblingGap;
             }
 
-            if (hasChild)
-                return Math.Max(RowHeight, childY - y);
-
-            return RowHeight;
+            var childrenHeight = childY > y ? childY - y - SiblingGap : 0f;
+            return Math.Max(node.EstimatedHeight, childrenHeight);
         }
 
         private void ConnectParents(Dictionary<IContainerDiagnostics, ContainerNode> nodes)

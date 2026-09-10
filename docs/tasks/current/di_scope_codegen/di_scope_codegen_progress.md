@@ -12,7 +12,7 @@ updated: 2026-09-10
 | 1b Кросс-сборочный манифест | G | 01a089b2-7a4b-73b2-a915-da9bad5d0fcb | [x] | `[assembly: ContainerInstaller]`; три installer’а без CINGR002 в Verify | — |
 | 1c Сущностные скоупы | E | 01a089cf-9e28-7ba0-9f69-50675fbcd696 | [/] | типы разведены; 2+2 класса; 8/4 компонента; CINGR006. Плей-мод не зелёный | плей-мод |
 | 2 Стык с рантаймом | R | 01a089b2-7a4b-73b2-a915-daafdc742930 | [/] | `ScopeContainer.Create` — одна точка; `IsGenerated`; дебагер `[generated]`/`[runtime]`. Плей-мод не проверен. Loaders ещё на VContainer | — |
-| 3 Тесты и бенчмарк | T | 01a089b2-7a4b-73b2-a915-dab7137cb27b | [/] | NUnit locked 2–6 написаны; форма класса красная до эмита G; бенчмарк: колонка Generated пустая | бенчмарк ждёт 1, 1c, 2 |
+| 3 Тесты и бенчмарк | T | 01a089b2-7a4b-73b2-a915-dab7137cb27b | [/] | Internal.Tests EditMode 40/40; бенчмарк VContainer vs Generated с аллокациями (`own_di/benchmark.md`, 2026-09-10 10:40 UTC) | горячий путь карта/игрок не мерился |
 | 4 Миграция, снос VContainer, уборка | — | оркестратор | [ ] | — | ждёт 1, 1b, 1c, 2, 3 |
 
 ## Порядок запуска
@@ -249,3 +249,9 @@ assembly-атрибуты делает существующую работу к�
 Предусловие гейта оказалось выполнено раньше срока: `GraphWalker` (~1125 строк)
 уже разбирает все семь случаев (`ContainerGraphOrigin`), включая `SwitchFactory`,
 `Alternative` и дырки.
+
+2026-09-10. Метод инжекта ищется по `[Internal.Inject]`, а не по имени `Construct`: `TypeAnalyzer` берёт помеченный метод (любое имя, ровно один на тип), `EdgeResolver` кладёт имя в `GraphEdge.Method`, `ScopeEmitter` зовёт его по этому имени. `Construct` без атрибута генератор не видит. Тест: Verify "[Inject] picks method by attribute, not name".
+
+2026-09-10. Аллокации в бенчмарке были 0 из-за меры: `GC.GetAllocatedBytesForCurrentThread` в Unity Mono — заглушка. Замер переведён на `ProfilerRecorder` `GC Allocated In Frame` (байт в байт, все потоки), 11 прогонов: время — медиана, байты — минимум. Разбивка Build по шагам (`GeneratedContainer_BuildAllocations_ByStep`) показала 62% на installer: каждая `ServiceRegistration` сразу создавала `List<Type>` и пустой `Dictionary<Type, object>`, которые читает только `TryGetHole`. Обе коллекции ленивые — Build 17443 → 11315 байт (VContainer 32024), Build + резолв всех 11499 против 44732. Цифры и остаток по шагам — `own_di/benchmark.md`.
+
+2026-09-10. `IRegistration` и обёртка `ContainerRegistration` удалены: цепочка installer'а (`Register`, `As`, `WithParameter`, `AsSelfResolvable`, `WithScopeLifetime`, `AsSessionCallback`) работает прямо с `IServiceRegistration`, у которого есть `IBuilder Builder`. Методы интерфейса переименованы в `AddServiceType`/`SetParameter`: одноимённые `As`/`AsSelf`/`WithParameter` перехватывали вызовы расширений, и `GraphWalker` (узнаёт примитивы по классу `BuilderExtensions`) их бы не увидел. Билдер попадает в `ContainerBuilder` через `AttachBuilder` из конструкторов `RootBuilder`/`ScopeBuilder`/`EntityBuilder`; `GraphWalker.IsInstaller` не считает installer'ом методы типов `IContainerRegistry` (иначе `AttachBuilder(IBuilder)` попадал в манифест). `IContainerRegistry.AddSelfResolvable` снят — флаг никто не читал. Проверка: сгенерированные классы всех 9 сборок совпадают с эталоном до правки, id манифеста тоже; Verify ALL PASSED (+ тест на `AttachBuilder`); Internal.Tests 40/40. Build −816 байт (−24 на регистрацию). Плей-мод не проверен.

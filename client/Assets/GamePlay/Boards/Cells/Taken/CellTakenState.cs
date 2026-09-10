@@ -22,6 +22,7 @@ namespace GamePlay.Boards
         public IViewableProperty<bool> IsFlagged => _isFlagged;
         public CellTakenView View => _view;
 
+        [Inject]
         public void Construct(IReadOnlyLifetime lifetime)
         {
             _view.Enable(lifetime, this);

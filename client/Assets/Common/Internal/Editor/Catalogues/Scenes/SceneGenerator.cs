@@ -54,6 +54,7 @@ namespace Internal
             if (scenes.Count > 0)
             {
                 ScenesClassGenerator.Generate(scenes);
+                ScenesAddressablesSync.Sync(scenes);
                 Debug.Log($"[SceneGenerator] Found {scenes.Count} scene(s).");
             }
         }

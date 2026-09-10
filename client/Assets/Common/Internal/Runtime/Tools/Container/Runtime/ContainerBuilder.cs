@@ -35,6 +35,13 @@ namespace Internal
 
         internal IContainer Parent { get; }
 
+        // Lifetime, который видит installer через IBuilder.Lifetime.
+        internal IReadOnlyLifetime ScopeLifetime => _scopeLifetime ?? _hostLifetime;
+
+        // IBuilder, который пишет в этот ContainerBuilder. Регистрации отдают его расширениям цепочки
+        // (WithScopeLifetime, AsSessionCallback).
+        internal IBuilder Builder { get; private set; }
+
         public IServiceRegistration Add(Type implementation, ServiceLifetime lifetime)
         {
             ContainerThread.Assert();
@@ -43,7 +50,7 @@ namespace Internal
             if (implementation == null)
                 throw new ArgumentNullException(nameof(implementation));
 
-            var registration = new ServiceRegistration(implementation, lifetime);
+            var registration = new ServiceRegistration(Builder, implementation, lifetime);
             _registrations.Add(registration);
             return registration;
         }
@@ -59,10 +66,10 @@ namespace Internal
             if (instance == null)
                 throw new ArgumentNullException(nameof(instance));
 
-            var registration = new ServiceRegistration(instance.GetType(), ServiceLifetime.Singleton);
+            var registration = new ServiceRegistration(Builder, instance.GetType(), ServiceLifetime.Singleton);
             registration.ExistingInstance = instance;
             registration.IsExisting = true;
-            registration.As(serviceType);
+            registration.AddServiceType(serviceType);
             _registrations.Add(registration);
             return registration;
         }
@@ -81,12 +88,24 @@ namespace Internal
             if (component == null)
                 throw new ArgumentNullException(nameof(component));
 
-            var registration = new ServiceRegistration(component.GetType(), lifetime);
+            var registration = new ServiceRegistration(Builder, component.GetType(), lifetime);
             registration.ExistingInstance = component;
             registration.IsExisting = true;
-            registration.As(serviceType);
+            registration.AddServiceType(serviceType);
             _registrations.Add(registration);
             return registration;
+        }
+
+        // Зовёт конструктор билдера. Один ContainerBuilder — один IBuilder.
+        internal void AttachBuilder(IBuilder builder)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (Builder != null && Builder != builder)
+                throw new InvalidOperationException($"Container builder '{Name}' is already attached to another builder.");
+
+            Builder = builder;
         }
 
         public void AddInjection(object target)
@@ -98,26 +117,6 @@ namespace Internal
                 throw new ArgumentNullException(nameof(target));
 
             _injections.Add(target);
-        }
-
-        public void AddSelfResolvable(IServiceRegistration registration)
-        {
-            ContainerThread.Assert();
-            ThrowIfBuilt();
-
-            if (registration == null)
-                throw new ArgumentNullException(nameof(registration));
-
-            if (registration is ServiceRegistration serviceRegistration &&
-                _registrations.Contains(serviceRegistration) == true)
-            {
-                serviceRegistration.IsSelfResolvable = true;
-                return;
-            }
-
-            throw new ArgumentException(
-                "Registration does not belong to this container builder.",
-                nameof(registration));
         }
 
         internal ILifetime CreateLifetime()
@@ -170,14 +169,14 @@ namespace Internal
                         return true;
                     }
 
-                    if (registration.ServiceTypesList.Contains(type) == true)
+                    if (registration.HasServiceType(type) == true)
                     {
                         instance = registration.ExistingInstance;
                         return true;
                     }
                 }
 
-                if (registration.Parameters.TryGetValue(type, out instance) == true)
+                if (registration.TryGetParameter(type, out instance) == true)
                     return true;
             }
 

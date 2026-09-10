@@ -4,6 +4,21 @@ using Cysharp.Threading.Tasks;
 
 namespace Internal
 {
+    public interface IEntityScopeLoader
+    {
+        UniTask<IEntityScopeResult> Load(
+            IReadOnlyLifetime parentLifetime,
+            IContainer parent,
+            IScopeEntityView view,
+            Func<IEntityBuilder, UniTask> construct);
+
+        UniTask<IEntityScopeResult> Load(
+            IReadOnlyLifetime parentLifetime,
+            IContainer parent,
+            IScopeEntityView view,
+            Action<IEntityBuilder> construct);
+    }
+    
     public class EntityScopeLoader : IEntityScopeLoader
     {
         public async UniTask<IEntityScopeResult> Load(
@@ -42,9 +57,8 @@ namespace Internal
         {
             var lifetime = parentLifetime.Child();
             var containerBuilder = new ContainerBuilder(view.GetType().Name, parent, lifetime);
-            var services = new ServiceCollection(containerBuilder);
 
-            return new EntityBuilder(services, view, lifetime, new EventLoop());
+            return new EntityBuilder(containerBuilder, view, lifetime, new EventLoop());
         }
 
         // Класс скоупа выбирается по корню и конкретному типу вьюхи: у варианта свой тип (locked 14).
@@ -55,7 +69,7 @@ namespace Internal
             var container = ScopeContainer.CreateEntity(
                 GeneratedScopes.RootId(root),
                 view.GetType(),
-                builder.InternalServices.Builder);
+                builder.ContainerBuilder); 
 
             builder.ScopeLifetime.Listen(container.Dispose);
             view.Bind(container);

@@ -41,7 +41,7 @@ namespace Internal
                 panel.styleSheets.Add(sheet);
 
             panel.Add(BuildSection("External dependencies", Node.ExternalDependencies));
-            panel.Add(BuildSection("Services", Node.Services));
+            panel.Add(BuildSection("Registry", Node.Services));
             panel.Add(BuildSection("Loaded assets", Node.LoadedAssets));
             return panel;
         }

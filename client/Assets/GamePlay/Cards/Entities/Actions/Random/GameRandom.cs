@@ -31,6 +31,7 @@ namespace GamePlay.Cards
         private ILifetime _lifetime;
         private IUpdater _updater;
 
+        [Inject]
         internal void Construct(IUpdater updater)
         {
             _updater = updater;

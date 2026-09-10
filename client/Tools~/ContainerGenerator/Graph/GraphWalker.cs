@@ -116,6 +116,10 @@ namespace ContainerGenerator {
                 method.MethodKind != MethodKind.ReducedExtension)
                 return false;
 
+            // Сам реестр (ContainerBuilder.AttachBuilder) принимает IBuilder, но ничего не регистрирует.
+            if (IsContainerRegistry(method.ContainingType))
+                return false;
+
             if (HasBuilderParameter(method))
                 return true;
             if (method.MethodKind == MethodKind.ReducedExtension && IsBuilderLike(method.ReceiverType))
@@ -167,6 +171,7 @@ namespace ContainerGenerator {
                 case "WithParameter":
                 case "WithScopeLifetime":
                 case "Inject":
+                case "Injectable":
                 case "Instantiate":
                 case "Provide":
                     return true;
@@ -727,6 +732,11 @@ namespace ContainerGenerator {
                 return;
             }
 
+            if (name == "Injectable" && IsPrimitiveCall(symbol)) {
+                HandleInjectable(state, invocation, symbol);
+                return;
+            }
+
             if (name == "Instantiate") {
                 HandleInstantiate(state, invocation);
                 return;
@@ -907,6 +917,23 @@ namespace ContainerGenerator {
             registration.Hole = argument != null ? argument.ToString() : "";
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
+        }
+
+        // builder.Injectable<T>(): тип не резолвится, скоуп только зовёт его [Inject] для экземпляров из рантайма.
+        private void HandleInjectable(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
+            WalkReceiver(state, invocation);
+            var implementation = "";
+            var implementationMap = "";
+            if (symbol != null && symbol.TypeArguments.Length == 1) {
+                implementation = Format(state, symbol.TypeArguments[0]);
+                implementationMap = Map(state, symbol.TypeArguments[0]);
+            }
+
+            var registration = NewRegistration(state, invocation, "Injectable", implementation, "Injectable");
+            registration.TypeMap = implementationMap;
+            state.Result.Registrations.Add(registration);
+            state.LastRegistration = null;
             state.LastCallIndex = -1;
         }
 
@@ -1204,9 +1231,15 @@ namespace ContainerGenerator {
         private bool IsRegistrationLike(ITypeSymbol? type) {
             if (type == null)
                 return false;
-            if (type.Name == "IRegistration" || type.Name == "IServiceRegistration")
+            if (type.Name == "IServiceRegistration")
                 return true;
-            return type.Implements(_references.Registration) || type.Implements(_references.ServiceRegistration);
+            return type.Implements(_references.ServiceRegistration);
+        }
+
+        private bool IsContainerRegistry(ITypeSymbol? type) {
+            if (type == null)
+                return false;
+            return type.Name == "IContainerRegistry" || type.Implements(_references.ContainerRegistry);
         }
 
         private bool IsScopeBuilder(ITypeSymbol type) {

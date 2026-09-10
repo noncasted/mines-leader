@@ -963,7 +963,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4e9f2a1b3846d0b5e8c3a94721d6f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardLocalScopeEntity
-  _register: []
   _autoDetected:
   - {fileID: 8566372423432436414}
   - {fileID: 3281365899715077984}

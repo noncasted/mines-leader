@@ -47,6 +47,15 @@ namespace Internal
 
         internal IReadOnlyList<string> LoadedAssets => _loadedAssets ?? Array.Empty<string>();
 
+        // Высота для раскладки: заголовок с портами и три секции, скролл секции — до 72px (ContainerNodeView).
+        internal float EstimatedHeight =>
+            HeaderHeight + SectionHeight(ExternalDependencies) + SectionHeight(Services) + SectionHeight(LoadedAssets);
+
+        private const float HeaderHeight = 72f;
+        private const float SectionTitleHeight = 20f;
+        private const float LineHeight = 14f;
+        private const float SectionScrollHeight = 72f;
+
         internal void Capture(IContainerDiagnostics diagnostics, IContainerDiagnostics parent)
         {
             _containerName = ContainerGraphRead.Name(diagnostics);
@@ -96,7 +105,7 @@ namespace Internal
                 .Build();
 
             context.AddOption<string>(ServicesOptionName)
-                .WithDisplayName("Services")
+                .WithDisplayName("Registry")
                 .WithTooltip("Registrations owned by this container (IsExternal == false).")
                 .AsTextArea(3, 16)
                 .ShowInInspectorOnly()
@@ -145,6 +154,11 @@ namespace Internal
                 lines[i] = ContainerGraphRead.Asset(assets[i]);
 
             return lines;
+        }
+
+        private static float SectionHeight(IReadOnlyList<string> lines)
+        {
+            return SectionTitleHeight + Math.Min(SectionScrollHeight, LineHeight * Math.Max(1, lines.Count));
         }
 
         private static string Join(IReadOnlyList<string> lines)

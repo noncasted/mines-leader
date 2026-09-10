@@ -17,6 +17,8 @@ namespace ContainerGenerator {
         public LocationInfo? Location;
         public List<GraphSwitchArm> Arms = new List<GraphSwitchArm>();
         public List<GraphEdge> Dependencies = new List<GraphEdge>();
+        // Имя метода с [Inject]; ставит EdgeResolver вместе с рёбрами, поэтому Clone его не копирует.
+        public string InjectMethod = "";
 
         public GraphRegistration Clone() {
             var copy = new GraphRegistration {
@@ -60,6 +62,8 @@ namespace ContainerGenerator {
         public string ParameterName = "";
         public string ParameterType = "";
         public string Source = "Constructor";
+        // Имя метода с [Inject] для рёбер Source == "Construct".
+        public string Method = "";
         public string Kind = "Registration";
         public int Arm = -1;
         public int TargetIndex = -1;

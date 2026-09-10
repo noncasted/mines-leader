@@ -1,43 +1,30 @@
-﻿using System;
+using System;
 using Object = UnityEngine.Object;
 
 namespace Internal
 {
+    // Генератор узнаёт эти методы по имени и классу BuilderExtensions: переносить или
+    // переименовывать их без правки GraphWalker.IsPrimitiveBuilder нельзя.
     public static class BuilderExtensions
     {
-        public static IRegistration Register<T>(
+        public static IServiceRegistration Register<T>(
             this IBuilder builder,
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {
-            var registration = builder.Services.Registry.Add(typeof(T), lifetime);
-            registration.AsSelf();
-
-            return new ContainerRegistration(builder, registration);
+            return builder.Registry.Add(typeof(T), lifetime).AsSelf();
         }
 
-        public static IRegistration Register<TInterface, TImplementation>(
-            this IBuilder builder,
-            ServiceLifetime lifetime = ServiceLifetime.Singleton)
-        {
-            var registration = builder.Services.Registry.Add(typeof(TImplementation), lifetime);
-            registration.As(typeof(TInterface));
-
-            return new ContainerRegistration(builder, registration);
-        }
-
-        public static IRegistration RegisterInstance<T>(
+        public static IServiceRegistration RegisterInstance<T>(
             this IBuilder builder,
             T instance)
         {
             if (instance == null)
                 throw new NullReferenceException();
 
-            var registration = builder.Services.Registry.AddInstance(typeof(T), instance);
-
-            return new ContainerRegistration(builder, registration);
+            return builder.Registry.AddInstance(typeof(T), instance);
         }
 
-        public static IRegistration RegisterComponent<T>(
+        public static IServiceRegistration RegisterComponent<T>(
             this IBuilder builder,
             T component,
             ServiceLifetime lifetime = ServiceLifetime.Singleton) where T : Object
@@ -45,39 +32,32 @@ namespace Internal
             if (component == null)
                 throw new NullReferenceException($"Missing {typeof(T).Name} component");
 
-            var registration = builder.Services.Registry.AddComponent(typeof(T), component, lifetime);
-            registration.AsSelf();
-
-            return new ContainerRegistration(builder, registration);
+            return builder.Registry.AddComponent(typeof(T), component, lifetime).AsSelf();
         }
 
-        public static IRegistration As<T>(this IRegistration registration)
+        public static IServiceRegistration As<T>(this IServiceRegistration registration)
         {
-            registration.Registration.As(typeof(T));
-            return registration;
+            return registration.AddServiceType(typeof(T));
         }
 
-        public static IRegistration As(this IRegistration registration, Type type)
+        public static IServiceRegistration As(this IServiceRegistration registration, Type type)
         {
-            registration.Registration.As(type);
-            return registration;
+            return registration.AddServiceType(type);
         }
 
-        public static IRegistration WithParameter<T>(this IRegistration registration, T parameter)
+        public static IServiceRegistration WithParameter<T>(this IServiceRegistration registration, T parameter)
         {
-            registration.Registration.WithParameter(typeof(T), parameter);
-            return registration;
+            return registration.SetParameter(typeof(T), parameter);
         }
 
-        public static IRegistration AsSelf(this IRegistration registration)
+        public static IServiceRegistration AsSelf(this IServiceRegistration registration)
         {
-            registration.Registration.AsSelf();
-            return registration;
+            return registration.AddServiceType(registration.ImplementationType);
         }
 
-        public static IRegistration AsSelfResolvable(this IRegistration registration)
+        // Создание без зависимых решает сгенерированный класс скоупа, в рантайме отмечать нечего.
+        public static IServiceRegistration AsSelfResolvable(this IServiceRegistration registration)
         {
-            registration.ServiceCollection.Registry.AddSelfResolvable(registration.Registration);
             return registration;
         }
 
@@ -86,13 +66,17 @@ namespace Internal
             if (component == null)
                 throw new NullReferenceException("No component provided");
 
-            builder.Services.Registry.AddInjection(component);
+            builder.Registry.AddInjection(component);
         }
 
-        public static IRegistration WithScopeLifetime(this IRegistration registration)
+        // Скоуп умеет Inject(T) для экземпляров из рантайма. Ветку Inject пишет сгенерированный класс скоупа.
+        public static void Injectable<T>(this IBuilder builder) where T : class
         {
-            registration.Registration.WithParameter(typeof(IReadOnlyLifetime), registration.Builder.Lifetime);
-            return registration;
+        }
+
+        public static IServiceRegistration WithScopeLifetime(this IServiceRegistration registration)
+        {
+            return registration.SetParameter(typeof(IReadOnlyLifetime), registration.Builder.Lifetime);
         }
     }
 }
