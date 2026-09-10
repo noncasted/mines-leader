@@ -266,10 +266,10 @@ namespace ContainerGenerator {
             var syntaxSource = method.ReducedFrom ?? original;
             SyntaxNode? syntax = null;
             SemanticModel? model = null;
-            foreach (var reference in syntaxSource.DeclaringSyntaxReferences) {
+            var reference = LocalSyntax(syntaxSource);
+            if (reference != null) {
                 syntax = reference.GetSyntax();
                 model = _compilation.GetSemanticModel(syntax.SyntaxTree);
-                break;
             }
 
             if (syntax == null || model == null) {
@@ -1157,7 +1157,18 @@ namespace ContainerGenerator {
         }
 
         private bool HasSyntax(IMethodSymbol method) {
-            return method.OriginalDefinition.DeclaringSyntaxReferences.Length > 0;
+            return LocalSyntax(method.OriginalDefinition) != null;
+        }
+
+        // IDE отдаёт соседние проекты компиляциями, и у их методов есть syntax tree чужой компиляции.
+        // Такой метод читаем как метаданные: его регистрации придут из манифеста сборки.
+        private SyntaxReference? LocalSyntax(ISymbol symbol) {
+            foreach (var reference in symbol.DeclaringSyntaxReferences) {
+                if (_compilation.ContainsSyntaxTree(reference.SyntaxTree))
+                    return reference;
+            }
+
+            return null;
         }
 
         private bool ReceiverIsGraphRelevant(State state, InvocationExpressionSyntax invocation) {
@@ -1561,6 +1572,8 @@ namespace ContainerGenerator {
 
         private void ReportUnenumerableVariants(IMethodSymbol construct) {
             foreach (var reference in construct.DeclaringSyntaxReferences) {
+                if (_compilation.ContainsSyntaxTree(reference.SyntaxTree) == false)
+                    continue;
                 var syntax = reference.GetSyntax();
                 var model = _compilation.GetSemanticModel(syntax.SyntaxTree);
                 var state = new State(construct, model, new GraphMethod { Id = MethodId(construct) });

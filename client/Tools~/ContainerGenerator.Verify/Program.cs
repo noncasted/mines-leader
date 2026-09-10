@@ -21,6 +21,7 @@ namespace ContainerGenerator.Verify {
             Run("parent in other assembly via manifest", TestParentViaManifest);
             Run("generator driver Internal→Global→Menu", TestGeneratorDriverParentChain);
             Run("generator driver missing parent is CINGR007", TestGeneratorDriverMissingParent);
+            Run("generator driver with source project references (IDE)", TestGeneratorDriverSourceReferences);
             Run("CINGR004 cycle path", TestCycle);
             Run("IReadOnlyList FullyQualifiedFormat", TestCollectionTypeKey);
             Run("LoadGlobal emit compiles", TestLoadGlobalEmit);
@@ -35,6 +36,7 @@ namespace ContainerGenerator.Verify {
             Run("harvest keeps repeated generic installer calls", TestHarvestRepeatedGenericInstaller);
             Run("1c entity Load splits CardFactory variants", TestEntityCardVariants);
             Run("1c entity emit two classes", TestEntityCardEmit);
+            Run("1c separate local roots in one method get distinct classes", TestEntityCardSplitEmit);
             Run("1c GamePlayer variants bind stripped Board", TestEntityPlayerStrippedBoard);
             Run("1c CINGR006 duplicate view type names both paths", TestCingr006DuplicateView);
             Run("1c CINGR006 skips base view type", TestCingr006BaseViewSkipped);
@@ -217,6 +219,34 @@ namespace ContainerGenerator.Verify {
             RequireNoId(menuRun.Diagnostics, "CINGR007");
             RequireGeneratedContains(menuRun.Output, "MenuScopeExtensionsConstructContainer");
             Console.WriteLine("      Internal→Global→Menu through ContainerGraphGenerator");
+        }
+
+        // IDE (Rider) передаёт соседние проекты как компиляции: символы их инсталлеров приходят
+        // с чужими syntax tree, а не как метаданные, как у Unity.
+        private static void TestGeneratorDriverSourceReferences() {
+            var internalRun = RunGenerator(Compile(DriverInternalSource, "Internal"), "Internal");
+            var internalSource = internalRun.Output.ToMetadataReference();
+
+            var globalCompilation = Compile(
+                IdeGlobalSource,
+                "Global",
+                extra: new[] { internalSource },
+                includeStubs: false);
+            var globalRun = RunGenerator(globalCompilation, "Global");
+            RequireNoId(globalRun.Diagnostics, "CINGR001");
+            RequireGeneratedContains(globalRun.Output, "Global.Setup.GlobalScopeExtensions.Construct");
+
+            var menuCompilation = Compile(
+                IdeMenuSource,
+                "Menu",
+                extra: new[] { internalSource, globalRun.Output.ToMetadataReference() },
+                includeStubs: false);
+            var menuRun = RunGenerator(menuCompilation, "Menu");
+            RequireNoId(menuRun.Diagnostics, "CINGR001");
+            RequireNoId(menuRun.Diagnostics, "CINGR003");
+            RequireNoId(menuRun.Diagnostics, "CINGR007");
+            RequireGeneratedContains(menuRun.Output, "MenuScopeExtensionsConstructContainer");
+            RequireGeneratedContains(menuRun.Output, "global::Global.Setup.Clock");
         }
 
         private static void TestGeneratorDriverMissingParent() {
@@ -506,6 +536,24 @@ namespace ContainerGenerator.Verify {
             Require(localClass.IndexOf("GeneratedScopes.RegisterVariant(", StringComparison.Ordinal) >= 0, "local must register as a variant");
             Require(ViewTypeOf(localClass).IndexOf("Local", StringComparison.Ordinal) >= 0, "local variant must key on its view type: " + ViewTypeOf(localClass));
             Require(ViewTypeOf(remoteClass).IndexOf("Remote", StringComparison.Ordinal) >= 0, "remote variant must key on its view type: " + ViewTypeOf(remoteClass));
+        }
+
+        private static void TestEntityCardSplitEmit() {
+            var compilation = Compile(EntityCardSplitSource, extraSource: EntityCardAssets);
+            var document = WalkBound(compilation);
+            var references = ReferenceSymbols.Create(compilation);
+            Require(references != null, "references");
+            var hints = new HashSet<string>(StringComparer.Ordinal);
+            var classes = new List<string>();
+            foreach (var graph in EdgeResolver.Resolve(document, compilation, references!)) {
+                if (ScopeEmitter.TryEmit(graph, document, compilation, references!, out var hint, out _) == false)
+                    continue;
+                Require(hints.Add(hint), "duplicate hint " + hint);
+                classes.Add(hint);
+            }
+
+            Require(hints.Contains("CardFactoryBuildLocalContainer.g.cs"), "missing BuildLocal class; got " + string.Join(", ", classes));
+            Require(hints.Contains("CardFactoryBuildRemoteContainer.g.cs"), "missing BuildRemote class; got " + string.Join(", ", classes));
         }
 
         private static string ViewTypeOf(string source) {
@@ -1563,6 +1611,37 @@ namespace Menu.Common {
 }
 ";
 
+        private const string IdeGlobalSource = DriverGlobalSource + @"
+namespace Global.Setup {
+    public interface IClock {}
+    public class Clock : IClock {}
+    public static class GlobalInstallers {
+        public static IScopeBuilder AddClock(this IScopeBuilder builder) {
+            builder.Register<Clock>().As<IClock>();
+            return builder;
+        }
+    }
+}
+";
+
+        private const string IdeMenuSource = @"
+using Internal;
+using Global.Setup;
+
+namespace Menu.Common {
+    public class NeedsClock {
+        public NeedsClock(IClock clock, IUpdater updater) {}
+    }
+    public static class MenuScopeExtensions {
+        [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
+        public static void Construct(IScopeBuilder builder) {
+            builder.AddClock();
+            builder.Register<NeedsClock>();
+        }
+    }
+}
+";
+
         private const string MissingSource = @"
 using Internal;
 
@@ -1941,6 +2020,45 @@ namespace Sample {
             builder.Register<MarkerSecond>().As<IScopeSetupMarker>();
             builder.Register<MarkerThird>().As<IScopeSetupMarker>();
             builder.Register<MarkerConsumer>();
+        }
+    }
+}
+";
+
+        private const string EntityCardSplitSource = @"
+using Internal;
+
+namespace GamePlay.Cards {
+    public class ScopeEntityView : IScopeEntityView {}
+    public class CardLocalScopeEntity : ScopeEntityView {}
+    public class CardRemoteScopeEntity : ScopeEntityView {}
+    public class LocalCard {}
+    public class RemoteCard {}
+    public class CardPointerHandler : IEntityComponent {
+        public void Register(IEntityBuilder builder) { builder.RegisterComponent(this); }
+    }
+    public class CardRevealView : IEntityComponent {
+        public void Register(IEntityBuilder builder) { builder.RegisterComponent(this); }
+    }
+    public static class GamePlayPrefabs {
+        public static CardLocalScopeEntity CardLocal;
+        public static CardRemoteScopeEntity CardRemote;
+    }
+    public class CardFactory {
+        private readonly IEntityScopeLoader _loader = null;
+        public void Create(bool isLocal) {
+            if (isLocal == true)
+                _loader.Load(null, null, GamePlayPrefabs.CardLocal, BuildLocal);
+            else
+                _loader.Load(null, null, GamePlayPrefabs.CardRemote, BuildRemote);
+
+            void BuildLocal(IEntityBuilder builder) {
+                builder.Register<LocalCard>();
+            }
+
+            void BuildRemote(IEntityBuilder builder) {
+                builder.Register<RemoteCard>();
+            }
         }
     }
 }

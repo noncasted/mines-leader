@@ -50,7 +50,7 @@ namespace GamePlay.Cards
                 var view = _cardViewFactory.Create(
                     GamePlayPrefabs.CardLocal.GetComponent<CardLocalScopeEntity>(),
                     spawnPoint);
-                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
+                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, BuildLocal);
                 await loadResult.Get<ICardLocalSpawn>().Execute();
             }
             else
@@ -58,60 +58,61 @@ namespace GamePlay.Cards
                 var view = _cardViewFactory.Create(
                     GamePlayPrefabs.CardRemote.GetComponent<CardRemoteScopeEntity>(),
                     spawnPoint);
-                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
+                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, BuildRemote);
                 await loadResult.Get<ICardRemoteSpawn>().Execute();
             }
 
             [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
-            void Build(IEntityBuilder builder)
+            void BuildLocal(IEntityBuilder builder)
             {
                 builder.RegisterInstance(cardId);
 
-                if (isLocal == true)
-                {
-                    builder
-                        .AddCardLocalComponents()
-                        .AddCardLocalRoot()
-                        .AddCardLocalStates();
+                builder
+                    .AddCardLocalComponents()
+                    .AddCardLocalRoot()
+                    .AddCardLocalStates();
 
-                    builder.RegisterInstance(_configs.Value.All[definition.Type]);
+                builder.RegisterInstance(_configs.Value.All[definition.Type]);
 
-                    builder.RegisterInstance(definition.Type);
+                builder.RegisterInstance(definition.Type);
 
-                    builder.RegisterInstance(_gameContext.Self)
-                           .As<IGamePlayer>();
-                    builder.RegisterInstance(_gameContext.Self.Hand);
+                builder.RegisterInstance(_gameContext.Self)
+                       .As<IGamePlayer>();
+                builder.RegisterInstance(_gameContext.Self.Hand);
 
-                    // Скоуп локальной карты — ребёнок скоупа игрока, но граф проверяется от игрового скоупа:
-                    // то, что карта берёт у игрока, регистрируется явно.
-                    builder.RegisterInstance(_gameContext.Self.Mana);
-                    builder.RegisterInstance(_gameContext.Self.Turns);
-                    builder.RegisterInstance(_gameContext.Self.Modifiers);
+                // Скоуп локальной карты — ребёнок скоупа игрока, но граф проверяется от игрового скоупа:
+                // то, что карта берёт у игрока, регистрируется явно.
+                builder.RegisterInstance(_gameContext.Self.Mana);
+                builder.RegisterInstance(_gameContext.Self.Turns);
+                builder.RegisterInstance(_gameContext.Self.Modifiers);
 
-                    builder.Register<HandEntryHandle>()
-                           .As<IHandEntryHandle>();
-                    builder.AddCardAction(_configs.Value, definition);
+                builder.Register<HandEntryHandle>()
+                       .As<IHandEntryHandle>();
+                builder.AddCardAction(_configs.Value, definition);
 
-                    builder.RegisterInstance(definition);
-                }
-                else
-                {
-                    builder
-                        .AddCardRemoteComponents()
-                        .AddCardRemoteRoot()
-                        .AddCardRemoteStates();
+                builder.RegisterInstance(definition);
+            }
 
-                    builder.RegisterInstance(definition.Type);
-                    builder.RegisterInstance(gamePlayer)
-                           .As<IGamePlayer>();
-                    builder.RegisterInstance(gamePlayer.Hand);
+            [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
+            void BuildRemote(IEntityBuilder builder)
+            {
+                builder.RegisterInstance(cardId);
 
-                    builder.Register<HandEntryHandle>()
-                           .WithParameter(gamePlayer.Hand)
-                           .As<IHandEntryHandle>();
+                builder
+                    .AddCardRemoteComponents()
+                    .AddCardRemoteRoot()
+                    .AddCardRemoteStates();
 
-                    builder.RegisterInstance(definition);
-                }
+                builder.RegisterInstance(definition.Type);
+                builder.RegisterInstance(gamePlayer)
+                       .As<IGamePlayer>();
+                builder.RegisterInstance(gamePlayer.Hand);
+
+                builder.Register<HandEntryHandle>()
+                       .WithParameter(gamePlayer.Hand)
+                       .As<IHandEntryHandle>();
+
+                builder.RegisterInstance(definition);
             }
         }
     }

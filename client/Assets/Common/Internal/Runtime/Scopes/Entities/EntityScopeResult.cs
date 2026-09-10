@@ -1,4 +1,4 @@
-namespace Internal
+﻿namespace Internal
 {
     public class EntityScopeResult : IEntityScopeResult
     {

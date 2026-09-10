@@ -132,9 +132,11 @@ namespace ContainerGenerator {
 
             var plan = new ScopePlan { RootId = graph.RootId };
             ScopeNames.ParseRoot(graph.RootId, out plan.Namespace, out var typeName, out var methodName, out plan.ClassName);
-            if (string.IsNullOrEmpty(graph.Variant) == false) {
+            // Имя по внешнему методу, пока корень в нём один. Варианты и несколько корней-локальных
+            // функций одного метода называются по локальной функции, иначе совпадут класс и hint.
+            if (string.IsNullOrEmpty(graph.Variant) == false || HasSiblingRoots(document, graph.RootId)) {
                 var constructName = ConstructMethodName(graph.RootId, methodName);
-                plan.ClassName = typeName + constructName + graph.Variant + "Container";
+                plan.ClassName = typeName + constructName + (graph.Variant ?? "") + "Container";
             }
 
             plan.HintName = plan.ClassName + ".g.cs";
@@ -184,6 +186,23 @@ namespace ContainerGenerator {
             var second = rest.IndexOf('+');
             var local = second < 0 ? rest : rest.Substring(0, second);
             return string.IsNullOrEmpty(local) ? fallback : local;
+        }
+
+        private static bool HasSiblingRoots(GraphDocument document, string rootId) {
+            var plus = rootId.IndexOf('+');
+            if (plus < 0)
+                return false;
+
+            var outer = rootId.Substring(0, plus + 1);
+            for (var i = 0; i < document.Methods.Count; i++) {
+                var other = document.Methods[i];
+                if (other.IsRoot == false || other.Id == rootId || IsHarvest(other.Id))
+                    continue;
+                if (other.Id.StartsWith(outer, StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
         }
 
         public static bool IsHarvest(string rootId) {
