@@ -164,7 +164,8 @@ namespace ContainerGenerator {
             plan.HasServiceLifetime = compilation.GetTypeByMetadataName("Internal.ServiceLifetime") != null;
             plan.HasRuntimeInitialize = references.RuntimeInitialize != null;
             plan.HasContainerDiagnostics = plan.HasDiagnosticsType && plan.HasRegistrationInfo && plan.HasServiceLifetime &&
-                                           compilation.GetTypeByMetadataName("Internal.ContainerDiagnostics") != null;
+                                           compilation.GetTypeByMetadataName("Internal.ContainerDiagnostics") != null &&
+                                           compilation.GetTypeByMetadataName("Internal.ContainerRegistryDebug") != null;
             plan.ProvidesDefinition = compilation.GetTypeByMetadataName("Internal.IProvides`1");
             plan.HasProvides = plan.ProvidesDefinition != null;
 
@@ -175,6 +176,7 @@ namespace ContainerGenerator {
             used.Add(plan.ParentField);
             used.Add(plan.ParentParam);
             used.Add("_exports");
+            used.Add("GetExport");
             used.Add("_diagnostics");
             used.Add("_registrationInfos");
             used.Add("_buildOrder");

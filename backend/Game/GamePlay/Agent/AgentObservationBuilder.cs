@@ -206,7 +206,6 @@ public static class AgentObservationBuilder
         if (hand?.Entries == null)
             return result;
 
-        // CardConfigOptions.All строит новый словарь при каждом обращении.
         var configs = cardConfigs?.All;
 
         foreach (var card in hand.Entries)

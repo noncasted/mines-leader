@@ -9,7 +9,6 @@ namespace Internal
         // Билдер, в который записана регистрация: расширения цепочки регистрируют через него соседей.
         IBuilder Builder { get; }
         Type ImplementationType { get; }
-        ServiceLifetime Lifetime { get; }
         IServiceRegistration AddServiceType(Type serviceType);
         IServiceRegistration SetParameter(Type type, object value);
     }

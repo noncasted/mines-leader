@@ -5,14 +5,15 @@ namespace Internal
 {
     internal sealed class ServiceRegistration : IServiceRegistration
     {
-        public ServiceRegistration(IBuilder builder, Type implementationType, ServiceLifetime lifetime)
+        public ServiceRegistration(ContainerBuilder owner, Type implementationType)
         {
-            Builder = builder;
+            _owner = owner;
             ImplementationType = implementationType;
-            Lifetime = lifetime;
         }
 
-        private bool _frozen;
+        // Время жизни и признак готового экземпляра генератор читает из исходника, рантайму они не нужны.
+        // Заморозка — флаг владельца: после сборки скоупа менять нельзя ни одну его регистрацию.
+        private readonly ContainerBuilder _owner;
 
         // Регистрации пишутся на каждой сборке скоупа, а читает их только поиск дырок
         // (ContainerBuilder.TryGetHole): список типов — у готового экземпляра, параметры — после
@@ -20,17 +21,15 @@ namespace Internal
         private List<Type> _serviceTypes;
         private Dictionary<Type, object> _parameters;
 
-        public IBuilder Builder { get; }
+        public IBuilder Builder => _owner.Builder;
         public Type ImplementationType { get; }
-        public ServiceLifetime Lifetime { get; }
 
         internal object ExistingInstance;
-        internal bool IsExisting;
 
         public IServiceRegistration AddServiceType(Type serviceType)
         {
             ContainerThread.Assert();
-            ThrowIfFrozen();
+            ThrowIfBuilt();
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
@@ -49,7 +48,7 @@ namespace Internal
         public IServiceRegistration SetParameter(Type type, object value)
         {
             ContainerThread.Assert();
-            ThrowIfFrozen();
+            ThrowIfBuilt();
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
@@ -74,14 +73,9 @@ namespace Internal
             return _parameters.TryGetValue(type, out value);
         }
 
-        internal void Freeze()
+        private void ThrowIfBuilt()
         {
-            _frozen = true;
-        }
-
-        private void ThrowIfFrozen()
-        {
-            if (_frozen == true)
+            if (_owner.IsBuilt == true)
                 throw new InvalidOperationException("Cannot modify registration after Build.");
         }
     }

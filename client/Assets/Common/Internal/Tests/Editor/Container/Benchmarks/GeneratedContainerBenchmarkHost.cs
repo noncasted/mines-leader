@@ -18,10 +18,17 @@ namespace Internal.Tests
         private static readonly string MatchId = GeneratedScopes.RootId(MatchInstaller.Method);
         private static readonly string CardId = GeneratedScopes.RootId(CardInstaller.Method);
 
+        // Без диагностики: у VContainer в замере она тоже выключена, а в релизном билде её нет.
         public static BenchmarkReport Run()
         {
             using (RegisterScopes())
+            using (WithoutDiagnostics())
                 return ContainerBenchmarkRunner.Run(ContainerName, Open);
+        }
+
+        public static IDisposable WithoutDiagnostics()
+        {
+            return new DiagnosticsSwitch(false);
         }
 
         public static IBenchmarkSession Open()
@@ -179,6 +186,22 @@ namespace Internal.Tests
                 builder.AppendLine($"| Build (sum without Dispose) | {build} |");
                 builder.AppendLine($"| Total | {total} |");
                 return builder.ToString();
+            }
+        }
+
+        private sealed class DiagnosticsSwitch : IDisposable
+        {
+            public DiagnosticsSwitch(bool enabled)
+            {
+                _previous = ContainerRegistryDebug.IsEnabled;
+                ContainerRegistryDebug.IsEnabled = enabled;
+            }
+
+            private readonly bool _previous;
+
+            public void Dispose()
+            {
+                ContainerRegistryDebug.IsEnabled = _previous;
             }
         }
 

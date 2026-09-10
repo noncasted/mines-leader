@@ -12,6 +12,10 @@ namespace Internal
 
         public static IViewableDelegate Changed => _changed;
 
+        // Новые контейнеры не создают диагностику, пока флаг снят (бенчмарк). В релизном билде
+        // (без UNITY_EDITOR и DEBUG) сгенерированные классы её не создают вовсе.
+        public static bool IsEnabled { get; set; } = true;
+
         private static readonly List<IContainerDiagnostics> _roots = new();
         private static readonly ViewableDelegate _changed = new();
         private static readonly Dictionary<IReadOnlyLifetime, List<LoadedAssetInfo>> _pendingAssets = new();
