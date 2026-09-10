@@ -1,6 +1,7 @@
 ---
 task: own_di
 status: in_progress
+migration_moved_to: di_scope_codegen
 phase: implementation
 created: 2026-09-10
 updated: 2026-09-10
@@ -430,7 +431,8 @@ public object Resolve(Type type) => _instances[_slots[type]];   // Singleton/Sco
 - **Блокирует:** 6
 
 #### 6 Миграция и удаление VContainer
-- **Статус:** [ ] pending
+- **Статус:** [~] перенесён в `di_scope_codegen`, шаг 4 (решение пользователя, 2026-09-10)
+- **Почему:** переводить боевой код на слотовый рантайм-план, а затем второй раз на сгенерированный класс скоупа — двойная миграция. Мигрируем один раз, сразу на конечную форму. Детали ниже остаются в силе как содержание работы, исполняется она в другой задаче.
 - **Агент:** оркестратор
 - **Цель:** `Internal`-скоупы работают на своём контейнере, `Assets/Plugins/VContainer` удалён, игровой код не изменился по смыслу.
 - **Как:** По порядку: `IServiceCollection`/`IRegistration` → свои типы; `InstanceInjection`/`ServiceCollection.Resolve` → `IContainer`; `ViewInjector` → `IContainer.Inject`; `LifetimeScope` в `IScopeEntityView`/`CardScope`/`GamePlayerScope`/фабриках → свой `ScopeEntityView` без наследования от VContainer; `EventLoop.ResolveList<T>` → `IContainer.ResolveAll<T>`; `CardActionSyncDispatcher(IObjectResolver)` → `IContainer`; `BuilderExtensions` дефолты → `ServiceLifetime`; 35 `[Inject]`-полей → `Construct`; мёртвые `using VContainer.Internal` снести.
