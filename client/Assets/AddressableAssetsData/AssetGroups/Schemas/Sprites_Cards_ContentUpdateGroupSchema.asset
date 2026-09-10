@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Sprites_Cards_ContentUpdateGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.ContentUpdateGroupSchema
   m_Group: {fileID: 11400000, guid: 9a7126259165549d6a5c79783e62b9ce, type: 2}
+  m_SchemaIsEnabled: 1
   m_StaticContent: 0

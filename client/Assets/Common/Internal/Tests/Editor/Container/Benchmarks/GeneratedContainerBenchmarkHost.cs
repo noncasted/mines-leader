@@ -15,10 +15,14 @@ namespace Internal.Tests
         private static readonly Action<IBuilder> RootInstaller = BenchmarkRoots.Root;
         private static readonly Action<IBuilder> MatchInstaller = BenchmarkRoots.Match;
         private static readonly Action<IBuilder> CardInstaller = BenchmarkRoots.Card;
+        private static readonly Action<IBuilder> Card50Installer = BenchmarkLargeRoots.Card50;
 
         private static readonly string RootId = GeneratedScopes.RootId(RootInstaller.Method);
         private static readonly string MatchId = GeneratedScopes.RootId(MatchInstaller.Method);
         private static readonly string CardId = GeneratedScopes.RootId(CardInstaller.Method);
+        private static readonly string Card50Id = GeneratedScopes.RootId(Card50Installer.Method);
+
+        public const int ManyScopesCount = 500;
 
         // Без диагностики: у VContainer в замере она тоже выключена, а в релизном билде её нет.
         public static BenchmarkReport Run()
@@ -59,6 +63,7 @@ namespace Internal.Tests
             Register(RootId, typeof(BenchmarkRootsRootContainer), registered);
             Register(MatchId, typeof(BenchmarkRootsMatchContainer), registered);
             Register(CardId, typeof(BenchmarkRootsCardContainer), registered);
+            Register(Card50Id, typeof(BenchmarkLargeRootsCard50Container), registered);
             return new Registration(registered);
         }
 
@@ -148,6 +153,78 @@ namespace Internal.Tests
 
             builder.Events.Bind(container);
             return container;
+        }
+
+        // count скоупов сущности под одним Match подряд, в одном кадре: цена массового создания.
+        // Живую память не мерим: GC.GetTotalMemory в Unity Mono шагает кусками кучи и даёт даже отрицательные дельты.
+        public static string ManyScopes(int count, int runs)
+        {
+            var text = new System.Text.StringBuilder();
+            text.AppendLine($"Generated: {count} entity scopes under one Match, time = median, bytes = min over {runs} runs");
+            text.AppendLine();
+            text.AppendLine("| Scope | Build (ms) | Per scope (ms) | Build allocated (bytes) | Per scope (bytes) | Dispose (ms) | Dispose allocated (bytes) |");
+            text.AppendLine("|---|---|---|---|---|---|---|");
+
+            using (var session = OpenSession())
+            {
+                var match = session.Scope(BenchmarkScopeLevel.Match);
+                AppendManyScopes(text, "Card (8 registrations)", CardInstaller, CardId, match, count, runs);
+                AppendManyScopes(text, "Card50 (50 registrations)", Card50Installer, Card50Id, match, count, runs);
+            }
+
+            return text.ToString();
+        }
+
+        private static void AppendManyScopes(
+            System.Text.StringBuilder text,
+            string name,
+            Action<IBuilder> installer,
+            string rootId,
+            IContainer parent,
+            int count,
+            int runs)
+        {
+            var containers = new IContainer[count];
+
+            Action build = () =>
+            {
+                for (var i = 0; i < count; i++)
+                    containers[i] = Create(installer, rootId, new ContainerBuilder("Card", parent, parent.Lifetime), parent.Lifetime);
+            };
+
+            Action dispose = () =>
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    containers[i].Dispose();
+                    containers[i] = null;
+                }
+            };
+
+            build();
+            dispose();
+
+            var buildSeries = new BenchmarkSeries(name + " build");
+            var disposeSeries = new BenchmarkSeries(name + " dispose");
+
+            for (var run = 0; run < runs; run++)
+            {
+                buildSeries.Add(build);
+                disposeSeries.Add(dispose);
+            }
+
+            var built = buildSeries.ToSample();
+            var disposed = disposeSeries.ToSample();
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+
+            text.AppendLine(
+                $"| {name} " +
+                $"| {built.Milliseconds.ToString("F2", culture)} " +
+                $"| {(built.Milliseconds / count).ToString("F4", culture)} " +
+                $"| {built.AllocatedBytes} " +
+                $"| {built.AllocatedBytes / count} " +
+                $"| {disposed.Milliseconds.ToString("F2", culture)} " +
+                $"| {disposed.AllocatedBytes} |");
         }
 
         private sealed class AllocationSteps

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_Portraits
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_Portraits
-  m_GUID: 80e754eb44bc64c8ea53668784816efe
+  m_GUID: e32dc4eded0a7e3c2a7b6aafc7c42f76
   m_SerializeEntries:
   - m_GUID: c0e37a769f4e9f0ffb7b024fd9003c63
     m_Address: c0e37a769f4e9f0ffb7b024fd9003c63

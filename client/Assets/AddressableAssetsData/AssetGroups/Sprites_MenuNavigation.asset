@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_MenuNavigation
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_MenuNavigation
-  m_GUID: 68e1909e7c16cbdb1b9630cf4d945068
+  m_GUID: 8e50daf288fc86e9ba3d389e852b381e
   m_SerializeEntries:
   - m_GUID: e374f2dc9c0a48e4c85c521ef7e1b124
     m_Address: e374f2dc9c0a48e4c85c521ef7e1b124

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_CardsIcons
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_CardsIcons
-  m_GUID: ce0af6890c0fdfa9393395629656e789
+  m_GUID: 10eb9cf0cb5acbf0a9f0657cbba2106f
   m_SerializeEntries:
   - m_GUID: 43fba4d6f4e4ee155b82178e14fb93a0
     m_Address: 43fba4d6f4e4ee155b82178e14fb93a0
@@ -26,6 +26,8 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: c80ee7391cca97ef78cd9560bc2ea176, type: 2}
     - {fileID: 11400000, guid: 5e1f8714f90468bc4b3c408d8a7c92c9, type: 2}
-    m_SchemaDisplayOrder: []
+    m_SchemaDisplayOrder:
+    - Sprites_CardsIcons_BundledAssetGroupSchema
+    - Sprites_CardsIcons_ContentUpdateGroupSchema
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

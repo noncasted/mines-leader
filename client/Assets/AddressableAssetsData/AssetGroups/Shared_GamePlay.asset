@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Shared_GamePlay
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Shared_GamePlay
-  m_GUID: eae914db6ec9160269edeb9fa4dba684
+  m_GUID: 762d3aa8c7a5ef23998ba158d33a9d40
   m_SerializeEntries:
   - m_GUID: a978c9d600cc5dc888b2cd80435f2ab5
     m_Address: Assets/Art/Game/UI/Game_UI_Plate.aseprite

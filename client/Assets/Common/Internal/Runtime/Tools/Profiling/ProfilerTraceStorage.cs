@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
@@ -91,10 +92,13 @@ namespace Internal
 
                 Cleanup(directory);
 
-#if !UNITY_EDITOR
-                // В билде окна редактора нет, а на WebGL до файла в IndexedDB не добраться
-                // руками — поэтому трасса дублируется в лог: в десктопном билде её видно
-                // в Player.log, в браузере — в консоли.
+#if UNITY_WEBGL && !UNITY_EDITOR
+                // На WebGL файл остаётся в MEMFS, а длинная строка в консоли обрезается —
+                // трасса отдаётся скачиванием из DevTools.
+                ProfilerTraceStore(name, json);
+                Debug.Log($"[Profiler] Trace saved: {name}. Call downloadProfilerTrace() in DevTools console to get it");
+#elif !UNITY_EDITOR
+                // В десктопном билде окна редактора нет — трасса дублируется в Player.log.
                 Debug.Log($"[Profiler] Trace saved to {path}");
                 Debug.Log($"[Profiler] Trace json: {json}");
 #endif
@@ -175,6 +179,11 @@ namespace Internal
             Last = null;
             LastPath = null;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void ProfilerTraceStore(string name, string json);
+#endif
 
         private static void Cleanup(string directory)
         {

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using MemoryPack;
+#if !UNITY_5_3_OR_NEWER
 using Newtonsoft.Json;
+#endif
 
 namespace Shared
 {
@@ -318,11 +320,15 @@ namespace Shared
         // создавало новый (68 записей, ~4.7 КБ), а зовут его на каждую карту клиента и в командах бэкенда.
         // Конфиг, заменённый сеттером после первого обращения, All не увидит.
         // Гонка первого обращения безопасна: оба словаря одинаковые, присваивание ссылки атомарно.
+#if !UNITY_5_3_OR_NEWER
         [JsonIgnore]
+#endif
         [MemoryPackIgnore]
         public IReadOnlyDictionary<CardType, ICardConfig> All => _all ??= CreateAll();
 
+#if !UNITY_5_3_OR_NEWER
         [JsonIgnore]
+#endif
         [MemoryPackIgnore]
         private Dictionary<CardType, ICardConfig> _all;
 

@@ -2,10 +2,12 @@ using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Shared;
 using UnityEngine;
+#if UNITY_EDITOR
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+#endif
 
 namespace Flow.Mocks
 {

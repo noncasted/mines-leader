@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_CardBuffs
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_CardBuffs
-  m_GUID: 5e8bcc4603b4636b09df3bb29ba2aa4c
+  m_GUID: a9339bdf9c112a8698edb54751ee0682
   m_SerializeEntries:
   - m_GUID: 9524432527fa4f11ebe0752c18a910d1
     m_Address: 9524432527fa4f11ebe0752c18a910d1
