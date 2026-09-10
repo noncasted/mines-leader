@@ -71,6 +71,8 @@ backend/.telemetry/
 /client/[Dd]ebugPublic/
 /client/[Rr]elease/
 /client/[Rr]eleases/
+/client/Tools~/**/[Bb]in/
+/client/Tools~/**/[Oo]bj/
 
 /client/[Mm]emoryCaptures/
 /client/[Rr]ecordings/
