@@ -20,6 +20,9 @@ namespace Internal
         {
             var output = GetArgument("-buildOutput") ?? DefaultOutput;
 
+            // В batchmode отложенный пересчёт общих ассетов не успевает отработать до сборки.
+            SharedAddressablesSync.Sync();
+
             var scenes = EditorBuildSettings.scenes
                 .Where(scene => scene.enabled)
                 .Select(scene => scene.path)

@@ -74,11 +74,12 @@ MonoBehaviour:
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: 66593e7fbdcd0c0009b6ed719d06edf7, type: 2}
+  - {fileID: 11400000, guid: 9a6087def80d128db8a537e1c76dc60a, type: 2}
   - {fileID: 11400000, guid: 7ca63673f5d61fb17aa04d1b4b2bbac6, type: 2}
-  - {fileID: 11400000, guid: cd343003bffc3bc968be1d87907994fa, type: 2}
+  - {fileID: 11400000, guid: f8051ce319c0a9dadb26534af38bc53b, type: 2}
   - {fileID: 11400000, guid: 7bcd37d050cce41bc96f597b761ae057, type: 2}
+  - {fileID: 11400000, guid: b8140c10e8961e3e58815a1d166273af, type: 2}
   - {fileID: 11400000, guid: c8fa460233d6e99b9bf34bde2a97eac7, type: 2}
-  - {fileID: 11400000, guid: a015d57c6df56585d8ef9ef856ef6fe9, type: 2}
   - {fileID: 11400000, guid: 8961e19df5bb75b05a42e1369ef9eaa9, type: 2}
   - {fileID: 11400000, guid: 1efa1e81651a1fbde88098568b9276fd, type: 2}
   - {fileID: 11400000, guid: 9a7126259165549d6a5c79783e62b9ce, type: 2}
@@ -90,6 +91,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4c9cd0f6b9594cd8ba7e2e3e57717451, type: 2}
   - {fileID: 11400000, guid: b8260c5c4bce02726b673ff5eda40c3f, type: 2}
   - {fileID: 11400000, guid: 957b2bc16b3948379ceeadee5bc86123, type: 2}
+  - {fileID: 11400000, guid: 5a046814e2d836ab5a4c71779b07fbc4, type: 2}
+  - {fileID: 11400000, guid: af059e682571ea4468358252886460e4, type: 2}
   - {fileID: 11400000, guid: bfc87c07f653e2e4abed10440678b888, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
@@ -143,7 +146,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9b899428dad8b5f46994572532ad43ad, type: 2}
   - {fileID: 11400000, guid: 6d9f3cf0bf9668745b52803a88596b7a, type: 2}
   - {fileID: 11400000, guid: 4e2789649a4f5574587d4de17b7b924e, type: 2}
-  - {fileID: 11400000, guid: c98b9b31e42d40ee08a0536cf505cf2a, type: 2}
   m_ActiveProfileId: ffd26b92ca0415a4fafaa374101f2304
   m_ContentDirectoryCatalogNameMigrated: 1
   m_CatalogFormatMigrated: 1

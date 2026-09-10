@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Shared_Common
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Shared_Common
+  m_GUID: 5b37ec70501d879fbaa82a550c4d5f34
+  m_SerializeEntries:
+  - m_GUID: 128e987d567d4e2c824d754223b3f3b0
+    m_Address: Assets/Plugins/TextMesh Pro/Shaders/TMP_Bitmap.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21b26141ac227679d86b321357e71165
+    m_Address: Assets/Art/Game/Field/Game_Action_Dice_Roll.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a65b6e11e60b9086a7ed8a67b5a906c
+    m_Address: Assets/GamePlay/Assets/Prefabs/Random.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 584e1a6e9fb3331418516ae960125dc9
+    m_Address: Assets/GamePlay/Assets/Prefabs/Boards/Board_Base.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6211838d194ab3d4596d399255040866
+    m_Address: Assets/Art/Game/Cells/Game_Cells_Highlight_Select.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 66e1e310407cf49a6a8743a7ded9da22
+    m_Address: Assets/Art/Menu/Menu_Navigation.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6cdfa7e62ddb3ec4cbf453da16073cfe
+    m_Address: Assets/GamePlay/Assets/Prefabs/Boards/Cell.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74016c7665c4dd9909b208565a51a408
+    m_Address: Assets/Art/Menu/Menu_Play.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7c3d280880a26b165b420f06016a003d
+    m_Address: Assets/Art/Fonts/m3x6.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 82dad11a1bf8b7189b8c9ea5cecb143a
+    m_Address: Assets/Art/Game/Vfx/SmokeCell.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98dc90c8d0c90b755adba7de6a79521f
+    m_Address: Assets/Art/Game/Field/Game_Field_Outline.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98ef42a6cce70fa92802cbfa6e8fa632
+    m_Address: Assets/Menu/Assets/Prefabs/Settings_Slider.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e8582b7702ffdfc383485077262c67e
+    m_Address: Assets/Art/Game/Cards/Game_Cards.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1b272c13dd8c0b44a92652a63557f06
+    m_Address: Assets/Art/Game/Cells/Game_Cells.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a97c105638bdf8b4a8650670310a4cd3
+    m_Address: Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b2d42bd21ed84f10cbef0b2c831b6888
+    m_Address: Assets/Art/Game/UI/Game_UI_Portraits.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bad909d29672006eca4172649ef534b0
+    m_Address: Assets/Art/Game/UI/Game_UI_Elements.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bc230ef37bec98b6d9aff55413ea0c58
+    m_Address: Assets/Art/Game/Vfx/SmokeCellMat.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c09d030a9fda5d2f58ad6e1cdfd6ecf6
+    m_Address: Assets/Art/Cards/Icons/BloodPact.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c237cb65b90628d26bec7d5e95f1d78b
+    m_Address: Assets/Art/Cards/Card_Buffs.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e260cfa7296ee7642b167f1eb5be5023
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3d066a89f034d018b5ae8437fda5739
+    m_Address: Assets/Art/Game/Vfx/smoke_quad.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f20a0a776c428a09a8148113398cae3e
+    m_Address: Assets/Art/Fonts/Ithaca-LVB75.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f955e239a7b4d7b5ea55bb86a8e41a48
+    m_Address: Assets/Art/Menu/Menu_Settings.aseprite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 623cfeae52db537f4a92cfec20e75854, type: 2}
+    - {fileID: 11400000, guid: b74c9a9b06165c9fe9aaef9df5cdf1f3, type: 2}
+    m_SchemaDisplayOrder:
+    - Shared_Common_BundledAssetGroupSchema
+    - Shared_Common_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

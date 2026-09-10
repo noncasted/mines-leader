@@ -32,6 +32,34 @@ namespace Internal {
             }
 
             RemoveUnusedGroups(settings, groupPrefix, usedGroups);
+
+            // Ссылки каталога могли поменяться, а с ними и набор общих ассетов.
+            SharedAddressablesSync.ScheduleSync();
+        }
+
+        // Группа собирается в один бандл: всё её содержимое грузится вместе.
+        internal static AddressableAssetGroup GetOrCreatePackedGroup(AddressableAssetSettings settings, string groupName) {
+            var group = settings.FindGroup(groupName);
+            if (group == null) {
+                group = settings.CreateGroup(
+                    groupName,
+                    false,
+                    false,
+                    false,
+                    null,
+                    typeof(BundledAssetGroupSchema),
+                    typeof(ContentUpdateGroupSchema)
+                );
+            }
+
+            if (group == null)
+                return null;
+
+            var schema = group.GetSchema<BundledAssetGroupSchema>();
+            if (schema != null && schema.BundleMode != BundledAssetGroupSchema.BundlePackingMode.PackTogether)
+                schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+
+            return group;
         }
 
         private static string MarkGroupAsset(
@@ -46,13 +74,9 @@ namespace Internal {
                 return string.Empty;
             }
 
-            var addressableGroup = GetOrCreateGroup(settings, groupPrefix + groupName);
+            var addressableGroup = GetOrCreatePackedGroup(settings, groupPrefix + groupName);
             if (addressableGroup == null)
                 return guid;
-
-            var schema = addressableGroup.GetSchema<BundledAssetGroupSchema>();
-            if (schema != null && schema.BundleMode != BundledAssetGroupSchema.BundlePackingMode.PackTogether)
-                schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
 
             var entry = settings.CreateOrMoveEntry(guid, addressableGroup, false, false);
             if (entry == null) {
@@ -65,22 +89,6 @@ namespace Internal {
 
             RemoveOtherEntries(settings, addressableGroup, guid);
             return guid;
-        }
-
-        private static AddressableAssetGroup GetOrCreateGroup(AddressableAssetSettings settings, string groupName) {
-            var group = settings.FindGroup(groupName);
-            if (group != null)
-                return group;
-
-            return settings.CreateGroup(
-                groupName,
-                false,
-                false,
-                false,
-                null,
-                typeof(BundledAssetGroupSchema),
-                typeof(ContentUpdateGroupSchema)
-            );
         }
 
         private static void RemoveOtherEntries(

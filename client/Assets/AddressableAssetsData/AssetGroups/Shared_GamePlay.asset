@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Sprites_GameResults
+  m_Name: Shared_GamePlay
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
-  m_GroupName: Sprites_GameResults
-  m_GUID: 6704e2e96dea7dbe09e2cb2536557fc2
+  m_GroupName: Shared_GamePlay
+  m_GUID: eae914db6ec9160269edeb9fa4dba684
   m_SerializeEntries:
-  - m_GUID: 0921adc74a0667a19a23bc4443fa546c
-    m_Address: 0921adc74a0667a19a23bc4443fa546c
+  - m_GUID: a978c9d600cc5dc888b2cd80435f2ab5
+    m_Address: Assets/Art/Game/UI/Game_UI_Plate.aseprite
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -24,10 +24,10 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 7bc741ce89164694cbb320352e89f595, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 7aa5b9f53b8a77ec2b2401d16e02665a, type: 2}
-    - {fileID: 11400000, guid: daa9aae9ab0987b1d92361de62fb76f4, type: 2}
+    - {fileID: 11400000, guid: b4a7bbad6c0d1f6ca9e5e1a4e51d764b, type: 2}
+    - {fileID: 11400000, guid: 2fa8838c77462dbccacb82fd508342c5, type: 2}
     m_SchemaDisplayOrder:
-    - Sprites_GameResults_BundledAssetGroupSchema
-    - Sprites_GameResults_ContentUpdateGroupSchema
+    - Shared_GamePlay_BundledAssetGroupSchema
+    - Shared_GamePlay_ContentUpdateGroupSchema
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

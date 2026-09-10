@@ -19,6 +19,8 @@ namespace Internal
         [InitializeOnLoadMethod]
         private static void OnEditorReload()
         {
+            // Сцены из Build Settings не попадают в Addressables, поэтому их список — тоже вход генерации.
+            EditorBuildSettings.sceneListChanged += Generate;
             Generate();
         }
 
