@@ -264,37 +264,37 @@ MonoBehaviour:
   enabled:
     m_OverrideState: 1
     m_Value: 1
-  multiBounce:
+  intensity:
     m_OverrideState: 1
     m_Value: 1
-  bouncePatchAllocation:
+  lightTransportMultiBounce:
     m_OverrideState: 1
     m_Value: 1
-  sampleCount:
+  lightTransportBouncePatchAllocation:
+    m_OverrideState: 1
+    m_Value: 0
+  lightTransportSampleCount:
     m_OverrideState: 1
     m_Value: 2
-  temporalSmoothing:
+  patchFilteringTemporalSmoothing:
     m_OverrideState: 1
     m_Value: 0.8
-  spatialFilterEnabled:
+  patchFilteringSpatialFilterEnabled:
     m_OverrideState: 1
     m_Value: 1
-  spatialSampleCount:
+  patchFilteringSpatialSampleCount:
     m_OverrideState: 1
     m_Value: 4
-  spatialRadius:
+  patchFilteringSpatialRadius:
     m_OverrideState: 1
     m_Value: 1
-  temporalPostFilter:
+  patchFilteringPostTemporalEnabled:
     m_OverrideState: 1
     m_Value: 1
-  lookupSampleCount:
-    m_OverrideState: 1
-    m_Value: 6
-  upsamplingKernelSize:
+  screenFilteringLookupSampleCount:
     m_OverrideState: 1
     m_Value: 4
-  upsamplingSampleCount:
+  screenFilteringDenoisingPassCount:
     m_OverrideState: 1
     m_Value: 2
   volumeSize:
@@ -306,18 +306,18 @@ MonoBehaviour:
   volumeCascadeCount:
     m_OverrideState: 1
     m_Value: 4
-  distanceFallback:
+  volumeDistanceFallback:
     m_OverrideState: 1
     m_Value: 0
-  renderingLayerMask:
+  advancedRenderingLayerMask:
     m_OverrideState: 1
     m_Value:
       serializedVersion: 0
       m_Bits: 4294967295
-  defragCount:
+  advancedDefragCount:
     m_OverrideState: 1
     m_Value: 2
-  patchWarping:
+  advancedPatchWarpingEnabled:
     m_OverrideState: 1
     m_Value: 1
 --- !u!114 &-5683908369258820973
@@ -557,6 +557,25 @@ MonoBehaviour:
   bladeRotation:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &-3161982048698280708
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f276daaa6a4bdbd48a00b0d6aad77bce, type: 3}
+  m_Name: ExposureVolume
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.ExposureVolume
+  active: 1
+  mode:
+    m_OverrideState: 1
+    m_Value: 0
+  fixedExposure:
+    m_OverrideState: 1
+    m_Value: 0
 --- !u!114 &-1083910812058648046
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -662,6 +681,7 @@ MonoBehaviour:
   - {fileID: -1083910812058648046}
   - {fileID: -5683908369258820973}
   - {fileID: -6823895647466625922}
+  - {fileID: -3161982048698280708}
 --- !u!114 &156332030701414761
 MonoBehaviour:
   m_ObjectHideFlags: 3
