@@ -106,6 +106,19 @@ namespace Internal.Tests
                 return _card.Resolve<BenchCardAction>();
             }
 
+            public object Resolve(BenchmarkScopeLevel level, Type type)
+            {
+                switch (level)
+                {
+                    case BenchmarkScopeLevel.Root:
+                        return _root.Resolve(type);
+                    case BenchmarkScopeLevel.Match:
+                        return _match.Resolve(type);
+                    default:
+                        return _card.Resolve(type);
+                }
+            }
+
             public void Dispose()
             {
                 _card.Dispose();

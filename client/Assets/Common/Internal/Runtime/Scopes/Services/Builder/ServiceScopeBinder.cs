@@ -3,6 +3,13 @@ using UnityEngine.SceneManagement;
 
 namespace Internal
 {
+    public interface IServiceScopeBinder
+    {
+        void MoveToModules(MonoBehaviour service);
+        void MoveToModules(GameObject service);
+        void MoveToModules(Transform service);
+    }
+    
     public class ServiceScopeBinder : IServiceScopeBinder
     {
         private readonly Scene _scene;

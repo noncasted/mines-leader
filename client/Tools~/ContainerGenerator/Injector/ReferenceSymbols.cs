@@ -10,10 +10,11 @@ namespace ContainerGenerator {
         public INamedTypeSymbol? ScopeBuilder { get; }
         public INamedTypeSymbol? EntityBuilder { get; }
         public INamedTypeSymbol? Builder { get; }
-        public INamedTypeSymbol? Registration { get; }
         public INamedTypeSymbol? ServiceRegistration { get; }
+        public INamedTypeSymbol? ContainerRegistry { get; }
         public INamedTypeSymbol? EntityComponent { get; }
         public INamedTypeSymbol? SceneService { get; }
+        public INamedTypeSymbol? InjectAttribute { get; }
 
         private ReferenceSymbols(
             INamedTypeSymbol container,
@@ -24,10 +25,11 @@ namespace ContainerGenerator {
             INamedTypeSymbol? scopeBuilder,
             INamedTypeSymbol? entityBuilder,
             INamedTypeSymbol? builder,
-            INamedTypeSymbol? registration,
             INamedTypeSymbol? serviceRegistration,
+            INamedTypeSymbol? containerRegistry,
             INamedTypeSymbol? entityComponent,
-            INamedTypeSymbol? sceneService) {
+            INamedTypeSymbol? sceneService,
+            INamedTypeSymbol? injectAttribute) {
             Container = container;
             UnityObject = unityObject;
             RuntimeInitialize = runtimeInitialize;
@@ -36,10 +38,11 @@ namespace ContainerGenerator {
             ScopeBuilder = scopeBuilder;
             EntityBuilder = entityBuilder;
             Builder = builder;
-            Registration = registration;
             ServiceRegistration = serviceRegistration;
+            ContainerRegistry = containerRegistry;
             EntityComponent = entityComponent;
             SceneService = sceneService;
+            InjectAttribute = injectAttribute;
         }
 
         // Сборка без Internal.IContainer контейнером не пользуется — генератору в ней делать нечего.
@@ -57,10 +60,11 @@ namespace ContainerGenerator {
                 compilation.GetTypeByMetadataName("Internal.IScopeBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IEntityBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IBuilder"),
-                compilation.GetTypeByMetadataName("Internal.IRegistration"),
                 compilation.GetTypeByMetadataName("Internal.IServiceRegistration"),
+                compilation.GetTypeByMetadataName("Internal.IContainerRegistry"),
                 compilation.GetTypeByMetadataName("Internal.IEntityComponent"),
-                compilation.GetTypeByMetadataName("Internal.ISceneService"));
+                compilation.GetTypeByMetadataName("Internal.ISceneService"),
+                compilation.GetTypeByMetadataName("Internal.InjectAttribute"));
         }
     }
 }

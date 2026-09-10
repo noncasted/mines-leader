@@ -12,6 +12,7 @@ namespace GamePlay.Players.ActiveStatus
         private IGameRound _round;
         private IGamePlayerInfo _playerInfo;
 
+        [Inject]
         internal void Construct(IGameRound round, IGamePlayerInfo playerInfo)
         {
             _round = round;

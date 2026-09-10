@@ -238,6 +238,10 @@ namespace ContainerGenerator {
             int index,
             Dictionary<string, int> lastByType,
             Dictionary<string, List<int>> allByType) {
+            // Injectable не сервис: его никто не резолвит, скоуп только инжектит готовый экземпляр.
+            if (registration.Origin == "Injectable")
+                return;
+
             var added = false;
             for (var i = 0; i < registration.ServiceTypes.Count; i++) {
                 AddService(registration.ServiceTypes[i], index, lastByType, allByType);
@@ -407,6 +411,9 @@ namespace ContainerGenerator {
             GraphRegistration registration,
             string parentId,
             Dictionary<string, string> exports) {
+            if (registration.Origin == "Injectable")
+                return;
+
             var added = false;
             for (var i = 0; i < registration.ServiceTypes.Count; i++) {
                 if (string.IsNullOrEmpty(registration.ServiceTypes[i]))
@@ -508,8 +515,14 @@ namespace ContainerGenerator {
             string armParameterType = "") {
             var registration = graph.Registrations[ownerIndex];
             var model = TypeAnalyzer.Analyze(implementation, references, registration.Location, false);
+            if (registration.Origin == "Injectable" && (model == null || string.IsNullOrEmpty(model.ConstructName)))
+                graph.Diagnostics.Add(NoInjectMethod(registration));
             if (model == null)
                 return;
+
+            // У [Inject] без параметров нет рёбер: имя метода нужно эмиттеру отдельно.
+            if (arm < 0)
+                registration.InjectMethod = model.ConstructName;
 
             if (BindsConstructor(registration.Origin))
                 BindParameters(
@@ -538,7 +551,8 @@ namespace ContainerGenerator {
                 parentExports,
                 allowsHole,
                 arm,
-                armParameterType);
+                armParameterType,
+                model.ConstructName);
         }
 
         // switch по enum строит ветку по значению, зарегистрированному в скоупе (RegisterInstance(definition.Type)).
@@ -582,7 +596,8 @@ namespace ContainerGenerator {
             Dictionary<string, string> parentExports,
             bool allowsHole,
             int arm,
-            string armParameterType) {
+            string armParameterType,
+            string method = "") {
             var registration = graph.Registrations[ownerIndex];
             for (var i = 0; i < parameters.Count; i++) {
                 var parameter = parameters[i];
@@ -590,6 +605,7 @@ namespace ContainerGenerator {
                     ParameterName = parameter.Name,
                     ParameterType = parameter.TypeFullName,
                     Source = source,
+                    Method = method,
                     Arm = arm,
                 };
 
@@ -650,6 +666,15 @@ namespace ContainerGenerator {
                 string.IsNullOrEmpty(registration.ImplementationType) ? registration.Kind : registration.ImplementationType,
                 registration.File ?? "",
                 line);
+        }
+
+        private static DiagnosticInfo NoInjectMethod(GraphRegistration registration) {
+            return new DiagnosticInfo(
+                GraphDescriptors.InjectableWithoutInject,
+                registration.Location,
+                registration.ImplementationType,
+                registration.File ?? "",
+                registration.Line.ToString(CultureInfo.InvariantCulture));
         }
 
         private static DiagnosticInfo Missing(GraphRegistration registration, ParameterModel parameter) {

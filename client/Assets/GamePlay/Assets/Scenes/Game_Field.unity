@@ -392,7 +392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3170e30101bc4295b87ce8e65a6f3b5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mode: 30
+  _mode: 31
 --- !u!1 &560094543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1603,10 +1603,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1acab62e4284d6fa0a0bd91bebe068a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 0
-  autoInjectGameObjects: []
 --- !u!1 &3664552651729262381
 GameObject:
   m_ObjectHideFlags: 0
@@ -1969,10 +1965,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1acab62e4284d6fa0a0bd91bebe068a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 0
-  autoInjectGameObjects: []
 --- !u!114 &7196743513040026431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1985,7 +1977,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f4680af45e47a1b8f89682b3acc030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.LocalPlayerView
-  _scope: {fileID: 7196743513040026430}
   _register: []
   _autoDetected:
   - {fileID: 694874235}
@@ -2021,7 +2012,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f2232ff68784cf39e42c64e54d559e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Players.RemotePlayerView
-  _scope: {fileID: 3537280869586791215}
   _register: []
   _autoDetected:
   - {fileID: 1006014972}

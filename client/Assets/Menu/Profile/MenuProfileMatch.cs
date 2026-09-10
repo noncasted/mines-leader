@@ -36,6 +36,7 @@ namespace Menu.Profile
         private ICardDescriptionProvider _descriptions;
         private ICardConfigs _configs;
 
+        [Inject]
         public void Construct(
             ICardsRegistry cardsRegistry,
             ICardDescriptionProvider descriptions,

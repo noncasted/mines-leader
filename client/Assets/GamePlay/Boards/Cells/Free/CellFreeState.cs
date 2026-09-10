@@ -21,6 +21,7 @@ namespace GamePlay.Boards
         public CellStatus Status => CellStatus.Free;
         public IViewableProperty<int> MinesAround => _minesAround;
 
+        [Inject]
         public void Construct(IReadOnlyLifetime lifetime)
         {
             _view.Enable(lifetime, this);

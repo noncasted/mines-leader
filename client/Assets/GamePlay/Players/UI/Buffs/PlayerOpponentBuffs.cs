@@ -18,6 +18,7 @@ namespace GamePlay.Players.Buffs
         private IUpdater _updater;
         private PlayerBuffsList _list;
 
+        [Inject]
         internal void Construct(IModifiersRegistry modifiers, IGameInput input, IUpdater updater)
         {
             _modifiers = modifiers;

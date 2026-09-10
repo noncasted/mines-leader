@@ -61,7 +61,7 @@ namespace ContainerGenerator {
             WriteRegister(writer, plan, deeper, body);
             WriteFactories(writer, plan, graph, deeper, body);
             WriteProvides(writer, plan, graph, deeper, body);
-            WriteDiagnostics(writer, plan, deeper, body);
+            WriteDiagnostics(writer, plan, graph, deeper, body);
             writer.AppendLine(indent + "}");
         }
 
@@ -112,8 +112,13 @@ namespace ContainerGenerator {
 
             WriteMarkers(writer, plan, graph, body);
             WriteExports(writer, plan, graph, body);
-            if (plan.HasDiagnosticsType)
-                writer.AppendLine(body + "_diagnostics = new GeneratedDiagnostics();");
+            if (plan.HasContainerDiagnostics) {
+                writer.AppendLine(body + "_diagnostics = new global::Internal.ContainerDiagnostics(");
+                writer.AppendLine(body + "    " + Literal(plan.ClassName) + ",");
+                writer.AppendLine(body + "    " + plan.ParentField + " != null ? " + plan.ParentField + ".Diagnostics : null,");
+                writer.AppendLine(body + "    _registrationInfos,");
+                writer.AppendLine(body + "    _buildOrder);");
+            }
 
             writer.AppendLine(indent + "}");
         }
@@ -212,10 +217,26 @@ namespace ContainerGenerator {
             var args = Arguments(plan, graph, slot.Registration, "Construct");
             if (args == null)
                 return;
+            var method = ConstructName(slot.Registration);
             if (args.Count == 0)
-                writer.AppendLine(indent + target + ".Construct();");
+                writer.AppendLine(indent + target + "." + method + "();");
             else
-                writer.AppendLine(indent + target + ".Construct(" + string.Join(", ", args) + ");");
+                writer.AppendLine(indent + target + "." + method + "(" + string.Join(", ", args) + ");");
+        }
+
+        // Имя метода с [Inject] лежит на рёбрах Source == "Construct"; без рёбер вызова нет.
+        private static string ConstructName(GraphRegistration registration, int arm = -1) {
+            for (var i = 0; i < registration.Dependencies.Count; i++) {
+                var edge = registration.Dependencies[i];
+                if (edge.Source != "Construct" || edge.Arm != arm)
+                    continue;
+                if (string.IsNullOrEmpty(edge.Method) == false)
+                    return edge.Method;
+            }
+
+            if (arm < 0 && string.IsNullOrEmpty(registration.InjectMethod) == false)
+                return registration.InjectMethod;
+            return "Construct";
         }
 
         private static string NewExpression(
@@ -249,8 +270,9 @@ namespace ContainerGenerator {
                 args.Add(Argument(plan, graph, edge));
             }
 
+            // [Inject] без параметров рёбер не даёт, но вызывается.
             if (found == false)
-                return source == "Construct" ? null : args;
+                return source == "Construct" && (arm >= 0 || string.IsNullOrEmpty(registration.InjectMethod)) ? null : args;
             return args;
         }
 
@@ -349,20 +371,34 @@ namespace ContainerGenerator {
         private static void WriteMarkers(CodeWriter writer, ScopePlan plan, ScopeGraph graph, string indent) {
             for (var i = 0; i < plan.Markers.Count; i++) {
                 var marker = plan.Markers[i];
-                var items = new List<string>();
-                var seen = new HashSet<string>(StringComparer.Ordinal);
-                for (var s = 0; s < marker.Slots.Count; s++) {
-                    var slot = plan.Slots[marker.Slots[s]];
-                    if (string.IsNullOrEmpty(slot.FieldName))
-                        continue;
-                    if (seen.Add(slot.FieldName) == false)
-                        continue;
-                    items.Add(slot.FieldName);
+                // Список с transient'ами собирается на каждый ResolveAll: поле держало бы одни и те же экземпляры.
+                if (ScopePlan.HasTransientSlot(plan, marker.Slots))
+                    continue;
+
+                writer.AppendLine(indent + marker.FieldName + " = " + MarkerArray(plan, i) + ";");
+            }
+        }
+
+        private static string MarkerArray(ScopePlan plan, int markerIndex) {
+            var marker = plan.Markers[markerIndex];
+            var items = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (var s = 0; s < marker.Slots.Count; s++) {
+                var slot = plan.Slots[marker.Slots[s]];
+                if (slot.IsTransient) {
+                    if (string.IsNullOrEmpty(slot.CreateMethod) == false)
+                        items.Add(slot.CreateMethod + "()");
+                    continue;
                 }
 
-                writer.AppendLine(indent + marker.FieldName + " = new " + marker.ElementType + "[] { " +
-                                  string.Join(", ", items) + " };");
+                if (string.IsNullOrEmpty(slot.FieldName))
+                    continue;
+                if (seen.Add(slot.FieldName) == false)
+                    continue;
+                items.Add(slot.FieldName);
             }
+
+            return "new " + marker.ElementType + "[] { " + string.Join(", ", items) + " }";
         }
 
         private static void WriteExports(CodeWriter writer, ScopePlan plan, ScopeGraph graph, string indent) {
@@ -387,8 +423,8 @@ namespace ContainerGenerator {
             }
 
             writer.AppendLine(indent + "private readonly global::System.Collections.Generic.Dictionary<global::System.Type, object> _exports;");
-            if (plan.HasDiagnosticsType)
-                writer.AppendLine(indent + "private readonly GeneratedDiagnostics _diagnostics;");
+            if (plan.HasContainerDiagnostics)
+                writer.AppendLine(indent + "private readonly global::Internal.ContainerDiagnostics _diagnostics;");
             writer.AppendLine(indent + "private bool _disposed;");
         }
 
@@ -399,7 +435,8 @@ namespace ContainerGenerator {
             string indent,
             string body) {
             if (plan.HasDiagnosticsType) {
-                writer.AppendLine(indent + "public global::Internal.IContainerDiagnostics Diagnostics => _diagnostics;");
+                var diagnostics = plan.HasContainerDiagnostics ? "_diagnostics" : "null";
+                writer.AppendLine(indent + "public global::Internal.IContainerDiagnostics Diagnostics => " + diagnostics + ";");
                 writer.AppendLine();
             }
 
@@ -477,20 +514,26 @@ namespace ContainerGenerator {
         }
 
         private static void WriteTransientResolve(CodeWriter writer, ScopePlan plan, string indent, bool assign) {
+            // Одному типу — одна ветка. Как и в _exports, резолв отдаёт последнюю регистрацию,
+            // а экспорт синглтона того же типа проверяется раньше и ветку не получает.
+            var exported = new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < plan.Exports.Count; i++)
+                exported.Add(plan.Exports[i].ServiceType);
+
+            var owners = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (var i = 0; i < plan.Slots.Count; i++) {
+                foreach (var type in TransientTypes(plan, i)) {
+                    if (exported.Contains(type) == false)
+                        owners[type] = i;
+                }
+            }
+
             for (var i = 0; i < plan.Slots.Count; i++) {
                 var slot = plan.Slots[i];
-                if (slot.IsTransient == false || string.IsNullOrEmpty(slot.CreateMethod))
-                    continue;
-                var types = new List<string>();
-                if (string.IsNullOrEmpty(slot.ImplementationType) == false)
-                    types.Add(slot.ImplementationType);
-                for (var s = 0; s < slot.Registration.ServiceTypes.Count; s++) {
-                    var service = slot.Registration.ServiceTypes[s];
-                    if (string.IsNullOrEmpty(service) == false && types.Contains(service) == false)
-                        types.Add(service);
-                }
-
+                var types = TransientTypes(plan, i);
                 for (var t = 0; t < types.Count; t++) {
+                    if (owners.TryGetValue(types[t], out var owner) == false || owner != i)
+                        continue;
                     writer.AppendLine(indent + "if (type == typeof(" + types[t] + ")) {");
                     if (assign) {
                         writer.AppendLine(indent + "    instance = " + slot.CreateMethod + "();");
@@ -505,12 +548,29 @@ namespace ContainerGenerator {
             }
         }
 
+        private static List<string> TransientTypes(ScopePlan plan, int slotIndex) {
+            var types = new List<string>();
+            var slot = plan.Slots[slotIndex];
+            if (slot.IsTransient == false || string.IsNullOrEmpty(slot.CreateMethod))
+                return types;
+            if (string.IsNullOrEmpty(slot.ImplementationType) == false)
+                types.Add(slot.ImplementationType);
+            for (var s = 0; s < slot.Registration.ServiceTypes.Count; s++) {
+                var service = slot.Registration.ServiceTypes[s];
+                if (string.IsNullOrEmpty(service) == false && types.Contains(service) == false)
+                    types.Add(service);
+            }
+
+            return types;
+        }
+
         private static void WriteResolveAll(CodeWriter writer, ScopePlan plan, string indent, string body) {
             writer.AppendLine(indent + "public global::System.Collections.Generic.IReadOnlyList<T> ResolveAll<T>() {");
             for (var i = 0; i < plan.Markers.Count; i++) {
                 var marker = plan.Markers[i];
+                var list = ScopePlan.HasTransientSlot(plan, marker.Slots) ? MarkerArray(plan, i) : marker.FieldName;
                 writer.AppendLine(body + "if (typeof(T) == typeof(" + marker.ElementType + "))");
-                writer.AppendLine(body + "    return (global::System.Collections.Generic.IReadOnlyList<T>)(object)" + marker.FieldName + ";");
+                writer.AppendLine(body + "    return (global::System.Collections.Generic.IReadOnlyList<T>)(object)" + list + ";");
             }
 
             // Тип с единственной регистрацией маркерного массива не получает.
@@ -539,11 +599,12 @@ namespace ContainerGenerator {
                     continue;
 
                 var local = ScopeNames.Unique(ScopeNames.Camel(ScopeNames.Short(slot.ImplementationType)), used);
+                var method = ConstructName(slot.Registration);
                 writer.AppendLine(indent + "if (target is " + slot.ImplementationType + " " + local + ") {");
                 if (args.Count == 0)
-                    writer.AppendLine(indent + "    " + local + ".Construct();");
+                    writer.AppendLine(indent + "    " + local + "." + method + "();");
                 else
-                    writer.AppendLine(indent + "    " + local + ".Construct(" + string.Join(", ", args) + ");");
+                    writer.AppendLine(indent + "    " + local + "." + method + "(" + string.Join(", ", args) + ");");
                 writer.AppendLine(indent + "    return;");
                 writer.AppendLine(indent + "}");
             }
@@ -613,10 +674,11 @@ namespace ContainerGenerator {
                 }
                 else {
                     writer.AppendLine(body + "var instance = " + created + ";");
+                    var method = ConstructName(slot.Registration);
                     if (construct.Count == 0)
-                        writer.AppendLine(body + "instance.Construct();");
+                        writer.AppendLine(body + "instance." + method + "();");
                     else
-                        writer.AppendLine(body + "instance.Construct(" + string.Join(", ", construct) + ");");
+                        writer.AppendLine(body + "instance." + method + "(" + string.Join(", ", construct) + ");");
                     writer.AppendLine(body + "return instance;");
                 }
 
@@ -643,7 +705,7 @@ namespace ContainerGenerator {
 
                     writer.AppendLine(body + "    case " + discriminant + ": {");
                     writer.AppendLine(body + "        var instance = " + created + ";");
-                    writer.AppendLine(body + "        instance.Construct(" + string.Join(", ", construct) + ");");
+                    writer.AppendLine(body + "        instance." + ConstructName(slot.Registration, a) + "(" + string.Join(", ", construct) + ");");
                     writer.AppendLine(body + "        return instance;");
                     writer.AppendLine(body + "    }");
                 }
@@ -668,30 +730,65 @@ namespace ContainerGenerator {
                 writer.AppendLine(indent + "void global::Internal.IProvides<" + provide.TargetType + ">.Construct(" +
                                   provide.TargetType + " target) {");
                 var args = Arguments(plan, graph, slot.Registration, "Construct");
+                var method = ConstructName(slot.Registration);
                 if (args == null || args.Count == 0)
-                    writer.AppendLine(body + "target.Construct();");
+                    writer.AppendLine(body + "target." + method + "();");
                 else
-                    writer.AppendLine(body + "target.Construct(" + string.Join(", ", args) + ");");
+                    writer.AppendLine(body + "target." + method + "(" + string.Join(", ", args) + ");");
                 writer.AppendLine(indent + "}");
                 writer.AppendLine();
             }
         }
 
-        private static void WriteDiagnostics(CodeWriter writer, ScopePlan plan, string indent, string body) {
-            if (plan.HasDiagnosticsType == false)
+        // Таблица статическая: экземпляр скоупа платит только за объект ContainerDiagnostics.
+        private static void WriteDiagnostics(CodeWriter writer, ScopePlan plan, ScopeGraph graph, string indent, string body) {
+            if (plan.HasContainerDiagnostics == false)
                 return;
 
-            writer.AppendLine(indent + "private sealed class GeneratedDiagnostics : global::Internal.IContainerDiagnostics {");
-            writer.AppendLine(body + "public string Name => \"" + plan.ClassName + "\";");
-            writer.AppendLine(body + "public global::Internal.IContainerDiagnostics Parent => null;");
-            writer.AppendLine(body + "public global::System.Collections.Generic.IReadOnlyList<global::Internal.IContainerDiagnostics> Children => global::System.Array.Empty<global::Internal.IContainerDiagnostics>();");
-            if (plan.HasRegistrationInfo)
-                writer.AppendLine(body + "public global::System.Collections.Generic.IReadOnlyList<global::Internal.RegistrationInfo> Registrations => global::System.Array.Empty<global::Internal.RegistrationInfo>();");
-            writer.AppendLine(body + "public global::System.Collections.Generic.IReadOnlyList<int> BuildOrder => global::System.Array.Empty<int>();");
-            writer.AppendLine(body + "public global::System.Collections.Generic.IReadOnlyList<global::Internal.LoadedAssetInfo> LoadedAssets => global::System.Array.Empty<global::Internal.LoadedAssetInfo>();");
-            writer.AppendLine(body + "public bool IsHistoryEnabled { get; set; }");
-            writer.AppendLine(body + "public global::System.Collections.Generic.IReadOnlyList<global::Internal.ResolveRecord> History => global::System.Array.Empty<global::Internal.ResolveRecord>();");
-            writer.AppendLine(indent + "}");
+            writer.AppendLine(indent + "private static readonly global::Internal.RegistrationInfo[] _registrationInfos = {");
+            for (var i = 0; i < plan.DiagnosticRegistrations.Count; i++) {
+                var entry = plan.DiagnosticRegistrations[i];
+                var comma = i + 1 < plan.DiagnosticRegistrations.Count ? "," : "";
+                var implementation = string.IsNullOrEmpty(entry.ImplementationType)
+                    ? "null"
+                    : "typeof(" + entry.ImplementationType + ")";
+                writer.AppendLine(body + "new global::Internal.RegistrationInfo(" +
+                                  i.ToString() + ", " +
+                                  implementation + ", " +
+                                  TypeArray(entry.ServiceTypes) + ", " +
+                                  "global::Internal.ServiceLifetime." + LifetimeMember(entry.Lifetime) + ", " +
+                                  IntArray(entry.Dependencies) + ", " +
+                                  (entry.IsInstantiated ? "true" : "false") + ", " +
+                                  (entry.IsExternal ? "true" : "false") + ")" + comma);
+            }
+
+            writer.AppendLine(indent + "};");
+            writer.AppendLine();
+            writer.AppendLine(indent + "private static readonly int[] _buildOrder = " + IntArray(graph.ConstructionOrder) + ";");
+        }
+
+        private static string TypeArray(List<string> types) {
+            if (types.Count == 0)
+                return "global::System.Type.EmptyTypes";
+
+            var items = new List<string>();
+            for (var i = 0; i < types.Count; i++)
+                items.Add("typeof(" + types[i] + ")");
+            return "new global::System.Type[] { " + string.Join(", ", items) + " }";
+        }
+
+        private static string IntArray(List<int> values) {
+            if (values.Count == 0)
+                return "global::System.Array.Empty<int>()";
+
+            var items = new List<string>();
+            for (var i = 0; i < values.Count; i++)
+                items.Add(values[i].ToString());
+            return "new int[] { " + string.Join(", ", items) + " }";
+        }
+
+        private static string LifetimeMember(string lifetime) {
+            return lifetime == "Transient" || lifetime == "Scoped" ? lifetime : "Singleton";
         }
 
         private static bool IsContainerType(string type) {

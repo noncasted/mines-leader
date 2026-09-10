@@ -79,6 +79,7 @@ namespace GamePlay.Boards
             return inspect;
         }
 
+        [Inject]
         public void Construct(Vector2Int position, Board board)
         {
             _boardPosition = position;

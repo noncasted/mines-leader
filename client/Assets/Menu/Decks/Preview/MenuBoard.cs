@@ -21,6 +21,7 @@ namespace Menu.Decks
         public Camera PreviewCamera => _previewCamera;
         public RenderTexture PreviewTexture => _previewTexture;
 
+        [Inject]
         internal void Construct(IUpdater updater, IGameRandom random)
         {
             _random = random;

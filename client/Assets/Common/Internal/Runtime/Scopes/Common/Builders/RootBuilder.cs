@@ -5,16 +5,17 @@ namespace Internal
     /// </summary>
     public class RootBuilder : IBuilder
     {
-        public RootBuilder(ServiceCollection services, IEventLoop events, IReadOnlyLifetime lifetime)
+        public RootBuilder(ContainerBuilder containerBuilder, IEventLoop events, IReadOnlyLifetime lifetime)
         {
-            Services = services;
-            ServicesInternal = services;
+            ContainerBuilder = containerBuilder;
             Events = events;
             Lifetime = lifetime;
+
+            containerBuilder.AttachBuilder(this);
         }
 
-        public IServiceCollection Services { get; }
-        public ServiceCollection ServicesInternal { get; }
+        public ContainerBuilder ContainerBuilder { get; }
+        public IContainerRegistry Registry => ContainerBuilder;
         public IEventLoop Events { get; }
         public IReadOnlyLifetime Lifetime { get; }
     }

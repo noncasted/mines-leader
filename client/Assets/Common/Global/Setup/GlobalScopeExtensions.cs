@@ -38,7 +38,7 @@ namespace Global.Setup
 
             // Модули меряются поимённо: половина из них инстанцирует префабы, и по
             // трассе сразу видно, какой именно из них стоит кадров.
-            using var services = GameProfiler.Scope("Services");
+            using var services = GameProfiler.Scope("Registry");
 
             services.Measure("Updater", () => builder.AddUpdater());
             services.Measure("Audio", () => builder.AddAudio());

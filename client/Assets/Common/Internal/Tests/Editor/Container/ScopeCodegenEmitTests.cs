@@ -114,18 +114,28 @@ namespace Internal.Tests
             ConstructorInfo chosen = null;
             for (var i = 0; i < constructors.Length; i++)
             {
-                if (constructors[i].GetParameters().Length == 0)
+                if (IsLoaderOnlyConstructor(constructors[i].GetParameters()))
                     chosen = constructors[i];
             }
 
+            // Без дырок в графе конструктор получает только то, что даёт загрузчик скоупа.
             Assert.IsNotNull(
                 chosen,
-                "Hole-free fixture must emit a parameterless constructor. Have: " + Describe(constructors));
+                "Hole-free fixture must emit (ILifetime, IContainer, IEventLoop) constructor. Have: " +
+                Describe(constructors));
 
             ScopeCodegenSingleton.Instances = 0;
             ScopeCodegenScoped.Instances = 0;
             ScopeCodegenTransient.Instances = 0;
-            return (IContainer)chosen.Invoke(null);
+            return (IContainer)chosen.Invoke(new object[] { new Lifetime(), null, new EventLoop() });
+        }
+
+        private static bool IsLoaderOnlyConstructor(ParameterInfo[] parameters)
+        {
+            return parameters.Length == 3 &&
+                   parameters[0].ParameterType == typeof(ILifetime) &&
+                   parameters[1].ParameterType == typeof(IContainer) &&
+                   parameters[2].ParameterType == typeof(IEventLoop);
         }
 
         private static Type RequireGenerated(string methodName)

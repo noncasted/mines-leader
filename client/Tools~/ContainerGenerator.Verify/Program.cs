@@ -23,14 +23,17 @@ namespace ContainerGenerator.Verify {
             Run("generator driver missing parent is CINGR007", TestGeneratorDriverMissingParent);
             Run("generator driver with source project references (IDE)", TestGeneratorDriverSourceReferences);
             Run("CINGR004 cycle path", TestCycle);
+            Run("[Inject] picks method by attribute, not name", TestInjectAttribute);
             Run("IReadOnlyList FullyQualifiedFormat", TestCollectionTypeKey);
             Run("LoadGlobal emit compiles", TestLoadGlobalEmit);
             Run("Marker array order matches registration", TestMarkerOrderEmit);
             Run("Transient has method not field", TestTransientEmit);
+            Run("Transient in marker list is created per ResolveAll", TestTransientMarkerEmit);
             Run("CINGR003 does not emit class", TestMissingDoesNotEmit);
             Run("CINGR001 uncovered syntax", TestUncoveredSyntax);
             Run("Marker collection order", TestMarkerCollectionOrder);
             Run("1b manifest uses assembly attributes", TestManifestEmitsAttributes);
+            Run("registry AttachBuilder is not an installer", TestRegistryAttachIsNotInstaller);
             Run("1b cross-assembly installer no CINGR002", TestCrossAssemblyManifest);
             Run("1b harvested local functions keep order", TestHarvestLocalFunctionOrder);
             Run("harvest keeps repeated generic installer calls", TestHarvestRepeatedGenericInstaller);
@@ -47,6 +50,8 @@ namespace ContainerGenerator.Verify {
             Run(".As on installer return from other assembly", TestGenericInstallerReturnAs);
             Run("generic installer emit with nested type args", TestGenericInstallerNestedEmit);
             Run("generic RegisterCommand nested emit", TestGenericRegisterCommandEmit);
+            Run("Injectable gets Inject case only", TestInjectableEmit);
+            Run("Injectable CINGR008 and not resolvable", TestInjectableErrors);
             if (_failed == 0)
                 Console.WriteLine("ALL PASSED");
             else
@@ -274,6 +279,41 @@ namespace ContainerGenerator.Verify {
             Console.WriteLine("      " + message);
         }
 
+        private static void TestInjectAttribute() {
+            var emitted = EmitRoot(InjectAttributeSource, "InjectRoot", out var graph);
+            var plain = FindRegistration(graph, "PlainConstruct");
+            Require(plain.Dependencies.Count == 0, "Construct without [Inject] must not bind: " + plain.Dependencies.Count);
+            var named = FindRegistration(graph, "NamedInject");
+            Require(named.Dependencies.Count == 1 && named.Dependencies[0].Source == "Construct", "[Inject] method must bind as Construct edge");
+            Require(named.Dependencies[0].Method == "Setup", "edge must carry the [Inject] method name; got " + named.Dependencies[0].Method);
+            Require(emitted.IndexOf(".Setup(", StringComparison.Ordinal) >= 0, "emit must call the [Inject] method by its name:\n" + Head(emitted));
+            Require(emitted.IndexOf("plainConstruct.Construct(", StringComparison.Ordinal) < 0, "emit must not call un-attributed Construct");
+        }
+
+        private static void TestInjectableEmit() {
+            var emitted = EmitRoot(InjectableSource, "InjectableRoot", out _);
+            Require(emitted.IndexOf("if (target is global::Sample.PoolCard poolCard)", StringComparison.Ordinal) >= 0,
+                "Injectable must get an Inject case:\n" + emitted);
+            Require(emitted.IndexOf("poolCard.Setup(", StringComparison.Ordinal) >= 0, "Inject case must call the [Inject] method");
+            Require(emitted.IndexOf("emptyCard.Init();", StringComparison.Ordinal) >= 0,
+                "[Inject] without parameters must still be called:\n" + emitted);
+            Require(emitted.IndexOf("global::Sample.PoolCard _", StringComparison.Ordinal) < 0, "Injectable must not have a field");
+            Require(emitted.IndexOf("{ typeof(global::Sample.PoolCard),", StringComparison.Ordinal) < 0, "Injectable must not be exported");
+            Require(emitted.IndexOf("new global::Sample.PoolCard(", StringComparison.Ordinal) < 0, "Injectable must not be constructed");
+            RequireCompiles(emitted, InjectableSource);
+        }
+
+        private static void TestInjectableErrors() {
+            var graph = ResolveRoot(InjectableErrorsSource, "InjectableErrorsRoot");
+            var noInject = RequireDiagnostic(graph, "CINGR008");
+            Require(noInject.ToDiagnostic().GetMessage().IndexOf("NoInjectCard", StringComparison.Ordinal) >= 0,
+                "CINGR008 must name the type: " + noInject.ToDiagnostic().GetMessage());
+            Require(graph.Diagnostics.Count(d => d.Descriptor.Id == "CINGR008") == 1, "PoolCard has [Inject] and must not get CINGR008");
+            var missing = RequireDiagnostic(graph, "CINGR003");
+            Require(missing.ToDiagnostic().GetMessage().IndexOf("Consumer", StringComparison.Ordinal) >= 0,
+                "Injectable must not be resolvable: " + missing.ToDiagnostic().GetMessage());
+        }
+
         private static void TestCycle() {
             var graph = ResolveRoot(CycleSource, "CycleRoot");
             var diagnostic = RequireDiagnostic(graph, "CINGR004");
@@ -306,6 +346,10 @@ namespace ContainerGenerator.Verify {
                 "generated class must register with GeneratedScopes:\n" + Head(emitted));
             Require(emitted.IndexOf("LoadGlobal+Construct", StringComparison.Ordinal) >= 0,
                 "GeneratedScopes.Register rootId must contain LoadGlobal+Construct:\n" + Head(emitted, 2000));
+            Require(emitted.IndexOf("_parent != null ? _parent.Diagnostics : null", StringComparison.Ordinal) >= 0,
+                "diagnostics must link to the parent container:\n" + Head(emitted, 4000));
+            Require(emitted.IndexOf("new global::Internal.RegistrationInfo(0, typeof(", StringComparison.Ordinal) >= 0,
+                "diagnostics must list registrations with types:\n" + Head(emitted, 4000));
             RequireCompiles(emitted, LoadGlobalSource);
             DumpEmit(graph, emitted);
         }
@@ -326,6 +370,29 @@ namespace ContainerGenerator.Verify {
             Require(emitted.IndexOf("private readonly global::Sample.Popup _popup", StringComparison.Ordinal) < 0,
                 "Transient must not have a field");
             RequireCompiles(emitted, TransientSource);
+        }
+
+        private static void TestTransientMarkerEmit() {
+            var emitted = EmitRoot(TransientMarkerSource, "TransientMarkerRoot", out _);
+            Require(emitted.IndexOf("new global::Sample.IStep[] { _firstStep, CreateSecondStep(), _thirdStep }", StringComparison.Ordinal) >= 0,
+                "IStep list must keep registration order and create the transient:\n" + emitted);
+            Require(emitted.IndexOf("new global::Sample.ISolo[] { CreateSoloStep() }", StringComparison.Ordinal) >= 0,
+                "single transient ISolo must still be listed:\n" + emitted);
+            Require(emitted.IndexOf("global::Sample.IStep[] _", StringComparison.Ordinal) < 0,
+                "list with a transient must not be a field:\n" + emitted);
+            Require(Occurrences(emitted, "if (type == typeof(global::Sample.IStep))") == 0,
+                "IStep resolves through the exported singleton:\n" + emitted);
+            Require(Occurrences(emitted, "if (type == typeof(global::Sample.SecondStep))") == 2,
+                "one SecondStep branch in Resolve and one in TryResolve:\n" + emitted);
+            RequireCompiles(emitted, TransientMarkerSource);
+        }
+
+        private static int Occurrences(string text, string fragment) {
+            var count = 0;
+            for (var index = text.IndexOf(fragment, StringComparison.Ordinal); index >= 0;
+                 index = text.IndexOf(fragment, index + fragment.Length, StringComparison.Ordinal))
+                count++;
+            return count;
         }
 
         private static void TestMissingDoesNotEmit() {
@@ -379,6 +446,16 @@ namespace ContainerGenerator.Verify {
                 "ContainerInstallerAttribute must not be emitted:\n" + Head(emitted));
             Require(compilation.GetTypeByMetadataName("Internal.ContainerInstallerAttribute") != null,
                 "ContainerInstallerAttribute must already exist in the compilation");
+        }
+
+        // IBuilder в параметрах делает метод installer'ом, но реестр контейнера сам ничего не регистрирует.
+        private static void TestRegistryAttachIsNotInstaller() {
+            var compilation = Compile(RegistryAttachSource, "InternalLib");
+            var document = WalkDocument(compilation);
+            foreach (var method in document.Methods) {
+                Require(method.Id.IndexOf("AttachBuilder", StringComparison.Ordinal) < 0,
+                    "IContainerRegistry.AttachBuilder must not be walked as installer: " + method.Id);
+            }
         }
 
         private static void TestCrossAssemblyManifest() {
@@ -1160,17 +1237,16 @@ namespace Internal {
     public interface IReadOnlyLifetime {}
     public interface ILifetime : IReadOnlyLifetime { void Terminate(); }
     public interface IServiceRegistration {
+        IBuilder Builder { get; }
         System.Type ImplementationType { get; }
         ServiceLifetime Lifetime { get; }
-        IServiceRegistration As(System.Type serviceType);
-        IServiceRegistration AsSelf();
-        IServiceRegistration WithParameter(System.Type type, object value);
+        IServiceRegistration AddServiceType(System.Type serviceType);
+        IServiceRegistration SetParameter(System.Type type, object value);
     }
     public interface IContainerRegistry {
         IServiceRegistration Add(System.Type implementation, ServiceLifetime lifetime);
         IServiceRegistration AddInstance(System.Type serviceType, object instance);
         void AddInjection(object target);
-        void AddSelfResolvable(IServiceRegistration registration);
     }
     public interface IContainerDiagnostics {
         string Name { get; }
@@ -1182,8 +1258,21 @@ namespace Internal {
         bool IsHistoryEnabled { get; set; }
         System.Collections.Generic.IReadOnlyList<ResolveRecord> History { get; }
     }
-    public readonly struct RegistrationInfo {}
+    public readonly struct RegistrationInfo {
+        public RegistrationInfo(int slot, System.Type implementationType, System.Collections.Generic.IReadOnlyList<System.Type> serviceTypes, ServiceLifetime lifetime, System.Collections.Generic.IReadOnlyList<int> dependencies, bool isInstantiated, bool isExternal) {}
+    }
     public readonly struct LoadedAssetInfo {}
+    public sealed class ContainerDiagnostics : IContainerDiagnostics {
+        public ContainerDiagnostics(string name, IContainerDiagnostics parent, System.Collections.Generic.IReadOnlyList<RegistrationInfo> registrations, System.Collections.Generic.IReadOnlyList<int> buildOrder) {}
+        public string Name => null;
+        public IContainerDiagnostics Parent => null;
+        public System.Collections.Generic.IReadOnlyList<IContainerDiagnostics> Children => null;
+        public System.Collections.Generic.IReadOnlyList<RegistrationInfo> Registrations => null;
+        public System.Collections.Generic.IReadOnlyList<int> BuildOrder => null;
+        public System.Collections.Generic.IReadOnlyList<LoadedAssetInfo> LoadedAssets => null;
+        public bool IsHistoryEnabled { get; set; }
+        public System.Collections.Generic.IReadOnlyList<ResolveRecord> History => null;
+    }
     public readonly struct ResolveRecord {}
     public interface IContainer : System.IDisposable {
         IContainerDiagnostics Diagnostics { get; }
@@ -1204,7 +1293,6 @@ namespace Internal {
     public interface IEntityBuilder : IBuilder {
         ILifetime ScopeLifetime { get; }
     }
-    public interface IRegistration {}
     public interface IEntityComponent { void Register(IEntityBuilder builder); }
     public interface ISceneService { void Create(IScopeBuilder builder); }
     public interface IScopeEntityView {}
@@ -1234,6 +1322,8 @@ namespace Internal {
     public sealed class ContainerScopeParentAttribute : System.Attribute {
         public ContainerScopeParentAttribute(System.Type rootType, string rootMethod) {}
     }
+    [System.AttributeUsage(System.AttributeTargets.Method)]
+    public sealed class InjectAttribute : System.Attribute {}
     public interface IEventLoop {}
     public class EventLoop : IEventLoop {}
     public interface IViewInjector {}
@@ -1253,16 +1343,17 @@ namespace Internal {
     }
 
     public static class BuilderExtensions {
-        public static IRegistration Register<T>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
-        public static IRegistration Register<TInterface, TImplementation>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
-        public static IRegistration RegisterInstance<T>(this IBuilder builder, T instance) { return null; }
-        public static IRegistration RegisterComponent<T>(this IBuilder builder, T component, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
-        public static IRegistration As<T>(this IRegistration registration) { return registration; }
-        public static IRegistration AsSelf(this IRegistration registration) { return registration; }
-        public static IRegistration AsSelfResolvable(this IRegistration registration) { return registration; }
-        public static IRegistration WithParameter<T>(this IRegistration registration, T value) { return registration; }
-        public static IRegistration WithScopeLifetime(this IRegistration registration) { return registration; }
+        public static IServiceRegistration Register<T>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        public static IServiceRegistration Register<TInterface, TImplementation>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        public static IServiceRegistration RegisterInstance<T>(this IBuilder builder, T instance) { return null; }
+        public static IServiceRegistration RegisterComponent<T>(this IBuilder builder, T component, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        public static IServiceRegistration As<T>(this IServiceRegistration registration) { return registration; }
+        public static IServiceRegistration AsSelf(this IServiceRegistration registration) { return registration; }
+        public static IServiceRegistration AsSelfResolvable(this IServiceRegistration registration) { return registration; }
+        public static IServiceRegistration WithParameter<T>(this IServiceRegistration registration, T value) { return registration; }
+        public static IServiceRegistration WithScopeLifetime(this IServiceRegistration registration) { return registration; }
         public static void Inject<T>(this IBuilder builder, T target) {}
+        public static void Injectable<T>(this IBuilder builder) where T : class {}
         public static T Instantiate<T>(this IScopeBuilder builder, T prefab) { return prefab; }
     }
 }
@@ -1315,6 +1406,7 @@ namespace Global.Setup {
         public UIStateMachine(IInputConstraintsStorage constraintsStorage, Internal.IReadOnlyLifetime lifetime) {}
     }
     public class LoadingScreen {
+        [Internal.Inject]
         public void Construct(IUpdater updater) {}
     }
     public class ItchLanguageDebugAPI : IItchLanguageAPI {}
@@ -1658,19 +1750,85 @@ namespace Sample {
 }
 ";
 
+        private const string InjectAttributeSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IDep {}
+    public class Dep : IDep {}
+    public class PlainConstruct { public void Construct(IDep dep) {} }
+    public class NamedInject { [Inject] internal void Setup(IDep dep) {} }
+    public static class InjectRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<Dep>().As<IDep>();
+            builder.Register<PlainConstruct>();
+            builder.Register<NamedInject>();
+        }
+    }
+}
+";
+
+        private const string InjectableSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IDep {}
+    public class Dep : IDep {}
+    public class PoolCard { [Inject] internal void Setup(IDep dep, IReadOnlyLifetime lifetime) {} }
+    public class EmptyCard { [Inject] internal void Init() {} }
+    public static class InjectableRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<Dep>().As<IDep>();
+            builder.Injectable<PoolCard>();
+            builder.Injectable<EmptyCard>();
+        }
+    }
+}
+";
+
+        private const string InjectableErrorsSource = @"
+using Internal;
+
+namespace Sample {
+    public class NoInjectCard { public void Construct() {} }
+    public class PoolCard { [Inject] internal void Setup() {} }
+    public class Consumer { public Consumer(PoolCard card) {} }
+    public static class InjectableErrorsRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Injectable<NoInjectCard>();
+            builder.Injectable<PoolCard>();
+            builder.Register<Consumer>();
+        }
+    }
+}
+";
+
         private const string CycleSource = @"
 using Internal;
 
 namespace Sample {
-    public class CycleA { public void Construct(CycleB b) {} }
-    public class CycleB { public void Construct(CycleC c) {} }
-    public class CycleC { public void Construct(CycleA a) {} }
+    public class CycleA { [Internal.Inject] public void Construct(CycleB b) {} }
+    public class CycleB { [Internal.Inject] public void Construct(CycleC c) {} }
+    public class CycleC { [Internal.Inject] public void Construct(CycleA a) {} }
     public static class CycleRoot {
         public static void Construct(Internal.IScopeBuilder builder) {
             builder.Register<CycleA>();
             builder.Register<CycleB>();
             builder.Register<CycleC>();
         }
+    }
+}
+";
+
+        private const string RegistryAttachSource = @"
+using Internal;
+
+namespace Sample {
+    public sealed class Registry : IContainerRegistry {
+        public IServiceRegistration Add(System.Type implementation, ServiceLifetime lifetime) { return null; }
+        public IServiceRegistration AddInstance(System.Type serviceType, object instance) { return null; }
+        public void AddInjection(object target) {}
+        internal void AttachBuilder(IBuilder builder) {}
     }
 }
 ";
@@ -1684,7 +1842,7 @@ namespace Internal {
         public void Add(object command) {}
     }
     public class CommandHost {
-        public static IRegistration RegisterCommand<T>(IScopeBuilder builder) {
+        public static IServiceRegistration RegisterCommand<T>(IScopeBuilder builder) {
             builder.Register<CommandResolver<T>>();
             return builder.Register<T>();
         }
@@ -1777,7 +1935,7 @@ namespace HarvestGeneric {
     public class B {}
     public class C {}
     public static class ItemInstaller {
-        public static IRegistration RegisterItem<T>(this IScopeBuilder builder) {
+        public static IServiceRegistration RegisterItem<T>(this IScopeBuilder builder) {
             builder.Register<Box<T>>();
             return builder.Register<T>();
         }
@@ -1809,7 +1967,7 @@ namespace GenericLib {
         public Box(T item) {}
     }
     public static class ItemInstaller {
-        public static IRegistration RegisterItem<T>(this IScopeBuilder builder) {
+        public static IServiceRegistration RegisterItem<T>(this IScopeBuilder builder) {
             builder.Register<Box<T>>();
             return builder.Register<T>();
         }
@@ -1946,6 +2104,27 @@ namespace GamePlay.Loop {
     public static class GamePlayerFactory {
         public static void Build(Internal.IEntityBuilder builder, RemoteEntityData data) {
             builder.AddRemoteEntity(data);
+        }
+    }
+}
+";
+
+        private const string TransientMarkerSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IStep {}
+    public interface ISolo {}
+    public class FirstStep : IStep {}
+    public class SecondStep : IStep {}
+    public class ThirdStep : IStep {}
+    public class SoloStep : ISolo {}
+    public static class TransientMarkerRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<FirstStep>().As<IStep>();
+            builder.Register<SecondStep>(Internal.ServiceLifetime.Transient).As<IStep>();
+            builder.Register<ThirdStep>().As<IStep>();
+            builder.Register<SoloStep>(Internal.ServiceLifetime.Transient).As<ISolo>();
         }
     }
 }

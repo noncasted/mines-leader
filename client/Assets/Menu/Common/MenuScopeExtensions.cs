@@ -3,7 +3,6 @@ using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
-using Global.Setup;
 using Internal;
 using Meta;
 using Menu.Decks;
@@ -60,7 +59,7 @@ namespace Menu.Common
         [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]
         private static async UniTask Construct(this IScopeBuilder builder)
         {
-            using var construct = (GameProfiler.Scope("Services"));
+            using var construct = (GameProfiler.Scope("Registry"));
 
             await UniTask.WhenAll(
                 construct.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
@@ -90,6 +89,8 @@ namespace Menu.Common
             builder.Register<MenuDecks>()
                    .As<IMenuDecks>()
                    .As<IScopeSetup>();
+
+            builder.Injectable<MenuDeckPoolCard>();
 
             builder.Register<MenuPlay>()
                    .As<IMenuPlay>()
@@ -122,6 +123,8 @@ namespace Menu.Common
             builder.Register<MenuPreviewVfxFactory>()
                    .As<ICardVfxFactory>()
                    .As<IScopeSetup>();
+
+            builder.Injectable<ZipZapLine>();
 
             builder.Register<MenuBoardCellsAnimator>()
                    .As<IBoardCellsAnimator>();

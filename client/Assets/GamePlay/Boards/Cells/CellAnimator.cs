@@ -34,6 +34,7 @@ namespace GamePlay.Boards
             }
         }
 
+        [Inject]
         public void Construct(IUpdater updater)
         {
             _mineExplosion = Create(Sprites.GameCells.GameCellsExplosionNormal);

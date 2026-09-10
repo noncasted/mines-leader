@@ -8,6 +8,5 @@ namespace Internal
         IServiceRegistration AddInstance(Type serviceType, object instance);
         IServiceRegistration AddComponent(Type serviceType, UnityEngine.Object component, ServiceLifetime lifetime);
         void AddInjection(object target);
-        void AddSelfResolvable(IServiceRegistration registration);
     }
 }

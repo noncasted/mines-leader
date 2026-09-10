@@ -15,6 +15,7 @@ namespace GamePlay.Boards
         public bool IsPlaying =>
             (_show != null && _show.IsPlaying) || (_hide != null && _hide.IsPlaying);
 
+        [Inject]
         public void Construct(IUpdater updater)
         {
             _show = Create(Sprites.GameCells.GameCellsFlagShow);

@@ -40,6 +40,7 @@ namespace ContainerGenerator {
         public bool ConstructorAccessible { get; }
         public EquatableArray<ParameterModel> ConstructorParameters { get; }
         public EquatableArray<ParameterModel> ConstructParameters { get; }
+        public string ConstructName { get; }
         public LocationInfo? Location { get; }
 
         public InjectorModel(
@@ -59,6 +60,7 @@ namespace ContainerGenerator {
             bool constructorAccessible,
             EquatableArray<ParameterModel> constructorParameters,
             EquatableArray<ParameterModel> constructParameters,
+            string constructName,
             LocationInfo? location) {
             TypeName = typeName;
             FullTypeName = fullTypeName;
@@ -76,6 +78,7 @@ namespace ContainerGenerator {
             ConstructorAccessible = constructorAccessible;
             ConstructorParameters = constructorParameters;
             ConstructParameters = constructParameters;
+            ConstructName = constructName;
             Location = location;
         }
 
@@ -104,7 +107,8 @@ namespace ContainerGenerator {
                    ConstructorFound == other.ConstructorFound &&
                    ConstructorAccessible == other.ConstructorAccessible &&
                    ConstructorParameters.Equals(other.ConstructorParameters) &&
-                   ConstructParameters.Equals(other.ConstructParameters);
+                   ConstructParameters.Equals(other.ConstructParameters) &&
+                   ConstructName == other.ConstructName;
         }
 
         public override bool Equals(object? obj) {
@@ -118,6 +122,7 @@ namespace ContainerGenerator {
             hash = HashCodes.Combine(hash, HashCodes.Of(HasConstruct));
             hash = HashCodes.Combine(hash, ConstructorParameters.GetHashCode());
             hash = HashCodes.Combine(hash, ConstructParameters.GetHashCode());
+            hash = HashCodes.Combine(hash, HashCodes.Of(ConstructName));
             return hash;
         }
     }

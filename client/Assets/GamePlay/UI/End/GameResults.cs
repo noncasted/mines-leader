@@ -27,6 +27,7 @@ namespace GamePlay.UI
 
         private IGameContext _gameContext;
 
+        [Inject]
         internal void Construct(IGameContext gameContext)
         {
             _gameContext = gameContext;

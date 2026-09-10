@@ -11,16 +11,12 @@ namespace Internal
     [DisallowMultipleComponent]
     public class ScopeEntityView : MonoBehaviour, IScopeEntityView
     {
-        [SerializeField] private Component[] _register;
         [SerializeField] private List<MonoBehaviour> _autoDetected;
 
         private IContainer _container;
 
         public void CreateViews(IEntityBuilder builder)
         {
-            foreach (var component in _register)
-                builder.RegisterComponent(component, ServiceLifetime.Scoped);
-
             foreach (var behaviour in _autoDetected)
             {
                 if (behaviour is not IEntityComponent component)

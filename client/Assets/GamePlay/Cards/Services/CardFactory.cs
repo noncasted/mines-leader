@@ -62,6 +62,8 @@ namespace GamePlay.Cards
                 await loadResult.Get<ICardRemoteSpawn>().Execute();
             }
 
+            return;
+            
             [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
             void BuildLocal(IEntityBuilder builder)
             {
