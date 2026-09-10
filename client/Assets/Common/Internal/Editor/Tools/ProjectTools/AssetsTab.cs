@@ -39,22 +39,21 @@ namespace Internal
             return button;
         }
 
-        private void OnGeneratePrefabsClicked() =>
-            Run("Generating prefabs...", "Prefabs generated", "Prefab generation failed", PrefabCatalogGenerator.Generate);
+        private void OnGeneratePrefabsClicked() => Run("Generating prefabs...", "Prefabs generated",
+            "Prefab generation failed", PrefabCatalogGenerator.Generate);
 
-        private void OnGenerateScenesClicked() =>
-            Run("Generating scenes...", "Scenes generated", "Scene generation failed", SceneGenerator.Generate);
+        private void OnGenerateScenesClicked() => Run("Generating scenes...", "Scenes generated",
+            "Scene generation failed", SceneGenerator.Generate);
 
-        private void OnGenerateSpritesClicked() =>
-            Run("Generating sprites...", "Sprites generated", "Sprite generation failed", SpriteGenerator.Generate);
+        private void OnGenerateSpritesClicked() => Run("Generating sprites...", "Sprites generated",
+            "Sprite generation failed", SpriteGenerator.Generate);
 
-        private void OnExportCardIconsClicked() =>
-            Run("Exporting card icons...", "Card icons exported", "Card icons export failed", CardIconsExporter.Export);
+        private void OnExportCardIconsClicked() => Run("Exporting card icons...", "Card icons exported",
+            "Card icons export failed", CardIconsExporter.Export);
 
         private void OnRunAllClicked()
         {
-            Run("Running all generators...", "All generators completed", "Run All failed", () =>
-            {
+            Run("Running all generators...", "All generators completed", "Run All failed", () => {
                 _progressBar.value = 0;
 
                 _progressBar.value = 25;

@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 
-namespace Internal {
+namespace Internal
+{
     [InitializeOnLoad]
-    public static class AssetCatalogInspector {
-        static AssetCatalogInspector() {
+    public static class AssetCatalogInspector
+    {
+        static AssetCatalogInspector()
+        {
             Editor.finishedDefaultHeaderGUI += Draw;
         }
 
-        private static void Draw(Editor editor) {
+        private static void Draw(Editor editor)
+        {
             if (CatalogInspectorGUI.TryCollectImporters(editor, IsCatalogTarget, out var importers) == false)
                 return;
 
-            using (CatalogInspectorGUI.BeginSection()) {
+            using (CatalogInspectorGUI.BeginSection())
+            {
                 var states = ResolveStates(importers);
                 DrawIncluded(importers, states);
 
@@ -30,7 +35,8 @@ namespace Internal {
         }
 
         // Каталог собирает только EnvAsset, поэтому обычные ScriptableObject-ассеты блок не показывают.
-        private static bool IsCatalogTarget(AssetImporter importer) {
+        private static bool IsCatalogTarget(AssetImporter importer)
+        {
             if (string.IsNullOrEmpty(importer.assetPath))
                 return false;
 
@@ -40,15 +46,19 @@ namespace Internal {
             return AssetDatabase.LoadAssetAtPath<EnvAsset>(importer.assetPath) != null;
         }
 
-        private static CatalogStates ResolveStates(IReadOnlyList<AssetImporter> importers) {
+        private static CatalogStates ResolveStates(IReadOnlyList<AssetImporter> importers)
+        {
             var first = AssetCatalogMetadata.ReadOrDefault(importers[0]);
             var includedMixed = false;
             var groupMixed = false;
 
-            for (var i = 1; i < importers.Count; i++) {
+            for (var i = 1; i < importers.Count; i++)
+            {
                 var metadata = AssetCatalogMetadata.ReadOrDefault(importers[i]);
+
                 if (metadata.Included != first.Included)
                     includedMixed = true;
+
                 if (string.Equals(metadata.Group, first.Group, StringComparison.Ordinal) == false)
                     groupMixed = true;
             }
@@ -56,13 +66,17 @@ namespace Internal {
             return new CatalogStates(first.Included, first.Group, includedMixed, groupMixed);
         }
 
-        private static void DrawIncluded(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
-            if (CatalogInspectorGUI.TryDrawToggle("Asset Catalog", states.Included, states.IncludedMixed, out var included))
+        private static void DrawIncluded(IReadOnlyList<AssetImporter> importers, CatalogStates states)
+        {
+            if (CatalogInspectorGUI.TryDrawToggle("Asset Catalog", states.Included, states.IncludedMixed,
+                out var included))
                 Apply(importers, metadata => metadata.Included = included);
         }
 
-        private static void Apply(IReadOnlyList<AssetImporter> importers, Action<AssetCatalogMetadata> mutate) {
-            foreach (var importer in importers) {
+        private static void Apply(IReadOnlyList<AssetImporter> importers, Action<AssetCatalogMetadata> mutate)
+        {
+            foreach (var importer in importers)
+            {
                 Undo.RecordObject(importer, "Asset Catalog");
                 var metadata = AssetCatalogMetadata.ReadOrDefault(importer);
                 mutate(metadata);
@@ -72,8 +86,10 @@ namespace Internal {
             AssetCatalogGenerator.ScheduleGenerate();
         }
 
-        private readonly struct CatalogStates {
-            public CatalogStates(bool included, string group, bool includedMixed, bool groupMixed) {
+        private readonly struct CatalogStates
+        {
+            public CatalogStates(bool included, string group, bool includedMixed, bool groupMixed)
+            {
                 Included = included;
                 Group = group;
                 IncludedMixed = includedMixed;

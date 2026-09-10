@@ -104,7 +104,8 @@ namespace Internal
                 throw new ArgumentNullException(nameof(builder));
 
             if (Builder != null && Builder != builder)
-                throw new InvalidOperationException($"Container builder '{Name}' is already attached to another builder.");
+                throw new InvalidOperationException(
+                    $"Container builder '{Name}' is already attached to another builder.");
 
             Builder = builder;
         }

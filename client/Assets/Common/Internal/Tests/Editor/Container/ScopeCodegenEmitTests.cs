@@ -50,6 +50,7 @@ namespace Internal.Tests
             Assert.IsNull(
                 FieldOfType(type, typeof(ScopeCodegenTransient)),
                 "Transient must not be stored as a field.");
+
             Assert.IsNotNull(
                 CreateMethod(type, typeof(ScopeCodegenTransient)),
                 "Transient must be a private Create{Type}() method.");
@@ -63,6 +64,7 @@ namespace Internal.Tests
             Assert.IsNotNull(
                 FieldOfType(type, typeof(ScopeCodegenSingleton)),
                 "Singleton must be a field.");
+
             Assert.IsNotNull(
                 FieldOfType(type, typeof(ScopeCodegenScoped)),
                 "Scoped must be a field.");
@@ -112,6 +114,7 @@ namespace Internal.Tests
             var constructors = type.GetConstructors(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             ConstructorInfo chosen = null;
+
             for (var i = 0; i < constructors.Length; i++)
             {
                 if (IsLoaderOnlyConstructor(constructors[i].GetParameters()))
@@ -141,9 +144,11 @@ namespace Internal.Tests
         private static Type RequireGenerated(string methodName)
         {
             var type = FindGenerated(methodName);
+
             Assert.IsNotNull(
                 type,
-                "G has not emitted " + ExpectedName(methodName) +
+                "G has not emitted " +
+                ExpectedName(methodName) +
                 ". Keep this test; do not weaken it and do not change production to match.");
             return type;
         }
@@ -153,10 +158,12 @@ namespace Internal.Tests
             var expected = ExpectedName(methodName);
             var assembly = typeof(ScopeCodegenRoots).Assembly;
             var direct = assembly.GetType(typeof(ScopeCodegenRoots).Namespace + "." + expected);
+
             if (direct != null)
                 return direct;
 
             Type[] types;
+
             try
             {
                 types = assembly.GetTypes();
@@ -169,6 +176,7 @@ namespace Internal.Tests
             for (var i = 0; i < types.Length; i++)
             {
                 var candidate = types[i];
+
                 if (candidate != null && candidate.Name == expected)
                     return candidate;
             }
@@ -185,6 +193,7 @@ namespace Internal.Tests
         {
             var fields = container.GetFields(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
             for (var i = 0; i < fields.Length; i++)
             {
                 if (fields[i].FieldType == serviceType)
@@ -197,15 +206,20 @@ namespace Internal.Tests
         private static MethodInfo CreateMethod(Type container, Type serviceType)
         {
             var name = "Create" + serviceType.Name;
+
             var methods = container.GetMethods(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
             for (var i = 0; i < methods.Length; i++)
             {
                 var method = methods[i];
+
                 if (method.Name != name)
                     continue;
+
                 if (method.ReturnType != serviceType)
                     continue;
+
                 if (method.GetParameters().Length != 0)
                     continue;
                 return method;
@@ -220,10 +234,12 @@ namespace Internal.Tests
                 return "(none)";
 
             var parts = new string[constructors.Count];
+
             for (var i = 0; i < constructors.Count; i++)
             {
                 var parameters = constructors[i].GetParameters();
                 var types = new string[parameters.Length];
+
                 for (var p = 0; p < parameters.Length; p++)
                     types[p] = parameters[p].ParameterType.FullName;
                 parts[i] = "(" + string.Join(", ", types) + ")";

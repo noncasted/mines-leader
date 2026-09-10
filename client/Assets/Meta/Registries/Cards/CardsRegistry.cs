@@ -33,7 +33,7 @@ namespace Meta
                 var type = (CardType)Enum.Parse(typeof(CardType), entry.type);
                 var group = options.All[type].Group;
                 var sprite = TypeToSprite(type);
-                
+
                 var definition = new CardDefinition(type, group, entry.name, entry.description, sprite);
                 _cards[type] = definition;
             }

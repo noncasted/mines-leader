@@ -325,7 +325,13 @@ namespace Internal
         /// время начали писать. Сдвиг тут приблизительный — колбэк профайлера приходит
         /// с опозданием на кадр-другой, — поэтому и сходится он не всегда.
         /// </summary>
-        private static bool TryResolveByFrameCount(ProfilerTraceData trace, int oldest, int newest, out int first, out int last, out int frameOffset)
+        private static bool TryResolveByFrameCount(
+            ProfilerTraceData trace,
+            int oldest,
+            int newest,
+            out int first,
+            out int last,
+            out int frameOffset)
         {
             first = 0;
             last = -1;
@@ -417,7 +423,12 @@ namespace Internal
         /// Обход дерева кадра в глубину. Корень в дамп не пишем: это служебный узел вида
         /// «весь кадр», его цифры уже есть в <see cref="ProfilerFrameData.DurationMs"/>.
         /// </summary>
-        private static void Append(HierarchyFrameDataView view, int id, int depth, List<ProfilerSampleData> samples, out bool truncated)
+        private static void Append(
+            HierarchyFrameDataView view,
+            int id,
+            int depth,
+            List<ProfilerSampleData> samples,
+            out bool truncated)
         {
             truncated = false;
 

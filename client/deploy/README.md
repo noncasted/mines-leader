@@ -45,7 +45,7 @@ Authentication is either of:
 ## Deploying
 
 ```bash
-tools/scripts/deploy-webgl.sh            # upload client/build/build as a new release
+tools/scripts/deploy-webgl.sh            # upload client/build as a new release
 tools/scripts/deploy-webgl.sh --build    # build in Unity batchmode first
 tools/scripts/deploy-webgl.sh --list     # what is on the server, and what is live
 tools/scripts/deploy-webgl.sh --rollback 20260903-011500-01271762

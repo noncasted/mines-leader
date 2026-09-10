@@ -14,7 +14,7 @@ namespace Internal
     [NoAutoStaticsCleanup]
     public class ScriptableObjectCreator : OdinMenuEditorWindow
     {
-        static readonly HashSet<Type> _targetsTypes = AssemblyUtilities.GetTypes(AssemblyTypeFlags.CustomTypes)
+        static readonly HashSet<Type> _targetsTypes = AssemblyUtilities.GetTypes(AssemblyCategory.ProjectSpecific)
                                                                        .Where(t => t.IsClass &&
                                                                                typeof(ScriptableObject)
                                                                                    .IsAssignableFrom(t) &&
@@ -104,6 +104,7 @@ namespace Internal
                 path = Path.GetDirectoryName(path);
 
             path = path.Replace('\\', '/');
+
             if (ModuleAssetLayout.TryGetRoot(path, out var moduleRoot))
             {
                 var optionsFolder = ModuleAssetLayout.GetOptionsFolder(moduleRoot);

@@ -14,12 +14,12 @@ namespace Internal
 
         UniTask InvokeSessionSetupCompleted(IReadOnlyLifetime lifetime);
     }
-    
+
     public interface INetworkSessionSetupCompleted : INetworkSessionCallbackEntry
     {
         UniTask OnSessionSetupCompleted(IReadOnlyLifetime lifetime);
     }
-    
+
     public class NetworkSessionCallbacks : INetworkSessionCallbacks
     {
         private readonly List<INetworkSessionSetupCompleted> _setupCompleted = new();
@@ -42,10 +42,11 @@ namespace Internal
                 await callback.OnSessionSetupCompleted(lifetime);
         }
     }
-    
+
     public static class NetworkSessionCallbacksExtensions
     {
-        public static IServiceRegistration AsSessionCallback<TImplementation, TCallback>(this IServiceRegistration registration)
+        public static IServiceRegistration AsSessionCallback<TImplementation, TCallback>(
+            this IServiceRegistration registration)
             where TImplementation : class
             where TCallback : class, INetworkSessionCallbackEntry
         {

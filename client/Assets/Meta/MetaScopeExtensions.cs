@@ -9,11 +9,7 @@ namespace Meta
     {
         public static async UniTask<ILoadedScope> LoadMeta(this IServiceScopeLoader loader, ILoadedScope parent)
         {
-            var options = new ScopeLoadOptions(
-                parent,
-                "Meta_Services",
-                Construct,
-                false);
+            var options = new ScopeLoadOptions(parent, Construct);
 
             using var stage = GameProfiler.Scope("Meta");
 
@@ -28,86 +24,85 @@ namespace Meta
         [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
         public static UniTask Construct(IScopeBuilder builder)
         {
-                builder.RequestSpriteGroup(Sprites.CardsIcons);
-                builder.RequestSpriteGroup(Sprites.CardBuffs);
-                builder.RequestSpriteGroup(Sprites.MenuPlay);
-                builder.RequestSpriteGroup(Sprites.Portraits);
+            builder.RequestSpriteGroup(Sprites.CardsIcons);
+            builder.RequestSpriteGroup(Sprites.CardBuffs);
+            builder.RequestSpriteGroup(Sprites.MenuPlay);
+            builder.RequestSpriteGroup(Sprites.Portraits);
 
-                builder.Register<MetaLoop>()
-                       .As<IScopeBaseSetupAsync>();
+            builder.Register<MetaLoop>()
+                   .As<IScopeBaseSetupAsync>();
 
-                builder.Register<Decks>()
-                       .WithScopeLifetime()
-                       .As<IDecks>()
-                       .As<IScopeSetup>();
+            builder.Register<Decks>()
+                   .As<IDecks>()
+                   .As<IScopeSetup>();
 
-                builder.Register<MetaBackend>()
-                       .WithScopeLifetime()
-                       .As<IMetaBackend>();
+            builder.Register<MetaBackend>()
+                   .WithScopeLifetime()
+                   .As<IMetaBackend>();
 
-                builder.Register<Matchmaking>()
-                       .As<IMatchmaking>();
+            builder.Register<Matchmaking>()
+                   .As<IMatchmaking>();
 
-                builder.Register<Authentication>()
-                       .As<IAuthentication>();
+            builder.Register<Authentication>()
+                   .As<IAuthentication>();
 
-                builder.Register<CardsRegistry>()
-                       .As<ICardsRegistry>();
+            builder.Register<CardsRegistry>()
+                   .As<ICardsRegistry>();
 
-                builder.Register<GameModesRegistry>()
-                       .As<IGameModesRegistry>();
+            builder.Register<GameModesRegistry>()
+                   .As<IGameModesRegistry>();
 
-                builder.Register<ModifiersRegistry>()
-                       .As<IModifiersRegistry>();
+            builder.Register<ModifiersRegistry>()
+                   .As<IModifiersRegistry>();
 
-                builder.Register<CardDescriptionProvider>()
-                       .As<ICardDescriptionProvider>();
+            builder.Register<CardDescriptionProvider>()
+                   .As<ICardDescriptionProvider>();
 
-                builder.AddNetworkConnection();
+            builder.AddNetworkConnection();
 
-                builder.RegisterCommand<BackendProjectionHub>();
+            builder.RegisterCommand<BackendProjectionHub>();
 
-                builder.RegisterCommand<ConnectionCompletedCommand>()
-                       .As<IMetaConnectionAwaiter>();
+            builder.RegisterCommand<ConnectionCompletedCommand>()
+                   .As<IMetaConnectionAwaiter>();
 
-                builder
-                    .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
-                    .RegisterBackendProjection<SharedBackendUser.UserStatsProjection>()
-                    .RegisterBackendProjection<SharedBackendUser.InGameAchievementsProjection>()
-                    .RegisterBackendProjection<SharedBackendUser.RatingProjection>()
-                    .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
-                    .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
-                    .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
-                    .RegisterBackendProjection<SharedMatchmaking.LobbyResult>()
-                    .RegisterBackendProjection<InitialCardPreviews>();
+            builder
+                .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
+                .RegisterBackendProjection<SharedBackendUser.UserStatsProjection>()
+                .RegisterBackendProjection<SharedBackendUser.InGameAchievementsProjection>()
+                .RegisterBackendProjection<SharedBackendUser.RatingProjection>()
+                .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
+                .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
+                .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
+                .RegisterBackendProjection<SharedMatchmaking.LobbyResult>()
+                .RegisterBackendProjection<InitialCardPreviews>();
 
-                builder.Register<CardConfigs>()
-                       .As<IBackendProjection<CardConfigOptions>>()
-                       .As<IBackendProjection>()
-                       .As<ICardConfigs>();
+            builder.Register<CardConfigs>()
+                   .As<IBackendProjection<CardConfigOptions>>()
+                   .As<IBackendProjection>()
+                   .As<ICardConfigs>();
 
-                builder.Register<InGameAchievementConfigs>()
-                       .As<IBackendProjection<InGameAchievementOptions>>()
-                       .As<IBackendProjection>()
-                       .As<IInGameAchievementConfigs>();
+            builder.Register<InGameAchievementConfigs>()
+                   .As<IBackendProjection<InGameAchievementOptions>>()
+                   .As<IBackendProjection>()
+                   .As<IInGameAchievementConfigs>();
 
-                builder.Register<MatchMakingConfigs>()
-                       .As<IBackendProjection<MatchMakingOptions>>()
-                       .As<IBackendProjection>()
-                       .As<IMatchMakingConfigs>();
+            builder.Register<MatchMakingConfigs>()
+                   .As<IBackendProjection<MatchMakingOptions>>()
+                   .As<IBackendProjection>()
+                   .As<IMatchMakingConfigs>();
 
-                builder.Register<AchievementsService>()
-                       .As<IAchievements>()
-                       .As<IScopeSetup>();
+            builder.Register<AchievementsService>()
+                   .As<IAchievements>()
+                   .As<IScopeSetup>();
 
-                builder.Register<AchievementRewards>()
-                       .As<IAchievementRewards>();
+            builder.Register<AchievementRewards>()
+                   .As<IAchievementRewards>();
 
-                builder.Register<Profile>()
-                       .As<IProfile>()
-                       .As<IScopeSetup>();
+            builder.Register<Profile>()
+                   .As<IProfile>()
+                   .As<IScopeSetup>();
 
-                return UniTask.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Internal
 
         void SetStatus(string message, bool isError);
     }
-    
+
     public class ProjectToolsWindow : EditorWindow, IProjectToolsHost
     {
         private const string UssPath = "Assets/Common/Internal/Editor/Tools/ProjectTools/ProjectToolsWindow.uss";

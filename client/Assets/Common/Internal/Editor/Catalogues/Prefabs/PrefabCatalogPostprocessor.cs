@@ -2,13 +2,16 @@ using System;
 using System.IO;
 using UnityEditor;
 
-namespace Internal {
-    public sealed class PrefabCatalogPostprocessor : AssetPostprocessor {
+namespace Internal
+{
+    public sealed class PrefabCatalogPostprocessor : AssetPostprocessor
+    {
         private static void OnPostprocessAllAssets(
             string[] importedAssets,
             string[] deletedAssets,
             string[] movedAssets,
-            string[] movedFromAssetPaths) {
+            string[] movedFromAssetPaths)
+        {
             if (ContainsPrefab(deletedAssets) ||
                 ContainsPrefab(movedAssets) ||
                 ContainsPrefab(movedFromAssetPaths) ||
@@ -16,11 +19,13 @@ namespace Internal {
                 PrefabCatalogGenerator.ScheduleGenerate();
         }
 
-        private static bool ContainsPrefab(string[] paths) {
+        private static bool ContainsPrefab(string[] paths)
+        {
             if (paths == null)
                 return false;
 
-            for (var i = 0; i < paths.Length; i++) {
+            for (var i = 0; i < paths.Length; i++)
+            {
                 if (IsPrefabPath(paths[i]))
                     return true;
             }
@@ -28,16 +33,20 @@ namespace Internal {
             return false;
         }
 
-        private static bool ContainsIncludedPrefab(string[] paths) {
+        private static bool ContainsIncludedPrefab(string[] paths)
+        {
             if (paths == null)
                 return false;
 
-            for (var i = 0; i < paths.Length; i++) {
+            for (var i = 0; i < paths.Length; i++)
+            {
                 var path = paths[i];
+
                 if (IsPrefabPath(path) == false)
                     continue;
 
                 var importer = AssetImporter.GetAtPath(path);
+
                 if (importer == null)
                     continue;
 
@@ -51,7 +60,8 @@ namespace Internal {
             return false;
         }
 
-        private static bool IsPrefabPath(string path) {
+        private static bool IsPrefabPath(string path)
+        {
             if (string.IsNullOrEmpty(path))
                 return false;
 

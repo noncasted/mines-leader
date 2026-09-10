@@ -16,6 +16,7 @@ namespace Internal
 
         /// <summary>Диапазон кадров движка, который пытались собрать.</summary>
         public int FirstFrame;
+
         public int LastFrame;
 
         /// <summary>Собранные кадры отсортированы по номеру, но дырки в них возможны.</summary>
@@ -26,6 +27,7 @@ namespace Internal
 
         /// <summary>Сколько миллисекунд трассы не попало в дамп с начала и с конца.</summary>
         public double HeadGapMs;
+
         public double TailGapMs;
 
         /// <summary>Без deep profiling в дереве только маркеры движка, без методов скриптов.</summary>
@@ -53,6 +55,7 @@ namespace Internal
 
         /// <summary>Границы кадра по часам профайлера, нс: по ним кадр ложится на отрезки трассы.</summary>
         public long StartNs;
+
         public long EndNs;
 
         public double DurationMs;

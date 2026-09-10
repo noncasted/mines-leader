@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using Global.Setup;
 using Internal;
 using Meta;
 
@@ -9,12 +8,7 @@ namespace Flow.Loop
     {
         public static async UniTask<ILoadedScope> LoadGameLoop(this IServiceScopeLoader loader, ILoadedScope parent)
         {
-            var options = ScopeLoadOptions.Create(
-                parent,
-                "GameLoop_Services",
-                Construct,
-                parent,
-                false);
+            var options = ScopeLoadOptions.Create(parent, Construct, parent);
 
             using var stage = GameProfiler.Scope("Game loop");
 

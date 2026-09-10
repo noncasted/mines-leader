@@ -20,6 +20,7 @@ namespace GamePlay.Boards
             
             builder.Register<BoardCellsAnimator>()
                    .As<IBoardCellsAnimator>();
+            
             builder.Register<BoardActions>()
                    .As<IBoardActions>();
 

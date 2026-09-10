@@ -8,7 +8,7 @@ namespace Global.Audio
         void Enable();
         void Disable();
     }
-    
+
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioListener))]
     public class AudioListener :

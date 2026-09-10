@@ -19,12 +19,8 @@ namespace GamePlay.Loop
             ILoadedScope parent,
             SharedMatchmaking.MatchResult sessionData)
         {
-            var options = ScopeLoadOptions.Create(
-                parent,
-                "Game_Services",
-                Construct,
-                sessionData,
-                false);
+            var options = ScopeLoadOptions.Create(parent, Construct, sessionData)
+                .WithRuntimeScene("Game_Services");
 
             var scope = await loader.Load(options);
             await scope.Initialize();
@@ -37,12 +33,9 @@ namespace GamePlay.Loop
             ILoadedScope parent,
             SharedMatchmaking.MatchResult sessionData)
         {
-            var options = ScopeLoadOptions.Create(
-                parent,
-                "Game_Services",
-                Construct,
-                sessionData,
-                true);
+            var options = ScopeLoadOptions.Create(parent, Construct, sessionData)
+                .WithRuntimeScene("Game_Services")
+                .AsMock();
 
             var scope = await loader.Load(options);
             await scope.Initialize();

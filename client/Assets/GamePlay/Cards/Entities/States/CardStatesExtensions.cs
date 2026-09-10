@@ -206,14 +206,7 @@ namespace GamePlay.Cards
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
-
             registration.As<ICardAction>();
-
-            IServiceRegistration Register<T, TConfig>(TConfig config)
-            {
-                return builder.Register<T>()
-                              .WithParameter(config);
-            }
         }
     }
 }

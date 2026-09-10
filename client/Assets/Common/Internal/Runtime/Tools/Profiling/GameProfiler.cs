@@ -151,7 +151,9 @@ namespace Internal
         {
             public static readonly NullAmbient Instance = new();
 
-            public void Dispose() { }
+            public void Dispose()
+            {
+            }
         }
 
         /// <summary>
@@ -209,10 +211,20 @@ namespace Internal
 
         public IProfilerScope Child(string name) => Instance;
 
-        public void SetName(string name) { }
+        public void SetName(string name)
+        {
+        }
 
-        public void Start() { }
-        public void Stop() { }
-        public void Dispose() { }
+        public void Start()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

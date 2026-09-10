@@ -66,7 +66,8 @@ namespace Internal
 
                 if (string.IsNullOrEmpty(assetPath))
                 {
-                    Debug.LogWarning($"[CardIconsExporter] Icon not found for card '{card.type}' (searched: {card.icon}).");
+                    Debug.LogWarning(
+                        $"[CardIconsExporter] Icon not found for card '{card.type}' (searched: {card.icon}).");
                     skipped++;
                     continue;
                 }
@@ -75,7 +76,8 @@ namespace Internal
 
                 if (sprite == null)
                 {
-                    Debug.LogWarning($"[CardIconsExporter] Failed to load sprite for card '{card.type}' at: {assetPath}");
+                    Debug.LogWarning(
+                        $"[CardIconsExporter] Failed to load sprite for card '{card.type}' at: {assetPath}");
                     skipped++;
                     continue;
                 }
@@ -98,7 +100,9 @@ namespace Internal
             foreach (string ext in IconExtensions)
             {
                 string path = $"Assets/Common/Resources/{iconRelativePath}{ext}";
-                if (File.Exists(Path.Combine(Directory.GetParent(Application.dataPath).FullName, path.Replace('/', Path.DirectorySeparatorChar))))
+
+                if (File.Exists(Path.Combine(Directory.GetParent(Application.dataPath).FullName,
+                    path.Replace('/', Path.DirectorySeparatorChar))))
                     return path;
             }
 
@@ -108,10 +112,12 @@ namespace Internal
         private static Sprite LoadSprite(string assetPath)
         {
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+
             if (sprite != null)
                 return sprite;
 
             var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+
             if (tex != null)
             {
                 var rect = new Rect(0, 0, tex.width, tex.height);
@@ -119,6 +125,7 @@ namespace Internal
             }
 
             var allAssets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+
             foreach (var obj in allAssets)
             {
                 if (obj is Sprite s)
@@ -133,7 +140,8 @@ namespace Internal
             var sourceTex = sprite.texture;
             var rect = sprite.rect;
 
-            RenderTexture rt = RenderTexture.GetTemporary(sourceTex.width, sourceTex.height, 0, RenderTextureFormat.ARGB32);
+            RenderTexture rt = RenderTexture.GetTemporary(sourceTex.width, sourceTex.height, 0,
+                RenderTextureFormat.ARGB32);
             Graphics.Blit(sourceTex, rt);
 
             RenderTexture previous = RenderTexture.active;

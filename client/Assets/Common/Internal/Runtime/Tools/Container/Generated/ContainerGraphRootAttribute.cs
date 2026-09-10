@@ -1,7 +1,9 @@
 using System;
 
-namespace Internal {
+namespace Internal
+{
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-    public sealed class ContainerGraphRootAttribute : Attribute {
+    public sealed class ContainerGraphRootAttribute : Attribute
+    {
     }
 }

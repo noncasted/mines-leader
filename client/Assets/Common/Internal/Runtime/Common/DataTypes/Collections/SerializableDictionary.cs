@@ -7,7 +7,8 @@ using UnityEngine;
 namespace Internal
 {
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>,
+                                                        ISerializationCallbackReceiver
     {
         [SerializeField, HideInInspector] private TKey[] _keys;
         [SerializeField, HideInInspector] private TValue[] _values;
@@ -34,7 +35,10 @@ namespace Internal
         public void Clear() => _dictionary.Clear();
 
         public Dictionary<TKey, TValue>.Enumerator GetEnumerator() => _dictionary.GetEnumerator();
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => _dictionary.GetEnumerator();
+
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() =>
+            _dictionary.GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 
         public void OnAfterDeserialize()

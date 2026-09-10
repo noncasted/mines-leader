@@ -18,13 +18,11 @@ namespace Internal.Tests
             BenchmarkGraph.Apply(BenchmarkScopeLevel.Root, new VContainerBenchmarkRegistry(rootBuilder));
             var root = rootBuilder.Build();
 
-            var match = root.CreateScope(builder =>
-            {
+            var match = root.CreateScope(builder => {
                 BenchmarkGraph.Apply(BenchmarkScopeLevel.Match, new VContainerBenchmarkRegistry(builder));
             });
 
-            var card = match.CreateScope(builder =>
-            {
+            var card = match.CreateScope(builder => {
                 BenchmarkGraph.Apply(BenchmarkScopeLevel.Card, new VContainerBenchmarkRegistry(builder));
             });
 
@@ -43,6 +41,7 @@ namespace Internal.Tests
             public void Add(Type implementation, ServiceLifetime lifetime, Type[] markers)
             {
                 var registration = _builder.Register(implementation, Map(lifetime)).AsSelf();
+
                 for (var i = 0; i < markers.Length; i++)
                     registration.As(markers[i]);
             }

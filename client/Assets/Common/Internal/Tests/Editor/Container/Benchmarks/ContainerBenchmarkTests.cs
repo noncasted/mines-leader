@@ -32,9 +32,11 @@ namespace Internal.Tests
             object sink = null;
             var empty = long.MaxValue;
             var array = long.MaxValue;
+
             for (var i = 0; i < 5; i++)
             {
-                empty = Math.Min(empty, BenchmarkMeasure.Capture(() => { }).AllocatedBytes);
+                empty = Math.Min(empty, BenchmarkMeasure.Capture(() => {
+                }).AllocatedBytes);
                 array = Math.Min(array, BenchmarkMeasure.Capture(() => sink = new byte[1000]).AllocatedBytes);
             }
 
@@ -69,10 +71,13 @@ namespace Internal.Tests
             using (GeneratedContainerBenchmarkHost.RegisterScopes())
             {
                 GeneratedContainerBenchmarkHost.OpenSession().Dispose();
-                Log("Diagnostics on\n" + GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
+
+                Log("Diagnostics on\n" +
+                    GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
 
                 using (GeneratedContainerBenchmarkHost.WithoutDiagnostics())
-                    Log("Diagnostics off\n" + GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
+                    Log("Diagnostics off\n" +
+                        GeneratedContainerBenchmarkHost.BuildAllocations(ContainerBenchmarkRunner.Runs));
             }
         }
 
@@ -81,33 +86,35 @@ namespace Internal.Tests
         public void GeneratedContainer_Roots_MatchTable()
         {
             using (GeneratedContainerBenchmarkHost.RegisterScopes())
-            using (var session = GeneratedContainerBenchmarkHost.OpenSession())
-            {
-                foreach (var registration in BenchmarkGraph.Registrations)
+                using (var session = GeneratedContainerBenchmarkHost.OpenSession())
                 {
-                    var scope = session.Scope(registration.Scope);
-                    Assert.IsInstanceOf(
-                        registration.Implementation,
-                        scope.Resolve(registration.Implementation),
-                        $"{registration.Implementation.Name} at {registration.Scope}");
-                }
-
-                foreach (BenchmarkScopeLevel level in Enum.GetValues(typeof(BenchmarkScopeLevel)))
-                {
-                    foreach (var marker in BenchmarkGraph.Markers)
+                    foreach (var registration in BenchmarkGraph.Registrations)
                     {
-                        Assert.AreEqual(
-                            CountMarker(level, marker),
-                            ResolveAllCount(session.Scope(level), marker),
-                            $"{marker.Name} at {level}");
+                        var scope = session.Scope(registration.Scope);
+
+                        Assert.IsInstanceOf(
+                            registration.Implementation,
+                            scope.Resolve(registration.Implementation),
+                            $"{registration.Implementation.Name} at {registration.Scope}");
+                    }
+
+                    foreach (BenchmarkScopeLevel level in Enum.GetValues(typeof(BenchmarkScopeLevel)))
+                    {
+                        foreach (var marker in BenchmarkGraph.Markers)
+                        {
+                            Assert.AreEqual(
+                                CountMarker(level, marker),
+                                ResolveAllCount(session.Scope(level), marker),
+                                $"{marker.Name} at {level}");
+                        }
                     }
                 }
-            }
         }
 
         private static int CountMarker(BenchmarkScopeLevel level, Type marker)
         {
             var count = 0;
+
             foreach (var registration in BenchmarkGraph.Registrations)
             {
                 if (registration.Scope == level && Array.IndexOf(registration.Markers, marker) >= 0)

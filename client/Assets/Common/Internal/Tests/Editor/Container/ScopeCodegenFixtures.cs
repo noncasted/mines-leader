@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 
 namespace Internal.Tests
 {
@@ -45,6 +46,7 @@ namespace Internal.Tests
         }
     }
 
+    [NoAutoStaticsCleanup]
     public sealed class ScopeCodegenSingleton
     {
         public static int Instances;
@@ -55,6 +57,7 @@ namespace Internal.Tests
         }
     }
 
+    [NoAutoStaticsCleanup]
     public sealed class ScopeCodegenScoped
     {
         public static int Instances;
@@ -65,6 +68,7 @@ namespace Internal.Tests
         }
     }
 
+    [NoAutoStaticsCleanup]
     public sealed class ScopeCodegenTransient
     {
         public static int Instances;

@@ -6,25 +6,33 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Каждой группе каталога соответствует своя addressable-группа `<prefix>_<name>`
     // ровно с одной записью — ассетом группы, адресуемым по собственному GUID.
-    internal static class CatalogAddressablesSync {
+    internal static class CatalogAddressablesSync
+    {
         public static void Sync(
             string logTag,
             string groupPrefix,
             string groupsFolder,
-            IReadOnlyList<ICatalogGroupDefinition> groups) {
+            IReadOnlyList<ICatalogGroupDefinition> groups)
+        {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings == null) {
+
+            if (settings == null)
+            {
                 Debug.LogError($"[{logTag}] Addressable settings are missing.");
                 return;
             }
 
             var usedGroups = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var group in groups) {
+
+            foreach (var group in groups)
+            {
                 var assetPath = $"{groupsFolder}/{group.Name}.asset";
                 var address = MarkGroupAsset(settings, logTag, groupPrefix, assetPath, group.Name);
+
                 if (string.IsNullOrEmpty(address) == false)
                     group.Address = address;
 
@@ -38,24 +46,30 @@ namespace Internal {
         }
 
         // Группа собирается в один бандл: всё её содержимое грузится вместе.
-        internal static AddressableAssetGroup GetOrCreatePackedGroup(AddressableAssetSettings settings, string groupName) {
+        internal static AddressableAssetGroup GetOrCreatePackedGroup(
+            AddressableAssetSettings settings,
+            string groupName)
+        {
             var group = settings.FindGroup(groupName);
-            if (group == null) {
+
+            if (group == null)
+            {
                 group = settings.CreateGroup(
-                    groupName,
-                    false,
-                    false,
-                    false,
-                    null,
-                    typeof(BundledAssetGroupSchema),
-                    typeof(ContentUpdateGroupSchema)
-                );
+                        groupName,
+                        false,
+                        false,
+                        false,
+                        null,
+                        typeof(BundledAssetGroupSchema),
+                        typeof(ContentUpdateGroupSchema)
+                    );
             }
 
             if (group == null)
                 return null;
 
             var schema = group.GetSchema<BundledAssetGroupSchema>();
+
             if (schema != null && schema.BundleMode != BundledAssetGroupSchema.BundlePackingMode.PackTogether)
                 schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
 
@@ -67,19 +81,25 @@ namespace Internal {
             string logTag,
             string groupPrefix,
             string assetPath,
-            string groupName) {
+            string groupName)
+        {
             var guid = AssetDatabase.AssetPathToGUID(assetPath);
-            if (string.IsNullOrEmpty(guid)) {
+
+            if (string.IsNullOrEmpty(guid))
+            {
                 Debug.LogError($"[{logTag}] Missing GUID for {assetPath}");
                 return string.Empty;
             }
 
             var addressableGroup = GetOrCreatePackedGroup(settings, groupPrefix + groupName);
+
             if (addressableGroup == null)
                 return guid;
 
             var entry = settings.CreateOrMoveEntry(guid, addressableGroup, false, false);
-            if (entry == null) {
+
+            if (entry == null)
+            {
                 Debug.LogError($"[{logTag}] Failed to mark {assetPath} addressable.");
                 return guid;
             }
@@ -94,9 +114,12 @@ namespace Internal {
         private static void RemoveOtherEntries(
             AddressableAssetSettings settings,
             AddressableAssetGroup group,
-            string keepGuid) {
+            string keepGuid)
+        {
             var stale = new List<AddressableAssetEntry>();
-            foreach (var entry in group.entries) {
+
+            foreach (var entry in group.entries)
+            {
                 if (entry == null || entry.guid == keepGuid)
                     continue;
 
@@ -110,9 +133,12 @@ namespace Internal {
         private static void RemoveUnusedGroups(
             AddressableAssetSettings settings,
             string groupPrefix,
-            HashSet<string> usedGroups) {
+            HashSet<string> usedGroups)
+        {
             var stale = new List<AddressableAssetGroup>();
-            foreach (var group in settings.groups) {
+
+            foreach (var group in settings.groups)
+            {
                 if (group == null || group.Name.StartsWith(groupPrefix, StringComparison.Ordinal) == false)
                     continue;
 

@@ -102,6 +102,7 @@
     })]
 
 namespace Internal {
+    [global::Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
     public static partial class ContainerGraph {
         public static readonly ContainerGraphAsset[] Prefabs = new ContainerGraphAsset[] {
             new ContainerGraphAsset(

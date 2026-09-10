@@ -5,7 +5,7 @@
         ILifetime ScopeLifetime { get; }
         IScopeEntityView View { get; }
     }
-    
+
     public class EntityBuilder : IEntityBuilder
     {
         public EntityBuilder(

@@ -9,7 +9,7 @@ namespace Internal
         UniTask PlayAsync(IReadOnlyLifetime lifetime, float time = 0);
         void PlayLooped(IReadOnlyLifetime lifetime, float time = 0);
     }
-    
+
     public class SpriteAnimation : IAnimation, IUpdatable, IScopeSetup
     {
         public SpriteAnimation(

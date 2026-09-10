@@ -1,8 +1,10 @@
 using System;
 
-namespace Internal {
+namespace Internal
+{
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-    public sealed class ContainerInstallerAttribute : Attribute {
+    public sealed class ContainerInstallerAttribute : Attribute
+    {
         public ContainerInstallerAttribute(
             string methodId,
             bool isRoot,
@@ -11,7 +13,8 @@ namespace Internal {
             Type[] implementations,
             Type[] services,
             string[] calls,
-            string blob) {
+            string blob)
+        {
             MethodId = methodId ?? "";
             IsRoot = isRoot;
             File = file ?? "";

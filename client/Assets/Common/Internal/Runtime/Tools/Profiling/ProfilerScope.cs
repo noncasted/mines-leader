@@ -39,6 +39,7 @@ namespace Internal
 
         /// <summary>Границы отрезка по часам профайлера, нс: по ним редактор находит его кадры.</summary>
         public long StartNs => _startNs;
+
         public long EndNs => _endNs;
 
         public bool IsRunning => _startMs >= 0d && _endMs < 0d;

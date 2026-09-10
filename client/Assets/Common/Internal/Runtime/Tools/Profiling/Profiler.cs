@@ -58,7 +58,8 @@ namespace Internal
             var trace = Build();
             ProfilerTraceStorage.Save(trace);
 
-            Debug.Log($"[Profiler] {Name} finished in {trace.DurationMs:F1} ms / {trace.Frames} frames, {trace.Spans.Count} spans");
+            Debug.Log(
+                $"[Profiler] {Name} finished in {trace.DurationMs:F1} ms / {trace.Frames} frames, {trace.Spans.Count} spans");
         }
 
         public ProfilerTraceData Build()

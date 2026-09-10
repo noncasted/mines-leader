@@ -32,6 +32,7 @@ namespace Internal
                 return;
 
             var value = base[index];
+
             if (_lifetimes.TryGetValue(value, out var lifetime))
             {
                 _eventSource.Invoke(lifetime, value);

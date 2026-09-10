@@ -122,8 +122,7 @@ namespace Internal
 
             // Высота строки считается от высоты списка, поэтому пересобираем его на каждом
             // изменении размера окна.
-            _rows.RegisterCallback<GeometryChangedEvent>(evt =>
-            {
+            _rows.RegisterCallback<GeometryChangedEvent>(evt => {
                 if (Mathf.Abs(evt.newRect.height - evt.oldRect.height) < 1f)
                     return;
 
@@ -155,9 +154,10 @@ namespace Internal
             toolbar.Add(new ToolbarButton(ExpandAll) { text = "Expand all" });
             toolbar.Add(new ToolbarButton(CollapseAll) { text = "Collapse all" });
 
-            toolbar.Add(new ToolbarButton(() =>
-            {
-                if (EditorUtility.DisplayDialog("Startup Profiler", "Удалить все сохранённые трассы?", "Удалить", "Отмена") == false)
+            toolbar.Add(new ToolbarButton(() => {
+                if (EditorUtility.DisplayDialog("Startup Profiler", "Удалить все сохранённые трассы?", "Удалить",
+                        "Отмена") ==
+                    false)
                     return;
 
                 ProfilerTraceStorage.Clear();
@@ -166,7 +166,8 @@ namespace Internal
                 Refresh();
             }) { text = "Clear" });
 
-            toolbar.Add(new ToolbarButton(() => EditorUtility.RevealInFinder(ProfilerTraceStorage.Directory)) { text = "Open folder" });
+            toolbar.Add(new ToolbarButton(() => EditorUtility.RevealInFinder(ProfilerTraceStorage.Directory))
+                { text = "Open folder" });
 
             // Путь к открытой трассе нужен, чтобы утащить её в чат или в другой инструмент:
             // каталогов два, а имя файла — метка времени, руками такое не набирают.
@@ -175,8 +176,7 @@ namespace Internal
 
             // Трасса может приехать с другой машины или с устройства — тогда её просто
             // открывают файлом, мимо обоих известных каталогов.
-            toolbar.Add(new ToolbarButton(() =>
-            {
+            toolbar.Add(new ToolbarButton(() => {
                 var path = EditorUtility.OpenFilePanel("Open trace", ProfilerTraceStorage.Directory, "json");
 
                 if (string.IsNullOrEmpty(path))
@@ -203,8 +203,8 @@ namespace Internal
                 return;
 
             _files = ProfilerTraceStorage.List()
-                                        .Where(file => string.IsNullOrEmpty(file) == false)
-                                        .ToList();
+                                         .Where(file => string.IsNullOrEmpty(file) == false)
+                                         .ToList();
 
             if (string.IsNullOrEmpty(_external) == false && _files.Contains(_external) == false)
                 _files.Insert(0, _external);
@@ -253,12 +253,13 @@ namespace Internal
 
                 _tracesMenu.menu.AppendAction(
                     Describe(file),
-                    _ =>
-                    {
+                    _ => {
                         _selectedFile = captured;
                         Refresh();
                     },
-                    _ => captured == _selectedFile ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+                    _ => captured == _selectedFile
+                        ? DropdownMenuAction.Status.Checked
+                        : DropdownMenuAction.Status.Normal);
             }
         }
 
@@ -363,9 +364,10 @@ namespace Internal
 
             var depth = _trace.Spans.Max(span => span.Depth) + 1;
 
-            _summary.text = $"{_trace.Name}    •    Start {_trace.StartedAt}    •    Duration {FormatDuration(_trace.DurationMs)}" +
-                            $"    •    Frames {_trace.Frames}    •    Spans {_trace.Spans.Count}    •    Depth {depth}" +
-                            (_trace.Cold ? "    •    COLD (первый запуск после перекомпиляции)" : string.Empty);
+            _summary.text =
+                $"{_trace.Name}    •    Start {_trace.StartedAt}    •    Duration {FormatDuration(_trace.DurationMs)}" +
+                $"    •    Frames {_trace.Frames}    •    Spans {_trace.Spans.Count}    •    Depth {depth}" +
+                (_trace.Cold ? "    •    COLD (первый запуск после перекомпиляции)" : string.Empty);
 
             var children = new Dictionary<int, List<ProfilerSpanData>>();
             var byId = _trace.Spans.ToDictionary(span => span.Id);
@@ -487,8 +489,7 @@ namespace Internal
 
                 // Клик по всей строке имени, а не только по стрелке: попадать в 14 пикселей
                 // на глубокой вложенности неудобно.
-                name.RegisterCallback<MouseDownEvent>(_ =>
-                {
+                name.RegisterCallback<MouseDownEvent>(_ => {
                     if (_collapsed.Remove(span.Id) == false)
                         _collapsed.Add(span.Id);
 
@@ -537,7 +538,8 @@ namespace Internal
 
             var bar = new VisualElement
             {
-                tooltip = $"{span.Name}\nstart {FormatDuration(span.StartMs)}\nduration {FormatDuration(span.DurationMs)}\nframes {span.Frames}",
+                tooltip =
+                    $"{span.Name}\nstart {FormatDuration(span.StartMs)}\nduration {FormatDuration(span.DurationMs)}\nframes {span.Frames}",
                 style =
                 {
                     position = Position.Absolute,

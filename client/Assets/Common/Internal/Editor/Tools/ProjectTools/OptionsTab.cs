@@ -42,7 +42,9 @@ namespace Internal
             backendSection.Add(envField);
 
             var prodUrl = new TextField("Production URL") { value = options.BackendOptions.ProductionApiUrl };
-            prodUrl.RegisterValueChangedCallback(e => Apply(() => options.BackendOptions.ProductionApiUrl = e.newValue));
+
+            prodUrl.RegisterValueChangedCallback(e =>
+                Apply(() => options.BackendOptions.ProductionApiUrl = e.newValue));
             backendSection.Add(prodUrl);
 
             var localUrl = new TextField("Local URL") { value = options.BackendOptions.LocalApiUrl };

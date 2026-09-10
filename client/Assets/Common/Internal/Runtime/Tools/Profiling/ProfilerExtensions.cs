@@ -93,7 +93,10 @@ namespace Internal
             }
         }
 
-        public static async UniTask<T> MeasureNested<T>(this IProfilerScope parent, string name, Func<UniTask<T>> factory)
+        public static async UniTask<T> MeasureNested<T>(
+            this IProfilerScope parent,
+            string name,
+            Func<UniTask<T>> factory)
         {
             var scope = parent.Child(name);
             scope.Start();

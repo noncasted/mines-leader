@@ -20,7 +20,7 @@ namespace Internal
             button.onClick.AddListener(listener);
             lifetime.Listen(() => button.onClick.RemoveListener(listener));
         }
-        
+
         public static void ListenClick(this Button button, IReadOnlyLifetime lifetime, UnityAction listener)
         {
             button.onClick.AddListener(listener);
