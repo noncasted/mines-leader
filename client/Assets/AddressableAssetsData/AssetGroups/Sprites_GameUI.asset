@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_GameUI
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_GameUI
-  m_GUID: 581bf016a070c7b74b384a1b4b945f18
+  m_GUID: 2ed4c5c79c761b391ba2fbf1b50b77a0
   m_SerializeEntries:
   - m_GUID: af583db52f790598b91bd61d5d28d1a2
     m_Address: af583db52f790598b91bd61d5d28d1a2
@@ -26,6 +26,8 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: 573f2e111376f3acf9e1b8f4a83de2fd, type: 2}
     - {fileID: 11400000, guid: 639955f9a4f3f6a15a05695196be4044, type: 2}
-    m_SchemaDisplayOrder: []
+    m_SchemaDisplayOrder:
+    - Sprites_GameUI_BundledAssetGroupSchema
+    - Sprites_GameUI_ContentUpdateGroupSchema
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

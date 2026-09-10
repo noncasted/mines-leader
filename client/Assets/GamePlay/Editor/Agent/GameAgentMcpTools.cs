@@ -111,7 +111,7 @@ namespace GamePlay.Editor.Agent {
         }
 
         private static bool HasGameMock() {
-            return Object.FindFirstObjectByType<GameMock>(FindObjectsInactive.Include) != null;
+            return Object.FindAnyObjectByType<GameMock>(FindObjectsInactive.Include) != null;
         }
     }
 

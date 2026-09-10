@@ -81,6 +81,19 @@ namespace Internal.Tests
             }
         }
 
+        [Test]
+        [Explicit("Opt-in benchmark. Select and Run Selected in Test Runner.")]
+        public void GeneratedContainer_ManyScopes_RecordsMetrics()
+        {
+            using (GeneratedContainerBenchmarkHost.RegisterScopes())
+            using (GeneratedContainerBenchmarkHost.WithoutDiagnostics())
+            {
+                Log(GeneratedContainerBenchmarkHost.ManyScopes(
+                    GeneratedContainerBenchmarkHost.ManyScopesCount,
+                    ContainerBenchmarkRunner.Runs));
+            }
+        }
+
         // BenchmarkRoots дублирует таблицу статическими вызовами: сверяем, что граф тот же.
         [Test]
         public void GeneratedContainer_Roots_MatchTable()

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_GameCells
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_GameCells
-  m_GUID: 29b24d965cb396fcebc00717d9f9456b
+  m_GUID: 601f59ab81aef4e278fb14b13287b51d
   m_SerializeEntries:
   - m_GUID: 8923516856373a901bb8b3dc5f4d04b6
     m_Address: 8923516856373a901bb8b3dc5f4d04b6
@@ -26,6 +26,8 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: d41a10530ff567ca4b024268257d417f, type: 2}
     - {fileID: 11400000, guid: 4f24e40a2502e014c985886f23d0b174, type: 2}
-    m_SchemaDisplayOrder: []
+    m_SchemaDisplayOrder:
+    - Sprites_GameCells_BundledAssetGroupSchema
+    - Sprites_GameCells_ContentUpdateGroupSchema
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

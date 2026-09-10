@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Sprites_GameCells_ContentUpdateGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.ContentUpdateGroupSchema
   m_Group: {fileID: 11400000, guid: 7ca63673f5d61fb17aa04d1b4b2bbac6, type: 2}
+  m_SchemaIsEnabled: 1
   m_StaticContent: 0

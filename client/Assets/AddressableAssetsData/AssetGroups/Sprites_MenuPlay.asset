@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_MenuPlay
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_MenuPlay
-  m_GUID: a7ed376911ba7ccda88cda4c2a36b925
+  m_GUID: 74be3e296c934ad4fb18607f543192cb
   m_SerializeEntries:
   - m_GUID: 1b37e564ad267ffebbbe5957e0144b9a
     m_Address: 1b37e564ad267ffebbbe5957e0144b9a

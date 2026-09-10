@@ -89,6 +89,19 @@ History of the installer cost: ~310 bytes per `Register<T>()` at first (eager `L
 
 `Session: Dispose` allocates: `Lifetime.Terminate` calls `_parent.RemoveListener(Terminate)`, which creates a new delegate (128 bytes) per scope just to compare it.
 
+## Many entity scopes at once
+
+`GeneratedContainer_ManyScopes_RecordsMetrics`: 500 entity scopes created one after another under one Match scope, in one frame, then disposed. Diagnostics off. Time = median, bytes = min over 11 runs. Measured 2026-09-11 in the Editor (Mono); IL2CPP / WebGL not measured.
+
+| Scope | Build 500 (ms) | Per scope (ms) | Build 500 allocated (bytes) | Per scope (bytes) | Dispose 500 (ms) | Dispose 500 allocated (bytes) |
+|---|---|---|---|---|---|---|
+| Card (8 registrations: 3 Singleton, 5 Transient) | 3.53 | 0.0071 | 876 000 | 1 752 | 0.38 | 64 568 |
+| Card50 (50 registrations: 40 Singleton, 10 Transient) | 8.90 | 0.0178 | 3 204 568 | 6 409 | 0.43 | 64 568 |
+
+`Card50` (`BenchmarkLargeRoots.Card50`, `BenchmarkLargeScope.cs`) is not part of the table graph: the first 10 services take Match/Root services, the rest take neighbours in the scope. Live memory is not in the table: `GC.GetTotalMemory` in Unity Mono moves in heap chunks and gave a negative delta for 500 Card scopes.
+
+Dispose cost does not depend on the registration count: it is the child `Lifetime` (a new `Terminate` delegate for `RemoveListener`, 128 bytes per scope) and the linear search in the parent listener list.
+
 ### Hot path (card / player)
 
 Not measured. Do not invent numbers.
@@ -157,6 +170,7 @@ Edit-mode, category `Container`. Timed methods are `[Explicit]` so CI / Run All 
    - `VContainer_SyntheticGraph_RecordsMetrics`
    - `GeneratedContainer_SyntheticGraph_RecordsMetrics`
    - `GeneratedContainer_BuildAllocations_ByStep`
+   - `GeneratedContainer_ManyScopes_RecordsMetrics`
 3. Or menu **Tools → Container → Run Benchmark** (VContainer, then Generated)
 
 Not Explicit, run with the category: `Graph_MatchesProductionShape`, `GeneratedContainer_Roots_MatchTable`, `Measure_CountsManagedAllocations`.

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_Cards
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_Cards
-  m_GUID: 811e1d3de0d0ca7d7887ab71170c3413
+  m_GUID: 649832ff22220255faaa659a2a0f4d8c
   m_SerializeEntries:
   - m_GUID: 74fe2a982e3439414a912d2874879b7a
     m_Address: 74fe2a982e3439414a912d2874879b7a
@@ -26,6 +26,8 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: f963bf7ff58219416a239bee4b6fa7e2, type: 2}
     - {fileID: 11400000, guid: 5e6887916c722a4bb80240c4c1e1a21c, type: 2}
-    m_SchemaDisplayOrder: []
+    m_SchemaDisplayOrder:
+    - Sprites_Cards_BundledAssetGroupSchema
+    - Sprites_Cards_ContentUpdateGroupSchema
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

@@ -1,7 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using Internal;
-using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace Global.Backend
@@ -38,18 +37,6 @@ namespace Global.Backend
 
     public static class BackendGetExtensions
     {
-        public static async UniTask<T> Get<T>(
-            this IBackendClient client,
-            IReadOnlyLifetime lifetime,
-            string uri,
-            params IRequestHeader[] headers)
-        {
-            var raw = await client.Get(lifetime, uri, headers);
-            var result = JsonConvert.DeserializeObject<T>(raw);
-
-            return result;
-        }
-
         public static UniTask<string> Get(
             this IBackendClient client,
             IReadOnlyLifetime lifetime,
