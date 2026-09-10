@@ -1,11 +1,11 @@
 ---
 task: di_scope_codegen
-status: pending
+status: in_progress
 phase: implementation
 created: 2026-09-10
 updated: 2026-09-10
 total_steps: 6
-completed_steps: []
+completed_steps: [0]
 blocked_steps: []
 agents: 5
 depends_on: own_di (шаги 0-5; шаг 6 перенесён сюда)
@@ -242,12 +242,17 @@ public void Register(IEntityBuilder builder) => builder.Provide(this);  // пе�
 сигнатуры, которую уже кто-то использует. Добавление — его решение, ломающее
 изменение — моё.
 
+Добавлено оркестратором 2026-09-10:
+- `IContainerDiagnostics.IsGenerated { get; }` — признак «скоуп сгенерирован» для шага 2. Рантайм-план оставляет `false`.
+- `IProvides<T> { void Construct(T target); }` — двойной диспатч для компонентов префаба/сцены. `IBuilder.Provide` не добавлялся: поверхность `IBuilder` заморожена.
+- `ContainerInstallerAttribute` — стабильный тип манифеста 1b в `Generated/`. Генератор не эмитит класс, если тип уже есть.
+
 ---
 
 ## План реализации
 
 #### 0 Модель рёбер (оркестратор, блокирующий)
-- **Статус:** [ ] pending
+- **Статус:** [x] completed
 - **Цель:** `GraphRegistration` умеет описать ребро. Резолвер рёбер соединяет `Graph` и `Injector`: для каждой регистрации — список зависимостей, каждая разрешена в конкретную другую регистрацию или в дырку.
 - **Как:** Расширить `Graph/GraphModel.cs` полем зависимостей. Написать `Scope/EdgeResolver` — берёт `GraphDocument` + `TypeAnalyzer`, отдаёт граф с рёбрами. Топосорт с детекцией цикла. Не разрешилось — `CINGR003 Error` с типом, параметром, файлом и строкой; цикл — `CINGR004 Error` с полным путём.
 - **Проверка:** На `GlobalScopeExtensions.LoadGlobal` и `CardFactory.Build` граф с рёбрами строится целиком. Искусственно снятая регистрация даёт `CINGR003` с точным именем параметра. Искусственный цикл даёт `CINGR004` с путём.

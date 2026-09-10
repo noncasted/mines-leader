@@ -91,6 +91,14 @@
     white-space: nowrap;
 }
 
+.tree-item--generated {
+    color: rgb(140, 210, 150);
+}
+
+.tree-item--runtime {
+    color: rgb(210, 210, 210);
+}
+
 .details-pane {
     flex-grow: 1;
     flex-direction: column;

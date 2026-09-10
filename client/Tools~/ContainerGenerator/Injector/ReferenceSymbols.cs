@@ -6,6 +6,7 @@ namespace ContainerGenerator {
         public INamedTypeSymbol? UnityObject { get; }
         public INamedTypeSymbol? RuntimeInitialize { get; }
         public INamedTypeSymbol? GraphRootAttribute { get; }
+        public INamedTypeSymbol? RuntimeScopeAttribute { get; }
         public INamedTypeSymbol? ScopeBuilder { get; }
         public INamedTypeSymbol? EntityBuilder { get; }
         public INamedTypeSymbol? Builder { get; }
@@ -19,6 +20,7 @@ namespace ContainerGenerator {
             INamedTypeSymbol? unityObject,
             INamedTypeSymbol? runtimeInitialize,
             INamedTypeSymbol? graphRootAttribute,
+            INamedTypeSymbol? runtimeScopeAttribute,
             INamedTypeSymbol? scopeBuilder,
             INamedTypeSymbol? entityBuilder,
             INamedTypeSymbol? builder,
@@ -30,6 +32,7 @@ namespace ContainerGenerator {
             UnityObject = unityObject;
             RuntimeInitialize = runtimeInitialize;
             GraphRootAttribute = graphRootAttribute;
+            RuntimeScopeAttribute = runtimeScopeAttribute;
             ScopeBuilder = scopeBuilder;
             EntityBuilder = entityBuilder;
             Builder = builder;
@@ -49,6 +52,7 @@ namespace ContainerGenerator {
                 compilation.GetTypeByMetadataName("UnityEngine.Object"),
                 compilation.GetTypeByMetadataName("UnityEngine.RuntimeInitializeOnLoadMethodAttribute"),
                 compilation.GetTypeByMetadataName("Internal.ContainerGraphRootAttribute"),
+                compilation.GetTypeByMetadataName("Internal.ContainerRuntimeScopeAttribute"),
                 compilation.GetTypeByMetadataName("Internal.IScopeBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IEntityBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IBuilder"),

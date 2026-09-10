@@ -43,6 +43,8 @@ namespace ContainerGenerator {
                 }
             }
 
+            AttachEntityScopes();
+
             foreach (var pair in _methods)
                 _document.Methods.Add(pair.Value);
 
@@ -126,13 +128,44 @@ namespace ContainerGenerator {
                 return existing;
             }
 
-            var original = method.OriginalDefinition ?? method;
             var result = new GraphMethod {
                 Id = id,
+                OriginId = id,
                 IsRoot = isRoot,
             };
             _methods[id] = result;
+            FillMethod(result, method, null, false);
+            return result;
+        }
 
+        private GraphMethod WalkVariant(
+            IMethodSymbol method,
+            string id,
+            string variant,
+            string viewType,
+            Dictionary<string, bool> bools) {
+            if (_methods.TryGetValue(id, out var existing))
+                return existing;
+
+            var origin = MethodId(method);
+            var result = new GraphMethod {
+                Id = id,
+                OriginId = origin,
+                IsRoot = true,
+                Variant = variant,
+                ViewType = viewType,
+            };
+            _methods[id] = result;
+            FillMethod(result, method, bools, true);
+            return result;
+        }
+
+        private void FillMethod(
+            GraphMethod result,
+            IMethodSymbol method,
+            Dictionary<string, bool>? bools,
+            bool entityRoot) {
+            var original = method.OriginalDefinition ?? method;
             var syntaxSource = method.ReducedFrom ?? original;
             SyntaxNode? syntax = null;
             SemanticModel? model = null;
@@ -145,7 +178,7 @@ namespace ContainerGenerator {
             if (syntax == null || model == null) {
                 result.File = "";
                 result.Line = 0;
-                return result;
+                return;
             }
 
             var location = syntax.GetLocation().GetLineSpan();
@@ -153,6 +186,12 @@ namespace ContainerGenerator {
             result.Line = location.StartLinePosition.Line + 1;
 
             var state = new State(method, model, result);
+            state.EntityRoot = entityRoot;
+            if (bools != null) {
+                foreach (var pair in bools)
+                    state.Bools[pair.Key] = pair.Value;
+            }
+
             foreach (var parameter in method.Parameters) {
                 state.Locals[parameter.Name] = new Local {
                     Name = parameter.Name,
@@ -180,8 +219,6 @@ namespace ContainerGenerator {
             }
             else if (syntax is AccessorDeclarationSyntax)
                 Error(state, syntax, "accessor");
-
-            return result;
         }
 
         private void WalkStatement(State state, StatementSyntax statement) {
@@ -255,6 +292,22 @@ namespace ContainerGenerator {
 
         private void WalkIf(State state, IfStatementSyntax syntax) {
             WalkExpression(state, syntax.Condition, allowUnknown: true);
+            if (state.Bools.Count > 0 && TryEvalCondition(state, syntax.Condition, out var takeThen)) {
+                if (takeThen)
+                    WalkStatement(state, syntax.Statement);
+                else if (syntax.Else != null)
+                    WalkStatement(state, syntax.Else.Statement);
+                return;
+            }
+
+            if (state.EntityRoot && IsNonEnumerableGraphCondition(state, syntax)) {
+                Error(
+                    state,
+                    syntax.Condition,
+                    syntax.Condition.ToString(),
+                    GraphDescriptors.UnenumerableVariant);
+            }
+
             state.BranchDepth++;
             WalkStatement(state, syntax.Statement);
             if (syntax.Else != null)
@@ -585,8 +638,7 @@ namespace ContainerGenerator {
 
             if (symbol == null && IsAddInstaller(name, state, invocation)) {
                 WalkReceiver(state, invocation);
-                if (state.Result.Calls.Contains(name) == false)
-                    state.Result.Calls.Add(name);
+                AddCall(state, name);
                 return;
             }
 
@@ -594,16 +646,13 @@ namespace ContainerGenerator {
                 WalkReceiver(state, invocation);
                 var constructed = Constructed(Normalize(symbol), invocation, state);
                 var callee = WalkMethod(constructed, false);
-                if (state.Result.Calls.Contains(callee.Id) == false)
-                    state.Result.Calls.Add(callee.Id);
+                AddCall(state, callee.Id);
                 state.LastRegistration = null;
                 return;
             }
 
             if (symbol != null && HasSyntax(symbol) == false && ReceiverIsGraphRelevant(state, invocation)) {
-                var id = MethodId(symbol);
-                if (state.Result.Calls.Contains(id) == false)
-                    state.Result.Calls.Add(id);
+                AddCall(state, MethodId(symbol));
                 return;
             }
 
@@ -639,6 +688,8 @@ namespace ContainerGenerator {
 
             var registration = NewRegistration(state, invocation, "Register", implementation, "ConstructedType");
             registration.Lifetime = ParseLifetime(invocation, 0);
+            if (string.IsNullOrEmpty(implementation) == false && string.IsNullOrEmpty(service))
+                AddService(registration, implementation);
             if (string.IsNullOrEmpty(service) == false)
                 AddService(registration, service);
 
@@ -666,6 +717,8 @@ namespace ContainerGenerator {
                 ? Format(state, symbol.TypeArguments[0])
                 : argument != null ? Format(state, state.Model.GetTypeInfo(argument).Type) : "";
             var origin = ClassifyValue(state, argument);
+            if (argument is ThisExpressionSyntax)
+                origin = "InjectExisting";
             if (origin == "InstanceHole" && argument != null && LooksLikePrefabAsset(argument))
                 origin = "PrefabAsset";
             var registration = NewRegistration(state, invocation, "RegisterComponent", implementation, origin);
@@ -738,8 +791,7 @@ namespace ContainerGenerator {
             if (symbol != null && HasSyntax(symbol.OriginalDefinition)) {
                 var constructed = Constructed(symbol, invocation, state);
                 var callee = WalkMethod(constructed, false);
-                if (state.Result.Calls.Contains(callee.Id) == false)
-                    state.Result.Calls.Add(callee.Id);
+                AddCall(state, callee.Id);
                 return;
             }
 
@@ -894,7 +946,19 @@ namespace ContainerGenerator {
                 Source = Trim(node.ToString()),
                 File = node.SyntaxTree.FilePath ?? "",
                 Line = span.StartLinePosition.Line + 1,
+                Ordinal = state.NextOrdinal++,
+                Location = LocationInfo.CreateFrom(node.GetLocation()),
             };
+        }
+
+        private static void AddCall(State state, string id) {
+            if (string.IsNullOrEmpty(id))
+                return;
+            if (state.Result.Calls.Contains(id))
+                return;
+
+            state.Result.Calls.Add(id);
+            state.Result.CallOrdinals.Add(state.NextOrdinal++);
         }
 
         private void WalkReceiver(State state, InvocationExpressionSyntax invocation) {
@@ -1100,6 +1164,334 @@ namespace ContainerGenerator {
                 line));
         }
 
+        private void AttachEntityScopes() {
+            var sites = new List<EntityLoadSite>();
+            foreach (var tree in _compilation.SyntaxTrees) {
+                var model = _compilation.GetSemanticModel(tree);
+                foreach (var node in tree.GetRoot().DescendantNodes()) {
+                    if (node is not InvocationExpressionSyntax invocation)
+                        continue;
+                    var symbol = model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+                    if (symbol == null || IsEntityLoad(symbol) == false)
+                        continue;
+
+                    var viewIndex = ParameterIndex(symbol, "view");
+                    var constructIndex = ParameterIndex(symbol, "construct");
+                    if (viewIndex < 0 || constructIndex < 0)
+                        continue;
+                    if (invocation.ArgumentList.Arguments.Count <= viewIndex ||
+                        invocation.ArgumentList.Arguments.Count <= constructIndex)
+                        continue;
+
+                    var construct = ResolveConstruct(
+                        model,
+                        invocation.ArgumentList.Arguments[constructIndex].Expression);
+                    if (construct == null)
+                        continue;
+
+                    var viewExpression = invocation.ArgumentList.Arguments[viewIndex].Expression;
+                    var viewType = model.GetTypeInfo(viewExpression).Type;
+                    var site = new EntityLoadSite {
+                        Construct = construct,
+                        ViewType = viewType == null ? "" : TypeNames.ForMetadata(viewType),
+                        Invocation = invocation,
+                    };
+                    CollectAssignments(invocation, site.Bools);
+                    sites.Add(site);
+                }
+            }
+
+            var groups = new Dictionary<string, List<EntityLoadSite>>(StringComparer.Ordinal);
+            for (var i = 0; i < sites.Count; i++) {
+                var id = MethodId(sites[i].Construct);
+                if (groups.TryGetValue(id, out var list) == false) {
+                    list = new List<EntityLoadSite>();
+                    groups[id] = list;
+                }
+
+                list.Add(sites[i]);
+            }
+
+            foreach (var pair in groups) {
+                ReportUnenumerableVariants(pair.Value[0].Construct);
+                var distinct = DistinctViewTypes(pair.Value);
+                var origin = WalkMethod(pair.Value[0].Construct, distinct.Count <= 1);
+                if (distinct.Count <= 1) {
+                    origin.ViewType = pair.Value[0].ViewType;
+                    origin.IsRoot = true;
+                    continue;
+                }
+
+                origin.IsRoot = false;
+                var used = new HashSet<string>(StringComparer.Ordinal);
+                for (var i = 0; i < pair.Value.Count; i++) {
+                    var site = pair.Value[i];
+                    if (string.IsNullOrEmpty(site.ViewType))
+                        continue;
+                    var variant = VariantName(site.ViewType);
+                    if (used.Add(variant) == false)
+                        continue;
+                    WalkVariant(site.Construct, origin.Id + "+" + variant, variant, site.ViewType, site.Bools);
+                }
+            }
+        }
+
+        private static List<string> DistinctViewTypes(List<EntityLoadSite> sites) {
+            var types = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < sites.Count; i++) {
+                var type = sites[i].ViewType;
+                if (string.IsNullOrEmpty(type) || seen.Add(type) == false)
+                    continue;
+                types.Add(type);
+            }
+
+            return types;
+        }
+
+        private static string VariantName(string viewType) {
+            var shortName = ScopeNames.Short(viewType);
+            if (shortName.IndexOf("Local", StringComparison.Ordinal) >= 0)
+                return "Local";
+            if (shortName.IndexOf("Remote", StringComparison.Ordinal) >= 0)
+                return "Remote";
+            return string.IsNullOrEmpty(shortName) ? "Variant" : shortName;
+        }
+
+        private static bool IsEntityLoad(IMethodSymbol symbol) {
+            if (symbol.Name != "Load")
+                return false;
+            var type = symbol.ContainingType;
+            if (type == null)
+                return false;
+            if (type.Name == "IEntityScopeLoader" || type.Name == "EntityScopeLoader")
+                return true;
+            foreach (var implemented in type.AllInterfaces) {
+                if (implemented.Name == "IEntityScopeLoader")
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static int ParameterIndex(IMethodSymbol symbol, string name) {
+            for (var i = 0; i < symbol.Parameters.Length; i++) {
+                if (symbol.Parameters[i].Name == name)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private IMethodSymbol? ResolveConstruct(SemanticModel model, ExpressionSyntax expression) {
+            expression = Unwrap(expression);
+            var symbol = model.GetSymbolInfo(expression).Symbol as IMethodSymbol;
+            if (symbol != null)
+                return symbol;
+            if (expression is IdentifierNameSyntax identifier)
+                return model.GetSymbolInfo(identifier).Symbol as IMethodSymbol;
+            return null;
+        }
+
+        private static void CollectAssignments(InvocationExpressionSyntax load, Dictionary<string, bool> into) {
+            foreach (var ancestor in load.Ancestors()) {
+                if (ancestor is not IfStatementSyntax ifs)
+                    continue;
+                var inThen = load.Span.Start >= ifs.Statement.Span.Start &&
+                             load.Span.End <= ifs.Statement.Span.End;
+                ApplyCondition(ifs.Condition, inThen, into);
+            }
+        }
+
+        private static void ApplyCondition(ExpressionSyntax condition, bool inThen, Dictionary<string, bool> into) {
+            condition = Unwrap(condition);
+            var polarity = inThen;
+            if (condition is PrefixUnaryExpressionSyntax not && not.IsKind(SyntaxKind.LogicalNotExpression)) {
+                polarity = !polarity;
+                condition = Unwrap(not.Operand);
+            }
+
+            if (condition is BinaryExpressionSyntax binary &&
+                (binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression))) {
+                var left = Unwrap(binary.Left);
+                var right = Unwrap(binary.Right);
+                if (IsTrueLiteral(right) || IsFalseLiteral(right)) {
+                    var equalsTrue = IsTrueLiteral(right);
+                    if (binary.IsKind(SyntaxKind.NotEqualsExpression))
+                        equalsTrue = !equalsTrue;
+                    StoreBool(left, polarity == equalsTrue, into);
+                    return;
+                }
+
+                if (IsTrueLiteral(left) || IsFalseLiteral(left)) {
+                    var equalsTrue = IsTrueLiteral(left);
+                    if (binary.IsKind(SyntaxKind.NotEqualsExpression))
+                        equalsTrue = !equalsTrue;
+                    StoreBool(right, polarity == equalsTrue, into);
+                    return;
+                }
+            }
+
+            StoreBool(condition, polarity, into);
+        }
+
+        private static void StoreBool(ExpressionSyntax expression, bool value, Dictionary<string, bool> into) {
+            expression = Unwrap(expression);
+            var text = expression.ToString();
+            if (string.IsNullOrEmpty(text) == false)
+                into[text] = value;
+            if (expression is IdentifierNameSyntax identifier)
+                into[identifier.Identifier.Text] = value;
+            if (expression is MemberAccessExpressionSyntax member)
+                into[member.Name.Identifier.Text] = value;
+        }
+
+        private static bool TryEvalCondition(State state, ExpressionSyntax condition, out bool value) {
+            value = false;
+            condition = Unwrap(condition);
+            if (condition is PrefixUnaryExpressionSyntax not && not.IsKind(SyntaxKind.LogicalNotExpression)) {
+                if (TryEvalCondition(state, not.Operand, out var inner) == false)
+                    return false;
+                value = !inner;
+                return true;
+            }
+
+            if (condition is BinaryExpressionSyntax binary &&
+                (binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression))) {
+                var left = Unwrap(binary.Left);
+                var right = Unwrap(binary.Right);
+                if ((IsTrueLiteral(right) || IsFalseLiteral(right)) && TryLookupBool(state, left, out value)) {
+                    var equalsTrue = IsTrueLiteral(right);
+                    if (binary.IsKind(SyntaxKind.NotEqualsExpression))
+                        equalsTrue = !equalsTrue;
+                    if (equalsTrue == false)
+                        value = !value;
+                    return true;
+                }
+
+                if ((IsTrueLiteral(left) || IsFalseLiteral(left)) && TryLookupBool(state, right, out value)) {
+                    var equalsTrue = IsTrueLiteral(left);
+                    if (binary.IsKind(SyntaxKind.NotEqualsExpression))
+                        equalsTrue = !equalsTrue;
+                    if (equalsTrue == false)
+                        value = !value;
+                    return true;
+                }
+            }
+
+            return TryLookupBool(state, condition, out value);
+        }
+
+        private static bool TryLookupBool(State state, ExpressionSyntax expression, out bool value) {
+            value = false;
+            expression = Unwrap(expression);
+            var text = expression.ToString();
+            if (state.Bools.TryGetValue(text, out value))
+                return true;
+            if (expression is IdentifierNameSyntax identifier && state.Bools.TryGetValue(identifier.Identifier.Text, out value))
+                return true;
+            if (expression is MemberAccessExpressionSyntax member &&
+                state.Bools.TryGetValue(member.Name.Identifier.Text, out value))
+                return true;
+            return false;
+        }
+
+        private static bool IsTrueLiteral(ExpressionSyntax expression) {
+            return expression.IsKind(SyntaxKind.TrueLiteralExpression);
+        }
+
+        private static bool IsFalseLiteral(ExpressionSyntax expression) {
+            return expression.IsKind(SyntaxKind.FalseLiteralExpression);
+        }
+
+        private void ReportUnenumerableVariants(IMethodSymbol construct) {
+            foreach (var reference in construct.DeclaringSyntaxReferences) {
+                var syntax = reference.GetSyntax();
+                var model = _compilation.GetSemanticModel(syntax.SyntaxTree);
+                var state = new State(construct, model, new GraphMethod { Id = MethodId(construct) });
+                foreach (var node in syntax.DescendantNodes()) {
+                    if (node is not IfStatementSyntax ifs)
+                        continue;
+                    if (IsNonEnumerableGraphCondition(state, ifs) == false)
+                        continue;
+                    Error(state, ifs.Condition, ifs.Condition.ToString(), GraphDescriptors.UnenumerableVariant);
+                }
+            }
+        }
+
+        private bool IsNonEnumerableGraphCondition(State state, IfStatementSyntax syntax) {
+            if (HasRegistration(syntax.Statement) == false)
+                return false;
+            if (syntax.Else == null || HasRegistration(syntax.Else.Statement) == false)
+                return false;
+            return IsEnumerableDiscriminant(state, syntax.Condition) == false;
+        }
+
+        private bool HasRegistration(StatementSyntax statement) {
+            foreach (var node in statement.DescendantNodesAndSelf()) {
+                if (node is not InvocationExpressionSyntax invocation)
+                    continue;
+                var name = MethodName(invocation);
+                if (name == "Register" || name == "RegisterInstance" || name == "RegisterComponent" ||
+                    name.StartsWith("Add", StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsEnumerableDiscriminant(State state, ExpressionSyntax condition) {
+            condition = Unwrap(condition);
+            if (condition is PrefixUnaryExpressionSyntax not && not.IsKind(SyntaxKind.LogicalNotExpression))
+                condition = Unwrap(not.Operand);
+            if (condition is BinaryExpressionSyntax binary &&
+                (binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression))) {
+                if (IsTrueLiteral(Unwrap(binary.Right)) || IsFalseLiteral(Unwrap(binary.Right)))
+                    return IsEnumerableDiscriminant(state, binary.Left);
+                if (IsTrueLiteral(Unwrap(binary.Left)) || IsFalseLiteral(Unwrap(binary.Left)))
+                    return IsEnumerableDiscriminant(state, binary.Right);
+            }
+
+            var type = state.Model.GetTypeInfo(condition).Type;
+            if (type == null)
+                return false;
+            if (type.SpecialType == SpecialType.System_Boolean)
+                return IsBoolParameter(state, condition);
+            return IsClosedEnum(type);
+        }
+
+        private static bool IsBoolParameter(State state, ExpressionSyntax condition) {
+            condition = Unwrap(condition);
+            if (condition is IdentifierNameSyntax identifier) {
+                if (state.Locals.ContainsKey(identifier.Identifier.Text))
+                    return true;
+                var symbol = state.Model.GetSymbolInfo(identifier).Symbol;
+                return symbol is IParameterSymbol || symbol is ILocalSymbol;
+            }
+
+            if (condition is MemberAccessExpressionSyntax)
+                return true;
+            return false;
+        }
+
+        private static bool IsClosedEnum(ITypeSymbol type) {
+            if (type.TypeKind != TypeKind.Enum)
+                return false;
+            foreach (var attribute in type.GetAttributes()) {
+                if (attribute.AttributeClass != null && attribute.AttributeClass.Name == "FlagsAttribute")
+                    return false;
+            }
+
+            return true;
+        }
+
+        private sealed class EntityLoadSite {
+            public IMethodSymbol Construct = null!;
+            public string ViewType = "";
+            public InvocationExpressionSyntax Invocation = null!;
+            public Dictionary<string, bool> Bools = new Dictionary<string, bool>(StringComparer.Ordinal);
+        }
+
         private sealed class State {
             public IMethodSymbol Method;
             public SemanticModel Model;
@@ -1107,9 +1499,12 @@ namespace ContainerGenerator {
             public Dictionary<string, Local> Locals = new Dictionary<string, Local>(StringComparer.Ordinal);
             public HashSet<string> TaintedBuilder = new HashSet<string>(StringComparer.Ordinal);
             public Dictionary<ITypeParameterSymbol, ITypeSymbol> Substitution = new Dictionary<ITypeParameterSymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+            public Dictionary<string, bool> Bools = new Dictionary<string, bool>(StringComparer.Ordinal);
             public GraphRegistration? LastRegistration;
             public InvocationExpressionSyntax? LastInstantiate;
             public int BranchDepth;
+            public int NextOrdinal;
+            public bool EntityRoot;
 
             public State(IMethodSymbol method, SemanticModel model, GraphMethod result) {
                 Method = method;

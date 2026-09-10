@@ -19,5 +19,37 @@ namespace ContainerGenerator {
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor MissingRegistration = new DiagnosticDescriptor(
+            id: "CINGR003",
+            title: "Missing container registration",
+            messageFormat: "Cannot resolve parameter '{0}' of type '{1}' for '{2}'. File {3} line {4}.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor CircularDependency = new DiagnosticDescriptor(
+            id: "CINGR004",
+            title: "Circular container dependency",
+            messageFormat: "Circular dependency: {0}",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor UnenumerableVariant = new DiagnosticDescriptor(
+            id: "CINGR005",
+            title: "Cannot enumerate entity scope variants",
+            messageFormat: "Cannot enumerate scope variants from '{0}' in '{1}'. Only bool and closed enum parameters may change the graph. Mark the root with [ContainerRuntimeScope] or simplify the condition. File {2} line {3}.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor DuplicateViewType = new DiagnosticDescriptor(
+            id: "CINGR006",
+            title: "Duplicate ScopeEntityView type",
+            messageFormat: "View type '{0}' is used by more than one asset: '{1}' and '{2}'. Create a distinct ScopeEntityView subtype for each asset.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
     }
 }

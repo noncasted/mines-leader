@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ContainerGenerator {
     [Generator]
@@ -14,7 +15,23 @@ namespace ContainerGenerator {
 
                 GraphDocument document;
                 try {
-                    document = new GraphWalker(compilation, references).Walk();
+                    var harvest = ManifestHarvest.TryBuild(compilation, references);
+                    var walkCompilation = compilation;
+                    var walkReferences = references;
+                    if (harvest != null && string.IsNullOrEmpty(harvest.Source) == false) {
+                        walkCompilation = compilation.AddSyntaxTrees(
+                            CSharpSyntaxTree.ParseText(harvest.Source, path: "ContainerInstallerHarvest.g.cs"));
+                        walkReferences = ReferenceSymbols.Create(walkCompilation) ?? references;
+                    }
+
+                    document = new GraphWalker(walkCompilation, walkReferences).Walk();
+                    ManifestHarvest.Remap(document, harvest);
+                    ManifestReader.Merge(document, compilation);
+                    ManifestReader.ReportUnresolved(document);
+                    var assets = EntityAssetIndex.Read(walkCompilation);
+                    for (var i = 0; i < assets.Diagnostics.Count; i++)
+                        production.ReportDiagnostic(assets.Diagnostics[i].ToDiagnostic());
+                    EntityAssets.Bind(document, assets);
                 }
                 catch (System.Exception exception) {
                     production.ReportDiagnostic(Diagnostic.Create(
@@ -30,10 +47,26 @@ namespace ContainerGenerator {
                 foreach (var diagnostic in document.Diagnostics)
                     production.ReportDiagnostic(diagnostic.ToDiagnostic());
 
+                var graphs = EdgeResolver.Resolve(document, compilation, references);
+                for (var i = 0; i < graphs.Count; i++) {
+                    var graph = graphs[i];
+                    for (var d = 0; d < graph.Diagnostics.Count; d++)
+                        production.ReportDiagnostic(graph.Diagnostics[d].ToDiagnostic());
+
+                    if (ScopeEmitter.TryEmit(graph, document, compilation, references, out var hint, out var source) == false)
+                        continue;
+
+                    production.AddSource(hint, source);
+                }
+
+                var attributeClass = GraphEmitter.EmitAttributeClass(compilation);
+                if (attributeClass != null)
+                    production.AddSource("ContainerInstallerAttribute.g.cs", attributeClass);
+
                 if (document.Methods.Count == 0)
                     return;
 
-                production.AddSource("ContainerGraph.g.cs", GraphEmitter.Emit(document));
+                production.AddSource("ContainerGraph.g.cs", GraphEmitter.Emit(document, compilation));
             });
         }
 
