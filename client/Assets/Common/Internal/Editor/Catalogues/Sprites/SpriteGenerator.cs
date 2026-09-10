@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
+    [NoAutoStaticsCleanup]
     public static class SpriteGenerator {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Sprites/Groups";
 
@@ -361,17 +363,7 @@ namespace Internal {
                     return names;
             }
 
-            if (importer is TextureImporter textureImporter &&
-                textureImporter.spritesheet != null &&
-                textureImporter.spritesheet.Length > 0) {
-                var names = new string[textureImporter.spritesheet.Length];
-                for (var i = 0; i < textureImporter.spritesheet.Length; i++)
-                    names[i] = textureImporter.spritesheet[i].name;
-
-                return names;
-            }
-
-            return Array.Empty<string>();
+            return ReadSerializedNames(importer, "m_SpriteSheet.m_Sprites");
         }
 
         private static IReadOnlyList<string> ReadSerializedNames(AssetImporter importer, string propertyName) {

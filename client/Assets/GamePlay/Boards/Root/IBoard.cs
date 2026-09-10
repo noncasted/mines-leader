@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Internal;
 using Shared;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -26,6 +27,7 @@ namespace GamePlay.Boards
         void UpdateState(int mines, int flags);
     }
 
+    [NoAutoStaticsCleanup]
     public static class BoardExtensions
     {
         public static readonly IReadOnlyList<Vector2Int> Directions = new List<Vector2Int>()

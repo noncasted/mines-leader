@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEditor.Profiling;
 using UnityEditorInternal;
@@ -16,6 +17,7 @@ namespace Internal
     /// поэтому кадры ищутся по времени — см. <see cref="TryResolveRange"/>.
     /// </summary>
     [InitializeOnLoad]
+    [NoAutoStaticsCleanup]
     public static class ProfilerFrameCapture
     {
         private const string EnabledKey = "Internal.Profiler.CaptureFrames";

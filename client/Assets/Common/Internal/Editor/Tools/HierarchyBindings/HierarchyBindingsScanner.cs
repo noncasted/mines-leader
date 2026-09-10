@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace Internal {
@@ -7,6 +8,7 @@ namespace Internal {
     // вложенных префабов. Границ всего две — объект со своими биндингами (за его внутренности
     // отвечает собственный класс, и ссылка на него обнуляет глубину сериализации, которой у Unity
     // всего семь уровней) и HierarchyBindingsIgnoreChildren, которым обрубают ненужные ветки.
+    [NoAutoStaticsCleanup]
     internal static class HierarchyBindingsScanner {
         // Unity обрывает сериализацию вложенных не-Object типов глубже семи уровней, поэтому
         // дальше по дереву спускаться бессмысленно: поля просто не сохранятся.

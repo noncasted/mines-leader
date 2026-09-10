@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 
 namespace Internal
 {
@@ -12,7 +13,8 @@ namespace Internal
     /// параллель (fire-and-forget), поднимаются через <see cref="Branch"/> — они
     /// ложатся в корень трассы и на чужую вложенность не влияют.
     /// </summary>
-    public static class GameProfiler
+    [AutoStaticsCleanup]
+    public static partial class GameProfiler
     {
         private static readonly List<IProfilerScope> _stack = new();
 
@@ -144,6 +146,7 @@ namespace Internal
             }
         }
 
+        [NoAutoStaticsCleanup]
         private class NullAmbient : IDisposable
         {
             public static readonly NullAmbient Instance = new();
@@ -190,6 +193,7 @@ namespace Internal
         }
     }
 
+    [NoAutoStaticsCleanup]
     public class NullProfilerScope : IProfilerScope
     {
         public static readonly NullProfilerScope Instance = new();

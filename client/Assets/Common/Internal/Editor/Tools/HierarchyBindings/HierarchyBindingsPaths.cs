@@ -21,7 +21,7 @@ namespace Internal {
 
             var asmdefFolder = FindAsmdefFolder(assetPath);
             if (string.IsNullOrEmpty(asmdefFolder) == false)
-                return asmdefFolder + "/Generated";
+                return CatalogAssemblies.GetConsumerGeneratedFolder(asmdefFolder);
 
             return FallbackFolder;
         }

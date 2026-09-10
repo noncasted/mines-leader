@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
+    [NoAutoStaticsCleanup]
     public static class AssetCatalogGenerator {
         public const string CatalogAssetPath = "Assets/Common/Resources/AssetCatalog.asset";
 

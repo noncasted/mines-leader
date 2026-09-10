@@ -31,6 +31,9 @@ namespace Shared
         MatchesLost = 620,
     }
 
+#if UNITY_5_3_OR_NEWER
+    [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
     public static class UserStatTypeExtensions
     {
         static UserStatTypeExtensions()

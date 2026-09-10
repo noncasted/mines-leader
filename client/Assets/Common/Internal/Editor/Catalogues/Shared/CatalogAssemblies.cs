@@ -33,7 +33,14 @@ namespace Internal {
                 return internalFolder;
             }
 
-            return $"{directory}/Generated";
+            return GetConsumerGeneratedFolder(directory);
+        }
+
+        public static string GetConsumerGeneratedFolder(string asmdefDirectory) {
+            if (ModuleAssetLayout.IsModuleRoot(asmdefDirectory))
+                return ModuleAssetLayout.GetGeneratedFolder(asmdefDirectory);
+
+            return $"{asmdefDirectory}/Generated";
         }
 
         public static void ParseTypeName(string qualifiedName, out string fullName, out string assemblyName) {

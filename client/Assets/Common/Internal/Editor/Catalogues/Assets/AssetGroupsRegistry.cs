@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
+    [NoAutoStaticsCleanup]
     public sealed class AssetGroupsRegistry : CatalogGroupsRegistry {
         private AssetGroupsRegistry()
             : base("AssetGroupsRegistry", "Assets/Common/Internal/Editor/Catalogues/Assets/AssetGroups.json") {

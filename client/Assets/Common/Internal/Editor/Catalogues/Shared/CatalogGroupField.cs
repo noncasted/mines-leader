@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal {
     // Выпадающий список групп с инлайн-созданием новой по кнопке «+».
+    [NoAutoStaticsCleanup]
     public static class CatalogGroupField {
         private const float AddButtonWidth = 22f;
         private const float OkButtonWidth = 32f;

@@ -19,6 +19,7 @@ namespace Internal {
             await GameProfiler.Concurrent($"{label}: {group.Name}").Track(group.Retain());
 
             builder.Events.AddBeforeDispose(() => ReleaseAsync(group));
+            ContainerRegistryDebug.RecordLoadedAsset(builder.Lifetime, label, group.Name);
         }
 
         private static UniTask ReleaseAsync(AssetGroup group) {

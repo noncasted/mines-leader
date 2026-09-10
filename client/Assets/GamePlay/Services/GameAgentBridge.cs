@@ -6,10 +6,12 @@ using GamePlay.Cards;
 using GamePlay.Loop;
 using Internal;
 using Shared;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace GamePlay.Services {
-    public static class GameAgentBridge {
+    [AutoStaticsCleanup]
+    public static partial class GameAgentBridge {
         public static bool IsActive { get; private set; }
         public static SharedAgentObservation LastObservation { get; private set; }
 

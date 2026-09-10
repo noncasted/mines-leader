@@ -1,0 +1,27 @@
+.container-node-panel {
+    flex-direction: column;
+    min-width: 220px;
+    max-width: 360px;
+}
+
+.container-node-section {
+    margin-top: 4px;
+}
+
+.container-node-section-title {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(210, 210, 210);
+    margin-bottom: 2px;
+}
+
+.container-node-row {
+    font-size: 10px;
+    color: rgb(190, 190, 190);
+    white-space: normal;
+}
+
+.container-node-empty {
+    font-size: 10px;
+    color: rgb(140, 140, 140);
+}

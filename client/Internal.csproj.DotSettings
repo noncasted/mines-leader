@@ -62,6 +62,8 @@
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Canimations_005Csprites_005Crenderer/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Canimations_005Csprites_005Cupdatables/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Canimations_005Cupdatables/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Ccontainer_005Cabstract/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Ccontainer/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Chierarchybindings/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Cnetwork/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ctools_005Cnetwork_005Ccommands/@EntryIndexedValue">True</s:Boolean>

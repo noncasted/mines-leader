@@ -96,8 +96,7 @@ namespace Internal
                 yield return new KeyValuePair<TKey, TView>(pair.Key, pair.Value);
         }
 
-
-        public new IEnumerable<KeyValuePair<TKey, TSource>> GetEnumerable()
+        public IEnumerable<KeyValuePair<TKey, TSource>> GetEnumerable()
         {
             IEnumerable<KeyValuePair<TKey, TSource>> enumerable = this;
 

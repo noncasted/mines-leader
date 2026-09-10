@@ -3,6 +3,7 @@ using GamePlay.Loop;
 using Internal;
 using Meta;
 using Shared;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace GamePlay.Services {
@@ -12,7 +13,8 @@ namespace GamePlay.Services {
         public Sprite Icon;
     }
 
-    public static class GameCheatsBridge {
+    [AutoStaticsCleanup]
+    public static partial class GameCheatsBridge {
         public static bool IsActive { get; set; }
 
         private static INetworkConnection _connection;

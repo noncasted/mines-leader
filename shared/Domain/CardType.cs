@@ -143,6 +143,9 @@ namespace Shared
         Opponent,
     }
 
+#if UNITY_5_3_OR_NEWER
+    [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
     public static class CardTypeExtensions
     {
         static CardTypeExtensions()

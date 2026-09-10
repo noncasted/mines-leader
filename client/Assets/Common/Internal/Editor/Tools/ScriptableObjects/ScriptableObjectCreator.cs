@@ -5,11 +5,13 @@ using System.Linq;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
 namespace Internal
 {
+    [NoAutoStaticsCleanup]
     public class ScriptableObjectCreator : OdinMenuEditorWindow
     {
         static readonly HashSet<Type> _targetsTypes = AssemblyUtilities.GetTypes(AssemblyTypeFlags.CustomTypes)
@@ -100,6 +102,14 @@ namespace Internal
 
             if (Directory.Exists(path) == false)
                 path = Path.GetDirectoryName(path);
+
+            path = path.Replace('\\', '/');
+            if (ModuleAssetLayout.TryGetRoot(path, out var moduleRoot))
+            {
+                var optionsFolder = ModuleAssetLayout.GetOptionsFolder(moduleRoot);
+                CatalogPaths.EnsureFolder(optionsFolder);
+                return optionsFolder + "/";
+            }
 
             return path.Trim('/') + "/";
         }

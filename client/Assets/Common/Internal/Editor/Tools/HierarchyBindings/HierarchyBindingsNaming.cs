@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace Internal {
@@ -9,6 +10,7 @@ namespace Internal {
     // приводить к идентификатору C#. Отдельно проверяем совпадение с членами MonoBehaviour:
     // сгенерированный класс сам наследует MonoBehaviour, а пользовательский класс наследует его,
     // так что совпадение имени даёт CS0108 в чужом файле и ищется потом неприятно.
+    [NoAutoStaticsCleanup]
     public static class HierarchyBindingsNaming {
         private const string DigitPrefix = "N";
 

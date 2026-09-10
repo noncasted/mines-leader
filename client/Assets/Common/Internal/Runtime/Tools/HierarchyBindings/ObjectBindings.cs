@@ -2,12 +2,16 @@ using UnityEngine;
 #if UNITY_EDITOR
 using System;
 using Sirenix.OdinInspector;
+using Unity.Scripting.LifecycleManagement;
 #endif
 
 namespace Internal {
     // Общая база всех сгенерированных биндингов. Нужна не ради поведения, а ради адресации:
     // по ней находится сам сгенерированный класс, когда пользовательский наследует его,
     // и на ней живёт кнопка перегенерации.
+#if UNITY_EDITOR
+    [NoAutoStaticsCleanup]
+#endif
     public abstract class ObjectBindings : MonoBehaviour, IObjectBindings {
         // Слепок иерархии на момент генерации. Живёт в базе, чтобы сгенерированный класс
         // состоял только из ссылок.
