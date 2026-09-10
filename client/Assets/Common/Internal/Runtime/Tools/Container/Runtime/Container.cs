@@ -6,11 +6,11 @@ using Debug = UnityEngine.Debug;
 
 namespace Internal
 {
-    internal sealed class Container : IContainer, IResolvePlan
+    internal sealed class Container : IContainer, IResolvePlan, IContainerTree
     {
         internal Container(
             string name,
-            Container parent,
+            IContainer parent,
             ILifetime lifetime,
             ContainerSlot[] slots,
             object[] instances,
@@ -29,13 +29,13 @@ namespace Internal
             _constructed = new bool[slots.Length];
             _diagnostics = new ContainerDiagnostics(
                 name,
-                parent == null ? null : parent._diagnostics,
+                parent == null ? null : parent.Diagnostics,
                 Array.Empty<RegistrationInfo>(),
                 Array.Empty<int>());
         }
 
         private readonly string _name;
-        private readonly Container _parent;
+        private readonly IContainer _parent;
         private readonly ILifetime _lifetime;
         private readonly ContainerSlot[] _slots;
         private readonly object[] _instances;
@@ -46,7 +46,7 @@ namespace Internal
         private readonly Dictionary<Type, Array> _collections = new();
         private readonly Dictionary<Type, int[]> _transientCollections = new();
         private readonly Dictionary<Type, IInjector> _injectorsByType = new();
-        private readonly List<Container> _children = new();
+        private readonly List<IContainer> _children = new();
 
         private ContainerDiagnostics _diagnostics;
         private int _childSerial;
@@ -167,8 +167,18 @@ namespace Internal
 
             if (_parent == null)
                 ContainerRegistryDebug.RemoveRoot(_diagnostics);
-            else
-                _parent.DetachChild(this);
+            else if (_parent is IContainerTree tree)
+                tree.DetachChild(this);
+        }
+
+        void IContainerTree.AttachChild(IContainer child)
+        {
+            AttachChild(child);
+        }
+
+        void IContainerTree.DetachChild(IContainer child)
+        {
+            DetachChild(child);
         }
 
         public object Get(int slot)
@@ -288,16 +298,22 @@ namespace Internal
             _diagnostics.SetSnapshot(registrations, _buildOrder, loadedAssets);
         }
 
-        internal void AttachChild(Container child)
+        internal void AttachChild(IContainer child)
         {
+            if (child == null)
+                return;
+
             _children.Add(child);
-            _diagnostics.AddChild(child._diagnostics);
+            _diagnostics.AddChild(child.Diagnostics);
         }
 
-        internal void DetachChild(Container child)
+        internal void DetachChild(IContainer child)
         {
+            if (child == null)
+                return;
+
             _children.Remove(child);
-            _diagnostics.RemoveChild(child._diagnostics);
+            _diagnostics.RemoveChild(child.Diagnostics);
         }
 
         internal void Abandon()

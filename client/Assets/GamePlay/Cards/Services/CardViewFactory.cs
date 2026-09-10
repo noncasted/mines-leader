@@ -5,7 +5,7 @@ namespace GamePlay.Cards
 {
     public interface ICardViewFactory
     {
-        CardScopeEntity Create(CardScopeEntity prefab, Vector2 position);
+        T Create<T>(T prefab, Vector2 position) where T : CardScopeEntity;
     }
 
     public class CardViewFactory : MonoBehaviour, ISceneService, ICardViewFactory
@@ -18,7 +18,7 @@ namespace GamePlay.Cards
                    .As<ICardViewFactory>();
         }
 
-        public CardScopeEntity Create(CardScopeEntity prefab, Vector2 position)
+        public T Create<T>(T prefab, Vector2 position) where T : CardScopeEntity
         {
             var instance = Instantiate(prefab, position, Quaternion.identity, transform);
             _counter++;

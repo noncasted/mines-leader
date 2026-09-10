@@ -154,9 +154,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 962353957333419632}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3eec27d7f4614c7a9d3bab5f2135e9b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d8a6b4c9e174f3aa1c5e0b8d736f492, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardScopeEntity
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardRemoteScopeEntity
   _scope: {fileID: 5533763748526657632}
   _register: []
   _autoDetected:

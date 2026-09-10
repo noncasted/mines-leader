@@ -42,6 +42,21 @@ namespace Internal.Tests
             AssertReport(report, "Own");
         }
 
+        [Test]
+        [Explicit("Opt-in benchmark. Generated class waits steps 1, 1c and 2.")]
+        public void GeneratedContainer_SyntheticGraph_RecordsMetrics()
+        {
+            var report = GeneratedContainerBenchmarkHost.Run();
+            Log(report);
+            AssertReport(report, GeneratedContainerBenchmarkHost.ContainerName);
+        }
+
+        [Test]
+        public void GeneratedHost_IsThirdColumn()
+        {
+            Assert.AreEqual("Generated", GeneratedContainerBenchmarkHost.ContainerName);
+        }
+
         [MenuItem("Tools/Container/Run Benchmark")]
         private static void RunFromMenu()
         {
@@ -56,7 +71,19 @@ namespace Internal.Tests
             catch (Exception exception)
             {
                 Debug.LogWarning(
-                    "Own container benchmark threw (do not invent numbers): " +
+                    "Runtime-plan benchmark threw (do not invent numbers): " +
+                    $"{exception.GetType().Name}: {exception.Message}");
+            }
+
+            try
+            {
+                var generated = GeneratedContainerBenchmarkHost.Run();
+                Debug.Log(generated.Format());
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning(
+                    "Generated container benchmark threw (do not invent numbers): " +
                     $"{exception.GetType().Name}: {exception.Message}");
             }
         }

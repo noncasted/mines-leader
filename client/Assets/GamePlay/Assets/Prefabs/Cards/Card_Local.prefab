@@ -964,9 +964,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8380813882818688417}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3eec27d7f4614c7a9d3bab5f2135e9b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c4e9f2a1b3846d0b5e8c3a94721d6f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardScopeEntity
+  m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardLocalScopeEntity
   _scope: {fileID: 5019902290563632992}
   _register: []
   _autoDetected:

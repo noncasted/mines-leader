@@ -473,8 +473,11 @@ namespace Internal
             try
             {
                 var diagnostics = _treeView.GetItemDataForIndex<IContainerDiagnostics>(index);
+                var generated = IsGenerated(diagnostics);
                 label.text = FormatContainerLabel(diagnostics);
-                label.tooltip = FormatPath(diagnostics);
+                label.tooltip = $"{FormatPath(diagnostics)} ({FormatContainerKind(generated)})";
+                label.EnableInClassList("tree-item--generated", generated);
+                label.EnableInClassList("tree-item--runtime", generated == false);
             }
             catch (Exception exception)
             {
@@ -532,7 +535,8 @@ namespace Internal
                 return;
             }
 
-            _containerTitle.text = FormatPath(_selectedContainer);
+            _containerTitle.text =
+                $"{FormatPath(_selectedContainer)}  [{FormatContainerKind(IsGenerated(_selectedContainer))}]";
             _containerTitle.tooltip = _containerTitle.text;
 
             _registrations.Clear();
@@ -881,7 +885,29 @@ namespace Internal
         {
             var name = ContainerName(diagnostics);
             var count = SafeList(() => diagnostics.Registrations).Count;
-            return $"{name}  ({count})";
+            var kind = FormatContainerKind(IsGenerated(diagnostics));
+            return $"{name}  ({count})  [{kind}]";
+        }
+
+        private static string FormatContainerKind(bool generated)
+        {
+            return generated ? "generated" : "runtime";
+        }
+
+        private static bool IsGenerated(IContainerDiagnostics diagnostics)
+        {
+            if (diagnostics == null)
+                return false;
+
+            try
+            {
+                return diagnostics.IsGenerated;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                return false;
+            }
         }
 
         private static string FormatPath(IContainerDiagnostics diagnostics)

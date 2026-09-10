@@ -7,8 +7,8 @@ namespace Internal {
     public static class GamePlayPrefabs {
         private const string Address = "b0a1aef60c0591454860b3b7d718dc15";
 
-        private static global::GamePlay.Cards.CardScopeEntity _cardLocal;
-        private static global::GamePlay.Cards.CardScopeEntity _cardRemote;
+        private static global::GamePlay.Cards.CardLocalScopeEntity _cardLocal;
+        private static global::GamePlay.Cards.CardRemoteScopeEntity _cardRemote;
         private static global::GamePlay.Boards.CellView _cell;
         private static global::GamePlay.Services.GameFloatingTextView _floatingText;
 
@@ -16,11 +16,11 @@ namespace Internal {
 
         public static bool IsLoaded => Group.IsLoaded;
 
-        public static global::GamePlay.Cards.CardScopeEntity CardLocal {
+        public static global::GamePlay.Cards.CardLocalScopeEntity CardLocal {
             get { Group.EnsureLoaded(); return _cardLocal; }
         }
 
-        public static global::GamePlay.Cards.CardScopeEntity CardRemote {
+        public static global::GamePlay.Cards.CardRemoteScopeEntity CardRemote {
             get { Group.EnsureLoaded(); return _cardRemote; }
         }
 
@@ -37,8 +37,8 @@ namespace Internal {
 
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
-                _cardLocal = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardLocal");
-                _cardRemote = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardRemote");
+                _cardLocal = Asset.Get<global::GamePlay.Cards.CardLocalScopeEntity>("CardLocal");
+                _cardRemote = Asset.Get<global::GamePlay.Cards.CardRemoteScopeEntity>("CardRemote");
                 _cell = Asset.Get<global::GamePlay.Boards.CellView>("Cell");
                 _floatingText = Asset.Get<global::GamePlay.Services.GameFloatingTextView>("FloatingText");
             }

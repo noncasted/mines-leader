@@ -19,9 +19,14 @@ namespace Internal {
 
             var projectRoot = Path.GetDirectoryName(assetsRoot);
             var guidToType = BuildGuidMap(assetsRoot);
-            ScanFiles(results, assetsRoot, projectRoot, guidToType, "*.prefab", true);
-            ScanFiles(results, assetsRoot, projectRoot, guidToType, "*.unity", false);
-            results.Sort((a, b) => string.CompareOrdinal(a.AssetPath, b.AssetPath));
+            var guidToPrefab = BuildPrefabMap(assetsRoot);
+            var prefabCache = new Dictionary<string, Dictionary<string, YamlBlock>>(StringComparer.OrdinalIgnoreCase);
+            ScanFiles(results, assetsRoot, projectRoot, guidToType, guidToPrefab, prefabCache, "*.prefab", true);
+            ScanFiles(results, assetsRoot, projectRoot, guidToType, guidToPrefab, prefabCache, "*.unity", false);
+            results.Sort((a, b) => {
+                var path = string.CompareOrdinal(a.AssetPath, b.AssetPath);
+                return path != 0 ? path : string.CompareOrdinal(a.HolderType, b.HolderType);
+            });
             return results;
         }
 
@@ -30,6 +35,8 @@ namespace Internal {
             string assetsRoot,
             string projectRoot,
             Dictionary<string, string> guidToType,
+            Dictionary<string, string> guidToPrefab,
+            Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
             string pattern,
             bool prefabs) {
             string[] files;
@@ -45,16 +52,17 @@ namespace Internal {
                 if (file.IndexOf($"{Path.DirectorySeparatorChar}Plugins{Path.DirectorySeparatorChar}", StringComparison.Ordinal) >= 0)
                     continue;
 
-                var asset = Parse(file, projectRoot, guidToType, prefabs);
-                if (asset.HasValue)
-                    results.Add(asset.Value);
+                ParseFile(results, file, projectRoot, guidToType, guidToPrefab, prefabCache, prefabs);
             }
         }
 
-        private static ContainerGraphAsset? Parse(
+        private static void ParseFile(
+            List<ContainerGraphAsset> results,
             string fullPath,
             string projectRoot,
             Dictionary<string, string> guidToType,
+            Dictionary<string, string> guidToPrefab,
+            Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
             bool prefab) {
             string[] lines;
             try {
@@ -62,18 +70,12 @@ namespace Internal {
             }
             catch (Exception exception) {
                 Debug.LogError("[ContainerGraph] Failed to read " + fullPath + ": " + exception);
-                return null;
+                return;
             }
 
             var blocks = ParseBlocks(lines);
-            var byId = new Dictionary<string, YamlBlock>(StringComparer.Ordinal);
-            foreach (var block in blocks) {
-                if (string.IsNullOrEmpty(block.FileId) == false)
-                    byId[block.FileId] = block;
-            }
-
+            var byId = IndexBlocks(blocks);
             var path = CatalogPaths.ToAssetPath(projectRoot, fullPath);
-            ContainerGraphAsset? found = null;
 
             foreach (var block in blocks) {
                 if (prefab) {
@@ -82,19 +84,28 @@ namespace Internal {
                     if (IsEntityHolder(block) == false)
                         continue;
 
-                    var types = Resolve(byId, block.AutoDetected, guidToType);
-                    types.AddRange(Resolve(byId, block.Register, guidToType));
-                    found = Merge(found, path, TypeName(block, guidToType), types);
+                    var types = Resolve(byId, block.AutoDetected, guidToType, guidToPrefab, prefabCache, false);
+                    AppendUnique(types, Resolve(byId, block.Register, guidToType, guidToPrefab, prefabCache, false));
+                    AddAsset(results, path, TypeName(block, guidToType), types);
                     continue;
                 }
 
-                if (IsSceneFactory(block) == false)
+                if (IsSceneFactory(block)) {
+                    AddAsset(
+                        results,
+                        path,
+                        TypeName(block, guidToType),
+                        Resolve(byId, block.Services, guidToType, guidToPrefab, prefabCache, true));
+                    continue;
+                }
+
+                if (IsEntityHolder(block) == false)
                     continue;
 
-                found = Merge(found, path, TypeName(block, guidToType), Resolve(byId, block.Services, guidToType));
+                var entityTypes = Resolve(byId, block.AutoDetected, guidToType, guidToPrefab, prefabCache, false);
+                AppendUnique(entityTypes, Resolve(byId, block.Register, guidToType, guidToPrefab, prefabCache, false));
+                AddAsset(results, path, TypeName(block, guidToType), entityTypes);
             }
-
-            return found;
         }
 
         private static bool IsEntityHolder(YamlBlock block) {
@@ -113,56 +124,91 @@ namespace Internal {
         }
 
         private static string TypeName(YamlBlock block, Dictionary<string, string> guidToType) {
+            if (string.IsNullOrEmpty(block.ScriptGuid) == false &&
+                guidToType.TryGetValue(block.ScriptGuid, out var mapped))
+                return mapped;
+
             var identifier = block.ClassIdentifier;
             var separator = identifier.IndexOf("::", StringComparison.Ordinal);
             if (separator >= 0 && separator + 2 < identifier.Length)
                 return identifier.Substring(separator + 2);
 
-            if (string.IsNullOrEmpty(identifier) == false)
-                return identifier;
-
-            if (string.IsNullOrEmpty(block.ScriptGuid) == false &&
-                guidToType.TryGetValue(block.ScriptGuid, out var mapped))
-                return mapped;
-
-            return "";
+            return identifier ?? "";
         }
 
         private static List<string> Resolve(
             Dictionary<string, YamlBlock> byId,
             List<string> fileIds,
-            Dictionary<string, string> guidToType) {
+            Dictionary<string, string> guidToType,
+            Dictionary<string, string> guidToPrefab,
+            Dictionary<string, Dictionary<string, YamlBlock>> prefabCache,
+            bool sort) {
             var types = new List<string>();
             var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (var id in fileIds) {
                 if (byId.TryGetValue(id, out var block) == false)
                     continue;
 
-                var type = TypeName(block, guidToType);
+                var type = ResolveBlockType(block, guidToType, guidToPrefab, prefabCache);
                 if (string.IsNullOrEmpty(type) || seen.Add(type) == false)
                     continue;
 
                 types.Add(type);
             }
 
-            types.Sort(StringComparer.Ordinal);
+            if (sort)
+                types.Sort(StringComparer.Ordinal);
             return types;
         }
 
-        private static ContainerGraphAsset Merge(ContainerGraphAsset? existing, string path, string holder, List<string> types) {
-            if (existing == null)
-                return new ContainerGraphAsset(path, holder, types.ToArray());
+        private static string ResolveBlockType(
+            YamlBlock block,
+            Dictionary<string, string> guidToType,
+            Dictionary<string, string> guidToPrefab,
+            Dictionary<string, Dictionary<string, YamlBlock>> prefabCache) {
+            var type = TypeName(block, guidToType);
+            if (string.IsNullOrEmpty(type) == false)
+                return type;
+            if (string.IsNullOrEmpty(block.CorrespondingGuid) || string.IsNullOrEmpty(block.CorrespondingFileId))
+                return "";
+            if (guidToPrefab.TryGetValue(block.CorrespondingGuid, out var prefabPath) == false)
+                return "";
 
-            var combined = new List<string>(existing.Value.ComponentTypes);
-            var seen = new HashSet<string>(combined, StringComparer.Ordinal);
-            foreach (var type in types) {
-                if (seen.Add(type))
-                    combined.Add(type);
+            var prefabBlocks = PrefabBlocks(prefabPath, prefabCache);
+            if (prefabBlocks.TryGetValue(block.CorrespondingFileId, out var source) == false)
+                return "";
+            return TypeName(source, guidToType);
+        }
+
+        private static void AddAsset(List<ContainerGraphAsset> results, string path, string holder, List<string> types) {
+            if (string.IsNullOrEmpty(holder) && types.Count == 0)
+                return;
+
+            for (var i = 0; i < results.Count; i++) {
+                var existing = results[i];
+                if (existing.AssetPath != path || existing.HolderType != holder)
+                    continue;
+
+                var combined = new List<string>(existing.ComponentTypes);
+                var seen = new HashSet<string>(combined, StringComparer.Ordinal);
+                for (var t = 0; t < types.Count; t++) {
+                    if (seen.Add(types[t]))
+                        combined.Add(types[t]);
+                }
+
+                results[i] = new ContainerGraphAsset(path, holder, combined.ToArray());
+                return;
             }
 
-            combined.Sort(StringComparer.Ordinal);
-            var holderType = string.IsNullOrEmpty(existing.Value.HolderType) ? holder : existing.Value.HolderType;
-            return new ContainerGraphAsset(path, holderType, combined.ToArray());
+            results.Add(new ContainerGraphAsset(path, holder, types.ToArray()));
+        }
+
+        private static void AppendUnique(List<string> target, List<string> extra) {
+            var seen = new HashSet<string>(target, StringComparer.Ordinal);
+            for (var i = 0; i < extra.Count; i++) {
+                if (seen.Add(extra[i]))
+                    target.Add(extra[i]);
+            }
         }
 
         private static List<YamlBlock> ParseBlocks(string[] lines) {
@@ -195,6 +241,15 @@ namespace Internal {
                 var guidMatch = ScriptGuid.Match(trimmed);
                 if (trimmed.StartsWith("m_Script:", StringComparison.Ordinal) && guidMatch.Success)
                     current.ScriptGuid = guidMatch.Groups[1].Value;
+
+                if (trimmed.StartsWith("m_CorrespondingSourceObject:", StringComparison.Ordinal)) {
+                    var correspondingGuid = ScriptGuid.Match(trimmed);
+                    if (correspondingGuid.Success)
+                        current.CorrespondingGuid = correspondingGuid.Groups[1].Value;
+                    var correspondingId = FileIdRef.Match(trimmed);
+                    if (correspondingId.Success)
+                        current.CorrespondingFileId = correspondingId.Groups[1].Value;
+                }
 
                 if (trimmed == "_autoDetected:" || trimmed.StartsWith("_autoDetected:", StringComparison.Ordinal)) {
                     listField = "auto";
@@ -317,6 +372,75 @@ namespace Internal {
             return map;
         }
 
+        private static Dictionary<string, string> BuildPrefabMap(string assetsRoot) {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string[] metas;
+            try {
+                metas = Directory.GetFiles(assetsRoot, "*.prefab.meta", SearchOption.AllDirectories);
+            }
+            catch (Exception exception) {
+                Debug.LogError("[ContainerGraph] Failed to index prefab GUIDs: " + exception);
+                return map;
+            }
+
+            var guidLine = new Regex(@"^guid: ([a-f0-9]{32})", RegexOptions.Compiled);
+            foreach (var meta in metas) {
+                string guid = null;
+                try {
+                    foreach (var line in File.ReadLines(meta)) {
+                        var match = guidLine.Match(line.Trim());
+                        if (match.Success == false)
+                            continue;
+                        guid = match.Groups[1].Value;
+                        break;
+                    }
+                }
+                catch {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(guid))
+                    continue;
+
+                var prefab = meta.Substring(0, meta.Length - ".meta".Length);
+                if (File.Exists(prefab) == false)
+                    continue;
+
+                map[guid] = prefab;
+            }
+
+            return map;
+        }
+
+        private static Dictionary<string, YamlBlock> IndexBlocks(List<YamlBlock> blocks) {
+            var byId = new Dictionary<string, YamlBlock>(StringComparer.Ordinal);
+            foreach (var block in blocks) {
+                if (string.IsNullOrEmpty(block.FileId) == false)
+                    byId[block.FileId] = block;
+            }
+
+            return byId;
+        }
+
+        private static Dictionary<string, YamlBlock> PrefabBlocks(
+            string prefabPath,
+            Dictionary<string, Dictionary<string, YamlBlock>> cache) {
+            if (cache.TryGetValue(prefabPath, out var existing))
+                return existing;
+
+            var map = new Dictionary<string, YamlBlock>(StringComparer.Ordinal);
+            try {
+                var blocks = ParseBlocks(File.ReadAllLines(prefabPath));
+                map = IndexBlocks(blocks);
+            }
+            catch (Exception exception) {
+                Debug.LogError("[ContainerGraph] Failed to read prefab " + prefabPath + ": " + exception);
+            }
+
+            cache[prefabPath] = map;
+            return map;
+        }
+
         private static List<string> ListFor(YamlBlock block, string field) {
             if (field == "auto")
                 return block.AutoDetected;
@@ -329,6 +453,8 @@ namespace Internal {
             public string FileId = "";
             public string ClassIdentifier = "";
             public string ScriptGuid = "";
+            public string CorrespondingGuid = "";
+            public string CorrespondingFileId = "";
             public List<string> AutoDetected = new List<string>();
             public List<string> Register = new List<string>();
             public List<string> Services = new List<string>();

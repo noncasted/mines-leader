@@ -8,18 +8,51 @@ namespace Internal
         public ContainerBuilder(string name = "Root", IReadOnlyLifetime hostLifetime = null)
         {
             Name = name;
-            _parent = null;
+            _runtimeParent = null;
+            _generatedParent = null;
+            _exportParent = null;
             _hostLifetime = hostLifetime;
+        }
+
+        public ContainerBuilder(string name, IContainer parent)
+        {
+            if (parent == null)
+                throw new ArgumentNullException(nameof(parent));
+
+            Name = name;
+            _hostLifetime = parent.Lifetime;
+            if (parent is Container runtime)
+            {
+                _runtimeParent = runtime;
+                _generatedParent = null;
+                _exportParent = null;
+            }
+            else if (parent is GeneratedContainer generated)
+            {
+                _runtimeParent = null;
+                _generatedParent = generated;
+                _exportParent = generated;
+            }
+            else
+            {
+                _runtimeParent = null;
+                _generatedParent = null;
+                _exportParent = parent;
+            }
         }
 
         internal ContainerBuilder(string name, Container parent)
         {
             Name = name;
-            _parent = parent;
+            _runtimeParent = parent;
+            _generatedParent = null;
+            _exportParent = null;
             _hostLifetime = parent != null ? parent.Lifetime : null;
         }
 
-        private readonly Container _parent;
+        private readonly Container _runtimeParent;
+        private readonly GeneratedContainer _generatedParent;
+        private readonly IContainer _exportParent;
         private readonly IReadOnlyLifetime _hostLifetime;
         private readonly List<ServiceRegistration> _registrations = new();
         private readonly List<object> _injections = new();
@@ -29,6 +62,18 @@ namespace Internal
         private bool _building;
 
         public string Name { get; }
+
+        internal IContainer Parent
+        {
+            get
+            {
+                if (_runtimeParent != null)
+                    return _runtimeParent;
+                if (_generatedParent != null)
+                    return _generatedParent;
+                return _exportParent;
+            }
+        }
 
         public IServiceRegistration Add(Type implementation, ServiceLifetime lifetime)
         {
@@ -122,7 +167,12 @@ namespace Internal
                 throw new InvalidOperationException("ContainerBuilder.Build can only be called once.");
             if (_building == true)
                 throw new InvalidOperationException("ContainerBuilder.Build is already running.");
-            if (_parent != null && _parent.IsDisposed == true)
+            if (_runtimeParent != null && _runtimeParent.IsDisposed == true)
+                throw new ObjectDisposedException(nameof(IContainer));
+            if (_generatedParent != null && _generatedParent.IsDisposed == true)
+                throw new ObjectDisposedException(nameof(IContainer));
+            if (_exportParent != null && _exportParent.Lifetime != null &&
+                _exportParent.Lifetime.IsTerminated == true)
                 throw new ObjectDisposedException(nameof(IContainer));
 
             _building = true;
@@ -131,26 +181,26 @@ namespace Internal
 
             try
             {
-                lifetime = _parent != null
-                    ? _parent.Lifetime.Child()
-                    : _hostLifetime != null
-                        ? _hostLifetime.Child()
-                        : new Lifetime();
+                lifetime = CreateLifetime();
 
                 var slots = new List<ContainerSlot>();
-                var typeToSlot = _parent != null
-                    ? new Dictionary<Type, int>(_parent.TypeToSlot)
+                var typeToSlot = _runtimeParent != null
+                    ? new Dictionary<Type, int>(_runtimeParent.TypeToSlot)
                     : new Dictionary<Type, int>();
                 var typeToAllSlots = new Dictionary<Type, List<int>>();
 
-                if (_parent != null)
+                if (_runtimeParent != null)
                 {
-                    foreach (var pair in _parent.TypeToAllSlots)
+                    foreach (var pair in _runtimeParent.TypeToAllSlots)
                         typeToAllSlots[pair.Key] = new List<int>(pair.Value);
 
-                    var parentSlots = _parent.Slots;
+                    var parentSlots = _runtimeParent.Slots;
                     for (var i = 0; i < parentSlots.Length; i++)
-                        slots.Add(CloneParentSlot(parentSlots[i], _parent));
+                        slots.Add(CloneParentSlot(parentSlots[i], _runtimeParent));
+                }
+                else if (Parent != null)
+                {
+                    FlattenExportParent(Parent, slots, typeToSlot, typeToAllSlots);
                 }
 
                 var selfResolvableSlots = new List<int>();
@@ -193,7 +243,7 @@ namespace Internal
                 var slotArray = slots.ToArray();
                 container = new Container(
                     Name,
-                    _parent,
+                    Parent,
                     lifetime,
                     slotArray,
                     instances,
@@ -220,10 +270,12 @@ namespace Internal
                 for (var i = 0; i < _registrations.Count; i++)
                     _registrations[i].Freeze();
 
-                if (_parent == null)
+                if (Parent == null)
                     ContainerRegistryDebug.AddRoot(container.Diagnostics);
+                else if (Parent is IContainerTree tree)
+                    tree.AttachChild(container);
                 else
-                    _parent.AttachChild(container);
+                    ContainerRegistryDebug.AddRoot(container.Diagnostics);
 
                 return container;
             }
@@ -231,10 +283,10 @@ namespace Internal
             {
                 if (container != null)
                 {
-                    if (_parent == null)
-                        ContainerRegistryDebug.RemoveRoot(container.Diagnostics);
+                    if (Parent is IContainerTree tree)
+                        tree.DetachChild(container);
                     else
-                        _parent.DetachChild(container);
+                        ContainerRegistryDebug.RemoveRoot(container.Diagnostics);
 
                     container.Abandon();
                 }
@@ -254,6 +306,191 @@ namespace Internal
                 throw new InvalidOperationException("Cannot register after Build.");
             if (_building == true)
                 throw new InvalidOperationException("Cannot register while Build is running.");
+        }
+
+        internal ILifetime CreateLifetime()
+        {
+            if (_runtimeParent != null)
+                return _runtimeParent.Lifetime.Child();
+            if (Parent != null)
+                return Parent.Lifetime.Child();
+            if (_hostLifetime != null)
+                return _hostLifetime.Child();
+            return new Lifetime();
+        }
+
+        internal void MarkBuilt()
+        {
+            _built = true;
+            for (var i = 0; i < _registrations.Count; i++)
+                _registrations[i].Freeze();
+        }
+
+        internal IReadOnlyList<LoadedAssetInfo> TakeLoadedAssets(IReadOnlyLifetime lifetime)
+        {
+            return CollectLoadedAssets(lifetime);
+        }
+
+        internal bool TryGetHole(Type type, out object instance)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            for (var i = _registrations.Count - 1; i >= 0; i--)
+            {
+                var registration = _registrations[i];
+                if (registration.ExistingInstance != null)
+                {
+                    if (type.IsInstanceOfType(registration.ExistingInstance) == true)
+                    {
+                        instance = registration.ExistingInstance;
+                        return true;
+                    }
+
+                    if (registration.ServiceTypesList.Contains(type) == true)
+                    {
+                        instance = registration.ExistingInstance;
+                        return true;
+                    }
+                }
+
+                if (registration.Parameters.TryGetValue(type, out instance) == true)
+                    return true;
+            }
+
+            instance = null;
+            return false;
+        }
+
+        private void FlattenExportParent(
+            IContainer parent,
+            List<ContainerSlot> slots,
+            Dictionary<Type, int> typeToSlot,
+            Dictionary<Type, List<int>> typeToAllSlots)
+        {
+            var exports = GeneratedScopes.ReadExports(parent);
+            if (exports != null)
+            {
+                foreach (var pair in exports)
+                    AddExternalExport(slots, typeToSlot, typeToAllSlots, pair.Key, pair.Value);
+
+                if (parent is GeneratedContainer generated)
+                    FlattenCollections(generated.Collections, slots, typeToSlot, typeToAllSlots);
+
+                return;
+            }
+
+            foreach (var info in parent.Diagnostics.Registrations)
+            {
+                var serviceTypes = info.ServiceTypes;
+                if (serviceTypes == null || serviceTypes.Count == 0)
+                {
+                    if (info.ImplementationType != null &&
+                        parent.TryResolve(info.ImplementationType, out var instance) == true)
+                    {
+                        AddExternalExport(
+                            slots,
+                            typeToSlot,
+                            typeToAllSlots,
+                            info.ImplementationType,
+                            instance);
+                    }
+
+                    continue;
+                }
+
+                for (var i = 0; i < serviceTypes.Count; i++)
+                {
+                    var serviceType = serviceTypes[i];
+                    if (serviceType == null)
+                        continue;
+                    if (parent.TryResolve(serviceType, out var instance) == false)
+                        continue;
+
+                    AddExternalExport(slots, typeToSlot, typeToAllSlots, serviceType, instance);
+                }
+            }
+        }
+
+        private static void FlattenCollections(
+            Dictionary<Type, Array> collections,
+            List<ContainerSlot> slots,
+            Dictionary<Type, int> typeToSlot,
+            Dictionary<Type, List<int>> typeToAllSlots)
+        {
+            if (collections == null)
+                return;
+
+            var seen = new Dictionary<object, int>();
+            for (var i = 0; i < slots.Count; i++)
+            {
+                var instance = slots[i].ExistingInstance;
+                if (instance != null && seen.ContainsKey(instance) == false)
+                    seen.Add(instance, slots[i].Index);
+            }
+
+            foreach (var pair in collections)
+            {
+                var array = pair.Value;
+                if (array == null)
+                    continue;
+
+                var list = new List<int>(array.Length);
+                for (var i = 0; i < array.Length; i++)
+                {
+                    var instance = array.GetValue(i);
+                    if (instance != null && seen.TryGetValue(instance, out var index) == true)
+                    {
+                        list.Add(index);
+                        continue;
+                    }
+
+                    var instanceType = instance != null ? instance.GetType() : pair.Key;
+                    var slot = CreateExternalSlot(slots.Count, pair.Key, instanceType, instance);
+                    slots.Add(slot);
+                    typeToSlot[pair.Key] = slot.Index;
+                    if (instance != null)
+                        seen[instance] = slot.Index;
+                    list.Add(slot.Index);
+                }
+
+                typeToAllSlots[pair.Key] = list;
+            }
+        }
+
+        private static void AddExternalExport(
+            List<ContainerSlot> slots,
+            Dictionary<Type, int> typeToSlot,
+            Dictionary<Type, List<int>> typeToAllSlots,
+            Type serviceType,
+            object instance)
+        {
+            var implementation = instance != null ? instance.GetType() : serviceType;
+            var slot = CreateExternalSlot(slots.Count, serviceType, implementation, instance);
+            slots.Add(slot);
+            ApplyServiceTypes(slot, typeToSlot, typeToAllSlots);
+        }
+
+        private static ContainerSlot CreateExternalSlot(
+            int index,
+            Type serviceType,
+            Type implementationType,
+            object instance)
+        {
+            return new ContainerSlot
+            {
+                Index = index,
+                ImplementationType = implementationType ?? serviceType,
+                ServiceTypes = new[] { serviceType },
+                Lifetime = ServiceLifetime.Singleton,
+                ExistingInstance = instance,
+                SuppressCreate = true,
+                SuppressConstruct = true,
+                OwnsInstance = false,
+                IsGenerated = true,
+                IsExternal = true,
+                Dependencies = Array.Empty<int>()
+            };
         }
 
         private static ContainerSlot CloneParentSlot(ContainerSlot parentSlot, Container parent)

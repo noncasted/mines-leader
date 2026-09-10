@@ -8,7 +8,7 @@ namespace GamePlay.Cards {
     public class CardLocalBindings : global::Internal.ObjectBindings, global::Internal.ISceneService, global::Internal.IEntityComponent {
         [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
         [SerializeField, HideInInspector] private global::GamePlay.Cards.CardScope _cardScope;
-        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardScopeEntity _cardScopeEntity;
+        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardLocalScopeEntity _cardScopeEntity;
         [SerializeField, HideInInspector] private global::UnityEngine.Rendering.SortingGroup _sortingGroup;
         [SerializeField, HideInInspector] private global::GamePlay.Cards.CardRenderer _cardRenderer;
         [SerializeField, HideInInspector] private global::GamePlay.Cards.CardView _cardView;
@@ -18,7 +18,7 @@ namespace GamePlay.Cards {
 
         public global::UnityEngine.Transform Transform => _transform;
         public global::GamePlay.Cards.CardScope CardScope => _cardScope;
-        public global::GamePlay.Cards.CardScopeEntity CardScopeEntity => _cardScopeEntity;
+        public global::GamePlay.Cards.CardLocalScopeEntity CardScopeEntity => _cardScopeEntity;
         public global::UnityEngine.Rendering.SortingGroup SortingGroup => _sortingGroup;
         public global::GamePlay.Cards.CardRenderer CardRenderer => _cardRenderer;
         public global::GamePlay.Cards.CardView CardView => _cardView;

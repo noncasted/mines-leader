@@ -5,6 +5,7 @@ using GamePlay.Players;
 using Internal;
 using Meta;
 using Shared;
+using UnityEngine;
 using VContainer.Unity;
 
 namespace GamePlay.Cards
@@ -42,22 +43,24 @@ namespace GamePlay.Cards
             var gamePlayer = isLocal ? _gameContext.Self : _gameContext.Other;
             var definition = _registry.Entries[cardType];
 
-            var prefab = isLocal ? GamePlayPrefabs.CardLocal : GamePlayPrefabs.CardRemote;
             var parentScope = isLocal ? _gameContext.Self.Scope : _parentScope;
             var spawnPoint = isLocal ? _cardTargets.LocalSpawn : _cardTargets.RemoteSpawn;
 
-            var view = _cardViewFactory.Create(prefab, spawnPoint);
-            var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
-
             if (isLocal == true)
             {
-                var spawn = loadResult.Get<ICardLocalSpawn>();
-                await spawn.Execute();
+                var view = _cardViewFactory.Create(
+                    GamePlayPrefabs.CardLocal.GetComponent<CardLocalScopeEntity>(),
+                    spawnPoint);
+                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
+                await loadResult.Get<ICardLocalSpawn>().Execute();
             }
             else
             {
-                var spawn = loadResult.Get<ICardRemoteSpawn>();
-                await spawn.Execute();
+                var view = _cardViewFactory.Create(
+                    GamePlayPrefabs.CardRemote.GetComponent<CardRemoteScopeEntity>(),
+                    spawnPoint);
+                var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, Build);
+                await loadResult.Get<ICardRemoteSpawn>().Execute();
             }
 
             void Build(IEntityBuilder builder)

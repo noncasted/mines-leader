@@ -41,12 +41,14 @@ namespace GamePlay.Players
         {
             var payload = (PlayerCreatePayload)data.Payload;
 
-            ScopeEntityView view = data.Owner.IsLocal ? _local : _remote;
-            var loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, view, Build);
+            IEntityScopeResult loadResult;
+            if (data.Owner.IsLocal == true)
+                loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, _local, Build);
+            else
+                loadResult = await _entityScopeLoader.Load(lifetime, _parentScope, _remote, Build);
+
             var player = loadResult.Get<IGamePlayer>();
-
             var board = loadResult.Get<IBoard>();
-
             board.Setup(data.Owner.IsLocal);
 
             loadResult.FillProperties(data);

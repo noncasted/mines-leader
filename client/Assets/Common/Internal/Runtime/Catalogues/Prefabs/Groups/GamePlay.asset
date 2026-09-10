@@ -15,10 +15,10 @@ MonoBehaviour:
   _entries:
   - Name: CardLocal
     Prefab: {fileID: 8380813882818688417, guid: 75d1c8300d3c973968f9e706af7a36aa, type: 3}
-    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: GamePlay.Cards.CardLocalScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: CardRemote
     Prefab: {fileID: 962353957333419632, guid: 31b7b026bb3ecd47fb52d58ca1e3f05f, type: 3}
-    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: GamePlay.Cards.CardRemoteScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: Cell
     Prefab: {fileID: 3637014477302833439, guid: 6cdfa7e62ddb3ec4cbf453da16073cfe, type: 3}
     ComponentType: GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

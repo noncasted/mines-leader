@@ -22,6 +22,7 @@ namespace Internal
         private readonly List<ResolveRecord> _history = new();
 
         public string Name { get; }
+        public bool IsGenerated { get; internal set; }
         public IContainerDiagnostics Parent { get; }
         public IReadOnlyList<IContainerDiagnostics> Children => _children;
         public IReadOnlyList<RegistrationInfo> Registrations { get; private set; }

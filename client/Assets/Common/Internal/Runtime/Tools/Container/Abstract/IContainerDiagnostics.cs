@@ -5,6 +5,7 @@ namespace Internal
     public interface IContainerDiagnostics
     {
         string Name { get; }
+        bool IsGenerated { get; }
         IContainerDiagnostics Parent { get; }
         IReadOnlyList<IContainerDiagnostics> Children { get; }
         IReadOnlyList<RegistrationInfo> Registrations { get; }
