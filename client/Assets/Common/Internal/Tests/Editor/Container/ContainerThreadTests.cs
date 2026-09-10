@@ -35,8 +35,8 @@ namespace Internal.Tests
         private static Exception RunOnBackgroundThread(Action action)
         {
             Exception caught = null;
-            var thread = new Thread(() =>
-            {
+
+            var thread = new Thread(() => {
                 try
                 {
                     action();

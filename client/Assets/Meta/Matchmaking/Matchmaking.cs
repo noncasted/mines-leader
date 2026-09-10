@@ -10,6 +10,7 @@ namespace Meta
         UniTask CancelSearch(IReadOnlyLifetime lifetime);
         UniTask<SharedMatchmaking.LobbyResult> SearchLobby(IReadOnlyLifetime lifetime);
         UniTask<SharedMatchmaking.MatchResult> CreateGame(IReadOnlyLifetime lifetime);
+
         UniTask<SharedMatchmaking.MatchResult> CreateGameWithBot(
             IReadOnlyLifetime lifetime,
             GameMatchType type,

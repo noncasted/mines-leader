@@ -122,8 +122,8 @@ namespace Internal
             // Имя файла — метка времени, так что свежие оказываются сверху независимо
             // от того, из какого каталога они пришли.
             result.Sort((left, right) => string.CompareOrdinal(
-                            Path.GetFileName(right),
-                            Path.GetFileName(left)));
+                Path.GetFileName(right),
+                Path.GetFileName(left)));
 
             return result;
         }

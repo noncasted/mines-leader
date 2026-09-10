@@ -7,7 +7,7 @@
         ILifetime ScopeLifetime { get; }
         bool IsMock { get; }
     }
-    
+
     public class ScopeBuilder : IScopeBuilder
     {
         public ScopeBuilder(

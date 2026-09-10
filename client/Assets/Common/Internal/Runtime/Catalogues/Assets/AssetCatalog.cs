@@ -3,29 +3,36 @@ using System.Collections.Generic;
 using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Каталог грузится один раз на старте: он целиком лежит в Resources, отдельных
     // единиц загрузки у групп нет — группа задаёт только пространство имён.
     [AutoStaticsCleanup]
-    public static partial class AssetCatalog {
+    public static partial class AssetCatalog
+    {
         public const string ResourcesPath = "AssetCatalog";
 
         private static readonly Dictionary<string, EnvAsset> Entries = new(StringComparer.Ordinal);
 
         public static bool IsLoaded { get; private set; }
 
-        public static void Load() {
+        public static void Load()
+        {
             if (IsLoaded)
                 return;
 
             var catalog = Resources.Load<EnvAssetCatalogAsset>(ResourcesPath);
+
             if (catalog == null)
                 throw new InvalidOperationException(
                     $"Asset catalog is missing at Resources/{ResourcesPath}. Run Tools/GenerateAssetsCatalog.");
 
             Entries.Clear();
-            foreach (var entry in catalog.Entries) {
-                if (entry == null || entry.Asset == null) {
+
+            foreach (var entry in catalog.Entries)
+            {
+                if (entry == null || entry.Asset == null)
+                {
                     Debug.LogError($"[AssetCatalog] Empty entry '{entry?.Group}.{entry?.Name}' is skipped.");
                     continue;
                 }
@@ -36,7 +43,8 @@ namespace Internal {
             IsLoaded = true;
         }
 
-        public static T Get<T>(string group, string name) where T : EnvAsset {
+        public static T Get<T>(string group, string name) where T : EnvAsset
+        {
             if (IsLoaded == false)
                 throw new InvalidOperationException($"Asset catalog is not loaded, cannot read {group}.{name}");
 
@@ -50,7 +58,8 @@ namespace Internal {
             return typed;
         }
 
-        private static string Key(string group, string name) {
+        private static string Key(string group, string name)
+        {
             return group + "." + name;
         }
     }

@@ -4,20 +4,25 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     [InitializeOnLoad]
-    public static class PrefabCatalogInspector {
-        static PrefabCatalogInspector() {
+    public static class PrefabCatalogInspector
+    {
+        static PrefabCatalogInspector()
+        {
             Editor.finishedDefaultHeaderGUI += Draw;
         }
 
         private const string GameObjectOption = "(GameObject)";
 
-        private static void Draw(Editor editor) {
+        private static void Draw(Editor editor)
+        {
             if (CatalogInspectorGUI.TryCollectImporters(editor, IsCatalogTarget, out var importers) == false)
                 return;
 
-            using (CatalogInspectorGUI.BeginSection()) {
+            using (CatalogInspectorGUI.BeginSection())
+            {
                 var states = ResolveStates(importers);
                 DrawIncluded(importers, states);
 
@@ -34,25 +39,31 @@ namespace Internal {
             }
         }
 
-        private static bool IsCatalogTarget(AssetImporter importer) {
+        private static bool IsCatalogTarget(AssetImporter importer)
+        {
             if (string.IsNullOrEmpty(importer.assetPath))
                 return false;
 
             return Path.GetExtension(importer.assetPath).Equals(".prefab", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static CatalogStates ResolveStates(IReadOnlyList<AssetImporter> importers) {
+        private static CatalogStates ResolveStates(IReadOnlyList<AssetImporter> importers)
+        {
             var first = PrefabCatalogMetadata.ReadOrDefault(importers[0]);
             var includedMixed = false;
             var groupMixed = false;
             var componentMixed = false;
 
-            for (var i = 1; i < importers.Count; i++) {
+            for (var i = 1; i < importers.Count; i++)
+            {
                 var metadata = PrefabCatalogMetadata.ReadOrDefault(importers[i]);
+
                 if (metadata.Included != first.Included)
                     includedMixed = true;
+
                 if (string.Equals(metadata.Group, first.Group, StringComparison.Ordinal) == false)
                     groupMixed = true;
+
                 if (string.Equals(metadata.ComponentType, first.ComponentType, StringComparison.Ordinal) == false)
                     componentMixed = true;
             }
@@ -66,33 +77,43 @@ namespace Internal {
                 componentMixed);
         }
 
-        private static void DrawIncluded(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
-            if (CatalogInspectorGUI.TryDrawToggle("Prefab Catalog", states.Included, states.IncludedMixed, out var included))
+        private static void DrawIncluded(IReadOnlyList<AssetImporter> importers, CatalogStates states)
+        {
+            if (CatalogInspectorGUI.TryDrawToggle("Prefab Catalog", states.Included, states.IncludedMixed,
+                out var included))
                 Apply(importers, metadata => metadata.Included = included);
         }
 
-        private static void DrawRoot(IReadOnlyList<AssetImporter> importers, CatalogStates states) {
+        private static void DrawRoot(IReadOnlyList<AssetImporter> importers, CatalogStates states)
+        {
             var options = GetRootOptions(importers[0], states.ComponentType);
             var labels = new List<string>(options.Count);
             var index = 0;
-            for (var i = 0; i < options.Count; i++) {
+
+            for (var i = 0; i < options.Count; i++)
+            {
                 labels.Add(options[i].Display);
+
                 if (string.Equals(options[i].ComponentType, states.ComponentType, StringComparison.Ordinal))
                     index = i;
             }
 
-            if (CatalogInspectorGUI.TryDrawPopup("Root", labels, index, states.ComponentMixed, out var nextIndex) == false)
+            if (CatalogInspectorGUI.TryDrawPopup("Root", labels, index, states.ComponentMixed, out var nextIndex) ==
+                false)
                 return;
 
             var option = options[nextIndex];
+
             Apply(importers, metadata => {
                 metadata.ComponentType = option.ComponentType;
                 metadata.ComponentGuid = option.ComponentGuid;
             });
         }
 
-        private static void Apply(IReadOnlyList<AssetImporter> importers, Action<PrefabCatalogMetadata> mutate) {
-            foreach (var importer in importers) {
+        private static void Apply(IReadOnlyList<AssetImporter> importers, Action<PrefabCatalogMetadata> mutate)
+        {
+            foreach (var importer in importers)
+            {
                 Undo.RecordObject(importer, "Prefab Catalog");
                 var metadata = PrefabCatalogMetadata.ReadOrDefault(importer);
                 mutate(metadata);
@@ -102,21 +123,28 @@ namespace Internal {
             PrefabCatalogGenerator.ScheduleGenerate();
         }
 
-        private static List<RootOption> GetRootOptions(AssetImporter importer, string currentType) {
-            var options = new List<RootOption> {
+        private static List<RootOption> GetRootOptions(AssetImporter importer, string currentType)
+        {
+            var options = new List<RootOption>
+            {
                 new RootOption(GameObjectOption, string.Empty, string.Empty)
             };
             var seen = new HashSet<string>(StringComparer.Ordinal) { string.Empty };
 
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(importer.assetPath);
-            if (prefab != null) {
+
+            if (prefab != null)
+            {
                 var behaviours = prefab.GetComponents<MonoBehaviour>();
-                foreach (var behaviour in behaviours) {
+
+                foreach (var behaviour in behaviours)
+                {
                     if (behaviour == null)
                         continue;
 
                     var type = behaviour.GetType();
                     var qualified = type.AssemblyQualifiedName ?? string.Empty;
+
                     if (string.IsNullOrEmpty(qualified) || seen.Add(qualified) == false)
                         continue;
 
@@ -133,8 +161,10 @@ namespace Internal {
             return options;
         }
 
-        private readonly struct RootOption {
-            public RootOption(string display, string componentType, string componentGuid) {
+        private readonly struct RootOption
+        {
+            public RootOption(string display, string componentType, string componentGuid)
+            {
                 Display = display;
                 ComponentType = componentType;
                 ComponentGuid = componentGuid;
@@ -145,14 +175,16 @@ namespace Internal {
             public string ComponentGuid { get; }
         }
 
-        private readonly struct CatalogStates {
+        private readonly struct CatalogStates
+        {
             public CatalogStates(
                 bool included,
                 string group,
                 string componentType,
                 bool includedMixed,
                 bool groupMixed,
-                bool componentMixed) {
+                bool componentMixed)
+            {
                 Included = included;
                 Group = group;
                 ComponentType = componentType;

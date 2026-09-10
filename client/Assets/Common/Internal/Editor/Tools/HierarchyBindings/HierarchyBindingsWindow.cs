@@ -1,10 +1,12 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Одно окно и на первую генерацию, и на Regenerate: если биндинги на объекте уже есть,
     // имя и неймспейс подставляются из них и не редактируются, чтобы не плодить второй класс.
-    public sealed class HierarchyBindingsWindow : EditorWindow {
+    public sealed class HierarchyBindingsWindow : EditorWindow
+    {
         private GameObject _target;
         private string _bindingsName;
         private string _namespace;
@@ -12,7 +14,8 @@ namespace Internal {
         private bool _isEntityComponent;
         private bool _isRegenerate;
 
-        public static void Open(GameObject target) {
+        public static void Open(GameObject target)
+        {
             var window = CreateInstance<HierarchyBindingsWindow>();
             window.titleContent = new GUIContent("Object Bindings");
             window.Setup(target);
@@ -20,12 +23,15 @@ namespace Internal {
             window.ShowUtility();
         }
 
-        private void Setup(GameObject target) {
+        private void Setup(GameObject target)
+        {
             _target = target;
 
             var bindings = FindBindings(target);
             var existing = HierarchyBindingsGenerator.ResolveGeneratedType(bindings);
-            if (existing != null) {
+
+            if (existing != null)
+            {
                 _bindingsName = existing.Name;
                 _namespace = existing.Namespace ?? string.Empty;
                 _isSceneService = bindings.IsSceneService;
@@ -38,15 +44,18 @@ namespace Internal {
             _namespace = HierarchyBindingsPaths.ResolveDefaultNamespace(target);
         }
 
-        private void OnGUI() {
-            if (_target == null) {
+        private void OnGUI()
+        {
+            if (_target == null)
+            {
                 Close();
                 return;
             }
 
             EditorGUILayout.LabelField("Object", _target.name);
 
-            using (new EditorGUI.DisabledScope(_isRegenerate)) {
+            using (new EditorGUI.DisabledScope(_isRegenerate))
+            {
                 _bindingsName = EditorGUILayout.TextField("Bindings Name", _bindingsName);
                 _namespace = EditorGUILayout.TextField("Namespace", _namespace);
             }
@@ -59,8 +68,10 @@ namespace Internal {
 
             EditorGUILayout.Space();
 
-            using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(typeName))) {
-                if (GUILayout.Button(_isRegenerate ? "Regenerate" : "Generate")) {
+            using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(typeName)))
+            {
+                if (GUILayout.Button(_isRegenerate ? "Regenerate" : "Generate"))
+                {
                     var target = _target;
                     var name = _bindingsName;
                     var namespaceName = _namespace;
@@ -72,7 +83,8 @@ namespace Internal {
             }
         }
 
-        private static ObjectBindings FindBindings(GameObject target) {
+        private static ObjectBindings FindBindings(GameObject target)
+        {
             return target.GetComponent<ObjectBindings>();
         }
     }

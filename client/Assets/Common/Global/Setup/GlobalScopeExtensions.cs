@@ -14,11 +14,8 @@ namespace Global.Setup
     {
         public static async UniTask<ILoadedScope> LoadGlobal(this IServiceScopeLoader loader, ILoadedScope parent)
         {
-            var options = new ScopeLoadOptions(
-                parent,
-                "Global_Services",
-                Construct,
-                false);
+            var options = new ScopeLoadOptions(parent, Construct)
+                .WithRuntimeScene("Global_Services");
 
             using var stage = GameProfiler.Scope("Global");
 
@@ -33,21 +30,16 @@ namespace Global.Setup
         [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
         public static async UniTask Construct(IScopeBuilder builder)
         {
-            // Отрезок на группу открывает сам LoadPrefabGroup.
-            await builder.LoadPrefabGroup(GlobalPrefabs.Group);
+            builder.RequestPrefabGroup(GlobalPrefabs.Group);
 
-            // Модули меряются поимённо: половина из них инстанцирует префабы, и по
-            // трассе сразу видно, какой именно из них стоит кадров.
-            using var services = GameProfiler.Scope("Registry");
-
-            services.Measure("Updater", () => builder.AddUpdater());
-            services.Measure("Audio", () => builder.AddAudio());
-            services.Measure("Camera", () => builder.AddCamera());
-            services.Measure("Input", () => builder.AddInput());
-            services.Measure("Backend", () => builder.AddBackend());
-            services.Measure("Settings", () => builder.AddSettings());
-            services.Measure("Publisher", () => builder.AddPublisher());
-            services.Measure("UI", () => builder.AddUI());
+            builder.AddUpdater();
+            builder.AddAudio();
+            builder.AddCamera();
+            builder.AddInput();
+            builder.AddBackend();
+            builder.AddSettings();
+            builder.AddPublisher();
+            builder.AddUI();
         }
     }
 }

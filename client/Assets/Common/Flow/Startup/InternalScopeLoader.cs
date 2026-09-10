@@ -39,6 +39,7 @@ namespace Flow.Startup
             }
 
             var result = new InternalLoadedScope(container, lifetime);
+
             Application.quitting += () => {
                 Debug.Log("Internal scope lifetime terminated, disposing loaded scope.");
                 result.Dispose();

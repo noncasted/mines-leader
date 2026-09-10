@@ -44,11 +44,16 @@ namespace Internal
         {
             _webSocket = CreateWebSocket();
 
+            // Чтение подписано до коннекта: авторизация едет в апгрейде, и сервер шлёт проекции
+            // сразу. Первые кадры могут прийти вместе с ответом на апгрейд и попасть в Received
+            // ещё внутри Connect (или между onopen и следующим кадром в WebGL) — без подписчика
+            // они терялись, и профиль оставался null.
+            _dispatcher.Run(lifetime);
+            _reader.Run(lifetime, _webSocket);
+
             using (GameProfiler.Scope("Socket connect"))
                 await _webSocket.Connect();
 
-            _dispatcher.Run(lifetime);
-            _reader.Run(lifetime, _webSocket);
             _writer.Run(lifetime, _webSocket);
 
             // Writer подписан раньше: к моменту, когда обрыв дойдёт до игрового кода,

@@ -52,7 +52,8 @@ namespace Meta
 
             foreach (var entry in payload.buffs)
             {
-                var definition = new ModifierDefinition(entry.type, entry.name, entry.description, TypeToSprite(entry.type));
+                var definition = new ModifierDefinition(entry.type, entry.name, entry.description,
+                    TypeToSprite(entry.type));
                 _buffs[entry.type] = definition;
                 _bySourceKey[TypeToSourceKey(entry.type)] = definition;
             }

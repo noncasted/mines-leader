@@ -21,10 +21,12 @@ namespace Internal
 
         /// <summary>Первый и последний кадр движка, которые заняла трасса. Абсолютные.</summary>
         public int StartFrame;
+
         public int EndFrame;
 
         /// <summary>Границы трассы по часам профайлера, нс.</summary>
         public long StartNs;
+
         public long EndNs;
 
         public bool Cold;
@@ -44,10 +46,12 @@ namespace Internal
 
         /// <summary>Кадры движка, которые занял отрезок.</summary>
         public int StartFrame;
+
         public int EndFrame;
 
         /// <summary>Границы отрезка по часам профайлера, нс: по ним поднимаются сэмплы его кадров.</summary>
         public long StartNs;
+
         public long EndNs;
 
         public bool Unfinished;

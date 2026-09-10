@@ -5,14 +5,16 @@ using Sirenix.OdinInspector;
 using Unity.Scripting.LifecycleManagement;
 #endif
 
-namespace Internal {
+namespace Internal
+{
     // Общая база всех сгенерированных биндингов. Нужна не ради поведения, а ради адресации:
     // по ней находится сам сгенерированный класс, когда пользовательский наследует его,
     // и на ней живёт кнопка перегенерации.
 #if UNITY_EDITOR
     [NoAutoStaticsCleanup]
 #endif
-    public abstract class ObjectBindings : MonoBehaviour, IObjectBindings {
+    public abstract class ObjectBindings : MonoBehaviour, IObjectBindings
+    {
         // Слепок иерархии на момент генерации. Живёт в базе, чтобы сгенерированный класс
         // состоял только из ссылок.
         [SerializeField, HideInInspector] private string _structureHash;
@@ -34,8 +36,10 @@ namespace Internal {
         public static Action<ObjectBindings> RegenerateHandler;
 
         [Button("Regenerate")]
-        private void Regenerate() {
-            if (RegenerateHandler == null) {
+        private void Regenerate()
+        {
+            if (RegenerateHandler == null)
+            {
                 Debug.LogError("[HierarchyBindingsGenerator] Generator is not loaded.", this);
                 return;
             }

@@ -1,5 +1,7 @@
-namespace Internal {
-    public enum ContainerGraphOrigin {
+namespace Internal
+{
+    public enum ContainerGraphOrigin
+    {
         ConstructedType = 0,
         PrefabInstance = 1,
         PrefabAsset = 2,
@@ -12,19 +14,22 @@ namespace Internal {
         SceneServices = 9,
     }
 
-    public readonly struct ContainerGraphSwitchArm {
+    public readonly struct ContainerGraphSwitchArm
+    {
         public readonly string Discriminant;
         public readonly string ImplementationType;
         public readonly string ParameterExpression;
 
-        public ContainerGraphSwitchArm(string discriminant, string implementationType, string parameterExpression) {
+        public ContainerGraphSwitchArm(string discriminant, string implementationType, string parameterExpression)
+        {
             Discriminant = discriminant ?? "";
             ImplementationType = implementationType ?? "";
             ParameterExpression = parameterExpression ?? "";
         }
     }
 
-    public readonly struct ContainerGraphRegistration {
+    public readonly struct ContainerGraphRegistration
+    {
         public readonly string Kind;
         public readonly string ImplementationType;
         public readonly string[] ServiceTypes;
@@ -46,7 +51,8 @@ namespace Internal {
             string hole,
             string file,
             int line,
-            ContainerGraphSwitchArm[] arms) {
+            ContainerGraphSwitchArm[] arms)
+        {
             Kind = kind ?? "";
             ImplementationType = implementationType ?? "";
             ServiceTypes = serviceTypes ?? new string[0];
@@ -60,7 +66,8 @@ namespace Internal {
         }
     }
 
-    public readonly struct ContainerGraphMethod {
+    public readonly struct ContainerGraphMethod
+    {
         public readonly string Id;
         public readonly bool IsRoot;
         public readonly string File;
@@ -74,7 +81,8 @@ namespace Internal {
             string file,
             int line,
             ContainerGraphRegistration[] registrations,
-            string[] calls) {
+            string[] calls)
+        {
             Id = id ?? "";
             IsRoot = isRoot;
             File = file ?? "";
@@ -84,12 +92,14 @@ namespace Internal {
         }
     }
 
-    public readonly struct ContainerGraphAsset {
+    public readonly struct ContainerGraphAsset
+    {
         public readonly string AssetPath;
         public readonly string HolderType;
         public readonly string[] ComponentTypes;
 
-        public ContainerGraphAsset(string assetPath, string holderType, string[] componentTypes) {
+        public ContainerGraphAsset(string assetPath, string holderType, string[] componentTypes)
+        {
             AssetPath = assetPath ?? "";
             HolderType = holderType ?? "";
             ComponentTypes = componentTypes ?? new string[0];

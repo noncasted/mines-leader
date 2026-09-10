@@ -9,7 +9,7 @@ namespace Internal
         float Time { get; }
         Color Color { get; }
     }
-    
+
     public class SpriteAnimationData : ISpriteAnimationData
     {
         public SpriteAnimationData(IReadOnlyList<Sprite> sprites, float time, Color? color = null)

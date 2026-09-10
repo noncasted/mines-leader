@@ -17,7 +17,7 @@ namespace Global.UI
             builder.RegisterInstance(loadingScreen)
                    .As<ILoadingScreen>()
                    .As<IScopeSetup>();
-            
+
             return builder;
         }
     }

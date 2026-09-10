@@ -23,7 +23,9 @@ namespace Internal
             "Assets/Common/Internal/Editor/Tools/ContainerGraph/Transient/ContainerLiveGraph.containergraph";
 
         private const float OriginX = 40f;
+
         private const float OriginY = 40f;
+
         // Дерево растёт слева направо, как идут связи Children → Parent: колонка — глубина скоупа.
         private const float ColumnWidth = 480f;
         private const float SiblingGap = 24f;

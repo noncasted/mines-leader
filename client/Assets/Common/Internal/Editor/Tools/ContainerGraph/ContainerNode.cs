@@ -48,8 +48,10 @@ namespace Internal
         internal IReadOnlyList<string> LoadedAssets => _loadedAssets ?? Array.Empty<string>();
 
         // Высота для раскладки: заголовок с портами и три секции, скролл секции — до 72px (ContainerNodeView).
-        internal float EstimatedHeight =>
-            HeaderHeight + SectionHeight(ExternalDependencies) + SectionHeight(Services) + SectionHeight(LoadedAssets);
+        internal float EstimatedHeight => HeaderHeight +
+                                          SectionHeight(ExternalDependencies) +
+                                          SectionHeight(Services) +
+                                          SectionHeight(LoadedAssets);
 
         private const float HeaderHeight = 72f;
         private const float SectionTitleHeight = 20f;
@@ -85,38 +87,38 @@ namespace Internal
         protected override void OnDefinePorts(IPortDefinitionContext context)
         {
             context.AddInputPort(ParentPortName)
-                .WithDisplayName("Parent")
-                .WithCapacity(PortCapacity.Single)
-                .Build();
+                   .WithDisplayName("Parent")
+                   .WithCapacity(PortCapacity.Single)
+                   .Build();
 
             context.AddOutputPort(ChildrenPortName)
-                .WithDisplayName("Children")
-                .WithCapacity(PortCapacity.Multi)
-                .Build();
+                   .WithDisplayName("Children")
+                   .WithCapacity(PortCapacity.Multi)
+                   .Build();
         }
 
         protected override void OnDefineOptions(IOptionDefinitionContext context)
         {
             context.AddOption<string>(ExternalOptionName)
-                .WithDisplayName("External dependencies")
-                .WithTooltip("Registrations with IsExternal == true (slots flattened from the parent).")
-                .AsTextArea(3, 16)
-                .ShowInInspectorOnly()
-                .Build();
+                   .WithDisplayName("External dependencies")
+                   .WithTooltip("Registrations with IsExternal == true (slots flattened from the parent).")
+                   .AsTextArea(3, 16)
+                   .ShowInInspectorOnly()
+                   .Build();
 
             context.AddOption<string>(ServicesOptionName)
-                .WithDisplayName("Registry")
-                .WithTooltip("Registrations owned by this container (IsExternal == false).")
-                .AsTextArea(3, 16)
-                .ShowInInspectorOnly()
-                .Build();
+                   .WithDisplayName("Registry")
+                   .WithTooltip("Registrations owned by this container (IsExternal == false).")
+                   .AsTextArea(3, 16)
+                   .ShowInInspectorOnly()
+                   .Build();
 
             context.AddOption<string>(AssetsOptionName)
-                .WithDisplayName("Loaded assets")
-                .WithTooltip("Assets loaded into the scope via LoadAssetGroup.")
-                .AsTextArea(3, 16)
-                .ShowInInspectorOnly()
-                .Build();
+                   .WithDisplayName("Loaded assets")
+                   .WithTooltip("Assets loaded into the scope via LoadAssetGroup.")
+                   .AsTextArea(3, 16)
+                   .ShowInInspectorOnly()
+                   .Build();
         }
 
         private void SetOption(string name, string value)

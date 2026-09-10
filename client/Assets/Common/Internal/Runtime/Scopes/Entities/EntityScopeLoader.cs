@@ -18,7 +18,7 @@ namespace Internal
             IScopeEntityView view,
             Action<IEntityBuilder> construct);
     }
-    
+
     public class EntityScopeLoader : IEntityScopeLoader
     {
         public async UniTask<IEntityScopeResult> Load(
@@ -62,14 +62,17 @@ namespace Internal
         }
 
         // Класс скоупа выбирается по корню и конкретному типу вьюхи: у варианта свой тип (locked 14).
-        private async UniTask<IEntityScopeResult> CreateContainer(EntityBuilder builder, IScopeEntityView view, MethodInfo root)
+        private async UniTask<IEntityScopeResult> CreateContainer(
+            EntityBuilder builder,
+            IScopeEntityView view,
+            MethodInfo root)
         {
             builder.RegisterInstance(builder.Events);
 
             var container = ScopeContainer.CreateEntity(
                 GeneratedScopes.RootId(root),
                 view.GetType(),
-                builder.ContainerBuilder); 
+                builder.ContainerBuilder);
 
             builder.ScopeLifetime.Listen(container.Dispose);
             view.Bind(container);

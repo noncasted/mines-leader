@@ -2,10 +2,12 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Генераторы каталогов запускаются из редакторских событий пачками, поэтому запуск
     // защищён от реентерабельности, откладывается на время импорта/компиляции и дебаунсится.
-    public sealed class CatalogGenerationRunner {
+    public sealed class CatalogGenerationRunner
+    {
         private const float DebounceSeconds = 0.5f;
 
         private readonly string _logTag;
@@ -15,47 +17,57 @@ namespace Internal {
         private bool _isScheduled;
         private double _scheduledTime;
 
-        public CatalogGenerationRunner(string logTag, Action generate) {
+        public CatalogGenerationRunner(string logTag, Action generate)
+        {
             _logTag = logTag;
             _generate = generate;
         }
 
-        public void Run() {
+        public void Run()
+        {
             if (_isGenerating)
                 return;
 
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
-            if (EditorApplication.isCompiling) {
+            if (EditorApplication.isCompiling)
+            {
                 Schedule();
                 return;
             }
 
-            if (EditorApplication.isUpdating) {
+            if (EditorApplication.isUpdating)
+            {
                 EditorApplication.delayCall += Run;
                 return;
             }
 
             _isGenerating = true;
 
-            try {
+            try
+            {
                 _generate();
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Debug.LogError($"[{_logTag}] Generate failed: {exception}");
             }
-            finally {
+            finally
+            {
                 _isGenerating = false;
             }
         }
 
-        public void RunDelayed() {
+        public void RunDelayed()
+        {
             EditorApplication.delayCall += Run;
         }
 
-        public void Schedule() {
+        public void Schedule()
+        {
             _scheduledTime = EditorApplication.timeSinceStartup + DebounceSeconds;
+
             if (_isScheduled)
                 return;
 
@@ -63,7 +75,8 @@ namespace Internal {
             EditorApplication.update += TickSchedule;
         }
 
-        private void TickSchedule() {
+        private void TickSchedule()
+        {
             if (EditorApplication.timeSinceStartup < _scheduledTime)
                 return;
 

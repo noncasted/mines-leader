@@ -19,9 +19,13 @@ namespace Internal
             return content;
         }
 
-        public virtual void OnEnable() { }
+        public virtual void OnEnable()
+        {
+        }
 
-        public virtual void OnDisable() { }
+        public virtual void OnDisable()
+        {
+        }
 
         protected abstract void BuildContent(VisualElement parent);
 

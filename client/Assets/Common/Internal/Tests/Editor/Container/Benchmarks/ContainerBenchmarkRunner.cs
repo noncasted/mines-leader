@@ -80,6 +80,7 @@ namespace Internal.Tests
             var ticks = new long[_runs.Count];
             var minBytes = long.MaxValue;
             var maxBytes = long.MinValue;
+
             for (var i = 0; i < _runs.Count; i++)
             {
                 ticks[i] = _runs[i].Ticks;
@@ -88,6 +89,7 @@ namespace Internal.Tests
             }
 
             Array.Sort(ticks);
+
             return new BenchmarkSample(
                 _name,
                 ticks.Length,
@@ -124,9 +126,9 @@ namespace Internal.Tests
             ContainerName = containerName;
             UtcDate = DateTime.UtcNow;
             UnityVersion = Application.unityVersion;
-            Hardware =
-                $"{SystemInfo.processorType} ({SystemInfo.processorCount} cores), " +
-                $"{SystemInfo.systemMemorySize} MB, {SystemInfo.operatingSystem}";
+
+            Hardware = $"{SystemInfo.processorType} ({SystemInfo.processorCount} cores), " +
+                       $"{SystemInfo.systemMemorySize} MB, {SystemInfo.operatingSystem}";
             PhaseItemCount = phaseItemCount;
             Build = build;
             BuildResolved = buildResolved;
@@ -143,14 +145,17 @@ namespace Internal.Tests
             builder.AppendLine($"date: {UtcDate.ToString("yyyy-MM-dd HH:mm:ss", culture)} UTC");
             builder.AppendLine($"unity: {UnityVersion}");
             builder.AppendLine($"hardware: {Hardware}");
+
             builder.AppendLine(
                 "warmup: 1 discarded full pass (Build + resolve every service + 12 ResolveAll from deepest + " +
                 $"{BenchmarkGraph.ResolveIterations} singleton + {BenchmarkGraph.ResolveIterations} transient + Dispose). " +
                 "JIT/domain reload is not in the numbers.");
+
             builder.AppendLine(
                 $"runs: {Build.Runs} measured passes, fresh sessions each; GC.Collect + WaitForPendingFinalizers + " +
                 "GC.Collect before every metric. Time = median (min-max), " +
                 $"allocated = ProfilerRecorder \"{BenchmarkMeasure.AllocatedCounter}\" delta, min (max) over runs.");
+
             builder.AppendLine(
                 $"graph: {BenchmarkGraph.Registrations.Length} services, depth {BenchmarkGraph.ScopeDepth}, " +
                 $"{BenchmarkGraph.Markers.Length} marker interfaces, " +
@@ -212,6 +217,7 @@ namespace Internal.Tests
             }
 
             var build = new BenchmarkSeries("Build");
+
             var buildResolved = new BenchmarkSeries(
                 $"Build + resolve all {BenchmarkGraph.Registrations.Length} services");
             var firstResolveAll = new BenchmarkSeries("First ResolveAll of 12 marker phases");
@@ -224,8 +230,8 @@ namespace Internal.Tests
                 // Отдельная сессия: после полного резолва у VContainer все экземпляры уже созданы,
                 // и остальные замеры перестали бы сравниваться с прошлыми прогонами.
                 IBenchmarkSession resolved = null;
-                buildResolved.Add(() =>
-                {
+
+                buildResolved.Add(() => {
                     resolved = open();
                     Keep(ResolveGraph(resolved));
                 });
@@ -264,11 +270,14 @@ namespace Internal.Tests
         private static int ResolveGraph(IBenchmarkSession session)
         {
             var registrations = BenchmarkGraph.Registrations;
+
             for (var i = 0; i < registrations.Length; i++)
             {
                 var registration = registrations[i];
+
                 if (session.Resolve(registration.Scope, registration.Implementation) == null)
-                    throw new InvalidOperationException("Resolve returned null for " + registration.Implementation.Name);
+                    throw new InvalidOperationException("Resolve returned null for " +
+                                                        registration.Implementation.Name);
             }
 
             return registrations.Length;
@@ -277,6 +286,7 @@ namespace Internal.Tests
         private static void RunLoop(Func<object> resolve)
         {
             object sink = null;
+
             for (var i = 0; i < BenchmarkGraph.ResolveIterations; i++)
                 sink = resolve();
 
@@ -317,7 +327,8 @@ namespace Internal.Tests
 
                 // Count растёт, когда профайлер закрывает кадр: тогда счётчик сброшен и дельта ложная.
                 if (recorder.Count > 0 || allocatedAfter < allocatedBefore)
-                    throw new InvalidOperationException("Profiler frame ended during measurement, allocated bytes are invalid");
+                    throw new InvalidOperationException(
+                        "Profiler frame ended during measurement, allocated bytes are invalid");
 
                 return new BenchmarkRun(ticks, allocatedAfter - allocatedBefore);
             }

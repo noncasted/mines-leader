@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Deploy the Unity WebGL client to the Coolify host.
 #
-# Uploads client/build/build into <DEPLOY_PATH>/releases/<tag> over SSH and flips
+# Uploads client/build into <DEPLOY_PATH>/releases/<tag> over SSH and flips
 # the `current` symlink that the nginx container (client/deploy/docker-compose.yaml)
 # serves. The container is never redeployed — the swap is atomic and instant.
 #
@@ -25,7 +25,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-BUILD_DIR="$ROOT/client/build/build"
+BUILD_DIR="$ROOT/client/build"
 ENV_FILE="${DEPLOY_ENV_FILE:-$HOME/.config/mines-leader/deploy.env}"
 
 if [[ -f "$ENV_FILE" ]]; then

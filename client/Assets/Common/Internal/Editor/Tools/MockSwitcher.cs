@@ -17,7 +17,7 @@ namespace Internal
             if (state != PlayModeStateChange.EnteredPlayMode)
                 return;
 
-            var mock = Object.FindFirstObjectByType<MockBase>();
+            var mock = Object.FindAnyObjectByType<MockBase>();
 
             if (mock == null)
                 return;

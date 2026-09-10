@@ -4,22 +4,28 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Internal {
+namespace Internal
+{
     // Общая обвязка инспекторов каталогов: сбор импортеров выделения, блок в шапке
     // и поля, умеющие показывать смешанное значение при мультивыделении.
-    public static class CatalogInspectorGUI {
+    public static class CatalogInspectorGUI
+    {
         private const float LabelWidth = 50f;
 
         public static bool TryCollectImporters(
             Editor editor,
             Func<AssetImporter, bool> isCatalogTarget,
-            out List<AssetImporter> importers) {
+            out List<AssetImporter> importers)
+        {
             importers = null;
+
             if (editor == null || editor.targets == null || editor.targets.Length == 0)
                 return false;
 
             var collected = new List<AssetImporter>(editor.targets.Length);
-            foreach (var target in editor.targets) {
+
+            foreach (var target in editor.targets)
+            {
                 if (TryGetImporter(target, out var importer) == false)
                     return false;
 
@@ -33,12 +39,14 @@ namespace Internal {
             return true;
         }
 
-        public static Section BeginSection() {
+        public static Section BeginSection()
+        {
             return new Section();
         }
 
         // Возвращает true, если пользователь изменил значение; next тогда содержит новое.
-        public static bool TryDraw<T>(bool mixed, Func<T> draw, out T next) {
+        public static bool TryDraw<T>(bool mixed, Func<T> draw, out T next)
+        {
             EditorGUI.showMixedValue = mixed;
             EditorGUI.BeginChangeCheck();
             next = draw();
@@ -47,15 +55,23 @@ namespace Internal {
             return changed;
         }
 
-        public static bool TryDrawToggle(string label, bool value, bool mixed, out bool next) {
+        public static bool TryDrawToggle(string label, bool value, bool mixed, out bool next)
+        {
             return TryDraw(mixed, () => EditorGUILayout.ToggleLeft(label, value, EditorStyles.boldLabel), out next);
         }
 
-        public static bool TryDrawPopup(string label, IReadOnlyList<string> options, int index, bool mixed, out int next) {
+        public static bool TryDrawPopup(
+            string label,
+            IReadOnlyList<string> options,
+            int index,
+            bool mixed,
+            out int next)
+        {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
 
             var labels = new string[options.Count];
+
             for (var i = 0; i < options.Count; i++)
                 labels[i] = options[i];
 
@@ -65,11 +81,13 @@ namespace Internal {
             return changed && next >= 0 && next < options.Count;
         }
 
-        private static bool TryGetImporter(Object target, out AssetImporter importer) {
+        private static bool TryGetImporter(Object target, out AssetImporter importer)
+        {
             importer = null;
 
             // PrefabImporter is internal in this Unity version; AssetImporter covers it.
-            if (target is AssetImporter assetImporter) {
+            if (target is AssetImporter assetImporter)
+            {
                 importer = assetImporter;
                 return true;
             }
@@ -87,6 +105,7 @@ namespace Internal {
                 return false;
 
             var path = AssetDatabase.GetAssetPath(gameObject);
+
             if (string.IsNullOrEmpty(path))
                 return false;
 
@@ -95,11 +114,13 @@ namespace Internal {
         }
 
         // Шапка инспектора рисуется с выключенным GUI, а поля каталога должны быть кликабельны.
-        public sealed class Section : IDisposable {
+        public sealed class Section : IDisposable
+        {
             private readonly bool _wasEnabled;
             private readonly float _previousLabelWidth;
 
-            public Section() {
+            public Section()
+            {
                 _wasEnabled = GUI.enabled;
                 _previousLabelWidth = EditorGUIUtility.labelWidth;
 
@@ -108,7 +129,8 @@ namespace Internal {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             }
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 EditorGUILayout.EndVertical();
                 EditorGUIUtility.labelWidth = _previousLabelWidth;
                 GUI.enabled = _wasEnabled;

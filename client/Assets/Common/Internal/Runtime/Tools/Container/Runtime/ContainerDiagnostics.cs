@@ -23,8 +23,10 @@ namespace Internal
 
         public string Name { get; }
         public IContainerDiagnostics Parent { get; }
-        public IReadOnlyList<IContainerDiagnostics> Children =>
-            (IReadOnlyList<IContainerDiagnostics>)_children ?? Array.Empty<IContainerDiagnostics>();
+
+        public IReadOnlyList<IContainerDiagnostics> Children => (IReadOnlyList<IContainerDiagnostics>)_children ??
+                                                                Array.Empty<IContainerDiagnostics>();
+
         public IReadOnlyList<RegistrationInfo> Registrations { get; }
         public IReadOnlyList<int> BuildOrder { get; }
         public IReadOnlyList<LoadedAssetInfo> LoadedAssets { get; private set; } = Array.Empty<LoadedAssetInfo>();

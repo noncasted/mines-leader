@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Scripting.LifecycleManagement;
 
 namespace Internal.Tests
 {
     // Сгенерированные классы скоупов на том же графе, что у VContainer. Путь как в рантайме:
     // installer пишет в ContainerBuilder, контейнер строит ScopeContainer.Create.
+    [NoAutoStaticsCleanup]
     internal static class GeneratedContainerBenchmarkHost
     {
         public const string ContainerName = "Generated";
@@ -22,8 +24,8 @@ namespace Internal.Tests
         public static BenchmarkReport Run()
         {
             using (RegisterScopes())
-            using (WithoutDiagnostics())
-                return ContainerBenchmarkRunner.Run(ContainerName, Open);
+                using (WithoutDiagnostics())
+                    return ContainerBenchmarkRunner.Run(ContainerName, Open);
         }
 
         public static IDisposable WithoutDiagnostics()
@@ -40,8 +42,12 @@ namespace Internal.Tests
         {
             var lifetime = new Lifetime();
             var root = Create(RootInstaller, RootId, new ContainerBuilder(RootId, lifetime), lifetime);
-            var match = Create(MatchInstaller, MatchId, new ContainerBuilder("Match", root, root.Lifetime), root.Lifetime);
-            var card = Create(CardInstaller, CardId, new ContainerBuilder("Card", match, match.Lifetime), match.Lifetime);
+
+            var match = Create(MatchInstaller, MatchId, new ContainerBuilder("Match", root, root.Lifetime),
+                root.Lifetime);
+
+            var card = Create(CardInstaller, CardId, new ContainerBuilder("Card", match, match.Lifetime),
+                match.Lifetime);
             return new GeneratedBenchmarkSession(lifetime, root, match, card);
         }
 
@@ -62,6 +68,7 @@ namespace Internal.Tests
                 return;
 
             var method = container.GetMethod("RegisterGenerated", BindingFlags.NonPublic | BindingFlags.Static);
+
             if (method == null)
                 throw new InvalidOperationException(container.FullName + " has no RegisterGenerated.");
 
@@ -89,6 +96,7 @@ namespace Internal.Tests
         public static string BuildAllocations(int runs)
         {
             var steps = new AllocationSteps();
+
             for (var run = 0; run < runs; run++)
             {
                 steps.BeginRun();
@@ -99,8 +107,7 @@ namespace Internal.Tests
                 var match = MeasureScope(steps, "Match", MatchInstaller, MatchId, root, lifetime);
                 var card = MeasureScope(steps, "Card", CardInstaller, CardId, match, lifetime);
 
-                steps.Add("Session: Dispose", () =>
-                {
+                steps.Add("Session: Dispose", () => {
                     card.Dispose();
                     match.Dispose();
                     root.Dispose();
@@ -128,11 +135,16 @@ namespace Internal.Tests
             steps.Add(name + ": ContainerBuilder", () => containerBuilder = parent == null
                 ? new ContainerBuilder(rootId, sessionLifetime)
                 : new ContainerBuilder(name, parent, parent.Lifetime));
-            steps.Add(name + ": RootBuilder + Registry + EventLoop", () =>
-                builder = new RootBuilder(containerBuilder, new EventLoop(), builderLifetime));
-            steps.Add($"{name}: installer ({BenchmarkGraph.Count(level)} registrations)", () => installer.Invoke(builder));
+
+            steps.Add(name + ": RootBuilder + Registry + EventLoop",
+                () => builder = new RootBuilder(containerBuilder, new EventLoop(), builderLifetime));
+
+            steps.Add($"{name}: installer ({BenchmarkGraph.Count(level)} registrations)",
+                () => installer.Invoke(builder));
             steps.Add(name + ": RegisterInstance(Events)", () => builder.RegisterInstance(builder.Events));
-            steps.Add(name + ": ScopeContainer.Create", () => container = ScopeContainer.Create(rootId, containerBuilder));
+
+            steps.Add(name + ": ScopeContainer.Create",
+                () => container = ScopeContainer.Create(rootId, containerBuilder));
 
             builder.Events.Bind(container);
             return container;
@@ -152,6 +164,7 @@ namespace Internal.Tests
             public void Add(string name, Action action)
             {
                 var allocated = BenchmarkMeasure.Capture(action).AllocatedBytes;
+
                 if (_index == _names.Count)
                 {
                     _names.Add(name);
@@ -175,10 +188,12 @@ namespace Internal.Tests
 
                 var total = 0L;
                 var build = 0L;
+
                 for (var i = 0; i < _names.Count; i++)
                 {
                     builder.AppendLine($"| {_names[i]} | {_bytes[i]} |");
                     total += _bytes[i];
+
                     if (_names[i] != "Session: Dispose")
                         build += _bytes[i];
                 }

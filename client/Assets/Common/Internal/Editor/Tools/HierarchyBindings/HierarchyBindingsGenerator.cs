@@ -5,17 +5,21 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Генерация идёт в две фазы: сначала пишем класс, потом, уже после компиляции, вешаем его
     // на объект и заполняем ссылки. Заявка между фазами живёт в SessionState, потому что домен
     // между ними перезагружается.
-    public static class HierarchyBindingsGenerator {
+    public static class HierarchyBindingsGenerator
+    {
         public const string TypeNameSuffix = "Bindings";
 
         private const string LogTag = "HierarchyBindingsGenerator";
 
-        public static string ToTypeName(string bindingsName) {
+        public static string ToTypeName(string bindingsName)
+        {
             var identifier = HierarchyBindingsNaming.ToIdentifier(bindingsName);
+
             if (string.IsNullOrEmpty(identifier))
                 return string.Empty;
 
@@ -26,33 +30,39 @@ namespace Internal {
         }
 
         [InitializeOnLoadMethod]
-        private static void InstallRegenerateHandler() {
+        private static void InstallRegenerateHandler()
+        {
             ObjectBindings.RegenerateHandler = Regenerate;
         }
 
-        public static void Regenerate(ObjectBindings bindings) {
+        public static void Regenerate(ObjectBindings bindings)
+        {
             var type = ResolveGeneratedType(bindings);
-            if (type == null) {
+
+            if (type == null)
+            {
                 Debug.LogError($"[{LogTag}] Failed to resolve the generated type.", bindings);
                 return;
             }
 
             Generate(
-                bindings.gameObject,
-                type.Name,
-                type.Namespace ?? string.Empty,
-                bindings.IsSceneService,
-                bindings.IsEntityComponent
-            );
+                    bindings.gameObject,
+                    type.Name,
+                    type.Namespace ?? string.Empty,
+                    bindings.IsSceneService,
+                    bindings.IsEntityComponent
+                );
         }
 
         // Пользовательский класс наследует сгенерированный, поэтому по компоненту на объекте
         // нужно подняться до типа, который лежит прямо под ObjectBindings — именно он генерируется.
-        public static Type ResolveGeneratedType(Component bindings) {
+        public static Type ResolveGeneratedType(Component bindings)
+        {
             if (bindings == null)
                 return null;
 
             var type = bindings.GetType();
+
             while (type != null && type.BaseType != typeof(ObjectBindings))
                 type = type.BaseType;
 
@@ -64,7 +74,8 @@ namespace Internal {
             string bindingsName,
             string namespaceName,
             bool isSceneService,
-            bool isEntityComponent) {
+            bool isEntityComponent)
+        {
             if (Prepare(root, bindingsName, namespaceName, isSceneService, isEntityComponent, out var changed) == false)
                 return;
 
@@ -79,38 +90,48 @@ namespace Internal {
             string namespaceName,
             bool isSceneService,
             bool isEntityComponent,
-            out bool changed) {
+            out bool changed)
+        {
             changed = false;
 
             var typeName = ToTypeName(bindingsName);
-            if (string.IsNullOrEmpty(typeName)) {
+
+            if (string.IsNullOrEmpty(typeName))
+            {
                 Debug.LogError($"[{LogTag}] '{bindingsName}' is not a C# identifier.");
                 return false;
             }
 
-            if (HierarchyBindingsTarget.TryDescribe(root, out var assetPath, out var objectPath, out var isPrefab, out var describeError) == false) {
+            if (HierarchyBindingsTarget.TryDescribe(root, out var assetPath, out var objectPath, out var isPrefab,
+                    out var describeError) ==
+                false)
+            {
                 Debug.LogError($"[{LogTag}] {describeError}", root);
                 return false;
             }
 
             var errors = new List<string>();
             var node = HierarchyBindingsScanner.Scan(root, typeName, errors);
-            if (node == null) {
+
+            if (node == null)
+            {
                 Report(errors, root);
                 return false;
             }
 
             var folder = HierarchyBindingsPaths.ResolveGeneratedFolder(root, assetPath);
             var filePath = $"{folder}/{typeName}.g.cs";
-            var code = HierarchyBindingsCodeGenerator.Build(
-                node,
-                namespaceName,
-                HierarchyBindingsStructure.ComputeHash(node),
-                isSceneService,
-                isEntityComponent
-            );
 
-            HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest {
+            var code = HierarchyBindingsCodeGenerator.Build(
+                    node,
+                    namespaceName,
+                    HierarchyBindingsStructure.ComputeHash(node),
+                    isSceneService,
+                    isEntityComponent
+                );
+
+            HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest
+            {
                 AssetPath = assetPath,
                 ObjectPath = objectPath,
                 TypeName = typeName,
@@ -128,7 +149,8 @@ namespace Internal {
 
         // Без изменений в коде компиляции не будет, а значит и DidReloadScripts не сработает,
         // поэтому связываем сразу.
-        public static void Flush(bool changed) {
+        public static void Flush(bool changed)
+        {
             if (changed)
                 AssetDatabase.Refresh();
             else
@@ -136,20 +158,25 @@ namespace Internal {
         }
 
         [DidReloadScripts]
-        private static void OnScriptsReloaded() {
+        private static void OnScriptsReloaded()
+        {
             if (HierarchyBindingsQueue.IsEmpty())
                 return;
 
             EditorApplication.delayCall += ProcessPending;
         }
 
-        private static void ProcessPending() {
+        private static void ProcessPending()
+        {
             var requests = HierarchyBindingsQueue.Take();
+
             if (requests.Count == 0)
                 return;
 
             var bound = 0;
-            foreach (var request in requests) {
+
+            foreach (var request in requests)
+            {
                 if (Process(request))
                     bound++;
             }
@@ -161,21 +188,29 @@ namespace Internal {
             Debug.Log($"[{LogTag}] Bound {bound} of {requests.Count} bindings.");
         }
 
-        private static bool Process(HierarchyBindingsRequest request) {
+        private static bool Process(HierarchyBindingsRequest request)
+        {
             var type = FindType(request);
-            if (type == null) {
-                Debug.LogError($"[{LogTag}] Generated type '{request.TypeName}' not found. Fix compilation errors and generate again.");
+
+            if (type == null)
+            {
+                Debug.LogError(
+                    $"[{LogTag}] Generated type '{request.TypeName}' not found. Fix compilation errors and generate again.");
                 return false;
             }
 
             using var target = HierarchyBindingsTarget.Resolve(request, out var resolveError);
-            if (target == null) {
+
+            if (target == null)
+            {
                 Debug.LogError($"[{LogTag}] {resolveError}");
                 return false;
             }
 
             var errors = new List<string>();
-            if (HierarchyBindingsBinder.Bind(target.Root, type, request, errors) == false) {
+
+            if (HierarchyBindingsBinder.Bind(target.Root, type, request, errors) == false)
+            {
                 Report(errors, target.Root);
                 return false;
             }
@@ -184,12 +219,14 @@ namespace Internal {
             return true;
         }
 
-        private static Type FindType(HierarchyBindingsRequest request) {
+        private static Type FindType(HierarchyBindingsRequest request)
+        {
             var fullName = string.IsNullOrEmpty(request.Namespace)
                 ? request.TypeName
                 : request.Namespace + "." + request.TypeName;
 
-            foreach (var candidate in TypeCache.GetTypesDerivedFrom<MonoBehaviour>()) {
+            foreach (var candidate in TypeCache.GetTypesDerivedFrom<MonoBehaviour>())
+            {
                 if (string.Equals(candidate.FullName, fullName, StringComparison.Ordinal))
                     return candidate;
             }
@@ -197,17 +234,21 @@ namespace Internal {
             return null;
         }
 
-        private static bool HasChanged(string assetPath, string content) {
-            try {
+        private static bool HasChanged(string assetPath, string content)
+        {
+            try
+            {
                 var fullPath = CatalogPaths.ToFullPath(assetPath);
                 return File.Exists(fullPath) == false || File.ReadAllText(fullPath) != content;
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return true;
             }
         }
 
-        private static void Report(List<string> errors, UnityEngine.Object context) {
+        private static void Report(List<string> errors, UnityEngine.Object context)
+        {
             foreach (var error in errors)
                 Debug.LogError($"[{LogTag}] {error}", context);
         }

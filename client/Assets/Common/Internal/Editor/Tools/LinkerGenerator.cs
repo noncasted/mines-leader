@@ -81,8 +81,7 @@ namespace Internal
 
         private static bool IsProjectAssembly(string assemblyName)
         {
-            var definitionPath =
-                    CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
+            var definitionPath = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
 
             if (string.IsNullOrEmpty(definitionPath))
                 return false;

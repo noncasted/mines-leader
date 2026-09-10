@@ -9,7 +9,7 @@ namespace Global.Inputs
     {
         Game,
     }
-    
+
     public interface IInputConstraintsStorage
     {
         void Add(IUIConstraints uiConstraints);

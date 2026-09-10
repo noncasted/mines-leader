@@ -40,7 +40,7 @@ namespace Global.UI
             _direction = Direction2.Forward;
             await UniTask.WaitUntil(() => _curveInstance.IsFinished == true);
         }
-        
+
         public void ShowInstantly()
         {
             _direction = Direction2.Forward;

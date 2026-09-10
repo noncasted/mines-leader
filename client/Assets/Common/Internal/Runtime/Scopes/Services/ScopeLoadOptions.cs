@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
@@ -7,42 +7,19 @@ namespace Internal
 {
     public class ScopeLoadOptions
     {
-        public ScopeLoadOptions(
-            ILoadedScope parent,
-            AssetReference serviceScene,
-            Func<IScopeBuilder, UniTask> constructCallback,
-            bool isMock)
-            : this(parent, serviceScene, null, constructCallback, constructCallback.Method, isMock)
-        {
-        }
-
-        /// <summary>
-        /// Вариант для скоупов, у которых сцена сервисов пустая: вместо загрузки ассета
-        /// сцена с этим именем создаётся в рантайме.
-        /// </summary>
-        public ScopeLoadOptions(
-            ILoadedScope parent,
-            string serviceSceneName,
-            Func<IScopeBuilder, UniTask> constructCallback,
-            bool isMock)
-            : this(parent, null, serviceSceneName, constructCallback, constructCallback.Method, isMock)
+        public ScopeLoadOptions(ILoadedScope parent, Func<IScopeBuilder, UniTask> constructCallback)
+            : this(parent, constructCallback, constructCallback.Method)
         {
         }
 
         private ScopeLoadOptions(
             ILoadedScope parent,
-            AssetReference serviceScene,
-            string serviceSceneName,
             Func<IScopeBuilder, UniTask> constructCallback,
-            MethodInfo root,
-            bool isMock)
+            MethodInfo root)
         {
             Parent = parent;
-            ServiceScene = serviceScene;
-            ServiceSceneName = serviceSceneName;
             ConstructCallback = constructCallback;
             RootId = GeneratedScopes.RootId(root);
-            IsMock = isMock;
         }
 
         /// <summary>
@@ -51,25 +28,37 @@ namespace Internal
         /// </summary>
         public static ScopeLoadOptions Create<TArg>(
             ILoadedScope parent,
-            string serviceSceneName,
             Func<IScopeBuilder, TArg, UniTask> construct,
-            TArg arg,
-            bool isMock)
+            TArg arg)
         {
-            return new ScopeLoadOptions(
-                parent,
-                null,
-                serviceSceneName,
-                builder => construct(builder, arg),
-                construct.Method,
-                isMock);
+            return new ScopeLoadOptions(parent, builder => construct(builder, arg), construct.Method);
         }
 
         public ILoadedScope Parent { get; }
-        public AssetReference ServiceScene { get; }
-        public string ServiceSceneName { get; }
         public Func<IScopeBuilder, UniTask> ConstructCallback { get; }
         public string RootId { get; }
-        public bool IsMock { get; }
+        public IScopeServiceSceneLoader SceneLoader { get; private set; } = new NoScene();
+        public bool IsMock { get; private set; }
+
+        /// <summary>
+        /// Скоуп — часть мока.
+        /// </summary>
+        public ScopeLoadOptions AsMock()
+        {
+            IsMock = true;
+            return this;
+        }
+
+        public ScopeLoadOptions WithRuntimeScene(string name)
+        {
+            SceneLoader = new RuntimeScene(name);
+            return this;
+        }
+
+        public ScopeLoadOptions WithAssetScene(AssetReference asset)
+        {
+            SceneLoader = new AssetScene(asset);
+            return this;
+        }
     }
 }

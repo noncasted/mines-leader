@@ -19,7 +19,7 @@ namespace Meta
     {
         public GameModeInfoPayload[] modes;
     }
-    
+
     public interface IGameModesRegistry
     {
         IReadOnlyDictionary<GameMatchType, IGameModeDefinition> Entries { get; }

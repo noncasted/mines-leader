@@ -6,18 +6,22 @@ using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Список групп каталога: то, что явно заведено руками (json), плюс то, что найдено
     // в уже размеченных ассетах. Json нужен, чтобы пустая группа не исчезала до первого ассета.
     [NoAutoStaticsCleanup]
-    public abstract class CatalogGroupsRegistry {
-        private static readonly JsonSerializerSettings JsonSettings = new() {
+    public abstract class CatalogGroupsRegistry
+    {
+        private static readonly JsonSerializerSettings JsonSettings = new()
+        {
             Formatting = Formatting.Indented
         };
 
         private string[] _cachedGroups;
 
-        protected CatalogGroupsRegistry(string logTag, string assetPath) {
+        protected CatalogGroupsRegistry(string logTag, string assetPath)
+        {
             LogTag = logTag;
             AssetPath = assetPath;
         }
@@ -26,7 +30,8 @@ namespace Internal {
 
         protected string LogTag { get; }
 
-        public IReadOnlyList<string> GetGroups() {
+        public IReadOnlyList<string> GetGroups()
+        {
             if (_cachedGroups != null)
                 return _cachedGroups;
 
@@ -43,16 +48,22 @@ namespace Internal {
             return _cachedGroups;
         }
 
-        public bool TryAddGroup(string name, out string groupName) {
+        public bool TryAddGroup(string name, out string groupName)
+        {
             groupName = CatalogNaming.ToGroupName(name);
-            if (string.IsNullOrEmpty(groupName)) {
+
+            if (string.IsNullOrEmpty(groupName))
+            {
                 Debug.LogError($"[{LogTag}] Group name is empty after sanitize.");
                 return false;
             }
 
             var groups = new List<string>(ReadFileGroups());
-            foreach (var existing in groups) {
-                if (string.Equals(existing, groupName, StringComparison.OrdinalIgnoreCase)) {
+
+            foreach (var existing in groups)
+            {
+                if (string.Equals(existing, groupName, StringComparison.OrdinalIgnoreCase))
+                {
                     groupName = existing;
                     Invalidate();
                     return true;
@@ -60,6 +71,7 @@ namespace Internal {
             }
 
             groups.Add(groupName);
+
             if (WriteFileGroups(groups) == false)
                 return false;
 
@@ -67,43 +79,53 @@ namespace Internal {
             return true;
         }
 
-        public void Invalidate() {
+        public void Invalidate()
+        {
             _cachedGroups = null;
         }
 
         // Группы, выведенные из разметки самих ассетов.
         protected abstract IEnumerable<string> DiscoverGroups();
 
-        private IReadOnlyList<string> ReadFileGroups() {
+        private IReadOnlyList<string> ReadFileGroups()
+        {
             var fullPath = CatalogPaths.ToFullPath(AssetPath);
 
-            try {
+            try
+            {
                 if (File.Exists(fullPath) == false)
                     return Array.Empty<string>();
 
                 var file = JsonConvert.DeserializeObject<RegistryFile>(File.ReadAllText(fullPath));
+
                 if (file?.groups == null)
                     return Array.Empty<string>();
 
                 var groups = new List<string>(file.groups.Count);
-                foreach (var group in file.groups) {
+
+                foreach (var group in file.groups)
+                {
                     if (string.IsNullOrWhiteSpace(group) == false)
                         groups.Add(group);
                 }
 
                 return groups;
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Debug.LogError($"[{LogTag}] Failed to read {AssetPath}: {exception}");
                 return Array.Empty<string>();
             }
         }
 
-        private bool WriteFileGroups(IReadOnlyList<string> groups) {
+        private bool WriteFileGroups(IReadOnlyList<string> groups)
+        {
             var fullPath = CatalogPaths.ToFullPath(AssetPath);
 
-            try {
+            try
+            {
                 var directory = Path.GetDirectoryName(fullPath);
+
                 if (string.IsNullOrEmpty(directory) == false && Directory.Exists(directory) == false)
                     Directory.CreateDirectory(directory);
 
@@ -112,14 +134,16 @@ namespace Internal {
                 AssetDatabase.ImportAsset(AssetPath);
                 return true;
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Debug.LogError($"[{LogTag}] Failed to write {AssetPath}: {exception}");
                 return false;
             }
         }
 
         [Serializable]
-        private sealed class RegistryFile {
+        private sealed class RegistryFile
+        {
             public List<string> groups = new();
         }
     }

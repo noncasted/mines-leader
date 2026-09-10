@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     // Зеркало одного объекта иерархии: компоненты становятся полями, дети — вложенными классами.
-    internal sealed class HierarchyBindingsNode {
+    internal sealed class HierarchyBindingsNode
+    {
         public GameObject Target;
         public string HierarchyPath;
 
@@ -23,7 +25,8 @@ namespace Internal {
 
     // Поле-ссылка на компонент. Граничные объекты (свои биндинги, вложенный префаб) попадают
     // сюда же: снаружи они выглядят как обычная ссылка, внутрь генератор не заходит.
-    internal sealed class HierarchyBindingsField {
+    internal sealed class HierarchyBindingsField
+    {
         public UnityEngine.Object Target;
         public string PropertyName;
         public string FieldName;

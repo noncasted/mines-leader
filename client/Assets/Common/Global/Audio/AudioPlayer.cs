@@ -11,7 +11,7 @@ namespace Global.Audio
         void PlaySound(AudioClip clip);
         void PlayLoopMusic(AudioClip clip);
     }
-    
+
     public interface IAudioVolume
     {
         IReadOnlyDictionary<AudioLine, float> Values { get; }
@@ -21,7 +21,7 @@ namespace Global.Audio
         void Unmute();
         void SetVolume(AudioLine line, float volume);
     }
-    
+
     [DisallowMultipleComponent]
     public class AudioPlayer : MonoBehaviour, IAudioVolume, IAudioPlayer, IScopeSetup
     {

@@ -88,7 +88,7 @@ namespace Meta
                 Id = projection.Id;
                 _name.Set(projection.Name);
             });
-            
+
             _ratingProjection.View(lifetime, projection => _rating.Set(projection.Rating));
 
             _statsProjection.View(lifetime, projection => {

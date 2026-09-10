@@ -1,5 +1,6 @@
 using System;
 using Internal;
+using Unity.Scripting.LifecycleManagement;
 
 namespace Internal.Tests
 {
@@ -35,6 +36,7 @@ namespace Internal.Tests
         void Add(Type implementation, ServiceLifetime lifetime, Type[] markers);
     }
 
+    [NoAutoStaticsCleanup]
     internal static class BenchmarkGraph
     {
         public const int ScopeDepth = 3;
@@ -67,45 +69,57 @@ namespace Internal.Tests
             new(typeof(BenchRootTime), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root),
             new(typeof(BenchRootLog), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchBaseSetup)),
             new(typeof(BenchRootConfig), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root),
-            new(typeof(BenchRootAssets), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchSceneService)),
+            new(typeof(BenchRootAssets), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root,
+                typeof(IBenchSceneService)),
             new(typeof(BenchRootPrefabs), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root),
             new(typeof(BenchRootAudio), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchLoaded)),
             new(typeof(BenchRootInput), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root),
             new(typeof(BenchRootSaves), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchDispose)),
             new(typeof(BenchRootPublisher), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchSetup)),
-            new(typeof(BenchRootUpdater), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchSetup), typeof(IBenchDispose)),
+            new(typeof(BenchRootUpdater), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchSetup),
+                typeof(IBenchDispose)),
             new(typeof(BenchRootNetwork), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root),
-            new(typeof(BenchRootProfiler), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root, typeof(IBenchBaseSetup)),
+            new(typeof(BenchRootProfiler), ServiceLifetime.Singleton, BenchmarkScopeLevel.Root,
+                typeof(IBenchBaseSetup)),
 
             new(typeof(BenchMatchRandom), ServiceLifetime.Singleton, BenchmarkScopeLevel.Match),
             new(typeof(BenchMatchEvents), ServiceLifetime.Singleton, BenchmarkScopeLevel.Match, typeof(IBenchSetup)),
             new(typeof(BenchMatchClock), ServiceLifetime.Singleton, BenchmarkScopeLevel.Match, typeof(IBenchBaseSetup)),
             new(typeof(BenchMatchState), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup)),
-            new(typeof(BenchMatchBoard), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup), typeof(IBenchSceneService)),
+            new(typeof(BenchMatchBoard), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup),
+                typeof(IBenchSceneService)),
             new(typeof(BenchMatchRules), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match),
             new(typeof(BenchMatchPlayers), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchLoaded)),
             new(typeof(BenchMatchCards), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup)),
             new(typeof(BenchMatchScore), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match),
             new(typeof(BenchMatchSync), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetupAsync)),
-            new(typeof(BenchMatchLoop), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup), typeof(IBenchLoaded)),
-            new(typeof(BenchMatchCamera), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSceneService)),
+            new(typeof(BenchMatchLoop), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match, typeof(IBenchSetup),
+                typeof(IBenchLoaded)),
+            new(typeof(BenchMatchCamera), ServiceLifetime.Scoped, BenchmarkScopeLevel.Match,
+                typeof(IBenchSceneService)),
 
-            new(typeof(BenchCardId), ServiceLifetime.Singleton, BenchmarkScopeLevel.Card, typeof(IBenchEntityComponent)),
+            new(typeof(BenchCardId), ServiceLifetime.Singleton, BenchmarkScopeLevel.Card,
+                typeof(IBenchEntityComponent)),
             new(typeof(BenchCardDefinition), ServiceLifetime.Singleton, BenchmarkScopeLevel.Card),
-            new(typeof(BenchCardOwner), ServiceLifetime.Singleton, BenchmarkScopeLevel.Card, typeof(IBenchEntityComponent)),
-            new(typeof(BenchCardView), ServiceLifetime.Transient, BenchmarkScopeLevel.Card, typeof(IBenchEntityComponent), typeof(IBenchSetup)),
+            new(typeof(BenchCardOwner), ServiceLifetime.Singleton, BenchmarkScopeLevel.Card,
+                typeof(IBenchEntityComponent)),
+            new(typeof(BenchCardView), ServiceLifetime.Transient, BenchmarkScopeLevel.Card,
+                typeof(IBenchEntityComponent), typeof(IBenchSetup)),
             new(typeof(BenchCardState), ServiceLifetime.Transient, BenchmarkScopeLevel.Card),
             new(typeof(BenchCardAction), ServiceLifetime.Transient, BenchmarkScopeLevel.Card, typeof(IBenchSetup)),
-            new(typeof(BenchCardAnimator), ServiceLifetime.Transient, BenchmarkScopeLevel.Card, typeof(IBenchEntityComponent)),
+            new(typeof(BenchCardAnimator), ServiceLifetime.Transient, BenchmarkScopeLevel.Card,
+                typeof(IBenchEntityComponent)),
             new(typeof(BenchCardInput), ServiceLifetime.Transient, BenchmarkScopeLevel.Card, typeof(IBenchSetup))
         };
 
         public static void Apply(BenchmarkScopeLevel scope, IBenchmarkRegistry registry)
         {
             var registrations = Registrations;
+
             for (var i = 0; i < registrations.Length; i++)
             {
                 var entry = registrations[i];
+
                 if (entry.Scope != scope)
                     continue;
 
@@ -117,6 +131,7 @@ namespace Internal.Tests
         {
             var count = 0;
             var registrations = Registrations;
+
             for (var i = 0; i < registrations.Length; i++)
             {
                 if (registrations[i].Lifetime == lifetime)
@@ -130,6 +145,7 @@ namespace Internal.Tests
         {
             var count = 0;
             var registrations = Registrations;
+
             for (var i = 0; i < registrations.Length; i++)
             {
                 if (registrations[i].Scope == scope)

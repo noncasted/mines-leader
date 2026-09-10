@@ -184,8 +184,8 @@ namespace Internal
                 autoExpand = true
             };
             _treeView.AddToClassList("container-tree");
-            _treeView.makeItem = () =>
-            {
+
+            _treeView.makeItem = () => {
                 var label = new Label();
                 label.AddToClassList("tree-item");
                 return label;
@@ -243,10 +243,16 @@ namespace Internal
 
             var columns = new Columns();
             columns.Add(MakeRegistrationColumn("slot", "Slot", 56, false, info => info.Slot.ToString()));
-            columns.Add(MakeRegistrationColumn("implementation", "Implementation", 220, false, info => FormatType(info.ImplementationType)));
-            columns.Add(MakeRegistrationColumn("services", "Service types", 240, true, info => FormatServiceTypes(info.ServiceTypes)));
+
+            columns.Add(MakeRegistrationColumn("implementation", "Implementation", 220, false,
+                info => FormatType(info.ImplementationType)));
+
+            columns.Add(MakeRegistrationColumn("services", "Service types", 240, true,
+                info => FormatServiceTypes(info.ServiceTypes)));
             columns.Add(MakeRegistrationColumn("lifetime", "Lifetime", 90, false, info => info.Lifetime.ToString()));
-            columns.Add(MakeRegistrationColumn("instantiated", "Instantiated", 90, false, info => FormatFlag(info.IsInstantiated)));
+
+            columns.Add(MakeRegistrationColumn("instantiated", "Instantiated", 90, false,
+                info => FormatFlag(info.IsInstantiated)));
 
             _registrationsView = new MultiColumnListView(columns)
             {
@@ -339,7 +345,9 @@ namespace Internal
             var columns = new Columns();
             columns.Add(MakeHistoryColumn("slot", "Slot", 56, false, record => record.Slot.ToString()));
             columns.Add(MakeHistoryColumn("type", "Implementation", 220, true, record => TypeNameForSlot(record.Slot)));
-            columns.Add(MakeHistoryColumn("milliseconds", "ms", 80, false, record => record.Milliseconds.ToString("F3")));
+
+            columns.Add(
+                MakeHistoryColumn("milliseconds", "ms", 80, false, record => record.Milliseconds.ToString("F3")));
             columns.Add(MakeHistoryColumn("frame", "Frame", 70, false, record => record.Frame.ToString()));
 
             _historyView = new MultiColumnListView(columns)
@@ -424,8 +432,7 @@ namespace Internal
             SetStatus(FormatStatus(roots.Count), false);
         }
 
-        private List<TreeViewItemData<IContainerDiagnostics>> BuildTreeItems(
-            IReadOnlyList<IContainerDiagnostics> roots)
+        private List<TreeViewItemData<IContainerDiagnostics>> BuildTreeItems(IReadOnlyList<IContainerDiagnostics> roots)
         {
             _diagnosticsById.Clear();
             _visited.Clear();
@@ -566,6 +573,7 @@ namespace Internal
                 return;
 
             var index = FirstIndex(indices);
+
             _selectedSlot = index >= 0 && index < _registrations.Count
                 ? _registrations[index].Slot
                 : -1;
@@ -737,6 +745,7 @@ namespace Internal
             var hasInfo = _registrationsBySlot.TryGetValue(slot, out var info);
             var title = hasInfo ? FormatType(info.ImplementationType) : "(missing)";
             var lifetime = hasInfo ? info.Lifetime.ToString() : string.Empty;
+
             var text = string.IsNullOrEmpty(lifetime)
                 ? $"[{slot}] {title}"
                 : $"[{slot}] {title} · {lifetime}";

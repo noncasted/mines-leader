@@ -16,27 +16,33 @@ namespace Internal
         [SerializeField] private string _productionApiUrl = "https://gateway.minesleader.xyz";
         [SerializeField] private string _localApiUrl = "http://localhost:5003";
 
-        public BackendEnvironment Environment {
+        public BackendEnvironment Environment
+        {
             get => _environment;
             set => _environment = value;
         }
 
-        public string ProductionApiUrl {
+        public string ProductionApiUrl
+        {
             get => _productionApiUrl;
             set => _productionApiUrl = value;
         }
 
-        public string LocalApiUrl {
+        public string LocalApiUrl
+        {
             get => _localApiUrl;
             set => _localApiUrl = value;
         }
 
-        public string Url {
-            get {
+        public string Url
+        {
+            get
+            {
                 if (Application.isEditor == false)
                     return _productionApiUrl;
 
-                return _environment switch {
+                return _environment switch
+                {
                     BackendEnvironment.Local => _localApiUrl,
                     BackendEnvironment.Production => _productionApiUrl,
                     _ => throw new ArgumentOutOfRangeException()

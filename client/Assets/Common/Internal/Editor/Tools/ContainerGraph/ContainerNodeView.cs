@@ -7,8 +7,7 @@ namespace Internal
 {
     public sealed class ContainerNodeView : NodeView<ContainerNode>
     {
-        private const string UssPath =
-            "Assets/Common/Internal/Editor/Tools/ContainerGraph/ContainerGraph.uss";
+        private const string UssPath = "Assets/Common/Internal/Editor/Tools/ContainerGraph/ContainerGraph.uss";
 
         private VisualElement _panel;
 

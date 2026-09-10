@@ -4,13 +4,16 @@ using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
-    public enum SpriteCatalogKind {
+namespace Internal
+{
+    public enum SpriteCatalogKind
+    {
         Sheet,
         Animation
     }
 
-    public sealed class SpriteCatalogMetadata {
+    public sealed class SpriteCatalogMetadata
+    {
         public const float DefaultTime = 0.8f;
         public static readonly Color DefaultColor = Color.white;
 
@@ -23,12 +26,15 @@ namespace Internal {
         public float Time { get; set; } = DefaultTime;
         public Color Color { get; set; } = DefaultColor;
 
-        public static bool TryRead(AssetImporter importer, out SpriteCatalogMetadata metadata) {
+        public static bool TryRead(AssetImporter importer, out SpriteCatalogMetadata metadata)
+        {
             metadata = null;
+
             if (AssetUserData.TryRead(importer, UserDataKey, LogTag, out var catalog) == false)
                 return false;
 
-            metadata = new SpriteCatalogMetadata {
+            metadata = new SpriteCatalogMetadata
+            {
                 Included = catalog["included"] != null && catalog.Value<bool>("included"),
                 Group = catalog.Value<string>("group") ?? string.Empty,
                 Kind = ParseKind(catalog.Value<string>("kind")),
@@ -38,18 +44,21 @@ namespace Internal {
             return true;
         }
 
-        public static SpriteCatalogMetadata ReadOrDefault(AssetImporter importer) {
+        public static SpriteCatalogMetadata ReadOrDefault(AssetImporter importer)
+        {
             if (TryRead(importer, out var metadata))
                 return metadata;
 
             return CreateDefault(importer);
         }
 
-        public static SpriteCatalogMetadata CreateDefault(AssetImporter importer) {
+        public static SpriteCatalogMetadata CreateDefault(AssetImporter importer)
+        {
             if (importer == null)
                 throw new ArgumentNullException(nameof(importer));
 
-            return new SpriteCatalogMetadata {
+            return new SpriteCatalogMetadata
+            {
                 Group = GetDefaultGroup(importer.assetPath),
                 Kind = GetDefaultKind(importer),
                 Time = DefaultTime,
@@ -57,16 +66,19 @@ namespace Internal {
             };
         }
 
-        public static void Write(AssetImporter importer, SpriteCatalogMetadata metadata) {
+        public static void Write(AssetImporter importer, SpriteCatalogMetadata metadata)
+        {
             if (metadata == null)
                 throw new ArgumentNullException(nameof(metadata));
 
-            var catalog = new JObject {
+            var catalog = new JObject
+            {
                 ["included"] = metadata.Included,
                 ["group"] = metadata.Group ?? string.Empty,
                 ["kind"] = metadata.Kind.ToString(),
                 ["time"] = metadata.Time,
-                ["color"] = new JObject {
+                ["color"] = new JObject
+                {
                     ["r"] = metadata.Color.r,
                     ["g"] = metadata.Color.g,
                     ["b"] = metadata.Color.b,
@@ -78,14 +90,17 @@ namespace Internal {
                 SpriteGroupsRegistry.Instance.Invalidate();
         }
 
-        public static string GetDefaultGroup(string assetPath) {
+        public static string GetDefaultGroup(string assetPath)
+        {
             const string artPrefix = "Assets/Art/";
+
             if (string.IsNullOrEmpty(assetPath) ||
                 assetPath.StartsWith(artPrefix, StringComparison.OrdinalIgnoreCase) == false)
                 return string.Empty;
 
             var relative = assetPath.Substring(artPrefix.Length);
             var directory = Path.GetDirectoryName(relative);
+
             if (string.IsNullOrEmpty(directory))
                 return string.Empty;
 
@@ -93,7 +108,8 @@ namespace Internal {
             return CatalogNaming.ToGroupName(joined);
         }
 
-        public static SpriteCatalogKind GetDefaultKind(AssetImporter importer) {
+        public static SpriteCatalogKind GetDefaultKind(AssetImporter importer)
+        {
             if (importer == null)
                 throw new ArgumentNullException(nameof(importer));
 
@@ -103,7 +119,8 @@ namespace Internal {
             return SpriteCatalogKind.Sheet;
         }
 
-        public static bool IsAsepriteImporter(AssetImporter importer) {
+        public static bool IsAsepriteImporter(AssetImporter importer)
+        {
             if (importer == null)
                 return false;
 
@@ -111,38 +128,45 @@ namespace Internal {
                 return true;
 
             var extension = Path.GetExtension(importer.assetPath);
+
             return extension.Equals(".aseprite", StringComparison.OrdinalIgnoreCase) ||
                    extension.Equals(".ase", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static SpriteCatalogKind ParseKind(string kind) {
+        private static SpriteCatalogKind ParseKind(string kind)
+        {
             if (string.Equals(kind, nameof(SpriteCatalogKind.Animation), StringComparison.Ordinal))
                 return SpriteCatalogKind.Animation;
 
             return SpriteCatalogKind.Sheet;
         }
 
-        private static Color ReadColor(JToken token) {
+        private static Color ReadColor(JToken token)
+        {
             if (token is not JObject color)
                 return DefaultColor;
 
             return new Color(
-                color["r"] != null ? color.Value<float>("r") : 1f,
-                color["g"] != null ? color.Value<float>("g") : 1f,
-                color["b"] != null ? color.Value<float>("b") : 1f,
-                color["a"] != null ? color.Value<float>("a") : 1f
-            );
+                    color["r"] != null ? color.Value<float>("r") : 1f,
+                    color["g"] != null ? color.Value<float>("g") : 1f,
+                    color["b"] != null ? color.Value<float>("b") : 1f,
+                    color["a"] != null ? color.Value<float>("a") : 1f
+                );
         }
 
-        private static bool HasMultipleAsepriteFrames(AssetImporter importer) {
+        private static bool HasMultipleAsepriteFrames(AssetImporter importer)
+        {
             var serializedObject = new SerializedObject(importer);
             var frames = serializedObject.FindProperty("m_AnimatedSpriteImportData");
+
             if (frames != null && frames.isArray && frames.arraySize > 1)
                 return true;
 
             var assets = AssetDatabase.LoadAllAssetRepresentationsAtPath(importer.assetPath);
             var spriteCount = 0;
-            foreach (var asset in assets) {
+
+            foreach (var asset in assets)
+            {
                 if (asset is Sprite)
                     spriteCount++;
             }

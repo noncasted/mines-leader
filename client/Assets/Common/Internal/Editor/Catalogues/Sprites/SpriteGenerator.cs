@@ -5,16 +5,19 @@ using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 
-namespace Internal {
+namespace Internal
+{
     [NoAutoStaticsCleanup]
-    public static class SpriteGenerator {
+    public static class SpriteGenerator
+    {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Sprites/Groups";
 
         private const string GroupPrefix = "Sprites_";
 
         private const string ArtFolder = "Assets/Art";
 
-        private static readonly string[] SourceExtensions = {
+        private static readonly string[] SourceExtensions =
+        {
             ".aseprite",
             ".psd",
             ".png"
@@ -23,30 +26,37 @@ namespace Internal {
         private static readonly CatalogGenerationRunner Runner = new("SpriteGenerator", GenerateInternal);
 
         [InitializeOnLoadMethod]
-        private static void OnEditorReload() {
+        private static void OnEditorReload()
+        {
             Runner.RunDelayed();
         }
 
         [MenuItem("Tools/GenerateSprites")]
-        public static void Generate() {
+        public static void Generate()
+        {
             Runner.Run();
         }
 
-        public static void ScheduleGenerate() {
+        public static void ScheduleGenerate()
+        {
             Runner.Schedule();
         }
 
-        private static void GenerateInternal() {
+        private static void GenerateInternal()
+        {
             if (AssetDatabase.IsValidFolder(ArtFolder) == false)
                 return;
 
             var groups = new List<SpriteGroupDefinition>();
             AssetDatabase.StartAssetEditing();
-            try {
+
+            try
+            {
                 groups = BuildGroups(CollectSources());
                 WriteGroupAssets(groups);
             }
-            finally {
+            finally
+            {
                 AssetDatabase.StopAssetEditing();
             }
 
@@ -57,49 +67,63 @@ namespace Internal {
             Debug.Log($"[SpriteGenerator] Generated {groups.Count} sprite group(s).");
         }
 
-        private static List<SpriteSource> CollectSources() {
+        private static List<SpriteSource> CollectSources()
+        {
             var sources = new List<SpriteSource>();
             var artRoot = Path.Combine(Application.dataPath, "Art");
+
             if (Directory.Exists(artRoot) == false)
                 return sources;
 
             string[] files;
-            try {
+
+            try
+            {
                 files = Directory.GetFiles(artRoot, "*.*", SearchOption.AllDirectories);
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Debug.LogError($"[SpriteGenerator] Failed to scan {ArtFolder}: {exception}");
                 return sources;
             }
 
             var projectRoot = Path.GetDirectoryName(Application.dataPath);
-            foreach (var file in files) {
+
+            foreach (var file in files)
+            {
                 if (IsSourceFile(file) == false)
                     continue;
 
                 var path = CatalogPaths.ToAssetPath(projectRoot, file);
+
                 if (IsSourcePath(path) == false)
                     continue;
 
                 var importer = AssetImporter.GetAtPath(path);
+
                 if (importer == null)
                     continue;
 
                 var metadata = ResolveMetadata(importer);
+
                 if (metadata == null)
                     continue;
 
                 var groupName = CatalogNaming.ToGroupName(metadata.Group);
+
                 if (string.IsNullOrEmpty(groupName))
                     continue;
 
                 var propertyName = CatalogNaming.ToGroupName(Path.GetFileNameWithoutExtension(path));
-                if (string.IsNullOrEmpty(propertyName)) {
+
+                if (string.IsNullOrEmpty(propertyName))
+                {
                     Debug.LogError($"[SpriteGenerator] Identifier is empty for {path}");
                     continue;
                 }
 
-                sources.Add(new SpriteSource {
+                sources.Add(new SpriteSource
+                {
                     Path = path,
                     Group = groupName,
                     PropertyName = propertyName,
@@ -115,7 +139,8 @@ namespace Internal {
             return sources;
         }
 
-        private static SpriteCatalogMetadata ResolveMetadata(AssetImporter importer) {
+        private static SpriteCatalogMetadata ResolveMetadata(AssetImporter importer)
+        {
             if (SpriteCatalogMetadata.TryRead(importer, out var metadata) == false)
                 return null;
 
@@ -126,6 +151,7 @@ namespace Internal {
                 return metadata;
 
             metadata.Group = SpriteCatalogMetadata.GetDefaultGroup(importer.assetPath);
+
             if (string.IsNullOrEmpty(metadata.Group))
                 return null;
 
@@ -133,15 +159,19 @@ namespace Internal {
             return metadata;
         }
 
-        private static List<SpriteGroupDefinition> BuildGroups(List<SpriteSource> sources) {
+        private static List<SpriteGroupDefinition> BuildGroups(List<SpriteSource> sources)
+        {
             sources.Sort(CompareSources);
 
             var groups = new Dictionary<string, SpriteGroupDefinition>(StringComparer.Ordinal);
             var usedNames = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
-            foreach (var source in sources) {
-                if (groups.TryGetValue(source.Group, out var group) == false) {
-                    group = new SpriteGroupDefinition {
+            foreach (var source in sources)
+            {
+                if (groups.TryGetValue(source.Group, out var group) == false)
+                {
+                    group = new SpriteGroupDefinition
+                    {
                         Name = source.Group,
                         ClassName = source.Group + "Sprites",
                         Properties = new List<SpritePropertyDefinition>()
@@ -151,12 +181,15 @@ namespace Internal {
                 }
 
                 var sprites = CollectSprites(source.Path, source.Kind);
-                if (sprites.Length == 0) {
+
+                if (sprites.Length == 0)
+                {
                     Debug.LogError($"[SpriteGenerator] No sprites found at {source.Path}");
                     continue;
                 }
 
-                if (source.Kind == SpriteKind.Animation) {
+                if (source.Kind == SpriteKind.Animation)
+                {
                     TryAddProperty(
                         group,
                         usedNames[source.Group],
@@ -169,11 +202,15 @@ namespace Internal {
                     continue;
                 }
 
-                for (var i = 0; i < sprites.Length; i++) {
+                for (var i = 0; i < sprites.Length; i++)
+                {
                     var sprite = sprites[i];
                     var propertyName = ToSheetPropertyName(source.Path, sprite.name);
-                    if (string.IsNullOrEmpty(propertyName)) {
-                        Debug.LogError($"[SpriteGenerator] Identifier is empty for sprite '{sprite.name}' in {source.Path}");
+
+                    if (string.IsNullOrEmpty(propertyName))
+                    {
+                        Debug.LogError(
+                            $"[SpriteGenerator] Identifier is empty for sprite '{sprite.name}' in {source.Path}");
                         continue;
                     }
 
@@ -190,12 +227,14 @@ namespace Internal {
             }
 
             var result = new List<SpriteGroupDefinition>();
-            foreach (var group in groups.Values) {
+
+            foreach (var group in groups.Values)
+            {
                 if (group.Properties.Count == 0)
                     continue;
 
-                group.Properties.Sort((left, right) =>
-                    string.Compare(left.PropertyName, right.PropertyName, StringComparison.Ordinal));
+                group.Properties.Sort((left, right) => string.Compare(left.PropertyName, right.PropertyName,
+                    StringComparison.Ordinal));
                 result.Add(group);
             }
 
@@ -203,11 +242,14 @@ namespace Internal {
             return result;
         }
 
-        private static void WriteGroupAssets(IReadOnlyList<SpriteGroupDefinition> groups) {
+        private static void WriteGroupAssets(IReadOnlyList<SpriteGroupDefinition> groups)
+        {
             CatalogPaths.EnsureFolder(GroupsFolder);
 
             var writtenPaths = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var group in groups) {
+
+            foreach (var group in groups)
+            {
                 var path = $"{GroupsFolder}/{group.Name}.asset";
                 writtenPaths.Add(path);
                 WriteGroupAsset(path, group);
@@ -216,14 +258,18 @@ namespace Internal {
             DeleteStaleAssets(writtenPaths);
         }
 
-        private static void WriteGroupAsset(string path, SpriteGroupDefinition group) {
+        private static void WriteGroupAsset(string path, SpriteGroupDefinition group)
+        {
             var asset = AssetDatabase.LoadAssetAtPath<SpriteGroupAsset>(path);
-            if (asset == null) {
+
+            if (asset == null)
+            {
                 asset = ScriptableObject.CreateInstance<SpriteGroupAsset>();
                 AssetDatabase.CreateAsset(asset, path);
             }
 
-            if (EntriesMatch(asset, group.Properties)) {
+            if (EntriesMatch(asset, group.Properties))
+            {
                 group.Address = AssetDatabase.AssetPathToGUID(path);
                 return;
             }
@@ -233,18 +279,22 @@ namespace Internal {
             group.Address = AssetDatabase.AssetPathToGUID(path);
         }
 
-        private static bool EntriesMatch(SpriteGroupAsset asset, IReadOnlyList<SpritePropertyDefinition> properties) {
+        private static bool EntriesMatch(SpriteGroupAsset asset, IReadOnlyList<SpritePropertyDefinition> properties)
+        {
             var serializedObject = new SerializedObject(asset);
             var entries = serializedObject.FindProperty("_entries");
+
             if (entries == null || entries.isArray == false)
                 return false;
 
             if (entries.arraySize != properties.Count)
                 return false;
 
-            for (var i = 0; i < properties.Count; i++) {
+            for (var i = 0; i < properties.Count; i++)
+            {
                 var property = properties[i];
                 var entry = entries.GetArrayElementAtIndex(i);
+
                 if (entry.FindPropertyRelative("Name").stringValue != property.PropertyName)
                     return false;
 
@@ -258,11 +308,14 @@ namespace Internal {
                     return false;
 
                 var sprites = entry.FindPropertyRelative("Sprites");
+
                 if (sprites == null || sprites.isArray == false || sprites.arraySize != property.Sprites.Length)
                     return false;
 
-                for (var spriteIndex = 0; spriteIndex < property.Sprites.Length; spriteIndex++) {
-                    if (sprites.GetArrayElementAtIndex(spriteIndex).objectReferenceValue != property.Sprites[spriteIndex])
+                for (var spriteIndex = 0; spriteIndex < property.Sprites.Length; spriteIndex++)
+                {
+                    if (sprites.GetArrayElementAtIndex(spriteIndex).objectReferenceValue !=
+                        property.Sprites[spriteIndex])
                         return false;
                 }
             }
@@ -270,12 +323,14 @@ namespace Internal {
             return true;
         }
 
-        private static void ApplyEntries(SpriteGroupAsset asset, IReadOnlyList<SpritePropertyDefinition> properties) {
+        private static void ApplyEntries(SpriteGroupAsset asset, IReadOnlyList<SpritePropertyDefinition> properties)
+        {
             var serializedObject = new SerializedObject(asset);
             var entries = serializedObject.FindProperty("_entries");
             entries.arraySize = properties.Count;
 
-            for (var i = 0; i < properties.Count; i++) {
+            for (var i = 0; i < properties.Count; i++)
+            {
                 var property = properties[i];
                 var entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative("Name").stringValue = property.PropertyName;
@@ -285,6 +340,7 @@ namespace Internal {
 
                 var sprites = entry.FindPropertyRelative("Sprites");
                 sprites.arraySize = property.Sprites.Length;
+
                 for (var spriteIndex = 0; spriteIndex < property.Sprites.Length; spriteIndex++)
                     sprites.GetArrayElementAtIndex(spriteIndex).objectReferenceValue = property.Sprites[spriteIndex];
             }
@@ -292,13 +348,17 @@ namespace Internal {
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void DeleteStaleAssets(HashSet<string> writtenPaths) {
+        private static void DeleteStaleAssets(HashSet<string> writtenPaths)
+        {
             if (AssetDatabase.IsValidFolder(GroupsFolder) == false)
                 return;
 
             var guids = AssetDatabase.FindAssets("t:SpriteGroupAsset", new[] { GroupsFolder });
-            foreach (var guid in guids) {
+
+            foreach (var guid in guids)
+            {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
+
                 if (writtenPaths.Contains(path))
                     continue;
 
@@ -307,8 +367,10 @@ namespace Internal {
             }
         }
 
-        private static Sprite[] CollectSprites(string assetPath, SpriteKind kind) {
+        private static Sprite[] CollectSprites(string assetPath, SpriteKind kind)
+        {
             var sprites = LoadSprites(assetPath);
+
             if (sprites.Count == 0)
                 return Array.Empty<Sprite>();
 
@@ -318,13 +380,16 @@ namespace Internal {
             return OrderAnimationSprites(assetPath, sprites);
         }
 
-        private static List<Sprite> LoadSprites(string assetPath) {
+        private static List<Sprite> LoadSprites(string assetPath)
+        {
             var sprites = new List<Sprite>();
             var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+
             if (assets == null)
                 return sprites;
 
-            foreach (var asset in assets) {
+            foreach (var asset in assets)
+            {
                 if (asset is Sprite sprite)
                     sprites.Add(sprite);
             }
@@ -332,19 +397,25 @@ namespace Internal {
             return sprites;
         }
 
-        private static Sprite[] OrderAnimationSprites(string assetPath, IReadOnlyList<Sprite> sprites) {
+        private static Sprite[] OrderAnimationSprites(string assetPath, IReadOnlyList<Sprite> sprites)
+        {
             var names = ReadFrameNames(assetPath);
+
             if (names.Count == 0)
                 return ToArray(sprites);
 
             var byName = new Dictionary<string, Sprite>(StringComparer.Ordinal);
-            for (var i = 0; i < sprites.Count; i++) {
+
+            for (var i = 0; i < sprites.Count; i++)
+            {
                 if (byName.ContainsKey(sprites[i].name) == false)
                     byName.Add(sprites[i].name, sprites[i]);
             }
 
             var ordered = new List<Sprite>(names.Count);
-            for (var i = 0; i < names.Count; i++) {
+
+            for (var i = 0; i < names.Count; i++)
+            {
                 if (byName.TryGetValue(names[i], out var sprite))
                     ordered.Add(sprite);
             }
@@ -352,13 +423,17 @@ namespace Internal {
             return ordered.Count > 0 ? ordered.ToArray() : ToArray(sprites);
         }
 
-        private static IReadOnlyList<string> ReadFrameNames(string assetPath) {
+        private static IReadOnlyList<string> ReadFrameNames(string assetPath)
+        {
             var importer = AssetImporter.GetAtPath(assetPath);
+
             if (importer == null)
                 return Array.Empty<string>();
 
-            if (SpriteCatalogMetadata.IsAsepriteImporter(importer)) {
+            if (SpriteCatalogMetadata.IsAsepriteImporter(importer))
+            {
                 var names = ReadSerializedNames(importer, "m_AnimatedSpriteImportData");
+
                 if (names.Count > 0)
                     return names;
             }
@@ -366,15 +441,20 @@ namespace Internal {
             return ReadSerializedNames(importer, "m_SpriteSheet.m_Sprites");
         }
 
-        private static IReadOnlyList<string> ReadSerializedNames(AssetImporter importer, string propertyName) {
+        private static IReadOnlyList<string> ReadSerializedNames(AssetImporter importer, string propertyName)
+        {
             var serializedObject = new SerializedObject(importer);
             var frames = serializedObject.FindProperty(propertyName);
+
             if (frames == null || frames.isArray == false || frames.arraySize == 0)
                 return Array.Empty<string>();
 
             var names = new List<string>(frames.arraySize);
-            for (var i = 0; i < frames.arraySize; i++) {
+
+            for (var i = 0; i < frames.arraySize; i++)
+            {
                 var nameProperty = frames.GetArrayElementAtIndex(i).FindPropertyRelative("m_Name");
+
                 if (nameProperty == null)
                     nameProperty = frames.GetArrayElementAtIndex(i).FindPropertyRelative("name");
 
@@ -387,17 +467,22 @@ namespace Internal {
             return names;
         }
 
-        private static Sprite[] ToArray(IReadOnlyList<Sprite> sprites) {
+        private static Sprite[] ToArray(IReadOnlyList<Sprite> sprites)
+        {
             var array = new Sprite[sprites.Count];
+
             for (var i = 0; i < sprites.Count; i++)
                 array[i] = sprites[i];
 
             return array;
         }
 
-        private static bool IsSourceFile(string path) {
+        private static bool IsSourceFile(string path)
+        {
             var extension = Path.GetExtension(path);
-            foreach (var sourceExtension in SourceExtensions) {
+
+            foreach (var sourceExtension in SourceExtensions)
+            {
                 if (extension.Equals(sourceExtension, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
@@ -405,14 +490,17 @@ namespace Internal {
             return false;
         }
 
-        internal static bool IsSourcePath(string path) {
+        internal static bool IsSourcePath(string path)
+        {
             return string.IsNullOrEmpty(path) == false &&
                    path.StartsWith(ArtFolder + "/", StringComparison.OrdinalIgnoreCase) &&
                    IsSourceFile(path);
         }
 
-        private static int GetPriority(string path) {
+        private static int GetPriority(string path)
+        {
             var extension = Path.GetExtension(path);
+
             if (extension.Equals(".aseprite", StringComparison.OrdinalIgnoreCase))
                 return 0;
 
@@ -425,12 +513,15 @@ namespace Internal {
             return 3;
         }
 
-        private static int CompareSources(SpriteSource left, SpriteSource right) {
+        private static int CompareSources(SpriteSource left, SpriteSource right)
+        {
             var group = string.Compare(left.Group, right.Group, StringComparison.Ordinal);
+
             if (group != 0)
                 return group;
 
             var priority = left.Priority.CompareTo(right.Priority);
+
             if (priority != 0)
                 return priority;
 
@@ -445,15 +536,18 @@ namespace Internal {
             Sprite[] sprites,
             float time,
             Color color,
-            string sourcePath) {
-            if (usedNames.Add(propertyName) == false) {
+            string sourcePath)
+        {
+            if (usedNames.Add(propertyName) == false)
+            {
                 Debug.LogError(
-                    $"[SpriteGenerator] Duplicate identifier '{propertyName}' in group '{group.Name}'. Skipping lower-priority source {sourcePath}."
-                );
+                        $"[SpriteGenerator] Duplicate identifier '{propertyName}' in group '{group.Name}'. Skipping lower-priority source {sourcePath}."
+                    );
                 return false;
             }
 
-            group.Properties.Add(new SpritePropertyDefinition {
+            group.Properties.Add(new SpritePropertyDefinition
+            {
                 PropertyName = propertyName,
                 FieldName = ToFieldName(propertyName),
                 Kind = kind,
@@ -464,15 +558,19 @@ namespace Internal {
             return true;
         }
 
-        private static string ToSheetPropertyName(string assetPath, string spriteName) {
+        private static string ToSheetPropertyName(string assetPath, string spriteName)
+        {
             if (string.IsNullOrEmpty(spriteName))
                 return string.Empty;
 
             var fileName = Path.GetFileNameWithoutExtension(assetPath);
             var remainder = spriteName;
+
             if (string.IsNullOrEmpty(fileName) == false &&
-                remainder.StartsWith(fileName, StringComparison.OrdinalIgnoreCase)) {
+                remainder.StartsWith(fileName, StringComparison.OrdinalIgnoreCase))
+            {
                 remainder = remainder.Substring(fileName.Length);
+
                 if (remainder.StartsWith("_") || remainder.StartsWith("-") || remainder.StartsWith(" "))
                     remainder = remainder.Substring(1);
             }
@@ -483,11 +581,13 @@ namespace Internal {
             return CatalogNaming.ToGroupName(remainder);
         }
 
-        private static string ToFieldName(string propertyName) {
+        private static string ToFieldName(string propertyName)
+        {
             return "_" + char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
         }
 
-        private sealed class SpriteSource {
+        private sealed class SpriteSource
+        {
             public string Path;
             public string Group;
             public string PropertyName;
@@ -498,14 +598,16 @@ namespace Internal {
         }
     }
 
-    internal sealed class SpriteGroupDefinition : ICatalogGroupDefinition {
+    internal sealed class SpriteGroupDefinition : ICatalogGroupDefinition
+    {
         public string Name { get; set; }
         public string Address { get; set; }
         public string ClassName;
         public List<SpritePropertyDefinition> Properties = new();
     }
 
-    internal sealed class SpritePropertyDefinition {
+    internal sealed class SpritePropertyDefinition
+    {
         public string PropertyName;
         public string FieldName;
         public SpriteKind Kind;

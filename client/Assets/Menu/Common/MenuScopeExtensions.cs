@@ -20,11 +20,7 @@ namespace Menu.Common
             this IServiceScopeLoader loader,
             ILoadedScope parent)
         {
-            var options = new ScopeLoadOptions(
-                parent,
-                "Menu_Services",
-                Construct,
-                false);
+            var options = new ScopeLoadOptions(parent, Construct);
 
             using var stage = GameProfiler.Scope("Menu");
 
@@ -40,11 +36,9 @@ namespace Menu.Common
             this IServiceScopeLoader loader,
             ILoadedScope parent)
         {
-            var options = new ScopeLoadOptions(
-                parent,
-                "Menu_Services",
-                Construct,
-                true);
+            var options = new ScopeLoadOptions(parent, Construct)
+                .WithRuntimeScene("Menu_Services")
+                .AsMock();
 
             using var stage = GameProfiler.Scope("Menu mock");
 
@@ -64,17 +58,17 @@ namespace Menu.Common
             await UniTask.WhenAll(
                 construct.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
                 construct.Measure("Scene: MenuBoard",
-                    () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)),
-                // Отрезок на группу открывает сам LoadPrefabGroup/LoadSpriteGroup.
-                builder.LoadPrefabGroup(MenuPrefabs.Group),
-                builder.LoadPrefabGroup(GamePlayPrefabs.Group),
-                builder.LoadSpriteGroup(Sprites.GameCells),
-                builder.LoadSpriteGroup(Sprites.MenuPlay),
-                builder.LoadSpriteGroup(Sprites.MenuNavigation),
-                builder.LoadSpriteGroup(Sprites.MenuUnlocks),
-                builder.LoadSpriteGroup(Sprites.GameField),
-                builder.LoadSpriteGroup(Sprites.GameUI),
-                builder.LoadSpriteGroup(Sprites.Settings));
+                    () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)));
+
+            builder.RequestPrefabGroup(MenuPrefabs.Group);
+            builder.RequestPrefabGroup(GamePlayPrefabs.Group);
+            builder.RequestSpriteGroup(Sprites.GameCells);
+            builder.RequestSpriteGroup(Sprites.MenuPlay);
+            builder.RequestSpriteGroup(Sprites.MenuNavigation);
+            builder.RequestSpriteGroup(Sprites.MenuUnlocks);
+            builder.RequestSpriteGroup(Sprites.GameField);
+            builder.RequestSpriteGroup(Sprites.GameUI);
+            builder.RequestSpriteGroup(Sprites.Settings);
 
             builder.Register<MenuLoop>()
                    .As<IMenuLoop>();
@@ -103,7 +97,7 @@ namespace Menu.Common
             builder.Register<MenuUnlocks>()
                    .As<IMenuUnlocks>()
                    .As<IScopeSetup>();
-            
+
             builder.Register<MenuCardPreviewPlayer>()
                    .As<IMenuCardPreviewPlayer>();
 

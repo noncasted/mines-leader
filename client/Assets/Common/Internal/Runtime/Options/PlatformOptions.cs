@@ -8,10 +8,12 @@ namespace Internal
     {
         [SerializeField] private PlatformType _platform = PlatformType.Website;
 
-        public PlatformType PlatformType {
+        public PlatformType PlatformType
+        {
             get => _platform;
             set => _platform = value;
         }
+
         public bool IsMobile => Application.isMobilePlatform;
 
         public bool IsEditor
@@ -20,8 +22,9 @@ namespace Internal
             {
 #if UNITY_EDITOR
                 return true;
-#endif
+#else
                 return false;
+#endif
             }
         }
     }

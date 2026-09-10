@@ -1,4 +1,6 @@
-namespace Internal {
-    public abstract class SpriteGroup : AssetGroup<SpriteGroupAsset> {
+namespace Internal
+{
+    public abstract class SpriteGroup : AssetGroup<SpriteGroupAsset>
+    {
     }
 }

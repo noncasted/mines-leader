@@ -1,9 +1,12 @@
 using System;
 
-namespace Internal {
+namespace Internal
+{
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-    public sealed class ContainerGraphAssetAttribute : Attribute {
-        public ContainerGraphAssetAttribute(string assetPath, string holderType, string[] componentTypes) {
+    public sealed class ContainerGraphAssetAttribute : Attribute
+    {
+        public ContainerGraphAssetAttribute(string assetPath, string holderType, string[] componentTypes)
+        {
             AssetPath = assetPath ?? "";
             HolderType = holderType ?? "";
             ComponentTypes = componentTypes ?? Array.Empty<string>();

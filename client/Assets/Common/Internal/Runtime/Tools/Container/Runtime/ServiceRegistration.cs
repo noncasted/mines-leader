@@ -30,6 +30,7 @@ namespace Internal
         {
             ContainerThread.Assert();
             ThrowIfBuilt();
+
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
@@ -39,6 +40,7 @@ namespace Internal
                 return this;
 
             _serviceTypes ??= new List<Type>();
+
             if (_serviceTypes.Contains(serviceType) == false)
                 _serviceTypes.Add(serviceType);
 
@@ -49,6 +51,7 @@ namespace Internal
         {
             ContainerThread.Assert();
             ThrowIfBuilt();
+
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 

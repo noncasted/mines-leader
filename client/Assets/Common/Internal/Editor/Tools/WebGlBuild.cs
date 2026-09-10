@@ -9,11 +9,11 @@ namespace Internal
     /// <summary>
     ///     Batchmode entry point for CI/deploy scripts:
     ///     Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Build
-    ///     Output goes to client/build/build, which is what client/deploy/Dockerfile packages.
+    ///     Output goes to client/build, which is what client/deploy/Dockerfile packages.
     /// </summary>
     public static class WebGlBuild
     {
-        private const string DefaultOutput = "build/build";
+        private const string DefaultOutput = "build";
 
         [MenuItem("Tools/Build/WebGL")]
         public static void Build()
@@ -24,14 +24,15 @@ namespace Internal
             SharedAddressablesSync.Sync();
 
             var scenes = EditorBuildSettings.scenes
-                .Where(scene => scene.enabled)
-                .Select(scene => scene.path)
-                .ToArray();
+                                            .Where(scene => scene.enabled)
+                                            .Select(scene => scene.path)
+                                            .ToArray();
 
             if (scenes.Length == 0)
                 throw new Exception("No enabled scenes in Build Settings.");
 
-            var options = new BuildPlayerOptions {
+            var options = new BuildPlayerOptions
+            {
                 scenes = scenes,
                 locationPathName = output,
                 target = BuildTarget.WebGL,

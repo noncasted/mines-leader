@@ -7,7 +7,7 @@ namespace Internal
         void Inject<T>(T target) where T : MonoBehaviour;
         void Inject(GameObject target);
     }
-    
+
     public sealed class GeneratedViewInjector : IViewInjector
     {
         public GeneratedViewInjector(IContainer container)
