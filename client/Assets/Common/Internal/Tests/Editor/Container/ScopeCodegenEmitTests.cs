@@ -9,17 +9,6 @@ namespace Internal.Tests
     public class ScopeCodegenEmitTests
     {
         private const string GeneratedMethod = "LoadGenerated";
-        private const string RuntimeMethod = "LoadRuntime";
-
-        [Test]
-        public void GeneratedScope_DoesNotMixFieldsWithIResolvePlan()
-        {
-            var type = RequireGenerated(GeneratedMethod);
-
-            Assert.IsFalse(typeof(IResolvePlan).IsAssignableFrom(type));
-            Assert.IsFalse(typeof(IInjector).IsAssignableFrom(type));
-            AssertNoResolvePlan(type);
-        }
 
         [Test]
         public void MarkerArray_PreservesRegistrationOrder()
@@ -54,20 +43,6 @@ namespace Internal.Tests
         }
 
         [Test]
-        public void ContainerRuntimeScope_DisablesGenerationPointwise()
-        {
-            var generated = RequireGenerated(GeneratedMethod);
-            var runtime = FindGenerated(RuntimeMethod);
-
-            Assert.IsNull(
-                runtime,
-                "[ContainerRuntimeScope] on LoadRuntime must not emit " +
-                ExpectedName(RuntimeMethod) +
-                ".");
-            Assert.IsNull(FieldOfType(generated, typeof(ScopeCodegenRuntimeOnly)));
-        }
-
-        [Test]
         public void Transient_IsMethodNotField()
         {
             var type = RequireGenerated(GeneratedMethod);
@@ -93,20 +68,6 @@ namespace Internal.Tests
                 "Scoped must be a field.");
             Assert.IsNull(CreateMethod(type, typeof(ScopeCodegenSingleton)));
             Assert.IsNull(CreateMethod(type, typeof(ScopeCodegenScoped)));
-        }
-
-        [Test]
-        public void RuntimePlan_IsGenerated_IsFalse()
-        {
-            var runtime = new ContainerBuilder().Build();
-            Assert.IsFalse(runtime.Diagnostics.IsGenerated);
-        }
-
-        [Test]
-        public void GeneratedScope_IsGenerated_IsTrue()
-        {
-            var generated = CreateGenerated();
-            Assert.IsTrue(generated.Diagnostics.IsGenerated);
         }
 
         [Test]
@@ -208,70 +169,6 @@ namespace Internal.Tests
         private static string ExpectedName(string methodName)
         {
             return nameof(ScopeCodegenRoots) + methodName + "Container";
-        }
-
-        private static void AssertNoResolvePlan(Type type)
-        {
-            var members = type.GetMembers(
-                BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            for (var i = 0; i < members.Length; i++)
-            {
-                var member = members[i];
-                if (member is FieldInfo field)
-                    AssertNotResolvePlan(field.FieldType, type, field.Name);
-                else if (member is PropertyInfo property)
-                    AssertNotResolvePlan(property.PropertyType, type, property.Name);
-                else if (member is MethodInfo method)
-                    AssertMethodHasNoResolvePlan(type, method);
-            }
-        }
-
-        private static void AssertMethodHasNoResolvePlan(Type owner, MethodInfo method)
-        {
-            if (method.IsSpecialName == false)
-                AssertNotResolvePlan(method.ReturnType, owner, method.Name);
-
-            var parameters = method.GetParameters();
-            for (var i = 0; i < parameters.Length; i++)
-                AssertNotResolvePlan(parameters[i].ParameterType, owner, method.Name + "." + parameters[i].Name);
-
-            var body = method.GetMethodBody();
-            if (body == null)
-                return;
-
-            var locals = body.LocalVariables;
-            for (var i = 0; i < locals.Count; i++)
-                AssertNotResolvePlan(locals[i].LocalType, owner, method.Name + ".local");
-        }
-
-        private static void AssertNotResolvePlan(Type candidate, Type owner, string member)
-        {
-            Assert.IsFalse(
-                MentionsResolvePlan(candidate),
-                owner.Name + "." + member + " references IResolvePlan; generated scope must be all fields or nothing.");
-        }
-
-        private static bool MentionsResolvePlan(Type type)
-        {
-            if (type == null)
-                return false;
-            if (type == typeof(IResolvePlan) || typeof(IResolvePlan).IsAssignableFrom(type))
-                return true;
-            if (type.IsByRef)
-                return MentionsResolvePlan(type.GetElementType());
-            if (type.IsArray)
-                return MentionsResolvePlan(type.GetElementType());
-            if (type.IsGenericType == false)
-                return false;
-
-            var arguments = type.GetGenericArguments();
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                if (MentionsResolvePlan(arguments[i]))
-                    return true;
-            }
-
-            return false;
         }
 
         private static FieldInfo FieldOfType(Type container, Type serviceType)

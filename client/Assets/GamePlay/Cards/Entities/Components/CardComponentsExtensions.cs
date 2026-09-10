@@ -25,9 +25,6 @@ namespace GamePlay.Cards
 
         public static IEntityBuilder AddCardRemoteComponents(this IEntityBuilder builder)
         {
-            builder.Register<CardDropArea>()
-                   .As<ICardDropArea>();
-
             builder.Register<CardStateLifetime>()
                    .WithParameter(builder.Lifetime)
                    .As<ICardStateLifetime>();

@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using NaughtyAttributes;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Services
 {
@@ -33,7 +32,6 @@ namespace GamePlay.Services
 
         private int _index;
 
-        [Inject]
         internal void Construct(IUpdater updater, IDelayRunner delayRunner)
         {
             _updater = updater;

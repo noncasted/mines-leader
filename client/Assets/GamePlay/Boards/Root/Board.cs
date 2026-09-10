@@ -2,7 +2,6 @@
 using Internal;
 using Shared;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Boards
 {
@@ -37,7 +36,6 @@ namespace GamePlay.Boards
         public bool IsMine => _isMine;
         public IViewableProperty<bool> IsGenerated => _isGenerated;
 
-        [Inject]
         internal void Construct(
             IUpdater updater,
             IBoardActions actions)

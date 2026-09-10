@@ -4,7 +4,6 @@ using Shared;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace Menu.Decks
 {
@@ -32,7 +31,6 @@ namespace Menu.Decks
 
         public string ResolvedDescription { get; private set; }
 
-        [Inject]
         internal void Construct(
             IMenuDeckMoveArea deckMoveArea,
             ICardConfigs configs,

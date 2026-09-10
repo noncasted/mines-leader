@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -20,7 +21,7 @@ namespace ContainerGenerator {
                     var walkReferences = references;
                     if (harvest != null && string.IsNullOrEmpty(harvest.Source) == false) {
                         walkCompilation = compilation.AddSyntaxTrees(
-                            CSharpSyntaxTree.ParseText(harvest.Source, path: "ContainerInstallerHarvest.g.cs"));
+                            CSharpSyntaxTree.ParseText(harvest.Source, ParseOptions(compilation), path: "ContainerInstallerHarvest.g.cs"));
                         walkReferences = ReferenceSymbols.Create(walkCompilation) ?? references;
                     }
 
@@ -37,17 +38,31 @@ namespace ContainerGenerator {
                     production.ReportDiagnostic(Diagnostic.Create(
                         GraphDescriptors.UncoveredSyntax,
                         Location.None,
-                        "generator exception: " + exception.GetType().Name + " " + exception.Message,
+                        "generator exception: " + exception,
                         compilation.AssemblyName ?? "",
                         "",
                         "0"));
                     return;
                 }
 
+                IReadOnlyList<ScopeGraph> graphs;
+                try {
+                    graphs = EdgeResolver.Resolve(document, compilation, references);
+                }
+                catch (System.Exception exception) {
+                    production.ReportDiagnostic(Diagnostic.Create(
+                        GraphDescriptors.UncoveredSyntax,
+                        Location.None,
+                        "generator exception: " + exception,
+                        compilation.AssemblyName ?? "",
+                        "",
+                        "0"));
+                    graphs = System.Array.Empty<ScopeGraph>();
+                }
+
                 foreach (var diagnostic in document.Diagnostics)
                     production.ReportDiagnostic(diagnostic.ToDiagnostic());
 
-                var graphs = EdgeResolver.Resolve(document, compilation, references);
                 for (var i = 0; i < graphs.Count; i++) {
                     var graph = graphs[i];
                     for (var d = 0; d < graph.Diagnostics.Count; d++)
@@ -59,15 +74,20 @@ namespace ContainerGenerator {
                     production.AddSource(hint, source);
                 }
 
-                var attributeClass = GraphEmitter.EmitAttributeClass(compilation);
-                if (attributeClass != null)
-                    production.AddSource("ContainerInstallerAttribute.g.cs", attributeClass);
-
                 if (document.Methods.Count == 0)
                     return;
 
                 production.AddSource("ContainerGraph.g.cs", GraphEmitter.Emit(document, compilation));
             });
+        }
+
+        private static CSharpParseOptions ParseOptions(Compilation compilation) {
+            foreach (var tree in compilation.SyntaxTrees) {
+                if (tree.Options is CSharpParseOptions options)
+                    return options;
+            }
+
+            return CSharpParseOptions.Default;
         }
 
         private static bool ShouldSkip(string? name) {

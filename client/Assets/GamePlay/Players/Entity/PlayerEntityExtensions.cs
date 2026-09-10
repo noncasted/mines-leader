@@ -35,7 +35,6 @@ namespace GamePlay.Players
                    .As<IGamePlayerInfo>();
 
             builder.Register<GamePlayer>()
-                   .WithParameter(builder.Scope)
                    .As<IGamePlayer>();
 
             return builder;

@@ -245,7 +245,8 @@ public void Register(IEntityBuilder builder) => builder.Provide(this);  // пе�
 Добавлено оркестратором 2026-09-10:
 - `IContainerDiagnostics.IsGenerated { get; }` — признак «скоуп сгенерирован» для шага 2. Рантайм-план оставляет `false`.
 - `IProvides<T> { void Construct(T target); }` — двойной диспатч для компонентов префаба/сцены. `IBuilder.Provide` не добавлялся: поверхность `IBuilder` заморожена.
-- `ContainerInstallerAttribute` — стабильный тип манифеста 1b в `Generated/`. Генератор не эмитит класс, если тип уже есть.
+- `ContainerInstallerAttribute` — обычный тип в `Generated/` рядом с `ContainerScopeParentAttribute`. Генератор класс не эмитит.
+- `ContainerScopeParentAttribute(Type rootType, string rootMethod)` на методе-корне. Строковой формы нет. `MatchParent` — только точное совпадение `GraphMethod.Id`. Манифест: строка `parent:` в blob. Родитель Global — `OptionsContainer.Register`. Дети Global — `GlobalScopeExtensions.Construct`. `IViewInjector` и `IEventLoop` — неявный набор загрузчика (`LoaderServices`), их создаёт сгенерированный класс, это не дырки. `symbol == null` — CINGR003, никогда дырка. Нет манифеста родителя — одна CINGR007, не пачка CINGR003.
 
 ---
 

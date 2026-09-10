@@ -1,7 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Internal;
 using Menu.Common;
-using VContainer;
 
 namespace Flow.Loop
 {
@@ -34,7 +33,7 @@ namespace Flow.Loop
             // Меню загружено и дальше ждёт игрока: замерять больше нечего.
             GameProfiler.Finish();
 
-            var loop = scope.Container.Container.Resolve<IMenuLoop>();
+            var loop = scope.Container.Resolve<IMenuLoop>();
             var result = await loop.Process(scope.Lifetime);
 
             return result;

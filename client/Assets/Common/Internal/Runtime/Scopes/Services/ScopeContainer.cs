@@ -4,52 +4,32 @@ namespace Internal
 {
     public static class ScopeContainer
     {
-        // Single choice: generated class if G registered this root, else runtime-plan Build().
-        public static IContainer Create(
-            string rootId,
-            IContainer parent,
-            IReadOnlyLifetime hostLifetime,
-            Action<IContainerBuilderScope> configure)
+        // Контейнер скоупа — только сгенерированный класс. Нет класса — исключение, фолбэка нет.
+        public static IContainer Create(string rootId, ContainerBuilder builder)
         {
             ContainerThread.Assert();
+
             if (string.IsNullOrEmpty(rootId) == true)
                 throw new ArgumentException("Root id is required.", nameof(rootId));
 
-            var builder = parent != null
-                ? new ContainerBuilder(rootId, parent)
-                : new ContainerBuilder(rootId, hostLifetime);
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
 
-            if (configure != null)
-                configure.Invoke(builder);
-
-            if (GeneratedScopes.IsRegistered(rootId) == true)
-                return GeneratedScopes.Create(rootId, builder);
-
-            return builder.Build();
+            return GeneratedScopes.Create(rootId, builder);
         }
 
-        public static IContainer Create(string rootId, Action<IContainerBuilderScope> configure)
+        // Сущность: класс варианта выбирается по конкретному типу вьюхи (locked 14).
+        public static IContainer CreateEntity(string rootId, Type viewType, ContainerBuilder builder)
         {
-            return Create(rootId, parent: null, hostLifetime: null, configure);
-        }
-
-        public static IContainerBuilderScope CreateChild(IContainer parent)
-        {
-            if (parent == null)
-                throw new ArgumentNullException(nameof(parent));
-
-            var name = "child";
-            try
+            if (viewType != null)
             {
-                if (parent.Diagnostics != null && string.IsNullOrEmpty(parent.Diagnostics.Name) == false)
-                    name = parent.Diagnostics.Name + "/child";
-            }
-            catch (Exception)
-            {
-                name = "child";
+                var variant = GeneratedScopes.VariantKey(rootId, viewType);
+
+                if (GeneratedScopes.IsRegistered(variant) == true)
+                    return Create(variant, builder);
             }
 
-            return new ContainerBuilder(name, parent);
+            return Create(rootId, builder);
         }
     }
 }

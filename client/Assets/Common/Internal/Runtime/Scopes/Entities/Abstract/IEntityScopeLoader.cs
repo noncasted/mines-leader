@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
-using VContainer.Unity;
 
 namespace Internal
 {
@@ -8,13 +7,13 @@ namespace Internal
     {
         UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
-            LifetimeScope parent,
+            IContainer parent,
             IScopeEntityView view,
             Func<IEntityBuilder, UniTask> construct);
 
         UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
-            LifetimeScope parent,
+            IContainer parent,
             IScopeEntityView view,
             Action<IEntityBuilder> construct);
     }

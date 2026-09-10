@@ -35,19 +35,6 @@ namespace Internal.Tests
             StringAssert.Contains("Circular dependency: {0}", block);
         }
 
-        [Test]
-        public void ContainerRuntimeScopeAttribute_TargetsMethod()
-        {
-            var usage = (AttributeUsageAttribute)Attribute.GetCustomAttribute(
-                typeof(ContainerRuntimeScopeAttribute),
-                typeof(AttributeUsageAttribute));
-
-            Assert.IsNotNull(usage);
-            Assert.AreEqual(AttributeTargets.Method, usage.ValidOn);
-            Assert.IsFalse(usage.AllowMultiple);
-            Assert.IsFalse(usage.Inherited);
-        }
-
         private static string DescriptorBlock(string id)
         {
             var source = File.ReadAllText(GraphDescriptorsPath());

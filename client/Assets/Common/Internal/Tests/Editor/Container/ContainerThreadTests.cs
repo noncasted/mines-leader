@@ -20,15 +20,12 @@ namespace Internal.Tests
         }
 
         [Test]
-        public void Resolve_OffMainThread_Throws()
+        public void Register_OffMainThread_Throws()
         {
             Assert.DoesNotThrow(ContainerThread.Assert);
 
             var builder = new ContainerBuilder();
-            builder.Add(typeof(PlainService), ServiceLifetime.Singleton).AsSelf();
-            var container = builder.Build();
-
-            var caught = RunOnBackgroundThread(() => container.Resolve<PlainService>());
+            var caught = RunOnBackgroundThread(() => builder.Add(typeof(PlainService), ServiceLifetime.Singleton));
 
             Assert.IsNotNull(caught);
             Assert.IsInstanceOf<InvalidOperationException>(caught);

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
+using System.Reflection;
 using Cysharp.Threading.Tasks;
-using VContainer;
-using VContainer.Unity;
 
 namespace Internal
 {
@@ -9,75 +8,62 @@ namespace Internal
     {
         public async UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
-            LifetimeScope parent,
+            IContainer parent,
             IScopeEntityView view,
             Func<IEntityBuilder, UniTask> construct)
         {
-            var builder = CreateBuilder(parentLifetime, view);
+            var builder = CreateBuilder(parentLifetime, parent, view);
 
             await construct.Invoke(builder);
             await builder.Events.InvokeBeforeBuild();
 
             view.CreateViews(builder);
 
-            BuildContainer(builder, parent);
-
-            builder.Events.Bind(builder.Scope.Container);
-            await builder.Events.RunConstruct(builder.ScopeLifetime);
-
-            return new EntityScopeResult(view.Scope, builder.ScopeLifetime);
+            return await CreateContainer(builder, view, construct.Method);
         }
 
         public async UniTask<IEntityScopeResult> Load(
             IReadOnlyLifetime parentLifetime,
-            LifetimeScope parent,
+            IContainer parent,
             IScopeEntityView view,
             Action<IEntityBuilder> construct)
         {
-            var builder = CreateBuilder(parentLifetime, view);
+            var builder = CreateBuilder(parentLifetime, parent, view);
 
             construct.Invoke(builder);
             await builder.Events.InvokeBeforeBuild();
+
             view.CreateViews(builder);
 
-            BuildContainer(builder, parent);
-
-            builder.Events.Bind(builder.Scope.Container);
-            await builder.Events.RunConstruct(builder.ScopeLifetime);
-
-            return new EntityScopeResult(view.Scope, builder.ScopeLifetime);
+            return await CreateContainer(builder, view, construct.Method);
         }
 
-        private EntityBuilder CreateBuilder(IReadOnlyLifetime parentLifetime, IScopeEntityView view)
+        private EntityBuilder CreateBuilder(IReadOnlyLifetime parentLifetime, IContainer parent, IScopeEntityView view)
         {
             var lifetime = parentLifetime.Child();
-            var services = new ServiceCollection();
-            var builder = new EntityBuilder(services, view, lifetime, new EventLoop());
+            var containerBuilder = new ContainerBuilder(view.GetType().Name, parent, lifetime);
+            var services = new ServiceCollection(containerBuilder);
 
-            return builder;
+            return new EntityBuilder(services, view, lifetime, new EventLoop());
         }
 
-        private void BuildContainer(EntityBuilder builder, LifetimeScope parent)
+        // Класс скоупа выбирается по корню и конкретному типу вьюхи: у варианта свой тип (locked 14).
+        private async UniTask<IEntityScopeResult> CreateContainer(EntityBuilder builder, IScopeEntityView view, MethodInfo root)
         {
-            using (LifetimeScope.EnqueueParent(parent))
-            {
-                using (LifetimeScope.Enqueue(Register))
-                {
-                    builder.Scope.Build();
-                }
-            }
+            builder.RegisterInstance(builder.Events);
 
-            builder.InternalServices.Resolve(builder.Scope.Container);
+            var container = ScopeContainer.CreateEntity(
+                GeneratedScopes.RootId(root),
+                view.GetType(),
+                builder.InternalServices.Builder);
 
-            return;
+            builder.ScopeLifetime.Listen(container.Dispose);
+            view.Bind(container);
 
-            void Register(IContainerBuilder container)
-            {
-                builder.RegisterInstance(builder.Events);
-                builder.Register<IViewInjector, ViewInjector>(VContainer.Lifetime.Scoped);
+            builder.Events.Bind(container);
+            await builder.Events.RunConstruct(builder.ScopeLifetime);
 
-                builder.InternalServices.PassRegistrations(container);
-            }
+            return new EntityScopeResult(container, builder.ScopeLifetime);
         }
     }
 }

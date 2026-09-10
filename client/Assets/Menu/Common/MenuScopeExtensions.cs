@@ -3,7 +3,9 @@ using GamePlay.Boards;
 using GamePlay.Cards;
 using GamePlay.Loop;
 using GamePlay.Services;
+using Global.Setup;
 using Internal;
+using Meta;
 using Menu.Decks;
 using Menu.Navigation;
 using Menu.Play;
@@ -55,6 +57,7 @@ namespace Menu.Common
             return scope;
         }
 
+        [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]
         private static async UniTask Construct(this IScopeBuilder builder)
         {
             using var construct = (GameProfiler.Scope("Services"));

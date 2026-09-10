@@ -2,7 +2,6 @@
 using Meta;
 using TMPro;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -23,7 +22,6 @@ namespace GamePlay.Cards
         private ICardDefinition _definition;
         private ICardDescriptionProvider _descriptionProvider;
 
-        [Inject]
         internal void Construct(ICardDefinition definition, ICardDescriptionProvider descriptionProvider)
         {
             _definition = definition;

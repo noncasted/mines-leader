@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer.Unity;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -12,17 +11,15 @@ namespace Internal
     [DisallowMultipleComponent]
     public class ScopeEntityView : MonoBehaviour, IScopeEntityView
     {
-        [SerializeField] private LifetimeScope _scope;
-
         [SerializeField] private Component[] _register;
         [SerializeField] private List<MonoBehaviour> _autoDetected;
 
-        public LifetimeScope Scope => _scope;
+        private IContainer _container;
 
         public void CreateViews(IEntityBuilder builder)
         {
             foreach (var component in _register)
-                builder.RegisterComponent(component, VContainer.Lifetime.Scoped);
+                builder.RegisterComponent(component, ServiceLifetime.Scoped);
 
             foreach (var behaviour in _autoDetected)
             {
@@ -33,12 +30,14 @@ namespace Internal
             }
         }
 
+        public void Bind(IContainer container)
+        {
+            _container = container;
+        }
+
         [Button("Scan")]
         private void OnValidate()
         {
-            if (_scope == null)
-                _scope = GetComponent<LifetimeScope>();
-
             _autoDetected ??= new();
             _autoDetected.Clear();
             var components = GetComponentsInChildren<IEntityComponent>(true);
@@ -58,7 +57,7 @@ namespace Internal
 
         public void Dispose()
         {
-            _scope.Dispose();
+            _container?.Dispose();
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -19,19 +18,19 @@ namespace GamePlay.Cards
     /// </summary>
     public sealed class CardActionSyncDispatcher : ICardActionSyncDispatcher, IScopeSetup
     {
-        public CardActionSyncDispatcher(IObjectResolver resolver)
+        public CardActionSyncDispatcher(IContainer container)
         {
-            _resolver = resolver;
+            _container = container;
         }
 
-        private readonly IObjectResolver _resolver;
+        private readonly IContainer _container;
         private readonly Dictionary<Type, ICardActionSync> _byPayload = new();
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             // Resolvers are pulled here rather than injected through the constructor:
             // MirrorMatch's resolver depends back on this dispatcher to play its copied action.
-            foreach (var sync in _resolver.Resolve<IReadOnlyList<ICardActionSync>>())
+            foreach (var sync in _container.ResolveAll<ICardActionSync>())
             {
                 var payloadType = ExtractPayloadType(sync);
 

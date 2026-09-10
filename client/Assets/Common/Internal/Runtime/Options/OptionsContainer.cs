@@ -1,5 +1,4 @@
 using UnityEngine;
-using VContainer;
 
 namespace Internal {
     // Настройки проекта живут ассетом каталога: правятся в Project Tools,
@@ -15,7 +14,7 @@ namespace Internal {
         public BackendOptions BackendOptions => _backend;
         public PlatformOptions PlatformOptions => _platform;
 
-        public void Register(IContainerBuilder builder) {
+        public void Register(IBuilder builder) {
             builder.RegisterInstance(this);
             builder.RegisterInstance(PlatformOptions);
             builder.RegisterInstance(BackendOptions);

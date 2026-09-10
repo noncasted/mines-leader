@@ -35,11 +35,10 @@ namespace ContainerGenerator {
                         continue;
 
                     var isRoot = IsRoot(method);
-                    var isAssetInstaller = IsEntityOrSceneInstaller(method);
-                    if (isRoot == false && isAssetInstaller == false)
+                    if (isRoot == false && ShouldWalkAsInstaller(method) == false)
                         continue;
 
-                    WalkMethod(method, isRoot || isAssetInstaller);
+                    WalkMethod(method, isRoot);
                 }
             }
 
@@ -69,6 +68,36 @@ namespace ContainerGenerator {
             foreach (var attribute in method.GetAttributes()) {
                 if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _references.GraphRootAttribute))
                     return true;
+            }
+
+            return false;
+        }
+
+        private void AssignParent(IMethodSymbol method, GraphMethod result) {
+            var current = method;
+            while (current != null) {
+                if (TryReadParent(current, result))
+                    return;
+                current = current.ContainingSymbol as IMethodSymbol;
+            }
+        }
+
+        private bool TryReadParent(IMethodSymbol method, GraphMethod result) {
+            if (_references.ScopeParentAttribute == null)
+                return false;
+
+            foreach (var attribute in method.GetAttributes()) {
+                if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _references.ScopeParentAttribute) == false)
+                    continue;
+                if (attribute.ConstructorArguments.Length < 2)
+                    continue;
+                var type = attribute.ConstructorArguments[0].Value as INamedTypeSymbol;
+                var name = attribute.ConstructorArguments[1].Value as string;
+                if (type == null || string.IsNullOrEmpty(name))
+                    continue;
+                result.ParentHint = TypeNames.ForMetadata(type) + "." + name;
+                result.ParentAssembly = type.ContainingAssembly?.Name ?? "";
+                return true;
             }
 
             return false;
@@ -111,6 +140,41 @@ namespace ContainerGenerator {
             return false;
         }
 
+        private bool ShouldWalkAsInstaller(IMethodSymbol method) {
+            if (IsEntityOrSceneInstaller(method))
+                return true;
+            if (IsPrimitiveBuilder(method))
+                return false;
+            return IsInstaller(method);
+        }
+
+        private static bool IsPrimitiveCall(IMethodSymbol? symbol) {
+            return symbol == null || IsPrimitiveBuilder(symbol);
+        }
+
+        private static bool IsPrimitiveBuilder(IMethodSymbol method) {
+            var name = method.OriginalDefinition.Name;
+            var owner = (method.ReducedFrom ?? method.OriginalDefinition).ContainingType?.Name ?? "";
+            if (owner != "BuilderExtensions" && owner != "ScopeBuilderExtensions")
+                return false;
+            switch (name) {
+                case "Register":
+                case "RegisterInstance":
+                case "RegisterComponent":
+                case "As":
+                case "AsSelf":
+                case "AsSelfResolvable":
+                case "WithParameter":
+                case "WithScopeLifetime":
+                case "Inject":
+                case "Instantiate":
+                case "Provide":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private bool HasBuilderParameter(IMethodSymbol method) {
             foreach (var parameter in method.Parameters) {
                 if (IsBuilderLike(parameter.Type))
@@ -121,7 +185,9 @@ namespace ContainerGenerator {
         }
 
         private GraphMethod WalkMethod(IMethodSymbol method, bool isRoot) {
-            var id = MethodId(method);
+            if (method.MethodKind != MethodKind.LocalFunction)
+                method = Normalize(method);
+            var id = MethodIds.Of(method);
             if (_methods.TryGetValue(id, out var existing)) {
                 if (isRoot)
                     existing.IsRoot = true;
@@ -132,10 +198,35 @@ namespace ContainerGenerator {
                 Id = id,
                 OriginId = id,
                 IsRoot = isRoot,
+                AssemblyName = _document.AssemblyName,
             };
             _methods[id] = result;
             FillMethod(result, method, null, false);
+            LinkContainingMethod(method, result);
             return result;
+        }
+
+        private void LinkContainingMethod(IMethodSymbol method, GraphMethod result) {
+            if (method.MethodKind != MethodKind.LocalFunction)
+                return;
+            if (method.ContainingSymbol is not IMethodSymbol parent)
+                return;
+
+            var parentId = MethodIds.Of(parent);
+            if (_methods.TryGetValue(parentId, out var parentMethod) == false) {
+                parentMethod = new GraphMethod {
+                    Id = parentId,
+                    OriginId = parentId,
+                    IsRoot = false,
+                    AssemblyName = _document.AssemblyName,
+                };
+                _methods[parentId] = parentMethod;
+            }
+
+            if (parentMethod.Calls.Contains(result.Id))
+                return;
+
+            parentMethod.AddCall(result.Id, 0);
         }
 
         private GraphMethod WalkVariant(
@@ -147,16 +238,22 @@ namespace ContainerGenerator {
             if (_methods.TryGetValue(id, out var existing))
                 return existing;
 
-            var origin = MethodId(method);
+            var origin = MethodIds.Of(method);
             var result = new GraphMethod {
                 Id = id,
                 OriginId = origin,
                 IsRoot = true,
                 Variant = variant,
                 ViewType = viewType,
+                AssemblyName = _document.AssemblyName,
             };
             _methods[id] = result;
             FillMethod(result, method, bools, true);
+            if (string.IsNullOrEmpty(result.ParentHint) && _methods.TryGetValue(origin, out var originMethod)) {
+                result.ParentHint = originMethod.ParentHint;
+                result.ParentAssembly = originMethod.ParentAssembly;
+            }
+
             return result;
         }
 
@@ -184,6 +281,8 @@ namespace ContainerGenerator {
             var location = syntax.GetLocation().GetLineSpan();
             result.File = syntax.SyntaxTree.FilePath ?? "";
             result.Line = location.StartLinePosition.Line + 1;
+            if (string.IsNullOrEmpty(result.ParentHint))
+                AssignParent(method, result);
 
             var state = new State(method, model, result);
             state.EntityRoot = entityRoot;
@@ -219,6 +318,9 @@ namespace ContainerGenerator {
             }
             else if (syntax is AccessorDeclarationSyntax)
                 Error(state, syntax, "accessor");
+
+            if (IsRegistrationLike(method.ReturnType) && state.LastRegistration != null)
+                result.ReturnedOrdinal = state.LastRegistration.Ordinal;
         }
 
         private void WalkStatement(State state, StatementSyntax statement) {
@@ -235,7 +337,7 @@ namespace ContainerGenerator {
                     return;
                 case SyntaxKind.ReturnStatement:
                     if (((ReturnStatementSyntax)statement).Expression != null)
-                        WalkExpression(state, ((ReturnStatementSyntax)statement).Expression!);
+                        WalkReturn(state, ((ReturnStatementSyntax)statement).Expression!);
                     return;
                 case SyntaxKind.IfStatement:
                     WalkIf(state, (IfStatementSyntax)statement);
@@ -340,6 +442,15 @@ namespace ContainerGenerator {
                 WalkStatement(state, catchClause.Block);
             if (syntax.Finally != null)
                 WalkStatement(state, syntax.Finally.Block);
+        }
+
+        private void WalkReturn(State state, ExpressionSyntax expression) {
+            WalkExpression(state, expression);
+            expression = Unwrap(expression);
+            if (expression is IdentifierNameSyntax identifier &&
+                state.Locals.TryGetValue(identifier.Identifier.Text, out var local) &&
+                local.Registration != null)
+                state.LastRegistration = local.Registration;
         }
 
         private void WalkLocalDeclaration(State state, LocalDeclarationStatementSyntax syntax) {
@@ -500,8 +611,10 @@ namespace ContainerGenerator {
             if (syntax.Left is IdentifierNameSyntax identifier && state.Locals.TryGetValue(identifier.Identifier.Text, out var local))
                 ApplyAssignment(state, local, syntax.Right);
             else if (syntax.Left.ToString() == "_") {
-                if (Unwrap(syntax.Right) is SwitchExpressionSyntax switchExpression)
-                    TryApplyParameterSwitch(state, switchExpression);
+                if (Unwrap(syntax.Right) is SwitchExpressionSyntax switchExpression &&
+                        TryApplyParameterSwitch(state, switchExpression) == false &&
+                        IsGraphRelevant(state, switchExpression))
+                    Error(state, switchExpression, "switch expression over installer calls");
             }
         }
 
@@ -562,27 +675,27 @@ namespace ContainerGenerator {
                     WalkLambda(state, value);
             }
 
-            if (name == "Register") {
+            if (name == "Register" && IsPrimitiveCall(symbol)) {
                 HandleRegister(state, invocation, symbol);
                 return;
             }
 
-            if (name == "RegisterInstance") {
+            if (name == "RegisterInstance" && IsPrimitiveCall(symbol)) {
                 HandleRegisterInstance(state, invocation, symbol);
                 return;
             }
 
-            if (name == "RegisterComponent") {
+            if (name == "RegisterComponent" && IsPrimitiveCall(symbol)) {
                 HandleRegisterComponent(state, invocation, symbol);
                 return;
             }
 
-            if (name == "As") {
+            if (name == "As" && IsPrimitiveCall(symbol)) {
                 HandleAs(state, invocation, symbol);
                 return;
             }
 
-            if (name == "AsSelf") {
+            if (name == "AsSelf" && IsPrimitiveCall(symbol)) {
                 HandleCurrent(state, invocation, registration => {
                     if (string.IsNullOrEmpty(registration.ImplementationType) == false)
                         AddService(registration, registration.ImplementationType);
@@ -590,17 +703,17 @@ namespace ContainerGenerator {
                 return;
             }
 
-            if (name == "AsSelfResolvable") {
+            if (name == "AsSelfResolvable" && IsPrimitiveCall(symbol)) {
                 WalkReceiver(state, invocation);
                 return;
             }
 
-            if (name == "WithParameter") {
+            if (name == "WithParameter" && IsPrimitiveCall(symbol)) {
                 HandleWithParameter(state, invocation, symbol);
                 return;
             }
 
-            if (name == "WithScopeLifetime") {
+            if (name == "WithScopeLifetime" && IsPrimitiveCall(symbol)) {
                 HandleCurrent(state, invocation, registration => {
                     registration.Hole = CombineHole(registration.Hole, "builder.Lifetime");
                     if (registration.Origin == "ConstructedType")
@@ -609,7 +722,7 @@ namespace ContainerGenerator {
                 return;
             }
 
-            if (name == "Inject") {
+            if (name == "Inject" && IsPrimitiveCall(symbol)) {
                 HandleInject(state, invocation);
                 return;
             }
@@ -638,21 +751,21 @@ namespace ContainerGenerator {
 
             if (symbol == null && IsAddInstaller(name, state, invocation)) {
                 WalkReceiver(state, invocation);
-                AddCall(state, name);
+                AddCall(state, name, null);
                 return;
             }
 
-            if (symbol != null && (IsInstaller(symbol) || IsAddInstaller(name, state, invocation))) {
+            if (symbol != null && IsPrimitiveBuilder(symbol) == false &&
+                (IsInstaller(symbol) || IsAddInstaller(name, state, invocation))) {
                 WalkReceiver(state, invocation);
-                var constructed = Constructed(Normalize(symbol), invocation, state);
-                var callee = WalkMethod(constructed, false);
-                AddCall(state, callee.Id);
+                var callee = WalkMethod(symbol, false);
+                AddCall(state, callee.Id, symbol);
                 state.LastRegistration = null;
                 return;
             }
 
             if (symbol != null && HasSyntax(symbol) == false && ReceiverIsGraphRelevant(state, invocation)) {
-                AddCall(state, MethodId(symbol));
+                AddCall(state, MethodIds.Of(Normalize(symbol)), symbol);
                 return;
             }
 
@@ -678,23 +791,31 @@ namespace ContainerGenerator {
         private void HandleRegister(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
             WalkReceiver(state, invocation);
             var implementation = "";
+            var implementationMap = "";
             var service = "";
-            if (symbol != null && symbol.TypeArguments.Length == 1)
+            var serviceMap = "";
+            if (symbol != null && symbol.TypeArguments.Length == 1) {
                 implementation = Format(state, symbol.TypeArguments[0]);
+                implementationMap = Map(state, symbol.TypeArguments[0]);
+            }
             else if (symbol != null && symbol.TypeArguments.Length >= 2) {
                 service = Format(state, symbol.TypeArguments[0]);
+                serviceMap = Map(state, symbol.TypeArguments[0]);
                 implementation = Format(state, symbol.TypeArguments[1]);
+                implementationMap = Map(state, symbol.TypeArguments[1]);
             }
 
             var registration = NewRegistration(state, invocation, "Register", implementation, "ConstructedType");
+            registration.TypeMap = implementationMap;
             registration.Lifetime = ParseLifetime(invocation, 0);
             if (string.IsNullOrEmpty(implementation) == false && string.IsNullOrEmpty(service))
-                AddService(registration, implementation);
+                AddService(registration, implementation, implementationMap);
             if (string.IsNullOrEmpty(service) == false)
-                AddService(registration, service);
+                AddService(registration, service, serviceMap);
 
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
         }
 
         private void HandleRegisterInstance(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
@@ -708,6 +829,7 @@ namespace ContainerGenerator {
             registration.Hole = argument != null ? argument.ToString() : "";
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
         }
 
         private void HandleRegisterComponent(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
@@ -728,22 +850,37 @@ namespace ContainerGenerator {
                 AddService(registration, implementation);
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
         }
 
         private void HandleAs(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
             WalkReceiver(state, invocation);
             var service = "";
-            if (symbol != null && symbol.TypeArguments.Length > 0)
+            var map = "";
+            if (symbol != null && symbol.TypeArguments.Length > 0) {
                 service = Format(state, symbol.TypeArguments[0]);
+                map = Map(state, symbol.TypeArguments[0]);
+            }
             else if (invocation.ArgumentList.Arguments.Count > 0) {
                 var argument = invocation.ArgumentList.Arguments[0].Expression;
-                if (argument is TypeOfExpressionSyntax typeOf)
-                    service = Format(state, state.Model.GetTypeInfo(typeOf.Type).Type);
+                if (argument is TypeOfExpressionSyntax typeOf) {
+                    var type = state.Model.GetTypeInfo(typeOf.Type).Type;
+                    service = Format(state, type);
+                    map = Map(state, type);
+                }
             }
 
+            if (string.IsNullOrEmpty(service))
+                return;
+
             var target = CurrentRegistration(state, invocation);
-            if (target != null && string.IsNullOrEmpty(service) == false)
-                AddService(target, service);
+            if (target != null) {
+                AddService(target, service, map);
+                return;
+            }
+
+            if (state.LastCallIndex >= 0)
+                state.Result.AddAsToCall(state.LastCallIndex, service);
         }
 
         private void HandleWithParameter(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
@@ -751,12 +888,15 @@ namespace ContainerGenerator {
             var argument = invocation.ArgumentList.Arguments.Count > 0 ? invocation.ArgumentList.Arguments[0].Expression : null;
             var hole = argument != null ? argument.ToString() : "";
             var target = CurrentRegistration(state, invocation);
-            if (target == null)
+            if (target != null) {
+                target.Hole = CombineHole(target.Hole, hole);
+                if (target.Arms.Count == 0 && target.Origin == "ConstructedType")
+                    target.Origin = "ParameterHole";
                 return;
+            }
 
-            target.Hole = CombineHole(target.Hole, hole);
-            if (target.Arms.Count == 0 && target.Origin == "ConstructedType")
-                target.Origin = "ParameterHole";
+            if (state.LastCallIndex >= 0)
+                state.Result.AddHoleToCall(state.LastCallIndex, hole);
         }
 
         private void HandleInject(State state, InvocationExpressionSyntax invocation) {
@@ -767,6 +907,7 @@ namespace ContainerGenerator {
             registration.Hole = argument != null ? argument.ToString() : "";
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
         }
 
         private void HandleInstantiate(State state, InvocationExpressionSyntax invocation) {
@@ -789,9 +930,9 @@ namespace ContainerGenerator {
         private void HandleKnownGenericInstaller(State state, InvocationExpressionSyntax invocation, IMethodSymbol? symbol) {
             WalkReceiver(state, invocation);
             if (symbol != null && HasSyntax(symbol.OriginalDefinition)) {
-                var constructed = Constructed(symbol, invocation, state);
-                var callee = WalkMethod(constructed, false);
-                AddCall(state, callee.Id);
+                var callee = WalkMethod(symbol, false);
+                AddCall(state, callee.Id, symbol);
+                state.LastRegistration = null;
                 return;
             }
 
@@ -800,10 +941,12 @@ namespace ContainerGenerator {
 
             var implementation = Format(state, symbol.TypeArguments[0]);
             var registration = NewRegistration(state, invocation, "Register", implementation, "ConstructedType");
+            registration.TypeMap = Map(state, symbol.TypeArguments[0]);
             if (symbol.TypeArguments.Length > 1)
                 AddService(registration, "ISnapshotHandler<" + Format(state, symbol.TypeArguments[1]) + ">");
             state.Result.Registrations.Add(registration);
             state.LastRegistration = registration;
+            state.LastCallIndex = -1;
         }
 
         private void HandleCurrent(State state, InvocationExpressionSyntax invocation, Action<GraphRegistration> apply) {
@@ -818,10 +961,23 @@ namespace ContainerGenerator {
                 return state.LastRegistration;
 
             var receiver = GetReceiver(invocation);
-            if (receiver is IdentifierNameSyntax identifier && state.Locals.TryGetValue(identifier.Identifier.Text, out var local))
-                return local.Registration;
+            if (receiver is IdentifierNameSyntax identifier && state.Locals.TryGetValue(identifier.Identifier.Text, out var local)) {
+                if (local.Registration != null)
+                    return local.Registration;
+                if (local.ReturnedCallIndex >= 0)
+                    state.LastCallIndex = local.ReturnedCallIndex;
+            }
 
             return null;
+        }
+
+        // Ветка switch по enum пишется полным именем константы: из неё выводится тип дискриминанта.
+        private static string QualifiedPattern(State state, PatternSyntax pattern) {
+            if (pattern is ConstantPatternSyntax constant &&
+                state.Model.GetSymbolInfo(constant.Expression).Symbol is IFieldSymbol field &&
+                field.ContainingType != null && field.ContainingType.TypeKind == TypeKind.Enum)
+                return TypeNames.ForCode(field.ContainingType) + "." + field.Name;
+            return pattern.ToString();
         }
 
         private bool TryReadRegisterSwitch(State state, SwitchExpressionSyntax syntax, out GraphRegistration registration) {
@@ -840,7 +996,7 @@ namespace ContainerGenerator {
 
                 var implementation = Format(state, symbol.TypeArguments[symbol.TypeArguments.Length == 1 ? 0 : 1]);
                 registration.Arms.Add(new GraphSwitchArm {
-                    Discriminant = arm.Pattern.ToString(),
+                    Discriminant = QualifiedPattern(state, arm.Pattern),
                     ImplementationType = implementation,
                 });
                 any = true;
@@ -873,10 +1029,16 @@ namespace ContainerGenerator {
                 var argument = invocation.ArgumentList.Arguments.Count > 0
                     ? invocation.ArgumentList.Arguments[0].Expression.ToString()
                     : "";
-                var discriminant = arm.Pattern.ToString();
+                var argumentType = invocation.ArgumentList.Arguments.Count > 0
+                    ? Format(state, state.Model.GetTypeInfo(invocation.ArgumentList.Arguments[0].Expression).Type)
+                    : "";
+                var discriminant = QualifiedPattern(state, arm.Pattern);
                 foreach (var existing in target.Arms) {
                     if (existing.Discriminant == discriminant)
+                        {
                         existing.ParameterExpression = argument;
+                        existing.ParameterType = argumentType;
+                    }
                 }
 
                 applied = true;
@@ -898,6 +1060,8 @@ namespace ContainerGenerator {
 
                 if (name == "Register" || name == "RegisterInstance" || name == "RegisterComponent" || name == "As" || name == "WithParameter")
                     local.Registration = state.LastRegistration;
+                if (state.LastCallIndex >= 0)
+                    local.ReturnedCallIndex = state.LastCallIndex;
                 if (IsBuilderLike(local.Type))
                     local.IsBuilder = true;
             }
@@ -951,14 +1115,18 @@ namespace ContainerGenerator {
             };
         }
 
-        private static void AddCall(State state, string id) {
+        private static void AddCall(State state, string id, IMethodSymbol? constructed) {
             if (string.IsNullOrEmpty(id))
                 return;
-            if (state.Result.Calls.Contains(id))
-                return;
 
-            state.Result.Calls.Add(id);
-            state.Result.CallOrdinals.Add(state.NextOrdinal++);
+            var typeArgs = TypeSubstitution.EncodeTypeArgs(constructed);
+            if (string.IsNullOrEmpty(typeArgs) && state.Result.Calls.Contains(id)) {
+                state.LastCallIndex = state.Result.Calls.IndexOf(id);
+                return;
+            }
+
+            state.Result.AddCall(id, state.NextOrdinal++, typeArgs);
+            state.LastCallIndex = state.Result.Calls.Count - 1;
         }
 
         private void WalkReceiver(State state, InvocationExpressionSyntax invocation) {
@@ -986,10 +1154,6 @@ namespace ContainerGenerator {
             if (invocation.Expression is MemberBindingExpressionSyntax binding)
                 return binding.Name.Identifier.ValueText;
             return invocation.Expression.ToString();
-        }
-
-        private IMethodSymbol Constructed(IMethodSymbol symbol, InvocationExpressionSyntax invocation, State state) {
-            return symbol;
         }
 
         private bool HasSyntax(IMethodSymbol method) {
@@ -1021,7 +1185,7 @@ namespace ContainerGenerator {
                 return false;
             if (IsScopeBuilder(type) || IsEntityBuilder(type))
                 return true;
-            if (type.Name == "IBuilder")
+            if (type.Name == "IBuilder" || type.Name == "IContainerBuilder")
                 return true;
             return type.Implements(_references.Builder) || type.Implements(_references.ScopeBuilder) || type.Implements(_references.EntityBuilder);
         }
@@ -1045,13 +1209,13 @@ namespace ContainerGenerator {
         private string Format(State state, ITypeSymbol? type) {
             if (type == null)
                 return "";
-            return TypeNames.ForCode(Substitute(state, type));
+            return TypeSubstitution.Template(state.Method, type);
         }
 
-        private static ITypeSymbol Substitute(State state, ITypeSymbol type) {
-            if (type is ITypeParameterSymbol parameter && state.Substitution.TryGetValue(parameter, out var mapped))
-                return mapped;
-            return type;
+        private string Map(State state, ITypeSymbol? type) {
+            if (type == null)
+                return "";
+            return TypeSubstitution.Map(state.Method, type);
         }
 
         private static string ParseLifetime(InvocationExpressionSyntax invocation, int argumentIndex) {
@@ -1066,11 +1230,15 @@ namespace ContainerGenerator {
             return "Singleton";
         }
 
-        private static void AddService(GraphRegistration registration, string service) {
+        private static void AddService(GraphRegistration registration, string service, string map = "") {
             if (string.IsNullOrEmpty(service))
                 return;
-            if (registration.ServiceTypes.Contains(service) == false)
-                registration.ServiceTypes.Add(service);
+            if (registration.ServiceTypes.Contains(service))
+                return;
+            registration.ServiceTypes.Add(service);
+            while (registration.ServiceMaps.Count < registration.ServiceTypes.Count - 1)
+                registration.ServiceMaps.Add("");
+            registration.ServiceMaps.Add(map ?? "");
         }
 
         private static string CombineHole(string existing, string next) {
@@ -1126,20 +1294,7 @@ namespace ContainerGenerator {
         }
 
         private static string MethodId(IMethodSymbol method) {
-            var local = method;
-            if (method.MethodKind == MethodKind.LocalFunction && method.ContainingSymbol is IMethodSymbol parent)
-                return MethodId(parent) + "+" + method.Name;
-
-            var definition = method.ReducedFrom ?? method.OriginalDefinition ?? method;
-            var type = definition.ContainingType != null ? TypeNames.ForMetadata(definition.ContainingType) : "";
-            var name = string.IsNullOrEmpty(type) ? definition.Name : type + "." + definition.Name;
-            if (local.TypeArguments.Length == 0)
-                return name;
-
-            var arguments = new string[local.TypeArguments.Length];
-            for (var i = 0; i < local.TypeArguments.Length; i++)
-                arguments[i] = TypeNames.ForMetadata(local.TypeArguments[i]);
-            return name + "<" + string.Join(", ", arguments) + ">";
+            return MethodIds.Of(method);
         }
 
         private static string Trim(string value) {
@@ -1502,6 +1657,7 @@ namespace ContainerGenerator {
             public Dictionary<string, bool> Bools = new Dictionary<string, bool>(StringComparer.Ordinal);
             public GraphRegistration? LastRegistration;
             public InvocationExpressionSyntax? LastInstantiate;
+            public int LastCallIndex = -1;
             public int BranchDepth;
             public int NextOrdinal;
             public bool EntityRoot;
@@ -1520,6 +1676,7 @@ namespace ContainerGenerator {
             public bool FromInstantiate;
             public bool IsSwitch;
             public GraphRegistration? Registration;
+            public int ReturnedCallIndex = -1;
         }
     }
 }

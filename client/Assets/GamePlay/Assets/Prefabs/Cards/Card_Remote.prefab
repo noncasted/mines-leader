@@ -141,10 +141,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 585b7dac4e644a3dbd6376cdc4278903, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
 --- !u!114 &5896375272517734807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d8a6b4c9e174f3aa1c5e0b8d736f492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardRemoteScopeEntity
-  _scope: {fileID: 5533763748526657632}
   _register: []
   _autoDetected:
   - {fileID: 463000134743301336}
@@ -202,7 +197,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 507a576612274384a6ddd4920dc1308b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.CardView
-  _scope: {fileID: 5533763748526657632}
 --- !u!1 &1006804365124029054
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,16 +1,14 @@
-﻿using VContainer.Unity;
-
 namespace Internal
 {
     public class EntityScopeResult : IEntityScopeResult
     {
-        public EntityScopeResult(LifetimeScope scope, IReadOnlyLifetime lifetime)
+        public EntityScopeResult(IContainer container, IReadOnlyLifetime lifetime)
         {
-            Scope = scope;
+            Container = container;
             Lifetime = lifetime;
         }
 
-        public LifetimeScope Scope { get; }
+        public IContainer Container { get; }
         public IReadOnlyLifetime Lifetime { get; }
     }
 }

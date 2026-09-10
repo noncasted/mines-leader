@@ -1,7 +1,6 @@
 ﻿using GamePlay.Loop;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -22,7 +21,6 @@ namespace GamePlay.Cards
         public IViewableProperty<bool> IsHovered => _isHovered;
         public IViewableProperty<bool> IsPressed => _isPressed;
 
-        [Inject]
         internal void Construct(IGameContext gameContext)
         {
             _gameContext = gameContext;

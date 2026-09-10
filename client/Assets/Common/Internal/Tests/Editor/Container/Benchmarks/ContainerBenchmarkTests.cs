@@ -34,16 +34,7 @@ namespace Internal.Tests
         }
 
         [Test]
-        [Explicit("Opt-in benchmark. Own container may throw until track A is complete.")]
-        public void OwnContainer_SyntheticGraph_RecordsMetrics()
-        {
-            var report = OwnContainerBenchmarkHost.Run();
-            Log(report);
-            AssertReport(report, "Own");
-        }
-
-        [Test]
-        [Explicit("Opt-in benchmark. Generated class waits steps 1, 1c and 2.")]
+        [Explicit("Opt-in benchmark. Select and Run Selected in Test Runner.")]
         public void GeneratedContainer_SyntheticGraph_RecordsMetrics()
         {
             var report = GeneratedContainerBenchmarkHost.Run();
@@ -51,29 +42,11 @@ namespace Internal.Tests
             AssertReport(report, GeneratedContainerBenchmarkHost.ContainerName);
         }
 
-        [Test]
-        public void GeneratedHost_IsThirdColumn()
-        {
-            Assert.AreEqual("Generated", GeneratedContainerBenchmarkHost.ContainerName);
-        }
-
         [MenuItem("Tools/Container/Run Benchmark")]
         private static void RunFromMenu()
         {
             var vcontainer = VContainerBenchmarkHost.Run();
             Debug.Log(vcontainer.Format());
-
-            try
-            {
-                var own = OwnContainerBenchmarkHost.Run();
-                Debug.Log(own.Format());
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning(
-                    "Runtime-plan benchmark threw (do not invent numbers): " +
-                    $"{exception.GetType().Name}: {exception.Message}");
-            }
 
             try
             {

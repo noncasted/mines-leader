@@ -44,7 +44,121 @@ namespace ContainerGenerator {
             if (_byFullyQualified.TryGetValue(fullyQualified, out var indexed))
                 return indexed;
 
+            return TryGeneric(fullyQualified);
+        }
+
+        private INamedTypeSymbol? TryGeneric(string fullyQualified) {
+            if (TrySplitGeneric(fullyQualified, out var name, out var args) == false)
+                return null;
+
+            var definition = FindDefinition(name, args.Count == 0 ? 1 : args.Count);
+            if (definition == null)
+                return null;
+            definition = definition.OriginalDefinition;
+
+            if (args.Count == 0 || AllEmpty(args)) {
+                if (definition.IsUnboundGenericType)
+                    return definition;
+                return definition.IsGenericType ? definition.ConstructUnboundGenericType() : definition;
+            }
+
+            if (definition.TypeParameters.Length != args.Count)
+                return null;
+
+            var typeArgs = new ITypeSymbol[args.Count];
+            for (var i = 0; i < args.Count; i++) {
+                var arg = Find(args[i].Trim());
+                if (arg == null)
+                    return null;
+                typeArgs[i] = arg;
+            }
+
+            return definition.Construct(typeArgs);
+        }
+
+        private INamedTypeSymbol? FindDefinition(string name, int arity) {
+            var metadata = StripGlobal(name);
+            if (arity > 0)
+                metadata = metadata + "`" + arity.ToString();
+
+            var direct = _compilation.GetTypeByMetadataName(metadata);
+            if (direct != null)
+                return direct;
+
+            var nested = TryNested(metadata);
+            if (nested != null)
+                return nested;
+
+            EnsureIndexed();
+            var unbound = name + "<" + (arity <= 1 ? "" : new string(',', arity - 1)) + ">";
+            if (_byFullyQualified.TryGetValue(unbound, out var indexed))
+                return indexed;
+            if (_byFullyQualified.TryGetValue(name, out indexed))
+                return indexed;
             return null;
+        }
+
+        private static bool TrySplitGeneric(string type, out string name, out List<string> args) {
+            name = type;
+            args = new List<string>();
+            var start = IndexOfTopLevel(type, '<');
+            if (start < 0)
+                return false;
+            if (type.Length == 0 || type[type.Length - 1] != '>')
+                return false;
+
+            name = type.Substring(0, start);
+            var inner = type.Substring(start + 1, type.Length - start - 2);
+            if (string.IsNullOrEmpty(inner))
+                return true;
+
+            args = SplitTopLevel(inner, ',');
+            return true;
+        }
+
+        private static int IndexOfTopLevel(string value, char token) {
+            var depth = 0;
+            for (var i = 0; i < value.Length; i++) {
+                if (value[i] == '<') {
+                    if (token == '<' && depth == 0)
+                        return i;
+                    depth++;
+                    continue;
+                }
+
+                if (value[i] == '>')
+                    depth--;
+            }
+
+            return -1;
+        }
+
+        private static List<string> SplitTopLevel(string value, char separator) {
+            var parts = new List<string>();
+            var depth = 0;
+            var start = 0;
+            for (var i = 0; i < value.Length; i++) {
+                if (value[i] == '<')
+                    depth++;
+                else if (value[i] == '>')
+                    depth--;
+                else if (value[i] == separator && depth == 0) {
+                    parts.Add(value.Substring(start, i - start).Trim());
+                    start = i + 1;
+                }
+            }
+
+            parts.Add(value.Substring(start).Trim());
+            return parts;
+        }
+
+        private static bool AllEmpty(List<string> args) {
+            for (var i = 0; i < args.Count; i++) {
+                if (string.IsNullOrEmpty(args[i]) == false)
+                    return false;
+            }
+
+            return true;
         }
 
         private INamedTypeSymbol? TryNested(string metadata) {

@@ -3,7 +3,6 @@ using GamePlay.Cards;
 using Internal;
 using Shared;
 using UnityEngine;
-using VContainer;
 
 namespace Menu.Decks
 {
@@ -22,7 +21,6 @@ namespace Menu.Decks
         public Camera PreviewCamera => _previewCamera;
         public RenderTexture PreviewTexture => _previewTexture;
 
-        [Inject]
         internal void Construct(IUpdater updater, IGameRandom random)
         {
             _random = random;

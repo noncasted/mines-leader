@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using VContainer.Internal;
 
 namespace Internal
 {
@@ -18,10 +17,10 @@ namespace Internal
 
         public class Utils
         {
-            public Utils(IUpdater updater, ContainerLocal<ISpriteAnimationRenderer> renderer)
+            public Utils(IUpdater updater, ISpriteAnimationRenderer renderer)
             {
                 Updater = updater;
-                Renderer = renderer.Value;
+                Renderer = renderer;
             }
 
             public IUpdater Updater { get; }
@@ -63,11 +62,11 @@ namespace Internal
             public Utils(
                 IUpdater updater,
                 IAnimationRotationProvider rotationProvider,
-                ContainerLocal<ISpriteAnimationRenderer> renderer)
+                ISpriteAnimationRenderer renderer)
             {
                 Updater = updater;
                 RotationProvider = rotationProvider;
-                Renderer = renderer.Value;
+                Renderer = renderer;
             }
 
             public IUpdater Updater { get; }

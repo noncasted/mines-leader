@@ -3,7 +3,6 @@ using Cysharp.Threading.Tasks;
 using Internal;
 using NaughtyAttributes;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -32,7 +31,6 @@ namespace GamePlay.Cards
         private ILifetime _lifetime;
         private IUpdater _updater;
 
-        [Inject]
         internal void Construct(IUpdater updater)
         {
             _updater = updater;

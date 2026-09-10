@@ -3,7 +3,6 @@ using Global.Publisher;
 using Global.Settings;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace Global.Audio
 {
@@ -37,7 +36,6 @@ namespace Global.Audio
         public IReadOnlyDictionary<AudioLine, float> Values => _values;
         public IViewableProperty<bool> IsMuted => _isMuted;
 
-        [Inject]
         internal void Construct(ISaves saves)
         {
             _saves = saves;

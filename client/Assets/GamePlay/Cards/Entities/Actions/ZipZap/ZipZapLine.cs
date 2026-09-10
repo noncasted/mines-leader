@@ -2,7 +2,6 @@
 using GamePlay.Boards;
 using Internal;
 using UnityEngine;
-using VContainer;
 
 namespace GamePlay.Cards
 {
@@ -14,7 +13,6 @@ namespace GamePlay.Cards
 
         private IUpdater _updater;
 
-        [Inject]
         internal void Construct(IUpdater updater)
         {
             _updater = updater;

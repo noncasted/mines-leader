@@ -2,11 +2,11 @@ using Microsoft.CodeAnalysis;
 
 namespace ContainerGenerator {
     internal sealed class ReferenceSymbols {
-        public INamedTypeSymbol Injector { get; }
+        public INamedTypeSymbol Container { get; }
         public INamedTypeSymbol? UnityObject { get; }
         public INamedTypeSymbol? RuntimeInitialize { get; }
         public INamedTypeSymbol? GraphRootAttribute { get; }
-        public INamedTypeSymbol? RuntimeScopeAttribute { get; }
+        public INamedTypeSymbol? ScopeParentAttribute { get; }
         public INamedTypeSymbol? ScopeBuilder { get; }
         public INamedTypeSymbol? EntityBuilder { get; }
         public INamedTypeSymbol? Builder { get; }
@@ -16,11 +16,11 @@ namespace ContainerGenerator {
         public INamedTypeSymbol? SceneService { get; }
 
         private ReferenceSymbols(
-            INamedTypeSymbol injector,
+            INamedTypeSymbol container,
             INamedTypeSymbol? unityObject,
             INamedTypeSymbol? runtimeInitialize,
             INamedTypeSymbol? graphRootAttribute,
-            INamedTypeSymbol? runtimeScopeAttribute,
+            INamedTypeSymbol? scopeParentAttribute,
             INamedTypeSymbol? scopeBuilder,
             INamedTypeSymbol? entityBuilder,
             INamedTypeSymbol? builder,
@@ -28,11 +28,11 @@ namespace ContainerGenerator {
             INamedTypeSymbol? serviceRegistration,
             INamedTypeSymbol? entityComponent,
             INamedTypeSymbol? sceneService) {
-            Injector = injector;
+            Container = container;
             UnityObject = unityObject;
             RuntimeInitialize = runtimeInitialize;
             GraphRootAttribute = graphRootAttribute;
-            RuntimeScopeAttribute = runtimeScopeAttribute;
+            ScopeParentAttribute = scopeParentAttribute;
             ScopeBuilder = scopeBuilder;
             EntityBuilder = entityBuilder;
             Builder = builder;
@@ -42,17 +42,18 @@ namespace ContainerGenerator {
             SceneService = sceneService;
         }
 
+        // Сборка без Internal.IContainer контейнером не пользуется — генератору в ней делать нечего.
         public static ReferenceSymbols? Create(Compilation compilation) {
-            var injector = compilation.GetTypeByMetadataName("Internal.IInjector");
-            if (injector == null)
+            var container = compilation.GetTypeByMetadataName("Internal.IContainer");
+            if (container == null)
                 return null;
 
             return new ReferenceSymbols(
-                injector,
+                container,
                 compilation.GetTypeByMetadataName("UnityEngine.Object"),
                 compilation.GetTypeByMetadataName("UnityEngine.RuntimeInitializeOnLoadMethodAttribute"),
                 compilation.GetTypeByMetadataName("Internal.ContainerGraphRootAttribute"),
-                compilation.GetTypeByMetadataName("Internal.ContainerRuntimeScopeAttribute"),
+                compilation.GetTypeByMetadataName("Internal.ContainerScopeParentAttribute"),
                 compilation.GetTypeByMetadataName("Internal.IScopeBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IEntityBuilder"),
                 compilation.GetTypeByMetadataName("Internal.IBuilder"),
