@@ -11,6 +11,8 @@ using UnityEngine;
 
 namespace Internal
 {
+    // Отключено: preserve="all" на собственных сборках не давал линкеру вырезать неиспользуемый код.
+    /*
     public class LinkerGenerator : IPreprocessBuildWithReport
     {
         private const string _linkXmlFolder = "Settings";
@@ -92,6 +94,7 @@ namespace Internal
                    normalized.StartsWith("Assets/Plugins/", StringComparison.Ordinal) == false;
         }
     }
+    */
 
     public static class LinkerGeneratorExtensions
     {

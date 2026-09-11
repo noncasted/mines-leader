@@ -14,26 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Web.Stripping.Editor::Unity.Web.Stripping.Editor.SubmoduleStrippingSettings
   OptimizeCodeAfterStripping: 1
   RemoveEmbeddedDebugSymbols: 1
-  MissingSubmoduleErrorHandling: 0
+  MissingSubmoduleErrorHandling: 1
   SubmodulesToStrip:
   - AndroidJNIModule
+  - Animation
   - Freetype2 Base
   - Freetype2 CFF
   - Freetype2 OpenType Validation
   - Freetype2 Postscript
   - Freetype2 SFNT
   - Freetype2 TrueType
-  - PhysX Character Kinematic
-  - PhysX Cloth
-  - PhysX Common
-  - PhysX Cooking
-  - PhysX Extensions
-  - PhysX Foundation
-  - PhysX PvdSDK
-  - PhysX Vehicle
+  - Newtonsoft Json.NET
+  - PhysX
   - Tilemap
-  - UI Toolkit TextEditingManipulator
-  - UI Toolkit TextSelectingManipulator
-  - UI Toolkit Visual Elements
+  - UI Toolkit Framework
   - Unity In-App Purchasing
   - WebGPU Rendering
