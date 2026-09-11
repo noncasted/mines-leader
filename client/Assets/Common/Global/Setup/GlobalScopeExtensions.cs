@@ -30,8 +30,7 @@ namespace Global.Setup
         [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
         public static async UniTask Construct(IScopeBuilder builder)
         {
-            builder.RequestPrefabGroup(GlobalPrefabs.Group);
-
+            // GlobalPrefabs лежат в Resources и доступны без Retain.
             builder.AddUpdater();
             builder.AddAudio();
             builder.AddCamera();

@@ -28,6 +28,10 @@ namespace Flow.Startup
             UnionInitializer.Execute();
 
             var internalScope = await internalScopeLoader.Load();
+
+            // Спрайты меты качаются параллельно всей дальнейшей загрузке: мета дождётся их сама.
+            internalScope.Resolve<IStartupAssetsPreload>().Start();
+
             var scopeLoader = internalScope.Resolve<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(internalScope);

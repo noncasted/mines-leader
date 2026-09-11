@@ -11,18 +11,13 @@ namespace Meta
         IReadOnlyDictionary<CardType, ICardDefinition> Entries { get; }
     }
 
-    public class CardsRegistry : ICardsRegistry
+    public class CardsRegistry : ICardsRegistry, IMetaRegistry
     {
-        public CardsRegistry()
-        {
-            Load();
-        }
-
         private readonly Dictionary<CardType, ICardDefinition> _cards = new();
 
         public IReadOnlyDictionary<CardType, ICardDefinition> Entries => _cards;
 
-        private void Load()
+        public void Initialize()
         {
             var options = new CardConfigOptions();
             var textAsset = Resources.Load<TextAsset>("cards-info");

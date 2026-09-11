@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
+using Menu.Common;
 using Meta;
 using Shared;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Menu.Profile
     {
     }
 
-    public class MenuProfile : IMenuProfile, IScopeSetup, IUIStateAsyncEnterHandler
+    public class MenuProfile : IMenuProfile, IScopeSetup, IMetaSetupCompleted, IUIStateAsyncEnterHandler
     {
         public MenuProfile(
             IProfile profile,
@@ -62,7 +63,11 @@ namespace Menu.Profile
             _match.Hide();
 
             _stats.Bind(lifetime, _profile);
+        }
 
+        // Портреты качаются предзагрузкой параллельно сетапу меню и готовы только вместе с метой.
+        public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
+        {
             var avatar = _profile.Character switch
             {
                 CharacterType.BIBA or CharacterType.BOBA => Sprites.Portraits.DefaultOwn,

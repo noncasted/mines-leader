@@ -3,5 +3,8 @@
     "GamePlay",
     "Global",
     "Menu"
+  ],
+  "nonAddressable": [
+    "Global"
   ]
 }

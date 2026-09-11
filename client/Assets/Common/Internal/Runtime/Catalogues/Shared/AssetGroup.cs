@@ -8,12 +8,17 @@ namespace Internal
     public abstract class AssetGroup
     {
         private int _retainCount;
+        private UniTask? _loading;
 
         public bool IsLoaded { get; private set; }
 
         // Вложенные лоадеры статических групп зовутся Loader, поэтому имя для логов и профайлера
         // берём отсюда, а не из GetType().
         public virtual string Name => GetType().Name;
+
+        // Группа не из Addressables лежит в Resources и едет в данных плеера: бандл ей не нужен,
+        // первое обращение грузит её синхронно, поэтому Retain необязателен. Выгружать её незачем.
+        public virtual bool IsAddressable => true;
 
         public async UniTask Retain()
         {
@@ -22,8 +27,11 @@ namespace Internal
             if (IsLoaded)
                 return;
 
-            await LoadGroup();
-            IsLoaded = true;
+            // Группу могут ретейнить параллельно (предзагрузка на старте и скоуп меню): второй
+            // вызов ждёт ту же загрузку, а не поднимает второй хендл.
+            _loading ??= Load().Preserve();
+
+            await _loading.Value;
         }
 
         public void Release()
@@ -36,21 +44,49 @@ namespace Internal
 
             _retainCount--;
 
-            if (_retainCount > 0)
+            if (_retainCount > 0 || IsAddressable == false)
                 return;
 
             UnloadGroup();
             IsLoaded = false;
+            _loading = null;
+        }
+
+        public void EnsureLoaded()
+        {
+            if (IsLoaded)
+                return;
+
+            if (IsAddressable)
+                throw new InvalidOperationException($"{Name} is not loaded");
+
+            LoadImmediately();
+            IsLoaded = true;
         }
 
         protected abstract UniTask LoadGroup();
 
         protected abstract void UnloadGroup();
 
-        public void EnsureLoaded()
+        // Синхронная загрузка есть только у групп из Resources.
+        protected virtual void LoadImmediately()
         {
-            if (IsLoaded == false)
-                throw new InvalidOperationException($"{Name} is not loaded");
+            throw new NotSupportedException($"{Name} is addressable and loads only through Retain");
+        }
+
+        private async UniTask Load()
+        {
+            try
+            {
+                await LoadGroup();
+                IsLoaded = true;
+            }
+            catch
+            {
+                // Упавшую загрузку следующий Retain должен повторить, а не получить ту же ошибку.
+                _loading = null;
+                throw;
+            }
         }
     }
 }

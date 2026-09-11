@@ -19,6 +19,14 @@ namespace Internal
             Asset = await _handle.ToUniTask();
         }
 
+        protected void LoadResource(string path)
+        {
+            Asset = Resources.Load<TAsset>(path);
+
+            if (Asset == null)
+                throw new System.InvalidOperationException($"{Name} is missing at Resources/{path}");
+        }
+
         protected void UnloadAsset()
         {
             Asset = null;

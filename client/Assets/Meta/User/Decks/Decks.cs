@@ -20,10 +20,12 @@ namespace Meta
     {
         public Decks(
             ICardsRegistry cardsRegistry,
+            IMetaState state,
             IBackendProjection<SharedBackendUser.DeckProjection> projection,
             IMetaBackend backend)
         {
             _cardsRegistry = cardsRegistry;
+            _state = state;
             _projection = projection;
             _backend = backend;
         }
@@ -31,6 +33,7 @@ namespace Meta
         private readonly Dictionary<int, IDeckConfiguration> _configurations = new();
         private readonly ViewableProperty<int> _selectedIndex = new(0);
         private readonly ICardsRegistry _cardsRegistry;
+        private readonly IMetaState _state;
         private readonly IBackendProjection<SharedBackendUser.DeckProjection> _projection;
         private readonly IMetaBackend _backend;
         private readonly ViewableDelegate _updated = new();
@@ -42,26 +45,30 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            // Проекции едут параллельно сетапу меты: до подключения значения ещё нет.
-            _projection.ViewNotNull(lifetime, data => {
-                foreach (var (index, entry) in data.Entries)
-                {
-                    var cards = GetDefinitions(entry.Cards);
-
-                    if (_configurations.TryGetValue(index, out var configuration) == true)
+            // Проекции и реестры едут параллельно сетапу меты, а колода собирается из определений
+            // реестра карт: проекцию разбираем только после реестров. Оба пути успевают до
+            // готовности меты — MetaState ставит её после подписчиков частных флагов.
+            _state.IsRegistriesLoaded.ViewTrue(lifetime, registriesLifetime => {
+                _projection.ViewNotNull(registriesLifetime, data => {
+                    foreach (var (index, entry) in data.Entries)
                     {
-                        configuration.Update(cards);
-                    }
-                    else
-                    {
-                        configuration = new DeckConfiguration(index, cards);
+                        var cards = GetDefinitions(entry.Cards);
 
-                        _configurations[index] = configuration;
-                    }
-                }
+                        if (_configurations.TryGetValue(index, out var configuration) == true)
+                        {
+                            configuration.Update(cards);
+                        }
+                        else
+                        {
+                            configuration = new DeckConfiguration(index, cards);
 
-                _selectedIndex.Set(data.SelectedIndex);
-                _updated.Invoke();
+                            _configurations[index] = configuration;
+                        }
+                    }
+
+                    _selectedIndex.Set(data.SelectedIndex);
+                    _updated.Invoke();
+                });
             });
 
             return;

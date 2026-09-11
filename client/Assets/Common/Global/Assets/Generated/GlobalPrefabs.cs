@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class GlobalPrefabs {
-        private const string Address = "af3d27d06f6943bdb844b4a7768967fd";
+        private const string ResourcePath = "PrefabGroups/Global";
 
         private static global::Global.Audio.AudioListener _globalAudioListener;
         private static global::Global.Audio.AudioPlayer _globalAudioPlayer;
@@ -45,8 +45,15 @@ namespace Internal {
         private sealed class Loader : PrefabGroup {
             public override string Name => nameof(GlobalPrefabs);
 
-            protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+            public override bool IsAddressable => false;
+
+            protected override UniTask LoadGroup() {
+                LoadImmediately();
+                return UniTask.CompletedTask;
+            }
+
+            protected override void LoadImmediately() {
+                LoadResource(ResourcePath);
                 _globalAudioListener = Asset.Get<global::Global.Audio.AudioListener>("GlobalAudioListener");
                 _globalAudioPlayer = Asset.Get<global::Global.Audio.AudioPlayer>("GlobalAudioPlayer");
                 _globalCamera = Asset.Get<global::Global.Cameras.GlobalCamera>("GlobalCamera");

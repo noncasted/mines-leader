@@ -11,7 +11,7 @@ namespace MetaGateway.UserFlow;
 
 public interface IUserConnectionEntryPoint
 {
-    Task OnConnected(IUserSession session);
+    Task OnConnected(IUserSession session, IReadOnlyList<IProjectionPayload> projections);
 }
 
 public class UserConnectionEntryPoint : IUserConnectionEntryPoint
@@ -19,7 +19,6 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     public UserConnectionEntryPoint(
         IConnectedUsers users,
         IUserCommandsDispatcher commandsDispatcher,
-        IOrleans orleans,
         IMessaging messaging,
         ICardConfigs cardConfigs,
         IInGameAchievementConfig achievementConfig,
@@ -28,7 +27,6 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
         ILogger<UserConnectionEntryPoint> logger)
     {
         _users = users;
-        _orleans = orleans;
         _messaging = messaging;
         _cardConfigs = cardConfigs;
         _achievementConfig = achievementConfig;
@@ -41,7 +39,6 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly IConnectedUsers _users;
     private readonly IUserCommandsDispatcher _commandsDispatcher;
 
-    private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly ICardConfigs _cardConfigs;
     private readonly IInGameAchievementConfig _achievementConfig;
@@ -49,7 +46,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly ICardPreviewGenerator _cardPreviewGenerator;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
-    public async Task OnConnected(IUserSession user)
+    public async Task OnConnected(IUserSession user, IReadOnlyList<IProjectionPayload> projections)
     {
         if (_users.Entries.TryGetValue(user.UserId, out var existingUser))
         {
@@ -67,6 +64,14 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             var channelId = new UserProjectionChannelId(user.UserId);
             var writer = user.Connection.Writer;
 
+            var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();
+
+            var initial = projections
+                          .Select(t => t.ToContext().ToProjection())
+                          .Append(new InitialCardPreviews { Bundles = cardPreviews }.ToProjection());
+
+            await Task.WhenAll(initial.Select(projection => writer.WriteOneWay(projection).AsTask()));
+
             await _messaging.ListenChannel<IProjectionPayload>(user.Lifetime, channelId, payload => {
                 _logger.LogTrace("[User] [EntryPoint] Sending {PayloadType} to user {UserId}",
                     payload.GetType().Name,
@@ -76,19 +81,9 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
                 writer.WriteOneWay(context.ToProjection());
             });
 
-            var userPayloads = await GeneratedUserProjections.GetAllUserProjections(_orleans, user.UserId);
-            var projections = userPayloads.Select(t => t.ToContext().ToProjection());
-
-            await Task.WhenAll(projections.Select(projection => writer.WriteOneWay(projection).AsTask()));
-
             _cardConfigs.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
             _achievementConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
             _matchMakingConfig.View(user.Lifetime, value => writer.WriteOneWay(value.ToProjection()));
-
-            var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();
-            await writer.WriteOneWay(new InitialCardPreviews { Bundles = cardPreviews }.ToProjection());
-
-            await writer.WriteOneWay(new SharedConnectionCompleted());
 
             _logger.LogTrace("[User] [EntryPoint] User {UserId} projection setup completed successfully",
                 user.UserId);

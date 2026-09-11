@@ -111,10 +111,10 @@ sequenceDiagram
     participant C as Client
     participant M as Meta Gateway
 
-    C->>M: WebSocket connect
-    C->>M: SharedBackendSocketAuth.Request (UserId)
-    M->>C: SharedBackendSocketAuth.Response (IsSuccess)
-    M->>C: SharedConnectionCompleted
+    C->>M: WebSocket upgrade (?userId=...)
+    Note over M: IUserFactory.Resolve: юзер и его проекции одной транзакцией
+    M->>C: SharedBackendProjection[] (проекции юзера + InitialCardPreviews)
+    M->>C: SharedBackendProjection[] (конфиги)
 ```
 
 ### WebSocket-авторизация (Game Session)

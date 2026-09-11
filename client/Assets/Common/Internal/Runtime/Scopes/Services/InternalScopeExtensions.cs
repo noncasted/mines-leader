@@ -14,6 +14,9 @@ namespace Internal
             builder.Register<EntityScopeLoader>()
                    .As<IEntityScopeLoader>();
 
+            builder.Register<StartupAssetsPreload>()
+                   .As<IStartupAssetsPreload>();
+
             InternalAssets.OptionsContainer.Register(builder);
         }
     }

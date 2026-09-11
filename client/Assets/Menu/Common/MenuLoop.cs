@@ -19,29 +19,29 @@ namespace Menu.Common
             IGlobalCamera globalCamera,
             ILoadingScreen loadingScreen,
             IMenuPlay play,
-            IBackendProjectionsAwaiter projections,
+            IMetaState metaState,
             IEventLoop eventLoop)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
             _play = play;
-            _projections = projections;
+            _metaState = metaState;
             _eventLoop = eventLoop;
         }
 
         private readonly IGlobalCamera _globalCamera;
         private readonly ILoadingScreen _loadingScreen;
         private readonly IMenuPlay _play;
-        private readonly IBackendProjectionsAwaiter _projections;
+        private readonly IMetaState _metaState;
         private readonly IEventLoop _eventLoop;
 
         public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
             var completion = new UniTaskCompletionSource<SharedMatchmaking.MatchResult>();
 
-            // Меню грузится параллельно с метой: авторизация и проекции могли ещё не приехать.
-            // Отрезок параллельный — ветка подключения меты в это время ещё пишет свои замеры.
-            await GameProfiler.Concurrent("Wait meta").Track(_projections.IsInitialized.WaitTrue(lifetime));
+            // Меню грузится параллельно с метой: авторизация, проекции и реестры могли ещё не успеть.
+            // Отрезок параллельный — ветки меты в это время ещё пишут свои замеры.
+            await GameProfiler.Concurrent("Wait meta").Track(_metaState.IsReady.WaitTrue(lifetime));
 
             using (GameProfiler.Scope("Meta setup completed"))
                 _eventLoop.RunCustom<IMetaSetupCompleted>(lifetime, l => l.OnMetaSetupCompleted(lifetime));

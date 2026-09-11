@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
 using UnityEngine;
 
 namespace Internal
@@ -11,6 +12,10 @@ namespace Internal
     public static class PrefabCatalogGenerator
     {
         public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups";
+
+        // Ассеты групп не из Addressables: Resources.Load ищет их по пути внутри Resources.
+        private const string ResourcesSubfolder = "PrefabGroups";
+        private const string ResourcesFolder = GroupsFolder + "/Resources/" + ResourcesSubfolder;
 
         private const string GroupPrefix = "Prefabs_";
 
@@ -37,13 +42,18 @@ namespace Internal
 
         private static void GenerateInternal()
         {
-            var groups = new List<PrefabGroupDefinition>();
             _metadataFixes.Clear();
+
+            var groups = BuildGroups(CollectSources());
+
+            // Переезд между Addressables и Resources идёт до пакетного редактирования: внутри него
+            // перемещённый ассет по новому пути ещё не читается, и группа создалась бы заново.
+            MoveGroupAssets(groups);
+
             AssetDatabase.StartAssetEditing();
 
             try
             {
-                groups = BuildGroups(CollectSources());
                 WriteGroupAssets(groups);
             }
             finally
@@ -53,7 +63,9 @@ namespace Internal
 
             ApplyMetadataFixes();
 
-            CatalogAddressablesSync.Sync("PrefabCatalogGenerator", GroupPrefix, GroupsFolder, groups);
+            // Группы из Resources в Addressables не попадают: их addressable-группы sync снесёт как лишние.
+            CatalogAddressablesSync.Sync("PrefabCatalogGenerator", GroupPrefix, GroupsFolder,
+                groups.FindAll(group => group.IsAddressable));
             PrefabsCatalogClassGenerator.Generate(groups);
             PrefabGroupsRegistry.Instance.Invalidate();
             AssetDatabase.SaveAssets();
@@ -241,6 +253,8 @@ namespace Internal
                     {
                         Name = source.Group,
                         ClassName = source.Group + "Prefabs",
+                        IsAddressable = PrefabGroupsRegistry.Instance.IsAddressable(source.Group),
+                        ResourcePath = $"{ResourcesSubfolder}/{source.Group}",
                         Properties = new List<PrefabPropertyDefinition>()
                     };
                     groups.Add(source.Group, group);
@@ -337,12 +351,45 @@ namespace Internal
 
             foreach (var group in groups)
             {
-                var path = $"{GroupsFolder}/{group.Name}.asset";
+                var path = GetGroupAssetPath(group, group.IsAddressable);
                 writtenPaths.Add(path);
                 WriteGroupAsset(path, group);
             }
 
+            // Resources лежит внутри GroupsFolder, поэтому поиск устаревших ассетов захватывает и его.
             DeleteStaleAssets(writtenPaths);
+        }
+
+        private static string GetGroupAssetPath(PrefabGroupDefinition group, bool isAddressable)
+        {
+            return isAddressable
+                ? $"{GroupsFolder}/{group.Name}.asset"
+                : $"{ResourcesFolder}/{group.Name}.asset";
+        }
+
+        // Ассет группы переезжает, а не пересоздаётся: GUID и ссылки на него сохраняются.
+        private static void MoveGroupAssets(IReadOnlyList<PrefabGroupDefinition> groups)
+        {
+            foreach (var group in groups)
+            {
+                var path = GetGroupAssetPath(group, group.IsAddressable);
+                var previousPath = GetGroupAssetPath(group, group.IsAddressable == false);
+
+                if (AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(previousPath) == null)
+                    continue;
+
+                CatalogPaths.EnsureFolder(group.IsAddressable ? GroupsFolder : ResourcesFolder);
+
+                // Запись Addressables на ассете в Resources дала бы вторую копию в бандле.
+                if (group.IsAddressable == false)
+                    AddressableAssetSettingsDefaultObject.Settings?.RemoveAssetEntry(
+                        AssetDatabase.AssetPathToGUID(previousPath), false);
+
+                var error = AssetDatabase.MoveAsset(previousPath, path);
+
+                if (string.IsNullOrEmpty(error) == false)
+                    Debug.LogError($"[PrefabCatalogGenerator] Failed to move {previousPath} to {path}: {error}");
+            }
         }
 
         private static void WriteGroupAsset(string path, PrefabGroupDefinition group)
@@ -473,6 +520,8 @@ namespace Internal
         public string ClassName;
         public string GeneratedFolder;
         public bool SkipCodegen;
+        public bool IsAddressable = true;
+        public string ResourcePath;
         public List<PrefabPropertyDefinition> Properties = new();
     }
 

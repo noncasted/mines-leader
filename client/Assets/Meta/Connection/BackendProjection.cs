@@ -16,7 +16,7 @@ namespace Meta
 
     /// <summary>
     /// Проекция, которую сервер присылает сразу при подключении: без неё мета не готова
-    /// (см. <see cref="BackendProjectionsAwaiter"/>).
+    /// (см. <see cref="MetaState"/>).
     /// </summary>
     public interface IInitialBackendProjection : IBackendProjection
     {

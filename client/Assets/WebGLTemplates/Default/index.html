@@ -32,7 +32,8 @@
     // equally sized frames. Change these constants if the sheet changes.
     const SHEET_URL = "Loading_Animation-Sheet.png";
     const FRAME_COUNT = 6;
-    const FRAME_DURATION = 0.6; // seconds for one full loop
+    const FRAME_DURATION = 1.8; // seconds for one full loop
+    const FADE_DURATION = 1; // seconds, same as the fade curve of the in-game LoadingScreen
 
     const hideFullScreenButton = "{{{ HIDE_FULL_SCREEN_BUTTON }}}";
     const buildUrl = "Build";
@@ -117,7 +118,82 @@
     sheet.onerror = () => loadingSprite.style.display = "none";
     sheet.src = SHEET_URL;
 
-    loadingCover.style.display = "";
+    // Loading screen controlled by the game through WebLoadingScreen.jslib.
+    // It stays on after Unity has started and goes away only when the game calls hide().
+    window.loadingScreen = (() => {
+        let alpha = 0;
+        let direction = 1;
+        let lastTime = null;
+        let frameRequest = null;
+
+        const apply = () => {
+            loadingCover.style.opacity = alpha;
+
+            if (alpha <= 0) {
+                loadingCover.style.display = "none";
+                // The progress bar is only meaningful while the build downloads.
+                progressBarEmpty.style.display = "none";
+            } else {
+                // Leaving an already visible cover untouched keeps the sprite animation running.
+                if (loadingCover.style.display === "none")
+                    loadingCover.style.display = "";
+            }
+        };
+
+        const step = (time) => {
+            const delta = lastTime === null ? 0 : (time - lastTime) / 1000;
+            lastTime = time;
+            alpha = Math.min(1, Math.max(0, alpha + direction * delta / FADE_DURATION));
+            apply();
+
+            if ((direction > 0 && alpha >= 1) || (direction < 0 && alpha <= 0)) {
+                frameRequest = null;
+                lastTime = null;
+                return;
+            }
+
+            frameRequest = requestAnimationFrame(step);
+        };
+
+        const run = () => {
+            if (frameRequest === null)
+                frameRequest = requestAnimationFrame(step);
+        };
+
+        const stop = () => {
+            if (frameRequest !== null)
+                cancelAnimationFrame(frameRequest);
+
+            frameRequest = null;
+            lastTime = null;
+        };
+
+        return {
+            show() {
+                direction = 1;
+                run();
+            },
+            showInstantly() {
+                direction = 1;
+
+                if (alpha >= 1)
+                    return;
+
+                stop();
+                alpha = 1;
+                apply();
+            },
+            hide() {
+                direction = -1;
+                run();
+            },
+            isShown() {
+                return alpha >= 1;
+            },
+        };
+    })();
+
+    window.loadingScreen.showInstantly();
 
     const script = document.createElement("script");
     script.src = loaderUrl;
@@ -127,7 +203,7 @@
         createUnityInstance(canvas, config, (progress) => {
             progressBarFull.style.width = `${100 * progress}%`;
         }).then((unityInstance) => {
-            loadingCover.style.display = "none";
+            progressBarFull.style.width = "100%";
         }).catch((message) => {
             alert(message);
         });

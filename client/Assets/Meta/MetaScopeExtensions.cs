@@ -25,7 +25,7 @@ namespace Meta
         public static UniTask Construct(IScopeBuilder builder)
         {
             // Спрайты меты (CardsIcons, CardBuffs, MenuPlay, Portraits) живут всё время приложения
-            // и ретейнятся на старте в InternalScopeLoader.
+            // и качаются со старта в StartupAssetsPreload.
             builder.Register<MetaLoop>()
                    .As<IScopeBaseSetupAsync>();
 
@@ -43,14 +43,21 @@ namespace Meta
             builder.Register<Authentication>()
                    .As<IAuthentication>();
 
+            builder.Register<MetaState>()
+                   .As<IMetaState>()
+                   .As<IScopeSetup>();
+
             builder.Register<CardsRegistry>()
-                   .As<ICardsRegistry>();
+                   .As<ICardsRegistry>()
+                   .As<IMetaRegistry>();
 
             builder.Register<GameModesRegistry>()
-                   .As<IGameModesRegistry>();
+                   .As<IGameModesRegistry>()
+                   .As<IMetaRegistry>();
 
             builder.Register<ModifiersRegistry>()
-                   .As<IModifiersRegistry>();
+                   .As<IModifiersRegistry>()
+                   .As<IMetaRegistry>();
 
             builder.Register<CardDescriptionProvider>()
                    .As<ICardDescriptionProvider>();
@@ -58,9 +65,6 @@ namespace Meta
             builder.AddNetworkConnection();
 
             builder.RegisterCommand<BackendProjectionHub>();
-
-            builder.RegisterCommand<ConnectionCompletedCommand>()
-                   .As<IMetaConnectionAwaiter>();
 
             builder
                 .RegisterBackendProjection<SharedBackendUser.ProfileProjection>()
@@ -90,10 +94,6 @@ namespace Meta
                    .As<IBackendProjection>()
                    .As<IInitialBackendProjection>()
                    .As<IMatchMakingConfigs>();
-
-            builder.Register<BackendProjectionsAwaiter>()
-                   .As<IBackendProjectionsAwaiter>()
-                   .As<IScopeSetup>();
 
             builder.Register<AchievementsService>()
                    .As<IAchievements>()

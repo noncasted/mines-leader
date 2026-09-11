@@ -22,6 +22,7 @@ namespace Flow.Mocks
             UnionInitializer.Execute();
             var internalScopeLoader = new InternalScopeLoader();
             _internalScope = await internalScopeLoader.Load();
+            _internalScope.Container.Resolve<IStartupAssetsPreload>().Start();
             var scopeLoader = _internalScope.Container.Resolve<IServiceScopeLoader>();
 
             var globalScope = await scopeLoader.LoadGlobal(_internalScope);

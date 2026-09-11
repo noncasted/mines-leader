@@ -35,6 +35,9 @@ namespace Internal
                     states.GroupMixed,
                     group => Apply(importers, metadata => metadata.Group = group));
 
+                if (states.GroupMixed == false && string.IsNullOrEmpty(states.Group) == false)
+                    DrawAddressable(states.Group);
+
                 DrawRoot(importers, states);
             }
         }
@@ -82,6 +85,21 @@ namespace Internal
             if (CatalogInspectorGUI.TryDrawToggle("Prefab Catalog", states.Included, states.IncludedMixed,
                 out var included))
                 Apply(importers, metadata => metadata.Included = included);
+        }
+
+        // Настройка общая на всю группу, а не на префаб: снятая галочка уносит ассет группы
+        // из Addressables в Resources у всех её префабов сразу.
+        private static void DrawAddressable(string group)
+        {
+            var registry = PrefabGroupsRegistry.Instance;
+            var isAddressable = registry.IsAddressable(group);
+
+            if (CatalogInspectorGUI.TryDraw(false, () => EditorGUILayout.ToggleLeft("Addressable Group", isAddressable),
+                    out var next) == false)
+                return;
+
+            if (registry.SetAddressable(group, next))
+                PrefabCatalogGenerator.ScheduleGenerate();
         }
 
         private static void DrawRoot(IReadOnlyList<AssetImporter> importers, CatalogStates states)
