@@ -25,13 +25,8 @@ namespace Meta
         bool TryGet(string key, out IModifierDefinition definition);
     }
 
-    public class ModifiersRegistry : IModifiersRegistry
+    public class ModifiersRegistry : IModifiersRegistry, IMetaRegistry
     {
-        public ModifiersRegistry()
-        {
-            Load();
-        }
-
         private readonly Dictionary<string, IModifierDefinition> _buffs = new();
         private readonly Dictionary<string, IModifierDefinition> _bySourceKey = new();
 
@@ -45,7 +40,7 @@ namespace Meta
             return _bySourceKey.TryGetValue(key, out definition);
         }
 
-        private void Load()
+        public void Initialize()
         {
             var textAsset = Resources.Load<TextAsset>("buffs-info");
             var payload = JsonUtility.FromJson<ModifiersInfoPayload>(textAsset.text);

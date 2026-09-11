@@ -228,7 +228,7 @@ await _transactions.Run(() => user.Deck.Update(0, cards));
 ### Creating test users
 Use `IUserFactory` for tests that need a user context:
 ```csharp
-var userId = await _userFactory.Create(new UserCreateOptions());
+var userId = (await _userFactory.Create(new UserCreateOptions())).Id;
 Cleanup.TrackUser(userId);
 var user = _orleans.CreateUserHandle(userId);
 ```

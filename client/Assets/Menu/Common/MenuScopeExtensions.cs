@@ -91,7 +91,8 @@ namespace Menu.Common
 
             builder.Register<MenuProfile>()
                    .As<IMenuProfile>()
-                   .As<IScopeSetup>();
+                   .As<IScopeSetup>()
+                   .As<IMetaSetupCompleted>();
 
             builder.Register<MenuUnlocks>()
                    .As<IMenuUnlocks>()

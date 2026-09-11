@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
@@ -8,7 +8,9 @@ namespace Flow.Startup
 {
     public class InternalScopeLoader
     {
-        public async UniTask<ILoadedScope> Load()
+        // Ждать здесь нечего: глобальные префабы лежат в Resources, а спрайты меты качаются
+        // параллельно остальной загрузке (см. StartupAssetsPreload).
+        public UniTask<ILoadedScope> Load()
         {
             using var stage = GameProfiler.Scope("Startup");
 
@@ -16,19 +18,6 @@ namespace Flow.Startup
             // до первого обращения к любой группе.
             using (GameProfiler.Scope("Assets catalog"))
                 AssetCatalog.Load();
-
-            // Эти группы живут всё время работы приложения: глобальные префабы и спрайты меты,
-            // которые из памяти уже не выгружаются. Ретейним один раз здесь и пачкой — бандлы
-            // качаются параллельно, а не по очереди скоупов.
-            using (GameProfiler.Scope("Assets"))
-            {
-                await UniTask.WhenAll(
-                    RetainGroup(GlobalPrefabs.Group, "Prefabs"),
-                    RetainGroup(Sprites.CardsIcons, "Sprites"),
-                    RetainGroup(Sprites.CardBuffs, "Sprites"),
-                    RetainGroup(Sprites.MenuPlay, "Sprites"),
-                    RetainGroup(Sprites.Portraits, "Sprites"));
-            }
 
             var lifetime = new Lifetime();
             IContainer container;
@@ -54,12 +43,7 @@ namespace Flow.Startup
                 result.Dispose();
             };
 
-            return result;
-        }
-
-        private static UniTask RetainGroup(AssetGroup group, string label)
-        {
-            return GameProfiler.Concurrent($"{label}: {group.Name}").Track(group.Retain());
+            return UniTask.FromResult<ILoadedScope>(result);
         }
     }
 }

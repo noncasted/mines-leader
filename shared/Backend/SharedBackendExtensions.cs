@@ -5,7 +5,6 @@
         public static IUnionBuilder<INetworkContext> AddSharedBackend(this IUnionBuilder<INetworkContext> builder)
         {
             builder.Add<SharedBackendProjection>();
-            builder.Add<SharedConnectionCompleted>();
             builder.Add<InitialCardPreviews>();
 
             SharedBackendUser.Register(builder);

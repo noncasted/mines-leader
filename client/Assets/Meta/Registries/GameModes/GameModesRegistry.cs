@@ -25,18 +25,13 @@ namespace Meta
         IReadOnlyDictionary<GameMatchType, IGameModeDefinition> Entries { get; }
     }
 
-    public class GameModesRegistry : IGameModesRegistry
+    public class GameModesRegistry : IGameModesRegistry, IMetaRegistry
     {
-        public GameModesRegistry()
-        {
-            Load();
-        }
-
         private readonly Dictionary<GameMatchType, IGameModeDefinition> _modes = new();
 
         public IReadOnlyDictionary<GameMatchType, IGameModeDefinition> Entries => _modes;
 
-        private void Load()
+        public void Initialize()
         {
             var textAsset = Resources.Load<TextAsset>("game-modes-info");
             var payload = JsonUtility.FromJson<GameModesInfoPayload>(textAsset.text);

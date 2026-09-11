@@ -188,6 +188,9 @@ public static class ProjectsSetupExtensions
 
             builder.AddBotServices();
 
+            builder.Add<GeneratedUserProjectionsLoader>()
+                   .As<IUserProjectionsLoader>();
+
             builder.Add<DbSource>()
                    .As<IDbSource>();
 

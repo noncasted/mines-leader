@@ -68,11 +68,11 @@ public class BackendConnectionMiddleware
 
         // Регистрация живёт здесь же: отдельный http-эндпоинт стоил клиенту второго
         // tls-соединения к тому же хосту ради одного guid.
-        Guid userId;
+        ResolvedUser resolvedUser;
 
         try
         {
-            userId = await _userFactory.Resolve(requestedUserId);
+            resolvedUser = await _userFactory.Resolve(requestedUserId);
         }
         catch (Exception e)
         {
@@ -85,6 +85,7 @@ public class BackendConnectionMiddleware
             return;
         }
 
+        var userId = resolvedUser.Id;
         WebSocket? webSocket;
 
         try
@@ -112,7 +113,7 @@ public class BackendConnectionMiddleware
         try
         {
             connection.Run().NoAwait();
-            await _entryPoint.OnConnected(userSession);
+            await _entryPoint.OnConnected(userSession, resolvedUser.Projections);
             userSession.Lifetime.Listen(() => completion.TrySetResult());
 
             await completion.Task;

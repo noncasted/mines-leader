@@ -26,6 +26,9 @@ namespace Flow.Mocks
         {
             var scope = await Bootstrap();
 
+            // Меню, которое обычно ждёт мету, здесь нет: игре нужны реестры карт и подключение.
+            await scope.Resolve<IMetaState>().IsReady.WaitTrue(scope.Lifetime);
+
             var scopeLoaderFactory = scope.Resolve<IServiceScopeLoader>();
             var matchmaking = scope.Resolve<IMatchmaking>();
 

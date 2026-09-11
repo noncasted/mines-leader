@@ -82,7 +82,12 @@ namespace Internal
             builder.AppendLine("namespace Internal {");
             builder.AppendLine("    [NoAutoStaticsCleanup]");
             builder.AppendLine($"    public static class {group.ClassName} {{");
-            builder.AppendLine($"        private const string Address = \"{group.Address}\";");
+
+            if (group.IsAddressable)
+                builder.AppendLine($"        private const string Address = \"{group.Address}\";");
+            else
+                builder.AppendLine($"        private const string ResourcePath = \"{group.ResourcePath}\";");
+
             builder.AppendLine();
 
             foreach (var property in group.Properties)
@@ -105,20 +110,29 @@ namespace Internal
             builder.AppendLine("        private sealed class Loader : PrefabGroup {");
             builder.AppendLine($"            public override string Name => nameof({group.ClassName});");
             builder.AppendLine();
-            builder.AppendLine("            protected override async UniTask LoadGroup() {");
-            builder.AppendLine("                await LoadAsset(Address);");
 
-            foreach (var property in group.Properties)
+            if (group.IsAddressable)
             {
-                if (property.IsGameObject)
-                    builder.AppendLine(
-                        $"                {property.FieldName} = Asset.GetGameObject(\"{property.PropertyName}\");");
-                else
-                    builder.AppendLine(
-                        $"                {property.FieldName} = Asset.Get<{property.CodeTypeName}>(\"{property.PropertyName}\");");
+                builder.AppendLine("            protected override async UniTask LoadGroup() {");
+                builder.AppendLine("                await LoadAsset(Address);");
+                AppendFields(builder, group);
+                builder.AppendLine("            }");
             }
-
-            builder.AppendLine("            }");
+            else
+            {
+                // Группа из Resources грузится синхронно: и по Retain, и при первом обращении.
+                builder.AppendLine("            public override bool IsAddressable => false;");
+                builder.AppendLine();
+                builder.AppendLine("            protected override UniTask LoadGroup() {");
+                builder.AppendLine("                LoadImmediately();");
+                builder.AppendLine("                return UniTask.CompletedTask;");
+                builder.AppendLine("            }");
+                builder.AppendLine();
+                builder.AppendLine("            protected override void LoadImmediately() {");
+                builder.AppendLine("                LoadResource(ResourcePath);");
+                AppendFields(builder, group);
+                builder.AppendLine("            }");
+            }
             builder.AppendLine();
             builder.AppendLine("            protected override void UnloadGroup() {");
 
@@ -131,6 +145,19 @@ namespace Internal
             builder.AppendLine("    }");
             builder.AppendLine("}");
             return builder.ToString();
+        }
+
+        private static void AppendFields(StringBuilder builder, PrefabGroupDefinition group)
+        {
+            foreach (var property in group.Properties)
+            {
+                if (property.IsGameObject)
+                    builder.AppendLine(
+                        $"                {property.FieldName} = Asset.GetGameObject(\"{property.PropertyName}\");");
+                else
+                    builder.AppendLine(
+                        $"                {property.FieldName} = Asset.Get<{property.CodeTypeName}>(\"{property.PropertyName}\");");
+            }
         }
 
         // Папку с прошлого запуска узнаём по имени: группа могла переехать в другую сборку,

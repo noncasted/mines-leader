@@ -10,15 +10,18 @@ namespace Internal
 {
     // Список групп каталога: то, что явно заведено руками (json), плюс то, что найдено
     // в уже размеченных ассетах. Json нужен, чтобы пустая группа не исчезала до первого ассета.
+    // Там же лежат настройки групп, которые не выводятся из разметки ассетов.
     [NoAutoStaticsCleanup]
     public abstract class CatalogGroupsRegistry
     {
         private static readonly JsonSerializerSettings JsonSettings = new()
         {
-            Formatting = Formatting.Indented
+            Formatting = Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore
         };
 
         private string[] _cachedGroups;
+        private HashSet<string> _cachedNonAddressable;
 
         protected CatalogGroupsRegistry(string logTag, string assetPath)
         {
@@ -37,7 +40,7 @@ namespace Internal
 
             var names = new SortedSet<string>(StringComparer.Ordinal);
 
-            foreach (var group in ReadFileGroups())
+            foreach (var group in ReadFile().groups)
                 names.Add(group);
 
             foreach (var group in DiscoverGroups())
@@ -58,9 +61,9 @@ namespace Internal
                 return false;
             }
 
-            var groups = new List<string>(ReadFileGroups());
+            var file = ReadFile();
 
-            foreach (var existing in groups)
+            foreach (var existing in file.groups)
             {
                 if (string.Equals(existing, groupName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -70,9 +73,44 @@ namespace Internal
                 }
             }
 
-            groups.Add(groupName);
+            file.groups.Add(groupName);
 
-            if (WriteFileGroups(groups) == false)
+            if (WriteFile(file) == false)
+                return false;
+
+            Invalidate();
+            return true;
+        }
+
+        // Группа по умолчанию адресуемая: в json перечислены только те, что лежат в Resources.
+        public bool IsAddressable(string group)
+        {
+            _cachedNonAddressable ??= new HashSet<string>(ReadFile().nonAddressable ?? new List<string>(),
+                StringComparer.Ordinal);
+
+            return _cachedNonAddressable.Contains(CatalogNaming.ToGroupName(group)) == false;
+        }
+
+        // Возвращает true, если настройка поменялась и каталог надо перегенерировать.
+        public bool SetAddressable(string group, bool isAddressable)
+        {
+            var groupName = CatalogNaming.ToGroupName(group);
+
+            if (string.IsNullOrEmpty(groupName) || IsAddressable(groupName) == isAddressable)
+                return false;
+
+            var file = ReadFile();
+            var nonAddressable = file.nonAddressable ?? new List<string>();
+
+            if (isAddressable)
+                nonAddressable.RemoveAll(name => string.Equals(name, groupName, StringComparison.Ordinal));
+            else
+                nonAddressable.Add(groupName);
+
+            nonAddressable.Sort(StringComparer.Ordinal);
+            file.nonAddressable = nonAddressable.Count > 0 ? nonAddressable : null;
+
+            if (WriteFile(file) == false)
                 return false;
 
             Invalidate();
@@ -82,43 +120,35 @@ namespace Internal
         public void Invalidate()
         {
             _cachedGroups = null;
+            _cachedNonAddressable = null;
         }
 
         // Группы, выведенные из разметки самих ассетов.
         protected abstract IEnumerable<string> DiscoverGroups();
 
-        private IReadOnlyList<string> ReadFileGroups()
+        private RegistryFile ReadFile()
         {
             var fullPath = CatalogPaths.ToFullPath(AssetPath);
 
             try
             {
                 if (File.Exists(fullPath) == false)
-                    return Array.Empty<string>();
+                    return new RegistryFile();
 
-                var file = JsonConvert.DeserializeObject<RegistryFile>(File.ReadAllText(fullPath));
+                var file = JsonConvert.DeserializeObject<RegistryFile>(File.ReadAllText(fullPath)) ?? new RegistryFile();
+                file.groups = file.groups?.FindAll(group => string.IsNullOrWhiteSpace(group) == false) ??
+                              new List<string>();
 
-                if (file?.groups == null)
-                    return Array.Empty<string>();
-
-                var groups = new List<string>(file.groups.Count);
-
-                foreach (var group in file.groups)
-                {
-                    if (string.IsNullOrWhiteSpace(group) == false)
-                        groups.Add(group);
-                }
-
-                return groups;
+                return file;
             }
             catch (Exception exception)
             {
                 Debug.LogError($"[{LogTag}] Failed to read {AssetPath}: {exception}");
-                return Array.Empty<string>();
+                return new RegistryFile();
             }
         }
 
-        private bool WriteFileGroups(IReadOnlyList<string> groups)
+        private bool WriteFile(RegistryFile file)
         {
             var fullPath = CatalogPaths.ToFullPath(AssetPath);
 
@@ -129,7 +159,6 @@ namespace Internal
                 if (string.IsNullOrEmpty(directory) == false && Directory.Exists(directory) == false)
                     Directory.CreateDirectory(directory);
 
-                var file = new RegistryFile { groups = new List<string>(groups) };
                 File.WriteAllText(fullPath, JsonConvert.SerializeObject(file, JsonSettings));
                 AssetDatabase.ImportAsset(AssetPath);
                 return true;
@@ -145,6 +174,7 @@ namespace Internal
         private sealed class RegistryFile
         {
             public List<string> groups = new();
+            public List<string> nonAddressable;
         }
     }
 }
