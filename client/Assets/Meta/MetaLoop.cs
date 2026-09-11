@@ -10,40 +10,62 @@ namespace Meta
         public MetaLoop(
             IAuthentication authentication,
             IMetaBackend backend,
-            IMetaConnectionAwaiter connectionAwaiter,
+            IBackendProjectionsAwaiter projections,
             IBackendProjection<SharedBackendUser.ProfileProjection> profile)
         {
             _authentication = authentication;
             _backend = backend;
-            _connectionAwaiter = connectionAwaiter;
+            _projections = projections;
             _profile = profile;
         }
 
         private readonly IAuthentication _authentication;
         private readonly IMetaBackend _backend;
-        private readonly IMetaConnectionAwaiter _connectionAwaiter;
+        private readonly IBackendProjectionsAwaiter _projections;
         private readonly IBackendProjection<SharedBackendUser.ProfileProjection> _profile;
 
-        public async UniTask OnBaseSetupAsync(IReadOnlyLifetime lifetime)
+        public UniTask OnBaseSetupAsync(IReadOnlyLifetime lifetime)
+        {
+            // Авторизация и проекции сетап не держат: реестры меты и меню грузятся параллельно,
+            // а готовности данных меню дожидается само (см. MenuLoop).
+            Connect(lifetime).Forget();
+
+            return UniTask.CompletedTask;
+        }
+
+        private async UniTask Connect(IReadOnlyLifetime lifetime)
         {
             Debug.Log("[Meta] [Loop] Starting meta loop initialization");
 
-            // Отрезок на этот слушатель открыт снаружи, в EventLoop: этапы скоупа стартуют
-            // пачкой, и по стеку такая вложенность не построилась бы.
-            var stage = GameProfiler.CurrentScope;
+            // Ветка идёт параллельно основной загрузке, поэтому её отрезок лежит в корне трассы
+            // и на стек не встаёт: иначе этапы меню вложились бы в ожидание сокета. Текущим он
+            // делается только на синхронных кусках, где вложенные замеры успевают его забрать.
+            using var stage = GameProfiler.Detached("Meta connection");
 
             // Авторизация уехала в query запроса на апгрейд сокета: отдельного http-запроса
             // и отдельного кадра с хендшейком на старте больше нет.
             var savedUserId = _authentication.Load();
             var connectionLifetime = lifetime.Child();
 
-            await stage.MeasureNested("Connect", () => _backend.Connect(connectionLifetime, savedUserId));
+            // Подписка на готовность — до коннекта: MenuLoop ждёт того же флага и закрывает трассу,
+            // а продолжения идут в порядке подписки. Так ветка меты успевает закрыть свои отрезки.
+            var projectionsTask = _projections.IsInitialized.WaitTrue(lifetime);
 
-            Debug.Log("[Meta] [Loop] Waiting for connection completion");
+            var connect = stage.Child("Connect");
+            connect.Start();
+
+            UniTask connectTask;
+
+            using (GameProfiler.Ambient(connect))
+                connectTask = _backend.Connect(connectionLifetime, savedUserId);
+
+            await connect.Track(connectTask);
+
+            Debug.Log("[Meta] [Loop] Waiting for projections");
 
             // Проекции приезжают с бэкенда пачкой после коннекта: этот отрезок и есть
             // ожидание данных, без которых меню открывать нечем.
-            await stage.Measure("Projections", () => _connectionAwaiter.CompleteTask);
+            await stage.Measure("Projections", projectionsTask);
 
             // Кто мы такие, говорит профильная проекция: сохранённого id могло не быть
             // вовсе, и тогда сервер завёл нового юзера прямо на коннекте.
@@ -57,7 +79,10 @@ namespace Meta
             }
 
             if (profile.Id != savedUserId)
-                _authentication.Save(profile.Id);
+            {
+                using (GameProfiler.Ambient(stage))
+                    _authentication.Save(profile.Id);
+            }
 
             Debug.Log("[Meta] [Loop] Meta loop initialization completed successfully: " + profile.Id);
         }

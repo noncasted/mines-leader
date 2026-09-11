@@ -56,6 +56,18 @@
         companyName: "{{{ COMPANY_NAME }}}",
         productName: "{{{ PRODUCT_NAME }}}",
         productVersion: "{{{ PRODUCT_VERSION }}}",
+        // Addressables бандлы названы с хешем содержимого: новая версия — новое имя файла.
+        // Поэтому из кеша их можно отдавать без перепроверки на сервере, которая по умолчанию
+        // (must-revalidate) стоит по запросу на каждый бандл. Остальное — как у Unity.
+        cacheControl: function (url) {
+            if (url.match(/\.bundle/))
+                return "immutable";
+
+            if (url.match(/\.data/))
+                return "must-revalidate";
+
+            return "no-store";
+        },
     };
 
     const container = document.querySelector("#unity-container");
