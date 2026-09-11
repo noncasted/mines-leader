@@ -24,11 +24,8 @@ namespace Meta
         [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
         public static UniTask Construct(IScopeBuilder builder)
         {
-            builder.RequestSpriteGroup(Sprites.CardsIcons);
-            builder.RequestSpriteGroup(Sprites.CardBuffs);
-            builder.RequestSpriteGroup(Sprites.MenuPlay);
-            builder.RequestSpriteGroup(Sprites.Portraits);
-
+            // Спрайты меты (CardsIcons, CardBuffs, MenuPlay, Portraits) живут всё время приложения
+            // и ретейнятся на старте в InternalScopeLoader.
             builder.Register<MetaLoop>()
                    .As<IScopeBaseSetupAsync>();
 
@@ -72,24 +69,31 @@ namespace Meta
                 .RegisterBackendProjection<SharedBackendUser.RatingProjection>()
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
                 .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
-                .RegisterBackendProjection<SharedMatchmaking.MatchResult>()
-                .RegisterBackendProjection<SharedMatchmaking.LobbyResult>()
-                .RegisterBackendProjection<InitialCardPreviews>();
+                .RegisterBackendProjection<InitialCardPreviews>()
+                .RegisterBackendResponse<SharedMatchmaking.MatchResult>()
+                .RegisterBackendResponse<SharedMatchmaking.LobbyResult>();
 
             builder.Register<CardConfigs>()
                    .As<IBackendProjection<CardConfigOptions>>()
                    .As<IBackendProjection>()
+                   .As<IInitialBackendProjection>()
                    .As<ICardConfigs>();
 
             builder.Register<InGameAchievementConfigs>()
                    .As<IBackendProjection<InGameAchievementOptions>>()
                    .As<IBackendProjection>()
+                   .As<IInitialBackendProjection>()
                    .As<IInGameAchievementConfigs>();
 
             builder.Register<MatchMakingConfigs>()
                    .As<IBackendProjection<MatchMakingOptions>>()
                    .As<IBackendProjection>()
+                   .As<IInitialBackendProjection>()
                    .As<IMatchMakingConfigs>();
+
+            builder.Register<BackendProjectionsAwaiter>()
+                   .As<IBackendProjectionsAwaiter>()
+                   .As<IScopeSetup>();
 
             builder.Register<AchievementsService>()
                    .As<IAchievements>()
