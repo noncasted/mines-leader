@@ -12,11 +12,6 @@
     "defineConstraints": [],
     "versionDefines": [
         {
-            "name": "com.unity.modules.physics",
-            "expression": "1.0.0",
-            "define": "PACKAGE_PHYSICS"
-        },
-        {
             "name": "com.unity.modules.physics2d",
             "expression": "1.0.0",
             "define": "PACKAGE_PHYSICS2D"
@@ -25,11 +20,6 @@
             "name": "com.unity.modules.tilemap",
             "expression": "1.0.0",
             "define": "PACKAGE_TILEMAP"
-        },
-        {
-            "name": "com.unity.modules.animation",
-            "expression": "1.0.0",
-            "define": "PACKAGE_ANIMATION"
         },
         {
             "name": "com.unity.inputsystem",

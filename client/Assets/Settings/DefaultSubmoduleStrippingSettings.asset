@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Web.Stripping.Editor::Unity.Web.Stripping.Editor.SubmoduleStrippingSettings
   OptimizeCodeAfterStripping: 1
   RemoveEmbeddedDebugSymbols: 1
-  MissingSubmoduleErrorHandling: 1
+  MissingSubmoduleErrorHandling: 0
   SubmodulesToStrip:
   - AndroidJNIModule
-  - Animation
   - Freetype2 Base
   - Freetype2 CFF
   - Freetype2 OpenType Validation
@@ -25,8 +24,6 @@ MonoBehaviour:
   - Freetype2 SFNT
   - Freetype2 TrueType
   - Newtonsoft Json.NET
-  - PhysX
   - Tilemap
-  - UI Toolkit Framework
   - Unity In-App Purchasing
   - WebGPU Rendering
