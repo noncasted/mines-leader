@@ -32,19 +32,6 @@
         "com.unity.modules.unitywebrequest": "1.0.0"
       }
     },
-    "com.unity.2d.animation": {
-      "version": "16.0.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.2d.common": "15.0.0",
-        "com.unity.2d.sprite": "1.0.0",
-        "com.unity.collections": "2.4.3",
-        "com.unity.modules.animation": "1.0.0",
-        "com.unity.modules.uielements": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.2d.aseprite": {
       "version": "6.0.0",
       "depth": 0,
@@ -593,15 +580,6 @@
         "com.unity.modules.unitywebrequestaudio": "1.0.0",
         "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.assetbundle": "1.0.0",
-        "com.unity.modules.imageconversion": "1.0.0"
-      }
-    },
-    "com.unity.modules.vectorgraphics": {
-      "version": "1.0.0",
-      "depth": 0,
-      "source": "builtin",
-      "dependencies": {
-        "com.unity.modules.uielements": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0"
       }
     },
