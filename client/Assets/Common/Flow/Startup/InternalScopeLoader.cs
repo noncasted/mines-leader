@@ -17,9 +17,18 @@ namespace Flow.Startup
             using (GameProfiler.Scope("Assets catalog"))
                 AssetCatalog.Load();
 
-            // The whole Global prefab group lives for the application lifetime, so it is retained once here.
-            using (GameProfiler.Scope("Prefabs: Global"))
-                await GlobalPrefabs.Group.Retain();
+            // Эти группы живут всё время работы приложения: глобальные префабы и спрайты меты,
+            // которые из памяти уже не выгружаются. Ретейним один раз здесь и пачкой — бандлы
+            // качаются параллельно, а не по очереди скоупов.
+            using (GameProfiler.Scope("Assets"))
+            {
+                await UniTask.WhenAll(
+                    RetainGroup(GlobalPrefabs.Group, "Prefabs"),
+                    RetainGroup(Sprites.CardsIcons, "Sprites"),
+                    RetainGroup(Sprites.CardBuffs, "Sprites"),
+                    RetainGroup(Sprites.MenuPlay, "Sprites"),
+                    RetainGroup(Sprites.Portraits, "Sprites"));
+            }
 
             var lifetime = new Lifetime();
             IContainer container;
@@ -46,6 +55,11 @@ namespace Flow.Startup
             };
 
             return result;
+        }
+
+        private static UniTask RetainGroup(AssetGroup group, string label)
+        {
+            return GameProfiler.Concurrent($"{label}: {group.Name}").Track(group.Retain());
         }
     }
 }

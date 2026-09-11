@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Global.UI;
 using Internal;
+using Menu.Common;
 using Meta;
 using Shared;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace Menu.Play
         IViewableDelegate<SharedMatchmaking.MatchResult> MatchFound { get; }
     }
 
-    public class MenuPlay : IMenuPlay, IScopeSetup, IUIStateAsyncEnterHandler
+    public class MenuPlay : IMenuPlay, IScopeSetup, IMetaSetupCompleted, IUIStateAsyncEnterHandler
     {
         public MenuPlay(
             IMatchmaking matchmaking,
@@ -64,6 +65,11 @@ namespace Menu.Play
 
             _searchView.SearchButton.ListenClick(lifetime, () => OnSearchClicked(lifetime));
             _searchView.CancelButton.ListenClick(lifetime, StopSearch);
+        }
+
+        // Режимы строятся по конфигу матчмейкинга, а он приезжает проекцией вместе с метой.
+        public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
+        {
             _matchMakingConfigs.View(lifetime, options => BuildModes(lifetime, options));
         }
 

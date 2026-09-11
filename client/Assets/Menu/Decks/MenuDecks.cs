@@ -16,7 +16,7 @@ namespace Menu.Decks
     {
     }
 
-    public class MenuDecks : IMenuDecks, IScopeSetup, IUIStateAsyncEnterHandler
+    public class MenuDecks : IMenuDecks, IMetaSetupCompleted, IUIStateAsyncEnterHandler
     {
         public MenuDecks(
             IDecks decks,
@@ -74,12 +74,10 @@ namespace Menu.Decks
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
-        public void OnSetup(IReadOnlyLifetime lifetime)
+        // Колоды и конфиги карт к этому моменту уже приехали: ждать обновления колод не нужно.
+        public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
         {
-            if (_decks.Configurations.Count == 0)
-                _decks.Updated.Advise(lifetime, () => OnInitialized(lifetime));
-            else
-                OnInitialized(lifetime);
+            OnInitialized(lifetime);
         }
 
         private void OnInitialized(IReadOnlyLifetime lifetime)

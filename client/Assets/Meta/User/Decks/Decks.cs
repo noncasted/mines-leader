@@ -42,7 +42,8 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _projection.View(lifetime, data => {
+            // Проекции едут параллельно сетапу меты: до подключения значения ещё нет.
+            _projection.ViewNotNull(lifetime, data => {
                 foreach (var (index, entry) in data.Entries)
                 {
                     var cards = GetDefinitions(entry.Cards);

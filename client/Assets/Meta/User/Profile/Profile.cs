@@ -84,14 +84,15 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _profileProjection.View(lifetime, projection => {
+            // Проекции едут параллельно сетапу меты: до подключения значений ещё нет.
+            _profileProjection.ViewNotNull(lifetime, projection => {
                 Id = projection.Id;
                 _name.Set(projection.Name);
             });
 
-            _ratingProjection.View(lifetime, projection => _rating.Set(projection.Rating));
+            _ratingProjection.ViewNotNull(lifetime, projection => _rating.Set(projection.Rating));
 
-            _statsProjection.View(lifetime, projection => {
+            _statsProjection.ViewNotNull(lifetime, projection => {
                 _wins.Set((int)projection.Get(UserStatType.MatchesWon));
                 _loses.Set((int)projection.Get(UserStatType.MatchesLost));
             });
