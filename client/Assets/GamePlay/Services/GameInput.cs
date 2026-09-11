@@ -1,8 +1,6 @@
-﻿using Global.Cameras;
-using Global.Inputs;
+using Global.Cameras;
 using Internal;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace GamePlay.Services
 {
@@ -20,12 +18,10 @@ namespace GamePlay.Services
     {
         public GameInput(
             IUpdater updater,
-            ICameraUtils cameraUtils,
-            IGlobalControls localUser)
+            ICameraUtils cameraUtils)
         {
             _updater = updater;
             _cameraUtils = cameraUtils;
-            _localUser = localUser;
         }
 
         private readonly ViewableProperty<bool> _flag = new();
@@ -34,7 +30,6 @@ namespace GamePlay.Services
 
         private readonly IUpdater _updater;
         private readonly ICameraUtils _cameraUtils;
-        private readonly IGlobalControls _localUser;
 
         private Vector2 _world;
         private Vector2 _screen;
@@ -50,17 +45,17 @@ namespace GamePlay.Services
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _updater.Add(lifetime, this);
-
-            var controls = _localUser.Controls.GamePlay;
-
-            controls.Flag.AttachFlag(lifetime, _flag);
-            controls.Open.AttachFlag(lifetime, _open);
-            controls.Cheats.ListenPerformed(lifetime, _ => _cheats.Invoke());
         }
 
         public void OnUpdate(float delta)
         {
-            var screenPosition = Mouse.current.position.ReadValue();
+            _flag.Set(Input.GetMouseButton(1));
+            _open.Set(Input.GetMouseButton(0));
+
+            if (Input.GetKeyDown(KeyCode.BackQuote) == true)
+                _cheats.Invoke();
+
+            Vector2 screenPosition = Input.mousePosition;
             _screen = screenPosition;
             _world = _cameraUtils.ScreenToWorld(screenPosition);
         }

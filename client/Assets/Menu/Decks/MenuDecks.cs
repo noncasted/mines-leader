@@ -8,7 +8,6 @@ using Meta;
 using Shared;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Menu.Decks
@@ -158,13 +157,13 @@ namespace Menu.Decks
 
             var cardTransform = card.Transform;
             var startPosition = cardTransform.anchoredPosition;
-            var startPointer = Mouse.current.position.ReadValue();
+            Vector2 startPointer = Input.mousePosition;
 
             await _updater.RunUpdateAction(
                 lifetime,
-                () => Mouse.current.leftButton.isPressed,
+                () => Input.GetMouseButton(0),
                 _ => {
-                    var pointer = Mouse.current.position.ReadValue();
+                    Vector2 pointer = Input.mousePosition;
                     var delta = (pointer - startPointer) / _canvas.scaleFactor;
                     cardTransform.anchoredPosition = startPosition + delta;
                 });
