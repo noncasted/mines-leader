@@ -51,7 +51,9 @@ namespace Internal
             _dispatcher.Run(lifetime);
             _reader.Run(lifetime, _webSocket);
 
-            using (GameProfiler.Scope("Socket connect"))
+            // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие
+            // этапы вложились бы в ожидание сокета.
+            using (GameProfiler.Concurrent("Socket connect"))
                 await _webSocket.Connect();
 
             _writer.Run(lifetime, _webSocket);

@@ -47,7 +47,7 @@ MonoBehaviour:
   m_AllowNestedBundleFolders: 0
   m_CCDEnabled: 0
   m_ContentDirectoryGroupTemplateCreated: 1
-  m_maxConcurrentWebRequests: 3
+  m_maxConcurrentWebRequests: 10
   m_UseUWRForLocalBundles: 0
   m_BundleTimeout: 0
   m_BundleRetryCount: 0

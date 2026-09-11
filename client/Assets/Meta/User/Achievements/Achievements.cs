@@ -41,9 +41,10 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _configs.View(lifetime, OnConfigReceived);
-            _statsProjection.View(lifetime, OnStatsReceived);
-            _achievementsProjection.View(lifetime, OnAchievementsReceived);
+            // Проекции едут параллельно сетапу меты: до подключения значений ещё нет.
+            _configs.ViewNotNull(lifetime, OnConfigReceived);
+            _statsProjection.ViewNotNull(lifetime, OnStatsReceived);
+            _achievementsProjection.ViewNotNull(lifetime, OnAchievementsReceived);
         }
 
         private void OnConfigReceived(InGameAchievementOptions options)

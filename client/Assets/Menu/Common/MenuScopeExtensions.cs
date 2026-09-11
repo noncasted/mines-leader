@@ -37,8 +37,8 @@ namespace Menu.Common
             ILoadedScope parent)
         {
             var options = new ScopeLoadOptions(parent, Construct)
-                .WithRuntimeScene("Menu_Services")
-                .AsMock();
+                          .WithRuntimeScene("Menu_Services")
+                          .AsMock();
 
             using var stage = GameProfiler.Scope("Menu mock");
 
@@ -53,22 +53,20 @@ namespace Menu.Common
         [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]
         private static async UniTask Construct(this IScopeBuilder builder)
         {
-            using var construct = (GameProfiler.Scope("Registry"));
+            using var scope = (GameProfiler.Scope("Registry"));
 
             await UniTask.WhenAll(
-                construct.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
-                construct.Measure("Scene: MenuBoard",
-                    () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)));
-
-            builder.RequestPrefabGroup(MenuPrefabs.Group);
-            builder.RequestPrefabGroup(GamePlayPrefabs.Group);
-            builder.RequestSpriteGroup(Sprites.GameCells);
-            builder.RequestSpriteGroup(Sprites.MenuPlay);
-            builder.RequestSpriteGroup(Sprites.MenuNavigation);
-            builder.RequestSpriteGroup(Sprites.MenuUnlocks);
-            builder.RequestSpriteGroup(Sprites.GameField);
-            builder.RequestSpriteGroup(Sprites.GameUI);
-            builder.RequestSpriteGroup(Sprites.Settings);
+                scope.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
+                scope.Measure("Scene: Menu_Board", () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)),
+                scope.Measure("Prefabs: Menu", builder.LoadPrefabGroup(MenuPrefabs.Group)),
+                scope.Measure("Prefabs: GamePlay", builder.LoadPrefabGroup(GamePlayPrefabs.Group)),
+                scope.Measure("Sprites: GameCells", builder.LoadSpriteGroup(Sprites.GameCells)),
+                scope.Measure("Sprites: MenuPlay", builder.LoadSpriteGroup(Sprites.MenuPlay)),
+                scope.Measure("Sprites: MenuNavigation", builder.LoadSpriteGroup(Sprites.MenuNavigation)),
+                scope.Measure("Sprites: MenuUnlocks", builder.LoadSpriteGroup(Sprites.MenuUnlocks)),
+                scope.Measure("Sprites: GameField", builder.LoadSpriteGroup(Sprites.GameField)),
+                scope.Measure("Sprites: GameUI", builder.LoadSpriteGroup(Sprites.GameUI)),
+                scope.Measure("Sprites: Settings", builder.LoadSpriteGroup(Sprites.Settings)));
 
             builder.Register<MenuLoop>()
                    .As<IMenuLoop>();
@@ -82,13 +80,14 @@ namespace Menu.Common
 
             builder.Register<MenuDecks>()
                    .As<IMenuDecks>()
-                   .As<IScopeSetup>();
+                   .As<IMetaSetupCompleted>();
 
             builder.Injectable<MenuDeckPoolCard>();
 
             builder.Register<MenuPlay>()
                    .As<IMenuPlay>()
-                   .As<IScopeSetup>();
+                   .As<IScopeSetup>()
+                   .As<IMetaSetupCompleted>();
 
             builder.Register<MenuProfile>()
                    .As<IMenuProfile>()

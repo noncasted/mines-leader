@@ -48,8 +48,17 @@ namespace Meta
 
             var url = BuildUrl(userId);
 
-            using (GameProfiler.Scope("Socket"))
-                await _connection.Run(lifetime, url);
+            // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие этапы
+            // вложились бы в ожидание сокета. Текущим он делается только на синхронном прологе,
+            // чтобы замер самого сокета лёг внутрь.
+            using var socket = GameProfiler.Concurrent("Socket");
+
+            UniTask run;
+
+            using (GameProfiler.Ambient(socket))
+                run = _connection.Run(lifetime, url);
+
+            await run;
         }
 
         private string BuildUrl(Guid? userId)

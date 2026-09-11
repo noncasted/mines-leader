@@ -30,9 +30,8 @@ namespace Flow.Loop
             using (GameProfiler.Branch("Menu load"))
                 scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
 
-            // Меню загружено и дальше ждёт игрока: замерять больше нечего.
-            GameProfiler.Finish();
-
+            // Трасса закрывается в MenuLoop: меню ещё дожидается данных меты, которые грузятся
+            // параллельно, и только потом снимает экран загрузки.
             var loop = scope.Container.Resolve<IMenuLoop>();
             var result = await loop.Process(scope.Lifetime);
 
