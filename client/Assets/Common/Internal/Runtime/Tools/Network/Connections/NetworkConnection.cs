@@ -64,17 +64,22 @@ namespace Internal
 
             IWebSocket CreateWebSocket()
             {
+                // ClientWebSocket в WebGL не работает, а ссылка на него тянет в билд System.Net, TLS и Mono.Security.
+#if UNITY_EDITOR || !UNITY_WEBGL
                 if (_platformOptions.IsEditor == true)
                     return new DefaultWebSocket(url, lifetime);
+#endif
 
                 switch (_platformOptions.PlatformType)
                 {
                     case PlatformType.Website:
                     case PlatformType.ItchIO:
                         return new JsWebSocket(url, lifetime);
+#if UNITY_EDITOR || !UNITY_WEBGL
                     case PlatformType.IOS:
                     case PlatformType.Android:
                         return new DefaultWebSocket(url, lifetime);
+#endif
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

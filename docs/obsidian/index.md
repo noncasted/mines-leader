@@ -20,6 +20,7 @@ Competitive multiplayer minesweeper с карточной механикой. Д
 - [[architecture/backend-transactions|Транзакции]] — ACID-транзакции и StateCollection
 - [[architecture/client-scenes|Клиент: сцены]] — Unity сцены, скоупы, DI
 - [[architecture/client-network|Клиент: сеть]] — WebSocket, MetaBackend, проекции
+- [[architecture/client-webgl-build-size|Клиент: размер WebGL-билда]] — встроенные пакеты, вырезанные модули, что повторить при обновлении Unity
 - [[architecture/shared-protocol|Shared протокол]] — MemoryPack, модели, конфиги
 
 ### Гайды
