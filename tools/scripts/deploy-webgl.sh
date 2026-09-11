@@ -14,13 +14,14 @@
 # Password auth: put the password (and nothing else) in
 # tools/scripts/.deploy-password — gitignored, read via `sshpass -f` so it never
 # shows up in the process list. Requires the `sshpass` package.
-#   UNITY=/path/to/Unity                    # optional, for --build
 #   KEEP_RELEASES=5                         # optional, default 5
 #   FORCE=1                                 # optional, redeploy a build that is already live
 #
+# The build itself is made in the editor (Tools/Build/WebGL) — that is also
+# where the Web Stripping Tool post-processes it.
+#
 # Usage:
 #   tools/scripts/deploy-webgl.sh                  # upload the existing build
-#   tools/scripts/deploy-webgl.sh --build          # run Unity first, then upload
 #   tools/scripts/deploy-webgl.sh --list           # show releases on the server
 #   tools/scripts/deploy-webgl.sh --rollback <tag> # point `current` at an old release
 set -euo pipefail
@@ -61,11 +62,7 @@ fi
 
 remote() { "${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$DEPLOY_HOST" "$@"; }
 
-run_build=0
 case "${1:-}" in
-    --build)
-        run_build=1
-        ;;
     --list)
         remote "ls -1 '$DEPLOY_PATH/releases' && echo '--- current:' && readlink '$DEPLOY_PATH/current'"
         exit 0
@@ -84,19 +81,8 @@ case "${1:-}" in
         ;;
 esac
 
-if [[ $run_build == 1 ]]; then
-    UNITY="${UNITY:-${UNITY_PATH:-unity}}"
-    echo "==> Unity WebGL build ($UNITY)"
-    "$UNITY" \
-        -quit -batchmode -nographics \
-        -projectPath "$ROOT/client" \
-        -buildTarget WebGL \
-        -executeMethod Internal.WebGlBuild.Build \
-        -logFile - | tail -n 40
-fi
-
 if [[ ! -f "$BUILD_DIR/index.html" ]]; then
-    echo "No WebGL build at $BUILD_DIR — pass --build, or build from the editor (Tools/Build/WebGL)." >&2
+    echo "No WebGL build at $BUILD_DIR — build from the editor (Tools/Build/WebGL)." >&2
     exit 1
 fi
 
@@ -107,7 +93,7 @@ local_guid="$(cat "$BUILD_DIR/build-guid.txt" 2>/dev/null || true)"
 live_guid="$(remote "cat '$DEPLOY_PATH/current/build-guid.txt' 2>/dev/null" || true)"
 if [[ -n "$local_guid" && "$local_guid" == "$live_guid" && "${FORCE:-0}" != 1 ]]; then
     echo "client/build is the build that is already live (build-guid $local_guid)." >&2
-    echo "Rebuild first (--build, or Tools/Build/WebGL), or set FORCE=1 to redeploy it anyway." >&2
+    echo "Rebuild in the editor first (Tools/Build/WebGL), or set FORCE=1 to redeploy it anyway." >&2
     exit 1
 fi
 
