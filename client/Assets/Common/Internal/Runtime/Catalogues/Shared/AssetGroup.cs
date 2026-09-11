@@ -8,7 +8,7 @@ namespace Internal
     public abstract class AssetGroup
     {
         private int _retainCount;
-        private UniTask? _loading;
+        private UniTaskCompletionSource _loading;
 
         public bool IsLoaded { get; private set; }
 
@@ -28,10 +28,15 @@ namespace Internal
                 return;
 
             // Группу могут ретейнить параллельно (предзагрузка на старте и скоуп меню): второй
-            // вызов ждёт ту же загрузку, а не поднимает второй хендл.
-            _loading ??= Load().Preserve();
+            // вызов ждёт ту же загрузку, а не поднимает второй хендл. Preserve тут не годится —
+            // незавершённую задачу он ждать дважды не даёт, а источник завершения даёт.
+            if (_loading == null)
+            {
+                _loading = new UniTaskCompletionSource();
+                Load(_loading).Forget();
+            }
 
-            await _loading.Value;
+            await _loading.Task;
         }
 
         public void Release()
@@ -74,18 +79,21 @@ namespace Internal
             throw new NotSupportedException($"{Name} is addressable and loads only through Retain");
         }
 
-        private async UniTask Load()
+        private async UniTask Load(UniTaskCompletionSource loading)
         {
             try
             {
                 await LoadGroup();
                 IsLoaded = true;
+                loading.TrySetResult();
             }
-            catch
+            catch (Exception exception)
             {
                 // Упавшую загрузку следующий Retain должен повторить, а не получить ту же ошибку.
-                _loading = null;
-                throw;
+                if (_loading == loading)
+                    _loading = null;
+
+                loading.TrySetException(exception);
             }
         }
     }
