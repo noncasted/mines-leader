@@ -176,8 +176,9 @@ flowchart TD
 | Меню | `Tools/GenerateAudioCatalog` |
 | Авто | postprocessor + reload редактора |
 | Выход | `Runtime/Catalogues/Audio/Groups/{Group}.asset`, Addressables `Audio_{Group}` |
-| C# | `MenuAudio`, `GamePlayAudio`, … в `Runtime/Catalogues/Audio/Generated` |
-| Рантайм | `MenuAudio.Click` — `Sound { Clip, Volume }` — после `LoadAudioGroup(MenuAudio.Group)` / `RequestAudioGroup` |
+| C# | `GlobalAudio`, `GamePlayAudio`, … в `Runtime/Catalogues/Audio/Generated` |
+| Вариации | клипы `Name_0`, `Name_1`, … сворачиваются в `IReadOnlyList<Sound> Name`; играть через `IAudioPlayer.PlayRandomFromGroup` |
+| Рантайм | `GlobalAudio.GameMusic` — `Sound { Clip, Volume }` — после `LoadAudioGroup(GlobalAudio.Group)` / `RequestAudioGroup` |
 
 Только Addressables: группы в Resources у аудио нет.
 

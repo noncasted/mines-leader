@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
+using Global.Audio;
 using Internal;
 using Shared;
 
@@ -9,12 +10,14 @@ namespace GamePlay.Boards
 {
     public class BoardCellsAnimator : IBoardCellsAnimator
     {
-        public BoardCellsAnimator(IGameContext gameContext)
+        public BoardCellsAnimator(IGameContext gameContext, IAudioPlayer audioPlayer)
         {
             _gameContext = gameContext;
+            _audioPlayer = audioPlayer;
         }
 
         private readonly IGameContext _gameContext;
+        private readonly IAudioPlayer _audioPlayer;
 
         public async UniTask PlayTargetAnimation(IReadOnlyLifetime lifetime, Guid targetPlayer, IReadOnlyList<Position> positions)
         {
@@ -133,6 +136,12 @@ namespace GamePlay.Boards
 
             if (board.Cells.TryGetValue(vector, out var cell) == false)
                 return UniTask.CompletedTask;
+
+            var sound = type == CellExplosionType.ZipZap
+                ? GamePlayAudio.GameMineElectric
+                : GamePlayAudio.GameMineNormal;
+
+            _audioPlayer.PlayRandomFromGroup(sound);
 
             return cell.Explode(type);
         }

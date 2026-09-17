@@ -88,7 +88,7 @@ public class GameFlow : Service, IGameFlow
             : null;
 
         var completionSnapshot = new MoveSnapshot();
-        completionSnapshot.RecordGameCompleted(winner, playerIds, matchStats, summary);
+        completionSnapshot.RecordGameCompleted(winner, playerIds, matchStats, summary, _context.Boards.Values);
         _snapshotSender.Send(completionSnapshot);
 
         foreach (var user in _users)

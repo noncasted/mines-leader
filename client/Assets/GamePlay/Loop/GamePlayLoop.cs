@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GamePlay.Boards;
 using GamePlay.Services;
 using GamePlay.UI;
 using Internal;
@@ -23,6 +24,7 @@ namespace GamePlay.Loop
             INetworkConnection connection,
             IGameEnd gameEnd,
             IEventLoop eventLoop,
+            IBoardsReveal boardsReveal,
             GameServicesInitializer servicesInitializer)
         {
             _profile = profile;
@@ -32,6 +34,7 @@ namespace GamePlay.Loop
             _connection = connection;
             _gameEnd = gameEnd;
             _eventLoop = eventLoop;
+            _boardsReveal = boardsReveal;
             _servicesInitializer = servicesInitializer;
         }
 
@@ -43,6 +46,7 @@ namespace GamePlay.Loop
         private readonly IGameState _gameState;
         private readonly IGameEnd _gameEnd;
         private readonly IEventLoop _eventLoop;
+        private readonly IBoardsReveal _boardsReveal;
         private readonly GameServicesInitializer _servicesInitializer;
 
         public async UniTask<IGameEndTransition> Process(
@@ -77,6 +81,11 @@ namespace GamePlay.Loop
             Debug.Log($"[Game] Match completed with result: {gameResult.Type}");
 
             _gameState.Set(GameStateType.Completed);
+
+            // Пока рвутся мины, ввод по доскам и картам уже не нужен.
+            _gameContext.SetPaused(true);
+            await _boardsReveal.Play(lifetime, gameResult);
+
             var transition = await _gameEnd.Process(lifetime, gameResult);
             return transition;
         }

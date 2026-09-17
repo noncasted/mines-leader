@@ -99,6 +99,10 @@ namespace Internal
                 AudioCatalogMetadata.Write(importer, metadata);
             }
 
+            // Генератор в плеймоде ждёт выхода, а громкость хочется подбирать на слух прямо в игре.
+            if (EditorApplication.isPlaying)
+                AudioCatalogGenerator.SyncVolumes(importers);
+
             AudioCatalogGenerator.ScheduleGenerate();
         }
 

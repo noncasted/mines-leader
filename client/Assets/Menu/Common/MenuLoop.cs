@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Global.Audio;
 using Global.Cameras;
 using Global.UI;
 using Internal;
@@ -20,13 +21,15 @@ namespace Menu.Common
             ILoadingScreen loadingScreen,
             IMenuPlay play,
             IMetaState metaState,
-            IEventLoop eventLoop)
+            IEventLoop eventLoop,
+            IAudioPlayer audioPlayer)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
             _play = play;
             _metaState = metaState;
             _eventLoop = eventLoop;
+            _audioPlayer = audioPlayer;
         }
 
         private readonly IGlobalCamera _globalCamera;
@@ -34,6 +37,7 @@ namespace Menu.Common
         private readonly IMenuPlay _play;
         private readonly IMetaState _metaState;
         private readonly IEventLoop _eventLoop;
+        private readonly IAudioPlayer _audioPlayer;
 
         public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
@@ -48,6 +52,7 @@ namespace Menu.Common
 
             _loadingScreen.Hide();
             _globalCamera.Disable();
+            _audioPlayer.PlayLoopMusic(GlobalAudio.GameMusic);
 
             // Меню достроено по данным меты и дальше ждёт игрока: замерять больше нечего.
             GameProfiler.Finish();

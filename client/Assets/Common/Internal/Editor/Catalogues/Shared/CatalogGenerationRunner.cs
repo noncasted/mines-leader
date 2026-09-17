@@ -15,6 +15,7 @@ namespace Internal
 
         private bool _isGenerating;
         private bool _isScheduled;
+        private bool _isWaitingPlayMode;
         private double _scheduledTime;
 
         public CatalogGenerationRunner(string logTag, Action generate)
@@ -28,8 +29,13 @@ namespace Internal
             if (_isGenerating)
                 return;
 
+            // В плеймоде ассеты не перегенерируются: запуск переносится на выход из него,
+            // иначе правки разметки во время игры теряются.
             if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                WaitPlayModeExit();
                 return;
+            }
 
             if (EditorApplication.isCompiling)
             {
@@ -57,6 +63,25 @@ namespace Internal
             {
                 _isGenerating = false;
             }
+        }
+
+        private void WaitPlayModeExit()
+        {
+            if (_isWaitingPlayMode)
+                return;
+
+            _isWaitingPlayMode = true;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+
+        private void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.EnteredEditMode)
+                return;
+
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            _isWaitingPlayMode = false;
+            Run();
         }
 
         public void RunDelayed()

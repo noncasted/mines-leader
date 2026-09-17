@@ -6,12 +6,16 @@ namespace Global.Audio
     {
         public static IScopeBuilder AddAudio(this IScopeBuilder builder)
         {
-            builder.RegisterComponent(GlobalPrefabs.GlobalAudioPlayer)
+            // Регистрируется инстанс: источники на самом ассете префаба не играют.
+            var player = builder.Instantiate(GlobalPrefabs.GlobalAudioPlayer);
+            var listener = builder.Instantiate(GlobalPrefabs.GlobalAudioListener);
+
+            builder.RegisterComponent(player)
                    .As<IAudioVolume>()
                    .As<IAudioPlayer>()
                    .As<IScopeSetup>();
 
-            builder.RegisterComponent(GlobalPrefabs.GlobalAudioListener)
+            builder.RegisterComponent(listener)
                    .As<IAudioListener>()
                    .As<IScopeBaseSetup>();
 

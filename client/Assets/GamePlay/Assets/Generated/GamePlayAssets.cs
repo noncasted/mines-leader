@@ -3,6 +3,9 @@ namespace GamePlay {
     public static class GamePlayAssets {
         private const string Group = "GamePlay";
 
+        public static global::GamePlay.Boards.BoardsRevealOptions BoardsRevealOptions =>
+            global::Internal.AssetCatalog.Get<global::GamePlay.Boards.BoardsRevealOptions>(Group, "BoardsRevealOptions");
+
         public static global::GamePlay.Cards.CardDragOptions CardDragOptions =>
             global::Internal.AssetCatalog.Get<global::GamePlay.Cards.CardDragOptions>(Group, "CardDragOptions");
 

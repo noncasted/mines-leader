@@ -22,8 +22,27 @@ namespace Internal
             if (entry == null || entry.Clip == null)
                 throw new InvalidOperationException($"Audio clip '{name}' is missing in {this.name}");
 
-            return new Sound(entry.Clip, entry.Volume);
+            return new Sound(entry.Clip, entry.Volume, this, name);
         }
+
+        public float GetVolume(string name, float fallback)
+        {
+            var entry = FindEntry(name);
+            return entry != null ? entry.Volume : fallback;
+        }
+
+#if UNITY_EDITOR
+        public bool TrySetVolume(string name, float volume)
+        {
+            var entry = FindEntry(name);
+
+            if (entry == null || Mathf.Approximately(entry.Volume, volume))
+                return false;
+
+            entry.Volume = volume;
+            return true;
+        }
+#endif
 
         private AudioAssetEntry FindEntry(string name)
         {

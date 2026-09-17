@@ -11,7 +11,7 @@ namespace Internal
     }
 
     /// <summary>
-    /// Спрайты реестров меты живут всё время приложения и из памяти не выходят, поэтому их никто
+    /// Спрайты реестров меты и общие звуки (музыка, интерфейс) живут всё время приложения и из памяти не выходят, поэтому их никто
     /// не отпускает. Качаются с самого старта параллельно остальной загрузке: старт их не ждёт,
     /// ждёт только мета перед сборкой реестров (см. MetaLoop).
     /// </summary>
@@ -35,7 +35,8 @@ namespace Internal
                     Retain(stage, Sprites.CardsIcons),
                     Retain(stage, Sprites.CardBuffs),
                     Retain(stage, Sprites.MenuPlay),
-                    Retain(stage, Sprites.Portraits));
+                    Retain(stage, Sprites.Portraits),
+                    stage.Measure($"Audio: {GlobalAudio.Group.Name}", GlobalAudio.Group.Retain()));
             }
 
             // Флаг ставится после закрытия отрезка: за ним синхронно идут реестры меты, а за ними

@@ -231,15 +231,47 @@ public class MoveSnapshot
         Guid winner,
         IReadOnlyList<Guid> players,
         IReadOnlyDictionary<Guid, UserStatsDelta> stats,
-        MatchCompletionSummary? summary)
+        MatchCompletionSummary? summary,
+        IEnumerable<IBoard> boards)
     {
         Append(new GameCompletedRecord
         {
             Winner = winner,
             Duration = summary?.Duration ?? TimeSpan.Zero,
             Players = players.Select(id => CreatePlayerResult(id, stats.GetValueOrDefault(id), summary))
-                             .ToList()
+                             .ToList(),
+            Boards = boards.Select(CreateBoardReveal).ToList()
         });
+    }
+
+    private static BoardRevealState CreateBoardReveal(IBoard board)
+    {
+        var cells = new List<CellRevealState>(board.Cells.Count);
+
+        foreach (var cell in board.Cells.Values)
+        {
+            var state = new CellRevealState { Position = cell.Position };
+
+            switch (cell)
+            {
+                case IFreeCell free:
+                    state.IsFree = true;
+                    state.MinesAround = free.MinesAround;
+                    break;
+                case ITakenCell taken:
+                    state.IsFlagged = taken.IsFlagged;
+                    state.HasMine = taken.HasMine;
+                    break;
+            }
+
+            cells.Add(state);
+        }
+
+        return new BoardRevealState
+        {
+            OwnerId = board.OwnerId,
+            Cells = cells
+        };
     }
 
     private static MatchPlayerResult CreatePlayerResult(
