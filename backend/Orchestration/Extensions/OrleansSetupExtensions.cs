@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
+using Orleans.Serialization.Configuration;
+using Shared;
 
 namespace Orchestration;
 
@@ -16,6 +18,14 @@ public static class OrleansSetupExtensions
     // gateway listener on startup — keep the gateway well clear of it.
     public const int LocalSiloPort = 11111;
     public const int LocalGatewayPort = 30010;
+
+    // Shared has no Orleans codegen, so its types (e.g. CardType) aren't in the type allowlist.
+    // They get encoded by name whenever the runtime type differs from the declared one —
+    // e.g. Dictionary<int, IReadOnlyList<CardType>> passed as IReadOnlyDictionary<...>.
+    private static void AllowSharedTypes(TypeManifestOptions options)
+    {
+        options.AddAllowedAssembly(typeof(CardType).Assembly);
+    }
 
     extension(IHostApplicationBuilder builder)
     {
@@ -43,6 +53,7 @@ public static class OrleansSetupExtensions
                 }
 
                 clientBuilder.UseConnectionRetryFilter((_, _) => Task.FromResult(true));
+                clientBuilder.Configure<TypeManifestOptions>(AllowSharedTypes);
             });
 
             return builder;
@@ -78,6 +89,7 @@ public static class OrleansSetupExtensions
                 }
 
                 siloBuilder.AddActivityPropagation();
+                siloBuilder.Configure<TypeManifestOptions>(AllowSharedTypes);
 
                 siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();
             });
