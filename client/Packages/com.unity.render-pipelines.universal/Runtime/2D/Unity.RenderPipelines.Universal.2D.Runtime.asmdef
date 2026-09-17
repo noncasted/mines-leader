@@ -60,6 +60,11 @@
             "name": "com.unity.profiling.core",
             "expression": "1.0.3",
             "define": "PROFILER_INSTALLED"
+        },
+        {
+            "name": "com.unity.modules.spritemask",
+            "expression": "1.0.0",
+            "define": "USING_SPRITEMASK"
         }
     ],
     "noEngineReferences": false

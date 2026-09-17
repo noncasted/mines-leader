@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_CardsIcons
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_CardsIcons
-  m_GUID: 10eb9cf0cb5acbf0a9f0657cbba2106f
+  m_GUID: 25f2606a0384a13558079b22cff4a049
   m_SerializeEntries:
   - m_GUID: 43fba4d6f4e4ee155b82178e14fb93a0
     m_Address: 43fba4d6f4e4ee155b82178e14fb93a0

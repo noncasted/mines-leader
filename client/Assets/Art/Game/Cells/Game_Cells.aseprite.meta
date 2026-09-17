@@ -296,7 +296,7 @@ ScriptedImporter:
         x: 0
         y: 0
         width: 95
-        height: 27
+        height: 29
       spriteId: 00bb2b681f453d3a2a8fa1c75af6a814
     linkedCells: []
     tileCells: []
