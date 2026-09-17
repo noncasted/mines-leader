@@ -61,6 +61,7 @@
         @"GamePlay.Players.PlayerUIBindings",
         @"GamePlay.Players.Resource.PlayerOpponentResources",
         @"GamePlay.Players.Resource.PlayerOwnResources",
+        @"GamePlay.UI.InfoOverlayUIBindings",
         @"GamePlay.UI.PlayersOverlayUIBindings",
         @"GamePlay.UI.RoundOverlayUIBindings"
     })]
@@ -169,6 +170,7 @@ namespace Internal {
                     @"GamePlay.Players.PlayerUIBindings",
                     @"GamePlay.Players.Resource.PlayerOpponentResources",
                     @"GamePlay.Players.Resource.PlayerOwnResources",
+                    @"GamePlay.UI.InfoOverlayUIBindings",
                     @"GamePlay.UI.PlayersOverlayUIBindings",
                     @"GamePlay.UI.RoundOverlayUIBindings"
                 }),

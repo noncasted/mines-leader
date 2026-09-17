@@ -20,7 +20,7 @@ public abstract class BasePlayerModifierSource : IModifierSource
 
     public Guid Id { get; }
     public PlayerModifier Type { get; }
-    public float Value { get; }
+    public float Value { get; protected set; }
     public string Key { get; }
     public int TurnsToEnd => -1;
 

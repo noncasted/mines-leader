@@ -220,8 +220,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.ResultMax.Returns(5);
-        owner.Mana.ResultMax.Returns(3);
+        opponent.Mana.BaseMax.Returns(5);
+        owner.Mana.BaseMax.Returns(3);
 
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -237,8 +237,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.ResultMax.Returns(5);
-        owner.Mana.ResultMax.Returns(3);
+        opponent.Mana.BaseMax.Returns(5);
+        owner.Mana.BaseMax.Returns(3);
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -253,8 +253,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.ResultMax.Returns(0);
-        owner.Mana.ResultMax.Returns(3);
+        opponent.Mana.BaseMax.Returns(0);
+        owner.Mana.BaseMax.Returns(3);
 
         var result = new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 
@@ -271,8 +271,8 @@ public class SiphonTests : PlayerCardTestsBase
         var opponent = MockPlayer(opponentId);
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
-        opponent.Mana.ResultMax.Returns(5);
-        owner.Mana.ResultMax.Returns(3);
+        opponent.Mana.BaseMax.Returns(5);
+        owner.Mana.BaseMax.Returns(3);
 
         var (_, snapshot) = new Siphon(configs, gameContext).UseCapture(owner,
             new CardUsePayload.Siphon { Type = CardType.Siphon });
@@ -290,8 +290,8 @@ public class SiphonTests : PlayerCardTestsBase
         var configs = MockConfigs();
         var gameContext = MockGameContext(owner, opponent);
         var drainAmount = CardConfigs.All.Siphon_Normal.DrainAmount;
-        opponent.Mana.ResultMax.Returns(10);
-        owner.Mana.ResultMax.Returns(3);
+        opponent.Mana.BaseMax.Returns(10);
+        owner.Mana.BaseMax.Returns(3);
 
         new Siphon(configs, gameContext).Use(owner, new CardUsePayload.Siphon { Type = CardType.Siphon });
 

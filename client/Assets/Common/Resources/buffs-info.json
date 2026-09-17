@@ -16,6 +16,11 @@
       "description": "+{0} max mana. Lasts the whole game."
     },
     {
+      "type": "BaseManaAddPerRound",
+      "name": "Mana Growth",
+      "description": "+{0} max mana gained from rounds. Grows by 1 every round."
+    },
+    {
       "type": "Adrenaline",
       "name": "Adrenaline",
       "description": "+{0} moves from Adrenaline. Lasts 1 turn."

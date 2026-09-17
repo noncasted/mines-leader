@@ -11,6 +11,10 @@ namespace GamePlay.UI
                    .As<IScopeBaseSetup>()
                    .As<IGameOverlay>();
 
+            builder.Register<GameInfoOverlay>()
+                   .As<IScopeBaseSetup>()
+                   .As<IGameInfoOverlay>();
+
             builder.Register<RoundSkipButton>()
                    .As<IGameStarted>();
 

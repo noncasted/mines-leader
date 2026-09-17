@@ -65,6 +65,19 @@ public class LastManStandingTurnBasedRoundTests
         text.Substring(afterRound, processAt - afterRound).Should().NotContain("opponent_turn");
     }
 
+    [Theory]
+    [InlineData("LastManStandingRound.cs")]
+    [InlineData("LastManStandingTurnBasedRound.cs")]
+    [InlineData("TimeLimitedRound.cs")]
+    public void RoundEnd_GrowsManaThroughBuff(string fileName)
+    {
+        var source = Path.Combine(Path.GetDirectoryName(FindRoundSource())!, fileName);
+        var text = File.ReadAllText(source);
+
+        text.Should().Contain("PlayerBaseBuffs.GrowMana(player, endSnapshot, ModeOptions.MaxManaCap)");
+        text.Should().NotContain("Mana.SetMax(endSnapshot");
+    }
+
     [Fact]
     public void BotDelay_TurnBased_SkipsOnlyRoundPadding()
     {

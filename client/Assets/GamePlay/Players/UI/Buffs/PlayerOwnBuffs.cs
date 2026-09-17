@@ -1,5 +1,6 @@
 using GamePlay.Loop;
 using GamePlay.Services;
+using GamePlay.UI;
 using Internal;
 using Meta;
 using UnityEngine;
@@ -14,14 +15,20 @@ namespace GamePlay.Players.Buffs
         [SerializeField] private PlayerBuffInfo _infoPrefab;
 
         private IModifiersRegistry _modifiers;
+        private IGameInfoOverlay _infoOverlay;
         private IGameInput _input;
         private IUpdater _updater;
         private PlayerBuffsList _list;
 
         [Inject]
-        internal void Construct(IModifiersRegistry modifiers, IGameInput input, IUpdater updater)
+        internal void Construct(
+            IModifiersRegistry modifiers,
+            IGameInfoOverlay infoOverlay,
+            IGameInput input,
+            IUpdater updater)
         {
             _modifiers = modifiers;
+            _infoOverlay = infoOverlay;
             _input = input;
             _updater = updater;
         }
@@ -47,8 +54,7 @@ namespace GamePlay.Players.Buffs
 
         private PlayerBuffInfo SpawnInfo()
         {
-            var canvas = GetComponentInParent<Canvas>();
-            var info = Instantiate(_infoPrefab, canvas.transform);
+            var info = _infoOverlay.Spawn(_infoPrefab);
             info.Hide();
             return info;
         }

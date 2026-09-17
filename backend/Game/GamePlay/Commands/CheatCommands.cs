@@ -38,7 +38,7 @@ public class ChangeMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatC
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMana request)
     {
         var mana = context.Player.Mana;
-        mana.SetMax(context.Snapshot, mana.ResultMax + request.Value);
+        mana.SetMax(context.Snapshot, mana.BaseMax + request.Value);
         mana.Restore(context.Snapshot);
         return EmptyResponse.Ok;
     }

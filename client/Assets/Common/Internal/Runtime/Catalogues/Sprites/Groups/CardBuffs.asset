@@ -31,6 +31,12 @@ MonoBehaviour:
     - {fileID: 2066611187615205865, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
     Time: 0.8
     Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: BaseManaAddPerRound
+    Kind: 0
+    Sprites:
+    - {fileID: -3561582614510856376, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
+    Time: 0.8
+    Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: BaseTurns
     Kind: 0
     Sprites:
