@@ -1,0 +1,509 @@
+<linker>
+  <assembly fullname="Flow, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Flow.Mocks.GameMock" preserve="all" />
+    <type fullname="Flow.Mocks.MenuMock" preserve="all" />
+  </assembly>
+  <assembly fullname="GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="GamePlay.Boards.Board" preserve="all" />
+    <type fullname="GamePlay.Boards.BoardConstructor" preserve="all" />
+    <type fullname="GamePlay.Boards.CellAnimator" preserve="all" />
+    <type fullname="GamePlay.Boards.CellFreeView" preserve="all" />
+    <type fullname="GamePlay.Boards.CellPointerHandler" preserve="all" />
+    <type fullname="GamePlay.Boards.CellSelectionView" preserve="all" />
+    <type fullname="GamePlay.Boards.CellTakenView" preserve="all" />
+    <type fullname="GamePlay.Boards.CellView" preserve="all" />
+    <type fullname="GamePlay.Boards.CellVisuals" preserve="all" />
+    <type fullname="GamePlay.Boards.Effects.CellEffects" preserve="all" />
+    <type fullname="GamePlay.Boards.Effects.FogCellEffect" preserve="all" />
+    <type fullname="GamePlay.Boards.Effects.MineHighlightCellEffect" preserve="all" />
+    <type fullname="GamePlay.Boards.Effects.SmokeCellEffect" preserve="all" />
+    <type fullname="GamePlay.Boards.FlagAnimator" preserve="all" />
+    <type fullname="GamePlay.Cards.CardAvailabilityView" preserve="all" />
+    <type fullname="GamePlay.Cards.CardDataView" preserve="all" />
+    <type fullname="GamePlay.Cards.CardLocalBindings" preserve="all" />
+    <type fullname="GamePlay.Cards.CardLocalScopeEntity" preserve="all" />
+    <type fullname="GamePlay.Cards.CardPointerHandler" preserve="all" />
+    <type fullname="GamePlay.Cards.CardRemoteScopeEntity" preserve="all" />
+    <type fullname="GamePlay.Cards.CardRenderer" preserve="all" />
+    <type fullname="GamePlay.Cards.CardRevealView" preserve="all" />
+    <type fullname="GamePlay.Cards.CardScope" preserve="all" />
+    <type fullname="GamePlay.Cards.CardSelectionSwitcher" preserve="all" />
+    <type fullname="GamePlay.Cards.CardTargets" preserve="all" />
+    <type fullname="GamePlay.Cards.CardTransform" preserve="all" />
+    <type fullname="GamePlay.Cards.CardVfxFactory" preserve="all" />
+    <type fullname="GamePlay.Cards.CardView" preserve="all" />
+    <type fullname="GamePlay.Cards.CardViewFactory" preserve="all" />
+    <type fullname="GamePlay.Cards.GameRandom" preserve="all" />
+    <type fullname="GamePlay.Cards.HandPositions" preserve="all" />
+    <type fullname="GamePlay.Cards.HandPositionsOptions" preserve="all" />
+    <type fullname="GamePlay.Cards.HandView" preserve="all" />
+    <type fullname="GamePlay.Players.ActiveStatus.PlayerActiveStatusView" preserve="all" />
+    <type fullname="GamePlay.Players.Buffs.PlayerBuffInfo" preserve="all" />
+    <type fullname="GamePlay.Players.Buffs.PlayerBuffView" preserve="all" />
+    <type fullname="GamePlay.Players.Buffs.PlayerOpponentBuffs" preserve="all" />
+    <type fullname="GamePlay.Players.Buffs.PlayerOwnBuffs" preserve="all" />
+    <type fullname="GamePlay.Players.GamePlayerScope" preserve="all" />
+    <type fullname="GamePlay.Players.LocalPlayerView" preserve="all" />
+    <type fullname="GamePlay.Players.OpponentUIBindings" preserve="all" />
+    <type fullname="GamePlay.Players.PlayerUIBindings" preserve="all" />
+    <type fullname="GamePlay.Players.RemotePlayerView" preserve="all" />
+    <type fullname="GamePlay.Players.Resource.PlayerOpponentResources" preserve="all" />
+    <type fullname="GamePlay.Players.Resource.PlayerOwnResources" preserve="all" />
+    <type fullname="GamePlay.Players.Resource.PlayerResourceEntry" preserve="all" />
+    <type fullname="GamePlay.Players.Resource.PlayerResourceRow" preserve="all" />
+    <type fullname="GamePlay.Services.GameCamera" preserve="all" />
+    <type fullname="GamePlay.Services.GameFloatingText" preserve="all" />
+    <type fullname="GamePlay.Services.GameFloatingTextView" preserve="all" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings" preserve="all" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings" preserve="all" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings" preserve="all" />
+    <type fullname="GamePlay.UI.GamePauseSettingsSwitch" preserve="all" />
+    <type fullname="GamePlay.UI.GameResults" preserve="all" />
+    <type fullname="GamePlay.UI.GameResultsView" preserve="all" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings" preserve="all" />
+    <type fullname="GamePlay.UI.InfoOverlayUIBindings" preserve="all" />
+    <type fullname="GamePlay.UI.PlayersOverlayUIBindings" preserve="all" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings" preserve="all" />
+    <type fullname="GamePlay.UI.UIElementPointerHandler" preserve="all" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings/DescriptionBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings/ImageBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings/ManaCostBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings/NameBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/BodyBindings/SelectionHighlightBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.CardLocalBindings/ViewBindings/PointerHandlerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Cards.GameRandom/Path" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/BuffsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/BuffsBindings/ContainerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/BuffsBindings/ContainerBindings/BuffsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/BuffsBindings/ContainerBindings/BuffsBindings/ElementsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/PortraitBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/ResourcesBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/ResourcesBindings/ContainerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/ResourcesBindings/ContainerBindings/HealthBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/ResourcesBindings/ContainerBindings/ManaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.OpponentUIBindings/ResourcesBindings/ContainerBindings/TurnsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings/ContainerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings/ContainerBindings/BuffsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings/ContainerBindings/BuffsBindings/ElementsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings/ContainerBindings/BuffsBindings/NameBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/BuffsBindings/ContainerBindings/BuffsBindings/NameBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/PortraitBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/ResourcesBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/ResourcesBindings/ContainerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/ResourcesBindings/ContainerBindings/HealthBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/ResourcesBindings/ContainerBindings/ManaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.Players.PlayerUIBindings/ResourcesBindings/ContainerBindings/TurnsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CardBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/MinesBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/MinesBindings/OpponentBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/MinesBindings/OwnBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/SkipBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/SkipBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/TimerBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/TimerBindings/OpponentBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/CenterBindings/TimerBindings/OwnBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.RoundOverlayUIBindings/PauseButtonBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/ButtonsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/ButtonsBindings/NoBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/ButtonsBindings/NoBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/ButtonsBindings/YesBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/ButtonsBindings/YesBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseLeaveAttentionBindings/PlateBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseContinueBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseContinueBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseExitBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseExitBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseSettingsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseMenuBindings/MenuBindings/PlateBindings/ButtonsBindings/GamePauseSettingsBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/BackBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/BackBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/HeaderAudioBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/HeaderGameBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MasterBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/MusicBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/ShakeBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/SoundsBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/SettingBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/SettingBindings/OffBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/SettingBindings/OffBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/SettingBindings/OnBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/SettingBindings/OnBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GamePauseSettingsBindings/PlateBindings/ContentBindings/VsyncBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings/MenuBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings/MenuBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings/NotificationBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings/RematchBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ButtonsBindings/RematchBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/RatingBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/RatingBindings/IconBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/RatingBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Separator1Bindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/SeparatorBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats0Bindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats0Bindings/CardsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats0Bindings/FlagsBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats1Bindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats1Bindings/RevealBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/Stats1Bindings/TakenBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/TimeBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/TimeBindings/IconBindings" preserve="nothing" serialized="true" />
+    <type fullname="GamePlay.UI.GameUIResultsBindings/ResultDataBindings/TimeBindings/TextBindings" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Global.UI.DesignButton" preserve="all" />
+    <type fullname="Global.UI.DesignElement" preserve="all" />
+  </assembly>
+  <assembly fullname="Internal, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Internal.AudioGroupAsset" preserve="all" />
+    <type fullname="Internal.HierarchyBindingsIgnoreChildren" preserve="all" />
+    <type fullname="Internal.PrefabGroupAsset" preserve="all" />
+    <type fullname="Internal.SceneServicesFactory" preserve="all" />
+    <type fullname="Internal.SpriteGroupAsset" preserve="all" />
+    <type fullname="Internal.PrefabAssetEntry" preserve="nothing" serialized="true" />
+    <type fullname="Internal.SpriteEntry" preserve="nothing" serialized="true" />
+    <type fullname="Internal.AudioAssetEntry" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Menu, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Menu.Common.MenuCanvasBindings" preserve="all" />
+    <type fullname="Menu.Decks.MenuBoard" preserve="all" />
+    <type fullname="Menu.Decks.MenuCardPreviewPopup" preserve="all" />
+    <type fullname="Menu.Decks.MenuDeckCard" preserve="all" />
+    <type fullname="Menu.Decks.MenuDeckIndexButton" preserve="all" />
+    <type fullname="Menu.Decks.MenuDeckMoveArea" preserve="all" />
+    <type fullname="Menu.Decks.MenuDeckPoolCard" preserve="all" />
+    <type fullname="Menu.Decks.MenuDeckPoolSpot" preserve="all" />
+    <type fullname="Menu.Decks.MenuDecksBindings" preserve="all" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings" preserve="all" />
+    <type fullname="Menu.Navigation.MenuNavigationButton" preserve="all" />
+    <type fullname="Menu.Play.MenuPlayBindings" preserve="all" />
+    <type fullname="Menu.Play.MenuPlayGameMode" preserve="all" />
+    <type fullname="Menu.Play.MenuPlaySearchView" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileBindings" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileCard" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileHistory" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileHistoryEntry" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileMatch" preserve="all" />
+    <type fullname="Menu.Profile.MenuProfileStats" preserve="all" />
+    <type fullname="Menu.Settings.MenuSettingsBindings" preserve="all" />
+    <type fullname="Menu.Settings.MenuSettingsSwitch" preserve="all" />
+    <type fullname="Menu.Unlocks.MenuUnlockEntry" preserve="all" />
+    <type fullname="Menu.Unlocks.MenuUnlockOption" preserve="all" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings" preserve="all" />
+    <type fullname="Menu.Unlocks.MenuUnlockSelection" preserve="all" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/BottomBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/BottomBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/LineBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/TopBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/TopBindings/ManaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/AverageBindings/TopBindings/ValueBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/CardsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/IndexesBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/LineBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/MenuCardPreviewPopupBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/MenuCardPreviewPopupBindings/FrameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/MenuCardPreviewPopupBindings/TextureBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/MoveAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarHorizontalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarHorizontalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarHorizontalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarVerticalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarVerticalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ScrollbarVerticalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ViewportBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Decks.MenuDecksBindings/PoolBindings/ViewportBindings/ContentBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/DeckBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/DeckBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparator1Bindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparator2Bindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparator3Bindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparator4Bindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparator5Bindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/MenuNavigationSeparatorBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/PlayBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/PlayBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/ProfileBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/ProfileBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/SettingsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/SettingsBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/UnlocksBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Navigation.MenuNavigationBindings/UnlocksBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/ModesBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/IdleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/IdleBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/SearchingBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/SearchingBindings/CancelBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/SearchingBindings/CancelBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Play.MenuPlayBindings/SearchViewBindings/SearchingBindings/TimerBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/LineBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarHorizontalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarHorizontalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarHorizontalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarVerticalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarVerticalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ScrollbarVerticalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ViewportBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/EntriesBindings/ViewportBindings/ContentBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/PlateBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/BottomBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/BottomBindings/CardsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/BottomBindings/YouBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/BackBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ImageBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/RatingBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/RatingBindings/HeaderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/RatingBindings/ValueBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ResultBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ResultBindings/LoseBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ResultBindings/LoseBindings/OpponentNameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ResultBindings/WinBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/ResultBindings/WinBindings/OpponentNameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/TimerBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/TimerBindings/HeaderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/CenterBindings/TimerBindings/ValueBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/TopBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/TopBindings/CardsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/MatchesBindings/ViewBindings/TopBindings/OpponentNameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings/InputFieldTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings/InputFieldTMPBindings/TextAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings/InputFieldTMPBindings/TextAreaBindings/PlaceholderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings/InputFieldTMPBindings/TextAreaBindings/TextBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/AvatarBindings/ViewBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsLoseBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsLoseBindings/CountBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsLoseBindings/IconBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsLoseBindings/NameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsRatingBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsRatingBindings/CountBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsRatingBindings/IconBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsRatingBindings/NameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsWinBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsWinBindings/CountBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsWinBindings/IconBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Profile.MenuProfileBindings/TopBindings/StatsBindings/MenuStatsWinBindings/NameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/HeaderAudioBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/HeaderGameBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MasterBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/MusicBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/ShakeBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings/FillAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings/FillAreaBindings/FillBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings/HandleSlideAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/SliderBindings/HandleSlideAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/SoundsBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/SettingBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/SettingBindings/OffBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/SettingBindings/OffBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/SettingBindings/OnBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/SettingBindings/OnBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Settings.MenuSettingsBindings/ContentBindings/VsyncBindings/TextTMPBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarHorizontalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarHorizontalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarHorizontalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarVerticalBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarVerticalBindings/SlidingAreaBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ScrollbarVerticalBindings/SlidingAreaBindings/HandleBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ViewportBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/RowsBindings/ViewportBindings/ContentBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/SelectionBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/SelectionBindings/BackgroundBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/SelectionBindings/CardsBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/SelectionBindings/StatusBindings" preserve="nothing" serialized="true" />
+    <type fullname="Menu.Unlocks.MenuUnlocksBindings/SelectionBindings/TitleBindings" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="ResponsiveUI, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Exoa.Responsive.ResponsiveContainer" preserve="all" />
+    <type fullname="Exoa.Responsive.ResponsiveItem" preserve="all" />
+    <type fullname="Exoa.Responsive.ResponsiveContainer/ResponsiveItemData" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Rendering.Universal.UniversalAdditionalCameraData" preserve="all" />
+    <type fullname="UnityEngine.Rendering.Universal.TemporalAA/Settings" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.IAssetBundleResource" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneInstance" preserve="all" />
+    <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneProvider" preserve="all" />
+  </assembly>
+  <assembly fullname="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="TMPro.TextMeshPro" preserve="all" />
+    <type fullname="TMPro.TextMeshProUGUI" preserve="all" />
+    <type fullname="TMPro.TMP_FontAsset" preserve="all" />
+    <type fullname="TMPro.TMP_InputField" preserve="all" />
+    <type fullname="TMPro.VertexGradient" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.FaceInfo_Legacy" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.FontAssetCreationSettings" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.KerningTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_Character" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontFeatureTable" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_FontWeightPair" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/OnChangeEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/SelectionEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/SubmitEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/TextSelectionEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/TouchScreenKeyboardEvent" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AudioClip" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Camera" preserve="all" />
+    <type fullname="UnityEngine.Cubemap" preserve="all" />
+    <type fullname="UnityEngine.GameObject" preserve="all" />
+    <type fullname="UnityEngine.LightmapSettings" preserve="all" />
+    <type fullname="UnityEngine.Material" preserve="all" />
+    <type fullname="UnityEngine.MeshRenderer" preserve="all" />
+    <type fullname="UnityEngine.Object" preserve="all" />
+    <type fullname="UnityEngine.RectTransform" preserve="all" />
+    <type fullname="UnityEngine.Rendering.SortingGroup" preserve="all" />
+    <type fullname="UnityEngine.RenderSettings" preserve="all" />
+    <type fullname="UnityEngine.RenderTexture" preserve="all" />
+    <type fullname="UnityEngine.Shader" preserve="all" />
+    <type fullname="UnityEngine.Sprite" preserve="all" />
+    <type fullname="UnityEngine.SpriteRenderer" preserve="all" />
+    <type fullname="UnityEngine.Texture2D" preserve="all" />
+    <type fullname="UnityEngine.Transform" preserve="all" />
+    <type fullname="UnityEngine.Color" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Color32" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Events.PersistentCallGroup" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Vector4" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.LayerMask" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Vector2" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Vector2Int" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Vector3" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.RectOffset" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.DictionarySerialization/SerializedKeyValue`2" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.Rect" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.BoxCollider2D" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.UI.Button" preserve="all" />
+    <type fullname="UnityEngine.UI.CanvasScaler" preserve="all" />
+    <type fullname="UnityEngine.UI.GraphicRaycaster" preserve="all" />
+    <type fullname="UnityEngine.UI.GridLayoutGroup" preserve="all" />
+    <type fullname="UnityEngine.UI.Image" preserve="all" />
+    <type fullname="UnityEngine.UI.LayoutElement" preserve="all" />
+    <type fullname="UnityEngine.UI.Mask" preserve="all" />
+    <type fullname="UnityEngine.UI.RawImage" preserve="all" />
+    <type fullname="UnityEngine.UI.RectMask2D" preserve="all" />
+    <type fullname="UnityEngine.UI.Scrollbar" preserve="all" />
+    <type fullname="UnityEngine.UI.ScrollRect" preserve="all" />
+    <type fullname="UnityEngine.UI.Slider" preserve="all" />
+    <type fullname="UnityEngine.UI.MaskableGraphic/CullStateChangedEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.AnimationTriggers" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Button/ButtonClickedEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.ColorBlock" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Navigation" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.SpriteState" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Slider/SliderEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.ScrollRect/ScrollRectEvent" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.Scrollbar/ScrollEvent" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.Canvas" preserve="all" />
+    <type fullname="UnityEngine.CanvasGroup" preserve="all" />
+    <type fullname="UnityEngine.CanvasRenderer" preserve="all" />
+  </assembly>
+  <assembly fullname="Shared.Game">
+    <type fullname="Shared.CellEffectType" preserve="nothing" serialized="true" />
+  </assembly>
+  <assembly fullname="UnityEngine.TextCoreFontEngineModule">
+    <type fullname="UnityEngine.TextCore.FaceInfo" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.Glyph" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphMetrics" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.TextCore.GlyphRect" preserve="nothing" serialized="true" />
+  </assembly>
+</linker>

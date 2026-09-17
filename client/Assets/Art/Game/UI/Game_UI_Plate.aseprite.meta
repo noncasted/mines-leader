@@ -103,7 +103,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 639241761892287930
+  platformSettingsDirtyTick: 639252516381451010
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -159,7 +159,7 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 512
+      width: 669
       height: 100
     spriteID: 48d5d3f34057493be81337d0cfcfff1d
     spriteBone: []
@@ -178,7 +178,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 228
+      x: 300
       y: 216
       width: 60
       height: 20
@@ -201,7 +201,7 @@ ScriptedImporter:
       serializedVersion: 2
       x: 0
       y: 254
-      width: 512
+      width: 669
       height: 34
     spriteID: 6574f3fd3d9e70ce3a00c54d6bb9c7e9
     spriteBone: []
@@ -220,7 +220,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 228
+      x: 300
       y: 194
       width: 60
       height: 20
@@ -241,7 +241,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 228
+      x: 300
       y: 171
       width: 60
       height: 20
@@ -262,7 +262,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 300
+      x: 372
       y: 194
       width: 60
       height: 20
@@ -283,7 +283,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 300
+      x: 372
       y: 171
       width: 60
       height: 20
@@ -304,7 +304,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 83
+      x: 155
       y: 142
       width: 60
       height: 87
@@ -325,7 +325,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 226
+      x: 298
       y: 118
       width: 127
       height: 19
@@ -346,7 +346,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 12
+      x: 84
       y: 208
       width: 20
       height: 20
@@ -377,10 +377,10 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 0
+        x: 56
         y: 0
-        width: 512
-        height: 431
+        width: 669
+        height: 288
       spriteId: d863aa9ade7e997099e7d5c2b482b72c
     linkedCells: []
     tileCells: []
@@ -391,7 +391,7 @@ ScriptedImporter:
   - name: DefaultTexturePlatform
     overridden: 0
     ignorePlatformSupport: 0
-    maxTextureSize: 512
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -426,5 +426,5 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
-  previousTextureSize: {x: 512, y: 512}
-  canvasSize: {x: 512, y: 288}
+  previousTextureSize: {x: 1024, y: 512}
+  canvasSize: {x: 768, y: 288}
