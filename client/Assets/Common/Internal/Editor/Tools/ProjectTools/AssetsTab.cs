@@ -18,6 +18,7 @@ namespace Internal
             buttonRow.Add(BuildActionButton("Generate Prefabs", OnGeneratePrefabsClicked));
             buttonRow.Add(BuildActionButton("Generate Scenes", OnGenerateScenesClicked));
             buttonRow.Add(BuildActionButton("Generate Sprites", OnGenerateSpritesClicked));
+            buttonRow.Add(BuildActionButton("Generate Audio", OnGenerateAudioClicked));
             buttonRow.Add(BuildActionButton("Export Card Icons", OnExportCardIconsClicked));
 
             parent.Add(buttonRow);
@@ -48,6 +49,9 @@ namespace Internal
         private void OnGenerateSpritesClicked() => Run("Generating sprites...", "Sprites generated",
             "Sprite generation failed", SpriteGenerator.Generate);
 
+        private void OnGenerateAudioClicked() => Run("Generating audio...", "Audio generated",
+            "Audio generation failed", AudioCatalogGenerator.Generate);
+
         private void OnExportCardIconsClicked() => Run("Exporting card icons...", "Card icons exported",
             "Card icons export failed", CardIconsExporter.Export);
 
@@ -56,14 +60,17 @@ namespace Internal
             Run("Running all generators...", "All generators completed", "Run All failed", () => {
                 _progressBar.value = 0;
 
-                _progressBar.value = 25;
+                _progressBar.value = 20;
                 PrefabCatalogGenerator.Generate();
 
-                _progressBar.value = 50;
+                _progressBar.value = 40;
                 SceneGenerator.Generate();
 
-                _progressBar.value = 75;
+                _progressBar.value = 60;
                 SpriteGenerator.Generate();
+
+                _progressBar.value = 80;
+                AudioCatalogGenerator.Generate();
 
                 _progressBar.value = 100;
             });

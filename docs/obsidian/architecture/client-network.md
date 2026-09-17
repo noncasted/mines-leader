@@ -43,7 +43,7 @@ graph TB
 - Проекции пользователя (профиль, рейтинг, прогрессия)
 
 ### 2. Game Session (WebSocket на время матча)
-**Файл:** `client/Assets/Common/Network/Session/Root/NetworkSession.cs`
+**Файл:** `client/Assets/Common/Internal/Runtime/Tools/Network/Session/NetworkSession.cs`
 
 Временное соединение с Game Gateway на время матча:
 - Аутентификация сессии (`SharedSessionAuth`)
@@ -54,7 +54,7 @@ graph TB
 
 ## WebSocket-реализации
 
-**Файл:** `client/Assets/Common/Network/Connections/NetworkConnection.cs`
+**Файл:** `client/Assets/Common/Internal/Runtime/Tools/Network/Connections/NetworkConnection.cs`
 
 | Платформа | Реализация |
 |-----------|-----------|
@@ -167,10 +167,10 @@ sequenceDiagram
 
 | Файл | Описание |
 |------|----------|
-| `client/Assets/Common/Network/Connections/NetworkConnection.cs` | Базовое соединение |
-| `client/Assets/Common/Network/Sockets/DefaultWebSocket.cs` | .NET WebSocket |
-| `client/Assets/Common/Network/Sockets/JsWebSocket.cs` | JS WebSocket |
+| `client/Assets/Common/Internal/Runtime/Tools/Network/Connections/NetworkConnection.cs` | Базовое соединение |
+| `client/Assets/Common/Internal/Runtime/Tools/Network/Sockets/DefaultWebSocket.cs` | .NET WebSocket |
+| `client/Assets/Common/Internal/Runtime/Tools/Network/Sockets/JsWebSocket.cs` | JS WebSocket |
 | `client/Assets/Meta/Connection/MetaBackend.cs` | Meta-соединение |
 | `client/Assets/Meta/Connection/BackendProjectionHub.cs` | Hub проекций |
-| `client/Assets/Common/Network/Session/Root/NetworkSession.cs` | Игровая сессия |
-| `client/Assets/Global/Backend/Client/BackendClient.cs` | HTTP REST клиент |
+| `client/Assets/Common/Internal/Runtime/Tools/Network/Session/NetworkSession.cs` | Игровая сессия |
+| `client/Assets/Common/Global/Backend/BackendClient.cs` | HTTP REST клиент |
