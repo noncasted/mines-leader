@@ -22,9 +22,11 @@ public static class OrleansSetupExtensions
     // Shared has no Orleans codegen, so its types (e.g. CardType) aren't in the type allowlist.
     // They get encoded by name whenever the runtime type differs from the declared one —
     // e.g. Dictionary<int, IReadOnlyList<CardType>> passed as IReadOnlyDictionary<...>.
-    private static void AllowSharedTypes(TypeManifestOptions options)
+    // AddAllowedAssembly doesn't cover generic arguments here, so allow each type explicitly.
+    public static void AllowSharedTypes(TypeManifestOptions options)
     {
-        options.AddAllowedAssembly(typeof(CardType).Assembly);
+        foreach (var type in typeof(CardType).Assembly.GetTypes())
+            options.AddAllowedType(type);
     }
 
     extension(IHostApplicationBuilder builder)
