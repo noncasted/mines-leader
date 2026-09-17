@@ -11,13 +11,13 @@ AudioImporter:
     compressionFormat: 1
     quality: 0.5
     conversionMode: 0
-    preloadAudioData: 0
+    preloadAudioData: 1
   platformSettingOverrides: {}
   forceToMono: 1
   normalize: 1
   loadInBackground: 1
   ambisonic: 0
   3D: 1
-  userData: "{\n  \"audioCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"volume\": 0.247\n  }\n}"
+  userData: "{\n  \"audioCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"volume\": 0.043\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

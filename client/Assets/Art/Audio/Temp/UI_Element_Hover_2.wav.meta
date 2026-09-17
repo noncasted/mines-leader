@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6277c217c57cf5382bec8ca81b431fb2
+guid: 8c3527d12f95f8b9d91d19ad93389fe6
 AudioImporter:
   externalObjects: {}
   serializedVersion: 8
@@ -11,13 +11,13 @@ AudioImporter:
     compressionFormat: 1
     quality: 0.5
     conversionMode: 0
-    preloadAudioData: 0
+    preloadAudioData: 1
   platformSettingOverrides: {}
   forceToMono: 1
   normalize: 1
   loadInBackground: 1
   ambisonic: 0
   3D: 1
-  userData: "{\n  \"audioCatalog\": {\n    \"included\": false,\n    \"group\": \"Global\",\n    \"volume\": 1.0\n  }\n}"
+  userData: "{\n  \"audioCatalog\": {\n    \"included\": false,\n    \"group\": \"Global\",\n    \"volume\": 0.166\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Global.Publisher;
 using Global.Settings;
 using Internal;
 using UnityEngine;
@@ -23,12 +22,12 @@ namespace Global.Audio
     }
 
     [DisallowMultipleComponent]
-    public class AudioPlayer : MonoBehaviour, IAudioVolume, IAudioPlayer, IScopeSetup
+    public class AudioPlayer : MonoBehaviour, IAudioVolume, IAudioPlayer, IScopeSetupCompletion
     {
         [SerializeField] private AudioSource _musicSource;
         [SerializeField] private AudioSource[] _soundSources;
 
-        private ISaves _saves;
+        private ISettings _settings;
         private float _musicScale = 1f;
         private float[] _soundScales;
 
@@ -39,22 +38,23 @@ namespace Global.Audio
         public IViewableProperty<bool> IsMuted => _isMuted;
 
         [Inject]
-        internal void Construct(ISaves saves)
+        internal void Construct(ISettings settings)
         {
-            _saves = saves;
+            _settings = settings;
         }
 
-        public void OnSetup(IReadOnlyLifetime lifetime)
+        // Громкость берётся из ISettings после их setup: в свежем сейве её ещё нет,
+        // значения по умолчанию подставляет Settings. Слайдеры настроек меняют её на лету.
+        public void OnSetupCompletion(IReadOnlyLifetime lifetime)
         {
-            var save = _saves.Get<SettingsSave>();
-
-            _values[AudioLine.Music] = save.MusicVolume * save.MasterVolume;
-            _values[AudioLine.SFX] = save.SoundsVolume * save.MasterVolume;
-
             _soundScales = new float[_soundSources.Length];
 
             for (var i = 0; i < _soundScales.Length; i++)
                 _soundScales[i] = 1f;
+
+            _settings.MasterVolume.View(lifetime, UpdateVolume);
+            _settings.MusicVolume.View(lifetime, UpdateVolume);
+            _settings.SoundsVolume.View(lifetime, UpdateVolume);
 
             // Общие звуки качаются параллельно старту: до их загрузки кнопки молчат.
             ButtonSounds.Clicked = () =>
@@ -100,6 +100,18 @@ namespace Global.Audio
                 return;
 
             ApplyVolume();
+        }
+
+        private void UpdateVolume()
+        {
+            var master = _settings.MasterVolume.Value;
+
+            // Обе линии пишутся до ApplyVolume: он читает их вместе.
+            _values[AudioLine.Music] = _settings.MusicVolume.Value * master;
+            _values[AudioLine.SFX] = _settings.SoundsVolume.Value * master;
+
+            if (_isMuted.Value == false)
+                ApplyVolume();
         }
 
         private void ApplyVolume()

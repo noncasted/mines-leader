@@ -18,7 +18,7 @@ MonoBehaviour:
     Volume: 0.031
   - Name: UIButtonClick3
     Clip: {fileID: 8300000, guid: cee3a7015822ea9c99241859089a94da, type: 3}
-    Volume: 0.247
+    Volume: 0.043
   - Name: UIElementHover3
     Clip: {fileID: 8300000, guid: d317a91e534eb300690c2745a616036f, type: 3}
     Volume: 0.018
