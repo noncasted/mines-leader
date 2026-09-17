@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_GameField
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_GameField
-  m_GUID: 69c9db99f934fd416b18c9f1d847b4d8
+  m_GUID: 3861d860584752cb8a243c9b8bcfe5b9
   m_SerializeEntries:
   - m_GUID: d7af6563e9682b26c9be9516f6109e60
     m_Address: d7af6563e9682b26c9be9516f6109e60

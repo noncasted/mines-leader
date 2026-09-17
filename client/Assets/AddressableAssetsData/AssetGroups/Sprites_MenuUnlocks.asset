@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_MenuUnlocks
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_MenuUnlocks
-  m_GUID: 0cb5b71f6c6d8edb4b9d6ae20f102941
+  m_GUID: fd858c96262129cd685104a9ba84ac6f
   m_SerializeEntries:
   - m_GUID: bc5d6390551069afdbd7ffdc1a7f3449
     m_Address: bc5d6390551069afdbd7ffdc1a7f3449

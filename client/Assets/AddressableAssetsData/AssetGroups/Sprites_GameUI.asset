@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sprites_GameUI
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Sprites_GameUI
-  m_GUID: 2ed4c5c79c761b391ba2fbf1b50b77a0
+  m_GUID: 796b3fe6c89b0aad3b1c532153f4d844
   m_SerializeEntries:
   - m_GUID: af583db52f790598b91bd61d5d28d1a2
     m_Address: af583db52f790598b91bd61d5d28d1a2
