@@ -42,6 +42,9 @@ namespace Internal
         {
             importer.forceToMono = forceToMono;
             importer.loadInBackground = true;
+
+            // На WebGL Play() не догружает клип сам и молчит: данные грузятся вместе с ассетом из бандла.
+            settings.preloadAudioData = true;
             importer.defaultSampleSettings = settings;
 
             // Оверрайды платформ перекрыли бы общие настройки.
