@@ -7,7 +7,7 @@ graph TB
     subgraph Client["Client (Unity3D)"]
         UI[UI / Scenes]
         Net[Network Layer]
-        DI[VContainer DI]
+        DI[Generated Container]
     end
 
     subgraph Shared["Shared"]
@@ -53,8 +53,8 @@ graph TB
 
 | Компонент | Технология | Описание |
 |-----------|-----------|----------|
-| DI | VContainer | Dependency injection через `[Inject]` |
-| Сервисы | MonoBehaviour + ISceneService | Компоненты сцены с жизненным циклом |
+| DI | Свой контейнер (Roslyn codegen) | `ContainerBuilder` + сгенерированный `IContainer`; VContainer только в бенчмарках |
+| Сервисы | MonoBehaviour + ISceneService | Регистрация в скоупе через `Create()`; setup — отдельные `IScopeSetup*` |
 | Реактивность | EventSource / ViewableProperty / ViewableList | Наблюдаемые события и состояния |
 | Ресурсы | Lifetime | Управление подписками и очисткой |
 | Async | UniTask | Асинхронные операции |
@@ -64,7 +64,8 @@ graph TB
 
 ```mermaid
 graph TD
-    G[Global Scope] --> M[Meta Scope]
+    I[Internal Scope] --> G[Global Scope]
+    G --> M[Meta Scope]
     M --> L[Game Loop Scope]
     L --> Menu[Menu Scope]
     L --> GP[GamePlay Scope]
@@ -72,12 +73,13 @@ graph TD
 
 | Скоуп | Назначение | Сервисы |
 |-------|-----------|---------|
+| **Internal** | Корень DI, каталог ассетов, лоадеры скоупов | SceneLoader, ServiceScopeLoader, Options |
 | **Global** | Глобальная инфраструктура | Audio, Camera, Input, BackendClient, Settings |
 | **Meta** | Авторизация и пользователь | Auth, User, MetaBackend, Matchmaking |
 | **Menu** | Главное меню | MenuLoop, Navigation, Social, Decks |
 | **GamePlay** | Активная игра | Board, Players, Cards, Sync, UI |
 
-Подробнее: [[client-scenes|Клиент: сцены]]
+Подробнее: [[client-scenes|Клиент: сцены]], [[client-common|Клиент: Common]], [[client-dev-tools|инструменты разработки]]
 
 ---
 

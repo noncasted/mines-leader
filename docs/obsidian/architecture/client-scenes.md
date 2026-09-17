@@ -1,14 +1,18 @@
 # Клиент: сцены и DI
 
+Стек и загрузка скоупов живут в `client/Assets/Common`. Разбор слоёв Common: [[client-common|Клиент: Common]]. Редакторные генераторы: [[client-dev-tools|инструменты разработки]].
+
 ## Стек технологий
 
 | Технология | Назначение |
 |-----------|-----------|
 | Unity3D | Игровой движок |
-| VContainer | Dependency Injection |
+| Свой контейнер | DI: `ContainerBuilder` + Roslyn-сгенерированный `IContainer` |
 | UniTask | Async/await |
 | Кастомный реактивный фреймворк | EventSource, ViewableProperty, ViewableList |
 | Lifetime | Управление подписками |
+
+VContainer в продакшн-скоупах нет. Он остался в `Internal.Tests` как baseline бенчмарка.
 
 ---
 
@@ -16,72 +20,70 @@
 
 ```mermaid
 graph TD
-    GS[GameStartup<br>MonoBehaviour] --> IS[Internal Scope]
-    IS --> G[Global Scope<br>cameras, audio, input, backend client]
-    G --> M[Meta Scope<br>auth, user, matchmaking]
-    M --> GL[Game Loop Scope<br>контроллер меню/геймплей]
-    GL --> Menu[Menu Scope<br>навигация, play, колоды]
-    GL --> GP[GamePlay Scope<br>доска, карты, игроки]
+    GS[GameStartup] --> IS[Internal Scope]
+    IS --> G[Global Scope]
+    G --> M[Meta Scope]
+    M --> GL[Game Loop Scope]
+    GL --> Menu[Menu Scope]
+    GL --> GP[GamePlay Scope]
 ```
 
-Каждый скоуп — отдельный VContainer `LifetimeScope`. Дочерние скоупы наследуют зависимости от родительских.
+Каждый скоуп — свой сгенерированный контейнер. Дочерний наследует резолв родителя. Корень задаётся методом `Construct` (не лямбдой) и атрибутом `[ContainerScopeParent]`.
+
+Моки (`MenuMock`, `GameMock`) поднимают Internal → Global → Meta и **не** создают GameLoop.
 
 ---
 
 ## Скоупы подробно
 
-### Global Scope
-**Файл:** `client/Assets/Global/Setup/GlobalServicesScene.cs`
+### Internal Scope
+**Файл:** `client/Assets/Common/Flow/Startup/InternalScopeLoader.cs`
 
-Загружается первым при старте. Предоставляет базовую инфраструктуру:
-- Audio, Camera, Input
+Корневой скоуп без сцены. `AssetCatalog.Load()`, регистрация `ISceneLoader`, `IServiceScopeLoader`, `IEntityScopeLoader`, `StartupAssetsPreload`, `OptionsContainer`.
+
+### Global Scope
+**Файл:** `client/Assets/Common/Global/Setup/GlobalScopeExtensions.cs`
+
+Runtime-сцена `Global_Services`. Базовая инфраструктура:
+- Audio, Camera, Input, Updater
 - BackendClient (HTTP REST)
-- Settings
-- UI-система (загрузочные экраны)
+- Settings, Publisher (Itch)
+- UI (загрузочные экраны, `UIStateMachine`)
 
 ### Meta Scope
-**Файл:** `client/Assets/Meta/Setup/MetaServicesScene.cs`
+**Файл:** `client/Assets/Meta/MetaScopeExtensions.cs`
 
-Обрабатывает авторизацию и подключение к бэкенду:
-- Authentication
-- User state
-- MetaBackend (WebSocket-соединение)
-- Matchmaking
-- Cards registry
+Авторизация и подключение к бэкенду:
+- Authentication, user state
+- MetaBackend (WebSocket)
+- Matchmaking, cards registry
 
 ### Menu Scope
-**Файлы:** `client/Assets/Menu/Common/Setup/MenuServicesScene.cs`, `MenuUIScene.cs`
+**Файл:** `client/Assets/Menu/Common/MenuScopeExtensions.cs`
 
-Главное меню:
-- `MenuLoop` — контроллер меню
-- `MenuNavigation` — навигация между экранами
-- `MenuPlay` — выбор режима и поиск игры
-- `MenuDecks` — управление колодами
-- Social features
+Главное меню: навигация, play, колоды, social. Сцены грузятся через каталог `Scenes.*` и `SceneServicesFactory`.
 
 ### GamePlay Scope
-**Файлы:** `client/Assets/GamePlay/Loop/Scenes/GameServicesScene.cs`, `GameFieldScene.cs`
+**Файл:** `client/Assets/GamePlay/Loop/GamePlayScopeExtensions.cs`
 
-Активный геймплей:
-- Board (доска, клетки, выбор)
-- Players (здоровье, мана, ходы)
-- Cards (рука, колода, действия карт)
-- Sync (синхронизация состояний)
-- UI overlays (раунд, пауза, конец игры)
+Активный геймплей: доска, игроки, карты, sync, UI overlays. Сессионная сеть — `AddSessionServices()`.
 
 ---
 
-## Паттерн MonoBehaviour-сервиса
+## Паттерн сервиса на сцене
 
-Каждый сервис в сцене реализует:
+`ISceneService` — только регистрация в DI:
 
 ```
-MonoBehaviour + ISceneService + IScopeSetup
-  ├── Create(IScopeBuilder) — регистрация в DI
-  └── OnSetup(IReadOnlyLifetime) — инициализация подписок
+MonoBehaviour + ISceneService
+  └── Create(IScopeBuilder) — регистрация
 ```
 
-`SceneServicesFactory` автоматически находит все `ISceneService` в сцене и вызывает `Create()`, затем `OnSetup()`.
+Setup — отдельные интерфейсы (`IScopeSetup`, async-варианты, Loaded, Dispose). Их резолвит `EventLoop` **после** сборки контейнера.
+
+`SceneServicesFactory` на сцене держит сериализованный список сервисов. Список обновляет `Assets/Scan services` (`Ctrl+E`), в рантайме автопоиска нет.
+
+Сгенерированные Hierarchy Bindings могут сами быть `ISceneService` / `IEntityComponent`, если при генерации стоят галочки.
 
 ---
 
@@ -105,11 +107,12 @@ stateDiagram-v2
 ```
 
 ### GameLoop
-**Файл:** `client/Assets/Loop/GameLoop.cs`
+**Файл:** `client/Assets/Common/Flow/Loop/GameLoop.cs`
 
-Контроллер верхнего уровня. Переключает между:
-- `MenuLoader` — загрузка сцены меню
-- `GamePlayLoader` — загрузка сцены геймплея
+Контроллер верхнего уровня:
+- `MenuLoader` — загрузка меню
+- `GamePlayLoader` — загрузка геймплея
+- `GameLoopScopeLoader` — сначала unload предыдущего скоупа (имена сцен пересекаются)
 
 ---
 
@@ -146,11 +149,12 @@ _list.View(lifetime, item => ...) // Подписаться на элемент�
 
 | Файл | Описание |
 |------|----------|
-| `client/Assets/Startup/GameStartup.cs` | Точка входа |
-| `client/Assets/Loop/GameLoop.cs` | Контроллер меню/геймплей |
-| `client/Assets/Global/Setup/GlobalScopeExtensions.cs` | Регистрация Global |
-| `client/Assets/Meta/Setup/MetaScopeExtensions.cs` | Регистрация Meta |
-| `client/Assets/Menu/Common/Setup/MenuScopeExtensions.cs` | Регистрация Menu |
-| `client/Assets/GamePlay/Loop/PvP/PvPScopeExtensions.cs` | Регистрация GamePlay |
-| `client/Assets/Internal/Scopes/Services/SceneServices/ISceneService.cs` | Интерфейс сервиса |
-| `client/Assets/Internal/Scopes/Services/SceneServices/SceneServicesFactory.cs` | Фабрика сервисов |
+| `client/Assets/Common/Flow/Startup/GameStartup.cs` | Точка входа |
+| `client/Assets/Common/Flow/Loop/GameLoop.cs` | Контроллер меню/геймплей |
+| `client/Assets/Common/Global/Setup/GlobalScopeExtensions.cs` | Регистрация Global |
+| `client/Assets/Meta/MetaScopeExtensions.cs` | Регистрация Meta |
+| `client/Assets/Menu/Common/MenuScopeExtensions.cs` | Регистрация Menu |
+| `client/Assets/GamePlay/Loop/GamePlayScopeExtensions.cs` | Регистрация GamePlay |
+| `client/Assets/Common/Internal/Runtime/Scopes/Services/SceneServices/ISceneService.cs` | Интерфейс сервиса сцены |
+| `client/Assets/Common/Internal/Runtime/Scopes/Services/SceneServices/SceneServicesFactory.cs` | Фабрика сервисов |
+| `client/Assets/Common/Internal/Runtime/Scopes/Services/ScopeContainer.cs` | Создание сгенерированного контейнера |
