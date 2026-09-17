@@ -162,6 +162,12 @@ graph TD
     J --> L
 ```
 
+### Подрыв мин на клиенте
+`GameCompletedRecord` несёт `Boards` — полные состояния обоих полей (Free/Taken, мины вокруг, флаги, `HasMine`).
+`BoardsReveal` синхронизирует по ним доски и подрывает все мины проигравшего. Доля уже взорванных мин
+задаётся кривой `BoardsRevealOptions.ExplodedShareCurve` от нормализованного времени `ExplosionTime`;
+экран результатов показывается только после подрыва и `DelayBeforeResults`.
+
 ### Данные матча (MatchState)
 ```
 MatchState:

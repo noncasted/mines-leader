@@ -2,6 +2,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
+using Global.Audio;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -10,14 +11,19 @@ namespace GamePlay.Services
 {
     public class CardActionSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardUse>
     {
-        public CardActionSnapshotHandler(IReadOnlyLifetime lifetime, IGameContext gameContext)
+        public CardActionSnapshotHandler(
+            IReadOnlyLifetime lifetime,
+            IGameContext gameContext,
+            IAudioPlayer audioPlayer)
         {
             _lifetime = lifetime;
             _gameContext = gameContext;
+            _audioPlayer = audioPlayer;
         }
 
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
+        private readonly IAudioPlayer _audioPlayer;
 
         public async UniTask Handle(PlayerSnapshotRecord.CardUse record)
         {
@@ -32,6 +38,7 @@ namespace GamePlay.Services
                 : null;
 
             card.Hand.Remove(card);
+            _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameCardUse);
 
             switch (card)
             {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Internal;
@@ -52,14 +53,17 @@ namespace GamePlay.Loop
 
             var player = _context.GetPlayer(record.Winner);
             var self = SelectSelfResult(record);
+            var isWin = player.Info.IsLocal == true;
 
             _completion.TrySetResult(new MatchCompletedData()
             {
-                Type = player.Info.IsLocal == true ? MatchResultType.Win : MatchResultType.Lose,
+                Type = isWin ? MatchResultType.Win : MatchResultType.Lose,
                 Duration = record.Duration,
                 RatingChange = self.RatingChange,
                 CurrentRating = self.Rating,
-                Stats = self.Stats
+                Stats = self.Stats,
+                LoserId = isWin ? _context.Other.Id : _context.Self.Id,
+                Boards = (IReadOnlyList<BoardRevealState>)record.Boards ?? Array.Empty<BoardRevealState>()
             });
         }
 

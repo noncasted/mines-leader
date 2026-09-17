@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b68472b3b87f51022b3ff9b63c415518, type: 3}
+  m_Name: GamePlay
+  m_EditorClassIdentifier: Internal::Internal.AudioGroupAsset
+  _entries:
+  - Name: GameCardSpawn1
+    Clip: {fileID: 8300000, guid: 1eafe3f96cb96116da75122b310bd428, type: 3}
+    Volume: 0.153
+  - Name: GameCardStash
+    Clip: {fileID: 8300000, guid: abd2bc0906f3a732287942d296b3348b, type: 3}
+    Volume: 0.33
+  - Name: GameCardUse2
+    Clip: {fileID: 8300000, guid: 1a7c844834a279b9b905b7cb57dee580, type: 3}
+    Volume: 0.139
+  - Name: GameCellOpen0
+    Clip: {fileID: 8300000, guid: d47b8628564f01eed89dc05320a3ac58, type: 3}
+    Volume: 0.431
+  - Name: GameCellOpen3
+    Clip: {fileID: 8300000, guid: 8345418abf60b42ac8c081d915079c4a, type: 3}
+    Volume: 0.431
+  - Name: GameCellOpen6
+    Clip: {fileID: 8300000, guid: 74877ea8ccc5e2f84aebceab141d6a5a, type: 3}
+    Volume: 0.431
+  - Name: GameFlagPlace2
+    Clip: {fileID: 8300000, guid: 7021f2ed3f4cb5e41a82bdb3c91c9798, type: 3}
+    Volume: 0.193
+  - Name: GameMineElectric0
+    Clip: {fileID: 8300000, guid: ddc63a73c7865fbee896390345efaee3, type: 3}
+    Volume: 0.144
+  - Name: GameMineElectric1
+    Clip: {fileID: 8300000, guid: c8e0b81ddd9f627c79d4c2e3eada1802, type: 3}
+    Volume: 0.144
+  - Name: GameMineElectric2
+    Clip: {fileID: 8300000, guid: 2813151eb97676440b4f65e8d1b77795, type: 3}
+    Volume: 0.144
+  - Name: GameMineElectric3
+    Clip: {fileID: 8300000, guid: 09c82c13c8e66ee4496ea277f34d7659, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal0
+    Clip: {fileID: 8300000, guid: c5837f9aea4dfe951ba63f50c3b52382, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal1
+    Clip: {fileID: 8300000, guid: eb3b71836ba5a7f1a8f104185ef511b3, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal2
+    Clip: {fileID: 8300000, guid: a719e1eb5e3cc737f883742f55fb8134, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal3
+    Clip: {fileID: 8300000, guid: d0367c90b3ae13c92ba39775fd5cd11d, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal4
+    Clip: {fileID: 8300000, guid: afb00f3ed854380f58b57be61785bb15, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal5
+    Clip: {fileID: 8300000, guid: 76627723982a238d9b7ab8c098e08778, type: 3}
+    Volume: 0.144
+  - Name: GameMineNormal6
+    Clip: {fileID: 8300000, guid: f1447bc0ae98cd147885b301fc010775, type: 3}
+    Volume: 0.144
+  - Name: GameRoundOpponent
+    Clip: {fileID: 8300000, guid: 805f114c3fbb4db1faeb069d81fae2ca, type: 3}
+    Volume: 0.126
+  - Name: GameRoundOwn
+    Clip: {fileID: 8300000, guid: 73d6fe0c027de695cbda66ffd02baa67, type: 3}
+    Volume: 0.126
+  - Name: GameRoundWin
+    Clip: {fileID: 8300000, guid: 01659eacc38be08eea2d79e8cc3bd517, type: 3}
+    Volume: 0.126

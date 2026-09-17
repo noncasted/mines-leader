@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Shared;
 
 namespace GamePlay.Loop
@@ -19,5 +20,10 @@ namespace GamePlay.Loop
 
         /// <summary>Статистика локального игрока за матч. Пустая, если матч закончился выходом.</summary>
         public IUserStatsState Stats { get; set; } = new MatchPlayerStats();
+
+        public Guid LoserId { get; set; }
+
+        /// <summary>Серверные состояния обеих досок на конец матча. Пустые, если матч закончился выходом.</summary>
+        public IReadOnlyList<BoardRevealState> Boards { get; set; } = Array.Empty<BoardRevealState>();
     }
 }

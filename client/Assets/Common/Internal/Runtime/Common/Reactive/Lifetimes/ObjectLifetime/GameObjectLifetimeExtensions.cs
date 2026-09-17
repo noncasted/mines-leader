@@ -17,12 +17,14 @@ namespace Internal
         public static void ListenClick(this Button button, UnityAction listener)
         {
             var lifetime = button.GetObjectLifetime();
+            ButtonSounds.Attach(button);
             button.onClick.AddListener(listener);
             lifetime.Listen(() => button.onClick.RemoveListener(listener));
         }
 
         public static void ListenClick(this Button button, IReadOnlyLifetime lifetime, UnityAction listener)
         {
+            ButtonSounds.Attach(button);
             button.onClick.AddListener(listener);
             lifetime.Listen(() => button.onClick.RemoveListener(listener));
         }

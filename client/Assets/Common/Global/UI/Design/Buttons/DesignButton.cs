@@ -28,6 +28,7 @@ namespace Global.UI
             if (_button == null)
                 _button = GetComponent<Button>();
 
+            ButtonSounds.Attach(_button);
             _element.SetState(DesignElementState.Idle);
             _button.onClick.AddListener(OnClicked);
         }

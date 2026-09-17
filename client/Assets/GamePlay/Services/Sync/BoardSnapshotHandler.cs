@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
+using Global.Audio;
+using Internal;
 using Shared;
 
 namespace GamePlay.Services
 {
     public class BoardSnapshotHandler : ISnapshotHandler<SharedBoardSnapshot>
     {
-        public BoardSnapshotHandler(IGameContext gameContext)
+        public BoardSnapshotHandler(IGameContext gameContext, IAudioPlayer audioPlayer)
         {
             _gameContext = gameContext;
+            _audioPlayer = audioPlayer;
         }
 
         private readonly IGameContext _gameContext;
+        private readonly IAudioPlayer _audioPlayer;
         private readonly Dictionary<Guid, PlayerRecordResolver> _resolvers = new();
 
         public UniTask Handle(SharedBoardSnapshot record)
@@ -29,7 +33,37 @@ namespace GamePlay.Services
             foreach (var snapshotRecord in record.Records)
                 resolver.Resolve(snapshotRecord);
 
+            PlaySound(record);
+
             return UniTask.CompletedTask;
+        }
+
+        // Один снапшот — одно действие игрока: каскад открытых клеток звучит одним звуком.
+        private void PlaySound(SharedBoardSnapshot record)
+        {
+            var isOpened = false;
+            var isFlagged = false;
+
+            foreach (var snapshotRecord in record.Records)
+            {
+                switch (snapshotRecord)
+                {
+                    case BoardSnapshotRecord.Explosion:
+                        _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameMineNormal);
+                        return;
+                    case BoardSnapshotRecord.CellFree:
+                        isOpened = true;
+                        break;
+                    case BoardSnapshotRecord.Flag { IsFlagged: true }:
+                        isFlagged = true;
+                        break;
+                }
+            }
+
+            if (isOpened == true)
+                _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameCellOpen);
+            else if (isFlagged == true)
+                _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameFlagPlace);
         }
 
         public class PlayerRecordResolver

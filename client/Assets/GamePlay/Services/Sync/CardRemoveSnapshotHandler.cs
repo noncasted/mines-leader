@@ -3,6 +3,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
+using Global.Audio;
 using Internal;
 using Shared;
 
@@ -10,12 +11,14 @@ namespace GamePlay.Services
 {
     public class CardRemoveSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardRemove>
     {
-        public CardRemoveSnapshotHandler(IGameContext gameContext)
+        public CardRemoveSnapshotHandler(IGameContext gameContext, IAudioPlayer audioPlayer)
         {
             _gameContext = gameContext;
+            _audioPlayer = audioPlayer;
         }
 
         private readonly IGameContext _gameContext;
+        private readonly IAudioPlayer _audioPlayer;
 
         public async UniTask Handle(PlayerSnapshotRecord.CardRemove record)
         {
@@ -35,6 +38,7 @@ namespace GamePlay.Services
             // flies off the screen into the stash before being destroyed.
             card.Hand.Remove(card);
             StashThenDestroy(card).NoAwait();
+            _audioPlayer.PlaySound(GamePlayAudio.GameCardStash);
         }
 
         private async UniTask StashThenDestroy(ICard card)

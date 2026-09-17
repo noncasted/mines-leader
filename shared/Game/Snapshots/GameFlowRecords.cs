@@ -14,6 +14,29 @@ namespace Shared
 
         /// <summary>Итоги каждого участника: рейтинг и внутриигровая статистика за матч.</summary>
         public List<MatchPlayerResult> Players { get; set; } = new();
+
+        /// <summary>
+        /// Полные состояния обоих полей на момент конца матча, включая мины. Клиент
+        /// синхронизирует по ним доски и подрывает мины проигравшего перед экраном результатов.
+        /// </summary>
+        public List<BoardRevealState> Boards { get; set; } = new();
+    }
+
+    [MemoryPackable]
+    public partial class BoardRevealState
+    {
+        public Guid OwnerId { get; set; }
+        public List<CellRevealState> Cells { get; set; } = new();
+    }
+
+    [MemoryPackable]
+    public partial class CellRevealState
+    {
+        public Position Position { get; set; }
+        public bool IsFree { get; set; }
+        public int MinesAround { get; set; }
+        public bool IsFlagged { get; set; }
+        public bool HasMine { get; set; }
     }
 
     /// <summary>Итоги одного игрока за матч. Собираются на сессии, уезжают на клиент в момент завершения.</summary>

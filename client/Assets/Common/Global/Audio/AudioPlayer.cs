@@ -8,8 +8,8 @@ namespace Global.Audio
 {
     public interface IAudioPlayer
     {
-        void PlaySound(AudioClip clip);
-        void PlayLoopMusic(AudioClip clip);
+        void PlaySound(Sound sound);
+        void PlayLoopMusic(Sound sound);
     }
 
     public interface IAudioVolume
@@ -29,6 +29,8 @@ namespace Global.Audio
         [SerializeField] private AudioSource[] _soundSources;
 
         private ISaves _saves;
+        private float _musicScale = 1f;
+        private float[] _soundScales;
 
         private readonly Dictionary<AudioLine, float> _values = new();
         private readonly ViewableProperty<bool> _isMuted = new();
@@ -48,6 +50,30 @@ namespace Global.Audio
 
             _values[AudioLine.Music] = save.MusicVolume * save.MasterVolume;
             _values[AudioLine.SFX] = save.SoundsVolume * save.MasterVolume;
+
+            _soundScales = new float[_soundSources.Length];
+
+            for (var i = 0; i < _soundScales.Length; i++)
+                _soundScales[i] = 1f;
+
+            // Общие звуки качаются параллельно старту: до их загрузки кнопки молчат.
+            ButtonSounds.Clicked = () =>
+            {
+                if (GlobalAudio.IsLoaded == true)
+                    this.PlayRandomFromGroup(GlobalAudio.UIButtonClick);
+            };
+
+            ButtonSounds.Hovered = () =>
+            {
+                if (GlobalAudio.IsLoaded == true)
+                    this.PlayRandomFromGroup(GlobalAudio.UIElementHover);
+            };
+
+            lifetime.Listen(() =>
+            {
+                ButtonSounds.Clicked = null;
+                ButtonSounds.Hovered = null;
+            });
         }
 
         public void Mute()
@@ -78,32 +104,48 @@ namespace Global.Audio
 
         private void ApplyVolume()
         {
-            _musicSource.volume = _values[AudioLine.Music];
+            _musicSource.volume = _values[AudioLine.Music] * _musicScale;
 
-            foreach (var source in _soundSources)
-                source.volume = _values[AudioLine.SFX];
+            for (var i = 0; i < _soundSources.Length; i++)
+                _soundSources[i].volume = _values[AudioLine.SFX] * _soundScales[i];
         }
 
-        public void PlaySound(AudioClip clip)
+        public void PlaySound(Sound sound)
         {
-            foreach (var source in _soundSources)
+            var index = 0;
+
+            for (var i = 0; i < _soundSources.Length; i++)
             {
-                if (source.isPlaying == true)
+                if (_soundSources[i].isPlaying == true)
                     continue;
 
-                source.clip = clip;
-                source.Play();
-                return;
+                index = i;
+                break;
             }
 
-            _soundSources[0].clip = clip;
-            _soundSources[0].Play();
+            var source = _soundSources[index];
+            _soundScales[index] = sound.Volume;
+            source.clip = sound.Clip;
+
+            if (_isMuted.Value == false)
+                source.volume = _values[AudioLine.SFX] * sound.Volume;
+
+            source.Play();
         }
 
-        public void PlayLoopMusic(AudioClip clip)
+        public void PlayLoopMusic(Sound sound)
         {
+            // Меню зовёт музыку на каждом входе: уже играющий трек не перезапускается.
+            if (_musicSource.isPlaying == true && _musicSource.clip == sound.Clip)
+                return;
+
+            _musicScale = sound.Volume;
             _musicSource.loop = true;
-            _musicSource.clip = clip;
+            _musicSource.clip = sound.Clip;
+
+            if (_isMuted.Value == false)
+                _musicSource.volume = _values[AudioLine.Music] * sound.Volume;
+
             _musicSource.Play();
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
@@ -14,6 +15,9 @@ namespace Internal
 
         private const string GroupPrefix = "Audio_";
         private const string LogTag = "AudioCatalogGenerator";
+
+        // Клипы вида Name_0, Name_1 — вариации одного звука, из них собирается список.
+        private static readonly Regex VariationPattern = new(@"^(.+?)_(\d+)$", RegexOptions.CultureInvariant);
 
         // Форматы, которые Unity импортирует в AudioClip.
         private static readonly string[] SourceExtensions =
@@ -47,6 +51,27 @@ namespace Internal
         public static void ScheduleGenerate()
         {
             Runner.Schedule();
+        }
+
+        // Только громкость уже сгенерированных записей: состав групп и код в плеймоде не трогаются.
+        public static void SyncVolumes(IReadOnlyList<AssetImporter> importers)
+        {
+            foreach (var importer in importers)
+            {
+                if (AudioCatalogMetadata.TryRead(importer, out var metadata) == false || metadata.Included == false)
+                    continue;
+
+                var groupName = CatalogNaming.ToGroupName(metadata.Group);
+                var asset = AssetDatabase.LoadAssetAtPath<AudioGroupAsset>($"{GroupsFolder}/{groupName}.asset");
+
+                if (asset == null)
+                    continue;
+
+                var name = CatalogNaming.ToGroupName(Path.GetFileNameWithoutExtension(importer.assetPath));
+
+                if (asset.TrySetVolume(name, Mathf.Clamp01(metadata.Volume)))
+                    EditorUtility.SetDirty(asset);
+            }
         }
 
         public static bool IsSourcePath(string path)
@@ -148,7 +173,8 @@ namespace Internal
                     continue;
                 }
 
-                var propertyName = CatalogNaming.ToGroupName(Path.GetFileNameWithoutExtension(path));
+                var fileName = Path.GetFileNameWithoutExtension(path);
+                var propertyName = CatalogNaming.ToGroupName(fileName);
 
                 if (string.IsNullOrEmpty(propertyName))
                 {
@@ -169,12 +195,28 @@ namespace Internal
                     Path = path,
                     Group = groupName,
                     PropertyName = propertyName,
+                    Variation = ParseVariation(fileName),
                     Clip = clip,
                     Volume = Mathf.Clamp01(metadata.Volume)
                 });
             }
 
             return sources;
+        }
+
+        private static VariationKey ParseVariation(string fileName)
+        {
+            var match = VariationPattern.Match(fileName);
+
+            if (match.Success == false)
+                return null;
+
+            var name = CatalogNaming.ToGroupName(match.Groups[1].Value);
+
+            if (string.IsNullOrEmpty(name) || int.TryParse(match.Groups[2].Value, out var index) == false)
+                return null;
+
+            return new VariationKey(name, index);
         }
 
         private static List<AudioGroupDefinition> BuildGroups(List<ClipSource> sources)
@@ -207,20 +249,69 @@ namespace Internal
                 group.Properties.Add(new AudioPropertyDefinition
                 {
                     PropertyName = source.PropertyName,
-                    FieldName = "_" + char.ToLowerInvariant(source.PropertyName[0]) + source.PropertyName.Substring(1),
+                    FieldName = ToFieldName(source.PropertyName),
                     Clip = source.Clip,
-                    Volume = source.Volume
+                    Volume = source.Volume,
+                    Variation = source.Variation
                 });
             }
 
             var result = new List<AudioGroupDefinition>(groups.Values);
 
             foreach (var group in result)
+            {
                 group.Properties.Sort((left, right) => string.Compare(left.PropertyName, right.PropertyName,
                     StringComparison.Ordinal));
+                BuildVariations(group, usedNames[group.Name]);
+            }
 
             result.Sort((left, right) => string.Compare(left.Name, right.Name, StringComparison.Ordinal));
             return result;
+        }
+
+        private static void BuildVariations(AudioGroupDefinition group, HashSet<string> usedNames)
+        {
+            var variations = new Dictionary<string, AudioVariationDefinition>(StringComparer.Ordinal);
+
+            foreach (var property in group.Properties)
+            {
+                var key = property.Variation;
+
+                if (key == null)
+                    continue;
+
+                if (variations.TryGetValue(key.Name, out var variation) == false)
+                {
+                    if (usedNames.Contains(key.Name))
+                    {
+                        Debug.LogError(
+                            $"[{LogTag}] Variation list '{key.Name}' in group '{group.Name}' clashes with a single clip. Skipping variations.");
+                        variations.Add(key.Name, null);
+                        continue;
+                    }
+
+                    variation = new AudioVariationDefinition
+                    {
+                        PropertyName = key.Name,
+                        FieldName = ToFieldName(key.Name)
+                    };
+                    variations.Add(key.Name, variation);
+                    group.Variations.Add(variation);
+                }
+
+                variation?.Entries.Add(property);
+            }
+
+            foreach (var variation in group.Variations)
+                variation.Entries.Sort((left, right) => left.Variation.Index.CompareTo(right.Variation.Index));
+
+            group.Variations.Sort((left, right) => string.Compare(left.PropertyName, right.PropertyName,
+                StringComparison.Ordinal));
+        }
+
+        private static string ToFieldName(string propertyName)
+        {
+            return "_" + char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
         }
 
         private static void WriteGroupAssets(IReadOnlyList<AudioGroupDefinition> groups)
@@ -341,9 +432,22 @@ namespace Internal
             public string Path;
             public string Group;
             public string PropertyName;
+            public VariationKey Variation;
             public AudioClip Clip;
             public float Volume;
         }
+    }
+
+    internal sealed class VariationKey
+    {
+        public VariationKey(string name, int index)
+        {
+            Name = name;
+            Index = index;
+        }
+
+        public string Name { get; }
+        public int Index { get; }
     }
 
     internal sealed class AudioGroupDefinition : ICatalogGroupDefinition
@@ -352,13 +456,22 @@ namespace Internal
         public string Address { get; set; }
         public string ClassName;
         public List<AudioPropertyDefinition> Properties = new();
+        public List<AudioVariationDefinition> Variations = new();
     }
 
     internal sealed class AudioPropertyDefinition
     {
         public string PropertyName;
         public string FieldName;
+        public VariationKey Variation;
         public AudioClip Clip;
         public float Volume;
+    }
+
+    internal sealed class AudioVariationDefinition
+    {
+        public string PropertyName;
+        public string FieldName;
+        public List<AudioPropertyDefinition> Entries = new();
     }
 }

@@ -53,6 +53,7 @@ namespace GamePlay.Loop
             builder.RequestSpriteGroup(Sprites.GameField);
             builder.RequestSpriteGroup(Sprites.Settings);
             builder.RequestPrefabGroup(GamePlayPrefabs.Group);
+            builder.RequestAudioGroup(GamePlayAudio.Group);
             
             builder
                 .AddGamePlayServices()
@@ -81,6 +82,9 @@ namespace GamePlay.Loop
                    .As<IGameState>();
 
             builder.Register<MatchEventLoop>()
+                   .As<IScopeSetup>();
+
+            builder.Register<GameRoundAudio>()
                    .As<IScopeSetup>();
 
             // Раунд — альтернатива одного сервиса: класс скоупа строит тот, что зарегистрирован.
