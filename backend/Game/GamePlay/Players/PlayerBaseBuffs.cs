@@ -19,6 +19,21 @@ public static class PlayerBaseBuffs
         Grant(player, snapshot, new BaseHealthModifierSource(health));
         Grant(player, snapshot, new BaseMovesModifierSource(moves));
         Grant(player, snapshot, new BaseManaModifierSource(mana));
+        Grant(player, snapshot, new BaseManaAddPerRoundModifierSource());
+    }
+
+    /// <summary>Конец раунда: +1 к базовому максимуму маны через баф прироста.</summary>
+    public static void GrowMana(IPlayer player, MoveSnapshot snapshot, int cap)
+    {
+        var source = player.Modifiers.Sources.OfType<BaseManaAddPerRoundModifierSource>().FirstOrDefault();
+
+        if (source == null)
+        {
+            source = new BaseManaAddPerRoundModifierSource();
+            Grant(player, snapshot, source);
+        }
+
+        source.Grow(player, snapshot, cap);
     }
 
     private static void Grant(IPlayer player, MoveSnapshot snapshot, BasePlayerModifierSource source)

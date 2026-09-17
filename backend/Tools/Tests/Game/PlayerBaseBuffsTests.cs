@@ -50,7 +50,8 @@ public class PlayerBaseBuffsTests : PlayerCardTestsBase
         sources.Select(s => (s.Type, s.Value, s.Key, s.TurnsToEnd)).Should().Equal(
             (PlayerModifier.BaseHealth, 3f, BaseHealthModifierSource.SourceKey, -1),
             (PlayerModifier.BaseMoves, 5f, BaseMovesModifierSource.SourceKey, -1),
-            (PlayerModifier.BaseMana, 1f, BaseManaModifierSource.SourceKey, -1));
+            (PlayerModifier.BaseMana, 1f, BaseManaModifierSource.SourceKey, -1),
+            (PlayerModifier.BaseManaAddPerRound, 0f, BaseManaAddPerRoundModifierSource.SourceKey, -1));
     }
 
     [Fact]
@@ -74,5 +75,39 @@ public class PlayerBaseBuffsTests : PlayerCardTestsBase
             Arg.Is<IModifierSource>(s => s.Type == PlayerModifier.AdditionalHealth
                                       || s.Type == PlayerModifier.AdditionalMoves
                                       || s.Type == PlayerModifier.AdditionalMana));
+    }
+
+    [Fact]
+    public void GrowMana_RaisesBaseMaxAndBuffValue()
+    {
+        var player = MockPlayer();
+        var snapshot = CreateSnapshot();
+        var source = new BaseManaAddPerRoundModifierSource();
+        player.Modifiers.Sources.Returns(new List<IModifierSource> { source });
+        player.Mana.BaseMax.Returns(3);
+
+        PlayerBaseBuffs.GrowMana(player, snapshot, cap: 10);
+
+        // AdditionalMana modifiers expire after the growth; growing from ResultMax
+        // would bake the temporary bonus into BaseMax permanently.
+        player.Mana.Received(1).SetMax(snapshot, 4);
+        source.Value.Should().Be(1f);
+        player.Modifiers.Received(1).Update(snapshot, source);
+    }
+
+    [Fact]
+    public void GrowMana_AtCap_KeepsBuffValue()
+    {
+        var player = MockPlayer();
+        var snapshot = CreateSnapshot();
+        var source = new BaseManaAddPerRoundModifierSource();
+        player.Modifiers.Sources.Returns(new List<IModifierSource> { source });
+        player.Mana.BaseMax.Returns(10);
+
+        PlayerBaseBuffs.GrowMana(player, snapshot, cap: 10);
+
+        player.Mana.DidNotReceive().SetMax(Arg.Any<MoveSnapshot>(), Arg.Any<int>());
+        source.Value.Should().Be(0f);
+        player.Modifiers.DidNotReceive().Update(Arg.Any<MoveSnapshot>(), Arg.Any<IModifierSource>());
     }
 }

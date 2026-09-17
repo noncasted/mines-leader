@@ -18,6 +18,7 @@ namespace Shared
         BaseHealth = 9,
         BaseMoves = 10,
         BaseMana = 11,
+        BaseManaAddPerRound = 12,
     }
 
 #if UNITY_5_3_OR_NEWER

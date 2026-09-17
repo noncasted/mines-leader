@@ -9,6 +9,7 @@ namespace Internal {
         private Sprite _adrenaline;
         private Sprite _baseHealth;
         private Sprite _baseMana;
+        private Sprite _baseManaAddPerRound;
         private Sprite _baseTurns;
         private Sprite _bloodPact;
         private Sprite _coinToss;
@@ -34,6 +35,10 @@ namespace Internal {
 
         public Sprite BaseMana {
             get { EnsureLoaded(); return _baseMana; }
+        }
+
+        public Sprite BaseManaAddPerRound {
+            get { EnsureLoaded(); return _baseManaAddPerRound; }
         }
 
         public Sprite BaseTurns {
@@ -97,6 +102,7 @@ namespace Internal {
             _adrenaline = Asset.GetSheet("Adrenaline");
             _baseHealth = Asset.GetSheet("BaseHealth");
             _baseMana = Asset.GetSheet("BaseMana");
+            _baseManaAddPerRound = Asset.GetSheet("BaseManaAddPerRound");
             _baseTurns = Asset.GetSheet("BaseTurns");
             _bloodPact = Asset.GetSheet("BloodPact");
             _coinToss = Asset.GetSheet("CoinToss");
@@ -117,6 +123,7 @@ namespace Internal {
             _adrenaline = null;
             _baseHealth = null;
             _baseMana = null;
+            _baseManaAddPerRound = null;
             _baseTurns = null;
             _bloodPact = null;
             _coinToss = null;

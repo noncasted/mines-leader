@@ -24,8 +24,8 @@ public class Siphon : ICard<CardUsePayload.Siphon>
         var config = _configs.Value.Siphon_Normal;
         var opponent = _gameContext.GetOpponent(invoker);
 
-        opponent.Mana.SetMax(snapshot, opponent.Mana.ResultMax - config.DrainAmount);
-        invoker.Mana.SetMax(snapshot, invoker.Mana.ResultMax + config.DrainAmount);
+        opponent.Mana.SetMax(snapshot, opponent.Mana.BaseMax - config.DrainAmount);
+        invoker.Mana.SetMax(snapshot, invoker.Mana.BaseMax + config.DrainAmount);
 
         snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Siphon()
         {

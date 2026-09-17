@@ -61,6 +61,7 @@ public static class ModifierLogDescriptions
             PlayerModifier.BaseHealth => "BaseHealth",
             PlayerModifier.BaseMoves => "BaseMoves",
             PlayerModifier.BaseMana => "BaseMana",
+            PlayerModifier.BaseManaAddPerRound => "BaseManaAddPerRound",
             _ => type.ToString()
         };
     }
@@ -91,6 +92,7 @@ public static class ModifierLogDescriptions
             "base_health" => "ModeConfig(BaseHealth)",
             "base_moves" => "ModeConfig(BaseMoves)",
             "base_mana" => "ModeConfig(BaseMana)",
+            "base_mana_add_per_round" => "ModeConfig(BaseManaAddPerRound)",
             _ => key
         };
     }
@@ -167,6 +169,9 @@ public static class ModifierLogDescriptions
 
             PlayerModifier.BaseMana =>
                 $"base mana from the mode config: max mana and current mana are set to {abs}",
+
+            PlayerModifier.BaseManaAddPerRound =>
+                $"max mana grows by 1 at the end of every round up to the mode cap; {abs} gained so far",
 
             _ => $"modifier {type} changed by {Amount(value)}"
         };

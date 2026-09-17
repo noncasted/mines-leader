@@ -256,10 +256,7 @@ public class LastManStandingRound : Service, IGameRound
             ? GameStateCapture.Capture(_gameContext)
             : null;
 
-        if (player.Mana.ResultMax < ModeOptions.MaxManaCap)
-        {
-            player.Mana.SetMax(endSnapshot, player.Mana.ResultMax + 1);
-        }
+        PlayerBaseBuffs.GrowMana(player, endSnapshot, ModeOptions.MaxManaCap);
 
         player.Mana.Restore(endSnapshot);
         _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.ResultMax);
