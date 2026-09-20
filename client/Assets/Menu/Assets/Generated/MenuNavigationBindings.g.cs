@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Navigation {
-    // Structure: 0fd6e4c0e13f2069f74758a5569228e0
+    // Structure: 18d73731fb4b35f8601cb9de2652a654
     // Navigation
     //   - Menu_Navigation_Separator
     //   - Unlocks
@@ -26,7 +26,7 @@ namespace Menu.Navigation {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
         [SerializeField, HideInInspector] private global::UnityEngine.UI.Image _image;
-        [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+        [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
         // Child objects
         [SerializeField, HideInInspector] private MenuNavigationSeparatorBindings _menuNavigationSeparator;
@@ -44,7 +44,7 @@ namespace Menu.Navigation {
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
         public global::UnityEngine.UI.Image Image => _image;
-        public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+        public global::Global.UI.DesignContainer DesignContainer => _designContainer;
         public MenuNavigationSeparatorBindings MenuNavigationSeparator => _menuNavigationSeparator;
         public UnlocksBindings Unlocks => _unlocks;
         public MenuNavigationSeparator1Bindings MenuNavigationSeparator1 => _menuNavigationSeparator1;
@@ -74,7 +74,6 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Unlocks
-        // Unlocks
         //   - Text (TMP)
         [Serializable]
         public sealed class UnlocksBindings {
@@ -120,7 +119,6 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Deck
-        // Deck
         //   - Text (TMP)
         [Serializable]
         public sealed class DeckBindings {
@@ -166,7 +164,6 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Play
-        // Play
         //   - Text (TMP)
         [Serializable]
         public sealed class PlayBindings {
@@ -212,7 +209,6 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Profile
-        // Profile
         //   - Text (TMP)
         [Serializable]
         public sealed class ProfileBindings {
@@ -258,7 +254,6 @@ namespace Menu.Navigation {
         }
 
         // Navigation/Settings
-        // Settings
         //   - Text (TMP)
         [Serializable]
         public sealed class SettingsBindings {

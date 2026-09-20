@@ -7,7 +7,7 @@ namespace Internal
 {
     // Сгенерированный класс должен лежать в сборке, которую видит пользовательский класс:
     // тот его наследует. Поэтому целимся в сборку скрипта, уже висящего на объекте, и только
-    // если своих скриптов нет — в ближайший asmdef над сценой или префабом.
+    // если своих скриптов нет или они из чужой сборки — в ближайший asmdef над сценой или префабом.
     internal static class HierarchyBindingsPaths
     {
         public const string FallbackFolder = "Assets/Common/Internal/Runtime/Tools/PrefabHierarchy/Generated";
@@ -19,11 +19,13 @@ namespace Internal
         public static string ResolveGeneratedFolder(GameObject root, string assetPath)
         {
             var ownerAssembly = ResolveOwnerAssembly(root);
-
-            if (string.IsNullOrEmpty(ownerAssembly) == false)
-                return CatalogAssemblies.GetGeneratedFolder(LogTag, ownerAssembly, FallbackFolder);
-
             var asmdefFolder = FindAsmdefFolder(assetPath);
+
+            // Скрипт из базовой сборки владельцем не считаем: генерат ссылается на типы
+            // иерархии, а они живут в сборке самого ассета, и база их не видит.
+            if (string.IsNullOrEmpty(ownerAssembly) == false &&
+                (string.IsNullOrEmpty(asmdefFolder) || IsAssetAssembly(asmdefFolder, ownerAssembly)))
+                return CatalogAssemblies.GetGeneratedFolder(LogTag, ownerAssembly, FallbackFolder);
 
             if (string.IsNullOrEmpty(asmdefFolder) == false)
                 return CatalogAssemblies.GetConsumerGeneratedFolder(asmdefFolder);
@@ -92,6 +94,18 @@ namespace Internal
                 return false;
 
             return path.StartsWith("Assets/", StringComparison.Ordinal);
+        }
+
+        private static bool IsAssetAssembly(string asmdefFolder, string assemblyName)
+        {
+            var asmdefPath = UnityEditor.Compilation.CompilationPipeline
+                .GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
+
+            if (string.IsNullOrEmpty(asmdefPath))
+                return false;
+
+            var folder = Path.GetDirectoryName(asmdefPath)?.Replace('\\', '/');
+            return string.Equals(folder, asmdefFolder, StringComparison.Ordinal);
         }
 
         private static string FindAsmdefFolder(string assetPath)

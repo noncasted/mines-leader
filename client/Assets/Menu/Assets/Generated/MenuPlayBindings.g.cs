@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Play {
-    // Structure: 4c795206582975af7a5616c278cf8e33
+    // Structure: 29682fef3ad9c489e0a651660bdc62c5
     // Play
     //   - Background
     //   - Modes
@@ -18,7 +18,6 @@ namespace Menu.Play {
     public class MenuPlayBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::Menu.Play.MenuPlay _menuPlay;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -27,7 +26,6 @@ namespace Menu.Play {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::Menu.Play.MenuPlay MenuPlay => _menuPlay;
         public BackgroundBindings Background => _background;
         public ModesBindings Modes => _modes;
         public SearchViewBindings SearchView => _searchView;
@@ -53,15 +51,14 @@ namespace Menu.Play {
         public sealed class ModesBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
         }
 
         // Play/SearchView
-        // SearchView
         //   - Idle
         //       - Text
         //   - Searching
@@ -85,7 +82,6 @@ namespace Menu.Play {
             public SearchingBindings Searching => _searching;
 
             // Play/SearchView/Idle
-            // Idle
             //   - Text
             [Serializable]
             public sealed class IdleBindings {
@@ -117,7 +113,6 @@ namespace Menu.Play {
             }
 
             // Play/SearchView/Searching
-            // Searching
             //   - Timer
             //   - Cancel
             //       - Text
@@ -150,7 +145,6 @@ namespace Menu.Play {
                 }
 
                 // Play/SearchView/Searching/Cancel
-                // Cancel
                 //   - Text
                 [Serializable]
                 public sealed class CancelBindings {

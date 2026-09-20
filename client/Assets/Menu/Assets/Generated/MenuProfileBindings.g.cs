@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Profile {
-    // Structure: 8edf81dba88a01d779395ef60cee82bb
+    // Structure: 4bd6b7c6d42fc0d5ba3b3abae62c58eb
     // Profile
     //   - Background
     //   - Line
@@ -63,7 +63,6 @@ namespace Menu.Profile {
     public class MenuProfileBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::Menu.Profile.MenuProfile _menuProfile;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -73,7 +72,6 @@ namespace Menu.Profile {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::Menu.Profile.MenuProfile MenuProfile => _menuProfile;
         public BackgroundBindings Background => _background;
         public LineBindings Line => _line;
         public MatchesBindings Matches => _matches;
@@ -108,7 +106,6 @@ namespace Menu.Profile {
         }
 
         // Profile/Matches
-        // Matches
         //   - Plate
         //   - Entries
         //       - Viewport
@@ -171,7 +168,6 @@ namespace Menu.Profile {
             }
 
             // Profile/Matches/Entries
-            // Entries
             //   - Viewport
             //       - Content
             //   - Scrollbar Horizontal
@@ -201,7 +197,6 @@ namespace Menu.Profile {
                 public ScrollbarVerticalBindings ScrollbarVertical => _scrollbarVertical;
 
                 // Profile/Matches/Entries/Viewport
-                // Viewport
                 //   - Content
                 [Serializable]
                 public sealed class ViewportBindings {
@@ -224,16 +219,15 @@ namespace Menu.Profile {
                     public sealed class ContentBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                        [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                        [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                         public global::UnityEngine.GameObject GameObject => _gameObject;
                         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                        public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                        public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                     }
                 }
 
                 // Profile/Matches/Entries/Scrollbar Horizontal
-                // Scrollbar Horizontal
                 //   - Sliding Area
                 //       - Handle
                 [Serializable]
@@ -253,7 +247,6 @@ namespace Menu.Profile {
                     public SlidingAreaBindings SlidingArea => _slidingArea;
 
                     // Profile/Matches/Entries/Scrollbar Horizontal/Sliding Area
-                    // Sliding Area
                     //   - Handle
                     [Serializable]
                     public sealed class SlidingAreaBindings {
@@ -282,7 +275,6 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/Entries/Scrollbar Vertical
-                // Scrollbar Vertical
                 //   - Sliding Area
                 //       - Handle
                 [Serializable]
@@ -302,7 +294,6 @@ namespace Menu.Profile {
                     public SlidingAreaBindings SlidingArea => _slidingArea;
 
                     // Profile/Matches/Entries/Scrollbar Vertical/Sliding Area
-                    // Sliding Area
                     //   - Handle
                     [Serializable]
                     public sealed class SlidingAreaBindings {
@@ -332,7 +323,6 @@ namespace Menu.Profile {
             }
 
             // Profile/Matches/View
-            // View
             //   - Center
             //       - Back
             //       - Image
@@ -374,7 +364,6 @@ namespace Menu.Profile {
                 public BottomBindings Bottom => _bottom;
 
                 // Profile/Matches/View/Center
-                // Center
                 //   - Back
                 //   - Image
                 //   - Result
@@ -433,7 +422,6 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Result
-                    // Result
                     //   - Win
                     //       - Opponent_Name
                     //   - Lose
@@ -453,7 +441,6 @@ namespace Menu.Profile {
                         public LoseBindings Lose => _lose;
 
                         // Profile/Matches/View/Center/Result/Win
-                        // Win
                         //   - Opponent_Name
                         [Serializable]
                         public sealed class WinBindings {
@@ -483,7 +470,6 @@ namespace Menu.Profile {
                         }
 
                         // Profile/Matches/View/Center/Result/Lose
-                        // Lose
                         //   - Opponent_Name
                         [Serializable]
                         public sealed class LoseBindings {
@@ -514,7 +500,6 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Timer
-                    // Timer
                     //   - Header
                     //   - Value
                     [Serializable]
@@ -557,7 +542,6 @@ namespace Menu.Profile {
                     }
 
                     // Profile/Matches/View/Center/Rating
-                    // Rating
                     //   - Header
                     //   - Value
                     [Serializable]
@@ -601,7 +585,6 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Matches/View/Top
-                // Top
                 //   - Opponent_Name
                 //   - Cards
                 [Serializable]
@@ -635,16 +618,15 @@ namespace Menu.Profile {
                     public sealed class CardsBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                        [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                        [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                         public global::UnityEngine.GameObject GameObject => _gameObject;
                         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                        public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                        public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                     }
                 }
 
                 // Profile/Matches/View/Bottom
-                // Bottom
                 //   - You
                 //   - Cards
                 [Serializable]
@@ -678,18 +660,17 @@ namespace Menu.Profile {
                     public sealed class CardsBindings {
                         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                        [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                        [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                         public global::UnityEngine.GameObject GameObject => _gameObject;
                         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                        public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                        public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                     }
                 }
             }
         }
 
         // Profile/Top
-        // Top
         //   - Avatar
         //       - View
         //       - InputField (TMP)
@@ -726,7 +707,6 @@ namespace Menu.Profile {
             public StatsBindings Stats => _stats;
 
             // Profile/Top/Avatar
-            // Avatar
             //   - View
             //   - InputField (TMP)
             //       - Text Area
@@ -759,7 +739,6 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Avatar/InputField (TMP)
-                // InputField (TMP)
                 //   - Text Area
                 //       - Placeholder
                 //       - Text
@@ -780,7 +759,6 @@ namespace Menu.Profile {
                     public TextAreaBindings TextArea => _textArea;
 
                     // Profile/Top/Avatar/InputField (TMP)/Text Area
-                    // Text Area
                     //   - Placeholder
                     //   - Text
                     [Serializable]
@@ -829,7 +807,6 @@ namespace Menu.Profile {
             }
 
             // Profile/Top/Stats
-            // Stats
             //   - Menu_Stats_Lose
             //       - Icon
             //       - Count
@@ -846,7 +823,7 @@ namespace Menu.Profile {
             public sealed class StatsBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                 // Child objects
                 [SerializeField, HideInInspector] private MenuStatsLoseBindings _menuStatsLose;
@@ -855,13 +832,12 @@ namespace Menu.Profile {
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                 public MenuStatsLoseBindings MenuStatsLose => _menuStatsLose;
                 public MenuStatsWinBindings MenuStatsWin => _menuStatsWin;
                 public MenuStatsRatingBindings MenuStatsRating => _menuStatsRating;
 
                 // Profile/Top/Stats/Menu_Stats_Lose
-                // Menu_Stats_Lose
                 //   - Icon
                 //   - Count
                 //   - Name
@@ -921,7 +897,6 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Stats/Menu_Stats_Win
-                // Menu_Stats_Win
                 //   - Icon
                 //   - Count
                 //   - Name
@@ -981,7 +956,6 @@ namespace Menu.Profile {
                 }
 
                 // Profile/Top/Stats/Menu_Stats_Rating
-                // Menu_Stats_Rating
                 //   - Icon
                 //   - Count
                 //   - Name

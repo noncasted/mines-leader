@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Decks {
-    // Structure: 0abce9068aa59c6b1c971658f1ef9654
+    // Structure: e628a25cbd29d3803b06c98302fc1182
     // Decks
     //   - Background
     //   - Cards
@@ -76,11 +76,11 @@ namespace Menu.Decks {
         public sealed class CardsBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
         }
 
         // Decks/Line
@@ -100,11 +100,11 @@ namespace Menu.Decks {
         public sealed class IndexesBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
         }
 
         // Decks/Pool
@@ -319,7 +319,7 @@ namespace Menu.Decks {
         public sealed class AverageBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             // Child objects
             [SerializeField, HideInInspector] private TopBindings _top;
@@ -328,7 +328,7 @@ namespace Menu.Decks {
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
             public TopBindings Top => _top;
             public LineBindings Line => _line;
             public BottomBindings Bottom => _bottom;

@@ -7,9 +7,13 @@ namespace GamePlay.Players.Resource
     [DisallowMultipleComponent]
     public class PlayerOwnResources : MonoBehaviour, ISceneService, ILocalPlayerCreated
     {
-        [SerializeField] private PlayerResourceRow _manaRow;
-        [SerializeField] private PlayerResourceRow _turnsRow;
-        [SerializeField] private PlayerResourceRow _healthRow;
+        private PlayerUIBindings _bindings;
+
+        [Inject]
+        internal void Construct(PlayerUIBindings bindings)
+        {
+            _bindings = bindings;
+        }
 
         public void Create(IScopeBuilder builder)
         {
@@ -49,9 +53,50 @@ namespace GamePlay.Players.Resource
                 smallAdditionalFull: Sprites.GameUI.HealthMediumAdditionalFull,
                 smallAdditionalEmpty: Sprites.GameUI.HealthMediumAdditionalEmpty);
 
-            _manaRow.Setup(lifetime, player.Mana, manaOptions, reverse: false);
-            _turnsRow.Setup(lifetime, player.Turns, turnsOptions, reverse: false);
-            _healthRow.Setup(lifetime, player.Health, healthOptions, reverse: false);
+            var container = _bindings.Resources.Container;
+
+            Setup(lifetime, container.Mana, player.Mana, manaOptions);
+            Setup(lifetime, container.Turns, player.Turns, turnsOptions);
+            Setup(lifetime, container.Health, player.Health, healthOptions);
+        }
+
+        private static void Setup(
+            IReadOnlyLifetime lifetime,
+            GameOwnResourceRowBindings row,
+            IPlayerResource resource,
+            PlayerResourceOptions options)
+        {
+            var elements = new PlayerResourceRow.Elements(
+                row.LargeRow.GameObject,
+                Large(row),
+                row.SmallRow.GameObject,
+                Small(row));
+
+            row.PlayerResourceRow.Setup(lifetime, resource, options, elements, reverse: false);
+        }
+
+        private static PlayerResourceEntry[] Large(GameOwnResourceRowBindings row)
+        {
+            var source = row.LargeRow.GameOwnResourceRowEntries;
+            var entries = new PlayerResourceEntry[source.Length];
+
+            for (var i = 0; i < source.Length; i++)
+                entries[i] = source[i].PlayerResourceEntry;
+
+            return entries;
+        }
+
+        // Мелкий ряд лежит в гриде на две строки с горизонтальным ходом, поэтому порядок детей
+        // уже идёт парами «верхний, нижний» — ровно в том виде, в каком его ждёт ряд.
+        private static PlayerResourceEntry[] Small(GameOwnResourceRowBindings row)
+        {
+            var source = row.SmallRow.GameOwnResourceRowEntries;
+            var entries = new PlayerResourceEntry[source.Length];
+
+            for (var i = 0; i < source.Length; i++)
+                entries[i] = source[i].PlayerResourceEntry;
+
+            return entries;
         }
     }
 }

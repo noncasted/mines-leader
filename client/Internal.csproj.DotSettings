@@ -13,6 +13,7 @@
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccatalogues_005Csprites/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccatalogues_005Csprites_005Cgenerated/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccommon/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccommon_005Cattributes/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccommon_005Cdatatypes_005Ccollections/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccommon_005Cdatatypes_005Cstructs_005Ccurves/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Ccommon_005Cinternal_005Cruntime_005Ccommon_005Cdatatypes_005Cstructs_005Cdirections/@EntryIndexedValue">True</s:Boolean>

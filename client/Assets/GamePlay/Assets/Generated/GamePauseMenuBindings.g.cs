@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: 41ccc316a203d7899642041c32b60fad
+    // Structure: 3a3eebb69e08d8a69440146ebfe8d71d
     // Menu
     //   - Background
     //   - Menu
@@ -19,7 +19,6 @@ namespace GamePlay.UI {
     public class GamePauseMenuBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::GamePlay.UI.GamePause _gamePause;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -27,7 +26,6 @@ namespace GamePlay.UI {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::GamePlay.UI.GamePause GamePause => _gamePause;
         public BackgroundBindings Background => _background;
         public MenuBindings Menu => _menu;
 
@@ -99,7 +97,7 @@ namespace GamePlay.UI {
                 public sealed class ButtonsBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                    [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                    [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                     // Child objects
                     [SerializeField, HideInInspector] private GamePauseContinueBindings _gamePauseContinue;
@@ -108,7 +106,7 @@ namespace GamePlay.UI {
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                    public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                    public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                     public GamePauseContinueBindings GamePauseContinue => _gamePauseContinue;
                     public GamePauseSettingsBindings GamePauseSettings => _gamePauseSettings;
                     public GamePauseExitBindings GamePauseExit => _gamePauseExit;

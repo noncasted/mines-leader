@@ -3,13 +3,13 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.Players {
-    // Structure: 2408484c57a79e43c8129fe116bcd566
+    // Structure: cc6be422aef7105353f83d6196d7df9f
     // Player
     //   - Resources
     //       - Container
-    //           - Mana (children ignored)
-    //           - Turns (children ignored)
-    //           - Health (children ignored)
+    //           - Mana (own bindings)
+    //           - Turns (own bindings)
+    //           - Health (own bindings)
     //   - Buffs
     //       - Container
     //           - Buffs
@@ -41,9 +41,9 @@ namespace GamePlay.Players {
 
         // Player/Resources
         //   - Container
-        //       - Mana (children ignored)
-        //       - Turns (children ignored)
-        //       - Health (children ignored)
+        //       - Mana (own bindings)
+        //       - Turns (own bindings)
+        //       - Health (own bindings)
         [Serializable]
         public sealed class ResourcesBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -59,60 +59,25 @@ namespace GamePlay.Players {
             public ContainerBindings Container => _container;
 
             // Player/Resources/Container
-            //   - Mana (children ignored)
-            //   - Turns (children ignored)
-            //   - Health (children ignored)
+            //   - Mana (own bindings)
+            //   - Turns (own bindings)
+            //   - Health (own bindings)
             [Serializable]
             public sealed class ContainerBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-
-                // Child objects
-                [SerializeField, HideInInspector] private ManaBindings _mana;
-                [SerializeField, HideInInspector] private TurnsBindings _turns;
-                [SerializeField, HideInInspector] private HealthBindings _health;
+                // Player/Resources/Container/Mana (own bindings)
+                [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.GameOwnResourceRowBindings _mana;
+                // Player/Resources/Container/Turns (own bindings)
+                [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.GameOwnResourceRowBindings _turns;
+                // Player/Resources/Container/Health (own bindings)
+                [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.GameOwnResourceRowBindings _health;
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                public ManaBindings Mana => _mana;
-                public TurnsBindings Turns => _turns;
-                public HealthBindings Health => _health;
-
-                // Player/Resources/Container/Mana
-                [Serializable]
-                public sealed class ManaBindings {
-                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
-                    [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                    [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.PlayerResourceRow _playerResourceRow;
-
-                    public global::UnityEngine.GameObject GameObject => _gameObject;
-                    public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                    public global::GamePlay.Players.Resource.PlayerResourceRow PlayerResourceRow => _playerResourceRow;
-                }
-
-                // Player/Resources/Container/Turns
-                [Serializable]
-                public sealed class TurnsBindings {
-                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
-                    [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                    [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.PlayerResourceRow _playerResourceRow;
-
-                    public global::UnityEngine.GameObject GameObject => _gameObject;
-                    public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                    public global::GamePlay.Players.Resource.PlayerResourceRow PlayerResourceRow => _playerResourceRow;
-                }
-
-                // Player/Resources/Container/Health
-                [Serializable]
-                public sealed class HealthBindings {
-                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
-                    [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                    [SerializeField, HideInInspector] private global::GamePlay.Players.Resource.PlayerResourceRow _playerResourceRow;
-
-                    public global::UnityEngine.GameObject GameObject => _gameObject;
-                    public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                    public global::GamePlay.Players.Resource.PlayerResourceRow PlayerResourceRow => _playerResourceRow;
-                }
+                public global::GamePlay.Players.Resource.GameOwnResourceRowBindings Mana => _mana;
+                public global::GamePlay.Players.Resource.GameOwnResourceRowBindings Turns => _turns;
+                public global::GamePlay.Players.Resource.GameOwnResourceRowBindings Health => _health;
             }
         }
 

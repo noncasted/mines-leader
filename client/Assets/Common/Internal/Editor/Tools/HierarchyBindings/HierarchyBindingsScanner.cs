@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
@@ -15,6 +16,10 @@ namespace Internal
         // Unity обрывает сериализацию вложенных не-Object типов глубже семи уровней, поэтому
         // дальше по дереву спускаться бессмысленно: поля просто не сохранятся.
         public const int MaxNestingDepth = 7;
+
+        // Минимальный размер группы. Пара одинаковых братьев чаще всего осмысленно называется
+        // по отдельности (Left/Right), а вот ряд из трёх и длиннее — это уже список.
+        public const int MinGroupSize = 3;
 
         private static readonly HashSet<Type> SkippedComponents = new()
         {
@@ -112,16 +117,48 @@ namespace Internal
             int depth,
             List<string> errors)
         {
+            var scans = ScanChildren(node, depth, errors);
+
+            for (var index = 0; index < scans.Count;)
+            {
+                var length = GroupLength(scans, index);
+
+                if (length >= MinGroupSize && TryAddGroup(node, scans, index, length, used, errors))
+                {
+                    index += length;
+                    continue;
+                }
+
+                AddSingle(node, scans[index], used, errors);
+                index++;
+            }
+        }
+
+        // Имена на уровне родителя раздаём только после того, как известно, что во что схлопнется:
+        // иначе занятые имена достались бы братьям, которых в классе уже не будет.
+        private static List<ChildScan> ScanChildren(HierarchyBindingsNode node, int depth, List<string> errors)
+        {
             var transform = node.Target.transform;
+            var scans = new List<ChildScan>(transform.childCount);
 
             for (var index = 0; index < transform.childCount; index++)
             {
                 var child = transform.GetChild(index).gameObject;
                 var childPath = node.HierarchyPath + "/" + child.name;
-
-                if (TryMakeBindingsField(child, childPath, used, errors, out var boundary))
+                var scan = new ChildScan
                 {
-                    node.Fields.Add(boundary);
+                    Child = child,
+                    ChildPath = childPath,
+                    BaseName = HierarchyBindingsNaming.StripIndexSuffix(child.name)
+                };
+
+                var bindings = FindBindings(child);
+
+                if (bindings != null)
+                {
+                    scan.Boundary = bindings;
+                    scan.Signature = "boundary:" + ToCodeTypeName(bindings.GetType());
+                    scans.Add(scan);
                     continue;
                 }
 
@@ -134,48 +171,158 @@ namespace Internal
                     continue;
                 }
 
-                var propertyName = HierarchyBindingsNaming.ToIdentifier(child.name);
+                scan.Node = ScanNode(child, null, childPath, depth + 1, errors);
+                scan.Signature = ComputeSignature(scan.Node);
+                scans.Add(scan);
+            }
 
-                if (Validate(propertyName, child.name, childPath, errors) == false)
-                    continue;
+            return scans;
+        }
 
-                propertyName = HierarchyBindingsNaming.MakeUnique(propertyName, used);
+        // Схлопываем только подряд идущих братьев с общим именем и совпадающим содержимым: массив
+        // должен читаться так же, как ряд в иерархии, а класс — один на всех.
+        private static int GroupLength(List<ChildScan> scans, int start)
+        {
+            var first = scans[start];
 
-                // Имя вложенного класса живёт в том же пространстве имён, что и свойства,
-                // поэтому его тоже разводим через общий набор занятых имён.
-                var childTypeName = HierarchyBindingsNaming.MakeUnique(propertyName + "Bindings", used);
+            if (string.IsNullOrEmpty(HierarchyBindingsNaming.ToIdentifier(first.BaseName)))
+                return 1;
 
-                var childNode = ScanNode(child, childTypeName, childPath, depth + 1, errors);
-                childNode.PropertyName = propertyName;
-                childNode.FieldName = HierarchyBindingsNaming.ToFieldName(propertyName);
-                node.Children.Add(childNode);
+            var length = 1;
+
+            while (start + length < scans.Count)
+            {
+                var next = scans[start + length];
+
+                if (string.Equals(next.BaseName, first.BaseName, StringComparison.Ordinal) == false)
+                    break;
+
+                if (string.Equals(next.Signature, first.Signature, StringComparison.Ordinal) == false)
+                    break;
+
+                length++;
+            }
+
+            return length;
+        }
+
+        private static bool TryAddGroup(
+            HierarchyBindingsNode node,
+            List<ChildScan> scans,
+            int start,
+            int length,
+            HashSet<string> used,
+            List<string> errors)
+        {
+            var first = scans[start];
+            var baseName = HierarchyBindingsNaming.ToIdentifier(first.BaseName);
+
+            if (Validate(baseName, first.BaseName, first.ChildPath, errors) == false)
+                return false;
+
+            var propertyName = HierarchyBindingsNaming.MakeUnique(
+                HierarchyBindingsNaming.ToPlural(baseName), used);
+            var fieldName = HierarchyBindingsNaming.ToFieldName(propertyName);
+            var comment = $"{first.ChildPath} .. {scans[start + length - 1].Child.name} ({length} items)";
+
+            if (first.Boundary != null)
+            {
+                var field = new HierarchyBindingsField
+                {
+                    Target = first.Boundary,
+                    PropertyName = propertyName,
+                    FieldName = fieldName,
+                    CodeTypeName = ToCodeTypeName(first.Boundary.GetType()),
+                    Comment = comment + " (own bindings)"
+                };
+
+                for (var index = start; index < start + length; index++)
+                    field.Targets.Add(scans[index].Boundary);
+
+                node.Fields.Add(field);
+                return true;
+            }
+
+            var template = first.Node;
+            template.TypeName = HierarchyBindingsNaming.MakeUnique(baseName + "Bindings", used);
+            template.PropertyName = propertyName;
+            template.FieldName = fieldName;
+
+            for (var index = start; index < start + length; index++)
+                template.Elements.Add(scans[index].Node);
+
+            node.Children.Add(template);
+            return true;
+        }
+
+        private static void AddSingle(
+            HierarchyBindingsNode node,
+            ChildScan scan,
+            HashSet<string> used,
+            List<string> errors)
+        {
+            if (scan.Boundary != null)
+            {
+                // Имя берём у объекта, а не у типа: снаружи это такой же ребёнок, как остальные,
+                // просто за его внутренности отвечает собственный класс биндингов.
+                var field = MakeField(scan.Boundary, scan.Child.name, used, errors, scan.ChildPath);
+
+                if (field == null)
+                    return;
+
+                field.Comment = scan.ChildPath + " (own bindings)";
+                node.Fields.Add(field);
+                return;
+            }
+
+            var propertyName = HierarchyBindingsNaming.ToIdentifier(scan.Child.name);
+
+            if (Validate(propertyName, scan.Child.name, scan.ChildPath, errors) == false)
+                return;
+
+            propertyName = HierarchyBindingsNaming.MakeUnique(propertyName, used);
+
+            // Имя вложенного класса живёт в том же пространстве имён, что и свойства,
+            // поэтому его тоже разводим через общий набор занятых имён.
+            scan.Node.TypeName = HierarchyBindingsNaming.MakeUnique(propertyName + "Bindings", used);
+            scan.Node.PropertyName = propertyName;
+            scan.Node.FieldName = HierarchyBindingsNaming.ToFieldName(propertyName);
+            node.Children.Add(scan.Node);
+        }
+
+        // Содержимое узла без его собственного имени: по нему решается, обслуживает ли один класс
+        // всех братьев сразу.
+        private static string ComputeSignature(HierarchyBindingsNode node)
+        {
+            var builder = new StringBuilder();
+            AppendSignature(builder, node);
+            return builder.ToString();
+        }
+
+        private static void AppendSignature(StringBuilder builder, HierarchyBindingsNode node)
+        {
+            foreach (var field in node.Fields)
+                builder.Append(field.PropertyName).Append(':').Append(field.DeclaredTypeName).Append(';');
+
+            foreach (var child in node.Children)
+            {
+                builder.Append(child.PropertyName).Append(child.IsArray ? "[" + child.Elements.Count + "]" : "");
+                builder.Append('{');
+                AppendSignature(builder, child);
+                builder.Append('}');
             }
         }
 
-        // Единственная граница: у ребёнка есть свои биндинги, значит за его содержимое отвечает
-        // не этот класс. Наружу выдаём ссылку на его компонент.
-        private static bool TryMakeBindingsField(
-            GameObject child,
-            string childPath,
-            HashSet<string> used,
-            List<string> errors,
-            out HierarchyBindingsField field)
+        private sealed class ChildScan
         {
-            field = null;
+            public GameObject Child;
+            public string ChildPath;
+            public string BaseName;
+            public string Signature;
 
-            var bindings = FindBindings(child);
-
-            if (bindings == null)
-                return false;
-
-            // Имя берём у объекта, а не у типа: снаружи это такой же ребёнок, как остальные,
-            // просто за его внутренности отвечает собственный класс биндингов.
-            field = MakeField(bindings, child.name, used, errors, childPath);
-
-            if (field != null)
-                field.Comment = childPath + " (own bindings)";
-
-            return true;
+            // У ребёнка свои биндинги: внутрь не идём, наружу выдаём ссылку на его компонент.
+            public Component Boundary;
+            public HierarchyBindingsNode Node;
         }
 
         private static Component FindBindings(GameObject target)

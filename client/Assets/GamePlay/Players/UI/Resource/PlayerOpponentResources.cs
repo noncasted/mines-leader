@@ -1,3 +1,4 @@
+using System;
 using GamePlay.Loop;
 using Internal;
 using UnityEngine;
@@ -7,9 +8,13 @@ namespace GamePlay.Players.Resource
     [DisallowMultipleComponent]
     public class PlayerOpponentResources : MonoBehaviour, ISceneService, IRemotePlayerCreated
     {
-        [SerializeField] private PlayerResourceRow _manaRow;
-        [SerializeField] private PlayerResourceRow _turnsRow;
-        [SerializeField] private PlayerResourceRow _healthRow;
+        private OpponentUIBindings _bindings;
+
+        [Inject]
+        internal void Construct(OpponentUIBindings bindings)
+        {
+            _bindings = bindings;
+        }
 
         public void Create(IScopeBuilder builder)
         {
@@ -48,10 +53,61 @@ namespace GamePlay.Players.Resource
                 smallBaseEmpty: Sprites.GameUI.HealthSmallBaseEmpty,
                 smallAdditionalFull: Sprites.GameUI.HealthSmallAdditionalFull,
                 smallAdditionalEmpty: Sprites.GameUI.HealthSmallAdditionalEmpty);
-            
-            _manaRow.Setup(lifetime, other.Mana, manaOptions, reverse: true);
-            _turnsRow.Setup(lifetime, other.Turns, turnsOptions, reverse: true);
-            _healthRow.Setup(lifetime, other.Health, healthOptions, reverse: true);
+
+            var container = _bindings.Resources.Container;
+
+            Setup(lifetime, container.Mana, other.Mana, manaOptions);
+            Setup(lifetime, container.Turns, other.Turns, turnsOptions);
+            Setup(lifetime, container.Health, other.Health, healthOptions);
+        }
+
+        private static void Setup(
+            IReadOnlyLifetime lifetime,
+            GameOpponentResourceRowBindings row,
+            IPlayerResource resource,
+            PlayerResourceOptions options)
+        {
+            var elements = new PlayerResourceRow.Elements(
+                row.LargeRow.GameObject,
+                Large(row),
+                row.SmallRow.GameObject,
+                Small(row));
+
+            row.PlayerResourceRow.Setup(lifetime, resource, options, elements, reverse: true);
+        }
+
+        private static PlayerResourceEntry[] Large(GameOpponentResourceRowBindings row)
+        {
+            var source = row.LargeRow.GameOwnResourceRowEntries;
+            var entries = new PlayerResourceEntry[source.Length];
+
+            for (var i = 0; i < source.Length; i++)
+                entries[i] = source[i].PlayerResourceEntry;
+
+            return entries;
+        }
+
+        // У чужого ряда верх и низ лежат отдельными объектами, а ряд ждёт один список в порядке
+        // отрисовки, поэтому сшиваем их парами. Первый пипс верха назван иначе и в биндингах
+        // лежит отдельным полем — в списке он всё равно идёт первым, как и в иерархии.
+        private static PlayerResourceEntry[] Small(GameOpponentResourceRowBindings row)
+        {
+            var top = row.SmallRow.Top;
+            var bottom = row.SmallRow.Bottom.GameOwnResourceRowEntries;
+            var topCount = top.GameOwnResourceRowEntries.Length + 1;
+            var pairs = Math.Min(topCount, bottom.Length);
+            var entries = new PlayerResourceEntry[pairs * 2];
+
+            for (var i = 0; i < pairs; i++)
+            {
+                entries[i * 2] = i == 0
+                    ? top.GameOwnResourceRowEntrySmall.PlayerResourceEntry
+                    : top.GameOwnResourceRowEntries[i - 1].PlayerResourceEntry;
+
+                entries[i * 2 + 1] = bottom[i].PlayerResourceEntry;
+            }
+
+            return entries;
         }
     }
 }

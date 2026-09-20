@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: 3be6cff380e248e35cd22e3bcf32aaed
+    // Structure: 696fd5267ddf5cc07cb656172cc3bf61
     // Leave_Attention
     //   - Background
     //   - Plate
@@ -17,7 +17,6 @@ namespace GamePlay.UI {
     public class GamePauseLeaveAttentionBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::GamePlay.UI.GamePauseLeave _gamePauseLeave;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -25,7 +24,6 @@ namespace GamePlay.UI {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::GamePlay.UI.GamePauseLeave GamePauseLeave => _gamePauseLeave;
         public BackgroundBindings Background => _background;
         public PlateBindings Plate => _plate;
 
@@ -89,7 +87,7 @@ namespace GamePlay.UI {
             public sealed class ButtonsBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                 // Child objects
                 [SerializeField, HideInInspector] private NoBindings _no;
@@ -97,7 +95,7 @@ namespace GamePlay.UI {
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                 public NoBindings No => _no;
                 public YesBindings Yes => _yes;
 

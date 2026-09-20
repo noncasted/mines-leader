@@ -47,9 +47,4 @@ namespace GamePlay.Boards.Effects
                 lifetime.Terminate();
         }
     }
-
-    [Serializable]
-    public class CellEffectsDictionary : SerializableDictionary<CellEffectType, CellEffect>
-    {
-    }
 }
