@@ -120,7 +120,16 @@ namespace Internal
                     return false;
                 }
 
-                property.objectReferenceValue = field.Target;
+                if (field.IsArray == false)
+                {
+                    property.objectReferenceValue = field.Target;
+                    continue;
+                }
+
+                property.arraySize = field.Targets.Count;
+
+                for (var index = 0; index < field.Targets.Count; index++)
+                    property.GetArrayElementAtIndex(index).objectReferenceValue = field.Targets[index];
             }
 
             foreach (var child in node.Children)
@@ -133,8 +142,25 @@ namespace Internal
                     return false;
                 }
 
-                if (Fill(serializedObject, property, child, errors) == false)
-                    return false;
+                if (child.IsArray == false)
+                {
+                    if (Fill(serializedObject, property, child, errors) == false)
+                        return false;
+
+                    continue;
+                }
+
+                // Класс у элементов ряда общий, а объекты разные: размер массива задаём один раз
+                // и заполняем каждый элемент по его собственному узлу.
+                property.arraySize = child.Elements.Count;
+
+                for (var index = 0; index < child.Elements.Count; index++)
+                {
+                    var element = property.GetArrayElementAtIndex(index);
+
+                    if (Fill(serializedObject, element, child.Elements[index], errors) == false)
+                        return false;
+                }
             }
 
             return true;

@@ -66,7 +66,7 @@ namespace Internal
                     builder.AppendLine($"{indent}// {field.Comment}");
 
                 builder.AppendLine(
-                    $"{indent}[SerializeField, HideInInspector] private {field.CodeTypeName} {field.FieldName};");
+                    $"{indent}[SerializeField, HideInInspector] private {field.DeclaredTypeName} {field.FieldName};");
             }
 
             if (node.Children.Count > 0)
@@ -78,16 +78,18 @@ namespace Internal
 
                 foreach (var child in node.Children)
                     builder.AppendLine(
-                        $"{indent}[SerializeField, HideInInspector] private {child.TypeName} {child.FieldName};");
+                        $"{indent}[SerializeField, HideInInspector] private {DeclaredTypeName(child)} {child.FieldName};");
             }
 
             builder.AppendLine();
 
             foreach (var field in node.Fields)
-                builder.AppendLine($"{indent}public {field.CodeTypeName} {field.PropertyName} => {field.FieldName};");
+                builder.AppendLine(
+                    $"{indent}public {field.DeclaredTypeName} {field.PropertyName} => {field.FieldName};");
 
             foreach (var child in node.Children)
-                builder.AppendLine($"{indent}public {child.TypeName} {child.PropertyName} => {child.FieldName};");
+                builder.AppendLine(
+                    $"{indent}public {DeclaredTypeName(child)} {child.PropertyName} => {child.FieldName};");
         }
 
         // Регистрация в DI одинаковая для обоих входов, поэтому её пишет генератор. Методы
@@ -152,6 +154,27 @@ namespace Internal
             for (var index = 0; index < transform.childCount; index++)
             {
                 var child = transform.GetChild(index).gameObject;
+
+                if (TryFindGroup(node, child, out var group, out var boundary, out var elementIndex))
+                {
+                    // Ряд показываем одной строкой на первом элементе: в классе он всё равно
+                    // один массив, а два десятка одинаковых строк карту только засоряют.
+                    if (elementIndex > 0)
+                        continue;
+
+                    var count = group != null ? group.Elements.Count : boundary.Targets.Count;
+                    var last = group != null
+                        ? ElementName(group, count - 1)
+                        : TargetName(boundary.Targets[count - 1]);
+                    var suffix = group != null ? string.Empty : ", own bindings";
+                    builder.AppendLine($"{indent}// {padding}- {child.name} .. {last} ({count} items{suffix})");
+
+                    if (group != null && group.IgnoreChildren == false)
+                        AppendHierarchyChildren(builder, group, indent, depth + 1);
+
+                    continue;
+                }
+
                 var childNode = FindChild(node, child);
 
                 if (childNode == null)
@@ -172,6 +195,67 @@ namespace Internal
             }
         }
 
+        // Схлопнутый ряд: либо массив вложенных классов (тогда отдаём шаблонный узел), либо
+        // массив ссылок на чужие биндинги (тогда отдаём поле). Позиция нужна, чтобы строка
+        // печаталась один раз, на первом элементе.
+        private static bool TryFindGroup(
+            HierarchyBindingsNode node,
+            GameObject child,
+            out HierarchyBindingsNode group,
+            out HierarchyBindingsField boundary,
+            out int elementIndex)
+        {
+            group = null;
+            boundary = null;
+            elementIndex = 0;
+
+            foreach (var candidate in node.Children)
+            {
+                if (candidate.IsArray == false)
+                    continue;
+
+                for (var index = 0; index < candidate.Elements.Count; index++)
+                {
+                    if (candidate.Elements[index].Target != child)
+                        continue;
+
+                    group = candidate;
+                    elementIndex = index;
+                    return true;
+                }
+            }
+
+            foreach (var field in node.Fields)
+            {
+                for (var index = 0; index < field.Targets.Count; index++)
+                {
+                    var component = field.Targets[index] as Component;
+
+                    if (component == null || component.gameObject != child)
+                        continue;
+
+                    boundary = field;
+                    elementIndex = index;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string ElementName(HierarchyBindingsNode group, int index)
+        {
+            return TargetName(group.Elements[index].Target);
+        }
+
+        private static string TargetName(UnityEngine.Object target)
+        {
+            if (target is Component component)
+                return component.gameObject.name;
+
+            return target == null ? "?" : target.name;
+        }
+
         private static HierarchyBindingsNode FindChild(HierarchyBindingsNode node, GameObject child)
         {
             foreach (var candidate in node.Children)
@@ -183,12 +267,22 @@ namespace Internal
             return null;
         }
 
+        private static string DeclaredTypeName(HierarchyBindingsNode node)
+        {
+            return node.IsArray ? node.TypeName + "[]" : node.TypeName;
+        }
+
         private static void AppendNestedClasses(StringBuilder builder, HierarchyBindingsNode node, string indent)
         {
             foreach (var child in node.Children)
             {
                 builder.AppendLine();
-                builder.AppendLine($"{indent}// {child.HierarchyPath}");
+
+                // Класс группы один на весь ряд, поэтому путь показываем диапазоном: по первому
+                // элементу он генерируется, по остальным только заполняются ссылки.
+                builder.AppendLine(child.IsArray
+                    ? $"{indent}// {child.HierarchyPath} .. {ElementName(child, child.Elements.Count - 1)} ({child.Elements.Count} items)"
+                    : $"{indent}// {child.HierarchyPath}");
                 AppendHierarchy(builder, child, indent, false);
                 builder.AppendLine($"{indent}[Serializable]");
                 builder.AppendLine($"{indent}public sealed class {child.TypeName} {{");

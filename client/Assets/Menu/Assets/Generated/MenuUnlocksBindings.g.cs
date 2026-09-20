@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Unlocks {
-    // Structure: 6da85668c611bbda8b3f3166f107340a
+    // Structure: 16821db9a2065216cab2f24647f048bb
     // Unlocks
     //   - Background
     //   - Rows
@@ -24,7 +24,6 @@ namespace Menu.Unlocks {
     public class MenuUnlocksBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::Menu.Unlocks.MenuUnlocks _menuUnlocks;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -33,7 +32,6 @@ namespace Menu.Unlocks {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::Menu.Unlocks.MenuUnlocks MenuUnlocks => _menuUnlocks;
         public BackgroundBindings Background => _background;
         public RowsBindings Rows => _rows;
         public SelectionBindings Selection => _selection;
@@ -55,7 +53,6 @@ namespace Menu.Unlocks {
         }
 
         // Unlocks/Rows
-        // Rows
         //   - Viewport
         //       - Content
         //   - Scrollbar Horizontal
@@ -85,7 +82,6 @@ namespace Menu.Unlocks {
             public ScrollbarVerticalBindings ScrollbarVertical => _scrollbarVertical;
 
             // Unlocks/Rows/Viewport
-            // Viewport
             //   - Content
             [Serializable]
             public sealed class ViewportBindings {
@@ -108,16 +104,15 @@ namespace Menu.Unlocks {
                 public sealed class ContentBindings {
                     [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                    [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                    [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                    public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                    public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                 }
             }
 
             // Unlocks/Rows/Scrollbar Horizontal
-            // Scrollbar Horizontal
             //   - Sliding Area
             //       - Handle
             [Serializable]
@@ -137,7 +132,6 @@ namespace Menu.Unlocks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Unlocks/Rows/Scrollbar Horizontal/Sliding Area
-                // Sliding Area
                 //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
@@ -166,7 +160,6 @@ namespace Menu.Unlocks {
             }
 
             // Unlocks/Rows/Scrollbar Vertical
-            // Scrollbar Vertical
             //   - Sliding Area
             //       - Handle
             [Serializable]
@@ -186,7 +179,6 @@ namespace Menu.Unlocks {
                 public SlidingAreaBindings SlidingArea => _slidingArea;
 
                 // Unlocks/Rows/Scrollbar Vertical/Sliding Area
-                // Sliding Area
                 //   - Handle
                 [Serializable]
                 public sealed class SlidingAreaBindings {
@@ -216,7 +208,6 @@ namespace Menu.Unlocks {
         }
 
         // Unlocks/Selection
-        // Selection
         //   - Background
         //   - Cards
         //   - Title
@@ -258,11 +249,11 @@ namespace Menu.Unlocks {
             public sealed class CardsBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                public global::Global.UI.DesignContainer DesignContainer => _designContainer;
             }
 
             // Unlocks/Selection/Title

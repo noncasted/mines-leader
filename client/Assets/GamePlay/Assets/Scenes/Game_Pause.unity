@@ -179,7 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5b46a239e5851eadb709b9d8c947cb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GamePauseSettingsBindings
-  _structureHash: fa08a31bfd6b2c4dc9904d218e13b8e9
+  _structureHash: 1b0d26de34b7887810751323518f45a2
   _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 108823677}
@@ -195,7 +195,7 @@ MonoBehaviour:
     _content:
       _gameObject: {fileID: 1784664700}
       _rectTransform: {fileID: 1784664701}
-      _responsiveContainer: {fileID: 1784664702}
+      _designContainer: {fileID: 1784664702}
       _headerAudio:
         _gameObject: {fileID: 662425734}
         _rectTransform: {fileID: 662425735}
@@ -1512,24 +1512,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 585011585}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c175ad5fb8ea5743a18b0772096f82e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9044cef4225c4562a6a6c8872abf813f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  axis: 0
-  hBehaviour: 1
-  vBehaviour: 3
-  hAlign: 1
-  vAlign: 0
-  margins:
+  m_EditorClassIdentifier: Global::Global.UI.DesignContainer
+  _padding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  spacing: 0
-  restrictTo: 0
-  refreshType: 0
-  refreshRate: 1
-  debug: 0
+  _horizontalPivot: 1
+  _verticalPivot: 0
+  _refreshMode: 0
+  _axis: 0
+  _mainAxis: 2
+  _crossAxis: 0
+  _spacing: 0
+  _widthFit: 0
+  _heightFit: 0
 --- !u!1 &586385626
 GameObject:
   m_ObjectHideFlags: 0
@@ -2117,7 +2116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7abdc29c1c4a33ec8deeadec07a1cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GamePauseMenuBindings
-  _structureHash: 41ccc316a203d7899642041c32b60fad
+  _structureHash: 3a3eebb69e08d8a69440146ebfe8d71d
   _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 987831232}
@@ -2135,7 +2134,7 @@ MonoBehaviour:
       _buttons:
         _gameObject: {fileID: 1263177496}
         _rectTransform: {fileID: 1263177497}
-        _responsiveContainer: {fileID: 1263177498}
+        _designContainer: {fileID: 1263177498}
         _gamePauseContinue:
           _gameObject: {fileID: 8860567116933817487}
           _rectTransform: {fileID: 8860567116933817482}
@@ -2618,24 +2617,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1263177496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c175ad5fb8ea5743a18b0772096f82e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9044cef4225c4562a6a6c8872abf813f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  axis: 1
-  hBehaviour: 1
-  vBehaviour: 3
-  hAlign: 1
-  vAlign: 0
-  margins:
+  m_EditorClassIdentifier: Global::Global.UI.DesignContainer
+  _padding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  spacing: 0
-  restrictTo: 0
-  refreshType: 0
-  refreshRate: 1
-  debug: 0
+  _horizontalPivot: 1
+  _verticalPivot: 0
+  _refreshMode: 0
+  _axis: 1
+  _mainAxis: 1
+  _crossAxis: 1
+  _spacing: 0
+  _widthFit: 0
+  _heightFit: 0
 --- !u!1001 &1309405966
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4103,24 +4101,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1784664700}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c175ad5fb8ea5743a18b0772096f82e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9044cef4225c4562a6a6c8872abf813f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: ResponsiveUI::Exoa.Responsive.ResponsiveContainer
-  axis: 1
-  hBehaviour: 1
-  vBehaviour: 5
-  hAlign: 1
-  vAlign: 0
-  margins:
+  m_EditorClassIdentifier: Global::Global.UI.DesignContainer
+  _padding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  spacing: 0
-  restrictTo: 0
-  refreshType: 0
-  refreshRate: 1
-  debug: 0
+  _horizontalPivot: 1
+  _verticalPivot: 0
+  _refreshMode: 0
+  _axis: 1
+  _mainAxis: 0
+  _crossAxis: 1
+  _spacing: 0
+  _widthFit: 0
+  _heightFit: 0
 --- !u!1 &1809752193
 GameObject:
   m_ObjectHideFlags: 0
@@ -4722,7 +4719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c25d876a961d06dd88fca8173f112bc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GamePauseLeaveAttentionBindings
-  _structureHash: 3be6cff380e248e35cd22e3bcf32aaed
+  _structureHash: 696fd5267ddf5cc07cb656172cc3bf61
   _isSceneService: 1
   _isEntityComponent: 0
   _gameObject: {fileID: 2096916725}
@@ -4742,7 +4739,7 @@ MonoBehaviour:
     _buttons:
       _gameObject: {fileID: 585011585}
       _rectTransform: {fileID: 585011586}
-      _responsiveContainer: {fileID: 585011587}
+      _designContainer: {fileID: 585011587}
       _no:
         _gameObject: {fileID: 510257620}
         _rectTransform: {fileID: 510257621}

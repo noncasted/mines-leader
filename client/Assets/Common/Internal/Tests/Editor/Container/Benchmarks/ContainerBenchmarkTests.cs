@@ -48,15 +48,6 @@ namespace Internal.Tests
 
         [Test]
         [Explicit("Opt-in benchmark. Select and Run Selected in Test Runner.")]
-        public void VContainer_SyntheticGraph_RecordsMetrics()
-        {
-            var report = VContainerBenchmarkHost.Run();
-            Log(report);
-            AssertReport(report, "VContainer");
-        }
-
-        [Test]
-        [Explicit("Opt-in benchmark. Select and Run Selected in Test Runner.")]
         public void GeneratedContainer_SyntheticGraph_RecordsMetrics()
         {
             var report = GeneratedContainerBenchmarkHost.Run();
@@ -146,9 +137,6 @@ namespace Internal.Tests
         [MenuItem("Tools/Container/Run Benchmark")]
         private static void RunFromMenu()
         {
-            var vcontainer = VContainerBenchmarkHost.Run();
-            Debug.Log(vcontainer.Format());
-
             try
             {
                 var generated = GeneratedContainerBenchmarkHost.Run();

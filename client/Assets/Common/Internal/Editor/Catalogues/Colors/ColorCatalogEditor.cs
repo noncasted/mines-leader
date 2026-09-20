@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -7,7 +8,8 @@ using UnityEngine;
 namespace Internal
 {
     [CustomEditor(typeof(ColorCatalog))]
-    public sealed class ColorCatalogEditor : ButtonsInspector
+    [AutoStaticsCleanup]
+    public sealed partial class ColorCatalogEditor : ButtonsInspector
     {
         private const float HandleWidth = 14f;
         private const float NameWidth = 0.45f;

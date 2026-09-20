@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: fa08a31bfd6b2c4dc9904d218e13b8e9
+    // Structure: 1b0d26de34b7887810751323518f45a2
     // Settings
     //   - Background
     //   - Plate
@@ -55,7 +55,6 @@ namespace GamePlay.UI {
     public class GamePauseSettingsBindings : global::Internal.ObjectBindings, global::Internal.ISceneService {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-        [SerializeField, HideInInspector] private global::GamePlay.UI.GamePauseSettings _gamePauseSettings;
 
         // Child objects
         [SerializeField, HideInInspector] private BackgroundBindings _background;
@@ -63,7 +62,6 @@ namespace GamePlay.UI {
 
         public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-        public global::GamePlay.UI.GamePauseSettings GamePauseSettings => _gamePauseSettings;
         public BackgroundBindings Background => _background;
         public PlateBindings Plate => _plate;
 
@@ -190,7 +188,7 @@ namespace GamePlay.UI {
             public sealed class ContentBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-                [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+                [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
                 // Child objects
                 [SerializeField, HideInInspector] private HeaderAudioBindings _headerAudio;
@@ -203,7 +201,7 @@ namespace GamePlay.UI {
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-                public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+                public global::Global.UI.DesignContainer DesignContainer => _designContainer;
                 public HeaderAudioBindings HeaderAudio => _headerAudio;
                 public MasterBindings Master => _master;
                 public MusicBindings Music => _music;

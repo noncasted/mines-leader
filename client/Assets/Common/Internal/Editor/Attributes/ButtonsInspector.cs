@@ -8,8 +8,10 @@ namespace Internal
 {
     public abstract class ButtonsInspector : UnityEditor.Editor
     {
+        // DeclaredOnly + ручной подъём по базовым типам: FlattenHierarchy отдаёт из баз только
+        // статику, а кнопки часто живут на приватных методах абстрактной базы.
         private const BindingFlags MethodFlags =
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         private readonly List<(MethodInfo Method, string Text)> _buttons = new();
 
@@ -20,7 +22,7 @@ namespace Internal
             if (target == null)
                 return;
 
-            foreach (MethodInfo method in target.GetType().GetMethods(MethodFlags))
+            foreach (MethodInfo method in GetMethods(target.GetType()))
             {
                 var button = method.GetCustomAttribute<ButtonAttribute>(true);
 
@@ -34,6 +36,24 @@ namespace Internal
                 }
 
                 _buttons.Add((method, button.Text ?? ObjectNames.NicifyVariableName(method.Name)));
+            }
+        }
+
+        private static IEnumerable<MethodInfo> GetMethods(Type type)
+        {
+            var visited = new HashSet<MethodInfo>();
+
+            for (Type current = type; current != null; current = current.BaseType)
+            {
+                if (current == typeof(MonoBehaviour) || current == typeof(ScriptableObject) ||
+                    current == typeof(UnityEngine.Object) || current == typeof(object))
+                    break;
+
+                foreach (MethodInfo method in current.GetMethods(MethodFlags))
+                {
+                    if (visited.Add(method.GetBaseDefinition()))
+                        yield return method;
+                }
             }
         }
 

@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: 0f026cd02ebb05bc6f43d77c9764ff0f
+    // Structure: ba213136b3cdd51fae6afd7855ae8f75
     // UI_Center
     //   - Pause_Button
     //   - Center
@@ -69,7 +69,7 @@ namespace GamePlay.UI {
         public sealed class CenterBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             // Child objects
             [SerializeField, HideInInspector] private MinesBindings _mines;
@@ -78,7 +78,7 @@ namespace GamePlay.UI {
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
             public MinesBindings Mines => _mines;
             public TimerBindings Timer => _timer;
             public SkipBindings Skip => _skip;

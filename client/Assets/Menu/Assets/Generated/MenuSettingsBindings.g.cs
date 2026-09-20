@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace Menu.Settings {
-    // Structure: 4bc4a27e42e39add2653c91d81f9a60e
+    // Structure: 6ca232a3d1db2d798f381928c065fbbb
     // Settings
     //   - Background
     //   - Content
@@ -79,7 +79,6 @@ namespace Menu.Settings {
         }
 
         // Settings/Content
-        // Content
         //   - Header_Audio
         //   - Master
         //       - Slider
@@ -125,7 +124,7 @@ namespace Menu.Settings {
         public sealed class ContentBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
-            [SerializeField, HideInInspector] private global::Exoa.Responsive.ResponsiveContainer _responsiveContainer;
+            [SerializeField, HideInInspector] private global::Global.UI.DesignContainer _designContainer;
 
             // Child objects
             [SerializeField, HideInInspector] private HeaderAudioBindings _headerAudio;
@@ -138,7 +137,7 @@ namespace Menu.Settings {
 
             public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
-            public global::Exoa.Responsive.ResponsiveContainer ResponsiveContainer => _responsiveContainer;
+            public global::Global.UI.DesignContainer DesignContainer => _designContainer;
             public HeaderAudioBindings HeaderAudio => _headerAudio;
             public MasterBindings Master => _master;
             public MusicBindings Music => _music;
@@ -160,7 +159,6 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Master
-            // Master
             //   - Slider
             //       - Fill Area
             //           - Fill
@@ -183,7 +181,6 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Master/Slider
-                // Slider
                 //   - Fill Area
                 //       - Fill
                 //   - Background
@@ -208,7 +205,6 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Master/Slider/Fill Area
-                    // Fill Area
                     //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
@@ -248,7 +244,6 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Master/Slider/Handle Slide Area
-                    // Handle Slide Area
                     //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
@@ -290,7 +285,6 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Music
-            // Music
             //   - Slider
             //       - Fill Area
             //           - Fill
@@ -313,7 +307,6 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Music/Slider
-                // Slider
                 //   - Fill Area
                 //       - Fill
                 //   - Background
@@ -338,7 +331,6 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Music/Slider/Fill Area
-                    // Fill Area
                     //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
@@ -378,7 +370,6 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Music/Slider/Handle Slide Area
-                    // Handle Slide Area
                     //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
@@ -420,7 +411,6 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Sounds
-            // Sounds
             //   - Slider
             //       - Fill Area
             //           - Fill
@@ -443,7 +433,6 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Sounds/Slider
-                // Slider
                 //   - Fill Area
                 //       - Fill
                 //   - Background
@@ -468,7 +457,6 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Sounds/Slider/Fill Area
-                    // Fill Area
                     //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
@@ -508,7 +496,6 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Sounds/Slider/Handle Slide Area
-                    // Handle Slide Area
                     //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
@@ -562,7 +549,6 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Shake
-            // Shake
             //   - Slider
             //       - Fill Area
             //           - Fill
@@ -585,7 +571,6 @@ namespace Menu.Settings {
                 public TextTMPBindings TextTMP => _textTMP;
 
                 // Settings/Content/Shake/Slider
-                // Slider
                 //   - Fill Area
                 //       - Fill
                 //   - Background
@@ -610,7 +595,6 @@ namespace Menu.Settings {
                     public HandleSlideAreaBindings HandleSlideArea => _handleSlideArea;
 
                     // Settings/Content/Shake/Slider/Fill Area
-                    // Fill Area
                     //   - Fill
                     [Serializable]
                     public sealed class FillAreaBindings {
@@ -650,7 +634,6 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Shake/Slider/Handle Slide Area
-                    // Handle Slide Area
                     //   - Handle
                     [Serializable]
                     public sealed class HandleSlideAreaBindings {
@@ -692,7 +675,6 @@ namespace Menu.Settings {
             }
 
             // Settings/Content/Vsync
-            // Vsync
             //   - Text (TMP)
             //   - Setting
             //       - On
@@ -726,7 +708,6 @@ namespace Menu.Settings {
                 }
 
                 // Settings/Content/Vsync/Setting
-                // Setting
                 //   - On
                 //       - Text (TMP)
                 //   - Off
@@ -748,7 +729,6 @@ namespace Menu.Settings {
                     public OffBindings Off => _off;
 
                     // Settings/Content/Vsync/Setting/On
-                    // On
                     //   - Text (TMP)
                     [Serializable]
                     public sealed class OnBindings {
@@ -780,7 +760,6 @@ namespace Menu.Settings {
                     }
 
                     // Settings/Content/Vsync/Setting/Off
-                    // Off
                     //   - Text (TMP)
                     [Serializable]
                     public sealed class OffBindings {

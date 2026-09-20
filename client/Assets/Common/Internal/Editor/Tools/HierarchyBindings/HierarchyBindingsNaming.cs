@@ -95,6 +95,61 @@ namespace Internal
             return name;
         }
 
+        // Unity плодит братьев суффиксом-номером: "Entry", "Entry_1", "Entry (2)". Для группы
+        // нужно общее имя, поэтому номер вместе с разделителем и скобками отрезаем. Имя без номера
+        // остаётся как есть, так что первый брат и остальные дают одну базу.
+        public static string StripIndexSuffix(string raw)
+        {
+            if (string.IsNullOrEmpty(raw))
+                return raw;
+
+            var end = raw.Length;
+
+            while (end > 0 && (raw[end - 1] == ')' || char.IsWhiteSpace(raw[end - 1])))
+                end--;
+
+            var digitsEnd = end;
+
+            while (end > 0 && char.IsDigit(raw[end - 1]))
+                end--;
+
+            // Цифр не было — это не номер, а обычное имя.
+            if (end == digitsEnd)
+                return raw;
+
+            while (end > 0 && (raw[end - 1] == '(' || raw[end - 1] == '_' || raw[end - 1] == '-' ||
+                               char.IsWhiteSpace(raw[end - 1])))
+                end--;
+
+            // Имя целиком было номером — отрезать нечего.
+            return end == 0 ? raw : raw.Substring(0, end);
+        }
+
+        // Массив называется во множественном числе, иначе Entries и Entry в одном классе не различить.
+        public static string ToPlural(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+
+            var last = char.ToLowerInvariant(name[name.Length - 1]);
+            var previous = name.Length > 1 ? char.ToLowerInvariant(name[name.Length - 2]) : '\0';
+
+            if (last == 'y' && IsVowel(previous) == false)
+                return name.Substring(0, name.Length - 1) + "ies";
+
+            if (last == 's' || last == 'x' || last == 'z' ||
+                (previous == 'c' && last == 'h') || (previous == 's' && last == 'h'))
+                return name + "es";
+
+            return name + "s";
+        }
+
+        private static bool IsVowel(char character)
+        {
+            return character == 'a' || character == 'e' || character == 'i' ||
+                   character == 'o' || character == 'u';
+        }
+
         public static bool IsReservedMember(string name)
         {
             _reservedMembers ??= CollectReservedMembers();
