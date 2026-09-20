@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Internal::Internal.PrefabGroupAsset
   _entries:
   - Name: CardLocal
-    Prefab: {fileID: 8380813882818688417, guid: 75d1c8300d3c973968f9e706af7a36aa, type: 3}
-    ComponentType: GamePlay.Cards.CardLocalScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Prefab: {fileID: 5554125599856350176, guid: 75d1c8300d3c973968f9e706af7a36aa, type: 3}
+    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: CardRemote
-    Prefab: {fileID: 962353957333419632, guid: 31b7b026bb3ecd47fb52d58ca1e3f05f, type: 3}
-    ComponentType: GamePlay.Cards.CardRemoteScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - Name: Cell
-    Prefab: {fileID: 3637014477302833439, guid: 6cdfa7e62ddb3ec4cbf453da16073cfe, type: 3}
+    Prefab: {fileID: 1821949025946242532, guid: 31b7b026bb3ecd47fb52d58ca1e3f05f, type: 3}
+    ComponentType: GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: CellOpponent
+    Prefab: {fileID: 8473320772725604171, guid: 4bd9a26f81c7473f9e0a5c63d2184b7e, type: 3}
+    ComponentType: GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - Name: CellOwn
+    Prefab: {fileID: 6099645622602190580, guid: c7e41b0d92f54a6ea3b18d47f0c25a19, type: 3}
     ComponentType: GamePlay.Boards.CellView, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: FloatingText
     Prefab: {fileID: 5837201948372615001, guid: 3f8c1b6a52d74e0d9a1c7f4b28e60d31, type: 3}

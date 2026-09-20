@@ -3,58 +3,75 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.Cards {
-    // Structure: f640fc2e542a43392fe6b475c4835830
+    // Structure: ae3791944053e1c6c3e35c7bf00f763a
+    // Game_Card
+    //   - View
+    //       - Body
+    //           - Image
+    //           - SelectionHighlight
+    //           - Name
+    //           - Description
+    //           - ManaCost
+    //       - Back
+    //       - PointerHandler
     [DisallowMultipleComponent]
-    public class CardLocalBindings : global::Internal.ObjectBindings, global::Internal.ISceneService, global::Internal.IEntityComponent {
+    public class GameCardBindings : global::Internal.ObjectBindings, global::Internal.IEntityComponent {
+        [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
         [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
         [SerializeField, HideInInspector] private global::GamePlay.Cards.CardScope _cardScope;
-        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardLocalScopeEntity _cardScopeEntity;
+        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardScopeEntity _cardScopeEntity;
         [SerializeField, HideInInspector] private global::UnityEngine.Rendering.SortingGroup _sortingGroup;
-        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardRenderer _cardRenderer;
-        [SerializeField, HideInInspector] private global::GamePlay.Cards.CardView _cardView;
 
         // Child objects
         [SerializeField, HideInInspector] private ViewBindings _view;
 
+        public global::UnityEngine.GameObject GameObject => _gameObject;
         public global::UnityEngine.Transform Transform => _transform;
         public global::GamePlay.Cards.CardScope CardScope => _cardScope;
-        public global::GamePlay.Cards.CardLocalScopeEntity CardScopeEntity => _cardScopeEntity;
+        public global::GamePlay.Cards.CardScopeEntity CardScopeEntity => _cardScopeEntity;
         public global::UnityEngine.Rendering.SortingGroup SortingGroup => _sortingGroup;
-        public global::GamePlay.Cards.CardRenderer CardRenderer => _cardRenderer;
-        public global::GamePlay.Cards.CardView CardView => _cardView;
         public ViewBindings View => _view;
-
-        public virtual void Create(global::Internal.IScopeBuilder builder) {
-            global::Internal.BuilderExtensions.RegisterComponent(builder, this);
-        }
 
         public virtual void Register(global::Internal.IEntityBuilder builder) {
             global::Internal.BuilderExtensions.RegisterComponent(builder, this);
         }
 
-        // Card_Local/View
+        // Game_Card/View
+        //   - Body
+        //       - Image
+        //       - SelectionHighlight
+        //       - Name
+        //       - Description
+        //       - ManaCost
+        //   - Back
+        //   - PointerHandler
         [Serializable]
         public sealed class ViewBindings {
+            [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
             [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
-            [SerializeField, HideInInspector] private global::GamePlay.Cards.CardTransform _cardTransform;
-            [SerializeField, HideInInspector] private global::GamePlay.Cards.CardAvailabilityView _cardAvailabilityView;
 
             // Child objects
             [SerializeField, HideInInspector] private BodyBindings _body;
+            [SerializeField, HideInInspector] private BackBindings _back;
             [SerializeField, HideInInspector] private PointerHandlerBindings _pointerHandler;
 
+            public global::UnityEngine.GameObject GameObject => _gameObject;
             public global::UnityEngine.Transform Transform => _transform;
-            public global::GamePlay.Cards.CardTransform CardTransform => _cardTransform;
-            public global::GamePlay.Cards.CardAvailabilityView CardAvailabilityView => _cardAvailabilityView;
             public BodyBindings Body => _body;
+            public BackBindings Back => _back;
             public PointerHandlerBindings PointerHandler => _pointerHandler;
 
-            // Card_Local/View/Body
+            // Game_Card/View/Body
+            //   - Image
+            //   - SelectionHighlight
+            //   - Name
+            //   - Description
+            //   - ManaCost
             [Serializable]
             public sealed class BodyBindings {
+                [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
                 [SerializeField, HideInInspector] private global::UnityEngine.SpriteRenderer _spriteRenderer;
-                [SerializeField, HideInInspector] private global::GamePlay.Cards.CardDataView _cardDataView;
 
                 // Child objects
                 [SerializeField, HideInInspector] private ImageBindings _image;
@@ -63,90 +80,106 @@ namespace GamePlay.Cards {
                 [SerializeField, HideInInspector] private DescriptionBindings _description;
                 [SerializeField, HideInInspector] private ManaCostBindings _manaCost;
 
+                public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.Transform Transform => _transform;
                 public global::UnityEngine.SpriteRenderer SpriteRenderer => _spriteRenderer;
-                public global::GamePlay.Cards.CardDataView CardDataView => _cardDataView;
                 public ImageBindings Image => _image;
                 public SelectionHighlightBindings SelectionHighlight => _selectionHighlight;
                 public NameBindings Name => _name;
                 public DescriptionBindings Description => _description;
                 public ManaCostBindings ManaCost => _manaCost;
 
-                // Card_Local/View/Body/Image
+                // Game_Card/View/Body/Image
                 [Serializable]
                 public sealed class ImageBindings {
+                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
                     [SerializeField, HideInInspector] private global::UnityEngine.SpriteRenderer _spriteRenderer;
 
+                    public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.Transform Transform => _transform;
                     public global::UnityEngine.SpriteRenderer SpriteRenderer => _spriteRenderer;
                 }
 
-                // Card_Local/View/Body/SelectionHighlight
+                // Game_Card/View/Body/SelectionHighlight
                 [Serializable]
                 public sealed class SelectionHighlightBindings {
+                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
                     [SerializeField, HideInInspector] private global::UnityEngine.SpriteRenderer _spriteRenderer;
-                    [SerializeField, HideInInspector] private global::GamePlay.Cards.CardSelectionSwitcher _cardSelectionSwitcher;
 
+                    public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.Transform Transform => _transform;
                     public global::UnityEngine.SpriteRenderer SpriteRenderer => _spriteRenderer;
-                    public global::GamePlay.Cards.CardSelectionSwitcher CardSelectionSwitcher => _cardSelectionSwitcher;
                 }
 
-                // Card_Local/View/Body/Name
+                // Game_Card/View/Body/Name
                 [Serializable]
                 public sealed class NameBindings {
+                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
+                    public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
-                // Card_Local/View/Body/Description
+                // Game_Card/View/Body/Description
                 [Serializable]
                 public sealed class DescriptionBindings {
+                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
+                    public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
-                // Card_Local/View/Body/ManaCost
+                // Game_Card/View/Body/ManaCost
                 [Serializable]
                 public sealed class ManaCostBindings {
+                    [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
+                    public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
             }
 
-            // Card_Local/View/PointerHandler
+            // Game_Card/View/Back
+            [Serializable]
+            public sealed class BackBindings {
+                [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
+                [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
+                [SerializeField, HideInInspector] private global::UnityEngine.SpriteRenderer _spriteRenderer;
+
+                public global::UnityEngine.GameObject GameObject => _gameObject;
+                public global::UnityEngine.Transform Transform => _transform;
+                public global::UnityEngine.SpriteRenderer SpriteRenderer => _spriteRenderer;
+            }
+
+            // Game_Card/View/PointerHandler
             [Serializable]
             public sealed class PointerHandlerBindings {
+                [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
                 [SerializeField, HideInInspector] private global::UnityEngine.BoxCollider2D _boxCollider2D;
-                [SerializeField, HideInInspector] private global::GamePlay.Cards.CardPointerHandler _cardPointerHandler;
+                [SerializeField, HideInInspector] private global::GamePlay.Cards.CardPointerEvents _cardPointerEvents;
 
+                public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.Transform Transform => _transform;
                 public global::UnityEngine.BoxCollider2D BoxCollider2D => _boxCollider2D;
-                public global::GamePlay.Cards.CardPointerHandler CardPointerHandler => _cardPointerHandler;
+                public global::GamePlay.Cards.CardPointerEvents CardPointerEvents => _cardPointerEvents;
             }
         }
     }

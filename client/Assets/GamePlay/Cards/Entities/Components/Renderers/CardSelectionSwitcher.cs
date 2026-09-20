@@ -1,28 +1,20 @@
-﻿using Internal;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [DisallowMultipleComponent]
-    public class CardSelectionSwitcher : MonoBehaviour, IEntityComponent, IScopeSetup
+    public class CardSelectionSwitcher : IScopeSetup
     {
-        [SerializeField] private GameObject _selectionHighlight;
-
-        private ICardPointerHandler _pointerHandler;
-
-        [Inject]
-        internal void Construct(ICardPointerHandler pointerHandler)
+        public CardSelectionSwitcher(GameCardBindings bindings, ICardPointerHandler pointerHandler)
         {
+            _selectionHighlight = bindings.View.Body.SelectionHighlight.GameObject;
             _pointerHandler = pointerHandler;
-        }
-
-        public void Register(IEntityBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IScopeSetup>();
 
             _selectionHighlight.SetActive(false);
         }
+
+        private readonly GameObject _selectionHighlight;
+        private readonly ICardPointerHandler _pointerHandler;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {

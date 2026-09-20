@@ -1,0 +1,7 @@
+fileFormatVersion: 2
+guid: 00d8d9dc63db4cf793f06f8fcc0df429
+PrefabImporter:
+  externalObjects: {}
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": false,\n    \"group\": \"GamePlay\",\n    \"componentType\": \"GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"3eec27d7f4614c7a9d3bab5f2135e9b0\"\n  }\n}"
+  assetBundleName: 
+  assetBundleVariant: 
