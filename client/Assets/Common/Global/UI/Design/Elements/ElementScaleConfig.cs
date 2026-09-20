@@ -1,10 +1,8 @@
 ﻿using Internal;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Global.UI
 {
-    [InlineEditor]
     [CreateAssetMenu(fileName = "Scale_", menuName = "UI/Design/ElementConfig/Scale")]
     public class ElementScaleConfig : ScriptableObject
     {

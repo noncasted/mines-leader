@@ -1,11 +1,9 @@
 ﻿using Internal;
 using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class CardIdleOptions : EnvAsset
     {
         [SerializeField] private Curve _selectionCurve;

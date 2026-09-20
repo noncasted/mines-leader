@@ -1,10 +1,8 @@
 ﻿using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Internal
 {
-    [InlineEditor]
     public class ScriptableCurve : ScriptableObject, ICurveDefinition
     {
         [SerializeField] [Min(0f)] private float _time;

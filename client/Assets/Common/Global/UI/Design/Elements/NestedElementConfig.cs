@@ -1,9 +1,7 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Global.UI
 {
-    [InlineEditor]
     [CreateAssetMenu(fileName = "NestedElementConfig", menuName = "UI/Design/ElementConfig/Nested")]
     public class NestedElementConfig : BaseElementConfig
     {

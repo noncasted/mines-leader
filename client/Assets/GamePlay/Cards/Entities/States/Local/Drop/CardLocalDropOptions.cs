@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class CardLocalDropOptions : EnvAsset, ICardDropOptions
     {
         [SerializeField] private float _time;

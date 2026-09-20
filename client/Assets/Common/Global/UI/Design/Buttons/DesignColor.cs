@@ -1,9 +1,7 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Global.UI
 {
-    [InlineEditor]
     [CreateAssetMenu(fileName = "DesignColor", menuName = "UI/Design/Color")]
     public class DesignColor : ScriptableObject
     {

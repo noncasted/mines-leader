@@ -1,10 +1,8 @@
 ﻿using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class HandPositionsOptions : ScriptableObject
     {
         [SerializeField] [CurveRange] private AnimationCurve _evaluationCurve;

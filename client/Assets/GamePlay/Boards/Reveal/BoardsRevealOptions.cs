@@ -1,11 +1,9 @@
 using Internal;
 using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Boards
 {
-    [InlineEditor]
     public class BoardsRevealOptions : EnvAsset
     {
         [SerializeField] [Min(0f)] private float _explosionTime = 2f;
