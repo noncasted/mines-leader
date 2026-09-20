@@ -1,4 +1,4 @@
-﻿using Sirenix.OdinInspector;
+﻿using Internal;
 using TMPro;
 using UnityEngine;
 

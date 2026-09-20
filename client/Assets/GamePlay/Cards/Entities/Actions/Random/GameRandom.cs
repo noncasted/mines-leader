@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Internal;
-using NaughtyAttributes;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -137,13 +136,13 @@ namespace GamePlay.Cards
             return endPosition;
         }
 
-        [Sirenix.OdinInspector.Button]
+        [Button]
         private void DebugDice()
         {
             PlayDiceRoll(this.GetObjectLifetime(), 3, true).Forget();
         }
 
-        [Sirenix.OdinInspector.Button]
+        [Button]
         private void DebugCoin()
         {
             PlayCoinFlip(this.GetObjectLifetime(), true, false).Forget();

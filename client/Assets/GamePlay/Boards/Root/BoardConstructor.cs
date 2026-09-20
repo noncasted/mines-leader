@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector;
 using Internal;
 using UnityEngine;
 #if UNITY_EDITOR

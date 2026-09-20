@@ -1,6 +1,4 @@
 using Internal;
-using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -9,7 +7,7 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time;
 
-        [SerializeField] [Sirenix.OdinInspector.MinMaxSlider(300, 400)]
+        [SerializeField] [MinMaxSlider(300, 400)]
         private Vector2 _twistAngleRange = new(350f, 370f);
 
         [SerializeField] [CurveRange] private AnimationCurve _moveCurve;

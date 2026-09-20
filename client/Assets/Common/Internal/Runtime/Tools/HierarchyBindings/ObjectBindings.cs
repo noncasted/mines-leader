@@ -1,7 +1,6 @@
 using UnityEngine;
 #if UNITY_EDITOR
 using System;
-using Sirenix.OdinInspector;
 using Unity.Scripting.LifecycleManagement;
 #endif
 
