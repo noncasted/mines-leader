@@ -40,7 +40,11 @@ namespace Internal
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
+            DrawButtons();
+        }
 
+        protected void DrawButtons()
+        {
             if (_buttons.Count == 0)
                 return;
 

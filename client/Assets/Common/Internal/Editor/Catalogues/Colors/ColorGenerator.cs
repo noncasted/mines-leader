@@ -206,7 +206,7 @@ namespace Internal
             return value.ToString("R", CultureInfo.InvariantCulture) + "f";
         }
 
-        private static string ToIdentifier(string name)
+        public static string ToIdentifier(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return string.Empty;
