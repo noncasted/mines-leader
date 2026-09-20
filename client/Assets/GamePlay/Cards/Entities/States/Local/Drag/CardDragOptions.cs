@@ -1,10 +1,8 @@
 ﻿using Internal;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class CardDragOptions : EnvAsset
     {
         [SerializeField] private Curve _transitionCurve;

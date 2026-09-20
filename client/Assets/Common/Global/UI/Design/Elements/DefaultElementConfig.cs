@@ -1,9 +1,7 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Global.UI
 {
-    [InlineEditor]
     [CreateAssetMenu(fileName = "DefaultElementConfig", menuName = "UI/Design/ElementConfig/Default")]
     public class DefaultElementConfig : BaseElementConfig
     {

@@ -1,11 +1,9 @@
 ﻿using Internal;
 using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class CardRemoteSpawnOptions : EnvAsset
     {
         [SerializeField] [CurveRange] private AnimationCurve _moveCurve;

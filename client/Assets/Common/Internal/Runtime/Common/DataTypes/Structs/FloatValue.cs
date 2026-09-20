@@ -1,9 +1,7 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Internal
 {
-    [InlineEditor]
     [CreateAssetMenu(fileName = "FloatValue", menuName = "Structs/FloatValue")]
     public class FloatValue : ScriptableObject
     {

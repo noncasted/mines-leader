@@ -1,11 +1,9 @@
 using Internal;
 using NaughtyAttributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [InlineEditor]
     public class CardLocalStashOptions : EnvAsset, ICardStashOptions
     {
         [SerializeField] private float _time = 0.6f;
