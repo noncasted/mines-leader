@@ -1,5 +1,4 @@
 ﻿using Internal;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Global.UI
