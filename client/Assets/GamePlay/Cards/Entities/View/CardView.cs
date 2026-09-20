@@ -1,4 +1,3 @@
-﻿using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -8,21 +7,21 @@ namespace GamePlay.Cards
         void Destroy();
     }
 
-    [DisallowMultipleComponent]
-    public class CardView : MonoBehaviour, ICardView, IEntityComponent
+    public class CardView : ICardView
     {
-        public void Register(IEntityBuilder builder)
+        public CardView(GameCardBindings bindings)
         {
-            builder.RegisterComponent(this)
-                   .As<ICardView>();
+            _bindings = bindings;
         }
+
+        private readonly GameCardBindings _bindings;
 
         public void Destroy()
         {
-            GetComponentInParent<ScopeEntityView>()?.Dispose();
+            _bindings.CardScopeEntity.Dispose();
 
-            if (gameObject != null)
-                Destroy(gameObject);
+            if (_bindings.GameObject != null)
+                Object.Destroy(_bindings.GameObject);
         }
     }
 }

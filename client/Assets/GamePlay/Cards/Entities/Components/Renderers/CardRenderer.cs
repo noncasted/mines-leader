@@ -1,4 +1,3 @@
-﻿using Internal;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -24,41 +23,43 @@ namespace GamePlay.Cards
         void OverrideColors(Color sprites, Color name, Color description);
     }
 
-    [DisallowMultipleComponent]
-    public class CardRenderer : MonoBehaviour, IEntityComponent, ICardRenderer
+    public class CardRenderer : ICardRenderer
     {
-        [SerializeField] private SortingGroup _sortingGroup;
+        public CardRenderer(GameCardBindings bindings)
+        {
+            var view = bindings.View;
+            var body = view.Body;
 
-        private SpriteRenderer[] _all;
+            _sortingGroup = bindings.SortingGroup;
 
-        // Text components in order: [0] = card name, [1] = card description
-        private TMP_Text[] _textComponents;
+            // Рубашка и выделение красятся вместе с лицом: у удалённой карты лицо выключено
+            // до вскрытия, а тонировать надо всё равно.
+            _all = new[]
+            {
+                body.SpriteRenderer,
+                body.Image.SpriteRenderer,
+                body.SelectionHighlight.SpriteRenderer,
+                view.Back.SpriteRenderer
+            };
+
+            _name = body.Name.TextMeshPro;
+            _description = body.Description.TextMeshPro;
+
+            SpritesColor = _all[0].color;
+            NameTextColor = _name.color;
+            DescriptionTextColor = _description.color;
+        }
+
+        private readonly SortingGroup _sortingGroup;
+        private readonly SpriteRenderer[] _all;
+        private readonly TMP_Text _name;
+        private readonly TMP_Text _description;
 
         private bool _isColorOverridden;
 
-        public Color SpritesColor { get; private set; } = Color.white;
-        public Color NameTextColor { get; private set; } = Color.white;
-        public Color DescriptionTextColor { get; private set; } = Color.white;
-
-        public void Register(IEntityBuilder builder)
-        {
-            // Include inactive children: a remote card keeps its front side disabled
-            // until it is revealed, and those renderers still have to be tinted.
-            _all = GetComponentsInChildren<SpriteRenderer>(true);
-            _textComponents = GetComponentsInChildren<TMP_Text>(true);
-
-            if (_all.Length > 0)
-                SpritesColor = _all[0].color;
-
-            if (_textComponents.Length > 0)
-                NameTextColor = _textComponents[0].color;
-
-            if (_textComponents.Length > 1)
-                DescriptionTextColor = _textComponents[1].color;
-
-            builder.RegisterComponent(this)
-                   .As<ICardRenderer>();
-        }
+        public Color SpritesColor { get; private set; }
+        public Color NameTextColor { get; private set; }
+        public Color DescriptionTextColor { get; private set; }
 
         public void SetSortingLayer(string layer)
         {
@@ -114,17 +115,13 @@ namespace GamePlay.Cards
         private void ApplyNameTextColor(Color color)
         {
             NameTextColor = color;
-
-            if (_textComponents.Length > 0)
-                _textComponents[0].color = color;
+            _name.color = color;
         }
 
         private void ApplyDescriptionTextColor(Color color)
         {
             DescriptionTextColor = color;
-
-            if (_textComponents.Length > 1)
-                _textComponents[1].color = color;
+            _description.color = color;
         }
     }
 }

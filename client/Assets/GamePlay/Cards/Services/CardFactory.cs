@@ -47,17 +47,13 @@ namespace GamePlay.Cards
 
             if (isLocal == true)
             {
-                var view = _cardViewFactory.Create(
-                    GamePlayPrefabs.CardLocal.GetComponent<CardLocalScopeEntity>(),
-                    spawnPoint);
+                var view = _cardViewFactory.Create(GamePlayPrefabs.CardLocal, spawnPoint);
                 var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, BuildLocal);
                 await loadResult.Get<ICardLocalSpawn>().Execute();
             }
             else
             {
-                var view = _cardViewFactory.Create(
-                    GamePlayPrefabs.CardRemote.GetComponent<CardRemoteScopeEntity>(),
-                    spawnPoint);
+                var view = _cardViewFactory.Create(GamePlayPrefabs.CardRemote, spawnPoint);
                 var loadResult = await _entityScopeLoader.Load(lifetime, parentScope, view, BuildRemote);
                 await loadResult.Get<ICardRemoteSpawn>().Execute();
             }

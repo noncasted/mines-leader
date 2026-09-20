@@ -1,35 +1,38 @@
-﻿using Internal;
+using Internal;
 using Meta;
 using TMPro;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    [DisallowMultipleComponent]
-    public class CardDataView : MonoBehaviour, IEntityComponent, IScopeSetup
+    public class CardDataView : IScopeSetup
     {
-        [SerializeField] private TMP_Text _name;
-        [SerializeField] private TMP_Text _description;
-        [SerializeField] private TMP_Text _manaCost;
-        [SerializeField] private SpriteRenderer _image;
-
-        private ICardDefinition _definition;
-        private ICardConfigs _configs;
-        private ICardDescriptionProvider _descriptionProvider;
-
-        [Inject]
-        internal void Construct(ICardDefinition definition, ICardConfigs configs, ICardDescriptionProvider descriptionProvider)
+        public CardDataView(
+            GameCardBindings bindings,
+            ICardDefinition definition,
+            ICardConfigs configs,
+            ICardDescriptionProvider descriptionProvider)
         {
-            _configs = configs;
+            var body = bindings.View.Body;
+
+            _name = body.Name.TextMeshPro;
+            _description = body.Description.TextMeshPro;
+            _manaCost = body.ManaCost.TextMeshPro;
+            _image = body.Image.SpriteRenderer;
+
             _definition = definition;
+            _configs = configs;
             _descriptionProvider = descriptionProvider;
         }
 
-        public void Register(IEntityBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IScopeSetup>();
-        }
+        private readonly TMP_Text _name;
+        private readonly TMP_Text _description;
+        private readonly TMP_Text _manaCost;
+        private readonly SpriteRenderer _image;
+
+        private readonly ICardDefinition _definition;
+        private readonly ICardConfigs _configs;
+        private readonly ICardDescriptionProvider _descriptionProvider;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {

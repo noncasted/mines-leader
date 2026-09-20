@@ -12,6 +12,7 @@ namespace GamePlay.Boards
     public class BoardConstructor : MonoBehaviour
     {
         [SerializeField] private Board _board;
+        [SerializeField] private BoardCellKind _cellKind;
 
         [SerializeField] private Vector2Int _size;
         [SerializeField] private float _cellSize;
@@ -22,8 +23,16 @@ namespace GamePlay.Boards
         public BoardConstructionData ConstructionData =>
             _constructionData ??= new BoardConstructionData(_size, _cellSize);
 
+        private static CellView GetCellPrefab(BoardCellKind kind)
+        {
+            return kind == BoardCellKind.Opponent
+                ? GamePlayPrefabs.CellOpponent
+                : GamePlayPrefabs.CellOwn;
+        }
+
         public CellView[] Build()
         {
+            var cellPrefab = GetCellPrefab(_cellKind);
             var origin = GetOrigin();
             var cells = new CellView[_size.x * _size.y];
             var index = 0;
@@ -32,7 +41,7 @@ namespace GamePlay.Boards
             {
                 for (var y = 0; y < _size.y; y++)
                 {
-                    var cell = Instantiate(GamePlayPrefabs.Cell, transform);
+                    var cell = Instantiate(cellPrefab, transform);
                     var position = new Vector2Int(x, y);
 
                     cell.transform.localPosition = GetLocalPosition(position, origin);
@@ -81,7 +90,7 @@ namespace GamePlay.Boards
         {
             Clear();
 
-            var cellPrefab = LoadEditorCellPrefab();
+            var cellPrefab = LoadEditorCellPrefab(_cellKind);
             var origin = GetOrigin();
 
             for (var x = 0; x < _size.x; x++)
@@ -98,10 +107,10 @@ namespace GamePlay.Boards
             }
         }
 
-        private static CellView LoadEditorCellPrefab()
+        private static CellView LoadEditorCellPrefab(BoardCellKind kind)
         {
             if (GamePlayPrefabs.IsLoaded)
-                return GamePlayPrefabs.Cell;
+                return GetCellPrefab(kind);
 
             var asset = AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(
                 "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups/GamePlay.asset");
@@ -109,7 +118,7 @@ namespace GamePlay.Boards
                 throw new InvalidOperationException(
                     "GamePlay prefab group asset is missing. Run Tools/GeneratePrefabsCatalog.");
 
-            return asset.Get<CellView>("Cell");
+            return asset.Get<CellView>(kind == BoardCellKind.Opponent ? "CellOpponent" : "CellOwn");
         }
 
         [Button("Clear")]

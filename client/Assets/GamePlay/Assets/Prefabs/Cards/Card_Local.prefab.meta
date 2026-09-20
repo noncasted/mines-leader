@@ -2,6 +2,6 @@ fileFormatVersion: 2
 guid: 75d1c8300d3c973968f9e706af7a36aa
 PrefabImporter:
   externalObjects: {}
-  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"GamePlay\",\n    \"componentType\": \"GamePlay.Cards.CardLocalScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"7c4e9f2a1b3846d0b5e8c3a94721d6f0\"\n  }\n}"
+  userData: "{\n  \"prefabCatalog\": {\n    \"included\": true,\n    \"group\": \"GamePlay\",\n    \"componentType\": \"GamePlay.Cards.CardScopeEntity, GamePlay, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\n    \"componentGuid\": \"3eec27d7f4614c7a9d3bab5f2135e9b0\"\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

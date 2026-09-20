@@ -1,51 +1,34 @@
-﻿using Internal;
-using UnityEngine;
+using Internal;
 
 namespace GamePlay.Cards
 {
-    [DisallowMultipleComponent]
-    public class CardAvailabilityView : MonoBehaviour, IEntityComponent, IScopeSetup
+    // Цвета доступности живут в каталоге: у чистого класса нет инспектора, а подбирать их
+    // всё равно надо художнику.
+    public class CardAvailabilityView : IScopeSetup
     {
-        [SerializeField] private CardRenderer _renderer;
-
-        // Sprite colors
-        [SerializeField] private Color _availableSpriteColor;
-        [SerializeField] private Color _lockedSpriteColor;
-
-        // Text colors (CardRenderer applies them in order: 0 = name, 1 = description)
-        [SerializeField] private Color _availableNameColor;
-        [SerializeField] private Color _availableDescriptionColor;
-        [SerializeField] private Color _lockedNameColor;
-        [SerializeField] private Color _lockedDescriptionColor;
-
-        private ICardContext _context;
-
-        [Inject]
-        internal void Construct(ICardContext context)
+        public CardAvailabilityView(ICardRenderer renderer, ICardContext context)
         {
+            _renderer = renderer;
             _context = context;
         }
 
-        public void Register(IEntityBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IScopeSetup>();
-        }
+        private readonly ICardRenderer _renderer;
+        private readonly ICardContext _context;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _context.IsAvailable.View(lifetime, isAvailable => {
                 if (isAvailable)
                 {
-                    _renderer.SetAllColor(_availableSpriteColor);
-                    _renderer.SetNameTextColor(_availableNameColor);
-                    _renderer.SetDescriptionTextColor(_availableDescriptionColor);
+                    _renderer.SetAllColor(Colors.Card.AvailableSprite);
+                    _renderer.SetNameTextColor(Colors.Card.AvailableName);
+                    _renderer.SetDescriptionTextColor(Colors.Card.AvailableDescription);
                 }
                 else
                 {
-                    _renderer.SetAllColor(_lockedSpriteColor);
-                    _renderer.SetNameTextColor(_lockedNameColor);
-                    _renderer.SetDescriptionTextColor(_lockedDescriptionColor);
+                    _renderer.SetAllColor(Colors.Card.LockedSprite);
+                    _renderer.SetNameTextColor(Colors.Card.LockedName);
+                    _renderer.SetDescriptionTextColor(Colors.Card.LockedDescription);
                 }
             });
         }

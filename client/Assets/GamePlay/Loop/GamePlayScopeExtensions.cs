@@ -5,7 +5,6 @@ using GamePlay.Cards;
 using GamePlay.Players;
 using GamePlay.Services;
 using GamePlay.UI;
-using Global.Setup;
 using Internal;
 using Meta;
 using Shared;
@@ -84,8 +83,9 @@ namespace GamePlay.Loop
             builder.Register<MatchEventLoop>()
                    .As<IScopeSetup>();
 
-            builder.Register<GameRoundAudio>()
-                   .As<IScopeSetup>();
+            builder.Register<GameRoundVisuals>()
+                   .As<IRoundChanged>()
+                   .As<IMatchCompleted>();
 
             // Раунд — альтернатива одного сервиса: класс скоупа строит тот, что зарегистрирован.
             switch (sessionData.Type)

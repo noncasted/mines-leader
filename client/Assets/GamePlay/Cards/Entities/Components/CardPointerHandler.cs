@@ -1,6 +1,5 @@
-﻿using GamePlay.Loop;
+using GamePlay.Loop;
 using Internal;
-using UnityEngine;
 
 namespace GamePlay.Cards
 {
@@ -10,61 +9,29 @@ namespace GamePlay.Cards
         IViewableProperty<bool> IsPressed { get; }
     }
 
-    [DisallowMultipleComponent]
-    public class CardPointerHandler : MonoBehaviour, ICardPointerHandler, IEntityComponent
+    // Сырые события указателя приходят из CardPointerEvents, здесь к ним добавляется
+    // единственное правило: на паузе карта не подсвечивается и не нажимается.
+    public class CardPointerHandler : ICardPointerHandler, IScopeSetup
     {
+        public CardPointerHandler(GameCardBindings bindings, IGameContext gameContext)
+        {
+            _events = bindings.View.PointerHandler.CardPointerEvents;
+            _gameContext = gameContext;
+        }
+
+        private readonly CardPointerEvents _events;
+        private readonly IGameContext _gameContext;
+
         private readonly ViewableProperty<bool> _isHovered = new();
         private readonly ViewableProperty<bool> _isPressed = new();
-
-        private IGameContext _gameContext;
 
         public IViewableProperty<bool> IsHovered => _isHovered;
         public IViewableProperty<bool> IsPressed => _isPressed;
 
-        [Inject]
-        internal void Construct(IGameContext gameContext)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _gameContext = gameContext;
-        }
-
-        public void Register(IEntityBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<ICardPointerHandler>();
-        }
-
-        private void OnMouseEnter()
-        {
-            if (_gameContext.IsPaused == true)
-                return;
-
-            _isHovered.Set(true);
-        }
-
-        private void OnMouseOver()
-        {
-            if (_gameContext.IsPaused == true)
-                return;
-
-            _isHovered.Set(true);
-        }
-
-        private void OnMouseExit()
-        {
-            _isHovered.Set(false);
-        }
-
-        private void OnMouseDown()
-        {
-            if (_gameContext.IsPaused == true)
-                return;
-
-            _isPressed.Set(true);
-        }
-
-        private void OnMouseUp()
-        {
-            _isPressed.Set(false);
+            _events.IsOver.Advise(lifetime, value => _isHovered.Set(value && _gameContext.IsPaused == false));
+            _events.IsDown.Advise(lifetime, value => _isPressed.Set(value && _gameContext.IsPaused == false));
         }
     }
 

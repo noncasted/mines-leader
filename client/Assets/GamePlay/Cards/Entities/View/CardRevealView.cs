@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Meta;
 using TMPro;
 using UnityEngine;
@@ -10,31 +10,36 @@ namespace GamePlay.Cards
         void Reveal();
     }
 
-    [DisallowMultipleComponent]
-    public class CardRevealView : MonoBehaviour, IEntityComponent, IScopeSetup, ICardRevealView
+    // Удалённая карта лежит рубашкой вверх: лицо на префабе выключено, а вскрытие просто
+    // меняет, какая из двух сторон активна.
+    public class CardRevealView : IScopeSetup, ICardRevealView
     {
-        [SerializeField] private GameObject _back;
-        [SerializeField] private GameObject _front;
-        [SerializeField] private SpriteRenderer _image;
-        [SerializeField] private TMP_Text _name;
-        [SerializeField] private TMP_Text _description;
-
-        private ICardDefinition _definition;
-        private ICardDescriptionProvider _descriptionProvider;
-
-        [Inject]
-        internal void Construct(ICardDefinition definition, ICardDescriptionProvider descriptionProvider)
+        public CardRevealView(
+            GameCardBindings bindings,
+            ICardDefinition definition,
+            ICardDescriptionProvider descriptionProvider)
         {
+            var view = bindings.View;
+            var body = view.Body;
+
+            _back = view.Back.GameObject;
+            _front = body.GameObject;
+            _image = body.Image.SpriteRenderer;
+            _name = body.Name.TextMeshPro;
+            _description = body.Description.TextMeshPro;
+
             _definition = definition;
             _descriptionProvider = descriptionProvider;
         }
 
-        public void Register(IEntityBuilder builder)
-        {
-            builder.RegisterComponent(this)
-                   .As<IScopeSetup>()
-                   .As<ICardRevealView>();
-        }
+        private readonly GameObject _back;
+        private readonly GameObject _front;
+        private readonly SpriteRenderer _image;
+        private readonly TMP_Text _name;
+        private readonly TMP_Text _description;
+
+        private readonly ICardDefinition _definition;
+        private readonly ICardDescriptionProvider _descriptionProvider;
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {

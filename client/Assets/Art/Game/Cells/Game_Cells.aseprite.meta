@@ -191,7 +191,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cells_Free
+  - name: Game_Cells_Own_Free
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -212,7 +212,7 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
-  - name: Game_Cells_Taken
+  - name: Game_Cells_Own_Taken
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -267,6 +267,48 @@ ScriptedImporter:
       width: 12
       height: 12
     spriteID: e969ff2f3cf8c90379b675bb3fc9d46b
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_Cells_Opponent_Taken
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 67
+      y: 17
+      width: 12
+      height: 12
+    spriteID: c5c6bbe08870d8bccb835751e67230b8
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: Game_Cells_Opponent_Free
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 51
+      y: 17
+      width: 12
+      height: 12
+    spriteID: ed36f0e50de9d1df79be3114c4c89b3d
     spriteBone: []
     spriteOutline: []
     vertices: []

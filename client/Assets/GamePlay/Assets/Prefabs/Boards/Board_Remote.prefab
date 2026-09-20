@@ -48,9 +48,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3386456021391235630, guid: 584e1a6e9fb3331418516ae960125dc9, type: 3}
+      propertyPath: _cellKind
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 934654302738125593, guid: 584e1a6e9fb3331418516ae960125dc9, type: 3}
       propertyPath: m_Name
-      value: Board_Base Variant
+      value: Board_Remote Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
