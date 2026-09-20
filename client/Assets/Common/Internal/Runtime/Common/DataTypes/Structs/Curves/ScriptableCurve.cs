@@ -1,5 +1,4 @@
-﻿using NaughtyAttributes;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Internal
 {

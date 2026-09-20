@@ -1,4 +1,4 @@
-﻿using NaughtyAttributes;
+﻿using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
