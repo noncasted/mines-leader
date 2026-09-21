@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Internal
 {
     // Настройки проекта живут ассетом каталога: правятся в Project Tools,
-    // в билд попадают вместе с каталогом и достаются как InternalAssets.OptionsContainer.
+    // в билд попадают группой Internal каталога и достаются как InternalAssets.OptionsContainer.
     public class OptionsContainer : EnvAsset
     {
         [SerializeField] private DebugOptions _debug = new();

@@ -46,6 +46,8 @@ namespace Internal
         }
 
         // Группа собирается в один бандл: всё её содержимое грузится вместе.
+        // Кэш бандлов Addressables выключен: хеш в имени бандла не меняется при смене байт
+        // (например, после апгрейда Unity), и кэш отдаёт старую версию с CRC Mismatch.
         internal static AddressableAssetGroup GetOrCreatePackedGroup(
             AddressableAssetSettings settings,
             string groupName)
@@ -70,8 +72,14 @@ namespace Internal
 
             var schema = group.GetSchema<BundledAssetGroupSchema>();
 
-            if (schema != null && schema.BundleMode != BundledAssetGroupSchema.BundlePackingMode.PackTogether)
+            if (schema == null)
+                return group;
+
+            if (schema.BundleMode != BundledAssetGroupSchema.BundlePackingMode.PackTogether)
                 schema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
+
+            if (schema.UseAssetBundleCache)
+                schema.UseAssetBundleCache = false;
 
             return group;
         }

@@ -1,0 +1,8 @@
+{
+  "groups": [
+    "GamePlay",
+    "Global",
+    "Internal"
+  ],
+  "nonAddressable": []
+}

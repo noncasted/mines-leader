@@ -37,9 +37,9 @@ graph TD
 ## Скоупы подробно
 
 ### Internal Scope
-**Файл:** `client/Assets/Common/Flow/Startup/InternalScopeLoader.cs`
+**Файл:** `client/Assets/Common/Internal/Runtime/Scopes/Services/InternalScopeExtensions.cs` (`LoadInternal`: обычный `ServiceScopeLoader.Load` без родителя)
 
-Корневой скоуп без сцены. `AssetCatalog.Load()`, регистрация `ISceneLoader`, `IServiceScopeLoader`, `IEntityScopeLoader`, `StartupAssetsPreload`, `OptionsContainer`.
+Корневой скоуп без сцены. группа `InternalAssets` (опции), регистрация `IServiceScopeLoader`, `IEntityScopeLoader`, `StartupAssetsPreload`, `OptionsContainer`.
 
 ### Global Scope
 **Файл:** `client/Assets/Common/Global/Setup/GlobalScopeExtensions.cs`

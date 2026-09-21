@@ -317,14 +317,13 @@
       }
     },
     "com.unity.web.stripping-tool": {
-      "version": "1.3.0",
+      "version": "file:com.unity.web.stripping-tool",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
-        "com.unity.settings-manager": "2.0.1",
-        "com.unity.nuget.newtonsoft-json": "3.2.2"
-      },
-      "url": "https://packages.unity.com"
+        "com.unity.nuget.newtonsoft-json": "3.2.2",
+        "com.unity.settings-manager": "2.0.1"
+      }
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

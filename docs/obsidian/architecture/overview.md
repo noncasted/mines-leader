@@ -73,7 +73,7 @@ graph TD
 
 | Скоуп | Назначение | Сервисы |
 |-------|-----------|---------|
-| **Internal** | Корень DI, каталог ассетов, лоадеры скоупов | SceneLoader, ServiceScopeLoader, Options |
+| **Internal** | Корень DI, каталог ассетов, лоадеры скоупов | ServiceScopeLoader, ServiceScopeSceneLoader, Options |
 | **Global** | Глобальная инфраструктура | Audio, Camera, Input, BackendClient, Settings |
 | **Meta** | Авторизация и пользователь | Auth, User, MetaBackend, Matchmaking |
 | **Menu** | Главное меню | MenuLoop, Navigation, Social, Decks |

@@ -53,6 +53,7 @@ namespace GamePlay.Loop
             builder.RequestSpriteGroup(Sprites.Settings);
             builder.RequestPrefabGroup(GamePlayPrefabs.Group);
             builder.RequestAudioGroup(GamePlayAudio.Group);
+            builder.RequestEnvAssetGroup(GamePlayAssets.Group);
             
             builder
                 .AddGamePlayServices()

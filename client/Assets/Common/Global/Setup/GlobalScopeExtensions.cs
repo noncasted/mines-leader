@@ -30,7 +30,12 @@ namespace Global.Setup
         [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
         public static async UniTask Construct(IScopeBuilder builder)
         {
-            // GlobalPrefabs лежат в Resources и доступны без Retain.
+            // Опции (AddPublisher) и префабы (Instantiate в Add*) нужны прямо при регистрации,
+            // поэтому обе группы грузятся до неё, параллельно друг другу.
+            await UniTask.WhenAll(
+                builder.LoadEnvAssetGroup(GlobalAssets.Group),
+                builder.LoadPrefabGroup(GlobalPrefabs.Group));
+
             builder.AddUpdater();
             builder.AddAudio();
             builder.AddCamera();

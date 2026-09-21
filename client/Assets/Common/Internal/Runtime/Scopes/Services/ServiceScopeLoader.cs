@@ -9,13 +9,6 @@ namespace Internal
 
     public class ServiceScopeLoader : IServiceScopeLoader
     {
-        public ServiceScopeLoader(ISceneLoader sceneLoader)
-        {
-            _sceneLoader = sceneLoader;
-        }
-
-        private readonly ISceneLoader _sceneLoader;
-
         public async UniTask<ILoadedScope> Load(ScopeLoadOptions options)
         {
             var sceneName = options.SceneLoader.Name;
@@ -24,7 +17,7 @@ namespace Internal
             // расширении: в трассу они ложатся под тем этапом, который скоуп и открыл.
             using var stage = GameProfiler.Scope($"Scope: {sceneName}");
 
-            var sceneLoader = new ServiceScopeSceneLoader(_sceneLoader);
+            var sceneLoader = new ServiceScopeSceneLoader();
 
             IServiceScopeBinder binder;
 
@@ -52,7 +45,7 @@ namespace Internal
             using (GameProfiler.Scope("Setup"))
                 await builder.Events.RunConstruct(builder.ScopeLifetime);
 
-            var loadResult = new ScopeLoadResult(
+            var loadResult = new LoadedScope(
                 container,
                 builder.ScopeLifetime,
                 builder.Events,
@@ -60,8 +53,23 @@ namespace Internal
 
             return loadResult;
 
+            // Без родителя строится корень: его контейнер ни на кого не опирается.
             ScopeBuilder CreateBuilder()
             {
+                if (options.Parent == null)
+                {
+                    var rootLifetime = new Lifetime();
+
+                    return new ScopeBuilder(
+                        new ContainerBuilder(sceneName, rootLifetime),
+                        sceneLoader,
+                        binder,
+                        rootLifetime,
+                        null,
+                        new EventLoop(),
+                        options.IsMock);
+                }
+
                 var lifetime = options.Parent.Lifetime.Child();
                 var containerBuilder = new ContainerBuilder(sceneName, options.Parent.Container, lifetime);
 

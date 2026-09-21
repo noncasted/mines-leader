@@ -9,24 +9,7 @@ namespace Internal
 {
     public static class SceneLoaderExtensions
     {
-        public static async UniTask<(ILoadedScene, T)> LoadTypedResult<T>(
-            this ISceneLoader loader,
-            AssetReference scene)
-        {
-            var result = await loader.Load(scene);
-
-            var rootObjects = result.Scene.GetRootGameObjects();
-
-            foreach (var rootObject in rootObjects)
-            {
-                if (rootObject.TryGetComponent(out T searched) == true)
-                    return (result, searched);
-            }
-
-            throw new NullReferenceException($"Searched {typeof(T)} is not found");
-        }
-
-        public static async UniTask<T> LoadTyped<T>(this ISceneLoader loader, AssetReference scene, bool isMain = false)
+        public static async UniTask<T> LoadTyped<T>(this ServiceScopeSceneLoader loader, AssetReference scene, bool isMain = false)
         {
             var result = await loader.Load(scene, isMain);
 

@@ -5,22 +5,21 @@ using UnityEngine.SceneManagement;
 
 namespace Internal
 {
-    public class ServiceScopeSceneLoader : ISceneLoader
+    // Сцены скоупа: всё, что загружено или создано здесь, выгружается вместе со скоупом.
+    public class ServiceScopeSceneLoader
     {
-        public ServiceScopeSceneLoader(ISceneLoader sceneLoader)
-        {
-            _sceneLoader = sceneLoader;
-        }
-
         private readonly List<ILoadedScene> _results = new();
-        private readonly ISceneLoader _sceneLoader;
 
         public IReadOnlyList<ILoadedScene> Results => _results;
 
         public async UniTask<ILoadedScene> Load(AssetReference scene, bool isMain = false)
         {
-            var result = await _sceneLoader.Load(scene, isMain);
+            var handle = await Addressables.LoadSceneAsync(scene, LoadSceneMode.Additive).ToUniTask();
 
+            if (isMain == true)
+                SceneManager.SetActiveScene(handle.Scene);
+
+            var result = new LoadedScene(handle);
             _results.Add(result);
 
             return result;

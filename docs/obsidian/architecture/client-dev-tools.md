@@ -184,9 +184,15 @@ flowchart TD
 
 ### Env-ассеты (options)
 
-Маркерный баз-класс `EnvAsset`. Каталог — один `Assets/Common/Resources/AssetCatalog.asset`. Addressables нет: группы — только namespace.
+Маркерный баз-класс `EnvAsset`. Устроено как префабы: у каждой группы свой `EnvAssetGroupAsset` в `Catalogues/Assets/Groups/` (Addressables `Assets_<Group>`) или в `Groups/Resources/AssetGroups/` (галочка «Addressable Group» снята, список в `AssetGroups.json`).
 
-`InternalScopeLoader` зовёт `AssetCatalog.Load()` до сборки корневого контейнера. Дальше `InternalAssets.OptionsContainer`, `GlobalAssets.SettingsOptions`, `GamePlayAssets.CardDragOptions`.
+| Группа | Где | Кто грузит |
+|--------|-----|------------|
+| `InternalAssets` (`OptionsContainer`) | Resources | `LoadResourceEnvAssetGroup` в синхронном Construct корня |
+| `GlobalAssets` | Resources | `LoadEnvAssetGroup` в Construct Global — опции читаются при регистрации |
+| `GamePlayAssets` | Addressables | `RequestEnvAssetGroup` в Construct GamePlay |
+
+Обращение к свойству незагруженной адресуемой группы бросает исключение.
 
 Создать options из скрипта: `Assets/Create from sources` (`Ctrl+Q`) — кладёт `.asset` в `{Module}/Assets/Options/`.
 

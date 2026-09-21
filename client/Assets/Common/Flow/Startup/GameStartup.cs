@@ -23,11 +23,12 @@ namespace Flow.Startup
             // а сюда управление уже не возвращается (см. MenuLoader).
             GameProfiler.Begin("Startup");
 
-            var internalScopeLoader = new InternalScopeLoader();
-
             UnionInitializer.Execute();
+            BundleUrlVersioning.Setup();
 
-            var internalScope = await internalScopeLoader.Load();
+            // Корень строится тем же загрузчиком, что и остальные скоупы; дальше его берут уже из контейнера.
+            var serviceLoader = new ServiceScopeLoader();
+            var internalScope = await serviceLoader.LoadInternal();
 
             // Спрайты меты качаются параллельно всей дальнейшей загрузке: мета дождётся их сама.
             internalScope.Resolve<IStartupAssetsPreload>().Start();
