@@ -43,7 +43,7 @@ VContainer в продакшн-скоупах **нет**. Он остался т
 | `Internal/Runtime/` | Скоупы, контейнер, реактивность, каталоги, сеть, анимации, профайлер |
 | `Internal/Editor/` | Генераторы каталогов, Hierarchy Bindings, Container Graph/Debugger, Project Tools |
 | `Internal/Tests/Editor/` | Тесты lifetimes / EventSource / codegen контейнера, бенчмарк vs VContainer |
-| `Resources/` | `AssetCatalog.asset`, JSON карточек/баффов/режимов |
+| `Resources/` | JSON карточек/баффов/режимов |
 
 ---
 
@@ -62,7 +62,7 @@ sequenceDiagram
     participant GP as GamePlay
 
     GS->>GS: UnionInitializer
-    GS->>IS: InternalScopeLoader.Load
+    GS->>IS: ServiceScopeLoader.LoadInternal
     GS->>IS: StartupAssetsPreload.Start
     GS->>G: LoadGlobal
     GS->>M: LoadMeta
@@ -76,7 +76,7 @@ sequenceDiagram
 | Этап | Файл | Что происходит |
 |------|------|----------------|
 | Unions | `Flow/Loop/UnionInitializer.cs` | Регистрация MemoryPack union-типов протокола |
-| Internal | `Flow/Startup/InternalScopeLoader.cs` | `AssetCatalog.Load()`, корневой контейнер, лоадеры скоупов |
+| Internal | `Internal/Runtime/Scopes/Services/InternalScopeExtensions.cs` | корневой скоуп через `ServiceScopeLoader` без родителя, лоадеры скоупов |
 | Preload | `Internal/Runtime/Catalogues/Shared/StartupAssetsPreload.cs` | Параллельный Retain спрайтов меты (`CardsIcons`, `CardBuffs`, `MenuPlay`, `Portraits`) — на всё время приложения |
 | Global | `Global/Setup/GlobalScopeExtensions.cs` | Сцена `Global_Services`: updater, аудио, камера, ввод, HTTP, settings, publisher, UI |
 | Meta | `client/Assets/Meta/MetaScopeExtensions.cs` | Авторизация, WebSocket меты, матчмейкинг, реестры |
@@ -191,7 +191,7 @@ graph LR
 |---------|--------|----------|
 | Спрайты | `Sprites.Cards.Icon` | `LoadSpriteGroup` / `RequestSpriteGroup` |
 | Префабы | `GlobalPrefabs.GlobalCamera`, `MenuPrefabs.*` | Retain группы; Global — Resources, без Retain |
-| Env-ассеты | `InternalAssets.OptionsContainer`, `GamePlayAssets.*` | `AssetCatalog.Load()` один раз на старте |
+| Env-ассеты | `InternalAssets.OptionsContainer`, `GamePlayAssets.*` | группы скоупов: `Load/RequestEnvAssetGroup` |
 | Сцены | `Scenes.Menu`, `Scenes.GameField` | GUID → Addressables, кроме сцен из Build Settings |
 | Цвета | `Colors.Deck.Attack` | Статические поля, без загрузки |
 
@@ -280,7 +280,7 @@ VContainer в тестах — **только** baseline бенчмарка, н�
 | Файл | Роль |
 |------|------|
 | `Flow/Startup/GameStartup.cs` | Точка входа |
-| `Flow/Startup/InternalScopeLoader.cs` | Корневой скоуп |
+| `Internal/Runtime/Scopes/Services/InternalScopeExtensions.cs` | Корневой скоуп (`LoadInternal`) |
 | `Flow/Loop/GameLoop.cs` | Menu ↔ GamePlay |
 | `Global/Setup/GlobalScopeExtensions.cs` | Global Construct |
 | `Internal/Runtime/Scopes/Services/ServiceScopeLoader.cs` | Загрузка service-скоупа |

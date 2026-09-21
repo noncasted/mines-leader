@@ -2,7 +2,7 @@
 {
     public interface IScopeBuilder : IBuilder
     {
-        ISceneLoader SceneLoader { get; }
+        ServiceScopeSceneLoader SceneLoader { get; }
         IServiceScopeBinder Binder { get; }
         ILifetime ScopeLifetime { get; }
         bool IsMock { get; }
@@ -12,7 +12,7 @@
     {
         public ScopeBuilder(
             ContainerBuilder containerBuilder,
-            ISceneLoader sceneLoader,
+            ServiceScopeSceneLoader sceneLoader,
             IServiceScopeBinder binder,
             ILifetime scopeLifetime,
             ILoadedScope parent,
@@ -31,7 +31,7 @@
         }
 
         public ContainerBuilder ContainerBuilder { get; }
-        public ISceneLoader SceneLoader { get; }
+        public ServiceScopeSceneLoader SceneLoader { get; }
         public IServiceScopeBinder Binder { get; }
         public IContainerRegistry Registry => ContainerBuilder;
         public IEventLoop Events { get; }

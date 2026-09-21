@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
 using UnityEngine;
 
 namespace Internal
@@ -10,9 +11,13 @@ namespace Internal
     [NoAutoStaticsCleanup]
     public static class AssetCatalogGenerator
     {
-        public const string CatalogAssetPath = "Assets/Common/Resources/AssetCatalog.asset";
+        public const string GroupsFolder = "Assets/Common/Internal/Runtime/Catalogues/Assets/Groups";
 
-        private const string ResourcesFolder = "Assets/Common/Resources";
+        // Ассеты групп не из Addressables: Resources.Load ищет их по пути внутри Resources.
+        private const string ResourcesSubfolder = "AssetGroups";
+        private const string ResourcesFolder = GroupsFolder + "/Resources/" + ResourcesSubfolder;
+
+        private const string GroupPrefix = "Assets_";
         private const string LogTag = "AssetCatalogGenerator";
 
         private static readonly CatalogGenerationRunner Runner = new(LogTag, GenerateInternal);
@@ -38,17 +43,23 @@ namespace Internal
         {
             var groups = BuildGroups(CollectSources());
 
+            // Переезд между Addressables и Resources идёт до пакетного редактирования: внутри него
+            // перемещённый ассет по новому пути ещё не читается, и группа создалась бы заново.
+            MoveGroupAssets(groups);
+
             AssetDatabase.StartAssetEditing();
 
             try
             {
-                WriteCatalogAsset(groups);
+                WriteGroupAssets(groups);
             }
             finally
             {
                 AssetDatabase.StopAssetEditing();
             }
 
+            // Группы из Resources в Addressables не попадают: их addressable-группы sync снесёт как лишние.
+            CatalogAddressablesSync.Sync(LogTag, GroupPrefix, GroupsFolder, groups.FindAll(group => group.IsAddressable));
             AssetsCatalogClassGenerator.Generate(groups);
             AssetGroupsRegistry.Instance.Invalidate();
             AssetDatabase.SaveAssets();
@@ -146,7 +157,9 @@ namespace Internal
                     group = new AssetGroupDefinition
                     {
                         Name = source.Group,
-                        ClassName = source.Group + "Assets"
+                        ClassName = source.Group + "Assets",
+                        IsAddressable = AssetGroupsRegistry.Instance.IsAddressable(source.Group),
+                        ResourcePath = $"{ResourcesSubfolder}/{source.Group}"
                     };
                     groups.Add(source.Group, group);
                     usedNames.Add(source.Group, new HashSet<string>(StringComparer.Ordinal));
@@ -164,6 +177,7 @@ namespace Internal
                 group.Properties.Add(new AssetPropertyDefinition
                 {
                     PropertyName = source.PropertyName,
+                    FieldName = "_" + char.ToLowerInvariant(source.PropertyName[0]) + source.PropertyName.Substring(1),
                     Asset = source.Asset,
                     TypeFullName = (type.FullName ?? string.Empty).Replace('+', '.'),
                     TypeAssembly = type.Assembly.GetName().Name
@@ -221,80 +235,122 @@ namespace Internal
             }
         }
 
-        private static void WriteCatalogAsset(IReadOnlyList<AssetGroupDefinition> groups)
+        private static void WriteGroupAssets(IReadOnlyList<AssetGroupDefinition> groups)
         {
-            CatalogPaths.EnsureFolder(ResourcesFolder);
+            CatalogPaths.EnsureFolder(GroupsFolder);
 
-            var catalog = AssetDatabase.LoadAssetAtPath<EnvAssetCatalogAsset>(CatalogAssetPath);
-
-            if (catalog == null)
-            {
-                catalog = ScriptableObject.CreateInstance<EnvAssetCatalogAsset>();
-                AssetDatabase.CreateAsset(catalog, CatalogAssetPath);
-            }
-
-            var entries = new List<EnvAssetCatalogAsset.Entry>();
+            var writtenPaths = new HashSet<string>(StringComparer.Ordinal);
 
             foreach (var group in groups)
             {
-                foreach (var property in group.Properties)
-                {
-                    entries.Add(new EnvAssetCatalogAsset.Entry
-                    {
-                        Group = group.Name,
-                        Name = property.PropertyName,
-                        Asset = property.Asset
-                    });
-                }
+                var path = GetGroupAssetPath(group, group.IsAddressable);
+                writtenPaths.Add(path);
+                WriteGroupAsset(path, group);
             }
 
-            if (EntriesMatch(catalog, entries))
-                return;
-
-            var serialized = new SerializedObject(catalog);
-            var array = serialized.FindProperty("_entries");
-            array.arraySize = entries.Count;
-
-            for (var i = 0; i < entries.Count; i++)
-            {
-                var element = array.GetArrayElementAtIndex(i);
-                element.FindPropertyRelative("Group").stringValue = entries[i].Group;
-                element.FindPropertyRelative("Name").stringValue = entries[i].Name;
-                element.FindPropertyRelative("Asset").objectReferenceValue = entries[i].Asset;
-            }
-
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(catalog);
+            // Resources лежит внутри GroupsFolder, поэтому поиск устаревших ассетов захватывает и его.
+            DeleteStaleAssets(writtenPaths);
         }
 
-        private static bool EntriesMatch(
-            EnvAssetCatalogAsset catalog,
-            IReadOnlyList<EnvAssetCatalogAsset.Entry> entries)
+        private static string GetGroupAssetPath(AssetGroupDefinition group, bool isAddressable)
         {
-            var existing = catalog.Entries;
+            return isAddressable
+                ? $"{GroupsFolder}/{group.Name}.asset"
+                : $"{ResourcesFolder}/{group.Name}.asset";
+        }
 
-            if (existing == null || existing.Count != entries.Count)
+        // Ассет группы переезжает, а не пересоздаётся: GUID и ссылки на него сохраняются.
+        private static void MoveGroupAssets(IReadOnlyList<AssetGroupDefinition> groups)
+        {
+            foreach (var group in groups)
+            {
+                var path = GetGroupAssetPath(group, group.IsAddressable);
+                var previousPath = GetGroupAssetPath(group, group.IsAddressable == false);
+
+                if (AssetDatabase.LoadAssetAtPath<EnvAssetGroupAsset>(previousPath) == null)
+                    continue;
+
+                CatalogPaths.EnsureFolder(group.IsAddressable ? GroupsFolder : ResourcesFolder);
+
+                // Запись Addressables на ассете в Resources дала бы вторую копию в бандле.
+                if (group.IsAddressable == false)
+                    AddressableAssetSettingsDefaultObject.Settings?.RemoveAssetEntry(
+                        AssetDatabase.AssetPathToGUID(previousPath), false);
+
+                var error = AssetDatabase.MoveAsset(previousPath, path);
+
+                if (string.IsNullOrEmpty(error) == false)
+                    Debug.LogError($"[{LogTag}] Failed to move {previousPath} to {path}: {error}");
+            }
+        }
+
+        private static void WriteGroupAsset(string path, AssetGroupDefinition group)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<EnvAssetGroupAsset>(path);
+
+            if (asset == null)
+            {
+                asset = ScriptableObject.CreateInstance<EnvAssetGroupAsset>();
+                AssetDatabase.CreateAsset(asset, path);
+            }
+
+            var serialized = new SerializedObject(asset);
+            var entries = serialized.FindProperty("_entries");
+
+            if (EntriesMatch(entries, group.Properties) == false)
+            {
+                entries.arraySize = group.Properties.Count;
+
+                for (var i = 0; i < group.Properties.Count; i++)
+                {
+                    var entry = entries.GetArrayElementAtIndex(i);
+                    entry.FindPropertyRelative("Name").stringValue = group.Properties[i].PropertyName;
+                    entry.FindPropertyRelative("Asset").objectReferenceValue = group.Properties[i].Asset;
+                }
+
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(asset);
+            }
+
+            group.Address = AssetDatabase.AssetPathToGUID(path);
+        }
+
+        private static bool EntriesMatch(SerializedProperty entries, IReadOnlyList<AssetPropertyDefinition> properties)
+        {
+            if (entries == null || entries.isArray == false || entries.arraySize != properties.Count)
                 return false;
 
-            for (var i = 0; i < entries.Count; i++)
+            for (var i = 0; i < properties.Count; i++)
             {
-                var left = existing[i];
-                var right = entries[i];
+                var entry = entries.GetArrayElementAtIndex(i);
 
-                if (left == null)
+                if (entry.FindPropertyRelative("Name").stringValue != properties[i].PropertyName)
                     return false;
 
-                if (string.Equals(left.Group, right.Group, StringComparison.Ordinal) == false)
-                    return false;
-
-                if (string.Equals(left.Name, right.Name, StringComparison.Ordinal) == false)
-                    return false;
-
-                if (left.Asset != right.Asset)
+                if (entry.FindPropertyRelative("Asset").objectReferenceValue != properties[i].Asset)
                     return false;
             }
 
             return true;
+        }
+
+        private static void DeleteStaleAssets(HashSet<string> writtenPaths)
+        {
+            if (AssetDatabase.IsValidFolder(GroupsFolder) == false)
+                return;
+
+            var guids = AssetDatabase.FindAssets($"t:{nameof(EnvAssetGroupAsset)}", new[] { GroupsFolder });
+
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (writtenPaths.Contains(path))
+                    continue;
+
+                AssetDatabase.DeleteAsset(path);
+                Debug.Log($"[{LogTag}] Deleted stale group asset: {path}");
+            }
         }
 
         private sealed class AssetSource
@@ -306,19 +362,23 @@ namespace Internal
         }
     }
 
-    internal sealed class AssetGroupDefinition
+    internal sealed class AssetGroupDefinition : ICatalogGroupDefinition
     {
-        public string Name;
+        public string Name { get; set; }
+        public string Address { get; set; }
         public string ClassName;
         public string TargetNamespace;
         public string GeneratedFolder;
         public bool SkipCodegen;
+        public bool IsAddressable = true;
+        public string ResourcePath;
         public List<AssetPropertyDefinition> Properties = new();
     }
 
     internal sealed class AssetPropertyDefinition
     {
         public string PropertyName;
+        public string FieldName;
         public EnvAsset Asset;
         public string TypeFullName;
         public string TypeAssembly;

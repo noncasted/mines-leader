@@ -41,6 +41,7 @@ namespace Internal
             ["Sprites_MenuNavigation"] = Phase.Menu,
             ["Sprites_MenuUnlocks"] = Phase.Menu,
             ["Scenes_GamePlay"] = Phase.GamePlay,
+            ["Assets_GamePlay"] = Phase.GamePlay,
             ["Sprites_Cards"] = Phase.GamePlay,
             ["Sprites_GameUIPlate"] = Phase.GamePlay
         };

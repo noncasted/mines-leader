@@ -27,8 +27,12 @@
 | `com.unity.ugui` 2.7.0 | `Packages/com.unity.ugui` | `Runtime/UGUI/UnityEngine.UI.asmdef`: удалены versionDefines `PACKAGE_UITOOLKIT`, `PACKAGE_PHYSICS`, `PACKAGE_ANIMATION` |
 | `com.unity.render-pipelines.universal` 17.7.0 | `Packages/com.unity.render-pipelines.universal` | `Runtime/Unity.RenderPipelines.Universal.Runtime.asmdef`: удалён `ENABLE_UIELEMENTS_MODULE` |
 | `com.unity.render-pipelines.core` | `Packages/com.unity.render-pipelines.core` | `Runtime/Unity.RenderPipelines.Core.Runtime.asmdef` и `Editor/Unity.RenderPipelines.Core.Editor.asmdef`: удалён `ENABLE_PHYSICS_MODULE` |
+| `com.unity.web.stripping-tool` 1.3.0 | `Packages/com.unity.web.stripping-tool` | `Editor/Core/WasmOpt.cs`, `EnableEmscripten4FeaturesArg`: добавлен `--enable-exception-handling` |
 
-Пакеты скопированы без `Documentation~`, `Samples~` и `Tests`. Код внутри не менялся, только asmdef.
+Пакеты скопированы без `Documentation~`, `Samples~` и `Tests`. В ugui и RP менялись только asmdef.
+
+> [!danger] Web Stripping Tool без `--enable-exception-handling`
+> Пакет после билда прогоняет wasm через `wasm-opt -O3`, но не включает фичу exceptions. Binaryen тогда считает, что вызовы не бросают, и выкидывает все `try`/`catch`: в релизном wasm их было 0 при ~9000 после линковки. Любое исключение, даже пойманное в C#, роняет плеер (`Uncaught exception from main loop`). Так падала отмена поиска матча: UniTask бросает `OperationCanceledException`. Dev-билд и редактор не затронуты. Проверка после обновления пакета: `wasm-dis --all-features <build>.wasm | grep -c '(try'` должно быть больше нуля.
 
 Что теряем:
 - **UGUI:** в билде не работают `PhysicsRaycaster`, блокировка лучей 3D-коллайдерами в `GraphicRaycaster`, Animation-переходы `Selectable` и связка EventSystem с панелями UI Toolkit.
@@ -56,14 +60,14 @@
 Встроенные пакеты не обновляются вместе с редактором. Порядок действий:
 
 1. Закрыть Unity.
-2. Удалить `Packages/com.unity.ugui`, `Packages/com.unity.render-pipelines.universal` и `Packages/com.unity.render-pipelines.core`.
+2. Удалить `Packages/com.unity.ugui`, `Packages/com.unity.render-pipelines.universal`, `Packages/com.unity.render-pipelines.core` и `Packages/com.unity.web.stripping-tool`.
 3. Открыть Unity, чтобы новые версии скачались в `Library/PackageCache`, и закрыть снова.
 4. Скопировать пакеты из `Library/PackageCache/<пакет>@<хеш>` в `Packages/<пакет>`, исключив `Documentation~`, `Samples~` и `Tests` (с `Tests.meta`):
    ```bash
    rsync -a --exclude 'Documentation~' --exclude 'Samples~' --exclude '/Tests' --exclude '/Tests.meta' \
        Library/PackageCache/com.unity.ugui@<hash>/ Packages/com.unity.ugui/
    ```
-5. Повторить правки asmdef из таблицы выше. Проверить, не появились ли новые versionDefines на `com.unity.modules.uielements`, `physics`, `animation` или `xr`.
+5. Повторить правки из таблицы выше. У Web Stripping Tool оставить `ProfilingTemplate~`: его читает код пакета. Проверить, не появились ли новые versionDefines на `com.unity.modules.uielements`, `physics`, `animation` или `xr`.
 6. Открыть Unity и собрать билд.
 
 > [!warning] Устаревший импорт asmdef

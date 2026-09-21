@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using Flow.Loop;
-using Flow.Startup;
 using Global.Setup;
 using Internal;
 using Meta;
@@ -11,8 +10,6 @@ namespace Flow.Mocks
     [DisallowMultipleComponent]
     public abstract class MockBase : MonoBehaviour
     {
-        private ILoadedScope _internalScope;
-
         public abstract UniTaskVoid Process();
 
         protected async UniTask<ILoadedScope> Bootstrap()
@@ -20,20 +17,14 @@ namespace Flow.Mocks
             GameProfiler.Begin("Mock");
 
             UnionInitializer.Execute();
-            var internalScopeLoader = new InternalScopeLoader();
-            _internalScope = await internalScopeLoader.Load();
-            _internalScope.Container.Resolve<IStartupAssetsPreload>().Start();
-            var scopeLoader = _internalScope.Container.Resolve<IServiceScopeLoader>();
+            var internalScope = await new ServiceScopeLoader().LoadInternal();
+            internalScope.Container.Resolve<IStartupAssetsPreload>().Start();
+            var scopeLoader = internalScope.Container.Resolve<IServiceScopeLoader>();
 
-            var globalScope = await scopeLoader.LoadGlobal(_internalScope);
+            var globalScope = await scopeLoader.LoadGlobal(internalScope);
             var metaScope = await scopeLoader.LoadMeta(globalScope);
 
             return metaScope;
-        }
-
-        private void OnApplicationQuit()
-        {
-            _internalScope?.Dispose().Forget();
         }
     }
 }

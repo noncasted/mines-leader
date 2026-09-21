@@ -31,6 +31,9 @@ namespace Internal
                     states.Group,
                     states.GroupMixed,
                     group => Apply(importers, metadata => metadata.Group = group));
+
+                if (states.GroupMixed == false && string.IsNullOrEmpty(states.Group) == false)
+                    DrawAddressable(states.Group);
             }
         }
 
@@ -71,6 +74,21 @@ namespace Internal
             if (CatalogInspectorGUI.TryDrawToggle("Asset Catalog", states.Included, states.IncludedMixed,
                 out var included))
                 Apply(importers, metadata => metadata.Included = included);
+        }
+
+        // Настройка общая на всю группу: снятая галочка уносит ассет группы из Addressables
+        // в Resources у всех её ассетов сразу.
+        private static void DrawAddressable(string group)
+        {
+            var registry = AssetGroupsRegistry.Instance;
+            var isAddressable = registry.IsAddressable(group);
+
+            if (CatalogInspectorGUI.TryDraw(false, () => EditorGUILayout.ToggleLeft("Addressable Group", isAddressable),
+                    out var next) == false)
+                return;
+
+            if (registry.SetAddressable(group, next))
+                AssetCatalogGenerator.ScheduleGenerate();
         }
 
         private static void Apply(IReadOnlyList<AssetImporter> importers, Action<AssetCatalogMetadata> mutate)

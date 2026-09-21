@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d4de8f7c490b603821b1806c9eca90, type: 3}
+  m_Name: Internal
+  m_EditorClassIdentifier: Internal::Internal.EnvAssetGroupAsset
+  _entries:
+  - Name: OptionsContainer
+    Asset: {fileID: 11400000, guid: 40d7ccf49c754180b9c36c76f925ab1f, type: 2}
