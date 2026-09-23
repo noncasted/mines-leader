@@ -12,15 +12,15 @@ Your field sits next to your opponent's. You both dig at the same time, and you 
 
 ![Bloodhound](docs/media/bloodhound.webp)
 
-Cards replace guesswork. Drop Bloodhound on a spot you can't read, and it clears the whole diamond, mines included. Playback is 2×.
+Cards replace guesswork. Drop Bloodhound on a spot you can't read, and it clears the whole diamond, mines included.
 
 ![Enemy field](docs/media/enemy-field.webp)
 
-Watch your opponent aim and track how close they are to finishing. Pick your moment to bury their field in mines or smoke. Playback is 2×.
+Watch your opponent aim and track how close they are to finishing. Pick your moment to bury their field in mines or smoke.
 
 ![Your field](docs/media/player-field.webp)
 
-Stack cards into one turn. Zip Zap defuses a chain of mines, and one good click cascades open a corner of the board. Playback is 2×.
+Stack cards into one turn. Zip Zap defuses a chain of mines, and one good click cascades open a corner of the board.
 
 ## Stack
 
