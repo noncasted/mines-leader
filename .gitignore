@@ -123,5 +123,8 @@ __pycache__/
 
 /client/traces/
 
+# Hot Reload for Unity — local-only embedded package.
+/client/[Pp]ackages/com.singularitygroup.hotreload/
+
 # SSH password for tools/scripts/deploy-webgl.sh — never commit.
 /tools/scripts/.deploy-password
