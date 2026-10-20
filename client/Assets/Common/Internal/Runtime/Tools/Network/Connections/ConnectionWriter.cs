@@ -57,7 +57,7 @@ namespace Internal
         /// Обрыв соединения: ответов больше не будет, поэтому ожидающие запросы завершаются
         /// сразу, а не по таймауту. Очередь отправки останавливается, в сокет писать некуда.
         /// </summary>
-        private void OnClosed(string reason)
+        private void OnClosed(SocketCloseInfo info)
         {
             Close();
         }

@@ -13,7 +13,7 @@ namespace Internal
 
         private readonly Uri _uri;
         private readonly ViewableDelegate<byte[]> _received = new();
-        private readonly ViewableDelegate<string> _closed = new();
+        private readonly ViewableDelegate<SocketCloseInfo> _closed = new();
 
         private readonly ILifetime _lifetime;
         private readonly CancellationToken _cancellation;
@@ -24,7 +24,7 @@ namespace Internal
 
         public WebSocketState State => _socket.State;
         public IViewableDelegate<byte[]> Received => _received;
-        public IViewableDelegate<string> Closed => _closed;
+        public IViewableDelegate<SocketCloseInfo> Closed => _closed;
 
         public DefaultWebSocket(string url, IReadOnlyLifetime lifetime)
         {
@@ -67,7 +67,7 @@ namespace Internal
         private async UniTask Receive(IReadOnlyLifetime lifetime)
         {
             var buffer = new ArraySegment<byte>(new byte[8192]);
-            var closeReason = "unknown";
+            var closeInfo = new SocketCloseInfo(SocketCloseInfo.AbnormalClosure, "unknown");
 
             try
             {
@@ -86,7 +86,14 @@ namespace Internal
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        closeReason = $"closed by server: {result.CloseStatus} {result.CloseStatusDescription}";
+                        // The code of the server (ProtocolVersion.ClientOutdatedCloseCode of an outdated client), 1005
+                        // for a Close frame without one, as a browser reports it.
+                        var code = result.CloseStatus.HasValue == true
+                            ? (int)result.CloseStatus.Value
+                            : SocketCloseInfo.NoStatusReceived;
+
+                        closeInfo = new SocketCloseInfo(code,
+                            $"closed by server: {result.CloseStatus} {result.CloseStatusDescription}");
                         await AcknowledgeClose();
                         break;
                     }
@@ -109,15 +116,17 @@ namespace Internal
             }
             catch (WebSocketException exception)
             {
-                closeReason = $"socket error: {exception.WebSocketErrorCode} {exception.Message}";
+                closeInfo = new SocketCloseInfo(SocketCloseInfo.AbnormalClosure,
+                    $"socket error: {exception.WebSocketErrorCode} {exception.Message}");
             }
             catch (Exception exception)
             {
                 Debug.LogException(exception);
-                closeReason = $"receive failed: {exception.GetType().Name} {exception.Message}";
+                closeInfo = new SocketCloseInfo(SocketCloseInfo.AbnormalClosure,
+                    $"receive failed: {exception.GetType().Name} {exception.Message}");
             }
 
-            await NotifyClosed(closeReason);
+            await NotifyClosed(closeInfo);
         }
 
         /// <summary>
@@ -140,7 +149,7 @@ namespace Internal
             }
         }
 
-        private async UniTask NotifyClosed(string reason)
+        private async UniTask NotifyClosed(SocketCloseInfo info)
         {
             await UniTask.SwitchToMainThread();
 
@@ -149,8 +158,8 @@ namespace Internal
 
             _isClosedNotified = true;
 
-            Debug.LogWarning($"[Network] [DefaultWebSocket] Connection lost: {reason}");
-            _closed.Invoke(reason);
+            Debug.LogWarning($"[Network] [DefaultWebSocket] Connection lost: {info}");
+            _closed.Invoke(info);
         }
 
         /// <summary>

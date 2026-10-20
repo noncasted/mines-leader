@@ -49,6 +49,13 @@ public class SessionConnectionMiddleware
             return;
         }
 
+        // Before the auth is read: a client of another protocol may not even parse the request the same way.
+        if (ClientProtocolCheck.IsCurrent(context) == false)
+        {
+            await ClientProtocolCheck.RejectOutdated(context, _logger);
+            return;
+        }
+
         WebSocket? webSocket = null;
 
         try

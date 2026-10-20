@@ -23,7 +23,8 @@ namespace Meta
             IMetaState state,
             IStartupAssetsPreload startupAssets,
             IReadOnlyList<IMetaRegistry> registries,
-            IBackendProjection<SharedBackendUser.ProfileProjection> profile)
+            IBackendProjection<SharedBackendUser.ProfileProjection> profile,
+            IClientOutdatedNotice outdatedNotice)
         {
             _authentication = authentication;
             _backend = backend;
@@ -31,6 +32,7 @@ namespace Meta
             _startupAssets = startupAssets;
             _registries = registries;
             _profile = profile;
+            _outdatedNotice = outdatedNotice;
         }
 
         // A failed first connect is tried again after this pause (the server may be restarting).
@@ -45,6 +47,7 @@ namespace Meta
         private readonly IStartupAssetsPreload _startupAssets;
         private readonly IReadOnlyList<IMetaRegistry> _registries;
         private readonly IBackendProjection<SharedBackendUser.ProfileProjection> _profile;
+        private readonly IClientOutdatedNotice _outdatedNotice;
 
         private IReadOnlyLifetime _scopeLifetime;
         private ILifetime _connectionLifetime;
@@ -65,6 +68,10 @@ namespace Meta
 
         public async UniTask EnsureConnected(IReadOnlyLifetime lifetime)
         {
+            // The server runs another protocol: every connect is refused the same way, the notice is already shown.
+            if (_outdatedNotice.IsShown == true)
+                throw new ClientOutdatedException("[Meta] [Loop] The client is outdated: the meta is not reconnected");
+
             if (_userId == Guid.Empty)
                 throw new InvalidOperationException("[Meta] [Loop] The meta is reconnected before its first authorization");
 
@@ -107,6 +114,14 @@ namespace Meta
                 // again. Only the end of the meta scope stops it.
                 catch (Exception exception) when (lifetime.IsTerminated == false)
                 {
+                    // The server closed the socket as one of an outdated client: no retry can succeed, the notice
+                    // with the way to update covers the menu.
+                    if (_outdatedNotice.IsShown == true)
+                    {
+                        Debug.LogWarning("[Meta] [Loop] The client is outdated: the meta connection is not retried");
+                        return;
+                    }
+
                     Debug.LogWarning($"[Meta] [Loop] Meta connection failed, next attempt in {RetryDelay.TotalSeconds} s: " +
                                      $"{exception.GetType().Name} {exception.Message}");
                 }
@@ -243,14 +258,14 @@ namespace Meta
         {
             public ConnectionLoss(INetworkConnection connection, IReadOnlyLifetime lifetime)
             {
-                connection.Closed.Advise(lifetime, reason => {
-                    _reason = reason;
+                connection.Closed.Advise(lifetime, info => {
+                    _info = info;
                     _lost.TrySetResult();
                 });
             }
 
             private readonly UniTaskCompletionSource _lost = new();
-            private string _reason;
+            private SocketCloseInfo _info;
 
             public async UniTask Race(UniTask task)
             {
@@ -272,7 +287,7 @@ namespace Meta
 
             private Exception Lost()
             {
-                return new Exception($"[Meta] [Loop] The meta connection is lost while connecting: {_reason}");
+                return new Exception($"[Meta] [Loop] The meta connection is lost while connecting: {_info}");
             }
         }
     }

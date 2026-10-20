@@ -20,9 +20,12 @@ namespace Internal
         private static bool _callbacksInitialized;
 
         private readonly ViewableDelegate<byte[]> _received = new();
-        private readonly ViewableDelegate<string> _closed = new();
+        private readonly ViewableDelegate<SocketCloseInfo> _closed = new();
         private readonly IReadOnlyLifetime _lifetime;
         private readonly int _handlerId;
+
+        // JsWebSocketSend: readyState is not OPEN.
+        private const int SendNotOpen = -3;
 
         private bool _isConnected;
         private bool _isDisposed;
@@ -30,7 +33,7 @@ namespace Internal
         private int _closeCode;
 
         public IViewableDelegate<byte[]> Received => _received;
-        public IViewableDelegate<string> Closed => _closed;
+        public IViewableDelegate<SocketCloseInfo> Closed => _closed;
 
         public JsWebSocket(string url, IReadOnlyLifetime lifetime)
         {
@@ -93,6 +96,11 @@ namespace Internal
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(JsWebSocket));
 
+            // Closed by the browser: the loss is already reported by OnClose with the code of the server, the message
+            // is dropped as every other one left in the queue of a lost connection.
+            if (_isClosed == true)
+                return;
+
             if (!_isConnected)
                 throw new InvalidOperationException("WebSocket is not connected");
 
@@ -103,6 +111,11 @@ namespace Internal
             {
                 var ptr = handle.AddrOfPinnedObject();
                 var result = JsWebSocketSend(_handlerId, ptr, bytes.Length);
+
+                // CLOSING: the Close frame of the server has arrived, onclose with its code follows. The message is
+                // dropped; reporting the loss from here would race onclose and hide its code.
+                if (result == SendNotOpen)
+                    return;
 
                 if (result != 0)
                     throw new Exception($"Failed to send data: error={result}");
@@ -239,8 +252,8 @@ namespace Internal
                 var errorMessage = Marshal.PtrToStringAnsi(errorPtr);
                 Debug.LogError($"[Network] [JsWebSocket] OnError: id={handlerId}, error={errorMessage}");
 
-                // Mark as not connected
-                instance._isConnected = false;
+                // The connection state is left to OnClose, which the browser always sends after onerror: clearing
+                // _isConnected here made OnClose take an open socket for a never opened one and swallow the loss.
             }
             else
             {
@@ -264,7 +277,7 @@ namespace Internal
                 // Dispose удаляет инстанс из Instances до JsWebSocketClose, так что локальное
                 // закрытие сюда не попадает.
                 if (wasConnected == true && instance._isDisposed == false)
-                    instance._closed.Invoke($"closed by browser: code={code}");
+                    instance._closed.Invoke(new SocketCloseInfo(code, "closed by browser"));
             }
             else
             {

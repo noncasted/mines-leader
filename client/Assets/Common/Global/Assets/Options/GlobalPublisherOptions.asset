@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _assetId: 33
   _itchCallbacksPrefab: {fileID: 2268424486547412797, guid: 3d9d23b65258c78429a3914671514e35, type: 3}
+  _outdatedNoticeFont: {fileID: 11400000, guid: f20a0a776c428a09a8148113398cae3e, type: 2}

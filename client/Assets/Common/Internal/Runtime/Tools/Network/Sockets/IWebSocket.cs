@@ -13,10 +13,10 @@ namespace Internal
 
         /// <summary>
         /// Соединение оборвалось не по нашей инициативе: закрыл сервер, упала сеть, ошибка
-        /// сокета. Вызывается один раз с причиной для лога. При локальном завершении
+        /// сокета. Вызывается один раз с кодом закрытия и причиной для лога. При локальном завершении
         /// лайфтайма не вызывается.
         /// </summary>
-        IViewableDelegate<string> Closed { get; }
+        IViewableDelegate<SocketCloseInfo> Closed { get; }
 
         UniTask Connect();
         UniTask Send(byte[] bytes);
