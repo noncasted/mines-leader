@@ -20,6 +20,15 @@ public class SessionConnectionMiddleware
         _logger = logger;
     }
 
+    // A client lost without a close (a domain reload in the middle of Play leaves its socket open in the editor
+    // process, a crash, a dropped network) never ends the read loop by itself: the protocol ping finds it. A client
+    // that does not answer a ping within KeepAliveTimeout is aborted, its user leaves the session as after a close and
+    // the session left with no players is closed. A browser answers pings by itself (a hidden tab too); the Unity
+    // client answers from its receive loop, which waits for the main thread after every message: a main thread
+    // stalled for longer than interval + timeout (a paused editor) loses the session.
+    public static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(10);
+    public static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(30);
+
     private readonly ISessionsCollection _sessionsCollection;
     private readonly RequestDelegate _next;
     private readonly IClusterParticipantContext _participantContext;
@@ -44,7 +53,11 @@ public class SessionConnectionMiddleware
 
         try
         {
-            webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            webSocket = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
+            {
+                KeepAliveInterval = KeepAliveInterval,
+                KeepAliveTimeout = KeepAliveTimeout
+            });
         }
         catch (Exception e)
         {

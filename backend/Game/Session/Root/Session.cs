@@ -1,5 +1,6 @@
 ﻿using Common.Extensions;
 using Common.Reactive;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.Session;
@@ -33,6 +34,15 @@ public class SessionContainerData
     public required int ExpectedUsers { get; init; }
     public required Guid Id { get; init; }
     public required ILifetime Lifetime { get; init; }
+
+    // Match: all expected users must connect within this time, otherwise the session closes (a player that never
+    // came must not hold it forever). Shorter than the keep-alive abort of a connected socket that is not read yet
+    // (SessionConnectionMiddleware: interval + timeout).
+    public TimeSpan JoinTimeout { get; init; } = TimeSpan.FromSeconds(30);
+
+    // Lobby: the users found it by search and connect a moment later, so an empty lobby is kept this long
+    // before it may close.
+    public TimeSpan EmptyLobbyGrace { get; init; } = TimeSpan.FromSeconds(30);
 }
 
 public class Session : ISession
@@ -42,9 +52,11 @@ public class Session : ISession
         IUserFactory userFactory,
         ISessionUsers users,
         ISessionEntities entities,
-        IExecutionQueue executionQueue)
+        IExecutionQueue executionQueue,
+        ILogger<Session> logger)
     {
         _data = data;
+        _logger = logger;
         _users = users;
         _entities = entities;
         ExecutionQueue = executionQueue;
@@ -54,6 +66,7 @@ public class Session : ISession
     private readonly ISessionUsers _users;
     private readonly ISessionEntities _entities;
     private readonly SessionContainerData _data;
+    private readonly ILogger<Session> _logger;
     private readonly ViewableDelegate _allUsersConnected = new();
 
     public Guid Id => _data.Id;
@@ -67,7 +80,17 @@ public class Session : ISession
 
     public async Task Run()
     {
-        await AwaitUsersJoin();
+        if (await AwaitUsersJoin() == false)
+        {
+            _logger.LogWarning("[Session] Session {ID}: {Count} of {Expected} users joined in {Timeout} — closing",
+                Id,
+                _users.Count,
+                _data.ExpectedUsers,
+                _data.JoinTimeout);
+
+            _data.Lifetime.Terminate();
+            return;
+        }
 
         if (_data.ExpectedUsers == 0)
         {
@@ -81,25 +104,51 @@ public class Session : ISession
 
         _allUsersConnected.Invoke();
 
-        await Task.Delay(TimeSpan.FromSeconds(30));
+        if (Type == SessionType.Lobby)
+            await Task.Delay(_data.EmptyLobbyGrace);
 
-        await AwaitUsersLeave();
+        await AwaitPlayersLeave();
 
         _data.Lifetime.Terminate();
 
-        async Task AwaitUsersJoin()
+        async Task<bool> AwaitUsersJoin()
         {
             if (_data.ExpectedUsers == 0)
-                return;
+                return true;
+
+            var deadline = DateTime.UtcNow + _data.JoinTimeout;
 
             while (_users.Count < _data.ExpectedUsers)
-                await Task.Delay(TimeSpan.FromSeconds(1));
-        }
+            {
+                if (DateTime.UtcNow >= deadline)
+                    return false;
 
-        async Task AwaitUsersLeave()
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }
+
+            return true;
+        }
+    }
+
+    // Completes as soon as no human user is left: a bot never leaves by itself (its connection lives as long as
+    // the session), so a match with a bot would otherwise never close. A user leaves when its socket closes or
+    // the keep-alive aborts a half-open one.
+    private Task AwaitPlayersLeave()
+    {
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        // Users are added and removed in the execution queue: the list is read there too.
+        ExecutionQueue.Enqueue(() => {
+            _users.View(Lifetime, (userLifetime, _) => userLifetime.Listen(Check));
+            Check();
+        });
+
+        return completion.Task;
+
+        void Check()
         {
-            while (_users.Count != 0)
-                await Task.Delay(TimeSpan.FromSeconds(10));
+            if (_users.All(user => user.IsBot == true))
+                completion.TrySetResult();
         }
     }
 
