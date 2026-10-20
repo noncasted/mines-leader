@@ -1,4 +1,3 @@
-using System.Reflection;
 using Cluster.Configs;
 using Cluster.Discovery;
 using Cluster.State;
@@ -10,11 +9,7 @@ using Infrastructure.Execution;
 using Infrastructure.Startup;
 using Infrastructure.State;
 using JasperFx;
-using JasperFx.Events;
-using JasperFx.Events.Projections;
 using Marten;
-using Marten.Events.Projections;
-using Marten.Services;
 using Meta.Bots;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +18,7 @@ using Orleans.TestingHost;
 using Shared;
 using Tests.Grains;
 using Xunit;
+using Orchestration;
 using TaskScheduler = Infrastructure.Execution.TaskScheduler;
 
 namespace Tests.Fixtures;
@@ -74,61 +70,11 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 dbSource.Value.Returns(dataSource);
                 services.AddSingleton(dbSource);
 
-                // Marten document store for event sourcing tests
-                var martenStore = DocumentStore.For(options =>
-                {
+                // Marten document store for event sourcing tests: the hosts' settings over the test registry.
+                var martenStore = DocumentStore.For(options => {
                     options.Connection(dataSource);
-                    options.Events.StreamIdentity = StreamIdentity.AsString;
-                    options.Events.AppendMode = EventAppendMode.Quick;
                     options.AutoCreateSchemaObjects = AutoCreate.All;
-
-                    var baseSettings = JsonStateSettings.CreateBase();
-                    var jsonSerializer = new JsonNetSerializer();
-                    jsonSerializer.Configure(s =>
-                    {
-                        s.TypeNameHandling = baseSettings.TypeNameHandling;
-                        s.MetadataPropertyHandling = baseSettings.MetadataPropertyHandling;
-                        s.PreserveReferencesHandling = baseSettings.PreserveReferencesHandling;
-                        s.DateFormatHandling = baseSettings.DateFormatHandling;
-                        s.DefaultValueHandling = baseSettings.DefaultValueHandling;
-                        s.MissingMemberHandling = baseSettings.MissingMemberHandling;
-                        s.NullValueHandling = baseSettings.NullValueHandling;
-                        s.ConstructorHandling = baseSettings.ConstructorHandling;
-                        s.TypeNameAssemblyFormatHandling = baseSettings.TypeNameAssemblyFormatHandling;
-                        s.Formatting = baseSettings.Formatting;
-                        foreach (var converter in baseSettings.Converters)
-                            s.Converters.Add(converter);
-                    });
-                    options.Serializer(jsonSerializer);
-                    var eventStateInterface = typeof(IEventStateValue);
-                    var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location));
-                    foreach (var asm in assemblies)
-                    {
-                        Type[] types;
-                        try { types = asm.GetTypes(); }
-                        catch { continue; }
-
-                        foreach (var type in types)
-                        {
-                            if (type.IsInterface || type.IsAbstract || type.IsGenericTypeDefinition)
-                                continue;
-                            if (!eventStateInterface.IsAssignableFrom(type))
-                                continue;
-                            if (type.GetConstructor(Type.EmptyTypes) is not { IsPublic: true })
-                                continue;
-
-                            var snapshotMethod = options.Projections.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                                .FirstOrDefault(m => m.Name == "Snapshot"
-                                    && m.IsGenericMethod
-                                    && m.GetParameters().Length >= 1
-                                    && m.GetParameters()[0].ParameterType == typeof(SnapshotLifecycle));
-                            if (snapshotMethod != null)
-                            {
-                                var generic = snapshotMethod.MakeGenericMethod(type);
-                                generic.Invoke(options.Projections, [SnapshotLifecycle.Inline, null]);
-                            }
-                        }
-                    }
+                    MartenSetupExtensions.Configure(options, BuildStatesRegistry());
                 });
                 services.AddSingleton<IDocumentStore>(martenStore);
 

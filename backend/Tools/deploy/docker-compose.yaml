@@ -65,7 +65,7 @@ x-service-healthcheck: &service-healthcheck
 
 services:
   pgbouncer:
-    image: edoburu/pgbouncer:latest
+    image: edoburu/pgbouncer:v1.26.0-p0
     environment:
       DB_HOST: ${DB_HOST:?}
       DB_PORT: ${DB_PORT:-5432}

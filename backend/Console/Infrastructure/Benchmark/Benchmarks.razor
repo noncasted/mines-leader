@@ -1,5 +1,6 @@
 @page "/benchmarks"
 @using global::Benchmarks
+@using Microsoft.Extensions.DependencyInjection
 @using global::Common.Extensions
 @using global::Common.Reactive
 @using global::Infrastructure.Startup
@@ -7,6 +8,19 @@
 
 <PageTitle>Benchmarks</PageTitle>
 <PageHeader Title="Benchmarks" />
+
+@if (Availability.IsEnabled == false)
+{
+    <div class="container mx-auto max-w-3xl px-4 py-6">
+        <BbAlert>
+            <ChildContent>
+                <BbAlertTitle>Benchmarks are off</BbAlertTitle>
+                <BbAlertDescription>Set Benchmarks__Enabled=true (Development, local database only) and restart the cluster.</BbAlertDescription>
+            </ChildContent>
+        </BbAlert>
+    </div>
+    return;
+}
 
 @if (!_isInitialized)
 {
@@ -133,9 +147,13 @@
 </div>
 
 @code {
-    [Inject] public IEnumerable<IClusterTest> ClusterTests { get; set; } = [];
+    [Inject] public BenchmarksAvailability Availability { get; set; } = null!;
     [Inject] public IClusterParticipantContext ParticipantContext { get; set; } = null!;
-    [Inject] public BenchmarkRunner Runner { get; set; } = null!;
+    [Inject] public IServiceProvider Services { get; set; } = null!;
+
+    // Registered only when the benchmarks are on (BenchmarksModule).
+    private IReadOnlyList<IClusterTest> ClusterTests { get; set; } = [];
+    private BenchmarkRunner Runner { get; set; } = null!;
 
     private readonly Dictionary<IClusterTest, BenchmarkEntry?> _entries = new();
     private readonly Dictionary<string, bool> _groupOpen = new();
@@ -147,6 +165,12 @@
     private int _failedCount;
 
 	protected override Task OnSetup(IReadOnlyLifetime lifetime) {
+		if (Availability.IsEnabled == false)
+			return Task.CompletedTask;
+
+		ClusterTests = Services.GetServices<IClusterTest>().ToList();
+		Runner = Services.GetRequiredService<BenchmarkRunner>();
+
 		ParticipantContext.IsInitialized.View(lifetime, value => {
 			_isInitialized = value;
 			InvokeAsync(StateHasChanged).NoAwait();
@@ -166,6 +190,9 @@
 
     protected override void OnParametersSet()
     {
+        if (Availability.IsEnabled == false)
+            return;
+
         foreach (var test in ClusterTests)
         {
             _entries.TryAdd(test, null);

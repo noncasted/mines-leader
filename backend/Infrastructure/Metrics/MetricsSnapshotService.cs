@@ -7,22 +7,46 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
+// Dev-only: snapshots go to backend/.telemetry/metrics of the repository the service runs from. In other
+// environments metrics go through OpenTelemetry only and the service does nothing.
 public class MetricsSnapshotService : IHostedService, IDisposable
 {
-    public MetricsSnapshotService(ILogger<MetricsSnapshotService> logger)
+    public MetricsSnapshotService(ILogger<MetricsSnapshotService> logger, IHostEnvironment environment)
+        : this(logger, environment, () => TelemetryPaths.RequireTelemetryDir("metrics"))
+    {
+    }
+
+    public MetricsSnapshotService(
+        ILogger<MetricsSnapshotService> logger,
+        IHostEnvironment environment,
+        Func<string> resolveDirectory)
     {
         _logger = logger;
+        _environment = environment;
+        _resolveDirectory = resolveDirectory;
     }
 
     private readonly ILogger<MetricsSnapshotService> _logger;
+    private readonly IHostEnvironment _environment;
+    private readonly Func<string> _resolveDirectory;
     private readonly ConcurrentDictionary<string, MetricSnapshot> _snapshots = new();
 
     private MeterListener? _listener;
     private Timer? _timer;
     private string _serviceName = "unknown";
+    private string _directory = string.Empty;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        if (_environment.IsDevelopment() == false)
+        {
+            _logger.LogInformation("[MetricsSnapshot] File snapshots are disabled outside Development");
+            return Task.CompletedTask;
+        }
+
+        // No repository root in Development is a setup error: fail the start instead of silently writing nothing.
+        _directory = _resolveDirectory();
+
         _serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ??
                        Assembly.GetEntryAssembly()?.GetName().Name?.ToLowerInvariant() ?? "unknown";
 
@@ -94,11 +118,6 @@ public class MetricsSnapshotService : IHostedService, IDisposable
     {
         try
         {
-            var dir = TelemetryPaths.GetTelemetryDir("metrics");
-
-            if (dir == null)
-                return;
-
             var metrics = new Dictionary<string, object>();
 
             foreach (var (name, snapshot) in _snapshots)
@@ -114,7 +133,7 @@ public class MetricsSnapshotService : IHostedService, IDisposable
             };
 
             var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-            var path = Path.Combine(dir, $"metrics_{_serviceName}.json");
+            var path = Path.Combine(_directory, $"metrics_{_serviceName}.json");
             File.WriteAllText(path, json);
         }
         catch (Exception e)
