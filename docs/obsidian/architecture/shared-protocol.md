@@ -56,6 +56,14 @@ public partial interface INetworkContext { }
 
 Тег — это формат на проводе: не перенумеровывать и не переиспользовать, удалённый тип оставляет дыру. Дубль тега — ошибка генератора `MEMPACK012`, тип без тега ловит `Tests.Protocol.ProtocolSchemaTests`. Байты каждого типа и тега зафиксированы в `backend/Tools/Tests/Protocol/protocol_bytes.golden.txt` (бэкенд `ProtocolBytesTests` пишет, клиентский EditMode `ProtocolBytesTests` читает тот же файл).
 
+### Версия протокола
+
+`shared/Protocol/ProtocolVersion.cs`: `Hash` — первые 16 hex SHA-256 от схемы `backend/Tools/Tests/Protocol/protocol_schema.golden.txt` (union-теги, члены всех `[MemoryPackable]` типов shared, значения enum), `QueryKey = "protocol"`, `ClientOutdatedCloseCode = 4001`.
+- `NetworkConnection.Run` дописывает `protocol=<Hash>` в URL каждого сокета (meta и game).
+- Оба шлюза зовут `Common.Network.ClientProtocolCheck` до чтения чего-либо (`BackendConnectionMiddleware` до поиска юзера, `SessionConnectionMiddleware` до auth-запроса): другой или пустой хэш — сокет принимается и закрывается с 4001 (браузерный WebSocket не видит HTTP-статус отказа в апгрейде, только 1006).
+- `IWebSocket.Closed` / `INetworkConnection.Closed` несут `SocketCloseInfo` (`Code`, `Reason`). На 4001 `NetworkConnection` зовёт `IClientOutdatedNotice.Show()` (`Global.UI.ClientOutdatedNotice`: блокирующий канвас "Update available", кнопка перезагружает страницу в вебе). `MetaLoop` после этого не переподключается.
+- Изменили схему: `Schema_MatchesGolden` и `ProtocolHash_MatchesSchema` падают. Перезаписать golden (`UPDATE_PROTOCOL_GOLDEN=1`) и вписать новый `Hash` из сообщения теста. После деплоя каждая открытая старая вкладка увидит окно при следующем подключении.
+
 ---
 
 ## Сетевые протоколы

@@ -57,6 +57,13 @@ public class BackendConnectionMiddleware
             return;
         }
 
+        // Before the user is resolved: an outdated client must not create or touch a user.
+        if (ClientProtocolCheck.IsCurrent(context) == false)
+        {
+            await ClientProtocolCheck.RejectOutdated(context, _logger);
+            return;
+        }
+
         // Авторизация приезжает прямо в запросе на апгрейд: отдельного кадра с
         // хендшейком нет, поэтому и лишнего плеча до сервера тоже нет.
         if (TryReadUserId(context, out var requestedUserId) == false)

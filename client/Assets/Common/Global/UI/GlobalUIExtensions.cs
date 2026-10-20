@@ -12,6 +12,10 @@ namespace Global.UI
 
             AddLoadingScreen(builder);
 
+            builder.Register<ClientOutdatedNotice>()
+                   .WithScopeLifetime()
+                   .As<IClientOutdatedNotice>();
+
             return builder;
         }
 

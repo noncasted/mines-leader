@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,6 +18,8 @@ namespace Internal.Tests
     // A socket lost right after it opens (before the answer to the authorization) closes the connection like any
     // later loss: Writer.IsClosed, a request gets null at once (not after its 20 s timeout), Closed is raised.
     // A socket that never opens: Run throws ConnectionFailedException, the connection is closed.
+    // A server of another protocol closes the socket with ProtocolVersion.ClientOutdatedCloseCode: Closed carries
+    // that code and the outdated notice is shown.
     public class NetworkConnectionTests
     {
         private static readonly TimeSpan LossTimeout = TimeSpan.FromSeconds(5);
@@ -33,7 +36,7 @@ namespace Internal.Tests
             try
             {
                 var connection = CreateConnection();
-                var closed = new UniTaskCompletionSource<string>();
+                var closed = new UniTaskCompletionSource<SocketCloseInfo>();
                 connection.Closed.Advise(lifetime, reason => closed.TrySetResult(reason));
 
                 var run = connection.Run(lifetime, server.Url);
@@ -83,9 +86,77 @@ namespace Internal.Tests
             }
         });
 
-        private static NetworkConnection CreateConnection()
+        // The gateways accept the socket of an outdated client and close it at once with 4001 (ClientProtocolCheck).
+        // The upgrade carries the hash of this build.
+        [UnityTest]
+        public IEnumerator ServerClosesAsOutdated_ClosedCarriesCode_NoticeShown() => UniTask.ToCoroutine(async () =>
         {
-            return new NetworkConnection(new NetworkCommandsCollection(), new PlatformOptions());
+            var port = GetFreePort();
+            using var listener = new HttpListener();
+            listener.Prefixes.Add($"http://127.0.0.1:{port}/");
+            listener.Start();
+
+            var query = new UniTaskCompletionSource<string>();
+            var serverTask = ServeOutdated(listener, query);
+
+            var lifetime = new Lifetime();
+            var notice = new FakeOutdatedNotice();
+
+            try
+            {
+                var connection = CreateConnection(notice);
+                var closed = new UniTaskCompletionSource<SocketCloseInfo>();
+                connection.Closed.Advise(lifetime, info => closed.TrySetResult(info));
+
+                await connection.Run(lifetime, $"ws://127.0.0.1:{port}/?userId=1");
+
+                var info = await closed.Task.Timeout(LossTimeout);
+
+                Assert.AreEqual(ProtocolVersion.ClientOutdatedCloseCode, info.Code, info.ToString());
+                Assert.AreEqual(1, notice.ShowCount);
+                Assert.IsTrue(connection.Writer.IsClosed);
+                Assert.AreEqual($"?userId=1&{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}",
+                    await query.Task.Timeout(LossTimeout));
+            }
+            finally
+            {
+                lifetime.Terminate();
+                listener.Stop();
+            }
+
+            await serverTask;
+        });
+
+        private static async UniTask ServeOutdated(HttpListener listener, UniTaskCompletionSource<string> query)
+        {
+            var context = await listener.GetContextAsync();
+            query.TrySetResult(context.Request.Url.Query);
+
+            var webSocketContext = await context.AcceptWebSocketAsync(null);
+
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            await webSocketContext.WebSocket.CloseOutputAsync((WebSocketCloseStatus)ProtocolVersion.ClientOutdatedCloseCode,
+                ProtocolVersion.ClientOutdatedReason,
+                timeout.Token);
+        }
+
+        private static NetworkConnection CreateConnection(IClientOutdatedNotice notice = null)
+        {
+            return new NetworkConnection(new NetworkCommandsCollection(),
+                new PlatformOptions(),
+                notice ?? new FakeOutdatedNotice());
+        }
+
+        private class FakeOutdatedNotice : IClientOutdatedNotice
+        {
+            public int ShowCount;
+
+            public bool IsShown => ShowCount > 0;
+
+            public void Show()
+            {
+                ShowCount++;
+            }
         }
 
         private static int GetFreePort()

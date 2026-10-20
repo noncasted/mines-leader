@@ -48,7 +48,7 @@ namespace Internal.Tests
 
             LogAssert.Expect(LogType.Error, new Regex("got no response"));
             var pending = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
-            socket.ClosedSource.Invoke("lost");
+            socket.ClosedSource.Invoke(new SocketCloseInfo(SocketCloseInfo.AbnormalClosure, "lost"));
 
             Assert.IsNull(await pending);
             Assert.IsTrue(writer.IsClosed);
@@ -85,7 +85,7 @@ namespace Internal.Tests
         {
             var (writer, lostSocket, lostLifetime) = Create();
 
-            lostSocket.ClosedSource.Invoke("lost");
+            lostSocket.ClosedSource.Invoke(new SocketCloseInfo(SocketCloseInfo.AbnormalClosure, "lost"));
             Assert.IsTrue(writer.IsClosed);
             lostLifetime.Terminate();
 
@@ -129,11 +129,11 @@ namespace Internal.Tests
 
         private class FakeSocket : IWebSocket
         {
-            public readonly ViewableDelegate<string> ClosedSource = new();
+            public readonly ViewableDelegate<SocketCloseInfo> ClosedSource = new();
             public readonly List<byte[]> Sent = new();
 
             public IViewableDelegate<byte[]> Received { get; } = new ViewableDelegate<byte[]>();
-            public IViewableDelegate<string> Closed => ClosedSource;
+            public IViewableDelegate<SocketCloseInfo> Closed => ClosedSource;
 
             public UniTask Connect()
             {

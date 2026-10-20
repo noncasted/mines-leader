@@ -69,7 +69,13 @@ public class SessionConnectionMiddlewareTests
     private static async Task<ClientWebSocket> Connect(TestWebHost host)
     {
         var socket = new ClientWebSocket();
-        var uri = new UriBuilder(host.Address) { Scheme = "ws", Path = "/" }.Uri;
+        var uri = new UriBuilder(host.Address)
+        {
+            Scheme = "ws",
+            Path = "/",
+            Query = $"{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}"
+        }.Uri;
+
         await socket.ConnectAsync(uri, CancellationToken.None);
         return socket;
     }

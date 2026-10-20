@@ -13,7 +13,7 @@ namespace Internal
         /// Соединение оборвалось не по нашей инициативе. Переподключения нет: ожидающие
         /// запросы уже завершены с null, дальше решает вызывающий код.
         /// </summary>
-        IViewableDelegate<string> Closed { get; }
+        IViewableDelegate<SocketCloseInfo> Closed { get; }
 
         // Opens the socket. ConnectionFailedException when it does not open (the connection is closed then); a loss
         // at any moment after it opens - even before Run returns - closes the connection and raises Closed.
@@ -22,9 +22,13 @@ namespace Internal
 
     public class NetworkConnection : INetworkConnection
     {
-        public NetworkConnection(INetworkCommandsCollection commands, PlatformOptions platformOptions)
+        public NetworkConnection(
+            INetworkCommandsCollection commands,
+            PlatformOptions platformOptions,
+            IClientOutdatedNotice outdatedNotice)
         {
             _platformOptions = platformOptions;
+            _outdatedNotice = outdatedNotice;
             _reader = new ConnectionReader();
             _writer = new ConnectionWriter();
             _dispatcher = new NetworkCommandsDispatcher(commands, this);
@@ -36,7 +40,12 @@ namespace Internal
         private readonly ConnectionReader _reader;
         private readonly ConnectionWriter _writer;
         private readonly PlatformOptions _platformOptions;
-        private readonly ViewableDelegate<string> _closed = new();
+        private readonly IClientOutdatedNotice _outdatedNotice;
+        private readonly ViewableDelegate<SocketCloseInfo> _closed = new();
+
+        // The protocol this client was built with, sent in the query of the upgrade. A field, not the constant at
+        // the call: a play test replaces it to check the outdated client.
+        private readonly string _protocolHash = ProtocolVersion.Hash;
 
         // A connect that hangs (a proxy that accepts TCP but has no server behind it, a stalled upgrade) is a failed
         // one: without a bound the caller waited forever.
@@ -44,11 +53,15 @@ namespace Internal
 
         public IConnectionReader Reader => _reader;
         public IConnectionWriter Writer => _writer;
-        public IViewableDelegate<string> Closed => _closed;
+        public IViewableDelegate<SocketCloseInfo> Closed => _closed;
 
         public async UniTask Run(IReadOnlyLifetime lifetime, string url)
         {
-            _webSocket = CreateWebSocket();
+            _webSocket = CreateWebSocket(AppendProtocol(url));
+
+            // A server of another protocol accepts the socket and closes it at once, maybe inside Connect: the notice
+            // is subscribed first, before whatever else listens to the loss (the meta stops its retries on it).
+            _webSocket.Closed.Advise(lifetime, OnSocketClosed);
 
             // Чтение подписано до коннекта: авторизация едет в апгрейде, и сервер шлёт проекции
             // сразу. Первые кадры могут прийти вместе с ответом на апгрейд и попасть в Received
@@ -64,7 +77,7 @@ namespace Internal
             // never came. The writer goes first: by the time the loss reaches game code, pending requests are
             // already completed.
             _writer.Run(lifetime, _webSocket);
-            _webSocket.Closed.Advise(lifetime, reason => _closed.Invoke(reason));
+            _webSocket.Closed.Advise(lifetime, info => _closed.Invoke(info));
 
             try
             {
@@ -83,28 +96,40 @@ namespace Internal
 
             return;
 
-            IWebSocket CreateWebSocket()
+            IWebSocket CreateWebSocket(string socketUrl)
             {
                 // ClientWebSocket в WebGL не работает, а ссылка на него тянет в билд System.Net, TLS и Mono.Security.
 #if UNITY_EDITOR || !UNITY_WEBGL
                 if (_platformOptions.IsEditor == true)
-                    return new DefaultWebSocket(url, lifetime);
+                    return new DefaultWebSocket(socketUrl, lifetime);
 #endif
 
                 switch (_platformOptions.PlatformType)
                 {
                     case PlatformType.Website:
                     case PlatformType.ItchIO:
-                        return new JsWebSocket(url, lifetime);
+                        return new JsWebSocket(socketUrl, lifetime);
 #if UNITY_EDITOR || !UNITY_WEBGL
                     case PlatformType.IOS:
                     case PlatformType.Android:
-                        return new DefaultWebSocket(url, lifetime);
+                        return new DefaultWebSocket(socketUrl, lifetime);
 #endif
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private string AppendProtocol(string url)
+        {
+            var separator = url.Contains('?') == true ? '&' : '?';
+            return $"{url}{separator}{ProtocolVersion.QueryKey}={_protocolHash}";
+        }
+
+        private void OnSocketClosed(SocketCloseInfo info)
+        {
+            if (info.Code == ProtocolVersion.ClientOutdatedCloseCode)
+                _outdatedNotice.Show();
         }
     }
 
