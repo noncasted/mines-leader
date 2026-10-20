@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Benchmarks;
 using BlazorBlueprint.Components;
 using Console;
 using Console.Home;
@@ -153,7 +154,10 @@ if (authEnabled)
     });
 }
 
-app.AddBenchmarkEndpoints();
+// Benchmarks are opt-in (Benchmarks:Enabled, Development only): without them the API is not mapped.
+if (app.Services.GetRequiredService<BenchmarksAvailability>().IsEnabled == true)
+    app.AddBenchmarkEndpoints();
+
 app.MapDefaultEndpoints();
 
 app.MapRazorComponents<App>()

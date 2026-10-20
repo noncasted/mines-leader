@@ -14,6 +14,10 @@ public record PgBouncerResult
 // In production pgbouncer is a first-class compose service, not driven from here.
 public static class PgBouncerFactory
 {
+    // Same tag as the production compose service (backend/Tools/deploy/docker-compose.yaml): "latest" changed
+    // the pooler under the dev cluster without notice (1.26 rejects the removed suspend_timeout setting).
+    private const string PgBouncerImageTag = "v1.26.0-p0";
+
     public static PgBouncerResult Create(IDistributedApplicationBuilder builder, DbUpstream db)
     {
         // Host-side port, next to the published Postgres port (9432 -> 9433), so two AppHosts on one machine
@@ -46,7 +50,7 @@ public static class PgBouncerFactory
             }
         });
 
-        var pgbouncer = builder.AddContainer("pgbouncer", "edoburu/pgbouncer", "latest")
+        var pgbouncer = builder.AddContainer("pgbouncer", "edoburu/pgbouncer", PgBouncerImageTag)
                                .WithHttpEndpoint(port: pgbouncerPort, targetPort: 6432, name: "pgbouncer-port",
                                    isProxied: false)
                                .WithBindMount(pgbouncerConfigPath, "/etc/pgbouncer/pgbouncer.ini", isReadOnly: true)

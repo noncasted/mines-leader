@@ -39,11 +39,11 @@ backend/
       Program.cs              # dev composition + prod migrations (--migrate mode)
       Startup/
         DbUpstreamFactory.cs  # dev-only: spins up postgres container
-        PgBouncerFactory.cs   # dev-only: writes pgbouncer.ini / databases.ini
+        PgBouncerFactory.cs   # dev-only: writes pgbouncer.ini / databases.ini; image tag pinned (same as compose)
         ProcessCleanup.cs     # dev convenience
         Migrations/
           PostResourcesSetup.cs   # orchestrates the migration steps
-          StatesSetup.cs          # creates state_* tables per GeneratedStatesRegistration
+          StatesSetup.cs          # creates state_* tables from DeployStates.Select (no benchmark tables unless Benchmarks:Enabled)
           SideEffectsSetup.cs
           AuditLogSetup.cs
           BenchmarkSetup.cs
@@ -156,7 +156,7 @@ Getting to this shape took several iterations. Historical context and the reason
 ### Service graph
 
 ```
-pgbouncer  (edoburu/pgbouncer, sidecar)
+pgbouncer  (edoburu/pgbouncer:v1.26.0-p0, sidecar; tag pinned, same in PgBouncerFactory)
   │ healthcheck: pg_isready -h 127.0.0.1 -p 6432
   ▼
 migrator   (ASSEMBLY_NAME=Aspire.AppHost --migrate, restart: "no")

@@ -11,6 +11,7 @@ namespace Tests.Deploy;
 /// <summary>
 /// F2.10: direct-state tables carry only the primary key index; cleanup also empties the dead-letter table.
 /// F2.39: drop also removes the dead-letter table.
+/// F2.40: benchmark state tables only with Benchmarks:Enabled.
 /// Every test runs the migrator steps against its own empty database.
 /// </summary>
 public class StatesSchemaTests : IAsyncLifetime
@@ -56,6 +57,28 @@ public class StatesSchemaTests : IAsyncLifetime
             indexes.Should().ContainSingle($"table {table} must have only its primary key index")
                    .Which.Should().Be($"{table}_pkey");
         }
+    }
+
+    [Fact]
+    public async Task Setup_BenchmarksOff_CreatesNoBenchmarkTables()
+    {
+        await StatesSetup.Run(CreateConfiguration());
+
+        var tables = await ReadTables();
+
+        tables.Should().NotContain(BenchmarkTables());
+        tables.Should().Contain(DeployStates.Select(false).Where(i => i.IsEventState == false).Select(i => i.TableName));
+    }
+
+    [Fact]
+    public async Task Setup_BenchmarksOn_CreatesBenchmarkTables()
+    {
+        var configuration = CreateConfiguration();
+        configuration[DeployStates.BenchmarksEnabledKey] = "true";
+
+        await StatesSetup.Run(configuration);
+
+        (await ReadTables()).Should().Contain(BenchmarkTables());
     }
 
     [Fact]
@@ -118,6 +141,22 @@ public class StatesSchemaTests : IAsyncLifetime
         (await ReadTables()).Should().NotContain([
             DbLookup.SE_Queue, DbLookup.SE_Processing, DbLookup.SE_Retry, DbLookup.SE_DeadLetter
         ]);
+    }
+
+    // Tables used only by benchmark direct states (event states are Marten's).
+    private static IReadOnlyList<string> BenchmarkTables()
+    {
+        var kept = DeployStates.Select(false).Select(i => i.TableName).ToHashSet();
+
+        var tables = DeployStates.All
+                                    .Where(i => DeployStates.IsBenchmark(i) && i.IsEventState == false)
+                                    .Select(i => i.TableName)
+                                    .Where(table => kept.Contains(table) == false)
+                                    .Distinct()
+                                    .ToList();
+
+        tables.Should().Contain("state_benchmark");
+        return tables;
     }
 
     // The test assembly has its own generated StatesLookup (with test states): read what the migrator created.

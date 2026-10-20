@@ -47,7 +47,7 @@ public static class ServiceDefaultsExtensions
             var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ??
                               builder.Environment.ApplicationName.ToLowerInvariant();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
-            builder.Logging.AddProvider(new FileLoggerProvider(serviceName));
+            AddFileLogging(builder, serviceName);
 
             builder.Logging.AddOpenTelemetry(logging => {
                 logging.IncludeFormattedMessage = true;
@@ -118,6 +118,23 @@ public static class ServiceDefaultsExtensions
                    .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"])
                    .AddCheck<OrleansReadyHealthCheck>("orleans", tags: ["ready"]);
         }
+    }
+
+    // Dev-only diagnostics (backend/.telemetry/logs, see .claude/docs/TELEMETRY.md): production containers log
+    // through OpenTelemetry only. Options: FileLoggerOptions in the "FileLogging" configuration section.
+    public static void AddFileLogging(IHostApplicationBuilder builder, string serviceName)
+    {
+        if (builder.Environment.IsDevelopment() == false)
+            return;
+
+        var options = builder.Configuration.GetSection(FileLoggerOptions.SectionName).Get<FileLoggerOptions>()
+                      ?? new FileLoggerOptions();
+
+        if (options.Enabled == false)
+            return;
+
+        // Factory registration: the container disposes the provider on shutdown, which flushes the queue.
+        builder.Services.AddSingleton<ILoggerProvider>(_ => new FileLoggerProvider(serviceName, options));
     }
 
     private const string ReadyEndpointPath = "/ready";

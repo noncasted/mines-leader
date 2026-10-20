@@ -51,6 +51,7 @@ var game = builder
 
 SetupDB();
 SetupOrleansIdentity();
+SetupBenchmarks();
 
 coordinator.WaitFor(silo);
 meta.WaitFor(silo).WaitFor(coordinator);
@@ -79,6 +80,17 @@ void SetupOrleansIdentity()
         resource.WithEnvironment("Orleans__ClusterId", identity.ClusterId)
                 .WithEnvironment("Orleans__ServiceId", identity.ServiceId);
     }
+}
+
+// Benchmarks are opt-in (BenchmarksAvailability): the dev cluster runs them against the local database.
+// docker-compose.yaml (production) never sets the flag. The in-process migrator (PostResourcesSetup) reads it
+// from this configuration to create the benchmark state tables.
+void SetupBenchmarks()
+{
+    configuration[DeployStates.BenchmarksEnabledKey] = "true";
+
+    foreach (var resource in ProjectResources())
+        resource.WithEnvironment("Benchmarks__Enabled", "true");
 }
 
 void SetupDB()

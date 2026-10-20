@@ -197,6 +197,7 @@ namespace Generators
             sb.AppendLine("        public required string TableName { get; init; }");
             sb.AppendLine("        public required string StateName { get; init; }");
             sb.AppendLine("        public required string TypeName { get; init; }");
+            sb.AppendLine("        public required global::System.Type Type { get; init; }");
             sb.AppendLine("        public required GrainKeyType KeyType { get; init; }");
             sb.AppendLine("        public required bool IsEventState { get; init; }");
             sb.AppendLine("    }");
@@ -208,6 +209,7 @@ namespace Generators
                 sb.AppendLine("        TableName = \"" + entry.TableName + "\",");
                 sb.AppendLine("        StateName = \"" + entry.StateName + "\",");
                 sb.AppendLine("        TypeName = \"" + entry.FullTypeName.Replace("global::", "") + "\",");
+                sb.AppendLine("        Type = typeof(" + entry.FullTypeName + "),");
                 sb.AppendLine("        KeyType = GrainKeyType." + entry.KeyType + ",");
                 sb.AppendLine("        IsEventState = " + entry.IsEventState.ToString().ToLowerInvariant());
                 sb.AppendLine("    };");

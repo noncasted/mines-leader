@@ -12,7 +12,7 @@ public class StatesSetup
     {
         await using var connection = await configuration.GetConnection();
 
-        foreach (var info in StatesLookup.All)
+        foreach (var info in DeployStates.Select(configuration))
         {
             if (info.IsEventState)
                 continue; // Marten inline projections manage their own tables

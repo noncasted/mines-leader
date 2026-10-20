@@ -18,6 +18,7 @@ using Meta.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Orleans.Configuration;
 using Shared;
 
 namespace Orchestration;
@@ -131,10 +132,11 @@ public static class ProjectsSetupExtensions
             // Console-only services
             builder.Services.AddSingleton<IMatchHistoryStorage, MatchHistoryStorage>();
 
-            // Project services — auto-discover all IClusterTest implementations in Tests assembly
-            var testsAssembly = typeof(IClusterTest).Assembly;
+            // Benchmark roots (IClusterTest): only when the benchmarks are on (AddTests).
+            if (ReadBenchmarksAvailability(builder).IsEnabled == false)
+                return builder;
 
-            foreach (var type in testsAssembly.GetTypes())
+            foreach (var type in BenchmarksAvailability.Assembly.GetTypes())
             {
                 if (type.IsAbstract || type.IsInterface)
                     continue;
@@ -251,16 +253,29 @@ public static class ProjectsSetupExtensions
             return builder;
         }
 
+        // Benchmark nodes (every role), the runner and its storage. Off (the default, production): nothing of it is
+        // registered and the silo does not activate the benchmark grains, although their assembly is deployed with it.
         private IHostApplicationBuilder AddTests()
         {
+            var availability = ReadBenchmarksAvailability(builder);
+            builder.Services.AddSingleton(availability);
+
+            if (availability.IsEnabled == false)
+            {
+                // GrainTypeOptions is filled from the type manifest of every referenced assembly: drop the benchmark
+                // grain classes, so that a call to a benchmark grain fails instead of activating it. Clients ignore it.
+                builder.Services.PostConfigure<GrainTypeOptions>(options =>
+                    options.Classes.RemoveWhere(type => type.Assembly == BenchmarksAvailability.Assembly));
+
+                return builder;
+            }
+
             builder.Add<BenchmarkRunner>();
             builder.Add<BenchmarkStorage>();
             builder.Add<ClusterTestUtils>();
 
-            // Auto-discover all BenchmarkNode<> subclasses in Tests assembly
-            var testsAssembly = typeof(IClusterTest).Assembly;
-
-            foreach (var type in testsAssembly.GetTypes())
+            // Auto-discover all BenchmarkNode<> subclasses in the Benchmarks assembly
+            foreach (var type in BenchmarksAvailability.Assembly.GetTypes())
             {
                 if (type.IsAbstract || type.IsInterface)
                     continue;
@@ -279,6 +294,11 @@ public static class ProjectsSetupExtensions
                    .As<IStateMigrationStep>();
 
             return builder;
+        }
+
+        private static BenchmarksAvailability ReadBenchmarksAvailability(IHostApplicationBuilder host)
+        {
+            return BenchmarksAvailability.Read(host.Configuration, host.Environment);
         }
 
         private static bool IsTestNodeType(Type type)
