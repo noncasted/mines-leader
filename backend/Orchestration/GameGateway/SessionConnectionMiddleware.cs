@@ -1,4 +1,4 @@
-using System.Net.WebSockets;
+﻿using System.Net.WebSockets;
 using Common.Network;
 using Game.Global;
 using Infrastructure.Startup;
@@ -99,7 +99,18 @@ public class SessionConnectionMiddleware
             return;
         }
 
-        var session = _sessionsCollection.Get(auth.SessionId);
+        if (_sessionsCollection.TryGet(auth.SessionId, out var session) == false)
+        {
+            // A session closed after the search (its last player left, a timeout) or an unknown id: an explicit
+            // refusal, the client fails the connect instead of waiting for a response.
+            _logger.LogWarning("[Game] Connection rejected, session not found: {Connection} {UserId} {SessionId}",
+                context.Connection.Id,
+                auth.UserId,
+                auth.SessionId);
+
+            await Reject(handle, webSocket, "Session not found", context);
+            return;
+        }
 
         _logger.LogInformation("[Game] User connected: {Connection} {UserId}",
             context.Connection.Id,
@@ -110,8 +121,17 @@ public class SessionConnectionMiddleware
         try
         {
             session.ExecutionQueue.Enqueue(() => {
-                var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
-                user.Lifetime.Listen(() => completion.TrySetResult());
+                try
+                {
+                    var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
+                    user.Lifetime.Listen(() => completion.TrySetResult());
+                }
+                catch (Exception e)
+                {
+                    // The connection must not wait forever for a user that was never created.
+                    completion.TrySetException(e);
+                    throw;
+                }
             });
 
             var response = new SharedSessionAuth.Response()
@@ -135,6 +155,28 @@ public class SessionConnectionMiddleware
             _logger.LogInformation("[Game] User disconnected: {Connection} {UserId}",
                 context.Connection.Id,
                 auth.UserId);
+        }
+    }
+
+    private async Task Reject(ConnectionOneTimeHandle handle, WebSocket webSocket, string reason, HttpContext context)
+    {
+        try
+        {
+            await handle.SendResponse(new SharedSessionAuth.Response()
+            {
+                IsSuccess = false
+            });
+
+            if (webSocket.State == WebSocketState.Open)
+                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, reason, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e, "[Game] Failed to send the rejection: {Connection}", context.Connection.Id);
+        }
+        finally
+        {
+            handle.Dispose();
         }
     }
 }

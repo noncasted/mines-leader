@@ -8,6 +8,7 @@ using Infrastructure.Startup;
 using Meta.Matches;
 using MetaGateway.Matchmaking;
 using MetaGateway.UserFlow;
+using MetaGateway.UserFlow.Connection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Shared;
@@ -138,6 +139,64 @@ public class MatchmakingTests
 
         // Verify no spontaneous match creation happened
         await _matchFactory.DidNotReceive().Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>());
+    }
+
+    // Meta reconnect: the client opens a new meta connection, the old one closes after it. The user searching
+    // a match must stay in the queue and get matched, not be dropped as "not connected".
+    [Fact]
+    public async Task Loop_UserReconnectedDuringSearch_StaysQueuedAndMatched()
+    {
+        var users = new ConnectedUsers(Substitute.For<IDeploymentState<ConnectedUsersLiveData>>());
+        var sut = new Matchmaking(_matchFactory,
+            _lobbyFactory,
+            users,
+            _botConfig,
+            _clusterFlags,
+            _participantContext,
+            Substitute.For<IDeploymentState<MatchmakingLiveData>>(),
+            _logger);
+
+        var reconnecting = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var oldLifetime = new Lifetime();
+        var created = new TaskCompletionSource<IReadOnlyList<Guid>>();
+
+        _matchFactory.Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>()).Returns(call => {
+            created.TrySetResult(call.Arg<IReadOnlyList<Guid>>());
+            return Task.CompletedTask;
+        });
+
+        users.Add(UserSession(reconnecting, oldLifetime));
+        users.Add(UserSession(other, new Lifetime()));
+        await sut.SearchMatch(reconnecting, GameMatchType.Single);
+
+        // UserConnectionEntryPoint order: the new session replaces the old one, then the old one is closed.
+        users.Add(UserSession(reconnecting, new Lifetime()));
+        oldLifetime.Terminate();
+
+        await sut.SearchMatch(other, GameMatchType.Single);
+
+        var lifetime = new Lifetime();
+        _isInitialized.Set(true);
+        await sut.OnCoordinatorSetupCompleted(lifetime);
+
+        try
+        {
+            var matched = await created.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+            matched.Should().BeEquivalentTo([reconnecting, other]);
+        }
+        finally
+        {
+            lifetime.Terminate();
+        }
+    }
+
+    private static IUserSession UserSession(Guid userId, Lifetime lifetime)
+    {
+        var session = Substitute.For<IUserSession>();
+        session.UserId.Returns(userId);
+        session.Lifetime.Returns(lifetime);
+        return session;
     }
 
     [Fact]

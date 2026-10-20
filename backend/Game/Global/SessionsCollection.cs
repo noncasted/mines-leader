@@ -1,4 +1,6 @@
-﻿using Cluster.Deploy;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+using Cluster.Deploy;
 using Cluster.Monitoring;
 using Common.Extensions;
 using Common.Reactive;
@@ -12,7 +14,9 @@ public interface ISessionsCollection
     IReadOnlyDictionary<Guid, ISession> Entries { get; }
 
     void Add(ISession session, GameMatchType? gameMode = null);
-    ISession Get(Guid id);
+
+    // False for a session that is not in the collection (already closed or never created here).
+    bool TryGet(Guid id, [MaybeNullWhen(false)] out ISession session);
 }
 
 public class SessionsCollection : ISessionsCollection
@@ -23,36 +27,55 @@ public class SessionsCollection : ISessionsCollection
     }
 
     private readonly IDeploymentState<LiveMatchesData> _liveData;
-    private readonly Dictionary<Guid, ISession> _entries = new();
-    private readonly Dictionary<Guid, DateTime> _createdAt = new();
-    private readonly Dictionary<Guid, GameMatchType?> _gameModes = new();
+    // Read by the gateway middleware, the search and HTTP endpoints, modified by session creation and by session queues.
+    private readonly ConcurrentDictionary<Guid, ISession> _entries = new();
+    private readonly ConcurrentDictionary<Guid, DateTime> _createdAt = new();
+    private readonly ConcurrentDictionary<Guid, GameMatchType?> _gameModes = new();
+
+    // Snapshots of session users, replaced from the queue of the owning session: live data is pushed
+    // from any thread and must not enumerate the user list of a foreign session.
+    private readonly ConcurrentDictionary<Guid, IReadOnlyList<Guid>> _userIds = new();
 
     public IReadOnlyDictionary<Guid, ISession> Entries => _entries;
 
     public void Add(ISession session, GameMatchType? gameMode = null)
     {
-        _entries.Add(session.Id, session);
-        _createdAt.Add(session.Id, DateTime.UtcNow);
-        _gameModes.Add(session.Id, gameMode);
+        if (_entries.TryAdd(session.Id, session) == false)
+            throw new InvalidOperationException($"Session {session.Id} is already added");
 
-        session.Users.View(session.Lifetime, user => {
-            PushLiveData();
-            user.Lifetime.Listen(PushLiveData);
+        _createdAt[session.Id] = DateTime.UtcNow;
+        _gameModes[session.Id] = gameMode;
+        _userIds[session.Id] = [];
+
+        // The list lifetime of a user ends after the user is removed from the list.
+        session.Users.View(session.Lifetime, (userLifetime, _) => {
+            OnUsersChanged();
+            userLifetime.Listen(OnUsersChanged);
         });
 
         session.Lifetime.Listen(() => {
-            _entries.Remove(session.Id);
-            _createdAt.Remove(session.Id);
-            _gameModes.Remove(session.Id);
+            _entries.TryRemove(session.Id, out _);
+            _createdAt.TryRemove(session.Id, out _);
+            _gameModes.TryRemove(session.Id, out _);
+            _userIds.TryRemove(session.Id, out _);
             PushLiveData();
         });
 
         PushLiveData();
+
+        void OnUsersChanged()
+        {
+            if (session.Lifetime.IsTerminated == true)
+                return;
+
+            _userIds[session.Id] = session.Users.Select(user => user.Id).ToList();
+            PushLiveData();
+        }
     }
 
-    public ISession Get(Guid id)
+    public bool TryGet(Guid id, [MaybeNullWhen(false)] out ISession session)
     {
-        return _entries[id];
+        return _entries.TryGetValue(id, out session);
     }
 
     private void PushLiveData()
@@ -60,18 +83,16 @@ public class SessionsCollection : ISessionsCollection
         _liveData.SetValue(new LiveMatchesData
         {
             Matches = _entries.Values.Select(s => {
-                var users = s.Users.ToList();
-                var player1 = users.ElementAtOrDefault(0);
-                var player2 = users.ElementAtOrDefault(1);
+                var userIds = _userIds.GetValueOrDefault(s.Id, []);
 
                 return new LiveMatchEntry
                 {
                     Id = s.Id,
                     Type = s.Type.ToString(),
                     GameMode = _gameModes.GetValueOrDefault(s.Id)?.ToString() ?? string.Empty,
-                    PlayerCount = users.Count,
-                    Player1Id = player1?.Id ?? Guid.Empty,
-                    Player2Id = player2?.Id ?? Guid.Empty,
+                    PlayerCount = userIds.Count,
+                    Player1Id = userIds.ElementAtOrDefault(0),
+                    Player2Id = userIds.ElementAtOrDefault(1),
                     CreatedAt = _createdAt.GetValueOrDefault(s.Id, DateTime.UtcNow)
                 };
             }).ToList()
