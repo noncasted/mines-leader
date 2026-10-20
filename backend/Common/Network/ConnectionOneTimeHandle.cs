@@ -15,14 +15,18 @@ public class ConnectionOneTimeHandle : IDisposable
     private readonly WebSocket _socket;
     private readonly MemoryStream _writeBuffer = new();
 
-    private Memory<byte> _readBuffer = new byte[1024 * 1024 * 4].AsMemory();
+    private readonly WebSocketMessageReader _reader = new();
+
     private int _requestId;
 
     public async Task<T> ReadRequest<T>() where T : INetworkContext
     {
-        var rawAuth = await _socket.ReceiveAsync(_readBuffer, CancellationToken.None);
-        var payload = _readBuffer[..rawAuth.Count];
-        var message = MemoryPackSerializer.Deserialize<IMessageFromClient>(payload.Span).ThrowIfNull();
+        var status = await _reader.Read(_socket, CancellationToken.None);
+
+        if (status != WebSocketReadStatus.Message)
+            throw new InvalidOperationException($"Expected a request message, got {status}");
+
+        var message = MemoryPackSerializer.Deserialize<IMessageFromClient>(_reader.Payload.Span).ThrowIfNull();
 
         if (message is not RequestMessageFromClient request)
         {
@@ -58,7 +62,6 @@ public class ConnectionOneTimeHandle : IDisposable
 
     public void Dispose()
     {
-        _readBuffer = Memory<byte>.Empty;
         _writeBuffer.Dispose();
     }
 }
