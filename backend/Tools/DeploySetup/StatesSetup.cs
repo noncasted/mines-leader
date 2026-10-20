@@ -18,55 +18,61 @@ public class StatesSetup
                 continue; // Marten inline projections manage their own tables
 
             if (await connection.IsTableExists(info.TableName) == true)
+            {
+                await DropRedundantKeyIndex(connection, info.TableName);
                 continue;
+            }
 
             string key;
-            string index;
+            string primaryKey;
 
             switch (info.KeyType)
             {
                 case GrainKeyType.Integer:
                     key = "bigint not null";
-                    index = "(key, type)";
+                    primaryKey = "(key, type)";
                     break;
                 case GrainKeyType.String:
                     key = "character varying(512) not null";
-                    index = "(key, type)";
-
+                    primaryKey = "(key, type)";
                     break;
                 case GrainKeyType.Guid:
                     key = "uuid not null";
-                    index = "(key, type)";
-
+                    primaryKey = "(key, type)";
                     break;
                 case GrainKeyType.IntegerAndString:
                     key = "bigint not null, extension character varying(512) not null";
-                    index = "(key, type, extension)";
+                    primaryKey = "(key, type, extension)";
                     break;
                 case GrainKeyType.GuidAndString:
                     key = "uuid not null, extension character varying(512) not null";
-                    index = "(key, type, extension)";
+                    primaryKey = "(key, type, extension)";
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
+            // The primary key already is a unique btree index on these columns: no extra index.
             var createTableQuery = $@"
                     CREATE TABLE {info.TableName} (
                         key {key} ,
                         type character varying(512) not null,
                         value jsonb NOT NULL,
                         version int NOT NULL,
-                        primary key {index}
+                        primary key {primaryKey}
                     );
-
-                    CREATE INDEX ix_{info.TableName}
-                        ON {info.TableName} USING btree
-                        {index};
                     ";
 
             await using var createTableCommand = new NpgsqlCommand(createTableQuery, connection);
             await createTableCommand.ExecuteNonQueryAsync();
         }
+    }
+
+    // Tables created before 2026-10 also have ix_<table>, a btree on the primary key columns: it doubled the
+    // index maintenance of every write without serving any query the primary key does not.
+    private static async Task DropRedundantKeyIndex(NpgsqlConnection connection, string tableName)
+    {
+        await using var command = new NpgsqlCommand($"DROP INDEX IF EXISTS ix_{tableName};", connection);
+        await command.ExecuteNonQueryAsync();
     }
 }

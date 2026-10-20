@@ -239,11 +239,15 @@ public class GrainTransactionHandler : IGrainTransactionHandler
             return Task.CompletedTask;
         }
 
+        // The transaction is committed: every participant is confirmed and the grain is released even when
+        // one of them throws, otherwise the next transaction waits for the stuck-transaction takeover.
+        List<Exception>? failures = null;
+
         foreach (var state in _states)
-            state.OnTransactionSuccess();
+            Confirm(state.OnTransactionSuccess);
 
         foreach (var ev in _events)
-            ev.OnTransactionSuccess();
+            Confirm(ev.OnTransactionSuccess);
 
         _states.Clear();
         _events.Clear();
@@ -253,7 +257,23 @@ public class GrainTransactionHandler : IGrainTransactionHandler
         if (_lock.CurrentCount == 0)
             _lock.Release();
 
+        if (failures != null)
+            throw new AggregateException($"Participants failed to confirm committed transaction '{transactionId}'", failures);
+
         return Task.CompletedTask;
+
+        void Confirm(Action onSuccess)
+        {
+            try
+            {
+                onSuccess();
+            }
+            catch (Exception e)
+            {
+                failures ??= [];
+                failures.Add(e);
+            }
+        }
     }
 
     // Called by Transactions.Process() on any exception (before or after DB write).

@@ -42,6 +42,9 @@ public static class BackendMetrics
     public static readonly Counter<long> TransactionRollbackFailure = Meter.CreateCounter<long>(
         "backend.transactions.rollback_failure", description: "Failed transaction rollbacks");
 
+    public static readonly Counter<long> TransactionConfirmFailure = Meter.CreateCounter<long>(
+        "backend.transactions.confirm_failure", description: "Participants failed to confirm a committed transaction");
+
     public static readonly Histogram<double> TransactionDuration =
         Meter.CreateHistogram<double>("backend.transactions.duration", "ms", "Transaction duration");
 

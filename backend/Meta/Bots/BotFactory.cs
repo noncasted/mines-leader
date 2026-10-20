@@ -56,7 +56,7 @@ public class BotFactory : IBotFactory
 
     public Task AssignDeck(Guid botId)
     {
-        return _orleans.Transactions.Run(() => AssignDeckInTransaction(botId));
+        return _orleans.Transactions.RunOrThrow(() => AssignDeckInTransaction(botId));
     }
 
     private async Task AssignDeckInTransaction(Guid botId)

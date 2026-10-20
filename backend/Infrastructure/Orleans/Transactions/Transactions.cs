@@ -119,36 +119,7 @@ public class Transactions : ITransactions
 
         try
         {
-            await using var connection = await _dbSource.Value.OpenConnectionAsync();
-            await using var transaction = await connection.BeginTransactionAsync();
-
-            try
-            {
-                // Direct states and side effects go to Postgres as one NpgsqlBatch: one round trip
-                // for the whole transaction instead of one per table group plus one for side effects.
-                await WriteBatch(connection, transaction, result.States, context.SideEffects);
-
-                // Marten runs its own pipeline inside the same transaction; it cannot join the batch.
-                if (result.Events.Count != 0)
-                    await _eventStorage.Write(transaction, result.Events);
-
-                foreach (var callback in parameters.Callbacks)
-                    await callback(transaction);
-
-                await transaction.CommitAsync();
-
-                var confirmTasks = context.Participants.Select(t => t.Value.OnSuccess(context.Id));
-                await Task.WhenAll(confirmTasks);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e,
-                    "[Transaction] [Error] Failed to record changes during transaction {TransactionId}",
-                    context.Id);
-
-                await transaction.RollbackAsync();
-                throw;
-            }
+            await Commit(result, context, parameters.Callbacks);
         }
         catch (Exception e)
         {
@@ -166,6 +137,11 @@ public class Transactions : ITransactions
                 Error = e
             };
         }
+
+        // The changes are in the database from here on: the result is success whatever the participants do.
+        // Rolling back (OnFailure) after the commit would desync grain memory from the database, and a failure
+        // result would make the caller retry an operation that is already done.
+        await ConfirmParticipants(context);
 
         BackendMetrics.TransactionTotal.Add(1);
         BackendMetrics.TransactionSuccess.Add(1);
@@ -224,6 +200,64 @@ public class Transactions : ITransactions
                 };
             }
         }
+    }
+
+    private async Task Commit(
+        TransactionCommitResult result,
+        TransactionContext context,
+        List<Func<NpgsqlTransaction, Task>> callbacks)
+    {
+        await using var connection = await _dbSource.Value.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            // Direct states and side effects go to Postgres as one NpgsqlBatch: one round trip
+            // for the whole transaction instead of one per table group plus one for side effects.
+            await WriteBatch(connection, transaction, result.States, context.SideEffects);
+
+            // Marten runs its own pipeline inside the same transaction; it cannot join the batch.
+            if (result.Events.Count != 0)
+                await _eventStorage.Write(transaction, result.Events);
+
+            foreach (var callback in callbacks)
+                await callback(transaction);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e,
+                "[Transaction] [Error] Failed to record changes during transaction {TransactionId}",
+                context.Id);
+
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        // A failed commit is rolled back by the server; there is nothing left to roll back here.
+        await transaction.CommitAsync();
+    }
+
+    private async Task ConfirmParticipants(TransactionContext context)
+    {
+        var confirmations = context.Participants.Select(async participant => {
+            try
+            {
+                await participant.Value.OnSuccess(context.Id);
+            }
+            catch (Exception e)
+            {
+                // Not a transaction failure: the data is committed. A handler that threw has released its grain
+                // already (GrainTransactionHandler.OnSuccess); one the call did not reach keeps the lock until
+                // the stuck-transaction takeover in GrainTransactionHandler.Join reloads its state.
+                _logger.LogError(e,
+                    "[Transaction] [Error] Participant {ParticipantId} failed to confirm committed transaction {TransactionId}",
+                    participant.Key, context.Id);
+
+                BackendMetrics.TransactionConfirmFailure.Add(1);
+            }
+        });
+
+        await Task.WhenAll(confirmations);
     }
 
     private async Task WriteBatch(

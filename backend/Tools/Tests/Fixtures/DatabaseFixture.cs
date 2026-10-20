@@ -98,7 +98,6 @@ public class DatabaseFixture : IAsyncDisposable
                                    version int NOT NULL,
                                    primary key {indexDef}
                                );
-                               CREATE INDEX ix_{info.TableName} ON {info.TableName} USING btree {indexDef};
                                """;
             await cmd.ExecuteNonQueryAsync();
         }

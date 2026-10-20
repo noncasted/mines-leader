@@ -18,6 +18,16 @@ if (connectionFromCli != null)
     });
 }
 
-await PostResourcesSetup.Run(configuration);
+try
+{
+    await PostResourcesSetup.Run(configuration);
+}
+catch (Exception e)
+{
+    // A failed migration must stop the deploy: compose starts the silo only after a zero exit code.
+    Console.Error.WriteLine($"[DeploySetup] Failed: {e}");
+    return 1;
+}
 
 Console.WriteLine("[DeploySetup] Done");
+return 0;
