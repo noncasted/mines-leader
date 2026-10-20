@@ -52,6 +52,9 @@ x-service-env: &service-env
   OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
   ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
   postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+  # Orleans membership rows are keyed by ClusterId: another game on the same Postgres must use other values.
+  Orleans__ClusterId: "${ORLEANS_CLUSTER_ID:-mines-leader}"
+  Orleans__ServiceId: "${ORLEANS_SERVICE_ID:-mines-leader}"
 
 x-service-healthcheck: &service-healthcheck
   test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ready || exit 1"]
