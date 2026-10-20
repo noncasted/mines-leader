@@ -27,37 +27,38 @@ public class StateCollectionUtils<TKey, TValue>
 
     private readonly StateCollectionDurableQueueId<TKey, TValue> _queueId = new();
 
-    public async Task<IReadOnlyDictionary<TKey, TValue>> Load(IReadOnlyLifetime lifetime)
+    // Throws on any failure: a partial snapshot is never returned.
+    public virtual async Task<IReadOnlyDictionary<TKey, TValue>> Load(IReadOnlyLifetime lifetime)
     {
-        var stateInfo = _statesRegistry.Get<TValue>();
-        var grainStateType = stateInfo.Type;
-
-        if (!typeof(TValue).IsAssignableFrom(grainStateType))
-        {
-            _logger.LogError("[StateCollectionUtils] Type mismatch: {GrainType} is not assignable to {Expected}",
-                grainStateType, typeof(TValue));
-            return new Dictionary<TKey, TValue>();
-        }
-
-        var reader = _storage.ReadAll<TKey, TValue>(lifetime);
+        GetStateInfo();
 
         var dictionary = new Dictionary<TKey, TValue>();
 
-        try
-        {
-            await foreach (var (key, value) in reader)
-                dictionary.Add(key, value);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[StateCollectionUtils] Failed to load {Type}, loaded {Count} entries before failure",
-                typeof(TValue).Name, dictionary.Count);
-        }
+        await foreach (var (key, value) in _storage.ReadAll<TKey, TValue>(lifetime))
+            dictionary.Add(key, value);
+
+        _logger.LogDebug("[StateCollectionUtils] Loaded {Count} {Type} entries", dictionary.Count, typeof(TValue).Name);
 
         return dictionary;
     }
 
-    public Task PushUpdate(TKey key, TValue value)
+    // Current stored values; a key missing from the result has no record.
+    public virtual Task<IReadOnlyDictionary<TKey, TValue>> Read(IReadOnlyList<TKey> keys)
+    {
+        var stateInfo = GetStateInfo();
+
+        var identities = keys.Select(key => new StateIdentity
+        {
+            Key = key,
+            Type = stateInfo.Name,
+            TableName = stateInfo.TableName,
+            Extension = null
+        }).ToList();
+
+        return _storage.ReadBatch<TKey, TValue>(identities);
+    }
+
+    public virtual Task PushUpdate(TKey key, TValue value)
     {
         return _messaging.PushDirectQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
         {
@@ -67,7 +68,7 @@ public class StateCollectionUtils<TKey, TValue>
         });
     }
 
-    public Task PushTransactionalUpdate(TKey key, TValue value)
+    public virtual Task PushTransactionalUpdate(TKey key, TValue value)
     {
         _messaging.PushTransactionalQueue(_queueId, new StateCollectionUpdate<TKey, TValue>
         {
@@ -79,10 +80,23 @@ public class StateCollectionUtils<TKey, TValue>
         return Task.CompletedTask;
     }
 
-    public Task ListenUpdates(IReadOnlyLifetime lifetime, Action<TKey, TValue, DateTime> onUpdate)
+    public virtual Task ListenUpdates(IReadOnlyLifetime lifetime, Func<TKey, Task> onUpdate)
     {
         return _messaging.ListenDurableQueue<StateCollectionUpdate<TKey, TValue>>(lifetime,
             _queueId,
-            update => onUpdate(update.Key, update.Value, update.UpdatedAt));
+            update => onUpdate(update.Key));
+    }
+
+    private GrainStateInfo GetStateInfo()
+    {
+        var stateInfo = _statesRegistry.Get<TValue>();
+
+        if (typeof(TValue).IsAssignableFrom(stateInfo.Type) == false)
+        {
+            throw new InvalidOperationException(
+                $"[StateCollectionUtils] Type mismatch: {stateInfo.Type} is not assignable to {typeof(TValue)}");
+        }
+
+        return stateInfo;
     }
 }

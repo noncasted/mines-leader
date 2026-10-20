@@ -29,21 +29,6 @@ public class RuntimePipe : Grain, IRuntimePipe
 
     private IRuntimePipeObserver? _observer;
     private Guid? _observerId;
-    private DateTime _setDate;
-
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
-    {
-        if (_observer != null)
-        {
-            var timeSinceLastUpdate = DateTime.UtcNow - _setDate;
-            var keepAlive = TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes);
-
-            if (timeSinceLastUpdate < keepAlive)
-                DelayDeactivation(keepAlive - timeSinceLastUpdate);
-        }
-
-        return Task.CompletedTask;
-    }
 
     public Task BindObserver(Guid observerId, IRuntimePipeObserver observer)
     {
@@ -51,7 +36,11 @@ public class RuntimePipe : Grain, IRuntimePipe
             observerId, this.GetPrimaryKeyString());
         _observer = observer;
         _observerId = observerId;
-        _setDate = DateTime.UtcNow;
+
+        // The observer lives only in this activation's memory and rebinds itself periodically: keep the activation
+        // between rebinds. This must happen here, DelayDeactivation called from OnDeactivateAsync does not stop
+        // a deactivation that has already started.
+        DelayDeactivation(TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes));
         return Task.CompletedTask;
     }
 

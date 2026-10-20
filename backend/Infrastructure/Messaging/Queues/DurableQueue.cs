@@ -23,16 +23,6 @@ public class DurableQueue : Grain, IDurableQueue
 
     private readonly Dictionary<Guid, ObserverData> _observers = new();
 
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
-    {
-        var delay = MessagingGrainExtensions.GetKeepAliveDelay(_observers.Values, d => d.UpdateDate,
-            _config.Value.ObserverKeepAliveMinutes);
-
-        if (delay != null)
-            DelayDeactivation(delay.Value);
-        return Task.CompletedTask;
-    }
-
     public Task AddObserver(Guid id, IDurableQueueObserver observer)
     {
         if (_observers.TryGetValue(id, out var data) == false)
@@ -49,6 +39,11 @@ public class DurableQueue : Grain, IDurableQueue
 
         data.Observer = observer;
         data.UpdateDate = DateTime.UtcNow;
+
+        // Observers live only in this activation's memory and refresh themselves periodically (resubscribe loop):
+        // keep the activation between refreshes. This must happen here, DelayDeactivation called from
+        // OnDeactivateAsync does not stop a deactivation that has already started.
+        DelayDeactivation(TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes));
 
         return Task.CompletedTask;
     }
