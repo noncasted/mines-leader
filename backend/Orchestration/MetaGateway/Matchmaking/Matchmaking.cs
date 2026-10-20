@@ -271,10 +271,10 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
             _lock.Release();
 
             foreach (var (participants, type) in matchesCreated)
-                _matchFactory.Create(participants, type).NoAwait();
+                CreateOrRequeue(() => _matchFactory.Create(participants, type), participants, type).NoAwait();
 
             foreach (var (userId, type) in botMatchesCreated)
-                _matchFactory.CreateWithBot(userId, type).NoAwait();
+                CreateOrRequeue(() => _matchFactory.CreateWithBot(userId, type), [userId], type).NoAwait();
 
             if (hasMatched)
                 PushLiveData();
@@ -283,6 +283,24 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         }
 
         _logger.LogInformation("[Matchmaking] matchmaking loop terminated");
+    }
+
+    // The participants are already out of the queue and the protocol has no search failure message:
+    // without this the error is lost in NoAwait and the players wait for a match result forever.
+    private async Task CreateOrRequeue(Func<Task> create, IReadOnlyList<Guid> participants, GameMatchType type)
+    {
+        try
+        {
+            await create();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "[Matchmaking] Failed to create a {Type} match for {Participants}, returning them to the queue",
+                type, participants);
+
+            foreach (var userId in participants)
+                await SearchMatch(userId, type);
+        }
     }
 
     private void PushLiveData()

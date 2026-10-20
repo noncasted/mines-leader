@@ -24,6 +24,7 @@ public class MatchmakingTests
     private readonly IClusterFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<Matchmaking> _logger;
+    private readonly ViewableProperty<bool> _isInitialized = new(false);
     private readonly Matchmaking _sut;
 
     public MatchmakingTests()
@@ -39,8 +40,7 @@ public class MatchmakingTests
         _botConfig.Value.Returns(new BotConfigOptions());
         _clusterFlags.MatchmakingEnabled.Returns(true);
 
-        var isInitialized = new ViewableProperty<bool>(false);
-        _participantContext.IsInitialized.Returns(isInitialized);
+        _participantContext.IsInitialized.Returns(_isInitialized);
 
         var liveData = Substitute.For<IDeploymentState<MatchmakingLiveData>>();
 
@@ -138,5 +138,46 @@ public class MatchmakingTests
 
         // Verify no spontaneous match creation happened
         await _matchFactory.DidNotReceive().Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>());
+    }
+
+    [Fact]
+    public async Task Loop_MatchCreationFails_LogsAndReturnsPlayersToQueue()
+    {
+        var first = Guid.NewGuid();
+        var second = Guid.NewGuid();
+        var calls = 0;
+        var retried = new TaskCompletionSource();
+
+        _users.IsConnected(Arg.Any<Guid>()).Returns(true);
+        _matchFactory.Create(Arg.Any<IReadOnlyList<Guid>>(), Arg.Any<GameMatchType>()).Returns(_ => {
+            if (Interlocked.Increment(ref calls) == 1)
+                return Task.FromException(new InvalidOperationException("setup failed"));
+
+            retried.TrySetResult();
+            return Task.CompletedTask;
+        });
+
+        await _sut.SearchMatch(first, GameMatchType.Single);
+        await _sut.SearchMatch(second, GameMatchType.Single);
+
+        var lifetime = new Lifetime();
+        _isInitialized.Set(true);
+        await _sut.OnCoordinatorSetupCompleted(lifetime);
+
+        try
+        {
+            await retried.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            lifetime.Terminate();
+        }
+
+        await _matchFactory.Received(2).Create(
+            Arg.Is<IReadOnlyList<Guid>>(list => list.Count == 2 && list.Contains(first) && list.Contains(second)),
+            GameMatchType.Single);
+
+        _logger.Received().Log(LogLevel.Error, Arg.Any<EventId>(), Arg.Any<object>(),
+            Arg.Is<Exception>(e => e.Message == "setup failed"), Arg.Any<Func<object, Exception?, string>>());
     }
 }

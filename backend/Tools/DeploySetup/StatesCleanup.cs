@@ -17,6 +17,7 @@ public static class StatesCleanup
         await connection.Truncate(DbLookup.SE_Queue);
         await connection.Truncate(DbLookup.SE_Processing);
         await connection.Truncate(DbLookup.SE_Retry);
+        await connection.Truncate(DbLookup.SE_DeadLetter);
 
         // Marten event sourcing tables
         await connection.Truncate("mt_streams");

@@ -124,7 +124,7 @@ public static class OrleansUtilsExtensions
 
         public Task InTransaction(Func<Task> action)
         {
-            return orleans.Transactions.Run(action);
+            return orleans.Transactions.RunOrThrow(action);
         }
 
         public Task<T> InTransaction<T>(Func<Task<T>> action)

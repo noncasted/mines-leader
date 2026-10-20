@@ -23,9 +23,11 @@ public static class TransactionsExtensions
             return transactions.Process(parameters);
         }
 
+        // Throws TransactionFailedException (original error inside) when the action throws or the commit fails:
+        // the value of an action whose changes were not committed must not reach the caller.
         public async Task<T> Run<T>(Func<Task<T>> action)
         {
-            T? result = default;
+            T result = default!;
 
             var parameters = new TransactionParameters
             {
@@ -33,10 +35,8 @@ public static class TransactionsExtensions
                 Callbacks = []
             };
 
-            await transactions.Process(parameters);
-
-            if (result == null)
-                throw new NullReferenceException("Result is null");
+            var transactionResult = await transactions.Process(parameters);
+            transactionResult.ThrowIfFailed();
 
             return result;
 
@@ -44,6 +44,14 @@ public static class TransactionsExtensions
             {
                 result = await action();
             }
+        }
+
+        // Same as Run(Func<Task>), but a failed transaction throws TransactionFailedException instead of
+        // returning a result the caller may forget to check.
+        public async Task RunOrThrow(Func<Task> action)
+        {
+            var result = await transactions.Run(action);
+            result.ThrowIfFailed();
         }
 
         public TransactionBuilder CreateBuilder(Func<Task> action)
@@ -59,6 +67,18 @@ public static class TransactionsExtensions
             };
 
             return builder;
+        }
+    }
+
+    extension(TransactionResult result)
+    {
+        public void ThrowIfFailed()
+        {
+            if (result.IsSuccess == true)
+                return;
+
+            throw new TransactionFailedException(result.Error
+                ?? throw new InvalidOperationException("Failed transaction result has no error"));
         }
     }
 
