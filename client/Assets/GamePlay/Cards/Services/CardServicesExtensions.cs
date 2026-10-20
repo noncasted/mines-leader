@@ -8,6 +8,10 @@ namespace GamePlay.Cards
         {
             builder.Register<CardFactory>();
 
+            builder.Register<CardsPointer>()
+                   .As<ICardsPointer>()
+                   .As<IScopeSetup>();
+
             builder.Register<CardResourceFloatingText>()
                    .As<ICardResourceFloatingText>();
 

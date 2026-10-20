@@ -408,7 +408,7 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 
 Пакет нужен редактору, в плеер тащить нельзя.
 
-- `McpPlayerAssemblyFilter` (`IFilterBuildAssemblies`) выкидывает `MCPForUnity.Runtime` — иначе линкер оставляет MonoBehaviour, а с ним Newtonsoft.
+- `PlayerAssemblyFilter` (`IFilterBuildAssemblies`) выкидывает из плеера `MCPForUnity.Runtime` (иначе линкер оставляет MonoBehaviour, а с ним Newtonsoft) и `Unity.2D.Tilemap.Runtime` (`[AlwaysLinkAssembly]` из-за Aseprite, держит модули Tilemap и Physics2D).
 - `McpScreenshotsFolder` на загрузке проекта пишет EditorPrefs скриншотов в `Temp/Screenshots`, не в `Assets/Screenshots`.
 
 ### LinkerGenerator — выключен

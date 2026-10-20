@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.Cards {
-    // Structure: ae3791944053e1c6c3e35c7bf00f763a
+    // Structure: 1f318981fe4b7f2ea3b0aa52f0d1246f
     // Game_Card
     //   - View
     //       - Body
@@ -120,11 +120,13 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
+                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
+                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
                 // Game_Card/View/Body/Description
@@ -134,11 +136,13 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
+                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
+                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
                 // Game_Card/View/Body/ManaCost
@@ -148,11 +152,13 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
+                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
+                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
             }
 
@@ -173,13 +179,11 @@ namespace GamePlay.Cards {
             public sealed class PointerHandlerBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
                 [SerializeField, HideInInspector] private global::UnityEngine.Transform _transform;
-                [SerializeField, HideInInspector] private global::UnityEngine.BoxCollider2D _boxCollider2D;
-                [SerializeField, HideInInspector] private global::GamePlay.Cards.CardPointerEvents _cardPointerEvents;
+                [SerializeField, HideInInspector] private global::GamePlay.Cards.CardPointerArea _cardPointerArea;
 
                 public global::UnityEngine.GameObject GameObject => _gameObject;
                 public global::UnityEngine.Transform Transform => _transform;
-                public global::UnityEngine.BoxCollider2D BoxCollider2D => _boxCollider2D;
-                public global::GamePlay.Cards.CardPointerEvents CardPointerEvents => _cardPointerEvents;
+                public global::GamePlay.Cards.CardPointerArea CardPointerArea => _cardPointerArea;
             }
         }
     }

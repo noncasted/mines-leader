@@ -63,6 +63,11 @@ namespace Unity.Web.Stripping.Editor
         {
             AssemblyReloadEvents.beforeAssemblyReload += SaveSettings;
             LoadSettings();
+
+            // Unity 7000 can't load the asset this early: without a retry the empty path gets
+            // saved on the next domain reload and post-build stripping is silently skipped.
+            if (s_ActiveSettings == null)
+                EditorApplication.delayCall += LoadSettings;
         }
 
         internal static SubmoduleStrippingSettings[] FindSettings()
@@ -107,6 +112,11 @@ namespace Unity.Web.Stripping.Editor
 
             // the rest is ActiveSettings handling
             var assetPath = PackageSettings.GetProjectSetting(k_AssetPathKey, string.Empty);
+
+            // Recover a path that was already lost that way when the project has a single settings asset.
+            if (string.IsNullOrEmpty(assetPath) && FindSettings() is { Length: 1 } found)
+                assetPath = AssetDatabase.GetAssetPath(found[0]);
+
             if (!AssetDatabase.AssetPathExists(assetPath))
                 return;
 

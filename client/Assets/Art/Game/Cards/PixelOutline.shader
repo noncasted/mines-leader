@@ -17,7 +17,6 @@ Shader "Custom/Sprites/PixelOutline"
         {
             "Queue" = "Transparent"
             "RenderType" = "Transparent"
-            "RenderPipeline" = "UniversalPipeline"
             "IgnoreProjector" = "True"
             "CanUseSpriteAtlas" = "True"
         }
@@ -33,7 +32,7 @@ Shader "Custom/Sprites/PixelOutline"
             #pragma fragment frag
             #pragma multi_compile_instancing
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+            #include "Assets/Common/Rendering/ShaderLibrary/Core.hlsl"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
@@ -60,7 +59,6 @@ Shader "Custom/Sprites/PixelOutline"
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 half4 color : COLOR;
-                UNITY_VERTEX_OUTPUT_STEREO
             };
 
             static const float2 kDirs[8] =
@@ -76,8 +74,8 @@ Shader "Custom/Sprites/PixelOutline"
 
             Varyings vert(Attributes input)
             {
-                SetUpSpriteInstanceProperties();
-                input.positionOS = UnityFlipSprite(input.positionOS, unity_SpriteProps.xy);
+                UNITY_SETUP_INSTANCE_ID(input);
+                input.positionOS = FlipSprite(input.positionOS);
 
                 float pixels = max(round(_OutlinePixels), 1);
                 float ppu = max(_PixelsPerUnit, 1);
@@ -85,8 +83,6 @@ Shader "Custom/Sprites/PixelOutline"
                 input.positionOS.xy += side * (pixels / ppu);
 
                 Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
                 output.positionCS = TransformObjectToHClip(input.positionOS);
                 output.uv = input.uv + side * pixels * _MainTex_TexelSize.xy;
                 output.color = input.color * _Color * unity_SpriteColor * _OutlineColor;
