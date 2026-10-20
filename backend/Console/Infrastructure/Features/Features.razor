@@ -46,6 +46,11 @@
             Value="_state.SnapshotDiffGuardEnabled"
             OnToggle="ToggleSnapshotDiffGuardEnabled"
             Saving="_isSaving" />
+
+        @if (_state.CoordinatorUnhealthy)
+        {
+            <p class="text-sm text-destructive">Coordinator heartbeat is stale: gateways refuse new connections until it recovers</p>
+        }
     </div>
 
 </div>

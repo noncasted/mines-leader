@@ -1,10 +1,9 @@
-using Cluster.Discovery;
-using Cluster.State;
 using Common.Extensions;
 using Common.Reactive;
 using Infrastructure.State;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Cluster.Deploy;
 
@@ -60,9 +59,26 @@ public class DeployCleanup : IDeployCleanup, IHostedService
             var toDelete = new List<StateIdentity>();
             var staleIds = new HashSet<Guid>();
 
-            await Collect<DeployState>(lifetime, currentDeployId, toDelete, staleIds);
-            await Collect<ServiceDiscoveryStorageState>(lifetime, currentDeployId, toDelete, staleIds);
-            await Collect<ClusterFeaturesState>(lifetime, currentDeployId, toDelete, staleIds);
+            // Keys only: the rows of DeploymentState hold an AddressableStateValue under the state name,
+            // not the registered type, so reading the values would fail.
+            foreach (var info in DeployScopedStates(_stateStorage.Registry))
+            {
+                await foreach (var key in _stateStorage.ReadAllKeys<Guid>(info, lifetime))
+                {
+                    if (key == currentDeployId)
+                        continue;
+
+                    toDelete.Add(new StateIdentity
+                    {
+                        Key = key,
+                        Type = info.Name,
+                        TableName = info.TableName,
+                        Extension = null
+                    });
+
+                    staleIds.Add(key);
+                }
+            }
 
             if (toDelete.Count > 0)
             {
@@ -90,30 +106,26 @@ public class DeployCleanup : IDeployCleanup, IHostedService
         }
     }
 
-    private async Task Collect<T>(
-        IReadOnlyLifetime lifetime,
-        Guid currentDeployId,
-        List<StateIdentity> toDelete,
-        HashSet<Guid> staleIds)
-        where T : class, IStateValue, new()
+    // The registered states marked with IDeployScopedState, in a stable order.
+    public static IReadOnlyList<GrainStateInfo> DeployScopedStates(IGrainStatesRegistry registry)
     {
-        var info = _stateStorage.Registry.Get<T>();
+        var result = registry.All
+                             .Where(info => typeof(IDeployScopedState).IsAssignableFrom(info.Type))
+                             .OrderBy(info => info.Type.FullName, StringComparer.Ordinal)
+                             .ToList();
 
-        await foreach (var (key, _) in _stateStorage.ReadAll<Guid, T>(lifetime))
+        foreach (var info in result)
         {
-            if (key == currentDeployId)
-                continue;
+            if (info.KeyType != GrainKeyType.Guid)
+                throw new InvalidOperationException(
+                    $"Deploy-scoped state {info.Type.FullName} must be keyed by the deploy id (Guid), got {info.KeyType}");
 
-            toDelete.Add(new StateIdentity
-            {
-                Key = key,
-                Type = info.Name,
-                TableName = info.TableName,
-                Extension = null
-            });
-
-            staleIds.Add(key);
+            if (typeof(IDirectStateValue).IsAssignableFrom(info.Type) == false)
+                throw new InvalidOperationException(
+                    $"Deploy-scoped state {info.Type.FullName} must be a direct state (IDirectStateValue)");
         }
+
+        return result;
     }
 }
 

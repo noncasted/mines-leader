@@ -46,6 +46,10 @@ public interface IStateStorage
         where TKey : notnull
         where TValue : class, IStateValue, new();
 
+    // Keys of every stored record of a direct state, without reading the values (a row may hold another
+    // value type under the state name, e.g. the AddressableStateValue of DeploymentState).
+    IAsyncEnumerable<TKey> ReadAllKeys<TKey>(GrainStateInfo stateInfo, IReadOnlyLifetime lifetime) where TKey : notnull;
+
     Task Write(StateWriteRequest request);
 
     // Builds the direct-state upsert commands without executing them, so a caller owning a transaction
@@ -125,6 +129,14 @@ public class StateStorage : IStateStorage
         var result = await _eventStorage.ReadBatch<TKey, TValue>(streamIds);
 
         return result;
+    }
+
+    public IAsyncEnumerable<TKey> ReadAllKeys<TKey>(GrainStateInfo stateInfo, IReadOnlyLifetime lifetime) where TKey : notnull
+    {
+        if (stateInfo.Type.IsAssignableTo(typeof(IDirectStateValue)) == false)
+            throw new InvalidOperationException($"ReadAllKeys supports direct states only, got {stateInfo.Type.FullName}");
+
+        return _directStorage.ReadAllKeys<TKey>(stateInfo, lifetime);
     }
 
     public IAsyncEnumerable<(TKey, TValue)> ReadAll<TKey, TValue>(IReadOnlyLifetime lifetime)
