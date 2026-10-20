@@ -48,20 +48,10 @@ public class ServiceFactory : IServiceFactory
         if (_collection.Entries.TryGetValue(request.Key, out var existing))
             return existing;
 
-        var properties = new Dictionary<int, IObjectProperty>();
-        var serviceId = request.Key.GetHashCode();
-
-        foreach (var propertyId in request.PropertiesIds)
-        {
-            var property = new ObjectProperty(propertyId, []);
-            property.Construct(_propertyUpdateSender, serviceId);
-            properties.Add(propertyId, property);
-        }
-
         var service = new Service(request.Key);
 
-        foreach (var (_, property) in properties)
-            service.BindProperty(property);
+        foreach (var propertyId in request.PropertiesIds)
+            service.BindProperty(new ObjectProperty(propertyId, []));
 
         service.Setup(_data.Lifetime, _propertyUpdateSender);
 

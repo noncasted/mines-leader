@@ -24,7 +24,6 @@ namespace Internal
                 string key,
                 IServiceRegistration registration)
             {
-                _id = key.GetHashCode();
                 _builder = builder;
                 _key = key;
 
@@ -33,7 +32,6 @@ namespace Internal
 
             private readonly IScopeBuilder _builder;
             private readonly string _key;
-            private readonly int _id;
 
             private readonly Dictionary<int, INetworkProperty> _properties = new();
 
