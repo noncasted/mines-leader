@@ -14,6 +14,7 @@ using Meta.Bots;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Orleans.Serialization.Configuration;
 using Orleans.TestingHost;
 using Shared;
 using Tests.Grains;
@@ -61,6 +62,9 @@ public class OrleansTestClusterFixture : IAsyncLifetime
 
         builder.ConfigureSilo((options, siloBuilder) => {
             siloBuilder.AddMemoryGrainStorage("Default");
+
+            // Same type allowlist as the production silo and client (OrleansSetupExtensions).
+            siloBuilder.Configure<TypeManifestOptions>(OrleansSetupExtensions.AllowSharedTypes);
 
             siloBuilder.AddGrainExtension<IGrainTransactionHandler, GrainTransactionHandler>();
 
@@ -159,6 +163,8 @@ public class OrleansTestClusterFixture : IAsyncLifetime
 
             ConfigureSilo(siloBuilder);
         });
+
+        builder.ConfigureClient(clientBuilder => clientBuilder.Configure<TypeManifestOptions>(OrleansSetupExtensions.AllowSharedTypes));
 
         _cluster = builder.Build();
         await _cluster.DeployAsync();
