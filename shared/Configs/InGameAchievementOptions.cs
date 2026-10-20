@@ -226,4 +226,9 @@ namespace Shared
             };
         }
     }
+
+    [MemoryPackUnion(51, typeof(InGameAchievementOptions))]
+    public partial interface INetworkContext
+    {
+    }
 }

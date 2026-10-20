@@ -43,16 +43,15 @@ namespace Shared
         public partial class SkipTurn : INetworkContext
         {
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<Open>()
-                   .Add<OpenMultiple>()
-                   .Add<SetFlag>()
-                   .Add<RemoveFlag>()
-                   .Add<CardUse>()
-                   .Add<SkipTurn>();
-        }
+    [MemoryPackUnion(26, typeof(SharedGameAction.Open))]
+    [MemoryPackUnion(27, typeof(SharedGameAction.OpenMultiple))]
+    [MemoryPackUnion(28, typeof(SharedGameAction.SetFlag))]
+    [MemoryPackUnion(29, typeof(SharedGameAction.RemoveFlag))]
+    [MemoryPackUnion(30, typeof(SharedGameAction.CardUse))]
+    [MemoryPackUnion(31, typeof(SharedGameAction.SkipTurn))]
+    public partial interface INetworkContext
+    {
     }
 }

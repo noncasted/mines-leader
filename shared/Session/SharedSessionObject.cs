@@ -27,13 +27,12 @@ namespace Shared
             public int ObjectId { get; set; }
             public byte[] Value { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<SetProperty>()
-                   .Add<PropertyUpdate>()
-                   .Add<Event>();
-        }
+    [MemoryPackUnion(66, typeof(SharedSessionObject.SetProperty))]
+    [MemoryPackUnion(67, typeof(SharedSessionObject.PropertyUpdate))]
+    [MemoryPackUnion(68, typeof(SharedSessionObject.Event))]
+    public partial interface INetworkContext
+    {
     }
 }

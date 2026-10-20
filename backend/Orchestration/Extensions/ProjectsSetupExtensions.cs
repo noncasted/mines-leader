@@ -177,7 +177,6 @@ public static class ProjectsSetupExtensions
                 .AddTaskScheduling()
                 .AddDeployCleanup()
                 .AddClusterFeatures()
-                .AddMemoryPack()
                 .AddTests()
                 .AddConfigs()
                 .AddSideEffects()
@@ -218,28 +217,6 @@ public static class ProjectsSetupExtensions
 
             builder.Services.Add<SideEffectsMonitorService>()
                              .As<ILocalSetupCompleted>();
-
-            return builder;
-        }
-
-        private IHostApplicationBuilder AddMemoryPack()
-        {
-            var entityPayloads = new UnionBuilder<IEntityPayload>();
-            var contexts = new UnionBuilder<INetworkContext>();
-
-            entityPayloads
-                .Add<MenuPlayerPayload>()
-                .Add<CardCreatePayload>()
-                .Add<PlayerCreatePayload>();
-
-            contexts
-                .Add<EmptyResponse>()
-                .AddSharedBackend()
-                .AddSharedGame()
-                .AddSharedSession();
-
-            contexts.Build();
-            entityPayloads.Build();
 
             return builder;
         }

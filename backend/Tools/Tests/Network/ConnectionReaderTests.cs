@@ -15,11 +15,6 @@ namespace Tests.Network;
 /// </summary>
 public class ConnectionReaderTests
 {
-    static ConnectionReaderTests()
-    {
-        NetworkContextsSetup.Register();
-    }
-
     [Fact]
     public async Task MessageReader_PartsAreJoinedUpToEndOfMessage()
     {

@@ -23,13 +23,12 @@ namespace Shared
         {
             public int Index { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<LocalUpdate>()
-                   .Add<RemoteUpdate>()
-                   .Add<RemoteDisconnect>();
-        }
+    [MemoryPackUnion(69, typeof(SharedSessionPlayer.LocalUpdate))]
+    [MemoryPackUnion(70, typeof(SharedSessionPlayer.RemoteUpdate))]
+    [MemoryPackUnion(71, typeof(SharedSessionPlayer.RemoteDisconnect))]
+    public partial interface INetworkContext
+    {
     }
 }

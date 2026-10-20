@@ -14,11 +14,6 @@ namespace Tests.Game;
 /// </summary>
 public class SessionRunTests
 {
-    static SessionRunTests()
-    {
-        NetworkContextsSetup.Register();
-    }
-
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
     [Fact]

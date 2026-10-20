@@ -6,4 +6,9 @@ namespace Shared
     public partial class SharedAgentObservationRequest : INetworkContext
     {
     }
+
+    [MemoryPackUnion(56, typeof(SharedAgentObservationRequest))]
+    public partial interface INetworkContext
+    {
+    }
 }

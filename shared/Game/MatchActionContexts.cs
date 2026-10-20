@@ -14,4 +14,10 @@ namespace Shared
         {
         }
     }
+
+    [MemoryPackUnion(53, typeof(MatchActionContexts.PlayerReady))]
+    [MemoryPackUnion(54, typeof(MatchActionContexts.PlayerLoaded))]
+    public partial interface INetworkContext
+    {
+    }
 }

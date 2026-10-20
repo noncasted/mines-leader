@@ -16,11 +16,6 @@ namespace Tests.Network;
 /// </summary>
 public class ConnectionWriterTests
 {
-    static ConnectionWriterTests()
-    {
-        NetworkContextsSetup.Register();
-    }
-
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
     [Fact]

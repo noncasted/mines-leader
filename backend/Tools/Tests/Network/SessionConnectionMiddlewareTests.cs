@@ -22,11 +22,6 @@ namespace Tests.Network;
 /// </summary>
 public class SessionConnectionMiddlewareTests
 {
-    static SessionConnectionMiddlewareTests()
-    {
-        NetworkContextsSetup.Register();
-    }
-
     [Fact]
     public async Task UnknownSession_RespondsFailureAndCloses()
     {

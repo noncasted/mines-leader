@@ -39,15 +39,14 @@ namespace Shared
         {
             public int EntityId { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<CreateRequest>()
-                   .Add<CreateResponse>()
-                   .Add<CreatedOverview>()
-                   .Add<Destroy>()
-                   .Add<DestroyUpdate>();
-        }
+    [MemoryPackUnion(61, typeof(SharedSessionEntity.CreateRequest))]
+    [MemoryPackUnion(62, typeof(SharedSessionEntity.CreateResponse))]
+    [MemoryPackUnion(63, typeof(SharedSessionEntity.CreatedOverview))]
+    [MemoryPackUnion(64, typeof(SharedSessionEntity.Destroy))]
+    [MemoryPackUnion(65, typeof(SharedSessionEntity.DestroyUpdate))]
+    public partial interface INetworkContext
+    {
     }
 }

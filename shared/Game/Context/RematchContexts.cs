@@ -5,14 +5,6 @@ namespace Shared
 {
     public static partial class RematchContexts
     {
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<Request>()
-                   .Add<Failure>()
-                   .Add<Success>();
-        }
-
         [MemoryPackable]
         public partial class Request : INetworkContext
         {
@@ -29,5 +21,12 @@ namespace Shared
             public Guid SessionId { get; set; }
             public string ServerUrl { get; set; }
         }
+    }
+
+    [MemoryPackUnion(32, typeof(RematchContexts.Request))]
+    [MemoryPackUnion(33, typeof(RematchContexts.Failure))]
+    [MemoryPackUnion(34, typeof(RematchContexts.Success))]
+    public partial interface INetworkContext
+    {
     }
 }

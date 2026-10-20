@@ -13,12 +13,6 @@ namespace Internal.Tests
     // next requests with null at once (not after the 20 s timeout); the writer runs again after a loss.
     public class ConnectionWriterTests
     {
-        [OneTimeSetUp]
-        public void RegisterUnions()
-        {
-            TestUnions.Register();
-        }
-
         // The send loop picks the queue up within a few frames: shows the loop runs in the test, so the check of
         // ForceSendAll below is real.
         [UnityTest]

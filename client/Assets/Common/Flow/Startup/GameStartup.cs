@@ -23,7 +23,6 @@ namespace Flow.Startup
             // а сюда управление уже не возвращается (см. MenuLoader).
             GameProfiler.Begin("Startup");
 
-            UnionInitializer.Execute();
             BundleUrlVersioning.Setup();
 
             // Корень строится тем же загрузчиком, что и остальные скоупы; дальше его берут уже из контейнера.
