@@ -14,12 +14,13 @@ builder
     .AddMatchCommands()
     .AddAchievementCommands();
 
+builder.AddConsoleAccess();
+
 var app = builder.Build();
 
 app.AddBackendMiddleware();
 
 app.AddMonitorEndpoints();
 app.MapDefaultEndpoints();
-app.UseCors("cors");
 
 app.Run();

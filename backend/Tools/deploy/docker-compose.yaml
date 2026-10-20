@@ -7,6 +7,9 @@
 #   docker compose --env-file backend/Tools/deploy/.env.local \
 #     -f backend/Tools/deploy/docker-compose.yaml \
 #     -f backend/Tools/deploy/docker-compose.local.yaml up --build
+#
+# Variables written as ${NAME:?} are required: compose refuses to start the stack
+# when one of them is missing or empty instead of deploying a half-configured one.
 
 name: mines-leader
 
@@ -45,10 +48,10 @@ x-service-env: &service-env
   DOTNET_RUNNING_IN_CONTAINER: "true"
   OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
   OTEL_EXPORTER_OTLP_PROTOCOL: grpc
-  OTEL_EXPORTER_OTLP_HEADERS: "x-otlp-api-key=${OTEL_API_KEY:-dev-otlp-key}"
+  OTEL_EXPORTER_OTLP_HEADERS: "x-otlp-api-key=${OTEL_API_KEY:?}"
   OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
-  ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
-  postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+  ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+  postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
 
 x-service-healthcheck: &service-healthcheck
   test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ready || exit 1"]
@@ -61,11 +64,11 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:latest
     environment:
-      DB_HOST: ${DB_HOST}
+      DB_HOST: ${DB_HOST:?}
       DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER:?}
+      DB_PASSWORD: ${DB_PASSWORD:?}
+      DB_NAME: ${DB_NAME:?}
       LISTEN_PORT: "6432"
       POOL_MODE: transaction
       AUTH_TYPE: scram-sha-256
@@ -82,7 +85,7 @@ services:
     networks:
       - mines-leader-production
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER} || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER:?} || exit 1"]
       interval: 2s
       timeout: 3s
       retries: 30
@@ -95,8 +98,8 @@ services:
       dockerfile: ./backend/Tools/DeploySetup/Dockerfile
     image: mines-leader/migrator:latest
     environment:
-      ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
-      postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+      ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+      postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -157,6 +160,12 @@ services:
     environment:
       <<: *service-env
       SERVICE_NAME: meta
+      # Required: guards /api/monitor/* (Authorization: Bearer <token>). Empty or
+      # "local-dev-token" fails startup outside Development.
+      CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      # Browser origins of the WebGL client (CORS + WebSocket handshake), comma-separated.
+      # html-classic.itch.zone is the origin of the itch.io HTML5 embed.
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone}
       # Coolify magic var: generates https://meta-<hash>.<coolify-domain> automatically
       # Override in Coolify UI with a custom domain, e.g. SERVICE_FQDN_META_8080=https://meta.yourdomain.com
       SERVICE_FQDN_META_8080: /
@@ -195,7 +204,11 @@ services:
     environment:
       <<: *service-env
       SERVICE_NAME: game
-      GAME_SERVER_URL: ${GAME_SERVER_URL}
+      GAME_SERVER_URL: ${GAME_SERVER_URL:?}
+      # Required: guards /api/sessions/* (Authorization: Bearer <token>).
+      CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      # Same list as meta.
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone}
       SERVICE_FQDN_GAME_8080: /
     expose:
       - "8080"
@@ -232,7 +245,9 @@ services:
     environment:
       <<: *service-env
       SERVICE_NAME: console
-      CONSOLE_TOKEN: ${CONSOLE_TOKEN}
+      # Required: outside Development ConsoleGateway refuses to start with an empty
+      # token or the dev value "local-dev-token".
+      CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
       SERVICE_FQDN_CONSOLE_8080: /
     expose:
       - "8080"
@@ -268,13 +283,14 @@ services:
     healthcheck:
       <<: *service-healthcheck
 
+  # Required secrets, no defaults: the dashboard has a public domain.
   aspire-dashboard:
     image: mcr.microsoft.com/dotnet/aspire-dashboard:13.5
     environment:
       DASHBOARD__FRONTEND__AUTHMODE: BrowserToken
-      DASHBOARD__FRONTEND__BROWSERTOKEN: ${ASPIRE_TOKEN:-dev-token}
+      DASHBOARD__FRONTEND__BROWSERTOKEN: ${ASPIRE_TOKEN:?}
       DASHBOARD__OTLP__AUTHMODE: ApiKey
-      DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:-dev-otlp-key}
+      DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:?}
       DASHBOARD__OTLP__ENDPOINTURL: http://0.0.0.0:18889
       DASHBOARD__FRONTEND__ENDPOINTURLS: http://0.0.0.0:18888
       # No DASHBOARD__RESOURCESERVICECLIENT__*: we do not run a resource service,
