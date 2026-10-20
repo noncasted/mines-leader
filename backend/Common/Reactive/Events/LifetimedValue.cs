@@ -21,8 +21,12 @@
             _eventSource.Advise(lifetime, handler);
         }
 
+        // An equal value is not a change (same as the client copy): no notification, the value lifetime stays.
         public void Set(T value)
         {
+            if (_value?.Equals(value) == true)
+                return;
+
             _lifetime.Terminate();
 
             _lifetime = new Lifetime();
