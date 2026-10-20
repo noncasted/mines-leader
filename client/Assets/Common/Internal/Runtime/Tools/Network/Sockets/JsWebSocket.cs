@@ -26,6 +26,8 @@ namespace Internal
 
         private bool _isConnected;
         private bool _isDisposed;
+        private bool _isClosed;
+        private int _closeCode;
 
         public IViewableDelegate<byte[]> Received => _received;
         public IViewableDelegate<string> Closed => _closed;
@@ -74,10 +76,14 @@ namespace Internal
             }
 
             // Wait for connection to be established
-            await UniTask.WaitUntil(() => _isConnected || _isDisposed, cancellationToken: _lifetime.Token);
+            await UniTask.WaitUntil(() => _isConnected || _isDisposed || _isClosed, cancellationToken: _lifetime.Token);
 
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(JsWebSocket));
+
+            // Refused, or opened and closed again before the next frame: without this the wait never ended.
+            if (_isClosed)
+                throw new InvalidOperationException($"[Network] [JsWebSocket] Closed while connecting: id={_handlerId}, code={_closeCode}");
 
             Debug.Log($"[Network] [JsWebSocket] Connected: id={_handlerId}");
         }
@@ -251,6 +257,8 @@ namespace Internal
 
                 var wasConnected = instance._isConnected;
                 instance._isConnected = false;
+                instance._isClosed = true;
+                instance._closeCode = code;
 
                 // Браузер шлёт onclose и после onerror, поэтому обрыв сообщается только отсюда.
                 // Dispose удаляет инстанс из Instances до JsWebSocketClose, так что локальное

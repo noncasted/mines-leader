@@ -15,6 +15,8 @@ namespace Internal
         /// </summary>
         IViewableDelegate<string> Closed { get; }
 
+        // Opens the socket. ConnectionFailedException when it does not open (the connection is closed then); a loss
+        // at any moment after it opens - even before Run returns - closes the connection and raises Closed.
         UniTask Run(IReadOnlyLifetime lifetime, string url);
     }
 
@@ -36,6 +38,10 @@ namespace Internal
         private readonly PlatformOptions _platformOptions;
         private readonly ViewableDelegate<string> _closed = new();
 
+        // A connect that hangs (a proxy that accepts TCP but has no server behind it, a stalled upgrade) is a failed
+        // one: without a bound the caller waited forever.
+        private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(15);
+
         public IConnectionReader Reader => _reader;
         public IConnectionWriter Writer => _writer;
         public IViewableDelegate<string> Closed => _closed;
@@ -51,16 +57,29 @@ namespace Internal
             _dispatcher.Run(lifetime);
             _reader.Run(lifetime, _webSocket);
 
-            // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие
-            // этапы вложились бы в ожидание сокета.
-            using (GameProfiler.Concurrent("Socket connect"))
-                await _webSocket.Connect();
-
+            // The writer and the listeners of the loss are subscribed before connecting too: the socket may be lost
+            // inside Connect (DefaultWebSocket starts its receive loop there, and a socket dropped between the upgrade
+            // and the next frame fails its first receive synchronously). Subscribed after it, they missed that loss:
+            // the connection stayed open forever, the authorization waited for its timeout or for projections that
+            // never came. The writer goes first: by the time the loss reaches game code, pending requests are
+            // already completed.
             _writer.Run(lifetime, _webSocket);
-
-            // Writer подписан раньше: к моменту, когда обрыв дойдёт до игрового кода,
-            // ожидающие запросы уже завершены.
             _webSocket.Closed.Advise(lifetime, reason => _closed.Invoke(reason));
+
+            try
+            {
+                // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие
+                // этапы вложились бы в ожидание сокета.
+                using (GameProfiler.Concurrent("Socket connect"))
+                    await _webSocket.Connect().Timeout(ConnectTimeout, DelayType.Realtime);
+            }
+            // The socket never opened (refused, dropped during the upgrade): nothing is answered on this connection.
+            // The end of the lifetime is not a failure: its cancellation goes up as it is.
+            catch (Exception exception) when (lifetime.IsTerminated == false)
+            {
+                _writer.Close();
+                throw new ConnectionFailedException(url, exception);
+            }
 
             return;
 
@@ -86,6 +105,17 @@ namespace Internal
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+    }
+
+    // NetworkConnection.Run: the socket did not open (connect refused, the network dropped it during the upgrade).
+    // The connection is closed (IConnectionWriter.IsClosed); INetworkConnection.Closed is not raised - it is for a
+    // connection that was established.
+    public class ConnectionFailedException : Exception
+    {
+        public ConnectionFailedException(string url, Exception inner)
+            : base($"[Network] The socket to {url} did not open: {inner.GetType().Name} {inner.Message}", inner)
+        {
         }
     }
 

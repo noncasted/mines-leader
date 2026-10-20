@@ -59,6 +59,10 @@ namespace Global.Publisher.Itch
                 container.Entries.Add(new SaveEntry { Key = entryKey, Value = value });
 
             PlayerPrefs.SetString(Key, JsonUtility.ToJson(container));
+
+            // On the web an unflushed value is lost with the tab.
+            PlayerPrefs.Save();
+
             return UniTask.CompletedTask;
         }
 
