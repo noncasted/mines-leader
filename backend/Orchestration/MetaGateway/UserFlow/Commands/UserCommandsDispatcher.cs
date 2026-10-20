@@ -29,47 +29,66 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
         reader.Requests.Advise(session.Lifetime, request => HandleRequest(request).NoAwait());
         reader.Responses.Advise(session.Lifetime, HandleResponse);
 
-        Task HandleOneWay(OneWayMessageFromClient oneWay)
+        async Task HandleOneWay(OneWayMessageFromClient oneWay)
         {
             var type = oneWay.Context.GetType();
 
+            if (_commands.Entries.TryGetValue(type, out var command) == false)
+            {
+                _logger.LogError("[User] [Command] No command for one-way {CommandType} of user {UserId}",
+                    type.FullName,
+                    session.UserId);
+
+                return;
+            }
+
             try
             {
-                return _commands.Entries[type].Execute(session, oneWay.Context);
+                await command.Execute(session, oneWay.Context);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[User] [Command] Error handling one-way command: {CommandType}", type.Name);
-                return Task.CompletedTask;
+                _logger.LogError(e, "[User] [Command] One-way command {CommandType} of user {UserId} failed",
+                    type.FullName,
+                    session.UserId);
             }
         }
 
+        // Every request is answered: the result, or ErrorResponse when there is no command for its type or the
+        // command throws - the client turns it into an exception instead of waiting.
         async Task HandleRequest(RequestMessageFromClient request)
         {
-            var type = request.Context.GetType();
+            var context = request.Context;
+            var type = context.GetType();
+
+            if (_commands.Entries.TryGetValue(type, out var command) == false)
+            {
+                _logger.LogError("[User] [Command] No command for request {CommandType} of user {UserId}, request {RequestId}",
+                    type.FullName,
+                    session.UserId,
+                    request.RequestId);
+
+                writer.WriteResponse(ErrorResponse.UnknownCommand(context), request.RequestId);
+                return;
+            }
+
+            INetworkContext result;
 
             try
             {
-                var result = await _commands.Entries[type].Execute(session, request.Context);
-                await writer.WriteResponse(result, request.RequestId);
+                result = await command.Execute(session, context);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[User] [Command] Error handling request command: {CommandType}", type.Name);
+                _logger.LogError(e, "[User] [Command] Request command {CommandType} of user {UserId} failed, request {RequestId}",
+                    type.FullName,
+                    session.UserId,
+                    request.RequestId);
 
-                // Клиент ждёт ответ на каждый запрос: без ошибки он висит в загрузке до таймаута.
-                try
-                {
-                    await writer.WriteResponse(EmptyResponse.Fail($"Command {type.Name} failed"), request.RequestId);
-                }
-                catch (Exception writeError)
-                {
-                    _logger.LogError(
-                        writeError,
-                        "[User] [Command] Failed to send error response: {CommandType}",
-                        type.Name);
-                }
+                result = ErrorResponse.Create(Shared.ErrorCode.Internal, context, e);
             }
+
+            writer.WriteResponse(result, request.RequestId);
         }
 
         void HandleResponse(ResponseMessageFromClient response)

@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using GamePlay.Players;
 using Internal;
 using Shared;
@@ -51,7 +52,7 @@ namespace GamePlay.Loop
             if (IsTurnAllowed == false)
                 return;
 
-            _connection.Request(new SharedGameAction.SkipTurn());
+            _connection.Request(new SharedGameAction.SkipTurn()).Forget();
         }
     }
 }

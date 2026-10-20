@@ -15,9 +15,18 @@ namespace Common.Network;
 /// </summary>
 public interface IConnectionWriter
 {
-    ValueTask WriteOneWay(INetworkContext context);
-    Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext;
-    ValueTask WriteResponse(INetworkContext context, int requestId);
+    // Enqueue only, never waits and never throws: a message to a closed connection is dropped (the connection is
+    // gone, its owner handles the loss), an overflow disconnects the slow client (logged once by the writer).
+    void WriteOneWay(INetworkContext context);
+
+    // The response T. Throws NetworkRequestException when the client answers with ErrorResponse,
+    // InvalidOperationException on a response of another type, TimeoutException without a response,
+    // OperationCanceledException when the connection is closed before the response.
+    Task<T> WriteRequest<T>(INetworkContext context) where T : INetworkContext;
+
+    // Same delivery as WriteOneWay.
+    void WriteResponse(INetworkContext context, int requestId);
+
     void OnRequestHandled(INetworkContext context, int requestId);
 }
 
@@ -60,7 +69,7 @@ public class ConnectionWriter : IConnectionWriter
     private readonly ConnectionWriterOptions _options;
     private readonly Channel<IMessageFromServer> _queue;
 
-    private readonly ConcurrentDictionary<int, TaskCompletionSource<INetworkContext?>> _pendingRequests = new();
+    private readonly ConcurrentDictionary<int, TaskCompletionSource<INetworkContext>> _pendingRequests = new();
 
     private int _requestId = 1_000_000;
     private int _isOverflowed;
@@ -131,31 +140,44 @@ public class ConnectionWriter : IConnectionWriter
         }
     }
 
-    public ValueTask WriteOneWay(INetworkContext context)
+    public void WriteOneWay(INetworkContext context)
     {
-        return Enqueue(new OneWayMessageFromServer()
+        TryEnqueue(new OneWayMessageFromServer()
         {
             Context = context
         });
     }
 
-    public async Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext
+    public async Task<T> WriteRequest<T>(INetworkContext context) where T : INetworkContext
     {
         var requestId = Interlocked.Increment(ref _requestId);
-        var completion = new TaskCompletionSource<INetworkContext?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var completion = new TaskCompletionSource<INetworkContext>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         if (_pendingRequests.TryAdd(requestId, completion) == false)
             throw new InvalidOperationException($"Request id {requestId} is already pending");
 
         try
         {
-            await Enqueue(new RequestMessageFromServer()
+            var enqueueError = TryEnqueue(new RequestMessageFromServer()
             {
                 Context = context,
                 RequestId = requestId
             });
 
-            return await completion.Task.WaitAsync(_options.RequestTimeout);
+            if (enqueueError != null)
+                throw enqueueError;
+
+            var response = await completion.Task.WaitAsync(_options.RequestTimeout);
+
+            return response switch
+            {
+                T typed => typed,
+                ErrorResponse error => throw new NetworkRequestException(error.Code,
+                    error.Message,
+                    ErrorResponse.Describe(context)),
+                _ => throw new InvalidOperationException(
+                    $"Request {ErrorResponse.Describe(context)} got {response.GetType().FullName}, expected {typeof(T).FullName}")
+            };
         }
         catch (TimeoutException)
         {
@@ -168,9 +190,9 @@ public class ConnectionWriter : IConnectionWriter
         }
     }
 
-    public ValueTask WriteResponse(INetworkContext context, int requestId)
+    public void WriteResponse(INetworkContext context, int requestId)
     {
-        return Enqueue(new ResponseMessageFromServer()
+        TryEnqueue(new ResponseMessageFromServer()
         {
             Context = context,
             RequestId = requestId
@@ -186,20 +208,22 @@ public class ConnectionWriter : IConnectionWriter
         _logger.LogWarning("[Connection] Response for unknown or completed request ID: {RequestId}", requestId);
     }
 
-    private ValueTask Enqueue(IMessageFromServer message)
+    // Null when the message is queued. A failure is already handled here: the overflow has disconnected the client
+    // (logged once), a closed connection is the loss its owner handles. Only a request needs the error, to fail.
+    private Exception? TryEnqueue(IMessageFromServer message)
     {
         if (_queue.Writer.TryWrite(message) == true)
-            return ValueTask.CompletedTask;
+            return null;
 
         if (Volatile.Read(ref _isOverflowed) == 1)
-            return ValueTask.FromException(new ConnectionOverflowException(_options.QueueCapacity));
+            return new ConnectionOverflowException(_options.QueueCapacity);
 
         // TryWrite on a bounded channel in Wait mode fails only when it is completed or full.
         if (Volatile.Read(ref _isClosed) == 1)
-            return ValueTask.FromException(new ChannelClosedException("Connection is closed"));
+            return new OperationCanceledException("Connection is closed");
 
         OnOverflow();
-        return ValueTask.FromException(new ConnectionOverflowException(_options.QueueCapacity));
+        return new ConnectionOverflowException(_options.QueueCapacity);
     }
 
     private void OnOverflow()
@@ -225,7 +249,7 @@ public class ConnectionWriter : IConnectionWriter
         while (_queue.Reader.TryRead(out var message) == true)
         {
             if (message is RequestMessageFromServer request)
-                FailRequest(request.RequestId, new ChannelClosedException("Connection is closed"));
+                FailRequest(request.RequestId, new OperationCanceledException("Connection is closed"));
         }
 
         foreach (var requestId in _pendingRequests.Keys)

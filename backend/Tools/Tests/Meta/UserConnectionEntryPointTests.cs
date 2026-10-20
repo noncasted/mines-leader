@@ -294,10 +294,8 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
             var written = new ConcurrentQueue<INetworkContext>();
             var writer = Substitute.For<IConnectionWriter>();
 
-            writer.WriteOneWay(Arg.Any<INetworkContext>()).Returns(call => {
-                written.Enqueue(call.Arg<INetworkContext>());
-                return ValueTask.CompletedTask;
-            });
+            writer.When(target => target.WriteOneWay(Arg.Any<INetworkContext>()))
+                  .Do(call => written.Enqueue(call.Arg<INetworkContext>()));
 
             var lifetime = new Lifetime();
             var connection = Substitute.For<IConnection>();

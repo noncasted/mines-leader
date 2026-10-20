@@ -37,7 +37,7 @@ public class UserFactory : IUserFactory
         var userLifetime = new Lifetime();
         connectionLifetime.Listen(() => _executionQueue.Enqueue(userLifetime.Terminate));
 
-        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
+        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue, _logger);
         var connection = new Connection(webSocket, parentLifetime, _logger);
 
         var user = new User
@@ -64,7 +64,7 @@ public class UserFactory : IUserFactory
         var userLifetime = new Lifetime();
         connectionLifetime.Listen(() => _executionQueue.Enqueue(userLifetime.Terminate));
 
-        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue);
+        var dispatcher = new CommandDispatcher(_commandsCollection, _executionQueue, _logger);
 
         var connection = new BotConnection
         {

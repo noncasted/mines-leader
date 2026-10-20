@@ -85,6 +85,16 @@ graph TB
     end
 ```
 
+### Ошибки запросов (ErrorResponse)
+
+`shared/Protocol/ErrorResponse.cs`: `ErrorResponse { ErrorCode Code; string Message }` (тег 75), `ErrorCode` = `Internal`, `UnknownCommand`, `InvalidRequest`, `Forbidden`, `NotFound`; `NetworkRequestException` (`Code`, `RequestName`).
+- На каждый запрос есть ответ с обеих сторон. Game `CommandDispatcher`, meta `UserCommandsDispatcher` и клиентский `NetworkCommandsDispatcher` отвечают `ErrorResponse(UnknownCommand)`, если команды нет, и `ErrorResponse(Internal)`, если команда бросила исключение (стек в логе упавшей стороны). `SessionRequestException` (отказ сессии по правилам, например `CreateRequest` с чужим id) уходит со своим кодом и warning-ом. Упавшая one-way команда только логируется.
+- `WriteRequest<T>` (клиентский и бэкенд `ConnectionWriter`) не возвращает null: `T` или `NetworkRequestException` (ErrorResponse), `TimeoutException`, `OperationCanceledException` (соединение закрыто), `InvalidOperationException` (ответ другого типа; на клиенте — запрос после `ForceSendAll`).
+- Бэкенд `WriteOneWay` / `WriteResponse` — `void`: только постановка в очередь; закрытое соединение сообщение выбрасывает, переполнение отключает медленного клиента внутри writer-а.
+- `EmptyResponse.Fail` остаётся для отказов по правилам матча (карта без цели, не твой ход): это ответ, а не ошибка запроса. Meta `ExecuteCommand` бросает и на нём.
+- `IMatchmaking`: упавшая команда бросает из `Matchmaking.*`. `CreateGame`, `CreateGameWithBot`, `SearchLobby` ждут результат не дольше 10 с после ответа на команду. `SearchGame` ждёт без лимита; сбой создания матча из очереди клиенту не приходит (сервер возвращает игрока в очередь, вариант ошибки в `MatchResult` — N10).
+- Сущности: клиент создаёт сущность только в своём диапазоне id (`backend/Game/Session/Objects/Entities/SessionEntityIds.cs`, `index * 100000 + counter`) и не с занятым или удалённым id, иначе `Forbidden`.
+
 ### Backend протоколы (Backend/)
 
 | Контекст | Описание |

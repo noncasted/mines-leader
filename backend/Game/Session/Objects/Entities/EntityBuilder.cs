@@ -17,7 +17,7 @@ public class EntityBuilder
         _propertyUpdateSender = propertyUpdateSender;
         _owner = owner;
 
-        _id = owner.Index * 1000_00 + entities.CountByUser(owner);
+        _id = owner.Index * SessionEntityIds.Stride + entities.CountByUser(owner);
     }
 
     private readonly ISessionUsers _users;

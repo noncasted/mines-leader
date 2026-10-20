@@ -156,12 +156,15 @@ namespace Menu.Play
         private async UniTask Search(IReadOnlyLifetime lifetime, GameMatchType type)
         {
             _isInSearch = true;
-            _searchLifetime = lifetime.Child();
+
+            // Local: a stopped search may already be replaced by the next one when its wait ends.
+            var searchLifetime = lifetime.Child();
+            _searchLifetime = searchLifetime;
             _searchView.ShowSearching();
             _time = 0;
             _searchView.SetTimer("00:00");
 
-            _updater.RunUpdateAction(_searchLifetime, delta => {
+            _updater.RunUpdateAction(searchLifetime, delta => {
                             _time += delta;
                             var timeSpan = TimeSpan.FromSeconds(_time);
                             _searchView.SetTimer($"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}");
@@ -170,20 +173,22 @@ namespace Menu.Play
 
             try
             {
-                var sessionData = await _matchmaking.SearchGame(_searchLifetime, type);
+                var sessionData = await _matchmaking.SearchGame(searchLifetime, type);
                 _isInSearch = false;
                 _searchView.ShowIdle();
                 _gameFound.Invoke(sessionData);
             }
-            catch (OperationCanceledException)
+            // The search was stopped (StopSearch or the menu is unloaded).
+            catch (OperationCanceledException) when (searchLifetime.IsTerminated == true)
             {
             }
-            // The meta is down (IMetaConnection could not connect it again): the search screen goes back to idle so
+            // The meta is down (IMetaConnection could not connect it again), the search command failed on the server
+            // (NetworkRequestException) or the connection was lost during it: the search screen goes back to idle so
             // the next press tries again; the error stays loud.
-            catch (Exception) when (_searchLifetime.IsTerminated == false)
+            catch (Exception) when (searchLifetime.IsTerminated == false)
             {
                 _isInSearch = false;
-                _searchLifetime.Terminate();
+                searchLifetime.Terminate();
                 _searchView.ShowIdle();
                 throw;
             }

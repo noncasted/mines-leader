@@ -8,7 +8,7 @@ namespace Shared
         // First 16 hex chars of SHA-256 over backend/Tools/Tests/Protocol/protocol_schema.golden.txt (union tags,
         // members of every [MemoryPackable] shared type, enum values). ProtocolSchemaTests fails with the new value
         // when the schema changes: update it here together with the golden file.
-        public const string Hash = "ddae8a7e3afb4a39";
+        public const string Hash = "522f7664226053dd";
 
         public const string QueryKey = "protocol";
 

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.SetFlag
             {
                 Position = position.ToPosition()
-            });
+            }).Forget();
         }
 
         public void Unflag(Vector2Int position)
@@ -26,7 +27,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.RemoveFlag
             {
                 Position = position.ToPosition()
-            });
+            }).Forget();
         }
 
         public void Open(Vector2Int position)
@@ -34,7 +35,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.Open
             {
                 Position = position.ToPosition()
-            });
+            }).Forget();
         }
 
         public void OpenMultiple(Vector2Int position)
@@ -42,7 +43,7 @@ namespace GamePlay.Boards
             _connection.Request(new SharedGameAction.OpenMultiple
             {
                 Position = position.ToPosition()
-            });
+            }).Forget();
         }
     }
 }

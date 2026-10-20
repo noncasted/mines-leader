@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Shared;
+using UnityEngine;
 
 namespace Meta
 {
@@ -29,10 +31,17 @@ namespace Meta
 
         public async UniTask<IReadOnlyList<CardType>> GetOptions(IAchievementTier tier)
         {
-            var response = await _backend.GetAchievementRewardOptions(tier.Type, tier.Tier);
-
-            // null — запрос не дошёл или упал на сервере: вызывающий отличит это от пустого пула.
-            return response?.Options;
+            // null — запрос не дошёл или упал на сервере: вызывающий отличит это от пустого пула и закроет окно.
+            try
+            {
+                var response = await _backend.GetAchievementRewardOptions(tier.Type, tier.Tier);
+                return response.Options;
+            }
+            catch (Exception e) when (e is NetworkRequestException || e is TimeoutException || e is OperationCanceledException)
+            {
+                Debug.LogException(e);
+                return null;
+            }
         }
 
         public UniTask<bool> Claim(IAchievementTier tier, CardType card)
