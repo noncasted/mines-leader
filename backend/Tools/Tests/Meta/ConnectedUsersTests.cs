@@ -120,4 +120,94 @@ public class ConnectedUsersTests
         _sut.Entries[session1.UserId].Should().BeSameAs(session1);
         _sut.Entries[session2.UserId].Should().BeSameAs(session2);
     }
+
+    [Fact]
+    public void Add_SameUser_ReplacesAndReturnsPrevious()
+    {
+        var userId = Guid.NewGuid();
+        var first = CreateSession(userId);
+        var second = CreateSession(userId);
+
+        _sut.Add(first).Should().BeNull();
+        _sut.Add(second).Should().BeSameAs(first);
+
+        _sut.Entries[userId].Should().BeSameAs(second);
+    }
+
+    [Fact]
+    public void ReplacedSession_LifetimeEnd_KeepsNewSession()
+    {
+        var userId = Guid.NewGuid();
+        var firstLifetime = new Lifetime();
+        var first = CreateSession(userId, firstLifetime);
+        var second = CreateSession(userId);
+
+        _sut.Add(first);
+        _sut.Add(second);
+        firstLifetime.Terminate();
+
+        _sut.Entries[userId].Should().BeSameAs(second);
+        _sut.IsConnected(userId).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ReplacedSession_ExplicitRemove_KeepsNewSession()
+    {
+        var userId = Guid.NewGuid();
+        var first = CreateSession(userId);
+        var second = CreateSession(userId);
+
+        _sut.Add(first);
+        _sut.Add(second);
+        _sut.Remove(first);
+
+        _sut.Entries[userId].Should().BeSameAs(second);
+    }
+
+    [Fact]
+    public void Add_TerminatedLifetime_RemovedRightAway()
+    {
+        var lifetime = new Lifetime();
+        lifetime.Terminate();
+
+        var session = CreateSession(lifetime: lifetime);
+        _sut.Add(session);
+
+        _sut.IsConnected(session.UserId).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ConcurrentAddAndDisconnect_EntriesAndLastLiveDataConsistent()
+    {
+        var liveData = Substitute.For<IDeploymentState<ConnectedUsersLiveData>>();
+        ConnectedUsersLiveData? last = null;
+        liveData.SetValue(Arg.Do<ConnectedUsersLiveData>(value => last = value));
+
+        var sut = new ConnectedUsers(liveData);
+        var kept = new System.Collections.Concurrent.ConcurrentBag<Guid>();
+
+        var workers = Enumerable.Range(0, 8).Select(_ => Task.Run(() => {
+            for (var i = 0; i < 500; i++)
+            {
+                var lifetime = new Lifetime();
+                var session = CreateSession(lifetime: lifetime);
+                sut.Add(session);
+
+                if (i % 5 == 0)
+                {
+                    kept.Add(session.UserId);
+                    continue;
+                }
+
+                lifetime.Terminate();
+            }
+        }, TestContext.Current.CancellationToken));
+
+        await Task.WhenAll(workers);
+
+        sut.Entries.Keys.Should().BeEquivalentTo(kept);
+        last.Should().NotBeNull();
+        last!.Users.Select(entry => entry.UserId).Should().BeEquivalentTo(kept);
+        last.Count.Should().Be(kept.Count);
+    }
 }
