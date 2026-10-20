@@ -30,19 +30,19 @@ public class BotConnection : IConnection, IConnectionWriter, IConnectionReader
 
     }
 
-    public ValueTask WriteOneWay(INetworkContext context)
+    public void WriteOneWay(INetworkContext context)
     {
-        return ValueTask.CompletedTask;
     }
 
-    public Task<INetworkContext?> WriteRequest<T>(INetworkContext context) where T : INetworkContext
+    // A bot has no client: nothing would ever answer the request.
+    public Task<T> WriteRequest<T>(INetworkContext context) where T : INetworkContext
     {
-        return Task.FromResult<INetworkContext?>(null);
+        return Task.FromException<T>(new InvalidOperationException(
+            $"Request {ErrorResponse.Describe(context)} to a bot: a bot has no client to answer it"));
     }
 
-    public ValueTask WriteResponse(INetworkContext context, int requestId)
+    public void WriteResponse(INetworkContext context, int requestId)
     {
-        return ValueTask.CompletedTask;
     }
 
     public void OnRequestHandled(INetworkContext context, int requestId)

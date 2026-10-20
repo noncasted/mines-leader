@@ -218,8 +218,8 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
 
         private void Write(INetworkContext context)
         {
-            // Enqueue only, completes synchronously: a closed or overflowed connection throws here.
-            _writer.WriteOneWay(context.ToProjection()).GetAwaiter().GetResult();
+            // Enqueue only: a closed connection drops it, an overflow disconnects the client inside the writer.
+            _writer.WriteOneWay(context.ToProjection());
         }
     }
 }

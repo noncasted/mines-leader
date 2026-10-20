@@ -1,4 +1,5 @@
 ﻿using System;
+using Shared;
 using UnityEngine;
 
 namespace Internal
@@ -40,19 +41,31 @@ namespace Internal
                 }
             });
 
+            // As on the backend: every request of the server is answered, with ErrorResponse when there is no command
+            // for it or the command throws - the server turns it into an exception instead of waiting.
             reader.Request.Advise(lifetime, request => {
                 var context = request.Context;
-                var commands = _commands.Get(context);
+
+                if (_commands.TryGet(context, out var command) == false)
+                {
+                    Debug.LogError($"[Network] No command for the server request {context.GetType().FullName}");
+                    writer.WriteResponse(ErrorResponse.UnknownCommand(context), request.RequestId);
+                    return;
+                }
+
+                INetworkContext response;
 
                 try
                 {
-                    var response = commands.Execute(lifetime, context);
-                    writer.WriteResponse(response, request.RequestId);
+                    response = command.Execute(lifetime, context);
                 }
                 catch (Exception e)
                 {
                     Debug.LogException(e);
+                    response = ErrorResponse.Create(Shared.ErrorCode.Internal, context, e);
                 }
+
+                writer.WriteResponse(response, request.RequestId);
             });
 
             reader.Response.Advise(lifetime, response => {

@@ -1,16 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Shared;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Internal.Tests
 {
-    // ConnectionWriter: the send loop and ForceSendAll send a message once; a lost connection answers pending and
-    // next requests with null at once (not after the 20 s timeout); the writer runs again after a loss.
+    // ConnectionWriter: the send loop and ForceSendAll send a message once; the writer runs again after a loss.
+    // N4 (port of peace-data-reborn F2.3/F2.16): WriteRequest never returns null - the typed response,
+    // NetworkRequestException for ErrorResponse, InvalidOperationException for a response of another type or a request
+    // after ForceSendAll, OperationCanceledException at once (not after the 20 s timeout) when the connection is lost
+    // or its lifetime ends. The 20 s timeout is not covered (real time).
     public class ConnectionWriterTests
     {
         // The send loop picks the queue up within a few frames: shows the loop runs in the test, so the check of
@@ -42,22 +44,71 @@ namespace Internal.Tests
         });
 
         [UnityTest]
-        public IEnumerator SocketClosed_PendingAndNextRequestsGetNullAtOnce() => UniTask.ToCoroutine(async () =>
+        public IEnumerator SocketClosed_PendingAndNextRequestsAreCancelledAtOnce() => UniTask.ToCoroutine(async () =>
         {
             var (writer, socket, lifetime) = Create();
 
-            LogAssert.Expect(LogType.Error, new Regex("got no response"));
             var pending = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
             socket.ClosedSource.Invoke(new SocketCloseInfo(SocketCloseInfo.AbnormalClosure, "lost"));
 
-            Assert.IsNull(await pending);
+            Assert.IsInstanceOf<OperationCanceledException>(await Catch(pending));
             Assert.IsTrue(writer.IsClosed);
 
-            LogAssert.Expect(LogType.Error, new Regex("the connection is closed"));
             var next = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
 
             Assert.IsTrue(next.Status.IsCompleted());
-            Assert.IsNull(await next);
+            Assert.IsInstanceOf<OperationCanceledException>(await Catch(next));
+            lifetime.Terminate();
+        });
+
+        [UnityTest]
+        public IEnumerator LifetimeEnds_PendingRequestIsCancelled() => UniTask.ToCoroutine(async () =>
+        {
+            var (writer, _, lifetime) = Create();
+
+            var pending = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
+            lifetime.Terminate();
+
+            Assert.IsInstanceOf<OperationCanceledException>(await Catch(pending));
+        });
+
+        [UnityTest]
+        public IEnumerator Request_ErrorResponse_ThrowsNetworkRequestException() => UniTask.ToCoroutine(async () =>
+        {
+            var (writer, _, lifetime) = Create();
+
+            var request = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
+            writer.OnRequestHandled(new ErrorResponse { Code = ErrorCode.Forbidden, Message = "no" }, 1);
+
+            var exception = await Catch(request);
+
+            Assert.IsInstanceOf<NetworkRequestException>(exception);
+            Assert.AreEqual(ErrorCode.Forbidden, ((NetworkRequestException)exception).Code);
+            Assert.AreEqual("SharedSessionAuth.Request", ((NetworkRequestException)exception).RequestName);
+            lifetime.Terminate();
+        });
+
+        [UnityTest]
+        public IEnumerator Request_OtherResponseType_ThrowsInvalidOperation() => UniTask.ToCoroutine(async () =>
+        {
+            var (writer, _, lifetime) = Create();
+
+            var request = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
+            writer.OnRequestHandled(new EmptyResponse(), 1);
+
+            Assert.IsInstanceOf<InvalidOperationException>(await Catch(request));
+            lifetime.Terminate();
+        });
+
+        [UnityTest]
+        public IEnumerator ForceSendAll_ThenRequestThrowsInvalidOperation() => UniTask.ToCoroutine(async () =>
+        {
+            var (writer, _, lifetime) = Create();
+
+            await writer.ForceSendAll();
+
+            var request = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
+            Assert.IsInstanceOf<InvalidOperationException>(await Catch(request));
             lifetime.Terminate();
         });
 
@@ -108,8 +159,23 @@ namespace Internal.Tests
         {
             var (writer, _, lifetime) = Create();
 
-            Assert.Throws<System.InvalidOperationException>(() => writer.Run(lifetime, new FakeSocket()));
+            Assert.Throws<InvalidOperationException>(() => writer.Run(lifetime, new FakeSocket()));
             lifetime.Terminate();
+        }
+
+        private static async UniTask<Exception> Catch<T>(UniTask<T> task)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception exception)
+            {
+                return exception;
+            }
+
+            Assert.Fail("The request was expected to fail");
+            return null;
         }
 
         private static (ConnectionWriter, FakeSocket, Lifetime) Create()

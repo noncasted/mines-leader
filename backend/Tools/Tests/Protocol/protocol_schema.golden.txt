@@ -3,6 +3,7 @@ enum Shared.CardGroup System.Int32 Scout=100,Defense=200,Attack=300,Buff=400,Deb
 enum Shared.CardType System.Int32 Trebuchet=100,Trebuchet_Max=110,Bloodhound=200,Bloodhound_Max=210,TrebuchetAimer=300,TrebuchetAimer_Max=310,ErosionDozer=400,ErosionDozer_Max=410,Gravedigger=500,ZipZap=600,ZipZap_Max=610,OpponentBomb=700,OpponentFlagErase=800,OpponentFlagErase_Max=810,OpponentFlagReshuffle=900,OpponentFlagReshuffle_Max=910,Smoke=1000,Smoke_Max=1010,Medic=1100,MinefieldScout=1200,MinefieldScout_Max=1210,Siphon=1400,ChainReaction=1700,Overclock=1800,FogOfWar=1900,FogOfWar_Max=1910,Scavenger=2000,HandScramble=2100,Lockdown=2200,Sonar=2400,Purge=2500,Adrenaline=2600,ManaSurge=2700,BloodPact=2800,CoinToss=2900,ManaFountain=3000,Focus=3100,Shield=3200,PowerSurge=3300,Embargo=3400,Recycler=3500,MysticDraw=3600,DoubleOrNothing=3700,GamblersRuin=3800,Excavator=3900,Excavator_Max=3910,ThermalVision=4000,ThermalVision_Max=4010,ChaosDiamond=4100,ChaosScout=4200,MineCluster=4300,MineCluster_Max=4310,CarpetBomb=4400,CarpetBomb_Max=4410,FortuneBlast=4500,ChaosFog=4600,Frost=4700,Frost_Max=4710,Blackout=4800,Blackout_Max=4810,FortuneCookie=4900,Salvage=5000,CardThief=5100,SabotageDeck=5200,Dud=5210,SoulLink=5300,MirrorMatch=5400,DimensionRift=5500
 enum Shared.CellEffectType System.Int32 Smoke=100,Frost=200,Blackout=300,Fog=400,MineHighlight=500
 enum Shared.CharacterType System.Int32 BOMJ=0,BIBA=1,BOBA=2,CHENOSOS=3
+enum Shared.ErrorCode System.Byte Internal=1,UnknownCommand=2,InvalidRequest=3,Forbidden=4,NotFound=5
 enum Shared.GameMatchType System.Int32 Single=10,TimeLimited=20,LastManStanding=30,LastManStandingTurnBased=31
 enum Shared.InGameAchievementType System.Int32 FlagsSet=100,CellsOpened=200,MinesDetonated=300,CardsPlayed=400,BuffsReceived=500,EnemyCellsPlanted=600,ManaSpent=700,MatchesPlayed=800,MatchesWon=900,ScoutCardsPlayed=1000,DefenseCardsPlayed=1100,AttackCardsPlayed=1200,BuffCardsPlayed=1300,DebuffCardsPlayed=1400
 enum Shared.PlayerModifier System.Int32 TrebuchetBoost=0,AdditionalMana=1,AdditionalMoves=2,AdditionalHealth=3,NextCardDiscount=4,AllCardsDiscount=5,ManaCostPenalty=6,Shield=7,SoulLink=8,BaseHealth=9,BaseMoves=10,BaseMana=11,BaseManaAddPerRound=12
@@ -190,6 +191,7 @@ type Shared.CardUsePayload+ZipZap Type:Shared.CardType,Position:Shared.Position,
 type Shared.CellRevealState Position:Shared.Position,IsFree:System.Boolean,MinesAround:System.Int32,IsFlagged:System.Boolean,HasMine:System.Boolean
 type Shared.DurationalModifierOverview SourceId:System.Guid,Type:Shared.PlayerModifier,Value:System.Single,Key:System.String,TurnsToEnd:System.Int32
 type Shared.EmptyResponse HasError:System.Boolean,Message:System.String
+type Shared.ErrorResponse Code:Shared.ErrorCode,Message:System.String
 type Shared.GameCheatContexts+CardAdd Type:Shared.CardType
 type Shared.GameCheatContexts+CardRemove CardId:System.Guid
 type Shared.GameCheatContexts+ChangeHealth Value:System.Int32
@@ -572,5 +574,6 @@ union Shared.INetworkContext 71 Shared.SharedSessionPlayer+RemoteDisconnect
 union Shared.INetworkContext 72 Shared.SharedSessionService+GetRequest
 union Shared.INetworkContext 73 Shared.SharedSessionService+GetResponse
 union Shared.INetworkContext 74 Shared.SharedSessionService+Overview
+union Shared.INetworkContext 75 Shared.ErrorResponse
 union Shared.INetworkContext 8 Shared.SharedBackendUser+ClaimAchievementRewardRequest
 union Shared.INetworkContext 9 Shared.SharedBackendUser+UpdateDeckRequest

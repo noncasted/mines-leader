@@ -7,6 +7,7 @@ using MemoryPack;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shared;
 using Xunit;
+using ErrorCode = Shared.ErrorCode;
 
 namespace Tests.Network;
 
@@ -46,7 +47,7 @@ public class ConnectionWriterTests
         var responses = await Task.WhenAll(requests).WaitAsync(Wait);
         await responder.WaitAsync(Wait);
 
-        responses.Select(r => ((SharedSessionPlayer.RemoteDisconnect)r!).Index).Should().OnlyHaveUniqueItems().And.HaveCount(count);
+        responses.Select(r => r.Index).Should().OnlyHaveUniqueItems().And.HaveCount(count);
         writer.PendingRequestsCount.Should().Be(0);
 
         lifetime.Terminate();
@@ -104,7 +105,7 @@ public class ConnectionWriterTests
     }
 
     [Fact]
-    public async Task Close_CompletesQueue_PendingRequestsCanceled_WritesFail()
+    public async Task Close_CompletesQueue_PendingRequestsCanceled_WritesDropped()
     {
         var socket = new FakeWebSocket();
         var lifetime = new Lifetime();
@@ -120,9 +121,14 @@ public class ConnectionWriterTests
         await request.Invoking(r => r.WaitAsync(Wait)).Should().ThrowAsync<OperationCanceledException>();
         writer.PendingRequestsCount.Should().Be(0);
 
-        // Before the fix the loop left the queue open: producers on a full queue waited forever.
-        await writer.Invoking(w => w.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect()).AsTask().WaitAsync(Wait))
-                    .Should().ThrowAsync<ChannelClosedException>();
+        // Before the fix the loop left the queue open: producers on a full queue waited forever. A write to a closed
+        // connection is dropped without an error (the loss is handled by the owner), a request fails at once.
+        writer.Invoking(w => w.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect())).Should().NotThrow();
+        writer.Invoking(w => w.WriteResponse(new SharedSessionPlayer.RemoteDisconnect(), 1)).Should().NotThrow();
+
+        await writer.Invoking(w => w.WriteRequest<SharedSessionPlayer.RemoteDisconnect>(new SharedSessionPlayer.LocalUpdate())
+                                    .WaitAsync(Wait))
+                    .Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Fact]
@@ -140,25 +146,27 @@ public class ConnectionWriterTests
 
         // The first message is taken by the stuck send, the next `capacity` fill the queue; every write returns
         // immediately instead of waiting for the socket.
-        var writes = new List<ValueTask> { writer.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = 0 }) };
+        writer.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = 0 });
         await socket.WaitForBlockedSend(Wait);
 
         for (var i = 1; i <= capacity; i++)
-            writes.Add(writer.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = i }));
+            writer.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = i });
 
-        var overflow = writer.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = -1 });
-        overflow.IsCompleted.Should().BeTrue();
-        await overflow.Invoking(o => o.AsTask()).Should().ThrowAsync<ConnectionOverflowException>();
+        socket.State.Should().Be(WebSocketState.Open);
+
+        // The overflow disconnects the client inside the writer: the caller (a session tick, a messaging callback)
+        // neither waits nor throws.
+        writer.Invoking(w => w.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect { Index = -1 })).Should().NotThrow();
 
         socket.State.Should().Be(WebSocketState.Aborted);
         await run.WaitAsync(Wait);
 
-        // Once overflowed, further writes fail fast as well.
-        await writer.Invoking(w => w.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect()).AsTask())
-                    .Should().ThrowAsync<ConnectionOverflowException>();
+        writer.Invoking(w => w.WriteOneWay(new SharedSessionPlayer.RemoteDisconnect())).Should().NotThrow();
 
-        foreach (var write in writes)
-            write.IsCompletedSuccessfully.Should().BeTrue();
+        // A request has nobody to answer it: it fails at once.
+        await writer.Invoking(w => w.WriteRequest<SharedSessionPlayer.RemoteDisconnect>(new SharedSessionPlayer.LocalUpdate())
+                                    .WaitAsync(Wait))
+                    .Should().ThrowAsync<ConnectionOverflowException>();
 
         lifetime.Terminate();
     }
@@ -175,6 +183,48 @@ public class ConnectionWriterTests
 
         await request.Invoking(r => r.WaitAsync(Wait)).Should().ThrowAsync<WebSocketException>();
         writer.PendingRequestsCount.Should().Be(0);
+
+        lifetime.Terminate();
+        await run.WaitAsync(Wait);
+    }
+
+    [Fact]
+    public async Task ErrorResponse_ThrowsNetworkRequestException()
+    {
+        var socket = new FakeWebSocket();
+        var lifetime = new Lifetime();
+        var writer = new ConnectionWriter(socket, NullLogger.Instance);
+        var run = writer.Run(lifetime);
+
+        var request = writer.WriteRequest<SharedSessionPlayer.RemoteDisconnect>(new SharedSessionPlayer.LocalUpdate());
+        var sent = (RequestMessageFromServer)await socket.ReadSent(Wait);
+
+        writer.OnRequestHandled(new ErrorResponse { Code = ErrorCode.Internal, Message = "boom" }, sent.RequestId);
+
+        var error = await request.Invoking(r => r.WaitAsync(Wait)).Should().ThrowAsync<NetworkRequestException>();
+        error.Which.Code.Should().Be(ErrorCode.Internal);
+        error.Which.RequestName.Should().Be("SharedSessionPlayer.LocalUpdate");
+        error.Which.Message.Should().Contain("boom");
+        writer.PendingRequestsCount.Should().Be(0);
+
+        lifetime.Terminate();
+        await run.WaitAsync(Wait);
+    }
+
+    [Fact]
+    public async Task ResponseOfAnotherType_ThrowsInvalidOperation()
+    {
+        var socket = new FakeWebSocket();
+        var lifetime = new Lifetime();
+        var writer = new ConnectionWriter(socket, NullLogger.Instance);
+        var run = writer.Run(lifetime);
+
+        var request = writer.WriteRequest<SharedSessionPlayer.RemoteDisconnect>(new SharedSessionPlayer.LocalUpdate());
+        var sent = (RequestMessageFromServer)await socket.ReadSent(Wait);
+
+        writer.OnRequestHandled(EmptyResponse.Ok, sent.RequestId);
+
+        await request.Invoking(r => r.WaitAsync(Wait)).Should().ThrowAsync<InvalidOperationException>();
 
         lifetime.Terminate();
         await run.WaitAsync(Wait);

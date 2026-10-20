@@ -85,31 +85,24 @@ namespace Meta
                     Card = card
                 });
 
-            if (response == null)
-            {
-                Debug.LogError("Claim achievement reward failed: no response from server");
-                return false;
-            }
-
+            // A reward the rules refuse is EmptyResponse.Fail; a failed command throws (IConnectionWriter.WriteRequest).
             if (response.HasError == true)
                 Debug.LogError($"Claim achievement reward failed: {response.Message}");
 
             return response.HasError == false;
         }
 
+        // Throws when the command fails on the server (NetworkRequestException), on a timeout or a lost connection
+        // (see IConnectionWriter.WriteRequest), and on a refusal (EmptyResponse.Fail): the caller must not go on
+        // waiting for a result the server will not send.
         public static async UniTask ExecuteCommand<TRequest>(this IMetaBackend backend, TRequest request)
             where TRequest : INetworkContext
         {
             var response = await backend.Connection.Writer.WriteRequest<EmptyResponse>(request);
 
-            if (response == null)
-            {
-                Debug.LogError($"Request {typeof(TRequest).Name} got no response from server");
-                return;
-            }
-
             if (response.HasError == true)
-                Debug.LogError($"Request {typeof(TRequest).Name} executed with error: {response.Message}");
+                throw new InvalidOperationException(
+                    $"Request {ErrorResponse.Describe(request)} is refused by the server: {response.Message}");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System;
+using MemoryPack;
 using Shared;
 
 namespace Internal
@@ -27,7 +28,10 @@ namespace Internal
 
             void OnMessage(byte[] bytes)
             {
-                var context = MemoryPackSerializer.Deserialize<IMessageFromServer>(bytes)!;
+                var context = MemoryPackSerializer.Deserialize<IMessageFromServer>(bytes);
+
+                if (context == null)
+                    throw new InvalidOperationException($"[Network] Received a null message ({bytes.Length} bytes)");
 
                 switch (context)
                 {
@@ -40,6 +44,9 @@ namespace Internal
                     case RequestMessageFromServer request:
                         _request.Invoke(request);
                         break;
+                    default:
+                        throw new InvalidOperationException(
+                            $"[Network] Unknown message type received: {context.GetType().FullName}");
                 }
             }
         }

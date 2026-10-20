@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
 using Meta;
@@ -86,7 +87,7 @@ namespace GamePlay.Services {
                 return;
             }
 
-            _connection.Request(context);
+            _connection.Request(context).Forget();
         }
     }
 

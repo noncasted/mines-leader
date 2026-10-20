@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using MemoryPack;
 using Shared;
@@ -9,10 +10,17 @@ namespace Internal
     public interface IConnectionWriter
     {
         // No request is answered any more: the connection is lost, its socket never opened, or the lifetime it was
-        // run with has ended. Requests complete with null at once. Never run is closed too.
+        // run with has ended. Requests fail with OperationCanceledException at once. Never run is closed too.
+        // NOT closed: a live connection after ForceSendAll; a request made there is a mistake of the caller.
         bool IsClosed { get; }
 
         void WriteOneWay(INetworkContext value);
+
+        // Never returns null. The response T, or:
+        // NetworkRequestException - the server answered with ErrorResponse (its command threw, is unknown or refused);
+        // TimeoutException - no response in RequestTimeoutSeconds;
+        // OperationCanceledException - the connection is closed (IsClosed) before the response;
+        // InvalidOperationException - a response of another type, or a request after ForceSendAll.
         UniTask<T> WriteRequest<T>(INetworkContext commandContext);
         void WriteResponse(INetworkContext commandContext, int requestId);
         void OnRequestHandled(INetworkContext commandContext, int requestId);
@@ -27,7 +35,6 @@ namespace Internal
         private readonly List<IMessageFromClient> _writeQueue = new();
 
         private const float RequestTimeoutSeconds = 20f;
-        private const int TimeoutIndex = 1;
 
         private int _requestCounter;
         private IReadOnlyLifetime _connectionLifetime;
@@ -71,12 +78,12 @@ namespace Internal
             _isClosed = true;
             _writeQueue.Clear();
 
-            // Копия: TrySetResult синхронно будит ожидающих, а они снимают себя из словаря.
+            // Copy: TrySetCanceled synchronously wakes the waiters, and they remove themselves from the dictionary.
             var pending = new List<UniTaskCompletionSource<INetworkContext>>(_pendingRequests.Values);
             _pendingRequests.Clear();
 
             foreach (var completion in pending)
-                completion.TrySetResult(null);
+                completion.TrySetCanceled();
         }
 
         private async UniTask Loop(IReadOnlyLifetime lifetime)
@@ -117,8 +124,18 @@ namespace Internal
 
         public async UniTask<T> WriteRequest<T>(INetworkContext commandContext)
         {
-            // Запрос уходит в очередь и ждёт ответа параллельно с чем угодно ещё.
-            using var trace = GameProfiler.Concurrent($"Request: {Describe(commandContext)}");
+            var name = ErrorResponse.Describe(commandContext);
+
+            // Nothing answers a closed connection: without this the request would wait for its timeout, and a chain
+            // of requests (entering a session) - for one timeout per request.
+            if (IsClosed == true)
+                throw new OperationCanceledException($"Connection is closed: request {name} is not sent");
+
+            if (_lifetime.IsTerminated == true)
+                throw new InvalidOperationException($"Request {name} after ForceSendAll");
+
+            // The request goes to the queue and awaits the response in parallel with anything else.
+            using var trace = GameProfiler.Concurrent($"Request: {name}");
 
             _requestCounter++;
 
@@ -128,45 +145,60 @@ namespace Internal
                 RequestId = _requestCounter
             };
 
-
-            // Nothing answers a closed connection: without this the request waited for its whole timeout.
-            if (IsClosed == true)
-            {
-                UnityEngine.Debug.LogError($"Request {Describe(commandContext)} is not sent: the connection is closed");
-                return default;
-            }
-
             var completion = new UniTaskCompletionSource<INetworkContext>();
             _pendingRequests.Add(request.RequestId, completion);
 
             _writeQueue.Add(request);
 
-            // Обрыв соединения не должен вешать вызывающего: он получит null и покажет ошибку сам.
-            _lifetime.Listen(() => completion.TrySetResult(null));
+            // The end of the connection (or ForceSendAll) cancels the request. Removed when the request ends:
+            // a listener per request would otherwise stay on the connection lifetime until it ends.
+            _lifetime.Listen(OnLifetimeEnded);
 
-            var (winner, context, _) = await UniTask.WhenAny(completion.Task, AwaitTimeout());
+            // The response may never arrive: the server handler crashed, the packet was lost. Cancelled by the response.
+            var timeout = new CancellationTokenSource();
+            LimitTime().Forget();
 
-            _pendingRequests.Remove(request.RequestId);
+            INetworkContext context;
 
-            if (context is T typed)
-                return typed;
+            try
+            {
+                context = await completion.Task;
+            }
+            finally
+            {
+                _pendingRequests.Remove(request.RequestId);
+                _lifetime.RemoveListener(OnLifetimeEnded);
+                timeout.Cancel();
+                timeout.Dispose();
+            }
 
-            var reason = winner == TimeoutIndex ? "timed out" : "got no response";
+            return context switch
+            {
+                T typed => typed,
+                ErrorResponse error => throw new NetworkRequestException(error.Code, error.Message, name),
+                _ => throw new InvalidOperationException(
+                    $"Request {name} got {context.GetType().Name}, expected {typeof(T).Name}")
+            };
 
-            UnityEngine.Debug.LogError(
-                $"Request {Describe(commandContext)} {reason} after {RequestTimeoutSeconds}s, expected {typeof(T).Name}");
+            void OnLifetimeEnded()
+            {
+                completion.TrySetCanceled();
+            }
 
-            return default;
-        }
+            async UniTaskVoid LimitTime()
+            {
+                var isCanceled = await UniTask
+                                       .Delay(TimeSpan.FromSeconds(RequestTimeoutSeconds),
+                                           DelayType.Realtime,
+                                           cancellationToken: timeout.Token)
+                                       .SuppressCancellationThrow();
 
-        /// <summary>
-        /// Ответ может не прийти вовсе: сервер уронил обработчик, сокет переподключился, пакет потерялся.
-        /// Без таймаута такой запрос висит вечно, и UI остаётся в состоянии загрузки.
-        /// </summary>
-        private static async UniTask<INetworkContext> AwaitTimeout()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(RequestTimeoutSeconds), ignoreTimeScale: true);
-            return null;
+                if (isCanceled == true)
+                    return;
+
+                completion.TrySetException(new TimeoutException(
+                    $"Request {name} got no response in {RequestTimeoutSeconds} s, expected {typeof(T).Name}"));
+            }
         }
 
         public void WriteResponse(INetworkContext commandContext, int requestId)
@@ -192,17 +224,6 @@ namespace Internal
                 // Штатная ситуация: ответ пришёл после таймаута или обрыва, запрос уже снят.
                 UnityEngine.Debug.LogWarning($"Response for unknown request {requestId} ignored");
             }
-        }
-
-        /// <summary>
-        /// Контексты объявлены вложенными типами, и у них Name — это голое "Request":
-        /// без владельца в трассе не понять, какой именно запрос ждали.
-        /// </summary>
-        private static string Describe(INetworkContext context)
-        {
-            var type = context.GetType();
-
-            return type.DeclaringType == null ? type.Name : $"{type.DeclaringType.Name}.{type.Name}";
         }
 
         public async UniTask ForceSendAll()

@@ -5,18 +5,17 @@ using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Shared;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Internal.Tests
 {
     // A socket lost right after it opens (before the answer to the authorization) closes the connection like any
-    // later loss: Writer.IsClosed, a request gets null at once (not after its 20 s timeout), Closed is raised.
+    // later loss: Writer.IsClosed, a request fails with OperationCanceledException at once (not after its 20 s
+    // timeout), Closed is raised.
     // A socket that never opens: Run throws ConnectionFailedException, the connection is closed.
     // A server of another protocol closes the socket with ProtocolVersion.ClientOutdatedCloseCode: Closed carries
     // that code and the outdated notice is shown.
@@ -46,11 +45,19 @@ namespace Internal.Tests
                 await closed.Task.Timeout(LossTimeout);
                 Assert.IsTrue(connection.Writer.IsClosed);
 
-                LogAssert.Expect(LogType.Error, new Regex("the connection is closed"));
-                var response = await connection.Request<SharedSessionAuth.Response>(new SharedSessionAuth.Request())
-                                               .Timeout(LossTimeout);
+                Exception exception = null;
 
-                Assert.IsNull(response);
+                try
+                {
+                    await connection.Request<SharedSessionAuth.Response>(new SharedSessionAuth.Request())
+                                    .Timeout(LossTimeout);
+                }
+                catch (Exception caught)
+                {
+                    exception = caught;
+                }
+
+                Assert.IsInstanceOf<OperationCanceledException>(exception, exception?.ToString());
             }
             finally
             {
