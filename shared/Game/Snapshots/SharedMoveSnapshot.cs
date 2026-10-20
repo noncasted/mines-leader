@@ -8,11 +8,6 @@ namespace Shared
     public partial class SharedMoveSnapshot : INetworkContext
     {
         public IReadOnlyList<IMoveSnapshotRecord> Records { get; set; }
-
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder.Add<SharedMoveSnapshot>();
-        }
     }
 
     [MemoryPackable]
@@ -46,6 +41,11 @@ namespace Shared
     [MemoryPackUnion(14, typeof(LastManStandingRoundRecord))]
     [MemoryPackUnion(15, typeof(PlayerSnapshotRecord.CardsStashed))]
     public partial interface IMoveSnapshotRecord
+    {
+    }
+
+    [MemoryPackUnion(25, typeof(SharedMoveSnapshot))]
+    public partial interface INetworkContext
     {
     }
 }

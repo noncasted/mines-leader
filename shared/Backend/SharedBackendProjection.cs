@@ -18,4 +18,9 @@ namespace Shared
             };
         }
     }
+
+    [MemoryPackUnion(1, typeof(SharedBackendProjection))]
+    public partial interface INetworkContext
+    {
+    }
 }

@@ -19,12 +19,11 @@ namespace Shared
         {
             public bool IsSuccess { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<Request>()
-                   .Add<Response>();
-        }
+    [MemoryPackUnion(59, typeof(SharedSessionAuth.Request))]
+    [MemoryPackUnion(60, typeof(SharedSessionAuth.Response))]
+    public partial interface INetworkContext
+    {
     }
 }

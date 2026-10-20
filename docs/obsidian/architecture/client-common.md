@@ -61,7 +61,6 @@ sequenceDiagram
     participant Menu as Menu
     participant GP as GamePlay
 
-    GS->>GS: UnionInitializer
     GS->>IS: ServiceScopeLoader.LoadInternal
     GS->>IS: StartupAssetsPreload.Start
     GS->>G: LoadGlobal
@@ -75,7 +74,6 @@ sequenceDiagram
 
 | Этап | Файл | Что происходит |
 |------|------|----------------|
-| Unions | `Flow/Loop/UnionInitializer.cs` | Регистрация MemoryPack union-типов протокола |
 | Internal | `Internal/Runtime/Scopes/Services/InternalScopeExtensions.cs` | корневой скоуп через `ServiceScopeLoader` без родителя, лоадеры скоупов |
 | Preload | `Internal/Runtime/Catalogues/Shared/StartupAssetsPreload.cs` | Параллельный Retain спрайтов меты (`CardsIcons`, `CardBuffs`, `MenuPlay`, `Portraits`) — на всё время приложения |
 | Global | `Global/Setup/GlobalScopeExtensions.cs` | Сцена `Global_Services`: updater, аудио, камера, ввод, HTTP, settings, publisher, UI |

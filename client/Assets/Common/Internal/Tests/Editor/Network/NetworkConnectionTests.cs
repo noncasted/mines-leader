@@ -21,12 +21,6 @@ namespace Internal.Tests
     {
         private static readonly TimeSpan LossTimeout = TimeSpan.FromSeconds(5);
 
-        [OneTimeSetUp]
-        public void RegisterUnions()
-        {
-            TestUnions.Register();
-        }
-
         // The server accepts the upgrade and ends the TCP stream at once. The main thread is held until the end has
         // arrived: the first receive of the socket, started on the main thread right after the connect, then fails
         // synchronously - inside Connect, before the rest of NetworkConnection.Run.

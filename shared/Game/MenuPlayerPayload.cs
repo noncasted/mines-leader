@@ -10,4 +10,9 @@ namespace Shared
         public Guid PlayerId { get; set; }
         public Vector2 Position { get; set; }
     }
+
+    [MemoryPackUnion(0, typeof(MenuPlayerPayload))]
+    public partial interface IEntityPayload
+    {
+    }
 }

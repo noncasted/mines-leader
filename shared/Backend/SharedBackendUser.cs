@@ -157,25 +157,24 @@ namespace Shared
             public DateTime Date { get; set; }
             public GameMatchType Type { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<ProfileProjection>()
-                   .Add<UserStatsProjection>()
-                   .Add<InGameAchievementsProjection>()
-                   .Add<AchievementRewardOptionsRequest>()
-                   .Add<AchievementRewardOptionsResponse>()
-                   .Add<ClaimAchievementRewardRequest>()
-                   .Add<UpdateDeckRequest>()
-                   .Add<DeckProjection>()
-                   .Add<Match>()
-                   .Add<RatingProjection>()
-                   .Add<CardsProjection>()
-                   .Add<MatchHistoryRequest>()
-                   .Add<MatchHistoryResponse>()
-                   .Add<MatchDetailsRequest>()
-                   .Add<MatchDetailsResponse>();
-        }
+    [MemoryPackUnion(3, typeof(SharedBackendUser.ProfileProjection))]
+    [MemoryPackUnion(4, typeof(SharedBackendUser.UserStatsProjection))]
+    [MemoryPackUnion(5, typeof(SharedBackendUser.InGameAchievementsProjection))]
+    [MemoryPackUnion(6, typeof(SharedBackendUser.AchievementRewardOptionsRequest))]
+    [MemoryPackUnion(7, typeof(SharedBackendUser.AchievementRewardOptionsResponse))]
+    [MemoryPackUnion(8, typeof(SharedBackendUser.ClaimAchievementRewardRequest))]
+    [MemoryPackUnion(9, typeof(SharedBackendUser.UpdateDeckRequest))]
+    [MemoryPackUnion(10, typeof(SharedBackendUser.DeckProjection))]
+    [MemoryPackUnion(11, typeof(SharedBackendUser.Match))]
+    [MemoryPackUnion(12, typeof(SharedBackendUser.RatingProjection))]
+    [MemoryPackUnion(13, typeof(SharedBackendUser.CardsProjection))]
+    [MemoryPackUnion(14, typeof(SharedBackendUser.MatchHistoryRequest))]
+    [MemoryPackUnion(15, typeof(SharedBackendUser.MatchHistoryResponse))]
+    [MemoryPackUnion(16, typeof(SharedBackendUser.MatchDetailsRequest))]
+    [MemoryPackUnion(17, typeof(SharedBackendUser.MatchDetailsResponse))]
+    public partial interface INetworkContext
+    {
     }
 }

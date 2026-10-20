@@ -74,4 +74,9 @@ namespace Shared
         public List<string> Effects { get; set; } = new List<string>();
         public bool HasMine { get; set; }
     }
+
+    [MemoryPackUnion(55, typeof(SharedAgentObservation))]
+    public partial interface INetworkContext
+    {
+    }
 }

@@ -23,8 +23,6 @@ public static class ServiceDefaultsExtensions
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        SharedExtensions.AddSharedContexts();
-
         builder.ConfigureOpenTelemetry();
         builder.AddDefaultHealthChecks();
 

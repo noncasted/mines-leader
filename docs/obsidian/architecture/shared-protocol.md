@@ -46,20 +46,15 @@ BOMJ, BIBA, BOBA, CHENOSOS
 Весь сетевой обмен использует **MemoryPack** — бинарный формат с высокой производительностью.
 
 ### Union Types
-Полиморфная сериализация через `IUnionBuilder<T>`:
+Полиморфная сериализация через `[MemoryPackUnion(tag, typeof(T))]` на базовом интерфейсе. Теги явные и объявлены рядом с типами: каждый файл группы добавляет свои теги к `partial interface INetworkContext` (или `IEntityPayload`). Регистрации в рантайме нет, формат генерирует MemoryPack.
 
 ```csharp
-// Базовый интерфейс — union type
-public interface ICardUsePayload { }
-
-// Конкретные типы регистрируются в UnionBuilder
-CardUsePayload.Trebuchet
-CardUsePayload.Bloodhound
-CardUsePayload.ZipZap
-// ...
+[MemoryPackUnion(59, typeof(SharedSessionAuth.Request))]
+[MemoryPackUnion(60, typeof(SharedSessionAuth.Response))]
+public partial interface INetworkContext { }
 ```
 
-`DynamicUnionFormatter<T>` обеспечивает автоматическую (де)сериализацию нужного подтипа.
+Тег — это формат на проводе: не перенумеровывать и не переиспользовать, удалённый тип оставляет дыру. Дубль тега — ошибка генератора `MEMPACK012`, тип без тега ловит `Tests.Protocol.ProtocolSchemaTests`. Байты каждого типа и тега зафиксированы в `backend/Tools/Tests/Protocol/protocol_bytes.golden.txt` (бэкенд `ProtocolBytesTests` пишет, клиентский EditMode `ProtocolBytesTests` читает тот же файл).
 
 ---
 
@@ -176,7 +171,7 @@ graph TB
 |------|----------|
 | `shared/Domain/*.cs` | Все domain enums |
 | `shared/Protocol/Messages.cs` | Базовые сетевые типы |
-| `shared/Protocol/UnionBuilder.cs` | Полиморфная сериализация |
+| `shared/Protocol/INetworkContext.cs` | Базовый union протокола (теги в файлах групп) |
 | `shared/Backend/SharedMatchmaking.cs` | Протокол матчмейкинга |
 | `shared/Session/SharedSessionObject.cs` | Синхронизация объектов |
 | `shared/Game/SharedGameAction.cs` | Все игровые действия |

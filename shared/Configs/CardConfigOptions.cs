@@ -986,4 +986,9 @@ namespace Shared
             public CardTarget Target => CardTarget.OpponentBoard;
         }
     }
+
+    [MemoryPackUnion(50, typeof(CardConfigOptions))]
+    public partial interface INetworkContext
+    {
+    }
 }

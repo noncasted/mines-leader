@@ -18,11 +18,6 @@ namespace Tests.Game;
 /// </summary>
 public class SessionCloseTests
 {
-    static SessionCloseTests()
-    {
-        NetworkContextsSetup.Register();
-    }
-
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
     [Fact]

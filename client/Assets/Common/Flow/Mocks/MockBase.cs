@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using Flow.Loop;
 using Global.Setup;
 using Internal;
 using Meta;
@@ -16,7 +15,6 @@ namespace Flow.Mocks
         {
             GameProfiler.Begin("Mock");
 
-            UnionInitializer.Execute();
             var internalScope = await new ServiceScopeLoader().LoadInternal();
             internalScope.Container.Resolve<IStartupAssetsPreload>().Start();
             var scopeLoader = internalScope.Container.Resolve<IServiceScopeLoader>();

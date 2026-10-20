@@ -58,4 +58,9 @@ namespace Shared
     {
         public IReadOnlyList<CardPreviewBundle> Bundles { get; set; }
     }
+
+    [MemoryPackUnion(2, typeof(InitialCardPreviews))]
+    public partial interface INetworkContext
+    {
+    }
 }

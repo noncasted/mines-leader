@@ -9,4 +9,9 @@ namespace Shared
         public CardType Type { get; set; }
         public Guid OwnerId { get; set; }
     }
+
+    [MemoryPackUnion(1, typeof(CardCreatePayload))]
+    public partial interface IEntityPayload
+    {
+    }
 }

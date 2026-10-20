@@ -26,13 +26,12 @@ namespace Shared
             public string Key { get; set; }
             public IReadOnlyList<SharedSessionObject.PropertyUpdate> Properties { get; set; }
         }
+    }
 
-        public static IUnionBuilder<INetworkContext> Register(IUnionBuilder<INetworkContext> builder)
-        {
-            return builder
-                   .Add<GetRequest>()
-                   .Add<GetResponse>()
-                   .Add<Overview>();
-        }
+    [MemoryPackUnion(72, typeof(SharedSessionService.GetRequest))]
+    [MemoryPackUnion(73, typeof(SharedSessionService.GetResponse))]
+    [MemoryPackUnion(74, typeof(SharedSessionService.Overview))]
+    public partial interface INetworkContext
+    {
     }
 }

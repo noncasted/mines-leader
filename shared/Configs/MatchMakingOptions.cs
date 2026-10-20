@@ -22,4 +22,9 @@ namespace Shared
             };
         }
     }
+
+    [MemoryPackUnion(52, typeof(MatchMakingOptions))]
+    public partial interface INetworkContext
+    {
+    }
 }

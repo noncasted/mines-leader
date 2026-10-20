@@ -10,4 +10,9 @@ namespace Shared
         public Guid Id { get; set; }
         public CharacterType SelectedCharacter { get; set; }
     }
+
+    [MemoryPackUnion(2, typeof(PlayerCreatePayload))]
+    public partial interface IEntityPayload
+    {
+    }
 }
