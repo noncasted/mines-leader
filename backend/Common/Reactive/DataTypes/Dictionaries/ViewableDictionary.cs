@@ -53,8 +53,13 @@
 
         public new void Remove(TKey key)
         {
+            // The lifetime leaves the map with the entry: a key added again gets a new one (Add threw on the
+            // stale entry before), and a removed entry is not referenced any more.
+            if (_lifetimes.Remove(key, out var lifetime) == false)
+                throw new KeyNotFoundException($"{key} is not in the dictionary");
+
             base.Remove(key);
-            _lifetimes[key].Terminate();
+            lifetime.Terminate();
 
             OnModified();
         }
@@ -64,20 +69,20 @@
         {
         }
 
+        // Enumerates through the base Dictionary type: when TSource == TView the interface
+        // IEnumerable<KeyValuePair<TKey, TSource>> is implemented by this very method, and going
+        // through it recursed until stack overflow (same fix as the client copy).
+        private Dictionary<TKey, TSource> Source => this;
+
         public new IEnumerator<KeyValuePair<TKey, TView>> GetEnumerator()
         {
-            IEnumerable<KeyValuePair<TKey, TSource>> enumerable = this;
-
-            foreach (var pair in enumerable)
+            foreach (var pair in Source)
                 yield return new KeyValuePair<TKey, TView>(pair.Key, pair.Value);
         }
 
-
         public IEnumerable<KeyValuePair<TKey, TSource>> GetEnumerable()
         {
-            IEnumerable<KeyValuePair<TKey, TSource>> enumerable = this;
-
-            foreach (var pair in enumerable)
+            foreach (var pair in Source)
                 yield return new KeyValuePair<TKey, TSource>(pair.Key, pair.Value);
         }
 
@@ -100,9 +105,17 @@
             return base.TryGetValue(key, out value);
         }
 
+        // The entries leave the dictionary before their lifetimes end (as in Remove): their listeners see it empty.
         public void Dispose()
         {
-            Clear();
+            var lifetimes = new List<ILifetime>(_lifetimes.Values);
+
+            _lifetimes.Clear();
+            base.Clear();
+
+            foreach (var lifetime in lifetimes)
+                lifetime.Terminate();
+
             _eventSource.Dispose();
         }
     }

@@ -13,20 +13,26 @@
 
             public ILifetime Intersect(IReadOnlyLifetime lifetimeB)
             {
+                var source = lifetime;
                 var child = new Lifetime();
+                Action terminate = child.Terminate;
 
-                lifetime.Listen(OnTermination);
-                lifetimeB.Listen(OnTermination);
+                // Whoever ends it (either source or a direct Terminate), the subscriptions leave both sources:
+                // otherwise an intersection terminated early stays on the sources until they end.
+                child.Listen(() => {
+                    source.RemoveListener(terminate);
+                    lifetimeB.RemoveListener(terminate);
+                });
+
+                source.Listen(terminate);
+
+                // A terminated source ends the intersection at once: the other one is not subscribed to at all.
+                if (child.IsTerminated == true)
+                    return child;
+
+                lifetimeB.Listen(terminate);
 
                 return child;
-
-                void OnTermination()
-                {
-                    child.Terminate();
-
-                    lifetime.RemoveListener(OnTermination);
-                    lifetimeB.RemoveListener(OnTermination);
-                }
             }
         }
 

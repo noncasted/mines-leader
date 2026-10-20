@@ -46,8 +46,13 @@
             if (_isDisposed == true)
                 return;
 
+            // The entry leaves the list before its lifetime ends: its listeners see the list without it.
+            // The lifetime leaves the map too, otherwise every removed entry stays referenced for good.
+            if (_lifetimes.Remove(value, out var lifetime) == false)
+                throw new KeyNotFoundException($"{value} is not in the list");
+
             base.Remove(value);
-            _lifetimes[value].Terminate();
+            lifetime.Terminate();
 
             OnModified();
         }
@@ -93,6 +98,7 @@
                 _lifetimes[entry].Terminate();
 
             _lifetimes.Clear();
+            base.Clear();
 
             OnModified();
         }

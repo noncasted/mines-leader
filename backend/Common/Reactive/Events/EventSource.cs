@@ -2,19 +2,43 @@
 {
     public class EventSourceBase<T> : IEventSourceBase<T>
     {
-        protected readonly ModifiableList<T> Listeners = new();
+        protected readonly ModifiableList<Subscription> Listeners = new();
 
         public int ListenersCount => Listeners.Count;
 
+        // Every Advise is its own entry, removed by reference (same as the client copy): the same handler advised
+        // twice keeps both subscriptions, and the end of one lifetime removes exactly its own one.
         public void Advise(IReadOnlyLifetime lifetime, T handler)
         {
-            Listeners.Add(handler);
-            lifetime.Listen(() => Listeners.Remove(handler));
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
+            var subscription = new Subscription(Listeners, handler);
+            Listeners.Add(subscription);
+            lifetime.Listen(subscription.Remove);
         }
 
         public void Dispose()
         {
             Listeners.Clear();
+        }
+
+        protected sealed class Subscription
+        {
+            public Subscription(ModifiableList<Subscription> owner, T handler)
+            {
+                _owner = owner;
+                Handler = handler;
+            }
+
+            private readonly ModifiableList<Subscription> _owner;
+
+            public readonly T Handler;
+
+            public void Remove()
+            {
+                _owner.Remove(this);
+            }
         }
     }
 
@@ -23,7 +47,7 @@
         public void Invoke()
         {
             foreach (var listener in Listeners)
-                listener.Invoke();
+                listener.Handler.Invoke();
         }
     }
 
@@ -32,7 +56,7 @@
         public void Invoke(T value)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value);
+                listener.Handler.Invoke(value);
         }
     }
 
@@ -41,7 +65,7 @@
         public void Invoke(T1 value1, T2 value2)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value1, value2);
+                listener.Handler.Invoke(value1, value2);
         }
     }
 
@@ -50,7 +74,7 @@
         public void Invoke(T1 value1, T2 value2, T3 value3)
         {
             foreach (var listener in Listeners)
-                listener.Invoke(value1, value2, value3);
+                listener.Handler.Invoke(value1, value2, value3);
         }
     }
 }
