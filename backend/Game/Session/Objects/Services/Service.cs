@@ -16,7 +16,8 @@ public class Service : IService
     public Service(string key)
     {
         Key = key;
-        Id = key.GetHashCode();
+        // string.GetHashCode is randomized per process: the id must not depend on the silo process.
+        Id = Shared.StableHash.Get(key);
     }
 
     private readonly Dictionary<int, IObjectProperty> _properties = new();

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Internal
 {
@@ -26,7 +26,7 @@ namespace Internal
             _lifetime = owner.Lifetime.Child();
             Events = new NetworkEvents(connection, this);
 
-            Properties = properties.ToDictionary(t => t.Id);
+            Properties = CollectProperties(properties);
         }
 
         private readonly INetworkEntityDestroyer _destroyer;
@@ -47,6 +47,26 @@ namespace Internal
         public void DestroyRemote()
         {
             _lifetime.Terminate();
+        }
+
+        // Two value types with the same StableHash of the name would silently share one id on the wire.
+        private static IReadOnlyDictionary<int, INetworkProperty> CollectProperties(
+            IReadOnlyList<INetworkProperty> properties)
+        {
+            var result = new Dictionary<int, INetworkProperty>(properties.Count);
+
+            foreach (var property in properties)
+            {
+                if (result.TryGetValue(property.Id, out var existing) == true)
+                {
+                    throw new InvalidOperationException(
+                        $"Network entity has two properties with id {property.Id}: {existing.GetType()} and {property.GetType()}");
+                }
+
+                result.Add(property.Id, property);
+            }
+
+            return result;
         }
     }
 }
