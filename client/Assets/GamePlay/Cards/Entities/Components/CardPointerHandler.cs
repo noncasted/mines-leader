@@ -1,5 +1,7 @@
 using GamePlay.Loop;
 using Internal;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace GamePlay.Cards
 {
@@ -9,17 +11,21 @@ namespace GamePlay.Cards
         IViewableProperty<bool> IsPressed { get; }
     }
 
-    // Сырые события указателя приходят из CardPointerEvents, здесь к ним добавляется
+    // Наведение и нажатие определяет общий ICardsPointer, здесь к ним добавляется
     // единственное правило: на паузе карта не подсвечивается и не нажимается.
-    public class CardPointerHandler : ICardPointerHandler, IScopeSetup
+    public class CardPointerHandler : ICardPointerHandler, ICardPointerTarget, IScopeSetup
     {
-        public CardPointerHandler(GameCardBindings bindings, IGameContext gameContext)
+        public CardPointerHandler(GameCardBindings bindings, ICardsPointer pointer, IGameContext gameContext)
         {
-            _events = bindings.View.PointerHandler.CardPointerEvents;
+            _area = bindings.View.PointerHandler.CardPointerArea;
+            _sortingGroup = bindings.SortingGroup;
+            _pointer = pointer;
             _gameContext = gameContext;
         }
 
-        private readonly CardPointerEvents _events;
+        private readonly CardPointerArea _area;
+        private readonly SortingGroup _sortingGroup;
+        private readonly ICardsPointer _pointer;
         private readonly IGameContext _gameContext;
 
         private readonly ViewableProperty<bool> _isHovered = new();
@@ -28,10 +34,28 @@ namespace GamePlay.Cards
         public IViewableProperty<bool> IsHovered => _isHovered;
         public IViewableProperty<bool> IsPressed => _isPressed;
 
+        public bool IsActive => _area.IsActive;
+        public int SortingLayer => UnityEngine.SortingLayer.GetLayerValueFromID(_sortingGroup.sortingLayerID);
+        public int SortingOrder => _sortingGroup.sortingOrder;
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _events.IsOver.Advise(lifetime, value => _isHovered.Set(value && _gameContext.IsPaused == false));
-            _events.IsDown.Advise(lifetime, value => _isPressed.Set(value && _gameContext.IsPaused == false));
+            _pointer.Add(lifetime, this);
+        }
+
+        public bool IsInside(Vector2 pointerPosition)
+        {
+            return _area.IsInside(pointerPosition);
+        }
+
+        public void SetHovered(bool value)
+        {
+            _isHovered.Set(value && _gameContext.IsPaused == false);
+        }
+
+        public void SetPressed(bool value)
+        {
+            _isPressed.Set(value && _gameContext.IsPaused == false);
         }
     }
 

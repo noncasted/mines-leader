@@ -22,7 +22,7 @@ B11: `SessionFileLogger` в B **не мёртвый**. `ISessionLogger` внед
 - `bdf86c516` (патч, только TelemetryPaths и MetricsSnapshot): `RequireTelemetryDir`, `MetricsSnapshotService` dev-only, в Development без `.git` падает на старте. Тест `Telemetry/TelemetryPathsTests.cs`.
 - `a1203e5d8`: `.git`-файл `gitdir:` (worktree) считается корнем; Marten берёт типы из `IGrainStatesRegistry` (`MartenSetupExtensions.Configure`/`EventStateTypes`), фикстура использует ту же настройку; `StatesLookup.Info.Type` в генераторе; `DeployStates.Select` + `StatesSetup` создают benchmark-таблицы только при `Benchmarks:Enabled`. Тесты `State/MartenSetupTests.cs`, `Deploy/DeployStatesTests.cs`, хунки `Deploy/StatesSchemaTests.cs`.
 - `42a971126` (только бенчмарк-часть, без composition root): `BenchmarksAvailability` (флаг `Benchmarks:Enabled`, только Development и локальная БД), при выключенном флаге бенчмарк-сервисы не регистрируются, классы грейнов Benchmarks убираются из `GrainTypeOptions`, API не маппится, страница консоли показывает "Benchmarks are off". Aspire включает флаг для всех проектов и для in-process мигратора.
-- Документация: `.agents/docs/TELEMETRY.md`, `.agents/docs/DEPLOY.md`.
+- Документация: `.claude/docs/TELEMETRY.md`, `.claude/docs/DEPLOY.md`.
 
 ## Отличия от A
 

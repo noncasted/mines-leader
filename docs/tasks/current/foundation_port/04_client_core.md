@@ -1,4 +1,4 @@
-# 04. Ядро клиента (C1-C6)
+# 04. Ядро клиента (C1-C7)
 
 A = `/projects/peace-data-reborn`, B = этот репозиторий. Пути без префикса даны в B от `client/Assets/Common/`.
 Для всех задач нужен редактор B: компиляция, EditMode-тесты, Play Mode. Работать по очереди через `editor_owner.txt`.
@@ -82,3 +82,21 @@ A = `/projects/peace-data-reborn`, B = этот репозиторий. Пути
   1. Каждый кандидат из `git show --stat 429a82088` проверить `grep` по B: используется ли он.
   2. Удалять только неиспользуемое. Список удаленного и оставленного записать в handoff.
 - **Готово:** компиляция, Play Mode работает.
+
+## C7. Контейнер инжектит только один экземпляр `builder.Inject` на тип
+
+- **Приоритет:** P1. **Волна:** 6, вместе с C4: оба меняют генератор, dll пересобирается один раз.
+- **Источник:** не A, а `/projects/storytale-workshop`, фикс от 2026-10-20 (на момент записи не закоммичен). Патч: `C7/inject_all_instances.patch`. В A тот же баг, там это задача F2.44.
+- **Проблема:** сгенерированный скоуп получает экземпляр из `builder.Inject(x)` дыркой `request.Get<T>()`. `ContainerBuilder.TryGetHole` отдаёт последний добавленный экземпляр типа. Если в сцене несколько одинаковых сервисов (`ISceneService` с `builder.Inject(this)` в `Create`), `[Inject]` вызывается только у последнего из `SceneServicesFactory._services`. У остальных зависимости остаются `null`, и ошибка вылезает позже: в storytale-workshop это были тысячи `NullReferenceException` в `Update` второй кнопки. Ошибки сборки нет.
+- **Фикс:**
+  - Рантайм: `ContainerBuilder.GetInjections<T>()` возвращает все экземпляры `builder.Inject` этого типа. `GeneratedScopeRequest.GetInjections<T>()` бросает исключение, если экземпляров нет.
+  - Генератор: в `ScopePlan.AssignHoles` для регистраций с `Kind == "Inject"` добавляется параметр конструктора `T[]` (`CtorParam.IsInjections`, `ElementType`), который `WriteRegister` заполняет `request.GetInjections<T>()`. `ScopeEmitter.WriteSlotConstruction` вызывает `[Inject]` в цикле по массиву. Поле слота по-прежнему держит последний экземпляр для зависимых регистраций. `HoleParam` и `HasCtorParam` такие параметры пропускают.
+  - `RegisterComponent(this)` (тоже origin `InjectExisting`, но в `_injections` не попадает) не трогается.
+- **Шаги:**
+  1. Шаг 0: найти в сценах B два и больше экземпляров одного типа, который делает `builder.Inject(this)`. Можно в Play проверить, что у одного из них поле `[Inject]` пустое. Если дублей нет, баг всё равно латентный: фикс переносится, в handoff записать «дублей не найдено».
+  2. `ScopePlan.cs` и `ScopeEmitter.cs` в B совпадают с storytale-workshop до фикса, их хунки накладываются патчем: `git apply --3way --include='client/Tools~/*' C7/inject_all_instances.patch`.
+  3. `ContainerBuilder.cs` в B отличается (патч не накладывается), `GeneratedScopes.cs` накладывается со сдвигом. `GetInjections<T>()` перенести вручную рядом с `TryGetHole`.
+  4. Комментарии в патче на русском — перевести на английский по правилам B.
+  5. `dotnet build client/Tools~/ContainerGenerator/ContainerGenerator.csproj -c Release` (копирует dll в `client/Assets/Plugins/ContainerGenerator/`), затем компиляция в редакторе.
+- **Проверка:** собрать сборку со сценой-скоупом с `-p:EmitCompilerGeneratedFiles=true` и убедиться, что для `builder.Inject` вызов идёт в цикле `xInjections[i].Inject(...)`. В Play у всех дублей заполнены `[Inject]`-поля. `ContainerGenerator.Verify` проходит.
+- **Готово:** каждый экземпляр `builder.Inject` получает `[Inject]`. Play Mode (меню, матч, выход) проходит без новых ошибок.

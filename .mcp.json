@@ -6,7 +6,7 @@
       "args": [
         "--offline",
         "--from",
-        "mcpforunityserver==10.2.0",
+        "mcpforunityserver==10.3.0",
         "mcp-for-unity",
         "--transport",
         "stdio"

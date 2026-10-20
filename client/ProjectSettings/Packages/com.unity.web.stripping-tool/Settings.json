@@ -2,17 +2,17 @@
     "m_Dictionary": {
         "m_DictionaryValues": [
             {
-                "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "type": "System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
                 "key": "StrippingProjectSettings.ActiveSettings.AssetPath",
                 "value": "{\"m_Value\":\"Assets/Settings/DefaultSubmoduleStrippingSettings.asset\"}"
             },
             {
-                "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "type": "System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
                 "key": "StrippingProjectSettings.ActiveSettings.AssetData",
                 "value": "{\"m_Value\":\"\"}"
             },
             {
-                "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "type": "System.Boolean, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
                 "key": "StrippingProjectSettings.StripAutomaticallyAfterBuild",
                 "value": "{\"m_Value\":true}"
             }

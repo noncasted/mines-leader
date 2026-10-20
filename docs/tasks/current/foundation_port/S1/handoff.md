@@ -12,7 +12,7 @@
 
 - Патчем A (файлы совпадали с `5def6dd1d^`): `Common/Extensions/CorsExtensions.cs`, `GameGateway/MiddlewareExtensions.cs`, `GameGateway/Program.cs`, новый `Orchestration/Extensions/ConsoleAccess.cs`, тесты `Tools/Tests/Security/*`.
 - Вручную (файлы отличались): `ConsoleGateway/Program.cs`, `GameGateway/SessionEndpoints.cs`, `MetaGateway/MonitorEndpoints.cs`, `MetaGateway/Program.cs`, `Extensions/ProjectsSetupExtensions.cs`, `BackendConnectionMiddleware.cs` (только `AddBackendMiddleware`), `Aspire/Program.cs` (`CONSOLE_TOKEN` для meta и game).
-- Деплой: `Tools/deploy/docker-compose.yaml`, `.env.example`, `COOLIFY.md`, `.agents/docs/DEPLOY.md`.
+- Деплой: `Tools/deploy/docker-compose.yaml`, `.env.example`, `COOLIFY.md`, `.claude/docs/DEPLOY.md`.
 
 ## Отличия от A
 
