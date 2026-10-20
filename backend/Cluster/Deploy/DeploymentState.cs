@@ -71,6 +71,11 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
 
     protected virtual StateIdentity CreateStateIdentity(Guid deployId)
     {
+        return CreateDefaultStateIdentity(deployId);
+    }
+
+    public static StateIdentity CreateDefaultStateIdentity(Guid deployId)
+    {
         return new StateIdentity
         {
             Key = deployId,

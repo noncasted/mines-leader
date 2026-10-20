@@ -6,7 +6,7 @@ namespace Cluster.Deploy;
 
 [GenerateSerializer]
 [GrainState(Table = "cluster", State = "deploy", Lookup = "Deploy", Key = GrainKeyType.Guid)]
-public class DeployState : IDirectStateValue
+public class DeployState : IDirectStateValue, IDeployScopedState
 {
     [Id(0)] public Guid DeployId { get; set; }
     [Id(1)] public DateTime LastHeartbeat { get; set; }

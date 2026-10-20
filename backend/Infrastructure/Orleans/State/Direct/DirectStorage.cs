@@ -164,6 +164,22 @@ public class DirectStorage
         }
     }
 
+    public async IAsyncEnumerable<TKey> ReadAllKeys<TKey>(GrainStateInfo stateInfo, IReadOnlyLifetime lifetime)
+    {
+        var cancellation = lifetime.Token;
+
+        await using var connection = await _dbSource.Value.OpenConnectionAsync(cancellation);
+        await using var command = connection.CreateCommand();
+
+        command.CommandText = $"SELECT key FROM {stateInfo.TableName} WHERE type = @type";
+        command.Parameters.AddWithValue("type", stateInfo.Name);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+        while (await reader.ReadAsync(cancellation))
+            yield return ReadKeyFromReader<TKey>(reader, stateInfo);
+    }
+
     public async Task Write(StateWriteRequest request)
     {
         using var watch = MetricWatch.Start(BackendMetrics.StateWriteDuration);

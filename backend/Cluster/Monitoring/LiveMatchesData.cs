@@ -1,9 +1,19 @@
+using Cluster.Deploy;
+using Common;
+using Infrastructure.State;
+using Shared;
+
 namespace Cluster.Monitoring;
 
+// Registered as a deploy-scoped state so that IDeployCleanup removes the rows of old deploys. The rows hold an
+// AddressableStateValue (DeploymentState), the state name is the one DeploymentState.CreateDefaultStateIdentity gives.
 [GenerateSerializer]
-public class LiveMatchesData
+[GrainState(Table = "cluster", State = "deployment_state_LiveMatchesData", Lookup = "LiveMatches", Key = GrainKeyType.Guid)]
+public class LiveMatchesData : IDirectStateValue, IDeployScopedState
 {
     [Id(0)] public List<LiveMatchEntry> Matches { get; set; } = [];
+
+    public int Version => 0;
 }
 
 [GenerateSerializer]

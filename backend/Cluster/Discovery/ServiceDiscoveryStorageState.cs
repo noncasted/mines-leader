@@ -1,3 +1,4 @@
+using Cluster.Deploy;
 using Common;
 using Infrastructure.State;
 using Shared;
@@ -6,7 +7,7 @@ namespace Cluster.Discovery;
 
 [GenerateSerializer]
 [GrainState(Table = "cluster", State = "service_discovery", Lookup = "ServiceDiscovery", Key = GrainKeyType.Guid)]
-public class ServiceDiscoveryStorageState : IDirectStateValue
+public class ServiceDiscoveryStorageState : IDirectStateValue, IDeployScopedState
 {
     [Id(0)] public Dictionary<Guid, IServiceOverview> Members { get; set; } = new();
 
