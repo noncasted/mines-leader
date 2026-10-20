@@ -51,7 +51,8 @@ public class Entity : IEntity
             properties.Add(new SharedSessionObject.PropertyUpdate()
             {
                 PropertyId = property.Id,
-                Value = property.RawValue
+                Value = property.RawValue,
+                Version = property.Version
             });
         }
 

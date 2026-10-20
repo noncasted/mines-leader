@@ -82,27 +82,10 @@ public class Session : ISession
     {
         if (await AwaitUsersJoin() == false)
         {
-            _logger.LogWarning("[Session] Session {ID}: {Count} of {Expected} users joined in {Timeout} — closing",
-                Id,
-                _users.Count,
-                _data.ExpectedUsers,
-                _data.JoinTimeout);
-
+            // Ended before the start: the join timeout (logged there) or the session was closed from outside.
             _data.Lifetime.Terminate();
             return;
         }
-
-        if (_data.ExpectedUsers == 0)
-        {
-            _users.View(Lifetime, user => HandleUser(user).NoAwait());
-        }
-        else
-        {
-            foreach (var user in _users)
-                HandleUser(user).NoAwait();
-        }
-
-        _allUsersConnected.Invoke();
 
         if (Type == SessionType.Lobby)
             await Task.Delay(_data.EmptyLobbyGrace);
@@ -110,23 +93,68 @@ public class Session : ISession
         await AwaitPlayersLeave();
 
         _data.Lifetime.Terminate();
+    }
 
-        async Task<bool> AwaitUsersJoin()
-        {
+    // Completes with true once the users are handled: at once without ExpectedUsers, otherwise when the last expected
+    // one joins (no poll). False when the join timeout or the end of the session comes first. Users are added and
+    // removed only in the execution queue: the wait, the timeout and the start are decided there too.
+    private Task<bool> AwaitUsersJoin()
+    {
+        var started = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Lifetime.Listen(() => started.TrySetResult(false));
+
+        ExecutionQueue.Enqueue(() => {
+            if (Lifetime.IsTerminated == true)
+                return;
+
             if (_data.ExpectedUsers == 0)
-                return true;
-
-            var deadline = DateTime.UtcNow + _data.JoinTimeout;
-
-            while (_users.Count < _data.ExpectedUsers)
             {
-                if (DateTime.UtcNow >= deadline)
-                    return false;
-
-                await Task.Delay(TimeSpan.FromMilliseconds(100));
+                Start();
+                return;
             }
 
-            return true;
+            var waiting = Lifetime.Child();
+
+            _users.View(waiting, _ => {
+                if (_users.Count < _data.ExpectedUsers)
+                    return;
+
+                // Not in place: the listeners of this addition run on the current list first.
+                ExecutionQueue.Enqueue(() => {
+                    // Already started, or a user left in between: the next join checks again.
+                    if (waiting.IsTerminated == true || _users.Count < _data.ExpectedUsers)
+                        return;
+
+                    waiting.Terminate();
+                    Start();
+                });
+            });
+
+            Task.Delay(_data.JoinTimeout).ContinueWith(_ => ExecutionQueue.Enqueue(() => {
+                if (waiting.IsTerminated == true)
+                    return;
+
+                waiting.Terminate();
+
+                _logger.LogWarning("[Session] Session {ID}: {Count} of {Expected} users joined in {Timeout} — closing",
+                    Id,
+                    _users.Count,
+                    _data.ExpectedUsers,
+                    _data.JoinTimeout);
+
+                started.TrySetResult(false);
+            }));
+        });
+
+        return started.Task;
+
+        // Every user is handled once, including the ones that join after the start (a second connection of a
+        // player): otherwise such a user is never run and its socket hangs.
+        void Start()
+        {
+            _users.View(Lifetime, user => HandleUser(user).NoAwait());
+            _allUsersConnected.Invoke();
+            started.TrySetResult(true);
         }
     }
 

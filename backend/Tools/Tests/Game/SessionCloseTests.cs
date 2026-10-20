@@ -1,7 +1,9 @@
 using System.Net.WebSockets;
+using System.Threading.Channels;
 using Common.Reactive;
 using FluentAssertions;
 using Game.Session;
+using MemoryPack;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shared;
 using Tests.Network;
@@ -119,7 +121,8 @@ public class SessionCloseTests
         return completion.Task.WaitAsync(Wait);
     }
 
-    private sealed class SessionWorld
+    // Also used by SessionRunTests.
+    internal sealed class SessionWorld
     {
         public SessionWorld(SessionType type, int expectedUsers)
         {
@@ -182,10 +185,12 @@ public class SessionCloseTests
     }
 
     // A client socket: receive waits until the client closes it or the keep-alive aborts it.
-    private sealed class ScriptedSocket : WebSocket
+    internal sealed class ScriptedSocket : WebSocket
     {
         private readonly TaskCompletionSource<WebSocketReceiveResult> _receive =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        private readonly Channel<INetworkContext> _sent = Channel.CreateUnbounded<INetworkContext>();
 
         private WebSocketState _state = WebSocketState.Open;
 
@@ -220,7 +225,26 @@ public class SessionCloseTests
             bool endOfMessage,
             CancellationToken cancellationToken)
         {
+            var message = (OneWayMessageFromServer)MemoryPackSerializer.Deserialize<IMessageFromServer>(buffer.AsSpan())!;
+            _sent.Writer.TryWrite(message.Context);
             return Task.CompletedTask;
+        }
+
+        // Waits for the next one-way context the session sent to this client.
+        public async Task<INetworkContext> ReadSent(TimeSpan timeout)
+        {
+            return await _sent.Reader.ReadAsync().AsTask().WaitAsync(timeout);
+        }
+
+        // The contexts sent so far, without waiting.
+        public List<INetworkContext> DrainSent()
+        {
+            var result = new List<INetworkContext>();
+
+            while (_sent.Reader.TryRead(out var context) == true)
+                result.Add(context);
+
+            return result;
         }
 
         public override Task CloseAsync(
