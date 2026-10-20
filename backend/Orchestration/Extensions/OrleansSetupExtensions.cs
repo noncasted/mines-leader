@@ -19,6 +19,39 @@ public static class OrleansSetupExtensions
     public const int LocalSiloPort = 11111;
     public const int LocalGatewayPort = 30010;
 
+    // Required: two games (or two environments) on one Postgres must not share the membership table rows.
+    // Dev values come from the Aspire AppHost, production values from docker-compose.yaml.
+    public const string ClusterIdKey = "Orleans:ClusterId";
+    public const string ServiceIdKey = "Orleans:ServiceId";
+
+    public static ClusterOptions ReadClusterIdentity(IConfiguration configuration)
+    {
+        return new ClusterOptions
+        {
+            ClusterId = ReadRequired(ClusterIdKey),
+            ServiceId = ReadRequired(ServiceIdKey)
+        };
+
+        string ReadRequired(string key)
+        {
+            var value = configuration[key];
+
+            if (string.IsNullOrWhiteSpace(value) == true)
+            {
+                throw new InvalidOperationException(
+                    $"Orleans cluster identity '{key}' is not configured (environment variable '{key.Replace(":", "__")}')");
+            }
+
+            return value;
+        }
+    }
+
+    private static void ApplyClusterIdentity(ClusterOptions target, ClusterOptions source)
+    {
+        target.ClusterId = source.ClusterId;
+        target.ServiceId = source.ServiceId;
+    }
+
     // Shared has no Orleans codegen, so its types (e.g. CardType) aren't in the type allowlist.
     // They get encoded by name whenever the runtime type differs from the declared one —
     // e.g. Dictionary<int, IReadOnlyList<CardType>> passed as IReadOnlyDictionary<...>.
@@ -36,6 +69,7 @@ public static class OrleansSetupExtensions
             builder.UseOrleansClient(clientBuilder => {
                 var postgresConnectionString = clientBuilder.Configuration.GetConnectionString(ConnectionNames.Postgres)
                                                             .ThrowIfNull();
+                var identity = ReadClusterIdentity(clientBuilder.Configuration);
 
                 clientBuilder.Configure<ClientMessagingOptions>(options => {
                     options.ResponseTimeout = ReplyTimeoutSeconds;
@@ -44,7 +78,7 @@ public static class OrleansSetupExtensions
 
                 if (builder.Environment.IsDevelopment() == true)
                 {
-                    clientBuilder.UseLocalhostClustering(LocalGatewayPort);
+                    clientBuilder.UseLocalhostClustering(LocalGatewayPort, identity.ServiceId, identity.ClusterId);
                 }
                 else
                 {
@@ -54,6 +88,7 @@ public static class OrleansSetupExtensions
                     });
                 }
 
+                clientBuilder.Configure<ClusterOptions>(options => ApplyClusterIdentity(options, identity));
                 clientBuilder.UseConnectionRetryFilter((_, _) => Task.FromResult(true));
                 clientBuilder.Configure<TypeManifestOptions>(AllowSharedTypes);
             });
@@ -72,6 +107,7 @@ public static class OrleansSetupExtensions
 
             builder.UseOrleans(siloBuilder => {
                 var npgsqlConnectionString = configuration.GetConnectionString(ConnectionNames.Postgres).ThrowIfNull();
+                var identity = ReadClusterIdentity(configuration);
 
                 siloBuilder.Configure<SiloMessagingOptions>(options => {
                     options.ResponseTimeout = ReplyTimeoutSeconds;
@@ -80,7 +116,8 @@ public static class OrleansSetupExtensions
 
                 if (builder.Environment.IsDevelopment() == true)
                 {
-                    siloBuilder.UseLocalhostClustering(LocalSiloPort, LocalGatewayPort);
+                    siloBuilder.UseLocalhostClustering(LocalSiloPort, LocalGatewayPort,
+                        serviceId: identity.ServiceId, clusterId: identity.ClusterId);
                 }
                 else
                 {
@@ -90,6 +127,7 @@ public static class OrleansSetupExtensions
                     });
                 }
 
+                siloBuilder.Configure<ClusterOptions>(options => ApplyClusterIdentity(options, identity));
                 siloBuilder.AddActivityPropagation();
                 siloBuilder.Configure<TypeManifestOptions>(AllowSharedTypes);
 

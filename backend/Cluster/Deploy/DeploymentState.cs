@@ -45,6 +45,12 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
 
     private readonly IMessaging _messaging;
     private readonly SemaphoreSlim _writeLock = new(1, 1);
+
+    // Values are applied from the loading epoch, own writes and channel deliveries, on different threads.
+    // Set is not thread-safe (the listeners and value lifetimes are plain lists): concurrent Sets threw
+    // "Collection was modified" and the watermark check-then-set let an older value overwrite a newer one.
+    // Taken only around the synchronous apply (watermark + Set + listeners), never across an await.
+    private readonly object _applyLock = new();
     private StateIdentity? _identity;
     private DeploymentStateChannelId<T>? _channelId;
     private volatile bool _isInitialized;
@@ -76,35 +82,28 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
 
     public virtual async Task OnDeployChanged(Guid newDeployId, IReadOnlyLifetime deployLifetime)
     {
+        // The value of the previous epoch is not valid for the new one: readers must not see
+        // IsInitialized == true until the new epoch is loaded. A load failure propagates to
+        // DeployContext, which ends the epoch and crashes the caller.
+        _isInitialized = false;
+
         _deployId = newDeployId;
 
         _identity = CreateStateIdentity(newDeployId);
         _channelId = new DeploymentStateChannelId<T>(newDeployId);
 
-        try
-        {
-            var state = await _orleans.StateStorage.Read<AddressableStateValue>(_identity);
+        var state = await _orleans.StateStorage.Read<AddressableStateValue>(_identity);
 
-            if (state.IsInitialized)
-            {
-                var value = _orleans.Serializer.Deserialize<T>(state.Value);
-                _lastAppliedUpdate = state.UpdateDate;
-                Set(value);
-            }
-            else
-            {
-                _lastAppliedUpdate = default;
-                Set(new T());
-            }
+        var value = state.IsInitialized ? _orleans.Serializer.Deserialize<T>(state.Value) : new T();
 
-            await _messaging.ListenChannel<AddressableStateValue>(deployLifetime, _channelId, OnUpdate);
-            _isInitialized = true;
-        }
-        catch (Exception e)
+        lock (_applyLock)
         {
-            _logger.LogError(e, "[DeploymentState] Failed to initialize {Type} for deploy {DeployId}",
-                typeof(T).Name, newDeployId);
+            _lastAppliedUpdate = state.IsInitialized ? state.UpdateDate : default;
+            Set(value);
         }
+
+        await _messaging.ListenChannel<AddressableStateValue>(deployLifetime, _channelId, OnUpdate);
+        _isInitialized = true;
     }
 
     public virtual async Task SetValue(T value)
@@ -123,8 +122,11 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
                 Value = _orleans.Serializer.Serialize(value)
             };
 
-            _lastAppliedUpdate = state.UpdateDate;
-            Set(value);
+            lock (_applyLock)
+            {
+                _lastAppliedUpdate = state.UpdateDate;
+                Set(value);
+            }
 
             await _orleans.StateStorage.Write(_identity, state);
             await _messaging.PublishChannel(_channelId, state);
@@ -150,25 +152,33 @@ public class DeploymentState<T> : ViewableProperty<T>, IDeploymentState<T>, IDep
         if (state.IsInitialized == false)
             return false;
 
-        if (state.UpdateDate <= _lastAppliedUpdate)
+        lock (_applyLock)
         {
-            _logger.LogDebug(
-                "[DeploymentState] Skipped stale update for {Type}: sent {Sent:O}, last applied {Applied:O}",
-                typeof(T).Name, state.UpdateDate, _lastAppliedUpdate);
-            return false;
-        }
+            if (state.UpdateDate <= _lastAppliedUpdate)
+            {
+                _logger.LogDebug(
+                    "[DeploymentState] Skipped stale update for {Type}: sent {Sent:O}, last applied {Applied:O}",
+                    typeof(T).Name, state.UpdateDate, _lastAppliedUpdate);
+                return false;
+            }
 
-        try
-        {
-            var value = _orleans.Serializer.Deserialize<T>(state.Value);
+            // A value that does not deserialize is a schema mismatch between services: fail the delivery loudly
+            // instead of keeping a silently stale value.
+            T value;
+
+            try
+            {
+                value = _orleans.Serializer.Deserialize<T>(state.Value);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    $"[DeploymentState] Failed to deserialize update for {typeof(T).Name} (deploy {_deployId})", e);
+            }
+
             _lastAppliedUpdate = state.UpdateDate;
             Set(value);
             return true;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[DeploymentState] Failed to deserialize update for {Type}", typeof(T).Name);
-            return false;
         }
     }
 }

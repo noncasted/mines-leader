@@ -5,7 +5,10 @@ using Infrastructure;
 
 namespace Coordinator;
 
-public class ClusterCoordinator : ILocalSetupCompleted, IDeployAware
+// Runs once per Coordinator process, after its own deploy id is set (ClusterParticipantStartup "Local Setup" stage).
+// Not IDeployAware: DeployIdentity generates the deploy id once per process start and a new epoch means a new
+// process, so the local setup stage already covers every epoch.
+public class ClusterCoordinator : ILocalSetupCompleted
 {
     public ClusterCoordinator(
         IOrleans orleans,
@@ -28,17 +31,6 @@ public class ClusterCoordinator : ILocalSetupCompleted, IDeployAware
     private readonly ILogger<ClusterCoordinator> _logger;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
-    {
-        await RunCoordinatorSetup(lifetime);
-    }
-
-    public async Task OnDeployChanged(Guid newDeployId, IReadOnlyLifetime deployLifetime)
-    {
-        _logger.LogInformation("[Coordinator] Deploy changed to {DeployId}, re-running setup", newDeployId);
-        await RunCoordinatorSetup(deployLifetime);
-    }
-
-    private async Task RunCoordinatorSetup(IReadOnlyLifetime lifetime)
     {
         _logger.LogInformation("[Coordinator] Starting cluster coordinator...");
 

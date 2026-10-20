@@ -3,6 +3,7 @@ using DeploySetup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Orchestration;
 using Projects;
 using Silo = Projects.Silo;
 
@@ -49,6 +50,7 @@ var game = builder
            .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 SetupDB();
+SetupOrleansIdentity();
 
 coordinator.WaitFor(silo);
 meta.WaitFor(silo).WaitFor(coordinator);
@@ -61,16 +63,27 @@ builder.Build().Run();
 
 return;
 
+IResourceBuilder<ProjectResource>[] ProjectResources()
+{
+    return [silo, coordinator, meta, game, console];
+}
+
+// ClusterId / ServiceId are required by OrleansSetupExtensions. "dev" / "dev" are the values the local
+// cluster used before they became explicit (UseLocalhostClustering defaults): keep them for the local cluster.
+void SetupOrleansIdentity()
+{
+    var identity = OrleansSetupExtensions.ReadClusterIdentity(configuration);
+
+    foreach (var resource in ProjectResources())
+    {
+        resource.WithEnvironment("Orleans__ClusterId", identity.ClusterId)
+                .WithEnvironment("Orleans__ServiceId", identity.ServiceId);
+    }
+}
+
 void SetupDB()
 {
-    var projectResources = new[]
-    {
-        silo,
-        coordinator,
-        meta,
-        game,
-        console
-    };
+    var projectResources = ProjectResources();
 
     configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {

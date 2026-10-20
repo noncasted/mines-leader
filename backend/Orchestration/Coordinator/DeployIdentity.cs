@@ -3,6 +3,7 @@ using Common.Extensions;
 using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Startup;
+using Microsoft.Extensions.Options;
 
 namespace Coordinator;
 
@@ -13,12 +14,16 @@ public class DeployIdentity : BackgroundService
         IDeployContext deployContext,
         IMessaging messaging,
         IOrleans orleans,
+        IHostApplicationLifetime hostLifetime,
+        IOptions<CoordinatorHealthOptions> options,
         ILogger<DeployIdentity> logger)
     {
         _participantContext = participantContext;
         _deployContext = deployContext;
         _messaging = messaging;
         _orleans = orleans;
+        _hostLifetime = hostLifetime;
+        _options = options.Value;
         _logger = logger;
     }
 
@@ -26,10 +31,9 @@ public class DeployIdentity : BackgroundService
     private readonly IDeployContext _deployContext;
     private readonly IMessaging _messaging;
     private readonly IOrleans _orleans;
+    private readonly IHostApplicationLifetime _hostLifetime;
+    private readonly CoordinatorHealthOptions _options;
     private readonly ILogger<DeployIdentity> _logger;
-
-    private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(5);
-    private const int MaxConsecutiveFailures = 3;
 
     protected override async Task ExecuteAsync(CancellationToken cancellation)
     {
@@ -73,7 +77,7 @@ public class DeployIdentity : BackgroundService
             {
                 await grain.Heartbeat();
                 consecutiveFailures = 0;
-                await Task.Delay(HeartbeatInterval, lifetime.Token);
+                await Task.Delay(_options.HeartbeatInterval, lifetime.Token);
             }
             catch (OperationCanceledException)
             {
@@ -83,18 +87,21 @@ public class DeployIdentity : BackgroundService
             {
                 consecutiveFailures++;
                 _logger.LogError(e, "[DeployIdentity] Heartbeat iteration failed ({FailureCount}/{MaxFailures})",
-                    consecutiveFailures, MaxConsecutiveFailures);
+                    consecutiveFailures, _options.MaxConsecutiveHeartbeatFailures);
 
-                if (consecutiveFailures >= MaxConsecutiveFailures)
+                if (consecutiveFailures >= _options.MaxConsecutiveHeartbeatFailures)
                 {
-                    _logger.LogCritical("[DeployIdentity] Max consecutive heartbeat failures reached, shutting down");
-                    lifetime.Terminate();
+                    // Terminating only the local lifetime would leave a zombie process: alive, but without
+                    // the deploy id pipe handler and heartbeat. Stop the whole process so the orchestrator
+                    // restarts it and a new deploy epoch begins.
+                    _logger.LogCritical("[DeployIdentity] Max consecutive heartbeat failures reached, stopping the application");
+                    _hostLifetime.StopApplication();
                     break;
                 }
 
                 try
                 {
-                    await Task.Delay(HeartbeatInterval, lifetime.Token);
+                    await Task.Delay(_options.HeartbeatInterval, lifetime.Token);
                 }
                 catch (OperationCanceledException)
                 {

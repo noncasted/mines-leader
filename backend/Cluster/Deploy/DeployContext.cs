@@ -25,7 +25,7 @@ public class DeployContext : IDeployContext
     private readonly IReadOnlyList<IDeployAware> _subscribers;
     private readonly ILogger<DeployContext> _logger;
 
-    private Lifetime? _deployLifetime;
+    private ILifetime? _deployLifetime;
     private Guid _deployId;
 
     public Guid DeployId => _deployId;
@@ -40,8 +40,9 @@ public class DeployContext : IDeployContext
 
         _deployLifetime?.Terminate();
 
-        var newLifetime = new Lifetime();
-        parentLifetime.Listen(() => newLifetime.Terminate());
+        // Child() removes its listener from the parent when the epoch lifetime ends, so repeated
+        // epoch switches do not pile up callbacks on the long-lived parent.
+        var newLifetime = parentLifetime.Child();
 
         _deployLifetime = newLifetime;
         _deployId = deployId;
@@ -56,8 +57,12 @@ public class DeployContext : IDeployContext
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[DeployContext] Subscriber {Subscriber} failed on deploy change",
-                    subscriber.GetType().Name);
+                // A half-switched epoch is not usable: end it and let the caller crash the process.
+                _logger.LogCritical(e, "[DeployContext] Subscriber {Subscriber} failed on deploy change to {DeployId}",
+                    subscriber.GetType().Name, deployId);
+
+                newLifetime.Terminate();
+                throw;
             }
         }
     }
