@@ -53,6 +53,11 @@ public interface IRuntimeChannel : IGrainWithStringKey
     Task<CatchUpResult> CatchUp(long lastSeenSequence);
 }
 
+// Delivery semantics (see .claude/docs/MESSAGING.md):
+// - every observer has its own ordered delivery queue, so a slow observer delays only itself;
+// - an observer whose Send fails, exceeds DeliveryTimeoutSeconds or overflows its queue is removed
+//   and gets the missed messages through CatchUp when its client resubscribes (within CatchUpBufferSize);
+// - there is no ordering between different observers.
 public class RuntimeChannel : Grain, IRuntimeChannel
 {
     public RuntimeChannel(ILogger<RuntimeChannel> logger, IRuntimeChannelConfig config)
@@ -68,9 +73,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
     private long _sequenceNumber;
     private SequencedMessage?[] _buffer = null!;
     private int _bufferSize;
-
-    private Channel<SequencedMessage>? _deliveryChannel;
-    private Task? _deliveryTask;
+    private DateTime _keepAliveUntil;
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
@@ -79,16 +82,18 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         return Task.CompletedTask;
     }
 
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+    public override async Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
     {
-        _deliveryChannel?.Writer.Complete();
+        // Deactivation can not be postponed from here (DelayDeactivation only affects idle collection
+        // before it starts), so finish what is already queued. Observers re-attach to the next activation
+        // through their resubscribe loop.
+        var observers = _observers.Values.ToArray();
 
-        var delay = MessagingGrainExtensions.GetKeepAliveDelay(_observers.Values, d => d.UpdateDate,
-            _config.Value.ObserverKeepAliveMinutes);
+        foreach (var data in observers)
+            data.Queue.Writer.TryComplete();
 
-        if (delay != null)
-            DelayDeactivation(delay.Value);
-        return Task.CompletedTask;
+        var deliveries = Task.WhenAll(observers.Select(data => data.DeliveryTask));
+        await Task.WhenAny(deliveries, Task.Delay(Timeout.Infinite, cancellationToken));
     }
 
     public Task AddObserver(Guid id, IRuntimeChannelObserver observer)
@@ -99,21 +104,36 @@ public class RuntimeChannel : Grain, IRuntimeChannel
             {
                 Observer = observer,
                 UpdateDate = DateTime.UtcNow,
-                Id = id
+                Id = id,
+                Queue = Channel.CreateBounded<SequencedMessage>(new BoundedChannelOptions(_bufferSize)
+                {
+                    SingleReader = true,
+                    SingleWriter = false,
+                    FullMode = BoundedChannelFullMode.Wait
+                })
             };
 
             _observers[id] = data;
+
+            data.DeliveryTask = Task.Factory.StartNew(() => DeliverTo(data), CancellationToken.None,
+                TaskCreationOptions.None, TaskScheduler.Current).Unwrap();
         }
 
         data.Observer = observer;
         data.UpdateDate = DateTime.UtcNow;
+
+        // Observers refresh themselves periodically (resubscribe loop); keep the activation and its
+        // catch-up buffer alive between refreshes.
+        KeepAlive(TimeSpan.FromMinutes(_config.Value.ObserverKeepAliveMinutes));
 
         return Task.CompletedTask;
     }
 
     public Task RemoveObserver(Guid id)
     {
-        _observers.TryRemove(id, out _);
+        if (_observers.TryRemove(id, out var data))
+            data.Queue.Writer.TryComplete();
+
         return Task.CompletedTask;
     }
 
@@ -133,73 +153,87 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         _buffer[_sequenceNumber % _bufferSize] = sequenced;
         activity?.SetTag("messaging.sequence", sequenced.Sequence);
 
-        _deliveryChannel ??= Channel.CreateUnbounded<SequencedMessage>();
-        _deliveryChannel.Writer.TryWrite(sequenced);
+        foreach (var data in _observers.Values)
+        {
+            if (data.Queue.Writer.TryWrite(sequenced) == true)
+                continue;
+
+            // Behind by a whole catch-up buffer: drop it, the client recovers through CatchUp / gap detection.
+            BackendMetrics.ChannelDeliveryFailure.Add(1);
+
+            _logger.LogWarning(
+                "[Messaging] [Channel] Delivery queue overflow on {ChannelName} for observer {ObserverId} at sequence {Sequence}",
+                channelName, data.Id, sequenced.Sequence);
+
+            Remove(data);
+        }
 
         // Keep the grain alive while delivery is in progress.
-        DelayDeactivation(TimeSpan.FromSeconds(_config.Value.DeliveryTimeoutSeconds));
-
-        if (_deliveryTask == null || _deliveryTask.IsCompleted)
-        {
-            _deliveryTask = Task.Factory.StartNew(ProcessDeliveryQueue, CancellationToken.None,
-                TaskCreationOptions.None, TaskScheduler.Current).Unwrap();
-        }
+        KeepAlive(TimeSpan.FromSeconds(_config.Value.DeliveryTimeoutSeconds));
 
         return Task.CompletedTask;
     }
 
-    private async Task ProcessDeliveryQueue()
+    // DelayDeactivation replaces the previous request: never shorten a longer keep-alive.
+    private void KeepAlive(TimeSpan duration)
     {
-        await foreach (var sequenced in _deliveryChannel!.Reader.ReadAllAsync())
+        var until = DateTime.UtcNow + duration;
+
+        if (until <= _keepAliveUntil)
+            return;
+
+        _keepAliveUntil = until;
+        DelayDeactivation(duration);
+    }
+
+    private void Remove(ObserverData data)
+    {
+        _observers.TryRemove(KeyValuePair.Create(data.Id, data));
+        data.Queue.Writer.TryComplete();
+    }
+
+    private async Task DeliverTo(ObserverData data)
+    {
+        await foreach (var sequenced in data.Queue.Reader.ReadAllAsync())
         {
-            var channelName = this.GetPrimaryKeyString();
-            var toRemove = new ConcurrentBag<Guid>();
-            var observersSnapshot = _observers.Values.ToArray();
+            if (await TrySend(data, sequenced) == true)
+                continue;
 
-            try
+            Remove(data);
+            return;
+        }
+    }
+
+    private async Task<bool> TrySend(ObserverData data, SequencedMessage sequenced)
+    {
+        var channelName = this.GetPrimaryKeyString();
+
+        try
+        {
+            var timeout = TimeSpan.FromSeconds(_config.Value.DeliveryTimeoutSeconds);
+            var deliveryTask = data.Observer.Send(sequenced);
+
+            if (await Task.WhenAny(deliveryTask, Task.Delay(timeout)) != deliveryTask)
             {
-                await Task.WhenAll(observersSnapshot.Select(data => SendSafe(data)));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[Messaging] [Channel] Background delivery failed on {ChannelName}", channelName);
-            }
-            finally
-            {
-                foreach (var id in toRemove)
-                    _observers.TryRemove(id, out _);
+                BackendMetrics.ChannelDeliveryTimeout.Add(1);
+
+                _logger.LogWarning(
+                    "[Messaging] [Channel] Delivery timeout on {ChannelName} to observer {ObserverId} at sequence {Sequence}",
+                    channelName, data.Id, sequenced.Sequence);
+                return false;
             }
 
-            async Task SendSafe(ObserverData data)
-            {
-                try
-                {
-                    var timeout = TimeSpan.FromSeconds(_config.Value.DeliveryTimeoutSeconds);
-                    var deliveryTask = data.Observer.Send(sequenced);
+            await deliveryTask;
+            return true;
+        }
+        catch (Exception e)
+        {
+            BackendMetrics.ChannelDeliveryFailure.Add(1);
 
-                    if (await Task.WhenAny(deliveryTask, Task.Delay(timeout)) != deliveryTask)
-                    {
-                        toRemove.Add(data.Id);
-                        BackendMetrics.ChannelDeliveryTimeout.Add(1);
-
-                        _logger.LogWarning(
-                            "[Messaging] [Channel] Delivery timeout on {ChannelName} to observer {ObserverId} at sequence {Sequence}",
-                            channelName, data.Id, sequenced.Sequence);
-                        return;
-                    }
-
-                    await deliveryTask;
-                }
-                catch (Exception e)
-                {
-                    toRemove.Add(data.Id);
-                    BackendMetrics.ChannelDeliveryFailure.Add(1);
-
-                    _logger.LogError(e,
-                        "[Messaging] [Channel] Delivering message from {ChannelName} to observer {ObserverId} failed at sequence {Sequence}",
-                        channelName, data.Id, sequenced.Sequence);
-                }
-            }
+            _logger.LogError(e,
+                "[Messaging] [Channel] Delivering message from {ChannelName} to observer {ObserverId} failed at sequence {Sequence}",
+                channelName, data.Id, sequenced.Sequence);
+            return false;
         }
     }
 
@@ -276,5 +310,7 @@ public class RuntimeChannel : Grain, IRuntimeChannel
         public required Guid Id { get; init; }
         public required IRuntimeChannelObserver Observer { get; set; }
         public required DateTime UpdateDate { get; set; }
+        public required Channel<SequencedMessage> Queue { get; init; }
+        public Task DeliveryTask { get; set; } = Task.CompletedTask;
     }
 }
