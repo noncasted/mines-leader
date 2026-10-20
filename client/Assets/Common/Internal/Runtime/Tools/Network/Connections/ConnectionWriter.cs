@@ -8,6 +8,10 @@ namespace Internal
 {
     public interface IConnectionWriter
     {
+        // No request is answered any more: the connection is lost, its socket never opened, or the lifetime it was
+        // run with has ended. Requests complete with null at once. Never run is closed too.
+        bool IsClosed { get; }
+
         void WriteOneWay(INetworkContext value);
         UniTask<T> WriteRequest<T>(INetworkContext commandContext);
         void WriteResponse(INetworkContext commandContext, int requestId);
@@ -26,12 +30,22 @@ namespace Internal
         private const int TimeoutIndex = 1;
 
         private int _requestCounter;
+        private IReadOnlyLifetime _connectionLifetime;
         private ILifetime _lifetime;
         private bool _isClosed;
 
+        public bool IsClosed => _connectionLifetime == null || _isClosed == true || _connectionLifetime.IsTerminated == true;
+
         public void Run(IReadOnlyLifetime lifetime, IWebSocket webSocket)
         {
+            if (_connectionLifetime != null && _connectionLifetime.IsTerminated == false)
+                throw new InvalidOperationException("[Network] The writer runs again while its previous connection is alive");
+
+            // A connection may be run again after a loss (the meta reconnect): the state of the previous one goes.
             _webSocket = webSocket;
+            _connectionLifetime = lifetime;
+            _isClosed = false;
+            _writeQueue.Clear();
             _lifetime = lifetime.Child();
 
             webSocket.Closed.Advise(lifetime, OnClosed);
@@ -44,6 +58,15 @@ namespace Internal
         /// сразу, а не по таймауту. Очередь отправки останавливается, в сокет писать некуда.
         /// </summary>
         private void OnClosed(string reason)
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// The socket of this run never opened (NetworkConnection.Run: its Connect failed): the connection is closed
+        /// as after a loss, so a caller that checks <see cref="IsClosed"/> opens it again instead of taking it alive.
+        /// </summary>
+        public void Close()
         {
             _isClosed = true;
             _writeQueue.Clear();
@@ -105,6 +128,13 @@ namespace Internal
                 RequestId = _requestCounter
             };
 
+
+            // Nothing answers a closed connection: without this the request waited for its whole timeout.
+            if (IsClosed == true)
+            {
+                UnityEngine.Debug.LogError($"Request {Describe(commandContext)} is not sent: the connection is closed");
+                return default;
+            }
 
             var completion = new UniTaskCompletionSource<INetworkContext>();
             _pendingRequests.Add(request.RequestId, completion);
@@ -179,7 +209,12 @@ namespace Internal
         {
             _lifetime.Terminate();
 
-            foreach (var message in _writeQueue)
+            // The queue is taken, not read: left in place, the send loop sent it a second time on the next frame
+            // (and a message it took during the await below modified the list under the enumeration).
+            var messages = new List<IMessageFromClient>(_writeQueue);
+            _writeQueue.Clear();
+
+            foreach (var message in messages)
             {
                 var payload = MemoryPackSerializer.Serialize(message);
                 await _webSocket.Send(payload);

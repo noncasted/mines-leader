@@ -33,6 +33,11 @@ namespace Internal
 
             var response = await _connection.Request<SharedSessionAuth.Response>(auth);
 
+            // No answer: the socket was lost before it (the writer completes the request with null at once) or the
+            // request timed out.
+            if (response == null)
+                throw new Exception($"[Network] [Session] No authentication response for session {sessionId}: the connection is lost");
+
             Debug.Log(
                 $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}");
 

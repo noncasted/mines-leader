@@ -3,6 +3,8 @@
     "rootNamespace": "",
     "references": [
         "Internal",
+        "GUID:004191ba7e9fa37e9976d81dc0d56734",
+        "UniTask",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
@@ -13,7 +15,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "MemoryPack.Core.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

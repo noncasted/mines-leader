@@ -178,6 +178,15 @@ namespace Menu.Play
             catch (OperationCanceledException)
             {
             }
+            // The meta is down (IMetaConnection could not connect it again): the search screen goes back to idle so
+            // the next press tries again; the error stays loud.
+            catch (Exception) when (_searchLifetime.IsTerminated == false)
+            {
+                _isInSearch = false;
+                _searchLifetime.Terminate();
+                _searchView.ShowIdle();
+                throw;
+            }
         }
     }
 }

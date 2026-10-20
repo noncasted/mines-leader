@@ -7,13 +7,12 @@ namespace Internal
 {
     public class UserTab : ProjectToolsTab
     {
-        private const string UserIdKey = "userId";
         private const string EmptyUserId = "<none>";
 
-        private static string EditorUserIdKey => $"userId:{Application.dataPath.GetHashCode()}";
+        // The user of this project copy (Meta.Authentication, LocalStorageKeys).
+        private static string UserIdKey => LocalStorageKeys.Get(LocalStorageKeys.UserId);
 
         private Label _userIdValueLabel;
-        private Label _userIdEditorValueLabel;
 
         public override string Title => "User";
 
@@ -21,8 +20,7 @@ namespace Internal
         {
             var section = BuildSubSection("Local User");
 
-            _userIdEditorValueLabel = BuildUserIdRow(section, $"Editor ({EditorUserIdKey})");
-            _userIdValueLabel = BuildUserIdRow(section, $"Shared ({UserIdKey})");
+            _userIdValueLabel = BuildUserIdRow(section, $"User ({UserIdKey})");
 
             var buttonRow = new VisualElement();
             buttonRow.AddToClassList("assets-button-row");
@@ -63,16 +61,12 @@ namespace Internal
             if (_userIdValueLabel == null)
                 return;
 
-            _userIdEditorValueLabel.text = ReadUserId(EditorUserIdKey);
             _userIdValueLabel.text = ReadUserId(UserIdKey);
         }
 
         private void OnCopyUserIdClicked()
         {
-            var userId = ReadUserId(EditorUserIdKey);
-
-            if (userId == EmptyUserId)
-                userId = ReadUserId(UserIdKey);
+            var userId = ReadUserId(UserIdKey);
 
             if (userId == EmptyUserId)
             {
@@ -95,7 +89,6 @@ namespace Internal
             if (confirmed == false)
                 return;
 
-            PlayerPrefs.DeleteKey(EditorUserIdKey);
             PlayerPrefs.DeleteKey(UserIdKey);
             PlayerPrefs.Save();
 

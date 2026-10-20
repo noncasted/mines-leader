@@ -16,24 +16,22 @@ namespace Meta
     /// </summary>
     public class Authentication : IAuthentication
     {
-        private const string UserIdKey = "userId";
+        // The key of the builds before the per-player keys: outside the editor the id alone under "userId". In the
+        // editor it was "userId:<string hash>" (a new one every launch on CoreCLR) plus a copy under "userId" -
+        // neither is migrated in the editor: an editor user starts anew once. The key is kept after the migration:
+        // a rollback to an older build still finds its user.
+        private const string LegacyUserIdKey = "userId";
 
         public Guid? Load()
         {
             using (GameProfiler.Scope("Saved user id"))
             {
-                var key = GetKey();
+                var key = LocalStorageKeys.Get(LocalStorageKeys.UserId);
 
                 if (PlayerPrefs.HasKey(key) == false)
-                    return null;
+                    return LoadLegacy();
 
-                if (Guid.TryParse(PlayerPrefs.GetString(key), out var userId) == false)
-                {
-                    Debug.LogWarning("[Meta] Saved user id is malformed, a new user will be created");
-                    return null;
-                }
-
-                return userId;
+                return Parse(PlayerPrefs.GetString(key));
             }
         }
 
@@ -41,24 +39,34 @@ namespace Meta
         {
             using (GameProfiler.Scope("Save user id"))
             {
-                PlayerPrefs.SetString(GetKey(), id.ToString());
+                PlayerPrefs.SetString(LocalStorageKeys.Get(LocalStorageKeys.UserId), id.ToString());
 
-#if UNITY_EDITOR
-                PlayerPrefs.SetString(UserIdKey, id.ToString());
-#endif
+                // On the web an unflushed value is lost with the tab: the next launch would create a new user.
+                PlayerPrefs.Save();
             }
         }
 
-        private static string GetKey()
+        private static Guid? LoadLegacy()
         {
 #if UNITY_EDITOR
-            // Копии проекта на диске не должны делить одного юзера, поэтому в редакторе
-            // ключ разводится по пути.
-            var pathHash = Application.dataPath.GetHashCode();
-            return $"{UserIdKey}:{pathHash}";
+            return null;
 #else
-            return UserIdKey;
+            if (PlayerPrefs.HasKey(LegacyUserIdKey) == false)
+                return null;
+
+            return Parse(PlayerPrefs.GetString(LegacyUserIdKey));
 #endif
+        }
+
+        private static Guid? Parse(string raw)
+        {
+            if (Guid.TryParse(raw, out var userId) == false)
+            {
+                Debug.LogWarning("[Meta] Saved user id is malformed, a new user will be created");
+                return null;
+            }
+
+            return userId;
         }
     }
 }
