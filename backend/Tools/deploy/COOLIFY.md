@@ -67,16 +67,22 @@ No volumes required for the compose stack itself. Postgres data lives on the Coo
 
 Set these in the Coolify UI ("Environment Variables" tab, all marked Build-time + Runtime):
 
-| Name | Purpose |
-|------|---------|
-| `DB_HOST` | Coolify-internal DNS name of the managed Postgres |
-| `DB_PORT` | Postgres port (usually `5432`) |
-| `DB_NAME` | Database name |
-| `DB_USER` | Database user |
-| `DB_PASSWORD` | Database password (secret) |
-| `CONSOLE_TOKEN` | Admin token for `/login?token=…` (secret) |
-| `GAME_SERVER_URL` | Public URL of the game gateway advertised to clients |
-| `ASPIRE_TOKEN` | Dashboard browser token (only if dashboard enabled) |
+| Name | Required | Purpose |
+|------|----------|---------|
+| `DB_HOST` | yes | Coolify-internal DNS name of the managed Postgres |
+| `DB_PORT` | no (`5432`) | Postgres port |
+| `DB_NAME` | yes | Database name |
+| `DB_USER` | yes | Database user |
+| `DB_PASSWORD` | yes | Database password (secret) |
+| `CONSOLE_TOKEN` | yes | Admin token for `/login?token=…` and `Authorization: Bearer` on meta `/api/monitor/*` and game `/api/sessions/*` (secret) |
+| `CORS_ALLOWED_ORIGINS` | no (`https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone`) | Comma-separated browser origins of the WebGL client; CORS and the WebSocket handshake of meta / game reject other origins |
+| `GAME_SERVER_URL` | yes | Public URL of the game gateway advertised to clients |
+| `ASPIRE_TOKEN` | yes | Aspire dashboard browser token (secret) |
+| `OTEL_API_KEY` | yes | Shared secret for OTLP export from the services to the dashboard (secret) |
+
+Required variables are written as `${NAME:?}` in the compose: if one is missing or empty, the deploy fails at `docker compose` with `required variable NAME is missing a value` instead of starting a half-configured stack. For `CONSOLE_TOKEN` there is a second guard: outside Development console, meta and game refuse to start with an empty token or the dev value `local-dev-token` (`ConsoleAccess`), because that value turns authentication off. The same goes for an empty `Cors__AllowedOrigins` (`AllowedOrigins`).
+
+A new domain for the client (another host, another itch.io origin) must be added to `CORS_ALLOWED_ORIGINS` before players use it. A handshake without `Origin` (Unity editor, native build) is not affected.
 
 `SERVICE_FQDN_<NAME>_<PORT>` env vars are already baked into the compose. Coolify auto-generates URLs, or you can override per-service via Coolify UI.
 

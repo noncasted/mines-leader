@@ -197,11 +197,18 @@ For services with one port (8080) the Coolify magic variable `SERVICE_FQDN_<NAME
 
 ```
 DB_HOST DB_PORT DB_NAME DB_USER DB_PASSWORD    # consumed by pgbouncer + connection-string interpolation
-CONSOLE_TOKEN                                  # blazor admin login
+CONSOLE_TOKEN                                  # blazor admin login + Bearer token for meta /api/monitor/*, game /api/sessions/*
+CORS_ALLOWED_ORIGINS                           # optional, default https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone: Cors__AllowedOrigins of meta / game
 GAME_SERVER_URL                                # public URL announced to the Unity client
 ASPIRE_TOKEN                                   # aspire-dashboard browser token
 OTEL_API_KEY                                   # services → dashboard OTLP header
 ```
+
+`CONSOLE_TOKEN` (`ConsoleAccess`, `Orchestration/Extensions/ConsoleAccess.cs`): empty or `local-dev-token` turns console auth and the internal endpoint check off, which is allowed only in Development; console, meta and game fail at startup with such a value in any other environment. Locally the dev token comes from `Aspire/appsettings.json`, so `curl http://localhost:7102/api/sessions` works without a header; in prod it needs `-H "Authorization: Bearer $CONSOLE_TOKEN"`.
+
+`Cors:AllowedOrigins` (`AllowedOrigins`, `Common/Extensions/CorsExtensions.cs`) is checked by CORS and by the WebSocket handshake of meta / game (`UseAllowedOrigins`); a handshake without `Origin` (Unity editor, native) passes. Development adds any loopback origin; outside Development an empty list fails startup. A new domain for the client must be added to `CORS_ALLOWED_ORIGINS` before players use it.
+
+All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
 
 Everything else is literal or derived inside compose (`x-service-env`). Secrets must be tagged Secret in Coolify UI so they do not get shipped to container logs.
 

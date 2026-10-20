@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
 using Orchestration;
 
-const string defaultToken = "local-dev-token";
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.SetupConsole();
@@ -23,8 +21,9 @@ builder.Services.AddSingleton<SideEffectsAggregatorService>();
 builder.Services.AddSingleton<ISideEffectsAggregator>(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
 
-var consoleToken = Environment.GetEnvironmentVariable("CONSOLE_TOKEN") ?? "";
-var authEnabled = !string.IsNullOrEmpty(consoleToken) && consoleToken != defaultToken;
+// Empty / development token: authentication off, Development only; any other environment fails here.
+var consoleAccess = builder.AddConsoleAccess();
+var authEnabled = consoleAccess.IsEnabled;
 
 if (authEnabled)
 {
@@ -93,7 +92,7 @@ if (authEnabled)
 }
 else
 {
-    System.Console.WriteLine("[Console] Auth disabled (default token)");
+    System.Console.WriteLine("[Console] Auth disabled (Development, default token)");
 }
 
 app.UseAntiforgery();
@@ -102,7 +101,7 @@ app.MapStaticAssets();
 if (authEnabled)
 {
     app.MapGet("/login", async (HttpContext context, string? token) => {
-        if (!string.IsNullOrEmpty(token) && token == consoleToken)
+        if (consoleAccess.IsValid(token))
         {
             var claims = new List<Claim> { new(ClaimTypes.Name, "admin") };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

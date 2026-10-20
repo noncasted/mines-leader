@@ -35,7 +35,9 @@ var silo = builder.AddProject<Silo>("silo");
 silo.WaitFor(pgbouncer.Resource);
 
 var coordinator = builder.AddProject<Coordinator>("coordinator");
-var meta = builder.AddProject<MetaGateway>("meta");
+var meta = builder
+           .AddProject<MetaGateway>("meta")
+           .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 var console = builder
               .AddProject<ConsoleGateway>("console")
@@ -43,7 +45,8 @@ var console = builder
 
 var game = builder
            .AddProject<GameGateway>("game")
-           .WithEnvironment("GAME_SERVER_URL", serverUrl);
+           .WithEnvironment("GAME_SERVER_URL", serverUrl)
+           .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 SetupDB();
 

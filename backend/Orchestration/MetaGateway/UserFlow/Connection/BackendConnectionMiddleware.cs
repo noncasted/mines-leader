@@ -156,13 +156,7 @@ public static class BackendMiddlewareExtensions
 {
     public static IApplicationBuilder AddBackendMiddleware(this IApplicationBuilder app)
     {
-        app.UseCors(x => x
-                         .AllowAnyMethod()
-                         .AllowAnyHeader()
-                         .SetIsOriginAllowed(_ => true)
-                         .AllowCredentials());
-
-        app.UseWebSockets();
+        app.UseAllowedOrigins();
         app.UseMiddleware<BackendConnectionMiddleware>();
         app.UseRouting();
 

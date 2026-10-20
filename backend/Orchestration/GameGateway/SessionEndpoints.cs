@@ -1,5 +1,6 @@
 using Game.Global;
 using Microsoft.AspNetCore.Mvc;
+using Orchestration;
 
 namespace GameGateway;
 
@@ -7,7 +8,8 @@ public static class SessionEndpoints
 {
     public static IEndpointRouteBuilder AddSessionEndpoints(this IEndpointRouteBuilder builder)
     {
-        var sessions = builder.MapGroup("/api/sessions");
+        // Session and user ids: console token only
+        var sessions = builder.MapGroup("/api/sessions").RequireConsoleToken();
         sessions.MapGet("/", ListActive);
         sessions.MapGet("/{sessionId}/players", ListPlayers);
 

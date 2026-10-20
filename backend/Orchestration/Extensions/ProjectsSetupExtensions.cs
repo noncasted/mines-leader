@@ -90,9 +90,7 @@ public static class ProjectsSetupExtensions
             builder
                 .AddGlobalSessions();
 
-            builder.Services
-                   .AddOpenApi()
-                   .AddCors();
+            builder.Services.AddOpenApi();
 
             return builder;
         }

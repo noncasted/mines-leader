@@ -1,6 +1,7 @@
 using MetaGateway.Matchmaking;
 using MetaGateway.UserFlow;
 using Microsoft.AspNetCore.Mvc;
+using Orchestration;
 
 namespace MetaGateway;
 
@@ -8,7 +9,8 @@ public static class MonitorEndpoints
 {
     public static IEndpointRouteBuilder AddMonitorEndpoints(this IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("/api/monitor");
+        // User ids and matchmaking state: console token only
+        var group = builder.MapGroup("/api/monitor").RequireConsoleToken();
 
         group.MapGet("/connected-users", ListConnectedUsers);
         group.MapGet("/matchmaking", GetMatchmakingStats);
