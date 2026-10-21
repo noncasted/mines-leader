@@ -17,7 +17,7 @@ public class LobbyFactory : ILobbyFactory
 {
     public LobbyFactory(
         IOrleans orleans,
-        IServiceDiscovery serviceDiscovery,
+        IGameServerBalancer gameServers,
         IMessaging messaging,
         IServiceEnvironment environment,
         ISessionTicketIssuer tickets,
@@ -25,14 +25,14 @@ public class LobbyFactory : ILobbyFactory
     {
         _tickets = tickets;
         _orleans = orleans;
-        _serviceDiscovery = serviceDiscovery;
+        _gameServers = gameServers;
         _messaging = messaging;
         _environment = environment;
         _logger = logger;
     }
 
     private readonly IOrleans _orleans;
-    private readonly IServiceDiscovery _serviceDiscovery;
+    private readonly IGameServerBalancer _gameServers;
     private readonly IMessaging _messaging;
     private readonly IServiceEnvironment _environment;
     private readonly ISessionTicketIssuer _tickets;
@@ -40,7 +40,7 @@ public class LobbyFactory : ILobbyFactory
 
     public async Task<SharedMatchmaking.LobbyResult> GetOrCreate(Guid userId)
     {
-        var targetServer = _serviceDiscovery.RandomServer();
+        var targetServer = _gameServers.Pick();
 
         var request = new MatchPayloads.Lobby.Request
         {

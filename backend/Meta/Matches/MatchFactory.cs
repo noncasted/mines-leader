@@ -45,7 +45,7 @@ public class MatchFactory : IMatchFactory
     public MatchFactory(
         IOrleans orleans,
         IMessaging messaging,
-        IServiceDiscovery serviceDiscovery,
+        IGameServerBalancer gameServers,
         IBotCollection botCollection,
         IBotFactory botFactory,
         ISessionTicketIssuer tickets,
@@ -54,7 +54,7 @@ public class MatchFactory : IMatchFactory
         _tickets = tickets;
         _orleans = orleans;
         _messaging = messaging;
-        _serviceDiscovery = serviceDiscovery;
+        _gameServers = gameServers;
         _botCollection = botCollection;
         _botFactory = botFactory;
         _logger = logger;
@@ -62,7 +62,7 @@ public class MatchFactory : IMatchFactory
 
     private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
-    private readonly IServiceDiscovery _serviceDiscovery;
+    private readonly IGameServerBalancer _gameServers;
     private readonly IBotCollection _botCollection;
     private readonly IBotFactory _botFactory;
     private readonly ISessionTicketIssuer _tickets;
@@ -73,7 +73,7 @@ public class MatchFactory : IMatchFactory
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
         await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, participants));
 
-        var targetServer = _serviceDiscovery.RandomServer();
+        var targetServer = _gameServers.Pick();
 
         var request = new MatchPayloads.Match.Request
         {
@@ -108,7 +108,7 @@ public class MatchFactory : IMatchFactory
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
         await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, new[] { participant, botId }));
 
-        var targetServer = _serviceDiscovery.RandomServer();
+        var targetServer = _gameServers.Pick();
 
         var request = new MatchPayloads.Match.RequestWithBot
         {

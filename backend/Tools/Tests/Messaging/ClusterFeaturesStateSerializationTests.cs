@@ -27,17 +27,13 @@ public class ClusterFeaturesStateSerializationTests(OrleansTestClusterFixture fi
         var state = new ClusterFeaturesState
         {
             AcceptingConnections = true,
-            MatchmakingEnabled = true,
-            SideEffectsEnabled = true,
-            SnapshotDiffGuardEnabled = true
+            SideEffectsEnabled = true
         };
 
         await messaging.PublishChannel(channelId, state);
 
         var result = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         result.AcceptingConnections.Should().BeTrue();
-        result.MatchmakingEnabled.Should().BeTrue();
         result.SideEffectsEnabled.Should().BeTrue();
-        result.SnapshotDiffGuardEnabled.Should().BeTrue();
     }
 }

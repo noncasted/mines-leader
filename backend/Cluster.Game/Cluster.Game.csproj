@@ -1,15 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- The part of the cluster that belongs to this game: its configs, live monitoring data, switches and roles.
+         The cluster itself comes from the framework (tools/framework/backend/Cluster); the namespaces are shared. -->
     <PropertyGroup>
-        <AssemblyName>Cluster</AssemblyName>
+        <AssemblyName>Cluster.Game</AssemblyName>
         <RootNamespace>Cluster</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared\shared.csproj" />
+        <ProjectReference Include="..\..\shared\shared.csproj"/>
         <ProjectReference Include="..\..\tools\framework\shared\framework.shared.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Common\Common.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

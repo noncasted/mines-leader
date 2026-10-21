@@ -10,11 +10,17 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 The shared base of our games is a git submodule at `tools/framework` with its own `CLAUDE.md` (read it before
 changing anything there). It holds the forked Unity packages and MemoryPack (`client/packages`), the protocol base
-(`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common` / `Infrastructure`.
+(`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common`, `Infrastructure`, `Cluster` and
+`Console` (infrastructure pages and widgets).
 - A change in `tools/framework` affects every game: commit and push it inside the submodule, then commit the
   submodule pointer here.
 - The protocol of this game: `shared/Protocol/NetworkContextUnion.cs` declares the `INetworkContext` union (framework
   tags + game tags, game tags from 1000), `shared/Protocol/ProtocolHash.cs` holds the protocol hash.
+- The game part of the cluster is `backend/Cluster.Game` (same namespaces as the framework `Cluster`): game configs
+  (`AddGameConfigs`, `GameConfigsSetup`), live data of matches and matchmaking, service roles (`GameRoles`), game
+  switches (`IGameFlags` over the `IClusterFeatures` game flags).
+- The game part of the console is `backend/Console` (assembly `Console.Game`): home page, game pages, benchmarks.
+  Game flags and extra infrastructure cards are registered in `ConsoleGateway/Program.cs`.
 
 ## Keyword → Documentation (FAST LOOKUP)
 

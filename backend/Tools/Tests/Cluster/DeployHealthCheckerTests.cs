@@ -45,7 +45,7 @@ public class DeployHealthCheckerTests
     [Fact]
     public async Task StaleHeartbeat_ClosesDeploy_FreshHeartbeat_ReopensIt()
     {
-        var checker = CreateChecker(ServiceTag.Meta);
+        var checker = CreateChecker(GameRoles.Meta);
 
         _lastHeartbeat = DateTime.UtcNow - TimeSpan.FromMinutes(1);
         await checker.Poll(new Lifetime());
@@ -77,7 +77,7 @@ public class DeployHealthCheckerTests
     {
         _lastHeartbeat = DateTime.UtcNow;
 
-        await CreateChecker(ServiceTag.Game).Poll(new Lifetime());
+        await CreateChecker(GameRoles.Game).Poll(new Lifetime());
 
         await _clusterFeatures.DidNotReceive().SetCoordinatorUnhealthy(Arg.Any<bool>());
     }
@@ -103,7 +103,7 @@ public class DeployHealthCheckerTests
         _deployContext.Set(newDeployId, Arg.Any<IReadOnlyLifetime>())
                       .Returns(Task.FromException(new InvalidOperationException("subscriber failed")));
 
-        var act = () => CreateChecker(ServiceTag.Meta).Poll(new Lifetime());
+        var act = () => CreateChecker(GameRoles.Meta).Poll(new Lifetime());
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("subscriber failed");
     }
@@ -117,7 +117,7 @@ public class DeployHealthCheckerTests
         _messaging.RuntimePipe.Send<DeployIdResponse>(Arg.Any<IRuntimePipeId>(), Arg.Any<object>())
                   .Returns(_ => new DeployIdResponse { DeployId = newDeployId });
 
-        await CreateChecker(ServiceTag.Meta).Poll(new Lifetime());
+        await CreateChecker(GameRoles.Meta).Poll(new Lifetime());
 
         await _deployContext.Received(1).Set(newDeployId, Arg.Any<IReadOnlyLifetime>());
         await _clusterFeatures.DidNotReceive().SetAcceptingConnections(Arg.Any<bool>());

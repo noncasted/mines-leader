@@ -8,7 +8,8 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\shared\shared.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\shared\framework.shared.csproj"/>
-        <ProjectReference Include="..\..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
         <ProjectReference Include="..\..\Game\Game.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>

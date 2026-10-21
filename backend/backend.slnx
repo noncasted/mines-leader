@@ -17,10 +17,12 @@
     </Folder>
     <Folder Name="/Framework/">
         <Project Path="../tools/framework/shared/framework.shared.csproj" />
+        <Project Path="../tools/framework/backend/Cluster/Cluster.csproj" />
         <Project Path="../tools/framework/backend/Common/Common.csproj" />
+        <Project Path="../tools/framework/backend/Console/Console.csproj" />
         <Project Path="../tools/framework/backend/Infrastructure/Infrastructure.csproj" />
     </Folder>
-    <Project Path="Cluster/Cluster.csproj" />
+    <Project Path="Cluster.Game/Cluster.Game.csproj" />
     <Project Path="Console/Console.csproj" />
     <Project Path="Game/Game.csproj" />
     <Project Path="Meta/Meta.csproj" />

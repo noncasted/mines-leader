@@ -44,7 +44,7 @@
                     <td class="px-4 py-2.5">
                         <div class="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
                             <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                                      @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.UserDashboard, user.UserId.ToString())))">
+                                      @onclick="@(() => Navigation.NavigateTo(string.Format(GameConsoleConstants.Pages.UserDashboard, user.UserId.ToString())))">
                                 <LucideIcon Name="ellipsis" Size="14"/>
                             </BbButton>
                         </div>

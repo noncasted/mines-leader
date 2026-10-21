@@ -170,7 +170,7 @@ public class MatchmakingTests
     [Fact]
     public async Task Loop_UserReconnectedDuringSearch_StaysQueuedAndMatched()
     {
-        var users = new ConnectedUsers(Substitute.For<IDeploymentState<ConnectedUsersLiveData>>());
+        var users = new ConnectedUsers(Substitute.For<IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>>>());
         var sut = new Matchmaking(_matchFactory,
             _lobbyFactory,
             users,

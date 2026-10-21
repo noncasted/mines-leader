@@ -14,7 +14,7 @@ ARG DOTNET_VERSION=10.0
 # wwwroot/_framework/blazor.web.js from Web SDK projects published after the first one
 # in publish-all (Blazor console got 404 on its own framework JS). 10.0.400 is verified
 # clean for that, and its Roslyn (5.9) matches Microsoft.CodeAnalysis.CSharp in
-# backend/Directory.Packages.props — an older SDK silently disables Generators.dll
+# tools/framework/Directory.Packages.props — an older SDK silently disables Generators.dll
 # (CS9057) and the build then fails on the code it should have generated.
 ARG DOTNET_SDK_TAG=10.0.400
 

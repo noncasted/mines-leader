@@ -8,17 +8,17 @@
 <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold">Online</h2>
-        <span class="text-xs text-muted-foreground">@_data.Count connected</span>
+        <span class="text-xs text-muted-foreground">@_users.Count connected</span>
     </div>
 
-    @if (_data.Users.Count == 0)
+    @if (_users.Count == 0)
     {
         <span class="text-xs text-muted-foreground">No users connected</span>
     }
     else
     {
         <div class="flex flex-wrap gap-2">
-            @foreach (var user in _data.Users)
+            @foreach (var user in _users)
             {
                 var name = ResolveName(user.UserId);
                 <div class="flex items-center gap-1.5 rounded-md border px-2 py-1">
@@ -34,12 +34,12 @@
     [Inject] public IDeploymentState<ConnectedUsersLiveData> LiveData { get; set; } = null!;
     [Inject] public IUserCollection UserCollection { get; set; } = null!;
 
-    private ConnectedUsersLiveData _data = new();
+    private List<ConnectedUserEntry> _users = [];
 
     protected override Task OnSetup(IReadOnlyLifetime lifetime)
     {
         LiveData.View(lifetime, data => {
-            _data = data;
+            _users = data.AllUsers();
             InvokeAsync(StateHasChanged).NoAwait();
         });
 

@@ -48,6 +48,9 @@ public static class ProjectsSetupExtensions
             builder.Add<ClusterConfigsSetup>()
                    .As<ICoordinatorSetupCompleted>();
 
+            builder.Add<GameConfigsSetup>()
+                   .As<ICoordinatorSetupCompleted>();
+
             builder.Add<ClusterBotsSetup>()
                    .As<IServiceStarted>();
 
@@ -63,7 +66,7 @@ public static class ProjectsSetupExtensions
 
             // Cluster services
             builder
-                .AddBase(ServiceTag.Meta)
+                .AddBase(GameRoles.Meta)
                 .ConfigureCors();
 
             // Project services
@@ -84,8 +87,11 @@ public static class ProjectsSetupExtensions
 
             // Cluster services
             builder
-                .AddBase(ServiceTag.Game)
+                .AddBase(GameRoles.Game)
                 .ConfigureCors();
+
+            // Game servers publish their public url: matchmaking hands it to clients.
+            builder.PublishGameServerUrl();
 
             // Project services
             builder
@@ -105,7 +111,7 @@ public static class ProjectsSetupExtensions
 
             // Cluster services
             builder
-                .AddBase(ServiceTag.Silo);
+                .AddBase(GameRoles.Silo);
 
             builder.Add<SideEffectsWorker>()
                    .As<IHostedService>();
@@ -122,7 +128,7 @@ public static class ProjectsSetupExtensions
 
             // Cluster services
             builder
-                .AddBase(ServiceTag.Console)
+                .AddBase(GameRoles.Console)
                 .AddBlazorComponents();
 
             // HTTP clients for cross-gateway monitoring
@@ -168,6 +174,8 @@ public static class ProjectsSetupExtensions
             builder.Add<ClusterStartupConfig>()
                    .As<IClusterStartupConfig>();
 
+            builder.ConfigureRequiredServices(GameRoles.Required.ToArray());
+
             builder
                 .AddEnvironment(serviceTag)
                 .AddServiceLoop()
@@ -179,10 +187,13 @@ public static class ProjectsSetupExtensions
                 .AddClusterFeatures()
                 .AddTests()
                 .AddConfigs()
+                .AddGameConfigs()
                 .AddSideEffects()
                 .AddStates()
                 .AddMartenStore()
                 .AddMonitoring()
+                .AddGameMonitoring()
+                .AddGameFlags()
                 .AddUserServices();
 
             builder.AddBotServices();
