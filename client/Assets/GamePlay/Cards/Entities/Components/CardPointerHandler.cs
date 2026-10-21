@@ -15,14 +15,20 @@ namespace GamePlay.Cards
     // единственное правило: на паузе карта не подсвечивается и не нажимается.
     public class CardPointerHandler : ICardPointerHandler, ICardPointerTarget, IScopeSetup
     {
-        public CardPointerHandler(GameCardBindings bindings, ICardsPointer pointer, IGameContext gameContext)
+        public CardPointerHandler(
+            GameCardBindings bindings,
+            ICardsPointer pointer,
+            IGameContext gameContext,
+            ILifetime containerLifetime)
         {
+            _containerLifetime = containerLifetime;
             _area = bindings.View.PointerHandler.CardPointerArea;
             _sortingGroup = bindings.SortingGroup;
             _pointer = pointer;
             _gameContext = gameContext;
         }
 
+        private readonly ILifetime _containerLifetime;
         private readonly CardPointerArea _area;
         private readonly SortingGroup _sortingGroup;
         private readonly ICardsPointer _pointer;
@@ -38,9 +44,11 @@ namespace GamePlay.Cards
         public int SortingLayer => UnityEngine.SortingLayer.GetLayerValueFromID(_sortingGroup.sortingLayerID);
         public int SortingOrder => _sortingGroup.sortingOrder;
 
+        // Не lifetime из OnSetup: карту уничтожает Destroy() через время жизни контейнера,
+        // а lifetime загрузчика скоупа живёт дольше вьюхи.
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _pointer.Add(lifetime, this);
+            _pointer.Add(_containerLifetime, this);
         }
 
         public bool IsInside(Vector2 pointerPosition)

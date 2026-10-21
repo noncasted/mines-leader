@@ -31,8 +31,9 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 | common mistakes, top errors, checklist failures | .claude/docs/CLAUDE_MISTAKES.md |
 | full examples, Lifetime details, reactive details | .claude/docs/COMMON_*.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | .claude/docs/PREFAB_CODEGEN.md |
+| deploy client, WebGL deploy, deploy-webgl.sh, nginx.conf, Coolify web, rollback client | client/deploy/README.md, .claude/skills/deploy-client/SKILL.md |
 | telemetry, metrics, logs, backend/.telemetry, file logging, session logs | .claude/docs/TELEMETRY.md |
-| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test | .claude/docs/TESTING.md |
+| test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test, run-tests.sh, run all tests | .claude/docs/TESTING.md |
 
 ## Architecture
 

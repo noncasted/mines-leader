@@ -1507,11 +1507,11 @@ namespace TMPro
         {
             get
             {
-                return GUIUtility.systemCopyBuffer;
+                return UnityEngine.UI.UIClipboard.text;
             }
             set
             {
-                GUIUtility.systemCopyBuffer = value;
+                UnityEngine.UI.UIClipboard.text = value;
             }
         }
 

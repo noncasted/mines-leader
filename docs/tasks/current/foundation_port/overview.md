@@ -133,8 +133,8 @@ N4, N6, N7, S3, S4, N10 меняют протокол или handshake. Они �
 |---|---|---|---|---|
 | S1 | Консоль: токен только в dev, compose без дефолтов | 1 | done | 9d79cc28 |
 | S2 | Закрыть /api/monitor, /api/sessions | 1 | done | 9d79cc28 |
-| S3 | Гостевой секрет вместо логина по userId | 4 | todo (без legacy-окна) | |
-| S4 | Подписанные тикеты сессий | 4 | todo | |
+| S3 | Гостевой секрет вместо логина по userId | 4 | done | 2138cb8e |
+| S4 | Подписанные тикеты сессий | 4 | done | 2138cb8e |
 | S5 | CORS allow-list | 1 | done | 9d79cc28 |
 | B1 | Транзакции: результат не теряется | 1 | done | 7c248029 |
 | B2 | Мигратор: код выхода, схема, dead letters | 1 | done | 7c248029 |
@@ -150,28 +150,28 @@ N4, N6, N7, S3, S4, N10 меняют протокол или handshake. Они �
 | B12 | Опционально: роли, генератор, composition root | 3 | отложено | |
 | B13 | Тесты инфраструктуры из A | 3 | done | 8861536b |
 | R1 | Бэкенд Lifetime/Reactive | 2 | done | a1ae965a |
-| R2 | Клиентские Lifetime/Reactive | 5 | todo | |
-| C1 | Скоуп: asset groups после lifetime | 5 | todo | |
-| C2 | UIStateMachine, RunCustom | 5 | todo | |
-| C3 | Fail-fast в ядре, Global, Meta | 5 | todo | |
-| C4 | Кодоген | 6 | todo | |
+| R2 | Клиентские Lifetime/Reactive | 5 | done | f67bd162 |
+| C1 | Скоуп: asset groups после lifetime | 5 | done | 77bb0ce5 |
+| C2 | UIStateMachine, RunCustom | 5 | done | 77bb0ce5 |
+| C3 | Fail-fast в ядре, Global, Meta | 5 | done | 77bb0ce5 |
+| C4 | Кодоген | 6 | done | 750de794 |
 | C5 | Internal.Editor без ссылки на Flow | 6 | todo | |
-| C6 | Мёртвый код | 6 | todo | |
-| C7 | Инжект всех экземпляров `builder.Inject` (из storytale-workshop) | 6 | todo | |
-| T1 | CI и csproj генератора | 6 | todo | |
+| C6 | Мёртвый код | 6 | done | 380ae5c1 |
+| C7 | Инжект всех экземпляров `builder.Inject` (из storytale-workshop) | 6 | done | 750de794 |
+| T1 | CI и csproj генератора | 6 | done | 750de794 |
 | T2 | run-tests.sh | 6 | todo | |
 | T3 | Защита WebGL-деплоя | 6 | todo (Q6) | |
 | T4 | Пропатченные пакеты | 6 | todo | |
 | N1 | Бэкенд websocket reader/writer | 1 | done | dcc41026 |
 | N2 | Keep-alive и закрытие сессии | 1 | done | dcc41026 |
 | N3 | Коллекции сессий и пользователей, проекции meta | 2 | done | d693e152 |
-| N4 | ErrorResponse | 4 | todo | |
+| N4 | ErrorResponse | 4 | done | 6d8aecf9 |
 | N5 | Клиентский ConnectionWriter, Closed до Connect | 2 | done | edbfdba6 |
-| N6 | Union-теги явно | 4 | in progress | |
-| N7 | Хэш протокола | 4 | todo | |
+| N6 | Union-теги явно | 4 | done | 13a72c03 |
+| N7 | Хэш протокола | 4 | done | 65801f3e |
 | N8 | Стабильные id свойств и сервисов | 2 | done | d2fe8819 |
 | N9 | Поздние пользователи, гонки удаления | 3 | done | 01c68556 |
-| N10 | Корреляция лобби и матча | 4 | todo | |
+| N10 | Корреляция лобби и матча | 4 | done | 1721c865 |
 | N11 | Сущности: буфер, id | 3 | не подтверждено | |
 | N12 | PlayerPrefs | 2 | done | edbfdba6 |
 | N13 | Возврат в идущий матч | 7 | todo (нужен, дизайн) | |
@@ -217,3 +217,28 @@ N4, N6, N7, S3, S4, N10 меняют протокол или handshake. Они �
 | 2026-10-21 | Волна 3 закрыта (B12 отложена, B11 и N11 не подтверждены). Осталась живая приёмка волн 1-3 на свежем Aspire из HEAD |
 | 2026-10-21 | Приёмка волн 1-3 пройдена (HEAD 8861536b): Aspire стартует целиком (мигратор, silo, coordinator, meta, game, console, pgbouncer v1.26.0-p0), без ERR/FTL; вход, матч с ботом (GameMock), выход, повторный вход тем же юзером; консоль Features 200, /api/monitor 401 без токена (в локальном `appsettings.local.json` реальный токен — ожидаемо). Вход через меню не проверен (сцены грязные от соседней сессии) |
 | 2026-10-21 | Новая ошибка клиента (не сеть): "Trying to listen terminated lifetime" ×4 при остановке Play сразу после старта матча — `CardStateLifetime.OccupyLifetime` ← `CardRemoteSpawn`. Клиентский Reactive не менялся; проверить вместе с R2 (там `Listen` на завершённом lifetime меняется) и в списке ошибок до волны 5 |
+| 2026-10-21 | Ошибка переноса: `git diff` без HEAD не видит staged-удалений. Найдено и исправлено: мёртвый `MessagingGrainExtensions.cs` (B4) удалён в 279f3a70; удаления N6 донесены до основного дерева. Остальные коммиты проверены: других удалений исполнители не делали |
+| 2026-10-21 | N6 в основном дереве (не закоммичена): бэкенд с N6 — 1805/1805 (golden байтов до/после совпадает). Идёт проверка в редакторе. Aspire был остановлен (AppHost завершился сам, затем не собирался из-за неполного переноса N6) |
+| 2026-10-21 | N6 в редакторе: компиляция чистая, ConnectionWriter/NetworkConnection 9/9, живой матч с ботом с ходом ок. Клиентский `ProtocolBytesTests` красный: MemoryPack копирует padding-байты (KeyValuePair<int,long>, Nullable<enum>), в Unity там мусор; формат совместим. Возвращено исполнителю: сравнение без зависимости от padding |
+| 2026-10-21 | N6 принята (13a72c03): golden байтов до/после совпадает; сравнение по значениям (padding MemoryPack); бэкенд 1805/1805, редактор EditMode 10/10, живой матч с ботом. Редактор был найден в Play Mode с матчем — кто-то пользуется им вне очереди |
+| 2026-10-21 | N6: в коммит 13a72c03 не попал новый `ProtocolValueText.cs` (создан после составления списка путей) — докоммичен в 6ef0de72. Перед коммитом сверять и неотслеживаемые файлы worktree |
+| 2026-10-21 | N7 перенесена в основное дерево: хэш = 16 hex SHA-256 схемы (`ProtocolVersion.Hash`), golden схемы в тестах; шлюзы закрывают сокет 4001; клиент — окно ClientOutdatedNotice, meta перестаёт переподключаться. Бэкенд HEAD+N7: 1812/1812. Идёт проверка в редакторе. Риск: каждая следующая задача волны 4 обязана обновить golden схемы и Hash |
+| 2026-10-21 | N7 принята (65801f3e): бэкенд 1812/1812, редактор EditMode 11/11, матч с правильным хэшем, окно с неверным хэшем без лишних warning, meta не переподключается. Ввод поля/карт идёт мимо EventSystem, но 4001 приходит только на handshake — окно не появится посреди матча |
+| 2026-10-21 | `mines-leader-0f` заменила клиентский MemoryPack.Core.dll на урезанную сборку (имя то же); ProtocolBytesTests + сеть 11/11, WebGL собран. Редактор свободен |
+| 2026-10-21 | N4 принята (6d8aecf9): бэкенд 1831/1831, EditMode 15/15, матч с ботом, отказ карты как раньше, проба исключения в CreateWithBot доходит до клиента сразу. Хэш 522f7664226053dd. Сбой матча из очереди игроку не сообщается — это N10 (вариант ошибки в MatchResult). Matchmaking UI при ошибке Search через меню не проверялся |
+| 2026-10-21 | S3+S4 приняты: гостевой секрет (первый кадр meta-сокета, отказ 4003), id игрока в сессии вместо meta Guid, подписанные тикеты + SessionReservations, таймаут handshake 10 с. Хэш 160117fe01eb67ed. Бэкенд 1885/1885 (в первом прогоне 1 падение без лога, повтор зелёный; исполнитель отмечал нестабильный SessionCloseTests.MatchWithBot_HumanLeaves_SessionCloses). Клиент сначала не компилировался (CS0815, нет Track<T>) — исправлено. Редактор: компиляция чистая, EditMode 15/15, новый гость / повторный вход / чужой id без и с секретом / битый тикет / матч с ботом через GameMock / раздельные ключи Local-Production. Не проверены: реванш и меню через UI, два клиента — в приёмку волны 4. Хвост: meta Guid соперника в истории матчей (Match.Participants) |
+| 2026-10-21 | MCP: `client@e1585409` — редактор storytale-workshop (порт 6400), наш — `client@a78bdd3a` (6401). Проверять порт по ~/.unity-mcp/unity-mcp-port-*.json |
+| 2026-10-21 | N10 принята: RequestId в SearchMatch/MatchResult, MatchSearchStatus.Failed — сбой создания из очереди отдаётся клиенту без requeue; SearchLobby/Create/CreateWithBot — ответом на команду. Хэш 701d30859db55520. Бэкенд 1890/1890; редактор: компиляция, EditMode 15/15, GameMock, меню→бот, отмена+повтор (чужой результат проигнорирован с warning), провал создания (один LogError, без повторов), реванш с ботом, окно обновления при старом хэше |
+| 2026-10-21 | Приёмка волны 4 частично: два клиента PvP и реванш PvP не проверены (нет MPPM в manifest). Новая ошибка при устаревшем клиенте: `Failed to send message to server ... WebSocket is in an invalid state ('Closed')` (ConnectionWriter:105) — первый кадр авторизации S3 уходит в сокет, закрытый по 4001. Отдано в доработку |
+| 2026-10-21 | Фикс лишнего LogError при устаревшем клиенте принят (7f2d9550): DefaultWebSocket перестаёт слать после Close-кадра сервера. EditMode 16/16, 4 запуска со старым хэшем без ошибки, матч с ботом. При выходе из Play во время раздачи карт — 10× "Trying to listen terminated lifetime" (CardLocalIdle.Enter ← CardLocalSpawn.Execute ← UpdatableActionBase.Dispose при LoadedScope.Dispose) — в R2 |
+| 2026-10-21 | Волна 4 в коде полностью (N6, N7, N4, S3+S4, N10 + фикс 7f2d9550). Открыто: PvP двумя клиентами (вопрос пользователю), деплой — по просьбе. Шаг 0 волны 5, базовый список ошибок консоли (HEAD 7f2d9550, Play GameMock → матч с ботом → стоп): во время Play ошибок и warning нет; при стопе во время раздачи — 10× "Trying to listen terminated lifetime" (CardLocalIdle.Enter ← CardLocalSpawn.Execute ← UpdatableActionBase.Dispose ← LoadedScope.Dispose); старое `MenuDecks.cs(187,13) CS0162`. Запущены R2 и C1+C2+C3 параллельно (разные файлы; EventLoop только в C-ветке) |
+| 2026-10-21 | R2 принята (f67bd162): Reactive A без Lifetime Graph; ошибка "Trying to listen terminated lifetime" при стопе во время раздачи ушла (0 против 4/10). EditMode 84/84, матч, карты через game_use_card, баффы, повторный матч, меню. Не проверены настоящий драг мышью и конец хода во время драга. Один раз при стопе после второго матча: `MissingReferenceException: ... 'GamePlay.Cards.CardPointerArea' has been destroyed` (стек потерян, не воспроизвелось; в дереве чужая правка CardPointerHandler.cs) — наблюдать |
+| 2026-10-21 | C1–C3 в редакторе: компиляция, EditMode 50/50, матч до конца, выход и второй матч, пауза, 100 смен вкладок — ок. Критерий C2 не выполнен: _handles +1 за цикл меню→матч→меню (MenuNavigation держал хэндл под глобальным Base). Исполнитель доработал: хэндл живёт не дольше lifetime владельца (CreateChild принимает lifetime), MenuUnlockSelection тоже |
+| 2026-10-21 | C1–C3 приняты (77bb0ce5): _handles в меню возвращается к 2 после 3 циклов меню→матч→меню, окно выбора награды переживает смену вкладки и снимается при уходе в матч; EditMode 84/84; консоль чистая. Волна 5 закрыта по коду. Вопросы пользователю: ShakeIntensity/VSync — контролы без эффекта (удалить или реализовать); SharedBackendUser.Match — клиент принимает, но не использует |
+| 2026-10-21 | Волна 6: запущены T1+C4+C7 (генератор, dll один раз) и C6 (мёртвый код) параллельно. Отложены до коммита соседней сессии: C5 (Internal.Editor.asmdef изменён ею), T3 (client/deploy и WebGlDeploy в работе у неё), T4 (она патчит встроенные пакеты), T2 (после T1) |
+| 2026-10-21 | C6 принята (380ae5c1): удалены язык/колбэки Itch, GameConstants, IAudioVolume/IAudioListener; guid удалённых .meta нигде не упоминаются; EditMode 84/84; звук, слайдеры, 2 матча, консоль чистая. WebGL-сборка без ItchProvider.jslib не проверена. Вопрос пользователю: удалять ли HTTP backend stack и пустой Art.asmdef |
+| 2026-10-21 | T1+C4+C7 приняты (750de794): Verify ALL PASSED, бэкенд 1890/1890, редактор: компиляция, EditMode 84/84, переименование namespace → CINGR003 → Regenerate All → компилируется без ручных правок, экран загрузки (C7, LoadingScreen через GetInjections), 2 матча. Дублей builder.Inject в B нет — баг C7 латентный. Не прошло: Regenerate All на чистом дереве меняет HierarchyBindings (GameCard: пропал MeshFilter у TMP; GameOwnResourceRow, GameUIResults, Game_UI_Results.prefab) и Game_Card сходится за 3 прохода с рассинхроном _structureHash. Отдано на разбор (C4 или старый рассинхрон) |
+| 2026-10-21 | T2/T3: соседняя сессия уже добавила tools/scripts/run-tests.sh и правит deploy-webgl.sh, TESTING.md, deploy-client skill (staged, не закоммичено). После её коммита — сверить с A (снимок reflink, порог памяти 8 GB; payload/build-guid проверки) и перенести недостающее. C5 и T4 так же ждут её коммита |
+| 2026-10-21 | Дрейф HierarchyBindings исправлен (32d19389): сканер пропускал скрытый MeshFilter TMP (старый баг, с 1b65034c), регрессия C4 bindUnchanged, старые рассинхроны GameOwnResourceRow (сгенерирован с экземпляра в сцене) и GameUIResults. Regenerate All сходится за один проход, второй прогон чистый, матч до экрана результатов. В Game_Overlay.unity остались 6 устаревших override _structureHash (в рантайме не читаются) |
+| 2026-10-21 | Ответ mines-leader-78: её правки (не закоммичены, коммит — по решению пользователя) — run-tests.sh (порт из A), deploy-webgl.sh, client/deploy/*, deploy-client skill, TESTING.md, CLAUDE.md, Internal.Editor.asmdef (+Unity.Web.Stripping.Editor), WebGlBuild.cs, WebGlDeploy.cs. Не её: встроенные Addressables/ugui, link.xml, tools/memorypack-core, MemoryPack.Core.dll, CardPointerHandler.cs (вероятно, бывшая mines-leader-0f). T2/T3 фактически переносятся этой сессией; C5/T2/T3/T4 ждут решения пользователя о коммите |
+| 2026-10-21 | mines-leader-16 (это бывшая 0f, размер WebGL): её правки — BundledAssetSchemaBuilder.cs, ugui UIClipboard/InputField/TMP_InputField, tools/memorypack-core, MemoryPack.Core.dll и удалённый System.Collections.Immutable, CardPointerHandler.cs, DefaultSubmoduleStrippingSettings.asset, client-webgl-build-size.md. Коммит после ответа пользователя, она напишет. link.xml генерирует сборка Addressables. Все незакоммиченные правки поделены между mines-leader-78 и mines-leader-16 |

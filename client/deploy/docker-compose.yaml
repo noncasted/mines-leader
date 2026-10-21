@@ -1,8 +1,8 @@
 # Static host for the Unity WebGL client, deployed via Coolify.
 #
-# Coolify → New Resource → Docker Compose
-#   Compose Location: /client/deploy/docker-compose.yaml
-#   Destination:      mines-leader-production (same as the backend)
+# Coolify → New Resource → Docker Compose (Empty), paste this file
+#   Destination: mines-leader-production (same as the backend)
+# See README.md in this directory for the order of the one-time setup.
 #
 # Nothing is built here and the container never needs a redeploy for a new game
 # build: it serves /srv/current, and tools/scripts/deploy-webgl.sh rsyncs a new

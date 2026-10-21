@@ -83,6 +83,44 @@ xUnit v3 DROPPED the old `--filter "FullyQualifiedName~..."` syntax — it is si
 
 ---
 
+## Running everything locally
+
+There is no CI. The full local run is one script, and `/deploy-client` runs it before every WebGL
+build (step 1b; a failure stops the deploy, `skip-tests` skips it only when the user passes it):
+
+```bash
+tools/scripts/run-tests.sh                  # backend + generator + Unity EditMode
+tools/scripts/run-tests.sh --skip-unity     # backend + generator (fast)
+tools/scripts/run-tests.sh --skip-backend   # generator + Unity
+```
+
+What it does:
+
+1. **Snapshot** of the working tree into `/var/tmp/mines-leader-tests.XXXXXX/repo` with `cp -a --reflink=always`
+   (btrfs: `client/Library` included, seconds and ~0 disk). Skipped: `client/Temp` (lock file of the open
+   editor), `Logs`, `build`/`Build*`, `MemoryCaptures`, `ProfilerCaptures`, `traces`, `obj`, `backend/.telemetry`
+   and the player build caches of `client/Library` (`BuildCache`, `BuildHistory`, `BuildPlayerData`,
+   `PlayerDataCache`, `com.unity.web.stripping-tool`, `ManagedCapture`).
+   `/tmp` is tmpfs - reflink impossible there, hence `/var/tmp` (`TEST_COPY_DIR` overrides; must be the same
+   btrfs). `backend/` is copied under `flock /tmp/claude-1000/mines-leader-backend-build.lock`. Deleted on exit
+   (trap; `KEEP_COPY=1` keeps it).
+2. **backend** - `dotnet build backend/backend.slnx` + `backend/Tools/Tests/bin/Debug/net10.0/Tests`, in the
+   snapshot: the bins of a running Aspire cluster are not overwritten. Needs Docker (Testcontainers).
+3. **generator** - `ContainerGenerator` Release build + `ContainerGenerator.Verify`.
+4. **unity** - `/tools/unity/<ProjectVersion>/Editor/Unity -batchmode -nographics -projectPath <snapshot>/client
+   -runTests -testPlatform EditMode -testResults <xml> -logFile <log>`: every EditMode test assembly of the
+   project. The NUnit XML is parsed (total / passed / failed / skipped, failed test names with the first line
+   of the message). Guards: refuses with less than 8 GB `MemAvailable` (`UNITY_MIN_FREE_GB`), one batchmode
+   Unity at a time (`flock /tmp/claude-1000/unity-batchmode.lock`), killed after `UNITY_TIMEOUT` (3600 s).
+   `UNITY_TEST_FILTER` is passed as `-testFilter`, `UNITY_EDITOR` overrides the binary.
+
+A failing step does not stop the next one. The end is a summary table (step, PASS/FAIL/SKIP, seconds,
+totals), `Logs: <dir>` (default `/tmp/mines-leader-tests/<time>`, `TEST_LOG_DIR` overrides: build/test logs,
+`unity.log`, `unity-results.xml`, converted backend `TestResults`) and `ALL TESTS PASSED` / `TESTS FAILED`;
+exit code 1 on any failure.
+
+---
+
 ## Reading Test Logs (xUnit v3 UTF-16LE workflow)
 
 xUnit v3 emits UTF-16LE logs into `**/TestResults/*.log`. The Read tool cannot parse UTF-16LE. Use this workflow:

@@ -146,6 +146,8 @@ namespace UnityEditor.AddressableAssets.Build.DataBuilders.SchemaBuilders
             m_BuiltTypeTreeDataPath = null;
 
             m_Linker = UnityEditor.Build.Pipeline.Utilities.LinkXmlGenerator.CreateDefault();
+            // Both assemblies stay fully preserved: ResourceManager creates operations (GroupOperation) and
+            // catalog serialization adapters through reflection.
             m_Linker.AddAssemblies(new[] { typeof(Addressables).Assembly, typeof(UnityEngine.ResourceManagement.ResourceManager).Assembly });
             m_Linker.AddTypes(aaContext.Settings.CertificateHandlerType);
         }
@@ -345,7 +347,7 @@ namespace UnityEditor.AddressableAssets.Build.DataBuilders.SchemaBuilders
                         foreach (var r in results.WriteResults)
                         {
                             var resultValue = r.Value;
-                            m_Linker.AddTypes(resultValue.includedTypes);
+                            AddIncludedTypes(resultValue.includedTypes);
                             m_Linker.AddSerializedClass(resultValue.includedSerializeReferenceFQN);
                         }
                     }
@@ -892,6 +894,37 @@ FileRegistry registry)
 
         /// <inheritdoc/>
 
+
+        // Types serialized into bundles. UnityEngine.Object types (components, ScriptableObjects, assets)
+        // are kept the same way Unity keeps scene types in TypesInScenes.xml: the type itself with
+        // preserve="nothing", and UnityLinker keeps their serialized fields and Unity messages.
+        // LinkXmlGenerator.AddTypes would write preserve="all" and keep every method of every such type.
+        // Editor-only types still go through AddTypes, which converts them to their runtime types.
+        void AddIncludedTypes(IEnumerable<Type> types)
+        {
+            if (types == null)
+                return;
+
+            var editorConversions = new HashSet<Type>(LinkXmlGenerator.GetEditorTypeConversions().Select(p => p.Key));
+            var serializedObjects = new List<string>();
+
+            foreach (var type in types)
+            {
+                if (type == null)
+                    continue;
+
+                var isRuntimeObject = typeof(UnityEngine.Object).IsAssignableFrom(type)
+                                      && editorConversions.Contains(type) == false
+                                      && type.Assembly.GetName().Name.StartsWith("UnityEditor") == false;
+
+                if (isRuntimeObject)
+                    serializedObjects.Add($"{type.Assembly.GetName().Name}:{type.FullName}");
+                else
+                    m_Linker.AddTypes(type);
+            }
+
+            m_Linker.AddSerializedClass(serializedObjects);
+        }
 
         /// <inheritdoc/>
         public void GenerateTypeStrippingInfo(AddressableAssetsBuildContext aaContext,

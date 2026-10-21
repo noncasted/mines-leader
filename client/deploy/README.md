@@ -45,11 +45,30 @@ Authentication is either of:
 ## Deploying
 
 ```bash
-tools/scripts/deploy-webgl.sh            # upload client/build as a new release
-tools/scripts/deploy-webgl.sh --build    # build in Unity batchmode first
+tools/scripts/deploy-webgl.sh            # upload the build as a new release
 tools/scripts/deploy-webgl.sh --list     # what is on the server, and what is live
 tools/scripts/deploy-webgl.sh --rollback 20260903-011500-01271762
 ```
+
+`/deploy-client` runs the tests, builds with the `web_dev - Desktop - Development` build
+profile (stripping included) and deploys in one go.
+
+The build is made in the editor first: the `web_dev` profile (`/deploy-client` writes
+`client/build`) or `Tools/Build/WebGL` (also `client/build`). If the Build Profiles window
+was pointed at `client/Build`, the script uploads whichever of the two exists and stops if
+both do — pass `BUILD_DIR` then.
+
+Checks before anything is uploaded:
+
+- **Wrong Addressables target.** A `catalog.bin` that references Standalone bundles
+  means the editor was not on WebGL during the build.
+- **Missing payloads.** Every `Build/*` file `index.html` loads must exist and be
+  non-empty. Unity's incremental build deletes the outputs of the previous build when the
+  next one writes to another folder.
+- **Already live.** `build-guid.txt` equal to the live build stops the deploy; `FORCE=1`
+  overrides that.
+
+Set `PUBLIC_URL` in `deploy.env` and the script prints the link after a deploy.
 
 The upload goes into a fresh release directory and only then flips `current`, so
 players never see a half-uploaded build. Unchanged payloads are hardlinked against
