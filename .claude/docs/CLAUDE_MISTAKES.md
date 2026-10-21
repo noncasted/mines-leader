@@ -785,3 +785,49 @@ var config = payload.Type == CardType.Blackout_Max
 Every card with a `_Max` variant must branch on `payload.Type`. Do not copy `_configs.Value.X_Normal` as a default.
 
 → [CARD_EFFECTS.md](CARD_EFFECTS.md)
+
+---
+
+## Lesson 19: [Inject] Method Must Be Public When the Scope Lives in Another Assembly
+
+### Mistake Made
+```csharp
+// tools/framework/client/modules/audio (assembly Internal.Audio), registered from Global.Setup (assembly Global)
+[Inject]
+internal void Construct(IAudioVolume volume, IUpdater updater)
+```
+
+Roslyn does not import internal members of referenced assemblies, so ContainerGenerator does not see the method,
+emits no `Construct` call and reports nothing. The fields stay null; the WebGL build crashed with
+`MethodAccessException: Attempt to access method 'Global.Audio.IAudioVolume.get_MasterVolume' on type ''`
+(IL2CPP interface call on null). Same for `GlobalCamera` and `LoadingScreen` after the move to the framework.
+
+### Correct Pattern
+```csharp
+[Inject]
+public void Construct(IAudioVolume volume, IUpdater updater)
+```
+
+### Rule
+`internal` `[Inject]` is fine only when the type is registered from its own assembly. Any type in a framework module
+(or any assembly other than the scope's) needs a `public` `[Inject]` method. After moving a type between assemblies,
+check that the generated container calls its `Construct`.
+
+---
+
+## Lesson 20: Session Container Has No AddOptions() — Register IOptions<T> Explicitly
+
+### Mistake Made
+The old game `AddSessionServices` called `services.AddLogging(...)`, which calls `AddOptions()` and so made every
+`IOptions<T>` resolvable with a default `T`. The framework session passes the host `ILoggerFactory` instead, so after
+the move `IOptions<BoardOptions>` in `PlayerFactory` failed on prod: `RequestWithBot` was rejected and no match started.
+
+### Correct Pattern
+```csharp
+services.AddSingleton(Options.Create(new BoardOptions()));
+```
+
+### Rule
+Never rely on `IOptions<T>` coming from `AddLogging`/`AddOptions` side effects in a session container: register each
+options instance explicitly. When changing session registrations, build the match container with
+`new ServiceProviderOptions { ValidateOnBuild = true }` for every match type (bot and human) to see all gaps at once.
