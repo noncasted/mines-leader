@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.Cards {
-    // Structure: 1f318981fe4b7f2ea3b0aa52f0d1246f
+    // Structure: 4513970175c4de020cfe039f3a3bcdcb
     // Game_Card
     //   - View
     //       - Body
@@ -120,13 +120,11 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
                 // Game_Card/View/Body/Description
@@ -136,13 +134,11 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
 
                 // Game_Card/View/Body/ManaCost
@@ -152,13 +148,11 @@ namespace GamePlay.Cards {
                     [SerializeField, HideInInspector] private global::UnityEngine.RectTransform _rectTransform;
                     [SerializeField, HideInInspector] private global::UnityEngine.MeshRenderer _meshRenderer;
                     [SerializeField, HideInInspector] private global::TMPro.TextMeshPro _textMeshPro;
-                    [SerializeField, HideInInspector] private global::UnityEngine.MeshFilter _meshFilter;
 
                     public global::UnityEngine.GameObject GameObject => _gameObject;
                     public global::UnityEngine.RectTransform RectTransform => _rectTransform;
                     public global::UnityEngine.MeshRenderer MeshRenderer => _meshRenderer;
                     public global::TMPro.TextMeshPro TextMeshPro => _textMeshPro;
-                    public global::UnityEngine.MeshFilter MeshFilter => _meshFilter;
                 }
             }
 

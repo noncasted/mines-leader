@@ -17,6 +17,10 @@ namespace Internal
         public bool IsPrefabAsset;
         public bool IsSceneService;
         public bool IsEntityComponent;
+
+        // Hash of the structure the code was generated from. The binding phase scans the object again and must get
+        // the same structure.
+        public string StructureHash;
     }
 
     // Заявок может быть много: перегенерация сцены пишет все классы разом, а компиляция после

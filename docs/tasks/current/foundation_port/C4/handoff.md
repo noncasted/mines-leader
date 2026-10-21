@@ -91,3 +91,48 @@ dotnet run --project client/Tools~/ContainerGenerator.Verify/ContainerGenerator.
 - Этот файл.
 
 Коммит: `(port of peace-data-reborn b9f89f20b, 5288723cf, c9b4dd68d)` + C7 из storytale-workshop.
+
+## Доработка: дрейф HierarchyBindings
+
+База: `main` 750de794 (ff). Правки не закоммичены. Редактор и Aspire не трогал. Сгенерированные `.g.cs` и префабы руками не правил.
+
+### Причины по пунктам
+
+1. **`GameCardBindings.g.cs` и `Game_Card.prefab` (MeshFilter, 3 прохода).** Причина в баге сканера. Он старый, это не регрессия C4. Unity 7000 компоненты TMP тоже не менял. `TextMeshPro.Awake` (и геттер `meshFilter`) добавляет `MeshFilter` с `HideFlags.HideAndDontSave` (`Packages/com.unity.ugui/Runtime/TMP/TextMeshPro.cs:170, 564-577`). Такой компонент никогда не сохраняется, а ссылка на него сериализуется как `{fileID: 0}`. Есть ли он на объекте, зависит от того, как объект загружен:
+   - `PrepareProject` сканирует ассет из `LoadAssetAtPath`. `Awake` там не вызывается, поэтому `MeshFilter` есть только у тех объектов, где его геттер кто-то уже дёрнул. Так у `ManaCost` поле осталось, а у `Name` и `Description` пропало.
+   - `HierarchyBindingsBinder` сканирует `LoadPrefabContents`. Там `Awake` отработал, поэтому `MeshFilter` есть у всех трёх объектов.
+   
+   Отсюда первый проход: код без поля, связывание видит компонент, и падает `'_meshFilter' is missing. The code is not compiled yet` (сообщение ложное, код скомпилирован). Префаб не сохраняется, хэш остаётся старым. На следующих проходах код не меняется, поэтому из-за `bindUnchanged = false` (C4) связывание больше не запускается. Префаб пересохраняется косвенно, скорее всего через `SaveAssets`: TMP пометил ассет dirty своим `AddComponent`. При этом Unity выкидывает неизвестные `_meshFilter: {fileID: 0}`, а `_structureHash` остаётся `1f3189…`. Тот же баг объясняет коммит `1b65034c` (апгрейд на Unity 7000): тогда код генерировали с открытым содержимым префаба, и `MeshFilter` попал в код у всех трёх объектов с `{fileID: 0}` в префабе. Сам апгрейд к этому отношения не имеет.
+2. **`GameOwnResourceRowBindings.g.cs` (корень `Health`).** Старый рассинхрон из `5a671a1e`. Код сгенерирован с экземпляра префаба `Health` в `GamePlay/Assets/Scenes/Game_Overlay.unity`, а не из ассета. Хэш кода `73aedc…` совпадает с override `_structureHash` этого экземпляра в сцене. В самом префабе лежит `ec9394…`. Каждый экземпляр (их 6 с override хэша) генерировал свой хэш, в файл попал последний. Генератор такое пропускал: `TryDescribe` считал экземпляр объектом сцены и писал хэш и ссылки как scene overrides. Это баг генератора, исправлен (см. ниже). Regenerate All берёт владельца из ассета, поэтому корень стал `Game_Own_Resource_Row`.
+3. **`GameUIResultsBindings.g.cs` (+53 строки дерева).** Старый рассинхрон. Файл сгенерирован в `3b47f550` (2026-09-05 02:55) и с тех пор не перегенерировался. Дерево в комментарии (`AppendHierarchy`) добавлено позже, в `9c51d9eb` (04:02 того же дня). Формат хэша поменялся в `5a671a1e` (`DeclaredTypeName`, элементы массивов). Отсюда новый хэш. C4 тут ни при чём.
+4. **`Game_UI_Results.prefab` (удалены `_stats`, `_menuButton`, `_rematchButton`, `_gameResultsStats`).** Следствие п. 3. Этих полей нет ни в `GameResultsView`, ни в биндингах с `3b47f550`: старые `[SerializeField]`, которые остались в YAML. Связывание пересохраняет префаб через `SaveAsPrefabAsset`, и Unity выкидывает неизвестные поля. Это ожидаемая разовая чистка.
+
+Регрессия C4 только одна: из-за `bindUnchanged = false` объект, у которого связывание однажды не прошло, больше никогда не догонял свой код (п. 1). До C4 связывание шло всегда.
+
+### Правка
+
+- `HierarchyBindingsScanner.CollectComponents`: пропускаются компоненты с `HideFlags.DontSaveInEditor`. Ассет и содержимое префаба теперь дают одну структуру.
+- `HierarchyBindingsRequest.StructureHash` и `HierarchyBindingsBinder.Bind`: связывание сверяет хэш повторного скана с хэшем, из которого сгенерирован код. При расхождении выдаётся ошибка с обоими хэшами, а не ложное «not compiled yet». В префаб записывается проверенный хэш.
+- `HierarchyBindingsGenerator.Prepare`:
+  - связывание ставится в очередь и тогда, когда код не изменился, но `_structureHash` на объекте устарел (`isBoundStale`). Так Regenerate All сходится за один проход и чинит объекты, у которых связывание раньше упало. На чистом дереве хэши совпадают, и префабы не пересохраняются;
+  - fail fast, если `ObjectBindings` на объекте пришёл из префаба-источника (экземпляр в сцене, вариант, вложенный префаб): ошибка с путём ассета. Кнопка Regenerate на экземпляре больше не пишет scene overrides.
+- `docs/obsidian/architecture/client-dev-tools.md`: правила сканера и шаг 2 Regenerate All.
+
+Сборка: `Internal.Editor.csproj` по временным копиям csproj из основного дерева. Пути `Packages/` направлены в основное дерево, анализатор взят из worktree. В копии добавлены три новых файла C4, которых нет в csproj основного дерева: `ContainerPrimitiveAttribute.cs`, `ScriptTypeNames.cs`, `RegenerateAll.cs`. Без них сборка даёт ложные CINGR001. Результат: 0 ошибок, в HierarchyBindings нет предупреждений. Копии, `client/obj` и `client/Temp` удалены.
+
+### Что ожидается после перегенерации (Tools/Regenerate All на чистом дереве)
+
+- Первый проход, затем перекомпиляция и связывание. В логе `Bound N of N bindings` без ошибок, `'_meshFilter' is missing` больше нет.
+  - `GameCardBindings.g.cs`: поля `MeshFilter` пропадают у **всех трёх** TMP (`Name`, `Description`, `ManaCost`). Хэш новый: не `1f3189…` и, скорее всего, не `451397…` (тот был с `MeshFilter` у `ManaCost`). `Game_Card.prefab`: три строки `_meshFilter: {fileID: 0}` удалены, `_structureHash` совпадает с хэшем в `.g.cs`.
+  - `GameOwnResourceRowBindings.g.cs`: корень `Game_Own_Resource_Row`, новый хэш. `Game_Own_Resource_Row.prefab`: `_structureHash` = хэш кода (сейчас там `ec9394…`).
+  - `GameUIResultsBindings.g.cs`: дерево в комментарии и новый хэш. `Game_UI_Results.prefab`: удалены `_stats`, `_menuButton`, `_rematchButton`, `_gameResultsStats`, `_structureHash` = хэш кода.
+- Проверить: в каждом изменённом префабе `_structureHash` совпадает со строкой `// Structure:` его `.g.cs`.
+- Второй прогон Regenerate All: `git status` пуст (сходимость за один проход). Если нет, в логе будет ошибка `Structure of '…' is X, the code was generated from Y` с путём объекта. Это следующий источник недетерминизма скана, прислать лог.
+- Кнопка Regenerate на экземпляре `Health` в `Game_Overlay` даёт ошибку `carries bindings of prefab Assets/GamePlay/Assets/Prefabs/UI/Game_Own_Resource_Row.prefab`.
+- Компиляция без ошибок: `MeshFilter` из биндингов карты нигде не используется (grep).
+
+### Остаток (не трогал)
+
+`Game_Overlay.unity` хранит 6 устаревших override `_structureHash` у экземпляров ресурсных строк и override `_largeRow._designContainer`. В рантайме хэш никто не читает (только Binder пишет). Regenerate All сцены не трогает, поэтому на чистоту `git status` это не влияет. При желании убрать в редакторе: Overrides → Revert на этих полях, сцену открыть и сохранить вручную.
+
+Изменённые файлы: `client/Assets/Common/Internal/Editor/Tools/HierarchyBindings/HierarchyBindingsScanner.cs`, `HierarchyBindingsBinder.cs`, `HierarchyBindingsGenerator.cs`, `HierarchyBindingsRequest.cs`, `docs/obsidian/architecture/client-dev-tools.md`, этот файл.

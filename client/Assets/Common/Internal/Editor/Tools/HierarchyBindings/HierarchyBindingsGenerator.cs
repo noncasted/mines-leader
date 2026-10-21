@@ -105,6 +105,19 @@ namespace Internal
                 return false;
             }
 
+            var existing = root.GetComponent<ObjectBindings>();
+
+            // A prefab instance carries the bindings of its asset. Generating from the instance would name the root
+            // after the instance and write the hash and references as overrides of the scene, not into the asset.
+            if (existing != null && PrefabUtility.GetCorrespondingObjectFromSource(existing) != null)
+            {
+                Debug.LogError(
+                    $"[{LogTag}] '{root.name}' carries bindings of prefab " +
+                    $"{AssetDatabase.GetAssetPath(PrefabUtility.GetCorrespondingObjectFromSource(existing))}. " +
+                    "Regenerate them in that prefab.", root);
+                return false;
+            }
+
             if (HierarchyBindingsTarget.TryDescribe(root, out var assetPath, out var objectPath, out var isPrefab,
                     out var describeError) ==
                 false)
@@ -124,18 +137,23 @@ namespace Internal
 
             var folder = HierarchyBindingsPaths.ResolveGeneratedFolder(root, assetPath);
             var filePath = $"{folder}/{typeName}.g.cs";
+            var structureHash = HierarchyBindingsStructure.ComputeHash(node);
 
             var code = HierarchyBindingsCodeGenerator.Build(
                     node,
                     namespaceName,
-                    HierarchyBindingsStructure.ComputeHash(node),
+                    structureHash,
                     isSceneService,
                     isEntityComponent
                 );
 
             changed = HasChanged(filePath, code);
 
-            if (changed || bindUnchanged)
+            // Same code but a stale hash on the object: an earlier binding failed or never ran (the object was
+            // saved with old references). Bind again, otherwise the object never catches up with its code.
+            var isBoundStale = existing == null || existing.StructureHash != structureHash;
+
+            if (changed || bindUnchanged || isBoundStale)
             {
                 HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest
                 {
@@ -145,7 +163,8 @@ namespace Internal
                     Namespace = namespaceName,
                     IsPrefabAsset = isPrefab,
                     IsSceneService = isSceneService,
-                    IsEntityComponent = isEntityComponent
+                    IsEntityComponent = isEntityComponent,
+                    StructureHash = structureHash
                 });
             }
 
