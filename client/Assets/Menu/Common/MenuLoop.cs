@@ -48,7 +48,7 @@ namespace Menu.Common
             await GameProfiler.Concurrent("Wait meta").Track(_metaState.IsReady.WaitTrue(lifetime));
 
             using (GameProfiler.Scope("Meta setup completed"))
-                _eventLoop.RunCustom<IMetaSetupCompleted>(lifetime, l => l.OnMetaSetupCompleted(lifetime));
+                _eventLoop.RunCustom<IMetaSetupCompleted>(lifetime, static (l, lt) => l.OnMetaSetupCompleted(lt));
 
             _loadingScreen.Hide();
             _globalCamera.Disable();

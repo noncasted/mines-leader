@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Internal;
 using Shared;
-using UnityEngine;
 
 namespace Meta
 {
@@ -21,11 +20,10 @@ namespace Meta
             var projectionContext = context.Context;
             var type = projectionContext.GetType();
 
+            // Every projection the backend sends has a registered receiver (MetaScopeExtensions): an unknown one
+            // is a protocol mismatch, not something to drop.
             if (_projections.TryGetValue(type, out var projection) == false)
-            {
-                Debug.Log($"[Projection] No projection for type: {type.FullName}");
-                return;
-            }
+                throw new InvalidOperationException($"[Projection] No projection for type: {type.FullName}");
 
             projection.OnReceived(projectionContext);
         }

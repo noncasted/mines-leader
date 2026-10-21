@@ -7,15 +7,18 @@ namespace Internal
     public interface IEventLoop
     {
         void AddBeforeBuild(Func<UniTask> callback);
-        void AddBeforeDispose(Func<UniTask> callback);
+        // Runs after the scope is fully torn down (lifetime terminated, scenes unloaded, container disposed):
+        // asset groups are released here, so teardown listeners may still read the assets of the scope.
+        void AddAfterDispose(Func<UniTask> callback);
 
         UniTask InvokeBeforeBuild();
-        UniTask InvokeBeforeDispose();
+        UniTask InvokeAfterDispose();
 
         void Bind(IContainer container);
 
-        void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker);
-        UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, UniTask> invoker);
+        // A custom phase: every listener T gets the lifetime, as in the built-in phases.
+        void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T, IReadOnlyLifetime> invoker);
+        UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, IReadOnlyLifetime, UniTask> invoker);
         UniTask RunConstruct(IReadOnlyLifetime lifetime);
         UniTask RunLoaded(IReadOnlyLifetime lifetime);
         UniTask RunDispose();
@@ -24,7 +27,7 @@ namespace Internal
     public class EventLoop : IEventLoop
     {
         private readonly List<Func<UniTask>> _beforeBuildCallbacks = new();
-        private readonly List<Func<UniTask>> _beforeDisposeCallbacks = new();
+        private readonly List<Func<UniTask>> _afterDisposeCallbacks = new();
 
         private IContainer _container;
 
@@ -33,9 +36,9 @@ namespace Internal
             _beforeBuildCallbacks.Add(callback);
         }
 
-        public void AddBeforeDispose(Func<UniTask> callback)
+        public void AddAfterDispose(Func<UniTask> callback)
         {
-            _beforeDisposeCallbacks.Add(callback);
+            _afterDisposeCallbacks.Add(callback);
         }
 
         public async UniTask InvokeBeforeBuild()
@@ -44,10 +47,10 @@ namespace Internal
             _beforeBuildCallbacks.Clear();
         }
 
-        public async UniTask InvokeBeforeDispose()
+        public async UniTask InvokeAfterDispose()
         {
-            await InvokeCallbacks(_beforeDisposeCallbacks);
-            _beforeDisposeCallbacks.Clear();
+            await InvokeCallbacks(_afterDisposeCallbacks);
+            _afterDisposeCallbacks.Clear();
         }
 
         public void Bind(IContainer container)
@@ -55,14 +58,14 @@ namespace Internal
             _container = container;
         }
 
-        public void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T> invoker)
+        public void RunCustom<T>(IReadOnlyLifetime lifetime, Action<T, IReadOnlyLifetime> invoker)
         {
-            Invoke(ResolveList<T>(), invoker);
+            Invoke(ResolveList<T>(), l => invoker.Invoke(l, lifetime));
         }
 
-        public UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, UniTask> invoker)
+        public UniTask RunCustomAsync<T>(IReadOnlyLifetime lifetime, Func<T, IReadOnlyLifetime, UniTask> invoker)
         {
-            return InvokeAsync(ResolveList<T>(), invoker);
+            return InvokeAsync(ResolveList<T>(), l => invoker.Invoke(l, lifetime));
         }
 
         public async UniTask RunConstruct(IReadOnlyLifetime lifetime)

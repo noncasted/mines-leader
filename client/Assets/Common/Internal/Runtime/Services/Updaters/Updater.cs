@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Internal
 {
@@ -76,8 +77,8 @@ namespace Internal
 
         public void SetSpeed(float speed)
         {
-            if (speed < 0)
-                return;
+            if (speed < 0f)
+                throw new ArgumentOutOfRangeException(nameof(speed), speed, "The speed of the updater is not negative");
 
             _speed.Set(speed);
         }

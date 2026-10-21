@@ -11,7 +11,7 @@ namespace Internal
             builder.Events.AddBeforeBuild(() => GameProfiler
                                                 .Concurrent($"{label}: {group.Name}")
                                                 .Track(group.Retain()));
-            builder.Events.AddBeforeDispose(() => ReleaseAsync(group));
+            builder.Events.AddAfterDispose(() => ReleaseAsync(group));
             return builder;
         }
 
@@ -22,7 +22,7 @@ namespace Internal
         {
             await GameProfiler.Concurrent($"{label}: {group.Name}").Track(group.Retain());
 
-            builder.Events.AddBeforeDispose(() => ReleaseAsync(group));
+            builder.Events.AddAfterDispose(() => ReleaseAsync(group));
             ContainerRegistryDebug.RecordLoadedAsset(builder.Lifetime, label, group.Name);
         }
 

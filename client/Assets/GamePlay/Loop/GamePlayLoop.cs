@@ -58,13 +58,13 @@ namespace GamePlay.Loop
             var localPlayer = _gameContext.Self;
             var remotePlayer = _gameContext.Other;
 
-            _eventLoop.RunCustom<ILocalPlayerCreated>(lifetime, l => l.OnLocalPlayer(lifetime, localPlayer));
-            _eventLoop.RunCustom<IRemotePlayerCreated>(lifetime, l => l.OnRemotePlayer(lifetime, remotePlayer));
+            _eventLoop.RunCustom<ILocalPlayerCreated>(lifetime, (l, lt) => l.OnLocalPlayer(lt, localPlayer));
+            _eventLoop.RunCustom<IRemotePlayerCreated>(lifetime, (l, lt) => l.OnRemotePlayer(lt, remotePlayer));
 
             _eventLoop.RunCustom<IPlayersCreated>(lifetime,
-                l => l.OnPlayersCreated(lifetime, localPlayer, remotePlayer));
+                (l, lt) => l.OnPlayersCreated(lt, localPlayer, remotePlayer));
 
-            _eventLoop.RunCustom<IGameStarted>(lifetime, l => l.OnGameStarted(lifetime));
+            _eventLoop.RunCustom<IGameStarted>(lifetime, static (l, lt) => l.OnGameStarted(lt));
             
             _servicesInitializer.Init(lifetime);
 

@@ -91,7 +91,8 @@ namespace Menu.Navigation
                     return;
 
                 _current?.Exit();
-                _current = _stateMachine.EnterChild(_stateMachine.Base, child);
+                // The tab is bound to the menu scope: the machine is global and outlives the menu.
+                _current = _stateMachine.EnterChild(lifetime, _stateMachine.Base, child);
             }
         }
     }

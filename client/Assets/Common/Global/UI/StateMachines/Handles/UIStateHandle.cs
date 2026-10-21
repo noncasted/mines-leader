@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using Global.Inputs;
 using Internal;
 
@@ -6,13 +7,22 @@ namespace Global.UI
 {
     public class UIStateHandle : IInternalUIStateHandle
     {
-        public UIStateHandle(IInternalUIStateHandle parent, IUIState state, IInputConstraintsStorage constraintsStorage)
+        public UIStateHandle(
+            IReadOnlyLifetime lifetime,
+            IInternalUIStateHandle parent,
+            IUIState state,
+            IInputConstraintsStorage constraintsStorage)
         {
             _parent = parent;
             State = state;
             Completion = new UniTaskCompletionSource();
 
+            // The handle lives no longer than its parent state and its owner: the machine and its base state are
+            // global, so a handle bound only to the parent would outlive the scope that opened it.
             _innerLifetime = parent.InnerLifetime.Child();
+            Action terminate = _innerLifetime.Terminate;
+            lifetime.Listen(terminate);
+            _innerLifetime.Listen(() => lifetime.RemoveListener(terminate));
             _outerLifetime = _innerLifetime.Child();
 
             _isVisible.View(_innerLifetime, isVisible => {
