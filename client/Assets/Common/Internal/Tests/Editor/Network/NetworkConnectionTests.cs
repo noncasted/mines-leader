@@ -139,7 +139,7 @@ namespace Internal.Tests
                 Assert.AreEqual(ProtocolVersion.ClientOutdatedCloseCode, info.Code, info.ToString());
                 Assert.AreEqual(1, notice.ShowCount);
                 Assert.IsTrue(connection.Writer.IsClosed);
-                Assert.AreEqual($"?userId=1&{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}",
+                Assert.AreEqual($"?userId=1&{ProtocolVersion.QueryKey}={ProtocolHash.Value}",
                     await query.Task.Timeout(LossTimeout));
             }
             finally

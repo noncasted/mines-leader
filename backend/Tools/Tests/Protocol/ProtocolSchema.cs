@@ -7,35 +7,61 @@ using Shared;
 namespace Tests.Protocol;
 
 /// <summary>
-/// The wire schema of the shared assembly, built by reflection: every union tag, the members of every
-/// [MemoryPackable] type in serialization order and the values of the enums those members use. Client and
-/// backend compile the same shared sources, so one table describes both sides.
+/// The wire schema of the shared assemblies (the framework protocol and the game shared), built by reflection:
+/// every union tag, the members of every [MemoryPackable] type in serialization order and the values of the enums
+/// those members use. Client and backend compile the same shared sources, so one table describes both sides.
+/// A union is declared either on its base ([MemoryPackable] interface with [MemoryPackUnion]) or, when its types
+/// span both assemblies, on a [MemoryPackUnionFormatter] class (INetworkContext: NetworkContextUnion).
 /// </summary>
 public static class ProtocolSchema
 {
-    public static readonly Assembly SharedAssembly = typeof(INetworkContext).Assembly;
+    public static readonly IReadOnlyList<Assembly> SharedAssemblies =
+    [
+        typeof(INetworkContext).Assembly,
+        typeof(NetworkContextUnion).Assembly
+    ];
+
+    public static Type GetType(string fullName)
+    {
+        return SharedAssemblies.Select(a => a.GetType(fullName)).SingleOrDefault(t => t != null)
+               ?? throw new InvalidOperationException($"Type {fullName} is not in the shared assemblies");
+    }
 
     public static IReadOnlyList<Type> PackableTypes()
     {
-        return SharedAssembly.GetTypes()
-                             .Where(t => t.GetCustomAttribute<MemoryPackableAttribute>() != null)
-                             .OrderBy(t => t.FullName, StringComparer.Ordinal)
-                             .ToList();
+        return SharedAssemblies.SelectMany(a => a.GetTypes())
+                               .Where(t => t.GetCustomAttribute<MemoryPackableAttribute>() != null)
+                               .OrderBy(t => t.FullName, StringComparer.Ordinal)
+                               .ToList();
     }
 
     public static IReadOnlyList<Type> UnionBases()
     {
-        return PackableTypes().Where(t => t.IsInterface || t.IsAbstract)
-                              .Where(t => t.GetCustomAttributes<MemoryPackUnionAttribute>().Any())
-                              .ToList();
+        var declaredOnBase = PackableTypes().Where(t => t.IsInterface || t.IsAbstract)
+                                            .Where(t => t.GetCustomAttributes<MemoryPackUnionAttribute>().Any());
+
+        return declaredOnBase.Concat(UnionFormatters().Select(f => f.Base))
+                             .Distinct()
+                             .OrderBy(t => t.FullName, StringComparer.Ordinal)
+                             .ToList();
     }
 
     public static IReadOnlyList<(ushort Tag, Type Type)> UnionTags(Type unionBase)
     {
-        return unionBase.GetCustomAttributes<MemoryPackUnionAttribute>()
+        var declaring = UnionFormatters().SingleOrDefault(f => f.Base == unionBase).Formatter ?? unionBase;
+
+        return declaring.GetCustomAttributes<MemoryPackUnionAttribute>()
                         .Select(a => (a.Tag, a.Type))
                         .OrderBy(e => e.Tag)
                         .ToList();
+    }
+
+    private static IEnumerable<(Type Formatter, Type Base)> UnionFormatters()
+    {
+        return SharedAssemblies.SelectMany(a => a.GetTypes())
+                               .Select(t => (Formatter: t, Attribute: t.GetCustomAttribute<MemoryPackUnionFormatterAttribute>()))
+                               .Where(e => e.Attribute != null)
+                               .Select(e => (e.Formatter, e.Attribute!.Type));
     }
 
     // Members MemoryPack writes, in its order: [MemoryPackOrder] when present, declaration order otherwise
@@ -164,7 +190,7 @@ public static class ProtocolSchema
     {
         if (type.IsEnum)
         {
-            if (type.Assembly == SharedAssembly)
+            if (SharedAssemblies.Contains(type.Assembly))
                 enums.Add(type);
 
             return;

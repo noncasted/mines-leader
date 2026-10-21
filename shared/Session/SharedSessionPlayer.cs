@@ -28,10 +28,10 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(69, typeof(SharedSessionPlayer.LocalUpdate))]
-    [MemoryPackUnion(70, typeof(SharedSessionPlayer.RemoteUpdate))]
-    [MemoryPackUnion(71, typeof(SharedSessionPlayer.RemoteDisconnect))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(40, typeof(SharedSessionPlayer.LocalUpdate))]
+    [MemoryPackUnion(41, typeof(SharedSessionPlayer.RemoteUpdate))]
+    [MemoryPackUnion(42, typeof(SharedSessionPlayer.RemoteDisconnect))]
+    public partial class NetworkContextUnion
     {
     }
 }

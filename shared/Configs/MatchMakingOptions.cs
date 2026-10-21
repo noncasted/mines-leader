@@ -23,8 +23,8 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(52, typeof(MatchMakingOptions))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1042, typeof(MatchMakingOptions))]
+    public partial class NetworkContextUnion
     {
     }
 }

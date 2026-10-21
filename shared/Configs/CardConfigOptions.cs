@@ -987,8 +987,8 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(50, typeof(CardConfigOptions))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1040, typeof(CardConfigOptions))]
+    public partial class NetworkContextUnion
     {
     }
 }

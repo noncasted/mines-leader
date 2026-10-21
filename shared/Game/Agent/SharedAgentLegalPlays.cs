@@ -37,9 +37,9 @@ namespace Shared
         public int Y { get; set; }
     }
 
-    [MemoryPackUnion(57, typeof(SharedAgentLegalPlaysRequest))]
-    [MemoryPackUnion(58, typeof(SharedAgentLegalPlaysResponse))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1047, typeof(SharedAgentLegalPlaysRequest))]
+    [MemoryPackUnion(1048, typeof(SharedAgentLegalPlaysResponse))]
+    public partial class NetworkContextUnion
     {
     }
 }

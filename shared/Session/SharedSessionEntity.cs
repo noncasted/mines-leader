@@ -41,12 +41,12 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(61, typeof(SharedSessionEntity.CreateRequest))]
-    [MemoryPackUnion(62, typeof(SharedSessionEntity.CreateResponse))]
-    [MemoryPackUnion(63, typeof(SharedSessionEntity.CreatedOverview))]
-    [MemoryPackUnion(64, typeof(SharedSessionEntity.Destroy))]
-    [MemoryPackUnion(65, typeof(SharedSessionEntity.DestroyUpdate))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(20, typeof(SharedSessionEntity.CreateRequest))]
+    [MemoryPackUnion(21, typeof(SharedSessionEntity.CreateResponse))]
+    [MemoryPackUnion(22, typeof(SharedSessionEntity.CreatedOverview))]
+    [MemoryPackUnion(23, typeof(SharedSessionEntity.Destroy))]
+    [MemoryPackUnion(24, typeof(SharedSessionEntity.DestroyUpdate))]
+    public partial class NetworkContextUnion
     {
     }
 }

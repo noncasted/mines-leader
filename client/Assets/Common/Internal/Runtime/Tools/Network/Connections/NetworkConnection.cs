@@ -45,7 +45,7 @@ namespace Internal
 
         // The protocol this client was built with, sent in the query of the upgrade. A field, not the constant at
         // the call: a play test replaces it to check the outdated client.
-        private readonly string _protocolHash = ProtocolVersion.Hash;
+        private readonly string _protocolHash = ProtocolHash.Value;
 
         // A connect that hangs (a proxy that accepts TCP but has no server behind it, a stalled upgrade) is a failed
         // one: without a bound the caller waited forever.

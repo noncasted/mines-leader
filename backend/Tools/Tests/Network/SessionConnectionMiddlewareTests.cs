@@ -177,7 +177,7 @@ public class SessionConnectionMiddlewareTests
         {
             Scheme = "ws",
             Path = "/",
-            Query = $"{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}"
+            Query = $"{ProtocolVersion.QueryKey}={ProtocolHash.Value}"
         }.Uri;
 
         await socket.ConnectAsync(uri, CancellationToken.None);

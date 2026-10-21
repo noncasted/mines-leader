@@ -233,12 +233,14 @@ namespace Internal.Tests
             }
         }
 
+        // The protocol types live in the framework assembly (INetworkContext) and in the game shared assembly.
         private static Type FindType(string fullName)
         {
-            var type = typeof(INetworkContext).Assembly.GetType(fullName);
+            var type = typeof(INetworkContext).Assembly.GetType(fullName) ??
+                       typeof(NetworkContextUnion).Assembly.GetType(fullName);
 
             if (type == null)
-                throw new InvalidOperationException($"Type {fullName} is not in {typeof(INetworkContext).Assembly.GetName().Name}");
+                throw new InvalidOperationException($"Type {fullName} is not in the shared assemblies");
 
             return type;
         }

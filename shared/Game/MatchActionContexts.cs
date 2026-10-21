@@ -15,9 +15,9 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(53, typeof(MatchActionContexts.PlayerReady))]
-    [MemoryPackUnion(54, typeof(MatchActionContexts.PlayerLoaded))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1043, typeof(MatchActionContexts.PlayerReady))]
+    [MemoryPackUnion(1044, typeof(MatchActionContexts.PlayerLoaded))]
+    public partial class NetworkContextUnion
     {
     }
 }

@@ -44,8 +44,8 @@ namespace Shared
     {
     }
 
-    [MemoryPackUnion(25, typeof(SharedMoveSnapshot))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1015, typeof(SharedMoveSnapshot))]
+    public partial class NetworkContextUnion
     {
     }
 }

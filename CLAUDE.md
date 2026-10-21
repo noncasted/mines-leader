@@ -6,6 +6,16 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 - **`backend/`** — .NET Orleans (distributed actor model); subfolders: `Game/`, `Meta/`, `Infrastructure/`, `Orchestration/`
 - **`shared/`** — Protocol, domain models, configs — used by both client and backend
 
+## Framework (`tools/framework`)
+
+The shared base of our games is a git submodule at `tools/framework` with its own `CLAUDE.md` (read it before
+changing anything there). It holds the forked Unity packages and MemoryPack (`client/packages`), the protocol base
+(`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common` / `Infrastructure`.
+- A change in `tools/framework` affects every game: commit and push it inside the submodule, then commit the
+  submodule pointer here.
+- The protocol of this game: `shared/Protocol/NetworkContextUnion.cs` declares the `INetworkContext` union (framework
+  tags + game tags, game tags from 1000), `shared/Protocol/ProtocolHash.cs` holds the protocol hash.
+
 ## Keyword → Documentation (FAST LOOKUP)
 
 | Keywords | Go to |

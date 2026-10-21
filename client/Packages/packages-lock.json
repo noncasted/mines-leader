@@ -22,11 +22,21 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.noncasted.framework.shared": {
+      "version": "file:../../tools/framework/shared",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.cysharp.memorypack": "1.21.4"
+      }
+    },
     "com.shared.game": {
       "version": "file:../../shared/",
       "depth": 0,
       "source": "local",
-      "dependencies": {}
+      "dependencies": {
+        "com.noncasted.framework.shared": "0.1.0"
+      }
     },
     "com.unity.2d.aseprite": {
       "version": "7.0.0",

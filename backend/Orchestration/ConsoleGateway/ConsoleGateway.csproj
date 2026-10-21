@@ -27,8 +27,8 @@
         <ProjectReference Include="..\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\..\Console\Console.csproj"/>
         <ProjectReference Include="..\..\Tools\Benchmarks\Benchmarks.csproj"/>
-        <ProjectReference Include="..\..\Common\Common.csproj"/>
-        <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

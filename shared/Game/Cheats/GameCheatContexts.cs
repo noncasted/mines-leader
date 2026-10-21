@@ -93,22 +93,22 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(35, typeof(GameCheatContexts.CardAdd))]
-    [MemoryPackUnion(36, typeof(GameCheatContexts.CardRemove))]
-    [MemoryPackUnion(37, typeof(GameCheatContexts.ChangeMana))]
-    [MemoryPackUnion(38, typeof(GameCheatContexts.ChangeMaxMana))]
-    [MemoryPackUnion(39, typeof(GameCheatContexts.ChangeHealth))]
-    [MemoryPackUnion(40, typeof(GameCheatContexts.ChangeMaxHealth))]
-    [MemoryPackUnion(41, typeof(GameCheatContexts.ChangeMoves))]
-    [MemoryPackUnion(42, typeof(GameCheatContexts.ChangeMaxMoves))]
-    [MemoryPackUnion(43, typeof(GameCheatContexts.RestoreMana))]
-    [MemoryPackUnion(44, typeof(GameCheatContexts.RestoreHealth))]
-    [MemoryPackUnion(45, typeof(GameCheatContexts.SetMaxMana))]
-    [MemoryPackUnion(46, typeof(GameCheatContexts.SetMaxHealth))]
-    [MemoryPackUnion(47, typeof(GameCheatContexts.SetMaxMoves))]
-    [MemoryPackUnion(48, typeof(GameCheatContexts.RestoreMoves))]
-    [MemoryPackUnion(49, typeof(GameCheatContexts.EndMatch))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1025, typeof(GameCheatContexts.CardAdd))]
+    [MemoryPackUnion(1026, typeof(GameCheatContexts.CardRemove))]
+    [MemoryPackUnion(1027, typeof(GameCheatContexts.ChangeMana))]
+    [MemoryPackUnion(1028, typeof(GameCheatContexts.ChangeMaxMana))]
+    [MemoryPackUnion(1029, typeof(GameCheatContexts.ChangeHealth))]
+    [MemoryPackUnion(1030, typeof(GameCheatContexts.ChangeMaxHealth))]
+    [MemoryPackUnion(1031, typeof(GameCheatContexts.ChangeMoves))]
+    [MemoryPackUnion(1032, typeof(GameCheatContexts.ChangeMaxMoves))]
+    [MemoryPackUnion(1033, typeof(GameCheatContexts.RestoreMana))]
+    [MemoryPackUnion(1034, typeof(GameCheatContexts.RestoreHealth))]
+    [MemoryPackUnion(1035, typeof(GameCheatContexts.SetMaxMana))]
+    [MemoryPackUnion(1036, typeof(GameCheatContexts.SetMaxHealth))]
+    [MemoryPackUnion(1037, typeof(GameCheatContexts.SetMaxMoves))]
+    [MemoryPackUnion(1038, typeof(GameCheatContexts.RestoreMoves))]
+    [MemoryPackUnion(1039, typeof(GameCheatContexts.EndMatch))]
+    public partial class NetworkContextUnion
     {
     }
 }

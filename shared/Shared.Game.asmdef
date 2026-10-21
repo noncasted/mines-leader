@@ -1,3 +1,6 @@
 {
-	"name": "Shared.Game"
+	"name": "Shared.Game",
+	"references": [
+		"GUID:73681998e594465db2ed389d82d877b6"
+	]
 }

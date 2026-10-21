@@ -1,5 +1,5 @@
 using System.Text;
-using Common;
+using Cluster.State;
 using Microsoft.Extensions.Logging;
 using Shared;
 
@@ -13,13 +13,13 @@ public interface ISnapshotDiffGuard
 
 public class SnapshotDiffGuard : ISnapshotDiffGuard
 {
-    public SnapshotDiffGuard(IClusterFlags flags, ILogger<SnapshotDiffGuard> logger)
+    public SnapshotDiffGuard(IGameFlags flags, ILogger<SnapshotDiffGuard> logger)
     {
         _flags = flags;
         _logger = logger;
     }
 
-    private readonly IClusterFlags _flags;
+    private readonly IGameFlags _flags;
     private readonly ILogger<SnapshotDiffGuard> _logger;
 
     public bool IsEnabled => _flags.SnapshotDiffGuardEnabled;

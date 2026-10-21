@@ -48,9 +48,9 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(76, typeof(SharedBackendSocketAuth.Request))]
-    [MemoryPackUnion(77, typeof(SharedBackendSocketAuth.Response))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(12, typeof(SharedBackendSocketAuth.Request))]
+    [MemoryPackUnion(13, typeof(SharedBackendSocketAuth.Response))]
+    public partial class NetworkContextUnion
     {
     }
 }

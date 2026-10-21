@@ -18,8 +18,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Cluster\Cluster.csproj"/>
-        <ProjectReference Include="..\..\Common\Common.csproj"/>
-        <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\Extensions\Extensions.csproj" />
     </ItemGroup>
 

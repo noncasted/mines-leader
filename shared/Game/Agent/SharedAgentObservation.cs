@@ -75,8 +75,8 @@ namespace Shared
         public bool HasMine { get; set; }
     }
 
-    [MemoryPackUnion(55, typeof(SharedAgentObservation))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1045, typeof(SharedAgentObservation))]
+    public partial class NetworkContextUnion
     {
     }
 }

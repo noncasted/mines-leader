@@ -15,10 +15,11 @@
         <ProjectReference Include="..\Orchestration\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Meta\Meta.csproj"/>
         <ProjectReference Include="..\Tools\Benchmarks\Benchmarks.csproj"/>
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
-        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\backend\Common\Common.csproj"/>
         <ProjectReference Include="..\Cluster\Cluster.csproj"/>
         <ProjectReference Include="..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\shared\framework.shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

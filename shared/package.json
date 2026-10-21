@@ -3,5 +3,7 @@
   "displayName": "Shared.Game",
   "version": "2025.0.1",
   "description": "",
-  "dependencies": {}
+  "dependencies": {
+    "com.noncasted.framework.shared": "0.1.0"
+  }
 }

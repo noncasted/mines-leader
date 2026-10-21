@@ -30,7 +30,7 @@ public class ClientProtocolCheckTests
     {
         await using var server = await Server.Start();
 
-        var result = await ConnectAndReceive(server.Uri($"?{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}"));
+        var result = await ConnectAndReceive(server.Uri($"?{ProtocolVersion.QueryKey}={ProtocolHash.Value}"));
 
         result.CloseStatus.Should().Be(WebSocketCloseStatus.NormalClosure);
         result.CloseStatusDescription.Should().Be(PassedReason);
@@ -89,9 +89,9 @@ public class ClientProtocolCheckTests
             app.UseWebSockets();
 
             app.Run(async context => {
-                if (ClientProtocolCheck.IsCurrent(context) == false)
+                if (ClientProtocolCheck.IsCurrent(context, ProtocolHash.Value) == false)
                 {
-                    await ClientProtocolCheck.RejectOutdated(context, NullLogger.Instance);
+                    await ClientProtocolCheck.RejectOutdated(context, ProtocolHash.Value, NullLogger.Instance);
                     return;
                 }
 

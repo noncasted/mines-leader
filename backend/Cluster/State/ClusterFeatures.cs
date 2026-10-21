@@ -12,7 +12,7 @@ using Shared;
 namespace Cluster.State;
 
 
-public interface IClusterFeatures : IDeploymentState<ClusterFeaturesState>, IClusterFlags
+public interface IClusterFeatures : IDeploymentState<ClusterFeaturesState>, IClusterFlags, IGameFlags
 {
     // Operator / coordinator switch combined with the coordinator health seen by the gateways.
     bool IsAcceptingConnections { get; }
@@ -34,9 +34,9 @@ public class ClusterFeatures : DeploymentState<ClusterFeaturesState>, IClusterFe
     {
     }
 
-    bool IClusterFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
+    bool IGameFlags.MatchmakingEnabled => Value.MatchmakingEnabled;
     bool IClusterFlags.SideEffectsEnabled => Value.SideEffectsEnabled;
-    bool IClusterFlags.SnapshotDiffGuardEnabled => Value.SnapshotDiffGuardEnabled;
+    bool IGameFlags.SnapshotDiffGuardEnabled => Value.SnapshotDiffGuardEnabled;
 
     public bool IsAcceptingConnections => Value.AcceptingConnections && Value.CoordinatorUnhealthy == false;
 
@@ -259,6 +259,7 @@ public static class ClusterFeaturesExtensions
                .As<IDeployAware>();
 
         builder.Services.AddSingleton<IClusterFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
+        builder.Services.AddSingleton<IGameFlags>(sp => sp.GetRequiredService<IClusterFeatures>());
 
         return builder;
     }

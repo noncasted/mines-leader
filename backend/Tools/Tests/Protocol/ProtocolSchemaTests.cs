@@ -13,7 +13,7 @@ namespace Tests.Protocol;
 /// The wire schema (union tags, members of [MemoryPackable] types, enum values) is pinned in
 /// protocol_schema.golden.txt: a changed tag or member shows up as a diff of the golden file in review.
 /// Run with UPDATE_PROTOCOL_GOLDEN=1 to rewrite the golden file after an intended protocol change.
-/// ProtocolVersion.Hash, sent by the client in the socket upgrade, is the hash of that schema.
+/// ProtocolHash.Value, sent by the client in the socket upgrade, is the hash of that schema.
 /// </summary>
 public class ProtocolSchemaTests
 {
@@ -47,8 +47,8 @@ public class ProtocolSchemaTests
     {
         var hash = ProtocolSchema.ComputeHash(ProtocolSchema.BuildText());
 
-        ProtocolVersion.Hash.Should().Be(hash,
-            "the protocol schema changed: set ProtocolVersion.Hash = \"{0}\" in shared/Protocol/ProtocolVersion.cs",
+        ProtocolHash.Value.Should().Be(hash,
+            "the protocol schema changed: set ProtocolHash.Value = \"{0}\" in shared/Protocol/ProtocolHash.cs",
             hash);
     }
 

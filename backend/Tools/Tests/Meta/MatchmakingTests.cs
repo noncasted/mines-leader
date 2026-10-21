@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Cluster.Configs;
 using Cluster.Deploy;
 using Cluster.Monitoring;
+using Cluster.State;
 using Common;
 using Common.Reactive;
 using FluentAssertions;
@@ -27,7 +28,7 @@ public class MatchmakingTests
     private readonly ILobbyFactory _lobbyFactory;
     private readonly IConnectedUsers _users;
     private readonly IBotConfig _botConfig;
-    private readonly IClusterFlags _clusterFlags;
+    private readonly IGameFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
     private readonly IMessaging _messaging;
     private readonly ILogger<Matchmaking> _logger;
@@ -41,7 +42,7 @@ public class MatchmakingTests
         _lobbyFactory = Substitute.For<ILobbyFactory>();
         _users = Substitute.For<IConnectedUsers>();
         _botConfig = Substitute.For<IBotConfig>();
-        _clusterFlags = Substitute.For<IClusterFlags>();
+        _clusterFlags = Substitute.For<IGameFlags>();
         _participantContext = Substitute.For<IClusterParticipantContext>();
         _messaging = Substitute.For<IMessaging>();
         _logger = Substitute.For<ILogger<Matchmaking>>();
