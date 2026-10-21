@@ -1,6 +1,5 @@
 ﻿using System.Net.WebSockets;
 using Common.Network;
-using Game.Global;
 using Infrastructure.Startup;
 using Shared;
 
@@ -9,12 +8,12 @@ namespace GameGateway;
 public class SessionConnectionMiddleware
 {
     public SessionConnectionMiddleware(
-        ISessionsCollection sessionsCollection,
+        SessionGate gate,
         RequestDelegate next,
         IClusterParticipantContext participantContext,
         ILogger<SessionConnectionMiddleware> logger)
     {
-        _sessionsCollection = sessionsCollection;
+        _gate = gate;
         _next = next;
         _participantContext = participantContext;
         _logger = logger;
@@ -29,7 +28,12 @@ public class SessionConnectionMiddleware
     public static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(10);
     public static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(30);
 
-    private readonly ISessionsCollection _sessionsCollection;
+    // A client that opened the socket must send its ticket at once (S4): a silent one does not hold the socket.
+    public static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(10);
+
+    private static readonly TimeSpan CloseTimeout = TimeSpan.FromSeconds(5);
+
+    private readonly SessionGate _gate;
     private readonly RequestDelegate _next;
     private readonly IClusterParticipantContext _participantContext;
     private readonly ILogger<SessionConnectionMiddleware> _logger;
@@ -78,112 +82,109 @@ public class SessionConnectionMiddleware
             return;
         }
 
-        ConnectionOneTimeHandle? handle = null;
+        var handle = new ConnectionOneTimeHandle(webSocket);
         SharedSessionAuth.Request auth;
 
         try
         {
-            handle = new ConnectionOneTimeHandle(webSocket);
-            auth = await handle.ReadRequest<SharedSessionAuth.Request>();
+            using var timeout = new CancellationTokenSource(HandshakeTimeout);
+            auth = await handle.ReadRequest<SharedSessionAuth.Request>(timeout.Token);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[Game] WebSocket auth handshake failed: {Connection}", context.Connection.Id);
-            handle?.Dispose();
-
-            if (webSocket.State == WebSocketState.Open)
-            {
-                try
-                {
-                    await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Auth failed", CancellationToken.None);
-                }
-                catch (Exception closeEx)
-                {
-                    _logger.LogWarning(closeEx, "[Game] Failed to close WebSocket after auth error: {Connection}", context.Connection.Id);
-                }
-            }
-
+            // A silent client (the timeout aborts the socket), a malformed or unexpected first frame.
+            _logger.LogWarning(e, "[Game] WebSocket auth handshake failed: {Connection}", context.Connection.Id);
+            handle.Dispose();
+            await Close(webSocket, WebSocketCloseStatus.PolicyViolation, "Auth failed", context);
             return;
         }
 
-        if (_sessionsCollection.TryGet(auth.SessionId, out var session) == false)
+        var entry = _gate.Enter(auth.Ticket);
+
+        if (entry.Status != SessionAuthStatus.Ok)
         {
-            // A session closed after the search (its last player left, a timeout) or an unknown id: an explicit
-            // refusal, the client fails the connect instead of waiting for a response.
-            _logger.LogWarning("[Game] Connection rejected, session not found: {Connection} {UserId} {SessionId}",
+            // Expected refusals (a session closed after the search, an expired place) and attempts look the same
+            // from here: the client gets the status, the log keeps who the ticket named (empty for a forged one).
+            _logger.LogWarning("[Game] Connection rejected: {Status} {Connection} {UserId}",
+                entry.Status,
                 context.Connection.Id,
-                auth.UserId,
-                auth.SessionId);
+                entry.UserId);
 
-            await Reject(handle, webSocket, "Session not found", context);
+            await Reject(handle, webSocket, entry.Status, context);
             return;
         }
 
-        _logger.LogInformation("[Game] User connected: {Connection} {UserId}",
-            context.Connection.Id,
-            auth.UserId);
+        var session = entry.Session!;
+        var userId = entry.UserId;
 
-        var completion = new TaskCompletionSource();
+        _logger.LogInformation("[Game] User connected: {Connection} {UserId} {SessionId}",
+            context.Connection.Id,
+            userId,
+            session.Id);
 
         try
         {
-            session.ExecutionQueue.Enqueue(() => {
-                try
-                {
-                    var user = session.UserFactory.Create(session.Lifetime, auth.UserId, webSocket);
-                    user.Lifetime.Listen(() => completion.TrySetResult());
-                }
-                catch (Exception e)
-                {
-                    // The connection must not wait forever for a user that was never created.
-                    completion.TrySetException(e);
-                    throw;
-                }
-            });
+            await SessionGate.Join(
+                session,
+                async () => {
+                    await handle.SendResponse(new SharedSessionAuth.Response()
+                    {
+                        Status = SessionAuthStatus.Ok
+                    });
 
-            var response = new SharedSessionAuth.Response()
-            {
-                IsSuccess = true
-            };
-
-            await handle.SendResponse(response);
-            handle.Dispose();
-
-            await completion.Task;
+                    handle.Dispose();
+                },
+                () => session.UserFactory.Create(session.Lifetime, userId, webSocket));
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[Game] Error during session connection handling: {Connection} {UserId}",
                 context.Connection.Id,
-                auth.UserId);
+                userId);
         }
         finally
         {
             _logger.LogInformation("[Game] User disconnected: {Connection} {UserId}",
                 context.Connection.Id,
-                auth.UserId);
+                userId);
         }
     }
 
-    private async Task Reject(ConnectionOneTimeHandle handle, WebSocket webSocket, string reason, HttpContext context)
+    private async Task Reject(ConnectionOneTimeHandle handle, WebSocket webSocket, SessionAuthStatus status, HttpContext context)
     {
         try
         {
             await handle.SendResponse(new SharedSessionAuth.Response()
             {
-                IsSuccess = false
+                Status = status
             });
-
-            if (webSocket.State == WebSocketState.Open)
-                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, reason, CancellationToken.None);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException)
         {
             _logger.LogWarning(e, "[Game] Failed to send the rejection: {Connection}", context.Connection.Id);
         }
         finally
         {
             handle.Dispose();
+        }
+
+        await Close(webSocket, WebSocketCloseStatus.PolicyViolation, status.ToString(), context);
+    }
+
+    private async Task Close(WebSocket webSocket, WebSocketCloseStatus status, string reason, HttpContext context)
+    {
+        if (webSocket.State != WebSocketState.Open)
+            return;
+
+        using var timeout = new CancellationTokenSource(CloseTimeout);
+
+        try
+        {
+            await webSocket.CloseAsync(status, reason, timeout.Token);
+        }
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException)
+        {
+            _logger.LogWarning(e, "[Game] The client did not acknowledge the close: {Connection}", context.Connection.Id);
         }
     }
 }

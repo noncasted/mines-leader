@@ -45,6 +45,7 @@ internal sealed class PreviewPlayer : IPlayer
         }
 
         public Guid Id { get; }
+        public Guid BackendId => throw new NotSupportedException("PreviewUser has no meta user");
         public int Index => 0;
         public bool IsBot => false;
         public ILifetime Lifetime { get; }

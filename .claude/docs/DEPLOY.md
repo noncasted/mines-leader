@@ -198,6 +198,7 @@ For services with one port (8080) the Coolify magic variable `SERVICE_FQDN_<NAME
 ```
 DB_HOST DB_PORT DB_NAME DB_USER DB_PASSWORD    # consumed by pgbouncer + connection-string interpolation
 CONSOLE_TOKEN                                  # blazor admin login + Bearer token for meta /api/monitor/*, game /api/sessions/*
+SESSION_TICKET_SECRET                          # HMAC key of the game session tickets (base64, >= 32 bytes), same for meta / game
 CORS_ALLOWED_ORIGINS                           # optional, default https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone: Cors__AllowedOrigins of meta / game
 GAME_SERVER_URL                                # public URL announced to the Unity client
 ASPIRE_TOKEN                                   # aspire-dashboard browser token
@@ -208,7 +209,21 @@ OTEL_API_KEY                                   # services → dashboard OTLP hea
 
 `Cors:AllowedOrigins` (`AllowedOrigins`, `Common/Extensions/CorsExtensions.cs`) is checked by CORS and by the WebSocket handshake of meta / game (`UseAllowedOrigins`); a handshake without `Origin` (Unity editor, native) passes. Development adds any loopback origin; outside Development an empty list fails startup. A new domain for the client must be added to `CORS_ALLOWED_ORIGINS` before players use it.
 
-All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
+`SESSION_TICKET_SECRET` (`SessionTicketsSetup`, `Orchestration/Extensions/SessionTicketsSetup.cs`): the key of the signed tickets of the game sessions (S4), `openssl rand -base64 48`. Meta signs a ticket for every participant of a match / lobby result, game signs the rematch tickets and verifies all of them, so both need the same value. Empty in Development = a fixed development key (Aspire passes it explicitly); outside Development an empty, short, non-base64 or development key fails startup. Rotating it only fails the tickets issued in the last minute (a player in the middle of entering a match).
+
+All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `SESSION_TICKET_SECRET`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
+
+### Guest secret (S3) and session tickets (S4)
+
+Before S3 a guest was the bare user id in the query of the meta socket (`?userId=`): whoever knew a Guid entered that account. Now the credentials are the first frame of the meta socket (`SharedBackendSocketAuth.Request`): `GuestId + GuestSecret`, the server keeps SHA-256 of the secret (`UserAuthState.GuestSecretHash`, event `GuestSecretIssued` in the `user_auth` stream). The game gateway takes the user and the session only from a ticket the meta (or the game server, for a rematch) signed (`SharedSessionAuth.Request { Ticket }`) and only with a live place of that user in the session.
+
+There is no migration window (decision of 2026-10-21): users created before S3 have no secret and can never be entered again.
+- A cached old client is refused by the protocol hash (4001) before anything is read, reloads to the new build.
+- The new client finds no guest record (`Auth.Guest.<Local|Production>:<scope>`) and gets a new guest: an empty profile (name, rating, decks, history start anew). The old `userId` / `Auth.UserId:<scope>` keys are left in the storage, untouched (a rollback finds its user).
+- A request with the id of a user without a secret is refused (`InvalidCredentials`, close 4003) whatever the secret: the old accounts stay in the database, unreachable.
+- No database migration: the new field of the auth snapshot is empty for old users.
+
+Deploy: set `SESSION_TICKET_SECRET` in Coolify (Secret), back up the database, redeploy the backend and right after it the WebGL client (`deploy-webgl.sh`). Check: meta log `[User] [Auth] Guest secret issued to <id>` on the first entry of a browser, a reload enters the same user, a match starts (`[Game] User connected` with the session id), `Connection rejected` only for attempts.
 
 Everything else is literal or derived inside compose (`x-service-env`). Secrets must be tagged Secret in Coolify UI so they do not get shipped to container logs.
 

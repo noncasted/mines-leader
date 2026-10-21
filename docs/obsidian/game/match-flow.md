@@ -68,7 +68,7 @@ sequenceDiagram
     participant S as Session
 
     C->>GS: WebSocket подключение
-    C->>GS: SharedSessionAuth (UserId, SessionId)
+    C->>GS: SharedSessionAuth (Ticket от meta, юзер и сессия внутри)
     GS->>S: Регистрация игрока
     S->>C: Позиция игрока (Index)
     S->>C: Данные других игроков

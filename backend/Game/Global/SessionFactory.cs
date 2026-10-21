@@ -2,6 +2,7 @@ using Cluster.Configs;
 using Cluster.Discovery;
 using Common;
 using Common.Extensions;
+using Common.Network;
 using Common.Reactive;
 using Game.GamePlay;
 using Game.Session;
@@ -15,8 +16,11 @@ namespace Game.Global;
 public interface ISessionFactory
 {
     Guid CreateLobby(LobbyCreateOptions createOptions);
-    Guid CreateMatch(MatchCreateOptions createOptions);
-    Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions);
+
+    // S4: the places of the participants (meta ids of the humans) are reserved before the id is returned: a user
+    // enters the session only with a ticket for it and a live place.
+    Guid CreateMatch(MatchCreateOptions createOptions, IReadOnlyList<Guid> participants);
+    Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions, Guid participant);
 }
 
 public class SessionFactory : ISessionFactory
@@ -24,15 +28,18 @@ public class SessionFactory : ISessionFactory
     public SessionFactory(
         IServiceProvider serviceProvider,
         ISessionsCollection collection,
+        ISessionTicketIssuer tickets,
         ILogger<SessionFactory> logger)
     {
         _serviceProvider = serviceProvider;
         _collection = collection;
+        _tickets = tickets;
         _logger = logger;
     }
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ISessionsCollection _collection;
+    private readonly ISessionTicketIssuer _tickets;
     private readonly ILogger<SessionFactory> _logger;
 
     public Guid CreateLobby(LobbyCreateOptions createOptions)
@@ -74,8 +81,11 @@ public class SessionFactory : ISessionFactory
         }
     }
 
-    public Guid CreateMatch(MatchCreateOptions createOptions)
+    public Guid CreateMatch(MatchCreateOptions createOptions, IReadOnlyList<Guid> participants)
     {
+        if (participants.Count == 0 || participants.Distinct().Count() != participants.Count)
+            throw new ArgumentException($"A match needs distinct participants, got {participants.Count}", nameof(participants));
+
         _logger.LogInformation("[Matchmaking] Creating match: {Type}", createOptions.Type);
 
         var lifetime = new Lifetime();
@@ -130,10 +140,18 @@ public class SessionFactory : ISessionFactory
         }
 
         services.Add<ISessionFactory>(this);
+        services.Add<ISessionTicketIssuer>(_tickets);
         services.Add<MatchHandle>();
         services.Add(createOptions);
 
         var provider = services.BuildServiceProvider();
+        var session = provider.GetRequiredService<ISession>();
+        var serviceFactory = provider.GetRequiredService<IServiceFactory>();
+
+        foreach (var participant in participants)
+            session.Reserve(participant);
+
+        _collection.Add(session, createOptions.Type);
 
         RunSession().NoAwait();
 
@@ -141,11 +159,6 @@ public class SessionFactory : ISessionFactory
 
         async Task RunSession()
         {
-            var session = provider.GetRequiredService<ISession>();
-            var serviceFactory = provider.GetRequiredService<IServiceFactory>();
-
-            _collection.Add(session, createOptions.Type);
-
             await serviceFactory.OnSessionCreated(lifetime);
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
@@ -159,7 +172,7 @@ public class SessionFactory : ISessionFactory
         }
     }
 
-    public Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions)
+    public Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions, Guid participant)
     {
         _logger.LogInformation("[Matchmaking] Creating match: {Type}", createOptions.Type);
 
@@ -216,6 +229,7 @@ public class SessionFactory : ISessionFactory
         }
 
         services.Add<ISessionFactory>(this);
+        services.Add<ISessionTicketIssuer>(_tickets);
         services.Add<MatchHandle>();
         services.Add(createOptions);
 
@@ -225,6 +239,8 @@ public class SessionFactory : ISessionFactory
         var userFactory = provider.GetRequiredService<IUserFactory>();
         var botRunner = provider.GetRequiredService<IBotRunner>();
 
+        // The bot is created in the session itself (no socket, no ticket): only the human has a place to enter.
+        session.Reserve(participant);
         _collection.Add(session, createOptions.Type);
 
         RunSession().NoAwait();

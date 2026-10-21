@@ -20,6 +20,9 @@ namespace Shared
         {
             public Guid SessionId { get; set; }
             public string ServerUrl { get; set; }
+
+            // S4: the entry of this user into the new session, issued by the game server (one per user).
+            public string Ticket { get; set; }
         }
     }
 

@@ -130,6 +130,18 @@ namespace Internal
             }
         }
 
+        public static async UniTask<T> Track<T>(this IProfilerScope scope, UniTask<T> task)
+        {
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                scope.Stop();
+            }
+        }
+
         public static void Measure(this IProfilerScope parent, string name, Action action)
         {
             var scope = parent.Child(name);

@@ -11,8 +11,13 @@ namespace Internal
     // Every write is followed by PlayerPrefs.Save(): on the web an unsaved value is lost with the tab.
     public static class LocalStorageKeys
     {
-        // The meta user of this device (Meta.Authentication): its id.
-        public const string UserId = "Auth.UserId";
+        // The guest of this device (Meta.Authentication, S3): its id and the secret the server issued, one record per
+        // backend environment - a guest of the local backend is not a guest of production and must not overwrite it.
+        public const string Guest = "Auth.Guest";
+
+        // The user id of the builds before the guest secret (N12 key, "<name>:<scope>"). Not read for the login any
+        // more (such a user cannot be entered): only reported and shown in Project Tools.
+        public const string LegacyUserId = "Auth.UserId";
 
         private const string PlayerScope = "player";
 
@@ -31,6 +36,12 @@ namespace Internal
         public static string Get(string name)
         {
             return $"{name}:{Scope}";
+        }
+
+        // "<name>.<environment>:<scope>": a record that belongs to one backend environment.
+        public static string Get(string name, BackendEnvironment environment)
+        {
+            return $"{name}.{environment}:{Scope}";
         }
     }
 }

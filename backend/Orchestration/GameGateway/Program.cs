@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.SetupGameGateway();
 builder.AddConsoleAccess();
+builder.AddSessionGate();
 
 var app = builder.Build();
 

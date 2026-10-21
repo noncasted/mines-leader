@@ -1,5 +1,6 @@
 ﻿using Cluster.Coordination;
 using Cluster.Discovery;
+using Common.Network;
 using Infrastructure;
 using Meta.Bots;
 using Meta.Users;
@@ -22,8 +23,10 @@ public class MatchFactory : IMatchFactory
         IServiceDiscovery serviceDiscovery,
         IBotCollection botCollection,
         IBotFactory botFactory,
+        ISessionTicketIssuer tickets,
         ILogger<MatchFactory> logger)
     {
+        _tickets = tickets;
         _orleans = orleans;
         _messaging = messaging;
         _serviceDiscovery = serviceDiscovery;
@@ -37,6 +40,7 @@ public class MatchFactory : IMatchFactory
     private readonly IServiceDiscovery _serviceDiscovery;
     private readonly IBotCollection _botCollection;
     private readonly IBotFactory _botFactory;
+    private readonly ISessionTicketIssuer _tickets;
     private readonly ILogger<MatchFactory> _logger;
 
     public async Task Create(IReadOnlyList<Guid> participants, GameMatchType type)
@@ -48,7 +52,8 @@ public class MatchFactory : IMatchFactory
 
         var request = new MatchPayloads.Match.Request
         {
-            Type = type
+            Type = type,
+            Participants = participants
         };
 
         var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
@@ -57,15 +62,18 @@ public class MatchFactory : IMatchFactory
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL}",
             match.GetPrimaryKey(), targetServer.Url);
 
-        var result = new MatchSearchResultUpdate
-        {
-            SessionId = response.SessionId,
-            ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
-            Type = type
-        };
-
         foreach (var participant in participants)
+        {
+            var result = new MatchSearchResultUpdate
+            {
+                SessionId = response.SessionId,
+                ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
+                Type = type,
+                Ticket = _tickets.Issue(participant, response.SessionId)
+            };
+
             await _messaging.SendOneTimeProjection(participant, result);
+        }
     }
 
     public async Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null)
@@ -85,7 +93,8 @@ public class MatchFactory : IMatchFactory
         {
             Type = type,
             BotId = botId,
-            Fixture = MatchPayloads.Match.FixturePayload.From(fixture)
+            Fixture = MatchPayloads.Match.FixturePayload.From(fixture),
+            Participant = participant
         };
 
         var pipeId = new MessagePipeServiceRequestId(targetServer, request.GetType());
@@ -98,7 +107,8 @@ public class MatchFactory : IMatchFactory
         {
             SessionId = response.SessionId,
             ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
-            Type = type
+            Type = type,
+            Ticket = _tickets.Issue(participant, response.SessionId)
         };
 
         await _messaging.SendOneTimeProjection(participant, result);

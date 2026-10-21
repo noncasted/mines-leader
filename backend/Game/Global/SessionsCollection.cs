@@ -68,7 +68,7 @@ public class SessionsCollection : ISessionsCollection
             if (session.Lifetime.IsTerminated == true)
                 return;
 
-            _userIds[session.Id] = session.Users.Select(user => user.Id).ToList();
+            _userIds[session.Id] = session.Users.Select(user => user.BackendId).ToList();
             PushLiveData();
         }
     }

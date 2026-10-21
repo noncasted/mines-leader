@@ -10,6 +10,9 @@ public class MatchPayloads
         public class Request
         {
             [Id(0)] public required GameMatchType Type { get; init; }
+
+            // S4: the meta ids of the users the session reserves its places for.
+            [Id(1)] public required IReadOnlyList<Guid> Participants { get; init; }
         }
 
         [GenerateSerializer]
@@ -18,6 +21,9 @@ public class MatchPayloads
             [Id(0)] public required GameMatchType Type { get; init; }
             [Id(1)] public required Guid BotId { get; init; }
             [Id(2)] public FixturePayload? Fixture { get; init; }
+
+            // S4: the meta id of the human player the session reserves its place for.
+            [Id(3)] public required Guid Participant { get; init; }
         }
 
         [GenerateSerializer]

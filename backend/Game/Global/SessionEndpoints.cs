@@ -57,7 +57,7 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
             var id = _sessionFactory.CreateMatch(new MatchCreateOptions
             {
                 Type = request.Type,
-            });
+            }, request.Participants);
 
             return Task.FromResult(new MatchPayloads.Match.Response
             {
@@ -71,7 +71,7 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
             {
                 Type = request.Type,
                 Fixture = request.Fixture?.ToShared(),
-            });
+            }, request.Participant);
 
             return Task.FromResult(new MatchPayloads.Match.Response
             {
@@ -84,7 +84,7 @@ public class SessionEndpoints : ICoordinatorSetupCompleted
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session request received",
                 request.UserId);
 
-            var id = _sessionSearch.GetOrCreateLobby();
+            var id = _sessionSearch.GetOrCreateLobby(request.UserId);
 
             _logger.LogInformation("{UserId} [Lobby] [Game] GetOrCreate session returning session {SessionID}",
                 request.UserId,

@@ -119,7 +119,7 @@ public class SessionCloseTests
     // Also used by SessionRunTests.
     internal sealed class SessionWorld
     {
-        public SessionWorld(SessionType type, int expectedUsers)
+        public SessionWorld(SessionType type, int expectedUsers, TimeProvider? time = null, TimeSpan? joinTimeout = null)
         {
             Data = new SessionContainerData
             {
@@ -127,8 +127,9 @@ public class SessionCloseTests
                 Type = type,
                 ExpectedUsers = expectedUsers,
                 Lifetime = new Lifetime(),
-                JoinTimeout = TimeSpan.FromMilliseconds(300),
-                EmptyLobbyGrace = TimeSpan.FromMilliseconds(300)
+                JoinTimeout = joinTimeout ?? TimeSpan.FromMilliseconds(300),
+                EmptyLobbyGrace = TimeSpan.FromMilliseconds(300),
+                Time = time ?? TimeProvider.System
             };
 
             _queue = new ExecutionQueue(NullLogger<ExecutionQueue>.Instance);
@@ -154,9 +155,22 @@ public class SessionCloseTests
         // Same as the gateway: the user is created in the execution queue.
         public void ConnectUser(out ScriptedSocket socket)
         {
+            ConnectUser(Guid.NewGuid(), out socket);
+        }
+
+        public void ConnectUser(Guid backendId, out ScriptedSocket socket)
+        {
             var created = new ScriptedSocket();
             socket = created;
-            _queue.Enqueue(() => Session.UserFactory.Create(Session.Lifetime, Guid.NewGuid(), created));
+            _queue.Enqueue(() => Session.UserFactory.Create(Session.Lifetime, backendId, created));
+        }
+
+        // The users of the session, read in its queue.
+        public async Task<List<IUser>> GetUsers()
+        {
+            var completion = new TaskCompletionSource<List<IUser>>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _queue.Enqueue(() => completion.SetResult(_users.ToList()));
+            return await completion.Task.WaitAsync(Wait);
         }
 
         public async Task WaitUsersCount(int count)

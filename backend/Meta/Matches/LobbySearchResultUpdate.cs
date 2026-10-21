@@ -10,12 +10,16 @@ public class LobbySearchResultUpdate : IProjectionPayload
 
     [Id(1)] public required string ServerUrl { get; init; }
 
+    // S4: the entry of this user into the session (SessionTickets), one per participant.
+    [Id(2)] public required string Ticket { get; init; }
+
     public INetworkContext ToContext()
     {
         return new SharedMatchmaking.LobbyResult()
         {
             SessionId = SessionId,
-            ServerUrl = ServerUrl
+            ServerUrl = ServerUrl,
+            Ticket = Ticket
         };
     }
 }

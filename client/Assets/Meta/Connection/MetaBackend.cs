@@ -13,7 +13,21 @@ namespace Meta
         INetworkConnection Connection { get; }
         IReadOnlyLifetime Lifetime { get; }
 
-        UniTask Connect(IReadOnlyLifetime lifetime, Guid? userId);
+        // Opens the socket and authorizes with its first frame (S3). A refusal throws MetaAuthRejectedException (the
+        // server closes the socket with SharedBackendSocketAuth.RejectedCloseCode after it).
+        UniTask<SharedBackendSocketAuth.Response> Connect(IReadOnlyLifetime lifetime, SharedBackendSocketAuth.Request auth);
+    }
+
+    // The server refused the saved credentials: every next attempt with them is refused the same way.
+    public class MetaAuthRejectedException : Exception
+    {
+        public MetaAuthRejectedException(SharedBackendSocketAuth.AuthStatus status)
+            : base($"[Meta] The backend refused the authorization: {status}")
+        {
+            Status = status;
+        }
+
+        public SharedBackendSocketAuth.AuthStatus Status { get; }
     }
 
     public class MetaBackend : IMetaBackend
@@ -38,15 +52,14 @@ namespace Meta
         public IReadOnlyLifetime Lifetime { get; }
 
         /// <summary>
-        /// Поднимает сокет и авторизуется тем же запросом: id уезжает в query апгрейда.
-        /// <paramref name="userId"/> = null означает, что сохранённого юзера нет — сервер
-        /// заведёт нового, и его id приедет в профильной проекции.
+        /// Nothing of the credentials goes into the url (it ends up in the logs of every proxy): the request is the
+        /// first frame, sent right after the socket opens, nothing else is sent before its response.
         /// </summary>
-        public async UniTask Connect(IReadOnlyLifetime lifetime, Guid? userId)
+        public async UniTask<SharedBackendSocketAuth.Response> Connect(
+            IReadOnlyLifetime lifetime,
+            SharedBackendSocketAuth.Request auth)
         {
-            Debug.Log("[Meta] Connecting to backend as: " + userId);
-
-            var url = BuildUrl(userId);
+            Debug.Log("[Meta] Connecting to backend as: " + (auth.GuestId == Guid.Empty ? "new guest" : $"guest {auth.GuestId}"));
 
             // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие этапы
             // вложились бы в ожидание сокета. Текущим он делается только на синхронном прологе,
@@ -56,17 +69,16 @@ namespace Meta
             UniTask run;
 
             using (GameProfiler.Ambient(socket))
-                run = _connection.Run(lifetime, url);
+                run = _connection.Run(lifetime, _options.SocketUrl);
 
             await run;
-        }
 
-        private string BuildUrl(Guid? userId)
-        {
-            if (userId.HasValue == false)
-                return _options.SocketUrl;
+            var response = await _connection.Request<SharedBackendSocketAuth.Response>(auth);
 
-            return $"{_options.SocketUrl}?{SharedBackendSocketAuth.UserIdQueryKey}={userId.Value}";
+            if (response.Status != SharedBackendSocketAuth.AuthStatus.Ok)
+                throw new MetaAuthRejectedException(response.Status);
+
+            return response;
         }
     }
 }

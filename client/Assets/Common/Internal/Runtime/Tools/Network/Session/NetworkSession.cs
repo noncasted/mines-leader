@@ -1,5 +1,4 @@
-﻿using System;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Internal
@@ -8,9 +7,11 @@ namespace Internal
     {
         INetworkUsersCollection Users { get; }
         IReadOnlyLifetime Lifetime { get; }
-        Guid LocalUserId { get; }
 
-        UniTask Start(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
+        // The ticket (from the meta: MatchResult.Ticket, LobbyResult.Ticket, or from the game server:
+        // RematchContexts.Success.Ticket) names the user and the session; it is accepted once, within a minute of its
+        // issue (S4).
+        UniTask Start(IReadOnlyLifetime lifetime, string serverUrl, string ticket);
     }
 
     public class NetworkSession : INetworkSession
@@ -29,19 +30,16 @@ namespace Internal
         private readonly ISessionConnection _connection;
 
         private ILifetime _lifetime;
-        private Guid _userId;
 
         public INetworkUsersCollection Users { get; }
         public IReadOnlyLifetime Lifetime => _lifetime;
-        public Guid LocalUserId => _userId;
 
-        public async UniTask Start(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
+        public async UniTask Start(IReadOnlyLifetime lifetime, string serverUrl, string ticket)
         {
-            _userId = userId;
             _lifetime = lifetime.Child();
 
             Debug.Log("[Network] [Session] Starting session connection...");
-            await _connection.Connect(_lifetime, serverUrl, sessionId, userId);
+            await _connection.Connect(_lifetime, serverUrl, ticket);
             Debug.Log("[Network] [Session] Session connection established.");
             Debug.Log("[Network] [Session] Waiting for local user data...");
             await UniTask.WaitUntil(() => Users.Local != null);

@@ -66,6 +66,7 @@ namespace Flow.Loop
                                         {
                                             ServerUrl = rematch.NewSession.ServerUrl,
                                             SessionId = rematch.NewSession.SessionId,
+                                            Ticket = rematch.NewSession.Ticket,
                                             Type = loadData.Result.Type
                                         }
                                     }

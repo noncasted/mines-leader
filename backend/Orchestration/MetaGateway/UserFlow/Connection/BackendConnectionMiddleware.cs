@@ -5,7 +5,6 @@ using Common.Network;
 using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Startup;
-using Meta.Users;
 using Shared;
 
 namespace MetaGateway.UserFlow.Connection;
@@ -14,22 +13,28 @@ public class BackendConnectionMiddleware
 {
     public BackendConnectionMiddleware(
         RequestDelegate next,
-        IUserFactory userFactory,
+        MetaSocketAuth auth,
         IUserConnectionEntryPoint entryPoint,
         IClusterFeatures clusterFeatures,
         IClusterParticipantContext participantContext,
         ILogger<BackendConnectionMiddleware> logger)
     {
         _next = next;
-        _userFactory = userFactory;
+        _auth = auth;
         _entryPoint = entryPoint;
         _clusterFeatures = clusterFeatures;
         _participantContext = participantContext;
         _logger = logger;
     }
 
+    // S3: the credentials come in the first frame (SharedBackendSocketAuth.Request), sent by the client right after
+    // the socket opens; a client that stays silent does not hold the socket.
+    public static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(10);
+
+    private static readonly TimeSpan CloseTimeout = TimeSpan.FromSeconds(5);
+
     private readonly RequestDelegate _next;
-    private readonly IUserFactory _userFactory;
+    private readonly MetaSocketAuth _auth;
     private readonly IUserConnectionEntryPoint _entryPoint;
     private readonly IClusterFeatures _clusterFeatures;
     private readonly IClusterParticipantContext _participantContext;
@@ -64,36 +69,7 @@ public class BackendConnectionMiddleware
             return;
         }
 
-        // Авторизация приезжает прямо в запросе на апгрейд: отдельного кадра с
-        // хендшейком нет, поэтому и лишнего плеча до сервера тоже нет.
-        if (TryReadUserId(context, out var requestedUserId) == false)
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsync("Malformed user id");
-            return;
-        }
-
-        // Регистрация живёт здесь же: отдельный http-эндпоинт стоил клиенту второго
-        // tls-соединения к тому же хосту ради одного guid.
-        ResolvedUser resolvedUser;
-
-        try
-        {
-            resolvedUser = await _userFactory.Resolve(requestedUserId);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "[Meta] Failed to resolve user: {Connection} {UserId}",
-                context.Connection.Id,
-                requestedUserId);
-
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            await context.Response.WriteAsync("Failed to resolve user");
-            return;
-        }
-
-        var userId = resolvedUser.Id;
-        WebSocket? webSocket;
+        WebSocket webSocket;
 
         try
         {
@@ -104,6 +80,62 @@ public class BackendConnectionMiddleware
             _logger.LogError(e, "[Meta] Failed to accept WebSocket: {Connection}", context.Connection.Id);
             return;
         }
+
+        // A query user id (a client before S3) is not looked at: the user comes only from the first frame.
+        var handle = new ConnectionOneTimeHandle(webSocket);
+        MetaSocketAuthResult result;
+
+        try
+        {
+            SharedBackendSocketAuth.Request request;
+
+            try
+            {
+                using var timeout = new CancellationTokenSource(HandshakeTimeout);
+                request = await handle.ReadRequest<SharedBackendSocketAuth.Request>(timeout.Token);
+            }
+            catch (Exception e)
+            {
+                // A silent client (the timeout aborts the socket), a malformed or unexpected first frame.
+                _logger.LogWarning(e, "[Meta] Auth handshake failed: {Connection}", context.Connection.Id);
+                await Close(webSocket, WebSocketCloseStatus.PolicyViolation, "Auth failed", context);
+                return;
+            }
+
+            try
+            {
+                result = await _auth.Authenticate(request);
+            }
+            catch (Exception e)
+            {
+                // The cluster failed (a conflicted transaction, the database): not a refusal of the credentials, the
+                // client may come again.
+                _logger.LogError(e, "[Meta] Failed to resolve user: {Connection}", context.Connection.Id);
+                await Close(webSocket, WebSocketCloseStatus.InternalServerError, "Failed to resolve user", context);
+                return;
+            }
+
+            await handle.SendResponse(result.Response);
+        }
+        finally
+        {
+            handle.Dispose();
+        }
+
+        if (result.User == null)
+        {
+            _logger.LogWarning("[Meta] Auth rejected: {Status} {Connection}", result.Response.Status, context.Connection.Id);
+
+            await Close(webSocket,
+                (WebSocketCloseStatus)SharedBackendSocketAuth.RejectedCloseCode,
+                SharedBackendSocketAuth.RejectedReason,
+                context);
+
+            return;
+        }
+
+        var resolvedUser = result.User;
+        var userId = resolvedUser.Id;
 
         _logger.LogInformation("[Meta] User connected: {Connection} {UserId}", context.Connection.Id, userId);
 
@@ -142,20 +174,21 @@ public class BackendConnectionMiddleware
 
     }
 
-    private static bool TryReadUserId(HttpContext context, out Guid? userId)
+    private async Task Close(WebSocket webSocket, WebSocketCloseStatus status, string reason, HttpContext context)
     {
-        userId = null;
+        if (webSocket.State != WebSocketState.Open)
+            return;
 
-        var raw = context.Request.Query[SharedBackendSocketAuth.UserIdQueryKey].ToString();
+        using var timeout = new CancellationTokenSource(CloseTimeout);
 
-        if (string.IsNullOrEmpty(raw) == true)
-            return true;
-
-        if (Guid.TryParse(raw, out var parsed) == false)
-            return false;
-
-        userId = parsed;
-        return true;
+        try
+        {
+            await webSocket.CloseAsync(status, reason, timeout.Token);
+        }
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException)
+        {
+            _logger.LogWarning(e, "[Meta] The client did not acknowledge the close: {Connection}", context.Connection.Id);
+        }
     }
 }
 

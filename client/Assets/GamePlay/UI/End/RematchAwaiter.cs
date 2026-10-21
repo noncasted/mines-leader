@@ -67,7 +67,7 @@ namespace GamePlay.UI
         {
             _completion.TrySetResult(new GameEndTransition.Rematch()
             {
-                NewSession = new SessionData(data.ServerUrl, data.SessionId)
+                NewSession = new SessionData(data.ServerUrl, data.SessionId, data.Ticket)
             });
         }
     }

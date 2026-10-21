@@ -61,8 +61,12 @@ public class GameFlow : Service, IGameFlow
         var match = _orleans.GetGrain<IMatch>(_sessionData.Id);
         var playerIds = _users.Select(t => t.Id).ToList();
 
+        // Players are known by their session ids, the meta by the user ids (S3). Taken at the start: a user that
+        // leaves is removed from the session users, its result still goes to the meta.
+        var ids = new MatchUserIds(_users);
+
         _sessionLogger.LogSessionCreated(_sessionData.Type, _sessionData.Id);
-        await _orleans.InTransaction(() => match.Setup(_matchOptions.Type, playerIds));
+        await _orleans.InTransaction(() => match.Setup(_matchOptions.Type, ids.ToBackend(playerIds)));
 
         foreach (var user in _users)
         {
@@ -84,7 +88,8 @@ public class GameFlow : Service, IGameFlow
         // Итоги матча считает грейн, а клиенту они нужны на экране результатов,
         // поэтому завершаем матч до отправки снапшота о конце игры.
         var summary = winner != Guid.Empty
-            ? await _orleans.InTransaction(() => match.OnComplete(winner, matchStats))
+            ? ids.ToSession(await _orleans.InTransaction(() =>
+                match.OnComplete(ids.ToBackend(winner), ids.ToBackend(matchStats))))
             : null;
 
         var completionSnapshot = new MoveSnapshot();
@@ -108,5 +113,57 @@ public class GameFlow : Service, IGameFlow
         }
 
         return MatchTransitionResult.End;
+    }
+}
+
+// The two ids of the users of a match (IUser.Id in the session, IUser.BackendId in the meta) at its start.
+public class MatchUserIds
+{
+    public MatchUserIds(IEnumerable<IUser> users)
+    {
+        foreach (var user in users)
+        {
+            _toBackend.Add(user.Id, user.BackendId);
+            _toSession.Add(user.BackendId, user.Id);
+        }
+    }
+
+    private readonly Dictionary<Guid, Guid> _toBackend = new();
+    private readonly Dictionary<Guid, Guid> _toSession = new();
+
+    public Guid ToBackend(Guid sessionId)
+    {
+        if (_toBackend.TryGetValue(sessionId, out var backendId) == false)
+            throw new KeyNotFoundException($"No user {sessionId} in the match");
+
+        return backendId;
+    }
+
+    public List<Guid> ToBackend(IEnumerable<Guid> sessionIds)
+    {
+        return sessionIds.Select(ToBackend).ToList();
+    }
+
+    public Dictionary<Guid, Meta.Users.UserStatsDelta> ToBackend(Dictionary<Guid, Meta.Users.UserStatsDelta> stats)
+    {
+        return stats.ToDictionary(entry => ToBackend(entry.Key), entry => entry.Value);
+    }
+
+    public MatchCompletionSummary ToSession(MatchCompletionSummary summary)
+    {
+        return new MatchCompletionSummary
+        {
+            Duration = summary.Duration,
+            RatingChanges = summary.RatingChanges.ToDictionary(entry => ToSession(entry.Key), entry => entry.Value),
+            Ratings = summary.Ratings.ToDictionary(entry => ToSession(entry.Key), entry => entry.Value)
+        };
+    }
+
+    private Guid ToSession(Guid backendId)
+    {
+        if (_toSession.TryGetValue(backendId, out var sessionId) == false)
+            throw new KeyNotFoundException($"No meta user {backendId} in the match");
+
+        return sessionId;
     }
 }

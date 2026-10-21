@@ -15,7 +15,7 @@ namespace Internal
         protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionEntity.DestroyUpdate context)
         {
             var entity = _entities.Entries[context.EntityId];
-            Debug.Log($"[Network] Destroying entity with ID: {context.EntityId} owner ID: {entity.Owner.BackendId}");
+            Debug.Log($"[Network] Destroying entity with ID: {context.EntityId} owner ID: {entity.Owner.Id}");
             entity.DestroyRemote();
         }
     }

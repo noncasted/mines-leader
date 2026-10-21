@@ -4,69 +4,113 @@ using UnityEngine;
 
 namespace Meta
 {
+    // A guest of the meta saved on this device (S3): the id and the secret the server issued once.
+    public readonly struct GuestCredentials
+    {
+        public GuestCredentials(Guid id, string secret)
+        {
+            if (id == Guid.Empty || string.IsNullOrEmpty(secret) == true)
+                throw new ArgumentException("[Meta] Guest credentials need an id and a secret");
+
+            Id = id;
+            Secret = secret;
+        }
+
+        public Guid Id { get; }
+        public string Secret { get; }
+    }
+
     public interface IAuthentication
     {
-        Guid? Load();
-        void Save(Guid id);
+        // Null: no guest of this backend environment on this device (the server creates a new one).
+        GuestCredentials? LoadGuest();
+
+        // Saves and flushes at once: a secret lost with the tab is a lost account.
+        void SaveGuest(GuestCredentials credentials);
+
+        // A user id saved by a build before the guest secret, if any. Such a user cannot be entered any more (no
+        // migration, decision of 2026-10-21): only reported when a new guest replaces it.
+        Guid? LoadLegacyUserId();
     }
 
     /// <summary>
-    /// Хранит id юзера между запусками. Самой авторизации здесь больше нет: она уехала
-    /// в хендшейк сокета, поэтому лишнего похода в сеть на старте не остаётся.
+    /// The guest of this device in PlayerPrefs: one record under <see cref="LocalStorageKeys.Guest"/> per backend
+    /// environment (a local guest does not overwrite the production one in the editor) and per player scope (project
+    /// copy / MPPM clone in the editor, one per device outside it).
     /// </summary>
     public class Authentication : IAuthentication
     {
-        // The key of the builds before the per-player keys: outside the editor the id alone under "userId". In the
-        // editor it was "userId:<string hash>" (a new one every launch on CoreCLR) plus a copy under "userId" -
-        // neither is migrated in the editor: an editor user starts anew once. The key is kept after the migration:
-        // a rollback to an older build still finds its user.
-        private const string LegacyUserIdKey = "userId";
-
-        public Guid? Load()
+        public Authentication(BackendOptions options)
         {
-            using (GameProfiler.Scope("Saved user id"))
+            _options = options;
+        }
+
+        // The key of the builds before the per-player keys: the id alone. Outside the editor only (in the editor the
+        // old keys were per process on CoreCLR). Left in place: a rollback to such a build still finds its user.
+        private const string BuildLegacyUserIdKey = "userId";
+
+        private readonly BackendOptions _options;
+
+        private string GuestKey => LocalStorageKeys.Get(LocalStorageKeys.Guest, _options.Target);
+
+        public GuestCredentials? LoadGuest()
+        {
+            using (GameProfiler.Scope("Saved guest"))
             {
-                var key = LocalStorageKeys.Get(LocalStorageKeys.UserId);
+                var key = GuestKey;
 
                 if (PlayerPrefs.HasKey(key) == false)
-                    return LoadLegacy();
+                    return null;
 
-                return Parse(PlayerPrefs.GetString(key));
+                var record = JsonUtility.FromJson<GuestRecord>(PlayerPrefs.GetString(key));
+
+                if (record == null || Guid.TryParse(record.Id, out var id) == false || string.IsNullOrEmpty(record.Secret) == true)
+                    throw new InvalidOperationException($"[Meta] The saved guest under {key} is malformed");
+
+                return new GuestCredentials(id, record.Secret);
             }
         }
 
-        public void Save(Guid id)
+        public void SaveGuest(GuestCredentials credentials)
         {
-            using (GameProfiler.Scope("Save user id"))
+            using (GameProfiler.Scope("Save guest"))
             {
-                PlayerPrefs.SetString(LocalStorageKeys.Get(LocalStorageKeys.UserId), id.ToString());
+                var record = new GuestRecord
+                {
+                    Id = credentials.Id.ToString(),
+                    Secret = credentials.Secret
+                };
 
-                // On the web an unflushed value is lost with the tab: the next launch would create a new user.
+                PlayerPrefs.SetString(GuestKey, JsonUtility.ToJson(record));
+
+                // On the web an unflushed value is lost with the tab: the next launch would get a new guest.
                 PlayerPrefs.Save();
             }
         }
 
-        private static Guid? LoadLegacy()
+        public Guid? LoadLegacyUserId()
         {
-#if UNITY_EDITOR
-            return null;
-#else
-            if (PlayerPrefs.HasKey(LegacyUserIdKey) == false)
-                return null;
+            var key = LocalStorageKeys.Get(LocalStorageKeys.LegacyUserId);
 
-            return Parse(PlayerPrefs.GetString(LegacyUserIdKey));
+#if !UNITY_EDITOR
+            if (PlayerPrefs.HasKey(key) == false)
+                key = BuildLegacyUserIdKey;
 #endif
-        }
 
-        private static Guid? Parse(string raw)
-        {
-            if (Guid.TryParse(raw, out var userId) == false)
-            {
-                Debug.LogWarning("[Meta] Saved user id is malformed, a new user will be created");
+            if (PlayerPrefs.HasKey(key) == false)
                 return null;
-            }
+
+            if (Guid.TryParse(PlayerPrefs.GetString(key), out var userId) == false)
+                return null;
 
             return userId;
+        }
+
+        [Serializable]
+        private class GuestRecord
+        {
+            public string Id;
+            public string Secret;
         }
     }
 }

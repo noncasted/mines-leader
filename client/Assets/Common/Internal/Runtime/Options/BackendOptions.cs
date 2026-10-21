@@ -34,6 +34,9 @@ namespace Internal
             set => _localApiUrl = value;
         }
 
+        // The backend this client talks to: the chosen one in the editor, production in a build (see Url).
+        public BackendEnvironment Target => Application.isEditor == false ? BackendEnvironment.Production : _environment;
+
         public string Url
         {
             get

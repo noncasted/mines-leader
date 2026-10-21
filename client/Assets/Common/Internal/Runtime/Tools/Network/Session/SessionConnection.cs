@@ -7,7 +7,7 @@ namespace Internal
 {
     public interface ISessionConnection
     {
-        UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId);
+        UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, string ticket);
     }
 
     public class SessionConnection : ISessionConnection
@@ -19,30 +19,29 @@ namespace Internal
 
         private readonly INetworkConnection _connection;
 
-        public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, Guid sessionId, Guid userId)
+        // S4: the first frame of the socket is the ticket; a refusal throws (the server closes the socket after it).
+        public async UniTask Connect(IReadOnlyLifetime lifetime, string serverUrl, string ticket)
         {
+            if (string.IsNullOrEmpty(ticket) == true)
+                throw new ArgumentException("[Network] [Session] A session is entered without a ticket", nameof(ticket));
+
             var auth = new SharedSessionAuth.Request
             {
-                SessionId = sessionId,
-                UserId = userId
+                Ticket = ticket
             };
 
-            Debug.Log($"[Network] [Session] User {userId} connecting to session {sessionId} at {serverUrl}");
+            Debug.Log($"[Network] [Session] Connecting to the session at {serverUrl}");
             await _connection.Run(lifetime, serverUrl);
-            Debug.Log($"[Network] [Session] Connection started successfully for user {userId}, authenticating...");
+            Debug.Log("[Network] [Session] Connection started, authenticating...");
 
             // No answer throws: OperationCanceledException when the socket was lost before it, TimeoutException,
             // NetworkRequestException when the session failed to handle it (IConnectionWriter.WriteRequest).
             var response = await _connection.Request<SharedSessionAuth.Response>(auth);
 
-            Debug.Log(
-                $"[Network] [Session] Authentication response received for user {userId} in session {sessionId}: Success = {response.IsSuccess}");
+            Debug.Log($"[Network] [Session] Authentication response: {response.Status}");
 
-            if (response.IsSuccess == false)
-            {
-                Debug.LogError($"[Network] [Session] Failed to authenticate user {userId} for session {sessionId}");
-                throw new Exception("Authentication failed");
-            }
+            if (response.Status != SessionAuthStatus.Ok)
+                throw new InvalidOperationException($"[Network] [Session] The session refused the entry: {response.Status}");
         }
     }
 }

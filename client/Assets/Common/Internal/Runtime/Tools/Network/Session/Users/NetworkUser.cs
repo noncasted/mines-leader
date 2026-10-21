@@ -7,7 +7,10 @@ namespace Internal
     {
         int Index { get; }
         bool IsLocal { get; }
-        Guid BackendId { get; }
+
+        // The id of the user in this session (a new one in every session), not its meta id: the meta id is the login
+        // of a user and is never sent to the other clients (S3).
+        Guid Id { get; }
         IReadOnlyDictionary<int, INetworkEntity> Entities { get; }
         IReadOnlyLifetime Lifetime { get; }
 
@@ -21,10 +24,10 @@ namespace Internal
             int index,
             bool isLocal,
             ILifetime lifetime,
-            Guid backendId)
+            Guid id)
         {
             _lifetime = lifetime;
-            BackendId = backendId;
+            Id = id;
             Index = index;
             IsLocal = isLocal;
         }
@@ -34,7 +37,7 @@ namespace Internal
 
         public int Index { get; }
         public bool IsLocal { get; }
-        public Guid BackendId { get; }
+        public Guid Id { get; }
         public IReadOnlyDictionary<int, INetworkEntity> Entities => _entities;
         public IReadOnlyLifetime Lifetime => _lifetime;
 

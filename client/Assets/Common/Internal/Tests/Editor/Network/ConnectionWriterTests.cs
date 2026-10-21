@@ -22,7 +22,7 @@ namespace Internal.Tests
         {
             var (writer, socket, lifetime) = Create();
 
-            writer.WriteOneWay(new SharedSessionAuth.Response { IsSuccess = true });
+            writer.WriteOneWay(new SharedSessionAuth.Response { Status = SessionAuthStatus.Ok });
             await Frames();
 
             Assert.AreEqual(1, socket.Sent.Count);
@@ -35,7 +35,7 @@ namespace Internal.Tests
         {
             var (writer, socket, lifetime) = Create();
 
-            writer.WriteOneWay(new SharedSessionAuth.Response { IsSuccess = true });
+            writer.WriteOneWay(new SharedSessionAuth.Response { Status = SessionAuthStatus.Ok });
             await writer.ForceSendAll();
             await Frames();
 
@@ -118,9 +118,9 @@ namespace Internal.Tests
             var (writer, _, lifetime) = Create();
 
             var request = writer.WriteRequest<SharedSessionAuth.Response>(new SharedSessionAuth.Request());
-            writer.OnRequestHandled(new SharedSessionAuth.Response { IsSuccess = true }, 1);
+            writer.OnRequestHandled(new SharedSessionAuth.Response { Status = SessionAuthStatus.NoReservation }, 1);
 
-            Assert.IsTrue((await request).IsSuccess);
+            Assert.AreEqual(SessionAuthStatus.NoReservation, (await request).Status);
             lifetime.Terminate();
         });
 
@@ -146,7 +146,7 @@ namespace Internal.Tests
 
             Assert.IsFalse(writer.IsClosed);
 
-            writer.WriteOneWay(new SharedSessionAuth.Response { IsSuccess = true });
+            writer.WriteOneWay(new SharedSessionAuth.Response { Status = SessionAuthStatus.Ok });
             await Frames();
 
             Assert.AreEqual(1, socket.Sent.Count);
