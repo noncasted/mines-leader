@@ -147,6 +147,18 @@ namespace ContainerGenerator {
             if (slot.IsAlternative && slot.IsGroupPrimary == false)
                 return;
 
+            if (slot.IsHole && slot.IsInjectionsRepeat)
+                return;
+
+            if (slot.IsHole && string.IsNullOrEmpty(slot.InjectionsParamName) == false) {
+                var injections = slot.InjectionsParamName;
+                var counter = slot.InjectionsIndexName;
+                writer.AppendLine(indent + "for (var " + counter + " = 0; " + counter + " < " + injections + ".Length; " + counter + "++) {");
+                WriteConstructCall(writer, plan, graph, slot, injections + "[" + counter + "]", indent + "    ");
+                writer.AppendLine(indent + "}");
+                return;
+            }
+
             if (slot.IsHole) {
                 WriteConstructCall(writer, plan, graph, slot, slot.FieldName, indent);
                 return;
@@ -333,7 +345,7 @@ namespace ContainerGenerator {
         private static string HoleParam(ScopePlan plan, GraphEdge edge) {
             for (var i = 0; i < plan.CtorParams.Count; i++) {
                 var param = plan.CtorParams[i];
-                if (param.IsLifetime || param.IsParent || param.IsRequest || param.IsAlternative)
+                if (param.IsLifetime || param.IsParent || param.IsRequest || param.IsAlternative || param.IsInjections)
                     continue;
                 if (param.Type == edge.ParameterType &&
                     (param.Name == edge.ParameterName || param.Name == ScopeNames.Escape(edge.ParameterName)))
@@ -342,7 +354,7 @@ namespace ContainerGenerator {
 
             for (var i = 0; i < plan.CtorParams.Count; i++) {
                 var param = plan.CtorParams[i];
-                if (param.IsLifetime || param.IsParent || param.IsRequest || param.IsAlternative)
+                if (param.IsLifetime || param.IsParent || param.IsRequest || param.IsAlternative || param.IsInjections)
                     continue;
                 if (param.Type == edge.ParameterType)
                     return HoleValue(plan, param);
@@ -677,7 +689,9 @@ namespace ContainerGenerator {
                         ? "request.Parent"
                         : param.IsRequest
                             ? "request"
-                            : "request.Get<" + param.Type + ">()";
+                            : param.IsInjections
+                                ? "request.GetInjections<" + param.ElementType + ">()"
+                                : "request.Get<" + param.Type + ">()";
                 var comma = i + 1 < plan.CtorParams.Count ? "," : "";
                 writer.AppendLine(body + "        " + argument + comma);
             }

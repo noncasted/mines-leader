@@ -152,32 +152,12 @@ namespace ContainerGenerator {
             return IsInstaller(method);
         }
 
-        private static bool IsPrimitiveCall(IMethodSymbol? symbol) {
-            return symbol == null || IsPrimitiveBuilder(symbol);
-        }
-
+        // Builder primitives carry [Internal.ContainerPrimitive(kind)], see Primitives. FindOrLoadSceneWithServices is
+        // handled at the call site but its body is still walked as an installer (it calls SceneServicesFactory.Create),
+        // so it stays out of the primitives here.
         private static bool IsPrimitiveBuilder(IMethodSymbol method) {
-            var name = method.OriginalDefinition.Name;
-            var owner = (method.ReducedFrom ?? method.OriginalDefinition).ContainingType?.Name ?? "";
-            if (owner != "BuilderExtensions" && owner != "ScopeBuilderExtensions")
-                return false;
-            switch (name) {
-                case "Register":
-                case "RegisterInstance":
-                case "RegisterComponent":
-                case "As":
-                case "AsSelf":
-                case "AsSelfResolvable":
-                case "WithParameter":
-                case "WithScopeLifetime":
-                case "Inject":
-                case "Injectable":
-                case "Instantiate":
-                case "Provide":
-                    return true;
-                default:
-                    return false;
-            }
+            var kind = Primitives.OfSymbol(method);
+            return kind != PrimitiveKind.None && kind != PrimitiveKind.SceneServices;
         }
 
         private bool HasBuilderParameter(IMethodSymbol method) {
@@ -680,27 +660,29 @@ namespace ContainerGenerator {
                     WalkLambda(state, value);
             }
 
-            if (name == "Register" && IsPrimitiveCall(symbol)) {
+            var primitive = Primitives.Of(symbol, name);
+
+            if (primitive == PrimitiveKind.Register) {
                 HandleRegister(state, invocation, symbol);
                 return;
             }
 
-            if (name == "RegisterInstance" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.RegisterInstance) {
                 HandleRegisterInstance(state, invocation, symbol);
                 return;
             }
 
-            if (name == "RegisterComponent" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.RegisterComponent) {
                 HandleRegisterComponent(state, invocation, symbol);
                 return;
             }
 
-            if (name == "As" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.As) {
                 HandleAs(state, invocation, symbol);
                 return;
             }
 
-            if (name == "AsSelf" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.AsSelf) {
                 HandleCurrent(state, invocation, registration => {
                     if (string.IsNullOrEmpty(registration.ImplementationType) == false)
                         AddService(registration, registration.ImplementationType);
@@ -708,17 +690,17 @@ namespace ContainerGenerator {
                 return;
             }
 
-            if (name == "AsSelfResolvable" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.AsSelfResolvable) {
                 WalkReceiver(state, invocation);
                 return;
             }
 
-            if (name == "WithParameter" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.WithParameter) {
                 HandleWithParameter(state, invocation, symbol);
                 return;
             }
 
-            if (name == "WithScopeLifetime" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.WithScopeLifetime) {
                 HandleCurrent(state, invocation, registration => {
                     registration.Hole = CombineHole(registration.Hole, "builder.Lifetime");
                     if (registration.Origin == "ConstructedType")
@@ -727,22 +709,22 @@ namespace ContainerGenerator {
                 return;
             }
 
-            if (name == "Inject" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.Inject) {
                 HandleInject(state, invocation);
                 return;
             }
 
-            if (name == "Injectable" && IsPrimitiveCall(symbol)) {
+            if (primitive == PrimitiveKind.Injectable) {
                 HandleInjectable(state, invocation, symbol);
                 return;
             }
 
-            if (name == "Instantiate") {
+            if (primitive == PrimitiveKind.Instantiate) {
                 HandleInstantiate(state, invocation);
                 return;
             }
 
-            if (name == "FindOrLoadSceneWithServices") {
+            if (primitive == PrimitiveKind.SceneServices) {
                 HandleSceneServices(state, invocation);
                 return;
             }
@@ -1018,7 +1000,7 @@ namespace ContainerGenerator {
                     return false;
 
                 var symbol = state.Model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
-                if (symbol == null || symbol.OriginalDefinition.Name != "Register" || symbol.TypeArguments.Length == 0)
+                if (symbol == null || Primitives.OfSymbol(symbol) != PrimitiveKind.Register || symbol.TypeArguments.Length == 0)
                     return false;
 
                 var implementation = Format(state, symbol.TypeArguments[symbol.TypeArguments.Length == 1 ? 0 : 1]);
@@ -1046,7 +1028,7 @@ namespace ContainerGenerator {
                     return false;
 
                 var symbol = state.Model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
-                if (symbol == null || symbol.OriginalDefinition.Name != "WithParameter")
+                if (symbol == null || Primitives.OfSymbol(symbol) != PrimitiveKind.WithParameter)
                     return false;
 
                 var target = CurrentRegistration(state, invocation);
@@ -1078,14 +1060,14 @@ namespace ContainerGenerator {
             value = Unwrap(value);
             local.Type = state.Model.GetTypeInfo(value).Type;
             if (value is InvocationExpressionSyntax invocation) {
-                var name = MethodName(invocation);
-                if (name == "Instantiate") {
+                var primitive = Primitives.Of(state.Model.GetSymbolInfo(invocation).Symbol as IMethodSymbol, MethodName(invocation));
+                if (primitive == PrimitiveKind.Instantiate) {
                     local.FromInstantiate = true;
                     local.IsBuilder = false;
                     return;
                 }
 
-                if (name == "Register" || name == "RegisterInstance" || name == "RegisterComponent" || name == "As" || name == "WithParameter")
+                if (Primitives.IsRegistration(primitive) || primitive == PrimitiveKind.As || primitive == PrimitiveKind.WithParameter)
                     local.Registration = state.LastRegistration;
                 if (state.LastCallIndex >= 0)
                     local.ReturnedCallIndex = state.LastCallIndex;
@@ -1621,20 +1603,20 @@ namespace ContainerGenerator {
         }
 
         private bool IsNonEnumerableGraphCondition(State state, IfStatementSyntax syntax) {
-            if (HasRegistration(syntax.Statement) == false)
+            if (HasRegistration(state, syntax.Statement) == false)
                 return false;
-            if (syntax.Else == null || HasRegistration(syntax.Else.Statement) == false)
+            if (syntax.Else == null || HasRegistration(state, syntax.Else.Statement) == false)
                 return false;
             return IsEnumerableDiscriminant(state, syntax.Condition) == false;
         }
 
-        private bool HasRegistration(StatementSyntax statement) {
+        private bool HasRegistration(State state, StatementSyntax statement) {
             foreach (var node in statement.DescendantNodesAndSelf()) {
                 if (node is not InvocationExpressionSyntax invocation)
                     continue;
                 var name = MethodName(invocation);
-                if (name == "Register" || name == "RegisterInstance" || name == "RegisterComponent" ||
-                    name.StartsWith("Add", StringComparison.Ordinal))
+                var primitive = Primitives.Of(state.Model.GetSymbolInfo(invocation).Symbol as IMethodSymbol, name);
+                if (Primitives.IsRegistration(primitive) || name.StartsWith("Add", StringComparison.Ordinal))
                     return true;
             }
 

@@ -34,6 +34,11 @@ namespace Internal
             Runner.Run();
         }
 
+        public static void GenerateNow()
+        {
+            Runner.RunNow();
+        }
+
         public static void ScheduleGenerate()
         {
             Runner.Schedule();
@@ -173,14 +178,15 @@ namespace Internal
                 }
 
                 var type = source.Asset.GetType();
+                var script = ScriptTypeNames.ScriptOf(source.Asset);
 
                 group.Properties.Add(new AssetPropertyDefinition
                 {
                     PropertyName = source.PropertyName,
                     FieldName = "_" + char.ToLowerInvariant(source.PropertyName[0]) + source.PropertyName.Substring(1),
                     Asset = source.Asset,
-                    TypeFullName = (type.FullName ?? string.Empty).Replace('+', '.'),
-                    TypeAssembly = type.Assembly.GetName().Name
+                    TypeFullName = ScriptTypeNames.FullName(type, script).Replace('+', '.'),
+                    TypeAssembly = ScriptTypeNames.AssemblyName(type, script)
                 });
             }
 

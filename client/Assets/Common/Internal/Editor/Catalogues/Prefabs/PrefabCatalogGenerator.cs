@@ -35,6 +35,11 @@ namespace Internal
             Runner.Run();
         }
 
+        public static void GenerateNow()
+        {
+            Runner.RunNow();
+        }
+
         public static void ScheduleGenerate()
         {
             Runner.Schedule();
@@ -169,6 +174,15 @@ namespace Internal
                         $"[PrefabCatalogGenerator] Root type '{PrefabCatalogMetadata.ToDisplayName(componentType)}' is missing on {path}. Falling back to GameObject, reassign the root in the inspector."
                     );
                 return string.Empty;
+            }
+
+            // The previous domain is still loaded after a failed compile: the code gets the names from the sources,
+            // the metadata keeps the old names until the next clean run fixes them.
+            if (ScriptTypeNames.IsDomainStale)
+            {
+                var script = MonoScript.FromMonoBehaviour(behaviour);
+                var type = behaviour.GetType();
+                return ScriptTypeNames.FullName(type, script) + ", " + ScriptTypeNames.AssemblyName(type, script);
             }
 
             var actualType = behaviour.GetType().AssemblyQualifiedName ?? string.Empty;

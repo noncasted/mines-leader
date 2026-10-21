@@ -84,13 +84,16 @@ namespace Internal
 
         // Код пишем отдельно от перезапуска компиляции: пакетная перегенерация складывает все
         // классы, и только потом один раз дёргает Refresh — иначе домен поедет посреди обхода.
+        // bindUnchanged = false skips the binding phase when the generated code did not change (Regenerate All:
+        // the same code means the same structure, and binding would re-save every prefab).
         public static bool Prepare(
             GameObject root,
             string bindingsName,
             string namespaceName,
             bool isSceneService,
             bool isEntityComponent,
-            out bool changed)
+            out bool changed,
+            bool bindUnchanged = true)
         {
             changed = false;
 
@@ -130,18 +133,22 @@ namespace Internal
                     isEntityComponent
                 );
 
-            HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest
-            {
-                AssetPath = assetPath,
-                ObjectPath = objectPath,
-                TypeName = typeName,
-                Namespace = namespaceName,
-                IsPrefabAsset = isPrefab,
-                IsSceneService = isSceneService,
-                IsEntityComponent = isEntityComponent
-            });
-
             changed = HasChanged(filePath, code);
+
+            if (changed || bindUnchanged)
+            {
+                HierarchyBindingsQueue.Enqueue(new HierarchyBindingsRequest
+                {
+                    AssetPath = assetPath,
+                    ObjectPath = objectPath,
+                    TypeName = typeName,
+                    Namespace = namespaceName,
+                    IsPrefabAsset = isPrefab,
+                    IsSceneService = isSceneService,
+                    IsEntityComponent = isEntityComponent
+                });
+            }
+
             CatalogPaths.EnsureFolder(folder);
             GeneratedFile.WriteIfChanged(LogTag, filePath, code);
             return true;

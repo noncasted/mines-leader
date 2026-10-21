@@ -65,6 +65,31 @@ namespace Internal
             }
         }
 
+        // Synchronous run for Tools/Regenerate All: no debounce and no postponing, a failure reaches the
+        // caller. The caller checks Play mode and compilation before the first step.
+        public void RunNow()
+        {
+            if (AssetDatabase.IsAssetImportWorkerProcess())
+                throw new InvalidOperationException($"[{_logTag}] Generation is not allowed in an import worker.");
+
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException($"[{_logTag}] Generation is not allowed in Play mode.");
+
+            if (_isGenerating)
+                throw new InvalidOperationException($"[{_logTag}] Generation is already running.");
+
+            _isGenerating = true;
+
+            try
+            {
+                _generate();
+            }
+            finally
+            {
+                _isGenerating = false;
+            }
+        }
+
         private void WaitPlayModeExit()
         {
             if (_isWaitingPlayMode)

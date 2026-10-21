@@ -52,6 +52,9 @@ namespace ContainerGenerator.Verify {
             Run("generic RegisterCommand nested emit", TestGenericRegisterCommandEmit);
             Run("Injectable gets Inject case only", TestInjectableEmit);
             Run("Injectable CINGR008 and not resolvable", TestInjectableErrors);
+            Run("primitive found by attribute under any name", TestPrimitiveByAttribute);
+            Run("unmarked Register is an installer call, not a primitive", TestUnmarkedRegisterIsNotPrimitive);
+            Run("builder.Inject calls [Inject] on every instance", TestInjectEveryInstance);
             if (_failed == 0)
                 Console.WriteLine("ALL PASSED");
             else
@@ -301,6 +304,22 @@ namespace ContainerGenerator.Verify {
             Require(emitted.IndexOf("{ typeof(global::Sample.PoolCard),", StringComparison.Ordinal) < 0, "Injectable must not be exported");
             Require(emitted.IndexOf("new global::Sample.PoolCard(", StringComparison.Ordinal) < 0, "Injectable must not be constructed");
             RequireCompiles(emitted, InjectableSource);
+        }
+
+        private static void TestInjectEveryInstance() {
+            var emitted = EmitRoot(InjectEveryInstanceSource, "InjectEveryInstanceRoot", out _);
+            Require(emitted.IndexOf(".GetInjections<global::Sample.SceneButton>()", StringComparison.Ordinal) >= 0,
+                "builder.Inject must take every instance from the request:\n" + emitted);
+            Require(emitted.IndexOf(".Length; ", StringComparison.Ordinal) >= 0,
+                "[Inject] must be called in a loop over the instances:\n" + emitted);
+            Require(Occurrences(emitted, "].Setup(") == 1,
+                "one loop must call [Inject] on each array element:\n" + emitted);
+            // Two call sites of one type: GetInjections<T>() returns the instances of both, a second loop would
+            // call [Inject] twice on each of them.
+            Require(Occurrences(emitted, "_sceneButton2.Setup(") == 0 && Occurrences(emitted, "sceneButton2Injections") == 0,
+                "a repeated call site must not call [Inject] again:\n" + emitted);
+            Require(Occurrences(emitted, "GetInjections<") == 1, "one injections array per type:\n" + emitted);
+            RequireCompiles(emitted, InjectEveryInstanceSource);
         }
 
         private static void TestInjectableErrors() {
@@ -1337,6 +1356,7 @@ namespace Internal {
         public IContainer Parent { get; }
         public bool IsRegistered(System.Type implementation) { return false; }
         public T Get<T>() { return default(T); }
+        public T[] GetInjections<T>() { return new T[0]; }
     }
     public static class GeneratedScopes {
         public static void Register(string rootId, System.Func<GeneratedScopeRequest, IContainer> factory) {}
@@ -1344,18 +1364,39 @@ namespace Internal {
         public static bool IsRegistered(string rootId) { return false; }
     }
 
+    public enum ContainerPrimitive {
+        Register = 1, RegisterInstance = 2, RegisterComponent = 3, As = 4, AsSelf = 5, AsSelfResolvable = 6,
+        WithParameter = 7, WithScopeLifetime = 8, Inject = 9, Injectable = 10, Instantiate = 11, SceneServices = 12
+    }
+    [System.AttributeUsage(System.AttributeTargets.Method)]
+    public sealed class ContainerPrimitiveAttribute : System.Attribute {
+        public ContainerPrimitiveAttribute(ContainerPrimitive kind) {}
+    }
+
     public static class BuilderExtensions {
+        [ContainerPrimitive(ContainerPrimitive.Register)]
         public static IServiceRegistration Register<T>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        [ContainerPrimitive(ContainerPrimitive.Register)]
         public static IServiceRegistration Register<TInterface, TImplementation>(this IBuilder builder, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        [ContainerPrimitive(ContainerPrimitive.RegisterInstance)]
         public static IServiceRegistration RegisterInstance<T>(this IBuilder builder, T instance) { return null; }
+        [ContainerPrimitive(ContainerPrimitive.RegisterComponent)]
         public static IServiceRegistration RegisterComponent<T>(this IBuilder builder, T component, ServiceLifetime lifetime = ServiceLifetime.Singleton) { return null; }
+        [ContainerPrimitive(ContainerPrimitive.As)]
         public static IServiceRegistration As<T>(this IServiceRegistration registration) { return registration; }
+        [ContainerPrimitive(ContainerPrimitive.AsSelf)]
         public static IServiceRegistration AsSelf(this IServiceRegistration registration) { return registration; }
+        [ContainerPrimitive(ContainerPrimitive.AsSelfResolvable)]
         public static IServiceRegistration AsSelfResolvable(this IServiceRegistration registration) { return registration; }
+        [ContainerPrimitive(ContainerPrimitive.WithParameter)]
         public static IServiceRegistration WithParameter<T>(this IServiceRegistration registration, T value) { return registration; }
+        [ContainerPrimitive(ContainerPrimitive.WithScopeLifetime)]
         public static IServiceRegistration WithScopeLifetime(this IServiceRegistration registration) { return registration; }
+        [ContainerPrimitive(ContainerPrimitive.Inject)]
         public static void Inject<T>(this IBuilder builder, T target) {}
+        [ContainerPrimitive(ContainerPrimitive.Injectable)]
         public static void Injectable<T>(this IBuilder builder) where T : class {}
+        [ContainerPrimitive(ContainerPrimitive.Instantiate)]
         public static T Instantiate<T>(this IScopeBuilder builder, T prefab) { return prefab; }
     }
 }
@@ -1365,6 +1406,74 @@ namespace UnityEngine {
     public class MonoBehaviour : Object {}
     public class GameObject : Object {
         public T[] GetComponentsInChildren<T>(bool includeInactive) { return new T[0]; }
+    }
+}
+";
+
+        private static void TestPrimitiveByAttribute() {
+            var graph = ResolveRoot(PrimitiveRenamedSource, "PrimitiveRenamedRoot");
+            RequireNo(graph, "CINGR001");
+            RequireNo(graph, "CINGR003");
+            var service = graph.Registrations.FindIndex(r => r.ImplementationType.IndexOf("RenamedService", StringComparison.Ordinal) >= 0);
+            var consumer = graph.Registrations.FindIndex(r => r.ImplementationType.IndexOf("RenamedConsumer", StringComparison.Ordinal) >= 0);
+            Require(service >= 0, "Bind<RenamedService>() must be a registration");
+            Require(consumer >= 0, "Bind<RenamedConsumer>() must be a registration");
+            var edge = RequireEdge(graph, "RenamedConsumer", "service");
+            Require(edge.Kind == "Registration", "RenamedConsumer.service kind " + edge.Kind);
+            Require(edge.TargetIndex == service, "RenamedConsumer.service must bind IRenamedService registered via Expose<>");
+        }
+
+        private static void TestUnmarkedRegisterIsNotPrimitive() {
+            var graph = ResolveRoot(UnmarkedRegisterSource, "UnmarkedRegisterRoot");
+            var fake = graph.Registrations.FindIndex(r => r.ImplementationType.IndexOf("NotRegistered", StringComparison.Ordinal) >= 0);
+            Require(fake < 0, "an unmarked Register<T> in a class named BuilderExtensions must not register T");
+            var real = graph.Registrations.FindIndex(r => r.ImplementationType.IndexOf("InsideHelper", StringComparison.Ordinal) >= 0);
+            Require(real >= 0, "the unmarked Register<T> is walked as an installer and its body registers InsideHelper");
+        }
+
+        private const string PrimitiveRenamedSource = @"
+namespace Internal {
+    public static class RenamedBuilderApi {
+        [ContainerPrimitive(ContainerPrimitive.Register)]
+        public static IServiceRegistration Bind<T>(this IBuilder builder) { return null; }
+        [ContainerPrimitive(ContainerPrimitive.As)]
+        public static IServiceRegistration Expose<T>(this IServiceRegistration registration) { return registration; }
+    }
+}
+namespace Test {
+    using Internal;
+    public interface IRenamedService {}
+    public class RenamedService : IRenamedService {}
+    public class RenamedConsumer { public RenamedConsumer(IRenamedService service) {} }
+    public static class PrimitiveRenamedRoot {
+        [ContainerGraphRoot]
+        public static void Construct(IScopeBuilder builder) {
+            builder.Bind<RenamedService>().Expose<IRenamedService>();
+            builder.Bind<RenamedConsumer>();
+        }
+    }
+}
+";
+
+        private const string UnmarkedRegisterSource = @"
+namespace Test.Fake {
+    using Internal;
+    public class InsideHelper {}
+    public static class BuilderExtensions {
+        public static void Register<T>(this IBuilder builder) {
+            Internal.BuilderExtensions.Register<InsideHelper>(builder);
+        }
+    }
+}
+namespace Test {
+    using Internal;
+    using Test.Fake;
+    public class NotRegistered {}
+    public static class UnmarkedRegisterRoot {
+        [ContainerGraphRoot]
+        public static void Construct(IScopeBuilder builder) {
+            Test.Fake.BuilderExtensions.Register<NotRegistered>(builder);
+        }
     }
 }
 ";
@@ -1783,6 +1892,23 @@ namespace Sample {
             builder.Register<Dep>().As<IDep>();
             builder.Injectable<PoolCard>();
             builder.Injectable<EmptyCard>();
+        }
+    }
+}
+";
+
+        private const string InjectEveryInstanceSource = @"
+using Internal;
+
+namespace Sample {
+    public interface IDep {}
+    public class Dep : IDep {}
+    public class SceneButton { [Inject] internal void Setup(IDep dep) {} }
+    public static class InjectEveryInstanceRoot {
+        public static void Construct(Internal.IScopeBuilder builder) {
+            builder.Register<Dep>().As<IDep>();
+            builder.Inject(new SceneButton());
+            builder.Inject(new SceneButton());
         }
     }
 }

@@ -29,6 +29,12 @@ namespace Internal
                 return;
             }
 
+            GenerateNow();
+        }
+
+        // Synchronous run for Tools/Regenerate All, which checks Play mode and compilation itself.
+        public static void GenerateNow()
+        {
             var guids = AssetDatabase.FindAssets("t:ColorCatalog");
 
             if (guids.Length == 0)

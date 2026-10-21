@@ -37,6 +37,11 @@ namespace Internal
             Runner.Run();
         }
 
+        public static void GenerateNow()
+        {
+            Runner.RunNow();
+        }
+
         public static void ScheduleGenerate()
         {
             Runner.Schedule();
