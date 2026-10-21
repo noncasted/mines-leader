@@ -133,7 +133,7 @@ public class MetaSocketHandshakeTests
         {
             Scheme = "ws",
             Path = "/",
-            Query = $"{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}{extraQuery}"
+            Query = $"{ProtocolVersion.QueryKey}={ProtocolHash.Value}{extraQuery}"
         }.Uri;
 
         await socket.ConnectAsync(uri, CancellationToken.None);

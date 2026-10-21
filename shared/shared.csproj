@@ -23,6 +23,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\tools\framework\shared\framework.shared.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <EditorConfigFiles Remove="Backend\.editorconfig"/>
         <EditorConfigFiles Remove="Domain\.editorconfig"/>
         <EditorConfigFiles Remove="Game\.editorconfig"/>

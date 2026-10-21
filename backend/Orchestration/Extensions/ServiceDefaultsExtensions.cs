@@ -13,6 +13,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Shared;
 
 namespace Orchestration;
 
@@ -23,6 +24,9 @@ public static class ServiceDefaultsExtensions
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        // The INetworkContext union of the game: registered before any socket reads a message.
+        NetworkProtocol.Register();
+
         builder.ConfigureOpenTelemetry();
         builder.AddDefaultHealthChecks();
 

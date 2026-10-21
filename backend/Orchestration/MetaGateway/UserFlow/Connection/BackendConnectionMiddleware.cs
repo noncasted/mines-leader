@@ -63,9 +63,9 @@ public class BackendConnectionMiddleware
         }
 
         // Before the user is resolved: an outdated client must not create or touch a user.
-        if (ClientProtocolCheck.IsCurrent(context) == false)
+        if (ClientProtocolCheck.IsCurrent(context, ProtocolHash.Value) == false)
         {
-            await ClientProtocolCheck.RejectOutdated(context, _logger);
+            await ClientProtocolCheck.RejectOutdated(context, ProtocolHash.Value, _logger);
             return;
         }
 

@@ -5,7 +5,7 @@ namespace Shared
     [MemoryPackable]
     public partial class SharedBackendProjection : INetworkContext
     {
-        public INetworkContext Context { get; set; }
+        [MemoryPackAllowSerialize] public INetworkContext Context { get; set; }
     }
 
     public static class SharedBackendProjectionExtensions
@@ -19,8 +19,8 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(1, typeof(SharedBackendProjection))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(100, typeof(SharedBackendProjection))]
+    public partial class NetworkContextUnion
     {
     }
 }

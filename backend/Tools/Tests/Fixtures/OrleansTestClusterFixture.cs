@@ -144,10 +144,13 @@ public class OrleansTestClusterFixture : IAsyncLifetime
 
                 // Cluster flags — all enabled
                 var clusterFlags = Substitute.For<IClusterFlags>();
-                clusterFlags.MatchmakingEnabled.Returns(true);
                 clusterFlags.SideEffectsEnabled.Returns(true);
-                clusterFlags.SnapshotDiffGuardEnabled.Returns(true);
                 services.AddSingleton(clusterFlags);
+
+                var gameFlags = Substitute.For<IGameFlags>();
+                gameFlags.MatchmakingEnabled.Returns(true);
+                gameFlags.SnapshotDiffGuardEnabled.Returns(true);
+                services.AddSingleton(gameFlags);
 
                 // Configs — all with default values via TestAddressableState
                 RegisterTestConfigs(services);

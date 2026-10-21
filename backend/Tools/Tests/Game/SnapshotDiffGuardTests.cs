@@ -1,3 +1,4 @@
+using Cluster.State;
 using Common;
 using FluentAssertions;
 using Game.GamePlay;
@@ -584,7 +585,7 @@ public class SnapshotDiffGuardTests
 {
     private static ISnapshotDiffGuard CreateGuard(bool enabled)
     {
-        var flags = Substitute.For<IClusterFlags>();
+        var flags = Substitute.For<IGameFlags>();
         flags.SnapshotDiffGuardEnabled.Returns(enabled);
         return new SnapshotDiffGuard(flags, NullLogger<SnapshotDiffGuard>.Instance);
     }

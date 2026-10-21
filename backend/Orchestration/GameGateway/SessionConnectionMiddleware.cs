@@ -54,9 +54,9 @@ public class SessionConnectionMiddleware
         }
 
         // Before the auth is read: a client of another protocol may not even parse the request the same way.
-        if (ClientProtocolCheck.IsCurrent(context) == false)
+        if (ClientProtocolCheck.IsCurrent(context, ProtocolHash.Value) == false)
         {
-            await ClientProtocolCheck.RejectOutdated(context, _logger);
+            await ClientProtocolCheck.RejectOutdated(context, ProtocolHash.Value, _logger);
             return;
         }
 

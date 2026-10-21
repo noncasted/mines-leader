@@ -159,22 +159,22 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(3, typeof(SharedBackendUser.ProfileProjection))]
-    [MemoryPackUnion(4, typeof(SharedBackendUser.UserStatsProjection))]
-    [MemoryPackUnion(5, typeof(SharedBackendUser.InGameAchievementsProjection))]
-    [MemoryPackUnion(6, typeof(SharedBackendUser.AchievementRewardOptionsRequest))]
-    [MemoryPackUnion(7, typeof(SharedBackendUser.AchievementRewardOptionsResponse))]
-    [MemoryPackUnion(8, typeof(SharedBackendUser.ClaimAchievementRewardRequest))]
-    [MemoryPackUnion(9, typeof(SharedBackendUser.UpdateDeckRequest))]
-    [MemoryPackUnion(10, typeof(SharedBackendUser.DeckProjection))]
-    [MemoryPackUnion(11, typeof(SharedBackendUser.Match))]
-    [MemoryPackUnion(12, typeof(SharedBackendUser.RatingProjection))]
-    [MemoryPackUnion(13, typeof(SharedBackendUser.CardsProjection))]
-    [MemoryPackUnion(14, typeof(SharedBackendUser.MatchHistoryRequest))]
-    [MemoryPackUnion(15, typeof(SharedBackendUser.MatchHistoryResponse))]
-    [MemoryPackUnion(16, typeof(SharedBackendUser.MatchDetailsRequest))]
-    [MemoryPackUnion(17, typeof(SharedBackendUser.MatchDetailsResponse))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(101, typeof(SharedBackendUser.ProfileProjection))]
+    [MemoryPackUnion(1001, typeof(SharedBackendUser.UserStatsProjection))]
+    [MemoryPackUnion(1002, typeof(SharedBackendUser.InGameAchievementsProjection))]
+    [MemoryPackUnion(1003, typeof(SharedBackendUser.AchievementRewardOptionsRequest))]
+    [MemoryPackUnion(1004, typeof(SharedBackendUser.AchievementRewardOptionsResponse))]
+    [MemoryPackUnion(1005, typeof(SharedBackendUser.ClaimAchievementRewardRequest))]
+    [MemoryPackUnion(1006, typeof(SharedBackendUser.UpdateDeckRequest))]
+    [MemoryPackUnion(1007, typeof(SharedBackendUser.DeckProjection))]
+    [MemoryPackUnion(1008, typeof(SharedBackendUser.Match))]
+    [MemoryPackUnion(1009, typeof(SharedBackendUser.RatingProjection))]
+    [MemoryPackUnion(1010, typeof(SharedBackendUser.CardsProjection))]
+    [MemoryPackUnion(1011, typeof(SharedBackendUser.MatchHistoryRequest))]
+    [MemoryPackUnion(1012, typeof(SharedBackendUser.MatchHistoryResponse))]
+    [MemoryPackUnion(1013, typeof(SharedBackendUser.MatchDetailsRequest))]
+    [MemoryPackUnion(1014, typeof(SharedBackendUser.MatchDetailsResponse))]
+    public partial class NetworkContextUnion
     {
     }
 }

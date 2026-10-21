@@ -106,7 +106,7 @@ public class ProtocolBytesTests
     private static bool SameValue(string key, string expectedHex, string actualHex)
     {
         var parts = key.Split(' ');
-        var type = ProtocolSchema.SharedAssembly.GetType(parts[1], true)!;
+        var type = ProtocolSchema.GetType(parts[1]);
 
         try
         {

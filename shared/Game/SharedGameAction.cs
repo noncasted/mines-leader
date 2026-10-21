@@ -45,13 +45,13 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(26, typeof(SharedGameAction.Open))]
-    [MemoryPackUnion(27, typeof(SharedGameAction.OpenMultiple))]
-    [MemoryPackUnion(28, typeof(SharedGameAction.SetFlag))]
-    [MemoryPackUnion(29, typeof(SharedGameAction.RemoveFlag))]
-    [MemoryPackUnion(30, typeof(SharedGameAction.CardUse))]
-    [MemoryPackUnion(31, typeof(SharedGameAction.SkipTurn))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1016, typeof(SharedGameAction.Open))]
+    [MemoryPackUnion(1017, typeof(SharedGameAction.OpenMultiple))]
+    [MemoryPackUnion(1018, typeof(SharedGameAction.SetFlag))]
+    [MemoryPackUnion(1019, typeof(SharedGameAction.RemoveFlag))]
+    [MemoryPackUnion(1020, typeof(SharedGameAction.CardUse))]
+    [MemoryPackUnion(1021, typeof(SharedGameAction.SkipTurn))]
+    public partial class NetworkContextUnion
     {
     }
 }

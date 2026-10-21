@@ -227,8 +227,8 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(51, typeof(InGameAchievementOptions))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1041, typeof(InGameAchievementOptions))]
+    public partial class NetworkContextUnion
     {
     }
 }

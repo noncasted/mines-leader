@@ -84,14 +84,14 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(18, typeof(SharedMatchmaking.SearchLobby))]
-    [MemoryPackUnion(19, typeof(SharedMatchmaking.SearchMatch))]
-    [MemoryPackUnion(20, typeof(SharedMatchmaking.Create))]
-    [MemoryPackUnion(21, typeof(SharedMatchmaking.CreateWithBot))]
-    [MemoryPackUnion(22, typeof(SharedMatchmaking.CancelSearch))]
-    [MemoryPackUnion(23, typeof(SharedMatchmaking.MatchResult))]
-    [MemoryPackUnion(24, typeof(SharedMatchmaking.LobbyResult))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(150, typeof(SharedMatchmaking.SearchLobby))]
+    [MemoryPackUnion(151, typeof(SharedMatchmaking.SearchMatch))]
+    [MemoryPackUnion(152, typeof(SharedMatchmaking.Create))]
+    [MemoryPackUnion(153, typeof(SharedMatchmaking.CreateWithBot))]
+    [MemoryPackUnion(154, typeof(SharedMatchmaking.CancelSearch))]
+    [MemoryPackUnion(155, typeof(SharedMatchmaking.MatchResult))]
+    [MemoryPackUnion(156, typeof(SharedMatchmaking.LobbyResult))]
+    public partial class NetworkContextUnion
     {
     }
 }

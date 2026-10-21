@@ -1,6 +1,7 @@
 ﻿using Cluster.Configs;
 using Cluster.Deploy;
 using Cluster.Monitoring;
+using Cluster.State;
 using Common;
 using Common.Extensions;
 using Common.Reactive;
@@ -63,7 +64,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         ILobbyFactory lobbyFactory,
         IConnectedUsers users,
         IBotConfig botConfig,
-        IClusterFlags clusterFlags,
+        IGameFlags clusterFlags,
         IClusterParticipantContext participantContext,
         IDeploymentState<MatchmakingLiveData> liveData,
         IMessaging messaging,
@@ -87,7 +88,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly ILobbyFactory _lobbyFactory;
     private readonly IConnectedUsers _users;
     private readonly IBotConfig _botConfig;
-    private readonly IClusterFlags _clusterFlags;
+    private readonly IGameFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
     private readonly IDeploymentState<MatchmakingLiveData> _liveData;
     private readonly IMessaging _messaging;

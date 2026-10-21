@@ -42,7 +42,7 @@ public class SharedSerializationTests
     [MemberData(nameof(ConcreteTypes))]
     public void Type_RoundTrips(string typeName)
     {
-        var type = ProtocolSchema.SharedAssembly.GetType(typeName, true)!;
+        var type = ProtocolSchema.GetType(typeName);
         var value = new ValueFiller().Create(type, 0);
 
         var bytes = MemoryPackSerializer.Serialize(type, value);
@@ -56,7 +56,7 @@ public class SharedSerializationTests
     [MemberData(nameof(UnionMembers))]
     public void UnionMember_RoundTripsThroughBase(string baseName, ushort tag)
     {
-        var unionBase = ProtocolSchema.SharedAssembly.GetType(baseName, true)!;
+        var unionBase = ProtocolSchema.GetType(baseName);
         var type = ProtocolSchema.UnionTags(unionBase).Single(t => t.Tag == tag).Type;
         var value = new ValueFiller().Create(type, 0);
 
@@ -197,14 +197,17 @@ public class SharedSerializationTests
                 return null;
             }
 
-            if (type.GetCustomAttribute<MemoryPackableAttribute>() == null || depth >= MaxDepth)
+            if (depth >= MaxDepth)
                 return null;
 
-            if (type.IsInterface || type.IsAbstract)
+            if (ProtocolSchema.UnionBases().Contains(type))
             {
-                var tags = type.GetCustomAttributes<MemoryPackUnionAttribute>().OrderBy(a => a.Tag).ToList();
+                var tags = ProtocolSchema.UnionTags(type);
                 return tags.Count == 0 ? null : Create(tags[next % tags.Count].Type, depth);
             }
+
+            if (type.GetCustomAttribute<MemoryPackableAttribute>() == null || type.IsInterface || type.IsAbstract)
+                return null;
 
             return Create(type, depth);
         }

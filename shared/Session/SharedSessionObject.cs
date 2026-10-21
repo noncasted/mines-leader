@@ -29,10 +29,10 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(66, typeof(SharedSessionObject.SetProperty))]
-    [MemoryPackUnion(67, typeof(SharedSessionObject.PropertyUpdate))]
-    [MemoryPackUnion(68, typeof(SharedSessionObject.Event))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(30, typeof(SharedSessionObject.SetProperty))]
+    [MemoryPackUnion(31, typeof(SharedSessionObject.PropertyUpdate))]
+    [MemoryPackUnion(32, typeof(SharedSessionObject.Event))]
+    public partial class NetworkContextUnion
     {
     }
 }

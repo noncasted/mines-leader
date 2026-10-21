@@ -3,6 +3,7 @@
     "com.coplaydev.unity-mcp": "file:../../tools/framework/client/packages/com.coplaydev.unity-mcp",
     "com.cysharp.memorypack": "file:../../tools/framework/client/packages/com.cysharp.memorypack",
     "com.shared.game": "file:../../shared/",
+    "com.noncasted.framework.shared": "file:../../tools/framework/shared",
     "com.unity.2d.aseprite": "7.0.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tooling": "5.0.0",

@@ -7,8 +7,8 @@ namespace Shared
     {
     }
 
-    [MemoryPackUnion(56, typeof(SharedAgentObservationRequest))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1046, typeof(SharedAgentObservationRequest))]
+    public partial class NetworkContextUnion
     {
     }
 }

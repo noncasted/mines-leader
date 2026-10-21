@@ -26,10 +26,10 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(32, typeof(RematchContexts.Request))]
-    [MemoryPackUnion(33, typeof(RematchContexts.Failure))]
-    [MemoryPackUnion(34, typeof(RematchContexts.Success))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(1022, typeof(RematchContexts.Request))]
+    [MemoryPackUnion(1023, typeof(RematchContexts.Failure))]
+    [MemoryPackUnion(1024, typeof(RematchContexts.Success))]
+    public partial class NetworkContextUnion
     {
     }
 }

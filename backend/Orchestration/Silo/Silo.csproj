@@ -18,9 +18,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Cluster\Cluster.csproj"/>
-        <ProjectReference Include="..\..\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
         <ProjectReference Include="..\..\Game\Game.csproj"/>
-        <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\..\Meta\Meta.csproj"/>
         <ProjectReference Include="..\..\Tools\Benchmarks\Benchmarks.csproj" />
         <ProjectReference Include="..\Extensions\Extensions.csproj" />

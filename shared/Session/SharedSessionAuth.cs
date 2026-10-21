@@ -39,9 +39,9 @@ namespace Shared
         Closed = 4,
     }
 
-    [MemoryPackUnion(59, typeof(SharedSessionAuth.Request))]
-    [MemoryPackUnion(60, typeof(SharedSessionAuth.Response))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(10, typeof(SharedSessionAuth.Request))]
+    [MemoryPackUnion(11, typeof(SharedSessionAuth.Response))]
+    public partial class NetworkContextUnion
     {
     }
 }

@@ -28,10 +28,10 @@ namespace Shared
         }
     }
 
-    [MemoryPackUnion(72, typeof(SharedSessionService.GetRequest))]
-    [MemoryPackUnion(73, typeof(SharedSessionService.GetResponse))]
-    [MemoryPackUnion(74, typeof(SharedSessionService.Overview))]
-    public partial interface INetworkContext
+    [MemoryPackUnion(50, typeof(SharedSessionService.GetRequest))]
+    [MemoryPackUnion(51, typeof(SharedSessionService.GetResponse))]
+    [MemoryPackUnion(52, typeof(SharedSessionService.Overview))]
+    public partial class NetworkContextUnion
     {
     }
 }
