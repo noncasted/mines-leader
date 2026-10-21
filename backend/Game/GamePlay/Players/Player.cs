@@ -19,6 +19,7 @@ public interface IPlayer
 public class Player : IPlayer
 {
     public Player(
+        IUser user,
         IEntity entity,
         Board board,
         Health health,
@@ -30,6 +31,7 @@ public class Player : IPlayer
         Stash stash,
         PlayerActions playerActions)
     {
+        User = user;
         _entity = entity;
         _board = board;
         _health = health;
@@ -53,7 +55,7 @@ public class Player : IPlayer
     private readonly Moves _moves;
     private readonly Hand _hand;
 
-    public IUser User => _entity.Owner;
+    public IUser User { get; }
     public IBoard Board => _board;
     public IStash Stash => _stash;
     public IDeck Deck => _deck;

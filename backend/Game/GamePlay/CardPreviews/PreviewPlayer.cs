@@ -48,6 +48,7 @@ internal sealed class PreviewPlayer : IPlayer
         public Guid BackendId => throw new NotSupportedException("PreviewUser has no meta user");
         public int Index => 0;
         public bool IsBot => false;
+        public ISessionSeat Seat => throw new NotSupportedException("PreviewUser has no seat");
         public ILifetime Lifetime { get; }
         public IConnection Connection => throw new NotSupportedException("PreviewUser has no connection");
         public ICommandDispatcher Dispatcher => throw new NotSupportedException("PreviewUser has no dispatcher");

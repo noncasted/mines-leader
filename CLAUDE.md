@@ -20,11 +20,16 @@ game), the protocol base (`shared`, assembly `Framework.Shared`, namespace `Shar
   submodule pointer here.
 - The client content of this game is `client/Assets/Common/Internal` (assembly `Internal.Content`, namespace
   `Internal`): generated catalogues, catalogue groups, options, the container asset map, the root scope
-  (`InternalScopeExtensions`), the startup preload and the client network (`Tools/Network`). Every asmdef that
+  (`InternalScopeExtensions`, it also adds the network: `AddNetwork(NetworkOptions, ProtocolHash.Value)`) and the
+  startup preload. The client network is the framework module `network` (`Internal.Network`). Every asmdef that
   references `Internal` references `Internal.Content` too. The layout for the framework editor tools is
   `client/ProjectSettings/Framework.json`.
 - The protocol of this game: `shared/Protocol/NetworkContextUnion.cs` declares the `INetworkContext` union (framework
-  tags + game tags, game tags from 1000), `shared/Protocol/ProtocolHash.cs` holds the protocol hash.
+  tags + session tags + game tags, game tags from 1000) and `EntityPayloadUnion` (payload tags next to the payloads),
+  `shared/Protocol/ProtocolHash.cs` holds the protocol hash.
+- The real-time session is the framework `backend/Session` (namespace `Game.Session`): this game creates its sessions
+  in `backend/Game/Global/SessionFactory.cs` (`SessionCreateOptions`: no reconnect window, bots, players built by
+  the backend) and keeps its session log in `backend/Game/Session/Logging`.
 - The game part of the cluster is `backend/Cluster.Game` (same namespaces as the framework `Cluster`): game configs
   (`AddGameConfigs`, `GameConfigsSetup`), live data of matches and matchmaking, service roles (`GameRoles`), game
   switches (`IGameFlags` over the `IClusterFeatures` game flags).

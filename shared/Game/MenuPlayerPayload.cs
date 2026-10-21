@@ -12,7 +12,7 @@ namespace Shared
     }
 
     [MemoryPackUnion(0, typeof(MenuPlayerPayload))]
-    public partial interface IEntityPayload
+    public partial class EntityPayloadUnion
     {
     }
 }

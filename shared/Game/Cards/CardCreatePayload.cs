@@ -11,7 +11,7 @@ namespace Shared
     }
 
     [MemoryPackUnion(1, typeof(CardCreatePayload))]
-    public partial interface IEntityPayload
+    public partial class EntityPayloadUnion
     {
     }
 }

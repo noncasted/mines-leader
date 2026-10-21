@@ -36,6 +36,7 @@
         <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Session\Session.csproj"/>
         <ProjectReference Include="..\..\Game\Game.csproj"/>
         <ProjectReference Include="..\..\Meta\Meta.csproj"/>
         <ProjectReference Include="..\..\Orchestration\MetaGateway\MetaGateway.csproj"/>

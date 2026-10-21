@@ -12,7 +12,7 @@ namespace Shared
     }
 
     [MemoryPackUnion(2, typeof(PlayerCreatePayload))]
-    public partial interface IEntityPayload
+    public partial class EntityPayloadUnion
     {
     }
 }

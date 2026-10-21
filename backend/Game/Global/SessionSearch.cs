@@ -27,7 +27,10 @@ public class SessionSearch : ISessionSearch
             if (session.Type != SessionType.Lobby || session.Lifetime.IsTerminated == true)
                 continue;
 
-            session.Reserve(userId);
+            // Closed in between: the next one.
+            if (session.TryReserve(userId) == false)
+                continue;
+
             return id;
         }
 
@@ -36,7 +39,9 @@ public class SessionSearch : ISessionSearch
         if (_collection.TryGet(lobbyId, out var created) == false)
             throw new InvalidOperationException($"Created lobby {lobbyId} is not in the collection");
 
-        created.Reserve(userId);
+        if (created.TryReserve(userId) == false)
+            throw new InvalidOperationException($"A place in the created lobby {lobbyId} is refused");
+
         return lobbyId;
     }
 }

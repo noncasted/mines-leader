@@ -240,7 +240,7 @@ Lifetime скоупа — `parent.Lifetime.Child()`. UI обычно `View`, с�
 
 Лежит в Common, используется снаружи:
 
-`client/Assets/Common/Internal/Runtime/Tools/Network/`
+`tools/framework/client/modules/network/Runtime/`
 
 | Слой | Типы | Кто ставит |
 |------|------|------------|

@@ -21,6 +21,7 @@
         <Project Path="../tools/framework/backend/Common/Common.csproj" />
         <Project Path="../tools/framework/backend/Console/Console.csproj" />
         <Project Path="../tools/framework/backend/Infrastructure/Infrastructure.csproj" />
+        <Project Path="../tools/framework/backend/Session/Session.csproj" />
     </Folder>
     <Project Path="Cluster.Game/Cluster.Game.csproj" />
     <Project Path="Console/Console.csproj" />

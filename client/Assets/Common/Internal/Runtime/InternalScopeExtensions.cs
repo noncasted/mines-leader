@@ -1,4 +1,5 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using Shared;
 
 namespace Internal
 {
@@ -26,6 +27,8 @@ namespace Internal
                    .As<IStartupAssetsPreload>();
 
             InternalAssets.OptionsContainer.Register(builder);
+
+            builder.AddNetwork(InternalAssets.NetworkOptions, ProtocolHash.Value);
         }
     }
 }

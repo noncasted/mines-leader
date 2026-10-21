@@ -224,6 +224,6 @@ MatchState:
 | `backend/Game/GamePlay/Context/GameFlow.cs` | Основной игровой цикл |
 | `backend/Game/GamePlay/Context/GameReadyAwaiter.cs` | Ожидание готовности |
 | `backend/Game/GamePlay/Commands/*.cs` | Обработчики команд |
-| `backend/Game/Session/Root/Session.cs` | Сессия |
+| `tools/framework/backend/Session/Root/Session.cs` | Сессия |
 | `client/Assets/Meta/Matchmaking/Matchmaking.cs` | Клиентский матчмейкинг |
 | `client/Assets/Menu/Main/Play/MenuPlay.cs` | UI выбора режима |

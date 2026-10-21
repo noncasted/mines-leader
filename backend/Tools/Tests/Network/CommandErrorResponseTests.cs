@@ -186,7 +186,7 @@ public class CommandErrorResponseTests
             var oneWays = oneWay == null ? Array.Empty<ICommand>() : [oneWay];
             var commands = new CommandsCollection(oneWays, [command]);
             var queue = new ExecutionQueue(NullLogger<ExecutionQueue>.Instance);
-            var dispatcher = new CommandDispatcher(commands, queue, NullLogger.Instance);
+            var dispatcher = new CommandDispatcher(commands, queue, NullLogger<CommandDispatcher>.Instance);
 
             dispatcher.Run(lifetime, user);
             connection.Run().NoAwait();
