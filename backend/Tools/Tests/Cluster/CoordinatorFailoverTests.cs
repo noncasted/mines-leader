@@ -144,12 +144,13 @@ public class CoordinatorFailoverTests : IntegrationTestBase<OrleansTestClusterFi
 
         var environment = Substitute.For<IServiceEnvironment>();
         environment.ServiceId.Returns(serviceId);
-        environment.Tag.Returns(ServiceTag.Meta);
+        environment.Tag.Returns(GameRoles.Meta);
 
         var orleans = GetSiloService<IOrleans>();
         var logger = Substitute.For<ILogger<ServiceDiscovery>>();
 
-        var discovery = new ServiceDiscovery(orleans, deployContext, environment, logger);
+        var discovery = new ServiceDiscovery(orleans, deployContext, environment,
+            Options.Create(new ServiceDiscoveryOptions()), logger);
         await discovery.Push();
 
         // Verify registered
@@ -157,7 +158,7 @@ public class CoordinatorFailoverTests : IntegrationTestBase<OrleansTestClusterFi
         var before = await storageGrain.Update(new ServiceOverview
         {
             Id = serviceId,
-            Tag = ServiceTag.Meta,
+            Tag = GameRoles.Meta,
             UpdateTime = DateTime.UtcNow
         });
         before.Should().ContainKey(serviceId);
@@ -169,7 +170,7 @@ public class CoordinatorFailoverTests : IntegrationTestBase<OrleansTestClusterFi
         var after = await storageGrain.Update(new ServiceOverview
         {
             Id = Guid.NewGuid(),
-            Tag = ServiceTag.Game,
+            Tag = GameRoles.Game,
             UpdateTime = DateTime.UtcNow
         });
         after.Should().NotContainKey(serviceId);

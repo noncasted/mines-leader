@@ -232,7 +232,7 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
             var previews = Substitute.For<ICardPreviewGenerator>();
             previews.GetBundlesAsync().Returns(Task.FromResult<IReadOnlyList<CardPreviewBundle>>([]));
 
-            Users = new ConnectedUsers(Substitute.For<IDeploymentState<ConnectedUsersLiveData>>());
+            Users = new ConnectedUsers(Substitute.For<IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>>>());
 
             EntryPoint = new UserConnectionEntryPoint(
                 Users,

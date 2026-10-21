@@ -3,6 +3,8 @@ using Benchmarks;
 using BlazorBlueprint.Components;
 using Console;
 using Console.Home;
+using Cluster.Discovery;
+using Cluster.State;
 using Console.Monitoring;
 using ConsoleGateway;
 using Microsoft.AspNetCore.Authentication;
@@ -13,6 +15,33 @@ using Orchestration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.SetupConsole();
+builder.Services.Configure<ServiceRoleIcons>(options => {
+    options.Icons[GameRoles.Meta] = "users";
+    options.Icons[GameRoles.Game] = "gamepad-2";
+    options.Icons[GameRoles.Silo] = "database";
+    options.Icons[GameRoles.Console] = "monitor";
+});
+builder.AddConsoleGameFlag(new ConsoleGameFlag
+{
+    Name = GameFlagNames.Matchmaking,
+    Label = "Matchmaking",
+    Description = "Allow the matchmaking loop to create new matches",
+    StatusLabel = "Matchmaking"
+});
+builder.AddConsoleGameFlag(new ConsoleGameFlag
+{
+    Name = GameFlagNames.SnapshotDiffGuard,
+    Label = "Snapshot Diff Guard",
+    Description = "Validate snapshot records against pre/post game state; throws on drift (tests/dev)",
+    StatusLabel = "Snapshot Diff Guard"
+});
+builder.AddConsoleInfrastructureCard(new ConsoleInfrastructureCard
+{
+    Icon = "flask-conical",
+    Title = "Benchmarks",
+    Description = "Run benchmarks and track performance over time",
+    Target = GameConsoleConstants.Pages.Benchmarks
+});
 builder.AddCommonConsoleComponents();
 builder.Services.AddBlazorBlueprintComponents();
 builder.Services.AddSingleton<IAuditLogStorage, AuditLogStorage>();
@@ -162,6 +191,6 @@ app.MapDefaultEndpoints();
 
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode()
-   .AddAdditionalAssemblies(typeof(Home).Assembly);
+   .AddAdditionalAssemblies(typeof(Home).Assembly, typeof(global::Console.Infrastructure.InfrastructureDashboard).Assembly);
 
 app.Run();

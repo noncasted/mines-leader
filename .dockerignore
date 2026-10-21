@@ -14,6 +14,9 @@
 
 # Unity client is not needed for backend images
 client/
+# ...nor the Unity part of the framework submodule (forked packages are hundreds of MB)
+tools/framework/client/
+tools/framework/.build/
 
 # Git
 .git/

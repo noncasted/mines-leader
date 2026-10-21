@@ -40,7 +40,7 @@ public class ClusterCoordinator : ILocalSetupCompleted
         await _sideEffectsStorage.RequeueStuck();
 
         await _clusterFeatures.SetAcceptingConnections(true);
-        await _clusterFeatures.SetMatchmakingEnabled(true);
+        await _clusterFeatures.SetGameFlag(GameFlagNames.Matchmaking, true);
         await _clusterFeatures.SetSideEffectsEnabled(true);
 
         _logger.LogInformation("[Coordinator] Cluster coordinator finished");

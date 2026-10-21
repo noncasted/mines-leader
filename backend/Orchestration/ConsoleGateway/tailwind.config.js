@@ -5,6 +5,7 @@ module.exports = {
     './Pages/**/*.{razor,html,cs}',
     './Shared/**/*.{razor,html,cs}',
     '../../Console/**/*.{razor,html,cs}',
+    '../../../tools/framework/backend/Console/**/*.{razor,html,cs}',
   ],
   theme: {
     extend: {

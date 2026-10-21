@@ -9,12 +9,14 @@ on:
     paths:
       - 'backend/**'
       - 'shared/**'
+      - 'tools/framework'
       - 'client/Tools~/**'
       - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'backend/**'
       - 'shared/**'
+      - 'tools/framework'
       - 'client/Tools~/**'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
@@ -33,14 +35,12 @@ jobs:
     timeout-minutes: 40
 
     steps:
-      - name: Checkout backend and shared
+      # The framework (backend Common/Infrastructure, protocol base) is the tools/framework submodule.
+      - name: Checkout backend, shared and the framework
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          filter: blob:none
-          sparse-checkout: |
-            backend
-            shared
+          submodules: true
 
       - uses: actions/setup-dotnet@v4
         with:

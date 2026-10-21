@@ -1,6 +1,6 @@
 @using Console.Home
 @using ConsoleGateway.Shared
-<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Home).Assembly }">
+<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Home).Assembly, typeof(global::Console.Infrastructure.InfrastructureDashboard).Assembly }">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>

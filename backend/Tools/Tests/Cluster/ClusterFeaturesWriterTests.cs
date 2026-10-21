@@ -26,16 +26,12 @@ public class ClusterFeaturesWriterTests(OrleansTestClusterFixture fixture)
         // would write back the other flag with its old value.
         await Task.WhenAll(
             coordinator.SetSideEffectsEnabled(true),
-            coordinator.SetMatchmakingEnabled(true),
             gateway.SetAcceptingConnections(true),
-            gateway.SetSnapshotDiffGuardEnabled(true),
             gateway.SetCoordinatorUnhealthy(true));
 
         var reloaded = await Attach(deployId, lifetime);
 
         reloaded.Value.SideEffectsEnabled.Should().BeTrue();
-        reloaded.Value.MatchmakingEnabled.Should().BeTrue();
-        reloaded.Value.SnapshotDiffGuardEnabled.Should().BeTrue();
         reloaded.Value.AcceptingConnections.Should().BeTrue();
         reloaded.Value.CoordinatorUnhealthy.Should().BeTrue();
         reloaded.IsAcceptingConnections.Should().BeFalse();

@@ -35,7 +35,7 @@
             @foreach (var match in _entries)
             {
                 <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
-                    @onclick="@(() => Navigation.NavigateTo(string.Format(ConsoleConstants.Pages.Match, match.Id)))">
+                    @onclick="@(() => Navigation.NavigateTo(string.Format(GameConsoleConstants.Pages.Match, match.Id)))">
                     <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Date.ToString("yyyy-MM-dd HH:mm")</td>
                     <td class="px-4 py-2.5 text-xs">
                         <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@match.Type</span>

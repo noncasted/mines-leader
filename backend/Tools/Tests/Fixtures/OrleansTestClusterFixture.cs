@@ -129,7 +129,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 services.AddSingleton<IServiceEnvironment>(new ServiceEnvironment
                 {
                     IsDevelopment = true,
-                    Tag = ServiceTag.Silo
+                    Tag = GameRoles.Silo
                 });
 
                 // Service loop — mock as started
@@ -214,9 +214,8 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         var clusterFeatures = Substitute.For<IClusterFeatures>();
         clusterFeatures.Value.Returns(features.Value);
         clusterFeatures.IsInitialized.Returns(true);
-        clusterFeatures.MatchmakingEnabled.Returns(true);
+        clusterFeatures.IsGameFlagEnabled(Arg.Any<string>()).Returns(true);
         clusterFeatures.SideEffectsEnabled.Returns(true);
-        clusterFeatures.SnapshotDiffGuardEnabled.Returns(true);
         services.AddSingleton(clusterFeatures);
     }
 

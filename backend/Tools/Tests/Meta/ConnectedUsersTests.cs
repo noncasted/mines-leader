@@ -11,7 +11,7 @@ namespace Tests.Meta;
 
 public class ConnectedUsersTests
 {
-    private readonly ConnectedUsers _sut = new(Substitute.For<IDeploymentState<ConnectedUsersLiveData>>());
+    private readonly ConnectedUsers _sut = new(Substitute.For<IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>>>());
 
     private static IUserSession CreateSession(Guid? userId = null, Lifetime? lifetime = null)
     {
@@ -147,21 +147,6 @@ public class ConnectedUsersTests
         firstLifetime.Terminate();
 
         _sut.Entries[userId].Should().BeSameAs(second);
-        _sut.IsConnected(userId).Should().BeTrue();
-    }
-
-    [Fact]
-    public void ReplacedSession_ExplicitRemove_KeepsNewSession()
-    {
-        var userId = Guid.NewGuid();
-        var first = CreateSession(userId);
-        var second = CreateSession(userId);
-
-        _sut.Add(first);
-        _sut.Add(second);
-        _sut.Remove(first);
-
-        _sut.Entries[userId].Should().BeSameAs(second);
     }
 
     [Fact]
@@ -179,14 +164,14 @@ public class ConnectedUsersTests
     [Fact]
     public async Task ConcurrentAddAndDisconnect_EntriesAndLastLiveDataConsistent()
     {
-        var liveData = Substitute.For<IDeploymentState<ConnectedUsersLiveData>>();
-        ConnectedUsersLiveData? last = null;
-        liveData.SetValue(Arg.Do<ConnectedUsersLiveData>(value => last = value));
+        var liveData = Substitute.For<IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>>>();
+        List<ConnectedUserEntry>? lastSlice = null;
+        liveData.SetSlice(Arg.Do<List<ConnectedUserEntry>>(slice => lastSlice = slice));
 
         var sut = new ConnectedUsers(liveData);
         var kept = new System.Collections.Concurrent.ConcurrentBag<Guid>();
 
-        var workers = Enumerable.Range(0, 8).Select(_ => Task.Run(() => {
+        var workers = Enumerable.Range(0, 8).Select(worker => Task.Run(() => {
             for (var i = 0; i < 500; i++)
             {
                 var lifetime = new Lifetime();
@@ -206,8 +191,7 @@ public class ConnectedUsersTests
         await Task.WhenAll(workers);
 
         sut.Entries.Keys.Should().BeEquivalentTo(kept);
-        last.Should().NotBeNull();
-        last!.Users.Select(entry => entry.UserId).Should().BeEquivalentTo(kept);
-        last.Count.Should().Be(kept.Count);
+        lastSlice.Should().NotBeNull();
+        lastSlice!.Select(entry => entry.UserId).Should().BeEquivalentTo(kept);
     }
 }

@@ -26,6 +26,7 @@ public class DeployCleanupTests(OrleansTestClusterFixture fixture) : Integration
         typeof(MatchmakingLiveData),
         typeof(LiveMatchesData),
         typeof(ConnectedUsersLiveData),
+        typeof(LiveSessionsData),
     ];
 
     // DeploymentState writes these rows (an AddressableStateValue under the default identity): the registered state
@@ -129,7 +130,7 @@ public class DeployCleanupTests(OrleansTestClusterFixture fixture) : Integration
         {
             Members = new Dictionary<Guid, IServiceOverview>
             {
-                [memberId] = new ServiceOverview { Id = memberId, Tag = ServiceTag.Silo, UpdateTime = DateTime.UtcNow }
+                [memberId] = new ServiceOverview { Id = memberId, Tag = GameRoles.Silo, UpdateTime = DateTime.UtcNow }
             }
         });
 
@@ -143,8 +144,7 @@ public class DeployCleanupTests(OrleansTestClusterFixture fixture) : Integration
         });
         await WriteAddressable(storage, deployId, new ConnectedUsersLiveData
         {
-            Count = 1,
-            Users = [new ConnectedUserEntry { UserId = Guid.NewGuid() }]
+            Slices = { [Guid.NewGuid()] = [new ConnectedUserEntry { UserId = Guid.NewGuid() }] }
         });
     }
 

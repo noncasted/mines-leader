@@ -49,11 +49,11 @@ public class MessagingDirectQueueStressTest
             handle.Progress.SetStatus(OperationStatus.InProgress);
             handle.Progress.Log("Starting test node...");
 
-            await Task.WhenAll(handle.StartNode(ServiceTag.Game, TestName, payload),
-                handle.StartNode(ServiceTag.Meta, TestName, payload),
+            await Task.WhenAll(handle.StartNode(GameRoles.Game, TestName, payload),
+                handle.StartNode(GameRoles.Meta, TestName, payload),
                 handle.StartNode(ServiceTag.Coordinator, TestName, payload),
-                handle.StartNode(ServiceTag.Silo, TestName, payload),
-                handle.StartNode(ServiceTag.Console, TestName, payload));
+                handle.StartNode(GameRoles.Silo, TestName, payload),
+                handle.StartNode(GameRoles.Console, TestName, payload));
 
             await completion.Task;
 

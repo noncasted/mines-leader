@@ -25,12 +25,12 @@ public interface IConnectedUsers
 // and the last pushed value is the current set of users.
 public class ConnectedUsers : IConnectedUsers
 {
-    public ConnectedUsers(IDeploymentState<ConnectedUsersLiveData> liveData)
+    public ConnectedUsers(IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>> liveData)
     {
         _liveData = liveData;
     }
 
-    private readonly IDeploymentState<ConnectedUsersLiveData> _liveData;
+    private readonly IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>> _liveData;
     private readonly ViewableDelegate<IUserSession> _connected = new();
     private readonly ConcurrentDictionary<Guid, IUserSession> _entries = new();
     private readonly Lock _lock = new();
@@ -74,13 +74,10 @@ public class ConnectedUsers : IConnectedUsers
 
     private void PushLiveData()
     {
-        _liveData.SetValue(new ConnectedUsersLiveData
+        // One slice per meta gateway: several gateways no longer overwrite each other's users.
+        _liveData.SetSlice(_entries.Keys.Select(id => new ConnectedUserEntry
         {
-            Count = _entries.Count,
-            Users = _entries.Keys.Select(id => new ConnectedUserEntry
-            {
-                UserId = id
-            }).ToList()
-        }).NoAwait();
+            UserId = id
+        }).ToList()).NoAwait();
     }
 }
