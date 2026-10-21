@@ -44,6 +44,9 @@ _onChat.Advise(lifetime, msg => { });
 | Fire = immediate callback | Synchronous notification |
 | Register after fire = miss event | Event fires once |
 | Expose as read-only | Client can't invoke |
+| Each `Advise` is its own subscription | The same handler advised twice is invoked twice; the end of one lifetime removes exactly its own subscription |
+| `Advise(lifetime, null)` throws | Fail fast |
+| `ViewableProperty<T>` always has `ValueLifetime` | Also for a default value type start (`new ViewableProperty<bool>(false)`) |
 
 ## Full Code Examples
 

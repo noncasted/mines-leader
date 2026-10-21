@@ -66,6 +66,12 @@ namespace GamePlay.Cards
             });
 
             _localCard.SetSpawning(false);
+
+            // The action also completes when the state lifetime ends: another state took the card over, or the card
+            // is torn down (scope disposal). The finished spawn must not move such a card to Idle.
+            if (lifetime.IsTerminated == true)
+                return;
+
             _idle.Enter();
         }
     }

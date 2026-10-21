@@ -5,12 +5,18 @@ namespace Internal
 {
     public class EventSourceBase<T> : IEventSourceBase<T>
     {
-        protected readonly ModifiableList<T> Listeners = new();
+        protected readonly ModifiableList<Subscription> Listeners = new();
 
+        // Every Advise is its own entry, removed by reference: the same handler advised twice keeps both
+        // subscriptions, and the end of one lifetime removes exactly its own one.
         public void Advise(IReadOnlyLifetime lifetime, T handler)
         {
-            Listeners.Add(handler);
-            lifetime.Listen(() => Listeners.Remove(handler));
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
+            var subscription = new Subscription(Listeners, handler);
+            Listeners.Add(subscription);
+            lifetime.Listen(subscription.Remove);
         }
 
         public void Dispose()
@@ -19,12 +25,30 @@ namespace Internal
         }
 
         /// <summary>
-        /// Один упавший обработчик не должен обрывать рассылку остальным: исключение
-        /// логируется, рассылка продолжается.
+        /// A single failing handler must not abort delivery to the rest: the exception
+        /// is logged and delivery continues.
         /// </summary>
         protected static void Report(Exception exception)
         {
             Debug.LogException(exception);
+        }
+
+        protected sealed class Subscription
+        {
+            public Subscription(ModifiableList<Subscription> owner, T handler)
+            {
+                _owner = owner;
+                Handler = handler;
+            }
+
+            private readonly ModifiableList<Subscription> _owner;
+
+            public readonly T Handler;
+
+            public void Remove()
+            {
+                _owner.Remove(this);
+            }
         }
     }
 
@@ -36,7 +60,7 @@ namespace Internal
             {
                 try
                 {
-                    listener.Invoke();
+                    listener.Handler.Invoke();
                 }
                 catch (Exception exception)
                 {
@@ -54,7 +78,7 @@ namespace Internal
             {
                 try
                 {
-                    listener.Invoke(value);
+                    listener.Handler.Invoke(value);
                 }
                 catch (Exception exception)
                 {
@@ -72,7 +96,7 @@ namespace Internal
             {
                 try
                 {
-                    listener.Invoke(value1, value2);
+                    listener.Handler.Invoke(value1, value2);
                 }
                 catch (Exception exception)
                 {
@@ -90,7 +114,7 @@ namespace Internal
             {
                 try
                 {
-                    listener.Invoke(value1, value2, value3);
+                    listener.Handler.Invoke(value1, value2, value3);
                 }
                 catch (Exception exception)
                 {

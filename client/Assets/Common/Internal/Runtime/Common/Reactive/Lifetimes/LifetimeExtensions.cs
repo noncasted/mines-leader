@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Events;
 
@@ -6,6 +6,8 @@ namespace Internal
 {
     public static class LifetimeExtensions
     {
+        // Completes on the first invoke of the subscribed listener, is cancelled when the lifetime ends first.
+        // Both subscriptions are removed in either case.
         public static async UniTask WaitInvoke(
             this IReadOnlyLifetime lifetime,
             Action<Action> subscribe,
@@ -14,15 +16,26 @@ namespace Internal
             var completion = new UniTaskCompletionSource();
 
             subscribe(Listener);
-            lifetime.Listen(() => completion.TrySetCanceled());
+            lifetime.Listen(OnTerminated);
 
-            await completion.Task;
-
-            unsubscribe(Listener);
+            try
+            {
+                await completion.Task;
+            }
+            finally
+            {
+                unsubscribe(Listener);
+                lifetime.RemoveListener(OnTerminated);
+            }
 
             void Listener()
             {
                 completion.TrySetResult();
+            }
+
+            void OnTerminated()
+            {
+                completion.TrySetCanceled();
             }
         }
 
@@ -48,7 +61,7 @@ namespace Internal
         public static ILifetime Child(this IReadOnlyLifetime lifetime)
         {
             var child = new Lifetime(lifetime);
-            lifetime.Listen(child.Terminate);
+            lifetime.Listen(child.TerminateCallback);
             return child;
         }
 
@@ -56,18 +69,22 @@ namespace Internal
         {
             var child = new Lifetime();
 
-            lifetimeA.Listen(OnTermination);
-            lifetimeB.Listen(OnTermination);
+            // Whoever ends it (either source or a direct Terminate), the subscriptions leave both sources:
+            // otherwise an intersection terminated early stays on the sources until they end.
+            child.Listen(() => {
+                lifetimeA.RemoveListener(child.TerminateCallback);
+                lifetimeB.RemoveListener(child.TerminateCallback);
+            });
+
+            lifetimeA.Listen(child.TerminateCallback);
+
+            // A terminated source ends the intersection at once: the other one is not subscribed to at all.
+            if (child.IsTerminated == true)
+                return child;
+
+            lifetimeB.Listen(child.TerminateCallback);
 
             return child;
-
-            void OnTermination()
-            {
-                child.Terminate();
-
-                lifetimeA.RemoveListener(OnTermination);
-                lifetimeB.RemoveListener(OnTermination);
-            }
         }
     }
 }

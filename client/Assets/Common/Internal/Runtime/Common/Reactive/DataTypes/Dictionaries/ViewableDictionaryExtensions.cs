@@ -20,10 +20,13 @@ namespace Internal
             IReadOnlyLifetime lifetime,
             Action<IReadOnlyLifetime, TKey, TValue> listener)
         {
-            dictionary.Advise(lifetime, listener.Invoke);
+            // The entry lifetime given to the listener is bounded by the subscriber lifetime too.
+            dictionary.Advise(
+                lifetime,
+                (valueLifetime, key, value) => listener.Invoke(valueLifetime.Intersect(lifetime), key, value));
 
             foreach (var (key, value) in dictionary)
-                listener.Invoke(dictionary.GetLifetime(key), key, value);
+                listener.Invoke(dictionary.GetLifetime(key).Intersect(lifetime), key, value);
         }
 
         public static void View<TKey, TValue>(
@@ -31,10 +34,12 @@ namespace Internal
             IReadOnlyLifetime lifetime,
             Action<IReadOnlyLifetime, TValue> listener)
         {
-            dictionary.Advise(lifetime, (valueLifetime, _, value) => listener.Invoke(valueLifetime, value));
+            dictionary.Advise(
+                lifetime,
+                (valueLifetime, _, value) => listener.Invoke(valueLifetime.Intersect(lifetime), value));
 
             foreach (var (key, value) in dictionary)
-                listener.Invoke(dictionary.GetLifetime(key), value);
+                listener.Invoke(dictionary.GetLifetime(key).Intersect(lifetime), value);
         }
 
         public static void View<TKey, TValue>(

@@ -14,68 +14,92 @@ namespace Internal
 
         private readonly IReadOnlyLifetime _parent;
 
+        // Subscription to the parent: created once in Child(), removed in Terminate by the same instance.
+        private Action _terminate;
+
+        // The state is guarded by a lock on this instance: a lifetime may be terminated on one thread while another
+        // one listens or asks for the token (network threads, thread pool continuations). No extra object is
+        // allocated for the lock; listeners and the token callbacks are invoked outside of it.
         private List<Action> _listeners;
         private CancellationTokenSource _cancellation;
-        private bool _isTerminated;
+        private volatile bool _isTerminated;
 
         public CancellationToken Token
         {
             get
             {
-                // После терминации источник не создаётся: отменённый токен и так есть.
-                if (_isTerminated == true && _cancellation == null)
-                    return new CancellationToken(canceled: true);
+                lock (this)
+                {
+                    // No source is created after termination: a cancelled token already exists.
+                    if (_isTerminated == true && _cancellation == null)
+                        return new CancellationToken(canceled: true);
 
-                _cancellation ??= new CancellationTokenSource();
-                return _cancellation.Token;
+                    _cancellation ??= new CancellationTokenSource();
+
+                    // The source of a terminated lifetime is already cancelled (or is being cancelled right now by
+                    // Terminate on another thread): its token reports it.
+                    return _cancellation.Token;
+                }
             }
         }
 
         public bool IsTerminated => _isTerminated;
 
+        internal Action TerminateCallback => _terminate ??= Terminate;
+
         public void Listen(Action callback)
         {
             if (callback == null)
-                return;
+                throw new ArgumentNullException(nameof(callback));
 
-            // Сюда же попадает подписка, сделанная слушателем во время Terminate:
-            // список к этому моменту уже забран, поэтому колбэк вызывается сразу.
-            if (_isTerminated == true)
+            lock (this)
             {
-                Debug.LogError("Trying to listen terminated lifetime");
-                callback.Invoke();
-                return;
+                if (_isTerminated == false)
+                {
+                    _listeners ??= new List<Action>();
+                    _listeners.Add(callback);
+                    return;
+                }
             }
 
-            _listeners ??= new List<Action>();
-            _listeners.Add(callback);
+            // A subscription made by a listener during Terminate also ends up here:
+            // by then the list has already been taken, so the callback is invoked immediately.
+            Debug.LogError("Trying to listen terminated lifetime");
+            callback.Invoke();
         }
 
         public void RemoveListener(Action callback)
         {
-            _listeners?.Remove(callback);
+            lock (this)
+                _listeners?.Remove(callback);
         }
 
         public void Terminate()
         {
-            if (_isTerminated == true)
-                return;
+            List<Action> listeners;
+            CancellationTokenSource cancellation;
 
-            _isTerminated = true;
+            // The pass is one-shot: the whole list is taken so that Listen/RemoveListener
+            // called from listeners (or from other threads) do not touch the collection being iterated.
+            lock (this)
+            {
+                if (_isTerminated == true)
+                    return;
 
-            _cancellation?.Cancel();
+                _isTerminated = true;
+                listeners = _listeners;
+                _listeners = null;
+                cancellation = _cancellation;
+            }
 
-            // Проход одноразовый: список забирается целиком, чтобы Listen/RemoveListener
-            // из слушателей не трогали итерируемую коллекцию.
-            var listeners = _listeners;
-            _listeners = null;
+            cancellation?.Cancel();
 
             if (listeners != null)
             {
                 foreach (var listener in listeners)
                 {
-                    // Слушатели освобождают ресурсы, поэтому один упавший не должен
-                    // блокировать остальные.
+                    // Listeners release resources, so a single failing one must not
+                    // block the rest.
                     try
                     {
                         listener.Invoke();
@@ -87,7 +111,9 @@ namespace Internal
                 }
             }
 
-            _parent?.RemoveListener(Terminate);
+            // An intersection has no parent: its sources are unsubscribed by its own listener (Intersect).
+            if (_terminate != null && _parent != null)
+                _parent.RemoveListener(_terminate);
         }
     }
 }

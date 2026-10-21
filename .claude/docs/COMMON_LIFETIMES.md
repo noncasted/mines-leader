@@ -36,6 +36,10 @@ var lifetime = token.ToLifetime();
 | Child auto-terminates with parent | Automatic cleanup |
 | Terminate() twice is safe | Idempotent |
 | Listeners cleared after termination | No callbacks after death |
+| `Listen(null)` throws `ArgumentNullException` | Fail fast, no silent no-op |
+| Thread-safe (client and backend): `Listen`, `RemoveListener`, `Terminate`, `Token` from any thread | Listeners run on the thread that calls `Terminate`, outside the lock |
+| `a.Intersect(b)` ends with either source; ended early (direct `Terminate`) it unsubscribes from both | No closures left on long-lived sources |
+| `WaitInvoke` removes both subscriptions on completion and on cancellation | No leak on a cancelled wait |
 
 ## Common Pattern: Scoped Subscription
 
@@ -86,18 +90,28 @@ property.View(lifetime, handler)
 
 ## Gotchas & Edge Cases
 
-### TerminatedLifetime
+### Listening to an Ended Lifetime
 
 ```csharp
 var lt = new Lifetime();
 lt.Terminate();
 
-// ⚠️ Callbacks registered after termination fire IMMEDIATELY
-lt.Advise(lt, () => Debug.Log("Fires now!"));
-// → Prints "Fires now!" immediately, not queued
+// Callbacks registered after termination fire IMMEDIATELY (the client Lifetime also logs an error)
+lt.Listen(() => Debug.Log("Fires now!"));
+
+// TerminatedLifetime is an already ended lifetime: the same, without the error log.
+// Its Token is cancelled; an Advise made with it is undone at once - nothing is delivered.
+source.Advise(new TerminatedLifetime(), OnEvent);
 ```
 
-**Why:** Cleanup already happened, so listener is invoked synchronously.
+**Why:** Cleanup already happened, so listener is invoked synchronously. Earlier `TerminatedLifetime.Listen`
+dropped the callback and its `Token` was `None`: an `Advise` with it stayed subscribed forever.
+
+### Continuations Run Inside Terminate
+
+`RunUpdateAction` (and other awaits completed by a lifetime listener) finish synchronously inside `Terminate`.
+Code after such an `await` that starts a new state must check `lifetime.IsTerminated` first, otherwise it
+subscribes to an ended lifetime ("Trying to listen terminated lifetime"). See `CardLocalSpawn`.
 
 ### Double Terminate
 

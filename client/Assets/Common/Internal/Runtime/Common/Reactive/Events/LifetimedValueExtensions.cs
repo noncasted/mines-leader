@@ -38,11 +38,11 @@ namespace Internal
         {
             property.Advise(lifetime, (valueLifetime, value) => {
                 if (value != null)
-                    listener.Invoke(valueLifetime, value);
+                    listener.Invoke(valueLifetime.Intersect(lifetime), value);
             });
 
             if (property.Value != null)
-                listener.Invoke(property.ValueLifetime, property.Value);
+                listener.Invoke(property.ValueLifetime.Intersect(lifetime), property.Value);
         }
 
 
@@ -51,8 +51,10 @@ namespace Internal
             IReadOnlyLifetime lifetime,
             Action<IReadOnlyLifetime, T> listener)
         {
-            property.Advise(lifetime, listener.Invoke);
-            listener.Invoke(property.ValueLifetime, property.Value);
+            // The value lifetime given to the listener is bounded by the subscriber lifetime too: whatever the
+            // listener subscribes in it ends with the subscription, not only with the next value.
+            property.Advise(lifetime, (valueLifetime, value) => listener.Invoke(valueLifetime.Intersect(lifetime), value));
+            listener.Invoke(property.ValueLifetime.Intersect(lifetime), property.Value);
         }
 
         public static void AdviseTrue(
@@ -99,7 +101,7 @@ namespace Internal
                 if (value == false)
                     return;
 
-                listener?.Invoke(valueLifetime);
+                listener?.Invoke(valueLifetime.Intersect(lifetime));
             }
         }
 
@@ -140,6 +142,11 @@ namespace Internal
 
             void OnChange(bool value)
             {
+                // The wait is over, the subscription lives on with the lifetime: a later change is not of this wait
+                // (the level is not ready again between two floors).
+                if (completion.Task.Status != UniTaskStatus.Pending)
+                    return;
+
                 if (value == false)
                 {
                     completion.TrySetResult();
@@ -164,6 +171,11 @@ namespace Internal
 
             void OnChange(bool value)
             {
+                // The wait is over, the subscription lives on with the lifetime: a later change is not of this wait
+                // (the level is not ready again between two floors).
+                if (completion.Task.Status != UniTaskStatus.Pending)
+                    return;
+
                 if (value == true)
                 {
                     completion.TrySetResult();
