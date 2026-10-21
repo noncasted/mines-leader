@@ -2,7 +2,8 @@
     "name": "Art",
     "rootNamespace": "",
     "references": [
-        "GUID:f039cb8c565843dba6da5b3c1ccde7d6"
+        "GUID:f039cb8c565843dba6da5b3c1ccde7d6",
+        "GUID:34723535d2aa4bd48ceda97c0b7e52d5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

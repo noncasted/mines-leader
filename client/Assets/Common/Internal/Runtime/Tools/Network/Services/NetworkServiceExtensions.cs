@@ -22,7 +22,7 @@ namespace Internal
             public NetworkServiceBuilder(
                 IScopeBuilder builder,
                 string key,
-                IServiceRegistration registration)
+                ServiceRegistration registration)
             {
                 _builder = builder;
                 _key = key;
@@ -37,7 +37,7 @@ namespace Internal
 
             private int _propertiesIndex;
 
-            public readonly IServiceRegistration Registration;
+            public readonly ServiceRegistration Registration;
 
             public void Setup<T>() where T : NetworkService
             {

@@ -45,8 +45,8 @@ namespace Internal
 
     public static class NetworkSessionCallbacksExtensions
     {
-        public static IServiceRegistration AsSessionCallback<TImplementation, TCallback>(
-            this IServiceRegistration registration)
+        public static ServiceRegistration AsSessionCallback<TImplementation, TCallback>(
+            this ServiceRegistration registration)
             where TImplementation : class
             where TCallback : class, INetworkSessionCallbackEntry
         {

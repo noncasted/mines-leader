@@ -1,31 +1,19 @@
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace Internal
 {
     public static class InternalScopeExtensions
     {
-        public static async UniTask<ILoadedScope> LoadInternal(this IServiceScopeLoader loader)
+        public static UniTask<ILoadedScope> LoadInternal(this IServiceScopeLoader loader)
         {
-            var options = new ScopeLoadOptions(null, Construct);
-
-            using var stage = GameProfiler.Scope("Startup");
-
-            var scope = await loader.Load(options);
-            await scope.Initialize();
-
-            Application.quitting += () => {
-                Debug.Log("Internal scope lifetime terminated, disposing loaded scope.");
-                scope.Dispose().Forget();
-            };
-
-            return scope;
+            return loader.LoadRoot(Construct);
         }
 
-        // Корень всей цепочки скоупов. Лежит в Internal, чтобы Global мог объявить его родителем.
+        // Root of the whole scope chain (the framework core loads it, the content of this game fills it). Global
+        // declares it as its parent.
         public static async UniTask Construct(IScopeBuilder builder)
         {
-            // Опции читаются прямо при регистрации, поэтому группа грузится до неё.
+            // Options are read right at registration, so the group is loaded before it.
             await builder.LoadEnvAssetGroup(InternalAssets.Group);
 
             builder.Register<ServiceScopeLoader>()

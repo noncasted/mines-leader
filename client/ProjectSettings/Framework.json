@@ -1,0 +1,22 @@
+{
+  "ContentAssembly": "Internal.Content",
+  "ContentFolder": "Assets/Common/Internal",
+  "ModuleRoots": [ "Assets/Common/Global", "Assets/GamePlay", "Assets/Menu" ],
+  "SceneFolders": [ "Assets/Common", "Assets/GamePlay", "Assets/Menu", "Assets/Meta" ],
+  "ArtFolder": "Assets/Art",
+  "SoundsFolder": "Assets/Art/Audio/Sounds",
+  "MusicFolder": "Assets/Art/Audio/Music",
+  "FavoriteScenes": [ "Startup", "Menu", "Game_Field" ],
+  "SharedCommonPaths": [ "Packages/", "Assets/Plugins/", "Assets/Art/Fonts/" ],
+  "GroupPhases": {
+    "Scenes_Menu": "Menu",
+    "Prefabs_Menu": "Menu",
+    "Sprites_MenuNavigation": "Menu",
+    "Sprites_MenuUnlocks": "Menu",
+    "Scenes_GamePlay": "GamePlay",
+    "Assets_GamePlay": "GamePlay",
+    "Sprites_Cards": "GamePlay",
+    "Sprites_GameUIPlate": "GamePlay"
+  },
+  "StrippedPlayerAssemblies": [ "Unity.2D.Tilemap.Runtime" ]
+}

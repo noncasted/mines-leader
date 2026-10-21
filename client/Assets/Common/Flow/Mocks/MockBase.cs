@@ -2,15 +2,11 @@
 using Global.Setup;
 using Internal;
 using Meta;
-using UnityEngine;
 
 namespace Flow.Mocks
 {
-    [DisallowMultipleComponent]
-    public abstract class MockBase : MonoBehaviour
+    public abstract class MockBase : MockEntry
     {
-        public abstract UniTaskVoid Process();
-
         protected async UniTask<ILoadedScope> Bootstrap()
         {
             GameProfiler.Begin("Mock");

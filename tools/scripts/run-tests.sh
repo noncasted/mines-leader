@@ -15,7 +15,7 @@
 # Steps, in this order (a failing step does not stop the next one; the summary lists all):
 #   backend    dotnet build backend/backend.slnx + backend/Tools/Tests/bin/Debug/net10.0/Tests
 #              (Postgres comes from Testcontainers - Docker must be running)
-#   generator  dotnet build client/Tools~/ContainerGenerator -c Release + ContainerGenerator.Verify
+#   generator  dotnet build tools/framework/client/core/Source~/ContainerGenerator -c Release + ContainerGenerator.Verify
 #   unity      Unity -batchmode -nographics -runTests -testPlatform EditMode on the copied client
 #              (all EditMode test assemblies of the project: Internal.Tests, ...)
 #
@@ -111,6 +111,8 @@ for f in .editorconfig .gitattributes; do
     snap "$f"
 done
 snap shared
+# The framework submodule: backend projects and Unity packages reference it.
+snap tools/framework
 
 # The backend build lock: no other session is half way through writing backend/**/obj while it
 # is copied.
@@ -130,7 +132,7 @@ for entry in "$ROOT"/client/*; do
     case "$name" in
         Temp|Logs|build|Build|Builds|MemoryCaptures|ProfilerCaptures|Recordings|traces|obj) continue ;;
     esac
-    if [[ "$SKIP_UNITY" == "1" && "$name" != "Tools~" ]]; then
+    if [[ "$SKIP_UNITY" == "1" ]]; then
         continue
     fi
     if [[ "$name" == "Library" ]]; then
@@ -210,7 +212,7 @@ run_generator() {
     section "Container generator"
     local start=$SECONDS
     local log="$LOG_DIR/generator.log"
-    local tools="$COPY/client/Tools~"
+    local tools="$COPY/tools/framework/client/core/Source~"
 
     echo "Building ContainerGenerator and running ContainerGenerator.Verify (log: $log)"
     if ! dotnet build "$tools/ContainerGenerator/ContainerGenerator.csproj" -c Release >"$log" 2>&1; then

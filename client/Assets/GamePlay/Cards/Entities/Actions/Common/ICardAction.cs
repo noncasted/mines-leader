@@ -28,7 +28,7 @@ namespace GamePlay.Cards
 
     public static class CardActionExtensions
     {
-        public static IServiceRegistration AddCardActionSyncResolver<TImplementation, TData>(this IBuilder builder)
+        public static ServiceRegistration AddCardActionSyncResolver<TImplementation, TData>(this IBuilder builder)
             where TImplementation : ICardActionSync<TData>
             where TData : ICardActionData
         {
