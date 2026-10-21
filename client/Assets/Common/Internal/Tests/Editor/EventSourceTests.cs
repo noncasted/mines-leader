@@ -115,5 +115,56 @@ namespace Internal.Tests
             source.Invoke();
             Assert.AreEqual(1, lateCalls);
         }
+
+        [Test]
+        public void SameHandler_AdvisedTwice_EndOfOneLifetimeRemovesOnlyItsSubscription()
+        {
+            var first = new Lifetime();
+            var second = new Lifetime();
+            var source = new EventSource();
+            var order = new List<string>();
+
+            void Shared() => order.Add("shared");
+
+            source.Advise(first, Shared);
+            source.Advise(first, () => order.Add("other"));
+            source.Advise(second, Shared);
+
+            // Removing by the first equal delegate would drop the subscription of "first" and change the order.
+            second.Terminate();
+            source.Invoke();
+
+            CollectionAssert.AreEqual(new[] { "shared", "other" }, order);
+
+            order.Clear();
+            first.Terminate();
+            source.Invoke();
+
+            CollectionAssert.IsEmpty(order);
+        }
+
+        [Test]
+        public void SameHandler_AdvisedTwice_IsInvokedTwice()
+        {
+            var lifetime = new Lifetime();
+            var source = new EventSource<int>();
+            var calls = 0;
+
+            void Handler(int _) => calls++;
+
+            source.Advise(lifetime, Handler);
+            source.Advise(lifetime, Handler);
+            source.Invoke(1);
+
+            Assert.AreEqual(2, calls);
+        }
+
+        [Test]
+        public void Advise_NullHandler_Throws()
+        {
+            var source = new EventSource();
+
+            Assert.Throws<ArgumentNullException>(() => source.Advise(new Lifetime(), null));
+        }
     }
 }

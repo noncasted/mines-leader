@@ -119,11 +119,20 @@ namespace GamePlay.Cards
 
             useLifetime.Terminate();
 
+            // The drag state ended while the card was in use: another state took the card over, or the card is torn
+            // down (scope disposal). Such a card is not returned to the hand.
+            if (lifetime.IsTerminated == true)
+                return;
+
             await _updater.RunUpdateAction(lifetime, () => {
                     var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
                     return distance > 0.1f;
                 },
                 _ => MoveTowards(positionHandle.SupposedPosition));
+
+            // The return motion also completes when the state lifetime ends: the card does not go to Idle then.
+            if (lifetime.IsTerminated == true)
+                return;
 
             idle.Enter();
             return;

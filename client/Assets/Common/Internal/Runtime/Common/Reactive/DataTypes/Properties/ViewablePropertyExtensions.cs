@@ -1,18 +1,14 @@
-﻿namespace Internal
+﻿using System;
+
+namespace Internal
 {
     public static class ViewablePropertyExtensions
     {
+        // The value is clamped before it is set: the listeners never see one over the maximum.
         public static int AddClampMax(this ViewableProperty<int> property, int add, int maxValue)
         {
-            var value = property.Value + add;
+            var value = Math.Min(property.Value + add, maxValue);
             property.Set(value);
-
-            if (value > maxValue)
-            {
-                property.Set(maxValue);
-                return maxValue;
-            }
-
             return value;
         }
 
@@ -25,16 +21,7 @@
 
         public static int IncreaseClampMax(this ViewableProperty<int> property, int maxValue)
         {
-            var value = property.Value + 1;
-            property.Set(value);
-
-            if (value > maxValue)
-            {
-                property.Set(maxValue);
-                return maxValue;
-            }
-
-            return value;
+            return property.AddClampMax(1, maxValue);
         }
 
         public static int Decrease(this ViewableProperty<int> property)

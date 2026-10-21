@@ -4,14 +4,16 @@ namespace Internal
 {
     public class LifetimedValue<T> : ILifetimedValue<T>
     {
+        // The value and its lifetime exist from the start, also for the default of a value type: Set skips an
+        // equal value, so going through it here would leave ValueLifetime null for (false), (0) and the like.
         public LifetimedValue(T value)
         {
-            Set(value);
+            _value = value;
+            _lifetime = new Lifetime();
         }
 
-        public LifetimedValue()
+        public LifetimedValue() : this(default)
         {
-            Set(default);
         }
 
         private readonly EventSource<IReadOnlyLifetime, T> _eventSource = new();

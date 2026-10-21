@@ -64,6 +64,8 @@ Specific examples:
 | View iterates existing + listens | UI sees all items immediately |
 | Advise listens for future only | Existing items missed |
 | Use item.Lifetime for subscriptions | Auto-cleanup when item removed |
+| `View(lifetime, (entryLifetime, item) => ...)`: `entryLifetime` ends with the removal OR with `lifetime` | No manual `entryLifetime.Intersect(lifetime)` needed; a listener on it also runs when the subscriber ends - guard side effects meant only for a removal with `lifetime.IsTerminated` |
+| Remove of a missing key throws (dictionary), a removed key can be added again | Lifetime map entry leaves with the item |
 
 ## Common Pattern: UI List
 

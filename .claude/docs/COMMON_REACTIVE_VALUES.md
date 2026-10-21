@@ -64,6 +64,7 @@ Specific examples:
 | View = immediate + future | UI gets current instantly |
 | Advise = future only | First call on change only |
 | Value lifetime = value validity | Each value has own lifetime |
+| `View(lifetime, (valueLifetime, v) => ...)` gives `valueLifetime.Intersect(lifetime)` | Whatever the listener subscribes in it ends with the next value or with the subscriber; the same for `ViewNotNull`, `AdviseTrue` with a lifetime, list and dictionary `View`. Raw `Advise((lt, v) => ...)` still gives the value lifetime as is |
 | Always use Lifetime | Memory leak if missing |
 
 ## Common Pattern: UI Binding
