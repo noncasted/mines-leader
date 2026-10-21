@@ -37,11 +37,11 @@ namespace Global.Setup
                 builder.LoadEnvAssetGroup(GlobalAssets.Group),
                 builder.LoadPrefabGroup(GlobalPrefabs.Group));
 
-            builder.AddUpdater();
+            builder.AddUpdater(GlobalPrefabs.GlobalUpdater);
             builder.AddAudio(GlobalPrefabs.GlobalAudioPlayer, GlobalPrefabs.GlobalAudioListener);
             builder.Register<ButtonSoundsPlayer>()
                    .As<IScopeSetup>();
-            builder.AddCamera();
+            builder.AddCamera(GlobalPrefabs.GlobalCamera);
             builder.AddInput(GlobalAssets.InputOptions, GlobalPrefabs.GlobalEvents.GetComponent<EventSystem>());
             builder.AddBackend();
             builder.AddSettings();

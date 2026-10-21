@@ -420,6 +420,8 @@ Editor: `Internal/Editor/Tools/Profiling/`
 
 ### WebGlBuild
 
+Во фреймворке, платформа `web` (`Internal.Platforms.Web.Editor`), имя `Internal.WebGlBuild.Build` прежнее.
+
 `Tools/Build/WebGL`. CI:
 
 ```text
