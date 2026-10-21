@@ -222,13 +222,15 @@ Lifetime скоупа — `parent.Lifetime.Child()`. UI обычно `View`, с�
 | Подсистема | Папка | Что регистрирует |
 |------------|-------|------------------|
 | Updater | `Internal/.../Services/Updaters` + `Global/Setup/GlobalUpdaterExtensions.cs` | `GlobalPrefabs.GlobalUpdater`, `DelayRunner` |
-| Audio | `Global/Audio/` | Плеер и слушатель |
+| Audio | модуль `audio` + `Global/Audio/ButtonSoundsPlayer.cs` | `AddAudio(плеер, слушатель)`: пул звуков, музыка с кроссфейдом на двух источниках; громкость из `ISettings` (`IAudioVolume`) |
 | Camera | `Global/Cameras/` | Глобальная камера, `CurrentCamera` |
-| Input | `Global/Inputs/` | Ограничения ввода, EventSystem из `Global_Events` |
-| HTTP | `Global/Backend/` | `BackendClient` (REST к Meta Gateway) |
+| Input | модуль `inputs` | `AddInput(InputOptions, EventSystem из Global_Events)`: схема ввода, геймпад, back / pause |
+| HTTP | модуль `backend` | `BackendClient` (REST к Meta Gateway) |
 | Settings | `Global/Settings/` | Громкость и прочие сохранения |
-| Publisher | `Global/Publisher/` | Itch saves / языки по `PlatformType` |
-| UI | `Global/UI/` | Loading screen (WebGL — `WebLoadingScreen.jslib`), `UIStateMachine`, кнопки/элементы |
+| Publisher | модуль `publish` + платформа `itch`, `Global/Publisher/` | Itch saves по `PlatformType` |
+| UI | модуль `ui` + `Global/UI/GlobalUIExtensions.cs` | `UIStateMachine`, ограничения ввода, навигация геймпадом, кнопки/элементы; loading screen (WebGL - `AddWebLoadingScreen` платформы `web`), `ClientOutdatedNotice` |
+
+Модули лежат во фреймворке (`tools/framework/client/modules`, `client/platforms`, неймспейсы `Global.*`), префабы и опции - в `Global/Assets` игры.
 
 Опции живут в `Internal/Runtime/Options/OptionsContainer.asset`: debug, backend URL, platform, version. В Internal-скоупе регистрируются как отдельные инстансы.
 

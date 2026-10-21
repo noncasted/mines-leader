@@ -28,6 +28,22 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.noncasted.framework.audio": {
+      "version": "file:../../tools/framework/client/modules/audio",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0"
+      }
+    },
+    "com.noncasted.framework.backend": {
+      "version": "file:../../tools/framework/client/modules/backend",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0"
+      }
+    },
     "com.noncasted.framework.core": {
       "version": "file:../../tools/framework/client/core",
       "depth": 0,
@@ -47,12 +63,55 @@
         "com.noncasted.framework.core": "0.1.0"
       }
     },
+    "com.noncasted.framework.inputs": {
+      "version": "file:../../tools/framework/client/modules/inputs",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0"
+      }
+    },
+    "com.noncasted.framework.platform.itch": {
+      "version": "file:../../tools/framework/client/platforms/itch",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0",
+        "com.noncasted.framework.publish": "0.1.0"
+      }
+    },
+    "com.noncasted.framework.platform.web": {
+      "version": "file:../../tools/framework/client/platforms/web",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0",
+        "com.noncasted.framework.ui": "0.1.0"
+      }
+    },
+    "com.noncasted.framework.publish": {
+      "version": "file:../../tools/framework/client/modules/publish",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0"
+      }
+    },
     "com.noncasted.framework.shared": {
       "version": "file:../../tools/framework/shared",
       "depth": 0,
       "source": "local",
       "dependencies": {
         "com.cysharp.memorypack": "1.21.4"
+      }
+    },
+    "com.noncasted.framework.ui": {
+      "version": "file:../../tools/framework/client/modules/ui",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0",
+        "com.noncasted.framework.inputs": "0.1.0"
       }
     },
     "com.shared.game": {

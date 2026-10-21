@@ -1,3 +1,4 @@
+﻿using Global.Audio;
 using Internal;
 
 namespace Global.Settings
@@ -8,6 +9,7 @@ namespace Global.Settings
         {
             builder.Register<Settings>()
                    .As<ISettings>()
+                   .As<IAudioVolume>()
                    .As<IScopeSetupAsync>();
 
             return builder;

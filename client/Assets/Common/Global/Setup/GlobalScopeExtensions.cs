@@ -7,6 +7,7 @@ using Global.Publisher;
 using Global.Settings;
 using Global.UI;
 using Internal;
+using UnityEngine.EventSystems;
 
 namespace Global.Setup
 {
@@ -37,13 +38,15 @@ namespace Global.Setup
                 builder.LoadPrefabGroup(GlobalPrefabs.Group));
 
             builder.AddUpdater();
-            builder.AddAudio();
+            builder.AddAudio(GlobalPrefabs.GlobalAudioPlayer, GlobalPrefabs.GlobalAudioListener);
+            builder.Register<ButtonSoundsPlayer>()
+                   .As<IScopeSetup>();
             builder.AddCamera();
-            builder.AddInput();
+            builder.AddInput(GlobalAssets.InputOptions, GlobalPrefabs.GlobalEvents.GetComponent<EventSystem>());
             builder.AddBackend();
             builder.AddSettings();
             builder.AddPublisher();
-            builder.AddUI();
+            builder.AddGlobalUI();
         }
     }
 }

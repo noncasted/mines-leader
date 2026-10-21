@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Global.Publisher.Itch;
 using Internal;
 
@@ -8,30 +8,14 @@ namespace Global.Publisher
     {
         public static IScopeBuilder AddPublisher(this IScopeBuilder builder)
         {
-            var platformOptions = InternalAssets.OptionsContainer.PlatformOptions;
+            var platform = InternalAssets.OptionsContainer.PlatformOptions.PlatformType;
 
-            switch (platformOptions.PlatformType)
-            {
-                case PlatformType.Website:
-                case PlatformType.ItchIO:
-                    AddItchIO(builder);
-                    break;
-                case PlatformType.IOS:
-                    break;
-                case PlatformType.Android:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            if (platform != PlatformType.Website && platform != PlatformType.ItchIO)
+                throw new ArgumentOutOfRangeException(nameof(platform), platform, "[Publisher] No publisher for the platform");
+
+            builder.AddItchSaves();
 
             return builder;
-        }
-
-        private static void AddItchIO(IScopeBuilder builder)
-        {
-            builder.Register<ItchSaves>()
-                   .As<ISaves>()
-                   .As<IScopeBaseSetup>();
         }
     }
 }

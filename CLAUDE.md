@@ -12,7 +12,9 @@ The shared base of our games is a git submodule at `tools/framework` with its ow
 changing anything there). It holds the forked packages (`client/packages`: Unity packages, UniTask, MemoryPack,
 unity-mcp), the client core (`client/core`: assemblies `Internal`, `Internal.Editor`, `Internal.Tests` - DI container
 and ContainerGenerator, reactive, scopes, catalogues, editor tools), the base of the game flow (`client/flow`), the
-protocol base (`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common`, `Infrastructure`,
+modules of the global scope (`client/modules`: backend, audio, inputs, ui, publish; `client/platforms`: itch, web -
+namespaces `Global.*`, registered from `Global/Setup/GlobalScopeExtensions.cs` with the prefabs and options of this
+game), the protocol base (`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common`, `Infrastructure`,
 `Cluster` and `Console` (infrastructure pages and widgets).
 - A change in `tools/framework` affects every game: commit and push it inside the submodule, then commit the
   submodule pointer here.
