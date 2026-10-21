@@ -110,8 +110,8 @@ PlayerPrefs `userId` (общий) и `userId:{hash dataPath}` (на этот к�
 
 ## Каталоги
 
-Редактор: `Internal/Editor/Catalogues/`  
-Рантайм: `Internal/Runtime/Catalogues/`
+Генераторы: `tools/framework/client/core/Editor/Catalogues/`  
+Контент: `Internal/Runtime/Catalogues/<Тип>/` - в одной папке типа лежат json-список групп, ассеты групп и сгенерированные классы, без подпапок `Generated` / `Groups`.
 
 Общая инфраструктура:
 
@@ -161,7 +161,7 @@ flowchart TD
 | Группа по умолчанию | относительный путь под `Art/` → PascalCase |
 | Меню | `Tools/GenerateSprites` |
 | Авто | postprocessor + reload редактора |
-| Выход | `Runtime/Catalogues/Sprites/Groups/{Group}.asset`, Addressables `Sprites_{Group}`, `Sprites.cs` + `{Group}Sprites.cs` |
+| Выход | `Runtime/Catalogues/Sprites/{Group}.asset`, Addressables `Sprites_{Group}`, `Sprites.cs` + `{Group}Sprites.cs` |
 | Рантайм | `Sprites.Cards.Name` после `LoadSpriteGroup` / `RequestSpriteGroup` |
 
 Геттер бросает, если группа не загружена. Предзагрузка меты (`StartupAssetsPreload`) держит часть групп до конца сессии.
@@ -171,10 +171,10 @@ flowchart TD
 | | |
 |--|--|
 | Источник | любой `.prefab` с `prefabCatalog.included` |
-| JSON групп | `Editor/Catalogues/Prefabs/PrefabGroups.json` (в т.ч. `nonAddressable`: сейчас `Global`) |
+| JSON групп | `Runtime/Catalogues/Prefabs/PrefabGroups.json` (в т.ч. `nonAddressable`: сейчас `Global`) |
 | Меню | `Tools/GeneratePrefabsCatalog` |
-| Выход | Addressable: `.../Prefabs/Groups/{Group}.asset`; Resources: `.../Groups/Resources/PrefabGroups/{Group}.asset` |
-| C# | `GlobalPrefabs`, `MenuPrefabs`, `GamePlayPrefabs` в `Assets/Generated` модуля |
+| Выход | Addressable: `.../Catalogues/Prefabs/{Group}.asset`; Resources: `.../Catalogues/Prefabs/Resources/PrefabGroups/{Group}.asset` |
+| C# | `MenuPrefabs`, `GamePlayPrefabs` в `Assets/Generated` модуля; группа без типов игры (`GlobalPrefabs`) - в `Catalogues/Prefabs` контента |
 
 Галочка **Addressable Group** общая на группу: снятие уносит **весь** `.asset` группы в Resources. Global-префабы так и едут в плеер без бандла — `GlobalScopeExtensions` их не Retain'ит.
 
@@ -186,11 +186,11 @@ flowchart TD
 |--|--|
 | Источник | любой аудиофайл (`.wav` / `.mp3` / `.ogg` / …) с `audioCatalog.included` |
 | Ключ userData | `audioCatalog`: included, group, volume (слайдер 0..1 в инспекторе) |
-| JSON групп | `Editor/Catalogues/Audio/AudioGroups.json` |
+| JSON групп | `Runtime/Catalogues/Audio/AudioGroups.json` |
 | Меню | `Tools/GenerateAudioCatalog` |
 | Авто | postprocessor + reload редактора |
-| Выход | `Runtime/Catalogues/Audio/Groups/{Group}.asset`, Addressables `Audio_{Group}` |
-| C# | `GlobalAudio`, `GamePlayAudio`, … в `Runtime/Catalogues/Audio/Generated` |
+| Выход | `Runtime/Catalogues/Audio/{Group}.asset`, Addressables `Audio_{Group}` |
+| C# | `GlobalAudio`, `GamePlayAudio`, … в `Runtime/Catalogues/Audio` |
 | Вариации | клипы `Name_0`, `Name_1`, … сворачиваются в `IReadOnlyList<Sound> Name`; играть через `IAudioPlayer.PlayRandomFromGroup` |
 | Рантайм | `GlobalAudio.GameMusic` — `Sound { Clip, Volume }` — после `LoadAudioGroup(GlobalAudio.Group)` / `RequestAudioGroup` |
 
@@ -198,7 +198,7 @@ flowchart TD
 
 ### Env-ассеты (options)
 
-Маркерный баз-класс `EnvAsset`. Устроено как префабы: у каждой группы свой `EnvAssetGroupAsset` в `Catalogues/Assets/Groups/` (Addressables `Assets_<Group>`) или в `Groups/Resources/AssetGroups/` (галочка «Addressable Group» снята, список в `AssetGroups.json`).
+Маркерный баз-класс `EnvAsset`. Устроено как префабы: у каждой группы свой `EnvAssetGroupAsset` в `Catalogues/Assets/` (Addressables `Assets_<Group>`) или в `Catalogues/Assets/Resources/AssetGroups/` (галочка «Addressable Group» снята, список в `AssetGroups.json`).
 
 | Группа | Где | Кто грузит |
 |--------|-----|------------|

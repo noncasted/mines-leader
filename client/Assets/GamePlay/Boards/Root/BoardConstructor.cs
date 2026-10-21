@@ -112,7 +112,7 @@ namespace GamePlay.Boards
                 return GetCellPrefab(kind);
 
             var asset = AssetDatabase.LoadAssetAtPath<PrefabGroupAsset>(
-                "Assets/Common/Internal/Runtime/Catalogues/Prefabs/Groups/GamePlay.asset");
+                "Assets/Common/Internal/Runtime/Catalogues/Prefabs/GamePlay.asset");
             if (asset == null)
                 throw new InvalidOperationException(
                     "GamePlay prefab group asset is missing. Run Tools/GeneratePrefabsCatalog.");
