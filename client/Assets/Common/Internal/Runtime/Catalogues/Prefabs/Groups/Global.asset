@@ -21,7 +21,7 @@ MonoBehaviour:
     ComponentType: Global.Audio.AudioPlayer, Internal.Audio, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: GlobalCamera
     Prefab: {fileID: 8264638717701220664, guid: 2cb3e1ce0294b93c49182f7c727889f8, type: 3}
-    ComponentType: Global.Cameras.GlobalCamera, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: Global.Cameras.GlobalCamera, Internal.Cameras, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: GlobalEvents
     Prefab: {fileID: 5454134000541643517, guid: 615a1ac5539cb2db99283183d5ee5fc6, type: 3}
     ComponentType: 

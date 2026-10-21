@@ -5,6 +5,7 @@
     "com.cysharp.unitask": "file:../../tools/framework/client/packages/com.cysharp.unitask",
     "com.noncasted.framework.audio": "file:../../tools/framework/client/modules/audio",
     "com.noncasted.framework.backend": "file:../../tools/framework/client/modules/backend",
+    "com.noncasted.framework.cameras": "file:../../tools/framework/client/modules/cameras",
     "com.noncasted.framework.core": "file:../../tools/framework/client/core",
     "com.noncasted.framework.flow": "file:../../tools/framework/client/flow",
     "com.noncasted.framework.inputs": "file:../../tools/framework/client/modules/inputs",

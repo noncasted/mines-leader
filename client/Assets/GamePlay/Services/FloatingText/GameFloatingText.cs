@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 
@@ -27,15 +27,13 @@ namespace GamePlay.Services
         private AnimationCurve _size = AnimationCurve.Constant(0f, 1f, 1f);
 
         private IUpdater _updater;
-        private IDelayRunner _delayRunner;
 
         private int _index;
 
         [Inject]
-        internal void Construct(IUpdater updater, IDelayRunner delayRunner)
+        internal void Construct(IUpdater updater)
         {
             _updater = updater;
-            _delayRunner = delayRunner;
         }
 
         public void Create(IScopeBuilder builder)
@@ -84,7 +82,7 @@ namespace GamePlay.Services
             var lifetime = this.GetObjectLifetime();
 
             if (request.Delay > 0f)
-                await _delayRunner.RunDelay(request.Delay, lifetime);
+                await _updater.RunDelay(lifetime, request.Delay);
 
             if (lifetime.IsTerminated == true)
                 return;

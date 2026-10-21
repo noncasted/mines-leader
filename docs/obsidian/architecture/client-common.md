@@ -221,16 +221,16 @@ Lifetime скоупа — `parent.Lifetime.Child()`. UI обычно `View`, с�
 
 | Подсистема | Папка | Что регистрирует |
 |------------|-------|------------------|
-| Updater | `Internal/.../Services/Updaters` + `Global/Setup/GlobalUpdaterExtensions.cs` | `GlobalPrefabs.GlobalUpdater`, `DelayRunner` |
+| Updater | core (`Services/Updaters`) | `AddUpdater(GlobalPrefabs.GlobalUpdater)` |
 | Audio | модуль `audio` + `Global/Audio/ButtonSoundsPlayer.cs` | `AddAudio(плеер, слушатель)`: пул звуков, музыка с кроссфейдом на двух источниках; громкость из `ISettings` (`IAudioVolume`) |
-| Camera | `Global/Cameras/` | Глобальная камера, `CurrentCamera` |
+| Camera | модуль `cameras` | `AddCamera(GlobalPrefabs.GlobalCamera)`: глобальная камера, `CurrentCamera`, `ICameraUtils` |
 | Input | модуль `inputs` | `AddInput(InputOptions, EventSystem из Global_Events)`: схема ввода, геймпад, back / pause |
 | HTTP | модуль `backend` | `BackendClient` (REST к Meta Gateway) |
 | Settings | `Global/Settings/` | Громкость и прочие сохранения |
 | Publisher | модуль `publish` + платформа `itch`, `Global/Publisher/` | Itch saves по `PlatformType` |
 | UI | модуль `ui` + `Global/UI/GlobalUIExtensions.cs` | `UIStateMachine`, ограничения ввода, навигация геймпадом, кнопки/элементы; loading screen (WebGL - `AddWebLoadingScreen` платформы `web`), `ClientOutdatedNotice` |
 
-Модули лежат во фреймворке (`tools/framework/client/modules`, `client/platforms`, неймспейсы `Global.*`), префабы и опции - в `Global/Assets` игры.
+Модули лежат во фреймворке (`tools/framework/client/modules`, `client/platforms`, неймспейсы `Global.*`), префабы и опции - в `Global/Assets` игры. `GlobalPrefabs` генерируется в контент-сборку (`Internal/Runtime/Catalogues/Prefabs/Generated`): все типы его префабов из фреймворка, поэтому `Internal.Content` ссылается на модули `audio`, `cameras`, `ui`.
 
 Опции живут в `Internal/Runtime/Options/OptionsContainer.asset`: debug, backend URL, platform, version. В Internal-скоупе регистрируются как отдельные инстансы.
 
@@ -256,7 +256,7 @@ Lifetime скоупа — `parent.Lifetime.Child()`. UI обычно `View`, с�
 
 Один `Updater` MonoBehaviour на Global. Дочерние скоупы получают `UpdaterProxy` и вешают `IUpdatable` / `IFixedUpdatable` на lifetime.
 
-Дополнительно: `DelayRunner`, `UpdateDelay`, `ProgressionLoop`, `UpdatableAction` — таймеры и прогрессии без корутин.
+Дополнительно: `updater.RunDelay(lifetime, time)`, `ProgressionLoop`, `UpdatableAction` — задержки и прогрессии без корутин. Задержка заканчивается раньше вместе с lifetime, вызывающий проверяет `IsTerminated`.
 
 ---
 

@@ -44,6 +44,14 @@
         "com.noncasted.framework.core": "0.1.0"
       }
     },
+    "com.noncasted.framework.cameras": {
+      "version": "file:../../tools/framework/client/modules/cameras",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0"
+      }
+    },
     "com.noncasted.framework.core": {
       "version": "file:../../tools/framework/client/core",
       "depth": 0,
