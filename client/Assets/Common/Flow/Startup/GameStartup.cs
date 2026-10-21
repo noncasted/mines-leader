@@ -9,8 +9,7 @@ using UnityEngine;
 
 namespace Flow.Startup
 {
-    [DisallowMultipleComponent]
-    public class GameStartup : MonoBehaviour
+    public class GameStartup : StartupEntry
     {
         private void Awake()
         {

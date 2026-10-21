@@ -302,16 +302,17 @@ sequenceDiagram
 
 ### ContainerGenerator (Roslyn)
 
-Исходники: `client/Tools~/ContainerGenerator/` (папка `Tools~` Unity игнорирует).  
-DLL: `client/Assets/Plugins/ContainerGenerator/` с лейблом **RoslynAnalyzer**, все платформы выключены.
+Генератор — часть фреймворка (пакет `com.noncasted.framework.core`).
+Исходники: `tools/framework/client/core/Source~/ContainerGenerator/` (папку `Source~` Unity игнорирует).  
+DLL: `tools/framework/client/core/Analyzers/` с лейблом **RoslynAnalyzer**, все платформы выключены.
 
 Сборка:
 
 ```bash
-dotnet build client/Tools~/ContainerGenerator/ContainerGenerator.csproj -c Release
+dotnet build tools/framework/client/core/Source~/ContainerGenerator/ContainerGenerator.csproj -c Release
 ```
 
-Post-build копирует только `ContainerGenerator.dll`. `Microsoft.CodeAnalysis*.dll` класть рядом нельзя. Пин — `Microsoft.CodeAnalysis.CSharp` **4.3.0** (ветка 4.x, которую ест Unity).
+Post-build (только Release) копирует только `ContainerGenerator.dll` в `Analyzers/`; изменение коммитится во фреймворк. `Microsoft.CodeAnalysis*.dll` класть рядом нельзя. Пин — `Microsoft.CodeAnalysis.CSharp` **4.3.0** (ветка 4.x, которую ест Unity).
 
 Генератор на каждую игровую сборку:
 
@@ -327,10 +328,10 @@ Post-build копирует только `ContainerGenerator.dll`. `Microsoft.Co
 
 `builder.Inject(x)` одного типа может прийти от нескольких экземпляров (одинаковые сервисы сцены). Сгенерированный скоуп берёт их все через `request.GetInjections<T>()` и зовёт `[Inject]` в цикле. Поле слота держит последний экземпляр. Если вызовов `builder.Inject` одного типа несколько, цикл пишется один раз.
 
-Проверка генератора без Unity (её же гоняет CI, `.github/workflows/ci.yml`):
+Проверка генератора без Unity (её же гоняет CI фреймворка и `tools/scripts/run-tests.sh`):
 
 ```bash
-dotnet run --project client/Tools~/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj -c Release
+dotnet run --project tools/framework/client/core/Source~/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj -c Release
 ```
 
 Папка `Injector/` осталась как анализ ctor/`[Inject]` для `EdgeResolver`.
@@ -498,10 +499,13 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 
 | Путь | Содержание |
 |------|------------|
-| `client/Assets/Common/Internal/Editor/Tools/` | Окна, биндинги, профайлер, моки, WebGL, MCP |
-| `client/Assets/Common/Internal/Editor/Catalogues/` | Генераторы каталогов и Addressables |
-| `client/Assets/Common/Internal/Runtime/Catalogues/` | Рантайм групп и generated C# |
-| `client/Assets/Common/Internal/Runtime/Tools/Container/` | Контракты контейнера |
-| `client/Tools~/ContainerGenerator/` | Roslyn-генератор скоупов |
-| `client/Assets/Plugins/ContainerGenerator/` | Собранный analyzer |
+| `tools/framework/client/core/Editor/Tools/` | Окна, биндинги, профайлер, MCP (фреймворк) |
+| `tools/framework/client/core/Editor/Catalogues/` | Генераторы каталогов и Addressables (фреймворк) |
+| `tools/framework/client/core/Runtime/Catalogues/` | Рантайм групп (фреймворк) |
+| `tools/framework/client/core/Runtime/Tools/Container/` | Контракты контейнера (фреймворк) |
+| `tools/framework/client/core/Source~/ContainerGenerator/` | Roslyn-генератор скоупов |
+| `tools/framework/client/core/Analyzers/` | Собранный analyzer |
+| `client/Assets/Common/Internal/` | Контент игры (`Internal.Content`): generated C#, группы каталогов, опции, карта ассетов контейнера, корневой скоуп, сеть |
+| `client/Assets/Common/Internal/Editor/Tools/` | WebGL-сборка и деплой, экспорт иконок карт |
+| `client/ProjectSettings/Framework.json` | Раскладка проекта для редакторных инструментов фреймворка |
 | `client/traces/` | JSON трасс старта |

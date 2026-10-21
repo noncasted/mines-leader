@@ -49,6 +49,10 @@ namespace Meta
         // old keys were per process on CoreCLR). Left in place: a rollback to such a build still finds its user.
         private const string BuildLegacyUserIdKey = "userId";
 
+        // The user id of the builds before the guest secret (N12 key, "<name>:<scope>"). Not read for the login any
+        // more (such a user cannot be entered): only reported.
+        private const string LegacyUserIdKey = "Auth.UserId";
+
         private readonly BackendOptions _options;
 
         private string GuestKey => LocalStorageKeys.Get(LocalStorageKeys.Guest, _options.Target);
@@ -90,7 +94,7 @@ namespace Meta
 
         public Guid? LoadLegacyUserId()
         {
-            var key = LocalStorageKeys.Get(LocalStorageKeys.LegacyUserId);
+            var key = LocalStorageKeys.Get(LegacyUserIdKey);
 
 #if !UNITY_EDITOR
             if (PlayerPrefs.HasKey(key) == false)

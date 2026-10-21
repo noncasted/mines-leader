@@ -2,8 +2,11 @@
   "dependencies": {
     "com.coplaydev.unity-mcp": "file:../../tools/framework/client/packages/com.coplaydev.unity-mcp",
     "com.cysharp.memorypack": "file:../../tools/framework/client/packages/com.cysharp.memorypack",
-    "com.shared.game": "file:../../shared/",
+    "com.cysharp.unitask": "file:../../tools/framework/client/packages/com.cysharp.unitask",
+    "com.noncasted.framework.core": "file:../../tools/framework/client/core",
+    "com.noncasted.framework.flow": "file:../../tools/framework/client/flow",
     "com.noncasted.framework.shared": "file:../../tools/framework/shared",
+    "com.shared.game": "file:../../shared/",
     "com.unity.2d.aseprite": "7.0.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tooling": "5.0.0",
@@ -48,5 +51,8 @@
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
     "com.unity.modules.unitywebrequestwww": "1.0.0",
     "com.unity.modules.video": "1.0.0"
-  }
+  },
+  "testables": [
+    "com.noncasted.framework.core"
+  ]
 }

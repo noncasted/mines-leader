@@ -1,7 +1,7 @@
 name: CI
 
-# Builds and tests the backend (unit + Orleans test cluster) and the Unity container source
-# generator. Unity tests are not run here.
+# Builds and tests the backend (unit + Orleans test cluster). Unity tests are not run here; the container source
+# generator is checked by the CI of the framework (tools/framework).
 
 on:
   push:
@@ -10,14 +10,12 @@ on:
       - 'backend/**'
       - 'shared/**'
       - 'tools/framework'
-      - 'client/Tools~/**'
       - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'backend/**'
       - 'shared/**'
       - 'tools/framework'
-      - 'client/Tools~/**'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
@@ -35,12 +33,14 @@ jobs:
     timeout-minutes: 40
 
     steps:
-      # The framework (backend Common/Infrastructure, protocol base) is the tools/framework submodule.
+      # The framework (backend Common/Infrastructure/Cluster/Console, protocol base) is the tools/framework
+      # submodule, a private repository: FRAMEWORK_TOKEN is a token with read access to noncasted/framework.
       - name: Checkout backend, shared and the framework
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           submodules: true
+          token: ${{ secrets.FRAMEWORK_TOKEN }}
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -65,26 +65,3 @@ jobs:
             backend/Tools/Tests/bin/Debug/net10.0/TestResults/
             /tmp/orleans-test-*.log
           if-no-files-found: ignore
-
-  container-generator:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout generator sources
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          filter: blob:none
-          sparse-checkout: |
-            client/Tools~
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Build ContainerGenerator
-        run: dotnet build 'client/Tools~/ContainerGenerator/ContainerGenerator.csproj' -c Release
-
-      - name: Verify ContainerGenerator
-        run: dotnet run --project 'client/Tools~/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj' -c Release

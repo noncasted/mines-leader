@@ -73,10 +73,10 @@ NuGet-версия помечает почти все форматтеры `[Pre
 ## Остальные правки
 
 - **Свой 2D SRP вместо URP.** Пайплайн лежит в `Assets/Common/Rendering`, ассет `Assets/Settings/GamePipeline.asset`.
-- **2D-физика удалена.** Клики по картам и клеткам обрабатывает свой hit-test: `CardsPointer` (`GamePlay/Cards/Services`) проверяет прямоугольники `CardPointerArea`, сверху оказывается карта с большим SortingGroup. `PlayerAssemblyFilter` (`IFilterBuildAssemblies`) выкидывает из билда `Unity.2D.Tilemap.Runtime`: его тянет Aseprite Importer через `[AlwaysLinkAssembly]`, а модуль Tilemap зависит от Physics2D. В UniTask удалён `UNITASK_PHYSICS2D_SUPPORT`.
+- **2D-физика удалена.** Клики по картам и клеткам обрабатывает свой hit-test: `CardsPointer` (`GamePlay/Cards/Services`) проверяет прямоугольники `CardPointerArea`, сверху оказывается карта с большим SortingGroup. `PlayerAssemblyFilter` фреймворка (`IFilterBuildAssemblies`, список в `ProjectSettings/Framework.json`, `StrippedPlayerAssemblies`) выкидывает из билда `Unity.2D.Tilemap.Runtime`: его тянет Aseprite Importer через `[AlwaysLinkAssembly]`, а модуль Tilemap зависит от Physics2D. В UniTask удалён `UNITASK_PHYSICS2D_SUPPORT`.
 - **Input System удалён.** Ввод идёт через старый `Input`. В `Global_Events.prefab` стоит `StandaloneInputModule`.
 - **Модуль XR** (`com.unity.modules.xr`) удалён из manifest.
-- **UniTask** (`Assets/Plugins/UniTask/Runtime/UniTask.asmdef`): удалены `UNITASK_PHYSICS_SUPPORT` и `UNITASK_PHYSICS2D_SUPPORT`.
+- **UniTask** (форк во фреймворке, `tools/framework/client/packages/com.cysharp.unitask`): удалены `UNITASK_PHYSICS_SUPPORT` и `UNITASK_PHYSICS2D_SUPPORT`.
 - **`NetworkConnection.CreateWebSocket()`:** `DefaultWebSocket` (`ClientWebSocket`) скрыт под `#if UNITY_EDITOR || !UNITY_WEBGL`. Без этого в билд попадали `System.Net`, TLS, X509 и `Mono.Security`.
 - **Web Stripping Tool:** настройки в `Assets/Settings/DefaultSubmoduleStrippingSettings.asset`, стриппинг запускается автоматически после билда. Список из 106 сабмодулей собран по отчёту профилирования (см. ниже). Часть записей (PhysX, Tilemap, HarfBuzz, ICU) сейчас ничего не вырезает: этих модулей и так нет в билде. Записи оставлены на случай, если модуль вернётся.
 

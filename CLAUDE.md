@@ -9,11 +9,18 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 ## Framework (`tools/framework`)
 
 The shared base of our games is a git submodule at `tools/framework` with its own `CLAUDE.md` (read it before
-changing anything there). It holds the forked Unity packages and MemoryPack (`client/packages`), the protocol base
-(`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common`, `Infrastructure`, `Cluster` and
-`Console` (infrastructure pages and widgets).
+changing anything there). It holds the forked packages (`client/packages`: Unity packages, UniTask, MemoryPack,
+unity-mcp), the client core (`client/core`: assemblies `Internal`, `Internal.Editor`, `Internal.Tests` - DI container
+and ContainerGenerator, reactive, scopes, catalogues, editor tools), the base of the game flow (`client/flow`), the
+protocol base (`shared`, assembly `Framework.Shared`, namespace `Shared`) and backend `Common`, `Infrastructure`,
+`Cluster` and `Console` (infrastructure pages and widgets).
 - A change in `tools/framework` affects every game: commit and push it inside the submodule, then commit the
   submodule pointer here.
+- The client content of this game is `client/Assets/Common/Internal` (assembly `Internal.Content`, namespace
+  `Internal`): generated catalogues, catalogue groups, options, the container asset map, the root scope
+  (`InternalScopeExtensions`), the startup preload and the client network (`Tools/Network`). Every asmdef that
+  references `Internal` references `Internal.Content` too. The layout for the framework editor tools is
+  `client/ProjectSettings/Framework.json`.
 - The protocol of this game: `shared/Protocol/NetworkContextUnion.cs` declares the `INetworkContext` union (framework
   tags + game tags, game tags from 1000), `shared/Protocol/ProtocolHash.cs` holds the protocol hash.
 - The game part of the cluster is `backend/Cluster.Game` (same namespaces as the framework `Cluster`): game configs

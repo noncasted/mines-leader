@@ -67,6 +67,7 @@ namespace Internal {
 
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
+                await Asset.Decode();
                 _gameCardStash = Asset.Get("GameCardStash");
                 _gameRoundOpponent = Asset.Get("GameRoundOpponent");
                 _gameRoundOwn = Asset.Get("GameRoundOwn");
@@ -113,6 +114,7 @@ namespace Internal {
                 _gameFlagPlace = null;
                 _gameMineElectric = null;
                 _gameMineNormal = null;
+                Asset.ReleaseDecoded();
                 UnloadAsset();
             }
         }

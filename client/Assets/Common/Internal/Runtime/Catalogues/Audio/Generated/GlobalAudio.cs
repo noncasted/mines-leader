@@ -32,6 +32,7 @@ namespace Internal {
 
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
+                await Asset.Decode();
                 _gameMusic = Asset.Get("GameMusic");
                 _uIButtonClick = new[] {
                     Asset.Get("UIButtonClick3"),
@@ -45,6 +46,7 @@ namespace Internal {
                 _gameMusic = null;
                 _uIButtonClick = null;
                 _uIElementHover = null;
+                Asset.ReleaseDecoded();
                 UnloadAsset();
             }
         }
