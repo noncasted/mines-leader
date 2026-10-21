@@ -38,14 +38,16 @@
 
 Для сравнения: пустой проект Unity 6 со всеми настройками размера весит около 2 MB br. Остаток — наш набор фич: TMP и UGUI, игровой код и протокол, Addressables и метаданные il2cpp (`global-metadata.dat`, около 780 KB br).
 
-## Встроенные пакеты
+## Форки пакетов
 
-| Пакет | Путь | Правка |
-|---|---|---|
-| `com.unity.ugui` | `Packages/com.unity.ugui` | `Runtime/UGUI/UnityEngine.UI.asmdef`: удалены versionDefines `PACKAGE_UITOOLKIT`, `PACKAGE_PHYSICS`, `PACKAGE_PHYSICS2D`, `PACKAGE_ANIMATION`. Буфер обмена: новый `Runtime/UGUI/UI/Core/UIClipboard.cs` (обёртка над `SystemCopyBuffer` из Core), в `InputField.cs` и `TMP/TMP_InputField.cs` свойство `clipboard` использует его вместо `GUIUtility.systemCopyBuffer` |
-| `com.unity.render-pipelines.core` | `Packages/com.unity.render-pipelines.core` | `Runtime/Unity.RenderPipelines.Core.Runtime.asmdef` и `Editor/Unity.RenderPipelines.Core.Editor.asmdef`: удалён `ENABLE_PHYSICS_MODULE` |
-| `com.unity.addressables` | `Packages/com.unity.addressables` | `Editor/.../SchemaBuilders/BundledAssetSchemaBuilder.cs`, `AddIncludedTypes`: типы-наследники `UnityEngine.Object` из бандлов пишутся в `link.xml` как `preserve="nothing" serialized="true"`, а не `preserve="all"` |
-| `com.unity.web.stripping-tool` | `Packages/com.unity.web.stripping-tool` | `Editor/Core/WasmOpt.cs`: добавлен `--enable-exception-handling`. `StrippingProjectSettings.cs`: повторная загрузка настроек через `delayCall` |
+Форки Unity-пакетов лежат во фреймворке: `tools/framework/client/packages/<пакет>` (git submodule), `manifest.json` ссылается на них через `file:`. В каждом пакете есть `FORK.md` со списком правок; история в git фреймворка: сначала коммит с оригиналом, затем по коммиту на правку.
+
+| Пакет | Правка |
+|---|---|
+| `com.unity.ugui` | `Runtime/UGUI/UnityEngine.UI.asmdef`: удалены versionDefines `PACKAGE_UITOOLKIT`, `PACKAGE_PHYSICS`, `PACKAGE_PHYSICS2D`, `PACKAGE_ANIMATION`. В ugui 7.0.0 `InputField` и `TMP_InputField` уже работают с буфером обмена через `SystemCopyBuffer` (без IMGUI) |
+| `com.unity.render-pipelines.core` | `Runtime/Unity.RenderPipelines.Core.Runtime.asmdef` и `Editor/Unity.RenderPipelines.Core.Editor.asmdef`: удалён `ENABLE_PHYSICS_MODULE` |
+| `com.unity.addressables` | `Editor/.../SchemaBuilders/BundledAssetSchemaBuilder.cs`, `AddIncludedTypes`: типы-наследники `UnityEngine.Object` из бандлов пишутся в `link.xml` как `preserve="nothing" serialized="true"`, а не `preserve="all"` |
+| `com.unity.web.stripping-tool` | `Editor/Core/WasmOpt.cs`: добавлен `--enable-exception-handling`. `StrippingProjectSettings.cs`: повторная загрузка настроек через `delayCall` |
 
 Пакеты скопированы без `Documentation~`, `Samples~` и `Tests`.
 
@@ -62,7 +64,7 @@
 
 ## Урезанный MemoryPack.Core
 
-Клиент использует DLL, собранную из `tools/memorypack-core` (исходники MemoryPack 1.21.4 без лишних форматтеров), вместо NuGet-версии. Подробности и порядок обновления описаны в `tools/memorypack-core/README.md`.
+Клиент использует пакет фреймворка `com.cysharp.memorypack` (`tools/framework/client/packages/com.cysharp.memorypack`): DLL, собранная из исходников MemoryPack 1.21.4 без лишних форматтеров, вместо NuGet-версии. Подробности и порядок обновления описаны в его `FORK.md`.
 
 NuGet-версия помечает почти все форматтеры `[Preserve]` и регистрирует их в статическом конструкторе, поэтому в билд попадали System.Collections.Immutable, нативный Brotli, System.Numerics, Uri, TimeZoneInfo, CultureInfo, Regex и кортежи. Исходники нельзя положить в Unity напрямую: они требуют C# 11, а Unity компилирует на C# 9.
 
@@ -92,19 +94,12 @@ NuGet-версия помечает почти все форматтеры `[Pre
 
 ## При обновлении Unity или пакетов
 
-Встроенные пакеты не обновляются вместе с редактором. Порядок действий:
+Форки обновляются во фреймворке (`tools/framework`), для всех проектов сразу:
 
-1. Закрыть Unity.
-2. Удалить встроенные пакеты из таблицы выше.
-3. Открыть Unity, чтобы новые версии скачались в `Library/PackageCache`, и закрыть снова.
-4. Скопировать пакеты из `Library/PackageCache/<пакет>@<хеш>` в `Packages/<пакет>`, исключив `Documentation~`, `Samples~` и `Tests` (с `Tests.meta`):
-   ```bash
-   rsync -a --exclude 'Documentation~' --exclude 'Samples~' --exclude '/Tests' --exclude '/Tests.meta' \
-       Library/PackageCache/com.unity.ugui@<hash>/ Packages/com.unity.ugui/
-   ```
-5. Повторить правки из таблицы. У Web Stripping Tool оставить `ProfilingTemplate~`: его читает код пакета. Проверить, не появились ли новые versionDefines на `com.unity.modules.uielements`, `physics`, `physics2d`, `animation` или `xr`.
-6. Проверить, что путь к профилю в `ProjectSettings/Packages/com.unity.web.stripping-tool/Settings.json` не пустой и что в логе сборки есть «WASM Submodule Stripping».
-7. Собрать билд и сравнить список модулей в `UnityClassRegistration.cpp` с прошлым.
+1. Закоммитить во фреймворке чистую новую версию пакета (из `Library/PackageCache/<пакет>@<хеш>` или из `Editor/Data/Resources/PackageManager/BuiltInPackages` редактора) без `Documentation~`, `Samples~` и `Tests`. У Web Stripping Tool оставить `ProfilingTemplate~`: его читает код пакета.
+2. Перенести поверх коммиты с правками (`git log -- client/packages/<пакет>`), обновить `FORK.md`. Проверить, не появились ли новые versionDefines на `com.unity.modules.uielements`, `physics`, `physics2d`, `animation` или `xr`.
+3. Проверить, что путь к профилю в `ProjectSettings/Packages/com.unity.web.stripping-tool/Settings.json` не пустой и что в логе сборки есть «WASM Submodule Stripping».
+4. Собрать билд и сравнить список модулей в `UnityClassRegistration.cpp` с прошлым.
 
 > [!warning] Устаревший импорт asmdef
 > Если править asmdef при открытом Unity сразу после копирования пакета, Unity может скомпилировать сборку со старым импортом, и define останется. Правьте при закрытом редакторе или переимпортируйте asmdef принудительно: `AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate)`.

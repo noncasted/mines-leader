@@ -1,4 +1,0 @@
-/* Make the darker background of the tree view fill the left pane when window shown as utility window */
-#unity-content-container {
-    flex-grow: 1;
-}
