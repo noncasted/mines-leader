@@ -122,7 +122,7 @@ public class SessionConnectionMiddlewareTests
         }
 
         private readonly Dictionary<Guid, ISession> _sessions = new();
-        private SessionCloseTests.SessionWorld? _world;
+        private SessionWorld? _world;
 
         public SessionTickets Tickets { get; } = TestTickets.Create();
         public ISessionsCollection Collection { get; } = Substitute.For<ISessionsCollection>();
@@ -130,8 +130,8 @@ public class SessionConnectionMiddlewareTests
         // A match session with a place reserved for the user. One per world.
         public ISession AddSession(Guid reservedUser)
         {
-            _world = new SessionCloseTests.SessionWorld(SessionType.Match, 2, joinTimeout: Wait);
-            _world.Session.Reserve(reservedUser);
+            _world = new SessionWorld(SessionType.Match, 2, joinTimeout: Wait);
+            _world.Session.TryReserve(reservedUser).Should().BeTrue();
             _sessions.Add(_world.Session.Id, _world.Session);
             return _world.Session;
         }

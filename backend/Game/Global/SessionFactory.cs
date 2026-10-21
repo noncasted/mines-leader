@@ -53,14 +53,23 @@ public class SessionFactory : ISessionFactory
         {
             Id = Guid.NewGuid(),
             Lifetime = lifetime,
+            ExpectedUsers = 0,
+        };
+
+        // Every user that searches gets into the first lobby; it closes when nobody holds it.
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
             Type = SessionType.Lobby,
             ExpectedUsers = 0,
+            MaxUsers = int.MaxValue,
+            IsPrivate = false
         };
 
         var services = new ServiceCollection();
         PassDefaultDependencies(services);
 
-        services.AddSessionServices(data);
+        services.AddSessionServices(data, options);
         var provider = services.BuildServiceProvider();
 
         RunSession().NoAwait();
@@ -95,15 +104,24 @@ public class SessionFactory : ISessionFactory
         {
             Id = Guid.NewGuid(),
             Lifetime = lifetime,
+            ExpectedUsers = 2,
+        };
+
+        // No reconnect: a player whose connection is lost has left the match.
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
             Type = SessionType.Match,
             ExpectedUsers = 2,
+            MaxUsers = participants.Count,
+            IsPrivate = true
         };
 
         var services = new ServiceCollection();
 
         PassDefaultDependencies(services);
 
-        services.AddSessionServices(data);
+        services.AddSessionServices(data, options);
         services.AddCardServices();
         services.AddGameCommands();
         services.AddGameContext();
@@ -150,7 +168,10 @@ public class SessionFactory : ISessionFactory
         var serviceFactory = provider.GetRequiredService<IServiceFactory>();
 
         foreach (var participant in participants)
-            session.Reserve(participant);
+        {
+            if (session.TryReserve(participant) == false)
+                throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
+        }
 
         _collection.Add(session, createOptions.Type);
 
@@ -183,15 +204,24 @@ public class SessionFactory : ISessionFactory
         {
             Id = Guid.NewGuid(),
             Lifetime = lifetime,
+            ExpectedUsers = 2,
+        };
+
+        // The bot and the human are expected; only the human holds a place (a bot never holds a session).
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
             Type = SessionType.Match,
             ExpectedUsers = 2,
+            MaxUsers = 1,
+            IsPrivate = true
         };
 
         var services = new ServiceCollection();
 
         PassDefaultDependencies(services);
 
-        services.AddSessionServices(data);
+        services.AddSessionServices(data, options);
         services.AddCardServices();
         services.AddGameCommands();
         services.AddGameContext();
@@ -241,7 +271,9 @@ public class SessionFactory : ISessionFactory
         var botRunner = provider.GetRequiredService<IBotRunner>();
 
         // The bot is created in the session itself (no socket, no ticket): only the human has a place to enter.
-        session.Reserve(participant);
+        if (session.TryReserve(participant) == false)
+            throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
+
         _collection.Add(session, createOptions.Type);
 
         RunSession().NoAwait();
@@ -254,7 +286,10 @@ public class SessionFactory : ISessionFactory
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
 
-            var bot = userFactory.CreateBot(session.Lifetime, botId);
+            // Users are created in the execution queue only (the seats of the session live there).
+            var botCreated = new TaskCompletionSource<IUser>(TaskCreationOptions.RunContinuationsAsynchronously);
+            session.ExecutionQueue.Enqueue(() => botCreated.SetResult(userFactory.CreateBot(session.Lifetime, botId)));
+            var bot = await botCreated.Task;
 
             await session.AllUsersConnected.WaitInvoke(session.Lifetime);
             var handle = provider.GetRequiredService<MatchHandle>();
@@ -269,6 +304,11 @@ public class SessionFactory : ISessionFactory
 
     private void PassDefaultDependencies(ServiceCollection collection)
     {
+        // The logs of a session go to the providers of the host; the game log of the session is its own.
+        collection.Pass<ILoggerFactory>(_serviceProvider);
+        collection.AddSingleton<IObservationEventBuffer, ObservationEventBuffer>();
+        collection.AddSingleton<ISessionLogger, SessionFileLogger>();
+
         collection.Pass<IOrleans>(_serviceProvider);
         collection.Pass<IServiceEnvironment>(_serviceProvider);
         collection.Pass<IServiceDiscovery>(_serviceProvider);

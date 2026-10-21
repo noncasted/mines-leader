@@ -93,7 +93,7 @@ graph TB
 - Бэкенд `WriteOneWay` / `WriteResponse` — `void`: только постановка в очередь; закрытое соединение сообщение выбрасывает, переполнение отключает медленного клиента внутри writer-а.
 - `EmptyResponse.Fail` остаётся для отказов по правилам матча (карта без цели, не твой ход): это ответ, а не ошибка запроса. Meta `ExecuteCommand` бросает и на нём.
 - `IMatchmaking`: упавшая команда бросает из `Matchmaking.*`. `CreateGame`, `CreateGameWithBot`, `SearchLobby` получают результат ответом на команду (`MatchResult` / `LobbyResult`). `SearchGame` ждёт проекцию `MatchResult` без лимита и берёт только результат со своим `RequestId`; `Status = Failed` (сервер не смог создать матч, игрок вне очереди) бросает `InvalidOperationException` (N10).
-- Сущности: клиент создаёт сущность только в своём диапазоне id (`backend/Game/Session/Objects/Entities/SessionEntityIds.cs`, `index * 100000 + counter`) и не с занятым или удалённым id, иначе `Forbidden`.
+- Сущности: клиент создаёт сущность только в своём диапазоне id (`tools/framework/shared/Session/SharedEntityIds.cs`, `index * 2^20 + counter`; диапазон 0 - id сущностей, которые строит бэкенд) и не с занятым или удалённым id, иначе `Forbidden`.
 
 ### Backend протоколы (Backend/)
 

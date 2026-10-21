@@ -126,6 +126,7 @@ public class SessionConnectionMiddleware
         {
             await SessionGate.Join(
                 session,
+                userId,
                 async () => {
                     await handle.SendResponse(new SharedSessionAuth.Response()
                     {

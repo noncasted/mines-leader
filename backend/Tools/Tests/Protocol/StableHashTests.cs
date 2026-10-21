@@ -23,9 +23,10 @@ public class StableHashTests
         Shared.StableHash.Get(value).Should().Be(expected);
     }
 
+    // Always negative (the sign bit set): a service never takes the id of an entity.
     [Fact]
     public void ServiceId_IsStableHashOfKey()
     {
-        new Service("Location").Id.Should().Be(1539345862);
+        new Service("Location").Id.Should().Be(1539345862 | int.MinValue);
     }
 }

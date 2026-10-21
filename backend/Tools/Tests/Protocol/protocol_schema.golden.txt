@@ -194,6 +194,7 @@ type Shared.CardUsePayload+ZipZap Type:Shared.CardType,Position:Shared.Position,
 type Shared.CellRevealState Position:Shared.Position,IsFree:System.Boolean,MinesAround:System.Int32,IsFlagged:System.Boolean,HasMine:System.Boolean
 type Shared.DurationalModifierOverview SourceId:System.Guid,Type:Shared.PlayerModifier,Value:System.Single,Key:System.String,TurnsToEnd:System.Int32
 type Shared.EmptyResponse HasError:System.Boolean,Message:System.String
+type Shared.EmptyStatePayload
 type Shared.ErrorResponse Code:Shared.ErrorCode,Message:System.String
 type Shared.GameCheatContexts+CardAdd Type:Shared.CardType
 type Shared.GameCheatContexts+CardRemove CardId:System.Guid
@@ -302,10 +303,17 @@ type Shared.SharedSessionEntity+CreateResponse EntityId:System.Int32
 type Shared.SharedSessionEntity+CreatedOverview OwnerId:System.Int32,EntityId:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
 type Shared.SharedSessionEntity+Destroy EntityId:System.Int32
 type Shared.SharedSessionEntity+DestroyUpdate EntityId:System.Int32
+type Shared.SharedSessionLatency+PeerEcho Id:System.Int32,SenderIndex:System.Int32,ServerTimestamp:System.Int64,ResponderPingMs:System.Single,ResponderIndex:System.Int32,ResponderLegMs:System.Single
+type Shared.SharedSessionLatency+PeerProbe Id:System.Int32,SenderIndex:System.Int32,ServerTimestamp:System.Int64
+type Shared.SharedSessionLatency+Ping Id:System.Int32
+type Shared.SharedSessionLatency+Pong Id:System.Int32
 type Shared.SharedSessionObject+Event ObjectId:System.Int32,Value:System.Byte[]
 type Shared.SharedSessionObject+PropertyUpdate ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[],Version:System.Int32
+type Shared.SharedSessionObject+SetProperties Entries:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+SetProperty>
 type Shared.SharedSessionObject+SetProperty ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[]
-type Shared.SharedSessionPlayer+LocalUpdate Index:System.Int32,Id:System.Guid
+type Shared.SharedSessionPlayer+Leave
+type Shared.SharedSessionPlayer+LocalUpdate Index:System.Int32,Id:System.Guid,EntityCounter:System.Int32,IsReturn:System.Boolean,SeatEntities:System.Int32
+type Shared.SharedSessionPlayer+RemoteAway Index:System.Int32
 type Shared.SharedSessionPlayer+RemoteDisconnect Index:System.Int32
 type Shared.SharedSessionPlayer+RemoteUpdate Index:System.Int32,Id:System.Guid
 type Shared.SharedSessionService+GetRequest Key:System.String,PropertiesIds:System.Collections.Generic.IReadOnlyList<System.Int32>
@@ -578,9 +586,16 @@ union Shared.INetworkContext 24 Shared.SharedSessionEntity+DestroyUpdate
 union Shared.INetworkContext 30 Shared.SharedSessionObject+SetProperty
 union Shared.INetworkContext 31 Shared.SharedSessionObject+PropertyUpdate
 union Shared.INetworkContext 32 Shared.SharedSessionObject+Event
+union Shared.INetworkContext 33 Shared.SharedSessionObject+SetProperties
 union Shared.INetworkContext 40 Shared.SharedSessionPlayer+LocalUpdate
 union Shared.INetworkContext 41 Shared.SharedSessionPlayer+RemoteUpdate
 union Shared.INetworkContext 42 Shared.SharedSessionPlayer+RemoteDisconnect
+union Shared.INetworkContext 43 Shared.SharedSessionPlayer+RemoteAway
+union Shared.INetworkContext 44 Shared.SharedSessionPlayer+Leave
 union Shared.INetworkContext 50 Shared.SharedSessionService+GetRequest
 union Shared.INetworkContext 51 Shared.SharedSessionService+GetResponse
 union Shared.INetworkContext 52 Shared.SharedSessionService+Overview
+union Shared.INetworkContext 60 Shared.SharedSessionLatency+Ping
+union Shared.INetworkContext 61 Shared.SharedSessionLatency+Pong
+union Shared.INetworkContext 62 Shared.SharedSessionLatency+PeerProbe
+union Shared.INetworkContext 63 Shared.SharedSessionLatency+PeerEcho

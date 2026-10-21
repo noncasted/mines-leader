@@ -8,6 +8,7 @@
     "com.noncasted.framework.core": "file:../../tools/framework/client/core",
     "com.noncasted.framework.flow": "file:../../tools/framework/client/flow",
     "com.noncasted.framework.inputs": "file:../../tools/framework/client/modules/inputs",
+    "com.noncasted.framework.network": "file:../../tools/framework/client/modules/network",
     "com.noncasted.framework.platform.itch": "file:../../tools/framework/client/platforms/itch",
     "com.noncasted.framework.platform.web": "file:../../tools/framework/client/platforms/web",
     "com.noncasted.framework.publish": "file:../../tools/framework/client/modules/publish",
@@ -60,6 +61,7 @@
     "com.unity.web.stripping-tool": "file:../../tools/framework/client/packages/com.unity.web.stripping-tool"
   },
   "testables": [
-    "com.noncasted.framework.core"
+    "com.noncasted.framework.core",
+    "com.noncasted.framework.network"
   ]
 }

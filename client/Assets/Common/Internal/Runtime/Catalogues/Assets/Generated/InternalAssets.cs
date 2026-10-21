@@ -7,11 +7,16 @@ namespace Internal {
     public static class InternalAssets {
         private const string Address = "23c2e657d5a5408da1e6b632107c6c8e";
 
+        private static global::Internal.NetworkOptions _networkOptions;
         private static global::Internal.OptionsContainer _optionsContainer;
 
         public static global::Internal.EnvAssetGroup Group { get; } = new Loader();
 
         public static bool IsLoaded => Group.IsLoaded;
+
+        public static global::Internal.NetworkOptions NetworkOptions {
+            get { Group.EnsureLoaded(); return _networkOptions; }
+        }
 
         public static global::Internal.OptionsContainer OptionsContainer {
             get { Group.EnsureLoaded(); return _optionsContainer; }
@@ -22,10 +27,12 @@ namespace Internal {
 
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
+                _networkOptions = Asset.Get<global::Internal.NetworkOptions>("NetworkOptions");
                 _optionsContainer = Asset.Get<global::Internal.OptionsContainer>("OptionsContainer");
             }
 
             protected override void UnloadGroup() {
+                _networkOptions = null;
                 _optionsContainer = null;
                 UnloadAsset();
             }

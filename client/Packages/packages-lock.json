@@ -71,6 +71,16 @@
         "com.noncasted.framework.core": "0.1.0"
       }
     },
+    "com.noncasted.framework.network": {
+      "version": "file:../../tools/framework/client/modules/network",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.noncasted.framework.core": "0.1.0",
+        "com.noncasted.framework.shared": "0.1.0",
+        "com.cysharp.memorypack": "1.21.4"
+      }
+    },
     "com.noncasted.framework.platform.itch": {
       "version": "file:../../tools/framework/client/platforms/itch",
       "depth": 0,

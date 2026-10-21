@@ -33,7 +33,7 @@ public class PlayerFactory : IPlayerFactory
         var userHandle = _orleans.CreateUserHandle(user.BackendId);
         var selectedDeck = await _orleans.Transactions.Run(() => userHandle.Deck.GetSelected());
 
-        var entityBuilder = _entityFactory.Create(user);
+        var entityBuilder = _entityFactory.Create(user.Seat);
 
         entityBuilder.WithPayload(new PlayerCreatePayload()
         {
@@ -44,7 +44,7 @@ public class PlayerFactory : IPlayerFactory
 
         var entity = entityBuilder.Build();
 
-        var board = new Board(entity.Owner.Id, _boardOptions);
+        var board = new Board(user.Id, _boardOptions);
         var modifiers = new Modifiers();
         var health = new Health(modifiers);
         var mana = new Mana(modifiers);
@@ -54,7 +54,8 @@ public class PlayerFactory : IPlayerFactory
         var stash = new Stash();
         var actions = new PlayerActions();
 
-        var player = new Player(entity: entity,
+        var player = new Player(user: user,
+            entity: entity,
             board: board,
             health: health,
             mana: mana,

@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Internal
   m_EditorClassIdentifier: Internal::Internal.EnvAssetGroupAsset
   _entries:
+  - Name: NetworkOptions
+    Asset: {fileID: 11400000, guid: 0af9cc7a147847e1bea3a1d72908c33b, type: 2}
   - Name: OptionsContainer
     Asset: {fileID: 11400000, guid: 40d7ccf49c754180b9c36c76f925ab1f, type: 2}
