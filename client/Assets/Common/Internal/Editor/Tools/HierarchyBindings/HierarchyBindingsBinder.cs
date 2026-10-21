@@ -21,6 +21,19 @@ namespace Internal
             if (node == null)
                 return false;
 
+            // The code was generated from the object as Prepare saw it; the fields below exist only if this scan sees
+            // the same structure. A difference is a scanner bug (it depends on how the object was loaded) or an edit
+            // between the two phases, and must not show up as "not compiled yet".
+            var structureHash = HierarchyBindingsStructure.ComputeHash(node);
+
+            if (structureHash != request.StructureHash)
+            {
+                errors.Add(
+                    $"Structure of '{request.ObjectPath}' in {request.AssetPath} is {structureHash}, the code was " +
+                    $"generated from {request.StructureHash}. The object changed after generation, generate again.");
+                return false;
+            }
+
             var serializedObject = new SerializedObject(component);
 
             if (Fill(serializedObject, null, node, errors) == false)
@@ -34,7 +47,7 @@ namespace Internal
                 return false;
             }
 
-            hash.stringValue = HierarchyBindingsStructure.ComputeHash(node);
+            hash.stringValue = structureHash;
 
             // Галочки держим на компоненте синхронно с тем, что реально сгенерировано.
             SetFlag(serializedObject, "_isSceneService", request.IsSceneService, errors);

@@ -859,9 +859,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GameResultsView
   _bindings: {fileID: 8267014418053772876}
-  _stats: {fileID: 0}
-  _menuButton: {fileID: 9044926231913264527}
-  _rematchButton: {fileID: 0}
 --- !u!114 &8267014418053772876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -874,7 +871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea49920d3b32268a1b85e046d966965e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.UI.GameUIResultsBindings
-  _structureHash: 7f8702006a379fb66e264704e918d1bf
+  _structureHash: d7648075eac65dfd7c435210ea40d9c6
   _isSceneService: 0
   _isEntityComponent: 0
   _gameObject: {fileID: 3629516221269411484}
@@ -884,7 +881,6 @@ MonoBehaviour:
   _resultData:
     _gameObject: {fileID: 4276388331261391858}
     _rectTransform: {fileID: 6874716953237837029}
-    _gameResultsStats: {fileID: 0}
     _rating:
       _gameObject: {fileID: 3864132971228327387}
       _rectTransform: {fileID: 5186272659727384087}

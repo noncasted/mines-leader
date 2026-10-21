@@ -3,7 +3,29 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.UI {
-    // Structure: 7f8702006a379fb66e264704e918d1bf
+    // Structure: d7648075eac65dfd7c435210ea40d9c6
+    // Game_UI_Results
+    //   - ResultData
+    //       - Rating
+    //           - Icon
+    //           - Text
+    //       - Time
+    //           - Icon
+    //           - Text
+    //       - Separator
+    //       - Stats_0
+    //           - Flags
+    //           - Cards
+    //       - Stats_1
+    //           - Reveal
+    //           - Taken
+    //       - Separator_1
+    //   - Buttons
+    //       - Notification
+    //       - Menu
+    //           - Text (TMP)
+    //       - Rematch
+    //           - Text (TMP)
     [DisallowMultipleComponent]
     public class GameUIResultsBindings : global::Internal.ObjectBindings {
         [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -23,6 +45,20 @@ namespace GamePlay.UI {
         public ButtonsBindings Buttons => _buttons;
 
         // Game_UI_Results/ResultData
+        //   - Rating
+        //       - Icon
+        //       - Text
+        //   - Time
+        //       - Icon
+        //       - Text
+        //   - Separator
+        //   - Stats_0
+        //       - Flags
+        //       - Cards
+        //   - Stats_1
+        //       - Reveal
+        //       - Taken
+        //   - Separator_1
         [Serializable]
         public sealed class ResultDataBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -46,6 +82,8 @@ namespace GamePlay.UI {
             public Separator1Bindings Separator1 => _separator1;
 
             // Game_UI_Results/ResultData/Rating
+            //   - Icon
+            //   - Text
             [Serializable]
             public sealed class RatingBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -86,6 +124,8 @@ namespace GamePlay.UI {
             }
 
             // Game_UI_Results/ResultData/Time
+            //   - Icon
+            //   - Text
             [Serializable]
             public sealed class TimeBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -138,6 +178,8 @@ namespace GamePlay.UI {
             }
 
             // Game_UI_Results/ResultData/Stats_0
+            //   - Flags
+            //   - Cards
             [Serializable]
             public sealed class Stats0Bindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -178,6 +220,8 @@ namespace GamePlay.UI {
             }
 
             // Game_UI_Results/ResultData/Stats_1
+            //   - Reveal
+            //   - Taken
             [Serializable]
             public sealed class Stats1Bindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -231,6 +275,11 @@ namespace GamePlay.UI {
         }
 
         // Game_UI_Results/Buttons
+        //   - Notification
+        //   - Menu
+        //       - Text (TMP)
+        //   - Rematch
+        //       - Text (TMP)
         [Serializable]
         public sealed class ButtonsBindings {
             [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -260,6 +309,7 @@ namespace GamePlay.UI {
             }
 
             // Game_UI_Results/Buttons/Menu
+            //   - Text (TMP)
             [Serializable]
             public sealed class MenuBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -290,6 +340,7 @@ namespace GamePlay.UI {
             }
 
             // Game_UI_Results/Buttons/Rematch
+            //   - Text (TMP)
             [Serializable]
             public sealed class RematchBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

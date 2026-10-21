@@ -3,8 +3,8 @@ using System;
 using UnityEngine;
 
 namespace GamePlay.Players.Resource {
-    // Structure: 73aedcfab825c5d1b892493c15bbb66d
-    // Health
+    // Structure: ec93944ba7923b5c1de5c10c6152c72d
+    // Game_Own_Resource_Row
     //   - Name
     //       - Text
     //   - LargeRow
@@ -29,7 +29,7 @@ namespace GamePlay.Players.Resource {
         public LargeRowBindings LargeRow => _largeRow;
         public SmallRowBindings SmallRow => _smallRow;
 
-        // Health/Name
+        // Game_Own_Resource_Row/Name
         //   - Text
         [Serializable]
         public sealed class NameBindings {
@@ -43,7 +43,7 @@ namespace GamePlay.Players.Resource {
             public global::UnityEngine.RectTransform RectTransform => _rectTransform;
             public TextBindings Text => _text;
 
-            // Health/Name/Text
+            // Game_Own_Resource_Row/Name/Text
             [Serializable]
             public sealed class TextBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -56,7 +56,7 @@ namespace GamePlay.Players.Resource {
             }
         }
 
-        // Health/LargeRow
+        // Game_Own_Resource_Row/LargeRow
         //   - Game_Own_Resource_Row_Entry .. Game_Own_Resource_Row_Entry_9 (10 items)
         [Serializable]
         public sealed class LargeRowBindings {
@@ -72,7 +72,7 @@ namespace GamePlay.Players.Resource {
             public global::Global.UI.DesignContainer DesignContainer => _designContainer;
             public GameOwnResourceRowEntryBindings[] GameOwnResourceRowEntries => _gameOwnResourceRowEntries;
 
-            // Health/LargeRow/Game_Own_Resource_Row_Entry .. Game_Own_Resource_Row_Entry_9 (10 items)
+            // Game_Own_Resource_Row/LargeRow/Game_Own_Resource_Row_Entry .. Game_Own_Resource_Row_Entry_9 (10 items)
             [Serializable]
             public sealed class GameOwnResourceRowEntryBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;
@@ -87,7 +87,7 @@ namespace GamePlay.Players.Resource {
             }
         }
 
-        // Health/SmallRow
+        // Game_Own_Resource_Row/SmallRow
         //   - Game_Own_Resource_Row_Entry_1 .. Game_Own_Resource_Row_Entry_21 (44 items)
         [Serializable]
         public sealed class SmallRowBindings {
@@ -103,7 +103,7 @@ namespace GamePlay.Players.Resource {
             public global::Global.UI.DesignGrid DesignGrid => _designGrid;
             public GameOwnResourceRowEntryBindings[] GameOwnResourceRowEntries => _gameOwnResourceRowEntries;
 
-            // Health/SmallRow/Game_Own_Resource_Row_Entry_1 .. Game_Own_Resource_Row_Entry_21 (44 items)
+            // Game_Own_Resource_Row/SmallRow/Game_Own_Resource_Row_Entry_1 .. Game_Own_Resource_Row_Entry_21 (44 items)
             [Serializable]
             public sealed class GameOwnResourceRowEntryBindings {
                 [SerializeField, HideInInspector] private global::UnityEngine.GameObject _gameObject;

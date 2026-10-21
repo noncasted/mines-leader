@@ -988,7 +988,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e862d0ae2b854d629cf49cd0ff1c2412, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Cards.GameCardBindings
-  _structureHash: 1f318981fe4b7f2ea3b0aa52f0d1246f
+  _structureHash: 4513970175c4de020cfe039f3a3bcdcb
   _isSceneService: 0
   _isEntityComponent: 1
   _gameObject: {fileID: 8380813882818688417}
@@ -1016,19 +1016,16 @@ MonoBehaviour:
         _rectTransform: {fileID: 1721763328584719005}
         _meshRenderer: {fileID: 3500058903090876303}
         _textMeshPro: {fileID: 832523490803062442}
-        _meshFilter: {fileID: 0}
       _description:
         _gameObject: {fileID: 2117718971677328059}
         _rectTransform: {fileID: 2754211779984324142}
         _meshRenderer: {fileID: 9114147764152179572}
         _textMeshPro: {fileID: 2992509607737957562}
-        _meshFilter: {fileID: 0}
       _manaCost:
         _gameObject: {fileID: 4420539221644486756}
         _rectTransform: {fileID: 5792207361319961746}
         _meshRenderer: {fileID: 7389279882966561882}
         _textMeshPro: {fileID: 748791307638762992}
-        _meshFilter: {fileID: 0}
     _back:
       _gameObject: {fileID: 4820137466502391084}
       _transform: {fileID: 8217409355126648213}

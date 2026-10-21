@@ -99,6 +99,13 @@ namespace Internal
                 if (SkippedComponents.Contains(type))
                     continue;
 
+                // Components created at edit time and never saved (TextMeshPro adds a HideAndDontSave MeshFilter
+                // in Awake). Whether they exist depends on how the object was loaded: a prefab asset from
+                // LoadAssetAtPath has none, LoadPrefabContents runs Awake and has them. A reference to one
+                // serializes as null anyway.
+                if ((component.hideFlags & HideFlags.DontSaveInEditor) != 0)
+                    continue;
+
                 // Владелец биндингов — это сам генерируемый компонент (или пользовательский класс,
                 // который его наследует). Ссылка на самого себя в зеркале не нужна.
                 if (depth == 0 && component is IObjectBindings)
