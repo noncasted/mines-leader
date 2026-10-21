@@ -123,6 +123,11 @@ __pycache__/
 
 /client/traces/
 
+# ContainerGenerator (Roslyn source generator) and its Verify harness
+!/client/Tools~/**/*.csproj
+/client/Tools~/**/[Bb]in/
+/client/Tools~/**/[Oo]bj/
+
 # SSH password for tools/scripts/deploy-webgl.sh — never commit.
 /tools/scripts/.deploy-password
 

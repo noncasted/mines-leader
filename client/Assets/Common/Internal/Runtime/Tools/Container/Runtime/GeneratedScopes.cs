@@ -236,6 +236,20 @@ namespace Internal
             return (T)instance;
         }
 
+        // builder.Inject instances: [Inject] is called on each of them.
+        public T[] GetInjections<T>()
+        {
+            if (_builder == null)
+                throw new InvalidOperationException($"No builder to take injections of {typeof(T).FullName}.");
+
+            var injections = _builder.GetInjections<T>();
+
+            if (injections.Length == 0)
+                throw new InvalidOperationException($"No injections of type {typeof(T).FullName}.");
+
+            return injections;
+        }
+
         // Какая из альтернатив installer'а (ветка if/switch) реально попала в этот скоуп.
         public bool IsRegistered(Type implementation)
         {

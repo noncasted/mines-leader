@@ -173,7 +173,7 @@ graph LR
 | `GeneratedScopes` | Реестр фабрик по `rootId` |
 | `ScopeContainer` | `GeneratedScopes.Create` — единственный путь создать скоуп |
 | `ServiceLifetime` | Transient / Scoped / Singleton |
-| `BuilderExtensions` | `Register`, `As`, `WithParameter`, `Inject` — **имена завязаны на генератор** |
+| `BuilderExtensions` | `Register`, `As`, `WithParameter`, `Inject` — генератор узнаёт их по `[ContainerPrimitive]`, а не по имени |
 
 Цепочка `Register().As<T>()` пишется расширениями `BuilderExtensions`. Методы `IServiceRegistration` названы иначе специально: генератор должен видеть только вызовы расширений.
 

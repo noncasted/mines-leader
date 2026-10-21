@@ -1,0 +1,90 @@
+name: CI
+
+# Builds and tests the backend (unit + Orleans test cluster) and the Unity container source
+# generator. Unity tests are not run here.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - 'client/Tools~/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - 'client/Tools~/**'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout backend and shared
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            backend
+            shared
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build backend
+        run: dotnet build backend/backend.slnx
+
+      # Tests use Microsoft Testing Platform: on the .NET 10 SDK `dotnet test` refuses the VSTest
+      # target, so the test executable is run directly (see .claude/docs/TESTING.md).
+      # Postgres comes from Testcontainers (DatabaseFixture starts postgres:17 through the runner's
+      # Docker), Orleans runs as an in-process test cluster; no external services are needed.
+      - name: Test backend
+        run: backend/Tools/Tests/bin/Debug/net10.0/Tests
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-logs
+          path: |
+            backend/Tools/Tests/bin/Debug/net10.0/TestResults/
+            /tmp/orleans-test-*.log
+          if-no-files-found: ignore
+
+  container-generator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout generator sources
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            client/Tools~
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build ContainerGenerator
+        run: dotnet build 'client/Tools~/ContainerGenerator/ContainerGenerator.csproj' -c Release
+
+      - name: Verify ContainerGenerator
+        run: dotnet run --project 'client/Tools~/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj' -c Release

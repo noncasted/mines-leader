@@ -476,14 +476,12 @@ namespace Internal
             public List<string> Services = new List<string>();
         }
 
-        // GUID скрипта → полное имя класса. Unity привязывает скрипт к классу с именем файла, а не к
-        // первому классу в нём, поэтому истина — MonoScript.GetClass(). Разбор текста — только для
-        // скрипта, которого ещё нет в скомпилированных сборках.
+        // Script GUID -> full class name. Unity binds a script to the class named after the file, not to the
+        // first class in it, so MonoScript.GetClass() is the source of truth in a fresh domain. The source text is
+        // used for a script that is not in the compiled assemblies yet and while the last compile failed (the loaded
+        // domain still has the old names, see ScriptTypeNames).
         private sealed class ScriptTypes
         {
-            private static readonly Regex NamespaceDeclaration = new Regex(@"\bnamespace\s+([A-Za-z0-9_.]+)",
-                RegexOptions.Compiled);
-
             private readonly Dictionary<string, string> _cache =
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -508,41 +506,13 @@ namespace Internal
                 var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
                 var compiled = script != null ? script.GetClass() : null;
 
-                if (compiled != null)
+                if (compiled != null && ScriptTypeNames.IsDomainStale == false)
                     return compiled.FullName;
 
-                return FromSource(path);
-            }
+                if (ScriptTypeNames.TryReadSource(path, out var fullName, out _))
+                    return fullName;
 
-            private static string FromSource(string path)
-            {
-                string source;
-
-                try
-                {
-                    source = File.ReadAllText(path);
-                }
-                catch
-                {
-                    return "";
-                }
-
-                var name = Path.GetFileNameWithoutExtension(path);
-                var declaration = Regex.Match(source, @"\bclass\s+" + Regex.Escape(name) + @"\b");
-
-                if (declaration.Success == false)
-                    return "";
-
-                var ns = "";
-
-                foreach (Match match in NamespaceDeclaration.Matches(source))
-                {
-                    if (match.Index > declaration.Index)
-                        break;
-                    ns = match.Groups[1].Value;
-                }
-
-                return string.IsNullOrEmpty(ns) ? name : ns + "." + name;
+                return compiled != null ? compiled.FullName : "";
             }
         }
     }

@@ -127,6 +127,20 @@ PlayerPrefs `userId` (общий) и `userId:{hash dataPath}` (на этот к�
 
 Метаданные **не** в ScriptableObject на каждый png/prefab, а в userData импортера. Инспектор рисуется через `Editor.finishedDefaultHeaderGUI`.
 
+### Regenerate All
+
+`Tools/Regenerate All` (`Internal/Editor/Tools/Codegen/RegenerateAll.cs`) синхронно запускает все генераторы по порядку зависимостей, потом делает один `AssetDatabase.Refresh()`:
+
+1. цвета, сцены, спрайты, аудио;
+2. hierarchy bindings: компоненты префабов-ассетов и загруженных сцен; заново связываются только биндинги с изменившимся кодом; незагруженные сцены с биндингами перечисляются в логе;
+3. env-ассеты и каталоги префабов;
+4. asset map контейнера;
+5. shared addressables.
+
+В Play Mode и во время компиляции бросает исключение, упавший шаг останавливает прогон. У каждого генератора есть `GenerateNow()` (`CatalogGenerationRunner.RunNow`: без дебаунса, исключение доходит до вызывающего). На чистом дереве прогон ничего не меняет.
+
+После неудачной компиляции редактор держит старый домен, и рефлексия отдаёт старые имена типов. Пока `EditorUtility.scriptCompilationFailed`, генераторы читают имена из исходников (`Catalogues/Shared/ScriptTypeNames.cs`: класс с именем файла и namespace перед ним). Поэтому после переименования namespace достаточно запустить Regenerate All. Вложенные типы и файлы, где класс назван не по файлу, остаются с именем из рефлексии.
+
 ```mermaid
 flowchart TD
     Mark[Галочка Included + группа в инспекторе]
@@ -306,9 +320,17 @@ Post-build копирует только `ContainerGenerator.dll`. `Microsoft.Co
 
 Родитель скоупа — `[ContainerScopeParent(typeof(X), nameof(X.Construct))]`. Не резолвится → диагностика `CINGR007`. Для сущностей есть варианты по типу вьюхи (`rootId@ViewType`).
 
-Имена `BuilderExtensions.Register/As/WithParameter/...` для генератора **зафиксированы**. Переименовать без правки `GraphWalker` нельзя.
+Примитивы билдера (`BuilderExtensions`, `ScopeBuilderExtensions`) помечены `[ContainerPrimitive(ContainerPrimitive.X)]` (`Runtime/Tools/Container/Generated/ContainerPrimitiveAttribute.cs`). `GraphWalker` узнаёт их по атрибуту, поэтому примитив можно переименовать или перенести. Новый примитив требует нового значения в enum и в зеркале генератора `Graph/PrimitiveKind.cs` (числа совпадают). По имени метода генератор узнаёт только вызов без символа, то есть код, который ещё не компилируется.
 
-README генератора ещё описывает старый шаг `{Type}GeneratedInjector`. Актуальный пайплайн эмитит **класс скоупа целиком**. Папка `Injector/` осталась как анализ ctor/`[Inject]` для `EdgeResolver`.
+`builder.Inject(x)` одного типа может прийти от нескольких экземпляров (одинаковые сервисы сцены). Сгенерированный скоуп берёт их все через `request.GetInjections<T>()` и зовёт `[Inject]` в цикле. Поле слота держит последний экземпляр. Если вызовов `builder.Inject` одного типа несколько, цикл пишется один раз.
+
+Проверка генератора без Unity (её же гоняет CI, `.github/workflows/ci.yml`):
+
+```bash
+dotnet run --project client/Tools~/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj -c Release
+```
+
+Папка `Injector/` осталась как анализ ctor/`[Inject]` для `EdgeResolver`.
 
 ### Asset map (сцены и префабы)
 

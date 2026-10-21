@@ -15,8 +15,8 @@ namespace Internal {
     }
 
     public sealed class BuffsColors {
-        public readonly Color Add = new Color(0.458823532f, 0.654902f, 0.2627451f, 1f);
-        public readonly Color Remove = new Color(0.647058845f, 0.1882353f, 0.1882353f, 1f);
+        public readonly Color Add = new Color(0.45882353f, 0.654902f, 0.2627451f, 1f);
+        public readonly Color Remove = new Color(0.64705884f, 0.1882353f, 0.1882353f, 1f);
     }
 
     public sealed class CardColors {
@@ -29,23 +29,23 @@ namespace Internal {
     }
 
     public sealed class DeckColors {
-        public readonly Color Attack = new Color(0.647058845f, 0.1882353f, 0.1882353f, 1f);
-        public readonly Color Buff = new Color(0.458823532f, 0.654902f, 0.2627451f, 1f);
-        public readonly Color Debuff = new Color(0.635294139f, 0.243137255f, 0.549019635f, 1f);
-        public readonly Color Defense = new Color(0.235294119f, 0.368627459f, 0.545098066f, 1f);
-        public readonly Color Scout = new Color(0.745098054f, 0.466666669f, 0.168627456f, 1f);
+        public readonly Color Attack = new Color(0.64705884f, 0.1882353f, 0.1882353f, 1f);
+        public readonly Color Buff = new Color(0.45882353f, 0.654902f, 0.2627451f, 1f);
+        public readonly Color Debuff = new Color(0.63529414f, 0.24313726f, 0.54901963f, 1f);
+        public readonly Color Defense = new Color(0.23529412f, 0.36862746f, 0.54509807f, 1f);
+        public readonly Color Scout = new Color(0.74509805f, 0.46666667f, 0.16862746f, 1f);
     }
 
     public sealed class GameColors {
         public readonly Color PlayerActive = new Color(1f, 1f, 1f, 1f);
         public readonly Color PlayerInactive = new Color(0.5058824f, 0.5921569f, 0.5882353f, 1f);
         public readonly Color TextActive = new Color(0.9098039f, 0.75686276f, 0.4392157f, 1f);
-        public readonly Color TextInactive = new Color(0.141176477f, 0.08235294f, 0.152941182f, 1f);
+        public readonly Color TextInactive = new Color(0.14117648f, 0.08235294f, 0.15294118f, 1f);
     }
 
     public sealed class GameEndColors {
-        public readonly Color Lose = new Color(0.647058845f, 0.1882353f, 0.1882353f, 1f);
-        public readonly Color Win = new Color(0.65882355f, 0.7921569f, 0.345098048f, 1f);
+        public readonly Color Lose = new Color(0.64705884f, 0.1882353f, 0.1882353f, 1f);
+        public readonly Color Win = new Color(0.65882355f, 0.7921569f, 0.34509805f, 1f);
     }
 
     public sealed class MenuColors {
@@ -54,13 +54,13 @@ namespace Internal {
     }
 
     public sealed class MinesAroundColors {
-        public readonly Color C1 = new Color(0.309803933f, 0.56078434f, 0.7294118f, 1f);
-        public readonly Color C2 = new Color(0.274509817f, 0.509803951f, 0.196078435f, 1f);
-        public readonly Color C3 = new Color(0.8117647f, 0.34117648f, 0.235294119f, 1f);
-        public readonly Color C4 = new Color(0.09019608f, 0.1254902f, 0.219607845f, 1f);
-        public readonly Color C5 = new Color(0.458823532f, 0.141176477f, 0.219607845f, 1f);
-        public readonly Color C6 = new Color(0.145098045f, 0.3372549f, 0.180392161f, 1f);
-        public readonly Color C7 = new Color(0.08235294f, 0.113725491f, 0.156862751f, 1f);
+        public readonly Color C1 = new Color(0.30980393f, 0.56078434f, 0.7294118f, 1f);
+        public readonly Color C2 = new Color(0.27450982f, 0.50980395f, 0.19607843f, 1f);
+        public readonly Color C3 = new Color(0.8117647f, 0.34117648f, 0.23529412f, 1f);
+        public readonly Color C4 = new Color(0.09019608f, 0.1254902f, 0.21960784f, 1f);
+        public readonly Color C5 = new Color(0.45882353f, 0.14117648f, 0.21960784f, 1f);
+        public readonly Color C6 = new Color(0.14509805f, 0.3372549f, 0.18039216f, 1f);
+        public readonly Color C7 = new Color(0.08235294f, 0.11372549f, 0.15686275f, 1f);
         public readonly Color C8 = new Color(0.5058824f, 0.5921569f, 0.5882353f, 1f);
     }
 }

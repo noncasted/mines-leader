@@ -7,6 +7,7 @@ namespace Internal
 {
     public static class ScopeBuilderExtensions
     {
+        [ContainerPrimitive(ContainerPrimitive.SceneServices)]
         public static async UniTask FindOrLoadSceneWithServices(
             this IScopeBuilder builder,
             AssetReference scene,
@@ -16,6 +17,7 @@ namespace Internal
             services.Create(builder);
         }
 
+        [ContainerPrimitive(ContainerPrimitive.Instantiate)]
         public static T Instantiate<T>(this IScopeBuilder builder, T prefab) where T : MonoBehaviour
         {
             var instance = Object.Instantiate(prefab);
@@ -25,6 +27,7 @@ namespace Internal
             return instance;
         }
 
+        [ContainerPrimitive(ContainerPrimitive.Instantiate)]
         public static T Instantiate<T>(this IScopeBuilder builder, T prefab, Vector3 position) where T : MonoBehaviour
         {
             var instance = Object.Instantiate(prefab, position, Quaternion.identity);

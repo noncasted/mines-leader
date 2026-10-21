@@ -48,6 +48,9 @@ namespace ContainerGenerator {
             public bool IsRequest;
             public bool IsAlternative;
             public int AlternativeGroup = -1;
+            // All builder.Inject instances of the slot type: Type is the array, ElementType is the type itself.
+            public bool IsInjections;
+            public string ElementType = "";
         }
 
         public sealed class Field {
@@ -67,6 +70,12 @@ namespace ContainerGenerator {
             public string FieldName = "";
             public string FieldType = "";
             public string CtorParamName = "";
+            // builder.Inject: the array of every passed instance and the loop index over it.
+            public string InjectionsParamName = "";
+            public string InjectionsIndexName = "";
+            // Another builder.Inject call site of the same type owns the loop: GetInjections<T>() already returns
+            // the instances of this call site, so this slot calls nothing (otherwise [Inject] would run twice).
+            public bool IsInjectionsRepeat;
             public string CreateMethod = "";
             public bool HasField;
             public bool IsTransient;
@@ -528,6 +537,7 @@ namespace ContainerGenerator {
                 });
             }
 
+            var injectionsByType = new Dictionary<string, Slot>(StringComparer.Ordinal);
             for (var i = 0; i < plan.Slots.Count; i++) {
                 var slot = plan.Slots[i];
                 if (slot.IsHole == false || slot.SkipEmit)
@@ -544,6 +554,28 @@ namespace ContainerGenerator {
                     Type = slot.FieldType,
                     Name = slot.CtorParamName,
                     Slot = slot.Index,
+                });
+
+                // Several instances may call builder.Inject with one type (identical scene services):
+                // the field keeps the last one, and [Inject] is called on each of them.
+                if (slot.Registration.Kind != "Inject")
+                    continue;
+
+                if (injectionsByType.TryGetValue(slot.FieldType, out var owner)) {
+                    slot.InjectionsParamName = owner.InjectionsParamName;
+                    slot.InjectionsIndexName = owner.InjectionsIndexName;
+                    slot.IsInjectionsRepeat = true;
+                    continue;
+                }
+
+                injectionsByType.Add(slot.FieldType, slot);
+                slot.InjectionsParamName = ScopeNames.Unique(slot.CtorParamName.TrimStart('@') + "Injections", used);
+                slot.InjectionsIndexName = ScopeNames.Unique(slot.CtorParamName.TrimStart('@') + "Index", used);
+                plan.CtorParams.Add(new CtorParam {
+                    Type = slot.FieldType + "[]",
+                    Name = slot.InjectionsParamName,
+                    IsInjections = true,
+                    ElementType = slot.FieldType,
                 });
             }
 
@@ -590,6 +622,8 @@ namespace ContainerGenerator {
         private static bool HasCtorParam(ScopePlan plan, string type, string name) {
             for (var i = 0; i < plan.CtorParams.Count; i++) {
                 var param = plan.CtorParams[i];
+                if (param.IsInjections)
+                    continue;
                 if (param.Type == type && (param.Name == name || param.Name == ScopeNames.Escape(name)))
                     return true;
             }

@@ -194,6 +194,32 @@ namespace Internal
             return false;
         }
 
+        // Every builder.Inject instance of this type in call order: a scene may hold several identical services,
+        // and the generated class calls [Inject] on each of them, not only on the last one.
+        internal T[] GetInjections<T>()
+        {
+            ThrowIfBuilt();
+
+            var count = 0;
+
+            for (var i = 0; i < (_injections?.Count ?? 0); i++)
+            {
+                if (_injections[i] is T)
+                    count++;
+            }
+
+            var result = new T[count];
+            var next = 0;
+
+            for (var i = 0; i < (_injections?.Count ?? 0); i++)
+            {
+                if (_injections[i] is T injection)
+                    result[next++] = injection;
+            }
+
+            return result;
+        }
+
         private void ThrowIfBuilt()
         {
             if (_built == true)

@@ -157,7 +157,7 @@ namespace Internal
                 if (bindings != null)
                 {
                     scan.Boundary = bindings;
-                    scan.Signature = "boundary:" + ToCodeTypeName(bindings.GetType());
+                    scan.Signature = "boundary:" + ToCodeTypeName(bindings);
                     scans.Add(scan);
                     continue;
                 }
@@ -232,7 +232,7 @@ namespace Internal
                     Target = first.Boundary,
                     PropertyName = propertyName,
                     FieldName = fieldName,
-                    CodeTypeName = ToCodeTypeName(first.Boundary.GetType()),
+                    CodeTypeName = ToCodeTypeName(first.Boundary),
                     Comment = comment + " (own bindings)"
                 };
 
@@ -355,7 +355,7 @@ namespace Internal
                 Target = component,
                 PropertyName = propertyName,
                 FieldName = HierarchyBindingsNaming.ToFieldName(propertyName),
-                CodeTypeName = ToCodeTypeName(component.GetType())
+                CodeTypeName = ToCodeTypeName(component)
             };
         }
 
@@ -380,6 +380,13 @@ namespace Internal
         public static string ToCodeTypeName(Type type)
         {
             var fullName = type.FullName ?? type.Name;
+            return "global::" + fullName.Replace('+', '.');
+        }
+
+        // Component types are read from the script sources while the last compile failed (see ScriptTypeNames).
+        private static string ToCodeTypeName(Component component)
+        {
+            var fullName = ScriptTypeNames.FullName(component.GetType(), ScriptTypeNames.ScriptOf(component));
             return "global::" + fullName.Replace('+', '.');
         }
     }
