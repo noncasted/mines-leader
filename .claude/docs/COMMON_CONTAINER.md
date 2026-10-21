@@ -127,7 +127,7 @@ builder.LoadSpriteGroup(Sprites.Cards);
 builder.LoadSpriteGroup(Sprites.GameCells);
 ```
 
-`LoadSpriteGroup` retains on `AddBeforeBuild` and releases on `AddBeforeDispose`. Do not call `Addressables.LoadAssetAsync` or `group.Retain()` from gameplay code. `EnsureLoaded()` never loads.
+`LoadSpriteGroup` retains on `AddBeforeBuild` and releases on `AddAfterDispose` (after the scope lifetime is terminated, scenes unloaded and the container disposed). Do not call `Addressables.LoadAssetAsync` or `group.Retain()` from gameplay code. `EnsureLoaded()` never loads.
 
 → `client/Assets/Tools/Runtime/SpriteBuilder/SpriteBuilderExtensions.cs`
 

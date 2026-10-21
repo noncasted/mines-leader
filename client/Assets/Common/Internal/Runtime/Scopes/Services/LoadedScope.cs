@@ -42,10 +42,13 @@ namespace Internal
         public async UniTask Dispose()
         {
             await EventLoop.RunDispose();
-            await EventLoop.InvokeBeforeDispose();
             _scopeLifetime.Terminate();
             await _scenes.InvokeAsync(scene => scene.Unload());
             Container.Dispose();
+
+            // Asset groups go last: terminating the lifetime tears down entities and views in an order that is
+            // not tied to their assets, and every such listener may still read the catalogues of the scope.
+            await EventLoop.InvokeAfterDispose();
         }
     }
     

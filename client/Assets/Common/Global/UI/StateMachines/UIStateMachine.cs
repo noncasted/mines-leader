@@ -27,21 +27,21 @@ namespace Global.UI
         public IUIState Base { get; }
         public IUIState StackHead => _stackHead;
 
-        public IUIStateHandle CreateChild(IUIState parent, IUIState state)
+        public IUIStateHandle CreateChild(IReadOnlyLifetime lifetime, IUIState parent, IUIState state)
         {
             var headHandle = _handles[parent];
-            var childHandle = new UIStateHandle(headHandle, state, _constraintsStorage);
-            _handles[state] = childHandle;
+            var childHandle = new UIStateHandle(lifetime, headHandle, state, _constraintsStorage);
+            Add(state, childHandle);
             childHandle.OnChild();
 
             return childHandle;
         }
 
-        public IUIStateHandle CreateStackChild(IUIState parent, IUIState state)
+        public IUIStateHandle CreateStackChild(IReadOnlyLifetime lifetime, IUIState parent, IUIState state)
         {
             var headHandle = _handles[parent];
-            var childHandle = new UIStateHandle(headHandle, state, _constraintsStorage);
-            _handles[state] = childHandle;
+            var childHandle = new UIStateHandle(lifetime, headHandle, state, _constraintsStorage);
+            Add(state, childHandle);
             headHandle.OnStacked(childHandle);
 
             var currentHead = _stackHead;
@@ -59,6 +59,18 @@ namespace Global.UI
         public void Exit(IUIState state)
         {
             _handles[state].Exit();
+        }
+
+        // The handle is known while it lives: a state entered again (the same window reopened) replaces it, and the
+        // end of the old one does not remove the new one.
+        private void Add(IUIState state, UIStateHandle handle)
+        {
+            _handles[state] = handle;
+
+            handle.InnerLifetime.Listen(() => {
+                if (_handles.TryGetValue(state, out var current) == true && current == handle)
+                    _handles.Remove(state);
+            });
         }
     }
 }

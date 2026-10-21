@@ -75,7 +75,9 @@ namespace Meta
                 .RegisterBackendProjection<SharedBackendUser.DeckProjection>()
                 .RegisterBackendProjection<SharedBackendUser.CardsProjection>()
                 .RegisterBackendProjection<InitialCardPreviews>()
-                .RegisterBackendResponse<SharedMatchmaking.MatchResult>();
+                .RegisterBackendResponse<SharedMatchmaking.MatchResult>()
+                // UserMatchHistory pushes the overview of every finished match; the menu has no history view yet.
+                .RegisterBackendResponse<SharedBackendUser.Match>();
 
             builder.Register<CardConfigs>()
                    .As<IBackendProjection<CardConfigOptions>>()

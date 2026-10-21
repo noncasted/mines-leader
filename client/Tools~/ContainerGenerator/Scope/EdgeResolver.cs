@@ -363,7 +363,7 @@ namespace ContainerGenerator {
             }
         }
 
-        // IEventLoop — тот самый builder.Events загрузчика: на нём висят AddBeforeBuild/AddBeforeDispose
+        // IEventLoop — тот самый builder.Events загрузчика: на нём висят AddBeforeBuild/AddAfterDispose
         // и по нему загрузчик гонит фазы. Свой экземпляр в классе скоупа был бы другим циклом.
         private static void EnsureEventLoopHole(ScopeGraph graph, Compilation compilation, TypeIndex types) {
             var service = types.Format(LoaderServices.Find(compilation, LoaderServices.EventLoopService));

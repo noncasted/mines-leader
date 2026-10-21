@@ -23,16 +23,16 @@ namespace Global.Publisher.Itch
             if (PlayerPrefs.HasKey(Key) == false)
                 return;
 
-            var raw = PlayerPrefs.GetString(Key);
-            var container = TryParse<SaveEntries>(raw);
+            // Only Save writes the key: a value that does not parse or an entry without a key is a broken save.
+            var container = Parse<SaveEntries>(Key, PlayerPrefs.GetString(Key));
 
-            if (container?.Entries == null)
-                return;
+            if (container.Entries == null)
+                throw new InvalidOperationException($"[ItchSaves] {Key} has no entries list");
 
             foreach (var entry in container.Entries)
             {
                 if (string.IsNullOrEmpty(entry.Key) == true)
-                    continue;
+                    throw new InvalidOperationException($"[ItchSaves] {Key} has an entry without a key");
 
                 _entries[entry.Key] = entry.Value;
             }
@@ -45,7 +45,7 @@ namespace Global.Publisher.Itch
             if (_entries.TryGetValue(key, out var rawEntry) == false)
                 return new T();
 
-            return TryParse<T>(rawEntry) ?? new T();
+            return Parse<T>(key, rawEntry);
         }
 
         public UniTask Save<T>(T data)
@@ -66,20 +66,18 @@ namespace Global.Publisher.Itch
             return UniTask.CompletedTask;
         }
 
-        private static T TryParse<T>(string json) where T : class
+        // JsonUtility throws on malformed JSON and returns null for an empty one: both fail the load.
+        private static T Parse<T>(string key, string json) where T : class
         {
             if (string.IsNullOrEmpty(json) == true)
-                return null;
+                throw new InvalidOperationException($"[ItchSaves] {key}: the saved value is empty");
 
-            try
-            {
-                return JsonUtility.FromJson<T>(json);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning($"[ItchSaves] Failed to parse {typeof(T).Name}: {exception.Message}");
-                return null;
-            }
+            var value = JsonUtility.FromJson<T>(json);
+
+            if (value == null)
+                throw new InvalidOperationException($"[ItchSaves] {key}: the saved value is not a {typeof(T).Name}");
+
+            return value;
         }
 
         [Serializable]

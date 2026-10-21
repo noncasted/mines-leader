@@ -16,7 +16,6 @@ namespace Global.Settings
         SettingsSave Copy();
         void Push(SettingsSave save);
         UniTask Apply(SettingsSave save);
-        void Revert();
     }
 
     public class Settings : ISettings, IScopeSetupAsync
@@ -78,11 +77,6 @@ namespace Global.Settings
             await _saves.Save(save);
             _save = save;
             Push(save);
-        }
-
-        public void Revert()
-        {
-            Push(_save);
         }
     }
 }

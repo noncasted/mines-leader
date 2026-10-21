@@ -35,6 +35,7 @@ namespace Menu.Unlocks
         private readonly IAchievements _achievements;
         private readonly IMenuUnlockSelection _selection;
 
+        private IReadOnlyLifetime _scopeLifetime;
         private IReadOnlyLifetime _screenLifetime;
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
@@ -44,6 +45,7 @@ namespace Menu.Unlocks
         /// </summary>
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
+            _scopeLifetime = lifetime;
             _achievements.Rows.View(lifetime, (rowLifetime, row) => BuildRow(lifetime, rowLifetime, row));
         }
 
@@ -103,7 +105,8 @@ namespace Menu.Unlocks
 
         private void OnEntryClicked(MenuUnlockEntry entry)
         {
-            _selection.Process(entry.Tier).Forget();
+            // The selection is a child of the global base state: it is bound to the menu scope, not to this screen.
+            _selection.Process(_scopeLifetime, entry.Tier).Forget();
         }
 
         private readonly struct EntryView

@@ -15,7 +15,7 @@ namespace Menu.Unlocks
         /// <summary>
         /// Открывает выбор награды за тир и ждёт, пока игрок заберёт карту или закроет окно.
         /// </summary>
-        UniTask Process(IAchievementTier tier);
+        UniTask Process(IReadOnlyLifetime lifetime, IAchievementTier tier);
     }
 
     [DisallowMultipleComponent]
@@ -63,7 +63,7 @@ namespace Menu.Unlocks
                    .As<IMenuUnlockSelection>();
         }
 
-        public async UniTask Process(IAchievementTier tier)
+        public async UniTask Process(IReadOnlyLifetime lifetime, IAchievementTier tier)
         {
             if (_isOpen == true)
                 return;
@@ -73,7 +73,7 @@ namespace Menu.Unlocks
 
             try
             {
-                await _stateMachine.ProcessChild(_stateMachine.Base, this);
+                await _stateMachine.ProcessChild(lifetime, _stateMachine.Base, this);
             }
             finally
             {

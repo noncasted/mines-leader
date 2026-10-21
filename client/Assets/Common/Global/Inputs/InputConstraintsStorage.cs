@@ -10,6 +10,8 @@ namespace Global.Inputs
         Game,
     }
 
+    // Which kinds of input are allowed now. A visible UI state adds its constraints (IUIState.Constraints) and
+    // removes them when it is hidden or exits; the kind is allowed while no state disables it.
     public interface IInputConstraintsStorage
     {
         void Add(IUIConstraints uiConstraints);
@@ -26,15 +28,17 @@ namespace Global.Inputs
                 _constraints.Add(constraint, 0);
         }
 
+        // Number of the visible states that disable each kind of input.
         private readonly Dictionary<InputConstraints, int> _constraints = new();
 
         public bool this[InputConstraints key] => _constraints[key] <= 0;
 
+        // IUIConstraints.Input: false - the state disables this kind of input, true - leaves it allowed.
         public void Add(IUIConstraints uiConstraints)
         {
-            foreach (var (key, value) in uiConstraints.Input)
+            foreach (var (key, isAllowed) in uiConstraints.Input)
             {
-                if (value == false)
+                if (isAllowed == true)
                     continue;
 
                 _constraints[key]++;
@@ -43,17 +47,15 @@ namespace Global.Inputs
 
         public void Remove(IUIConstraints uiConstraints)
         {
-            foreach (var (key, value) in uiConstraints.Input)
+            foreach (var (key, isAllowed) in uiConstraints.Input)
             {
-                if (value == false)
+                if (isAllowed == true)
                     continue;
 
+                if (_constraints[key] == 0)
+                    throw new InvalidOperationException($"[InputConstraints] {key} is removed more times than added");
+
                 _constraints[key]--;
-
-                var count = _constraints[key];
-
-                if (count < 0)
-                    _constraints[key] = 0;
             }
         }
     }
