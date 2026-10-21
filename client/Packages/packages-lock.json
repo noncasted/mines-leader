@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "com.coplaydev.unity-mcp": {
-      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v10.3.0",
+      "version": "file:../../tools/framework/client/packages/com.coplaydev.unity-mcp",
       "depth": 0,
-      "source": "git",
+      "source": "local",
       "dependencies": {
         "com.unity.modules.animation": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
@@ -14,8 +14,13 @@
         "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.test-framework": "1.1.31"
-      },
-      "hash": "aa5fc638d623f56178d50329d9ad8c541a57fe66"
+      }
+    },
+    "com.cysharp.memorypack": {
+      "version": "file:../../tools/framework/client/packages/com.cysharp.memorypack",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
     },
     "com.shared.game": {
       "version": "file:../../shared/",
@@ -77,9 +82,9 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.addressables": {
-      "version": "file:com.unity.addressables",
+      "version": "file:../../tools/framework/client/packages/com.unity.addressables",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.unity.scriptablebuildpipeline": "4.0.1",
         "com.unity.modules.assetbundle": "1.0.0",
@@ -162,9 +167,9 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "file:com.unity.render-pipelines.core",
+      "version": "file:../../tools/framework/client/packages/com.unity.render-pipelines.core",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.unity.burst": "1.8.14",
         "com.unity.collections": "2.4.3",
@@ -236,18 +241,18 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ugui": {
-      "version": "file:com.unity.ugui",
+      "version": "file:../../tools/framework/client/packages/com.unity.ugui",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
     },
     "com.unity.web.stripping-tool": {
-      "version": "file:com.unity.web.stripping-tool",
+      "version": "file:../../tools/framework/client/packages/com.unity.web.stripping-tool",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.2.2",
         "com.unity.settings-manager": "2.0.1"
