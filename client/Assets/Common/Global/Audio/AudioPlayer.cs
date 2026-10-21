@@ -11,18 +11,8 @@ namespace Global.Audio
         void PlayLoopMusic(Sound sound);
     }
 
-    public interface IAudioVolume
-    {
-        IReadOnlyDictionary<AudioLine, float> Values { get; }
-        IViewableProperty<bool> IsMuted { get; }
-
-        void Mute();
-        void Unmute();
-        void SetVolume(AudioLine line, float volume);
-    }
-
     [DisallowMultipleComponent]
-    public class AudioPlayer : MonoBehaviour, IAudioVolume, IAudioPlayer, IScopeSetupCompletion
+    public class AudioPlayer : MonoBehaviour, IAudioPlayer, IScopeSetupCompletion
     {
         [SerializeField] private AudioSource _musicSource;
         [SerializeField] private AudioSource[] _soundSources;
@@ -32,10 +22,6 @@ namespace Global.Audio
         private float[] _soundScales;
 
         private readonly Dictionary<AudioLine, float> _values = new();
-        private readonly ViewableProperty<bool> _isMuted = new();
-
-        public IReadOnlyDictionary<AudioLine, float> Values => _values;
-        public IViewableProperty<bool> IsMuted => _isMuted;
 
         [Inject]
         internal void Construct(ISettings settings)
@@ -76,32 +62,6 @@ namespace Global.Audio
             });
         }
 
-        public void Mute()
-        {
-            _musicSource.volume = 0f;
-
-            foreach (var source in _soundSources)
-                source.volume = 0f;
-
-            _isMuted.Set(true);
-        }
-
-        public void Unmute()
-        {
-            _isMuted.Set(false);
-            ApplyVolume();
-        }
-
-        public void SetVolume(AudioLine line, float volume)
-        {
-            _values[line] = volume;
-
-            if (_isMuted.Value == true)
-                return;
-
-            ApplyVolume();
-        }
-
         private void UpdateVolume()
         {
             var master = _settings.MasterVolume.Value;
@@ -110,8 +70,7 @@ namespace Global.Audio
             _values[AudioLine.Music] = _settings.MusicVolume.Value * master;
             _values[AudioLine.SFX] = _settings.SoundsVolume.Value * master;
 
-            if (_isMuted.Value == false)
-                ApplyVolume();
+            ApplyVolume();
         }
 
         private void ApplyVolume()
@@ -139,8 +98,7 @@ namespace Global.Audio
             _soundScales[index] = sound.Volume;
             source.clip = sound.Clip;
 
-            if (_isMuted.Value == false)
-                source.volume = _values[AudioLine.SFX] * sound.Volume;
+            source.volume = _values[AudioLine.SFX] * sound.Volume;
 
             source.Play();
         }
@@ -155,8 +113,7 @@ namespace Global.Audio
             _musicSource.loop = true;
             _musicSource.clip = sound.Clip;
 
-            if (_isMuted.Value == false)
-                _musicSource.volume = _values[AudioLine.Music] * sound.Volume;
+            _musicSource.volume = _values[AudioLine.Music] * sound.Volume;
 
             _musicSource.Play();
         }

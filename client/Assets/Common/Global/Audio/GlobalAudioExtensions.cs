@@ -11,12 +11,10 @@ namespace Global.Audio
             var listener = builder.Instantiate(GlobalPrefabs.GlobalAudioListener);
 
             builder.RegisterComponent(player)
-                   .As<IAudioVolume>()
                    .As<IAudioPlayer>()
                    .As<IScopeSetupCompletion>();
 
             builder.RegisterComponent(listener)
-                   .As<IAudioListener>()
                    .As<IScopeBaseSetup>();
 
             return builder;

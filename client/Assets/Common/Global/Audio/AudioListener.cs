@@ -3,17 +3,10 @@ using UnityEngine;
 
 namespace Global.Audio
 {
-    public interface IAudioListener
-    {
-        void Enable();
-        void Disable();
-    }
-
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioListener))]
     public class AudioListener :
         MonoBehaviour,
-        IAudioListener,
         IScopeBaseSetup
     {
         private UnityEngine.AudioListener _listener;
@@ -21,17 +14,7 @@ namespace Global.Audio
         public void OnBaseSetup(IReadOnlyLifetime lifetime)
         {
             _listener = GetComponent<UnityEngine.AudioListener>();
-            Enable();
-        }
-
-        public void Enable()
-        {
             _listener.enabled = true;
-        }
-
-        public void Disable()
-        {
-            _listener.enabled = false;
         }
     }
 }

@@ -29,31 +29,9 @@ namespace Global.Publisher
 
         private static void AddItchIO(IScopeBuilder builder)
         {
-            var platformOptions = InternalAssets.OptionsContainer.PlatformOptions;
-            var options = GlobalAssets.GlobalPublisherOptions;
-
-            var callbacks = builder.Instantiate(options.ItchCallbacksPrefab);
-
-            builder.RegisterInstance(callbacks)
-                   .As<IJsErrorCallback>();
-
             builder.Register<ItchSaves>()
                    .As<ISaves>()
                    .As<IScopeBaseSetup>();
-
-            builder.Register<ItchLanguageProvider>()
-                   .As<ISystemLanguageProvider>();
-
-            if (platformOptions.IsEditor == true)
-            {
-                builder.Register<ItchLanguageDebugAPI>()
-                       .As<IItchLanguageAPI>();
-            }
-            else
-            {
-                builder.Register<ItchLanguageExternAPI>()
-                       .As<IItchLanguageAPI>();
-            }
         }
     }
 }
