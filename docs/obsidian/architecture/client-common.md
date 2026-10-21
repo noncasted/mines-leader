@@ -230,7 +230,7 @@ Lifetime скоупа — `parent.Lifetime.Child()`. UI обычно `View`, с�
 | Publisher | модуль `publish` + платформа `itch`, `Global/Publisher/` | Itch saves по `PlatformType` |
 | UI | модуль `ui` + `Global/UI/GlobalUIExtensions.cs` | `UIStateMachine`, ограничения ввода, навигация геймпадом, кнопки/элементы; loading screen (WebGL - `AddWebLoadingScreen` платформы `web`), `ClientOutdatedNotice` |
 
-Модули лежат во фреймворке (`tools/framework/client/modules`, `client/platforms`, неймспейсы `Global.*`), префабы и опции - в `Global/Assets` игры. `GlobalPrefabs` генерируется в контент-сборку (`Internal/Runtime/Catalogues/Prefabs/Generated`): все типы его префабов из фреймворка, поэтому `Internal.Content` ссылается на модули `audio`, `cameras`, `ui`.
+Модули лежат во фреймворке (`tools/framework/client/modules`, `client/platforms`, неймспейсы `Global.*`), префабы и опции - в `Global/Assets` игры. `GlobalPrefabs` генерируется в контент-сборку (`Internal/Runtime/Catalogues/Prefabs`): все типы его префабов из фреймворка, поэтому `Internal.Content` ссылается на модули `audio`, `cameras`, `ui`.
 
 Опции живут в `Internal/Runtime/Options/OptionsContainer.asset`: debug, backend URL, platform, version. В Internal-скоупе регистрируются как отдельные инстансы.
 
