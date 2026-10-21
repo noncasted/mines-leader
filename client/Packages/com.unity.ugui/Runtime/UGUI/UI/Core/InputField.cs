@@ -1395,11 +1395,11 @@ namespace UnityEngine.UI
         {
             get
             {
-                return GUIUtility.systemCopyBuffer;
+                return UIClipboard.text;
             }
             set
             {
-                GUIUtility.systemCopyBuffer = value;
+                UIClipboard.text = value;
             }
         }
 

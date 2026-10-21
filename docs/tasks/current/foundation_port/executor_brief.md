@@ -47,3 +47,6 @@
 - Агенты: N11 - aa2dbd5adbce2d7ce
 - Агенты: B13 - a71a8ae0e3839d06c
 - Агенты: N6 - a3559dbb685cebf5d
+- Агенты: N7 - a3587b366038d78f1; проверка в редакторе - a8c9b1b49e6641ee4
+- Агенты: N4 - a0367aee7b0a0400f
+- Агенты: S3+S4 - a440bd635e9dbc779 (done), N10 - a7b1c0d2bf0d7c60b (done), фикс 7f2d9550 - ad252020127ef2049 (done), R2 - af4a1084fcab4e5e0 (done), C1+C2+C3 - a5f85a417b435cb73 (done), T1+C4+C7 - a5aa481a75db1471f (done), C6 - a786e8cb3db469473 (done), дрейф HierarchyBindings - aeb28dc10c022e76a

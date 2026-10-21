@@ -9,7 +9,8 @@ namespace Internal
     /// <summary>
     ///     Batchmode entry point for CI/deploy scripts:
     ///     Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Build
-    ///     Output goes to client/build, which is what client/deploy/Dockerfile packages.
+    ///     Output goes to client/build, which tools/scripts/deploy-webgl.sh uploads.
+    ///     /deploy-client builds with the web_dev build profile instead (see WebGlDeploy).
     /// </summary>
     public static class WebGlBuild
     {

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <RootNamespace>MemoryPack</RootNamespace>
+        <AssemblyName>MemoryPack.Core</AssemblyName>
+        <Version>1.21.4</Version>
+        <AssemblyVersion>1.21.4.0</AssemblyVersion>
+        <NoWarn>$(NoWarn);CS1591;CA2255</NoWarn>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <DebugType>none</DebugType>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    </ItemGroup>
+
+</Project>

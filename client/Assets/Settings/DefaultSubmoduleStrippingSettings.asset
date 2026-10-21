@@ -16,14 +16,109 @@ MonoBehaviour:
   RemoveEmbeddedDebugSymbols: 1
   MissingSubmoduleErrorHandling: 0
   SubmodulesToStrip:
+  - 2D Rendering Sprite Tiling
   - AndroidJNIModule
+  - Animation Allocators
+  - Animation Animator
+  - Animation Constraints
+  - Animation Core
+  - Animation Director
+  - Animation Human
+  - Animation Script Bindings
+  - Animation State Machine
+  - Box2D v2
+  - Box2D v3
+  - Clipper
+  - Compute Shader Support
   - Freetype2 Base
   - Freetype2 CFF
   - Freetype2 OpenType Validation
   - Freetype2 Postscript
   - Freetype2 SFNT
   - Freetype2 TrueType
+  - GPU Instancing
+  - HarfBuzz
+  - HierarchyCore Core
+  - HierarchyCore Script Bindings
+  - ICU
+  - Mesh Async Upload
+  - Mesh Blend Shapes
+  - Mesh Combiner
+  - Mesh Compression
+  - Mesh Optimizer
+  - Mesh Script Bindings
+  - Mono Globalization
+  - Mono Runtime
+  - Mono Security
   - Newtonsoft Json.NET
+  - ParticleSystem Base Module
+  - ParticleSystem Collision Module
+  - ParticleSystem Color Module
+  - ParticleSystem Color by Speed Module
+  - ParticleSystem Core
+  - ParticleSystem Curves
+  - ParticleSystem Custom Data Module
+  - ParticleSystem Emission Module
+  - ParticleSystem Events
+  - ParticleSystem External Forces Module
+  - ParticleSystem Force over Lifetime Module
+  - ParticleSystem Geometry Jobs
+  - ParticleSystem Gradients
+  - ParticleSystem Inherit Velocity Module
+  - ParticleSystem Initial Module
+  - ParticleSystem Lifetime by Emitter Speed Module
+  - ParticleSystem Lights Module
+  - ParticleSystem Limit Velocity Module
+  - ParticleSystem Noise Module
+  - ParticleSystem Renderer
+  - ParticleSystem Rotation By Speed Module
+  - ParticleSystem Rotation Module
+  - ParticleSystem Script Bindings
+  - ParticleSystem Shape Module
+  - ParticleSystem Size By Speed Module
+  - ParticleSystem Size over Lifetime Module
+  - ParticleSystem Sub Emitters Module
+  - ParticleSystem Texture Sheet Animation Module
+  - ParticleSystem Trails Module
+  - ParticleSystem Triggers Module
+  - ParticleSystem Utils
+  - PhysX Character Kinematic
+  - PhysX Cloth
+  - PhysX Common
+  - PhysX Cooking
+  - PhysX Core
+  - PhysX Extensions
+  - PhysX Foundation
+  - PhysX PvdSDK
+  - PhysX Vehicle
+  - Physics2D Core
+  - Physics2D Script Bindings
+  - PhysicsCore2D Core
+  - System.ComponentModel Extra
+  - System.DateTimeOffset
+  - System.DateTimeParse
+  - System.Numerics Core
+  - 'System.Numerics.Vector<T>'
+  - System.Security
+  - TetGen
+  - Text Editing Utilities
+  - Text Selecting Utilities
+  - TextCoreFontEngine (Native)
+  - TextCoreTextEngine
+  - Texture Decompression
+  - Texture Decompression ASTC
+  - Texture Decompression BC
+  - Texture Decompression DXT
+  - Texture Decompression ETC
   - Tilemap
+  - Tilemap Core
+  - Tilemap Script Bindings
+  - UI Toolkit
+  - Unity 2D Core
   - Unity In-App Purchasing
   - WebGPU Rendering
+  - double-conversion
+  - libjpeg
+  - libpng
+  - libtess2
+  - zlib
