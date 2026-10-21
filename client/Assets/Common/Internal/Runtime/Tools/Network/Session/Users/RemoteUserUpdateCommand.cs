@@ -20,7 +20,7 @@ namespace Internal
             if (_users.Entries.ContainsKey(context.Index) == true)
                 return;
 
-            var user = new NetworkUser(context.Index, false, _session.Lifetime.Child(), context.BackendId);
+            var user = new NetworkUser(context.Index, false, _session.Lifetime.Child(), context.Id);
             _users.Add(user);
         }
     }

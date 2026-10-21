@@ -23,6 +23,9 @@ if (configuration.GetSection("Local").GetSection("KillPrevious").Get<bool>())
 var serverUrl = configuration["LocalGameServerUrl"];
 var consoleToken = configuration["ConsoleToken"] ?? "";
 
+// S4: one ticket key for meta and game. The development key unless appsettings sets "SessionTicketSecret".
+var sessionTicketSecret = configuration["SessionTicketSecret"] ?? Convert.ToBase64String(SessionTicketsSetup.DevelopmentKey);
+
 var upstream = DbUpstreamFactory.Create(builder, configuration);
 var pgbouncer = PgBouncerFactory.Create(builder, upstream);
 
@@ -38,7 +41,8 @@ silo.WaitFor(pgbouncer.Resource);
 var coordinator = builder.AddProject<Coordinator>("coordinator");
 var meta = builder
            .AddProject<MetaGateway>("meta")
-           .WithEnvironment("CONSOLE_TOKEN", consoleToken);
+           .WithEnvironment("CONSOLE_TOKEN", consoleToken)
+           .WithEnvironment(SessionTicketsSetup.SecretKey, sessionTicketSecret);
 
 var console = builder
               .AddProject<ConsoleGateway>("console")
@@ -47,7 +51,8 @@ var console = builder
 var game = builder
            .AddProject<GameGateway>("game")
            .WithEnvironment("GAME_SERVER_URL", serverUrl)
-           .WithEnvironment("CONSOLE_TOKEN", consoleToken);
+           .WithEnvironment("CONSOLE_TOKEN", consoleToken)
+           .WithEnvironment(SessionTicketsSetup.SecretKey, sessionTicketSecret);
 
 SetupDB();
 SetupOrleansIdentity();

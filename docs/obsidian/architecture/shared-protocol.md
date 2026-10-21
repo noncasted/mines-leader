@@ -101,7 +101,7 @@ graph TB
 |----------|----------|
 | `SharedBackendUserSignUp` | Регистрация (POST /develop_signup) |
 | `SharedBackendUserLogin` | Логин (POST /login) |
-| `SharedBackendSocketAuth` | WebSocket-аутентификация (UserId -> IsSuccess) |
+| `SharedBackendSocketAuth` | Первый кадр meta-сокета: GuestId + GuestSecret -> Status, UserId, IssuedSecret (S3) |
 | `SharedMatchmaking.*` | Поиск, создание матча, результат |
 | `SharedBackendUser.*` | Проекции: Profile, Progression, Deck, Rating, Match |
 | `SharedBackendProjection` | Обёртка для проекций |
@@ -110,7 +110,7 @@ graph TB
 
 | Контекст | Описание |
 |----------|----------|
-| `SharedSessionAuth` | Аутентификация сессии (UserId + SessionId) |
+| `SharedSessionAuth` | Первый кадр game-сокета: подписанный тикет -> SessionAuthStatus (S4) |
 | `SharedSessionPlayer.*` | LocalUpdate, RemoteUpdate, RemoteDisconnect |
 | `SharedSessionObject.*` | SetProperty, PropertyUpdate, Event |
 

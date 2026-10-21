@@ -111,8 +111,11 @@ sequenceDiagram
     participant C as Client
     participant M as Meta Gateway
 
-    C->>M: WebSocket upgrade (?userId=...)
-    Note over M: IUserFactory.Resolve: юзер и его проекции одной транзакцией
+    C->>M: WebSocket upgrade (?protocol=<hash>)
+    C->>M: SharedBackendSocketAuth.Request (GuestId + GuestSecret, или пусто для нового гостя)
+    Note over M: MetaSocketAuth: секрет сверяется с хэшем в UserAuthState, юзер и проекции одной транзакцией
+    M->>C: SharedBackendSocketAuth.Response (Status, UserId, IssuedSecret для нового гостя)
+    Note over C: IssuedSecret сохраняется сразу (Auth.Guest.<окружение>:<scope>)
     M->>C: SharedBackendProjection[] (проекции юзера + InitialCardPreviews)
     M->>C: SharedBackendProjection[] (конфиги)
 ```
@@ -124,12 +127,15 @@ sequenceDiagram
     participant G as Game Gateway
 
     C->>G: WebSocket connect
-    C->>G: SharedSessionAuth.Request (UserId, SessionId)
-    G->>C: SharedSessionAuth.Response (IsSuccess)
-    G->>C: SharedSessionPlayer.LocalUpdate (Index)
-    G->>C: SharedSessionPlayer.RemoteUpdate (other players)
+    C->>G: SharedSessionAuth.Request (Ticket из MatchResult / LobbyResult / RematchContexts.Success)
+    Note over G: SessionGate: подпись, срок 60 с, одноразовость тикета, живое место юзера в сессии
+    G->>C: SharedSessionAuth.Response (Status)
+    G->>C: SharedSessionPlayer.LocalUpdate (Index, Id в сессии)
+    G->>C: SharedSessionPlayer.RemoteUpdate (other players: Index, Id в сессии)
     G->>C: SharedSessionObject.SetProperty[] (initial state)
 ```
+
+Отказ meta-авторизации: ответ со статусом и закрытие сокета с кодом 4003 (`SharedBackendSocketAuth.RejectedCloseCode`), клиент не повторяет попытки. Отказ входа в сессию: ответ со статусом и закрытие `PolicyViolation`. Meta id юзера (его логин) клиентам матча не уходит: игроки знают друг друга по id в сессии, новому в каждой сессии.
 
 ---
 

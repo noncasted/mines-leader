@@ -8,6 +8,8 @@ enum Shared.GameMatchType System.Int32 Single=10,TimeLimited=20,LastManStanding=
 enum Shared.InGameAchievementType System.Int32 FlagsSet=100,CellsOpened=200,MinesDetonated=300,CardsPlayed=400,BuffsReceived=500,EnemyCellsPlanted=600,ManaSpent=700,MatchesPlayed=800,MatchesWon=900,ScoutCardsPlayed=1000,DefenseCardsPlayed=1100,AttackCardsPlayed=1200,BuffCardsPlayed=1300,DebuffCardsPlayed=1400
 enum Shared.PlayerModifier System.Int32 TrebuchetBoost=0,AdditionalMana=1,AdditionalMoves=2,AdditionalHealth=3,NextCardDiscount=4,AllCardsDiscount=5,ManaCostPenalty=6,Shield=7,SoulLink=8,BaseHealth=9,BaseMoves=10,BaseMana=11,BaseManaAddPerRound=12
 enum Shared.PreviewCellKind System.Byte Taken=0,TakenMine=1,TakenFlag=2,TakenFlagMine=3,Free=4
+enum Shared.SessionAuthStatus System.Int32 Ok=0,InvalidTicket=1,Expired=2,NoReservation=3,Closed=4
+enum Shared.SharedBackendSocketAuth+AuthStatus System.Int32 Ok=0,InvalidCredentials=1,InvalidRequest=2
 enum Shared.UserStatType System.Int32 FlagsSet=100,FlagsRemoved=110,CellsOpened=200,MinesDetonated=210,CardsPlayed=300,CrossBoardCardsPlayed=310,EnemyCellsPlanted=320,BuffsReceived=400,DebuffsReceived=410,ManaSpent=500,DamageTaken=510,TurnsSkipped=520,MatchesPlayed=600,MatchesWon=610,MatchesLost=620
 type Shared.ActiveCard Id:System.Guid,Type:Shared.CardType
 type Shared.AgentCardView Id:System.Guid,Type:System.String,ManaCost:System.Int32,Target:System.String,Shape:System.String,Size:System.Int32,NeedsPosition:System.Boolean,Summary:System.String
@@ -248,7 +250,7 @@ type Shared.PlayerStashState Count:System.Int32
 type Shared.PreviewCell Position:Shared.Position,Kind:Shared.PreviewCellKind,MinesAround:System.Int32
 type Shared.RematchContexts+Failure
 type Shared.RematchContexts+Request
-type Shared.RematchContexts+Success SessionId:System.Guid,ServerUrl:System.String
+type Shared.RematchContexts+Success SessionId:System.Guid,ServerUrl:System.String,Ticket:System.String
 type Shared.RequestMessageFromClient Context:Shared.INetworkContext,RequestId:System.Int32
 type Shared.RequestMessageFromServer Context:Shared.INetworkContext,RequestId:System.Int32
 type Shared.ResponseMessageFromClient Context:Shared.INetworkContext,RequestId:System.Int32
@@ -258,6 +260,8 @@ type Shared.SharedAgentLegalPlaysResponse IsOwnTurn:System.Boolean,Cards:System.
 type Shared.SharedAgentObservation Sequence:System.Int32,EventCursor:System.Int32,IsOwnTurn:System.Boolean,GameOver:System.Boolean,WinnerId:System.Guid,WinReason:System.String,Trigger:System.String,HasError:System.Boolean,Error:System.String,Events:System.Collections.Generic.List<System.String>,Self:Shared.AgentPlayerView,Opponent:Shared.AgentPlayerView
 type Shared.SharedAgentObservationRequest
 type Shared.SharedBackendProjection Context:Shared.INetworkContext
+type Shared.SharedBackendSocketAuth+Request GuestId:System.Guid,GuestSecret:System.String
+type Shared.SharedBackendSocketAuth+Response Status:Shared.SharedBackendSocketAuth+AuthStatus,UserId:System.Guid,IssuedSecret:System.String
 type Shared.SharedBackendUser+AchievementRewardOptionsRequest Type:Shared.InGameAchievementType,Tier:System.Int32
 type Shared.SharedBackendUser+AchievementRewardOptionsResponse Type:Shared.InGameAchievementType,Tier:System.Int32,Options:System.Collections.Generic.List<Shared.CardType>
 type Shared.SharedBackendUser+CardsProjection OwnedCards:System.Collections.Generic.List<Shared.CardType>
@@ -285,13 +289,13 @@ type Shared.SharedGameAction+SkipTurn
 type Shared.SharedMatchmaking+CancelSearch
 type Shared.SharedMatchmaking+Create Type:Shared.GameMatchType
 type Shared.SharedMatchmaking+CreateWithBot Type:Shared.GameMatchType,Fixture:Shared.AgentMatchFixture
-type Shared.SharedMatchmaking+LobbyResult ServerUrl:System.String,SessionId:System.Guid
-type Shared.SharedMatchmaking+MatchResult ServerUrl:System.String,SessionId:System.Guid,Type:Shared.GameMatchType
+type Shared.SharedMatchmaking+LobbyResult ServerUrl:System.String,SessionId:System.Guid,Ticket:System.String
+type Shared.SharedMatchmaking+MatchResult ServerUrl:System.String,SessionId:System.Guid,Type:Shared.GameMatchType,Ticket:System.String
 type Shared.SharedMatchmaking+SearchLobby
 type Shared.SharedMatchmaking+SearchMatch Type:Shared.GameMatchType
 type Shared.SharedMoveSnapshot Records:System.Collections.Generic.IReadOnlyList<Shared.IMoveSnapshotRecord>
-type Shared.SharedSessionAuth+Request UserId:System.Guid,SessionId:System.Guid
-type Shared.SharedSessionAuth+Response IsSuccess:System.Boolean
+type Shared.SharedSessionAuth+Request Ticket:System.String
+type Shared.SharedSessionAuth+Response Status:Shared.SessionAuthStatus
 type Shared.SharedSessionEntity+CreateRequest Id:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
 type Shared.SharedSessionEntity+CreateResponse EntityId:System.Int32
 type Shared.SharedSessionEntity+CreatedOverview OwnerId:System.Int32,EntityId:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
@@ -300,9 +304,9 @@ type Shared.SharedSessionEntity+DestroyUpdate EntityId:System.Int32
 type Shared.SharedSessionObject+Event ObjectId:System.Int32,Value:System.Byte[]
 type Shared.SharedSessionObject+PropertyUpdate ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[],Version:System.Int32
 type Shared.SharedSessionObject+SetProperty ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[]
-type Shared.SharedSessionPlayer+LocalUpdate Index:System.Int32
+type Shared.SharedSessionPlayer+LocalUpdate Index:System.Int32,Id:System.Guid
 type Shared.SharedSessionPlayer+RemoteDisconnect Index:System.Int32
-type Shared.SharedSessionPlayer+RemoteUpdate Index:System.Int32,BackendId:System.Guid
+type Shared.SharedSessionPlayer+RemoteUpdate Index:System.Int32,Id:System.Guid
 type Shared.SharedSessionService+GetRequest Key:System.String,PropertiesIds:System.Collections.Generic.IReadOnlyList<System.Int32>
 type Shared.SharedSessionService+GetResponse Key:System.String,Id:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>
 type Shared.SharedSessionService+Overview Key:System.String,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>
@@ -575,5 +579,7 @@ union Shared.INetworkContext 72 Shared.SharedSessionService+GetRequest
 union Shared.INetworkContext 73 Shared.SharedSessionService+GetResponse
 union Shared.INetworkContext 74 Shared.SharedSessionService+Overview
 union Shared.INetworkContext 75 Shared.ErrorResponse
+union Shared.INetworkContext 76 Shared.SharedBackendSocketAuth+Request
+union Shared.INetworkContext 77 Shared.SharedBackendSocketAuth+Response
 union Shared.INetworkContext 8 Shared.SharedBackendUser+ClaimAchievementRewardRequest
 union Shared.INetworkContext 9 Shared.SharedBackendUser+UpdateDeckRequest

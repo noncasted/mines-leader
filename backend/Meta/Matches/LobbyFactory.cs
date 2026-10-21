@@ -1,5 +1,6 @@
 ﻿using Cluster.Coordination;
 using Cluster.Discovery;
+using Common.Network;
 using Infrastructure;
 using Meta.Users;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,10 @@ public class LobbyFactory : ILobbyFactory
         IServiceDiscovery serviceDiscovery,
         IMessaging messaging,
         IServiceEnvironment environment,
+        ISessionTicketIssuer tickets,
         ILogger<LobbyFactory> logger)
     {
+        _tickets = tickets;
         _orleans = orleans;
         _serviceDiscovery = serviceDiscovery;
         _messaging = messaging;
@@ -32,6 +35,7 @@ public class LobbyFactory : ILobbyFactory
     private readonly IServiceDiscovery _serviceDiscovery;
     private readonly IMessaging _messaging;
     private readonly IServiceEnvironment _environment;
+    private readonly ISessionTicketIssuer _tickets;
     private readonly ILogger<LobbyFactory> _logger;
 
     public async Task GetOrCreate(Guid userId)
@@ -56,7 +60,8 @@ public class LobbyFactory : ILobbyFactory
         var result = new LobbySearchResultUpdate()
         {
             SessionId = response.SessionId,
-            ServerUrl = serverUrl
+            ServerUrl = serverUrl,
+            Ticket = _tickets.Issue(userId, response.SessionId)
         };
 
         _logger.LogInformation("{UserId} [Lobby] [Meta] Received lobby {SessionID} on server {ServerURL}",

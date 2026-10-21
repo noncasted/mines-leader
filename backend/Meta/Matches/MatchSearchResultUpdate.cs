@@ -11,13 +11,17 @@ public class MatchSearchResultUpdate : IProjectionPayload
     [Id(1)] public required string ServerUrl { get; init; }
     [Id(2)] public required GameMatchType Type { get; init; }
 
+    // S4: the entry of this user into the session (SessionTickets), one per participant.
+    [Id(3)] public required string Ticket { get; init; }
+
     public INetworkContext ToContext()
     {
         return new SharedMatchmaking.MatchResult()
         {
             SessionId = SessionId,
             ServerUrl = ServerUrl,
-            Type = Type
+            Type = Type,
+            Ticket = Ticket
         };
     }
 }

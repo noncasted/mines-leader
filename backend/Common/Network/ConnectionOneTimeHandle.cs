@@ -19,9 +19,11 @@ public class ConnectionOneTimeHandle : IDisposable
 
     private int _requestId;
 
-    public async Task<T> ReadRequest<T>() where T : INetworkContext
+    // The handshake of a gateway: the first frame of the client. The token is the handshake timeout - a client
+    // that opens a socket and stays silent must not hold it forever (cancelling the read aborts the socket).
+    public async Task<T> ReadRequest<T>(CancellationToken cancellation) where T : INetworkContext
     {
-        var status = await _reader.Read(_socket, CancellationToken.None);
+        var status = await _reader.Read(_socket, cancellation);
 
         if (status != WebSocketReadStatus.Message)
             throw new InvalidOperationException($"Expected a request message, got {status}");

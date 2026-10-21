@@ -15,6 +15,12 @@ public interface ISession
     IExecutionQueue ExecutionQueue { get; }
     IViewableDelegate AllUsersConnected { get; }
 
+    // S4: a place for the user (its meta id), used once by its connection within the join timeout.
+    void Reserve(Guid userId);
+
+    // The game gateway, after the ticket is verified: false when the user holds no live place here.
+    bool TryAccept(Guid userId);
+
     Task Run();
 }
 
@@ -43,6 +49,9 @@ public class SessionContainerData
     // Lobby: the users found it by search and connect a moment later, so an empty lobby is kept this long
     // before it may close.
     public TimeSpan EmptyLobbyGrace { get; init; } = TimeSpan.FromSeconds(30);
+
+    // The clock of the reservations (S4): a reservation lives JoinTimeout.
+    public TimeProvider Time { get; init; } = TimeProvider.System;
 }
 
 public class Session : ISession
@@ -61,6 +70,7 @@ public class Session : ISession
         _entities = entities;
         ExecutionQueue = executionQueue;
         UserFactory = userFactory;
+        _reservations = new SessionReservations(data.JoinTimeout, data.Time);
     }
 
     private readonly ISessionUsers _users;
@@ -68,6 +78,7 @@ public class Session : ISession
     private readonly SessionContainerData _data;
     private readonly ILogger<Session> _logger;
     private readonly ViewableDelegate _allUsersConnected = new();
+    private readonly SessionReservations _reservations;
 
     public Guid Id => _data.Id;
     public SessionType Type => _data.Type;
@@ -77,6 +88,16 @@ public class Session : ISession
     public ISessionUsers Users => _users;
     public IExecutionQueue ExecutionQueue { get; }
     public IViewableDelegate AllUsersConnected => _allUsersConnected;
+
+    public void Reserve(Guid userId)
+    {
+        _reservations.Reserve(userId);
+    }
+
+    public bool TryAccept(Guid userId)
+    {
+        return Lifetime.IsTerminated == false && _reservations.TryAccept(userId);
+    }
 
     public async Task Run()
     {
@@ -192,22 +213,24 @@ public class Session : ISession
 
         var connectionTask = user.Connection.Run();
 
+        // Users know each other by their ids in this session only: the meta id of a user is its login (S3).
         user.Send(new SharedSessionPlayer.LocalUpdate()
         {
-            Index = user.Index
+            Index = user.Index,
+            Id = user.Id
         });
 
         _users.IterateOthers(user, other => {
             user.Send(new SharedSessionPlayer.RemoteUpdate()
             {
                 Index = other.Index,
-                BackendId = other.Id
+                Id = other.Id
             });
 
             other.Send(new SharedSessionPlayer.RemoteUpdate()
             {
                 Index = user.Index,
-                BackendId = user.Id
+                Id = user.Id
             });
         });
 

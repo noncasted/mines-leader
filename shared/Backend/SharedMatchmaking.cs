@@ -42,6 +42,9 @@ namespace Shared
             public string ServerUrl { get; set; }
             public Guid SessionId { get; set; }
             public GameMatchType Type { get; set; }
+
+            // S4: the entry into the session for this user (SharedSessionAuth.Request.Ticket), opaque to the client.
+            public string Ticket { get; set; }
         }
 
         [MemoryPackable]
@@ -49,6 +52,9 @@ namespace Shared
         {
             public string ServerUrl { get; set; }
             public Guid SessionId { get; set; }
+
+            // S4: the entry into the session for this user (SharedSessionAuth.Request.Ticket), opaque to the client.
+            public string Ticket { get; set; }
         }
     }
 

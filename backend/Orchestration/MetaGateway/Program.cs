@@ -15,6 +15,7 @@ builder
     .AddAchievementCommands();
 
 builder.AddConsoleAccess();
+builder.AddSessionTickets();
 
 var app = builder.Build();
 

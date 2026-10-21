@@ -17,7 +17,7 @@ namespace Internal
 
         protected override void Execute(IReadOnlyLifetime lifetime, SharedSessionPlayer.LocalUpdate context)
         {
-            var user = new NetworkUser(context.Index, true, _session.Lifetime.Child(), _session.LocalUserId);
+            var user = new NetworkUser(context.Index, true, _session.Lifetime.Child(), context.Id);
             _users.Add(user);
         }
     }

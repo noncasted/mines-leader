@@ -31,7 +31,7 @@ namespace GamePlay.Players
             INetworkUser owner,
             CharacterType character)
         {
-            builder.RegisterInstance(new GamePlayerInfo(owner.BackendId, owner.IsLocal, character))
+            builder.RegisterInstance(new GamePlayerInfo(owner.Id, owner.IsLocal, character))
                    .As<IGamePlayerInfo>();
 
             builder.Register<GamePlayer>()

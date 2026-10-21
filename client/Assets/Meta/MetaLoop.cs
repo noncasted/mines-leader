@@ -110,6 +110,14 @@ namespace Meta
 
                     return;
                 }
+                // The saved guest is refused (a wrong secret, a user from before the secret): every retry is refused
+                // the same way. The menu stays on its loading screen; the record is kept for the investigation (in the
+                // editor: Project Tools > User).
+                catch (MetaAuthRejectedException exception) when (lifetime.IsTerminated == false)
+                {
+                    Debug.LogError($"[Meta] [Loop] The saved guest is refused, the meta connection is not retried: {exception.Status}");
+                    return;
+                }
                 // The explicit retry: whatever fails here (no network, the socket lost, no projections) is tried
                 // again. Only the end of the meta scope stops it.
                 catch (Exception exception) when (lifetime.IsTerminated == false)
@@ -139,11 +147,12 @@ namespace Meta
             // делается только на синхронных кусках, где вложенные замеры успевают его забрать.
             using var stage = GameProfiler.Detached("Meta connection");
 
-            // Авторизация уехала в query запроса на апгрейд сокета: отдельного http-запроса
-            // и отдельного кадра с хендшейком на старте больше нет.
-            var savedUserId = _authentication.Load();
+            // The credentials are the first frame of the socket (S3): the saved guest of this backend environment
+            // or nothing (a new guest).
+            var auth = CreateAuthRequest();
             var connectionLifetime = lifetime.Child();
             _connectionLifetime = connectionLifetime;
+            Guid userId;
 
             // A connection that did not get its projections is not alive: a failed attempt ends it.
             try
@@ -155,12 +164,22 @@ namespace Meta
                 var connect = stage.Child("Connect");
                 connect.Start();
 
-                UniTask connectTask;
+                UniTask<SharedBackendSocketAuth.Response> connectTask;
 
                 using (GameProfiler.Ambient(connect))
-                    connectTask = _backend.Connect(connectionLifetime, savedUserId);
+                    connectTask = _backend.Connect(connectionLifetime, auth);
 
-                await connect.Track(connectTask);
+                var response = await connect.Track(connectTask);
+
+                // The secret is issued once (a new guest, or a saved guest the server does not know - a wiped
+                // database): saved before anything else.
+                if (string.IsNullOrEmpty(response.IssuedSecret) == false)
+                {
+                    using (GameProfiler.Ambient(stage))
+                        _authentication.SaveGuest(new GuestCredentials(response.UserId, response.IssuedSecret));
+                }
+
+                userId = response.UserId;
 
                 Debug.Log("[Meta] [Loop] Waiting for projections");
 
@@ -174,8 +193,6 @@ namespace Meta
                 throw;
             }
 
-            // Кто мы такие, говорит профильная проекция: сохранённого id могло не быть
-            // вовсе, и тогда сервер завёл нового юзера прямо на коннекте.
             var profile = _profile.Value;
 
             if (profile == null)
@@ -185,13 +202,13 @@ namespace Meta
                 return false;
             }
 
-            if (profile.Id != savedUserId)
+            if (profile.Id != userId)
             {
-                using (GameProfiler.Ambient(stage))
-                    _authentication.Save(profile.Id);
+                connectionLifetime.Terminate();
+                throw new InvalidOperationException($"[Meta] [Loop] The profile {profile.Id} is not the user {userId} of the connection");
             }
 
-            _userId = profile.Id;
+            _userId = userId;
 
             Debug.Log("[Meta] [Loop] Meta connection completed successfully: " + profile.Id);
             return true;
@@ -208,16 +225,18 @@ namespace Meta
 
             try
             {
-                // The server sends the projections again on every connect; the profile tells who we are.
+                // The server sends the projections again on every connect.
                 var profileTask = _profile.WaitOnce(connectionLifetime);
                 var loss = new ConnectionLoss(_backend.Connection, connectionLifetime);
 
-                await _backend.Connect(connectionLifetime, _userId);
-                var profile = await loss.Race(profileTask);
+                // The guest saved by the first connect. The server makes a new guest for an id it does not know (a
+                // wiped database): the meta state of this client is of the old one, the reconnect fails.
+                var response = await _backend.Connect(connectionLifetime, CreateAuthRequest());
 
-                // The server makes a new user for an id it does not know: the meta state of this client is of the old one.
-                if (profile.Id != _userId)
-                    throw new InvalidOperationException($"[Meta] [Loop] The meta reconnected as {profile.Id}, not {_userId}");
+                if (response.UserId != _userId)
+                    throw new InvalidOperationException($"[Meta] [Loop] The meta reconnected as {response.UserId}, not {_userId}");
+
+                await loss.Race(profileTask);
 
                 Debug.Log("[Meta] [Loop] The meta connection is restored: " + _userId);
                 _reconnect = null;
@@ -232,6 +251,29 @@ namespace Meta
                 _reconnect = null;
                 completion.TrySetException(exception);
             }
+        }
+
+        private SharedBackendSocketAuth.Request CreateAuthRequest()
+        {
+            var guest = _authentication.LoadGuest();
+
+            if (guest.HasValue == true)
+            {
+                return new SharedBackendSocketAuth.Request
+                {
+                    GuestId = guest.Value.Id,
+                    GuestSecret = guest.Value.Secret
+                };
+            }
+
+            // A user of a build before the guest secret is not entered by its id any more (no migration): the player
+            // starts as a new guest, the old account stays on the server unreachable.
+            var legacyUserId = _authentication.LoadLegacyUserId();
+
+            if (legacyUserId.HasValue == true)
+                Debug.LogWarning($"[Meta] [Loop] The saved user {legacyUserId.Value} has no guest secret and cannot be entered: a new guest is created");
+
+            return new SharedBackendSocketAuth.Request();
         }
 
         private async UniTask LoadRegistries(IReadOnlyLifetime lifetime)

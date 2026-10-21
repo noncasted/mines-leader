@@ -1,6 +1,7 @@
 ﻿using Common.Extensions;
 using Game.GamePlay.CardPreviews;
 using MetaGateway.UserFlow.Commands;
+using MetaGateway.UserFlow.Connection;
 
 namespace MetaGateway.UserFlow;
 
@@ -17,6 +18,7 @@ public static class UserFlowExtensions
             services.AddSingleton<IUserCommandsCollection, UserCommandsCollection>();
             services.AddSingleton<IUserCommandsDispatcher, UserCommandsDispatcher>();
             services.AddSingleton<ICardPreviewGenerator, CardPreviewGenerator>();
+            services.AddSingleton<MetaSocketAuth>();
 
             return builder;
         }

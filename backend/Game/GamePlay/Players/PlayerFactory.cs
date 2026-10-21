@@ -30,7 +30,7 @@ public class PlayerFactory : IPlayerFactory
 
     public async Task<IPlayer> Create(IUser user)
     {
-        var userHandle = _orleans.CreateUserHandle(user.Id);
+        var userHandle = _orleans.CreateUserHandle(user.BackendId);
         var selectedDeck = await _orleans.Transactions.Run(() => userHandle.Deck.GetSelected());
 
         var entityBuilder = _entityFactory.Create(user);

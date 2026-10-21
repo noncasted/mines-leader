@@ -166,6 +166,9 @@ services:
       # Required: guards /api/monitor/* (Authorization: Bearer <token>). Empty or
       # "local-dev-token" fails startup outside Development.
       CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      # Required: HMAC key of the game session tickets (base64, >= 32 bytes), the same value
+      # for meta (issues) and game (verifies). Generate with `openssl rand -base64 48`.
+      SESSION_TICKET_SECRET: ${SESSION_TICKET_SECRET:?}
       # Browser origins of the WebGL client (CORS + WebSocket handshake), comma-separated.
       # html-classic.itch.zone is the origin of the itch.io HTML5 embed.
       Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone}
@@ -210,6 +213,8 @@ services:
       GAME_SERVER_URL: ${GAME_SERVER_URL:?}
       # Required: guards /api/sessions/* (Authorization: Bearer <token>).
       CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      # Required: the same value as meta (game verifies the tickets meta issues, issues rematch tickets).
+      SESSION_TICKET_SECRET: ${SESSION_TICKET_SECRET:?}
       # Same list as meta.
       Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone}
       SERVICE_FQDN_GAME_8080: /
