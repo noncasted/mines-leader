@@ -20,6 +20,11 @@ namespace Internal
 
         private bool _isClosedNotified;
 
+        // The Close frame of the server is read. Set on the main thread before the close is acknowledged: from then
+        // on the socket goes to Closed, and a send of the writer (its queue is cleared only by Closed, a frame later)
+        // would fail on it. Read and written on the main thread only.
+        private bool _isCloseReceived;
+
         private static readonly TimeSpan CloseTimeout = TimeSpan.FromSeconds(2);
 
         public WebSocketState State => _socket.State;
@@ -54,6 +59,12 @@ namespace Internal
 
         public async UniTask Send(byte[] bytes)
         {
+            // Closed by the server: the loss goes to Closed with the code of the server (ProtocolVersion.
+            // ClientOutdatedCloseCode of an outdated client), the message is dropped as every other one left in the
+            // queue of a lost connection - as JsWebSocket does. Any other failure of the send still throws.
+            if (_isCloseReceived == true)
+                return;
+
             var payload = new ReadOnlyMemory<byte>(bytes);
             await _socket.SendAsync(payload, WebSocketMessageType.Binary, true, _cancellation);
             await UniTask.SwitchToMainThread();
@@ -94,6 +105,12 @@ namespace Internal
 
                         closeInfo = new SocketCloseInfo(code,
                             $"closed by server: {result.CloseStatus} {result.CloseStatusDescription}");
+
+                        // Sends stop before the acknowledge moves the socket to Closed: both run on the main thread,
+                        // so no send starts between the two.
+                        await UniTask.SwitchToMainThread(_cancellation);
+                        _isCloseReceived = true;
+
                         await AcknowledgeClose();
                         break;
                     }
