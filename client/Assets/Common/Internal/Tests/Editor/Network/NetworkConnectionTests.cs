@@ -18,7 +18,8 @@ namespace Internal.Tests
     // timeout), Closed is raised.
     // A socket that never opens: Run throws ConnectionFailedException, the connection is closed.
     // A server of another protocol closes the socket with ProtocolVersion.ClientOutdatedCloseCode: Closed carries
-    // that code and the outdated notice is shown.
+    // that code and the outdated notice is shown. The first frame, sent right after the connect (the authorization),
+    // fails as a request of a lost connection, the send is not reported as an error.
     public class NetworkConnectionTests
     {
         private static readonly TimeSpan LossTimeout = TimeSpan.FromSeconds(5);
@@ -117,6 +118,22 @@ namespace Internal.Tests
 
                 await connection.Run(lifetime, $"ws://127.0.0.1:{port}/?userId=1");
 
+                // As MetaBackend and SessionConnection do: the authorization goes right after the connect, while the
+                // Close frame of the server is on its way. A failed send would be logged as an error and fail the test.
+                Exception requestException = null;
+
+                try
+                {
+                    await connection.Request<SharedSessionAuth.Response>(new SharedSessionAuth.Request())
+                                    .Timeout(LossTimeout);
+                }
+                catch (Exception caught)
+                {
+                    requestException = caught;
+                }
+
+                Assert.IsInstanceOf<OperationCanceledException>(requestException, requestException?.ToString());
+
                 var info = await closed.Task.Timeout(LossTimeout);
 
                 Assert.AreEqual(ProtocolVersion.ClientOutdatedCloseCode, info.Code, info.ToString());
@@ -124,6 +141,44 @@ namespace Internal.Tests
                 Assert.IsTrue(connection.Writer.IsClosed);
                 Assert.AreEqual($"?userId=1&{ProtocolVersion.QueryKey}={ProtocolVersion.Hash}",
                     await query.Task.Timeout(LossTimeout));
+            }
+            finally
+            {
+                lifetime.Terminate();
+                listener.Stop();
+            }
+
+            await serverTask;
+        });
+
+        // The race of the authorization frame with the Close frame of an outdated client, made deterministic: the
+        // send comes after the loss is reported, when the acknowledged close has moved ClientWebSocket to Closed. It
+        // is dropped (the loss is already reported with the code of the server), not failed with a WebSocketException.
+        [UnityTest]
+        public IEnumerator DefaultWebSocket_SendAfterServerClose_IsDropped() => UniTask.ToCoroutine(async () =>
+        {
+            var port = GetFreePort();
+            using var listener = new HttpListener();
+            listener.Prefixes.Add($"http://127.0.0.1:{port}/");
+            listener.Start();
+
+            var query = new UniTaskCompletionSource<string>();
+            var serverTask = ServeOutdated(listener, query);
+
+            var lifetime = new Lifetime();
+
+            try
+            {
+                var socket = new DefaultWebSocket($"ws://127.0.0.1:{port}/", lifetime);
+                var closed = new UniTaskCompletionSource<SocketCloseInfo>();
+                socket.Closed.Advise(lifetime, info => closed.TrySetResult(info));
+
+                await socket.Connect();
+
+                var info = await closed.Task.Timeout(LossTimeout);
+                Assert.AreEqual(ProtocolVersion.ClientOutdatedCloseCode, info.Code, info.ToString());
+
+                await socket.Send(new byte[] { 1, 2, 3 }).Timeout(LossTimeout);
             }
             finally
             {
