@@ -7,6 +7,7 @@ using Common.Reactive;
 using Infrastructure;
 using Infrastructure.Startup;
 using Meta.Matches;
+using Meta.Users;
 using MetaGateway.UserFlow;
 using Shared;
 
@@ -14,23 +15,31 @@ namespace MetaGateway.Matchmaking;
 
 public class SearchQueueEntry
 {
-    public SearchQueueEntry(Guid userId, DateTime joinedAt)
+    public SearchQueueEntry(Guid userId, Guid requestId, DateTime joinedAt)
     {
         UserId = userId;
+        RequestId = requestId;
         JoinedAt = joinedAt;
     }
 
     public Guid UserId { get; }
+
+    // N10: SharedMatchmaking.SearchMatch.RequestId, echoed in the search result.
+    public Guid RequestId { get; }
+
     public DateTime JoinedAt { get; }
 }
 
 public interface IMatchmaking
 {
-    Task SearchLobby(Guid userId);
-    Task SearchMatch(Guid userId, GameMatchType type);
+    Task<SharedMatchmaking.LobbyResult> SearchLobby(Guid userId);
+
+    // The result comes later as a MatchSearchResultUpdate projection with this requestId: Matched, or Failed when
+    // the match of the pair could not be created.
+    Task SearchMatch(Guid userId, GameMatchType type, Guid requestId);
     Task CancelMatchSearch(Guid userId);
-    Task Create(Guid userId, GameMatchType type);
-    Task CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null);
+    Task<SharedMatchmaking.MatchResult> Create(Guid userId, GameMatchType type);
+    Task<SharedMatchmaking.MatchResult> CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null);
     MatchmakingStatsDto GetStats();
 }
 
@@ -57,9 +66,11 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         IClusterFlags clusterFlags,
         IClusterParticipantContext participantContext,
         IDeploymentState<MatchmakingLiveData> liveData,
+        IMessaging messaging,
         ILogger<Matchmaking> logger)
     {
         _matchFactory = matchFactory;
+        _messaging = messaging;
         _lobbyFactory = lobbyFactory;
         _users = users;
         _botConfig = botConfig;
@@ -79,6 +90,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
     private readonly IClusterFlags _clusterFlags;
     private readonly IClusterParticipantContext _participantContext;
     private readonly IDeploymentState<MatchmakingLiveData> _liveData;
+    private readonly IMessaging _messaging;
     private readonly ILogger<Matchmaking> _logger;
     private readonly Dictionary<GameMatchType, List<SearchQueueEntry>> _searchQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
@@ -90,22 +102,22 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         return Task.CompletedTask;
     }
 
-    public Task SearchLobby(Guid userId)
+    public Task<SharedMatchmaking.LobbyResult> SearchLobby(Guid userId)
     {
         _logger.LogInformation("[Matchmaking] {UserID} is searching for a lobby", userId);
         return _lobbyFactory.GetOrCreate(userId);
     }
 
-    public async Task SearchMatch(Guid userId, GameMatchType type)
+    public async Task SearchMatch(Guid userId, GameMatchType type, Guid requestId)
     {
-        _logger.LogInformation("[Matchmaking] {UserID} is searching for a game", userId);
+        _logger.LogInformation("[Matchmaking] {UserID} is searching for a game, request {RequestID}", userId, requestId);
 
         await _lock.WaitAsync();
 
         foreach (var (_, queue) in _searchQueue)
             queue.RemoveAll(e => e.UserId == userId);
 
-        _searchQueue[type].Add(new SearchQueueEntry(userId, DateTime.UtcNow));
+        _searchQueue[type].Add(new SearchQueueEntry(userId, requestId, DateTime.UtcNow));
 
         _lock.Release();
 
@@ -126,18 +138,23 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         PushLiveData();
     }
 
-    public Task Create(Guid userId, GameMatchType type)
+    public async Task<SharedMatchmaking.MatchResult> Create(Guid userId, GameMatchType type)
     {
         _logger.LogInformation("[Matchmaking] {UserID} is creating a match", userId);
 
-        return _matchFactory.Create(new[] { userId }, type);
+        var match = await _matchFactory.Create(new[] { userId }, type);
+        return match.ToResult(userId, Guid.Empty);
     }
 
-    public Task CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null)
+    public async Task<SharedMatchmaking.MatchResult> CreateWithBot(
+        Guid userId,
+        GameMatchType type,
+        AgentMatchFixture? fixture = null)
     {
         _logger.LogInformation("[Matchmaking] {UserID} is creating a match with bot", userId);
 
-        return _matchFactory.CreateWithBot(userId, type, fixture);
+        var match = await _matchFactory.CreateWithBot(userId, type, fixture);
+        return match.ToResult(userId, Guid.Empty);
     }
 
     public MatchmakingStatsDto GetStats()
@@ -194,13 +211,13 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
             var botConfig = _botConfig.Value;
             var thresholdSeconds = botConfig.MatchmakingApplyThreshold;
             var now = DateTime.UtcNow;
-            var matchesCreated = new List<(Guid[], GameMatchType)>();
-            var botMatchesCreated = new List<(Guid, GameMatchType)>();
+            var matchesCreated = new List<(SearchQueueEntry[], GameMatchType)>();
+            var botMatchesCreated = new List<(SearchQueueEntry, GameMatchType)>();
 
             foreach (var (type, queue) in _searchQueue)
             {
                 var toRemove = new List<int>();
-                var botMatches = new List<Guid>();
+                var botMatches = new List<SearchQueueEntry>();
 
                 for (var i = 0; i < queue.Count; i++)
                 {
@@ -214,7 +231,7 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
                             _logger.LogInformation("[Matchmaking] {UserID} waited {WaitTime}s, applying bot match",
                                 entry.UserId,
                                 (int)waitTimeSeconds);
-                            botMatches.Add(entry.UserId);
+                            botMatches.Add(entry);
                             toRemove.Add(i);
                         }
                         else
@@ -256,13 +273,13 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
                         first.UserId,
                         second.UserId);
 
-                    matchesCreated.Add((new[] { first.UserId, second.UserId }, type));
+                    matchesCreated.Add((new[] { first, second }, type));
                     hasMatched = true;
                 }
                 else if (botMatches.Count > 0)
                 {
-                    foreach (var userId in botMatches)
-                        botMatchesCreated.Add((userId, type));
+                    foreach (var entry in botMatches)
+                        botMatchesCreated.Add((entry, type));
 
                     hasMatched = true;
                 }
@@ -270,11 +287,14 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
 
             _lock.Release();
 
-            foreach (var (participants, type) in matchesCreated)
-                CreateOrRequeue(() => _matchFactory.Create(participants, type), participants, type).NoAwait();
+            foreach (var (entries, type) in matchesCreated)
+            {
+                var participants = entries.Select(e => e.UserId).ToArray();
+                CreateAndNotify(() => _matchFactory.Create(participants, type), entries, type).NoAwait();
+            }
 
-            foreach (var (userId, type) in botMatchesCreated)
-                CreateOrRequeue(() => _matchFactory.CreateWithBot(userId, type), [userId], type).NoAwait();
+            foreach (var (entry, type) in botMatchesCreated)
+                CreateAndNotify(() => _matchFactory.CreateWithBot(entry.UserId, type), [entry], type).NoAwait();
 
             if (hasMatched)
                 PushLiveData();
@@ -285,21 +305,43 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
         _logger.LogInformation("[Matchmaking] matchmaking loop terminated");
     }
 
-    // The participants are already out of the queue and the protocol has no search failure message:
-    // without this the error is lost in NoAwait and the players wait for a match result forever.
-    private async Task CreateOrRequeue(Func<Task> create, IReadOnlyList<Guid> participants, GameMatchType type)
+    // The participants are already out of the queue: each gets the result of its own search, Matched or Failed.
+    // A failed creation is not retried by returning the players to the queue: a lasting failure (no game server,
+    // a broken grain) would spin the loop every 100 ms while the players wait without knowing. The client shows the
+    // failure and the player searches again.
+    private async Task CreateAndNotify(
+        Func<Task<CreatedMatch>> create,
+        IReadOnlyList<SearchQueueEntry> entries,
+        GameMatchType type)
     {
+        CreatedMatch? match = null;
+
         try
         {
-            await create();
+            match = await create();
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[Matchmaking] Failed to create a {Type} match for {Participants}, returning them to the queue",
-                type, participants);
+            _logger.LogError(e, "[Matchmaking] Failed to create a {Type} match for {Participants}, the search fails",
+                type, entries.Select(entry => entry.UserId));
+        }
 
-            foreach (var userId in participants)
-                await SearchMatch(userId, type);
+        foreach (var entry in entries)
+        {
+            var update = match == null
+                ? MatchSearchResultUpdate.Failed(type, entry.RequestId)
+                : MatchSearchResultUpdate.Matched(match, entry.UserId, entry.RequestId);
+
+            // One participant's delivery failure (its meta socket is gone) does not take the result from the other.
+            try
+            {
+                await _messaging.SendOneTimeProjection(entry.UserId, update);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "[Matchmaking] Failed to send the {Status} search result to {UserID}",
+                    update.Status, entry.UserId);
+            }
         }
     }
 

@@ -9,10 +9,35 @@ using Shared;
 
 namespace Meta.Matches;
 
+// Creates the session and issues the tickets; delivering the result to the participants is up to the caller:
+// a command response (Create, CreateWithBot) or a search result projection with the search id (Matchmaking).
 public interface IMatchFactory
 {
-    Task Create(IReadOnlyList<Guid> participants, GameMatchType type);
-    Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null);
+    Task<CreatedMatch> Create(IReadOnlyList<Guid> participants, GameMatchType type);
+    Task<CreatedMatch> CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null);
+}
+
+public class CreatedMatch
+{
+    public required Guid SessionId { get; init; }
+    public required string ServerUrl { get; init; }
+    public required GameMatchType Type { get; init; }
+
+    // S4: the entry of each human participant into the session (SessionTickets).
+    public required IReadOnlyDictionary<Guid, string> Tickets { get; init; }
+
+    public SharedMatchmaking.MatchResult ToResult(Guid userId, Guid requestId)
+    {
+        return new SharedMatchmaking.MatchResult
+        {
+            SessionId = SessionId,
+            ServerUrl = ServerUrl,
+            Type = Type,
+            Ticket = Tickets[userId],
+            RequestId = requestId,
+            Status = SharedMatchmaking.MatchSearchStatus.Matched
+        };
+    }
 }
 
 public class MatchFactory : IMatchFactory
@@ -43,7 +68,7 @@ public class MatchFactory : IMatchFactory
     private readonly ISessionTicketIssuer _tickets;
     private readonly ILogger<MatchFactory> _logger;
 
-    public async Task Create(IReadOnlyList<Guid> participants, GameMatchType type)
+    public async Task<CreatedMatch> Create(IReadOnlyList<Guid> participants, GameMatchType type)
     {
         var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
         await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, participants));
@@ -62,21 +87,17 @@ public class MatchFactory : IMatchFactory
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL}",
             match.GetPrimaryKey(), targetServer.Url);
 
-        foreach (var participant in participants)
+        return new CreatedMatch
         {
-            var result = new MatchSearchResultUpdate
-            {
-                SessionId = response.SessionId,
-                ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
-                Type = type,
-                Ticket = _tickets.Issue(participant, response.SessionId)
-            };
-
-            await _messaging.SendOneTimeProjection(participant, result);
-        }
+            SessionId = response.SessionId,
+            ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
+            Type = type,
+            Tickets = participants.ToDictionary(participant => participant,
+                participant => _tickets.Issue(participant, response.SessionId))
+        };
     }
 
-    public async Task CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null)
+    public async Task<CreatedMatch> CreateWithBot(Guid participant, GameMatchType type, AgentMatchFixture? fixture = null)
     {
         var botId = GetRandomBotId();
 
@@ -103,15 +124,13 @@ public class MatchFactory : IMatchFactory
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL} with bot {BotID}",
             match.GetPrimaryKey(), targetServer.Url, botId);
 
-        var result = new MatchSearchResultUpdate
+        return new CreatedMatch
         {
             SessionId = response.SessionId,
             ServerUrl = targetServer.Url.ServerUrlToWebSocket(),
             Type = type,
-            Ticket = _tickets.Issue(participant, response.SessionId)
+            Tickets = new Dictionary<Guid, string> { [participant] = _tickets.Issue(participant, response.SessionId) }
         };
-
-        await _messaging.SendOneTimeProjection(participant, result);
     }
 
     private Guid GetRandomBotId()

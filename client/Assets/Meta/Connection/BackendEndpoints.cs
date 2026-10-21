@@ -7,11 +7,13 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
-        public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type)
+        // Queues the player; the result comes later as a MatchResult projection with this requestId.
+        public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type, Guid requestId)
         {
             return backend.ExecuteCommand(new SharedMatchmaking.SearchMatch()
             {
-                Type = type
+                Type = type,
+                RequestId = requestId
             });
         }
 
@@ -20,26 +22,30 @@ namespace Meta
             return backend.ExecuteCommand(new SharedMatchmaking.CancelSearch());
         }
 
-        public static UniTask CreateGame(this IMetaBackend backend)
+        // The session is created inside the command and comes as its response.
+        public static UniTask<SharedMatchmaking.MatchResult> CreateGame(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new SharedMatchmaking.Create());
+            return backend.Connection.Writer.WriteRequest<SharedMatchmaking.MatchResult>(
+                new SharedMatchmaking.Create());
         }
 
-        public static UniTask CreateGameWithBot(
+        public static UniTask<SharedMatchmaking.MatchResult> CreateGameWithBot(
             this IMetaBackend backend,
             GameMatchType type,
             AgentMatchFixture fixture = null)
         {
-            return backend.ExecuteCommand(new SharedMatchmaking.CreateWithBot()
-            {
-                Type = type,
-                Fixture = fixture
-            });
+            return backend.Connection.Writer.WriteRequest<SharedMatchmaking.MatchResult>(
+                new SharedMatchmaking.CreateWithBot()
+                {
+                    Type = type,
+                    Fixture = fixture
+                });
         }
 
-        public static UniTask SearchLobby(this IMetaBackend backend)
+        public static UniTask<SharedMatchmaking.LobbyResult> SearchLobby(this IMetaBackend backend)
         {
-            return backend.ExecuteCommand(new SharedMatchmaking.SearchLobby());
+            return backend.Connection.Writer.WriteRequest<SharedMatchmaking.LobbyResult>(
+                new SharedMatchmaking.SearchLobby());
         }
 
         public static UniTask<SharedBackendUser.MatchHistoryResponse> GetMatchHistory(
