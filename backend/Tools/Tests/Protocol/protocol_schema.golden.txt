@@ -10,6 +10,7 @@ enum Shared.PlayerModifier System.Int32 TrebuchetBoost=0,AdditionalMana=1,Additi
 enum Shared.PreviewCellKind System.Byte Taken=0,TakenMine=1,TakenFlag=2,TakenFlagMine=3,Free=4
 enum Shared.SessionAuthStatus System.Int32 Ok=0,InvalidTicket=1,Expired=2,NoReservation=3,Closed=4
 enum Shared.SharedBackendSocketAuth+AuthStatus System.Int32 Ok=0,InvalidCredentials=1,InvalidRequest=2
+enum Shared.SharedMatchmaking+MatchSearchStatus System.Int32 Matched=0,Failed=1
 enum Shared.UserStatType System.Int32 FlagsSet=100,FlagsRemoved=110,CellsOpened=200,MinesDetonated=210,CardsPlayed=300,CrossBoardCardsPlayed=310,EnemyCellsPlanted=320,BuffsReceived=400,DebuffsReceived=410,ManaSpent=500,DamageTaken=510,TurnsSkipped=520,MatchesPlayed=600,MatchesWon=610,MatchesLost=620
 type Shared.ActiveCard Id:System.Guid,Type:Shared.CardType
 type Shared.AgentCardView Id:System.Guid,Type:System.String,ManaCost:System.Int32,Target:System.String,Shape:System.String,Size:System.Int32,NeedsPosition:System.Boolean,Summary:System.String
@@ -290,9 +291,9 @@ type Shared.SharedMatchmaking+CancelSearch
 type Shared.SharedMatchmaking+Create Type:Shared.GameMatchType
 type Shared.SharedMatchmaking+CreateWithBot Type:Shared.GameMatchType,Fixture:Shared.AgentMatchFixture
 type Shared.SharedMatchmaking+LobbyResult ServerUrl:System.String,SessionId:System.Guid,Ticket:System.String
-type Shared.SharedMatchmaking+MatchResult ServerUrl:System.String,SessionId:System.Guid,Type:Shared.GameMatchType,Ticket:System.String
+type Shared.SharedMatchmaking+MatchResult ServerUrl:System.String,SessionId:System.Guid,Type:Shared.GameMatchType,Ticket:System.String,RequestId:System.Guid,Status:Shared.SharedMatchmaking+MatchSearchStatus
 type Shared.SharedMatchmaking+SearchLobby
-type Shared.SharedMatchmaking+SearchMatch Type:Shared.GameMatchType
+type Shared.SharedMatchmaking+SearchMatch Type:Shared.GameMatchType,RequestId:System.Guid
 type Shared.SharedMoveSnapshot Records:System.Collections.Generic.IReadOnlyList<Shared.IMoveSnapshotRecord>
 type Shared.SharedSessionAuth+Request Ticket:System.String
 type Shared.SharedSessionAuth+Response Status:Shared.SessionAuthStatus

@@ -15,9 +15,9 @@ public class MatchmakingCommands
 
         private readonly IMatchmaking _matchmaking;
 
-        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.SearchLobby request)
+        protected override async Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.SearchLobby request)
         {
-            return _matchmaking.SearchLobby(session.UserId).FromResult();
+            return await _matchmaking.SearchLobby(session.UserId);
         }
     }
 
@@ -32,7 +32,10 @@ public class MatchmakingCommands
 
         protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.SearchMatch request)
         {
-            return _matchmaking.SearchMatch(session.UserId, request.Type).FromResult();
+            if (request.RequestId == Guid.Empty)
+                throw new ArgumentException("A match search without a request id");
+
+            return _matchmaking.SearchMatch(session.UserId, request.Type, request.RequestId).FromResult();
         }
     }
 
@@ -62,9 +65,9 @@ public class MatchmakingCommands
 
         private readonly IMatchmaking _matchmaking;
 
-        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.Create request)
+        protected override async Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.Create request)
         {
-            return _matchmaking.Create(session.UserId, request.Type).FromResult();
+            return await _matchmaking.Create(session.UserId, request.Type);
         }
     }
 
@@ -77,9 +80,9 @@ public class MatchmakingCommands
 
         private readonly IMatchmaking _matchmaking;
 
-        protected override Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.CreateWithBot request)
+        protected override async Task<INetworkContext> Execute(IUserSession session, SharedMatchmaking.CreateWithBot request)
         {
-            return _matchmaking.CreateWithBot(session.UserId, request.Type, request.Fixture).FromResult();
+            return await _matchmaking.CreateWithBot(session.UserId, request.Type, request.Fixture);
         }
     }
 }

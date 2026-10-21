@@ -46,16 +46,18 @@ graph TD
 
 | Сообщение | Направление | Описание |
 |-----------|-------------|----------|
-| `SearchMatch` | Client -> Server | Поиск PvP матча с типом |
-| `CreateWithBot` | Client -> Server | Создание матча с ботом |
+| `SearchMatch` | Client -> Server | Поиск матча с типом и `RequestId` (новый Guid на каждый поиск). Ответ `EmptyResponse`: игрок в очереди |
+| `CreateWithBot` | Client -> Server | Создание матча с ботом, ответ `MatchResult` |
 | `CancelSearch` | Client -> Server | Отмена поиска |
-| `MatchResult` | Server -> Client | Результат: ServerUrl + SessionId |
+| `MatchResult` | Server -> Client | Ответ на `Create` / `CreateWithBot` или одноразовая проекция, которой кончается `SearchMatch`: `RequestId` поиска, `Status` (`Matched` / `Failed`), ServerUrl + SessionId + Ticket |
 
 ### Серверная логика
 `MatchFactory` координирует создание:
 1. Создаёт `Match` grain (Orleans) через `IMatch.Setup()`
 2. Отправляет pipe-запрос на случайный игровой сервер для создания сессии
-3. Возвращает `MatchResult` обоим участникам
+3. Возвращает `CreatedMatch` (сессия и тикет на каждого человека). Доставляет результат вызывающий: команда отвечает `MatchResult`, очередь `Matchmaking` шлёт каждому участнику `MatchSearchResultUpdate` с `RequestId` его поиска
+
+Сбой создания матча из очереди (N10): игроки уже вне очереди, каждому уходит `MatchResult` со `Status = Failed`, повтора нет. Клиент (`Matchmaking.SearchGame`) бросает исключение, `MenuPlay` возвращает экран поиска в исходное состояние. Результат с чужим `RequestId` (поиск отменён, пока сервер создавал матч) клиент пропускает с warning-ом.
 
 ---
 

@@ -10,7 +10,7 @@ namespace Meta.Matches;
 
 public interface ILobbyFactory
 {
-    Task GetOrCreate(Guid userId);
+    Task<SharedMatchmaking.LobbyResult> GetOrCreate(Guid userId);
 }
 
 public class LobbyFactory : ILobbyFactory
@@ -38,7 +38,7 @@ public class LobbyFactory : ILobbyFactory
     private readonly ISessionTicketIssuer _tickets;
     private readonly ILogger<LobbyFactory> _logger;
 
-    public async Task GetOrCreate(Guid userId)
+    public async Task<SharedMatchmaking.LobbyResult> GetOrCreate(Guid userId)
     {
         var targetServer = _serviceDiscovery.RandomServer();
 
@@ -57,7 +57,7 @@ public class LobbyFactory : ILobbyFactory
 
         var serverUrl = targetServer.Url.ServerUrlToWebSocket();
 
-        var result = new LobbySearchResultUpdate()
+        var result = new SharedMatchmaking.LobbyResult
         {
             SessionId = response.SessionId,
             ServerUrl = serverUrl,
@@ -69,9 +69,6 @@ public class LobbyFactory : ILobbyFactory
             response.SessionId,
             serverUrl);
 
-        await _messaging.SendOneTimeProjection(userId, result);
-
-        _logger.LogInformation("{UserId} [Lobby] [Meta] Sent lobby search result projection",
-            userId);
+        return result;
     }
 }
