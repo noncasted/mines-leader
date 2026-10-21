@@ -8,6 +8,7 @@ namespace Global {
         private const string Address = "ef9a649a0260457e8bd2f6232157cb01";
 
         private static global::Global.Publisher.GlobalPublisherOptions _globalPublisherOptions;
+        private static global::Global.Inputs.InputOptions _inputOptions;
         private static global::Global.Settings.SettingsOptions _settingsOptions;
 
         public static global::Internal.EnvAssetGroup Group { get; } = new Loader();
@@ -16,6 +17,10 @@ namespace Global {
 
         public static global::Global.Publisher.GlobalPublisherOptions GlobalPublisherOptions {
             get { Group.EnsureLoaded(); return _globalPublisherOptions; }
+        }
+
+        public static global::Global.Inputs.InputOptions InputOptions {
+            get { Group.EnsureLoaded(); return _inputOptions; }
         }
 
         public static global::Global.Settings.SettingsOptions SettingsOptions {
@@ -28,11 +33,13 @@ namespace Global {
             protected override async UniTask LoadGroup() {
                 await LoadAsset(Address);
                 _globalPublisherOptions = Asset.Get<global::Global.Publisher.GlobalPublisherOptions>("GlobalPublisherOptions");
+                _inputOptions = Asset.Get<global::Global.Inputs.InputOptions>("InputOptions");
                 _settingsOptions = Asset.Get<global::Global.Settings.SettingsOptions>("SettingsOptions");
             }
 
             protected override void UnloadGroup() {
                 _globalPublisherOptions = null;
+                _inputOptions = null;
                 _settingsOptions = null;
                 UnloadAsset();
             }

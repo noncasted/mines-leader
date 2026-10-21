@@ -1,15 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.Audio;
 using Global.Publisher;
 using Internal;
 
 namespace Global.Settings
 {
-    public interface ISettings
+    public interface ISettings : IAudioVolume
     {
-        IViewableProperty<float> MasterVolume { get; }
-        IViewableProperty<float> SoundsVolume { get; }
-        IViewableProperty<float> MusicVolume { get; }
-
         IViewableProperty<float> ShakeIntensity { get; }
         IViewableProperty<bool> VSync { get; }
 

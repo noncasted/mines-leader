@@ -1,41 +1,30 @@
-﻿using Internal;
+using Internal;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using Global.Web;
+#endif
 
 namespace Global.UI
 {
     public static class GlobalUIExtensions
     {
-        public static IScopeBuilder AddUI(this IScopeBuilder builder)
+        public static IScopeBuilder AddGlobalUI(this IScopeBuilder builder)
         {
-            builder.Register<UIStateMachine>()
-                   .WithScopeLifetime()
-                   .As<IUIStateMachine>();
+            builder.AddUI();
 
-            AddLoadingScreen(builder);
+            // On the web the loading screen lives in index.html: it also covers the build download.
+            // The choice is made with #if, not if: the container generator builds all installer branches at once,
+            // and a prefab or an alternative not registered at runtime breaks the scope creation.
+#if UNITY_WEBGL && !UNITY_EDITOR
+            builder.AddWebLoadingScreen();
+#else
+            builder.AddLoadingScreen(GlobalPrefabs.LoadingScreen);
+#endif
 
             builder.Register<ClientOutdatedNotice>()
                    .WithScopeLifetime()
                    .As<IClientOutdatedNotice>();
 
             return builder;
-        }
-
-        private static void AddLoadingScreen(IScopeBuilder builder)
-        {
-            // В вебе экран загрузки живёт в index.html: он же закрывает скачивание билда.
-            // Выбор через #if, а не if: генератор контейнера строит все ветки installer'а сразу,
-            // и незарегистрированный в рантайме префаб или альтернатива роняют создание скоупа.
-#if UNITY_WEBGL && !UNITY_EDITOR
-            builder.Register<WebLoadingScreen>()
-                   .As<ILoadingScreen>();
-#else
-            var loadingScreen = builder.Instantiate(GlobalPrefabs.LoadingScreen);
-
-            builder.Inject(loadingScreen);
-
-            builder.RegisterInstance(loadingScreen)
-                   .As<ILoadingScreen>()
-                   .As<IScopeSetup>();
-#endif
         }
     }
 }

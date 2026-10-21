@@ -52,7 +52,7 @@ namespace Menu.Common
 
             _loadingScreen.Hide();
             _globalCamera.Disable();
-            _audioPlayer.PlayLoopMusic(GlobalAudio.GameMusic);
+            _audioPlayer.PlayLoopMusic(GlobalAudio.GameMusic, 0f);
 
             // Меню достроено по данным меты и дальше ждёт игрока: замерять больше нечего.
             GameProfiler.Finish();

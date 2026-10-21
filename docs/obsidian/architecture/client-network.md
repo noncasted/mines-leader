@@ -179,4 +179,4 @@ sequenceDiagram
 | `client/Assets/Meta/Connection/MetaBackend.cs` | Meta-соединение |
 | `client/Assets/Meta/Connection/BackendProjectionHub.cs` | Hub проекций |
 | `client/Assets/Common/Internal/Runtime/Tools/Network/Session/NetworkSession.cs` | Игровая сессия |
-| `client/Assets/Common/Global/Backend/BackendClient.cs` | HTTP REST клиент |
+| `tools/framework/client/modules/backend/Runtime/BackendClient.cs` | HTTP REST клиент |

@@ -15,10 +15,10 @@ MonoBehaviour:
   _entries:
   - Name: GlobalAudioListener
     Prefab: {fileID: 2710705731569964538, guid: 509500ab5133ebcca841bdeae2ab1d9a, type: 3}
-    ComponentType: Global.Audio.AudioListener, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: Global.Audio.AudioListener, Internal.Audio, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: GlobalAudioPlayer
     Prefab: {fileID: 4289144717901505836, guid: 89348e658ff17be35ab79a9c054f89a0, type: 3}
-    ComponentType: Global.Audio.AudioPlayer, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: Global.Audio.AudioPlayer, Internal.Audio, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: GlobalCamera
     Prefab: {fileID: 8264638717701220664, guid: 2cb3e1ce0294b93c49182f7c727889f8, type: 3}
     ComponentType: Global.Cameras.GlobalCamera, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -30,4 +30,4 @@ MonoBehaviour:
     ComponentType: Internal.Updater, Internal, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: LoadingScreen
     Prefab: {fileID: 350223868609941234, guid: 0c2ea8f96344edce6838e358c8a664b9, type: 3}
-    ComponentType: Global.UI.LoadingScreen, Global, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    ComponentType: Global.UI.LoadingScreen, Internal.UI, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
