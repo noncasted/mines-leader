@@ -131,8 +131,8 @@ File: [Docs_Container.cs](../../../client/Assets/Common/Docs/Claude/Docs_Contain
 
 ## Quick Links
 
-- **Lifetimes:** [Docs_Lifetimes.cs](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs) + [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
-- **Reactive:** [Docs_Reactive.cs](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs) + [COMMON_REACTIVE_*.md](COMMON_REACTIVE_BASICS.md)
-- **API Design:** [Docs_ApiDesign.cs](../../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs) + [API_DESIGN_FULL.md](API_DESIGN_FULL.md)
-- **Code Style:** [Docs_CodeStyle.cs](../../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs) + [CODE_STYLE_FULL.md](CODE_STYLE_FULL.md)
-- **Container/DI:** [Docs_Container.cs](../../../client/Assets/Common/Docs/Claude/Docs_Container.cs) + [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
+- **Lifetimes:** [Docs_Lifetimes.cs](../../../client/Assets/Common/Docs/Claude/Docs_Lifetimes.cs) + `tools/framework/.claude/docs/COMMON_LIFETIMES.md`
+- **Reactive:** [Docs_Reactive.cs](../../../client/Assets/Common/Docs/Claude/Docs_Reactive.cs) + `tools/framework/.claude/docs/COMMON_REACTIVE_*.md`
+- **API Design:** [Docs_ApiDesign.cs](../../../client/Assets/Common/Docs/Claude/Docs_ApiDesign.cs) + `tools/framework/.claude/docs/API_DESIGN_FULL.md`
+- **Code Style:** [Docs_CodeStyle.cs](../../../client/Assets/Common/Docs/Claude/Docs_CodeStyle.cs) + `tools/framework/.claude/docs/CODE_STYLE_FULL.md`
+- **Container/DI:** [Docs_Container.cs](../../../client/Assets/Common/Docs/Claude/Docs_Container.cs) + `tools/framework/.claude/docs/COMMON_CONTAINER.md`

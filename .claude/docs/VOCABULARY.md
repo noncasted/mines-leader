@@ -6,23 +6,23 @@
 
 | Concept | Primary Term | Aliases | File |
 |---------|--------------|---------|------|
-| Managed lifetime | Lifetime | IReadOnlyLifetime, scope lifetime, resource scope | COMMON_LIFETIMES.md |
-| Lifetime termination | Terminate | End, dispose, cleanup | COMMON_LIFETIMES.md |
-| Parent-child relationship | Lifetime hierarchy | Scope hierarchy, nesting | COMMON_LIFETIMES.md |
-| Subscription cleanup | Lifetime-scoped subscription | Automatic cleanup, auto-unsubscribe | COMMON_LIFETIMES.md |
-| Fire event | Invoke | Emit, send, signal | COMMON_REACTIVE_BASICS.md |
-| Observable event | EventSource | Event stream, event signal | COMMON_REACTIVE_BASICS.md |
-| Value + lifetime | LifetimedValue | State container, reactive value | COMMON_REACTIVE_VALUES.md |
-| Named value property | ViewableProperty | Named state, reactive property | COMMON_REACTIVE_VALUES.md |
-| Observable collection | ViewableList | Reactive list, observed collection | COMMON_REACTIVE_COLLECTIONS.md |
-| Observable dictionary | ViewableDictionary | Reactive map, observed key-value store | COMMON_REACTIVE_COLLECTIONS.md |
-| Future-only notification | Advise | Subscribe to future events only | COMMON_REACTIVE_*.md |
-| Immediate + future notification | View | Subscribe with initial state callback | COMMON_REACTIVE_*.md |
-| Dependency injection | Framework container (`Internal`, generated) | DI container, scope builder | COMMON_CONTAINER.md |
-| MonoBehaviour registration | ISceneService | Component service, MB registration | COMMON_CONTAINER.md |
-| Initialization callback | OnSetup | Setup phase, lifecycle hook | COMMON_CONTAINER.md |
-| Scope initialization | IScopeSetup | Setup interface, lifecycle interface | COMMON_CONTAINER.md |
-| Dependency receiver | [Inject] attribute | Constructor injection, dependency marker | COMMON_CONTAINER.md |
+| Managed lifetime | Lifetime | IReadOnlyLifetime, scope lifetime, resource scope | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` |
+| Lifetime termination | Terminate | End, dispose, cleanup | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` |
+| Parent-child relationship | Lifetime hierarchy | Scope hierarchy, nesting | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` |
+| Subscription cleanup | Lifetime-scoped subscription | Automatic cleanup, auto-unsubscribe | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` |
+| Fire event | Invoke | Emit, send, signal | `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` |
+| Observable event | EventSource | Event stream, event signal | `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` |
+| Value + lifetime | LifetimedValue | State container, reactive value | `tools/framework/.claude/docs/COMMON_REACTIVE_VALUES.md` |
+| Named value property | ViewableProperty | Named state, reactive property | `tools/framework/.claude/docs/COMMON_REACTIVE_VALUES.md` |
+| Observable collection | ViewableList | Reactive list, observed collection | `tools/framework/.claude/docs/COMMON_REACTIVE_COLLECTIONS.md` |
+| Observable dictionary | ViewableDictionary | Reactive map, observed key-value store | `tools/framework/.claude/docs/COMMON_REACTIVE_COLLECTIONS.md` |
+| Future-only notification | Advise | Subscribe to future events only | `tools/framework/.claude/docs/COMMON_REACTIVE_*.md` |
+| Immediate + future notification | View | Subscribe with initial state callback | `tools/framework/.claude/docs/COMMON_REACTIVE_*.md` |
+| Dependency injection | Framework container (`Internal`, generated) | DI container, scope builder | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
+| MonoBehaviour registration | ISceneService | Component service, MB registration | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
+| Initialization callback | OnSetup | Setup phase, lifecycle hook | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
+| Scope initialization | IScopeSetup | Setup interface, lifecycle interface | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
+| Dependency receiver | [Inject] attribute | Constructor injection, dependency marker | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
 | Code organization | Member order | Class member structure, declaration order | CODE_STYLE.md |
 | Local helper function | Local function | Inner function, method-scoped function | CODE_STYLE.md |
 

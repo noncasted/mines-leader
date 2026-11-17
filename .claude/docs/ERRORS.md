@@ -8,11 +8,11 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error Message | Root Cause | Key File | Fix |
 |---|---|---|---|
-| `NullReferenceException` in OnSetup() | Lifetime parameter is null | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | OnSetup signature must be `void OnSetup(IReadOnlyLifetime lt)` |
-| Callback never fires | Missing Lifetime on subscription | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | Add lifetime: `event.Advise(lifetime, callback)` |
-| UI text doesn't show initial value | Using `Advise()` instead of `View()` | [COMMON_REACTIVE_VALUES.md](COMMON_REACTIVE_VALUES.md) | Change to `View()`: `property.View(lifetime, val => text.text = val)` |
+| `NullReferenceException` in OnSetup() | Lifetime parameter is null | `tools/framework/.claude/docs/COMMON_CONTAINER.md` | OnSetup signature must be `void OnSetup(IReadOnlyLifetime lt)` |
+| Callback never fires | Missing Lifetime on subscription | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` | Add lifetime: `event.Advise(lifetime, callback)` |
+| UI text doesn't show initial value | Using `Advise()` instead of `View()` | `tools/framework/.claude/docs/COMMON_REACTIVE_VALUES.md` | Change to `View()`: `property.View(lifetime, val => text.text = val)` |
 | Object reference disappears | Item subscription using wrong lifetime | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4 | Use `item.Lifetime` for item-level subscriptions |
-| Task exceptions swallowed | Async method not awaited | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Use `.NoAwait()` if fire-and-forget, else `await` |
+| Task exceptions swallowed | Async method not awaited | `tools/framework/.claude/docs/COMMON_REACTIVE_PATTERNS.md` | Use `.NoAwait()` if fire-and-forget, else `await` |
 
 ---
 
@@ -20,10 +20,10 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Leak Pattern | Why It Leaks | Key File | Fix |
 |---|---|---|---|
-| `event.Advise(null, callback)` | Null lifetime = no cleanup | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | NEVER pass null: `event.Advise(lifetime, callback)` |
+| `event.Advise(null, callback)` | Null lifetime = no cleanup | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` | NEVER pass null: `event.Advise(lifetime, callback)` |
 | `items.View(parentLifetime, item => item.Events.Advise(parentLifetime, ...))` | Item subscriptions survive item removal | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4 | Use `item.Events.Advise(item.Lifetime, ...)` |
-| Lifetime never terminated | Manual lifetime created but not cleaned up | [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) | Call `lifetime.Terminate()` when done |
-| Double Lifetime creation in loop | Creating new Lifetime per iteration | [COMMON_LIFETIMES_PATTERNS.md](COMMON_LIFETIMES_PATTERNS.md) | Reuse lifetime: `for (...) { Advise(lifetime, ...) }` |
+| Lifetime never terminated | Manual lifetime created but not cleaned up | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` | Call `lifetime.Terminate()` when done |
+| Double Lifetime creation in loop | Creating new Lifetime per iteration | `tools/framework/.claude/docs/COMMON_LIFETIMES_PATTERNS.md` | Reuse lifetime: `for (...) { Advise(lifetime, ...) }` |
 
 ---
 
@@ -31,10 +31,10 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error | Cause | Key File | Fix |
 |---|---|---|---|
-| `OnSetup()` never called | Missing ISceneService or IScopeSetup | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Implement both interfaces + Create() + register |
-| `[Inject]` field stays null | Not registered in DI container | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Register in Create(): `builder.RegisterComponent(this).As<IService>()` |
-| Circular dependency between services | A→B→A reference | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Refactor to inject Lifetime instead of direct reference |
-| Service initialized twice | Multiple registrations | [COMMON_CONTAINER.md](COMMON_CONTAINER.md) | Remove duplicate `builder.RegisterComponent()` calls |
+| `OnSetup()` never called | Missing ISceneService or IScopeSetup | `tools/framework/.claude/docs/COMMON_CONTAINER.md` | Implement both interfaces + Create() + register |
+| `[Inject]` field stays null | Not registered in DI container | `tools/framework/.claude/docs/COMMON_CONTAINER.md` | Register in Create(): `builder.RegisterComponent(this).As<IService>()` |
+| Circular dependency between services | A→B→A reference | `tools/framework/.claude/docs/COMMON_CONTAINER.md` | Refactor to inject Lifetime instead of direct reference |
+| Service initialized twice | Multiple registrations | `tools/framework/.claude/docs/COMMON_CONTAINER.md` | Remove duplicate `builder.RegisterComponent()` calls |
 
 ---
 
@@ -44,7 +44,7 @@ Fast reference table for common errors, their causes, and fixes.
 |---|---|---|---|
 | New .cs file silently not compiled | File not added to .csproj (Unity doesn't auto-discover) | [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) #6 | 1. Find correct csproj: `grep -rl "SimilarFile.cs" *.csproj` 2. Add `<Compile Include="Path\To\NewFile.cs" />` inside `<ItemGroup>` |
 | Missing using statements in docs | Path reference uses old location | [TRIGGERS.md](TRIGGERS.md) | Update to `.claude/docs/` paths |
-| Compiler warning: async not awaited | Fire-and-forget without .NoAwait() | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Add `.NoAwait()` to suppress: `method().NoAwait()` |
+| Compiler warning: async not awaited | Fire-and-forget without .NoAwait() | `tools/framework/.claude/docs/COMMON_REACTIVE_PATTERNS.md` | Add `.NoAwait()` to suppress: `method().NoAwait()` |
 
 ---
 
@@ -75,8 +75,8 @@ Fast reference table for common errors, their causes, and fixes.
 
 | Error | Cause | Key File | Fix |
 |---|---|---|---|
-| Collection modified during iteration | Remove() called inside View() lambda | [COMMON_REACTIVE_COLLECTIONS.md](COMMON_REACTIVE_COLLECTIONS.md) | Schedule removal for next frame or collect then remove |
-| Count mismatch after Add/Remove | Async operation in progress | [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) | Use ViewableList operations, not direct List |
+| Collection modified during iteration | Remove() called inside View() lambda | `tools/framework/.claude/docs/COMMON_REACTIVE_COLLECTIONS.md` | Schedule removal for next frame or collect then remove |
+| Count mismatch after Add/Remove | Async operation in progress | `tools/framework/.claude/docs/COMMON_REACTIVE_PATTERNS.md` | Use ViewableList operations, not direct List |
 
 ---
 
@@ -92,19 +92,19 @@ Fast reference table for common errors, their causes, and fixes.
 ## Error Investigation Checklist
 
 **Memory leak suspicion?**
-- [ ] Every `Advise()` has non-null lifetime? (Check [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md))
+- [ ] Every `Advise()` has non-null lifetime? (Check `tools/framework/.claude/docs/COMMON_LIFETIMES.md`)
 - [ ] Item subscriptions use `item.Lifetime`? (Check [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 4)
-- [ ] Manual `new Lifetime()` gets terminated? (Check [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md))
+- [ ] Manual `new Lifetime()` gets terminated? (Check `tools/framework/.claude/docs/COMMON_LIFETIMES.md`)
 
 **Callback never fires?**
 - [ ] Lifetime not terminated yet? (Check with `lifetime.IsTerminated`)
-- [ ] Wrong Lifetime passed? (Check [DECISION_TREES.md](DECISION_TREES.md) #2)
-- [ ] Using `Advise()` for UI? (Should be `View()` per [DECISION_TREES.md](DECISION_TREES.md) #5)
+- [ ] Wrong Lifetime passed? (Check `tools/framework/.claude/docs/DECISION_TREES.md` #2)
+- [ ] Using `Advise()` for UI? (Should be `View()` per `tools/framework/.claude/docs/DECISION_TREES.md` #5)
 
 **Service not initializing?**
-- [ ] Implements ISceneService + IScopeSetup? (Check [COMMON_CONTAINER.md](COMMON_CONTAINER.md))
+- [ ] Implements ISceneService + IScopeSetup? (Check `tools/framework/.claude/docs/COMMON_CONTAINER.md`)
 - [ ] Has Create() method? (Check [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) Mistake 1)
-- [ ] Registered with builder? (Check [COMMON_CONTAINER.md](COMMON_CONTAINER.md))
+- [ ] Registered with builder? (Check `tools/framework/.claude/docs/COMMON_CONTAINER.md`)
 
 ---
 
