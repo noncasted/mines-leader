@@ -15,10 +15,10 @@ public class StatesDrop
             await connection.Drop(info.TableName);
 
         // The same side effect tables as SideEffectsSetup creates.
-        await connection.Drop(DbLookup.SE_Queue);
-        await connection.Drop(DbLookup.SE_Processing);
-        await connection.Drop(DbLookup.SE_Retry);
-        await connection.Drop(DbLookup.SE_DeadLetter);
+        await connection.Drop(SideEffectTables.Queue);
+        await connection.Drop(SideEffectTables.Processing);
+        await connection.Drop(SideEffectTables.RetryQueue);
+        await connection.Drop(SideEffectTables.DeadLetter);
 
         // Marten event sourcing tables
         await connection.Drop("mt_streams");

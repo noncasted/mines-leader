@@ -6,7 +6,7 @@ namespace Flow.Mocks
 {
     public class MenuMock : MockBase
     {
-        public override async UniTaskVoid Process()
+        public override async UniTask Process()
         {
             var global = await Bootstrap();
 

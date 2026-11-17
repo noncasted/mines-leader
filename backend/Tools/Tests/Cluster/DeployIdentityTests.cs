@@ -68,7 +68,7 @@ public class DeployIdentityTests
     private static DeployIdentity CreateIdentity(IDeployManagement grain, IHostApplicationLifetime host)
     {
         var participantContext = Substitute.For<IClusterParticipantContext>();
-        participantContext.IsMessagingStarted.Returns(new ViewableProperty<bool>(true));
+        participantContext.IsMessagingStarted.Returns(new SharedViewableProperty<bool>(true));
 
         var orleans = Substitute.For<IOrleans>();
         orleans.Client.GetGrain<IDeployManagement>(Arg.Any<Guid>(), Arg.Any<string?>()).Returns(grain);

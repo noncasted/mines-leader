@@ -92,7 +92,7 @@ public class MetaSocketHandshakeTests
         public async Task<TestWebHost> Start()
         {
             var participant = Substitute.For<IClusterParticipantContext>();
-            participant.IsInitialized.Returns(new ViewableProperty<bool>(true));
+            participant.IsInitialized.Returns(new SharedViewableProperty<bool>(true));
 
             var features = Substitute.For<IClusterFeatures>();
             features.IsAcceptingConnections.Returns(true);
