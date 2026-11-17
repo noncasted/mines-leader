@@ -1,0 +1,10 @@
+{
+  "editor": {
+    "project": "client"
+  },
+  "cluster": {
+    "project": "backend/Orchestration/Aspire/Aspire.csproj",
+    "profile": "http",
+    "health": "http://localhost:7103/api/benchmarks"
+  }
+}
