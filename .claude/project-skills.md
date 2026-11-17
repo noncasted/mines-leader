@@ -15,9 +15,18 @@ The skills live in `tools/framework/.claude/skills`; what differs per game is he
 | Deploy | `tools/scripts/deploy-webgl.sh` with `BUILD_DIR` of the run (`--list`, `--rollback <tag>`, no target arguments) |
 | Deploy details | `client/deploy/README.md` |
 
-The web build is served by an nginx container on the Coolify host at `/`; `nginx.conf changed` in the output of the deploy
-script means the web service needs a restart in Coolify. The link is printed as `URL: ...` when `PUBLIC_URL` is set in
-`deploy.env`.
+The web build is served at `https://minesleader.xyz/` by an nginx container on the Coolify host (service `client`,
+application `web`); `nginx.conf changed` in the output of the deploy script means that application needs a restart in
+Coolify. The link is printed as `URL: ...` when `PUBLIC_URL` is set in `deploy.env`.
+
+The backend is not deployed by this skill: the Coolify application `backend` builds `backend/Tools/deploy/docker-compose.yaml`
+by webhook on every push to `main` of GitHub. A client with a new protocol goes out only after that push.
+
+Hooks of `.claude/deploy-client.json`:
+- `beforeUpload` (`tools/scripts/deploy-client-backend-gate.sh`): waits (`BACKEND_WAIT`, 900 s) until the live meta
+  (`https://meta.minesleader.xyz`) accepts `ProtocolHash.Value` of the tree: a websocket closed with 4001 is a backend on
+  another protocol. A client ahead of the backend makes every player see "client outdated" (2026-11-17: about 10 minutes
+  between the backend of framework 0.9.3 and its client).
 
 Backend of a build: a player always talks to `_productionApiUrl` of `OptionsContainer.asset` (`BackendOptions.Url`:
 `_environment` counts only in the editor), so every build of the profile goes to `https://meta.minesleader.xyz`. A build

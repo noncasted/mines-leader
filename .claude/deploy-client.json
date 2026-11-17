@@ -1,6 +1,7 @@
 {
   "tests": "tools/scripts/run-tests.sh",
   "deploy": "tools/scripts/deploy-webgl.sh",
+  "beforeUpload": "tools/scripts/deploy-client-backend-gate.sh",
   "exclude": [
     "builds",
     "client/build",
