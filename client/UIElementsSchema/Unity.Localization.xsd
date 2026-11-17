@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="Unity.Localization" elementFormDefault="qualified" targetNamespace="Unity.Localization" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="Unity.SmartStrings.PersistentVariables.xsd" namespace="Unity.SmartStrings.PersistentVariables" />
+  <xs:import schemaLocation="UnityEngine.UIElements.xsd" namespace="UnityEngine.UIElements" />
+  <xs:complexType name="NamedVariableType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="tns:LocalizedString" />
+      <xs:element xmlns:q1="Unity.SmartStrings.PersistentVariables" ref="q1:UShortVariable" />
+      <xs:element xmlns:q2="Unity.SmartStrings.PersistentVariables" ref="q2:SByteVariable" />
+      <xs:element xmlns:q3="Unity.SmartStrings.PersistentVariables" ref="q3:StringVariable" />
+      <xs:element xmlns:q4="Unity.SmartStrings.PersistentVariables" ref="q4:FloatVariable" />
+      <xs:element xmlns:q5="Unity.SmartStrings.PersistentVariables" ref="q5:LongVariable" />
+      <xs:element xmlns:q6="Unity.SmartStrings.PersistentVariables" ref="q6:BoolVariable" />
+      <xs:element xmlns:q7="Unity.SmartStrings.PersistentVariables" ref="q7:IntVariable" />
+      <xs:element xmlns:q8="Unity.SmartStrings.PersistentVariables" ref="q8:ByteVariable" />
+      <xs:element xmlns:q9="Unity.SmartStrings.PersistentVariables" ref="q9:DoubleVariable" />
+      <xs:element xmlns:q10="Unity.SmartStrings.PersistentVariables" ref="q10:ULongVariable" />
+      <xs:element xmlns:q11="Unity.SmartStrings.PersistentVariables" ref="q11:ShortVariable" />
+      <xs:element xmlns:q12="Unity.SmartStrings.PersistentVariables" ref="q12:UIntVariable" />
+      <xs:element xmlns:q13="Unity.SmartStrings.PersistentVariables" ref="q13:ObjectVariable" />
+      <xs:element xmlns:q14="UnityEngine.UIElements" ref="q14:VisualElement" />
+      <xs:element xmlns:q15="UnityEngine.UIElements" ref="q15:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q16="UnityEngine.UIElements" type="q16:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q17="UnityEngine.UIElements" type="q17:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q18="UnityEngine.UIElements" type="q18:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="NamedVariable" type="tns:NamedVariableType" />
+  <xs:complexType name="LocalizedFontAssetType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q19="UnityEngine.UIElements" ref="q19:VisualElement" />
+      <xs:element xmlns:q20="UnityEngine.UIElements" ref="q20:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q21="UnityEngine.UIElements" type="q21:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q22="UnityEngine.UIElements" type="q22:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q23="UnityEngine.UIElements" type="q23:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q24="UnityEngine.UIElements" type="q24:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedFontAsset" type="tns:LocalizedFontAssetType" />
+  <xs:complexType name="LocalizedTextureType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q25="UnityEngine.UIElements" ref="q25:VisualElement" />
+      <xs:element xmlns:q26="UnityEngine.UIElements" ref="q26:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q27="UnityEngine.UIElements" type="q27:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q28="UnityEngine.UIElements" type="q28:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q29="UnityEngine.UIElements" type="q29:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q30="UnityEngine.UIElements" type="q30:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedTexture" type="tns:LocalizedTextureType" />
+  <xs:complexType name="LocalizedFontType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q31="UnityEngine.UIElements" ref="q31:VisualElement" />
+      <xs:element xmlns:q32="UnityEngine.UIElements" ref="q32:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q33="UnityEngine.UIElements" type="q33:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q34="UnityEngine.UIElements" type="q34:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q35="UnityEngine.UIElements" type="q35:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q36="UnityEngine.UIElements" type="q36:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedFont" type="tns:LocalizedFontType" />
+  <xs:complexType name="LocalizedAudioClipType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q37="UnityEngine.UIElements" ref="q37:VisualElement" />
+      <xs:element xmlns:q38="UnityEngine.UIElements" ref="q38:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q39="UnityEngine.UIElements" type="q39:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q40="UnityEngine.UIElements" type="q40:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q41="UnityEngine.UIElements" type="q41:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q42="UnityEngine.UIElements" type="q42:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedAudioClip" type="tns:LocalizedAudioClipType" />
+  <xs:complexType name="LocalizedMaterialType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q43="UnityEngine.UIElements" ref="q43:VisualElement" />
+      <xs:element xmlns:q44="UnityEngine.UIElements" ref="q44:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q45="UnityEngine.UIElements" type="q45:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q46="UnityEngine.UIElements" type="q46:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q47="UnityEngine.UIElements" type="q47:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q48="UnityEngine.UIElements" type="q48:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedMaterial" type="tns:LocalizedMaterialType" />
+  <xs:complexType name="LocalizedStringType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element minOccurs="0" maxOccurs="1" form="unqualified" name="variables" type="tns:LocalizedStringvariablesType" />
+      <xs:element xmlns:q49="UnityEngine.UIElements" ref="q49:VisualElement" />
+      <xs:element xmlns:q50="UnityEngine.UIElements" ref="q50:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q51="UnityEngine.UIElements" type="q51:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q52="UnityEngine.UIElements" type="q52:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q53="UnityEngine.UIElements" type="q53:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q54="UnityEngine.UIElements" type="q54:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:complexType name="LocalizedStringvariablesType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="xs:anyType">
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="tns:NamedVariable" />
+        </xs:choice>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedString" type="tns:LocalizedStringType" />
+  <xs:complexType name="LocalizedObjectType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q55="UnityEngine.UIElements" ref="q55:VisualElement" />
+      <xs:element xmlns:q56="UnityEngine.UIElements" ref="q56:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q57="UnityEngine.UIElements" type="q57:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q58="UnityEngine.UIElements" type="q58:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q59="UnityEngine.UIElements" type="q59:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q60="UnityEngine.UIElements" type="q60:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedObject" type="tns:LocalizedObjectType" />
+  <xs:complexType name="LocalizedSpriteType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q61="UnityEngine.UIElements" ref="q61:VisualElement" />
+      <xs:element xmlns:q62="UnityEngine.UIElements" ref="q62:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q63="UnityEngine.UIElements" type="q63:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q64="UnityEngine.UIElements" type="q64:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q65="UnityEngine.UIElements" type="q65:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q66="UnityEngine.UIElements" type="q66:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedSprite" type="tns:LocalizedSpriteType" />
+  <xs:complexType name="LocalizedGameObjectType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element xmlns:q67="UnityEngine.UIElements" ref="q67:VisualElement" />
+      <xs:element xmlns:q68="UnityEngine.UIElements" ref="q68:VisualElementComponent" />
+      <xs:element minOccurs="0" form="unqualified" name="Style" xmlns:q69="UnityEngine.UIElements" type="q69:StyleType" />
+      <xs:element minOccurs="0" form="unqualified" name="Template" xmlns:q70="UnityEngine.UIElements" type="q70:TemplateType" />
+      <xs:element minOccurs="0" form="unqualified" name="AttributeOverrides" xmlns:q71="UnityEngine.UIElements" type="q71:AttributeOverridesType" />
+    </xs:choice>
+    <xs:attribute name="property" type="xs:string" />
+    <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q72="UnityEngine.UIElements" type="q72:BindingUpdateTriggerType" />
+    <xs:attribute name="table" type="xs:string" />
+    <xs:attribute default="true" name="fallback" type="xs:boolean" />
+    <xs:attribute name="entry" type="xs:string" />
+    <xs:anyAttribute namespace="##any" processContents="lax" />
+  </xs:complexType>
+  <xs:element name="LocalizedGameObject" type="tns:LocalizedGameObjectType" />
+</xs:schema>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="UnityEditor.Build.Analysis" elementFormDefault="qualified" targetNamespace="UnityEditor.Build.Analysis" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="UnityEngine.UIElements.xsd" namespace="UnityEngine.UIElements" />
+  <xs:complexType name="BuildStepsElementType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BuildSectionType">
+        <xs:choice />
+        <xs:attribute name="empty-state-text" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="BuildSectionType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q1="UnityEngine.UIElements" base="q1:VisualElementType">
+        <xs:choice />
+        <xs:attribute name="title" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BuildSection" xmlns:q2="UnityEngine.UIElements" substitutionGroup="q2:VisualElement" type="tns:BuildSectionType" />
+  <xs:element name="BuildStepsElement" substitutionGroup="tns:BuildSection" type="tns:BuildStepsElementType" />
+  <xs:complexType name="BuildDetailsColumnType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q3="UnityEngine.UIElements" base="q3:VisualElementType">
+        <xs:choice />
+        <xs:attribute default="Left" name="side" type="tns:BuildDetailsGrid_ColumnType" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="BuildDetailsGrid_ColumnType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Right" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="BuildDetailsColumn" xmlns:q4="UnityEngine.UIElements" substitutionGroup="q4:VisualElement" type="tns:BuildDetailsColumnType" />
+  <xs:complexType name="BuildHeaderType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q5="UnityEngine.UIElements" base="q5:VisualElementType">
+        <xs:choice />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BuildHeader" xmlns:q6="UnityEngine.UIElements" substitutionGroup="q6:VisualElement" type="tns:BuildHeaderType" />
+  <xs:complexType name="BuildDetailsRowType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q7="UnityEngine.UIElements" base="q7:VisualElementType">
+        <xs:choice />
+        <xs:attribute name="label" type="xs:string" />
+        <xs:attribute name="value-name" type="xs:string" />
+        <xs:attribute name="label-name" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BuildDetailsRow" xmlns:q8="UnityEngine.UIElements" substitutionGroup="q8:VisualElement" type="tns:BuildDetailsRowType" />
+  <xs:complexType name="StatCardType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q9="UnityEngine.UIElements" base="q9:VisualElementType">
+        <xs:choice />
+        <xs:attribute name="label" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+        <xs:attribute default="None" name="icon" type="tns:StatCard_IconType" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="StatCard_IconType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="BuildSize" />
+      <xs:enumeration value="Duration" />
+      <xs:enumeration value="Assets" />
+      <xs:enumeration value="Scenes" />
+      <xs:enumeration value="RootAsset" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StatCard" xmlns:q10="UnityEngine.UIElements" substitutionGroup="q10:VisualElement" type="tns:StatCardType" />
+  <xs:complexType name="StatCardRowType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q11="UnityEngine.UIElements" base="q11:VisualElementType">
+        <xs:choice />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="StatCardRow" xmlns:q12="UnityEngine.UIElements" substitutionGroup="q12:VisualElement" type="tns:StatCardRowType" />
+  <xs:complexType name="BuildDetailsGridType">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q13="UnityEngine.UIElements" base="q13:VisualElementType">
+        <xs:choice />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BuildDetailsGrid" xmlns:q14="UnityEngine.UIElements" substitutionGroup="q14:VisualElement" type="tns:BuildDetailsGridType" />
+</xs:schema>

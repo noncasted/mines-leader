@@ -117,7 +117,7 @@ Do not mix: `Values` (computed totals) vs `Overviews` (per-source list shown in 
 | Concept | Term | Description |
 |---------|------|-------------|
 | Generated catalog | `Sprites` | Static handles: `Sprites.Cards.Trebuchet` |
-| Group handle | `SpriteGroup` | Refcounted Addressables load; getters throw if not loaded |
+| Group handle | `SpriteGroup` | Refcounted load of its content bundle (`IContentLoader`); getters throw if not loaded |
 | Scope load | `LoadSpriteGroup` | `builder.LoadSpriteGroup(Sprites.Cards)` — only load path |
 
 Do not mix: `EnsureLoaded()` (throw only) vs `Retain()` / `LoadSpriteGroup` (actual load).

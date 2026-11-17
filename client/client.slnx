@@ -15,7 +15,6 @@
   <Project Path="MPUIKit.Editor.csproj" />
   <Project Path="Menu.csproj" />
   <Project Path="Common.Animations.csproj" />
-  <Project Path="UniTask.Addressables.csproj" />
   <Project Path="Tools.Runtime.csproj" />
   <Project Path="ParrelSync.csproj" />
   <Project Path="Common.Network.csproj" />
