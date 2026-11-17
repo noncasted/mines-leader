@@ -181,7 +181,8 @@ remote "cd '$DEPLOY_PATH' && ln -sfn 'releases/$TAG' current.tmp && mv -Tf curre
 echo "==> Pruning old releases (keeping $KEEP_RELEASES)"
 remote "cd '$DEPLOY_PATH/releases' && ls -1t | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf"
 
-echo "Deployed $TAG"
+# "Deployed <target> <tag>": tools/framework/tools/scripts/deploy-client/deploy.sh reads the tag from the last word.
+echo "Deployed web $TAG"
 if [[ -n "${PUBLIC_URL:-}" ]]; then
     echo "URL: ${PUBLIC_URL%/}/"
 fi

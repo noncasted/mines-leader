@@ -1,5 +1,3 @@
-using Cluster.Discovery;
-
 namespace Cluster.Discovery;
 
 // The service roles of this game. The coordinator role belongs to the cluster (ServiceTag.Coordinator).
