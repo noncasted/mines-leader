@@ -829,3 +829,44 @@ services.AddSingleton(Options.Create(new BoardOptions()));
 Never rely on `IOptions<T>` coming from `AddLogging`/`AddOptions` side effects in a session container: register each
 options instance explicitly. When changing session registrations, build the match container with
 `new ServiceProviderOptions { ValidateOnBuild = true }` for every match type (bot and human) to see all gaps at once.
+
+---
+
+## Lesson 21: Regenerate All on Broken Compilation Deletes Content Group Assets
+
+### Mistake Made
+During the move to framework 0.8.0 (pointer moved, Addressables removed from the manifest, game code not yet compiling)
+Regenerate All was run. It deleted the content group assets of the game (generated from types that were not compiled);
+they had to be brought back from git.
+
+### Correct Pattern
+```text
+1. Bring the code to compile (Unity console clean, dotnet build client.sln 0 errors).
+2. Only then: Regenerate All.
+3. git status - no deleted group/catalogue assets you did not intend.
+```
+
+### Rule
+Never run Regenerate All (or Project Tools, Run All) while the project has compile errors. After every Regenerate All on a
+framework update, check `git status` for deleted assets before going on.
+
+---
+
+## Lesson 22: `git -C tools/framework` Without a Cloned Submodule Runs on the Parent Repository
+
+### Mistake Made
+A worktree of the game was created and the submodule clone failed (`transport 'file' not allowed`). The next
+`git -C tools/framework checkout <framework commit>` ran on the game worktree itself (the empty folder is not a repository,
+git walks up to the parent): the framework commit was checked out into the game worktree and the framework tags were fetched
+into the game repository.
+
+### Correct Pattern
+```bash
+git -c protocol.file.allow=always submodule update --init tools/framework
+test "$(git -C tools/framework rev-parse --show-toplevel)" = "$PWD/tools/framework" || exit 1
+git -C tools/framework checkout <commit>
+```
+
+### Rule
+Before any `git -C <submodule>` command in a fresh clone, copy or worktree, check that `rev-parse --show-toplevel` is the
+submodule path itself. A failed submodule clone must stop the script, not fall through.
