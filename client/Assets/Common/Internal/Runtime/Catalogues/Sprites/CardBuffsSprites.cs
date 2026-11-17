@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class CardBuffsSprites : SpriteGroup {
-        private const string Address = "9524432527fa4f11ebe0752c18a910d1";
+        private const string AssetGuid = "9524432527fa4f11ebe0752c18a910d1";
 
         private Sprite _adrenaline;
         private Sprite _baseHealth;
@@ -98,7 +98,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _adrenaline = Asset.GetSheet("Adrenaline");
             _baseHealth = Asset.GetSheet("BaseHealth");
             _baseMana = Asset.GetSheet("BaseMana");

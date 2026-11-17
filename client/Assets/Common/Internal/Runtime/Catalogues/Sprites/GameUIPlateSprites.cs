@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class GameUIPlateSprites : SpriteGroup {
-        private const string Address = "adb62675007362afab59ec24b2d0124d";
+        private const string AssetGuid = "adb62675007362afab59ec24b2d0124d";
 
         private Sprite _buffInfo;
         private Sprite _card;
@@ -58,7 +58,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _buffInfo = Asset.GetSheet("BuffInfo");
             _card = Asset.GetSheet("Card");
             _mines = Asset.GetSheet("Mines");

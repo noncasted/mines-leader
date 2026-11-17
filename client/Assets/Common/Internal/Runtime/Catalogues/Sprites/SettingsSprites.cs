@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class SettingsSprites : SpriteGroup {
-        private const string Address = "657459493a0f80446a90a20496b85ee9";
+        private const string AssetGuid = "657459493a0f80446a90a20496b85ee9";
 
         private Sprite _off;
         private Sprite _on;
@@ -18,7 +18,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _off = Asset.GetSheet("Off");
             _on = Asset.GetSheet("On");
         }

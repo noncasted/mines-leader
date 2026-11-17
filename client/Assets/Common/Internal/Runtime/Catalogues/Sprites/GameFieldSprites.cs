@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class GameFieldSprites : SpriteGroup {
-        private const string Address = "d7af6563e9682b26c9be9516f6109e60";
+        private const string AssetGuid = "d7af6563e9682b26c9be9516f6109e60";
 
         private Sprite _active;
         private ISpriteAnimationData _gameActionCoinFlip;
@@ -28,7 +28,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _active = Asset.GetSheet("Active");
             _gameActionCoinFlip = Asset.GetAnimation("GameActionCoinFlip");
             _gameActionDiceRoll = Asset.GetAnimation("GameActionDiceRoll");

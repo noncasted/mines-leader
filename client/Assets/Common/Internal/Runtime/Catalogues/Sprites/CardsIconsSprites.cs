@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class CardsIconsSprites : SpriteGroup {
-        private const string Address = "43fba4d6f4e4ee155b82178e14fb93a0";
+        private const string AssetGuid = "43fba4d6f4e4ee155b82178e14fb93a0";
 
         private Sprite _adrenaline;
         private Sprite _blackout;
@@ -368,7 +368,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _adrenaline = Asset.GetSheet("Adrenaline");
             _blackout = Asset.GetSheet("Blackout");
             _blackoutMax = Asset.GetSheet("BlackoutMax");

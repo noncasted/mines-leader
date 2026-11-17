@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class MenuPrefabs {
-        private const string Address = "8d453af8c586a03119ed2b77db1f5c13";
+        private const string AssetGuid = "8d453af8c586a03119ed2b77db1f5c13";
 
         private static global::Menu.Play.MenuPlayGameMode _gameModeEntry;
         private static global::Menu.Decks.MenuDeckCard _menuDeckCard;
@@ -61,7 +61,7 @@ namespace Internal {
             public override string Name => nameof(MenuPrefabs);
 
             protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+                await LoadAsset(AssetGuid);
                 _gameModeEntry = Asset.Get<global::Menu.Play.MenuPlayGameMode>("GameModeEntry");
                 _menuDeckCard = Asset.Get<global::Menu.Decks.MenuDeckCard>("MenuDeckCard");
                 _menuDeckIndex = Asset.Get<global::Menu.Decks.MenuDeckIndexButton>("MenuDeckIndex");

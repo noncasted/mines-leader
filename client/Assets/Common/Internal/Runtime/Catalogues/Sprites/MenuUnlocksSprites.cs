@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class MenuUnlocksSprites : SpriteGroup {
-        private const string Address = "bc5d6390551069afdbd7ffdc1a7f3449";
+        private const string AssetGuid = "bc5d6390551069afdbd7ffdc1a7f3449";
 
         private Sprite _available;
         private Sprite _inProgress;
@@ -28,7 +28,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _available = Asset.GetSheet("Available");
             _inProgress = Asset.GetSheet("InProgress");
             _locked = Asset.GetSheet("Locked");

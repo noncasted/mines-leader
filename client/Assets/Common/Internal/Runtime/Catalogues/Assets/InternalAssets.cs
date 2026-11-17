@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class InternalAssets {
-        private const string Address = "23c2e657d5a5408da1e6b632107c6c8e";
+        private const string AssetGuid = "23c2e657d5a5408da1e6b632107c6c8e";
 
         private static global::Internal.NetworkOptions _networkOptions;
         private static global::Internal.OptionsContainer _optionsContainer;
@@ -25,8 +25,15 @@ namespace Internal {
         private sealed class Loader : global::Internal.EnvAssetGroup {
             public override string Name => nameof(InternalAssets);
 
-            protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+            public override bool IsPreloaded => true;
+
+            protected override UniTask LoadGroup() {
+                LoadImmediately();
+                return UniTask.CompletedTask;
+            }
+
+            protected override void LoadImmediately() {
+                LoadPreloadedAsset(AssetGuid);
                 _networkOptions = Asset.Get<global::Internal.NetworkOptions>("NetworkOptions");
                 _optionsContainer = Asset.Get<global::Internal.OptionsContainer>("OptionsContainer");
             }

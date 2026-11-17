@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class MenuNavigationSprites : SpriteGroup {
-        private const string Address = "e374f2dc9c0a48e4c85c521ef7e1b124";
+        private const string AssetGuid = "e374f2dc9c0a48e4c85c521ef7e1b124";
 
         private Sprite _buttonActive;
         private Sprite _buttonInactive;
@@ -38,7 +38,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _buttonActive = Asset.GetSheet("ButtonActive");
             _buttonInactive = Asset.GetSheet("ButtonInactive");
             _plate = Asset.GetSheet("Plate");

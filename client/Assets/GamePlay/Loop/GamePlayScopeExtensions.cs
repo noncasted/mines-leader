@@ -120,10 +120,10 @@ namespace GamePlay.Loop
         private static UniTask AddScene(this IScopeBuilder builder)
         {
             return UniTask.WhenAll(
-                builder.FindOrLoadSceneWithServices(Scenes.GameField.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameOverlay.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GamePause.Value),
-                builder.FindOrLoadSceneWithServices(Scenes.GameResult.Value));
+                builder.FindOrLoadSceneWithServices(Scenes.GameField),
+                builder.FindOrLoadSceneWithServices(Scenes.GameOverlay),
+                builder.FindOrLoadSceneWithServices(Scenes.GamePause),
+                builder.FindOrLoadSceneWithServices(Scenes.GameResult));
         }
     }
 }

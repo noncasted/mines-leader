@@ -22,8 +22,8 @@ namespace Internal
         private const string PreviousTargetKey = "WebGlDeploy.PreviousTarget";
 
         /// <summary>
-        ///     Switches the editor to the web_dev profile. Addressables builds its content inside
-        ///     the player build for the ACTIVE build target, so the build must not start from Linux.
+        ///     Switches the editor to the web_dev profile: the player build (with its content bundles)
+        ///     is made for the ACTIVE build target, so the build must not start from Linux.
         ///     The switch reloads the domain - run "Check Ready" once the editor is idle again.
         /// </summary>
         [MenuItem("Tools/Build/Deploy/1. Activate WebGL Profile")]
@@ -73,9 +73,6 @@ namespace Internal
                     throw new Exception($"Active build profile is '{activePath}', expected '{ProfilePath}'");
 
                 var settings = ConfigureStripping();
-
-                // In batchmode and right after a reload the scheduled shared assets sync has not run yet.
-                SharedAddressablesSync.Sync();
 
                 return $"READY strip={settings.SubmodulesToStrip.Count}";
             });

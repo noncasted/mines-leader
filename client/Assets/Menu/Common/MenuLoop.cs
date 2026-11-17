@@ -22,7 +22,8 @@ namespace Menu.Common
             IMenuPlay play,
             IMetaState metaState,
             IEventLoop eventLoop,
-            IAudioPlayer audioPlayer)
+            IAudioPlayer audioPlayer,
+            IStartupAssetsPreload startupAssets)
         {
             _globalCamera = globalCamera;
             _loadingScreen = loadingScreen;
@@ -30,6 +31,7 @@ namespace Menu.Common
             _metaState = metaState;
             _eventLoop = eventLoop;
             _audioPlayer = audioPlayer;
+            _startupAssets = startupAssets;
         }
 
         private readonly IGlobalCamera _globalCamera;
@@ -38,6 +40,7 @@ namespace Menu.Common
         private readonly IMetaState _metaState;
         private readonly IEventLoop _eventLoop;
         private readonly IAudioPlayer _audioPlayer;
+        private readonly IStartupAssetsPreload _startupAssets;
 
         public async UniTask<GameLoadData> Process(IReadOnlyLifetime lifetime)
         {
@@ -52,7 +55,12 @@ namespace Menu.Common
 
             _loadingScreen.Hide();
             _globalCamera.Disable();
-            _audioPlayer.PlayLoopMusic(GlobalAudio.GameMusic, 0f);
+            // The music comes in a bundle of its own after the start: it plays as soon as it is loaded.
+            _startupAssets.IsMusicLoaded.View(lifetime, isLoaded =>
+            {
+                if (isLoaded == true)
+                    _audioPlayer.PlayLoopMusic(MusicAudio.GameMusic, 0f);
+            });
 
             // Меню достроено по данным меты и дальше ждёт игрока: замерять больше нечего.
             GameProfiler.Finish();

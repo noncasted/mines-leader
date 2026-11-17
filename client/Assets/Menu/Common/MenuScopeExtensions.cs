@@ -56,8 +56,8 @@ namespace Menu.Common
             using var scope = (GameProfiler.Scope("Registry"));
 
             await UniTask.WhenAll(
-                scope.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu.Value)),
-                scope.Measure("Scene: Menu_Board", () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard.Value)),
+                scope.Measure("Scene: Menu", () => builder.FindOrLoadSceneWithServices(Scenes.Menu)),
+                scope.Measure("Scene: Menu_Board", () => builder.FindOrLoadSceneWithServices(Scenes.MenuBoard)),
                 scope.Measure("Prefabs: Menu", builder.LoadPrefabGroup(MenuPrefabs.Group)),
                 scope.Measure("Prefabs: GamePlay", builder.LoadPrefabGroup(GamePlayPrefabs.Group)),
                 scope.Measure("Sprites: GameCells", builder.LoadSpriteGroup(Sprites.GameCells)),

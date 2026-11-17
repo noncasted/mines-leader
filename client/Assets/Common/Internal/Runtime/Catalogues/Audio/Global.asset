@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: Global
   m_EditorClassIdentifier: Internal::Internal.AudioGroupAsset
   _entries:
-  - Name: GameMusic
-    Clip: {fileID: 8300000, guid: 12b68c650ba3dc0feafa3db38d58b65d, type: 3}
-    Volume: 0.031
-  - Name: UIButtonClick3
-    Clip: {fileID: 8300000, guid: cee3a7015822ea9c99241859089a94da, type: 3}
-    Volume: 0.043
-  - Name: UIElementHover3
-    Clip: {fileID: 8300000, guid: d317a91e534eb300690c2745a616036f, type: 3}
-    Volume: 0.018
+  - _name: UIButtonClick3
+    _clip: {fileID: 8300000, guid: cee3a7015822ea9c99241859089a94da, type: 3}
+    _encoded: {fileID: 0}
+    _volume: 0.043
+  - _name: UIElementHover3
+    _clip: {fileID: 8300000, guid: d317a91e534eb300690c2745a616036f, type: 3}
+    _encoded: {fileID: 0}
+    _volume: 0.018
