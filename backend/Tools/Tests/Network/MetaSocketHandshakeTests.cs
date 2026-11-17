@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.WebSockets;
 using Cluster.State;
 using Common.Network;
@@ -80,6 +81,87 @@ public class MetaSocketHandshakeTests
         response.IssuedSecret.Should().Be("issued");
         (await connected.Task.WaitAsync(Wait)).Should().Be(created.Id);
         await world.Users.DidNotReceive().ResolveGuest(Arg.Any<Guid>(), Arg.Any<string>());
+
+        socket.Abort();
+    }
+
+    // The root span "Meta connect" is a trace of its own with a child per phase; its trace id is the one of the session.
+    [Fact]
+    public async Task NewGuest_TracesMetaConnect_SessionKeepsItsTraceId()
+    {
+        var stopped = new List<Activity>();
+
+        // Read before the listener: the source created inside the type initializer would call ShouldListenTo with the
+        // field still null.
+        var sourceName = MetaConnectionTelemetry.Source.Name;
+
+        using var listener = new ActivityListener
+        {
+            ShouldListenTo = source => source.Name == sourceName,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            ActivityStopped = activity => {
+                lock (stopped)
+                    stopped.Add(activity);
+            }
+        };
+
+        ActivitySource.AddActivityListener(listener);
+
+        var world = new World();
+        var created = new ResolvedUser { Id = Guid.NewGuid(), Projections = [], IssuedSecret = "issued" };
+        world.Users.CreateGuest().Returns(created);
+
+        var session = new TaskCompletionSource<IUserSession>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        world.EntryPoint.OnConnected(Arg.Any<IUserSession>(), Arg.Any<IReadOnlyList<IProjectionPayload>>())
+             .Returns(call => {
+                 session.TrySetResult(call.Arg<IUserSession>());
+                 return Task.CompletedTask;
+             });
+
+        await using var host = await world.Start();
+        using var socket = await Connect(host, string.Empty);
+
+        await Send(socket, new SharedBackendSocketAuth.Request());
+
+        using var cancellation = new CancellationTokenSource(Wait);
+        (await ReadResponse(socket, new WebSocketMessageReader(), cancellation.Token)).Status.Should().Be(SharedBackendSocketAuth.AuthStatus.Ok);
+        var traceId = (await session.Task.WaitAsync(Wait, TestContext.Current.CancellationToken)).TraceId;
+
+        Activity root;
+
+        while (true)
+        {
+            lock (stopped)
+            {
+                var found = stopped.FirstOrDefault(activity => activity.DisplayName == "Meta connect");
+
+                if (found != null)
+                {
+                    root = found;
+                    break;
+                }
+            }
+
+            await Task.Delay(10, TestContext.Current.CancellationToken);
+        }
+
+        root.Kind.Should().Be(ActivityKind.Server);
+        root.ParentSpanId.Should().Be(default(ActivitySpanId));
+        root.Status.Should().Be(ActivityStatusCode.Unset);
+        traceId.Should().Be(root.TraceId);
+
+        List<Activity> children;
+
+        lock (stopped)
+            children = stopped.Where(activity => activity.ParentSpanId == root.SpanId).ToList();
+
+        children.Select(activity => activity.DisplayName).Should().Equal(
+            "Meta read request", "Meta auth", "Meta send response", "Meta projections");
+
+        var auth = children.Single(activity => activity.DisplayName == "Meta auth");
+        auth.GetTagItem("meta.auth.guest").Should().Be("new");
+        auth.GetTagItem("meta.auth.status").Should().Be(nameof(SharedBackendSocketAuth.AuthStatus.Ok));
 
         socket.Abort();
     }

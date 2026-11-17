@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Common.Extensions;
 using Common.Network;
 using FluentAssertions;
@@ -103,6 +104,7 @@ public class MatchMetricsCommandsTests
     {
         public IConnection Connection => throw new InvalidOperationException("The commands of the game data do not use the connection");
         public Guid UserId { get; } = Guid.NewGuid();
+        public ActivityTraceId TraceId => default;
         public IReadOnlyLifetime Lifetime { get; } = new Lifetime();
     }
 }

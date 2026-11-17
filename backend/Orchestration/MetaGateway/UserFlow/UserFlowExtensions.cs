@@ -20,6 +20,8 @@ public static class UserFlowExtensions
             services.AddSingleton<ICardPreviewGenerator, CardPreviewGenerator>();
             services.AddSingleton<MetaSocketAuth>();
 
+            builder.AddTraceSource(MetaConnectionTelemetry.Source);
+
             return builder;
         }
 

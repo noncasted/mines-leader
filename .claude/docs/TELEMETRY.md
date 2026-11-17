@@ -91,6 +91,9 @@ Reading: skill `client-telemetry` (`.claude/skills/client-telemetry/SKILL.md`).
 - Startup trace: `MetaLoop` sends `SendStartupTrace` after every authorization of the meta socket (a reconnect too), before
   the first session. Its spans are the `GameProfiler` spans of the scopes and of the meta; on the web the page spans of
   `client/Assets/WebGLTemplates/Default/index.html` (`window.startupTrace`) come first. `$T startups`, `$T startup <id>`.
+  `BackendTraceId` of the record is the trace of the root span `Meta connect` of that socket (MetaGateway, source
+  `MetaGateway.Connection`, `UserFlow/Connection/MetaConnectTrace.cs`: read request, auth, send response, projections): find it
+  by the id in the Aspire dashboard -> Traces.
 - Frame: `enableFrameTimingStats` is on in `ProjectSettings.asset` and in the build profile `web_dev - Desktop - Development`
   (a profile keeps its own copy of the value).
 - In the editor the telemetry is off by default (`ClientTelemetryOptions`): a local check needs a WebGL build or the option
