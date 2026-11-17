@@ -74,3 +74,21 @@ mechanic and bot strategy, console config, client action), as in `[Cards] Add Lo
 The docs of this game for the keyword table of the task brief are in the table "Keyword -> Documentation" of `CLAUDE.md`:
 `.claude/docs/GAMEPLAY.md` (game flow, board, cards, bots, matchmaking), `.claude/docs/PREFAB_CODEGEN.md` (PrefabBuilder),
 `.claude/docs/CARD_EFFECTS.md` (card effects).
+
+## device-lab
+
+- Game values: `.claude/device-lab.json` (host, meta host). No stored build, no autorun query, no scenario API yet: the options
+  `--autorun` and the `call` steps of a stand scenario do not apply.
+- A build for the stand: `KEEP_COPY=1 tools/framework/tools/scripts/deploy-client.sh web --no-deploy --notest`, then copy
+  `builds/web` of the copy of the run out and pass its folder to `--build` / `--variant`. Its meta is the live
+  `https://meta.minesleader.xyz` (§ deploy-client), which the stand cuts.
+
+## visualize
+
+- Pixel art in Aseprite, palette Apollo (`client/Assets/Art/apollo-32.aseprite`, `client/Assets/Art/Editor/apollo.colors`):
+  no colours outside it unless the user asks. Art of the game: `client/Assets/Art/Game` (cards, cells, field, UI, vfx),
+  card icons in `client/Assets/Art/Cards`.
+- Real size: sprites at 12 PPU; menus are drawn at the art-native 512x288. Fonts: `BITACH` for card names, `DreiFraktur` for
+  the round timer, `Ithaca-LVB75` for the rest (`.claude/docs/CLAUDE_MISTAKES.md`).
+- Generators: none draws the look; `CardIconsExporter` (`client/Assets/Common/Internal/Editor/Tools`) only exports the card
+  icons as PNG, useful as the "before" of a card variant.

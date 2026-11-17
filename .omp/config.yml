@@ -1,0 +1,5 @@
+# Project settings of oh-my-pi (omp) for mines-leader: the subagents of the audit-swarm skill.
+task:
+  # A subagent that loops (a fast model over read calls) ends after 40 minutes instead of holding the run.
+  maxRuntimeMs: 2400000
+  maxConcurrency: 12

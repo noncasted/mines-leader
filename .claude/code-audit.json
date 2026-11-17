@@ -1,0 +1,22 @@
+{
+  "root": "client/Assets/GamePlay",
+  "utility": [
+    "GamePlay/Services/",
+    "/Common/"
+  ],
+  "feature": [
+    "GamePlay/Boards/",
+    "GamePlay/Cards/",
+    "GamePlay/Players/",
+    "GamePlay/UI/",
+    "GamePlay/Loop/",
+    "GamePlay/Metrics/",
+    "GamePlay/Telemetry/"
+  ],
+  "game_namespaces": [
+    "GamePlay",
+    "Meta",
+    "Menu",
+    "Flow"
+  ]
+}
