@@ -9,6 +9,16 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>{{{ PRODUCT_NAME }}}</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <!-- The loader chain is serial (loader.js -> createUnityInstance -> framework.js -> the wasm fetch of the framework), so the
+         wasm would start only after the two scripts: the preloads start all three with the page. They must match the requests
+         of the build to be reused: the scripts are plain <script> elements, the wasm is fetch(url, {credentials: "same-origin"})
+         of the framework (crossorigin = anonymous). The data file is not preloaded: UnityCache fetches it with its own
+         revalidation headers, and it ends before the wasm anyway. -->
+    <link rel="preload" href="Build/{{{ LOADER_FILENAME }}}" as="script">
+    <link rel="preload" href="Build/{{{ FRAMEWORK_FILENAME }}}" as="script">
+#if USE_WASM
+    <link rel="preload" href="Build/{{{ CODE_FILENAME }}}" as="fetch" crossorigin>
+#endif
     <link rel="stylesheet" href="TemplateData/style.css">
     <!-- Startup trace: window.startupTrace is put first into <head> by the build (client telemetry). -->
 </head>
