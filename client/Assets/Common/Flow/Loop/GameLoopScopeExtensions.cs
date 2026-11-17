@@ -10,7 +10,7 @@ namespace Flow.Loop
         {
             var options = ScopeLoadOptions.Create(parent, Construct, parent);
 
-            using var stage = GameProfiler.Scope("Game loop");
+            using var stage = GameProfiler.Stage("Game loop");
 
             var scope = await loader.Load(options);
 

@@ -19,7 +19,7 @@ namespace GamePlay.Players
         public PlayerModifiers()
         {
             foreach (var modifier in PlayerModifierExtensions.All)
-                _values[modifier] = 0f;
+                _values.Set(modifier, 0f);
         }
 
         private readonly ViewableDictionary<PlayerModifier, float> _values = new();
@@ -30,7 +30,7 @@ namespace GamePlay.Players
 
         public void Set(PlayerModifier modifier, float value)
         {
-            _values[modifier] = value;
+            _values.Set(modifier, value);
         }
 
         public void UpdateOverview(DurationalModifierOverview overview)

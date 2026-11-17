@@ -29,6 +29,9 @@ namespace Internal
             InternalAssets.OptionsContainer.Register(builder);
 
             builder.AddNetwork(InternalAssets.NetworkOptions, ProtocolHash.Value);
+
+            // The latency overlay and the outdated client notice stay Screen Space - Overlay canvases.
+            builder.AddScreenCanvasOverlay();
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Flow.Loop
 
             ILoadedScope scope;
 
-            using (GameProfiler.Scope("Load"))
+            using (GameProfiler.Stage("Load"))
             {
                 using (GameProfiler.Scope("Loading screen"))
                     await _loadingScreen.Show();

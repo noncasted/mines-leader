@@ -134,3 +134,6 @@ __pycache__/
 # Claude Code local state.
 /.claude/worktrees/
 /.claude/settings.local.json
+
+# Live graphs of the editor (ContainerLiveGraph, LifetimeLiveGraph)
+/client/Assets/Common/Internal/Editor/Transient*

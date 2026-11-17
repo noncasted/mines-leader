@@ -30,16 +30,14 @@ namespace Global.UI
         // (the menu canvas: 1920x1080, matched by height).
         private static ClientOutdatedNoticeStyle CreateOutdatedNoticeStyle()
         {
-            return new ClientOutdatedNoticeStyle
-            {
-                Font = GlobalAssets.GlobalPublisherOptions.OutdatedNoticeFont,
-                PanelBorderColor = new Color(0.22352941f, 0.2901961f, 0.3137255f, 1f),
-                PanelColor = new Color(0.1254902f, 0.18039216f, 0.21568628f, 1f),
-                TitleColor = new Color(0.9098039f, 0.75686276f, 0.4392157f, 1f),
-                TextColor = new Color(0.78039217f, 0.8117647f, 0.8f, 1f),
-                ButtonColor = new Color(0.8396226f, 0.43952417f, 0.11485406f, 1f),
-                ButtonTextColor = Color.white
-            };
+            return new ClientOutdatedNoticeStyle(
+                GlobalAssets.GlobalPublisherOptions.OutdatedNoticeFont,
+                panelBorderColor: new Color(0.22352941f, 0.2901961f, 0.3137255f, 1f),
+                panelColor: new Color(0.1254902f, 0.18039216f, 0.21568628f, 1f),
+                titleColor: new Color(0.9098039f, 0.75686276f, 0.4392157f, 1f),
+                textColor: new Color(0.78039217f, 0.8117647f, 0.8f, 1f),
+                buttonColor: new Color(0.8396226f, 0.43952417f, 0.11485406f, 1f),
+                buttonTextColor: Color.white);
         }
     }
 }

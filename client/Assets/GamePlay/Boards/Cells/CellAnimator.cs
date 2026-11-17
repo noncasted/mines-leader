@@ -65,7 +65,7 @@ namespace GamePlay.Boards
 
             var animationLifetime = lifetime.Child();
             anim.OnSetup(animationLifetime);
-            await anim.PlayAsync(animationLifetime);
+            await anim.PlayAwaited(animationLifetime);
             animationLifetime.Terminate();
 
             gameObject.SetActive(false);
@@ -90,7 +90,7 @@ namespace GamePlay.Boards
 
             var animationLifetime = lifetime.Child();
             _cellOpen.OnSetup(animationLifetime);
-            await _cellOpen.PlayAsync(animationLifetime);
+            await _cellOpen.PlayAwaited(animationLifetime);
             animationLifetime.Terminate();
 
             if (_zipZapExplosion.IsPlaying == true || _mineExplosion.IsPlaying == true)

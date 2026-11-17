@@ -22,7 +22,7 @@ namespace Menu.Common
         {
             var options = new ScopeLoadOptions(parent, Construct);
 
-            using var stage = GameProfiler.Scope("Menu");
+            using var stage = GameProfiler.Stage("Menu");
 
             var scope = await loader.Load(options);
 
@@ -40,7 +40,7 @@ namespace Menu.Common
                           .WithRuntimeScene("Menu_Services")
                           .AsMock();
 
-            using var stage = GameProfiler.Scope("Menu mock");
+            using var stage = GameProfiler.Stage("Menu mock");
 
             var scope = await loader.Load(options);
 
