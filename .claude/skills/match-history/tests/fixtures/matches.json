@@ -1,0 +1,61 @@
+[
+ {
+  "id": "22222222-0000-4000-8000-000000000002",
+  "type": "LastManStandingTurnBased",
+  "startedAt": "2026-11-17T13:00:00Z",
+  "closedAt": "2026-11-17T13:01:30Z",
+  "durationSeconds": 90.0,
+  "winner": null,
+  "players": [
+   {
+    "userId": "cccccccc-0000-4000-8000-00000000000c",
+    "nickname": "Carl",
+    "deck": [
+     "Medic"
+    ],
+    "isWinner": false,
+    "ratingChange": 0
+   },
+   {
+    "userId": "dddddddd-0000-4000-8000-00000000000d",
+    "nickname": "Bot",
+    "deck": [
+     "Smoke"
+    ],
+    "isWinner": false,
+    "ratingChange": 0
+   }
+  ]
+ },
+ {
+  "id": "11111111-0000-4000-8000-000000000001",
+  "type": "LastManStandingTurnBased",
+  "startedAt": "2026-11-17T12:00:00Z",
+  "closedAt": "2026-11-17T12:03:00Z",
+  "durationSeconds": 180.0,
+  "winner": "aaaaaaaa-0000-4000-8000-00000000000a",
+  "players": [
+   {
+    "userId": "aaaaaaaa-0000-4000-8000-00000000000a",
+    "nickname": "Alice",
+    "deck": [
+     "Trebuchet_Max",
+     "Smoke",
+     "Medic"
+    ],
+    "isWinner": true,
+    "ratingChange": 12
+   },
+   {
+    "userId": "bbbbbbbb-0000-4000-8000-00000000000b",
+    "nickname": "Bob",
+    "deck": [
+     "Smoke",
+     "ZipZap"
+    ],
+    "isWinner": false,
+    "ratingChange": -12
+   }
+  ]
+ }
+]

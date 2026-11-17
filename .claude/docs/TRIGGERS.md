@@ -129,6 +129,22 @@
 
 ---
 
+## TELEMETRY, MATCH METRICS, MATCH HISTORY
+
+**Keywords:** client telemetry, startup trace, frame timing, session tag menu / match, match metrics, MatchGameMetrics, SessionMetrics, IMatchClock, MatchMs, match history, IMatch record, Grafana, /api/client-telemetry, /api/match-metrics, /api/match-history, CONSOLE_TOKEN
+
+### Recommended Reading Order
+1. **START HERE:** [TELEMETRY.md](TELEMETRY.md) — what lives on the backend, the APIs, the local and prod addresses
+2. **Read the data:** skills `client-telemetry` (sessions, startups, frames) and `match-history` (matches, players, series)
+3. **Collector internals:** `tools/framework/.claude/docs/MATCH_METRICS.md`, contracts linked from TELEMETRY.md
+
+### Common Mistakes
+- Reading the env file of the token yourself → the skills read it, never print or pass it
+- A series name in the client that is not in `MatchGameMetrics.cs` → the console and the skill do not show it
+- Looking for the telemetry of an editor session → it is off in the editor by default
+
+---
+
 ## DECISION MAKING & ERROR LOOKUP
 
 ### Quick Decision Making

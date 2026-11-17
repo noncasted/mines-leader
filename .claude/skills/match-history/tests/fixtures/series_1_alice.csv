@@ -1,0 +1,6 @@
+time,series,value
+10,cells.opened:click,5
+40,cells.opened:click,15
+10,cells.opened:cascade,10
+40,cells.opened:cascade,20
+40,cards.played:trebuchet_max,1

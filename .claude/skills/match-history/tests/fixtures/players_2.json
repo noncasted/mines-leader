@@ -1,0 +1,40 @@
+[
+ {
+  "userId": "cccccccc-0000-4000-8000-00000000000c",
+  "nickname": "Carl",
+  "isWinner": false,
+  "ratingChange": 0,
+  "streams": 0,
+  "cellsOpened": 0.0,
+  "cellsBySource": {},
+  "counters": {
+   "cascades": 0.0,
+   "flags.set": 0.0,
+   "flags.removed": 0.0,
+   "mines.hit": 0.0,
+   "turns": 0.0
+  },
+  "cardsPlayed": 0.0,
+  "cardsByType": {},
+  "events": []
+ },
+ {
+  "userId": "dddddddd-0000-4000-8000-00000000000d",
+  "nickname": "Bot",
+  "isWinner": false,
+  "ratingChange": 0,
+  "streams": 0,
+  "cellsOpened": 0.0,
+  "cellsBySource": {},
+  "counters": {
+   "cascades": 0.0,
+   "flags.set": 0.0,
+   "flags.removed": 0.0,
+   "mines.hit": 0.0,
+   "turns": 0.0
+  },
+  "cardsPlayed": 0.0,
+  "cardsByType": {},
+  "events": []
+ }
+]

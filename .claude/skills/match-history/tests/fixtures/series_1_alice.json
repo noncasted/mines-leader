@@ -1,0 +1,42 @@
+{
+ "userId": "aaaaaaaa-0000-4000-8000-00000000000a",
+ "step": 10,
+ "axis": "run",
+ "lines": [
+  {
+   "key": "cells.opened:click",
+   "points": [
+    {
+     "time": 10,
+     "value": 5.0
+    },
+    {
+     "time": 40,
+     "value": 15.0
+    }
+   ]
+  },
+  {
+   "key": "cells.opened:cascade",
+   "points": [
+    {
+     "time": 10,
+     "value": 10.0
+    },
+    {
+     "time": 40,
+     "value": 20.0
+    }
+   ]
+  },
+  {
+   "key": "cards.played:trebuchet_max",
+   "points": [
+    {
+     "time": 40,
+     "value": 1.0
+    }
+   ]
+  }
+ ]
+}

@@ -46,6 +46,23 @@ needs `python3`. On v0.9.0 it grepped the packed `.data` and failed with `the ca
 
 Credentials: `~/.config/mines-leader/deploy.env`, `tools/scripts/.deploy-password`.
 
+## client-telemetry
+
+- url: `https://meta.minesleader.xyz`
+- env-file: `~/.config/mines-leader/deploy.env`
+
+The tags of the sessions of this game: `menu` (the first one opens after the authorization of the meta socket, the next ones
+before the menu loads) and `match` (before the scope of a match loads; the mark `match.started` splits the loading and the
+wait for the players from the play). A rematch opens a new `match` session. The startup trace is sent after every
+authorization of the meta socket. Details: `.claude/docs/TELEMETRY.md`.
+
+The local cluster (Aspire): `--url http://localhost:7101` (MetaGateway) and an env file with
+`CONSOLE_TOKEN=local-dev-token` (`ConsoleToken` of `backend/Orchestration/Aspire/appsettings.json`; in Development the
+check is off for the development token, any line works); a local `backend/Orchestration/Aspire/appsettings.local.json` may override `ConsoleToken`, then the
+check is on and the env file takes that value). The telemetry is off in the editor by default
+(`ClientTelemetryOptions`): a local check needs a WebGL build or the option turned on for the time of the check.
+The same section gives the address and the token to the skill `match-history`.
+
 ## commit
 
 Scopes of this game for `commit`, `branch-commit`, `split-commit`: [Client], [Backend], [Shared], [Console], [Infra],
