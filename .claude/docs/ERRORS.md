@@ -117,5 +117,4 @@ When you discover a new error pattern:
 4. Update memory if it's project-specific
 
 For examples:
-→ [CODE_EXAMPLES.md](CODE_EXAMPLES.md) - all working code patterns
 → [CLAUDE_MISTAKES.md](CLAUDE_MISTAKES.md) - top 5 mistakes

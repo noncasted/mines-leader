@@ -4,7 +4,7 @@
 
 Card effect values are defined in `shared/Configs/CardConfigOptions.cs` and synchronized into runtime descriptions via `CardDescriptionProvider`.
 
-Descriptions in `client/Assets/Resources/cards-info.json` use markup tokens that are replaced at runtime with actual config values.
+Descriptions in `client/Assets/Common/Resources/cards-info.json` use markup tokens that are replaced at runtime with actual config values.
 
 ## Effect Interfaces
 

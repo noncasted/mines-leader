@@ -13,7 +13,7 @@ backend/.telemetry/
 
 ## Metrics (`backend/.telemetry/metrics/`)
 
-**Writer:** `backend/Infrastructure/Metrics/MetricsSnapshotService.cs`
+**Writer:** `tools/framework/backend/Infrastructure/Metrics/MetricsSnapshotService.cs`
 
 - Hosted service, writes every 10 seconds
 - **Development only:** in other environments `StartAsync` does nothing (metrics go through OpenTelemetry); in
@@ -24,7 +24,7 @@ backend/.telemetry/
 
 ## Backend File Logs (`backend/.telemetry/logs/`)
 
-**Writer:** `backend/Infrastructure/Logging/FileLoggerProvider.cs`
+**Writer:** `tools/framework/backend/Infrastructure/Logging/FileLoggerProvider.cs`
 
 - Registered by `ServiceDefaultsExtensions.AddFileLogging` **only in the Development environment** (Aspire);
   production logs go through OpenTelemetry only
@@ -47,7 +47,7 @@ backend/.telemetry/
 
 ## Shared Utility
 
-`backend/Infrastructure/TelemetryPaths.cs` — shared helper:
+`tools/framework/backend/Infrastructure/TelemetryPaths.cs` — shared helper:
 - `FindProjectRoot()` — walks up from `AppContext.BaseDirectory` looking for `.git` (a directory, or a
   `gitdir:` file in a git worktree / submodule)
 - `GetTelemetryDir(subfolder)` — returns `backend/.telemetry/{subfolder}`, creates directory if needed; `null`

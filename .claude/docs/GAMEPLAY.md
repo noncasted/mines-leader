@@ -475,11 +475,11 @@ BoardParser.AssertBoard(board, """
 | `backend/Game/GamePlay/Board/Board.cs` | Board state + events |
 | `backend/Game/GamePlay/Board/BoardRevealer.cs` | Flood-fill reveal algorithm |
 | `backend/Game/GamePlay/Cards/ICard.cs` | Card interface |
-| `backend/Game/GamePlay/Cards/CardFactory.cs` | Creates card instances |
 | `backend/Game/GamePlay/Commands/OpenCellCommand.cs` | Open cell command |
 | `backend/Game/GamePlay/Commands/CardUseCommand.cs` | Card use command |
+| `backend/Game/GamePlay/Context/MoveSnapshot.cs` | Sync protocol for board changes |
 | `backend/Game/GamePlay/Bot/BotRunner.cs` | Bot orchestrator |
-| `backend/Game/GamePlay/Bot/BotCardStrategies.cs` | Strategy factory (CardType → IBotCardStrategy) |
+| `backend/Game/GamePlay/Bot/CardStrategies/BotCardStrategies.cs` | Strategy factory (CardType → IBotCardStrategy) |
 | `backend/Meta/Bots/BotCollection.cs` | Bot user registry (Orleans grain) |
 | `backend/Meta/Matches/MatchFactory.cs` | Creates matches, assigns bots |
 | `backend/Orchestration/MetaGateway/Matchmaking/Matchmaking.cs` | Queue + timeout logic |
@@ -494,12 +494,11 @@ BoardParser.AssertBoard(board, """
 | `client/Assets/GamePlay/Boards/Cells/CellView.cs` | Cell visual component |
 | `client/Assets/GamePlay/Boards/Cells/CellAnimator.cs` | Cell reveal/flag animations |
 | `client/Assets/GamePlay/Boards/Cells/IBoardCellsAnimator.cs` | Card-driven cell animations (`PlayTargetAnimation` / `PlayActionAnimation`) |
-| `client/Assets/GamePlay/UI/Overlay/PlayerModifiersView.cs` | Active modifier icons + tooltips |
-| `client/Assets/GamePlay/Cards/Services/Factory/CardFactory.cs` | Creates card visuals |
+| `client/Assets/GamePlay/Cards/Services/CardFactory.cs` | Creates card visuals |
 | `client/Assets/GamePlay/Cards/Entities/View/CardView.cs` | Card visual component |
-| `client/Assets/GamePlay/Sync/BoardSnapshotHandler.cs` | Syncs board state |
-| `client/Assets/GamePlay/Sync/CardAddSnapshotHandler.cs` | Creates cards from snapshot |
-| `client/Assets/GamePlay/Sync/CardActionSnapshotHandler.cs` | Applies card effects |
+| `client/Assets/GamePlay/Services/Sync/BoardSnapshotHandler.cs` | Syncs board state |
+| `client/Assets/GamePlay/Services/Sync/CardAddSnapshotHandler.cs` | Creates cards from snapshot |
+| `client/Assets/GamePlay/Services/Sync/CardActionSnapshotHandler.cs` | Applies card effects |
 | `client/Assets/Meta/Matchmaking/Matchmaking.cs` | Client matchmaking service |
 
 ### Shared
@@ -508,6 +507,5 @@ BoardParser.AssertBoard(board, """
 |------|---------|
 | `shared/Domain/CardType.cs` | CardType enum (all card values + _Max) |
 | `shared/Domain/GameMatchType.cs` | Match type enum |
-| `shared/Game/MoveSnapshot.cs` | Sync protocol for board changes |
 | `shared/Configs/BotConfigOptions.cs` | Bot behavior thresholds |
 | `shared/Protocol/` | Network message definitions |

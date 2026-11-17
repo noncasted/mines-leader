@@ -39,9 +39,9 @@ In `/atlantis/server/backend/Orchestration/Extensions/MartenExtensions.cs`:
 | `user_entity:user/abc-def...` | `user_entity:abc-def...` |
 
 **Files:**
-- `backend/Infrastructure/Orleans/State/Events/EventState.cs` — `BuildStreamId()`: use `_context.GrainId.Key` (raw `IdSpan` value) instead of `_context.GrainId.ToString()`
-- `backend/Infrastructure/Orleans/State/StateStorage.cs` — `Read()` for event-sourced: `identity.Key` already holds the clean key
-- `backend/Infrastructure/Orleans/State/Events/EventStorage.cs` — `GetStreamIdsAsync()`: `LIKE` filter still works on `user_entity:%`
+- `tools/framework/backend/Infrastructure/Orleans/State/Events/EventState.cs` — `BuildStreamId()`: use `_context.GrainId.Key` (raw `IdSpan` value) instead of `_context.GrainId.ToString()`
+- `tools/framework/backend/Infrastructure/Orleans/State/StateStorage.cs` — `Read()` for event-sourced: `identity.Key` already holds the clean key
+- `tools/framework/backend/Infrastructure/Orleans/State/Events/EventStorage.cs` — `GetStreamIdsAsync()`: `LIKE` filter still works on `user_entity:%`
 
 ---
 
