@@ -34,9 +34,30 @@ docker build --build-arg PROJECT_PATH=backend/Orchestration/Silo/Silo.csproj \
 
 A second Dockerfile `backend/Orchestration/Dockerfile.prebuilt` + `docker-compose.local.yaml` are for local smoke-tests only (publish on host via `tools/scripts/publish-local.sh`, Docker only copies). Coolify uses the full self-contained `Dockerfile`.
 
+## Deploy branch
+
+Coolify clones the repo before every build (`git clone --depth=1 -b <branch>`). The tip tree of `main` carries the Unity client, art and docs, while the backend images need ~11 MB of it — so a deploy spent most of its wall clock downloading files no service reads.
+
+Coolify therefore builds from the orphan branch **`deploy`**, which mirrors only `backend/`, `shared/`, `docs/obsidian/game/cards/icons/` (the card icons `ConsoleGateway.csproj` ships at `/card-icons`), `.dockerignore`, `.editorconfig` and the backend part of the framework submodule (`tools/framework/backend/`, `tools/framework/shared/`, `tools/framework/common/`, `Directory.Build.props`, `Directory.Packages.props`, `global.json` at the commit `main` pins) as plain files. The branch has no submodules, so Coolify needs no access to the private framework repository. A shallow clone of one branch never fetches the objects of the others. Paths are preserved, so Base Directory, Compose Location and `context: ../../..` are the same as for `main`. LFS files inside the mirrored paths (none today) are committed with their content and `.gitattributes` is not mirrored, so the branch needs no LFS.
+
+The branch is refreshed by `.github/workflows/sync-deploy-branch.yml` on every push to `main` that touches `backend/**`, `shared/**`, `docs/obsidian/game/cards/icons/**`, `tools/framework` (the submodule pointer), `.dockerignore` or `.editorconfig` (plus manual *Run workflow* in the Actions tab). The runner checks out blobless + sparse, fetches the framework part with the `FRAMEWORK_TOKEN` secret (a token with read access to `noncasted/framework`, the same as for CI) and force-pushes the subset with the default `GITHUB_TOKEN` (`permissions: contents: write` in the workflow). **That push is what fires the Coolify deploy webhook**, so client-only commits no longer redeploy the backend.
+
+The branch is generated output: never commit to it, every sync overwrites it.
+
+`tools/scripts/sync-deploy-branch.sh` does the same locally — for deploying a commit that is not the tip of `main`, or when Actions is unavailable:
+
+```bash
+tools/scripts/sync-deploy-branch.sh             # mirrors origin/main -> origin/deploy
+tools/scripts/sync-deploy-branch.sh <ref>       # mirror another commit
+DRY_RUN=1 tools/scripts/sync-deploy-branch.sh   # build the mirror commit, do not push
+```
+
+A new path the backend build starts reading outside `backend/` and `shared/` must be added to both the workflow (`paths`, sparse checkout, copy loop; framework paths: the sparse checkout and the copy loop of the framework) and the script (`DIRS` / `FILES` / `FRAMEWORK_PATHS`), otherwise the Coolify build fails on a missing file.
+
 ## Coolify application settings
 
 ### General
+- **Branch:** `deploy` (not `main`, see [Deploy branch](#deploy-branch))
 - **Build Pack:** `Docker Compose`
 - **Base Directory:** `/`
 - **Docker Compose Location:** `/backend/Tools/deploy/docker-compose.yaml`
@@ -55,7 +76,7 @@ Coolify Traefik handles TLS + WebSocket upgrade + X-Forwarded-* headers automati
 - **Auto Deploy:** on
 - **Force Https:** on
 - **Enable Gzip Compression:** on
-- **Git → Submodules / LFS / Shallow Clone:** on (as needed)
+- **Git → Submodules / LFS:** off (the `deploy` branch has neither); **Shallow Clone:** on
 
 ### Network
 No manual `Ports Exposes` — containers use `expose:` (internal-only), Traefik picks them up via compose labels / FQDN env.
