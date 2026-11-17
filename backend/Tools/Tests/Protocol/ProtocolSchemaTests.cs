@@ -68,6 +68,7 @@ public class ProtocolSchemaTests
     {
         var concrete = ProtocolSchema.PackableTypes()
                                      .Where(t => t.IsInterface == false && t.IsAbstract == false)
+                                     .Where(t => IsOfUnusedModule(t) == false)
                                      .ToList();
 
         foreach (var unionBase in ProtocolSchema.UnionBases())
@@ -83,5 +84,20 @@ public class ProtocolSchemaTests
     private static string GoldenPath([CallerFilePath] string sourcePath = "")
     {
         return Path.Combine(Path.GetDirectoryName(sourcePath)!, "protocol_schema.golden.txt");
+    }
+
+    // The protocol of the optional framework modules this game does not use (lobbies and session requests: the game has
+    // its own matchmaking on 150-156; client telemetry; match metrics): a project with the module lists all its tags.
+    private static readonly HashSet<Type> _unusedModules =
+    [
+        typeof(SharedSessionRequests),
+        typeof(SharedLobbies),
+        typeof(SharedClientTelemetry),
+        typeof(SharedMatchMetrics)
+    ];
+
+    private static bool IsOfUnusedModule(Type type)
+    {
+        return type.DeclaringType != null && _unusedModules.Contains(type.DeclaringType);
     }
 }

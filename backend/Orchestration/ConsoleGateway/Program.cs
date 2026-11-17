@@ -44,12 +44,13 @@ builder.AddConsoleInfrastructureCard(new ConsoleInfrastructureCard
 });
 builder.AddCommonConsoleComponents();
 builder.Services.AddBlazorBlueprintComponents();
-builder.Services.AddSingleton<IAuditLogStorage, AuditLogStorage>();
-builder.Services.AddSingleton<IHeapReportStorage, HeapReportStorage>();
-builder.Services.AddSingleton<HeapReportCollector>();
-builder.Services.AddSingleton<SideEffectsAggregatorService>();
-builder.Services.AddSingleton<ISideEffectsAggregator>(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
-builder.Services.AddHostedService(sp => sp.GetRequiredService<SideEffectsAggregatorService>());
+builder.AddConsoleInfrastructure(new ConsoleInfrastructureOptions
+{
+    // Write JSON of the infrastructure options: only next to the sources (a published container has no such folder).
+    CoordinatorConfigFolder = builder.Environment.IsDevelopment()
+        ? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator")
+        : null
+});
 
 // Empty / development token: authentication off, Development only; any other environment fails here.
 var consoleAccess = builder.AddConsoleAccess();

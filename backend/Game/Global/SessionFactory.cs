@@ -4,7 +4,7 @@ using Cluster.State;
 using Common;
 using Common.Extensions;
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using Game.GamePlay;
 using Game.Session;
 using Infrastructure;
@@ -83,7 +83,7 @@ public class SessionFactory : ISessionFactory
 
             _collection.Add(session);
 
-            await serviceFactory.OnSessionCreated(lifetime);
+            await session.ExecutionQueue.SetupServices(serviceFactory);
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
 
@@ -169,7 +169,7 @@ public class SessionFactory : ISessionFactory
 
         foreach (var participant in participants)
         {
-            if (session.TryReserve(participant) == false)
+            if (session.Reserve(participant) != SessionReservation.Reserved)
                 throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
         }
 
@@ -181,11 +181,11 @@ public class SessionFactory : ISessionFactory
 
         async Task RunSession()
         {
-            await serviceFactory.OnSessionCreated(lifetime);
+            await session.ExecutionQueue.SetupServices(serviceFactory);
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
 
-            await session.AllUsersConnected.WaitInvoke(session.Lifetime);
+            await session.AllUsersConnected;
             var handle = provider.GetRequiredService<MatchHandle>();
             handle.Process().NoAwait();
 
@@ -271,7 +271,7 @@ public class SessionFactory : ISessionFactory
         var botRunner = provider.GetRequiredService<IBotRunner>();
 
         // The bot is created in the session itself (no socket, no ticket): only the human has a place to enter.
-        if (session.TryReserve(participant) == false)
+        if (session.Reserve(participant) != SessionReservation.Reserved)
             throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
 
         _collection.Add(session, createOptions.Type);
@@ -282,7 +282,7 @@ public class SessionFactory : ISessionFactory
 
         async Task RunSession()
         {
-            await serviceFactory.OnSessionCreated(lifetime);
+            await session.ExecutionQueue.SetupServices(serviceFactory);
             session.Run().NoAwait();
             lifetime.Listen(provider.Dispose);
 
@@ -291,7 +291,7 @@ public class SessionFactory : ISessionFactory
             session.ExecutionQueue.Enqueue(() => botCreated.SetResult(userFactory.CreateBot(session.Lifetime, botId)));
             var bot = await botCreated.Task;
 
-            await session.AllUsersConnected.WaitInvoke(session.Lifetime);
+            await session.AllUsersConnected;
             var handle = provider.GetRequiredService<MatchHandle>();
 
             _ = Task.Run(() => handle.Process());

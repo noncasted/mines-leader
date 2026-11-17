@@ -398,8 +398,7 @@
         await AchievementConfig.SetValue(_achievementValue);
         await UserDeckConfig.SetValue(_userDeckValue);
         await PlayerConfig.SetValue(_playerConfigValue);
-        await AuditLog.Write("ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, Achievements, Player, UserDeck)");
-        ToastService.Success("Configs saved", "Saved");
+        await AuditLog.Report(ToastService, "ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, Achievements, Player, UserDeck)", "Configs saved");
     }
 
     private async Task ResetToDefaults()
@@ -424,8 +423,8 @@
                 return;
             }
 
-            await AuditLog.Write("ConfigReset", $"Configs reset to JSON defaults ({string.Join(", ", restored)})");
-            ToastService.Success($"Reset {restored.Count} configs to JSON defaults", "Reset");
+            await AuditLog.Report(ToastService, "ConfigReset", $"Configs reset to JSON defaults ({string.Join(", ", restored)})",
+                $"Reset {restored.Count} configs to JSON defaults");
 
             return;
 

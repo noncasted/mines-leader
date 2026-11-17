@@ -19,6 +19,7 @@
         <ProjectReference Include="..\Tools\Benchmarks\Benchmarks.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\common\framework.common.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Console\Console.csproj"/>
         <ProjectReference Include="..\Cluster.Game\Cluster.Game.csproj"/>

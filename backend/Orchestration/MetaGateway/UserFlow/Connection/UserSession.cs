@@ -1,5 +1,5 @@
 ﻿using Common.Network;
-using Common.Reactive;
+using Internal;
 
 namespace MetaGateway.UserFlow.Connection;
 
