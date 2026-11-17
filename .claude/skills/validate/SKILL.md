@@ -29,14 +29,14 @@ If no `.cs` files changed — report "Нет изменённых .cs файло
 ### Step 2 — Load rules
 
 Always read:
-- `.claude/docs/CODE_STYLE_FULL.md`
+- `tools/framework/.claude/docs/CODE_STYLE_FULL.md`
 - `.claude/docs/CLAUDE_MISTAKES.md`
 
 Read these only if relevant files are found:
-- `.claude/docs/COMMON_CONTAINER.md` — if any file extends `MonoBehaviour`
-- `.claude/docs/COMMON_LIFETIMES.md` — if any file uses `Advise`, `View`, `ListenClick`, `Lifetime`
-- `.claude/docs/COMMON_REACTIVE_BASICS.md` — if any file uses `EventSource`, `ViewableProperty`, `ViewableList`
-- `.claude/docs/API_DESIGN_FULL.md` — if any file has `UniTask`, `async`, collection return types
+- `tools/framework/.claude/docs/COMMON_CONTAINER.md` — if any file extends `MonoBehaviour`
+- `tools/framework/.claude/docs/COMMON_LIFETIMES.md` — if any file uses `Advise`, `View`, `ListenClick`, `Lifetime`
+- `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` — if any file uses `EventSource`, `ViewableProperty`, `ViewableList`
+- `tools/framework/.claude/docs/API_DESIGN_FULL.md` — if any file has `UniTask`, `async`, collection return types
 
 ### Step 3 — Validate each file
 

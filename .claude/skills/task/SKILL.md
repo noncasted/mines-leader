@@ -41,16 +41,16 @@ Include docs that are **relevant** to this task. Use this map:
 
 | Task touches... | Include |
 |-----------------|---------|
-| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `.claude/docs/COMMON_CONTAINER.md` |
-| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `.claude/docs/COMMON_LIFETIMES.md` |
-| `EventSource`, `ViewableProperty`, `ViewableList` | `.claude/docs/COMMON_REACTIVE_BASICS.md` |
-| `UniTask`, async methods, file I/O, `IReadOnlyList` | `.claude/docs/API_DESIGN_FULL.md` |
-| member order, naming, braces, `NoAwait` | `.claude/docs/CODE_STYLE_FULL.md` |
-| Grain, State, `[Transaction]`, Orleans backend | `.claude/docs/COMMON_ORLEANS.md` |
-| Blazor, razor, `@inject`, console UI | `.claude/docs/BLAZOR.md` |
+| MonoBehaviour, `[Inject]`, `ISceneService`, `IScopeSetup` | `tools/framework/.claude/docs/COMMON_CONTAINER.md` |
+| `Advise`, `View`, `Lifetime`, subscriptions, cleanup | `tools/framework/.claude/docs/COMMON_LIFETIMES.md` |
+| `EventSource`, `ViewableProperty`, `ViewableList` | `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` |
+| `UniTask`, async methods, file I/O, `IReadOnlyList` | `tools/framework/.claude/docs/API_DESIGN_FULL.md` |
+| member order, naming, braces, `NoAwait` | `tools/framework/.claude/docs/CODE_STYLE_FULL.md` |
+| Grain, State, `[Transaction]`, Orleans backend | `tools/framework/.claude/docs/COMMON_ORLEANS.md` |
+| Blazor, razor, `@inject`, console UI | `tools/framework/.claude/docs/BLAZOR.md` |
 | game flow, board, cards, bots, matchmaking | `.claude/docs/GAMEPLAY.md` |
-| IOrleans, AddressableDictionary, messaging | `.claude/docs/COMMON_ORLEANS.md` |
-| "which pattern", architectural choice | `.claude/docs/DECISION_TREES.md` |
+| IOrleans, AddressableDictionary, messaging | `tools/framework/.claude/docs/COMMON_ORLEANS.md` |
+| "which pattern", architectural choice | `tools/framework/.claude/docs/DECISION_TREES.md` |
 | common pitfalls, known mistakes | `.claude/docs/CLAUDE_MISTAKES.md` |
 | PrefabBuilder, prefab codegen | `.claude/docs/PREFAB_CODEGEN.md` |
 
@@ -124,7 +124,7 @@ After outputting the brief to the user:
 | `path/to/Other.cs` | [what this file is and why it's relevant] |
 
 ### Документация к прочтению
-- `.claude/docs/COMMON_CONTAINER.md` — [конкретная причина: например, создаём новый сервис]
+- `tools/framework/.claude/docs/COMMON_CONTAINER.md` — [конкретная причина: например, создаём новый сервис]
 - `.claude/docs/GAMEPLAY.md` — [конкретная причина: например, работаем с картами]
 
 ### Риски

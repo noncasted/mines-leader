@@ -28,7 +28,7 @@ public class MySelector : MonoBehaviour, ISceneService, IScopeSetup {
 }
 ```
 
-→ [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
+→ `tools/framework/.claude/docs/COMMON_CONTAINER.md`
 
 ---
 
@@ -535,9 +535,9 @@ background-image: resource("GamePlay/UI/card_desc");
 → [UI_MENU.md](UI_MENU.md)
 
 ---
-- **Container Details:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md)
-- **Lifetimes:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md)
-- **Reactive:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md)
+- **Container Details:** `tools/framework/.claude/docs/COMMON_CONTAINER.md`
+- **Lifetimes:** `tools/framework/.claude/docs/COMMON_LIFETIMES.md`
+- **Reactive:** `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md`
 
 ---
 
@@ -583,7 +583,7 @@ public Task Write()
 - The handler must accumulate its own snapshot (`List<GrainEventRecord>`), not query
   participants during `CollectResult()`.
 
-→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+→ `tools/framework/.claude/docs/COMMON_ORLEANS.md`
 
 ---
 
@@ -625,7 +625,7 @@ public async Task AddRecord(IUserRatingRecord record)
   an external call (grain call, DB call, delay).
 - Treat `Append()` + `Write()` as an atomic pair — like `State.Write()` for direct state.
 
-→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+→ `tools/framework/.claude/docs/COMMON_ORLEANS.md`
 
 ---
 
@@ -660,7 +660,7 @@ var apply = _applyCache.GetOrAdd(..., static key => {
 - A typo in the event type name or namespace silently breaks consistency — compile-time
   safety (source generators) is preferable to runtime reflection.
 
-→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+→ `tools/framework/.claude/docs/COMMON_ORLEANS.md`
 
 ---
 
@@ -760,7 +760,7 @@ public async Task Append(IEvent evt)
 ### Rule
 Never call `_lock.Wait()` (sync) on a grain hot path. `Append()` is `async Task` and uses `WaitAsync()`.
 
-→ [COMMON_ORLEANS.md](COMMON_ORLEANS.md)
+→ `tools/framework/.claude/docs/COMMON_ORLEANS.md`
 
 ---
 

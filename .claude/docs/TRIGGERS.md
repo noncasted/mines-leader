@@ -9,10 +9,10 @@
 **Keywords:** reactive, event, subscription, property, collection, observable, advise, view, change detection, state change, notify, listener
 
 ### Recommended Reading Order
-1. **START HERE:** [COMMON_REACTIVE_BASICS.md](COMMON_REACTIVE_BASICS.md) – EventSource, basic events
-2. **If handling values:** [COMMON_REACTIVE_VALUES.md](COMMON_REACTIVE_VALUES.md) – ViewableProperty, LifetimedValue
-3. **If handling collections:** [COMMON_REACTIVE_COLLECTIONS.md](COMMON_REACTIVE_COLLECTIONS.md) – ViewableList, ViewableDictionary
-4. **For patterns:** [COMMON_REACTIVE_PATTERNS.md](COMMON_REACTIVE_PATTERNS.md) – Real-world usage
+1. **START HERE:** `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` – EventSource, basic events
+2. **If handling values:** `tools/framework/.claude/docs/COMMON_REACTIVE_VALUES.md` – ViewableProperty, LifetimedValue
+3. **If handling collections:** `tools/framework/.claude/docs/COMMON_REACTIVE_COLLECTIONS.md` – ViewableList, ViewableDictionary
+4. **For patterns:** `tools/framework/.claude/docs/COMMON_REACTIVE_PATTERNS.md` – Real-world usage
 
 ### Common Mistakes
 - ❌ Subscribing without Lifetime → memory leak
@@ -26,8 +26,8 @@
 **Keywords:** lifetime, resource cleanup, termination, IReadOnlyLifetime, scope, disposal, parent-child, token
 
 ### Recommended Reading Order
-1. **START HERE:** [COMMON_LIFETIMES.md](COMMON_LIFETIMES.md) – Lifetime basics, creation patterns
-2. **For patterns:** [COMMON_LIFETIMES_PATTERNS.md](COMMON_LIFETIMES_PATTERNS.md) – Advanced scenarios
+1. **START HERE:** `tools/framework/.claude/docs/COMMON_LIFETIMES.md` – Lifetime basics, creation patterns
+2. **For patterns:** `tools/framework/.claude/docs/COMMON_LIFETIMES_PATTERNS.md` – Advanced scenarios
 
 ### Common Mistakes
 - ❌ Lifetime never terminates → memory leak
@@ -41,7 +41,7 @@
 **Keywords:** MonoBehaviour, ISceneService, IScopeSetup, Create, OnSetup, [Inject], VContainer, registration, DI, service, scope builder
 
 ### Recommended Reading Order
-1. **START HERE:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md) – DI fundamentals, MonoBehaviour registration
+1. **START HERE:** `tools/framework/.claude/docs/COMMON_CONTAINER.md` – DI fundamentals, MonoBehaviour registration
 
 ### Common Mistakes
 - ❌ Forgot `ISceneService` + `IScopeSetup` → `OnSetup()` never called
@@ -63,7 +63,7 @@
 **Keywords:** member order, field naming, method structure, local function, GC.KeepAlive, braces, logging, error handling
 
 ### Recommended Reading Order
-1. **START HERE:** [CODE_STYLE_FULL.md](CODE_STYLE_FULL.md) – Organization, naming, structure
+1. **START HERE:** `tools/framework/.claude/docs/CODE_STYLE_FULL.md` – Organization, naming, structure
 
 ### Common Mistakes
 - ❌ Wrong member order (fields before constructor) → harder to read
@@ -77,7 +77,7 @@
 **Keywords:** UniTask, IReadOnlyList, async, return type, collection, interface, callback, empty collection, file I/O
 
 ### Recommended Reading Order
-1. **START HERE:** [API_DESIGN_FULL.md](API_DESIGN_FULL.md) – Naming, return types, error handling
+1. **START HERE:** `tools/framework/.claude/docs/API_DESIGN_FULL.md` – Naming, return types, error handling
 
 ### Common Mistakes
 - ❌ Returning `null` for empty collections → forces null checks
@@ -94,7 +94,7 @@
 ### Recommended Reading Order
 1. **START HERE:** [GAMEPLAY.md](GAMEPLAY.md) – Object animation, scheme structure, timeline UI patterns
 2. **If editing objects:** See MEMORY: dialogue system, audio timeline, anchor points
-3. **If unsure about timeline pattern:** Check [DECISION_TREES.md](DECISION_TREES.md) #2 (lifetime for items)
+3. **If unsure about timeline pattern:** Check `tools/framework/.claude/docs/DECISION_TREES.md` #2 (lifetime for items)
 
 ### Key Concepts
 - **ObjectAnimationScheme** — Root data structure with tracks (Sprite, Audio, Dialogue, etc)
@@ -115,7 +115,7 @@
 **Keywords:** sprite catalog, LoadSpriteGroup, Sprites.Cards, SpriteGroup, IBoardCellsAnimator, ICardActionSync, card preview, modifier overlay, IModifierSource, DurationalModifierOverview, LastManStandingTurnBased, agent play, DeploymentState
 
 ### Recommended Reading Order
-1. **Sprites:** [COMMON_CONTAINER.md](COMMON_CONTAINER.md) — `LoadSpriteGroup`
+1. **Sprites:** `tools/framework/.claude/docs/COMMON_CONTAINER.md` — sprite groups (`RequestSpriteGroup`)
 2. **Card animations / preview:** [GAMEPLAY.md](GAMEPLAY.md) — `ICardActionSync` + `IBoardCellsAnimator`
 3. **Card numbers in descriptions:** [CARD_EFFECTS.md](CARD_EFFECTS.md)
 4. **Modifiers / rounds / agent play:** [GAMEPLAY.md](GAMEPLAY.md)
@@ -132,7 +132,7 @@
 ## DECISION MAKING & ERROR LOOKUP
 
 ### Quick Decision Making
-[DECISION_TREES.md](DECISION_TREES.md) – Which pattern to use (reactive type, lifetime, return type)
+`tools/framework/.claude/docs/DECISION_TREES.md` – Which pattern to use (reactive type, lifetime, return type)
 
 ### Error Investigation
 [ERRORS.md](ERRORS.md) – Error lookup table with causes and quick fixes
