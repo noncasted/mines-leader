@@ -1,0 +1,35 @@
+{
+ "userId": "cccccccc-0000-4000-8000-00000000000c",
+ "nickname": "Carl",
+ "total": 1,
+ "matches": [
+  {
+   "id": "22222222-0000-4000-8000-000000000002",
+   "type": "LastManStandingTurnBased",
+   "startedAt": "2026-11-17T13:00:00Z",
+   "closedAt": "2026-11-17T13:01:30Z",
+   "durationSeconds": 90.0,
+   "winner": null,
+   "players": [
+    {
+     "userId": "cccccccc-0000-4000-8000-00000000000c",
+     "nickname": "Carl",
+     "deck": [
+      "Medic"
+     ],
+     "isWinner": false,
+     "ratingChange": 0
+    },
+    {
+     "userId": "dddddddd-0000-4000-8000-00000000000d",
+     "nickname": "Bot",
+     "deck": [
+      "Smoke"
+     ],
+     "isWinner": false,
+     "ratingChange": 0
+    }
+   ]
+  }
+ ]
+}

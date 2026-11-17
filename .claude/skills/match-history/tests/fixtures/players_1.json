@@ -1,0 +1,167 @@
+[
+ {
+  "userId": "aaaaaaaa-0000-4000-8000-00000000000a",
+  "nickname": "Alice",
+  "isWinner": true,
+  "ratingChange": 12,
+  "streams": 1,
+  "cellsOpened": 60.0,
+  "cellsBySource": {
+   "click": 20.0,
+   "cascade": 30.0,
+   "card": 10.0
+  },
+  "counters": {
+   "cascades": 4.0,
+   "flags.set": 6.0,
+   "flags.removed": 1.0,
+   "mines.hit": 0.0,
+   "turns": 3.0
+  },
+  "cardsPlayed": 2.0,
+  "cardsByType": {
+   "trebuchet_max": 1.0,
+   "smoke": 1.0
+  },
+  "events": [
+   {
+    "name": "turn.end",
+    "time": 20.0,
+    "at": "2026-11-17T12:00:20Z",
+    "fields": {
+     "number": 1,
+     "seconds": 20,
+     "cells": 15,
+     "cards": 0
+    }
+   },
+   {
+    "name": "card.play",
+    "time": 45.0,
+    "at": "2026-11-17T12:00:45Z",
+    "fields": {
+     "card": "trebuchet_max",
+     "board": "enemy",
+     "cells": 9
+    }
+   },
+   {
+    "name": "turn.end",
+    "time": 50.0,
+    "at": "2026-11-17T12:00:50Z",
+    "fields": {
+     "number": 2,
+     "seconds": 30,
+     "cells": 25,
+     "cards": 1
+    }
+   },
+   {
+    "name": "card.play",
+    "time": 130.0,
+    "at": "2026-11-17T12:00:10Z",
+    "fields": {
+     "card": "smoke",
+     "board": "own"
+    }
+   },
+   {
+    "name": "turn.end",
+    "time": 140.0,
+    "at": "2026-11-17T12:00:20Z",
+    "fields": {
+     "number": 3,
+     "seconds": 25,
+     "cells": 20,
+     "cards": 1
+    }
+   },
+   {
+    "name": "match.end",
+    "time": 180.0,
+    "at": "2026-11-17T12:00:00Z",
+    "fields": {
+     "result": "win",
+     "seconds": 180
+    }
+   }
+  ]
+ },
+ {
+  "userId": "bbbbbbbb-0000-4000-8000-00000000000b",
+  "nickname": "Bob",
+  "isWinner": false,
+  "ratingChange": -12,
+  "streams": 1,
+  "cellsOpened": 30.0,
+  "cellsBySource": {
+   "click": 25.0,
+   "cascade": 5.0
+  },
+  "counters": {
+   "cascades": 1.0,
+   "flags.set": 2.0,
+   "flags.removed": 0.0,
+   "mines.hit": 1.0,
+   "turns": 3.0
+  },
+  "cardsPlayed": 1.0,
+  "cardsByType": {
+   "smoke": 1.0
+  },
+  "events": [
+   {
+    "name": "turn.end",
+    "time": 90.0,
+    "at": "2026-11-17T12:00:30Z",
+    "fields": {
+     "number": 1,
+     "seconds": 40,
+     "cells": 10,
+     "cards": 1
+    }
+   },
+   {
+    "name": "card.play",
+    "time": 95.0,
+    "at": "2026-11-17T12:00:35Z",
+    "fields": {
+     "card": "smoke",
+     "board": "own",
+     "cells": 0
+    }
+   },
+   {
+    "name": "turn.end",
+    "time": 115.0,
+    "at": "2026-11-17T12:00:55Z",
+    "fields": {
+     "number": 2,
+     "seconds": 50,
+     "cells": 12,
+     "cards": 0
+    }
+   },
+   {
+    "name": "turn.end",
+    "time": 175.0,
+    "at": "2026-11-17T12:00:55Z",
+    "fields": {
+     "number": 3,
+     "seconds": 60,
+     "cells": 8,
+     "cards": 0
+    }
+   },
+   {
+    "name": "match.end",
+    "time": 180.0,
+    "at": "2026-11-17T12:00:00Z",
+    "fields": {
+     "result": "lose",
+     "seconds": 180
+    }
+   }
+  ]
+ }
+]

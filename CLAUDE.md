@@ -58,7 +58,7 @@ Docs of this game; the shared ones are in the index above. Values of this game f
 | common mistakes, top errors, checklist failures | .claude/docs/CLAUDE_MISTAKES.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | .claude/docs/PREFAB_CODEGEN.md |
 | deploy client, WebGL deploy, deploy-webgl.sh, nginx.conf, Coolify web, rollback client | client/deploy/README.md, .claude/skills/deploy-client/SKILL.md, .claude/project-skills.md (deploy-client) |
-| telemetry, metrics, logs, backend/.telemetry, file logging, session logs | .claude/docs/TELEMETRY.md |
+| telemetry, metrics, logs, backend/.telemetry, file logging, session logs, client telemetry, startup trace, frame timing, match metrics, MatchGameMetrics, SessionMetrics, IMatchClock, match history, IMatch record, Grafana, /api/client-telemetry, /api/match-metrics, /api/match-history, CONSOLE_TOKEN | .claude/docs/TELEMETRY.md, skills `client-telemetry`, `match-history` |
 | test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test, run-tests.sh, run all tests | .claude/docs/TESTING.md |
 
 ## Architecture
@@ -111,4 +111,4 @@ framework docs (index above, `tools/framework/.claude/docs`).
 - `.claude/docs/VOCABULARY.md` — consistent terminology
 - `.claude/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
 - `.claude/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
-- `.claude/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs
+- `.claude/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs; client telemetry, match metrics, match history, Grafana dev, the read APIs and the skills
