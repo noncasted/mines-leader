@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: SharedMenu
   m_EditorClassIdentifier: Internal.Editor::Internal.ContentBundle
   _roots:
-  - {fileID: -8328923581568760697, guid: 66e1e310407cf49a6a8743a7ded9da22, type: 3}
   - {fileID: 11400000, guid: 7c3d280880a26b165b420f06016a003d, type: 2}
   - {fileID: -8328923581568760697, guid: 9e8582b7702ffdfc383485077262c67e, type: 3}
   - {fileID: -8328923581568760697, guid: 21b26141ac227679d86b321357e71165, type: 3}
