@@ -112,10 +112,7 @@ public class MetaSocketAuthTests(OrleansTestClusterFixture fixture)
 
     private MetaSocketAuth Auth()
     {
-        var projections = Substitute.For<IUserProjectionsLoader>();
-        projections.Load(Arg.Any<Guid>()).Returns(Task.FromResult<IReadOnlyList<IProjectionPayload>>([]));
-
-        var factory = new UserFactory(GetSiloService<IOrleans>(), projections, NullLogger<UserFactory>.Instance);
+        var factory = new UserFactory(GetSiloService<IOrleans>(), NullLogger<UserFactory>.Instance);
         return new MetaSocketAuth(factory, NullLogger<MetaSocketAuth>.Instance);
     }
 

@@ -48,7 +48,7 @@ public class MetaSocketHandshakeTests
 
         (await reader.Read(socket, cancellation.Token)).Should().Be(WebSocketReadStatus.Close);
         ((int)socket.CloseStatus!).Should().Be(SharedBackendSocketAuth.RejectedCloseCode);
-        await world.EntryPoint.DidNotReceive().OnConnected(Arg.Any<IUserSession>(), Arg.Any<IReadOnlyList<IProjectionPayload>>());
+        await world.EntryPoint.DidNotReceive().OnConnected(Arg.Any<IUserSession>());
     }
 
     // A client before S3 put the user id into the query: it is ignored, an empty first frame is a new guest.
@@ -57,12 +57,12 @@ public class MetaSocketHandshakeTests
     {
         var world = new World();
         var queryUserId = Guid.NewGuid();
-        var created = new ResolvedUser { Id = Guid.NewGuid(), Projections = [], IssuedSecret = "issued" };
+        var created = new ResolvedUser { Id = Guid.NewGuid(), IssuedSecret = "issued" };
         world.Users.CreateGuest().Returns(created);
 
         var connected = new TaskCompletionSource<Guid>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        world.EntryPoint.OnConnected(Arg.Any<IUserSession>(), Arg.Any<IReadOnlyList<IProjectionPayload>>())
+        world.EntryPoint.OnConnected(Arg.Any<IUserSession>())
              .Returns(call => {
                  connected.TrySetResult(call.Arg<IUserSession>().UserId);
                  return Task.CompletedTask;
@@ -108,12 +108,12 @@ public class MetaSocketHandshakeTests
         ActivitySource.AddActivityListener(listener);
 
         var world = new World();
-        var created = new ResolvedUser { Id = Guid.NewGuid(), Projections = [], IssuedSecret = "issued" };
+        var created = new ResolvedUser { Id = Guid.NewGuid(), IssuedSecret = "issued" };
         world.Users.CreateGuest().Returns(created);
 
         var session = new TaskCompletionSource<IUserSession>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        world.EntryPoint.OnConnected(Arg.Any<IUserSession>(), Arg.Any<IReadOnlyList<IProjectionPayload>>())
+        world.EntryPoint.OnConnected(Arg.Any<IUserSession>())
              .Returns(call => {
                  session.TrySetResult(call.Arg<IUserSession>());
                  return Task.CompletedTask;
