@@ -56,6 +56,11 @@ public static class ProjectsSetupExtensions
             builder.Add<GameConfigsSetup>()
                    .As<ICoordinatorSetupCompleted>();
 
+            builder.AddAddressableState<ClientTelemetryDefaultState>();
+
+            builder.Add<ClientTelemetryDefaultSetup>()
+                   .As<ICoordinatorSetupCompleted>();
+
             builder.Add<ClusterBotsSetup>()
                    .As<IServiceStarted>();
 
