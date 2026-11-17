@@ -7,5 +7,9 @@
   "SoundsFolder": "Assets/Art/Audio/Sounds",
   "MusicFolder": "Assets/Art/Audio/Music",
   "FavoriteScenes": [ "Startup", "Menu", "Game_Field" ],
-  "StrippedPlayerAssemblies": [ "Unity.2D.Tilemap.Runtime", "Internal.EncodedAudio" ]
+  "StrippedPlayerAssemblies": [
+    "Unity.2D.Tilemap.Runtime", "Internal.EncodedAudio",
+    "Newtonsoft.Json", "Unity.Recorder", "Unity.Recorder.Base", "Unity.Timeline", "Unity.ScriptableBuildPipeline",
+    "UniTask.Addressables", "UniTask.DOTween", "UniTask.Linq", "UniTask.TextMeshPro"
+  ]
 }
