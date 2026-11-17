@@ -1,6 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Global.Backend;
+using Global.MatchMetrics;
+using Global.Telemetry;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -30,7 +32,7 @@ namespace Meta
         public SharedBackendSocketAuth.AuthStatus Status { get; }
     }
 
-    public class MetaBackend : IMetaBackend
+    public class MetaBackend : IMetaBackend, ITelemetrySocket, IMatchMetricsSocket
     {
         public MetaBackend(
             NetworkConnection connection,

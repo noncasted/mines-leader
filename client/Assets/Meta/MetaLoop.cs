@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Global.Telemetry;
 using Internal;
 using Shared;
 using UnityEngine;
@@ -24,7 +25,8 @@ namespace Meta
             IStartupAssetsPreload startupAssets,
             IReadOnlyList<IMetaRegistry> registries,
             IBackendProjection<SharedBackendUser.ProfileProjection> profile,
-            IClientOutdatedNotice outdatedNotice)
+            IClientOutdatedNotice outdatedNotice,
+            IClientTelemetry telemetry)
         {
             _authentication = authentication;
             _backend = backend;
@@ -33,6 +35,7 @@ namespace Meta
             _registries = registries;
             _profile = profile;
             _outdatedNotice = outdatedNotice;
+            _telemetry = telemetry;
         }
 
         // A failed first connect is tried again after this pause (the server may be restarting).
@@ -48,6 +51,7 @@ namespace Meta
         private readonly IReadOnlyList<IMetaRegistry> _registries;
         private readonly IBackendProjection<SharedBackendUser.ProfileProjection> _profile;
         private readonly IClientOutdatedNotice _outdatedNotice;
+        private readonly IClientTelemetry _telemetry;
 
         private IReadOnlyLifetime _scopeLifetime;
         private ILifetime _connectionLifetime;
@@ -106,7 +110,11 @@ namespace Meta
                     // Флаги ветки ставятся после закрытия её отрезков: за последним из них синхронно
                     // открывается меню и закрывает всю трассу.
                     if (isAuthorized == true)
+                    {
+                        // Before the flag: the first session of the telemetry (GameLoop) opens on it and refers to this record.
+                        _telemetry.SendStartupTrace();
                         _state.SetAuthorized();
+                    }
 
                     return;
                 }
@@ -239,6 +247,8 @@ namespace Meta
                 await loss.Race(profileTask);
 
                 Debug.Log("[Meta] [Loop] The meta connection is restored: " + _userId);
+                // A new connection: the id of the startup record of the previous one is not valid on it.
+                _telemetry.SendStartupTrace();
                 _reconnect = null;
                 completion.TrySetResult();
             }

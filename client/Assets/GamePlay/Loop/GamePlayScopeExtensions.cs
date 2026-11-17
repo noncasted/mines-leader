@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Cards;
+using GamePlay.Metrics;
 using GamePlay.Players;
 using GamePlay.Services;
 using GamePlay.UI;
@@ -113,6 +114,11 @@ namespace GamePlay.Loop
 
             builder.Register<GameAgentService>()
                    .As<IScopeSetup>();
+
+            builder.Register<MatchTelemetryMark>()
+                   .As<IGameStarted>();
+
+            builder.AddMatchMetrics(sessionData.SessionId);
 
             return builder.AddScene();
         }

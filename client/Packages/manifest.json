@@ -12,11 +12,13 @@
     "com.noncasted.framework.flow": "file:../../tools/framework/client/flow",
     "com.noncasted.framework.inputs": "file:../../tools/framework/client/modules/inputs",
     "com.noncasted.framework.layout": "file:../../tools/framework/client/modules/layout",
+    "com.noncasted.framework.match-metrics": "file:../../tools/framework/client/modules/match-metrics",
     "com.noncasted.framework.network": "file:../../tools/framework/client/modules/network",
     "com.noncasted.framework.platform.itch": "file:../../tools/framework/client/platforms/itch",
     "com.noncasted.framework.platform.web": "file:../../tools/framework/client/platforms/web",
     "com.noncasted.framework.publish": "file:../../tools/framework/client/modules/publish",
     "com.noncasted.framework.shared": "file:../../tools/framework/shared",
+    "com.noncasted.framework.telemetry": "file:../../tools/framework/client/modules/telemetry",
     "com.noncasted.framework.ui": "file:../../tools/framework/client/modules/ui",
     "com.shared.game": "file:../../shared/",
     "com.unity.2d.aseprite": "7.0.0",
@@ -65,6 +67,7 @@
   },
   "testables": [
     "com.noncasted.framework.core",
+    "com.noncasted.framework.match-metrics",
     "com.noncasted.framework.network"
   ]
 }
