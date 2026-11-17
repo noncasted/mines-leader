@@ -1,5 +1,8 @@
 {
- "method": "WebGL build size of mines-leader in gzip -9 (MB = 10^6).\n\nUsage: measure.py <build dir> <out stats.json> [--section before/addressables] [--meta key=value ...]\nEngine: Build/*.br unpacked with `brotli -d`, re-packed with python gzip level 9 (mtime 0); loader.js gzip -9 as is.\n.data entries are parsed (UnityWebData1.0) and each entry is gzipped separately.\nAddressables content: StreamingAssets/aa/**: bundles as is (LZ4 in the bundle) = served now (nginx gzip off),\ngzip9 = gzip -9 on top of the LZ4 bundle. Service files: catalog.bin, settings.json, AddressablesLink/link.xml (link.xml is in the build total but not downloaded by the player, so not in stages); catalog.hash -> content.other, not counted.\nBuilt-in bundles (monoscripts, unitybuiltinassets) are counted in the menu stage.\n\"served\" of totals/stages = engine in gzip9 + content as served now (LZ4 bundles and service files without transfer compression).\nStages (cumulative, engine included): menu, match - by the group lists below (ScopeExtensions + StartupAssetsPreload).",
+ "method": {
+  "before": "WebGL build size of mines-leader in gzip -9 (MB = 10^6).\n\nUsage: measure.py <build dir> <out stats.json> [--section before/addressables] [--meta key=value ...]\nEngine: Build/*.br unpacked with `brotli -d`, re-packed with python gzip level 9 (mtime 0); loader.js gzip -9 as is.\n.data entries are parsed (UnityWebData1.0) and each entry is gzipped separately.\nAddressables content: StreamingAssets/aa/**: bundles as is (LZ4 in the bundle) = served now (nginx gzip off),\ngzip9 = gzip -9 on top of the LZ4 bundle. Service files: catalog.bin, settings.json, AddressablesLink/link.xml (link.xml is in the build total but not downloaded by the player, so not in stages); catalog.hash -> content.other, not counted.\nBuilt-in bundles (monoscripts, unitybuiltinassets) are counted in the menu stage.\n\"served\" of totals/stages = engine in gzip9 + content as served now (LZ4 bundles and service files without transfer compression).\nStages (cumulative, engine included): menu, match - by the group lists below (ScopeExtensions + StartupAssetsPreload).",
+  "after": "WebGL build size of mines-leader with engine content bundles (framework 0.9.0), gzip -9 (MB = 10^6).\n\nUsage: measure_content.py <after build dir> <before build dir> <stats.json> [--meta key=value ...]\nWrites the section `after` of stats.json (keeps `before`) and `after.comparison` (before vs after, gzip9 and prod).\nEngine: Build/*.br unpacked with `brotli -d`, re-packed with python gzip level 9 (mtime 0); loader.js gzip -9 as is.\n.data entries (UnityWebData1.0) gzipped separately; preloaded bundles = entries /vfs_streamingassets/Content/*.bundle.\nCatalog: Resources/Content/catalog.json inside data.unity3d (UnityFS, LZ4HC blocks, own unpacker).\nContent: StreamingAssets/Content/*.bundle.gz as is (gzip9 = served), *.bundle (Music) as is.\nprod = as served by nginx (gzip off): engine .br as is, loader.js raw; before: aa bundles LZ4 as is + catalog.bin + settings.json;\nafter: .gz and Music as is.\nStages (cumulative, engine included): menu = GamePlayViews + Menu + SharedMenu with dependencies (Main, SharedCommon in .data),\nwith and without Music (Music is requested after start, the menu does not wait for it); match = menu + GamePlay."
+ },
  "before": {
   "addressables": {
    "build": {
@@ -300,6 +303,430 @@
      "gzip9": 6.997,
      "served": 7.163
     }
+   }
+  }
+ },
+ "after": {
+  "build": {
+   "branch": "framework-0.9.0",
+   "commit": "42040995",
+   "framework": "10762143",
+   "unity": "7000.0.0a10",
+   "content": "engine AssetBundles (framework 0.9.0): 6 gzip bundles + Music, Main and SharedCommon preloaded in .data",
+   "command": "tools/scripts/deploy-client.sh web --no-deploy",
+   "dir": "/var/tmp/unity-copies/mines-leader/framework-0-9-0/builds/web-2026-11-17-deploy"
+  },
+  "engine": {
+   "loader.js": {
+    "file": "1d0a47ced4f3426ff43e38e8ce2d1c60.loader.js",
+    "raw": 28175,
+    "gzip9": 9854,
+    "prod": 28175
+   },
+   "framework.js": {
+    "file": "4d8af30860765586a508da8c8abc5fee.framework.js.br",
+    "raw": 332444,
+    "gzip9": 76826,
+    "prod": 65780
+   },
+   "wasm": {
+    "file": "7a44363cb524c4d56b4c44328bc94e50.wasm.br",
+    "raw": 10246350,
+    "gzip9": 3866702,
+    "prod": 2853864
+   },
+   "data": {
+    "file": "e53c24aa615712fb42c1ad4af7049c00.data.br",
+    "raw": 3846296,
+    "gzip9": 1419999,
+    "prod": 1142684,
+    "entries": {
+     "RuntimeInitializeOnLoads.json": {
+      "raw": 3881,
+      "gzip9": 623
+     },
+     "ScriptingAssemblies.json": {
+      "raw": 4911,
+      "gzip9": 1094
+     },
+     "data.unity3d": {
+      "raw": 308848,
+      "gzip9": 251159
+     },
+     "boot.config": {
+      "raw": 114,
+      "gzip9": 117
+     },
+     "/vfs_streamingassets/Content/Main.8cf79b07300e7bca35da20de0a209ab8.bundle": {
+      "raw": 114528,
+      "gzip9": 93266
+     },
+     "/vfs_streamingassets/Content/SharedCommon.901d5736bd66b57548e2ad5c55677b2d.bundle": {
+      "raw": 23808,
+      "gzip9": 17418
+     },
+     "Il2CppData/Metadata/global-metadata.dat": {
+      "raw": 2925116,
+      "gzip9": 920686
+     },
+     "Resources/unity default resources": {
+      "raw": 464672,
+      "gzip9": 135707
+     }
+    }
+   }
+  },
+  "engineGzip9": 5373381,
+  "engineProd": 4090503,
+  "preloaded": {
+   "bundles": [
+    "Main",
+    "SharedCommon"
+   ],
+   "raw": 138336,
+   "gzip9": 110684
+  },
+  "engineGzip9WithoutContent": 5262697,
+  "dataGzip9WithoutContent": 1309315,
+  "catalog": {
+   "in": "data.unity3d",
+   "jsonChars": 10205,
+   "bundles": 7,
+   "objects": 21,
+   "scenes": 6
+  },
+  "content": {
+   "GamePlay": {
+    "dependencies": [
+     "Main",
+     "SharedCommon",
+     "SharedMenu"
+    ],
+    "preloaded": false,
+    "gzip": true,
+    "files": {
+     "GamePlay.4d45b8d64b52f0ac1d40beb05f32b689.bundle": {
+      "where": "StreamingAssets/Content/GamePlay.4d45b8d64b52f0ac1d40beb05f32b689.bundle.gz",
+      "raw": 317296,
+      "gzip9": 305912,
+      "prod": 305912,
+      "blocks": [
+       "lz4hc"
+      ]
+     },
+     "GamePlay.scenes.f4e7d834f71cfbb061d32eae2d9481cf.bundle": {
+      "where": "StreamingAssets/Content/GamePlay.scenes.f4e7d834f71cfbb061d32eae2d9481cf.bundle.gz",
+      "raw": 116336,
+      "gzip9": 83302,
+      "prod": 83302,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 389214,
+    "raw": 433632
+   },
+   "GamePlayViews": {
+    "dependencies": [
+     "Main",
+     "SharedCommon",
+     "SharedMenu"
+    ],
+    "preloaded": false,
+    "gzip": true,
+    "files": {
+     "GamePlayViews.4896a1efa07f7f1cb52010b6dbbbfdff.bundle": {
+      "where": "StreamingAssets/Content/GamePlayViews.4896a1efa07f7f1cb52010b6dbbbfdff.bundle.gz",
+      "raw": 44560,
+      "gzip9": 38442,
+      "prod": 38442,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 38442,
+    "raw": 44560
+   },
+   "Main": {
+    "dependencies": [
+     "SharedCommon"
+    ],
+    "preloaded": true,
+    "gzip": false,
+    "files": {
+     "Main.8cf79b07300e7bca35da20de0a209ab8.bundle": {
+      "where": ".data",
+      "raw": 114528,
+      "gzip9": 93266,
+      "prod": null,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 93266,
+    "raw": 114528
+   },
+   "Menu": {
+    "dependencies": [
+     "Main",
+     "SharedCommon",
+     "SharedMenu"
+    ],
+    "preloaded": false,
+    "gzip": true,
+    "files": {
+     "Menu.5487b7a5eb8c293d9775f2e7a2a2762b.bundle": {
+      "where": "StreamingAssets/Content/Menu.5487b7a5eb8c293d9775f2e7a2a2762b.bundle.gz",
+      "raw": 14640,
+      "gzip9": 12649,
+      "prod": 12649,
+      "blocks": [
+       "lz4hc"
+      ]
+     },
+     "Menu.scenes.77202d08410c5d49138e71f4e6d8c645.bundle": {
+      "where": "StreamingAssets/Content/Menu.scenes.77202d08410c5d49138e71f4e6d8c645.bundle.gz",
+      "raw": 32144,
+      "gzip9": 24960,
+      "prod": 24960,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 37609,
+    "raw": 46784
+   },
+   "Music": {
+    "dependencies": [],
+    "preloaded": false,
+    "gzip": false,
+    "files": {
+     "Music.21c99bf4f7ebc47385f645e2e40a4c85.bundle": {
+      "where": "StreamingAssets/Content/Music.21c99bf4f7ebc47385f645e2e40a4c85.bundle",
+      "raw": 489008,
+      "gzip9": 489008,
+      "prod": 489008,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 489008,
+    "raw": 489008
+   },
+   "SharedCommon": {
+    "dependencies": [],
+    "preloaded": true,
+    "gzip": false,
+    "files": {
+     "SharedCommon.901d5736bd66b57548e2ad5c55677b2d.bundle": {
+      "where": ".data",
+      "raw": 23808,
+      "gzip9": 17418,
+      "prod": null,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 17418,
+    "raw": 23808
+   },
+   "SharedMenu": {
+    "dependencies": [
+     "Main",
+     "SharedCommon"
+    ],
+    "preloaded": false,
+    "gzip": true,
+    "files": {
+     "SharedMenu.c81cf1edf127c05f04287b30a142d7a7.bundle": {
+      "where": "StreamingAssets/Content/SharedMenu.c81cf1edf127c05f04287b30a142d7a7.bundle.gz",
+      "raw": 34864,
+      "gzip9": 27378,
+      "prod": 27378,
+      "blocks": [
+       "lz4hc"
+      ]
+     }
+    },
+    "gzip9": 27378,
+    "raw": 34864
+   }
+  },
+  "stages": {
+   "menu": {
+    "gzip9": 5476810,
+    "prod": 4193932,
+    "contentRequests": 4,
+    "bundles": [
+     "GamePlayViews",
+     "Menu",
+     "SharedMenu"
+    ]
+   },
+   "menuWithMusic": {
+    "gzip9": 5965818,
+    "prod": 4682940,
+    "contentRequests": 5,
+    "bundles": [
+     "GamePlayViews",
+     "Menu",
+     "SharedMenu",
+     "Music"
+    ]
+   },
+   "matchWithoutMusic": {
+    "gzip9": 5866024,
+    "prod": 4583146,
+    "contentRequests": 6,
+    "bundles": [
+     "GamePlayViews",
+     "Menu",
+     "SharedMenu",
+     "GamePlay"
+    ]
+   },
+   "match": {
+    "gzip9": 6355032,
+    "prod": 5072154,
+    "contentRequests": 7,
+    "bundles": [
+     "GamePlayViews",
+     "Menu",
+     "SharedMenu",
+     "Music",
+     "GamePlay"
+    ]
+   },
+   "build": {
+    "gzip9": 6355032,
+    "prod": 5072154,
+    "contentRequests": 7,
+    "bundles": [
+     "GamePlay",
+     "GamePlayViews",
+     "Menu",
+     "Music",
+     "SharedMenu"
+    ]
+   }
+  },
+  "scriptingAssemblies": {
+   "removed": [
+    "Unity.Addressables.dll",
+    "Unity.ResourceManager.dll"
+   ],
+   "added": [
+    "Framework.Common.dll",
+    "Framework.Session.Core.dll",
+    "Internal.Animations.dll",
+    "Internal.Layout.dll",
+    "Internal.UGUI.dll"
+   ]
+  },
+  "comparison": {
+   "before": {
+    "engine": {
+     "gzip9": 5607109,
+     "prod": 4244194,
+     "parts": {
+      "loader.js": {
+       "gzip9": 9852,
+       "prod": 28175
+      },
+      "data": {
+       "gzip9": 1394769,
+       "prod": 1110913
+      },
+      "wasm": {
+       "gzip9": 4125836,
+       "prod": 3039358
+      },
+      "framework.js": {
+       "gzip9": 76652,
+       "prod": 65748
+      }
+     }
+    },
+    "stages": {
+     "menu": {
+      "gzip9": 6039174,
+      "prod": 4778385,
+      "contentRequests": 22,
+      "note": "without Audio_Global (music + 2 UI sounds)"
+     },
+     "menuWithMusic": {
+      "gzip9": 6545192,
+      "prod": 5284881,
+      "contentRequests": 23
+     },
+     "matchWithoutMusic": {
+      "gzip9": 6490893,
+      "prod": 5293921,
+      "contentRequests": 28
+     },
+     "match": {
+      "gzip9": 6996911,
+      "prod": 5800417,
+      "contentRequests": 29
+     },
+     "build": {
+      "gzip9": 6996911,
+      "prod": 5800417,
+      "contentRequests": 29,
+      "note": "without link.xml (not downloaded) and catalog.hash"
+     }
+    },
+    "contentRequestsNote": "menu: groups + monoscripts/unitybuiltinassets + catalog.bin + settings.json"
+   },
+   "beforeStagesMB": {
+    "menu": {
+     "gzip9": 6.039,
+     "prod": 4.778
+    },
+    "menuWithMusic": {
+     "gzip9": 6.545,
+     "prod": 5.285
+    },
+    "matchWithoutMusic": {
+     "gzip9": 6.491,
+     "prod": 5.294
+    },
+    "match": {
+     "gzip9": 6.997,
+     "prod": 5.8
+    },
+    "build": {
+     "gzip9": 6.997,
+     "prod": 5.8
+    }
+   }
+  },
+  "stagesMB": {
+   "menu": {
+    "gzip9": 5.477,
+    "prod": 4.194
+   },
+   "menuWithMusic": {
+    "gzip9": 5.966,
+    "prod": 4.683
+   },
+   "matchWithoutMusic": {
+    "gzip9": 5.866,
+    "prod": 4.583
+   },
+   "match": {
+    "gzip9": 6.355,
+    "prod": 5.072
+   },
+   "build": {
+    "gzip9": 6.355,
+    "prod": 5.072
    }
   }
  }
