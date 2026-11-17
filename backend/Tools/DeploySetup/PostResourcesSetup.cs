@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Microsoft.Extensions.Configuration;
 
 namespace DeploySetup;
@@ -31,7 +32,7 @@ public static class PostResourcesSetup
             catch (Exception ex)
             {
                 failures.Add(ex);
-                Console.WriteLine($"[DeploySetup] Setup attempt {attempt}/{maxAttempts} failed: {ex.Message}");
+                System.Console.WriteLine($"[DeploySetup] Setup attempt {attempt}/{maxAttempts} failed: {ex.Message}");
 
                 if (attempt < maxAttempts)
                     await Task.Delay(retryDelay);
@@ -51,7 +52,7 @@ public static class PostResourcesSetup
         var requiresCleanup = localSection.GetSection("ClearStates").Get<bool>() ||
                               Environment.GetEnvironmentVariable("ClearStates") == "TRUE";
 
-        Console.WriteLine(
+        System.Console.WriteLine(
             $"[DeploySetup] Setup attempt {attempt}/{MaxAttempts} (DropStates={requiresDrop}, ClearStates={requiresCleanup})");
 
         if (requiresDrop)
@@ -61,11 +62,12 @@ public static class PostResourcesSetup
         await StatesSetup.Run(configuration);
         await SideEffectsSetup.Run(configuration);
         await BenchmarkSetup.Run(configuration);
-        await AuditLogSetup.Run(configuration);
+        await using (var connection = await configuration.GetConnection())
+            await global::Console.AuditLogTable.Create(connection);
 
         if (requiresCleanup)
             await StatesCleanup.Run(configuration);
 
-        Console.WriteLine("[DeploySetup] Post-setup completed successfully");
+        System.Console.WriteLine("[DeploySetup] Post-setup completed successfully");
     }
 }

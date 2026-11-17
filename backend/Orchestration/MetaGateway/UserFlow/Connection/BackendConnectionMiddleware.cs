@@ -151,8 +151,10 @@ public class BackendConnectionMiddleware
 
         try
         {
+            // OnConnected advises the dispatcher on the reader before its first await: a run without a handler throws.
+            var connected = _entryPoint.OnConnected(userSession, resolvedUser.Projections);
             connection.Run().NoAwait();
-            await _entryPoint.OnConnected(userSession, resolvedUser.Projections);
+            await connected;
             userSession.Lifetime.Listen(() => completion.TrySetResult());
 
             await completion.Task;
@@ -166,6 +168,9 @@ public class BackendConnectionMiddleware
         finally
         {
             lifetime.Terminate();
+
+            // The middleware returns only after the socket is closed, otherwise the close frame is lost with it.
+            await connection.Closed;
 
             _logger.LogInformation("[Meta] User disconnected: {Connection} {UserId}",
                 context.Connection.Id,
