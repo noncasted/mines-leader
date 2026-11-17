@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Global.Telemetry;
@@ -150,10 +150,10 @@ namespace Meta
         {
             Debug.Log("[Meta] [Loop] Starting meta connection");
 
-            // Ветка идёт параллельно основной загрузке, поэтому её отрезок лежит в корне трассы
-            // и на стек не встаёт: иначе этапы меню вложились бы в ожидание сокета. Текущим он
-            // делается только на синхронных кусках, где вложенные замеры успевают его забрать.
-            using var stage = GameProfiler.Detached("Meta connection");
+            // The branch runs in parallel with the whole start: a root of the trace of its own (not under the Meta stage) and
+            // off the stack, or the stages of the menu would nest into the wait for the socket. It is made current only on the
+            // synchronous parts, where the nested records take it.
+            using var stage = GameProfiler.Background("Meta connection");
 
             // The credentials are the first frame of the socket (S3): the saved guest of this backend environment
             // or nothing (a new guest).
