@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 
 namespace Internal
 {
@@ -38,12 +38,20 @@ namespace Internal
             // Ветка идёт параллельно всей загрузке, поэтому лежит в корне трассы и на стек не встаёт.
             using (var stage = GameProfiler.Detached("Startup assets"))
             {
-                await UniTask.WhenAll(
-                    Retain(stage, Sprites.CardsIcons),
-                    Retain(stage, Sprites.CardBuffs),
-                    Retain(stage, Sprites.MenuPlay),
-                    Retain(stage, Sprites.Portraits),
-                    stage.Measure($"Audio: {GlobalAudio.Group.Name}", GlobalAudio.Group.Retain()));
+                UniTask loads;
+
+                // The loads of the bundles are created synchronously: under the ambient they nest into the branch, not the stage.
+                using (GameProfiler.Ambient(stage))
+                {
+                    loads = UniTask.WhenAll(
+                        Retain(stage, Sprites.CardsIcons),
+                        Retain(stage, Sprites.CardBuffs),
+                        Retain(stage, Sprites.MenuPlay),
+                        Retain(stage, Sprites.Portraits),
+                        stage.Measure($"Audio: {GlobalAudio.Group.Name}", GlobalAudio.Group.Retain()));
+                }
+
+                await loads;
             }
 
             // Флаг ставится после закрытия отрезка: за ним синхронно идут реестры меты, а за ними
@@ -55,8 +63,17 @@ namespace Internal
         // the meta waits for.
         private async UniTask LoadMusic()
         {
-            using (var stage = GameProfiler.Detached("Startup music"))
-                await stage.Measure($"Audio: {MusicAudio.Group.Name}", MusicAudio.Group.Retain());
+            // Nothing waits for it (the menu plays it when it is ready): a root of the trace of its own, not a part of the
+            // start; the load of the bundle is created under its ambient to nest into it.
+            using (var stage = GameProfiler.Background("Music"))
+            {
+                UniTask retain;
+
+                using (GameProfiler.Ambient(stage))
+                    retain = stage.Measure($"Audio: {MusicAudio.Group.Name}", MusicAudio.Group.Retain());
+
+                await retain;
+            }
 
             _isMusicLoaded.Set(true);
         }

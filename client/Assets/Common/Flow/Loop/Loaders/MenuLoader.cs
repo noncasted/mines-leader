@@ -25,10 +25,8 @@ namespace Flow.Loop
             if (GameProfiler.IsRunning == false)
                 GameProfiler.Begin("Menu");
 
-            ILoadedScope scope;
-
-            using (GameProfiler.Stage("Menu load"))
-                scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
+            // The stage of the trace is "Menu", opened by LoadMenu itself: a stage here would be a second root with the same time.
+            var scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
 
             // Трасса закрывается в MenuLoop: меню ещё дожидается данных меты, которые грузятся
             // параллельно, и только потом снимает экран загрузки.
