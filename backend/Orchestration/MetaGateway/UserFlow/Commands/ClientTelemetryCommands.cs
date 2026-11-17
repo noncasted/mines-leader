@@ -1,4 +1,4 @@
-using Game.ClientTelemetry;
+﻿using Game.ClientTelemetry;
 using MetaGateway.UserFlow.Connection;
 using Shared;
 
@@ -63,7 +63,7 @@ public class ClientTelemetryCommands
 
         protected override async Task<INetworkContext> Execute(IUserSession session, SharedClientTelemetry.StartupTrace request)
         {
-            return await _telemetry.Of(session.Lifetime).AcceptStartup(request);
+            return await _telemetry.Of(session.Lifetime).AcceptStartup(request, session.TraceId);
         }
     }
 }

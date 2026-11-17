@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Common.Network;
 using DeploySetup;
 using FluentAssertions;
@@ -151,6 +152,7 @@ public class ClientTelemetryCommandsTests
     {
         public IConnection Connection => throw new InvalidOperationException("The commands of the telemetry do not use the connection");
         public Guid UserId => throw new InvalidOperationException("The telemetry knows no user");
+        public ActivityTraceId TraceId => default;
         public IReadOnlyLifetime Lifetime { get; } = new Lifetime();
     }
 }

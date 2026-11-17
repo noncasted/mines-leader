@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.WebSockets;
 using Cluster.State;
 using Common.Extensions;
@@ -81,6 +82,21 @@ public class BackendConnectionMiddleware
             return;
         }
 
+        // The root span ends after OnConnected; End on the way out covers the refusals and the failures.
+        var trace = MetaConnectTrace.Start();
+
+        try
+        {
+            await Serve(context, webSocket, trace);
+        }
+        finally
+        {
+            trace.End();
+        }
+    }
+
+    private async Task Serve(HttpContext context, WebSocket webSocket, MetaConnectTrace trace)
+    {
         // A query user id (a client before S3) is not looked at: the user comes only from the first frame.
         var handle = new ConnectionOneTimeHandle(webSocket);
         MetaSocketAuthResult result;
@@ -92,7 +108,8 @@ public class BackendConnectionMiddleware
             try
             {
                 using var timeout = new CancellationTokenSource(HandshakeTimeout);
-                request = await handle.ReadRequest<SharedBackendSocketAuth.Request>(timeout.Token);
+                request = await trace.Phase("Meta read request",
+                    _ => handle.ReadRequest<SharedBackendSocketAuth.Request>(timeout.Token));
             }
             catch (Exception e)
             {
@@ -104,7 +121,7 @@ public class BackendConnectionMiddleware
 
             try
             {
-                result = await _auth.Authenticate(request);
+                result = await trace.Phase("Meta auth", phase => Authenticate(request, phase));
             }
             catch (Exception e)
             {
@@ -115,7 +132,7 @@ public class BackendConnectionMiddleware
                 return;
             }
 
-            await handle.SendResponse(result.Response);
+            await trace.Phase("Meta send response", () => handle.SendResponse(result.Response));
         }
         finally
         {
@@ -125,6 +142,7 @@ public class BackendConnectionMiddleware
         if (result.User == null)
         {
             _logger.LogWarning("[Meta] Auth rejected: {Status} {Connection}", result.Response.Status, context.Connection.Id);
+            trace.Fail($"Auth rejected: {result.Response.Status}");
 
             await Close(webSocket,
                 (WebSocketCloseStatus)SharedBackendSocketAuth.RejectedCloseCode,
@@ -146,15 +164,21 @@ public class BackendConnectionMiddleware
         var userSession = new UserSession
         {
             UserId = userId,
-            Connection = connection
+            Connection = connection,
+            TraceId = trace.TraceId
         };
 
         try
         {
-            // OnConnected advises the dispatcher on the reader before its first await: a run without a handler throws.
-            var connected = _entryPoint.OnConnected(userSession, resolvedUser.Projections);
-            connection.Run().NoAwait();
-            await connected;
+            await trace.Phase("Meta projections", async () => {
+                // OnConnected advises the dispatcher on the reader before its first await: a run without a handler
+                // throws.
+                var connected = _entryPoint.OnConnected(userSession, resolvedUser.Projections);
+                trace.Detached(() => connection.Run().NoAwait());
+                await connected;
+            });
+
+            trace.End();
             userSession.Lifetime.Listen(() => completion.TrySetResult());
 
             await completion.Task;
@@ -176,7 +200,19 @@ public class BackendConnectionMiddleware
                 context.Connection.Id,
                 userId);
         }
+    }
 
+    private async Task<MetaSocketAuthResult> Authenticate(SharedBackendSocketAuth.Request request, Activity? phase)
+    {
+        phase?.SetTag("meta.auth.guest", request.GuestId == Guid.Empty ? "new" : "known");
+
+        var result = await _auth.Authenticate(request);
+        phase?.SetTag("meta.auth.status", result.Response.Status.ToString());
+
+        if (result.User == null)
+            phase?.SetStatus(ActivityStatusCode.Error, result.Response.Status.ToString());
+
+        return result;
     }
 
     private async Task Close(WebSocket webSocket, WebSocketCloseStatus status, string reason, HttpContext context)
