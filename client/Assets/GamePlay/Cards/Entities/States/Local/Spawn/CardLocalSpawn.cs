@@ -52,25 +52,28 @@ namespace GamePlay.Cards
 
             var lifetime = _stateLifetime.OccupyLifetime();
 
-            await _updater.RunUpdateAction(lifetime, options.Time, delta => {
-                var moveFactor = moveCurve.StepForward(delta);
-                var heightFactor = heightCurve.StepForward(delta);
-                var rotationFactor = rotationCurve.StepForward(delta);
+            // The action throws OperationCanceledException when the state lifetime ends: another state took the card
+            // over, or the card is torn down (scope disposal). The card stops spawning either way, and such a card is
+            // not moved to Idle.
+            try
+            {
+                await _updater.RunUpdateAction(lifetime, options.Time, delta => {
+                    var moveFactor = moveCurve.StepForward(delta);
+                    var heightFactor = heightCurve.StepForward(delta);
+                    var rotationFactor = rotationCurve.StepForward(delta);
 
-                var position = Vector2.Lerp(startPosition, positionHandle.SupposedPosition, moveFactor);
-                position.y += heightFactor * options.AddHeight;
+                    var position = Vector2.Lerp(startPosition, positionHandle.SupposedPosition, moveFactor);
+                    position.y += heightFactor * options.AddHeight;
 
-                var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
-                _transform.SetPosition(position);
-                _transform.SetRotation(rotation);
-            });
-
-            _localCard.SetSpawning(false);
-
-            // The action also completes when the state lifetime ends: another state took the card over, or the card
-            // is torn down (scope disposal). The finished spawn must not move such a card to Idle.
-            if (lifetime.IsTerminated == true)
-                return;
+                    var rotation = Mathf.Lerp(startRotation, positionHandle.SupposedRotation, rotationFactor);
+                    _transform.SetPosition(position);
+                    _transform.SetRotation(rotation);
+                });
+            }
+            finally
+            {
+                _localCard.SetSpawning(false);
+            }
 
             _idle.Enter();
         }
